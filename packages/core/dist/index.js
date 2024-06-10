@@ -309,8 +309,7 @@ var VisibleLayer = class extends AbstractLayer {
     return this.container;
   }
   onDestroy() {
-    if (this.image)
-      this.image.remove();
+    if (this.image) this.image.remove();
     this.container.remove();
   }
 };

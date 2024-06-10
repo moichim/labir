@@ -1,0 +1,5 @@
+{
+  "index": "Introduction",
+  "core": "@labir/core",
+  "react-bridge": "@labir/react-bridge"
+}

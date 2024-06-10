@@ -1,0 +1,26 @@
+# List of properties
+
+#### ThermalManager
+
+| Property   | Data type of `value` | Setter | Description |
+| :----- | :---- | :----- | :------ |
+|  palette   |  `string` | `setPalette` | Palette is shared across all registries. |
+
+#### ThermalRegistry
+
+| Property   | Data type of `value` | Setter | Description |
+| :----- | :---- | :----- | :------ |
+|  minmax   |  `ThermalMinmaxOrUndefined` | - | Calculated from all child groups. |
+|  range   |  `ThermalRangeOrUndefined` | `imposeRange()` | Range is projected into all child groups and instances. |
+|  opacity   |  `number` | `imposeOpacity()` | Opacity id imposed into all child groups and instances. |
+|  histogram   |  `ThermalStatistics[]` | - | Calculated from child groups and instances. |
+|  loading   |  `number` | - | Reflects the current loading state. |
+|  Groups   |  `GroupState` | `addOrRemoveGroup()` |  |
+
+#### ThermalGroup
+
+| Property   | Data type of `value` | Setter | Description |
+| :----- | :---- | :----- | :------ |
+|  minmax   |  `ThermalMinmaxOrUndefined` | - | Calculated from all child instances. |
+|  cursorPosition   |  `ThermalCursorPosition` | - | Synces the cursor position across all group's instances. |
+|  instances   |  `number` | `ThermalFileInstance[]` |  |

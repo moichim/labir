@@ -1,0 +1,158 @@
+# Concept of properties
+
+Properties are used in `ThermalManager`, `ThermalRegistry`, `ThermalGroup` of `ThermalFileInstance` like this:
+
+```javascript filename="thermalRegistry.ts"
+
+export class ThermalRegistry {
+
+    // ...
+
+    public readonly opacity = new OpacityDrive(this, 1);
+    public readonly minmax = new MinmaxRegistryProperty(this, undefined);
+    public readonly loading = new LoadingState(this, false);
+    public readonly range = new RangeDriver(this, undefined);
+    public readonly histogram = new HistogramState(this, []);
+
+    // ...
+
+}
+
+```
+
+Properties of core elements are stored in a way that allows observing & manipulation from the outside.
+
+The properties allways have:
+- a given type `T`
+- a public value `value: T`
+- a private setter `set( val: T )` that needs to be used by all public setters
+- any number of public setters (implemented per property)
+- a method for adding listeners `addListener( key: string, ( val: T ) => void )`
+- additional public properties with additional data
+
+## AbstractProperty
+
+Properties are based on [AbstractProperty](https://github.com/moichim/labir-core/blob/main/src/properties/abstractProperty.ts). Principle is the folllowing:
+
+```javascript
+/** A common basis for all observable properties */
+export abstract class AbstractProperty<
+    ValueType extends PropertyListenersTypes, // Type of the value
+    ParentType extends IBaseProperty // The class to which the property is assigned
+> {
+
+    public constructor(
+        public readonly parent: ParentType,
+        public readonly _initial: ValueType
+    ) {
+        this._value = this.validate(this._initial);
+    }
+
+    // Internal value
+    protected _value: ValueType;
+
+    // Public value is readonly
+    public get value() {
+        return this._value;
+    };
+
+    // Protected setter calls all necessary effects and triggers event listeners
+    protected set value(
+        value: ValueType
+    ) {
+        this._value = this.validate(value);
+        this.afterSetEffect(this._value);
+        Object.values(this._listeners).forEach(listener => listener(this._value));
+    }
+
+
+    // Abstract methods
+
+    /** Implement the validation method. */
+    protected abstract validate(value: ValueType): ValueType;
+
+    /** implement the sideeffects method. */
+    protected abstract afterSetEffect(value: ValueType): void
+
+
+    // Listeners management
+
+    protected _listeners: {
+        [index: string]: PropertyListenerFn<ValueType>
+    } = {}
+
+    addListener(
+        id: string,
+        listener: PropertyListenerFn<ValueType>
+    ) {
+
+        if (id in this._listeners) {
+            delete this._listeners[id];
+        }
+        this._listeners[id] = listener;
+    }
+
+    removeListener(
+        id: string
+    ) {
+        if (id in this._listeners) {
+            delete this._listeners[id];
+        }
+    }
+
+
+```
+
+## Example of implementation
+
+```javascript
+
+export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > {
+
+    /** The main functionality is handled by the abstract class. Here. we write only the missing parts. */
+
+    /** The public setter */
+    public setPalette( key: PaletteId ) {
+        // Only store value here. The propagation of new value is in `afterSetEffect`
+        this.value = key;
+    }
+
+    /** What to do after new value is set */
+    protected afterSetEffect(value: PaletteId) {
+
+        // impose the new value to all child instances
+        this.parent.forEveryRegistry( registry => {
+
+            registry.forEveryGroup( group => group
+                .instances
+                .forEveryInstance( instance => instance
+                    .recievePalette( value )        
+                ) 
+            );
+
+        } );
+            
+    }
+
+    /** Expose all available palettes */
+    public get availablePalettes() {
+        return ThermalPalettes;
+    }
+
+    /** Expose the current palette object (internal value is string, so here are full data) */
+    public get currentPalette() {
+        return this.availablePalettes[ this.value ];
+    }
+
+    /** We do not validate the value in this case */
+    protected validate(value: PaletteId): PaletteId {
+        return value;
+    }
+
+
+}
+```
+
+## Source code
+
+See [github repository](https://github.com/moichim/labir-core/tree/main/src/properties)
