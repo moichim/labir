@@ -1,7 +1,29 @@
-import { InputProps, ButtonProps } from '@headlessui/react';
 import * as _labir_core from '@labir/core';
-import { ThermalRegistry, ThermalFileInstance, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrundefined, ThermalMinmaxOrUndefined } from '@labir/core';
+import { ThermalRegistry, ThermalFileInstance, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrundefined, ThermalPaletteType, ThermalMinmaxOrUndefined } from '@labir/core';
 import React, { MouseEvent } from 'react';
+import { InputProps, ButtonProps } from '@headlessui/react';
+
+type ThermalDropinProps = {
+    registry: ThermalRegistry;
+    groupId: string;
+};
+declare const ThermalDropin: React.FC<ThermalDropinProps>;
+
+declare enum Orientation {
+    HORIZONTAL = "horizontal",
+    VERTICAL = "vertical"
+}
+
+type RegistryHistogramProps = {
+    orientation?: Orientation;
+    registry: ThermalRegistry;
+    sizeInPx?: number;
+    borderColor?: React.CSSProperties["borderColor"];
+    borderWidthInPx?: React.CSSProperties["borderWidth"];
+    barBackground?: React.CSSProperties["backgroundColor"];
+    background?: React.CSSProperties["backgroundColor"];
+};
+declare const RegistryHistogram: React.FC<RegistryHistogramProps>;
 
 type HistogramResolutionInputHeadlessProps = InputProps & {
     registry: ThermalRegistry;
@@ -30,26 +52,8 @@ type OpacityInputHeadlessProps = InputProps & {
 };
 declare const OpacityInputHeadless: React.FC<OpacityInputHeadlessProps>;
 
-/** @jsx jsx */
-
-type PaletteMenuProps = {
-    onClick: () => void;
-    focus: boolean;
-    disabled: boolean;
-    close: () => void;
-    palette: ThermalPaletteType;
-    active: boolean;
-};
-
-type PaletteDropdownHeadless = {
-    renderItem?: React.FC<PaletteMenuProps>;
-};
+type PaletteDropdownHeadless = {};
 declare const PaletteDropdownHeadless: React.FC<PaletteDropdownHeadless>;
-
-declare enum Orientation {
-    HORIZONTAL = "horizontal",
-    VERTICAL = "vertical"
-}
 
 type RangePropsExposed = {
     registry: ThermalRegistry;
@@ -185,4 +189,18 @@ declare const useThermalRegistryMinmaxState: (registry: ThermalRegistry, purpose
     value: ThermalMinmaxOrUndefined;
 };
 
-export { HistogramResolutionInputHeadless, OpacityInputHeadless, Orientation, PaletteDropdownHeadless, RangeButtonAutoHeadless, RangeButtonFullHeadless, RangeHeadless, ThermalInstance, ThermalProvider, useThermalContext, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+/**
+ * Shorthand hook that takes care of an isolated single file registry.
+ * Creates:
+ * - a registry named after the URL + UUID
+ * - one default group inside it
+ * - extracts the instance once it is ready
+ * Upon unmount and upon URL change, remove the entire registry
+ */
+declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) => {
+    registry: _labir_core.ThermalRegistry;
+    group: _labir_core.ThermalGroup;
+    instance: ThermalFileInstance | undefined;
+};
+
+export { HistogramResolutionInputHeadless, OpacityInputHeadless, Orientation, PaletteDropdownHeadless, RangeButtonAutoHeadless, RangeButtonFullHeadless, RangeHeadless, RegistryHistogram, ThermalDropin, ThermalInstance, ThermalProvider, useSingleFileRegistry, useThermalContext, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

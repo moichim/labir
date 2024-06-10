@@ -1,3 +1,5 @@
+import { ThermalDropin } from "./components/dropin/ThermalDropin";
+import { RegistryHistogram } from "./components/histogram/registryHistogram";
 import { HistogramResolutionInputHeadless } from "./components/histogramResolutionInput/histogramResolutionInputHeadless";
 import { ThermalInstance } from "./components/instance/thermalInstance";
 import { OpacityInputHeadless } from "./components/opacity/opacityInputHeadless";
@@ -18,10 +20,14 @@ import { useThermalGroupMinmaxState } from "./properties/states/useThermalGroupM
 import { useThermalRegistryHistogramState } from "./properties/states/useThermalRegistryHistogramState";
 import { useThermalRegistryLoadingState } from "./properties/states/useThermalRegistryLoadingState";
 import { useThermalRegistryMinmaxState } from "./properties/states/useThermalRegistryMinmaxState";
+import { useSingleFileRegistry } from "./shorthands/useSingleFileRegistry";
 import { Orientation } from "./utilities/orientation";
 
 
 export {
+    RegistryHistogram,
+    ThermalDropin,
+    useSingleFileRegistry,
     ThermalInstance,
     Orientation,
     OpacityInputHeadless,

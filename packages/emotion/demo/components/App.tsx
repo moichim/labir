@@ -1,27 +1,34 @@
-import { useEffect, useState } from "react";
+/** @jsx jsx */
+import { jsx, css, Global, ClassNames } from '@emotion/react'
+
 import {
+  HistogramResolutionInputHeadless,
+  OpacityInputHeadless,
+  Orientation,
+  PaletteDropdownHeadless,
+  RangeButtonAutoHeadless,
+  RangeButtonFullHeadless,
+  RangeHeadless,
+  RegistryHistogram,
+  ThermalDropin,
+  ThermalInstance,
+  useSingleFileRegistry,
   useThermalGroupInstancesState,
+  useThermalRegistry,
+  useThermalRegistryOpacityDrive,
   useThermalRegistryRangeDrive,
-} from "../../src";
-import { ThermalDropin } from "../../src/components/dropin/ThermalDropin";
-import { RegistryHistogram } from "../../src/components/histogram/registryHistogram";
-import { HistogramResolutionInputHeadless } from "../../src/components/histogramResolutionInput/histogramResolutionInputHeadless";
-import { ThermalInstance } from "../../src/components/instance/thermalInstance";
-import { OpacityInputHeadless } from "../../src/components/opacity/opacityInputHeadless";
-import { PaletteDropdownHeadless } from "../../src/components/palette/PaletteDropdownHeadless";
-import { RangeHeadless } from "../../src/components/range/RangeHeadless";
-import { RangeButtonAutoHeadless } from "../../src/components/rangeButtonAuto.tsx/rangeButtonAutoHeadless";
-import { RangeButtonFullHeadless } from "../../src/components/rangeButtonFull/rangeButtonFullHeadless";
-import { useThermalRegistry } from "../../src/context/useThermalRegistry";
-import { useThermalRegistryOpacityDrive } from "../../src/properties/drives/useThermalRegistryOpacityDrive";
-import { useSingleFileRegistry } from "../../src/shorthands/useSingleFileRegistry";
-import { Orientation } from "../../src/utilities/orientation";
+} from "@labir/react-bridge";
+import { useEffect, useState } from "react";
+import { Debug } from "../../src/context/Debug";
+import { Skin } from "../../src/theme/Skin";
+
+
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const [ singleUrl, setSingleUrl ] = useState<string>("/tucnaci_04.lrc");
-  const single = useSingleFileRegistry( singleUrl );
+  const [singleUrl, setSingleUrl] = useState<string>("/tucnaci_04.lrc");
+  const single = useSingleFileRegistry(singleUrl);
 
   const registry = useThermalRegistry("first", { histogramResolution: 100 });
   const group = registry.groups.addOrGetGroup(
@@ -56,12 +63,17 @@ function App() {
 
   const instances = useThermalGroupInstancesState(group, "app");
 
-  const dropinRegistry = useThermalRegistry( "dropin", {
-    histogramResolution: 200
-  } );
+  const dropinRegistry = useThermalRegistry("dropin", {
+    histogramResolution: 200,
+  });
+
+  const style = css`
+    background: ${Skin.colorValue( "gray", 50 )}
+  `;
 
   return (
     <>
+      <Debug />
 
       <RangeHeadless
         registry={dropinRegistry}
@@ -71,34 +83,38 @@ function App() {
 
       <ThermalDropin registry={dropinRegistry} groupId={"zkušební dropin"} />
 
-
       <PaletteDropdownHeadless />
 
-      <OpacityInputHeadless registry={registry} step={0.01}/>
-      <OpacityInputHeadless registry={registry} type="number"/>
+      <OpacityInputHeadless registry={registry} step={0.01} />
+      <OpacityInputHeadless registry={registry} type="number" />
 
-      <RangeButtonFullHeadless registry={registry} as={"button"}>Děti jsme tady</RangeButtonFullHeadless>
-      <RangeButtonAutoHeadless registry={registry}/>
+      <RangeButtonFullHeadless registry={registry} as={"button"}>
+        Děti jsme tady
+      </RangeButtonFullHeadless>
+      <RangeButtonAutoHeadless registry={registry} />
       <HistogramResolutionInputHeadless registry={registry} />
 
       <HistogramResolutionInputHeadless registry={registry} />
-      <HistogramResolutionInputHeadless registry={registry} type="range"/>
+      <HistogramResolutionInputHeadless registry={registry} type="range" />
 
-      <RangeHeadless
-        registry={registry}
-        step={0.1}
-        renderSkeleton={() => <article>NAčítačka</article>}
-        rangeOverride={undefined}
-        handleBG="blue"
-        handleColor="yellow"
-        ticksLabelColor="green"
-        ticksLineColor="blue"
-        histogramSizeInPx={80}
-        histogramBorderColor="lightgray"
-        histogramBarBackground="blue"
-        histogramBackground="yellow"
-        // histogramBorderWidthInPx={0}
-      />
+      <div className="lrc-dark" css={style}>
+        <RangeHeadless
+          registry={registry}
+          step={0.1}
+          renderSkeleton={() => <article>NAčítačka</article>}
+          rangeOverride={undefined}
+          handleColor={Skin.colorValue("gray", 100)}
+          handleBG={Skin.colorValue("primary", 700)}
+          ticksLabelColor={Skin.colorValue("gray", 500)}
+          ticksLineColor={Skin.colorValue("gray", 300)}
+          histogramSizeInPx={80}
+          trackBg={Skin.colorValue("gray", 100)}
+          histogramBorderColor={Skin.colorValue("gray", 200)}
+          histogramBarBackground={Skin.colorValue("primary", 500)}
+          histogramBackground={Skin.colorValue("gray", 100)}
+          // histogramBorderWidthInPx={0}
+        />
+      </div>
       <RangeHeadless
         registry={registry}
         step={0.2}
@@ -123,8 +139,7 @@ function App() {
               onClick={(event, instance) => {
                 console.log("Pohnul jsem se", event, instance);
               }}
-            >
-            </ThermalInstance>
+            ></ThermalInstance>
           </div>
         );
       })}
