@@ -1,0 +1,22 @@
+import { describe, expect, test } from 'vitest';
+import { ThermalLoader } from './thermalLoader';
+import { THERMLGRAM_PATHS } from '../../node/mocks/thermogram.mock';
+import { ThermalFileSource } from '../file/ThermalFileSource';
+
+describe( "ThermalLoader", () => {
+
+
+    test( "loads a standard LRC image from the URL", async () => {
+
+        const file = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.SOUSTRUH );
+        expect( file ).toBeInstanceOf( ThermalFileSource );
+
+    } );
+
+    test( "propertly react on non-existing files from URL", async () => {
+
+        expect( async () => await ThermalLoader.fromUrl( THERMLGRAM_PATHS.ERR404 ) ).rejects.toThrowError( `There was an error` )
+
+    } );
+
+} );
