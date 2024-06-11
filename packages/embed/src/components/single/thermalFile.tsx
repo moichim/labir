@@ -1,4 +1,4 @@
-import { ThermalInstance, useThermalContext, useThermalGroupInstancesState, RangeHeadless } from "@labir/react-bridge"
+import { ThermalInstance, useThermalContext, useThermalGroupInstancesState, ThermalRegistryRange } from "@labir/react-bridge"
 import React, { useEffect } from "react"
 
 type ThermalFileComponentProps = {
@@ -23,7 +23,7 @@ export const ThermalFile: React.FC<ThermalFileComponentProps> = props => {
     return <>
 
         {instances.value.map( instance => <div key={instance.id}>
-            <RangeHeadless registry={ registry } step={0.1} />
+            <ThermalRegistryRange registry={ registry } step={0.1} />
             <ThermalInstance instance={instance}/>
         </div> )}
     

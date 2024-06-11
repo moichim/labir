@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
+    "@headlessui/react": "^2.0.4",
     "@labir/core": "workspace:*",
     "@labir/react-bridge": "workspace:*",
     "classnames": "^2.5.1",

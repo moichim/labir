@@ -52,43 +52,20 @@ var __async = (__this, __arguments, generator) => {
 
 // src/components/dropin/ThermalDropin.tsx
 import React2 from "react";
-import { useDropzone } from "react-dropzone";
-
-// src/properties/lists/useThermalGroupInstancesState.ts
-import { useEffect, useMemo, useState } from "react";
-var useThermalGroupInstancesState = (group, purpose) => {
-  const [value, setValue] = useState(group.instances.value);
-  useEffect(() => {
-    group.instances.addListener(purpose, (newValue) => {
-      setValue(newValue);
-    });
-    return () => group.instances.removeListener(purpose);
-  }, [group, value, setValue]);
-  const instantiateSources = useMemo(() => group.instances.instantiateSources, [group]);
-  const removeAllInstances = useMemo(() => group.instances.removeAllInstances, [group]);
-  useEffect(() => {
-    return () => group.instances.removeListener(purpose);
-  }, []);
-  return {
-    value,
-    instantiateSources,
-    removeAllInstances
-  };
-};
 
 // src/components/instance/thermalInstance.tsx
 import classNames from "classnames";
 import React, {
-  useEffect as useEffect2,
-  useMemo as useMemo3,
+  useEffect,
+  useMemo as useMemo2,
   useRef
 } from "react";
 import { createPortal } from "react-dom";
 
 // src/components/instance/useInstanceListener.ts
-import { useMemo as useMemo2 } from "react";
+import { useMemo } from "react";
 var useInstanceListener = (listener, instance) => {
-  return useMemo2(() => {
+  return useMemo(() => {
     if (listener === void 0) return void 0;
     return (event) => listener(event, instance);
   }, [listener, instance]);
@@ -108,28 +85,28 @@ var ThermalInstance = (_a) => {
     "children"
   ]);
   const ref = useRef(null);
-  useEffect2(() => {
+  useEffect(() => {
     if (ref.current) {
       instance.mountToDom(ref.current);
       instance.draw();
     }
     return () => instance.unmountFromDom();
   }, [instance]);
-  const css = useMemo3(() => {
+  const css = useMemo2(() => {
     const st = style;
     st.position = "relative";
     st.padding = 0;
     st.margin = 0;
     return st;
   }, [style]);
-  const classes = useMemo3(() => {
+  const classes = useMemo2(() => {
     return classNames(className, "lrc__instance-canvas");
   }, [className]);
   const onClick = useInstanceListener(props.onClick, instance);
   const onMouseEnter = useInstanceListener(props.onMouseEnter, instance);
   const onMouseMove = useInstanceListener(props.onMouseMove, instance);
   const onMouseLeave = useInstanceListener(props.onMouseLeave, instance);
-  const listenerElement = useMemo3(() => {
+  const listenerElement = useMemo2(() => {
     return instance.listenerLayer.getLayerRoot();
   }, [instance]);
   return /* @__PURE__ */ React.createElement(React.Fragment, null, /* @__PURE__ */ React.createElement(
@@ -146,30 +123,30 @@ var ThermalInstance = (_a) => {
   ), children && createPortal(children, listenerElement));
 };
 
-// src/components/dropin/ThermalDropin.tsx
-var ThermalDropin = (props) => {
-  const dropzone = useDropzone({
-    onDrop: (acceptedFiles, rejectedFiles, event) => __async(void 0, null, function* () {
-      console.log(event);
-      props.registry.processDroppedFiles(acceptedFiles, props.groupId);
-    }),
-    accept: {
-      "application/x-binary": [".lrc"]
-    }
-  });
-  const group = props.registry.groups.addOrGetGroup(props.groupId);
-  const instances = useThermalGroupInstancesState(group, "ThermalDropin");
-  return /* @__PURE__ */ React2.createElement(React2.Fragment, null, /* @__PURE__ */ React2.createElement(
-    "div",
-    __spreadValues({}, dropzone.getRootProps()),
-    "Dropin",
-    /* @__PURE__ */ React2.createElement("input", __spreadValues({}, dropzone.getInputProps())),
-    dropzone.isDragActive ? /* @__PURE__ */ React2.createElement("p", null, "Drop the files here ...") : /* @__PURE__ */ React2.createElement("p", null, "Drag 'n' drop some files here, or click to select files")
-  ), instances.value.map((instance) => /* @__PURE__ */ React2.createElement(ThermalInstance, { instance })));
-};
+// src/components/dropin/useThermalDropin.ts
+import { useDropzone } from "react-dropzone";
 
-// src/components/histogram/registryHistogram.tsx
-import React3, { useMemo as useMemo6 } from "react";
+// src/properties/lists/useThermalGroupInstancesState.ts
+import { useEffect as useEffect2, useMemo as useMemo3, useState } from "react";
+var useThermalGroupInstancesState = (group, purpose) => {
+  const [value, setValue] = useState(group.instances.value);
+  useEffect2(() => {
+    group.instances.addListener(purpose, (newValue) => {
+      setValue(newValue);
+    });
+    return () => group.instances.removeListener(purpose);
+  }, [group, value, setValue]);
+  const instantiateSources = useMemo3(() => group.instances.instantiateSources, [group]);
+  const removeAllInstances = useMemo3(() => group.instances.removeAllInstances, [group]);
+  useEffect2(() => {
+    return () => group.instances.removeListener(purpose);
+  }, []);
+  return {
+    value,
+    instantiateSources,
+    removeAllInstances
+  };
+};
 
 // src/context/useThermalObjectPurpose.ts
 import { ThermalRegistry, ThermalGroup, ThermalFileInstance } from "@labir/core";
@@ -197,6 +174,38 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
     return buffer.join("__");
   }, []);
 };
+
+// src/components/dropin/useThermalDropin.ts
+var useThermalDropin = (registry, groupId) => {
+  const ID = useThermalObjectPurpose(registry, "useThermalDropin", true);
+  const dropzone = useDropzone({
+    onDrop: (acceptedFiles) => __async(void 0, null, function* () {
+      registry.processDroppedFiles(acceptedFiles, groupId);
+    }),
+    accept: {
+      "application/x-binary": [".lrc"]
+    }
+  });
+  const group = registry.groups.addOrGetGroup(groupId);
+  const instances = useThermalGroupInstancesState(group, ID);
+  return {
+    group,
+    instances,
+    dropzone
+  };
+};
+
+// src/components/dropin/ThermalDropin.tsx
+var ThermalDropin = (props) => {
+  const { instances, dropzone } = useThermalDropin(
+    props.registry,
+    props.groupId
+  );
+  return /* @__PURE__ */ React2.createElement(React2.Fragment, null, /* @__PURE__ */ React2.createElement("div", __spreadValues({}, dropzone.getRootProps()), "Dropin", /* @__PURE__ */ React2.createElement("input", __spreadValues({}, dropzone.getInputProps())), dropzone.isDragActive ? /* @__PURE__ */ React2.createElement("p", null, "Drop the files here ...") : /* @__PURE__ */ React2.createElement("p", null, "Drag 'n' drop some files here, or click to select files")), instances.value.map((instance) => /* @__PURE__ */ React2.createElement(ThermalInstance, { key: instance.id, instance })));
+};
+
+// src/components/histogram/thermalRegistryHistogram.tsx
+import React3, { useMemo as useMemo6 } from "react";
 
 // src/properties/states/useThermalRegistryHistogramState.ts
 import { useEffect as useEffect3, useMemo as useMemo5, useState as useState2 } from "react";
@@ -231,8 +240,8 @@ var Orientation = /* @__PURE__ */ ((Orientation2) => {
   return Orientation2;
 })(Orientation || {});
 
-// src/components/histogram/registryHistogram.tsx
-var RegistryHistogram = (_a) => {
+// src/components/histogram/thermalRegistryHistogram.tsx
+var ThermalRegistryHistogram = (_a) => {
   var _b = _a, {
     sizeInPx = 20,
     borderColor = "lightgray",
@@ -327,15 +336,13 @@ var RegistryHistogram = (_a) => {
   }));
 };
 
-// src/components/histogramResolutionInput/histogramResolutionInputHeadless.tsx
-import { Input } from "@headlessui/react";
-import React4, { useCallback, useEffect as useEffect4, useState as useState3 } from "react";
-import { v4 as uuid } from "uuid";
-var HistogramResolutionInputHeadless = (_a) => {
-  var _b = _a, { registry, min = 2, max = 200, type = "number" } = _b, props = __objRest(_b, ["registry", "min", "max", "type"]);
+// src/components/histogramResolutionInput/useHistogramResolutionInput.ts
+import { useCallback, useEffect as useEffect4, useState as useState3 } from "react";
+var useHistogramResolutionInput = (registry) => {
   const ID = useThermalObjectPurpose(
     registry,
-    "RangeButtonAutoHeadless_" + uuid()
+    "useHistogramResolutionInput",
+    true
   );
   const histogram = useThermalRegistryHistogramState(registry, ID);
   const [internal, setInternal] = useState3(histogram.resolution);
@@ -368,23 +375,12 @@ var HistogramResolutionInputHeadless = (_a) => {
     },
     [histogram.recalculate]
   );
-  return /* @__PURE__ */ React4.createElement(
-    Input,
-    __spreadProps(__spreadValues({}, props), {
-      type,
-      step: 1,
-      min,
-      max,
-      onChange,
-      onBlur,
-      value: internal
-    })
-  );
+  return {
+    onChange,
+    onBlur,
+    internal
+  };
 };
-
-// src/components/opacity/opacityInputHeadless.tsx
-import { Input as Input2 } from "@headlessui/react";
-import React5 from "react";
 
 // src/properties/drives/useThermalRegistryOpacityDrive.ts
 import { useEffect as useEffect5, useMemo as useMemo7, useState as useState4 } from "react";
@@ -408,37 +404,17 @@ var useThermalRegistryOpacityDrive = (registry, purpose) => {
   };
 };
 
-// src/components/opacity/opacityInputHeadless.tsx
-var OpacityInputHeadless = (_a) => {
-  var _b = _a, {
-    registry,
-    type = "range",
-    min = 0,
-    max = 1,
-    step = 0.1
-  } = _b, props = __objRest(_b, [
-    "registry",
-    "type",
-    "min",
-    "max",
-    "step"
-  ]);
-  const purpose = useThermalObjectPurpose(registry, "OpacityInputHeadless", true);
+// src/components/opacity/useOpacityInput.ts
+var useOpacityInput = (registry) => {
+  const purpose = useThermalObjectPurpose(registry, "useOpacityInput", true);
   const opacity = useThermalRegistryOpacityDrive(registry, purpose);
   const onChange = (event) => {
     opacity.set(parseFloat(event.target.value));
   };
-  return /* @__PURE__ */ React5.createElement(
-    Input2,
-    __spreadProps(__spreadValues({}, props), {
-      type,
-      min,
-      max,
-      step,
-      value: opacity.value,
-      onChange
-    })
-  );
+  return {
+    onChange,
+    opacity
+  };
 };
 
 // src/components/palette/PaletteDropdownHeadless.tsx
@@ -449,7 +425,7 @@ import {
   MenuItem,
   MenuItems
 } from "@headlessui/react";
-import React8 from "react";
+import React6 from "react";
 import { v4 as uuidv42 } from "uuid";
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
@@ -457,7 +433,7 @@ import { ThermalPalettes } from "@labir/core";
 import { useEffect as useEffect6, useState as useState5, useMemo as useMemo9 } from "react";
 
 // src/context/thermalManagerContext.tsx
-import React6, { createContext, useContext } from "react";
+import React4, { createContext, useContext } from "react";
 
 // src/context/useThermalManagerInternal.ts
 import { ThermalManager } from "@labir/core";
@@ -474,7 +450,7 @@ import { ThermalManager as ThermalManager2 } from "@labir/core";
 var ThermalManagerContext = createContext(new ThermalManager2());
 var ThermalProvider = ({ options, externalManagerInstance, children }) => {
   const value = useThermalManagerInternal(options, externalManagerInstance);
-  return /* @__PURE__ */ React6.createElement(ThermalManagerContext.Provider, { value }, children);
+  return /* @__PURE__ */ React4.createElement(ThermalManagerContext.Provider, { value }, children);
 };
 var useThermalContext = () => {
   return useContext(ThermalManagerContext);
@@ -508,9 +484,9 @@ var useThermalManagerPaletteDrive = (purpose) => {
 };
 
 // src/components/palette/PaletteItem.tsx
-import React7 from "react";
+import React5 from "react";
 var PaletteItem = (props) => {
-  return /* @__PURE__ */ React7.createElement(
+  return /* @__PURE__ */ React5.createElement(
     "div",
     {
       style: __spreadProps(__spreadValues({}, props.style), {
@@ -520,7 +496,7 @@ var PaletteItem = (props) => {
         gap: "10px"
       })
     },
-    /* @__PURE__ */ React7.createElement(
+    /* @__PURE__ */ React5.createElement(
       "div",
       {
         style: {
@@ -531,23 +507,23 @@ var PaletteItem = (props) => {
         }
       }
     ),
-    /* @__PURE__ */ React7.createElement("div", null, props.name)
+    /* @__PURE__ */ React5.createElement("div", null, props.name)
   );
 };
 
 // src/components/palette/PaletteDropdownHeadless.tsx
 var PaletteDropdownHeadless = () => {
   const palette = useThermalManagerPaletteDrive(uuidv42());
-  return /* @__PURE__ */ React8.createElement(Menu, null, /* @__PURE__ */ React8.createElement(MenuButton, null, /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React8.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React8.createElement(MenuItem, { key, as: Button, onClick: () => {
+  return /* @__PURE__ */ React6.createElement(Menu, null, /* @__PURE__ */ React6.createElement(MenuButton, null, /* @__PURE__ */ React6.createElement(React6.Fragment, null, /* @__PURE__ */ React6.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React6.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React6.createElement(MenuItem, { key, as: Button, onClick: () => {
     palette.set(key);
-  } }, /* @__PURE__ */ React8.createElement(
+  } }, /* @__PURE__ */ React6.createElement(
     PaletteItem,
     __spreadValues({}, item)
   )))));
 };
 
-// src/components/range/RangeHeadless.tsx
-import React17, { useMemo as useMemo15 } from "react";
+// src/components/range/ThermalRegistryRange.tsx
+import React15, { useMemo as useMemo15 } from "react";
 
 // src/properties/drives/useThermalRegistryRangeDrive.ts
 import { useEffect as useEffect7, useMemo as useMemo10, useState as useState6 } from "react";
@@ -608,9 +584,9 @@ var useThermalRegistryMinmaxState = (registry, purpose) => {
 };
 
 // src/components/range/RangeHeadlessSkeleton.tsx
-import React9 from "react";
+import React7 from "react";
 var RangeHeadlessSkeleton = () => {
-  return /* @__PURE__ */ React9.createElement(React9.Fragment, null, /* @__PURE__ */ React9.createElement("style", null, `@keyframes mymove {
+  return /* @__PURE__ */ React7.createElement(React7.Fragment, null, /* @__PURE__ */ React7.createElement("style", null, `@keyframes mymove {
                 0%: {
                     left: 0%;
                     width: 25%;
@@ -623,7 +599,7 @@ var RangeHeadlessSkeleton = () => {
                     left: 100%;
                     width: 25%;
                 }
-            }`), /* @__PURE__ */ React9.createElement("div", { style: { width: "100%", height: "20px" } }, /* @__PURE__ */ React9.createElement(
+            }`), /* @__PURE__ */ React7.createElement("div", { style: { width: "100%", height: "20px" } }, /* @__PURE__ */ React7.createElement(
     "div",
     {
       style: {
@@ -638,17 +614,17 @@ var RangeHeadlessSkeleton = () => {
 };
 
 // src/components/range/RangerHeadlessContainer.tsx
-import React10 from "react";
+import React8 from "react";
 var RangerHeadlessContainer = (props) => {
-  return /* @__PURE__ */ React10.createElement("div", null, props.children);
+  return /* @__PURE__ */ React8.createElement("div", null, props.children);
 };
 
 // src/components/range/inner/rangerHeadlessInner.tsx
 import { useRanger } from "@tanstack/react-ranger";
-import React16, { useRef as useRef2 } from "react";
+import React14, { useRef as useRef2 } from "react";
 
 // src/components/range/inner/rangerHandles.tsx
-import React11 from "react";
+import React9 from "react";
 var RangerHandles = (_a) => {
   var _b = _a, {
     trackSizeInPx = 20,
@@ -659,7 +635,7 @@ var RangerHandles = (_a) => {
     "handleColor",
     "handleBackground"
   ]);
-  return /* @__PURE__ */ React11.createElement(React11.Fragment, null, props.ranger.handles().map(
+  return /* @__PURE__ */ React9.createElement(React9.Fragment, null, props.ranger.handles().map(
     ({
       value,
       onKeyDownHandler,
@@ -703,7 +679,7 @@ var RangerHandles = (_a) => {
         arrowCss.left = -3;
         arrowCss.top = 4;
       }
-      return /* @__PURE__ */ React11.createElement(
+      return /* @__PURE__ */ React9.createElement(
         "button",
         {
           key: index,
@@ -716,7 +692,7 @@ var RangerHandles = (_a) => {
           onTouchStart,
           style: css
         },
-        /* @__PURE__ */ React11.createElement("div", { className: "track", style: innerCss }, /* @__PURE__ */ React11.createElement("div", { style: arrowCss }), /* @__PURE__ */ React11.createElement(
+        /* @__PURE__ */ React9.createElement("div", { className: "track", style: innerCss }, /* @__PURE__ */ React9.createElement("div", { style: arrowCss }), /* @__PURE__ */ React9.createElement(
           "div",
           {
             style: {
@@ -737,7 +713,7 @@ var RangerHandles = (_a) => {
 };
 
 // src/components/range/inner/rangerTick.tsx
-import React12 from "react";
+import React10 from "react";
 var RangerTick = (_a) => {
   var _b = _a, {
     orientation = "horizontal" /* HORIZONTAL */,
@@ -787,19 +763,19 @@ var RangerTick = (_a) => {
     labelCss.order = "1";
     labelCss.paddingLeft = "5px";
   }
-  return /* @__PURE__ */ React12.createElement(
+  return /* @__PURE__ */ React10.createElement(
     "div",
     {
       style: mainCss
     },
-    /* @__PURE__ */ React12.createElement("span", { style: labelCss }, props.value.toFixed(2)),
-    /* @__PURE__ */ React12.createElement("span", { style: markerCSS })
+    /* @__PURE__ */ React10.createElement("span", { style: labelCss }, props.value.toFixed(2)),
+    /* @__PURE__ */ React10.createElement("span", { style: markerCSS })
   );
 };
 
 // src/components/range/inner/rangerTrack.tsx
 import classNames2 from "classnames";
-import React13, { forwardRef, useMemo as useMemo11 } from "react";
+import React11, { forwardRef, useMemo as useMemo11 } from "react";
 var RangerTrack = forwardRef(
   (_a, ref) => {
     var _b = _a, {
@@ -838,7 +814,7 @@ var RangerTrack = forwardRef(
       ),
       [className, orientation]
     );
-    return /* @__PURE__ */ React13.createElement("div", __spreadValues({ ref, className: classes, style: styles }, props), props.children);
+    return /* @__PURE__ */ React11.createElement("div", __spreadValues({ ref, className: classes, style: styles }, props), props.children);
   }
 );
 
@@ -962,7 +938,7 @@ var useRangerValues = (registry, isLocked, rangeOverride) => {
 
 // src/components/range/inner/RangerContainerInner.tsx
 import classNames3 from "classnames";
-import React14, { useMemo as useMemo13 } from "react";
+import React12, { useMemo as useMemo13 } from "react";
 var RangerContainerInner = (_a) => {
   var _b = _a, {
     orientation = "horizontal" /* HORIZONTAL */,
@@ -1003,11 +979,11 @@ var RangerContainerInner = (_a) => {
     `lrc-ranger-container__${orientation}`,
     className
   );
-  return /* @__PURE__ */ React14.createElement("div", { style: wrapperCss }, /* @__PURE__ */ React14.createElement("div", { className: classes, style: css }, props.children));
+  return /* @__PURE__ */ React12.createElement("div", { style: wrapperCss }, /* @__PURE__ */ React12.createElement("div", { className: classes, style: css }, props.children));
 };
 
 // src/components/range/inner/rangerPalette.tsx
-import React15, { useMemo as useMemo14 } from "react";
+import React13, { useMemo as useMemo14 } from "react";
 var RangerPalette = (props) => {
   const startInPercent = useMemo14(() => {
     return `${props.ranger.getPercentageForValue(props.values.values[0])}%`;
@@ -1031,7 +1007,7 @@ var RangerPalette = (props) => {
     css.width = `${props.volumeInPx}px`;
     css.background = props.palette.gradient.replace("90deg", "0deg");
   }
-  return /* @__PURE__ */ React15.createElement(
+  return /* @__PURE__ */ React13.createElement(
     "div",
     {
       style: css,
@@ -1099,8 +1075,8 @@ var RangerHeadlessInner = (_a) => {
     ticks: rangerTicks,
     onDrag: rangerValue.onDrag
   });
-  return /* @__PURE__ */ React16.createElement(RangerContainerInner, { orientation }, useHistogram && /* @__PURE__ */ React16.createElement(
-    RegistryHistogram,
+  return /* @__PURE__ */ React14.createElement(RangerContainerInner, { orientation }, useHistogram && /* @__PURE__ */ React14.createElement(
+    ThermalRegistryHistogram,
     {
       registry: props.registry,
       sizeInPx: histogramSizeInPx,
@@ -1110,7 +1086,7 @@ var RangerHeadlessInner = (_a) => {
       background: histogramBackground,
       orientation
     }
-  ), /* @__PURE__ */ React16.createElement(
+  ), /* @__PURE__ */ React14.createElement(
     RangerTrack,
     {
       volumeInPx: trackHeightInPx,
@@ -1122,7 +1098,7 @@ var RangerHeadlessInner = (_a) => {
     },
     rangerInstance.getTicks().map((_a2) => {
       var _b2 = _a2, { key } = _b2, tick = __objRest(_b2, ["key"]);
-      return /* @__PURE__ */ React16.createElement(
+      return /* @__PURE__ */ React14.createElement(
         RangerTick,
         __spreadProps(__spreadValues({
           key
@@ -1134,7 +1110,7 @@ var RangerHeadlessInner = (_a) => {
         })
       );
     }),
-    rangerInstance.sortedValues && /* @__PURE__ */ React16.createElement(
+    rangerInstance.sortedValues && /* @__PURE__ */ React14.createElement(
       RangerPalette,
       {
         palette: palette.palette,
@@ -1144,7 +1120,7 @@ var RangerHeadlessInner = (_a) => {
         volumeInPx: trackHeightInPx
       }
     ),
-    /* @__PURE__ */ React16.createElement(
+    /* @__PURE__ */ React14.createElement(
       RangerHandles,
       {
         ranger: rangerInstance,
@@ -1157,8 +1133,8 @@ var RangerHeadlessInner = (_a) => {
   ));
 };
 
-// src/components/range/RangeHeadless.tsx
-var RangeHeadless = (_a) => {
+// src/components/range/ThermalRegistryRange.tsx
+var ThermalRegistryRange = (_a) => {
   var _b = _a, {
     renderSkeleton = RangeHeadlessSkeleton,
     renderContainer = RangerHeadlessContainer,
@@ -1188,7 +1164,7 @@ var RangeHeadless = (_a) => {
   }, [minmax, loading]);
   const Skeleton = renderSkeleton;
   const Container = renderContainer;
-  return /* @__PURE__ */ React17.createElement(Container, null, isReady === false && /* @__PURE__ */ React17.createElement(Skeleton, null), isReady === true && /* @__PURE__ */ React17.createElement(
+  return /* @__PURE__ */ React15.createElement(Container, null, isReady === false && /* @__PURE__ */ React15.createElement(Skeleton, null), isReady === true && /* @__PURE__ */ React15.createElement(
     RangerHeadlessInner,
     __spreadProps(__spreadValues({
       isLocked,
@@ -1201,18 +1177,10 @@ var RangeHeadless = (_a) => {
   ));
 };
 
-// src/components/rangeButtonAuto.tsx/rangeButtonAutoHeadless.tsx
-import React18, { useCallback as useCallback3 } from "react";
-import { Button as Button2 } from "@headlessui/react";
-var RangeButtonAutoHeadless = (_a) => {
-  var _b = _a, {
-    registry,
-    children = "Automatick\xFD teplotn\xED rozsah"
-  } = _b, props = __objRest(_b, [
-    "registry",
-    "children"
-  ]);
-  const ID = useThermalObjectPurpose(registry, "RangeButtonAutoHeadless");
+// src/components/rangeButtonAuto.tsx/useRangeButtonAuto.ts
+import { useCallback as useCallback3 } from "react";
+var useRangeButtonAuto = (registry) => {
+  const ID = useThermalObjectPurpose(registry, "useRangeButtonAuto");
   const range = useThermalRegistryRangeDrive(registry, ID);
   const minmax = useThermalRegistryMinmaxState(registry, ID);
   const histogram = useThermalRegistryHistogramState(registry, ID);
@@ -1223,28 +1191,24 @@ var RangeButtonAutoHeadless = (_a) => {
     const newRange = { from: newRangeTemp[0].from, to: newRangeTemp[newRangeTemp.length - 1].to };
     range.set(newRange);
   }, [minmax.value, range.set, histogram.resolution]);
-  return /* @__PURE__ */ React18.createElement(Button2, __spreadProps(__spreadValues({}, props), { onClick }), children);
+  return {
+    onClick
+  };
 };
 
-// src/components/rangeButtonFull/rangeButtonFullHeadless.tsx
-import { Button as Button3 } from "@headlessui/react";
-import React19, { useCallback as useCallback4 } from "react";
-var RangeButtonFullHeadless = (_a) => {
-  var _b = _a, {
-    registry,
-    children = "Nastavit paletu na cel\xFD rozsah teplot"
-  } = _b, props = __objRest(_b, [
-    "registry",
-    "children"
-  ]);
-  const ID = useThermalObjectPurpose(registry, "RangeButtonFullHeadless");
+// src/components/rangeButtonFull/useRangeButtonFull.ts
+import { useCallback as useCallback4 } from "react";
+var useRangeButtonFull = (registry) => {
+  const ID = useThermalObjectPurpose(registry, "useRangeButtonFull");
   const range = useThermalRegistryRangeDrive(registry, ID);
   const minmax = useThermalRegistryMinmaxState(registry, ID);
   const onClick = useCallback4(() => {
     if (minmax.value !== void 0)
       range.set({ from: minmax.value.min, to: minmax.value.max });
   }, [minmax.value, range.set]);
-  return /* @__PURE__ */ React19.createElement(Button3, __spreadProps(__spreadValues({}, props), { onClick }), children);
+  return {
+    onClick
+  };
 };
 
 // src/context/useThermalRegistry.ts
@@ -1361,19 +1325,20 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   };
 };
 export {
-  HistogramResolutionInputHeadless,
-  OpacityInputHeadless,
   Orientation,
   PaletteDropdownHeadless,
-  RangeButtonAutoHeadless,
-  RangeButtonFullHeadless,
-  RangeHeadless,
-  RegistryHistogram,
   ThermalDropin,
   ThermalInstance,
   ThermalProvider,
+  ThermalRegistryHistogram,
+  ThermalRegistryRange,
+  useHistogramResolutionInput,
+  useOpacityInput,
+  useRangeButtonAuto,
+  useRangeButtonFull,
   useSingleFileRegistry,
   useThermalContext,
+  useThermalDropin,
   useThermalGroupCursorPositionDrive,
   useThermalGroupInstancesState,
   useThermalGroupMinmaxState,

@@ -44,12 +44,12 @@ export type RangePropsExposed = {
 
 export type RangeHeadlessInnerProps = RangePropsExposed;
 
-type RangePropsHeadless = RangeHeadlessInnerProps & {
+type ThermalRangeProps = RangeHeadlessInnerProps & {
   renderContainer?: React.FC<React.PropsWithChildren>;
   renderSkeleton?: React.FC;
 };
 
-export const RangeHeadless: React.FC<RangePropsHeadless> = ({
+export const ThermalRegistryRange: React.FC<ThermalRangeProps> = ({
   renderSkeleton = RangeHeadlessSkeleton,
   renderContainer = RangerHeadlessContainer,
   isLocked = false,

@@ -1,12 +1,13 @@
 import { ThermalDropin } from "./components/dropin/ThermalDropin";
-import { RegistryHistogram } from "./components/histogram/registryHistogram";
-import { HistogramResolutionInputHeadless } from "./components/histogramResolutionInput/histogramResolutionInputHeadless";
+import { useThermalDropin } from "./components/dropin/useThermalDropin";
+import { ThermalRegistryHistogram } from "./components/histogram/thermalRegistryHistogram";
+import { useHistogramResolutionInput } from "./components/histogramResolutionInput/useHistogramResolutionInput";
 import { ThermalInstance } from "./components/instance/thermalInstance";
-import { OpacityInputHeadless } from "./components/opacity/opacityInputHeadless";
+import { useOpacityInput } from "./components/opacity/useOpacityInput";
 import { PaletteDropdownHeadless } from "./components/palette/PaletteDropdownHeadless";
-import { RangeHeadless } from "./components/range/RangeHeadless";
-import { RangeButtonAutoHeadless } from "./components/rangeButtonAuto.tsx/rangeButtonAutoHeadless";
-import { RangeButtonFullHeadless } from "./components/rangeButtonFull/rangeButtonFullHeadless";
+import { ThermalRegistryRange } from "./components/range/ThermalRegistryRange";
+import { useRangeButtonAuto } from "./components/rangeButtonAuto.tsx/useRangeButtonAuto";
+import { useRangeButtonFull } from "./components/rangeButtonFull/useRangeButtonFull";
 import { ThermalProvider, useThermalContext } from "./context/thermalManagerContext";
 import { useThermalObjectPurpose } from "./context/useThermalObjectPurpose";
 import { useThermalRegistry } from "./context/useThermalRegistry";
@@ -24,21 +25,54 @@ import { useSingleFileRegistry } from "./shorthands/useSingleFileRegistry";
 import { Orientation } from "./utilities/orientation";
 
 
+
 export {
-    RegistryHistogram,
-    ThermalDropin,
-    useSingleFileRegistry,
-    ThermalInstance,
+
+    // The global context & hooks
+    ThermalProvider,
+    useThermalContext,
+    useThermalObjectPurpose,
+    useThermalRegistry,
+
+    // Component hooks
+    useRangeButtonAuto,
+    useRangeButtonFull,
+    useOpacityInput,
+    useHistogramResolutionInput,
+    useThermalDropin,
+
+    // ThermalRange component
+    ThermalRegistryRange,
+
+    // Histogram component
+    ThermalRegistryHistogram,
     Orientation,
-    OpacityInputHeadless,
-    HistogramResolutionInputHeadless,
-    RangeButtonAutoHeadless,
-    RangeButtonFullHeadless,
-    RangeHeadless, ThermalProvider,
+
+    // Instance component
+    ThermalInstance,
+
+
+
+    ThermalDropin,
+
+    // Deprecated components
     PaletteDropdownHeadless,
-    useThermalContext, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose,
-    useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState,
+
+
+    // Shorthand hooks
+    useSingleFileRegistry,
+
+
+    // Properties hooks
+    useThermalGroupCursorPositionDrive,
+    useThermalGroupInstancesState,
+    useThermalGroupMinmaxState,
+    useThermalManagerPaletteDrive,
+    useThermalRegistryGroupsState,
+    useThermalRegistryHistogramState,
     useThermalRegistryLoadingState,
-    useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive
+    useThermalRegistryMinmaxState,
+    useThermalRegistryOpacityDrive,
+    useThermalRegistryRangeDrive
 };
 

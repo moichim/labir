@@ -1,7 +1,6 @@
 {
   "name": "root",
   "private": true,
-  "version": "1.2.0",
   "workspaces": [
     "packages/*"
   ],
@@ -12,9 +11,9 @@
   "scripts": {
 
     "lint": "lerna run lint",
-    "version": "lerna version",
     "build": "lerna run build",
-    "publish": "lerna run publish",
+    "version": "lerna version",
+    "publish": "lerna publish",
 
     "list": "lerna list --long",
     "graph": "lerna list --graph",

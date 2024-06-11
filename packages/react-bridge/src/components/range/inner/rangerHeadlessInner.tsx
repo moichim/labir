@@ -3,8 +3,8 @@ import React, { useRef } from "react";
 import { useThermalObjectPurpose } from "../../../context/useThermalObjectPurpose";
 import { useThermalManagerPaletteDrive } from "../../../properties/drives/useThermalRegistryPaletteDrive";
 import { Orientation } from "../../../utilities/orientation";
-import { RegistryHistogram } from "../../histogram/registryHistogram";
-import { RangeHeadlessInnerProps } from "../RangeHeadless";
+import { ThermalRegistryHistogram } from "../../histogram/thermalRegistryHistogram";
+import { RangeHeadlessInnerProps } from "../ThermalRegistryRange";
 import { RangerHandles } from "./rangerHandles";
 import { RangerTick } from "./rangerTick";
 import { RangerTrack } from "./rangerTrack";
@@ -72,7 +72,7 @@ export const RangerHeadlessInner: React.FC<Props> = ({
   return (
     <RangerContainerInner orientation={orientation}>
       {useHistogram && (
-        <RegistryHistogram
+        <ThermalRegistryHistogram
           registry={props.registry}
           sizeInPx={histogramSizeInPx}
           borderColor={histogramBorderColor}

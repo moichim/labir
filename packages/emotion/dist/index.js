@@ -1,4 +1,6 @@
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
@@ -14,10 +16,27 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 
-// src/context/ThermalEmotionProvider.tsx
-import React, { useMemo } from "react";
-import { jsx, Global, ClassNames } from "@emotion/react";
+// src/components/buttons/ThermalRangeAutoButton.tsx
+import { useRangeButtonAuto } from "@labir/react-bridge";
+import { jsx as jsx2 } from "@emotion/react";
+
+// src/components/ui/thermalButton.tsx
+import { jsx, css } from "@emotion/react";
+import { Button } from "@headlessui/react";
 
 // src/theme/Skin.ts
 var _Skin = class _Skin {
@@ -36,6 +55,144 @@ var _Skin = class _Skin {
 };
 _Skin.prefix = "lrc";
 var Skin = _Skin;
+
+// src/components/ui/thermalButton.tsx
+var ThermalButton = (_a) => {
+  var _b = _a, {
+    variant = "primary"
+  } = _b, props = __objRest(_b, [
+    "variant"
+  ]);
+  const styles = css`
+
+        cursor: pointer;
+    
+        background: ${Skin.colorValue(variant, 300)};
+
+        border: 0;
+        padding: .5rem 1rem;
+        
+        border-radius: 5px;
+
+        transition: all .1s ease-in-out;
+
+        &:hover {
+            background: ${Skin.colorValue(variant, 300)};
+            box-shadow: 0px 0px 5px ${Skin.colorValue("primary", 500)};
+        }
+    
+    `;
+  return /* @__PURE__ */ jsx(Button, __spreadValues({ css: styles }, props), props.children);
+};
+
+// src/components/buttons/ThermalRangeAutoButton.tsx
+var ThermalRangeAutoButton = (_a) => {
+  var _b = _a, { registry } = _b, props = __objRest(_b, ["registry"]);
+  const { onClick } = useRangeButtonAuto(registry);
+  return /* @__PURE__ */ jsx2(ThermalButton, __spreadValues({ onClick }, props), "Automatick\xFD teplotn\xED rozsah");
+};
+
+// src/components/buttons/ThermalRangeFullButton.tsx
+import { jsx as jsx3 } from "@emotion/react";
+import { useRangeButtonFull } from "@labir/react-bridge";
+var ThermalRangeFullButton = (_a) => {
+  var _b = _a, {
+    registry
+  } = _b, props = __objRest(_b, [
+    "registry"
+  ]);
+  const { onClick } = useRangeButtonFull(registry);
+  return /* @__PURE__ */ jsx3(ThermalButton, __spreadValues({ onClick }, props), "Pln\xFD teplotn\xED rozsah");
+};
+
+// src/components/inputs/ThermalHistogramResolutionInput.tsx
+import { jsx as jsx5 } from "@emotion/react";
+import { useHistogramResolutionInput } from "@labir/react-bridge";
+
+// src/components/ui/thermalInput.tsx
+import { jsx as jsx4, css as css2 } from "@emotion/react";
+import { Input } from "@headlessui/react";
+var ThermalInput = (_a) => {
+  var _b = _a, {
+    variant = "primary"
+  } = _b, props = __objRest(_b, [
+    "variant"
+  ]);
+  const style = css2`
+    
+        border: 1px solid ${Skin.colorValue("gray", 300)};
+
+        padding: .5rem 1rem;
+        border-radius: 5px;
+        display: inline-block;
+
+        transition: all .15s ease-in-out;
+
+        &:focus {
+            border-color: ${Skin.colorValue(variant, 500)};
+            outline: 0;
+        }
+
+        &[type=range] {
+            accent-color: ${Skin.colorValue(variant, 400)};
+        }
+    
+    `;
+  return /* @__PURE__ */ jsx4(Input, __spreadProps(__spreadValues({}, props), { css: style }));
+};
+
+// src/components/inputs/ThermalHistogramResolutionInput.tsx
+var ThermalHistogramResolutionInput = (_a) => {
+  var _b = _a, {
+    registry,
+    type = "number"
+  } = _b, props = __objRest(_b, [
+    "registry",
+    "type"
+  ]);
+  const { onChange, internal, onBlur } = useHistogramResolutionInput(registry);
+  return /* @__PURE__ */ jsx5(
+    ThermalInput,
+    __spreadValues({
+      onChange,
+      onBlur,
+      value: internal,
+      min: 0,
+      max: 200,
+      step: 1,
+      type
+    }, props)
+  );
+};
+
+// src/components/inputs/ThermalOpacityInput.tsx
+import { jsx as jsx6 } from "@emotion/react";
+import { useOpacityInput as useOpacityInput2 } from "@labir/react-bridge";
+var ThermalOpacityInput = (_a) => {
+  var _b = _a, {
+    registry,
+    type = "number"
+  } = _b, props = __objRest(_b, [
+    "registry",
+    "type"
+  ]);
+  const { onChange, opacity } = useOpacityInput2(registry);
+  return /* @__PURE__ */ jsx6(
+    ThermalInput,
+    __spreadValues({
+      onChange,
+      value: opacity.value,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      type
+    }, props)
+  );
+};
+
+// src/context/ThermalEmotionProvider.tsx
+import { useMemo } from "react";
+import { jsx as jsx7, Global as Global2, ClassNames as ClassNames2 } from "@emotion/react";
 
 // src/theme/Variables.ts
 var Variables = class {
@@ -100,6 +257,33 @@ var Variables = class {
       800: "#561f21",
       900: "#321313"
     };
+    // Breakpoints
+    this.breakpoints = {
+      xs: 0,
+      sm: 640,
+      md: 900,
+      lg: 1200,
+      xl: 1450
+    };
+    // Gaps
+    this.gap = {
+      xs: "15px",
+      sm: "16px",
+      md: "18px",
+      lg: "20px",
+      xl: "22px"
+    };
+    // Font sizes
+    this.fontSize = {
+      xs: "15px",
+      sm: "16px",
+      md: "18px",
+      lg: "20px",
+      xl: "22px"
+    };
+    // Line height
+    this.lineHeight = {};
+    this.fontStyles = {};
   }
   getColorVariables(color, inverse = false) {
     const slot = this[color];
@@ -145,13 +329,13 @@ var ThermalEmotionProvider = (props) => {
       }
     };
   }, [variables]);
-  return /* @__PURE__ */ jsx(React.Fragment, null, /* @__PURE__ */ jsx(Global, { styles: globalStyles }), /* @__PURE__ */ jsx(ClassNames, null, ({ css, cx }) => /* @__PURE__ */ jsx(
+  return /* @__PURE__ */ jsx7(React.Fragment, null, /* @__PURE__ */ jsx7(Global2, { styles: globalStyles }), /* @__PURE__ */ jsx7(ClassNames2, null, ({ css: css3, cx }) => /* @__PURE__ */ jsx7(
     "div",
     {
       className: cx(
         appClass,
         "some-class",
-        css`
+        css3`
 
               h1 {
                 font-size: 28px;
@@ -163,5 +347,9 @@ var ThermalEmotionProvider = (props) => {
   )));
 };
 export {
-  ThermalEmotionProvider
+  ThermalEmotionProvider,
+  ThermalHistogramResolutionInput,
+  ThermalOpacityInput,
+  ThermalRangeAutoButton,
+  ThermalRangeFullButton
 };

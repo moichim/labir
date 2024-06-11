@@ -8,10 +8,10 @@ import {
   PaletteDropdownHeadless,
   RangeButtonAutoHeadless,
   RangeButtonFullHeadless,
-  RangeHeadless,
-  RegistryHistogram,
   ThermalDropin,
   ThermalInstance,
+  ThermalRegistryHistogram,
+  ThermalRegistryRange,
   useSingleFileRegistry,
   useThermalGroupInstancesState,
   useThermalRegistry,
@@ -21,6 +21,10 @@ import {
 import { useEffect, useState } from "react";
 import { Debug } from "../../src/context/Debug";
 import { Skin } from "../../src/theme/Skin";
+import { ThermalRangeAutoButton } from '../../src/components/buttons/ThermalRangeAutoButton';
+import { ThermalRangeFullButton } from '../../src/components/buttons/ThermalRangeFullButton';
+import { ThermalOpacityInput } from '../../src/components/inputs/ThermalOpacityInput';
+import { ThermalHistogramResolutionInput } from '../../src/components/inputs/ThermalHistogramResolutionInput';
 
 
 
@@ -75,7 +79,9 @@ function App() {
     <>
       <Debug />
 
-      <RangeHeadless
+      <ThermalRangeAutoButton registry={registry}/>
+
+      <ThermalRegistryRange
         registry={dropinRegistry}
         step={1}
         renderSkeleton={() => <article>Načítačka</article>}
@@ -97,8 +103,18 @@ function App() {
       <HistogramResolutionInputHeadless registry={registry} />
       <HistogramResolutionInputHeadless registry={registry} type="range" />
 
-      <div className="lrc-dark" css={style}>
-        <RangeHeadless
+      <div className="lrc-dark__" css={style}>
+
+      <ThermalRangeAutoButton registry={registry} variant="gray" style={{marginRight: "1rem"}}/>
+      <ThermalRangeFullButton registry={registry}/>
+
+      <ThermalOpacityInput registry={registry} />
+      <ThermalOpacityInput registry={registry} type='range'/>
+
+      <ThermalHistogramResolutionInput registry={registry} />
+      <ThermalHistogramResolutionInput registry={registry} type='range'/>
+
+        <ThermalRegistryRange
           registry={registry}
           step={0.1}
           renderSkeleton={() => <article>NAčítačka</article>}
@@ -115,22 +131,7 @@ function App() {
           // histogramBorderWidthInPx={0}
         />
       </div>
-      <RangeHeadless
-        registry={registry}
-        step={0.2}
-        renderSkeleton={() => <article>NAčítačka</article>}
-        orientation={Orientation.VERTICAL}
-        trackSizeInPx={40}
-        histogramSizeInPx={200}
-        histogramBorderWidthInPx={0}
-      />
-      <RangeHeadless
-        registry={registry}
-        step={1}
-        renderSkeleton={() => <article>NAčítačka</article>}
-        trackSizeInPx={50}
-      />
-      <RegistryHistogram registry={registry} />
+      <ThermalRegistryHistogram registry={registry} />
       {instances.value.map((instance) => {
         return (
           <div className="instance!!!" key={instance.id}>

@@ -1,10 +1,10 @@
 "use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
+var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -19,6 +19,19 @@ var __spreadValues = (a, b) => {
     }
   return a;
 };
+var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 var __export = (target, all) => {
   for (var name in all)
     __defProp(target, name, { get: all[name], enumerable: true });
@@ -31,26 +44,26 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
-  ThermalEmotionProvider: () => ThermalEmotionProvider
+  ThermalEmotionProvider: () => ThermalEmotionProvider,
+  ThermalHistogramResolutionInput: () => ThermalHistogramResolutionInput,
+  ThermalOpacityInput: () => ThermalOpacityInput,
+  ThermalRangeAutoButton: () => ThermalRangeAutoButton,
+  ThermalRangeFullButton: () => ThermalRangeFullButton
 });
 module.exports = __toCommonJS(src_exports);
 
-// src/context/ThermalEmotionProvider.tsx
-var import_react = __toESM(require("react"), 1);
-var import_react2 = require("@emotion/react");
+// src/components/buttons/ThermalRangeAutoButton.tsx
+var import_react_bridge = require("@labir/react-bridge");
+var import_react3 = require("@emotion/react");
+
+// src/components/ui/thermalButton.tsx
+var import_react = require("@emotion/react");
+var import_react2 = require("@headlessui/react");
 
 // src/theme/Skin.ts
 var _Skin = class _Skin {
@@ -69,6 +82,144 @@ var _Skin = class _Skin {
 };
 _Skin.prefix = "lrc";
 var Skin = _Skin;
+
+// src/components/ui/thermalButton.tsx
+var ThermalButton = (_a) => {
+  var _b = _a, {
+    variant = "primary"
+  } = _b, props = __objRest(_b, [
+    "variant"
+  ]);
+  const styles = import_react.css`
+
+        cursor: pointer;
+    
+        background: ${Skin.colorValue(variant, 300)};
+
+        border: 0;
+        padding: .5rem 1rem;
+        
+        border-radius: 5px;
+
+        transition: all .1s ease-in-out;
+
+        &:hover {
+            background: ${Skin.colorValue(variant, 300)};
+            box-shadow: 0px 0px 5px ${Skin.colorValue("primary", 500)};
+        }
+    
+    `;
+  return /* @__PURE__ */ (0, import_react.jsx)(import_react2.Button, __spreadValues({ css: styles }, props), props.children);
+};
+
+// src/components/buttons/ThermalRangeAutoButton.tsx
+var ThermalRangeAutoButton = (_a) => {
+  var _b = _a, { registry } = _b, props = __objRest(_b, ["registry"]);
+  const { onClick } = (0, import_react_bridge.useRangeButtonAuto)(registry);
+  return /* @__PURE__ */ (0, import_react3.jsx)(ThermalButton, __spreadValues({ onClick }, props), "Automatick\xFD teplotn\xED rozsah");
+};
+
+// src/components/buttons/ThermalRangeFullButton.tsx
+var import_react4 = require("@emotion/react");
+var import_react_bridge2 = require("@labir/react-bridge");
+var ThermalRangeFullButton = (_a) => {
+  var _b = _a, {
+    registry
+  } = _b, props = __objRest(_b, [
+    "registry"
+  ]);
+  const { onClick } = (0, import_react_bridge2.useRangeButtonFull)(registry);
+  return /* @__PURE__ */ (0, import_react4.jsx)(ThermalButton, __spreadValues({ onClick }, props), "Pln\xFD teplotn\xED rozsah");
+};
+
+// src/components/inputs/ThermalHistogramResolutionInput.tsx
+var import_react7 = require("@emotion/react");
+var import_react_bridge3 = require("@labir/react-bridge");
+
+// src/components/ui/thermalInput.tsx
+var import_react5 = require("@emotion/react");
+var import_react6 = require("@headlessui/react");
+var ThermalInput = (_a) => {
+  var _b = _a, {
+    variant = "primary"
+  } = _b, props = __objRest(_b, [
+    "variant"
+  ]);
+  const style = import_react5.css`
+    
+        border: 1px solid ${Skin.colorValue("gray", 300)};
+
+        padding: .5rem 1rem;
+        border-radius: 5px;
+        display: inline-block;
+
+        transition: all .15s ease-in-out;
+
+        &:focus {
+            border-color: ${Skin.colorValue(variant, 500)};
+            outline: 0;
+        }
+
+        &[type=range] {
+            accent-color: ${Skin.colorValue(variant, 400)};
+        }
+    
+    `;
+  return /* @__PURE__ */ (0, import_react5.jsx)(import_react6.Input, __spreadProps(__spreadValues({}, props), { css: style }));
+};
+
+// src/components/inputs/ThermalHistogramResolutionInput.tsx
+var ThermalHistogramResolutionInput = (_a) => {
+  var _b = _a, {
+    registry,
+    type = "number"
+  } = _b, props = __objRest(_b, [
+    "registry",
+    "type"
+  ]);
+  const { onChange, internal, onBlur } = (0, import_react_bridge3.useHistogramResolutionInput)(registry);
+  return /* @__PURE__ */ (0, import_react7.jsx)(
+    ThermalInput,
+    __spreadValues({
+      onChange,
+      onBlur,
+      value: internal,
+      min: 0,
+      max: 200,
+      step: 1,
+      type
+    }, props)
+  );
+};
+
+// src/components/inputs/ThermalOpacityInput.tsx
+var import_react8 = require("@emotion/react");
+var import_react_bridge4 = require("@labir/react-bridge");
+var ThermalOpacityInput = (_a) => {
+  var _b = _a, {
+    registry,
+    type = "number"
+  } = _b, props = __objRest(_b, [
+    "registry",
+    "type"
+  ]);
+  const { onChange, opacity } = (0, import_react_bridge4.useOpacityInput)(registry);
+  return /* @__PURE__ */ (0, import_react8.jsx)(
+    ThermalInput,
+    __spreadValues({
+      onChange,
+      value: opacity.value,
+      min: 0,
+      max: 1,
+      step: 0.01,
+      type
+    }, props)
+  );
+};
+
+// src/context/ThermalEmotionProvider.tsx
+var import_react9 = require("react");
+var import_react10 = require("@emotion/react");
 
 // src/theme/Variables.ts
 var Variables = class {
@@ -133,6 +284,33 @@ var Variables = class {
       800: "#561f21",
       900: "#321313"
     };
+    // Breakpoints
+    this.breakpoints = {
+      xs: 0,
+      sm: 640,
+      md: 900,
+      lg: 1200,
+      xl: 1450
+    };
+    // Gaps
+    this.gap = {
+      xs: "15px",
+      sm: "16px",
+      md: "18px",
+      lg: "20px",
+      xl: "22px"
+    };
+    // Font sizes
+    this.fontSize = {
+      xs: "15px",
+      sm: "16px",
+      md: "18px",
+      lg: "20px",
+      xl: "22px"
+    };
+    // Line height
+    this.lineHeight = {};
+    this.fontStyles = {};
   }
   getColorVariables(color, inverse = false) {
     const slot = this[color];
@@ -162,12 +340,12 @@ var Variables = class {
 // src/context/ThermalEmotionProvider.tsx
 var import_uuid = require("uuid");
 var ThermalEmotionProvider = (props) => {
-  const variables = (0, import_react.useMemo)(() => new Variables(), []);
-  const ID = (0, import_react.useMemo)(() => (0, import_uuid.v4)(), []);
-  const appClass = (0, import_react.useMemo)(() => {
+  const variables = (0, import_react9.useMemo)(() => new Variables(), []);
+  const ID = (0, import_react9.useMemo)(() => (0, import_uuid.v4)(), []);
+  const appClass = (0, import_react9.useMemo)(() => {
     return `lrc-app-${ID}`;
   }, [ID]);
-  const globalStyles = (0, import_react.useMemo)(() => {
+  const globalStyles = (0, import_react9.useMemo)(() => {
     return {
       ":root": __spreadValues({}, variables.getColors(false)),
       ".lrc-light": __spreadValues({}, variables.getColors(false)),
@@ -178,13 +356,13 @@ var ThermalEmotionProvider = (props) => {
       }
     };
   }, [variables]);
-  return /* @__PURE__ */ (0, import_react2.jsx)(import_react.default.Fragment, null, /* @__PURE__ */ (0, import_react2.jsx)(import_react2.Global, { styles: globalStyles }), /* @__PURE__ */ (0, import_react2.jsx)(import_react2.ClassNames, null, ({ css, cx }) => /* @__PURE__ */ (0, import_react2.jsx)(
+  return /* @__PURE__ */ (0, import_react10.jsx)(React.Fragment, null, /* @__PURE__ */ (0, import_react10.jsx)(import_react10.Global, { styles: globalStyles }), /* @__PURE__ */ (0, import_react10.jsx)(import_react10.ClassNames, null, ({ css: css3, cx }) => /* @__PURE__ */ (0, import_react10.jsx)(
     "div",
     {
       className: cx(
         appClass,
         "some-class",
-        css`
+        css3`
 
               h1 {
                 font-size: 28px;
@@ -197,5 +375,9 @@ var ThermalEmotionProvider = (props) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  ThermalEmotionProvider
+  ThermalEmotionProvider,
+  ThermalHistogramResolutionInput,
+  ThermalOpacityInput,
+  ThermalRangeAutoButton,
+  ThermalRangeFullButton
 });

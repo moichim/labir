@@ -73,24 +73,40 @@ export class Variables {
     };
 
     // Breakpoints
-    breakpoints: {
-        [index: string]: CSSStyleDeclaration["width"]
+    breakpoints = {
+        xs: 0,
+        sm: 640,
+        md: 900,
+        lg: 1200,
+        xl: 1450
     }
 
     // Gaps
     gap: {
-        [index: keyof Variables["breakpoints"]]: CSSStyleDeclaration["paddingTop"]
+        [index in keyof Variables["breakpoints"]]: CSSStyleDeclaration["paddingTop"]
+    } = {
+        xs: "15px",
+        sm: "16px",
+        md: "18px",
+        lg: "20px",
+        xl: "22px"
     }
 
     // Font sizes
     fontSize: {
-        [index: keyof Variables["breakpoints"]]: CSSStyleDeclaration["fontSize"]
+        [index in keyof Variables["breakpoints"]]: CSSStyleDeclaration["fontSize"]
+    } = {
+        xs: "15px",
+        sm: "16px",
+        md: "18px",
+        lg: "20px",
+        xl: "22px"
     }
 
     // Line height
     lineHeight: {
-        [index: keyof Variables["breakpoints"]]: CSSStyleDeclaration["paddingTop"]
-    }
+        // [index in keyof Variables["breakpoints"]]: CSSStyleDeclaration["paddingTop"]
+    } = {}
 
     fontStyles: {
         [index: string]: {
@@ -100,7 +116,7 @@ export class Variables {
             color?: CSSStyleDeclaration["color"],
             fontWeight?: CSSStyleDeclaration["fontWeight"]
         }
-    };
+    } = {};
 
 
     public getColorVariables( color: PaletteColor,inverse: undefined|boolean = false ) {
@@ -128,10 +144,10 @@ export class Variables {
         items[ Skin.key( `${color}-800` ) ] = slot["100"];
         items[ Skin.key( `${color}-900` ) ] = slot["50"];
 
-
         return items;
 
     }
+
 
     public getColors( inverse: boolean|undefined = false ) {
 

@@ -1,11 +1,11 @@
-import React, { useMemo } from "react";
+import { FC, PropsWithChildren, useMemo } from "react";
 /** @jsx jsx */
 import { jsx, Global, ClassNames } from "@emotion/react";
 import { Variables } from "../theme/Variables";
 
 import { v4 as uuid } from "uuid";
 
-export const ThermalEmotionProvider: React.FC<React.PropsWithChildren> = (
+export const ThermalEmotionProvider: FC<PropsWithChildren> = (
   props
 ) => {
   const variables = useMemo(() => new Variables(), []);

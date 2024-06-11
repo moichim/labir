@@ -15,7 +15,7 @@ type RegistryHistogramProps = {
   background?: React.CSSProperties["backgroundColor"];
 };
 
-export const RegistryHistogram: React.FC<RegistryHistogramProps> = ({
+export const ThermalRegistryHistogram: React.FC<RegistryHistogramProps> = ({
   sizeInPx = 20,
   borderColor = "lightgray",
   borderWidthInPx = 1,

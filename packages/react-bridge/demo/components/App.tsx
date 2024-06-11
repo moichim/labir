@@ -4,12 +4,12 @@ import {
   useThermalRegistryRangeDrive,
 } from "../../src";
 import { ThermalDropin } from "../../src/components/dropin/ThermalDropin";
-import { RegistryHistogram } from "../../src/components/histogram/registryHistogram";
+import { ThermalRegistryHistogram } from "../../src/components/histogram/thermalRegistryHistogram";
 import { HistogramResolutionInputHeadless } from "../../src/components/histogramResolutionInput/histogramResolutionInputHeadless";
 import { ThermalInstance } from "../../src/components/instance/thermalInstance";
 import { OpacityInputHeadless } from "../../src/components/opacity/opacityInputHeadless";
 import { PaletteDropdownHeadless } from "../../src/components/palette/PaletteDropdownHeadless";
-import { RangeHeadless } from "../../src/components/range/RangeHeadless";
+import { ThermalRegistryRange } from "../../src/components/range/ThermalRegistryRange";
 import { RangeButtonAutoHeadless } from "../../src/components/rangeButtonAuto.tsx/rangeButtonAutoHeadless";
 import { RangeButtonFullHeadless } from "../../src/components/rangeButtonFull/rangeButtonFullHeadless";
 import { useThermalRegistry } from "../../src/context/useThermalRegistry";
@@ -63,7 +63,7 @@ function App() {
   return (
     <>
 
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={dropinRegistry}
         step={1}
         renderSkeleton={() => <article>Načítačka</article>}
@@ -84,7 +84,7 @@ function App() {
       <HistogramResolutionInputHeadless registry={registry} />
       <HistogramResolutionInputHeadless registry={registry} type="range"/>
 
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={0.1}
         renderSkeleton={() => <article>NAčítačka</article>}
@@ -99,7 +99,7 @@ function App() {
         histogramBackground="yellow"
         // histogramBorderWidthInPx={0}
       />
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={0.2}
         renderSkeleton={() => <article>NAčítačka</article>}
@@ -108,13 +108,13 @@ function App() {
         histogramSizeInPx={200}
         histogramBorderWidthInPx={0}
       />
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={1}
         renderSkeleton={() => <article>NAčítačka</article>}
         trackSizeInPx={50}
       />
-      <RegistryHistogram registry={registry} />
+      <ThermalRegistryHistogram registry={registry} />
       {instances.value.map((instance) => {
         return (
           <div className="instance!!!" key={instance.id}>

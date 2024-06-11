@@ -1,13 +1,24 @@
 import * as _labir_core from '@labir/core';
 import { ThermalRegistry, ThermalFileInstance, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalPaletteType, ThermalMinmaxOrUndefined } from '@labir/core';
-import React, { MouseEvent } from 'react';
-import { InputProps, ButtonProps } from '@headlessui/react';
+import React$1, { MouseEvent, ChangeEventHandler } from 'react';
+import * as react_dropzone from 'react-dropzone';
 
 type ThermalDropinProps = {
     registry: ThermalRegistry;
     groupId: string;
 };
-declare const ThermalDropin: React.FC<ThermalDropinProps>;
+/** @deprecated Should implement the hook individually! */
+declare const ThermalDropin: React$1.FC<ThermalDropinProps>;
+
+declare const useThermalDropin: (registry: ThermalRegistry, groupId: string) => {
+    group: _labir_core.ThermalGroup;
+    instances: {
+        value: _labir_core.ThermalFileInstance[];
+        instantiateSources: (sources: _labir_core.ThermalFileSource[]) => void;
+        removeAllInstances: () => void;
+    };
+    dropzone: react_dropzone.DropzoneState;
+};
 
 declare enum Orientation {
     HORIZONTAL = "horizontal",
@@ -18,26 +29,27 @@ type RegistryHistogramProps = {
     orientation?: Orientation;
     registry: ThermalRegistry;
     sizeInPx?: number;
-    borderColor?: React.CSSProperties["borderColor"];
-    borderWidthInPx?: React.CSSProperties["borderWidth"];
-    barBackground?: React.CSSProperties["backgroundColor"];
-    background?: React.CSSProperties["backgroundColor"];
+    borderColor?: React$1.CSSProperties["borderColor"];
+    borderWidthInPx?: React$1.CSSProperties["borderWidth"];
+    barBackground?: React$1.CSSProperties["backgroundColor"];
+    background?: React$1.CSSProperties["backgroundColor"];
 };
-declare const RegistryHistogram: React.FC<RegistryHistogramProps>;
+declare const ThermalRegistryHistogram: React$1.FC<RegistryHistogramProps>;
 
-type HistogramResolutionInputHeadlessProps = InputProps & {
-    registry: ThermalRegistry;
+declare const useHistogramResolutionInput: (registry: ThermalRegistry) => {
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur: () => void;
+    internal: number;
 };
-declare const HistogramResolutionInputHeadless: React.FC<HistogramResolutionInputHeadlessProps>;
 
 type ThermalInstanceEventHandler = (listenerLayerEvent: MouseEvent<HTMLDivElement>, instance: ThermalFileInstance) => void;
-type ThermalInstanceProps = React.PropsWithChildren & {
+type ThermalInstanceProps = React$1.PropsWithChildren & {
     instance: ThermalFileInstance;
     onMouseEnter?: ThermalInstanceEventHandler;
     onClick?: ThermalInstanceEventHandler;
     onMouseLeave?: ThermalInstanceEventHandler;
     onMouseMove?: ThermalInstanceEventHandler;
-    style?: React.CSSProperties;
+    style?: React$1.CSSProperties;
     className?: string;
 };
 /**
@@ -45,14 +57,17 @@ type ThermalInstanceProps = React.PropsWithChildren & {
  *
  * Creates the DOM inside which the instance shall be rendered.
  */
-declare const ThermalInstance: React.FC<ThermalInstanceProps>;
+declare const ThermalInstance: React$1.FC<ThermalInstanceProps>;
 
-type OpacityInputHeadlessProps = InputProps & {
-    registry: ThermalRegistry;
+declare const useOpacityInput: (registry: ThermalRegistry) => {
+    onChange: ChangeEventHandler<HTMLInputElement>;
+    opacity: {
+        value: number;
+        set: (value: number) => number;
+    };
 };
-declare const OpacityInputHeadless: React.FC<OpacityInputHeadlessProps>;
 
-declare const PaletteDropdownHeadless: React.FC;
+declare const PaletteDropdownHeadless: React$1.FC;
 
 type RangePropsExposed = {
     registry: ThermalRegistry;
@@ -62,16 +77,16 @@ type RangePropsExposed = {
     orientation?: Orientation;
     useHistogram?: boolean;
     trackSizeInPx?: number;
-    trackBg?: React.CSSProperties["backgroundColor"];
-    ticksLineColor?: React.CSSProperties["backgroundColor"];
-    ticksLabelColor?: React.CSSProperties["color"];
-    handleBG?: React.CSSProperties["backgroundColor"];
-    handleColor?: React.CSSProperties["color"];
+    trackBg?: React$1.CSSProperties["backgroundColor"];
+    ticksLineColor?: React$1.CSSProperties["backgroundColor"];
+    ticksLabelColor?: React$1.CSSProperties["color"];
+    handleBG?: React$1.CSSProperties["backgroundColor"];
+    handleColor?: React$1.CSSProperties["color"];
     histogramSizeInPx?: number;
-    histogramBackground?: React.CSSProperties["backgroundColor"];
-    histogramBorderColor?: React.CSSProperties["borderColor"];
+    histogramBackground?: React$1.CSSProperties["backgroundColor"];
+    histogramBorderColor?: React$1.CSSProperties["borderColor"];
     histogramBorderWidthInPx?: number;
-    histogramBarBackground?: React.CSSProperties["backgroundColor"];
+    histogramBarBackground?: React$1.CSSProperties["backgroundColor"];
     /** @deprecated preferrably do not use classes */
     histogramClass?: string;
     /** @deprecated preferrably do not use classes */
@@ -82,29 +97,30 @@ type RangePropsExposed = {
     containerClass?: string;
 };
 type RangeHeadlessInnerProps = RangePropsExposed;
-type RangePropsHeadless = RangeHeadlessInnerProps & {
-    renderContainer?: React.FC<React.PropsWithChildren>;
-    renderSkeleton?: React.FC;
+type ThermalRangeProps = RangeHeadlessInnerProps & {
+    renderContainer?: React$1.FC<React$1.PropsWithChildren>;
+    renderSkeleton?: React$1.FC;
 };
-declare const RangeHeadless: React.FC<RangePropsHeadless>;
+declare const ThermalRegistryRange: React$1.FC<ThermalRangeProps>;
 
-type RangeButtonFullHeadlessProps$1 = ButtonProps & {
-    registry: ThermalRegistry;
+/**
+ * A functionality of the button that sets the registry range to automatic based on current histogram
+ */
+declare const useRangeButtonAuto: (registry: ThermalRegistry) => {
+    onClick: () => void;
 };
-declare const RangeButtonAutoHeadless: React.FC<RangeButtonFullHeadlessProps$1>;
 
-type RangeButtonFullHeadlessProps = ButtonProps & {
-    registry: ThermalRegistry;
+declare const useRangeButtonFull: (registry: ThermalRegistry) => {
+    onClick: () => void;
 };
-declare const RangeButtonFullHeadless: React.FC<RangeButtonFullHeadlessProps>;
 
-type ThermalContextProps = React.PropsWithChildren & {
+type ThermalContextProps = React$1.PropsWithChildren & {
     options?: ThermalManagerOptions;
     /** Provide an external instance of the manager. */
     externalManagerInstance?: ThermalManager;
 };
 /** Everything must run inside a global context which stores an `ThermalManager` instance */
-declare const ThermalProvider: React.FC<ThermalContextProps>;
+declare const ThermalProvider: React$1.FC<ThermalContextProps>;
 /** Get the global `ThermalManager` instance from the context. */
 declare const useThermalContext: () => ThermalManager;
 
@@ -202,4 +218,4 @@ declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) =
     instance: ThermalFileInstance | undefined;
 };
 
-export { HistogramResolutionInputHeadless, OpacityInputHeadless, Orientation, PaletteDropdownHeadless, RangeButtonAutoHeadless, RangeButtonFullHeadless, RangeHeadless, RegistryHistogram, ThermalDropin, ThermalInstance, ThermalProvider, useSingleFileRegistry, useThermalContext, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+export { Orientation, PaletteDropdownHeadless, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

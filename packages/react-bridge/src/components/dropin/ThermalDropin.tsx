@@ -1,50 +1,33 @@
 import { ThermalRegistry } from "@labir/core";
 import React from "react";
-import { useDropzone } from 'react-dropzone';
-import { useThermalGroupInstancesState } from "../../properties/lists/useThermalGroupInstancesState";
 import { ThermalInstance } from "../instance/thermalInstance";
+import { useThermalDropin } from "./useThermalDropin";
 
 type ThermalDropinProps = {
-    registry: ThermalRegistry,
-    groupId: string
-}
+  registry: ThermalRegistry;
+  groupId: string;
+};
+/** @deprecated Should implement the hook individually! */
+export const ThermalDropin: React.FC<ThermalDropinProps> = (props) => {
+  const { instances, dropzone } = useThermalDropin(
+    props.registry,
+    props.groupId
+  );
 
-export const ThermalDropin: React.FC<ThermalDropinProps> = props => {
-
-    const dropzone = useDropzone({
-        onDrop: async ( acceptedFiles, rejectedFiles, event ) => {
-
-            console.log( event );
-
-            props.registry.processDroppedFiles( acceptedFiles, props.groupId );
-
-        },
-        accept: {
-            "application/x-binary": [ ".lrc" ],
-        },
-
-    });
-
-    const group = props.registry.groups.addOrGetGroup( props.groupId );
-
-    const instances = useThermalGroupInstancesState( group, "ThermalDropin" );
-
-    return <><div
-        {...dropzone.getRootProps()}
-    >
-
+  return (
+    <>
+      <div {...dropzone.getRootProps()}>
         Dropin
-
         <input {...dropzone.getInputProps()} />
-
-        {
-        dropzone.isDragActive ?
-          <p>Drop the files here ...</p> :
+        {dropzone.isDragActive ? (
+          <p>Drop the files here ...</p>
+        ) : (
           <p>Drag 'n' drop some files here, or click to select files</p>
-      }
-
-    </div>
-    {instances.value.map( instance => <ThermalInstance instance={instance} /> )}
+        )}
+      </div>
+      {instances.value.map((instance) => (
+        <ThermalInstance key={instance.id} instance={instance} />
+      ))}
     </>
-
-}
+  );
+};
