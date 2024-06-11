@@ -2,12 +2,8 @@
 import { jsx, css, Global, ClassNames } from '@emotion/react'
 
 import {
-  HistogramResolutionInputHeadless,
-  OpacityInputHeadless,
   Orientation,
   PaletteDropdownHeadless,
-  RangeButtonAutoHeadless,
-  RangeButtonFullHeadless,
   ThermalDropin,
   ThermalInstance,
   ThermalRegistryHistogram,
@@ -90,18 +86,6 @@ function App() {
       <ThermalDropin registry={dropinRegistry} groupId={"zkušební dropin"} />
 
       <PaletteDropdownHeadless />
-
-      <OpacityInputHeadless registry={registry} step={0.01} />
-      <OpacityInputHeadless registry={registry} type="number" />
-
-      <RangeButtonFullHeadless registry={registry} as={"button"}>
-        Děti jsme tady
-      </RangeButtonFullHeadless>
-      <RangeButtonAutoHeadless registry={registry} />
-      <HistogramResolutionInputHeadless registry={registry} />
-
-      <HistogramResolutionInputHeadless registry={registry} />
-      <HistogramResolutionInputHeadless registry={registry} type="range" />
 
       <div className="lrc-dark__" css={style}>
 
