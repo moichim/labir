@@ -1,4 +1,4 @@
-var Md=Object.defineProperty;var zd=(e,t,r)=>t in e?Md(e,t,{enumerable:!0,configurable:!0,writable:!0,value:r}):e[t]=r;var ve=(e,t,r)=>(zd(e,typeof t!="symbol"?t+"":t,r),r);const Id="1.0.0",Dd={type:"git",url:"https://github.com/moichim/labir"},Od="Jan Jáchim <jachim5@gmail.com>";var bl=typeof globalThis<"u"?globalThis:typeof window<"u"?window:typeof global<"u"?global:typeof self<"u"?self:{};function Ts(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}var qa={exports:{}},I={};/**
+var Md=Object.defineProperty;var zd=(e,t,r)=>t in e?Md(e,t,{enumerable:!0,configurable:!0,writable:!0,value:r}):e[t]=r;var ve=(e,t,r)=>(zd(e,typeof t!="symbol"?t+"":t,r),r);const Id="1.1.2",Dd={type:"git",url:"https://github.com/moichim/labir"},Od="Jan Jáchim <jachim5@gmail.com>";var bl=typeof globalThis<"u"?globalThis:typeof window<"u"?window:typeof global<"u"?global:typeof self<"u"?self:{};function Ts(e){return e&&e.__esModule&&Object.prototype.hasOwnProperty.call(e,"default")?e.default:e}var qa={exports:{}},I={};/**
  * @license React
  * react.production.min.js
  *

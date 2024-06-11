@@ -6,7 +6,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
     root: path.resolve( "./src" ),
-    publicDir: path.resolve( "./public" ),
+    publicDir: path.resolve( "../../public" ),
     build: {
         rollupOptions: {
             input: {

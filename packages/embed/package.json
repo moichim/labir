@@ -10,7 +10,7 @@
     "url": "https://github.com/moichim/labir"
   },
   "scripts": {
-    "dev": "vite",
+    "vite": "vite",
     "eslint": "eslint src",
     "test": "vitest src",
     "build": "vite build",
