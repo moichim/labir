@@ -1,3 +1,6 @@
+// src/parsers/thermalLoader.ts
+import fetch from "cross-fetch";
+
 // src/properties/abstractProperty.ts
 var AbstractProperty = class {
   constructor(parent, _initial) {
@@ -657,8 +660,55 @@ var ThermalFileInstance = class extends EventTarget {
   }
 };
 
-// src/parsers/thermalLoader.ts
-import fetch from "cross-fetch";
+// src/file/ThermalFileSource.ts
+var ThermalFileSource = class _ThermalFileSource extends EventTarget {
+  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, visibleUrl) {
+    super();
+    this.url = url;
+    this.signature = signature;
+    this.version = version;
+    this.streamCount = streamCount;
+    this.fileDataType = fileDataType;
+    this.unit = unit;
+    this.width = width;
+    this.height = height;
+    this.timestamp = timestamp;
+    this.pixels = pixels;
+    this.min = min;
+    this.max = max;
+    this.visibleUrl = visibleUrl;
+  }
+  static async fromUrl(thermalUrl, visibleUrl) {
+    const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
+    if (!file)
+      return null;
+    return file;
+  }
+  serialize() {
+    return JSON.stringify(this);
+  }
+  static fromStorage(stored) {
+    const parsed = JSON.parse(stored);
+    return new _ThermalFileSource(
+      parsed.url,
+      parsed.signature,
+      parsed.version,
+      parsed.streamCount,
+      parsed.fileDataType,
+      parsed.unit,
+      parsed.width,
+      parsed.height,
+      parsed.timestamp,
+      parsed.pixels,
+      parsed.min,
+      parsed.max,
+      parsed.visibleUrl
+    );
+  }
+  createInstance(group) {
+    return new ThermalFileInstance(this, group);
+  }
+};
 
 // src/parsers/AbstractParser.ts
 var AbstractParser = class {
@@ -961,53 +1011,684 @@ var ThermalLoader = class _ThermalLoader {
   }
 };
 
-// src/file/ThermalFileSource.ts
-var ThermalFileSource = class _ThermalFileSource extends EventTarget {
-  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, visibleUrl) {
+// src/properties/drives/OpacityDrive.ts
+var OpacityDrive = class extends AbstractProperty {
+  /** Make sure the value is allways between 0 and 1 */
+  validate(value) {
+    return Math.min(Math.max(0, value), 1);
+  }
+  /** 
+   * Whenever the opacity changes, propagate the value to all instances
+   */
+  afterSetEffect(value) {
+    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+  }
+  /** Impose an opacity to all instances */
+  imposeOpacity(value) {
+    this.value = value;
+    return this.value;
+  }
+};
+
+// src/properties/drives/RangeDriver.ts
+var RangeDriver = class extends AbstractProperty {
+  /** 
+   * Make sure the range is allways within the minmax values.
+   * 
+   * If this method should work, the value needs to be set before the minmax is calculated.
+   */
+  validate(value) {
+    if (value === void 0) {
+      return void 0;
+    }
+    const minmax = this.parent.minmax.value;
+    if (minmax === void 0) {
+      return value;
+    }
+    const result = { ...value };
+    if (value.from < minmax.min)
+      result.from = minmax.min;
+    if (value.to > minmax.max)
+      result.to = minmax.max;
+    return result;
+  }
+  /**
+   * Whenever the range changes, propagate the value to all instances
+   */
+  afterSetEffect(value) {
+    if (value)
+      this.parent.forEveryInstance((instance) => instance.recieveRange(value));
+  }
+  /** 
+   * Imposes a range to itself and below
+   * - needs to be called before the minmax is calculated!
+   */
+  imposeRange(value) {
+    if (value === void 0 && this.value === void 0) {
+    } else if (value === void 0 && this.value !== void 0) {
+      this.value = value;
+    }
+    if (value !== void 0 && this.value === void 0) {
+      this.value = value;
+    } else if (value !== void 0 && this.value !== void 0) {
+      if (this.value.from !== value.from || this.value.to !== value.to) {
+        this.value = value;
+      }
+    }
+    return this.value;
+  }
+};
+
+// src/properties/drives/CursorPositionDrive.ts
+var CursorPositionDrive = class extends AbstractProperty {
+  constructor() {
+    super(...arguments);
+    this._hover = this.value !== void 0;
+  }
+  get hover() {
+    return this._hover;
+  }
+  validate(value) {
+    return value;
+  }
+  // After the position changes, update the hover & project the position in all instances
+  afterSetEffect(value) {
+    this._hover = this.value !== void 0;
+    this.parent.instances.forEveryInstance((instance) => instance.recieveCursorPosition(value));
+  }
+  recieveCursorPosition(position) {
+    this.value = position;
+  }
+};
+
+// src/properties/lists/InstancesState.ts
+var InstancesState = class extends AbstractProperty {
+  constructor() {
+    super(...arguments);
+    this._map = /* @__PURE__ */ new Map();
+  }
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.url, instance));
+  }
+  /** 
+   * Creation of of single instance 
+   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
+   */
+  instantiateSource(source) {
+    if (!this._map.has(source.url)) {
+      const instance = source.createInstance(this.parent);
+      this.value = [...this.value, instance];
+      return instance;
+    } else {
+      return this._map.get(source.url);
+    }
+  }
+  /**
+   * Creation of instances at once
+   * - triggers listeners only once
+   */
+  instantiateSources(sources) {
+    const newValue = [];
+    sources.forEach((source) => {
+      if (!this._map.has(source.url)) {
+        newValue.push(source.createInstance(this.parent));
+      }
+    });
+    this.value = newValue;
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+};
+
+// src/properties/abstractMinmaxProperty.ts
+var AbstractMinmaxProperty = class extends AbstractProperty {
+  /** Get the current distance between min and max */
+  get distanceInCelsius() {
+    if (this.value === void 0) {
+      return void 0;
+    }
+    return Math.abs(this.value.min - this.value.max);
+  }
+};
+
+// src/properties/states/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.instances.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/group/ThermalGroup.ts
+var ThermalGroup = class {
+  constructor(registry, id, name, description) {
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.hash = Math.random();
+    this.minmax = new MinmaxGroupProperty(this, void 0);
+    this.instances = new InstancesState(this, []);
+    this.cursorPosition = new CursorPositionDrive(this, void 0);
+    /** Iteration */
+    this.forEveryInstance = (fn) => {
+      this.instances.value.forEach((instance) => fn(instance));
+    };
+  }
+  /**
+   * Destruction
+   */
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.instances.removeAllInstances();
+  }
+  reset() {
+    this.instances.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+  }
+};
+
+// src/properties/lists/GroupsState.ts
+var GroupsState = class extends AbstractProperty {
+  constructor() {
+    super(...arguments);
+    this._map = /* @__PURE__ */ new Map();
+  }
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    this._map.clear();
+    value.forEach((group) => this._map.set(group.id, group));
+  }
+  addOrGetGroup(groupId, name, description) {
+    if (this._map.has(groupId)) {
+      return this._map.get(groupId);
+    }
+    const group = new ThermalGroup(this.parent, groupId, name, description);
+    this._map.set(groupId, group);
+    this.value.push(group);
+    this.value = [...this.value];
+    return group;
+  }
+  removeGroup(groupId) {
+    if (!this._map.has(groupId)) {
+      return;
+    }
+    this._map.get(groupId)?.destroySelfAndBelow();
+    this._map.delete(groupId);
+    this.value = Array.from(this._map.values());
+  }
+  removeAllGroups() {
+    this.value.forEach((group) => group.destroySelfAndBelow());
+    this.value = [];
+  }
+};
+
+// src/properties/states/HistogramState.ts
+var HistogramState = class extends AbstractProperty {
+  constructor() {
+    super(...arguments);
+    this._resolution = 50;
+    /** Map of temperature => countOfPixels in the scaled down resolution */
+    this.buffer = /* @__PURE__ */ new Map();
+    /** Total countOfPixels in every image */
+    this.bufferPixelsCount = 0;
+    /**  */
+    this._bufferResolution = 1e3;
+  }
+  get resolution() {
+    return this._resolution;
+  }
+  set bufferResolution(value) {
+    this._bufferResolution = Math.round(Math.max(value, 1e3));
+  }
+  get bufferResolution() {
+    return this._bufferResolution;
+  }
+  /** Set the historgam resolution
+   * - does not recalculate the value!
+   * - to recalculate value, call `recalculateWithCurrentSetting`
+   * 
+   * @notice Higher the number, lower the resolution.
+  */
+  setResolution(value) {
+    this._resolution = Math.round(Math.min(Math.max(value, 2), 200));
+  }
+  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+  validate(value) {
+    if (value.length !== this.resolution + 1 && value.length !== 0) {
+    }
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Recalculates the value using all current instances and with che current resolution */
+  recalculateWithCurrentSetting() {
+    this.recalculateHistogram();
+    return this.value;
+  }
+  refreshBufferFromCurrentPixels() {
+    const buffer = /* @__PURE__ */ new Map();
+    let bufferTotal = 0;
+    if (this.parent.minmax !== void 0 && this.parent.groups.value.length !== 0) {
+      const distance = this.parent.minmax.distanceInCelsius;
+      if (distance !== void 0) {
+        const step = distance / this._bufferResolution;
+        const minmax = this.parent.minmax.value;
+        let pixels = [];
+        this.parent.forEveryInstance((instance) => {
+          pixels = [...pixels, ...instance.pixels];
+        });
+        pixels.sort((a, b) => {
+          return a - b;
+        });
+        let nextStep = minmax.min + step;
+        while (nextStep !== false) {
+          const nextIndex = pixels.findIndex((num) => num >= nextStep);
+          const pixelCount = pixels.slice(0, nextIndex).length;
+          buffer.set(nextStep - step / 2, pixelCount);
+          bufferTotal += pixelCount;
+          pixels = pixels.slice(nextIndex);
+          const nextStepTemporary = nextStep + step;
+          nextStep = nextStepTemporary <= minmax.max ? nextStepTemporary : false;
+        }
+      }
+    }
+    this.buffer = buffer;
+    this.bufferPixelsCount = bufferTotal;
+  }
+  recalculateHistogram() {
+    if (this.parent.minmax.value !== void 0 && this.parent.minmax.distanceInCelsius !== void 0) {
+      let temperaturesFromBuffer = Array.from(this.buffer.keys());
+      let countsFromBuffer = Array.from(this.buffer.values());
+      const minmax = this.parent.minmax.value;
+      const step = this.parent.minmax.distanceInCelsius / this.resolution;
+      const bufferItems = [];
+      let bufferMaxCount = 0;
+      let pointer = minmax.min;
+      while (pointer < minmax.max) {
+        const currentStepMin = pointer;
+        const currentStepMax = pointer + step;
+        const nextIndex = temperaturesFromBuffer.findIndex((num) => num >= currentStepMax);
+        const countsSubArray = countsFromBuffer.slice(0, nextIndex);
+        const currentNumberOfPixels = countsSubArray.reduce((state, current) => {
+          return state + current;
+        }, 0);
+        const currentPercentage = currentNumberOfPixels / this.bufferPixelsCount;
+        bufferItems.push({
+          from: currentStepMin,
+          to: currentStepMax,
+          percentage: currentPercentage,
+          count: currentNumberOfPixels
+        });
+        if (bufferMaxCount < currentNumberOfPixels) {
+          bufferMaxCount = currentNumberOfPixels;
+        }
+        temperaturesFromBuffer = temperaturesFromBuffer.slice(nextIndex);
+        countsFromBuffer = countsFromBuffer.slice(nextIndex);
+        pointer += step;
+      }
+      const result = bufferItems.map((item) => {
+        return {
+          ...item,
+          height: item.count / bufferMaxCount * 100
+        };
+      });
+      this.value = result;
+    }
+  }
+  /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
+  _getHistorgramFromAllGroups() {
+    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
+    }
+    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
+      return [];
+    } else {
+      const allPixels = this.parent.groups.value.reduce((state, current) => {
+        const pixels = current.instances.value.reduce((buf, instance) => {
+          buf = [...buf, ...instance.pixels];
+          return buf;
+        }, []);
+        return [...state, ...pixels];
+      }, []);
+      const segments = [];
+      const numSegments = this.resolution;
+      const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
+      const segment = difference / numSegments;
+      for (let i = 0; i < numSegments; i++) {
+        const from = segment * i + this.parent.minmax.value.min;
+        const to = from + segment;
+        segments.push([from, to]);
+      }
+      const results = [];
+      let sum = allPixels.length;
+      for (const i of segments) {
+        const count = allPixels.filter((pixel) => {
+          return pixel >= i[0] && pixel < i[1];
+        }).length;
+        sum = sum + count;
+        results.push({
+          from: i[0],
+          to: i[1],
+          count
+        });
+      }
+      const recalculated = results.map((i) => {
+        return {
+          ...i,
+          percentage: i.count / sum * 100
+        };
+      });
+      const max = Math.max(...recalculated.map((item) => item.percentage));
+      return recalculated.map((item) => {
+        return {
+          ...item,
+          height: item.percentage / max * 100
+        };
+      });
+    }
+  }
+};
+
+// src/properties/states/LoadingState.ts
+var LoadingState = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  markAsLoading() {
+    this.value = true;
+  }
+  markAsLoaded() {
+    this.value = false;
+  }
+};
+
+// src/properties/states/MinmaxRegistryState.ts
+var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  recalculateFromGroups() {
+    const groups = this.parent.groups.value;
+    this.value = this._getMinmaxFromAllGroups(groups);
+    return this.value;
+  }
+  _getMinmaxFromAllGroups(groups) {
+    if (groups.length === 0) {
+      return void 0;
+    }
+    const minmax = groups.reduce((state, current) => {
+      if (current.minmax.value === void 0) {
+        return state;
+      }
+      return {
+        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
+        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
+      };
+    }, { min: Infinity, max: -Infinity });
+    return minmax;
+  }
+};
+
+// src/registry/utilities/ThermalRequest.ts
+var ThermalRequest = class _ThermalRequest extends EventTarget {
+  constructor(group, url, visibleUrl) {
     super();
+    this.group = group;
     this.url = url;
-    this.signature = signature;
-    this.version = version;
-    this.streamCount = streamCount;
-    this.fileDataType = fileDataType;
-    this.unit = unit;
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.pixels = pixels;
-    this.min = min;
-    this.max = max;
     this.visibleUrl = visibleUrl;
   }
-  static async fromUrl(thermalUrl, visibleUrl) {
-    const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-    if (!file)
+  static single(group, thermalUrl, visibleUrl) {
+    return new _ThermalRequest(group, thermalUrl, visibleUrl);
+  }
+  static multiple(group, requests) {
+    return requests.map((request) => new _ThermalRequest(group, request.thermalUrl, request.visibleUrl));
+  }
+  async fetch() {
+    if (this.group.registry.manager.isUrlRegistered(this.url)) {
+      return {
+        file: this.group.registry.manager.sourcesByUrl[this.url],
+        request: this
+      };
+    }
+    const file = await ThermalFileSource.fromUrl(this.url, this.visibleUrl);
+    if (!file) {
       return null;
-    return file;
+    } else if (file !== null) {
+      return {
+        file,
+        request: this
+      };
+    }
+    return null;
   }
-  serialize() {
-    return JSON.stringify(this);
+};
+
+// src/registry/utilities/ThermalRegistryLoader.ts
+var ThermalRegistryLoader = class {
+  constructor(registry) {
+    this.registry = registry;
+    /** Buffer of all pending requests */
+    this._requests = [];
   }
-  static fromStorage(stored) {
-    const parsed = JSON.parse(stored);
-    return new _ThermalFileSource(
-      parsed.url,
-      parsed.signature,
-      parsed.version,
-      parsed.streamCount,
-      parsed.fileDataType,
-      parsed.unit,
-      parsed.width,
-      parsed.height,
-      parsed.timestamp,
-      parsed.pixels,
-      parsed.min,
-      parsed.max,
-      parsed.visibleUrl
+  get requests() {
+    return this._requests;
+  }
+  /** Loading state is stored in the registry */
+  get loading() {
+    return this.registry.loading.value;
+  }
+  /** Request a single file. To fetch it, call ``resolveQuery` */
+  requestFile(group, thermalUrl, visibleUrl) {
+    if (this.loading === true) {
+      console.error(`The registry ${this.registry.id} is already loading! Can not request  a single file!`);
+      return;
+    }
+    this._requests.push(ThermalRequest.single(group, thermalUrl, visibleUrl));
+  }
+  /** Request multiple files. To fetch them, call ``resolveQuery` */
+  requestFiles(group, requests) {
+    if (this.loading === true) {
+      console.error(`The group ${this.registry.id} is already loading! Can not request multiple files!`);
+      return;
+    }
+    this._requests = [
+      ...this._requests,
+      ...ThermalRequest.multiple(group, requests)
+    ];
+  }
+  /** @todo If there is an error, it is here. In the instancing, it seems that deleted groups remain and instances are binded to old groups. */
+  async resolveQuery() {
+    if (this.loading === true) {
+    }
+    const result = await Promise.all(
+      this._requests.map((request) => request.fetch())
     );
+    const mapByGroups = {};
+    for (const response of result) {
+      if (response !== null) {
+        const file = this.registry.manager.registerSource(response.file);
+        if (response.request.group.id in mapByGroups === false) {
+          mapByGroups[response.request.group.id] = [file];
+        } else {
+          mapByGroups[response.request.group.id].push(file);
+        }
+      }
+    }
+    for (const groupId in mapByGroups) {
+      const groupInstance = this.registry.groups.map.get(groupId);
+      groupInstance?.instances.instantiateSources(mapByGroups[groupId]);
+    }
+    this._requests = [];
+    return this.registry.groups.value;
   }
-  createInstance(group) {
-    return new ThermalFileInstance(this, group);
+};
+
+// src/registry/ThermalRegistry.ts
+var ThermalRegistry = class {
+  constructor(id, manager, options) {
+    this.id = id;
+    this.manager = manager;
+    this.hash = Math.random();
+    /** Takes care of the entire loading */
+    this.loader = new ThermalRegistryLoader(this);
+    /** Groups are stored in an observable property */
+    this.groups = new GroupsState(this, []);
+    /**
+     * Observable properties and drives
+     */
+    /** 
+     * Opacity property 
+     */
+    this.opacity = new OpacityDrive(this, 1);
+    /** 
+     * Minmax property 
+     */
+    this.minmax = new MinmaxRegistryProperty(this, void 0);
+    /**
+     * Loading
+     */
+    this.loading = new LoadingState(this, false);
+    /**
+     * Range
+     */
+    this.range = new RangeDriver(this, void 0);
+    /**
+     * Histogram
+     */
+    this.histogram = new HistogramState(this, []);
+    this.palette = this.manager.palette;
+    if (options) {
+      if (options.histogramResolution !== void 0) {
+        if (options.histogramResolution > 0)
+          this.histogram.setResolution(options.histogramResolution);
+      }
+    }
+  }
+  /** Iterator methods */
+  forEveryGroup(fn) {
+    this.groups.value.forEach(fn);
+  }
+  forEveryInstance(fn) {
+    this.forEveryGroup((group) => group.instances.forEveryInstance(fn));
+  }
+  async loadFiles(files) {
+    this.reset();
+    Object.entries(files).forEach(([groupId, files2]) => {
+      const group = this.groups.addOrGetGroup(groupId);
+      files2.forEach((file) => {
+        this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
+      });
+    });
+    this.loading.markAsLoading();
+    await this.loader.resolveQuery();
+    this.postLoadedProcessing();
+  }
+  /** Load the registry with only one file. */
+  async loadOneFile(file, groupId) {
+    this.reset();
+    const group = this.groups.addOrGetGroup(groupId);
+    this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
+    this.loading.markAsLoading();
+    await this.loader.resolveQuery();
+    this.postLoadedProcessing();
+  }
+  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
+  async processDroppedFiles(files, groupId) {
+    this.reset();
+    this.loading.markAsLoading();
+    this.removeAllChildren();
+    const parsedFiles = await Promise.all(
+      files.map((file) => ThermalLoader.fromFile(file))
+    ).then((results) => {
+      return results.filter((file) => {
+        return file !== null;
+      });
+    });
+    parsedFiles.forEach((source) => this.manager.registerSource(source));
+    const group = this.groups.addOrGetGroup(groupId);
+    group.instances.instantiateSources(parsedFiles);
+    this.postLoadedProcessing();
+  }
+  /** Actions to take after the registry is loaded */
+  postLoadedProcessing() {
+    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
+    this.minmax.recalculateFromGroups();
+    if (this.minmax.value)
+      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+    this.histogram.refreshBufferFromCurrentPixels();
+    this.histogram.recalculateWithCurrentSetting();
+    this.loading.markAsLoaded();
+  }
+  reset() {
+    this.forEveryGroup((group) => group.reset());
+    if (this.loader.loading === false) {
+      this.opacity.reset();
+      this.minmax.reset();
+    }
+  }
+  removeAllChildren() {
+    this.groups.removeAllGroups();
+  }
+  destroySelfAndBelow() {
+    this.reset();
+  }
+  destroySelfInTheManager() {
+    this.manager.removeRegistry(this.id);
   }
 };
 
@@ -1554,687 +2235,6 @@ var ThermalPalettes = {
   }
 };
 
-// src/properties/drives/CursorPositionDrive.ts
-var CursorPositionDrive = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._hover = this.value !== void 0;
-  }
-  get hover() {
-    return this._hover;
-  }
-  validate(value) {
-    return value;
-  }
-  // After the position changes, update the hover & project the position in all instances
-  afterSetEffect(value) {
-    this._hover = this.value !== void 0;
-    this.parent.instances.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-  }
-  recieveCursorPosition(position) {
-    this.value = position;
-  }
-};
-
-// src/properties/lists/InstancesState.ts
-var InstancesState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._map = /* @__PURE__ */ new Map();
-  }
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  /** 
-   * Creation of of single instance 
-   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
-   */
-  instantiateSource(source) {
-    if (!this._map.has(source.url)) {
-      const instance = source.createInstance(this.parent);
-      this.value = [...this.value, instance];
-      return instance;
-    } else {
-      return this._map.get(source.url);
-    }
-  }
-  /**
-   * Creation of instances at once
-   * - triggers listeners only once
-   */
-  instantiateSources(sources) {
-    const newValue = [];
-    sources.forEach((source) => {
-      if (!this._map.has(source.url)) {
-        newValue.push(source.createInstance(this.parent));
-      }
-    });
-    this.value = newValue;
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-};
-
-// src/properties/abstractMinmaxProperty.ts
-var AbstractMinmaxProperty = class extends AbstractProperty {
-  /** Get the current distance between min and max */
-  get distanceInCelsius() {
-    if (this.value === void 0) {
-      return void 0;
-    }
-    return Math.abs(this.value.min - this.value.max);
-  }
-};
-
-// src/properties/states/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
-  }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.instances.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
-  }
-};
-
-// src/group/ThermalGroup.ts
-var ThermalGroup = class {
-  constructor(registry, id, name, description) {
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.hash = Math.random();
-    this.minmax = new MinmaxGroupProperty(this, void 0);
-    this.instances = new InstancesState(this, []);
-    this.cursorPosition = new CursorPositionDrive(this, void 0);
-    /** Iteration */
-    this.forEveryInstance = (fn) => {
-      this.instances.value.forEach((instance) => fn(instance));
-    };
-  }
-  /**
-   * Destruction
-   */
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.instances.removeAllInstances();
-  }
-  reset() {
-    this.instances.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-  }
-};
-
-// src/properties/drives/OpacityDrive.ts
-var OpacityDrive = class extends AbstractProperty {
-  /** Make sure the value is allways between 0 and 1 */
-  validate(value) {
-    return Math.min(Math.max(0, value), 1);
-  }
-  /** 
-   * Whenever the opacity changes, propagate the value to all instances
-   */
-  afterSetEffect(value) {
-    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
-  }
-  /** Impose an opacity to all instances */
-  imposeOpacity(value) {
-    this.value = value;
-    return this.value;
-  }
-};
-
-// src/properties/drives/RangeDriver.ts
-var RangeDriver = class extends AbstractProperty {
-  /** 
-   * Make sure the range is allways within the minmax values.
-   * 
-   * If this method should work, the value needs to be set before the minmax is calculated.
-   */
-  validate(value) {
-    if (value === void 0) {
-      return void 0;
-    }
-    const minmax = this.parent.minmax.value;
-    if (minmax === void 0) {
-      return value;
-    }
-    const result = { ...value };
-    if (value.from < minmax.min)
-      result.from = minmax.min;
-    if (value.to > minmax.max)
-      result.to = minmax.max;
-    return result;
-  }
-  /**
-   * Whenever the range changes, propagate the value to all instances
-   */
-  afterSetEffect(value) {
-    if (value)
-      this.parent.forEveryInstance((instance) => instance.recieveRange(value));
-  }
-  /** 
-   * Imposes a range to itself and below
-   * - needs to be called before the minmax is calculated!
-   */
-  imposeRange(value) {
-    if (value === void 0 && this.value === void 0) {
-    } else if (value === void 0 && this.value !== void 0) {
-      this.value = value;
-    }
-    if (value !== void 0 && this.value === void 0) {
-      this.value = value;
-    } else if (value !== void 0 && this.value !== void 0) {
-      if (this.value.from !== value.from || this.value.to !== value.to) {
-        this.value = value;
-      }
-    }
-    return this.value;
-  }
-};
-
-// src/properties/lists/GroupsState.ts
-var GroupsState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._map = /* @__PURE__ */ new Map();
-  }
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect(value) {
-    this._map.clear();
-    value.forEach((group) => this._map.set(group.id, group));
-  }
-  addOrGetGroup(groupId, name, description) {
-    if (this._map.has(groupId)) {
-      return this._map.get(groupId);
-    }
-    const group = new ThermalGroup(this.parent, groupId, name, description);
-    this._map.set(groupId, group);
-    this.value.push(group);
-    this.value = [...this.value];
-    return group;
-  }
-  removeGroup(groupId) {
-    if (!this._map.has(groupId)) {
-      return;
-    }
-    this._map.get(groupId)?.destroySelfAndBelow();
-    this._map.delete(groupId);
-    this.value = Array.from(this._map.values());
-  }
-  removeAllGroups() {
-    this.value.forEach((group) => group.destroySelfAndBelow());
-    this.value = [];
-  }
-};
-
-// src/properties/states/HistogramState.ts
-var HistogramState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._resolution = 50;
-    /** Map of temperature => countOfPixels in the scaled down resolution */
-    this.buffer = /* @__PURE__ */ new Map();
-    /** Total countOfPixels in every image */
-    this.bufferPixelsCount = 0;
-    /**  */
-    this._bufferResolution = 1e3;
-  }
-  get resolution() {
-    return this._resolution;
-  }
-  set bufferResolution(value) {
-    this._bufferResolution = Math.round(Math.max(value, 1e3));
-  }
-  get bufferResolution() {
-    return this._bufferResolution;
-  }
-  /** Set the historgam resolution
-   * - does not recalculate the value!
-   * - to recalculate value, call `recalculateWithCurrentSetting`
-   * 
-   * @notice Higher the number, lower the resolution.
-  */
-  setResolution(value) {
-    this._resolution = Math.round(Math.min(Math.max(value, 2), 200));
-  }
-  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-  validate(value) {
-    if (value.length !== this.resolution + 1 && value.length !== 0) {
-    }
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Recalculates the value using all current instances and with che current resolution */
-  recalculateWithCurrentSetting() {
-    this.recalculateHistogram();
-    return this.value;
-  }
-  refreshBufferFromCurrentPixels() {
-    const buffer = /* @__PURE__ */ new Map();
-    let bufferTotal = 0;
-    if (this.parent.minmax !== void 0 && this.parent.groups.value.length !== 0) {
-      const distance = this.parent.minmax.distanceInCelsius;
-      if (distance !== void 0) {
-        const step = distance / this._bufferResolution;
-        const minmax = this.parent.minmax.value;
-        let pixels = [];
-        this.parent.forEveryInstance((instance) => {
-          pixels = [...pixels, ...instance.pixels];
-        });
-        pixels.sort((a, b) => {
-          return a - b;
-        });
-        let nextStep = minmax.min + step;
-        while (nextStep !== false) {
-          const nextIndex = pixels.findIndex((num) => num >= nextStep);
-          const pixelCount = pixels.slice(0, nextIndex).length;
-          buffer.set(nextStep - step / 2, pixelCount);
-          bufferTotal += pixelCount;
-          pixels = pixels.slice(nextIndex);
-          const nextStepTemporary = nextStep + step;
-          nextStep = nextStepTemporary <= minmax.max ? nextStepTemporary : false;
-        }
-      }
-    }
-    this.buffer = buffer;
-    this.bufferPixelsCount = bufferTotal;
-  }
-  recalculateHistogram() {
-    if (this.parent.minmax.value !== void 0 && this.parent.minmax.distanceInCelsius !== void 0) {
-      let temperaturesFromBuffer = Array.from(this.buffer.keys());
-      let countsFromBuffer = Array.from(this.buffer.values());
-      const minmax = this.parent.minmax.value;
-      const step = this.parent.minmax.distanceInCelsius / this.resolution;
-      const bufferItems = [];
-      let bufferMaxCount = 0;
-      let pointer = minmax.min;
-      while (pointer < minmax.max) {
-        const currentStepMin = pointer;
-        const currentStepMax = pointer + step;
-        const nextIndex = temperaturesFromBuffer.findIndex((num) => num >= currentStepMax);
-        const countsSubArray = countsFromBuffer.slice(0, nextIndex);
-        const currentNumberOfPixels = countsSubArray.reduce((state, current) => {
-          return state + current;
-        }, 0);
-        const currentPercentage = currentNumberOfPixels / this.bufferPixelsCount;
-        bufferItems.push({
-          from: currentStepMin,
-          to: currentStepMax,
-          percentage: currentPercentage,
-          count: currentNumberOfPixels
-        });
-        if (bufferMaxCount < currentNumberOfPixels) {
-          bufferMaxCount = currentNumberOfPixels;
-        }
-        temperaturesFromBuffer = temperaturesFromBuffer.slice(nextIndex);
-        countsFromBuffer = countsFromBuffer.slice(nextIndex);
-        pointer += step;
-      }
-      const result = bufferItems.map((item) => {
-        return {
-          ...item,
-          height: item.count / bufferMaxCount * 100
-        };
-      });
-      this.value = result;
-    }
-  }
-  /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
-  _getHistorgramFromAllGroups() {
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-    }
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-      return [];
-    } else {
-      const allPixels = this.parent.groups.value.reduce((state, current) => {
-        const pixels = current.instances.value.reduce((buf, instance) => {
-          buf = [...buf, ...instance.pixels];
-          return buf;
-        }, []);
-        return [...state, ...pixels];
-      }, []);
-      const segments = [];
-      const numSegments = this.resolution;
-      const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
-      const segment = difference / numSegments;
-      for (let i = 0; i < numSegments; i++) {
-        const from = segment * i + this.parent.minmax.value.min;
-        const to = from + segment;
-        segments.push([from, to]);
-      }
-      const results = [];
-      let sum = allPixels.length;
-      for (const i of segments) {
-        const count = allPixels.filter((pixel) => {
-          return pixel >= i[0] && pixel < i[1];
-        }).length;
-        sum = sum + count;
-        results.push({
-          from: i[0],
-          to: i[1],
-          count
-        });
-      }
-      const recalculated = results.map((i) => {
-        return {
-          ...i,
-          percentage: i.count / sum * 100
-        };
-      });
-      const max = Math.max(...recalculated.map((item) => item.percentage));
-      return recalculated.map((item) => {
-        return {
-          ...item,
-          height: item.percentage / max * 100
-        };
-      });
-    }
-  }
-};
-
-// src/properties/states/LoadingState.ts
-var LoadingState = class extends AbstractProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  markAsLoading() {
-    this.value = true;
-  }
-  markAsLoaded() {
-    this.value = false;
-  }
-};
-
-// src/properties/states/MinmaxRegistryState.ts
-var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  recalculateFromGroups() {
-    const groups = this.parent.groups.value;
-    this.value = this._getMinmaxFromAllGroups(groups);
-    return this.value;
-  }
-  _getMinmaxFromAllGroups(groups) {
-    if (groups.length === 0) {
-      return void 0;
-    }
-    const minmax = groups.reduce((state, current) => {
-      if (current.minmax.value === void 0) {
-        return state;
-      }
-      return {
-        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
-        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
-      };
-    }, { min: Infinity, max: -Infinity });
-    return minmax;
-  }
-};
-
-// src/registry/utilities/ThermalRequest.ts
-var ThermalRequest = class _ThermalRequest extends EventTarget {
-  constructor(group, url, visibleUrl) {
-    super();
-    this.group = group;
-    this.url = url;
-    this.visibleUrl = visibleUrl;
-  }
-  static single(group, thermalUrl, visibleUrl) {
-    return new _ThermalRequest(group, thermalUrl, visibleUrl);
-  }
-  static multiple(group, requests) {
-    return requests.map((request) => new _ThermalRequest(group, request.thermalUrl, request.visibleUrl));
-  }
-  async fetch() {
-    if (this.group.registry.manager.isUrlRegistered(this.url)) {
-      return {
-        file: this.group.registry.manager.sourcesByUrl[this.url],
-        request: this
-      };
-    }
-    const file = await ThermalFileSource.fromUrl(this.url, this.visibleUrl);
-    if (!file) {
-      return null;
-    } else if (file !== null) {
-      return {
-        file,
-        request: this
-      };
-    }
-    return null;
-  }
-};
-
-// src/registry/utilities/ThermalRegistryLoader.ts
-var ThermalRegistryLoader = class {
-  constructor(registry) {
-    this.registry = registry;
-    /** Buffer of all pending requests */
-    this._requests = [];
-  }
-  get requests() {
-    return this._requests;
-  }
-  /** Loading state is stored in the registry */
-  get loading() {
-    return this.registry.loading.value;
-  }
-  /** Request a single file. To fetch it, call ``resolveQuery` */
-  requestFile(group, thermalUrl, visibleUrl) {
-    if (this.loading === true) {
-      console.error(`The registry ${this.registry.id} is already loading! Can not request  a single file!`);
-      return;
-    }
-    this._requests.push(ThermalRequest.single(group, thermalUrl, visibleUrl));
-  }
-  /** Request multiple files. To fetch them, call ``resolveQuery` */
-  requestFiles(group, requests) {
-    if (this.loading === true) {
-      console.error(`The group ${this.registry.id} is already loading! Can not request multiple files!`);
-      return;
-    }
-    this._requests = [
-      ...this._requests,
-      ...ThermalRequest.multiple(group, requests)
-    ];
-  }
-  /** @todo If there is an error, it is here. In the instancing, it seems that deleted groups remain and instances are binded to old groups. */
-  async resolveQuery() {
-    if (this.loading === true) {
-    }
-    const result = await Promise.all(
-      this._requests.map((request) => request.fetch())
-    );
-    const mapByGroups = {};
-    for (const response of result) {
-      if (response !== null) {
-        const file = this.registry.manager.registerSource(response.file);
-        if (response.request.group.id in mapByGroups === false) {
-          mapByGroups[response.request.group.id] = [file];
-        } else {
-          mapByGroups[response.request.group.id].push(file);
-        }
-      }
-    }
-    for (const groupId in mapByGroups) {
-      const groupInstance = this.registry.groups.map.get(groupId);
-      groupInstance?.instances.instantiateSources(mapByGroups[groupId]);
-    }
-    this._requests = [];
-    return this.registry.groups.value;
-  }
-};
-
-// src/registry/ThermalRegistry.ts
-var ThermalRegistry = class {
-  constructor(id, manager, options) {
-    this.id = id;
-    this.manager = manager;
-    this.hash = Math.random();
-    /** Takes care of the entire loading */
-    this.loader = new ThermalRegistryLoader(this);
-    /** Groups are stored in an observable property */
-    this.groups = new GroupsState(this, []);
-    /**
-     * Observable properties and drives
-     */
-    /** 
-     * Opacity property 
-     */
-    this.opacity = new OpacityDrive(this, 1);
-    /** 
-     * Minmax property 
-     */
-    this.minmax = new MinmaxRegistryProperty(this, void 0);
-    /**
-     * Loading
-     */
-    this.loading = new LoadingState(this, false);
-    /**
-     * Range
-     */
-    this.range = new RangeDriver(this, void 0);
-    /**
-     * Histogram
-     */
-    this.histogram = new HistogramState(this, []);
-    this.palette = this.manager.palette;
-    if (options) {
-      if (options.histogramResolution !== void 0) {
-        if (options.histogramResolution > 0)
-          this.histogram.setResolution(options.histogramResolution);
-      }
-    }
-  }
-  /** Iterator methods */
-  forEveryGroup(fn) {
-    this.groups.value.forEach(fn);
-  }
-  forEveryInstance(fn) {
-    this.forEveryGroup((group) => group.instances.forEveryInstance(fn));
-  }
-  async loadFiles(files) {
-    this.reset();
-    Object.entries(files).forEach(([groupId, files2]) => {
-      const group = this.groups.addOrGetGroup(groupId);
-      files2.forEach((file) => {
-        this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
-      });
-    });
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** Load the registry with only one file. */
-  async loadOneFile(file, groupId) {
-    this.reset();
-    const group = this.groups.addOrGetGroup(groupId);
-    this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
-  async processDroppedFiles(files, groupId) {
-    this.reset();
-    this.loading.markAsLoading();
-    this.removeAllChildren();
-    const parsedFiles = await Promise.all(
-      files.map((file) => ThermalLoader.fromFile(file))
-    ).then((results) => {
-      return results.filter((file) => {
-        return file !== null;
-      });
-    });
-    parsedFiles.forEach((source) => this.manager.registerSource(source));
-    const group = this.groups.addOrGetGroup(groupId);
-    group.instances.instantiateSources(parsedFiles);
-    this.postLoadedProcessing();
-  }
-  /** Actions to take after the registry is loaded */
-  postLoadedProcessing() {
-    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
-    this.minmax.recalculateFromGroups();
-    if (this.minmax.value)
-      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
-    this.histogram.refreshBufferFromCurrentPixels();
-    this.histogram.recalculateWithCurrentSetting();
-    this.loading.markAsLoaded();
-  }
-  reset() {
-    this.forEveryGroup((group) => group.reset());
-    if (this.loader.loading === false) {
-      this.opacity.reset();
-      this.minmax.reset();
-    }
-  }
-  removeAllChildren() {
-    this.groups.removeAllGroups();
-  }
-  destroySelfAndBelow() {
-    this.reset();
-  }
-  destroySelfInTheManager() {
-    this.manager.removeRegistry(this.id);
-  }
-};
-
 // src/properties/drives/PaletteDrive.ts
 var PaletteDrive = class extends AbstractProperty {
   get availablePalettes() {
@@ -2316,8 +2316,124 @@ var ThermalManager = class extends EventTarget {
   }
 };
 
-// src/index.ts
-import { TimeFormat, TimePeriod, TimeRound } from "@labir/time";
+// src/utils/time/formatting.ts
+import { format, formatISO9075 } from "date-fns";
+
+// src/utils/time/base.ts
+var TimeUtilsBase = class {
+};
+/** Convert an input to a date object */
+TimeUtilsBase.inputToDate = (value) => {
+  if (typeof value === "number") {
+    const d = /* @__PURE__ */ new Date();
+    d.setTime(value);
+    return d;
+  }
+  return value;
+};
+
+// src/utils/time/formatting.ts
+var _TimeFormat = class _TimeFormat extends TimeUtilsBase {
+  /** Range */
+  static humanRangeDates(from, to) {
+    from = _TimeFormat.inputToDate(from);
+    to = _TimeFormat.inputToDate(to);
+    if (from.getUTCDate() === to.getUTCDate()) {
+      return _TimeFormat.humanDate(from);
+    }
+    return [
+      _TimeFormat.humanDate(from),
+      _TimeFormat.humanDate(to)
+    ].join(" - ");
+  }
+  static human(date) {
+    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
+  }
+};
+/** YYYY-MM-DD */
+_TimeFormat.isoDate = (value) => {
+  value = _TimeFormat.inputToDate(value);
+  return formatISO9075(value, { representation: "date" });
+};
+/** HH:MM:SS */
+_TimeFormat.isoTime = (value) => {
+  value = _TimeFormat.inputToDate(value);
+  return formatISO9075(value, { representation: "time" });
+};
+/** YYYY-MM-DD HH:MM:SS */
+_TimeFormat.isoComplete = (value) => {
+  value = _TimeFormat.inputToDate(value);
+  return formatISO9075(value);
+};
+/** HH:mm */
+_TimeFormat.humanTime = (value, showSeconds = false) => {
+  value = _TimeFormat.inputToDate(value);
+  return format(value, showSeconds ? "HH:mm:ss" : "HH:mm");
+};
+/** j. M. ???? (y) */
+_TimeFormat.humanDate = (value, includeYear = false) => {
+  value = _TimeFormat.inputToDate(value);
+  return format(value, includeYear ? "d. M." : "d. M. yyyy");
+};
+var TimeFormat = _TimeFormat;
+
+// src/utils/time/periods.ts
+var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
+  TimePeriod2["HOUR"] = "jednu hodinu";
+  TimePeriod2["DAY"] = "jeden den";
+  TimePeriod2["WEEK"] = "jeden t\xFDden";
+  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
+  TimePeriod2["YEAR"] = "jeden rok";
+  return TimePeriod2;
+})(TimePeriod || {});
+
+// src/utils/time/rounding.ts
+import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+var _TimeRound = class _TimeRound extends TimeUtilsBase {
+};
+_TimeRound.down = (value, roundTo) => {
+  if (roundTo === "jednu hodinu" /* HOUR */)
+    return startOfHour(value);
+  else if (roundTo === "jeden den" /* DAY */)
+    return startOfDay(value);
+  else if (roundTo === "jeden t\xFDden" /* WEEK */)
+    return startOfWeek(value);
+  else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+    return startOfMonth(value);
+  return startOfYear(value);
+};
+_TimeRound.up = (value, roundTo) => {
+  if (roundTo === "jednu hodinu" /* HOUR */)
+    return endOfHour(value);
+  else if (roundTo === "jeden den" /* DAY */)
+    return endOfDay(value);
+  else if (roundTo === "jeden t\xFDden" /* WEEK */)
+    return endOfWeek(value);
+  else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+    return endOfMonth(value);
+  return endOfYear(value);
+};
+_TimeRound.pick = (value, period) => {
+  return [
+    _TimeRound.down(value, period),
+    _TimeRound.up(value, period)
+  ];
+};
+_TimeRound.modify = (value, amount, period) => {
+  switch (period) {
+    case "jednu hodinu" /* HOUR */:
+      return addHours(value, amount);
+    case "jeden den" /* DAY */:
+      return addDays(value, amount);
+    case "jeden t\xFDden" /* WEEK */:
+      return addDays(value, amount * 7);
+    case "jeden m\u011Bs\xEDc" /* MONTH */:
+      return addMonths(value, amount);
+    case "jeden rok" /* YEAR */:
+      return addYears(value, amount);
+  }
+};
+var TimeRound = _TimeRound;
 export {
   GRAYSCALE,
   IRON,

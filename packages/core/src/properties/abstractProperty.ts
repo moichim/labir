@@ -2,7 +2,7 @@ import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalStatistics } from "../registry/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
-import { ThermalCursorPositionOrundefined } from "./drives/CursorPositionDrive";
+import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./drives/RangeDriver";
 
 type PropertyListenersTypes = boolean
@@ -10,7 +10,7 @@ type PropertyListenersTypes = boolean
     | string
     | ThermalRangeOrUndefined
     | ThermalMinmaxOrUndefined
-    | ThermalCursorPositionOrundefined
+    | ThermalCursorPositionOrUndefined
     | ThermalGroup[]
     | ThermalFileInstance[]
     | ThermalStatistics[];
@@ -20,7 +20,10 @@ type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 export interface IBaseProperty { }
 
 
-/** A common basis for all observable properties */
+/** 
+ * A common basis for all observable properties 
+ * @internal 
+ */
 export abstract class AbstractProperty<
     ValueType extends PropertyListenersTypes,
     ParentType extends IBaseProperty

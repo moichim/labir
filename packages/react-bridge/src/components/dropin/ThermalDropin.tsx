@@ -1,6 +1,6 @@
 import { ThermalRegistry } from "@labir/core";
-import React, { useCallback } from "react";
-import {useDropzone} from 'react-dropzone'
+import React from "react";
+import { useDropzone } from 'react-dropzone';
 import { useThermalGroupInstancesState } from "../../properties/lists/useThermalGroupInstancesState";
 import { ThermalInstance } from "../instance/thermalInstance";
 

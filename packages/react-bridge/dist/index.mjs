@@ -329,7 +329,7 @@ var RegistryHistogram = (_a) => {
 
 // src/components/histogramResolutionInput/histogramResolutionInputHeadless.tsx
 import { Input } from "@headlessui/react";
-import React4, { useCallback as useCallback2, useEffect as useEffect4, useState as useState3 } from "react";
+import React4, { useCallback, useEffect as useEffect4, useState as useState3 } from "react";
 import { v4 as uuid } from "uuid";
 var HistogramResolutionInputHeadless = (_a) => {
   var _b = _a, { registry, min = 2, max = 200, type = "number" } = _b, props = __objRest(_b, ["registry", "min", "max", "type"]);
@@ -354,14 +354,14 @@ var HistogramResolutionInputHeadless = (_a) => {
       setInternal(histogram.resolution);
     }
   }, [histogram.value]);
-  const onBlur = useCallback2(() => {
+  const onBlur = useCallback(() => {
     if (isNaN(internal)) {
       setInternal(histogram.resolution);
     } else if (internal < 2 || internal > 200) {
       setInternal(Math.min(Math.max(internal, 2), 200));
     }
   }, [internal, histogram.resolution]);
-  const onChange = useCallback2(
+  const onChange = useCallback(
     (event) => {
       setInternal(parseInt(event.target.value));
       setTimeout(histogram.recalculate, 0);
@@ -536,7 +536,7 @@ var PaletteItem = (props) => {
 };
 
 // src/components/palette/PaletteDropdownHeadless.tsx
-var PaletteDropdownHeadless = ({}) => {
+var PaletteDropdownHeadless = () => {
   const palette = useThermalManagerPaletteDrive(uuidv42());
   return /* @__PURE__ */ React8.createElement(Menu, null, /* @__PURE__ */ React8.createElement(MenuButton, null, /* @__PURE__ */ React8.createElement(React8.Fragment, null, /* @__PURE__ */ React8.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React8.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React8.createElement(MenuItem, { key, as: Button, onClick: () => {
     palette.set(key);
@@ -889,7 +889,7 @@ var useRangerTicks = (ref, minmax, orientation) => {
 };
 
 // src/components/range/inner/useRangerValues.ts
-import { useCallback as useCallback3, useEffect as useEffect12, useMemo as useMemo12, useState as useState11 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect12, useMemo as useMemo12, useState as useState11 } from "react";
 var useRangerValues = (registry, isLocked, rangeOverride) => {
   const purpose = useThermalObjectPurpose(registry, "useRangerValues");
   const minmax = useThermalRegistryMinmaxState(registry, purpose);
@@ -925,7 +925,7 @@ var useRangerValues = (registry, isLocked, rangeOverride) => {
       }
     }
   }, [rangeOverride]);
-  const onChange = useCallback3((instance) => {
+  const onChange = useCallback2((instance) => {
     if (isLocked === true) {
       return;
     }
@@ -937,7 +937,7 @@ var useRangerValues = (registry, isLocked, rangeOverride) => {
       to: instance.sortedValues[1]
     });
   }, []);
-  const onDrag = useCallback3((instance) => {
+  const onDrag = useCallback2((instance) => {
     if (isLocked === true) {
       return;
     }
@@ -1202,7 +1202,7 @@ var RangeHeadless = (_a) => {
 };
 
 // src/components/rangeButtonAuto.tsx/rangeButtonAutoHeadless.tsx
-import React18, { useCallback as useCallback4 } from "react";
+import React18, { useCallback as useCallback3 } from "react";
 import { Button as Button2 } from "@headlessui/react";
 var RangeButtonAutoHeadless = (_a) => {
   var _b = _a, {
@@ -1216,7 +1216,7 @@ var RangeButtonAutoHeadless = (_a) => {
   const range = useThermalRegistryRangeDrive(registry, ID);
   const minmax = useThermalRegistryMinmaxState(registry, ID);
   const histogram = useThermalRegistryHistogramState(registry, ID);
-  const onClick = useCallback4(() => {
+  const onClick = useCallback3(() => {
     const length = histogram.value.length;
     const percentage = 100 / length;
     const newRangeTemp = histogram.value.filter((item) => item.height >= percentage);
@@ -1228,7 +1228,7 @@ var RangeButtonAutoHeadless = (_a) => {
 
 // src/components/rangeButtonFull/rangeButtonFullHeadless.tsx
 import { Button as Button3 } from "@headlessui/react";
-import React19, { useCallback as useCallback5 } from "react";
+import React19, { useCallback as useCallback4 } from "react";
 var RangeButtonFullHeadless = (_a) => {
   var _b = _a, {
     registry,
@@ -1240,7 +1240,7 @@ var RangeButtonFullHeadless = (_a) => {
   const ID = useThermalObjectPurpose(registry, "RangeButtonFullHeadless");
   const range = useThermalRegistryRangeDrive(registry, ID);
   const minmax = useThermalRegistryMinmaxState(registry, ID);
-  const onClick = useCallback5(() => {
+  const onClick = useCallback4(() => {
     if (minmax.value !== void 0)
       range.set({ from: minmax.value.min, to: minmax.value.max });
   }, [minmax.value, range.set]);

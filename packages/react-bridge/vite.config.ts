@@ -7,6 +7,6 @@ export default defineConfig({
   plugins: [react({ 
     // jsxImportSource: '@emotion/react' 
   })],
-  publicDir: path.resolve("./demo/public"),
+  publicDir: path.resolve("../../public"),
   root: "./demo"
 })

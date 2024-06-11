@@ -20,7 +20,7 @@ export enum THERMLGRAM_PATHS {
 const thermogramMockHandlers =  [
 
     http.get( THERMLGRAM_PATHS.SOUSTRUH, () => {
-        const file = fs.readFileSync( path.resolve( "./public/soustruh.lrc" ) );
+        const file = fs.readFileSync( path.resolve( "../../public/soustruh.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
             headers: {
@@ -31,7 +31,7 @@ const thermogramMockHandlers =  [
 
 
     http.get( THERMLGRAM_PATHS.TUCNACI, () => {
-        const file = fs.readFileSync( path.resolve( "./public/tucnaci_04.lrc" ) );
+        const file = fs.readFileSync( path.resolve( "../../public/tucnaci_04.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
             headers: {
@@ -41,7 +41,7 @@ const thermogramMockHandlers =  [
     } ),
 
     http.get( THERMLGRAM_PATHS.CAS, () => {
-        const file = fs.readFileSync( path.resolve( "./public/image-thermal 2024-01-12 14-09-37.lrc" ) );
+        const file = fs.readFileSync( path.resolve( "../../public/image-thermal 2024-01-12 14-09-37.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
             headers: {

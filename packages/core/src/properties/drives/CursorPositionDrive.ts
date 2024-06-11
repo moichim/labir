@@ -8,7 +8,7 @@ export type ThermalCursorPosition = {
 }
 
 /** The cursor position coordinates or undefined */
-export type ThermalCursorPositionOrundefined = ThermalCursorPosition | undefined;
+export type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
 
 /** An object that has CursorPositionDrive should implement it in one particular way. */
 export interface IWithCursorPosition extends IBaseProperty {
@@ -16,18 +16,18 @@ export interface IWithCursorPosition extends IBaseProperty {
 }
 
 /** Handles cursor position */
-export class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrundefined, ThermalGroup>{
+export class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup>{
 
     protected _hover: boolean = this.value !== undefined;
     public get hover() { return this._hover; }
 
 
-    protected validate(value: ThermalCursorPositionOrundefined): ThermalCursorPositionOrundefined {
+    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined {
         return value;
     }
 
     // After the position changes, update the hover & project the position in all instances
-    protected afterSetEffect(value: ThermalCursorPositionOrundefined) {
+    protected afterSetEffect(value: ThermalCursorPositionOrUndefined) {
 
         this._hover = this.value !== undefined;
 
@@ -36,7 +36,7 @@ export class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionO
     }
 
     public recieveCursorPosition(
-        position: ThermalCursorPositionOrundefined
+        position: ThermalCursorPositionOrUndefined
     ) {
         this.value = position;
     }

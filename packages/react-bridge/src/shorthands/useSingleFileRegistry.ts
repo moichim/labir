@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../context/thermalManagerContext"
-import { v4 as uuidv4 } from 'uuid'
 import { ThermalFileInstance } from "@labir/core";
 import { useThermalGroupInstancesState } from "../properties/lists/useThermalGroupInstancesState";
 

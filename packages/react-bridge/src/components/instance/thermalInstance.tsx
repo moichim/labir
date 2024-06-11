@@ -10,7 +10,6 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { useInstanceListener } from "./useInstanceListener";
-import { TimeFormat } from "@labir/core";
 
 export type ThermalInstanceEventHandler = (
   listenerLayerEvent: MouseEvent<HTMLDivElement>,

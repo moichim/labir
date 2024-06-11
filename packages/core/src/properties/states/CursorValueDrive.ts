@@ -1,6 +1,6 @@
 import { ThermalFileInstance } from "../../file/ThermalFileInstance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-import { ThermalCursorPositionOrundefined } from "../drives/CursorPositionDrive";
+import { ThermalCursorPositionOrUndefined } from "../drives/CursorPositionDrive";
 
 export interface IWithCursorValue extends IBaseProperty {
     cursorValue: CursorValueDrive;
@@ -20,7 +20,7 @@ export class CursorValueDrive extends AbstractProperty<number|undefined, Thermal
     }
 
     public recalculateFromCursor(
-        position: ThermalCursorPositionOrundefined
+        position: ThermalCursorPositionOrUndefined
     ) {
         if ( position )
             this.value = this._getValueAtCoordinate( position.x, position.y );

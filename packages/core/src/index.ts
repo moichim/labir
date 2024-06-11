@@ -1,24 +1,59 @@
-import { ThermalFileInstance } from "./file/ThermalFileInstance";
-import { ThermalFileSource } from "./file/ThermalFileSource";
-import { GRAYSCALE, IRON, JET, ThermalPaletteType, ThermalPalettes } from "./file/palettes";
-import { ThermalGroup } from "./group/ThermalGroup";
+// Core structure
 import { ThermalManager, ThermalManagerOptions } from "./manager/ThermalManager";
 import { ThermalRegistry, ThermalRegistryOptions } from "./registry/ThermalRegistry";
+import { ThermalGroup } from "./group/ThermalGroup";
+import { ThermalFileInstance } from "./file/ThermalFileInstance";
+import { ThermalFileSource } from "./file/ThermalFileSource";
 import { ThermalFileRequest } from "./registry/utilities/ThermalRequest";
 
-import { TimeFormat, TimePeriod, TimeRound } from "@labir/time";
+// Data types
 import { ThermalMinmaxOrUndefined } from "./properties/abstractMinmaxProperty";
-import { ThermalCursorPositionOrundefined } from "./properties/drives/CursorPositionDrive";
-import { PaletteId } from "./properties/drives/PaletteDrive";
+import { ThermalCursorPositionOrUndefined } from "./properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./properties/drives/RangeDriver";
 
-export {
-    GRAYSCALE, IRON,
-    JET, PaletteId, ThermalCursorPositionOrundefined, ThermalFileInstance,
+// Palette
+import { PaletteId } from "./properties/drives/PaletteDrive";
+import { GRAYSCALE, IRON, JET, ThermalPaletteType, ThermalPalettes } from "./file/palettes";
 
-    ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager,
-    ThermalManagerOptions, ThermalMinmaxOrUndefined, ThermalPaletteType,
-    ThermalPalettes, ThermalRangeOrUndefined, ThermalRegistry,
-    ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound
+// Utilities - time
+import { TimeFormat } from "./utils/time/formatting";
+import { TimePeriod } from "./utils/time/periods";
+import { TimeRound } from "./utils/time/rounding";
+
+
+export {
+
+
+    // Manager
+    ThermalManager,
+    ThermalManagerOptions,  
+
+    // Registry
+    ThermalRegistry,
+    ThermalRegistryOptions, 
+    ThermalFileRequest, 
+
+    // Group
+    ThermalGroup, 
+
+    // File
+    ThermalFileSource, 
+    ThermalFileInstance,
+    
+    // Core datatypes
+    ThermalRangeOrUndefined, 
+    ThermalMinmaxOrUndefined,
+    ThermalCursorPositionOrUndefined,
+
+    // Palette
+    GRAYSCALE, 
+    IRON, 
+    JET, 
+    PaletteId, 
+    ThermalPaletteType, 
+    ThermalPalettes, 
+    
+    // Utils - Time
+    TimeFormat, TimePeriod, TimeRound
 };
 

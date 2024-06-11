@@ -1,5 +1,5 @@
 import * as _labir_core from '@labir/core';
-import { ThermalRegistry, ThermalFileInstance, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrundefined, ThermalPaletteType, ThermalMinmaxOrUndefined } from '@labir/core';
+import { ThermalRegistry, ThermalFileInstance, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalPaletteType, ThermalMinmaxOrUndefined } from '@labir/core';
 import React, { MouseEvent } from 'react';
 import { InputProps, ButtonProps } from '@headlessui/react';
 
@@ -52,8 +52,7 @@ type OpacityInputHeadlessProps = InputProps & {
 };
 declare const OpacityInputHeadless: React.FC<OpacityInputHeadlessProps>;
 
-type PaletteDropdownHeadless = {};
-declare const PaletteDropdownHeadless: React.FC<PaletteDropdownHeadless>;
+declare const PaletteDropdownHeadless: React.FC;
 
 type RangePropsExposed = {
     registry: ThermalRegistry;
@@ -120,8 +119,8 @@ declare const useThermalObjectPurpose: (object: ThermalRegistry | ThermalGroup |
 declare const useThermalRegistry: (registryId: string, options?: ThermalRegistryOptions) => _labir_core.ThermalRegistry;
 
 declare const useThermalGroupCursorPositionDrive: (group: ThermalGroup, purpose: string) => {
-    value: ThermalCursorPositionOrundefined;
-    setCursorPosition: (position: ThermalCursorPositionOrundefined) => void;
+    value: ThermalCursorPositionOrUndefined;
+    setCursorPosition: (position: ThermalCursorPositionOrUndefined) => void;
     hover: boolean;
 };
 

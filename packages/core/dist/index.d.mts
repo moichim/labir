@@ -1,5 +1,3 @@
-export { TimeFormat, TimePeriod, TimeRound } from '@labir/time';
-
 declare const JET: string[];
 declare const IRON: string[];
 declare const GRAYSCALE: string[];
@@ -12,82 +10,6 @@ type ThermalPaletteType = {
     name: string;
     gradient: string;
 };
-
-interface ThermalFileSourceInterface {
-    url: string;
-    signature: string;
-    version: number;
-    streamCount: number;
-    fileDataType: number;
-    unit: number;
-    width: number;
-    height: number;
-    timestamp: number;
-    pixels: number[];
-    min: number;
-    max: number;
-    visibleUrl?: string;
-}
-/**
- * Stores information about a loaded & parsed thermal file
- *
- * - loads the file
- * - can create `ThermalFileInstance`
- * - once loaded, the `ThermalFileSource` is cached in `ThermalRegistry.sourcesByUrl`
- *
- * If a file is cached. The cache is organised by files' URLS. Once a URL is already cached, the existing source us used instead of refetching the file again.
- *
- * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
- */
-declare class ThermalFileSource extends EventTarget implements ThermalFileSourceInterface {
-    readonly url: string;
-    readonly signature: string;
-    readonly version: number;
-    readonly streamCount: number;
-    readonly fileDataType: number;
-    readonly unit: number;
-    readonly width: number;
-    readonly height: number;
-    readonly timestamp: number;
-    readonly pixels: number[];
-    readonly min: number;
-    readonly max: number;
-    readonly visibleUrl?: string | undefined;
-    constructor(url: string, signature: string, version: number, streamCount: number, fileDataType: number, unit: number, width: number, height: number, timestamp: number, pixels: number[], min: number, max: number, visibleUrl?: string | undefined);
-    static fromUrl(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
-    serialize(): string;
-    static fromStorage(stored: string): ThermalFileSource;
-    createInstance(group: ThermalGroup): ThermalFileInstance;
-}
-
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
-};
-declare class ThermalManager extends EventTarget {
-    constructor(options?: ThermalManagerOptions);
-    readonly registries: {
-        [index: string]: ThermalRegistry;
-    };
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
-    /** The palette is stored absolutely globally */
-    /**
-     * Palette
-     */
-    readonly palette: PaletteDrive;
-    /** Sources cache */
-    protected _sourcesByUrl: {
-        [index: string]: ThermalFileSource;
-    };
-    get sourcesByUrl(): {
-        [index: string]: ThermalFileSource;
-    };
-    getSourcesArray(): ThermalFileSource[];
-    getRegisteredUrls(): string[];
-    registerSource(source: ThermalFileSource): ThermalFileSource;
-    isUrlRegistered: (url: string) => boolean;
-}
 
 type PaletteId = keyof typeof ThermalPalettes;
 interface IWithPalette extends IBaseProperty {
@@ -267,7 +189,7 @@ interface IWithCursorValue extends IBaseProperty {
 declare class CursorValueDrive extends AbstractProperty<number | undefined, ThermalFileInstance> {
     protected validate(value: number | undefined): number | undefined;
     protected afterSetEffect(): void;
-    recalculateFromCursor(position: ThermalCursorPositionOrundefined): void;
+    recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
     protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
 }
 
@@ -420,11 +342,14 @@ type ThermalStatistics = {
     height: number;
 };
 
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrundefined | ThermalGroup[] | ThermalFileInstance[] | ThermalStatistics[];
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalFileInstance[] | ThermalStatistics[];
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
 interface IBaseProperty {
 }
-/** A common basis for all observable properties */
+/**
+ * A common basis for all observable properties
+ * @internal
+ */
 declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
     readonly parent: ParentType;
     readonly _initial: ValueType;
@@ -451,42 +376,18 @@ type ThermalCursorPosition = {
     y: number;
 };
 /** The cursor position coordinates or undefined */
-type ThermalCursorPositionOrundefined = ThermalCursorPosition | undefined;
+type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
 /** An object that has CursorPositionDrive should implement it in one particular way. */
 interface IWithCursorPosition extends IBaseProperty {
     cursorPosition: CursorPositionDrive;
 }
 /** Handles cursor position */
-declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrundefined, ThermalGroup> {
+declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
     protected _hover: boolean;
     get hover(): boolean;
-    protected validate(value: ThermalCursorPositionOrundefined): ThermalCursorPositionOrundefined;
-    protected afterSetEffect(value: ThermalCursorPositionOrundefined): void;
-    recieveCursorPosition(position: ThermalCursorPositionOrundefined): void;
-}
-
-/**
- * Group of thermal images
- */
-declare class ThermalGroup implements IThermalGroup {
-    readonly registry: ThermalRegistry;
-    readonly id: string;
-    readonly name?: string | undefined;
-    readonly description?: string | undefined;
-    readonly hash: number;
-    constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
-    readonly minmax: MinmaxGroupProperty;
-    readonly instances: InstancesState;
-    readonly cursorPosition: CursorPositionDrive;
-    /** Iteration */
-    forEveryInstance: (fn: ((instance: ThermalFileInstance) => void)) => void;
-    /**
-     * Destruction
-     */
-    /** Remove all instances, reset the minmax */
-    destroySelfAndBelow(): void;
-    removeAllChildren(): void;
-    reset(): void;
+    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
+    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
+    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
 }
 
 declare abstract class AbstractLayer {
@@ -637,7 +538,7 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     protected _isHover: boolean;
     get isHover(): boolean;
     protected set isHover(value: boolean);
-    recieveCursorPosition(position: ThermalCursorPositionOrundefined): void;
+    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
     getTemperatureAtPoint(x: number, y: number): number;
     /**
      * Range
@@ -651,4 +552,144 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     recieveOpacity(value: number): void;
 }
 
-export { GRAYSCALE, IRON, JET, type PaletteId, type ThermalCursorPositionOrundefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions };
+/**
+ * Group of thermal images
+ */
+declare class ThermalGroup implements IThermalGroup {
+    readonly registry: ThermalRegistry;
+    readonly id: string;
+    readonly name?: string | undefined;
+    readonly description?: string | undefined;
+    readonly hash: number;
+    constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
+    readonly minmax: MinmaxGroupProperty;
+    readonly instances: InstancesState;
+    readonly cursorPosition: CursorPositionDrive;
+    /** Iteration */
+    forEveryInstance: (fn: ((instance: ThermalFileInstance) => void)) => void;
+    /**
+     * Destruction
+     */
+    /** Remove all instances, reset the minmax */
+    destroySelfAndBelow(): void;
+    removeAllChildren(): void;
+    reset(): void;
+}
+
+interface ThermalFileSourceInterface {
+    url: string;
+    signature: string;
+    version: number;
+    streamCount: number;
+    fileDataType: number;
+    unit: number;
+    width: number;
+    height: number;
+    timestamp: number;
+    pixels: number[];
+    min: number;
+    max: number;
+    visibleUrl?: string;
+}
+/**
+ * Stores information about a loaded & parsed thermal file
+ *
+ * - loads the file
+ * - can create `ThermalFileInstance`
+ * - once loaded, the `ThermalFileSource` is cached in `ThermalRegistry.sourcesByUrl`
+ *
+ * If a file is cached. The cache is organised by files' URLS. Once a URL is already cached, the existing source us used instead of refetching the file again.
+ *
+ * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
+ */
+declare class ThermalFileSource extends EventTarget implements ThermalFileSourceInterface {
+    readonly url: string;
+    readonly signature: string;
+    readonly version: number;
+    readonly streamCount: number;
+    readonly fileDataType: number;
+    readonly unit: number;
+    readonly width: number;
+    readonly height: number;
+    readonly timestamp: number;
+    readonly pixels: number[];
+    readonly min: number;
+    readonly max: number;
+    readonly visibleUrl?: string | undefined;
+    constructor(url: string, signature: string, version: number, streamCount: number, fileDataType: number, unit: number, width: number, height: number, timestamp: number, pixels: number[], min: number, max: number, visibleUrl?: string | undefined);
+    static fromUrl(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
+    serialize(): string;
+    static fromStorage(stored: string): ThermalFileSource;
+    createInstance(group: ThermalGroup): ThermalFileInstance;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalettes;
+};
+declare class ThermalManager extends EventTarget {
+    constructor(options?: ThermalManagerOptions);
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    /** The palette is stored absolutely globally */
+    /**
+     * Palette
+     */
+    readonly palette: PaletteDrive;
+    /** Sources cache */
+    protected _sourcesByUrl: {
+        [index: string]: ThermalFileSource;
+    };
+    get sourcesByUrl(): {
+        [index: string]: ThermalFileSource;
+    };
+    getSourcesArray(): ThermalFileSource[];
+    getRegisteredUrls(): string[];
+    registerSource(source: ThermalFileSource): ThermalFileSource;
+    isUrlRegistered: (url: string) => boolean;
+}
+
+type AcceptableDateInput = number | Date;
+declare abstract class TimeUtilsBase {
+    /** Convert an input to a date object */
+    static inputToDate: (value: AcceptableDateInput) => Date;
+}
+
+/** Utility class for time formatting in the LabIR ecosystem. */
+declare class TimeFormat extends TimeUtilsBase {
+    /** YYYY-MM-DD */
+    static isoDate: (value: AcceptableDateInput) => string;
+    /** HH:MM:SS */
+    static isoTime: (value: AcceptableDateInput) => string;
+    /** YYYY-MM-DD HH:MM:SS */
+    static isoComplete: (value: AcceptableDateInput) => string;
+    /** HH:mm */
+    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
+    /** j. M. ???? (y) */
+    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
+    /** Range */
+    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
+    static human(date: AcceptableDateInput): string;
+}
+
+/** Defined time periods used in the LabIR ecosystem. */
+declare enum TimePeriod {
+    HOUR = "jednu hodinu",
+    DAY = "jeden den",
+    WEEK = "jeden t\u00FDden",
+    MONTH = "jeden m\u011Bs\u00EDc",
+    YEAR = "jeden rok"
+}
+
+/** Utility class for time rounding in the LabIR ecosystem. */
+declare class TimeRound extends TimeUtilsBase {
+    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
+    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
+}
+
+export { GRAYSCALE, IRON, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };

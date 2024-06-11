@@ -3,8 +3,8 @@ import React, { forwardRef, useMemo } from "react";
 import { Orientation } from "../../../utilities/orientation";
 
 type RangerTrackProps = HTMLDivElement &
-  React.PropsWithChildren<any> &
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  React.PropsWithChildren<any> &
   React.PropsWithRef<HTMLDivElement> & {
     orientation?: Orientation;
     backgroundColor?: React.CSSProperties["backgroundColor"];

@@ -32,7 +32,6 @@
     "vitest-canvas-mock": "^0.3.3"
   },
   "peerDependencies": {
-    "@labir/time": "^1.0.3",
     "cross-fetch": "^4.0.0",
     "date-fns": "^3.6.0"
   }

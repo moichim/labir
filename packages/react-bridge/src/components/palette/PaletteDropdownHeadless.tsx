@@ -12,11 +12,8 @@ import { v4 as uuidv4 } from "uuid";
 import { useThermalManagerPaletteDrive } from "../../properties/drives/useThermalRegistryPaletteDrive";
 import { PaletteItem } from "./PaletteItem";
 
-type PaletteDropdownHeadless = {
-};
 
-export const PaletteDropdownHeadless: React.FC<PaletteDropdownHeadless> = ({
-}) => {
+export const PaletteDropdownHeadless: React.FC = () => {
   const palette = useThermalManagerPaletteDrive(uuidv4());
 
   return (

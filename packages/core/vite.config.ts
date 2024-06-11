@@ -5,7 +5,7 @@ import path from "path"
 
 export default defineConfig({
     root: "./devserver",
-    publicDir: path.resolve( "./public" ),
+    publicDir: path.resolve( "../../public" ),
     test: {
         root: "./src",
         globals: true,

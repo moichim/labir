@@ -583,7 +583,7 @@ var PaletteItem = (props) => {
 };
 
 // src/components/palette/PaletteDropdownHeadless.tsx
-var PaletteDropdownHeadless = ({}) => {
+var PaletteDropdownHeadless = () => {
   const palette = useThermalManagerPaletteDrive((0, import_uuid3.v4)());
   return /* @__PURE__ */ import_react18.default.createElement(import_react17.Menu, null, /* @__PURE__ */ import_react18.default.createElement(import_react17.MenuButton, null, /* @__PURE__ */ import_react18.default.createElement(import_react18.default.Fragment, null, /* @__PURE__ */ import_react18.default.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ import_react18.default.createElement(import_react17.MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ import_react18.default.createElement(import_react17.MenuItem, { key, as: import_react17.Button, onClick: () => {
     palette.set(key);

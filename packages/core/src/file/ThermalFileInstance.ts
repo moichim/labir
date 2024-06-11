@@ -1,5 +1,5 @@
 import { ThermalGroup } from "../group/ThermalGroup";
-import { ThermalCursorPositionOrundefined } from "../properties/drives/CursorPositionDrive";
+import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
@@ -300,7 +300,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
     }
 
     public recieveCursorPosition(
-        position: ThermalCursorPositionOrundefined,
+        position: ThermalCursorPositionOrUndefined,
     ) {
 
         this.cursorValue.recalculateFromCursor(position);
