@@ -1,6 +1,6 @@
 {
   "name": "@labir/embed",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Embedded display of thermograms",
   "main": "dist/embed.js",
   "types": "src/types.d.ts",
@@ -19,9 +19,9 @@
   "author": "Jan Jáchim <jachim5@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "@labir/react-bridge": "workspace:*",
-    "@labir/emotion": "workspace:*",
     "@labir/core": "workspace:*",
+    "@labir/emotion": "workspace:*",
+    "@labir/react-bridge": "workspace:*",
     "lit": "^3.1.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
