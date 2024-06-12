@@ -1,12 +1,7 @@
-"use strict";
-var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __defProps = Object.defineProperties;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
@@ -34,47 +29,14 @@ var __objRest = (source, exclude) => {
     }
   return target;
 };
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
-  // If the importer is in node compatibility mode or this is not an ESM
-  // file that has been converted to a CommonJS file using a Babel-
-  // compatible transform (i.e. "__esModule" has not been set), then set
-  // "default" to the CommonJS "module.exports" for node compatibility.
-  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
-  mod
-));
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  Bar: () => Bar,
-  CssContextProvider: () => CssContextProvider,
-  ThermalHistogramResolutionInput: () => ThermalHistogramResolutionInput,
-  ThermalOpacityInput: () => ThermalOpacityInput,
-  ThermalRangeAutoButton: () => ThermalRangeAutoButton,
-  ThermalRangeFullButton: () => ThermalRangeFullButton
-});
-module.exports = __toCommonJS(src_exports);
 
 // src/components/buttons/ThermalRangeAutoButton.tsx
-var import_react_bridge = require("@labir/react-bridge");
-var import_react4 = __toESM(require("react"));
+import { useRangeButtonAuto } from "@labir/react-bridge";
+import React3 from "react";
 
 // src/components/ui/thermalButton.tsx
-var import_react2 = require("@headlessui/react");
-var import_react3 = __toESM(require("react"));
+import { Button } from "@headlessui/react";
+import React2 from "react";
 
 // src/theme/Skin.ts
 var _Skin = class _Skin {
@@ -103,7 +65,13 @@ _Skin.prefix = "lrc";
 var Skin = _Skin;
 
 // src/context/CssContext.tsx
-var import_react = __toESM(require("react"));
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useInsertionEffect,
+  useRef
+} from "react";
 
 // package.json
 var package_default = {
@@ -298,12 +266,12 @@ var Variables = class {
 
 // src/context/CssContext.tsx
 var useCssInternal = (prefix = "lrc") => {
-  const elements = (0, import_react.useRef)({});
-  const getId = (0, import_react.useCallback)(
+  const elements = useRef({});
+  const getId = useCallback(
     (key) => `${prefix}__${package_default.version}__${key}`,
     [prefix]
   );
-  const styleElementFactory = (0, import_react.useCallback)(
+  const styleElementFactory = useCallback(
     (key, style) => {
       const element = document.createElement("style");
       element.id = getId(key);
@@ -312,13 +280,13 @@ var useCssInternal = (prefix = "lrc") => {
     },
     [getId]
   );
-  const styleExists = (0, import_react.useCallback)(
+  const styleExists = useCallback(
     (key) => {
       return key in elements.current;
     },
     [elements]
   );
-  const getExistingStyle = (0, import_react.useCallback)(
+  const getExistingStyle = useCallback(
     (key) => {
       if (styleExists(key)) {
         return elements.current[key];
@@ -327,7 +295,7 @@ var useCssInternal = (prefix = "lrc") => {
     },
     [elements, styleExists]
   );
-  const addCss = (0, import_react.useCallback)(
+  const addCss = useCallback(
     (key, style) => {
       if (styleExists(key)) {
         return;
@@ -338,7 +306,7 @@ var useCssInternal = (prefix = "lrc") => {
     },
     [styleExists, styleElementFactory, elements]
   );
-  const removeCss = (0, import_react.useCallback)(
+  const removeCss = useCallback(
     (key) => {
       const existing = getExistingStyle(key);
       if (existing !== void 0) {
@@ -359,11 +327,11 @@ var cssContextDefaults = {
   removeCss: () => {
   }
 };
-var CssContext = (0, import_react.createContext)(cssContextDefaults);
+var CssContext = createContext(cssContextDefaults);
 var CssContextProvider = (_a) => {
   var props = __objRest(_a, []);
   const context = useCssInternal();
-  (0, import_react.useInsertionEffect)(() => {
+  useInsertionEffect(() => {
     const variables = new Variables();
     context.addCss(
       "baseStyles",
@@ -407,11 +375,11 @@ var CssContextProvider = (_a) => {
         `
     );
   }, []);
-  return /* @__PURE__ */ import_react.default.createElement(CssContext.Provider, { value: context }, /* @__PURE__ */ import_react.default.createElement("div", { className: "lrc-app__root" }, props.children));
+  return /* @__PURE__ */ React.createElement(CssContext.Provider, { value: context }, /* @__PURE__ */ React.createElement("div", { className: "lrc-app__root" }, props.children));
 };
 var useCss = (key, css) => {
-  const context = (0, import_react.useContext)(CssContext);
-  (0, import_react.useInsertionEffect)(() => {
+  const context = useContext(CssContext);
+  useInsertionEffect(() => {
     context.addCss(key, css);
     return () => {
       context.removeCss(key);
@@ -420,7 +388,7 @@ var useCss = (key, css) => {
 };
 
 // src/components/ui/thermalButton.tsx
-var import_classnames = __toESM(require("classnames"));
+import classNames from "classnames";
 var ThermalButton = (_a) => {
   var _b = _a, {
     variant = "gray",
@@ -443,43 +411,43 @@ var ThermalButton = (_a) => {
         }
 
     `);
-  return /* @__PURE__ */ import_react3.default.createElement(import_react2.Button, __spreadProps(__spreadValues({}, props), { className: (0, import_classnames.default)("lrc__thermal-ui__button") }), props.children);
+  return /* @__PURE__ */ React2.createElement(Button, __spreadProps(__spreadValues({}, props), { className: classNames("lrc__thermal-ui__button") }), props.children);
 };
 
 // src/components/buttons/ThermalRangeAutoButton.tsx
 var ThermalRangeAutoButton = (_a) => {
   var _b = _a, { registry } = _b, props = __objRest(_b, ["registry"]);
-  const { onClick } = (0, import_react_bridge.useRangeButtonAuto)(registry);
-  return /* @__PURE__ */ import_react4.default.createElement(ThermalButton, __spreadValues({ onClick }, props), "Automatick\xFD teplotn\xED rozsah");
+  const { onClick } = useRangeButtonAuto(registry);
+  return /* @__PURE__ */ React3.createElement(ThermalButton, __spreadValues({ onClick }, props), "Automatick\xFD teplotn\xED rozsah");
 };
 
 // src/components/buttons/ThermalRangeFullButton.tsx
-var import_react_bridge2 = require("@labir/react-bridge");
-var import_react5 = __toESM(require("react"));
+import { useRangeButtonFull } from "@labir/react-bridge";
+import React4 from "react";
 var ThermalRangeFullButton = (_a) => {
   var _b = _a, {
     registry
   } = _b, props = __objRest(_b, [
     "registry"
   ]);
-  const { onClick } = (0, import_react_bridge2.useRangeButtonFull)(registry);
-  return /* @__PURE__ */ import_react5.default.createElement(ThermalButton, __spreadValues({ onClick }, props), "Pln\xFD teplotn\xED rozsah");
+  const { onClick } = useRangeButtonFull(registry);
+  return /* @__PURE__ */ React4.createElement(ThermalButton, __spreadValues({ onClick }, props), "Pln\xFD teplotn\xED rozsah");
 };
 
 // src/components/inputs/ThermalHistogramResolutionInput.tsx
-var import_react_bridge3 = require("@labir/react-bridge");
-var import_react8 = __toESM(require("react"));
+import { useHistogramResolutionInput } from "@labir/react-bridge";
+import React6 from "react";
 
 // src/components/ui/thermalInput.tsx
-var import_react6 = require("@headlessui/react");
-var import_react7 = __toESM(require("react"));
+import { Input } from "@headlessui/react";
+import React5 from "react";
 var ThermalInput = (_a) => {
   var _b = _a, {
     variant = "primary"
   } = _b, props = __objRest(_b, [
     "variant"
   ]);
-  return /* @__PURE__ */ import_react7.default.createElement(import_react6.Input, __spreadValues({}, props));
+  return /* @__PURE__ */ React5.createElement(Input, __spreadValues({}, props));
 };
 
 // src/components/inputs/ThermalHistogramResolutionInput.tsx
@@ -491,14 +459,14 @@ var ThermalHistogramResolutionInput = (_a) => {
     "registry",
     "type"
   ]);
-  const { onChange, internal, onBlur } = (0, import_react_bridge3.useHistogramResolutionInput)(registry);
+  const { onChange, internal, onBlur } = useHistogramResolutionInput(registry);
   useCss("button", `
     .button {
       background: red;
       padding: 50px;
     }
   `);
-  return /* @__PURE__ */ import_react8.default.createElement(
+  return /* @__PURE__ */ React6.createElement(
     ThermalInput,
     __spreadValues({
       onChange,
@@ -513,8 +481,8 @@ var ThermalHistogramResolutionInput = (_a) => {
 };
 
 // src/components/inputs/ThermalOpacityInput.tsx
-var import_react_bridge4 = require("@labir/react-bridge");
-var import_react9 = __toESM(require("react"));
+import { useOpacityInput as useOpacityInput2 } from "@labir/react-bridge";
+import React7 from "react";
 var ThermalOpacityInput = (_a) => {
   var _b = _a, {
     registry,
@@ -523,7 +491,7 @@ var ThermalOpacityInput = (_a) => {
     "registry",
     "type"
   ]);
-  const { onChange, opacity } = (0, import_react_bridge4.useOpacityInput)(registry);
+  const { onChange, opacity } = useOpacityInput2(registry);
   useCss("button", `
     .button {
       background: yellow;
@@ -531,7 +499,7 @@ var ThermalOpacityInput = (_a) => {
       margin: ${Skin.gapValue()}
     }
   `);
-  return /* @__PURE__ */ import_react9.default.createElement(
+  return /* @__PURE__ */ React7.createElement(
     ThermalInput,
     __spreadValues({
       className: "button",
@@ -546,16 +514,15 @@ var ThermalOpacityInput = (_a) => {
 };
 
 // src/components/ui/Bar.tsx
-var import_react10 = __toESM(require("react"));
+import React8 from "react";
 var Bar = (props) => {
-  return /* @__PURE__ */ import_react10.default.createElement("div", null, props.children);
+  return /* @__PURE__ */ React8.createElement("div", null, props.children);
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
+export {
   Bar,
   CssContextProvider,
   ThermalHistogramResolutionInput,
   ThermalOpacityInput,
   ThermalRangeAutoButton,
   ThermalRangeFullButton
-});
+};

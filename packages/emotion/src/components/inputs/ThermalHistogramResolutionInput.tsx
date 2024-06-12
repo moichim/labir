@@ -1,9 +1,8 @@
-/** @jsx jsx */
-import { jsx } from "@emotion/react";
 import { ThermalRegistry } from "@labir/core";
 import { useHistogramResolutionInput, useOpacityInput } from "@labir/react-bridge";
-import { FC } from "react";
+import React, { FC } from "react";
 import { ThermalInput, ThermalInputProps } from "../ui/thermalInput";
+import { useCss } from "../../context/CssContext";
 
 type ThermalHistogramResolutionInputProps = ThermalInputProps & {
   registry: ThermalRegistry;
@@ -15,6 +14,13 @@ export const ThermalHistogramResolutionInput: FC<ThermalHistogramResolutionInput
   ...props
 }) => {
   const { onChange, internal, onBlur } = useHistogramResolutionInput(registry);
+
+  useCss( "button", `
+    .button {
+      background: red;
+      padding: 50px;
+    }
+  ` );
 
   return (
     <ThermalInput

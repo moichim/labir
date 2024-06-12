@@ -1,5 +1,5 @@
-import { ThermalFileSource } from '../file/ThermalFileSource';
-import AbstractParser from './AbstractParser';
+import { ThermalFileSource } from '../../file/ThermalFileSource';
+import AbstractParser from '../AbstractParser';
 
 
 /**
@@ -45,7 +45,6 @@ export default class LrcParser extends AbstractParser {
         this.parseMin();
         this.parseMax();
         await this.parsePixels();
-        // await this.parseBaseAttributes();
     }
 
 
@@ -170,13 +169,6 @@ export default class LrcParser extends AbstractParser {
     }
 
 
-    /** @deprecated */
-    public toFloat32(bytes: Uint8Array): number {
-        const value = bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-        // const value = bytes[3] << 24 | bytes[2] << 16 | bytes[1] << 8 | bytes[0];
-        return value / 0xFFFFFFFF;
-    }
-
 
     protected async readTemperatureArray(index: number): Promise<number[]> {
 
@@ -232,7 +224,12 @@ export default class LrcParser extends AbstractParser {
             && this.isDataTypeValid(this._fileDataType)
             && this.isValidVersion(this._version)
             && this.isValidUnit(this._unit)
-            && this.isValidBase();
+            && this.isValidTimestamp( this.timestamp )
+            && this.isValidWidth( this.width )
+            && this.isValidHeight( this.height )
+            && this.isValidPixels( this.pixels )
+            && this.isValidMin( this.min )
+            && this.isValidMax( this.max );
     }
 
     getThermalFile() {
@@ -256,5 +253,24 @@ export default class LrcParser extends AbstractParser {
             this.visibleUrl
         );
     }
+
+
+
+
+    // Binary operations
+
+    protected async readString(startIndex: number, stringLength: number): Promise<string> {
+        return await this.blob.slice(startIndex, stringLength).text();
+    }
+
+    protected read16bNumber(index: number) {
+        return this.data.getUint16(index, true);
+    }
+
+    protected read8bNumber(index: number): number {
+        return this.data.getUint8(index);
+    }
+
+
 
 }

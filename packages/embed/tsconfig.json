@@ -14,7 +14,7 @@
       "es2020",
       "DOM"
     ], /* Specify a set of bundled library declaration files that describe the target runtime environment. */
-    "jsx": "react", /* Specify what JSX code is generated. */
+    "jsx": "preserve", /* Specify what JSX code is generated. */
     "experimentalDecorators": true, /* Enable experimental support for legacy experimental decorators. */
     // "emitDecoratorMetadata": true,                    /* Emit design-type metadata for decorated declarations in source files. */
     // "jsxFactory": "",                                 /* Specify the JSX factory function used when targeting React JSX emit, e.g. 'React.createElement' or 'h'. */
@@ -111,6 +111,9 @@
       ],
       "@labir/react-bridge": [
         "react-bridge/src"
+      ],
+      "@labir/emotion": [
+        "emotion/src"
       ]
     }
   },

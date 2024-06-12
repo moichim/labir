@@ -1,11 +1,12 @@
+import { Bar, ThermalRangeAutoButton } from "@labir/emotion"
 import { ThermalInstance, useThermalContext, useThermalGroupInstancesState, ThermalRegistryRange } from "@labir/react-bridge"
-import React, { useEffect } from "react"
+import React, { FC, useEffect } from "react"
 
 type ThermalFileComponentProps = {
     url: string
 }
 
-export const ThermalFile: React.FC<ThermalFileComponentProps> = props => {
+export const ThermalFile: FC<ThermalFileComponentProps> = props => {
 
     const manager = useThermalContext();
 
@@ -23,6 +24,8 @@ export const ThermalFile: React.FC<ThermalFileComponentProps> = props => {
     return <>
 
         {instances.value.map( instance => <div key={instance.id}>
+            <Bar>Emoce</Bar>
+            <ThermalRangeAutoButton registry={registry} />
             <ThermalRegistryRange registry={ registry } step={0.1} />
             <ThermalInstance instance={instance}/>
         </div> )}

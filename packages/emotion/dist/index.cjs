@@ -49,6 +49,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  Bar: () => Bar,
   ThermalEmotionProvider: () => ThermalEmotionProvider,
   ThermalHistogramResolutionInput: () => ThermalHistogramResolutionInput,
   ThermalOpacityInput: () => ThermalOpacityInput,
@@ -356,13 +357,13 @@ var ThermalEmotionProvider = (props) => {
       }
     };
   }, [variables]);
-  return /* @__PURE__ */ (0, import_react10.jsx)(React.Fragment, null, /* @__PURE__ */ (0, import_react10.jsx)(import_react10.Global, { styles: globalStyles }), /* @__PURE__ */ (0, import_react10.jsx)(import_react10.ClassNames, null, ({ css: css3, cx }) => /* @__PURE__ */ (0, import_react10.jsx)(
+  return /* @__PURE__ */ (0, import_react10.jsx)(React.Fragment, null, /* @__PURE__ */ (0, import_react10.jsx)(import_react10.Global, { styles: globalStyles }), /* @__PURE__ */ (0, import_react10.jsx)(import_react10.ClassNames, null, ({ css: css4, cx }) => /* @__PURE__ */ (0, import_react10.jsx)(
     "div",
     {
       className: cx(
         appClass,
         "some-class",
-        css3`
+        css4`
 
               h1 {
                 font-size: 28px;
@@ -373,8 +374,22 @@ var ThermalEmotionProvider = (props) => {
     props.children
   )));
 };
+
+// src/components/ui/Bar.tsx
+var import_react11 = require("@emotion/react");
+var Bar = (props) => {
+  const styles = import_react11.css`
+    
+        display: flex;
+        padding: 5px;
+        background: ${Skin.colorValue("gray", 200)}
+    
+    `;
+  return /* @__PURE__ */ (0, import_react11.jsx)("div", { css: styles }, props.children);
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  Bar,
   ThermalEmotionProvider,
   ThermalHistogramResolutionInput,
   ThermalOpacityInput,

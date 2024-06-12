@@ -1,9 +1,9 @@
-/** @jsx jsx */
-import { jsx, css } from "@emotion/react";
 import { Button, ButtonProps } from "@headlessui/react";
-import { FC } from "react";
+import React, { FC } from "react";
 import { PaletteColor } from "../../theme/Variables";
 import { Skin } from "../../theme/Skin";
+import { useCss } from "../../context/CssContext";
+import classNames from "classnames";
 
 
 export type ThermalButtonProps = ButtonProps & {
@@ -11,29 +11,26 @@ export type ThermalButtonProps = ButtonProps & {
 }
 
 export const ThermalButton: FC<ThermalButtonProps> = ({
-    variant = "primary",
+    variant = "gray",
+    className,
     ...props
 }) => {
 
-    const styles = css`
-
-        cursor: pointer;
+    useCss( "thermalUiButton", `
     
-        background: ${Skin.colorValue( variant, 300 )};
+        .lrc__thermal-ui__button {
+            background: ${Skin.colorValue( variant, 100 )};
+            border: 0;
+            padding: ${Skin.gapValue(.5)} ${Skin.gapValue(.75)};
+            cursor: pointer;
 
-        border: 0;
-        padding: .5rem 1rem;
-        
-        border-radius: 5px;
-
-        transition: all .1s ease-in-out;
-
-        &:hover {
-            background: ${Skin.colorValue( variant, 300 )};
-            box-shadow: 0px 0px 5px ${Skin.colorValue( "primary", 500 )};
+            &:hover {
+                background: ${Skin.colorValue( variant, 300 )};
+            }
         }
-    
-    `;
 
-    return <Button css={styles} {...props}>{props.children}</Button>;
+    ` );
+
+
+    return <Button {...props} className={classNames( "lrc__thermal-ui__button" )}>{props.children}</Button>;
 }

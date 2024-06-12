@@ -1,9 +1,6 @@
-/** @jsx jsx */
-import { jsx } from "@emotion/react";
-
 import { ThermalRegistry } from "@labir/core";
 import { useRangeButtonFull } from "@labir/react-bridge";
-import { FC } from "react";
+import React, { FC } from "react";
 import { ThermalButton, ThermalButtonProps } from "../ui/thermalButton";
 
 type ThermalRangeAutoButtonProps = ThermalButtonProps & {

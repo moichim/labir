@@ -1,6 +1,3 @@
-/** @jsx jsx */
-import { jsx, css, Global, ClassNames } from '@emotion/react'
-
 import {
   Orientation,
   PaletteDropdownHeadless,
@@ -15,7 +12,6 @@ import {
   useThermalRegistryRangeDrive,
 } from "@labir/react-bridge";
 import { useEffect, useState } from "react";
-import { Debug } from "../../src/context/Debug";
 import { Skin } from "../../src/theme/Skin";
 import { ThermalRangeAutoButton } from '../../src/components/buttons/ThermalRangeAutoButton';
 import { ThermalRangeFullButton } from '../../src/components/buttons/ThermalRangeFullButton';
@@ -67,13 +63,8 @@ function App() {
     histogramResolution: 200,
   });
 
-  const style = css`
-    background: ${Skin.colorValue( "gray", 50 )}
-  `;
-
   return (
     <>
-      <Debug />
 
       <ThermalRangeAutoButton registry={registry}/>
 
@@ -87,7 +78,7 @@ function App() {
 
       <PaletteDropdownHeadless />
 
-      <div className="lrc-dark__" css={style}>
+      <div className="lrc-dark__">
 
       <ThermalRangeAutoButton registry={registry} variant="gray" style={{marginRight: "1rem"}}/>
       <ThermalRangeFullButton registry={registry}/>

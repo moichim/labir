@@ -20,6 +20,8 @@
   "license": "ISC",
   "dependencies": {
     "@labir/react-bridge": "workspace:*",
+    "@labir/emotion": "workspace:*",
+    "@labir/core": "workspace:*",
     "lit": "^3.1.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -30,6 +32,7 @@
     "@types/node": "^20.14.2",
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
     "eslint": "^8.57.0",
     "jsdom": "^24.1.0",
     "serve": "^14.2.3",

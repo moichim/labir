@@ -1,10 +1,17 @@
 import fetch from 'cross-fetch';
 
 import AbstractParser from "./AbstractParser";
-import LrcParser from './lrcParser';
+import LrcParser from './lrc/lrcParser';
+
+
+
 
 /**
  * Loader of thermal files from the web or from the user dropin.
+ * 
+ * - performs the loading
+ * - determines the file type
+ * - uses an appropriate parser to read the file
  */
 export class ThermalLoader {
 
@@ -36,7 +43,7 @@ export class ThermalLoader {
             throw new Error( `There was an error loading '${this.thermalUrl}'` );
         }
 
-        this.parser = this.assignParserInstance();
+        this.parser = this.getParserInstance();
 
         return await this.parser.parse();
     }
@@ -54,7 +61,7 @@ export class ThermalLoader {
 
     public async loadFromBlob() {
 
-        this.parser = this.assignParserInstance();
+        this.parser = this.getParserInstance();
 
         return await this.parser.parse();
 
@@ -64,8 +71,14 @@ export class ThermalLoader {
      * Determine the file type and return the corresponding parser. 
      * @todo In the future, new parsers shall be added.
      */
-    protected assignParserInstance() {
-        return new LrcParser( this.thermalUrl, this.blob, this.visibleUrl );
+    protected getParserInstance(): AbstractParser {
+
+        if ( this.thermalUrl.endsWith( ".lrc" ) ) {
+            return new LrcParser( this.thermalUrl, this.blob, this.visibleUrl );
+        }
+
+        throw new Error( "No parser found!" );
+
     }
 
 }

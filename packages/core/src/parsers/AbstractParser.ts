@@ -1,60 +1,49 @@
 import { ThermalFileSource } from "../file/ThermalFileSource";
 
-/** Implement this class to add a new thermal file parser. */
+
+/** 
+ * A base class for all parsers.
+ */
 export default abstract class AbstractParser {
+
+    /** DataView on the entire file contents. */
+    protected data!: DataView;
 
     public constructor(
         protected url: string,
-        blob: Blob,
+        protected blob: Blob,
         protected visibleUrl?: string
     ) {
-        this.url = url;
-        this.blob = blob;
     }
 
 
+    /** Create the dataview */
+    protected async init() {
+        const buffer = await this.blob.arrayBuffer();
+        this.data = new DataView(buffer);
+        return this;
+    }
+
+
+
     /** The only public endpoint. This method does all the business. */
-    public async parse(): Promise<ThermalFileSource|null> {
+    public async parse(): Promise<ThermalFileSource | null> {
         await this.init();
         await this.parseFile();
         return this.getThermalFile();
     }
 
+
     /** Parse the file once it is loaded. Log errors in the process. */
     protected abstract parseFile(): Promise<void>;
+
 
     /** Checks if the file is valid. Must be called after parsing. */
     public abstract isValid(): boolean;
 
+
     /** Create an instance of Thermal file (if the file is valid). */
     protected abstract getThermalFile(): ThermalFileSource | null;
-
-
-
-
-    // Shared parsing & validation
-
-    /** Parsing of all common attributes @deprecated */
-    protected async parseBaseAttributes() {
-        this.parseWidth();
-        this.parseHeight();
-        this.parseTimestamp();
-        await this.parsePixels();
-        this.parseMin();
-        this.parseMax();
-    }
-
-
-    /** Validation of all core attributes */
-    protected isValidBase(): boolean {
-        return this.errors.length === 0
-            && this.isValidTimestamp( this.timestamp )
-            && this.isValidWidth( this.width )
-            && this.isValidHeight( this.height )
-            && this.isValidPixels( this.pixels )
-            && this.isValidMin( this.min )
-            && this.isValidMax( this.max );
-    }
 
 
 
@@ -100,7 +89,7 @@ export default abstract class AbstractParser {
     // Common data parsing
     protected pixels?: number[];
     protected abstract getPixels(): Promise<number[]>;
-    protected isValidPixels = ( value: number[]|undefined ) => {
+    protected isValidPixels = (value: number[] | undefined) => {
         return value !== undefined && value.length === (this.width! * this.height!)
     }
     protected async parsePixels() {
@@ -119,7 +108,7 @@ export default abstract class AbstractParser {
         this.min = value;
     }
 
-    // MAx
+    // Max
     protected max?: number;
     protected isValidMax = (value: number | undefined) => value !== undefined;
     protected abstract getMax(): number;
@@ -151,7 +140,7 @@ export default abstract class AbstractParser {
     /** Store an error during parsing. */
     protected logValidationError(
         property: string,
-        value: number|string
+        value: number | string
     ) {
         const msg = `Invalid ${property} of ${this.url}: ${value.toString()}`;
         this.logError(msg);
@@ -160,45 +149,6 @@ export default abstract class AbstractParser {
     public getErrors() {
         return this.errors;
     }
-
-
-
-
-    // Binary operations
-
-    protected blob!: Blob;
-    protected data!: DataView;
-    // protected uint8array!: Uint8Array;
-    // protected float32array!: Float32Array;
-    protected async init() {
-
-        const buffer = await this.blob.arrayBuffer();
-
-        this.data = new DataView(buffer);
-
-        /** @deprecated */
-        // this.uint8array = new Uint8Array(buffer);
-
-        /** @deprecated */
-        // this.float32array = new Float32Array(buffer.slice(82));
-
-        return this;
-    }
-
-    protected async readString(startIndex: number, stringLength: number): Promise<string> {
-        return await this.blob.slice(startIndex, stringLength).text();
-    }
-
-    protected read8bNumber(index: number): number {
-        return this.data.getUint8(index);
-    }
-
-    protected read16bNumber(index: number) {
-        return this.data.getUint16(index, true);
-    }
-
-
-
 
 
 }

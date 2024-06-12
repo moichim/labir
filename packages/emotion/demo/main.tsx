@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./components/App";
 import { ThermalManager } from "@labir/core";
 import { ThermalProvider } from "@labir/react-bridge";
-import { ThermalEmotionProvider } from "../src";
+import { CssContextProvider } from "../src/context/CssContext";
 
 const manager = new ThermalManager({
   palette: "iron",
@@ -11,13 +11,13 @@ const manager = new ThermalManager({
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ThermalEmotionProvider>
+    <CssContextProvider>
       <ThermalProvider
         options={{ palette: "jet" }}
         externalManagerInstance={manager}
       >
         <App />
       </ThermalProvider>
-    </ThermalEmotionProvider>
+      </CssContextProvider>
   </React.StrictMode>
 );

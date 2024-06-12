@@ -2,10 +2,13 @@ import { ThermalRangeAutoButton } from "./components/buttons/ThermalRangeAutoBut
 import { ThermalRangeFullButton } from "./components/buttons/ThermalRangeFullButton";
 import { ThermalHistogramResolutionInput } from "./components/inputs/ThermalHistogramResolutionInput";
 import { ThermalOpacityInput } from "./components/inputs/ThermalOpacityInput";
-import { ThermalEmotionProvider } from "./context/ThermalEmotionProvider";
+import { Bar } from "./components/ui/Bar";
+
+import { CssContextProvider } from "./context/CssContext";
 
 export {
-    ThermalEmotionProvider,
+    CssContextProvider,
+    Bar,
     ThermalRangeAutoButton,
     ThermalRangeFullButton,
     ThermalHistogramResolutionInput,

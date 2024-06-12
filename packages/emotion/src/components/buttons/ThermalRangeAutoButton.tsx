@@ -1,10 +1,8 @@
 import { Button, ButtonProps } from "@headlessui/react"
 import { ThermalRegistry } from "@labir/core"
 import { useRangeButtonAuto } from "@labir/react-bridge"
-import { FC } from "react"
+import React, { FC } from "react"
 
-/** @jsx jsx */
-import { jsx, Global, ClassNames } from "@emotion/react";
 import { ThermalButton, ThermalButtonProps } from "../ui/thermalButton";
 
 type ThermalRangeAutoButtonProps = ThermalButtonProps & {

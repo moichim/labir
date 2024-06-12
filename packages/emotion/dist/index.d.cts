@@ -34,4 +34,7 @@ declare const ThermalOpacityInput: FC<ThermalOpacityInputProps>;
 
 declare const ThermalEmotionProvider: FC<PropsWithChildren>;
 
-export { ThermalEmotionProvider, ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton };
+type BarProps = PropsWithChildren & {};
+declare const Bar: FC<BarProps>;
+
+export { Bar, ThermalEmotionProvider, ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton };

@@ -1,4 +1,4 @@
-import { ColorTone, PaletteColor } from "./Variables";
+import { ColorTone, PaletteColor, Variables } from "./Variables";
 
 export class Skin {
 
@@ -18,5 +18,17 @@ export class Skin {
 
     public static colorValue( color: PaletteColor, tone: ColorTone = 500 ) {
         return Skin.value( `${color}-${tone}` );
+    }
+
+    public static breakpointValue( bp: keyof Variables["breakpoints"] ) {
+        return Skin.value( `bp-${bp}` );
+    }
+
+    public static gapValue( aspect?: number ) {
+
+        if (aspect === undefined) 
+            return Skin.value( "gap" );
+        return `calc( ${Skin.value("gap")} * ${aspect} )`;
+
     }
 }

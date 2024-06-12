@@ -714,6 +714,7 @@ var ThermalFileSource = class _ThermalFileSource extends EventTarget {
 var AbstractParser = class {
   constructor(url, blob, visibleUrl) {
     this.url = url;
+    this.blob = blob;
     this.visibleUrl = visibleUrl;
     this.isValidTimestamp = (value) => Number.isInteger(value);
     this.isValidWidth = (value) => Number.isInteger(value);
@@ -726,28 +727,18 @@ var AbstractParser = class {
     // Error logging
     /** Buffer of errors that occured during the parsing. */
     this.errors = [];
-    this.url = url;
-    this.blob = blob;
+  }
+  /** Create the dataview */
+  async init() {
+    const buffer = await this.blob.arrayBuffer();
+    this.data = new DataView(buffer);
+    return this;
   }
   /** The only public endpoint. This method does all the business. */
   async parse() {
     await this.init();
     await this.parseFile();
     return this.getThermalFile();
-  }
-  // Shared parsing & validation
-  /** Parsing of all common attributes @deprecated */
-  async parseBaseAttributes() {
-    this.parseWidth();
-    this.parseHeight();
-    this.parseTimestamp();
-    await this.parsePixels();
-    this.parseMin();
-    this.parseMax();
-  }
-  /** Validation of all core attributes */
-  isValidBase() {
-    return this.errors.length === 0 && this.isValidTimestamp(this.timestamp) && this.isValidWidth(this.width) && this.isValidHeight(this.height) && this.isValidPixels(this.pixels) && this.isValidMin(this.min) && this.isValidMax(this.max);
   }
   parseTimestamp() {
     const value = this.getTimestamp();
@@ -796,25 +787,9 @@ var AbstractParser = class {
   getErrors() {
     return this.errors;
   }
-  // protected uint8array!: Uint8Array;
-  // protected float32array!: Float32Array;
-  async init() {
-    const buffer = await this.blob.arrayBuffer();
-    this.data = new DataView(buffer);
-    return this;
-  }
-  async readString(startIndex, stringLength) {
-    return await this.blob.slice(startIndex, stringLength).text();
-  }
-  read8bNumber(index) {
-    return this.data.getUint8(index);
-  }
-  read16bNumber(index) {
-    return this.data.getUint16(index, true);
-  }
 };
 
-// src/parsers/lrcParser.ts
+// src/parsers/lrc/lrcParser.ts
 var LrcParser = class extends AbstractParser {
   constructor() {
     super(...arguments);
@@ -914,11 +889,6 @@ var LrcParser = class extends AbstractParser {
     const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
     return Number(milliseconds);
   }
-  /** @deprecated */
-  toFloat32(bytes) {
-    const value = bytes[0] << 24 | bytes[1] << 16 | bytes[2] << 8 | bytes[3];
-    return value / 4294967295;
-  }
   async readTemperatureArray(index) {
     const subset = (await this.blob.arrayBuffer()).slice(index);
     if (this._fileDataType === 0) {
@@ -946,7 +916,7 @@ var LrcParser = class extends AbstractParser {
     return this.data.getFloat32(37, true);
   }
   isValid() {
-    return this.errors.length === 0 && this.isValidSignature(this._signature) && this.isStreamCountValid(this._streamCount) && this.isDataTypeValid(this._fileDataType) && this.isValidVersion(this._version) && this.isValidUnit(this._unit) && this.isValidBase();
+    return this.errors.length === 0 && this.isValidSignature(this._signature) && this.isStreamCountValid(this._streamCount) && this.isDataTypeValid(this._fileDataType) && this.isValidVersion(this._version) && this.isValidUnit(this._unit) && this.isValidTimestamp(this.timestamp) && this.isValidWidth(this.width) && this.isValidHeight(this.height) && this.isValidPixels(this.pixels) && this.isValidMin(this.min) && this.isValidMax(this.max);
   }
   getThermalFile() {
     if (!this.isValid()) {
@@ -969,6 +939,16 @@ var LrcParser = class extends AbstractParser {
       this.visibleUrl
     );
   }
+  // Binary operations
+  async readString(startIndex, stringLength) {
+    return await this.blob.slice(startIndex, stringLength).text();
+  }
+  read16bNumber(index) {
+    return this.data.getUint16(index, true);
+  }
+  read8bNumber(index) {
+    return this.data.getUint8(index);
+  }
 };
 
 // src/parsers/thermalLoader.ts
@@ -988,7 +968,7 @@ var ThermalLoader = class _ThermalLoader {
     if (response.status !== 200) {
       throw new Error(`There was an error loading '${this.thermalUrl}'`);
     }
-    this.parser = this.assignParserInstance();
+    this.parser = this.getParserInstance();
     return await this.parser.parse();
   }
   /** Load a thermal file from a provided Blob/File and return a `ThermalFileSource` instance. */
@@ -999,15 +979,18 @@ var ThermalLoader = class _ThermalLoader {
     return await loader.loadFromBlob();
   }
   async loadFromBlob() {
-    this.parser = this.assignParserInstance();
+    this.parser = this.getParserInstance();
     return await this.parser.parse();
   }
   /** 
    * Determine the file type and return the corresponding parser. 
    * @todo In the future, new parsers shall be added.
    */
-  assignParserInstance() {
-    return new LrcParser(this.thermalUrl, this.blob, this.visibleUrl);
+  getParserInstance() {
+    if (this.thermalUrl.endsWith(".lrc")) {
+      return new LrcParser(this.thermalUrl, this.blob, this.visibleUrl);
+    }
+    throw new Error("No parser found!");
   }
 };
 

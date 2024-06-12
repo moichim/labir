@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ThermalFile } from './thermalFile';
+import { BaseComponent } from '../baseComponent';
 
 @customElement('thermal-file')
 export class ThermalFileElement extends LitElement {
@@ -17,9 +18,9 @@ export class ThermalFileElement extends LitElement {
             this.#reactRoot = createRoot( container )
         }
 
-        this.#reactRoot.render( <ThermalProvider>
+        this.#reactRoot.render( <BaseComponent>
             <ThermalFile url={this.url!}/>
-        </ThermalProvider> )
+        </BaseComponent> )
 
     }
 

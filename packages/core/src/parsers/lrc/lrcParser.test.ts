@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { THERMLGRAM_PATHS } from '../../node/mocks/thermogram.mock';
-import { ThermalLoader } from './thermalLoader';
+import { THERMLGRAM_PATHS } from '../../../node/mocks/thermogram.mock';
+import { ThermalLoader } from '../thermalLoader';
 
 describe("LrcParser", () => {
 

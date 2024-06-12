@@ -103,11 +103,6 @@ export class Variables {
         xl: "22px"
     }
 
-    // Line height
-    lineHeight: {
-        // [index in keyof Variables["breakpoints"]]: CSSStyleDeclaration["paddingTop"]
-    } = {}
-
     fontStyles: {
         [index: string]: {
             fontSize?: number,
@@ -119,6 +114,7 @@ export class Variables {
     } = {};
 
 
+    /** Get get variables definition of one palette */
     public getColorVariables( color: PaletteColor,inverse: undefined|boolean = false ) {
         
         const slot = this[color];
@@ -149,7 +145,8 @@ export class Variables {
     }
 
 
-    public getColors( inverse: boolean|undefined = false ) {
+    /** Get variables of all colors */
+    public getColorsVariables( inverse: boolean|undefined = false ) {
 
         return {
             ...this.getColorVariables("primary", inverse),
@@ -159,6 +156,51 @@ export class Variables {
             ...this.getColorVariables("danger", inverse),
         }
 
+    }
+
+    public getFontVariables() {
+
+        return {
+            [Skin.key( "font-size-xs" )]: this.fontSize.xs,
+            [Skin.key( "font-size-sm" )]: this.fontSize.sm,
+            [Skin.key( "font-size-md" )]: this.fontSize.md,
+            [Skin.key( "font-size-lg" )]: this.fontSize.lg,
+            [Skin.key( "font-size-xl" )]: this.fontSize.xl,
+        }
+
+    }
+
+    public getGapVariables() {
+
+        return {
+            [Skin.key( "gap-xs" )]: this.gap.xs,
+            [Skin.key( "gap-sm" )]: this.gap.sm,
+            [Skin.key( "gap-md" )]: this.gap.md,
+            [Skin.key( "gap-lg" )]: this.gap.lg,
+            [Skin.key( "gap-xl" )]: this.gap.xl,
+        }
+
+    }
+
+    public getBreakpointsVariables() {
+
+        return {
+            [Skin.key( "bp-xs" )]: `${this.breakpoints.xs}px`,
+            [Skin.key( "bp-sm" )]: `${this.breakpoints.sm}px`,
+            [Skin.key( "bp-md" )]: `${this.breakpoints.md}px`,
+            [Skin.key( "bp-lg" )]: `${this.breakpoints.lg}px`,
+            [Skin.key( "bp-xl" )]: `${this.breakpoints.xl}px`
+        }
+
+    }
+
+
+    /** Dump index of variables into a string */
+    public static printCss(styles: {[index: string]: string}): string {
+        return Object
+            .entries( styles )
+            .map( ([property,value]) => `${property}:${value};` )
+            .join("\n")
     }
 
 }
