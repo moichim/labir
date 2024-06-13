@@ -1,14 +1,14 @@
 import { ThermalRegistry } from "@labir/core";
-import { useHistogramResolutionInput, useOpacityInput } from "@labir/react-bridge";
-import React, { FC } from "react";
-import { ThermalInput, ThermalInputProps } from "../ui/thermalInput";
+import { useHistogramResolutionInput } from "@labir/react-bridge";
+import React from "react";
 import { useCss } from "../../context/CssContext";
+import { ThermalInput, ThermalInputProps } from "../ui/thermalInput";
 
 type ThermalHistogramResolutionInputProps = ThermalInputProps & {
   registry: ThermalRegistry;
 };
 
-export const ThermalHistogramResolutionInput: FC<ThermalHistogramResolutionInputProps> = ({
+export const ThermalHistogramResolutionInput: React.FC<ThermalHistogramResolutionInputProps> = ({
   registry,
   type="number",
   ...props

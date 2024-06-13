@@ -1,4 +1,4 @@
-import { ThermalRegistry } from '@labir/core';
+import { ThermalRegistry, ThermalFileInstance } from '@labir/core';
 import React, { FC, PropsWithChildren } from 'react';
 import { ButtonProps, InputProps } from '@headlessui/react';
 
@@ -18,6 +18,12 @@ type ThermalRangeAutoButtonProps = ThermalButtonProps & {
 };
 declare const ThermalRangeFullButton: FC<ThermalRangeAutoButtonProps>;
 
+declare const DownloadDropdown: React.FC<{
+    instance: ThermalFileInstance;
+}>;
+
+declare const PaletteDropdown: React.FC;
+
 type ThermalInputProps = InputProps & {
     variant?: PaletteColor;
 };
@@ -32,9 +38,14 @@ type ThermalOpacityInputProps = ThermalInputProps & {
 };
 declare const ThermalOpacityInput: FC<ThermalOpacityInputProps>;
 
-type BarProps = PropsWithChildren & {};
+type BarProps = PropsWithChildren & {
+    secondRow?: React.ReactNode;
+    name?: React.ReactNode;
+};
 declare const Bar: FC<BarProps>;
 
-declare const CssContextProvider: React.FC<React.PropsWithChildren>;
+declare const CssContextProvider: React.FC<React.PropsWithChildren & {
+    appRoot?: Element;
+}>;
 
-export { Bar, CssContextProvider, ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton };
+export { Bar, CssContextProvider, DownloadDropdown, PaletteDropdown, ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton };

@@ -1,13 +1,13 @@
 import { ThermalRegistry } from "@labir/core";
 import { useRangeButtonFull } from "@labir/react-bridge";
-import React, { FC } from "react";
+import React from "react";
 import { ThermalButton, ThermalButtonProps } from "../ui/thermalButton";
 
 type ThermalRangeAutoButtonProps = ThermalButtonProps & {
   registry: ThermalRegistry;
 };
 
-export const ThermalRangeFullButton: FC<ThermalRangeAutoButtonProps> = ({
+export const ThermalRangeFullButton: React.FC<ThermalRangeAutoButtonProps> = ({
   registry,
   ...props
 }) => {

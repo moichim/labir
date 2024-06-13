@@ -81,6 +81,7 @@ var src_exports = {};
 __export(src_exports, {
   Orientation: () => Orientation,
   PaletteDropdownHeadless: () => PaletteDropdownHeadless,
+  PaletteItem: () => PaletteItem,
   ThermalDropin: () => ThermalDropin,
   ThermalInstance: () => ThermalInstance,
   ThermalProvider: () => ThermalProvider,
@@ -1002,8 +1003,6 @@ var RangerContainerInner = (_a) => {
     display: "flex"
   });
   if (orientation === "horizontal" /* HORIZONTAL */) {
-    css.paddingTop = "20px";
-    css.paddingBottom = "20px";
     css.width = "100%";
     css.flexDirection = "column";
   } else {
@@ -1376,6 +1375,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
 0 && (module.exports = {
   Orientation,
   PaletteDropdownHeadless,
+  PaletteItem,
   ThermalDropin,
   ThermalInstance,
   ThermalProvider,

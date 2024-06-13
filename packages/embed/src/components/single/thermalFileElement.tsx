@@ -1,35 +1,36 @@
-import { ThermalProvider } from '@labir/react-bridge';
-import { LitElement, PropertyValueMap, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import React from 'react';
-import { Root, createRoot } from 'react-dom/client';
-import { ThermalFile } from './thermalFile';
-import { BaseComponent } from '../baseComponent';
+import { LitElement, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { Root, createRoot } from "react-dom/client";
+import { BaseComponent } from "../baseComponent";
+import { ThermalFile } from "./thermalFile";
+import React from "react";
 
-@customElement('thermal-file')
+@customElement("thermal-file")
 export class ThermalFileElement extends LitElement {
-    
-    #reactRoot?: Root;
+  #reactRoot?: Root;
 
-    updated(): void {
+  updated(): void {
+    const container = this.renderRoot.querySelector("#webcomponent-root")!;
 
-        if ( this.#reactRoot === undefined ) {
-            const container = this.renderRoot.querySelector( "#webcomponent-root" )!;
-            this.#reactRoot = createRoot( container )
-        }
-
-        this.#reactRoot.render( <BaseComponent>
-            <ThermalFile url={this.url!}/>
-        </BaseComponent> )
-
+    if (this.#reactRoot === undefined) {
+      this.#reactRoot = createRoot(container);
     }
 
-    // Declare reactive properties
-    @property({type: String, reflect: true})
-    url?: string = '';
+    console.log(container);
 
-    // Render the UI as a function of component state
-    render() {
-        return html`<div id="webcomponent-root"></div>`;
-    }
+    this.#reactRoot.render(
+      <BaseComponent appRoot={container}>
+        <ThermalFile url={this.url!} />
+      </BaseComponent>
+    );
+  }
+
+  // Declare reactive properties
+  @property({ type: String, reflect: true })
+  url?: string = "";
+
+  // Render the UI as a function of component state
+  render() {
+    return html`<div id="webcomponent-root"></div>`;
+  }
 }

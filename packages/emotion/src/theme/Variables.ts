@@ -97,10 +97,10 @@ export class Variables {
         [index in keyof Variables["breakpoints"]]: CSSStyleDeclaration["fontSize"]
     } = {
         xs: "15px",
-        sm: "16px",
-        md: "18px",
-        lg: "20px",
-        xl: "22px"
+        sm: "15px",
+        md: "15px",
+        lg: "15px",
+        xl: "15px"
     }
 
     fontStyles: {

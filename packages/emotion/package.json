@@ -8,7 +8,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "vite": "vite",
-    "build": "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json"
+    "build": "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json",
+    "lint": "eslint src"
   },
   "author": "Jan Jáchim <jachim5@gmail.com>",
   "license": "ISC",

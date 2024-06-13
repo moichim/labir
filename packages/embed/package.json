@@ -14,7 +14,8 @@
     "eslint": "eslint src",
     "test": "vitest src",
     "build": "vite build",
-    "serve": "serve dist/"
+    "serve": "serve dist/",
+    "lint": "eslint src"
   },
   "author": "Jan Jáchim <jachim5@gmail.com>",
   "license": "ISC",

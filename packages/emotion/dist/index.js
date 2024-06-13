@@ -61,6 +61,8 @@ var src_exports = {};
 __export(src_exports, {
   Bar: () => Bar,
   CssContextProvider: () => CssContextProvider,
+  DownloadDropdown: () => DownloadDropdown,
+  PaletteDropdown: () => PaletteDropdown,
   ThermalHistogramResolutionInput: () => ThermalHistogramResolutionInput,
   ThermalOpacityInput: () => ThermalOpacityInput,
   ThermalRangeAutoButton: () => ThermalRangeAutoButton,
@@ -108,7 +110,7 @@ var import_react = __toESM(require("react"));
 // package.json
 var package_default = {
   name: "@labir/emotion",
-  version: "1.2.3",
+  version: "1.2.4",
   description: "An UI for @labir/react-bridge based on @emotion/react",
   main: "index.js",
   module: "dist/index.mjs",
@@ -131,6 +133,7 @@ var package_default = {
     classnames: "^2.5.1",
     react: "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-select": "^5.8.0",
     "usehooks-ts": "^3.1.0",
     uuid: "^9.0.1"
   },
@@ -231,10 +234,10 @@ var Variables = class {
     // Font sizes
     this.fontSize = {
       xs: "15px",
-      sm: "16px",
-      md: "18px",
-      lg: "20px",
-      xl: "22px"
+      sm: "15px",
+      md: "15px",
+      lg: "15px",
+      xl: "15px"
     };
     this.fontStyles = {};
   }
@@ -297,8 +300,13 @@ var Variables = class {
 };
 
 // src/context/CssContext.tsx
-var useCssInternal = (prefix = "lrc") => {
-  const elements = (0, import_react.useRef)({});
+var useCssInternal = (appRoot = void 0, prefix = "lrc") => {
+  const elementsInHead = (0, import_react.useRef)({});
+  const elementsInRoot = (0, import_react.useRef)({});
+  const head = (0, import_react.useMemo)(() => document.head, []);
+  const root = (0, import_react.useMemo)(() => {
+    return appRoot !== void 0 ? appRoot : document.head;
+  }, [appRoot]);
   const getId = (0, import_react.useCallback)(
     (key) => `${prefix}__${package_default.version}__${key}`,
     [prefix]
@@ -314,18 +322,29 @@ var useCssInternal = (prefix = "lrc") => {
   );
   const styleExists = (0, import_react.useCallback)(
     (key) => {
-      return key in elements.current;
+      return key in elementsInRoot.current;
     },
-    [elements]
+    [elementsInRoot]
   );
   const getExistingStyle = (0, import_react.useCallback)(
     (key) => {
       if (styleExists(key)) {
-        return elements.current[key];
+        return elementsInRoot.current[key];
       }
       return void 0;
     },
-    [elements, styleExists]
+    [elementsInRoot, styleExists]
+  );
+  const addHeadCss = (0, import_react.useCallback)(
+    (key, css) => {
+      if (key in elementsInHead.current) {
+        return;
+      }
+      const element = styleElementFactory(key, css);
+      elementsInHead.current[key] = element;
+      head.appendChild(element);
+    },
+    [head]
   );
   const addCss = (0, import_react.useCallback)(
     (key, style) => {
@@ -333,39 +352,40 @@ var useCssInternal = (prefix = "lrc") => {
         return;
       }
       const element = styleElementFactory(key, style);
-      elements.current[key] = element;
-      document.head.appendChild(element);
+      elementsInRoot.current[key] = element;
+      root.appendChild(element);
     },
-    [styleExists, styleElementFactory, elements]
+    [styleExists, styleElementFactory, elementsInRoot, root]
   );
   const removeCss = (0, import_react.useCallback)(
     (key) => {
       const existing = getExistingStyle(key);
       if (existing !== void 0) {
-        document.head.removeChild(existing);
-        delete elements.current[key];
       }
     },
-    [getExistingStyle, elements]
+    [getExistingStyle, elementsInRoot, root]
   );
   return {
     addCss,
-    removeCss
+    removeCss,
+    addHeadCss
   };
 };
 var cssContextDefaults = {
   addCss: () => {
   },
   removeCss: () => {
+  },
+  addHeadCss: () => {
   }
 };
 var CssContext = (0, import_react.createContext)(cssContextDefaults);
 var CssContextProvider = (_a) => {
   var props = __objRest(_a, []);
-  const context = useCssInternal();
+  const context = useCssInternal(props.appRoot);
   (0, import_react.useInsertionEffect)(() => {
     const variables = new Variables();
-    context.addCss(
+    context.addHeadCss(
       "baseStyles",
       `
             :root {
@@ -378,6 +398,13 @@ var CssContextProvider = (_a) => {
                 ${Skin.key("gap")}: ${Skin.value("gap-xs")};
                 ${Skin.key("font-size")}: ${Skin.value("font-size-xs")};
 
+            }
+
+            .lrc-light {
+                ${Variables.printCss(variables.getColorsVariables())}
+            }
+            .lrc-dark {
+                ${Variables.printCss(variables.getColorsVariables(true))}
             }
 
             .lrc-app__root {
@@ -421,7 +448,7 @@ var useCss = (key, css) => {
 
 // src/components/ui/thermalButton.tsx
 var import_classnames = __toESM(require("classnames"));
-var ThermalButton = (_a) => {
+var ThermalButton = (0, import_react3.forwardRef)((_a, ref) => {
   var _b = _a, {
     variant = "gray",
     className
@@ -432,19 +459,25 @@ var ThermalButton = (_a) => {
   useCss("thermalUiButton", `
     
         .lrc__thermal-ui__button {
-            background: ${Skin.colorValue(variant, 100)};
-            border: 0;
-            padding: ${Skin.gapValue(0.5)} ${Skin.gapValue(0.75)};
+            position: relative;
+            background: ${Skin.colorValue(variant, 200)};
+            border: 1px solid ${Skin.colorValue(variant, 300)};
+            padding: ${Skin.gapValue(0.3)} ${Skin.gapValue(0.5)};
             cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 3px 3px 10px ${Skin.colorValue("gray", 200)};
+
+            transition: all .2s ease-in-out;
 
             &:hover {
                 background: ${Skin.colorValue(variant, 300)};
+                border-color: ${Skin.colorValue(variant, 500)};
             }
         }
 
     `);
-  return /* @__PURE__ */ import_react3.default.createElement(import_react2.Button, __spreadProps(__spreadValues({}, props), { className: (0, import_classnames.default)("lrc__thermal-ui__button") }), props.children);
-};
+  return /* @__PURE__ */ import_react3.default.createElement(import_react2.Button, __spreadProps(__spreadValues({ ref }, props), { className: (0, import_classnames.default)("lrc__thermal-ui__button") }), props.children);
+});
 
 // src/components/buttons/ThermalRangeAutoButton.tsx
 var ThermalRangeAutoButton = (_a) => {
@@ -466,20 +499,187 @@ var ThermalRangeFullButton = (_a) => {
   return /* @__PURE__ */ import_react5.default.createElement(ThermalButton, __spreadValues({ onClick }, props), "Pln\xFD teplotn\xED rozsah");
 };
 
-// src/components/inputs/ThermalHistogramResolutionInput.tsx
-var import_react_bridge3 = require("@labir/react-bridge");
-var import_react8 = __toESM(require("react"));
-
-// src/components/ui/thermalInput.tsx
+// src/components/dropdowns/DownloadDropdown.tsx
 var import_react6 = require("@headlessui/react");
 var import_react7 = __toESM(require("react"));
+var DownloadDropdown = (props) => {
+  useCss(
+    "downloadDropdown",
+    `
+    
+    .lrc__downloadDropdown__items {
+        background: ${Skin.colorValue("gray", 100)};
+        padding: ${Skin.gapValue(0.25)};
+        box-shadow: 3px 3px 10px ${Skin.colorValue("gray", 200)};
+        border: 1px solid ${Skin.colorValue("gray", 300)};
+        border-radius: 5px;
+        z-index: 9999;
+    }
+
+    .lrc__downloadDropdown__item {
+        font-size: ${Skin.value("font-size")};
+        padding: ${Skin.gapValue(0.5)} ${Skin.gapValue(0.7)};
+        font-family: sans-serif;
+        cursor: pointer;
+        border-radius: 5px;
+        display: block;
+        color: ${Skin.colorValue("gray", 900)}
+
+        &:hover {
+            background: ${Skin.colorValue("gray", 200)};
+        }
+    }
+  
+  `
+  );
+  const items = (0, import_react7.useMemo)(() => {
+    let links = [
+      {
+        href: props.instance.url,
+        text: "St\xE1hnout LRC soubor"
+      }
+    ];
+    return links;
+  }, [props.instance]);
+  return /* @__PURE__ */ import_react7.default.createElement(import_react7.default.Fragment, null, /* @__PURE__ */ import_react7.default.createElement(import_react6.Menu, null, /* @__PURE__ */ import_react7.default.createElement(import_react6.MenuButton, { as: ThermalButton }, /* @__PURE__ */ import_react7.default.createElement("div", { style: { display: "flex", alignItems: "center", gap: "10px" } }, /* @__PURE__ */ import_react7.default.createElement("span", null, props.instance.url, " "), /* @__PURE__ */ import_react7.default.createElement(
+    "svg",
+    {
+      xmlns: "http://www.w3.org/2000/svg",
+      fill: "none",
+      viewBox: "0 0 24 24",
+      strokeWidth: 1.5,
+      stroke: "currentColor",
+      className: "size-6",
+      style: { width: "1em" }
+    },
+    /* @__PURE__ */ import_react7.default.createElement(
+      "path",
+      {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3"
+      }
+    )
+  ))), /* @__PURE__ */ import_react7.default.createElement(
+    import_react6.MenuItems,
+    {
+      anchor: {
+        to: "bottom",
+        gap: "5px",
+        offset: "5px",
+        padding: "5px"
+      },
+      portal: false,
+      as: "nav",
+      style: {
+        background: "red"
+      },
+      className: "lrc__downloadDropdown__items "
+    },
+    items.map((item) => /* @__PURE__ */ import_react7.default.createElement(
+      import_react6.MenuItem,
+      {
+        key: item.text,
+        as: "a",
+        href: item.href,
+        className: "lrc__downloadDropdown__item"
+      },
+      item.text
+    ))
+  )));
+};
+
+// src/components/dropdowns/PaletteDropdown.tsx
+var import_react8 = require("@headlessui/react");
+var import_react9 = __toESM(require("react"));
+var import_uuid = require("uuid");
+var import_react_bridge3 = require("@labir/react-bridge");
+var PaletteDropdown = () => {
+  const palette = (0, import_react_bridge3.useThermalManagerPaletteDrive)((0, import_uuid.v4)());
+  useCss(
+    "paletteDropdown",
+    `
+    
+    .lrc__paletteDropdown__items {
+        background: ${Skin.colorValue("gray", 100)};
+        padding: ${Skin.gapValue(0.25)};
+        box-shadow: 3px 3px 10px ${Skin.colorValue("gray", 200)};
+        border: 1px solid ${Skin.colorValue("gray", 300)};
+        border-radius: 5px;
+    }
+
+    .lrc__paletteDropdown__item {
+        font-size: ${Skin.value("font-size")};
+        padding: ${Skin.gapValue(0.5)} ${Skin.gapValue(0.3)};
+        font-family: sans-serif;
+        cursor: pointer;
+        border-radius: 5px;
+
+        &:hover {
+            background: ${Skin.colorValue("gray", 200)};
+        }
+    }
+  
+  `
+  );
+  return /* @__PURE__ */ import_react9.default.createElement(import_react9.default.Fragment, null, /* @__PURE__ */ import_react9.default.createElement(import_react8.Menu, null, /* @__PURE__ */ import_react9.default.createElement(import_react8.MenuButton, { as: ThermalButton }, /* @__PURE__ */ import_react9.default.createElement(import_react9.default.Fragment, null, /* @__PURE__ */ import_react9.default.createElement(import_react_bridge3.PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ import_react9.default.createElement(
+    import_react8.MenuItems,
+    {
+      anchor: {
+        to: "bottom",
+        gap: "5px",
+        offset: "0px",
+        padding: "5px"
+      },
+      portal: false,
+      as: "nav",
+      style: {
+        background: "red"
+      },
+      className: "lrc__paletteDropdown__items "
+    },
+    Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ import_react9.default.createElement(
+      import_react8.MenuItem,
+      {
+        key,
+        as: "div",
+        onClick: () => palette.set(key),
+        className: "lrc__paletteDropdown__item"
+      },
+      /* @__PURE__ */ import_react9.default.createElement(import_react_bridge3.PaletteItem, __spreadValues({}, item))
+    ))
+  )));
+};
+
+// src/components/inputs/ThermalHistogramResolutionInput.tsx
+var import_react_bridge4 = require("@labir/react-bridge");
+var import_react12 = __toESM(require("react"));
+
+// src/components/ui/thermalInput.tsx
+var import_react10 = require("@headlessui/react");
+var import_react11 = __toESM(require("react"));
+var import_classnames2 = __toESM(require("classnames"));
 var ThermalInput = (_a) => {
   var _b = _a, {
-    variant = "primary"
+    variant = "primary",
+    className
   } = _b, props = __objRest(_b, [
-    "variant"
+    "variant",
+    "className"
   ]);
-  return /* @__PURE__ */ import_react7.default.createElement(import_react6.Input, __spreadValues({}, props));
+  useCss("thermalUiInput", `
+    .lrc__thermal-ui__input {
+      border-radius: 5px;
+      padding: ${Skin.gapValue(0.3)} ${Skin.gapValue(0.5)};
+
+      &[type=range] {
+        padding: 0;
+        accent-color: ${Skin.colorValue(variant, 500)};
+        padding-top: ${Skin.gapValue(0.5)};
+      }
+    }
+  `);
+  return /* @__PURE__ */ import_react11.default.createElement(import_react10.Input, __spreadProps(__spreadValues({}, props), { className: (0, import_classnames2.default)(className, "lrc__thermal-ui__input") }));
 };
 
 // src/components/inputs/ThermalHistogramResolutionInput.tsx
@@ -491,14 +691,14 @@ var ThermalHistogramResolutionInput = (_a) => {
     "registry",
     "type"
   ]);
-  const { onChange, internal, onBlur } = (0, import_react_bridge3.useHistogramResolutionInput)(registry);
+  const { onChange, internal, onBlur } = (0, import_react_bridge4.useHistogramResolutionInput)(registry);
   useCss("button", `
     .button {
       background: red;
       padding: 50px;
     }
   `);
-  return /* @__PURE__ */ import_react8.default.createElement(
+  return /* @__PURE__ */ import_react12.default.createElement(
     ThermalInput,
     __spreadValues({
       onChange,
@@ -513,8 +713,8 @@ var ThermalHistogramResolutionInput = (_a) => {
 };
 
 // src/components/inputs/ThermalOpacityInput.tsx
-var import_react_bridge4 = require("@labir/react-bridge");
-var import_react9 = __toESM(require("react"));
+var import_react_bridge5 = require("@labir/react-bridge");
+var import_react13 = __toESM(require("react"));
 var ThermalOpacityInput = (_a) => {
   var _b = _a, {
     registry,
@@ -523,18 +723,10 @@ var ThermalOpacityInput = (_a) => {
     "registry",
     "type"
   ]);
-  const { onChange, opacity } = (0, import_react_bridge4.useOpacityInput)(registry);
-  useCss("button", `
-    .button {
-      background: yellow;
-      padding: ${Skin.gapValue(0.5)};
-      margin: ${Skin.gapValue()}
-    }
-  `);
-  return /* @__PURE__ */ import_react9.default.createElement(
+  const { onChange, opacity } = (0, import_react_bridge5.useOpacityInput)(registry);
+  return /* @__PURE__ */ import_react13.default.createElement(
     ThermalInput,
     __spreadValues({
-      className: "button",
       onChange,
       value: opacity.value,
       min: 0,
@@ -546,14 +738,39 @@ var ThermalOpacityInput = (_a) => {
 };
 
 // src/components/ui/Bar.tsx
-var import_react10 = __toESM(require("react"));
+var import_react14 = __toESM(require("react"));
 var Bar = (props) => {
-  return /* @__PURE__ */ import_react10.default.createElement("div", null, props.children);
+  useCss("thermalBar", `
+    
+    .lrc__bar {
+        box-sizing: border-box;
+        padding: ${Skin.gapValue(0.3)};
+        background: ${Skin.colorValue("gray", 100)};
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .lrc__bar__name {
+        font-weight: bold;
+        padding-left: 10px;
+    }
+
+    .lrc__bar__secondRow {
+        width: 100%;
+    }
+   
+   `);
+  return /* @__PURE__ */ import_react14.default.createElement("div", { className: "lrc__bar" }, props.name && /* @__PURE__ */ import_react14.default.createElement("div", { className: "lrc__bar__name" }, props.name), props.children, props.secondRow && /* @__PURE__ */ import_react14.default.createElement("div", { className: "lrc__bar__secondRow" }, props.secondRow));
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   Bar,
   CssContextProvider,
+  DownloadDropdown,
+  PaletteDropdown,
   ThermalHistogramResolutionInput,
   ThermalOpacityInput,
   ThermalRangeAutoButton,

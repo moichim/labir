@@ -5,13 +5,9 @@ import {
 } from "../../src";
 import { ThermalDropin } from "../../src/components/dropin/ThermalDropin";
 import { ThermalRegistryHistogram } from "../../src/components/histogram/thermalRegistryHistogram";
-import { HistogramResolutionInputHeadless } from "../../src/components/histogramResolutionInput/histogramResolutionInputHeadless";
 import { ThermalInstance } from "../../src/components/instance/thermalInstance";
-import { OpacityInputHeadless } from "../../src/components/opacity/opacityInputHeadless";
 import { PaletteDropdownHeadless } from "../../src/components/palette/PaletteDropdownHeadless";
 import { ThermalRegistryRange } from "../../src/components/range/ThermalRegistryRange";
-import { RangeButtonAutoHeadless } from "../../src/components/rangeButtonAuto.tsx/rangeButtonAutoHeadless";
-import { RangeButtonFullHeadless } from "../../src/components/rangeButtonFull/rangeButtonFullHeadless";
 import { useThermalRegistry } from "../../src/context/useThermalRegistry";
 import { useThermalRegistryOpacityDrive } from "../../src/properties/drives/useThermalRegistryOpacityDrive";
 import { useSingleFileRegistry } from "../../src/shorthands/useSingleFileRegistry";
@@ -66,23 +62,12 @@ function App() {
       <ThermalRegistryRange
         registry={dropinRegistry}
         step={1}
-        renderSkeleton={() => <article>Načítačka</article>}
       />
 
       <ThermalDropin registry={dropinRegistry} groupId={"zkušební dropin"} />
 
 
       <PaletteDropdownHeadless />
-
-      <OpacityInputHeadless registry={registry} step={0.01}/>
-      <OpacityInputHeadless registry={registry} type="number"/>
-
-      <RangeButtonFullHeadless registry={registry} as={"button"}>Děti jsme tady</RangeButtonFullHeadless>
-      <RangeButtonAutoHeadless registry={registry}/>
-      <HistogramResolutionInputHeadless registry={registry} />
-
-      <HistogramResolutionInputHeadless registry={registry} />
-      <HistogramResolutionInputHeadless registry={registry} type="range"/>
 
       <ThermalRegistryRange
         registry={registry}

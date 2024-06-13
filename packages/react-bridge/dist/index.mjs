@@ -954,8 +954,6 @@ var RangerContainerInner = (_a) => {
     display: "flex"
   });
   if (orientation === "horizontal" /* HORIZONTAL */) {
-    css.paddingTop = "20px";
-    css.paddingBottom = "20px";
     css.width = "100%";
     css.flexDirection = "column";
   } else {
@@ -1327,6 +1325,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
 export {
   Orientation,
   PaletteDropdownHeadless,
+  PaletteItem,
   ThermalDropin,
   ThermalInstance,
   ThermalProvider,

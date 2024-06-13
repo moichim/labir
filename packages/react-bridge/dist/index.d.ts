@@ -1,5 +1,5 @@
 import * as _labir_core from '@labir/core';
-import { ThermalRegistry, ThermalFileInstance, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalPaletteType, ThermalMinmaxOrUndefined } from '@labir/core';
+import { ThermalRegistry, ThermalFileInstance, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labir/core';
 import React$1, { MouseEvent, ChangeEventHandler } from 'react';
 import * as react_dropzone from 'react-dropzone';
 
@@ -68,6 +68,10 @@ declare const useOpacityInput: (registry: ThermalRegistry) => {
 };
 
 declare const PaletteDropdownHeadless: React$1.FC;
+
+declare const PaletteItem: React$1.FC<ThermalPaletteType & {
+    style?: React$1.CSSProperties;
+}>;
 
 type RangePropsExposed = {
     registry: ThermalRegistry;
@@ -218,4 +222,4 @@ declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) =
     instance: ThermalFileInstance | undefined;
 };
 
-export { Orientation, PaletteDropdownHeadless, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+export { Orientation, PaletteDropdownHeadless, PaletteItem, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

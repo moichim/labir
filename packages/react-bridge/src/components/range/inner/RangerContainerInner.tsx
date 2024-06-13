@@ -21,8 +21,8 @@ export const RangerContainerInner: React.FC<RangerContainerProps> = ({
   };
 
   if (orientation === Orientation.HORIZONTAL) {
-    css.paddingTop = "20px";
-    css.paddingBottom = "20px";
+    // css.paddingTop = "20px";
+    // css.paddingBottom = "20px";
     css.width = "100%";
     css.flexDirection = "column";
   } else {
