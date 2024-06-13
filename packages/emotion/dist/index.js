@@ -118,7 +118,8 @@ var package_default = {
   scripts: {
     test: 'echo "Error: no test specified" && exit 1',
     vite: "vite",
-    build: "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json"
+    build: "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json",
+    lint: "eslint src"
   },
   author: "Jan J\xE1chim <jachim5@gmail.com>",
   license: "ISC",
@@ -133,7 +134,6 @@ var package_default = {
     classnames: "^2.5.1",
     react: "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-select": "^5.8.0",
     "usehooks-ts": "^3.1.0",
     uuid: "^9.0.1"
   },
@@ -450,11 +450,9 @@ var useCss = (key, css) => {
 var import_classnames = __toESM(require("classnames"));
 var ThermalButton = (0, import_react3.forwardRef)((_a, ref) => {
   var _b = _a, {
-    variant = "gray",
-    className
+    variant = "gray"
   } = _b, props = __objRest(_b, [
-    "variant",
-    "className"
+    "variant"
   ]);
   useCss("thermalUiButton", `
     
@@ -533,7 +531,7 @@ var DownloadDropdown = (props) => {
   `
   );
   const items = (0, import_react7.useMemo)(() => {
-    let links = [
+    const links = [
       {
         href: props.instance.url,
         text: "St\xE1hnout LRC soubor"
@@ -591,9 +589,9 @@ var DownloadDropdown = (props) => {
 
 // src/components/dropdowns/PaletteDropdown.tsx
 var import_react8 = require("@headlessui/react");
+var import_react_bridge3 = require("@labir/react-bridge");
 var import_react9 = __toESM(require("react"));
 var import_uuid = require("uuid");
-var import_react_bridge3 = require("@labir/react-bridge");
 var PaletteDropdown = () => {
   const palette = (0, import_react_bridge3.useThermalManagerPaletteDrive)((0, import_uuid.v4)());
   useCss(

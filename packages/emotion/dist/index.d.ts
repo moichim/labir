@@ -11,12 +11,12 @@ type ThermalButtonProps = ButtonProps & {
 type ThermalRangeAutoButtonProps$1 = ThermalButtonProps & {
     registry: ThermalRegistry;
 };
-declare const ThermalRangeAutoButton: FC<ThermalRangeAutoButtonProps$1>;
+declare const ThermalRangeAutoButton: React.FC<ThermalRangeAutoButtonProps$1>;
 
 type ThermalRangeAutoButtonProps = ThermalButtonProps & {
     registry: ThermalRegistry;
 };
-declare const ThermalRangeFullButton: FC<ThermalRangeAutoButtonProps>;
+declare const ThermalRangeFullButton: React.FC<ThermalRangeAutoButtonProps>;
 
 declare const DownloadDropdown: React.FC<{
     instance: ThermalFileInstance;
@@ -31,12 +31,12 @@ type ThermalInputProps = InputProps & {
 type ThermalHistogramResolutionInputProps = ThermalInputProps & {
     registry: ThermalRegistry;
 };
-declare const ThermalHistogramResolutionInput: FC<ThermalHistogramResolutionInputProps>;
+declare const ThermalHistogramResolutionInput: React.FC<ThermalHistogramResolutionInputProps>;
 
 type ThermalOpacityInputProps = ThermalInputProps & {
     registry: ThermalRegistry;
 };
-declare const ThermalOpacityInput: FC<ThermalOpacityInputProps>;
+declare const ThermalOpacityInput: React.FC<ThermalOpacityInputProps>;
 
 type BarProps = PropsWithChildren & {
     secondRow?: React.ReactNode;

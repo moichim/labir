@@ -85,7 +85,8 @@ var package_default = {
   scripts: {
     test: 'echo "Error: no test specified" && exit 1',
     vite: "vite",
-    build: "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json"
+    build: "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json",
+    lint: "eslint src"
   },
   author: "Jan J\xE1chim <jachim5@gmail.com>",
   license: "ISC",
@@ -100,7 +101,6 @@ var package_default = {
     classnames: "^2.5.1",
     react: "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-select": "^5.8.0",
     "usehooks-ts": "^3.1.0",
     uuid: "^9.0.1"
   },
@@ -417,11 +417,9 @@ var useCss = (key, css) => {
 import classNames from "classnames";
 var ThermalButton = forwardRef((_a, ref) => {
   var _b = _a, {
-    variant = "gray",
-    className
+    variant = "gray"
   } = _b, props = __objRest(_b, [
-    "variant",
-    "className"
+    "variant"
   ]);
   useCss("thermalUiButton", `
     
@@ -500,7 +498,7 @@ var DownloadDropdown = (props) => {
   `
   );
   const items = useMemo2(() => {
-    let links = [
+    const links = [
       {
         href: props.instance.url,
         text: "St\xE1hnout LRC soubor"
@@ -563,12 +561,12 @@ import {
   MenuItem as MenuItem2,
   MenuItems as MenuItems2
 } from "@headlessui/react";
-import React6 from "react";
-import { v4 as uuidv4 } from "uuid";
 import {
   PaletteItem,
   useThermalManagerPaletteDrive
 } from "@labir/react-bridge";
+import React6 from "react";
+import { v4 as uuidv4 } from "uuid";
 var PaletteDropdown = () => {
   const palette = useThermalManagerPaletteDrive(uuidv4());
   useCss(
@@ -688,7 +686,7 @@ var ThermalHistogramResolutionInput = (_a) => {
 };
 
 // src/components/inputs/ThermalOpacityInput.tsx
-import { useOpacityInput as useOpacityInput2 } from "@labir/react-bridge";
+import { useOpacityInput } from "@labir/react-bridge";
 import React9 from "react";
 var ThermalOpacityInput = (_a) => {
   var _b = _a, {
@@ -698,7 +696,7 @@ var ThermalOpacityInput = (_a) => {
     "registry",
     "type"
   ]);
-  const { onChange, opacity } = useOpacityInput2(registry);
+  const { onChange, opacity } = useOpacityInput(registry);
   return /* @__PURE__ */ React9.createElement(
     ThermalInput,
     __spreadValues({
