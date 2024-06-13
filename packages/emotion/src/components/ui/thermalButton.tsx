@@ -34,6 +34,11 @@ export const ThermalButton: FC<ThermalButtonProps> = forwardRef<HTMLElement, The
             }
         }
 
+        .lrc-dark .lrc__thermal-ui__button {
+            color: white;
+            box-shadow: 3px 3px 10px ${Skin.colorValue( "gray", 50 )};
+        }
+
     ` );
 
 

@@ -2,6 +2,9 @@ import {
   Bar,
   DownloadDropdown,
   PaletteDropdown,
+  Skin,
+  ThermalEmbedModal,
+  ThermalInfoModal,
   ThermalRangeAutoButton,
   ThermalRangeFullButton,
 } from "@labir/emotion";
@@ -33,17 +36,32 @@ export const ThermalFile: React.FC<ThermalFileComponentProps> = (props) => {
   return (
     <>
       {instances.value.map((instance) => (
-        <div key={instance.id}>
+        <div key={instance.id} className="lrc-dark">
           <Bar
-            secondRow={<ThermalRegistryRange registry={registry} step={0.1} />}
+            secondRow={<ThermalRegistryRange 
+                registry={registry} step={0.1} 
+                trackBg={Skin.colorValue( "gray", 300 )}
+                ticksLineColor={Skin.colorValue( "gray", 500 )}
+                ticksLabelColor={Skin.colorValue( "gray", 500 )}
+                handleBG={Skin.colorValue( "gray", 900 )}
+                handleColor={Skin.colorValue( "gray", 50 )}
+                histogramBackground={Skin.colorValue( "gray", 200 )}
+                histogramBarBackground={Skin.colorValue( "gray", 600 )}
+                histogramBorderWidthInPx={0}
+                histogramSizeInPx={40}
+            />}
+            mainContent={<ThermalInstance instance={instance} />}
           >
+            <ThermalInfoModal instance={instance} />
             <DownloadDropdown instance={instance} />
             <PaletteDropdown />
             <ThermalRangeAutoButton registry={registry} />
             <ThermalRangeFullButton registry={registry} />
+            <div></div>
+            <ThermalEmbedModal instance={ instance } />
           </Bar>
 
-          <ThermalInstance instance={instance} />
+          
         </div>
       ))}
     </>

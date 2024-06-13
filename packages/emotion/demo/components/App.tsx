@@ -20,6 +20,8 @@ import { ThermalHistogramResolutionInput } from "../../src/components/inputs/The
 import { PaletteDropdown } from "../../src/components/dropdowns/PaletteDropdown";
 import { Bar } from "../../src";
 import { DownloadDropdown } from "../../src/components/dropdowns/DownloadDropdown";
+import { ThermalEmbedModal } from "../../src/components/modals/InstanceEmbedModal";
+import { ThermalInfoModal } from "../../src/components/modals/InstanceInfoModal";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -65,7 +67,7 @@ function App() {
   });
 
   return (
-    <>
+    <div className="lrc-dark">
       <ThermalRangeAutoButton registry={registry} />
 
       <ThermalRegistryRange
@@ -89,7 +91,7 @@ function App() {
               ticksLabelColor={Skin.colorValue("gray", 500)}
               ticksLineColor={Skin.colorValue("gray", 300)}
               histogramSizeInPx={40}
-              trackBg={Skin.colorValue("gray", 200)}
+              trackBg={Skin.colorValue("gray", 500)}
               histogramBorderColor={Skin.colorValue("gray", 200)}
               histogramBarBackground={Skin.colorValue("primary", 500)}
               histogramBackground={Skin.colorValue("gray", 50)}
@@ -108,6 +110,8 @@ function App() {
         return (
           <div className="instance!!!" key={instance.id}>
             <DownloadDropdown instance={instance} />
+            <ThermalEmbedModal instance={instance}/>
+            <ThermalInfoModal instance={ instance } />
             <ThermalInstance
               instance={instance}
               onClick={(event, instance) => {
@@ -132,7 +136,7 @@ function App() {
       <div className="read-the-docs">
         <div>{registry.loading.value ? "Načítám" : "NAčetl jsem"}</div>
       </div>
-    </>
+    </div>
   );
 }
 

@@ -3,62 +3,69 @@
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ThermalFileInstance } from "@labir/core";
 import React, { useMemo } from "react";
-import { useCss } from "../../context/CssContext";
+import { useCss, useHeadCss } from "../../context/CssContext";
 import { Skin } from "../../theme/Skin";
 import { ThermalButton } from "../ui/thermalButton";
 
 export const DownloadDropdown: React.FC<{ instance: ThermalFileInstance }> = (
   props
 ) => {
-  useCss(
-    "downloadDropdown",
-    `
+  const css = useMemo(
+    () => `
     
-    .lrc__downloadDropdown__items {
-        background: ${Skin.colorValue("gray", 100)};
-        padding: ${Skin.gapValue(0.25)};
-        box-shadow: 3px 3px 10px ${Skin.colorValue("gray", 200)};
-        border: 1px solid ${Skin.colorValue("gray", 300)};
-        border-radius: 5px;
-        z-index: 9999;
-    }
+.lrc__downloadDropdown__items {
+    background: ${Skin.colorValue("gray", 100)};
+    padding: ${Skin.gapValue(0.25)};
+    box-shadow: 3px 3px 10px ${Skin.colorValue("gray", 200)};
+    border: 1px solid ${Skin.colorValue("gray", 300)};
+    border-radius: 5px;
+    z-index: 9999;
+}
 
-    .lrc__downloadDropdown__item {
-        font-size: ${Skin.value("font-size")};
-        padding: ${Skin.gapValue(0.5)} ${Skin.gapValue(0.7)};
-        font-family: sans-serif;
-        cursor: pointer;
-        border-radius: 5px;
-        display: block;
-        color: ${Skin.colorValue( "gray", 900 )}
+.lrc__downloadDropdown__item {
+    font-size: ${Skin.value("font-size")};
+    padding: ${Skin.gapValue(0.5)} ${Skin.gapValue(0.7)};
+    font-family: sans-serif;
+    cursor: pointer;
+    border-radius: 5px;
+    display: block;
+    color: white;
 
-        &:hover {
-            background: ${Skin.colorValue("gray", 200)};
-        }
+    &:hover {
+        background: ${Skin.colorValue("gray", 200)};
     }
-  
-  `
+}
+
+.lrc-dark .lrc__paletteDropdown__item {
+  color: white;
+  box-shadow: 3px 3px 10px ${Skin.colorValue( "gray", 50 )};
+}
+
+`,
+    []
   );
 
-  const items = useMemo( () => {
+  useCss("downloadDropdown", css);
 
+  useHeadCss("downloadDropdown", css);
+
+  const items = useMemo(() => {
     const links = [
       {
         href: props.instance.url,
-        text: "Stáhnout LRC soubor"
-      }
+        text: "Stáhnout LRC soubor",
+      },
     ];
 
     return links;
-
-  }, [props.instance] );
+  }, [props.instance]);
 
   return (
     <>
       <Menu>
         <MenuButton as={ThermalButton}>
-          <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-            <span>{props.instance.url}{" "}</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span>{props.instance.url} </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -66,7 +73,7 @@ export const DownloadDropdown: React.FC<{ instance: ThermalFileInstance }> = (
               strokeWidth={1.5}
               stroke="currentColor"
               className="size-6"
-              style={{width: "1em"}}
+              style={{ width: "1em" }}
             >
               <path
                 strokeLinecap="round"
@@ -88,7 +95,7 @@ export const DownloadDropdown: React.FC<{ instance: ThermalFileInstance }> = (
           style={{
             background: "red",
           }}
-          className={"lrc__downloadDropdown__items "}
+          className={"lrc__downloadDropdown__items lrc-dark lrc-app__root"}
         >
           {items.map((item) => (
             <MenuItem
