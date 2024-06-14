@@ -1,6 +1,6 @@
 {
   "name": "@labir/emotion",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "An UI for @labir/react-bridge based on @emotion/react",
   "main": "index.js",
   "module": "dist/index.mjs",
