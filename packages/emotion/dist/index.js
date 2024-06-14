@@ -64,6 +64,7 @@ __export(src_exports, {
   DownloadDropdown: () => DownloadDropdown,
   PaletteDropdown: () => PaletteDropdown,
   Skin: () => Skin,
+  ThermalButton: () => ThermalButton,
   ThermalEmbedModal: () => ThermalEmbedModal,
   ThermalHistogramResolutionInput: () => ThermalHistogramResolutionInput,
   ThermalInfoModal: () => ThermalInfoModal,
@@ -115,7 +116,7 @@ var import_react = __toESM(require("react"));
 // package.json
 var package_default = {
   name: "@labir/emotion",
-  version: "1.2.5",
+  version: "1.2.6",
   description: "An UI for @labir/react-bridge based on @emotion/react",
   main: "index.js",
   module: "dist/index.mjs",
@@ -389,8 +390,45 @@ var CssContext = (0, import_react.createContext)(cssContextDefaults);
 var CssContextProvider = (_a) => {
   var props = __objRest(_a, []);
   const context = useCssInternal(props.appRoot);
+  const variables = (0, import_react.useMemo)(() => new Variables(), []);
+  const implementationStyles = (0, import_react.useMemo)(
+    () => `
+  
+    .lrc-light {
+      ${Variables.printCss(variables.getColorsVariables())}
+    }
+    .lrc-dark {
+        ${Variables.printCss(variables.getColorsVariables(true))}
+    }
+
+    .lrc-app__root {
+
+        @media ( min-width: ${variables.breakpoints.sm}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-sm")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-sm")};
+        }
+        @media ( min-width: ${variables.breakpoints.md}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-md")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-md")};
+        }
+        @media ( min-width: ${variables.breakpoints.lg}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-lg")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-lg")};
+        }
+        @media ( min-width: ${variables.breakpoints.xl}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-xl")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-xl")};
+        }
+
+        font-size: ${Skin.value("font-size")};
+        ${Skin.key("font-size")}: ${Skin.value("font-size-xs")};
+        font-family: sans-serif;
+    }
+  
+  `,
+    []
+  );
   (0, import_react.useInsertionEffect)(() => {
-    const variables = new Variables();
     context.addHeadCss(
       "baseStyles",
       `
@@ -408,43 +446,8 @@ var CssContextProvider = (_a) => {
             
         `
     );
-    context.addCss(
-      "implementationStyles",
-      `
-    
-      .lrc-light {
-        ${Variables.printCss(variables.getColorsVariables())}
-      }
-      .lrc-dark {
-          ${Variables.printCss(variables.getColorsVariables(true))}
-      }
-
-      .lrc-app__root {
-
-          @media ( min-width: ${variables.breakpoints.sm}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-sm")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-sm")};
-          }
-          @media ( min-width: ${variables.breakpoints.md}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-md")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-md")};
-          }
-          @media ( min-width: ${variables.breakpoints.lg}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-lg")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-lg")};
-          }
-          @media ( min-width: ${variables.breakpoints.xl}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-xl")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-xl")};
-          }
-
-          font-size: ${Skin.value("font-size")};
-          ${Skin.key("font-size")}: ${Skin.value("font-size-xs")};
-          font-family: sans-serif;
-      }
-    
-    `
-    );
+    context.addHeadCss("implementationStylesHead", implementationStyles);
+    context.addCss("implementationStyles", implementationStyles);
   }, []);
   return /* @__PURE__ */ import_react.default.createElement(CssContext.Provider, { value: context }, /* @__PURE__ */ import_react.default.createElement("div", { className: "lrc-app__root" }, props.children));
 };
@@ -894,6 +897,7 @@ var Bar = (props) => {
   DownloadDropdown,
   PaletteDropdown,
   Skin,
+  ThermalButton,
   ThermalEmbedModal,
   ThermalHistogramResolutionInput,
   ThermalInfoModal,

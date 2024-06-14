@@ -134,8 +134,47 @@ export const CssContextProvider: React.FC<
 > = ({ ...props }) => {
   const context = useCssInternal(props.appRoot);
 
+  const variables = useMemo( () => new Variables(), [] );
+
+  const implementationStyles = useMemo(
+    () => `
+  
+    .lrc-light {
+      ${Variables.printCss(variables.getColorsVariables())}
+    }
+    .lrc-dark {
+        ${Variables.printCss(variables.getColorsVariables(true))}
+    }
+
+    .lrc-app__root {
+
+        @media ( min-width: ${variables.breakpoints.sm}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-sm")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-sm")};
+        }
+        @media ( min-width: ${variables.breakpoints.md}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-md")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-md")};
+        }
+        @media ( min-width: ${variables.breakpoints.lg}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-lg")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-lg")};
+        }
+        @media ( min-width: ${variables.breakpoints.xl}px ) {
+            ${Skin.key("gap")}: ${Skin.value("gap-xl")};
+            ${Skin.key("font-size")}: ${Skin.value("font-size-xl")};
+        }
+
+        font-size: ${Skin.value("font-size")};
+        ${Skin.key("font-size")}: ${Skin.value("font-size-xs")};
+        font-family: sans-serif;
+    }
+  
+  `,
+    []
+  );
+
   useInsertionEffect(() => {
-    const variables = new Variables();
 
     context.addHeadCss(
       "baseStyles",
@@ -155,43 +194,8 @@ export const CssContextProvider: React.FC<
         `
     );
 
-    context.addCss(
-      "implementationStyles",
-      `
-    
-      .lrc-light {
-        ${Variables.printCss(variables.getColorsVariables())}
-      }
-      .lrc-dark {
-          ${Variables.printCss(variables.getColorsVariables(true))}
-      }
-
-      .lrc-app__root {
-
-          @media ( min-width: ${variables.breakpoints.sm}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-sm")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-sm")};
-          }
-          @media ( min-width: ${variables.breakpoints.md}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-md")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-md")};
-          }
-          @media ( min-width: ${variables.breakpoints.lg}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-lg")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-lg")};
-          }
-          @media ( min-width: ${variables.breakpoints.xl}px ) {
-              ${Skin.key("gap")}: ${Skin.value("gap-xl")};
-              ${Skin.key("font-size")}: ${Skin.value("font-size-xl")};
-          }
-
-          font-size: ${Skin.value("font-size")};
-          ${Skin.key("font-size")}: ${Skin.value("font-size-xs")};
-          font-family: sans-serif;
-      }
-    
-    `
-    );
+    context.addHeadCss("implementationStylesHead", implementationStyles);
+    context.addCss("implementationStyles", implementationStyles);
   }, []);
 
   return (

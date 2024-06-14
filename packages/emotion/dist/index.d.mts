@@ -61,6 +61,7 @@ declare class Variables {
 type ThermalButtonProps = ButtonProps & {
     variant?: PaletteColor;
 };
+declare const ThermalButton: FC<ThermalButtonProps>;
 
 type ThermalRangeAutoButtonProps$1 = ThermalButtonProps & {
     registry: ThermalRegistry;
@@ -125,4 +126,4 @@ declare class Skin {
     static gapValue(aspect?: number): string;
 }
 
-export { Bar, CssContextProvider, DownloadDropdown, PaletteDropdown, Skin, ThermalEmbedModal, ThermalHistogramResolutionInput, ThermalInfoModal, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton, useCss, useHeadCss };
+export { Bar, CssContextProvider, DownloadDropdown, PaletteDropdown, Skin, ThermalButton, ThermalEmbedModal, ThermalHistogramResolutionInput, ThermalInfoModal, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton, useCss, useHeadCss };

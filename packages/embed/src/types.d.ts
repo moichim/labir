@@ -1,7 +1,11 @@
-import { LrcSignle } from "./webcomponents/single";
+import { ThermalManager } from "@labir/core";
+import { ThermalFileElement } from "./components/single/thermalFileElement";
 
 declare global {
     interface HTMLElementTagNameMap {
-        "lrc-single": LrcSignle
+        "lrc-file": ThermalFileElement
+    }
+    interface Window {
+        thermalManager?: ThermalManager
     }
 }

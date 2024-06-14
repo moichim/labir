@@ -1290,10 +1290,11 @@ var useThermalGroupMinmaxState = (group, purpose) => {
 
 // src/shorthands/useSingleFileRegistry.ts
 import { useEffect as useEffect16, useMemo as useMemo19, useState as useState15 } from "react";
+import { v4 as uuid } from "uuid";
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
   const registryId = useMemo19(() => {
-    return `isolated_context_${thermalUrl}}`;
+    return `isolated_context_${thermalUrl}}_${uuid()}`;
   }, [thermalUrl]);
   const groupId = useMemo19(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);

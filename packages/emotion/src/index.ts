@@ -7,6 +7,7 @@ import { ThermalOpacityInput } from "./components/inputs/ThermalOpacityInput";
 import { ThermalEmbedModal } from "./components/modals/InstanceEmbedModal";
 import { ThermalInfoModal } from "./components/modals/InstanceInfoModal";
 import { Bar } from "./components/ui/Bar";
+import { ThermalButton } from "./components/ui/thermalButton";
 
 import { CssContextProvider, useCss, useHeadCss } from "./context/CssContext";
 import { Skin } from "./theme/Skin";
@@ -14,6 +15,7 @@ import { Skin } from "./theme/Skin";
 
 
 export {
+    ThermalButton,
     Bar, CssContextProvider,
     DownloadDropdown,
     PaletteDropdown, Skin, ThermalEmbedModal, ThermalHistogramResolutionInput, ThermalInfoModal, ThermalOpacityInput, ThermalRangeAutoButton,

@@ -3,6 +3,7 @@ import {
   DownloadDropdown,
   PaletteDropdown,
   Skin,
+  ThermalButton,
   ThermalEmbedModal,
   ThermalInfoModal,
   ThermalRangeAutoButton,
@@ -11,32 +12,54 @@ import {
 import {
   ThermalInstance,
   ThermalRegistryRange,
-  useThermalContext,
-  useThermalGroupInstancesState,
+  useSingleFileRegistry
 } from "@labir/react-bridge";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
 type ThermalFileComponentProps = {
   url: string;
 };
 
 export const ThermalFile: React.FC<ThermalFileComponentProps> = (props) => {
-  const manager = useThermalContext();
 
-  const registry = manager.addOrGetRegistry("default", {
-    histogramResolution: 200,
-  });
-  const group = registry.groups.addOrGetGroup("default");
-  const instances = useThermalGroupInstancesState(group, "default");
+  const { registry, instance } = useSingleFileRegistry( props.url );
 
-  useEffect(() => {
-    registry.loadOneFile({ thermalUrl: props.url }, group.id);
-  }, [props.url]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const [ isFullscreen, setIsFullscreen ] = useState<boolean>(false);
+
+
+  const toggleFullscreen = useCallback( () => {
+
+    if ( containerRef.current ) {
+
+        if ( isFullscreen ) {
+            document.exitFullscreen();
+            setIsFullscreen( false );
+        } else {
+            containerRef.current.requestFullscreen().then( () => setIsFullscreen( true ) );
+        }
+
+    }
+
+  }, [ containerRef, isFullscreen, setIsFullscreen ] );
+
+  useEffect( () => {
+
+    const listener = (event: Event) => {
+        console.log( event );
+    }
+
+    document.addEventListener( "fullscreenchange", listener );
+
+    return () => document.removeEventListener( "fullscreenchange", listener );
+
+  }, [] );
 
   return (
     <>
-      {instances.value.map((instance) => (
-        <div key={instance.id} className="lrc-dark">
+
+    {instance && <div key={instance.id} className="lrc-dark" ref={containerRef}>
           <Bar
             secondRow={<ThermalRegistryRange 
                 registry={registry} step={0.1} 
@@ -59,11 +82,11 @@ export const ThermalFile: React.FC<ThermalFileComponentProps> = (props) => {
             <ThermalRangeAutoButton registry={registry} />
             <ThermalRangeFullButton registry={registry} />
             <ThermalEmbedModal instance={ instance } />
+            <ThermalButton onClick={toggleFullscreen}>{isFullscreen ? "Zavřít" : "Otevřít"}</ThermalButton>
           </Bar>
-
           
-        </div>
-      ))}
+        </div>}
+
     </>
   );
 };

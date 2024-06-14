@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../context/thermalManagerContext"
 import { ThermalFileInstance } from "@labir/core";
 import { useThermalGroupInstancesState } from "../properties/lists/useThermalGroupInstancesState";
+import { v4 as uuid } from "uuid";
 
 /** 
  * Shorthand hook that takes care of an isolated single file registry. 
@@ -20,7 +21,7 @@ export const useSingleFileRegistry = (
 
     // The registry ID is stored per every URL
     const registryId = useMemo( () => {
-        return `isolated_context_${thermalUrl}}`
+        return `isolated_context_${thermalUrl}}_${uuid()}`
     }, [ thermalUrl ] );
 
     // The group ID is allways the same for isolated contexts
