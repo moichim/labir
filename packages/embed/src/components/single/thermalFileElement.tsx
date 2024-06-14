@@ -16,8 +16,6 @@ export class ThermalFileElement extends LitElement {
       this.#reactRoot = createRoot(container);
     }
 
-    console.log(container);
-
     this.#reactRoot.render(
       <BaseComponent appRoot={container}>
         <ThermalFile url={this.url!} />

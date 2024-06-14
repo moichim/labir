@@ -3,9 +3,9 @@ import {
     DialogPanel,
     DialogTitle
 } from "@headlessui/react";
-import { useState } from "react";
-import { Skin } from "../../../dist";
+import React, { useState } from "react";
 import { ThermalButton, ThermalButtonProps } from "./thermalButton";
+import { Skin } from "../../theme/Skin";
 
 
 

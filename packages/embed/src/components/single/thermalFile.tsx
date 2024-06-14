@@ -52,12 +52,12 @@ export const ThermalFile: React.FC<ThermalFileComponentProps> = (props) => {
             />}
             mainContent={<ThermalInstance instance={instance} />}
           >
-            <ThermalInfoModal instance={instance} />
+            
             <DownloadDropdown instance={instance} />
+            <ThermalInfoModal instance={instance} />
             <PaletteDropdown />
             <ThermalRangeAutoButton registry={registry} />
             <ThermalRangeFullButton registry={registry} />
-            <div></div>
             <ThermalEmbedModal instance={ instance } />
           </Bar>
 

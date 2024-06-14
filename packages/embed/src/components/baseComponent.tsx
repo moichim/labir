@@ -1,7 +1,6 @@
 import React from "react";
 import { ThermalProvider } from "@labir/react-bridge";
 import { CssContextProvider } from "@labir/emotion";
-// import { CssContextProvider } from "../../../emotion/src/context/CssContext";
 
 type BaseComponentProps = React.PropsWithChildren & {
     appRoot: Element
