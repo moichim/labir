@@ -1,6 +1,11 @@
-import { ThermalRegistry, ThermalFileInstance } from '@labir/core';
 import React, { FC, PropsWithChildren } from 'react';
+import { ThermalRegistry, ThermalFileInstance } from '@labir/core';
 import { ButtonProps, InputProps } from '@headlessui/react';
+
+type ThermalFileComponentProps = {
+    url: string;
+};
+declare const ThermalFileApp: React.FC<ThermalFileComponentProps>;
 
 type ColorTone = 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 type ColorPalette = {
@@ -126,4 +131,4 @@ declare class Skin {
     static gapValue(aspect?: number): string;
 }
 
-export { Bar, CssContextProvider, DownloadDropdown, PaletteDropdown, Skin, ThermalButton, ThermalEmbedModal, ThermalHistogramResolutionInput, ThermalInfoModal, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton, useCss, useHeadCss };
+export { Bar, CssContextProvider, DownloadDropdown, PaletteDropdown, Skin, ThermalButton, ThermalEmbedModal, ThermalFileApp, ThermalHistogramResolutionInput, ThermalInfoModal, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton, useCss, useHeadCss };

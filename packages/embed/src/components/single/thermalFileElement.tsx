@@ -2,7 +2,7 @@ import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Root, createRoot } from "react-dom/client";
 import { BaseComponent } from "../baseComponent";
-import { ThermalFile } from "./thermalFile";
+import { ThermalFileApp } from "@labir/emotion";
 import React from "react";
 import { ThermalManager } from "@labir/core";
 
@@ -40,7 +40,7 @@ export class ThermalFileElement extends LitElement {
 
     this.#reactRoot.render(
       <BaseComponent appRoot={container} externalManagerinstance={this.manager}>
-        <ThermalFile url={this.url!} />
+        <ThermalFileApp url={this.url!} />
       </BaseComponent>
     );
   }

@@ -1,3 +1,4 @@
+import { ThermalFileApp } from "./apps/thermalFile";
 import { ThermalRangeAutoButton } from "./components/buttons/ThermalRangeAutoButton";
 import { ThermalRangeFullButton } from "./components/buttons/ThermalRangeFullButton";
 import { DownloadDropdown } from "./components/dropdowns/DownloadDropdown";
@@ -12,9 +13,8 @@ import { ThermalButton } from "./components/ui/thermalButton";
 import { CssContextProvider, useCss, useHeadCss } from "./context/CssContext";
 import { Skin } from "./theme/Skin";
 
-
-
 export {
+    ThermalFileApp,
     ThermalButton,
     Bar, CssContextProvider,
     DownloadDropdown,

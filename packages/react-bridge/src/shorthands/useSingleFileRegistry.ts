@@ -21,7 +21,7 @@ export const useSingleFileRegistry = (
 
     // The registry ID is stored per every URL
     const registryId = useMemo( () => {
-        return `isolated_context_${thermalUrl}}_${uuid()}`
+        return `isolated_context_${thermalUrl}_${uuid()}`
     }, [ thermalUrl ] );
 
     // The group ID is allways the same for isolated contexts

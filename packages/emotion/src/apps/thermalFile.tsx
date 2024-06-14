@@ -8,7 +8,7 @@ import {
   ThermalInfoModal,
   ThermalRangeAutoButton,
   ThermalRangeFullButton,
-} from "@labir/emotion";
+} from "../../src";
 import {
   ThermalInstance,
   ThermalRegistryRange,
@@ -20,7 +20,7 @@ type ThermalFileComponentProps = {
   url: string;
 };
 
-export const ThermalFile: React.FC<ThermalFileComponentProps> = (props) => {
+export const ThermalFileApp: React.FC<ThermalFileComponentProps> = (props) => {
 
   const { registry, instance } = useSingleFileRegistry( props.url );
 

@@ -22,6 +22,7 @@ import { Bar } from "../../src";
 import { DownloadDropdown } from "../../src/components/dropdowns/DownloadDropdown";
 import { ThermalEmbedModal } from "../../src/components/modals/InstanceEmbedModal";
 import { ThermalInfoModal } from "../../src/components/modals/InstanceInfoModal";
+import { ThermalFileApp } from "../../src/apps/thermalFile";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -67,7 +68,16 @@ function App() {
   });
 
   return (
+
+    
+
+
+
     <div className="lrc-dark">
+
+
+      <ThermalFileApp url="/tucnaci_04.lrc" />
+
       <ThermalRangeAutoButton registry={registry} />
 
       <ThermalRegistryRange
