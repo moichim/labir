@@ -9,10 +9,14 @@ export type ThermalManagerOptions = {
 
 export class ThermalManager extends EventTarget {
 
+    public readonly id: number;
+
     public constructor(
         options?: ThermalManagerOptions
     ) {
         super();
+
+        this.id = Math.random();
 
         if ( options ) {
             if ( options.palette ) {

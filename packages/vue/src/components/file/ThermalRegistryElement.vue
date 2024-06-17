@@ -1,19 +1,20 @@
 <script setup lang="ts">
 
-import { useRegistry } from "@/hooks/useRegistry";
-import {provide} from "vue";
+import { useRegistry } from "@/hooks/updated/define/useRegistry";
 
 const props = defineProps({
-    id: String
+    id: {
+        type: String,
+        required: true
+    }
 })
 
 
-    const registry = useRegistry( props.id );
-
-    provide( "registry", registry );
+    useRegistry( props.id );
     
 </script>
 
 <template>
+    <div>{{ typeof $slots }}</div>
     <slot></slot>
 </template>

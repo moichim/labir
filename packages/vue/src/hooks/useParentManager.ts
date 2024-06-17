@@ -1,11 +1,19 @@
 import { ThermalManager } from "@labir/core";
-import { inject } from "vue"
+import { inject, provide } from "vue"
 
-export const useManager = () => {
-    const manager = inject<ThermalManager | undefined>( "manager" );
+/** Retrieve the parent manager or expose a new instance. */
+export const useParentManager = () => {
+
+    const manager = inject<ThermalManager | undefined>( "manager", undefined );
+
 
     if ( ! manager ) {
-        return new ThermalManager;
+
+        const newManager = new ThermalManager;
+
+        provide( "manager", newManager );
+
+        return newManager;
     }
     return manager;
 }

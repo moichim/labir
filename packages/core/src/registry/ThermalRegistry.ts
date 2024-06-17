@@ -157,6 +157,28 @@ export class ThermalRegistry implements IThermalRegistry {
     }
 
 
+    /** Register a single file request */
+    enqueueFile( groupId: string, thermalUrl: string, visibleUrl?: string ) {
+        const group = this.groups.addOrGetGroup( groupId );
+        this.loader.requestFile( group, thermalUrl, visibleUrl );
+    }
+
+    // Load all the enqueued requests
+    async loadQuery() {
+
+        this.reset();
+        this.loading.markAsLoading();
+
+        await this.loader.resolveQuery();
+
+        this.postLoadedProcessing();
+
+
+    }
+
+
+
+
     /** Actions to take after the registry is loaded */
     protected postLoadedProcessing() {
 

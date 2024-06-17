@@ -1,18 +1,15 @@
 <script setup lang="ts">
 
-import { useGroup } from "@/hooks/useGroup";
-import { useManager } from "@/hooks/useParentManager";
-import {ref, provide} from "vue";
+import { useGroup } from "@/hooks/updated/define/useGroup";
 
 const props = defineProps({
-    id: String
+    id: {
+        type: String,
+        required: true
+    }
 })
 
-    const group = useGroup( props.id );
-
-    provide( "group", group );
-
-    console.log( "group", group );
+useGroup(props.id);
 
 </script>
 

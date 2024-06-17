@@ -300,6 +300,9 @@ declare class ThermalRegistry implements IThermalRegistry {
     loadOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
     /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
     processDroppedFiles(files: File[], groupId: string): Promise<void>;
+    /** Register a single file request */
+    enqueueFile(groupId: string, thermalUrl: string, visibleUrl?: string): void;
+    loadQuery(): Promise<void>;
     /** Actions to take after the registry is loaded */
     protected postLoadedProcessing(): void;
     reset(): void;
@@ -627,6 +630,7 @@ type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes;
 };
 declare class ThermalManager extends EventTarget {
+    readonly id: number;
     constructor(options?: ThermalManagerOptions);
     readonly registries: {
         [index: string]: ThermalRegistry;

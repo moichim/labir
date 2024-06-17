@@ -1,12 +1,15 @@
 <script setup lang="ts">
 
-import { useManager } from "@/hooks/useParentManager";
-import { ThermalManager } from "@labir/core";
-import { ref, provide } from "vue";
+import { useManager } from "@/hooks/updated/define/useManager";
 
-const manager = useManager()
+const props = defineProps({
+    id: {
+        type: String,
+        default: "default_manager"
+    }
+})
 
-provide("manager", manager);
+useManager(props.id)
 
 </script>
 

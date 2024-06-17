@@ -1694,6 +1694,18 @@ var ThermalRegistry = class {
     group.instances.instantiateSources(parsedFiles);
     this.postLoadedProcessing();
   }
+  /** Register a single file request */
+  enqueueFile(groupId, thermalUrl, visibleUrl) {
+    const group = this.groups.addOrGetGroup(groupId);
+    this.loader.requestFile(group, thermalUrl, visibleUrl);
+  }
+  // Load all the enqueued requests
+  async loadQuery() {
+    this.reset();
+    this.loading.markAsLoading();
+    await this.loader.resolveQuery();
+    this.postLoadedProcessing();
+  }
   /** Actions to take after the registry is loaded */
   postLoadedProcessing() {
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
@@ -2306,6 +2318,7 @@ var ThermalManager = class extends EventTarget {
     /** Sources cache */
     this._sourcesByUrl = {};
     this.isUrlRegistered = (url) => Object.keys(this.sourcesByUrl).includes(url);
+    this.id = Math.random();
     if (options) {
       if (options.palette) {
         this.palette.setPalette(options.palette);
