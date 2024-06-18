@@ -5,9 +5,38 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@labir/embed</title>
+    <style>
+      body {
+        font-family: sans-serif
+      }
+      button {
+        color: red;
+      }
+    </style>
   </head>
   <body>
+    <button>Tlač</button>
     <div id="root"></div>
+
+    <thermal-manager>
+      <div>Jsem tady ale co tu je?</div>
+      <thermal-registry id="to" identificator="AJDý registru">
+        <thermal-group uuid="Název skupinky" name="Nějaký hezký název" description="Nějaká descriptiona"></thermal-group>
+        <thermal-group></thermal-group>
+        <div>Tady zase něco je to je divný</div>
+      </thermal-registry>
+      <button>Smrť</button>
+    </thermal-manager>
+
+    <thermal-group></thermal-group>
+
+    <thermal-group id="from">
+      <button>Ano jsem tady</button>
+      a přesunu se jima
+    </thermal-group>
+
+
+    <thermal-registry ></thermal-registry>
     <div style="width: 50%;">
       <thermal-file url="/tucnaci_04.lrc"/>
     </div>
