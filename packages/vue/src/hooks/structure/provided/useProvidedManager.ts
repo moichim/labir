@@ -4,5 +4,11 @@ import type { UseManagerType } from "../define/useDefineManager";
 
 /** Grabs the manager from above */
 export const useProvidedManager = () => {
-    return inject<UseManagerType|undefined>( Structure.MANAGER, undefined );
+    const providedManager = inject<UseManagerType|undefined>( Structure.MANAGER, undefined );
+
+    if ( providedManager ) {
+        providedManager.isProvided = true;
+    }
+
+    return providedManager;
 }

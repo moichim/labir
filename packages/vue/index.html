@@ -1,14 +1,26 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@labir/vue</title>
   </head>
   <body>
     <div>
-      <!-- <thermal-file url="/tucnaci_04.lrc"/> -->
+      <h5>Tady je webkomponenta</h5>
+      <thermal-registry id="Jsem registr">
+      <thermal-group id="Necost">
+        <div style="width:50%">
+        <thermal-file url="/tucnaci_04.lrc"></thermal-file>
+      </div>
+      <div style="width:50%">
+        <thermal-file url="/soustruh.lrc"></thermal-file>
+      </div>
+      </thermal-group>
+    </thermal-registry>
+
+    <ThermalFileElement url="/tucnaci.lrc" />
     </div>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>

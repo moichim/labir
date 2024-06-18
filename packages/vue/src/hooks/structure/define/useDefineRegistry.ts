@@ -8,7 +8,6 @@ export type UseRegistryType = ReturnType<typeof useDefineRegistry>
 export const useDefineRegistry = (id: string) => {
 
     let manager: UseManagerType;
-    let created = false;
 
     // Look for the registry and grab it from the global context
     const injectedManager = useProvidedManager();
@@ -17,8 +16,6 @@ export const useDefineRegistry = (id: string) => {
     } else {
         manager = useDefineManager(`manager-for-registry__${id}`);
     }
-
-    created = manager.manager.registries[ id ] === undefined;
 
     const registry = manager.manager.addOrGetRegistry(id);
 
@@ -34,12 +31,16 @@ export const useDefineRegistry = (id: string) => {
         registry.loadQuery();
     }
 
+    setTimeout( () => {
+        registry.loadQuery();
+    }, 1000 );
+
     const value = {
         registry,
         removeSelf,
         enqueueFile,
         fetchQuery,
-        created
+        isProvided: false
     }
 
     provide( Structure.REGISTRY, value );

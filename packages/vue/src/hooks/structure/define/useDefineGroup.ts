@@ -15,13 +15,11 @@ export const useDefineGroup = (
         registry = useDefineRegistry( `registry-for-group__${id}` );
     }
 
-    const created = registry.registry.groups.map.has( id ) === false;
-
     const group = registry.registry.groups.addOrGetGroup( id );
 
     const value = {
         group,
-        created
+        isProvided: false
     }
 
     provide( Structure.GROUP, value );

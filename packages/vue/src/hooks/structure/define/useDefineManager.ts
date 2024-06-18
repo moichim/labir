@@ -14,14 +14,11 @@ export const useDefineManager = (
 
     let manager: ThermalManager;
 
-    let created = false;
-
     if ( window.thermalManagers.has( id ) ) {
         manager = window.thermalManagers.get( id )!;
     } else {
         manager = new ThermalManager;
         window.thermalManagers.set( id, manager );
-        created = true;
     }
 
     const remove = () => {
@@ -35,7 +32,7 @@ export const useDefineManager = (
     const value = {
         manager,
         remove,
-        created
+        isProvided: false
     }
 
     provide( Structure.MANAGER, manager );

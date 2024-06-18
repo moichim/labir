@@ -1,20 +1,43 @@
+import { ref, watch } from "vue";
 import { useDefineGroup } from "../structure/define/useDefineGroup";
 import { useProvidedGroup } from "@/hooks/structure/provided/useProvidedGroup";
+import { useProvidedOrNewGroup } from "../structure/providedOrNew/useProvidedOrNewGroup";
+import type { ThermalFileInstance } from "@labir/core";
+import { useRegistryLoaded } from "../properties/useRegistryLoaded";
 
 export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
-    let group = useProvidedGroup();
 
-    if ( group === undefined ) {
-        group = useDefineGroup( `group-for-file__${thermalUrl}__${Math.random()}` );
+
+    const {group, isProvided} = useProvidedOrNewGroup(`group-for-file__${thermalUrl}__${Math.random()}`);
+
+    let shouldLoad = true;
+
+    console.log( group.registry );
+
+    group.registry.enqueueFile( group.id, thermalUrl, visibleUrl );
+
+    if ( isProvided ) {
+        shouldLoad = false;
     }
 
-    const enqueue = () => {
-        group.group.registry.enqueueFile( group.group.id, thermalUrl, visibleUrl );
-    }
+    const instance = ref<ThermalFileInstance>();
+
+    const loading = useRegistryLoaded( thermalUrl + Math.random().toFixed(3), group.registry );
+
+    watch( loading.loading, ( next ) => {
+
+        if ( next === false ) {
+            console.log( "NAčteno", next, group.instances.map.get( thermalUrl ) );
+            instance.value = group.instances.map.get( thermalUrl );
+        }
+
+    } );
+
+
 
     return {
-        enqueue,
         group,
-        registry: group.group.registry
+        shouldLoad,
+        instance
     }
 }
