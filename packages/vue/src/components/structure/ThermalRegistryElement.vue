@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
-import { useManager } from "@/hooks/updated/define/useManager";
+import { useDefineRegistry } from "@/hooks/structure/define/useDefineRegistry";
 
 const props = defineProps({
     id: {
         type: String,
-        default: "default_manager"
+        required: true
     }
 })
 
-useManager(props.id)
+useDefineRegistry(props.id);
 
 </script>
 

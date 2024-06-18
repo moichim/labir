@@ -1,11 +1,11 @@
-import { useProvidedGroup } from "../provided/useProvidedGroup"
-import { useGroup } from "./useGroup";
+import { useDefineGroup } from "../structure/define/useDefineGroup";
+import { useProvidedGroup } from "@/hooks/structure/provided/useProvidedGroup";
 
 export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
     let group = useProvidedGroup();
 
     if ( group === undefined ) {
-        group = useGroup( `group-for-file__${thermalUrl}__${Math.random()}` );
+        group = useDefineGroup( `group-for-file__${thermalUrl}__${Math.random()}` );
     }
 
     const enqueue = () => {

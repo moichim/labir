@@ -1,28 +1,27 @@
 import { provide } from "vue";
 import { useProvidedRegistry } from "../provided/useProvidedRegistry";
-import { useRegistry } from "./useRegistry";
+import { useDefineRegistry } from "./useDefineRegistry";
 import { Structure } from "../structure";
 
-export type UseGroupType = ReturnType<typeof useGroup>
+export type UseGroupType = ReturnType<typeof useDefineGroup>
 
-export const useGroup = (
+export const useDefineGroup = (
     id: string
 ) => {
 
     let registry = useProvidedRegistry();
 
-    console.log( registry );
-
     if ( registry === undefined ) {
-        registry = useRegistry( `registry-for-group__${id}` );
+        registry = useDefineRegistry( `registry-for-group__${id}` );
     }
 
-    console.log( "wtf" ,registry );
+    const created = registry.registry.groups.map.has( id ) === false;
 
     const group = registry.registry.groups.addOrGetGroup( id );
 
     const value = {
-        group
+        group,
+        created
     }
 
     provide( Structure.GROUP, value );

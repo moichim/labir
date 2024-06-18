@@ -1,15 +1,15 @@
 <script setup lang="ts">
 
-import { useGroup } from "@/hooks/updated/define/useGroup";
+import { useDefineManager } from "@/hooks/structure/define/useDefineManager";
 
 const props = defineProps({
     id: {
         type: String,
-        required: true
+        default: "default_manager"
     }
 })
 
-useGroup(props.id);
+useDefineManager(props.id);
 
 </script>
 

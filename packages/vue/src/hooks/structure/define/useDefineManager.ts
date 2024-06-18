@@ -2,23 +2,26 @@ import { ThermalManager } from "@labir/core";
 import { provide } from "vue";
 import { Structure } from "../structure";
 
-export type UseManagerType = ReturnType<typeof useManager>
+export type UseManagerType = ReturnType<typeof useDefineManager>
 
 /** 
  * Gets the global instance of a manager or creates a new one. 
  * Provides the manager instance down below. 
  */
-export const useManager = (
+export const useDefineManager = (
     id: string
 ) => {
 
     let manager: ThermalManager;
 
+    let created = false;
+
     if ( window.thermalManagers.has( id ) ) {
         manager = window.thermalManagers.get( id )!;
     } else {
         manager = new ThermalManager;
-        window.thermalManagers.set( id, manager )
+        window.thermalManagers.set( id, manager );
+        created = true;
     }
 
     const remove = () => {
@@ -31,7 +34,8 @@ export const useManager = (
 
     const value = {
         manager,
-        remove
+        remove,
+        created
     }
 
     provide( Structure.MANAGER, manager );

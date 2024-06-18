@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import TheWelcome from './components/TheWelcome.vue';
-import FileElement from './components/file/ThermalFileElement.vue';
-import ThermalGroupElement from './components/file/ThermalGroupElement.vue';
-import ThermalRegistryElement from './components/file/ThermalRegistryElement.vue';
+import ThermalFileWrapper from './components/structure/ThermalFileWrapper.vue';
+import ThermalGroupElement from './components/structure/ThermalGroupElement.vue';
+import ThermalRegistryElement from './components/structure/ThermalRegistryElement.vue';
 </script>
 
 <template>
@@ -11,18 +10,15 @@ import ThermalRegistryElement from './components/file/ThermalRegistryElement.vue
     <div class="wrapper">
       <ThermalRegistryElement id="Provajdovaný registr">
         <ThermalGroupElement id="Groupa samostatná">
-          <FileElement url="/soustruh.lrc" />
+          <ThermalFileWrapper url="/soustruh.lrc" />
         </ThermalGroupElement>
       </ThermalRegistryElement>
 
-      <FileElement url="/soustruh.lrc" />
+      <ThermalFileWrapper url="/soustruh.lrc" />
 
     </div>
   </header>
 
-  <main>
-    <TheWelcome />
-  </main>
 </template>
 
 <style scoped>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { useRegistry } from "@/hooks/updated/define/useRegistry";
+import { useDefineGroup } from "@/hooks/structure/define/useDefineGroup";
 
 const props = defineProps({
     id: {
@@ -9,12 +9,10 @@ const props = defineProps({
     }
 })
 
+useDefineGroup(props.id);
 
-    useRegistry( props.id );
-    
 </script>
 
 <template>
-    <div>{{ typeof $slots }}</div>
     <slot></slot>
 </template>

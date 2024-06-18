@@ -1,21 +1,24 @@
 import { provide } from "vue";
 import { useProvidedManager } from "../provided/useProvidedManager";
-import { useManager, type UseManagerType } from "./useManager";
+import { useDefineManager, type UseManagerType } from "./useDefineManager";
 import { Structure } from "../structure";
 
-export type UseRegistryType = ReturnType<typeof useRegistry>
+export type UseRegistryType = ReturnType<typeof useDefineRegistry>
 
-export const useRegistry = (id: string) => {
+export const useDefineRegistry = (id: string) => {
 
     let manager: UseManagerType;
+    let created = false;
 
     // Look for the registry and grab it from the global context
     const injectedManager = useProvidedManager();
     if (injectedManager !== undefined) {
         manager = injectedManager;
     } else {
-        manager = useManager(`manager-for-registry__${id}`);
+        manager = useDefineManager(`manager-for-registry__${id}`);
     }
+
+    created = manager.manager.registries[ id ] === undefined;
 
     const registry = manager.manager.addOrGetRegistry(id);
 
@@ -35,7 +38,8 @@ export const useRegistry = (id: string) => {
         registry,
         removeSelf,
         enqueueFile,
-        fetchQuery
+        fetchQuery,
+        created
     }
 
     provide( Structure.REGISTRY, value );

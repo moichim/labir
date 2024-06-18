@@ -1,13 +1,6 @@
-import './assets/main.css'
-
-import { createApp, defineCustomElement } from 'vue'
-import App from './App.vue'
-import ThermalFileElement from './components/file/ThermalFileElement.vue'
+import { createApp } from 'vue';
+import App from './App.vue';
 
 window.thermalManagers = new Map;
 
 createApp(App).mount('#app')
-
-// const file = defineCustomElement(ThermalFileElement);
-
-// customElements.define( "thermal-file", file );
