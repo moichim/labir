@@ -12,6 +12,7 @@ import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
 import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
+import { ThermalFetcher } from "./utilities/ThermalFetcher";
 import { ThermalRegistryLoader } from "./utilities/ThermalRegistryLoader";
 import { ThermalFileRequest } from "./utilities/ThermalRequest";
 
@@ -156,6 +157,8 @@ export class ThermalRegistry implements IThermalRegistry {
 
     }
 
+    public readonly fetcher = new ThermalFetcher( this );
+
 
     /** Register a single file request */
     enqueueFile( groupId: string, thermalUrl: string, visibleUrl?: string ) {
@@ -179,8 +182,14 @@ export class ThermalRegistry implements IThermalRegistry {
 
 
 
-    /** Actions to take after the registry is loaded */
-    protected postLoadedProcessing() {
+    /** 
+     * Actions to take after the registry is loaded 
+     * - recalculate the minmax of groups
+     * - recalculate minmax of registry
+     * - impose new minmax as new range
+     * - recalculate the histogram
+    */
+    public postLoadedProcessing() {
 
 
         // Recalculate individual minmaxes

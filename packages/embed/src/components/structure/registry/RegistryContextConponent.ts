@@ -2,7 +2,7 @@ import { ContextProvider } from "@lit/context";
 import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ElementInheritingManager } from "../manager/ElementInherigingManager";
-import { RegistryContext } from "./RegistryContext";
+import { RegistryContext } from "../contexts";
 
 @customElement("thermal-registry")
 export class ThermalRegistryElement extends ElementInheritingManager {
@@ -18,6 +18,14 @@ export class ThermalRegistryElement extends ElementInheritingManager {
     div {
         color: navy;
     }
+
+        blockquote {
+            color: gray
+        }
+
+        h2 {
+            color: yellow;
+        }
     
     `;
 
@@ -42,8 +50,6 @@ export class ThermalRegistryElement extends ElementInheritingManager {
 
     protected render(): unknown {
         return html`
-            <h2>Registr ${this.provider.value.id}</h2>
-            <div>${this.manager.id}</div>
             <slot></slot>
         `
     }

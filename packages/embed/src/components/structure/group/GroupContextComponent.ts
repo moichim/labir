@@ -2,11 +2,11 @@ import { ThermalGroup } from "@labir/core";
 import { ContextProvider } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ElementInherigingRegistry } from "../registry/ElementInherigintGegistry";
-import { GroupContext } from "./GroupContext";
+import { ElementInheritingRegistry } from "../registry/ElementInherigintGegistry";
+import { GroupContext } from "../contexts";
 
 @customElement("thermal-group")
-export class GroupContextElement extends ElementInherigingRegistry {
+export class GroupContextElement extends ElementInheritingRegistry {
 
     static DEFAULT_NAME = "default_group";
 
@@ -43,16 +43,6 @@ export class GroupContextElement extends ElementInherigingRegistry {
 
     protected render(): unknown {
         return html`
-            <h2>Skupina: ${this.group.id}</h2>
-            <table>
-                <tr>
-                    <td>${this.provider.value.name}</td>
-                    <td>${this.group.description}</td>
-                </tr>
-            </table>
-            <div>Manager ID: ${this.manager.id}</div>
-            <div>REgistry ID: ${this.registry.id}<div>
-            <div>Group ID:${this.provider.value.id}<div>
             <slot></slot>
         `
     }

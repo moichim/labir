@@ -57,6 +57,9 @@ importers:
 
   packages/embed:
     dependencies:
+      '@kor-ui/kor':
+        specifier: ^1.11.3
+        version: 1.11.3
       '@labir/core':
         specifier: workspace:*
         version: link:../core
@@ -66,6 +69,9 @@ importers:
       '@labir/react-bridge':
         specifier: workspace:*
         version: link:../react-bridge
+      '@lion/ui':
+        specifier: ^0.7.3
+        version: 0.7.3
       '@lit/context':
         specifier: ^1.1.2
         version: 1.1.2
@@ -1050,6 +1056,9 @@ packages:
   '@bundled-es-modules/cookie@2.0.0':
     resolution: {integrity: sha512-Or6YHg/kamKHpxULAdSqhGqnWFneIXu1NKvvfBBzKGwpVsYuFIQ5aBPHDnnoR3ghW1nvSkALd+EF9iMtY7Vjxw==}
 
+  '@bundled-es-modules/message-format@6.2.4':
+    resolution: {integrity: sha512-NBaIEUCzSjLZjrsmSOh8PJLqQjSpXVuekIOuUT8tt4N/FdtAavWsC1YinIqIrbRnkBqV90OxgKzsxhFCzETQBw==}
+
   '@bundled-es-modules/statuses@1.0.1':
     resolution: {integrity: sha512-yn7BklA5acgcBr+7w064fGV+SGIFySjCKpqjcWgBAIfrAkY+4GQTJJHQMeT3V/sgz23VTEVV8TtOmkvJAhFVfg==}
 
@@ -1525,15 +1534,24 @@ packages:
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
 
+  '@kor-ui/kor@1.11.3':
+    resolution: {integrity: sha512-HfBg9EjYrF+ubZzolBPOsHC9AulJ7GivZtqDvYi69odjiRSbx5lUnDXMYvJM4AICv/TV6SKqkEawGQeOdSNxjA==}
+
   '@lerna/create@8.1.3':
     resolution: {integrity: sha512-JFvIYrlvR8Txa8h7VZx8VIQDltukEKOKaZL/muGO7Q/5aE2vjOKHsD/jkWYe/2uFy1xv37ubdx17O1UXQNadPg==}
     engines: {node: '>=18.0.0'}
+
+  '@lion/ui@0.7.3':
+    resolution: {integrity: sha512-uY+oJ2gbMYiJxsb6IaIkdio68UrRQr9+FkaCC+K93Dfrl43xUBTPPnLnm7ubqG5GQ/Vw3Sq8jaSKY0ioHTi/GA==}
 
   '@lit-labs/ssr-dom-shim@1.2.0':
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
 
   '@lit/context@1.1.2':
     resolution: {integrity: sha512-S0nw2C6Tkm7fVX5TGYqeROGD+Z9Coa2iFpW+ysYBDH3YvCqOY3wVQvSgwbaliLJkjTnSEYCBe9qFqKV8WUFpVw==}
+
+  '@lit/reactive-element@1.6.3':
+    resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
@@ -1749,6 +1767,9 @@ packages:
   '@open-wc/scoped-elements@2.2.4':
     resolution: {integrity: sha512-12X4F4QGPWcvPbxAiJ4v8wQFCOu+laZHRGfTrkoj+3JzACCtuxHG49YbuqVzQ135QPKCuhP9wA0kpGGEfUegyg==}
 
+  '@open-wc/scoped-elements@3.0.5':
+    resolution: {integrity: sha512-q4U+hFTQQRyorJILOpmBm6PY2hgjCnQe214nXJNjbJMQ9EvT55oyZ7C8BY5aFYJkytUyBoawlMpZt4F2xjdzHw==}
+
   '@open-wc/semantic-dom-diff@0.20.1':
     resolution: {integrity: sha512-mPF/RPT2TU7Dw41LEDdaeP6eyTOWBD4z0+AHP4/d0SbgcfJZVRymlIB6DQmtz0fd2CImIS9kszaMmwMt92HBPA==}
 
@@ -1765,6 +1786,9 @@ packages:
   '@pkgr/core@0.1.1':
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@puppeteer/browsers@0.5.0':
     resolution: {integrity: sha512-Uw6oB7VvmPRLE4iKsjuOh8zgDabhNX67dzo8U/BB0f9527qx+4eeUs+korU98OhG5C4ubg7ufBgVi63XYwS6TQ==}
@@ -2796,6 +2820,13 @@ packages:
   attr-accept@2.2.2:
     resolution: {integrity: sha512-7prDjvt9HmqiZ0cl5CRjtS84sEyhsHP2coDkaZKRKVfCDo9s7iw7ChVmar78Gu9pC4SoR/28wFu/G5JJhTnqEg==}
     engines: {node: '>=4'}
+
+  autosize@6.0.1:
+    resolution: {integrity: sha512-f86EjiUKE6Xvczc4ioP1JBlWG7FKrE13qe/DxBCpe8GCipCq2nFw73aO8QEBKHfSbYGDN5eB9jXWKen7tspDqQ==}
+
+  awesome-phonenumber@6.9.0:
+    resolution: {integrity: sha512-S9z1HKC6YQSxYL6ebn5dckJ4uPWIjmf6Ar64B5bfRQ7whJ323zewKryP4D1sLnxnzoRhRmV2v+2tty4/ONVi/Q==}
+    engines: {node: '>=18'}
 
   aws-sign2@0.7.0:
     resolution: {integrity: sha512-08kcGqnYf/YmjoRhfxyu+CLxBjUtHLXLXX/vUfx9l2LYzG3c1m61nrpyFUZI6zeS+Li/wWMMidD9KgrqtGq3mA==}
@@ -4467,6 +4498,9 @@ packages:
   humanize-ms@1.2.1:
     resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
 
+  ibantools@4.5.1:
+    resolution: {integrity: sha512-DfKQpLlFq9yEUIEnFuCJzss3XavD7iHZTU5PyqXiAJ+rmaMp+NFP3hboumHKuK8nZjuOJg93WemTzcQ5b9jOZA==}
+
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
@@ -5032,11 +5066,20 @@ packages:
     resolution: {integrity: sha512-OEARBhDidyaQENavLbzpTKbEmu5rnAI+SdYsH4ia1BlGlLiqQXoym7uH1MaRPtwtUPbkhUfT4OBDZ+74VHc3Cg==}
     hasBin: true
 
+  lit-element@3.3.3:
+    resolution: {integrity: sha512-XbeRxmTHubXENkV4h8RIPyr8lXc+Ff28rkcQzw3G6up2xg5E8Zu1IgOWIwBLEQsu3cOVFqdYwiVi0hv0SlpqUA==}
+
   lit-element@4.0.6:
     resolution: {integrity: sha512-U4sdJ3CSQip7sLGZ/uJskO5hGiqtlpxndsLr6mt3IQIjheg93UKYeGQjWMRql1s/cXNOaRrCzC2FQwjIwSUqkg==}
 
+  lit-html@2.8.0:
+    resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
+
   lit-html@3.1.4:
     resolution: {integrity: sha512-yKKO2uVv7zYFHlWMfZmqc+4hkmSbFp8jgjdZY9vvR9jr4J8fH6FUMXhr+ljfELgmjpvlF7Z1SJ5n5/Jeqtc9YA==}
+
+  lit@2.8.0:
+    resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
 
   lit@3.1.4:
     resolution: {integrity: sha512-q6qKnKXHy2g1kjBaNfcoLlgbI3+aSOZ9Q4tiGa9bGYXq5RBXxkVTqTIVmP2VWMp29L4GyvCFm8ZQ2o56eUAMyA==}
@@ -6515,6 +6558,9 @@ packages:
   sigstore@2.3.1:
     resolution: {integrity: sha512-8G+/XDU8wNsJOQS5ysDVO0Etg9/2uA5gR9l4ZwijjlwxBcrU6RPfwi2+jJmbP+Ap1Hlp/nVAaEO4Fj22/SL2gQ==}
     engines: {node: ^16.14.0 || >=18.0.0}
+
+  singleton-manager@1.7.0:
+    resolution: {integrity: sha512-xbvNhwEvlu4UxLtOiBigtdNjXzIiqft3+BKWSgjhPQswXv0Qjm43zIHn1RDpCC2c0P3tuZHin7JttZGA+uMTcQ==}
 
   slash@1.0.0:
     resolution: {integrity: sha512-3TYDR7xWt4dIqV2JauJr+EJeW356RXijHeUlO+8djJ+uBXPn8/2dpzBc8yQhh583sVvc9CvFAeQVgijsH+PNNg==}
@@ -8505,6 +8551,8 @@ snapshots:
     dependencies:
       cookie: 0.5.0
 
+  '@bundled-es-modules/message-format@6.2.4': {}
+
   '@bundled-es-modules/statuses@1.0.1':
     dependencies:
       statuses: 2.0.1
@@ -8914,6 +8962,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.4.15
 
+  '@kor-ui/kor@1.11.3':
+    dependencies:
+      lit: 2.8.0
+
   '@lerna/create@8.1.3(encoding@0.1.13)(typescript@5.4.5)':
     dependencies:
       '@npmcli/run-script': 7.0.2
@@ -8989,11 +9041,27 @@ snapshots:
       - supports-color
       - typescript
 
+  '@lion/ui@0.7.3':
+    dependencies:
+      '@bundled-es-modules/message-format': 6.2.4
+      '@open-wc/dedupe-mixin': 1.4.0
+      '@open-wc/scoped-elements': 3.0.5
+      '@popperjs/core': 2.11.8
+      autosize: 6.0.1
+      awesome-phonenumber: 6.9.0
+      ibantools: 4.5.1
+      lit: 3.1.4
+      singleton-manager: 1.7.0
+
   '@lit-labs/ssr-dom-shim@1.2.0': {}
 
   '@lit/context@1.1.2':
     dependencies:
       '@lit/reactive-element': 2.0.4
+
+  '@lit/reactive-element@1.6.3':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.2.0
 
   '@lit/reactive-element@2.0.4':
     dependencies:
@@ -9238,6 +9306,11 @@ snapshots:
       '@lit/reactive-element': 2.0.4
       '@open-wc/dedupe-mixin': 1.4.0
 
+  '@open-wc/scoped-elements@3.0.5':
+    dependencies:
+      '@open-wc/dedupe-mixin': 1.4.0
+      lit: 3.1.4
+
   '@open-wc/semantic-dom-diff@0.20.1':
     dependencies:
       '@types/chai': 4.3.16
@@ -9270,6 +9343,8 @@ snapshots:
     optional: true
 
   '@pkgr/core@0.1.1': {}
+
+  '@popperjs/core@2.11.8': {}
 
   '@puppeteer/browsers@0.5.0(typescript@5.3.3)':
     dependencies:
@@ -10614,6 +10689,10 @@ snapshots:
   atob@2.1.2: {}
 
   attr-accept@2.2.2: {}
+
+  autosize@6.0.1: {}
+
+  awesome-phonenumber@6.9.0: {}
 
   aws-sign2@0.7.0: {}
 
@@ -12603,6 +12682,8 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  ibantools@4.5.1: {}
+
   iconv-lite@0.4.24:
     dependencies:
       safer-buffer: 2.1.2
@@ -13276,15 +13357,31 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  lit-element@3.3.3:
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.2.0
+      '@lit/reactive-element': 1.6.3
+      lit-html: 2.8.0
+
   lit-element@4.0.6:
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
       '@lit/reactive-element': 2.0.4
       lit-html: 3.1.4
 
+  lit-html@2.8.0:
+    dependencies:
+      '@types/trusted-types': 2.0.7
+
   lit-html@3.1.4:
     dependencies:
       '@types/trusted-types': 2.0.7
+
+  lit@2.8.0:
+    dependencies:
+      '@lit/reactive-element': 1.6.3
+      lit-element: 3.3.3
+      lit-html: 2.8.0
 
   lit@3.1.4:
     dependencies:
@@ -15004,6 +15101,8 @@ snapshots:
       '@sigstore/verify': 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  singleton-manager@1.7.0: {}
 
   slash@1.0.0: {}
 

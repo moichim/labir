@@ -53,12 +53,20 @@ export class ThermalFileSource extends EventTarget implements ThermalFileSourceI
         thermalUrl: string,
         visibleUrl?: string
     ) {
-        const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
 
-        if (!file)
+        try {
+            const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
+            return file;
+        } catch ( error ) {
             return null;
+        }
+    }
 
-        return file;
+    public static async fromUrlWithErrors(
+        thermalUrl: string,
+        visibleUrl?: string
+    ) {
+        return await ThermalLoader.fromUrl( thermalUrl, visibleUrl );
     }
 
     public serialize() {

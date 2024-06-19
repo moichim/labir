@@ -1,7 +1,7 @@
 import { ContextConsumer } from "@lit/context";
 import { LitElement } from "lit";
-import { ManagerContext } from "./ManagerContext";
 import { ThermalManager } from "@labir/core";
+import { ManagerContext } from "../contexts";
 
 export abstract class ElementInheritingManager extends LitElement {
 

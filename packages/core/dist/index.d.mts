@@ -155,7 +155,17 @@ declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegis
 interface IWithInstances extends IBaseProperty {
     instances: InstancesState;
 }
+type InstanceFetchCallback = (instance?: ThermalFileInstance, errors?: string) => void;
+type InstanceRemoveCallback = () => void;
+type InstanceRemoveRequest = {
+    url: string;
+    callbacks: InstanceRemoveCallback[];
+};
 declare class InstancesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
+    protected _requestedRemovals: Map<string, InstanceRemoveRequest>;
+    enqueueAdd(thermalUrl: string, visibleUrl?: string, callback?: InstanceFetchCallback): void;
+    enqueueRemove(thermalUrl: string, callback?: InstanceRemoveCallback): void;
+    cleanup(): Promise<void>;
     protected _map: Map<string, ThermalFileInstance>;
     get map(): Map<string, ThermalFileInstance>;
     protected validate(value: ThermalFileInstance[]): ThermalFileInstance[];
@@ -224,6 +234,22 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithInstan
 }
 /** Thermal registry definition with all its properties */
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
+}
+
+type ThermalFetcherCallbackType = (source?: ThermalFileSource, errors?: string) => void;
+type ThermalFetcherRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+    callbacks: ThermalFetcherCallbackType[];
+};
+declare class ThermalFetcher {
+    readonly registry: ThermalRegistry;
+    protected requests: Map<string, ThermalFetcherRequest>;
+    get requestArray(): ThermalFetcherRequest[];
+    protected timer?: ReturnType<typeof setTimeout>;
+    constructor(registry: ThermalRegistry);
+    request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
+    resolve(): Promise<(string | ThermalFileSource | undefined)[]>;
 }
 
 type ThermalFileRequest = {
@@ -300,11 +326,18 @@ declare class ThermalRegistry implements IThermalRegistry {
     loadOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
     /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
     processDroppedFiles(files: File[], groupId: string): Promise<void>;
+    readonly fetcher: ThermalFetcher;
     /** Register a single file request */
     enqueueFile(groupId: string, thermalUrl: string, visibleUrl?: string): void;
     loadQuery(): Promise<void>;
-    /** Actions to take after the registry is loaded */
-    protected postLoadedProcessing(): void;
+    /**
+     * Actions to take after the registry is loaded
+     * - recalculate the minmax of groups
+     * - recalculate minmax of registry
+     * - impose new minmax as new range
+     * - recalculate the histogram
+    */
+    postLoadedProcessing(): void;
     reset(): void;
     removeAllChildren(): void;
     destroySelfAndBelow(): void;
@@ -621,6 +654,7 @@ declare class ThermalFileSource extends EventTarget implements ThermalFileSource
     readonly visibleUrl?: string | undefined;
     constructor(url: string, signature: string, version: number, streamCount: number, fileDataType: number, unit: number, width: number, height: number, timestamp: number, pixels: number[], min: number, max: number, visibleUrl?: string | undefined);
     static fromUrl(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
+    static fromUrlWithErrors(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
     serialize(): string;
     static fromStorage(stored: string): ThermalFileSource;
     createInstance(group: ThermalGroup): ThermalFileInstance;

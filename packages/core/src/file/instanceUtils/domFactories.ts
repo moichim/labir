@@ -113,6 +113,7 @@ export default class ThermalDomFactory {
         layer.style.left = "0";
         layer.style.opacity = "0";
         layer.style.overflow = "hidden";
+        layer.style.lineHeight = "1rem";
         return layer;
     }
 

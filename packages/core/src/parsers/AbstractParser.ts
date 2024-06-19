@@ -142,12 +142,22 @@ export default abstract class AbstractParser {
         property: string,
         value: number | string
     ) {
-        const msg = `Invalid ${property} of ${this.url}: ${value.toString()}`;
+        const msg = `Invalid ${property} of ${this.url}: '${value.toString()}'`;
         this.logError(msg);
     }
 
     public getErrors() {
         return this.errors;
+    }
+
+    public encodeErrors() {
+        return this.errors.join( "+|+" )
+    }
+
+    /**  @deprecated Is not in use */
+    public static decodeErrors( errorsString: string ) {
+        return errorsString.split( "+|+" );
+        
     }
 
 

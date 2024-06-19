@@ -1,10 +1,10 @@
 import { ThermalRegistry } from "@labir/core";
 import { ContextConsumer } from "@lit/context";
 import { ElementInheritingManager } from "../manager/ElementInherigingManager";
-import { RegistryContext } from "./RegistryContext";
 import { ThermalRegistryElement } from "./RegistryContextConponent";
+import { RegistryContext } from "../contexts";
 
-export abstract class ElementInherigingRegistry extends ElementInheritingManager {
+export abstract class ElementInheritingRegistry extends ElementInheritingManager {
 
     private _injectedRegistry = new ContextConsumer( this, { context: RegistryContext, subscribe: true } );
 

@@ -33,11 +33,11 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: normalizePath( path.resolve( "public/index.html" ) ),
+                    src: normalizePath( path.resolve( "../../public/index.html" ) ),
                     dest: normalizePath( path.resolve( "dist" ) )
                 },
                 {
-                    src: normalizePath( path.resolve( "public/sample.lrc" ) ),
+                    src: normalizePath( path.resolve( "../../public/sample.lrc" ) ),
                     dest: normalizePath( path.resolve( "dist" ) )
                 }
             ]

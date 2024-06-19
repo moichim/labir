@@ -2,7 +2,7 @@ import { ThermalManager } from "@labir/core";
 import { provide } from "@lit/context";
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { ManagerContext } from "./ManagerContext";
+import { ManagerContext } from "../contexts";
 
 @customElement("thermal-manager")
 export class ThermalManagerElement extends LitElement {
@@ -24,7 +24,6 @@ export class ThermalManagerElement extends LitElement {
 
     protected render(): unknown {
         return html`
-            <div>${this.manager.id}</div>
             <slot></slot>
         `
     }

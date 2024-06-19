@@ -112,6 +112,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
         this.root.style.transition = "border-color .1s ease-in-out";
         this.root.style.zIndex = "10";
         this.root.style.position = "relative";
+        this.root.style.lineHeight = "0";
 
         // Visible layer is mounted on the bottom 
         // and only if the URL exists

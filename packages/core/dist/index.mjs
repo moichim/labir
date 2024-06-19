@@ -185,6 +185,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     layer.style.left = "0";
     layer.style.opacity = "0";
     layer.style.overflow = "hidden";
+    layer.style.lineHeight = "1rem";
     return layer;
   }
   static createCursorLayerCenter() {
@@ -531,6 +532,7 @@ var ThermalFileInstance = class extends EventTarget {
     this.root.style.transition = "border-color .1s ease-in-out";
     this.root.style.zIndex = "10";
     this.root.style.position = "relative";
+    this.root.style.lineHeight = "0";
     if (this.visibleLayer.exists)
       this.visibleLayer.mount();
     this.canvasLayer.mount();
@@ -679,10 +681,15 @@ var ThermalFileSource = class _ThermalFileSource extends EventTarget {
     this.visibleUrl = visibleUrl;
   }
   static async fromUrl(thermalUrl, visibleUrl) {
-    const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-    if (!file)
+    try {
+      const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
+      return file;
+    } catch (error) {
       return null;
-    return file;
+    }
+  }
+  static async fromUrlWithErrors(thermalUrl, visibleUrl) {
+    return await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
   }
   serialize() {
     return JSON.stringify(this);
@@ -781,11 +788,18 @@ var AbstractParser = class {
   }
   /** Store an error during parsing. */
   logValidationError(property, value) {
-    const msg = `Invalid ${property} of ${this.url}: ${value.toString()}`;
+    const msg = `Invalid ${property} of ${this.url}: '${value.toString()}'`;
     this.logError(msg);
   }
   getErrors() {
     return this.errors;
+  }
+  encodeErrors() {
+    return this.errors.join("+|+");
+  }
+  /**  @deprecated Is not in use */
+  static decodeErrors(errorsString) {
+    return errorsString.split("+|+");
   }
 };
 
@@ -920,7 +934,9 @@ var LrcParser = class extends AbstractParser {
   }
   getThermalFile() {
     if (!this.isValid()) {
-      console.error(this.getErrors());
+      throw new Error(
+        this.encodeErrors()
+      );
       return null;
     }
     return new ThermalFileSource(
@@ -1088,7 +1104,44 @@ var CursorPositionDrive = class extends AbstractProperty {
 var InstancesState = class extends AbstractProperty {
   constructor() {
     super(...arguments);
+    this._requestedRemovals = /* @__PURE__ */ new Map();
     this._map = /* @__PURE__ */ new Map();
+  }
+  enqueueAdd(thermalUrl, visibleUrl, callback) {
+    this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (source, error) => {
+      if (source instanceof ThermalFileSource) {
+        const instance = this.instantiateSource(source);
+        if (callback) {
+          callback(instance);
+        }
+      } else if (callback) {
+        callback(void 0, error ?? "N\u011Bco se pokazilo v instanci");
+      }
+    });
+  }
+  enqueueRemove(thermalUrl, callback) {
+    if (this._requestedRemovals.has(thermalUrl)) {
+      if (callback)
+        this._requestedRemovals.get(thermalUrl).callbacks.push(callback);
+    } else {
+      this._requestedRemovals.set(thermalUrl, {
+        url: thermalUrl,
+        callbacks: callback ? [callback] : []
+      });
+    }
+  }
+  async cleanup() {
+    const flatRemovalUrls = Object.values(this._requestedRemovals).map((item) => item.url);
+    this.value = this.value.filter((instance) => {
+      const shouldRemove = flatRemovalUrls.includes(instance.url);
+      if (shouldRemove) {
+        this._requestedRemovals.get(instance.url)?.callbacks.forEach((callback) => callback());
+        return true;
+      }
+      return false;
+    });
+    this._requestedRemovals.clear();
+    this.parent.registry.postLoadedProcessing();
   }
   get map() {
     return this._map;
@@ -1467,6 +1520,76 @@ var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
   }
 };
 
+// src/registry/utilities/ThermalFetcher.ts
+var ThermalFetcher = class {
+  constructor(registry) {
+    this.registry = registry;
+    this.requests = /* @__PURE__ */ new Map();
+  }
+  get requestArray() {
+    return Array.from(this.requests.values());
+  }
+  request(thermalUrl, visibleUrl, callback) {
+    if (this.requests.has(thermalUrl)) {
+      if (callback) {
+        this.requests.get(thermalUrl)?.callbacks.push(callback);
+      }
+    } else {
+      const newRequest = {
+        thermalUrl,
+        visibleUrl,
+        callbacks: callback ? [callback] : []
+      };
+      this.requests.set(thermalUrl, newRequest);
+    }
+    if (this.timer === void 0) {
+      this.timer = setTimeout(this.resolve.bind(this), 0);
+    }
+  }
+  async resolve() {
+    const result = await Promise.all(
+      this.requestArray.map(async (request) => {
+        const result2 = {
+          request
+        };
+        if (this.registry.manager.isUrlRegistered(request.thermalUrl)) {
+          result2.output = this.registry.manager.sourcesByUrl[request.thermalUrl];
+        } else {
+          try {
+            const source = await ThermalFileSource.fromUrlWithErrors(request.thermalUrl, request.visibleUrl);
+            if (source) {
+              result2.output = source;
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              result2.output = error.message;
+            }
+          }
+        }
+        return result2;
+      })
+    ).then((results) => {
+      return results.map((result2) => {
+        if (result2.output instanceof ThermalFileSource) {
+          result2.request.callbacks.forEach((callback) => {
+            callback(result2.output);
+            this.registry.manager.registerSource(result2.output);
+          });
+        } else {
+          result2.request.callbacks.forEach((callback) => {
+            if (result2.output instanceof ThermalFileSource === false)
+              callback(void 0, result2.output ?? "N\u011Bco se pokazilo");
+          });
+        }
+        return result2.output;
+      });
+    });
+    clearTimeout(this.timer);
+    this.timer = void 0;
+    return result;
+  }
+};
+
 // src/registry/utilities/ThermalRequest.ts
 var ThermalRequest = class _ThermalRequest extends EventTarget {
   constructor(group, url, visibleUrl) {
@@ -1571,6 +1694,7 @@ var ThermalRegistry = class {
     this.loader = new ThermalRegistryLoader(this);
     /** Groups are stored in an observable property */
     this.groups = new GroupsState(this, []);
+    this.fetcher = new ThermalFetcher(this);
     /**
      * Observable properties and drives
      */
@@ -1659,7 +1783,13 @@ var ThermalRegistry = class {
     await this.loader.resolveQuery();
     this.postLoadedProcessing();
   }
-  /** Actions to take after the registry is loaded */
+  /** 
+   * Actions to take after the registry is loaded 
+   * - recalculate the minmax of groups
+   * - recalculate minmax of registry
+   * - impose new minmax as new range
+   * - recalculate the histogram
+  */
   postLoadedProcessing() {
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();

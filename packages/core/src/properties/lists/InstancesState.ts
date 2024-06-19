@@ -8,9 +8,77 @@ export interface IWithInstances extends IBaseProperty {
     instances: InstancesState
 }
 
-export class InstancesState extends AbstractProperty<ThermalFileInstance[],ThermalGroup>{
+type InstanceFetchCallback = (
+    instance?: ThermalFileInstance,
+    errors?: string
+) => void;
 
-    protected _map: Map<string, ThermalFileInstance> = new Map<string,ThermalFileInstance>();
+type InstanceRemoveCallback = () => void;
+
+type InstanceRemoveRequest = {
+    url: string,
+    callbacks: InstanceRemoveCallback[]
+}
+
+export class InstancesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
+
+    protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
+
+    public enqueueAdd(thermalUrl: string, visibleUrl?: string, callback?: InstanceFetchCallback) {
+        this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (
+            source, error
+        ) => {
+            if (source instanceof ThermalFileSource) {
+                const instance = this.instantiateSource(source as ThermalFileSource)
+                if (callback) {
+                    callback(instance);
+                }
+            } else if (callback) {
+                callback(undefined, error ?? "Něco se pokazilo v instanci")
+            }
+        } )
+    }
+
+    public enqueueRemove(thermalUrl: string, callback?:InstanceRemoveCallback) {
+
+        if ( this._requestedRemovals.has( thermalUrl ) ) {
+            if ( callback )
+            this._requestedRemovals.get( thermalUrl )!.callbacks.push( callback )
+        } else {
+            this._requestedRemovals.set( thermalUrl, {
+                url: thermalUrl,
+                callbacks: callback ? [callback] : []
+            } );
+        }
+    }
+
+    public async cleanup() {
+
+        // Add all additions
+
+        // Remove all removals
+
+        const flatRemovalUrls = Object.values( this._requestedRemovals ).map( item => item.url as string );
+
+        this.value = this.value.filter( instance => {
+            const shouldRemove = flatRemovalUrls.includes( instance.url );
+
+            if ( shouldRemove ) {
+                this._requestedRemovals.get( instance.url )?.callbacks.forEach( callback => callback() );
+                return true;
+            }
+            return false;
+        } );
+
+        this._requestedRemovals.clear();
+
+        this.parent.registry.postLoadedProcessing();
+        
+    }
+
+
+
+    protected _map: Map<string, ThermalFileInstance> = new Map<string, ThermalFileInstance>();
 
     public get map() { return this._map; }
 
@@ -22,12 +90,12 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[],Therm
      * Whenever the instances change, recreate the index
      */
     protected afterSetEffect(value: ThermalFileInstance[]) {
-        
+
         // Clear the index
         this.map.clear();
 
         // Create the new values in the index
-        value.forEach( instance => this._map.set( instance.url, instance ) );
+        value.forEach(instance => this._map.set(instance.url, instance));
     }
 
 
@@ -41,7 +109,7 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[],Therm
 
         if (!this._map.has(source.url)) {
             const instance = source.createInstance(this.parent);
-            this.value = [ ...this.value, instance ];
+            this.value = [...this.value, instance];
             return instance;
         } else {
             return this._map.get(source.url)!;
@@ -58,15 +126,15 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[],Therm
 
         const newValue: ThermalFileInstance[] = [];
 
-        sources.forEach( source => {
+        sources.forEach(source => {
 
-            if ( ! this._map.has( source.url ) ) {
+            if (!this._map.has(source.url)) {
 
-                newValue.push( source.createInstance( this.parent ) );
+                newValue.push(source.createInstance(this.parent));
 
             }
 
-        } );
+        });
 
         this.value = newValue;
 
@@ -77,7 +145,7 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[],Therm
      * Removal
      */
     public removeAllInstances() {
-        this.forEveryInstance( instance => instance.destroySelfAndBelow() );
+        this.forEveryInstance(instance => instance.destroySelfAndBelow());
         this.value = [];
     }
 
@@ -85,12 +153,12 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[],Therm
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance( fn: ( (instance: ThermalFileInstance) => void
- ) ) {
-        this.value.forEach( instance => fn(instance) );
+    public forEveryInstance(fn: ((instance: ThermalFileInstance) => void
+    )) {
+        this.value.forEach(instance => fn(instance));
     }
 
 
-    
+
 
 }

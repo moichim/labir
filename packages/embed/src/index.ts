@@ -3,6 +3,8 @@ import "./components/single/thermalFileElement";
 import "./components/structure/manager/ManagerComponent";
 import "./components/structure/registry/RegistryContextConponent";
 import "./components/structure/group/GroupContextComponent";
+import "./components/structure/file/FileContextElement"
+import "./components/properties/OpacityRange";
 
 console.info( `@labir/embedded ${pjson.version}
 Author: ${pjson.author}
