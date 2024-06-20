@@ -7,6 +7,10 @@ import { RegistryContext } from "../contexts";
 @customElement("thermal-registry")
 export class ThermalRegistryElement extends ElementInheritingManager {
 
+    protected getClassName(): string {
+        return "ThermalRegistryElement";
+    }
+
     static DEFAULT_NAME = "default_registry";
 
     static styles = css`
@@ -40,12 +44,6 @@ export class ThermalRegistryElement extends ElementInheritingManager {
 
         const registry = this.manager.addOrGetRegistry( this.uuid )
         this.provider.setValue( registry, true );
-    }
-
-    
-
-    public updated() {
-        console.log( this );
     }
 
     protected render(): unknown {

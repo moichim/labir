@@ -8,15 +8,18 @@ export abstract class ElementInheritingRegistry extends ElementInheritingManager
 
     private _injectedRegistry = new ContextConsumer( this, { context: RegistryContext, subscribe: true } );
 
-    public registry!: ThermalRegistry;
+    private _registry!: ThermalRegistry;
+
+    /** The registry instance injected from above or created in place. */
+    public get registry() {return this._registry;}
 
     connectedCallback(): void {
         super.connectedCallback();
 
         if ( this._injectedRegistry.value ) {
-            this.registry = this._injectedRegistry.value;
+            this._registry = this._injectedRegistry.value;
         } else {
-            this.registry = this.manager.addOrGetRegistry( ThermalRegistryElement.DEFAULT_NAME );
+            this._registry = this.manager.addOrGetRegistry( ThermalRegistryElement.DEFAULT_NAME );
         }
 
     }

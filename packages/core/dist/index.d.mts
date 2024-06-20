@@ -730,4 +730,4 @@ declare class TimeRound extends TimeUtilsBase {
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
-export { GRAYSCALE, IRON, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };
+export { type AvailableThermalPalettes, GRAYSCALE, IRON, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };

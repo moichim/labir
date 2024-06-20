@@ -1,11 +1,8 @@
 import { Button, ButtonProps } from "@headlessui/react";
-import React, { FC, forwardRef } from "react";
+import { FC, forwardRef } from "react";
 import { PaletteColor } from "../../theme/Variables";
-import { Skin } from "../../theme/Skin";
-import { useCss } from "../../context/CssContext";
-import classNames from "classnames";
 
-import { css } from '@emotion/react'
+import { css } from '@emotion/react';
 
 
 export type ThermalButtonProps = ButtonProps & {
@@ -13,7 +10,7 @@ export type ThermalButtonProps = ButtonProps & {
 }
 
 export const ThermalButton: FC<ThermalButtonProps> = forwardRef<HTMLElement, ThermalButtonProps>( ({
-    variant = "gray",
+    // variant = "gray",
     ...props
 }, ref) => {
 

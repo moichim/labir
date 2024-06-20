@@ -11,6 +11,10 @@ import '@lion/ui/define/lion-dialog.js';
 @customElement("thermal-image")
 export class FileContextElement extends ElementInheritingGroup {
 
+    protected getClassName(): string {
+        return "FileContextElement";
+    }
+
     @property({ type: String, reflect: true })
     thermal?: string;
 
@@ -176,7 +180,6 @@ export class FileContextElement extends ElementInheritingGroup {
     protected enqueueInTheRegistry(): void {
         if (this.thermal)
             this.group.instances.enqueueAdd(this.thermal, this.visible, (instance, error) => {
-                console.log("Webkomponenta si fetchla", instance, error);
                 if (instance) {
                     this.provider.setValue(instance);
                     this.file = instance;
@@ -192,15 +195,7 @@ export class FileContextElement extends ElementInheritingGroup {
 
         // If URLs changed, project them into loader
         if (_changedProperties.has("thermal") || _changedProperties.has("visible")) {
-
-            console.log("file will update", {
-                currentThis: {
-                    thermal: this.thermal,
-                    visible: this.visible
-                },
-                changed: _changedProperties
-            });
-
+            // ...
         }
 
         // If file changed, unmount it

@@ -8,6 +8,10 @@ import { GroupContext } from "../contexts";
 @customElement("thermal-group")
 export class GroupContextElement extends ElementInheritingRegistry {
 
+    protected getClassName(): string {
+        return "ThermalManagerElement";
+    }
+
     static DEFAULT_NAME = "default_group";
 
     group!: ThermalGroup;
@@ -33,10 +37,9 @@ export class GroupContextElement extends ElementInheritingRegistry {
     
 
     public updated( _changedProperties: Map<string,string> ) {
-        console.log( "updated group", this );
 
         if ( _changedProperties.has( "name" ) ) {
-            console.log( _changedProperties, this.name );
+            this.log( _changedProperties, this.name );
         }
 
     }

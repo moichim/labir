@@ -4,19 +4,22 @@ import { ThermalGroup } from "@labir/core";
 import { GroupContextElement } from "./GroupContextComponent";
 import { GroupContext } from "../contexts";
 
-export class ElementInheritingGroup extends ElementInheritingRegistry {
+export abstract class ElementInheritingGroup extends ElementInheritingRegistry {
 
     private _injectedGroup = new ContextConsumer( this, {context: GroupContext, subscribe: true} );
 
-    public group!: ThermalGroup;
+    private _group!: ThermalGroup;
+
+    /** The group instance injected from above or created in place. */
+    public get group() { return this._group }
 
     connectedCallback(): void {
         super.connectedCallback();
 
         if ( this._injectedGroup.value ) {
-            this.group = this._injectedGroup.value;
+            this._group = this._injectedGroup.value;
         } else {
-            this.group = this.registry.groups.addOrGetGroup( GroupContextElement.DEFAULT_NAME );
+            this._group = this.registry.groups.addOrGetGroup( GroupContextElement.DEFAULT_NAME );
         }
     }
     

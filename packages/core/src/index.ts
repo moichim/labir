@@ -20,6 +20,7 @@ import { TimeFormat } from "./utils/time/formatting";
 import { TimePeriod } from "./utils/time/periods";
 import { TimeRound } from "./utils/time/rounding";
 
+import { AvailableThermalPalettes } from "./file/palettes";
 
 export {
 
@@ -52,6 +53,7 @@ export {
     PaletteId, 
     ThermalPaletteType, 
     ThermalPalettes, 
+    AvailableThermalPalettes,
     
     // Utils - Time
     TimeFormat, TimePeriod, TimeRound
