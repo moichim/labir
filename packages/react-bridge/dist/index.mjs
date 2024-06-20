@@ -1294,7 +1294,7 @@ import { v4 as uuid } from "uuid";
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
   const registryId = useMemo19(() => {
-    return `isolated_context_${thermalUrl}}_${uuid()}`;
+    return `isolated_context_${thermalUrl}_${uuid()}`;
   }, [thermalUrl]);
   const groupId = useMemo19(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);

@@ -1343,7 +1343,7 @@ var import_uuid3 = require("uuid");
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
   const registryId = (0, import_react37.useMemo)(() => {
-    return `isolated_context_${thermalUrl}}_${(0, import_uuid3.v4)()}`;
+    return `isolated_context_${thermalUrl}_${(0, import_uuid3.v4)()}`;
   }, [thermalUrl]);
   const groupId = (0, import_react37.useMemo)(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);
