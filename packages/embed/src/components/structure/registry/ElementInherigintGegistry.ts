@@ -1,7 +1,6 @@
 import { ThermalRegistry } from "@labir/core";
 import { ContextConsumer } from "@lit/context";
 import { ElementInheritingManager } from "../manager/ElementInherigingManager";
-import { ThermalRegistryElement } from "./RegistryContextConponent";
 import { RegistryContext } from "../contexts";
 
 export abstract class ElementInheritingRegistry extends ElementInheritingManager {
@@ -19,7 +18,7 @@ export abstract class ElementInheritingRegistry extends ElementInheritingManager
         if ( this._injectedRegistry.value ) {
             this._registry = this._injectedRegistry.value;
         } else {
-            this._registry = this.manager.addOrGetRegistry( ThermalRegistryElement.DEFAULT_NAME );
+            this._registry = this.manager.addOrGetRegistry( this.identificator );
         }
 
     }
