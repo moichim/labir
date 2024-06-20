@@ -1,6 +1,6 @@
 {
   "name": "@labir/vue",
-  "version": "0.0.0",
+  "version": "1.2.8",
   "private": true,
   "type": "module",
   "scripts": {
@@ -16,8 +16,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "vue": "^3.4.21",
-    "@labir/core": "workspace:*"
+    "@labir/core": "workspace:*",
+    "vue": "^3.4.21"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
