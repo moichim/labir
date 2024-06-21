@@ -58,14 +58,17 @@ importers:
   packages/docs:
     dependencies:
       '@labir/core':
-        specifier: workspace:*
-        version: link:../core
+        specifier: ^1.2.10
+        version: 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@labir/embed':
+        specifier: ^1.2.10
+        version: 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
       '@labir/emotion':
-        specifier: workspace:*
-        version: link:../emotion
+        specifier: ^1.2.10
+        version: 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
       '@labir/react-bridge':
-        specifier: workspace:*
-        version: link:../react-bridge
+        specifier: ^1.2.10
+        version: 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
       next:
         specifier: ^13.0.6
         version: 13.5.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1012,6 +1015,21 @@ packages:
 
   '@kor-ui/kor@1.11.3':
     resolution: {integrity: sha512-HfBg9EjYrF+ubZzolBPOsHC9AulJ7GivZtqDvYi69odjiRSbx5lUnDXMYvJM4AICv/TV6SKqkEawGQeOdSNxjA==}
+
+  '@labir/core@1.2.10':
+    resolution: {integrity: sha512-4Rd6k71EIw8IpZEKBAux5nenQUu9eJfFWS63xx9ZGimRw9cE7irLMLL3o4sMr3uPY1+fsuZ/m0Gr+Kkff1E+fQ==}
+    peerDependencies:
+      cross-fetch: ^4.0.0
+      date-fns: ^3.6.0
+
+  '@labir/embed@1.2.10':
+    resolution: {integrity: sha512-a769AVLdCYXjiQoBLgdXtjoLD0LOC0fpyYj9lxbjUFeYO3hmn2MvHpqSOZDwjUgkESpKqwd9/Mj6mtTYj9zSEw==}
+
+  '@labir/emotion@1.2.10':
+    resolution: {integrity: sha512-FGNP/5Qpm5JzDTKeX5/NbK7aPtc+ege+skkDgcoJKUP/DTvmgVW2y94GBoFel165bK6kLZb6iEP93Zfx6TqveQ==}
+
+  '@labir/react-bridge@1.2.10':
+    resolution: {integrity: sha512-b8vNDfRfklBHScyUatIbe5/RiZGPsd0CjYsbVc7fWiQ2rN76BEmshK2OWI3xocHLigivvfdOFTqIKfIaQUzQYg==}
 
   '@lerna/create@8.1.3':
     resolution: {integrity: sha512-JFvIYrlvR8Txa8h7VZx8VIQDltukEKOKaZL/muGO7Q/5aE2vjOKHsD/jkWYe/2uFy1xv37ubdx17O1UXQNadPg==}
@@ -7110,6 +7128,62 @@ snapshots:
   '@kor-ui/kor@1.11.3':
     dependencies:
       lit: 2.8.0
+
+  '@labir/core@1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)':
+    dependencies:
+      cross-fetch: 4.0.0(encoding@0.1.13)
+      date-fns: 3.6.0
+
+  '@labir/embed@1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)':
+    dependencies:
+      '@kor-ui/kor': 1.11.3
+      '@labir/core': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@labir/emotion': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@labir/react-bridge': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@lion/ui': 0.7.3
+      '@lit/context': 1.1.2
+      lit: 3.1.4
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - '@types/react'
+      - cross-fetch
+      - date-fns
+      - supports-color
+
+  '@labir/emotion@1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)':
+    dependencies:
+      '@emotion/react': 11.11.4(@types/react@18.3.3)(react@18.3.1)
+      '@headlessui/react': 2.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@labir/core': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@labir/react-bridge': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      classnames: 2.5.1
+      react: 18.3.1
+      react-code-blocks: 0.1.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-dom: 18.3.1(react@18.3.1)
+      usehooks-ts: 3.1.0(react@18.3.1)
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - '@types/react'
+      - cross-fetch
+      - date-fns
+      - supports-color
+
+  '@labir/react-bridge@1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)':
+    dependencies:
+      '@headlessui/react': 2.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@labir/core': 1.2.10(cross-fetch@4.0.0(encoding@0.1.13))(date-fns@3.6.0)
+      '@tanstack/react-ranger': 0.0.4(react@18.3.1)
+      classnames: 2.5.1
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      react-dropzone: 14.2.3(react@18.3.1)
+      usehooks-ts: 3.1.0(react@18.3.1)
+      uuid: 9.0.1
+    transitivePeerDependencies:
+      - cross-fetch
+      - date-fns
 
   '@lerna/create@8.1.3(encoding@0.1.13)(typescript@5.4.5)':
     dependencies:

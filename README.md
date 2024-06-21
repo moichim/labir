@@ -1,45 +1,63 @@
 # Typescript tools for thermal imaging
 
+Documentation and examples at [https://labir-docs.vercel.app](https://labir-docs.vercel.app).
+
 Set of JS/TS packages for work with recordings from thermal cameras:
 
 - `@labir/core` - the core functionality in pure TS
-- `@labir/react-bridge` - integration of the core into React
-- `@labir/emotion` - an embeddable UI with isolated CSS based on @emotion/react
-- `@labir/embed` - render thermal images on any website using WebComponents
+- `@labir/embed` - webcomponents on top of `@labir/core`
+- `@labir/react-bridge` - React hooks and base components
 
 Planned packages:
 - `@labir/tailwind` - an UI based on @nextui/react
-- `@labir/standalone` - a SPA based on @labir/tailwind
+- `@labir/emotion` - an UI based on @emotion/react
+
+Experimental packages:
+- `@labir/vue` - a Vue 3 integration
 
 ## Development
 
-This package requires usage of **PNPM** package manager since it relies on its workspace functionality.
+Use **PNPM** package manager - we rely on its workspaces functionality.
 
-Individual packages are in `packages/*`. Every one has its own build configuration. But **all the build and release process should be done from the workspace root**.
+**The build and release process should be done from the workspace root**. Do not build and publish packages individually - it might mess up version numbering (see below).
 
-### Installing
 
-Clone the repo and `pnpm install`.
+### Installation
 
-### Making a release
+```bash
+git clone https://github.com/moichim/labir
+pnpm install
+```
 
-- in individual packages:
-    1 run test
-- from the project root:
-    1. `pnpm run lint` runs all lints
-    2. `pnpm run build` builds all packages
-    3. commit and push all changes
-    4. `pnpm run version` uses lerna to raise version in every changed package
-    5. `pnpm publish --recursive` publishes all changed packages
+### Development
 
-### Linking local packages
+Every `/package/*` has its own tests and devservers.
 
-In `package.json` of individual packages, local dependencies shall be done using `workspace:*`.
+### Release
 
-In development, pnpm understands that the package is local - during install, the local dependency is installed as a symlink.
+The release needs to be done from **the package root**. Make sure you build & release all packages at once - not individually.
 
-During the publish phase, pnpm converts `workspace:*` to the latest unchanged version of the package.
+We use `lerna` to facilitate versioning and builds.
 
-### Lerna integration
+```bash
+# 1. run lint in all packages
+pnpm run lint
 
-For some tasks, there is `lerna` in the root. But publishing is done through `pnpm`.
+# 2. run tests in all packages
+pnpm run test
+
+# 3. build all packages
+pnpm run build
+
+# 4. commit the entire work
+git add -A && git commit -m "..."
+
+# 5. see the packages that has changed since the last release
+pnpm run changed
+
+# 6. use lerna to increment version of packages
+pnpm run version
+
+# 7. publish the packages
+pnpm publish --recursive
+```

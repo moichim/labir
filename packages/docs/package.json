@@ -16,14 +16,15 @@
   "license": "MIT",
   "homepage": "https://labir.vercel.app",
   "dependencies": {
+    "@labir/core": "^1.2.10",
+    "@labir/embed": "^1.2.10",
+    "@labir/emotion": "^1.2.10",
+    "@labir/react-bridge": "^1.2.10",
     "next": "^13.0.6",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@labir/core": "workspace:*",
-    "@labir/emotion": "workspace:*",
-    "@labir/react-bridge": "workspace:*"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "18.11.10",

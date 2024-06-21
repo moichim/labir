@@ -1,6 +1,7 @@
 "use client";
 
-import { HistogramResolutionInputHeadless, OpacityInputHeadless, Orientation, PaletteDropdownHeadless, RangeButtonAutoHeadless, RangeButtonFullHeadless, RangeHeadless, ThermalInstance, useThermalContext, useThermalGroupInstancesState } from "@labir/react-bridge";
+import { ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton } from "@labir/emotion";
+import { Orientation, PaletteDropdownHeadless, ThermalInstance, ThermalRegistryRange, useThermalContext, useThermalGroupInstancesState } from "@labir/react-bridge";
 import React, { useEffect } from "react";
 
 export const App: React.FC = () => {
@@ -108,17 +109,12 @@ export const App: React.FC = () => {
 
       <PaletteDropdownHeadless />
 
-      <OpacityInputHeadless registry={registry} />
-      <RangeButtonFullHeadless registry={registry}></RangeButtonFullHeadless>
-      <RangeButtonAutoHeadless registry={registry}/>
-      <HistogramResolutionInputHeadless registry={registry} />
+      <ThermalOpacityInput registry={registry} />
+      <ThermalRangeFullButton registry={registry} />
+      <ThermalRangeAutoButton registry={registry}/>
+      <ThermalHistogramResolutionInput registry={registry} />
 
-      <HistogramResolutionInputHeadless registry={registry} />
-      <HistogramResolutionInputHeadless registry={registry} />
-
-      <HistogramResolutionInputHeadless registry={registry} type="range"/>
-
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={0.1}
         renderSkeleton={() => <article>NAčítačka</article>}
@@ -135,7 +131,7 @@ export const App: React.FC = () => {
 
       <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">Vertical scale</h2>
 
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={0.2}
         renderSkeleton={() => <article>NAčítačka</article>}
@@ -148,7 +144,7 @@ export const App: React.FC = () => {
       <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">Colorised scale</h2>
 
 
-      <RangeHeadless
+      <ThermalRegistryRange
         registry={registry}
         step={1}
         renderSkeleton={() => <article>NAčítačka</article>}
