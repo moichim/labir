@@ -1,0 +1,22 @@
+# React binding to @labir/core
+
+This package provides fundamental integration of `@labir/core` in React:
+
+- [context](context) and [hooks](hooks) for `@labir/core` classes
+- [hooks](components) for creation of buttons, dropdowns & modals that will controll the `@labir/core` internal state
+- three specific UI [components](components) for thermal imaging: `Histogram`, `ThermalRange` `ThermalInastance`
+
+See `@labir/core` [documentation](/core) to understand the general contept ([structure](/core/overview) and [properties](/core/properties)).
+
+## Foundation for final UIs
+
+This package creates the main logic and bindings to the `@labir/core`. But the final UI needs to be implemented in a particular SCSS framework. We have the following implamentations:
+
+- `@labir/tailwind` - TailwindCSS & NextUI
+- `@labir/emotion` - @emotion/react
+
+Components in those packages use hooks from `@labir/react-bridge` to handle the logic, but the styling is done individually.
+
+Only three specific [components](components) are provided by this package. Their styling is inline and absolutely isolated from any other CSS that might appear on the page.
+
+

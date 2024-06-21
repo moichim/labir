@@ -1,0 +1,91 @@
+# How it works
+
+The hierarchical structure enables flexible work with images, their grouping and batch analysis. The cost of that is the need to use all components of the hierarchy, even in the simpliest scenarios.
+
+## Structure
+
+It is obligatory to start with `ThermalManager` and use its methods to build objects lower in the hierarchy.
+
+`ThermalManager` -> `ThermalRegistry` -> `ThermalGroup` -> `ThermalFileinstance`
+
+### Brief description
+
+- **manager** caches parsed files in the memory and controls all registries
+- **registry** is a display context. Most display parameters are controlled by a registry. Registry also handles loading of files.
+- **group** holds instances and synchronises user interaction amongst them (eg. the cursor position and the analysis)
+- **instance** is one file drawn in a `<canvas />`
+
+[Properties](/properties-concept) are binded to various elements of the hierarchy. See the [list of properties](/properties-list) to see where you can find particular properties.
+
+### Example
+
+```javascript
+// There must be only one instance of ThermalManager
+const manager = new ThermalManager();
+
+// Every context is defined in a registry
+// A registry stores common attributes from groups and their instances
+const registry = manager.addOrGetRegistry("registry_id");
+
+// Group stands between a registry and instances
+const group = registry.addOrGetGroup("group_id");
+
+// Loading is performed using a registry
+registry.loadOneFile({ thermalUrl: "some_irl.lrc" }, group.id);
+
+// The rendering itself depends on framework
+// Below is the principle:
+
+// You need to add listener to the registry
+registry.loading.addListener("mount_after_load", (value) => {
+    
+  // Whenever is the registry loading, unmount all instances
+  if (value === true) {
+    registry.groups.forEveryinstance((instance) => instance.unmountFromDOM());
+  }
+
+  // Whenever the registry finishes loading, mount instances somewhere
+  if (value === false) {
+    registry.groups.forEveryInstance((instance) => {
+      instance.mountToDom(/* a HTMLDivElement */);
+      instance.draw();
+    });
+  }
+});
+```
+
+## ThermalManager
+
+The main object that should live as singleton across all the application.
+
+- stores cache of loaded files as `ThermalFileSource`
+- stores the `palette` property and propagates its value to all instances in the manager
+- creates and destroys instances of `ThermalRegistry`
+
+## ThermalRegistry
+
+One display context with files organised into groups. Most of the display parameters are stored here:
+
+- **minimal and maximal temperature** is stored in the registry and is calculated from all its files
+- **thermal range** is stored in the registry - this ensures all child files are displayed the same way
+- **opacity** and **histogram** are also stored in the registry.
+
+Above that, the registry is the only class responsible for loading and parsing of files.
+
+## ThermalGroup
+
+Stores a group of files. The main purpose of the group is to synchronise user interactions across its files. This way, user can perform batch analysis.
+
+Thermal group assumes its files to have the same resolution. Basically, timelapse images are ideal to be in one group.
+
+- calculates some properties (eg. `minmax` of the entire group)
+- synchronises `cursorPosition` across all child files
+
+## ThermalFileInstance
+
+- a single file
+- based on `ThermalFileSource` that is cached in `ThermalManager`
+- renders the thermogram in `<canvas>` element
+- needs to be binded into a provided `HTMLDivElement` (a reference in React)
+- handles all user interactions
+- the internal drawing is written from scratch, without React & Frameworks
