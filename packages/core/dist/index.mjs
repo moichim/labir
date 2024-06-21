@@ -1076,6 +1076,25 @@ var RangeDriver = class extends AbstractProperty {
     }
     return this.value;
   }
+  /** Sets the range to the current minmax values */
+  applyMinmax() {
+    if (this.parent.minmax.value) {
+      this.imposeRange({ from: this.parent.minmax.value.min, to: this.parent.minmax.value.max });
+    }
+  }
+  /** Sets the range automatically based on the current histogram */
+  applyAuto() {
+    if (this.parent.histogram.value) {
+      const length = this.parent.histogram.value.length;
+      const percentage = 100 / length;
+      const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
+      const newRange = {
+        from: histogramBarsOverPercentage[0].from,
+        to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
+      };
+      this.imposeRange(newRange);
+    }
+  }
 };
 
 // src/properties/drives/CursorPositionDrive.ts
@@ -1542,6 +1561,8 @@ var ThermalFetcher = class {
       };
       this.requests.set(thermalUrl, newRequest);
     }
+    if (this.timer) {
+    }
     if (this.timer === void 0) {
       this.timer = setTimeout(this.resolve.bind(this), 0);
     }
@@ -1586,6 +1607,7 @@ var ThermalFetcher = class {
     });
     clearTimeout(this.timer);
     this.timer = void 0;
+    this.registry.postLoadedProcessing();
     return result;
   }
 };
@@ -1791,6 +1813,7 @@ var ThermalRegistry = class {
    * - recalculate the histogram
   */
   postLoadedProcessing() {
+    console.log("postprocessing");
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();
     if (this.minmax.value)

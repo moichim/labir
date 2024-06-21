@@ -70,6 +70,10 @@ declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Ther
      * - needs to be called before the minmax is calculated!
      */
     imposeRange(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
+    /** Sets the range to the current minmax values */
+    applyMinmax(): void;
+    /** Sets the range automatically based on the current histogram */
+    applyAuto(): void;
 }
 
 interface IWithGroups extends IBaseProperty {

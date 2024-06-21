@@ -191,6 +191,8 @@ export class ThermalRegistry implements IThermalRegistry {
     */
     public postLoadedProcessing() {
 
+        console.log( "postprocessing" );
+
 
         // Recalculate individual minmaxes
         this.forEveryGroup(group => group.minmax.recalculateFromInstances());

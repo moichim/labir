@@ -7,7 +7,7 @@
     <title>@labir/embed</title>
     <style>
       body {
-        font-family: sans-serif
+        font-family: sans-serif;
       }
       button {
         color: red;
@@ -18,42 +18,62 @@
     <button>Tlač</button>
     <div id="root"></div>
 
+    
+
+    <thermal-manager>
+
+      <thermal-dialog><div slot="content">Tady je obsah okna</div></thermal-dialog>
+      
+      <thermal-registry uuid="tucnaks">
+        <thermal-palette></thermal-palette>
+        <thermal-range-auto></thermal-range-auto>
+        <thermal-range-minmax></thermal-range-minmax>
+
+        <thermal-group>
+        <thermal-file-app url="/soustruh.lrc"></thermal-file-app>
+        <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
+      </thermal-group>
+      </thermal-registry>
+    </thermal-manager>
+
+    <thermal-file-app url="/soustruh.lrc"></thermal-file-app>
+
+    <!--
     <thermal-manager>
       <div>Jsem tady ale co tu je?</div>
 
-      
-      
-      <thermal-registry id="to" identificator="AJDý registru">
+      <thermal-button>Ano jsem tu</thermal-button>
+
+      <thermal-registry uuid="to">
+        <thermal-range-auto></thermal-range-auto>
 
         <thermal-opacity id="kanal"></thermal-opacity>
         <thermal-opacity></thermal-opacity>
         <thermal-palette></thermal-palette>
         <thermal-palette></thermal-palette>
         <thermal-opacity></thermal-opacity>
-        <thermal-group uuid="Název skupinky" name="Nějaký hezký název" description="Nějaká descriptiona">
+        <thermal-group
+          uuid="Název skupinky"
+          name="Nějaký hezký název"
+          description="Nějaká descriptiona"
+        >
+          <thermal-range-auto></thermal-range-auto>
+          <thermal-range-minmax></thermal-range-minmax>
 
-          <thermal-image thermal="/soustruh.lrc"></thermal-image>
+          <thermal-image thermal="/soustruh.lrc">
+            <div slot="bar">Tady jsem</div>
+            <thermal-button slot="bar"> Tady je tlačítko</thermal-button>
+            <thermal-button slot="bar"> Tady je další tlačítko</thermal-button>
+          </thermal-image>
           <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
           <thermal-image thermal="/spatny.lrc"></thermal-image>
-
         </thermal-group>
         <thermal-group></thermal-group>
         <div>Tady zase něco je to je divný</div>
       </thermal-registry>
       <button>Smrť</button>
     </thermal-manager>
-
-    <thermal-group id="from">
-      <button>Ano jsem tady</button>
-      <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
-    </thermal-group>
-
-    <div style="width: 50%;">
-      <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
-    </div>
-    <div style="width: 50%;">
-      <thermal-file url="/soustruh.lrc" />
-    </div>
+    -->
     <script type="module" src="/index.ts"></script>
   </body>
 </html>

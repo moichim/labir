@@ -24,9 +24,7 @@ export class ThermalFetcher {
 
     constructor(
         public readonly registry: ThermalRegistry
-    ) {
-
-    }
+    ) {}
 
     public request(
         thermalUrl: string,
@@ -130,6 +128,8 @@ export class ThermalFetcher {
 
         clearTimeout( this.timer );
         this.timer = undefined;
+
+        this.registry.postLoadedProcessing();
 
         return result;
     }

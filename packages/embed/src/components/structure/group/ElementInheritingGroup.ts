@@ -1,4 +1,4 @@
-import { ElementInheritingRegistry } from "../registry/ElementInherigintGegistry";
+import { ElementInheritingRegistry } from "../registry/ElementInheritingregistry";
 import { ContextConsumer } from "@lit/context";
 import { ThermalGroup } from "@labir/core";
 import { GroupContext } from "../contexts";

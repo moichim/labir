@@ -96,4 +96,36 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
         return this.value;
     }
 
+
+    /** Sets the range to the current minmax values */
+    public applyMinmax() {
+        if ( this.parent.minmax.value ) {
+            this.imposeRange( { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max } );
+        }
+    }
+
+    /** Sets the range automatically based on the current histogram */
+    public applyAuto() {
+        
+        if ( this.parent.histogram.value ) {
+
+            const length = this.parent.histogram.value.length;
+            const percentage = 100 / length;
+
+            const histogramBarsOverPercentage = this.parent.histogram.value.filter( bar => bar.height >= percentage );
+
+            const newRange: ThermalRangeOrUndefined = {
+                from: histogramBarsOverPercentage[0].from,
+                to: histogramBarsOverPercentage[
+                    histogramBarsOverPercentage.length - 1
+                ].to
+            };
+
+            this.imposeRange( newRange );
+
+        }
+
+
+    }
+
 }

@@ -1,6 +1,6 @@
-import { PropertyValueMap, html } from "lit";
+import { PropertyValueMap, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ElementInheritingRegistry } from "../structure/registry/ElementInherigintGegistry";
+import { ElementInheritingRegistry } from "../structure/registry/ElementInheritingregistry";
 
 @customElement("thermal-opacity")
 export class OpacityRangeElement extends ElementInheritingRegistry {
@@ -62,10 +62,20 @@ export class OpacityRangeElement extends ElementInheritingRegistry {
         
     }
 
+
+    static styles = css`
+
+        .thermal-opacity-handler {
+            accent-color: var( --thermal-primary );
+        }
+    
+    `;
+
     protected render(): unknown {
         return html`
             <input
-            id="handler"
+                id="handler"
+                class="thermal-opacity-handler"
                 type="range"
                 min="0"
                 max="1"
@@ -73,7 +83,6 @@ export class OpacityRangeElement extends ElementInheritingRegistry {
                 value="${this.value}"
                 @input="${this.onInputChange}"
             />
-
             <slot></slot>
         `;
     }

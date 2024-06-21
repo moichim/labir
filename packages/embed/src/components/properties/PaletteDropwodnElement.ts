@@ -68,8 +68,8 @@ export class PaletteDropdownElement extends ElementInheritingManager {
 
     .palette {
         display: inline-block;
-        width: 2rem;
-        height: 1rem;
+        width: calc( var( --thermal-gap ) * 4 );
+        height: var( --thermal-fs );
         border-radius: 1rem;
     }
 
@@ -105,7 +105,7 @@ export class PaletteDropdownElement extends ElementInheritingManager {
 
             <div class="button ${className}">
                 <span class="palette" style="background:${palette.gradient}"></span>
-                <span>${palette.name}</span>
+                <!-- <span>${palette.name}</span> -->
             </div>
         
         `;
@@ -115,9 +115,9 @@ export class PaletteDropdownElement extends ElementInheritingManager {
         return html`
 
             <lion-select-rich>
-                <lion-button slot="invoker" class="invoker">
+                <thermal-button slot="invoker">
                     ${this.paletteTemplate( this.manager.palette.currentPalette )}
-                </lion-button>
+                </thermal-button>
                 ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
                     <lion-option @click=${() => this.onSelect( key as AvailableThermalPalettes )}>
                         ${this.paletteTemplate( palette )}

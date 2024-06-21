@@ -1,16 +1,54 @@
 import * as pjson from "../package.json"
+
+// Import individual components
+
 import "./components/single/thermalFileElement";
+
+// These must goo in the following order
 import "./components/structure/manager/ManagerComponent";
 import "./components/structure/registry/RegistryContextConponent";
 import "./components/structure/group/GroupContextComponent";
 import "./components/structure/file/FileContextElement"
+
+
+
+// UI components go next
+import "./components/ui/ButtonElement";
+import "./components/ui/DialogElement";
+
+// Other components may go in any order
 import "./components/properties/PaletteDropwodnElement";
 import "./components/properties/OpacityRangeElement";
+import "./components/buttons/RegistrySetAutoRange";
+import "./components/buttons/RegistrySetMnimaxRangeButton";
 
+import "./components/apps/SingleFileApp";
+
+
+
+
+// Log the start info
 console.info( `@labir/embed ${pjson.version}
 Author: ${pjson.author}
 Repository: ${pjson.repository.url}
 ` );
+
+// Initialise dark mode
+import {initialiseMode} from "./styles/mode";
+initialiseMode();
+
+// Append default styles
+import {addDefaultStyles} from "./styles/defaultStyles";
+
+addDefaultStyles();
+
+document.addEventListener( "DOMContentLoaded", () => {
+    // addDefaultStyles();
+} )
+
+
+
+
 
 /*
 document.addEventListener( "DOMContentLoaded", () => {

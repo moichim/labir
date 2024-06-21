@@ -1,6 +1,7 @@
 import { ThermalFileInstance } from "@labir/core";
 import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import {ref, Ref, createRef} from 'lit/directives/ref.js';
 import { PropertyValueMap, css, html } from "lit";
 import { ContextProvider } from "@lit/context";
 import { FileContext } from "../contexts";
@@ -15,6 +16,8 @@ export class FileContextElement extends ElementInheritingGroup {
         return "FileContextElement";
     }
 
+    canvasContainer: Ref<HTMLDivElement> = createRef();
+
     @property({ type: String, reflect: true })
     thermal?: string;
 
@@ -26,6 +29,10 @@ export class FileContextElement extends ElementInheritingGroup {
 
     @state()
     protected errors: string[] = [];
+
+
+    @queryAssignedElements({ slot: "bar", flatten: true })
+    protected barItems?: Array<HTMLElement>
 
     private provider = new ContextProvider(this, { context: FileContext, initialValue: undefined });
 
@@ -48,28 +55,32 @@ export class FileContextElement extends ElementInheritingGroup {
 }
 
     .container {
+
+        box-sizing: border-box;
         width: 100%;
         aspect-ratio: 4 / 3;
+    
         margin: 0;
         padding: 0;
+    
         position: relative;
-        box-sizing: border-box;
 
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-	    background-size: 400% 400%;
-	    animation: gradient 1s ease infinite;
+        background: var( --thermal-slate-light );
 
-        background: lightgray;
+        color: var( --thermal-foreground );
+
+        font-size: var( --thermal-fs );
+
     }
 
     .errors {
         box-sizing: border-box;
-        padding: 1rem;
+        padding: var( --thermal-gap );
         width: 100%;
         height: 100%;
         margin: 0;
-        background: lightgray;
-        color: black;
+        background: var( --thermal-slate-light );
+        color: var( --thermal-foreground );
 
         .wrapper {
         
@@ -78,16 +89,16 @@ export class FileContextElement extends ElementInheritingGroup {
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: .5rem;
+            gap: calc( var( --thermal-gap ) * 0.5 );
 
             box-sizing: border-box;
             width: 100%;
             height: 100%;
 
-            border: 2px dashed white;
-            border-radius: 2rem;
+            border: 2px dashed var( --thermal-slate-dark );
+            border-radius: calc( var( --thermal-radius ) * 2 );
 
-            padding: 1rem;
+            padding: var( --thermal-gap );
 
         }
 
@@ -97,7 +108,7 @@ export class FileContextElement extends ElementInheritingGroup {
 
         .url {
             font-size: small;
-            color: gray;
+            color: var( --thermal-slate-dark );
         }
 
         .error-button {
@@ -108,8 +119,8 @@ export class FileContextElement extends ElementInheritingGroup {
             border: 0;
             cursor: pointer;
             font-size: small;
-            color: gray;
-            border-bottom: 1px dotted gray;
+            color: var( --thermal-slate-dark );
+            border-bottom: 1px dotted var( --thermal-slate-dark );
         }
 
         .dialog {
@@ -155,6 +166,12 @@ export class FileContextElement extends ElementInheritingGroup {
         
 
     }
+
+
+    .bar {
+        display: flex;
+        gap: var( --thermal-gap );
+    }
     
     `;
 
@@ -180,6 +197,7 @@ export class FileContextElement extends ElementInheritingGroup {
     protected enqueueInTheRegistry(): void {
         if (this.thermal)
             this.group.instances.enqueueAdd(this.thermal, this.visible, (instance, error) => {
+        console.log( instance );
                 if (instance) {
                     this.provider.setValue(instance);
                     this.file = instance;
@@ -212,21 +230,28 @@ export class FileContextElement extends ElementInheritingGroup {
         // After the update, mount the entire new file to the DOM
         if (changedProperties.has("file")) {
 
+            this.log( "file changed", this.file );
+
             const root = this.renderRoot.querySelector<HTMLDivElement>("#canvas-container")!;
-            this.file?.mountToDom(root);
+
+            this.log( "canvasContainer", this.canvasContainer.value! )
+
+            
+            this.file?.mountToDom( root );
             this.file?.draw();
 
         }
     }
 
-
+    
 
 
 
     protected render(): unknown {
         return html`
+        <div class="bar"><slot name="bar"></slot></div>
         <div class="container">
-            <div id="canvas-container"></div>
+            <div ${ref(this.canvasContainer)} id="canvas-container"></div>
 
             ${this.errors.length > 0 ? html`
                 <div class="errors">
@@ -277,6 +302,7 @@ export class FileContextElement extends ElementInheritingGroup {
             }
             <slot></slot>
         </div>
+        
         `
     }
 

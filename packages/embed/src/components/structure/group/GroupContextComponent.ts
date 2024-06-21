@@ -2,7 +2,7 @@ import { ThermalGroup } from "@labir/core";
 import { ContextProvider } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ElementInheritingRegistry } from "../registry/ElementInherigintGegistry";
+import { ElementInheritingRegistry } from "../registry/ElementInheritingregistry";
 import { GroupContext } from "../contexts";
 
 @customElement("thermal-group")
