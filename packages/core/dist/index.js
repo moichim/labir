@@ -1608,8 +1608,6 @@ var ThermalFetcher = class {
       };
       this.requests.set(thermalUrl, newRequest);
     }
-    if (this.timer) {
-    }
     if (this.timer === void 0) {
       this.timer = setTimeout(this.resolve.bind(this), 0);
     }
