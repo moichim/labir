@@ -1,0 +1,54 @@
+# Webcomponents
+
+We are currently working on webcomponents integration using [Lit](https://lit.dev/). The work is very much in progress.
+
+## Example
+
+A single image app what shall be embedded in any Wordpress, Moodle or other LMS.
+
+```html
+<thermal-manager>
+  <thermal-registry uuid="tucnaks">
+    <thermal-group>
+      <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+    </thermal-group>
+  </thermal-registry>
+</thermal-manager>
+```
+
+<thermal-manager>
+  <thermal-registry uuid="tucnaks">
+    <thermal-group>
+      <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+    </thermal-group>
+  </thermal-registry>
+</thermal-manager>
+
+
+
+## Aim
+
+In order to use thermal imaging in Wordpress, Moodle and other old-fashioned tools, we need a "Youtube-like" way of embedding. We chose webcomponents for that purpose.
+
+The entire [internal structure](/core) of @labir/core is being implemented to webcomponents wich allows:
+
+- to construct the entire app hierarchy using custom HTML elements
+- to dynamically set parameters such as temperature scale or palette using `setAttribute`
+
+So far, we provide these elements:
+
+- `<thermal-manager>`
+- `<thermal-registry>`
+- `<thermal-group>`
+- `<thermal-file>`
+
+Main challenges:
+
+- handle dependency injection using Lit's context mechanism
+- handle dynamic loading of images caused by DOM manipulation
+
+## Source code
+
+See our [github](https://github.com/moichim/labir/tree/master/packages/embed) for ongoing progress.
+
+<script type="module" src="https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js" async></script>
