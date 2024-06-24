@@ -1,6 +1,6 @@
 {
   "name": "@labir/docs",
-  "version": "0.0.1",
+  "version": "1.2.11",
   "description": "Documentation site for @labir/* packages",
   "private": true,
   "scripts": {
@@ -16,11 +16,11 @@
   "license": "MIT",
   "homepage": "https://labir.vercel.app",
   "dependencies": {
-    "@labir/core": "^1.2.10",
-    "@labir/embed": "^1.2.10",
-    "@labir/emotion": "^1.2.10",
-    "@labir/react-bridge": "^1.2.10",
-    "@labir/tailwind": "^1.0.0",
+    "@labir/core": "^1.2.11",
+    "@labir/embed": "^1.2.11",
+    "@labir/emotion": "^1.2.11",
+    "@labir/react-bridge": "^1.2.11",
+    "@labir/tailwind": "^1.2.11",
     "next": "^13.0.6",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
