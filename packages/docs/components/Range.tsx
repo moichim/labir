@@ -1,7 +1,11 @@
 "use client";
 
-import { ThermalHistogramResolutionInput, ThermalOpacityInput, ThermalRangeAutoButton, ThermalRangeFullButton } from "@labir/emotion";
-import { Orientation, PaletteDropdownHeadless, ThermalInstance, ThermalRegistryRange, useThermalContext, useThermalGroupInstancesState } from "@labir/react-bridge";
+import {
+  Orientation,
+  ThermalRegistryRange,
+  useThermalContext,
+  useThermalGroupInstancesState,
+} from "@labir/react-bridge";
 import React, { useEffect } from "react";
 
 export const Range: React.FC = () => {
@@ -14,18 +18,13 @@ export const Range: React.FC = () => {
   const instances = useThermalGroupInstancesState(group, "app");
 
   useEffect(() => {
-
     registry.loadFiles({
-      [group.id]: [
-        {thermalUrl: "/image-thermal 2021-11-24 11-18-20.lrc"}
-      ]
+      [group.id]: [{ thermalUrl: "/image-thermal 2021-11-24 11-18-20.lrc" }],
     });
-
   }, []);
 
   return (
-    <div style={{padding: "1rem 0"}}>
-
+    <div style={{ padding: "1rem 0" }}>
       <ThermalRegistryRange
         registry={registry}
         step={0.1}
@@ -38,7 +37,9 @@ export const Range: React.FC = () => {
         // histogramBorderWidthInPx={0}
       />
 
-      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">Vertical scale</h2>
+      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">
+        Vertical scale
+      </h2>
 
       <ThermalRegistryRange
         registry={registry}
@@ -49,8 +50,9 @@ export const Range: React.FC = () => {
         orientation={Orientation.VERTICAL}
       />
 
-      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">Styled scale</h2>
-
+      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">
+        Styled scale
+      </h2>
 
       <ThermalRegistryRange
         registry={registry}

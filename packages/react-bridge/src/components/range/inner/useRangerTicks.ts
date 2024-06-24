@@ -19,7 +19,7 @@ export const useRangerTicks = (
               minmax.value.min - minmax.value.max
             );
       
-            const num = Math.floor(width / 40);
+            const num = Math.floor(width / 50);
             const tickStep = totalDistance / num;
             const ticksBuffer: number[] = [];
       

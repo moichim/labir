@@ -1,167 +1,40 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
-var __objRest = (source, exclude) => {
-  var target = {};
-  for (var prop in source)
-    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
-      target[prop] = source[prop];
-  if (source != null && __getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(source)) {
-      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
-        target[prop] = source[prop];
-    }
-  return target;
-};
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+'use strict';
 
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  HistogramResolutionInput: () => HistogramResolutionInput,
-  OpacityInput: () => OpacityInput,
-  PaletteDropdown: () => PaletteDropdown,
-  ThermalInstance: () => import_react_bridge4.ThermalInstance,
-  ThermalProvider: () => import_react_bridge4.ThermalProvider,
-  ThermalRegistryHistogram: () => import_react_bridge4.ThermalRegistryHistogram,
-  ThermalRegistryRange: () => import_react_bridge4.ThermalRegistryRange,
-  useSingleFileRegistry: () => import_react_bridge4.useSingleFileRegistry,
-  useThermalRegistry: () => import_react_bridge4.useThermalRegistry
+var reactBridge = require('@labir/react-bridge');
+var react = require('@nextui-org/react');
+var jsxRuntime = require('react/jsx-runtime');
+var react$1 = require('react');
+
+var d=Object.defineProperty,R=Object.defineProperties;var f=Object.getOwnPropertyDescriptors;var m=Object.getOwnPropertySymbols;var P=Object.prototype.hasOwnProperty,c=Object.prototype.propertyIsEnumerable;var g=(o,t,e)=>t in o?d(o,t,{enumerable:!0,configurable:!0,writable:!0,value:e}):o[t]=e,p=(o,t)=>{for(var e in t||(t={}))P.call(t,e)&&g(o,e,t[e]);if(m)for(var e of m(t))c.call(t,e)&&g(o,e,t[e]);return o},a=(o,t)=>R(o,f(t));var s=(o,t)=>{var e={};for(var r in o)P.call(o,r)&&t.indexOf(r)<0&&(e[r]=o[r]);if(o!=null&&m)for(var r of m(o))t.indexOf(r)<0&&c.call(o,r)&&(e[r]=o[r]);return e};var w=r=>{var i=r,{registry:o,type:t="range"}=i,e=s(i,["registry","type"]);let n=reactBridge.useOpacityInput(o);return jsxRuntime.jsx(react.Input,a(p({},e),{value:n.opacity.value.toString(),type:t,onChange:n.onChange,min:0,max:1,step:.01}))};var A=({triggerButtonProps:o={variant:"bordered",color:"default"}})=>{let t=reactBridge.useThermalManagerPaletteDrive("wtf"),e=react$1.useMemo(()=>Object.entries(t.availablePalettes).map(([r,i])=>a(p({},i),{key:r})),[t.availablePalettes]);return jsxRuntime.jsxs(react.Dropdown,{children:[jsxRuntime.jsx(react.DropdownTrigger,{children:jsxRuntime.jsx(react.Button,a(p({},o),{className:"bg-brimary-500",children:jsxRuntime.jsx(reactBridge.PaletteGgradientDisplay,p({},t.palette))}))}),jsxRuntime.jsx(react.DropdownMenu,{"aria-label":"Thermal palette selection",items:e,onAction:r=>{t.set(r);},children:r=>jsxRuntime.jsx(react.DropdownItem,{textValue:r.name,children:jsxRuntime.jsx(reactBridge.PaletteGgradientDisplay,{name:r.name,gradient:r.gradient,pixels:r.pixels})},r.key)})]})};var H=r=>{var i=r,{registry:o,type:t="range"}=i,e=s(i,["registry","type"]);let n=reactBridge.useHistogramResolutionInput(o);return jsxRuntime.jsx(react.Input,a(p({},e),{value:n.internal.toString(),type:t,onChange:n.onChange,onValueChange:n.onBlur,min:2,max:200}))};var N=i=>{var n=i,{registry:o,color:t="default",variant:e="bordered"}=n,r=s(n,["registry","color","variant"]);let l=reactBridge.useRangeButtonAuto(o);return jsxRuntime.jsx(react.Button,a(p({},r),{onClick:l.onClick,color:t,variant:e,children:"Auto"}))};var J=i=>{var n=i,{registry:o,color:t="default",variant:e="bordered"}=n,r=s(n,["registry","color","variant"]);let l=reactBridge.useRangeButtonFull(o);return jsxRuntime.jsx(react.Button,a(p({},r),{onClick:l.onClick,color:t,variant:e,children:"Full"}))};
+
+Object.defineProperty(exports, "ThermalInstance", {
+	enumerable: true,
+	get: function () { return reactBridge.ThermalInstance; }
 });
-module.exports = __toCommonJS(src_exports);
-var import_react_bridge4 = require("@labir/react-bridge");
-
-// src/components/properties/OpacityInput.tsx
-var import_react_bridge = require("@labir/react-bridge");
-var import_react = require("@nextui-org/react");
-var import_jsx_runtime = require("react/jsx-runtime");
-var OpacityInput = (_a) => {
-  var _b = _a, {
-    registry,
-    type = "range"
-  } = _b, props = __objRest(_b, [
-    "registry",
-    "type"
-  ]);
-  const opacity = (0, import_react_bridge.useOpacityInput)(registry);
-  return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-    import_react.Input,
-    __spreadProps(__spreadValues({}, props), {
-      value: opacity.opacity.toString(),
-      type,
-      onChange: opacity.onChange
-    })
-  );
-};
-
-// src/components/properties/PaletteDropdown.tsx
-var import_react_bridge2 = require("@labir/react-bridge");
-var import_react2 = require("@nextui-org/react");
-var import_react3 = require("react");
-var import_jsx_runtime2 = require("react/jsx-runtime");
-var PaletteDropdown = ({
-  triggerButtonProps = {},
-  dropdownProps = {},
-  dropdownItemProps = {},
-  dropdownMenuProps
-  // ...props
-}) => {
-  const manager = (0, import_react_bridge2.useThermalContext)();
-  const purpose = (0, import_react_bridge2.useThermalObjectPurpose)(manager, "PaletteDropdown", true);
-  const context = (0, import_react_bridge2.useThermalManagerPaletteDrive)(purpose);
-  const items = (0, import_react3.useMemo)(
-    () => Object.entries(context.availablePalettes).map(([key, palette]) => __spreadProps(__spreadValues({}, palette), {
-      key
-    })),
-    [context.availablePalettes]
-  );
-  return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(import_react2.Dropdown, __spreadProps(__spreadValues({}, dropdownProps), { children: [
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react2.DropdownTrigger, __spreadProps(__spreadValues({}, triggerButtonProps), { as: import_react2.Button, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react_bridge2.PaletteGgradientDisplay, __spreadValues({}, context.palette)) })),
-    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-      import_react2.DropdownMenu,
-      __spreadProps(__spreadValues({
-        "aria-label": "Thermal palette selection"
-      }, dropdownMenuProps), {
-        items,
-        children: (item) => {
-          return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(import_react2.DropdownItem, __spreadProps(__spreadValues({}, dropdownItemProps), { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-            import_react_bridge2.PaletteGgradientDisplay,
-            {
-              name: item.name,
-              gradient: item.gradient,
-              pixels: item.pixels
-            }
-          ) }), item.key);
-        }
-      })
-    )
-  ] }));
-};
-
-// src/components/properties/HistogramResolutionInput.tsx
-var import_react_bridge3 = require("@labir/react-bridge");
-var import_react4 = require("@nextui-org/react");
-var import_jsx_runtime3 = require("react/jsx-runtime");
-var HistogramResolutionInput = (_a) => {
-  var _b = _a, {
-    registry,
-    type = "range"
-  } = _b, props = __objRest(_b, [
-    "registry",
-    "type"
-  ]);
-  const resolution = (0, import_react_bridge3.useHistogramResolutionInput)(registry);
-  return /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
-    import_react4.Input,
-    __spreadProps(__spreadValues({}, props), {
-      value: resolution.internal.toString(),
-      type,
-      onChange: resolution.onChange,
-      onValueChange: resolution.onBlur
-    })
-  );
-};
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  HistogramResolutionInput,
-  OpacityInput,
-  PaletteDropdown,
-  ThermalInstance,
-  ThermalProvider,
-  ThermalRegistryHistogram,
-  ThermalRegistryRange,
-  useSingleFileRegistry,
-  useThermalRegistry
+Object.defineProperty(exports, "ThermalProvider", {
+	enumerable: true,
+	get: function () { return reactBridge.ThermalProvider; }
 });
+Object.defineProperty(exports, "ThermalRegistryHistogram", {
+	enumerable: true,
+	get: function () { return reactBridge.ThermalRegistryHistogram; }
+});
+Object.defineProperty(exports, "ThermalRegistryRange", {
+	enumerable: true,
+	get: function () { return reactBridge.ThermalRegistryRange; }
+});
+Object.defineProperty(exports, "useSingleFileRegistry", {
+	enumerable: true,
+	get: function () { return reactBridge.useSingleFileRegistry; }
+});
+Object.defineProperty(exports, "useThermalRegistry", {
+	enumerable: true,
+	get: function () { return reactBridge.useThermalRegistry; }
+});
+exports.HistogramResolutionInput = H;
+exports.OpacityInput = w;
+exports.PaletteDropdown = A;
+exports.RangeAutoButton = N;
+exports.RangeFullButton = J;
+//# sourceMappingURL=out.js.map
 //# sourceMappingURL=index.js.map

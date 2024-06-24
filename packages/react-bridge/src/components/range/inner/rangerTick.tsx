@@ -48,7 +48,7 @@ export const RangerTick: React.FC<RangerTickProps> = ({
 
         mainCss.transform = "translateX(-50%)"
         mainCss.top = "-20px"
-        mainCss.width = "28px"
+        mainCss.width = "35px"
         mainCss.textAlign = "center"
         mainCss.left = `${props.percentage}%`
         mainCss.flexDirection = "column"
@@ -78,7 +78,6 @@ export const RangerTick: React.FC<RangerTickProps> = ({
     return <div
         style={mainCss}
     >
-        
         <span style={labelCss}>{props.value.toFixed(2)}</span>
         <span style={markerCSS}></span>
     </div>

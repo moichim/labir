@@ -419,76 +419,10 @@ var useOpacityInput = (registry) => {
   };
 };
 
-// src/components/palette/PaletteDropdownHeadless.tsx
-import {
-  Button,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuItems
-} from "@headlessui/react";
-import React6 from "react";
-import { v4 as uuidv42 } from "uuid";
-
-// src/properties/drives/useThermalRegistryPaletteDrive.ts
-import { ThermalPalettes } from "@labir/core";
-import { useEffect as useEffect6, useState as useState5, useMemo as useMemo9 } from "react";
-
-// src/context/thermalManagerContext.tsx
-import React4, { createContext, useContext } from "react";
-
-// src/context/useThermalManagerInternal.ts
-import { ThermalManager as ThermalManager2 } from "@labir/core";
-import { useMemo as useMemo8 } from "react";
-var useThermalManagerInternal = (options, externalInstance) => {
-  return useMemo8(() => {
-    if (externalInstance) return externalInstance;
-    return new ThermalManager2(options);
-  }, []);
-};
-
-// src/context/thermalManagerContext.tsx
-import { ThermalManager as ThermalManager3 } from "@labir/core";
-var ThermalManagerContext = createContext(new ThermalManager3());
-var ThermalProvider = ({ options, externalManagerInstance, children }) => {
-  const value = useThermalManagerInternal(options, externalManagerInstance);
-  return /* @__PURE__ */ React4.createElement(ThermalManagerContext.Provider, { value }, children);
-};
-var useThermalContext = () => {
-  return useContext(ThermalManagerContext);
-};
-
-// src/properties/drives/useThermalRegistryPaletteDrive.ts
-var useThermalManagerPaletteDrive = (purpose) => {
-  const manager = useThermalContext();
-  const [value, setValue] = useState5(manager.palette.value);
-  const [palette, setPalette] = useState5(manager.palette.currentPalette);
-  useEffect6(() => {
-    manager.palette.addListener(purpose, (newValue) => {
-      setValue(newValue);
-      setPalette(manager.palette.currentPalette);
-    });
-    return () => manager.palette.removeListener(purpose);
-  }, [manager, value, setValue, palette, setPalette]);
-  const set = useMemo9(() => manager.palette.setPalette.bind(manager.palette), [manager]);
-  useEffect6(() => {
-    return () => manager.palette.removeListener(purpose);
-  }, []);
-  const availablePalettes = useMemo9(() => {
-    return ThermalPalettes;
-  }, []);
-  return {
-    value,
-    palette,
-    set,
-    availablePalettes
-  };
-};
-
 // src/components/palette/PaletteGradientDisplay.tsx
-import React5 from "react";
+import React4 from "react";
 var PaletteGgradientDisplay = (props) => {
-  return /* @__PURE__ */ React5.createElement(
+  return /* @__PURE__ */ React4.createElement(
     "div",
     {
       style: __spreadProps(__spreadValues({}, props.style), {
@@ -498,7 +432,7 @@ var PaletteGgradientDisplay = (props) => {
         gap: "10px"
       })
     },
-    /* @__PURE__ */ React5.createElement(
+    /* @__PURE__ */ React4.createElement(
       "div",
       {
         style: {
@@ -509,29 +443,18 @@ var PaletteGgradientDisplay = (props) => {
         }
       }
     ),
-    /* @__PURE__ */ React5.createElement("div", null, props.name)
+    /* @__PURE__ */ React4.createElement("div", null, props.name)
   );
 };
 
-// src/components/palette/PaletteDropdownHeadless.tsx
-var PaletteDropdownHeadless = () => {
-  const palette = useThermalManagerPaletteDrive(uuidv42());
-  return /* @__PURE__ */ React6.createElement(Menu, null, /* @__PURE__ */ React6.createElement(MenuButton, null, /* @__PURE__ */ React6.createElement(React6.Fragment, null, /* @__PURE__ */ React6.createElement(PaletteGgradientDisplay, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React6.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React6.createElement(MenuItem, { key, as: Button, onClick: () => {
-    palette.set(key);
-  } }, /* @__PURE__ */ React6.createElement(
-    PaletteGgradientDisplay,
-    __spreadValues({}, item)
-  )))));
-};
-
 // src/components/range/ThermalRegistryRange.tsx
-import React15, { useMemo as useMemo15 } from "react";
+import React14, { useMemo as useMemo15 } from "react";
 
 // src/properties/drives/useThermalRegistryRangeDrive.ts
-import { useEffect as useEffect7, useMemo as useMemo10, useState as useState6 } from "react";
+import { useEffect as useEffect6, useMemo as useMemo8, useState as useState5 } from "react";
 var useThermalRegistryRangeDrive = (registry, purpose) => {
-  const [value, setValue] = useState6(registry.range.value);
-  useEffect7(() => {
+  const [value, setValue] = useState5(registry.range.value);
+  useEffect6(() => {
     registry.range.addListener(purpose, (newValue) => {
       if (newValue !== value) {
         setValue(newValue);
@@ -539,8 +462,8 @@ var useThermalRegistryRangeDrive = (registry, purpose) => {
     });
     return () => registry.range.removeListener(purpose);
   }, [registry, value, setValue]);
-  const set = useMemo10(() => registry.range.imposeRange.bind(registry.range), [registry]);
-  useEffect7(() => {
+  const set = useMemo8(() => registry.range.imposeRange.bind(registry.range), [registry]);
+  useEffect6(() => {
     return () => registry.range.removeListener(purpose);
   }, []);
   return {
@@ -550,16 +473,16 @@ var useThermalRegistryRangeDrive = (registry, purpose) => {
 };
 
 // src/properties/states/useThermalRegistryLoadingState.ts
-import { useEffect as useEffect8, useState as useState7 } from "react";
+import { useEffect as useEffect7, useState as useState6 } from "react";
 var useThermalRegistryLoadingState = (registry, purpose) => {
-  const [value, setValue] = useState7(registry.loading.value);
-  useEffect8(() => {
+  const [value, setValue] = useState6(registry.loading.value);
+  useEffect7(() => {
     registry.loading.addListener(purpose, (newValue) => {
       setValue(newValue);
     });
     return () => registry.loading.removeListener(purpose);
   }, [registry, value, setValue]);
-  useEffect8(() => {
+  useEffect7(() => {
     return () => registry.loading.removeListener(purpose);
   }, []);
   return {
@@ -568,16 +491,16 @@ var useThermalRegistryLoadingState = (registry, purpose) => {
 };
 
 // src/properties/states/useThermalRegistryMinmaxState.ts
-import { useEffect as useEffect9, useState as useState8 } from "react";
+import { useEffect as useEffect8, useState as useState7 } from "react";
 var useThermalRegistryMinmaxState = (registry, purpose) => {
-  const [value, setValue] = useState8(registry.minmax.value);
-  useEffect9(() => {
+  const [value, setValue] = useState7(registry.minmax.value);
+  useEffect8(() => {
     registry.minmax.addListener(purpose, (newValue) => {
       setValue(newValue);
     });
     return () => registry.minmax.removeListener(purpose);
   }, [registry, setValue]);
-  useEffect9(() => {
+  useEffect8(() => {
     return () => registry.minmax.removeListener(purpose);
   }, []);
   return {
@@ -586,9 +509,9 @@ var useThermalRegistryMinmaxState = (registry, purpose) => {
 };
 
 // src/components/range/RangeHeadlessSkeleton.tsx
-import React7 from "react";
+import React5 from "react";
 var RangeHeadlessSkeleton = () => {
-  return /* @__PURE__ */ React7.createElement(React7.Fragment, null, /* @__PURE__ */ React7.createElement("style", null, `@keyframes mymove {
+  return /* @__PURE__ */ React5.createElement(React5.Fragment, null, /* @__PURE__ */ React5.createElement("style", null, `@keyframes mymove {
                 0%: {
                     left: 0%;
                     width: 25%;
@@ -601,7 +524,7 @@ var RangeHeadlessSkeleton = () => {
                     left: 100%;
                     width: 25%;
                 }
-            }`), /* @__PURE__ */ React7.createElement("div", { style: { width: "100%", height: "20px" } }, /* @__PURE__ */ React7.createElement(
+            }`), /* @__PURE__ */ React5.createElement("div", { style: { width: "100%", height: "20px" } }, /* @__PURE__ */ React5.createElement(
     "div",
     {
       style: {
@@ -616,17 +539,72 @@ var RangeHeadlessSkeleton = () => {
 };
 
 // src/components/range/RangerHeadlessContainer.tsx
-import React8 from "react";
+import React6 from "react";
 var RangerHeadlessContainer = (props) => {
-  return /* @__PURE__ */ React8.createElement("div", null, props.children);
+  return /* @__PURE__ */ React6.createElement("div", null, props.children);
 };
 
 // src/components/range/inner/rangerHeadlessInner.tsx
 import { useRanger } from "@tanstack/react-ranger";
-import React14, { useRef as useRef2 } from "react";
+import React13, { useRef as useRef2 } from "react";
+
+// src/properties/drives/useThermalRegistryPaletteDrive.ts
+import { ThermalPalettes } from "@labir/core";
+import { useEffect as useEffect9, useMemo as useMemo10, useState as useState8 } from "react";
+
+// src/context/thermalManagerContext.tsx
+import React7, { createContext, useContext } from "react";
+
+// src/context/useThermalManagerInternal.ts
+import { ThermalManager as ThermalManager2 } from "@labir/core";
+import { useMemo as useMemo9 } from "react";
+var useThermalManagerInternal = (options, externalInstance) => {
+  return useMemo9(() => {
+    if (externalInstance) return externalInstance;
+    return new ThermalManager2(options);
+  }, []);
+};
+
+// src/context/thermalManagerContext.tsx
+import { ThermalManager as ThermalManager3 } from "@labir/core";
+var ThermalManagerContext = createContext(new ThermalManager3());
+var ThermalProvider = ({ options, externalManagerInstance, children }) => {
+  const value = useThermalManagerInternal(options, externalManagerInstance);
+  return /* @__PURE__ */ React7.createElement(ThermalManagerContext.Provider, { value }, children);
+};
+var useThermalContext = () => {
+  return useContext(ThermalManagerContext);
+};
+
+// src/properties/drives/useThermalRegistryPaletteDrive.ts
+var useThermalManagerPaletteDrive = (purpose) => {
+  const manager = useThermalContext();
+  const [value, setValue] = useState8(manager.palette.value);
+  const [palette, setPalette] = useState8(manager.palette.currentPalette);
+  useEffect9(() => {
+    manager.palette.addListener(purpose, (newValue) => {
+      setValue(newValue);
+      setPalette(manager.palette.currentPalette);
+    });
+    return () => manager.palette.removeListener(purpose);
+  }, [manager, value, setValue, palette, setPalette]);
+  const set = useMemo10(() => manager.palette.setPalette.bind(manager.palette), [manager]);
+  useEffect9(() => {
+    return () => manager.palette.removeListener(purpose);
+  }, []);
+  const availablePalettes = useMemo10(() => {
+    return ThermalPalettes;
+  }, []);
+  return {
+    value,
+    palette,
+    set,
+    availablePalettes
+  };
+};
 
 // src/components/range/inner/rangerHandles.tsx
-import React9 from "react";
+import React8 from "react";
 var RangerHandles = (_a) => {
   var _b = _a, {
     trackSizeInPx = 20,
@@ -637,7 +615,7 @@ var RangerHandles = (_a) => {
     "handleColor",
     "handleBackground"
   ]);
-  return /* @__PURE__ */ React9.createElement(React9.Fragment, null, props.ranger.handles().map(
+  return /* @__PURE__ */ React8.createElement(React8.Fragment, null, props.ranger.handles().map(
     ({
       value,
       onKeyDownHandler,
@@ -681,7 +659,7 @@ var RangerHandles = (_a) => {
         arrowCss.left = -3;
         arrowCss.top = 4;
       }
-      return /* @__PURE__ */ React9.createElement(
+      return /* @__PURE__ */ React8.createElement(
         "button",
         {
           key: index,
@@ -694,7 +672,7 @@ var RangerHandles = (_a) => {
           onTouchStart,
           style: css
         },
-        /* @__PURE__ */ React9.createElement("div", { className: "track", style: innerCss }, /* @__PURE__ */ React9.createElement("div", { style: arrowCss }), /* @__PURE__ */ React9.createElement(
+        /* @__PURE__ */ React8.createElement("div", { className: "track", style: innerCss }, /* @__PURE__ */ React8.createElement("div", { style: arrowCss }), /* @__PURE__ */ React8.createElement(
           "div",
           {
             style: {
@@ -715,7 +693,7 @@ var RangerHandles = (_a) => {
 };
 
 // src/components/range/inner/rangerTick.tsx
-import React10 from "react";
+import React9 from "react";
 var RangerTick = (_a) => {
   var _b = _a, {
     orientation = "horizontal" /* HORIZONTAL */,
@@ -746,7 +724,7 @@ var RangerTick = (_a) => {
   if (orientation === "horizontal" /* HORIZONTAL */) {
     mainCss.transform = "translateX(-50%)";
     mainCss.top = "-20px";
-    mainCss.width = "28px";
+    mainCss.width = "35px";
     mainCss.textAlign = "center";
     mainCss.left = `${props.percentage}%`;
     mainCss.flexDirection = "column";
@@ -765,19 +743,19 @@ var RangerTick = (_a) => {
     labelCss.order = "1";
     labelCss.paddingLeft = "5px";
   }
-  return /* @__PURE__ */ React10.createElement(
+  return /* @__PURE__ */ React9.createElement(
     "div",
     {
       style: mainCss
     },
-    /* @__PURE__ */ React10.createElement("span", { style: labelCss }, props.value.toFixed(2)),
-    /* @__PURE__ */ React10.createElement("span", { style: markerCSS })
+    /* @__PURE__ */ React9.createElement("span", { style: labelCss }, props.value.toFixed(2)),
+    /* @__PURE__ */ React9.createElement("span", { style: markerCSS })
   );
 };
 
 // src/components/range/inner/rangerTrack.tsx
 import classNames2 from "classnames";
-import React11, { forwardRef, useMemo as useMemo11 } from "react";
+import React10, { forwardRef, useMemo as useMemo11 } from "react";
 var RangerTrack = forwardRef(
   (_a, ref) => {
     var _b = _a, {
@@ -816,7 +794,7 @@ var RangerTrack = forwardRef(
       ),
       [className, orientation]
     );
-    return /* @__PURE__ */ React11.createElement("div", __spreadValues({ ref, className: classes, style: styles }, props), props.children);
+    return /* @__PURE__ */ React10.createElement("div", __spreadValues({ ref, className: classes, style: styles }, props), props.children);
   }
 );
 
@@ -852,7 +830,7 @@ var useRangerTicks = (ref, minmax, orientation) => {
       const totalDistance = Math.abs(
         minmax.value.min - minmax.value.max
       );
-      const num = Math.floor(width / 40);
+      const num = Math.floor(width / 50);
       const tickStep = totalDistance / num;
       const ticksBuffer = [];
       for (let i = 1; i < num; i++) {
@@ -940,7 +918,7 @@ var useRangerValues = (registry, isLocked, rangeOverride) => {
 
 // src/components/range/inner/RangerContainerInner.tsx
 import classNames3 from "classnames";
-import React12, { useMemo as useMemo13 } from "react";
+import React11, { useMemo as useMemo13 } from "react";
 var RangerContainerInner = (_a) => {
   var _b = _a, {
     orientation = "horizontal" /* HORIZONTAL */,
@@ -979,11 +957,11 @@ var RangerContainerInner = (_a) => {
     `lrc-ranger-container__${orientation}`,
     className
   );
-  return /* @__PURE__ */ React12.createElement("div", { style: wrapperCss }, /* @__PURE__ */ React12.createElement("div", { className: classes, style: css }, props.children));
+  return /* @__PURE__ */ React11.createElement("div", { style: wrapperCss }, /* @__PURE__ */ React11.createElement("div", { className: classes, style: css }, props.children));
 };
 
 // src/components/range/inner/rangerPalette.tsx
-import React13, { useMemo as useMemo14 } from "react";
+import React12, { useMemo as useMemo14 } from "react";
 var RangerPalette = (props) => {
   const startInPercent = useMemo14(() => {
     return `${props.ranger.getPercentageForValue(props.values.values[0])}%`;
@@ -1007,7 +985,7 @@ var RangerPalette = (props) => {
     css.width = `${props.volumeInPx}px`;
     css.background = props.palette.gradient.replace("90deg", "0deg");
   }
-  return /* @__PURE__ */ React13.createElement(
+  return /* @__PURE__ */ React12.createElement(
     "div",
     {
       style: css,
@@ -1075,7 +1053,7 @@ var RangerHeadlessInner = (_a) => {
     ticks: rangerTicks,
     onDrag: rangerValue.onDrag
   });
-  return /* @__PURE__ */ React14.createElement(RangerContainerInner, { orientation }, useHistogram && /* @__PURE__ */ React14.createElement(
+  return /* @__PURE__ */ React13.createElement(RangerContainerInner, { orientation }, useHistogram && /* @__PURE__ */ React13.createElement(
     ThermalRegistryHistogram,
     {
       registry: props.registry,
@@ -1086,7 +1064,7 @@ var RangerHeadlessInner = (_a) => {
       background: histogramBackground,
       orientation
     }
-  ), /* @__PURE__ */ React14.createElement(
+  ), /* @__PURE__ */ React13.createElement(
     RangerTrack,
     {
       volumeInPx: trackHeightInPx,
@@ -1098,7 +1076,7 @@ var RangerHeadlessInner = (_a) => {
     },
     rangerInstance.getTicks().map((_a2) => {
       var _b2 = _a2, { key } = _b2, tick = __objRest(_b2, ["key"]);
-      return /* @__PURE__ */ React14.createElement(
+      return /* @__PURE__ */ React13.createElement(
         RangerTick,
         __spreadProps(__spreadValues({
           key
@@ -1110,7 +1088,7 @@ var RangerHeadlessInner = (_a) => {
         })
       );
     }),
-    rangerInstance.sortedValues && /* @__PURE__ */ React14.createElement(
+    rangerInstance.sortedValues && /* @__PURE__ */ React13.createElement(
       RangerPalette,
       {
         palette: palette.palette,
@@ -1120,7 +1098,7 @@ var RangerHeadlessInner = (_a) => {
         volumeInPx: trackHeightInPx
       }
     ),
-    /* @__PURE__ */ React14.createElement(
+    /* @__PURE__ */ React13.createElement(
       RangerHandles,
       {
         ranger: rangerInstance,
@@ -1164,7 +1142,7 @@ var ThermalRegistryRange = (_a) => {
   }, [minmax, loading]);
   const Skeleton = renderSkeleton;
   const Container = renderContainer;
-  return /* @__PURE__ */ React15.createElement(Container, null, isReady === false && /* @__PURE__ */ React15.createElement(Skeleton, null), isReady === true && /* @__PURE__ */ React15.createElement(
+  return /* @__PURE__ */ React14.createElement(Container, null, isReady === false && /* @__PURE__ */ React14.createElement(Skeleton, null), isReady === true && /* @__PURE__ */ React14.createElement(
     RangerHeadlessInner,
     __spreadProps(__spreadValues({
       isLocked,
@@ -1327,7 +1305,6 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
 };
 export {
   Orientation,
-  PaletteDropdownHeadless,
   PaletteGgradientDisplay,
   ThermalDropin,
   ThermalInstance,

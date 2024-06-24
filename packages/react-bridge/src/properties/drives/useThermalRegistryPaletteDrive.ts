@@ -1,7 +1,7 @@
 "use client";
 
 import { PaletteId, ThermalPaletteType, ThermalPalettes } from "@labir/core";
-import {useEffect, useState, useMemo} from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../../context/thermalManagerContext";
 
 export const useThermalManagerPaletteDrive = (
@@ -27,7 +27,7 @@ export const useThermalManagerPaletteDrive = (
 
         return () => manager.palette.removeListener(purpose);
 
-    }, [manager,value, setValue,palette,setPalette]);
+    }, [manager, value, setValue, palette, setPalette]);
 
 
     // The setter

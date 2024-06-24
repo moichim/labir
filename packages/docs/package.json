@@ -16,20 +16,22 @@
   "license": "MIT",
   "homepage": "https://labir.vercel.app",
   "dependencies": {
-    "@labir/core": "^1.2.11",
-    "@labir/embed": "^1.2.11",
-    "@labir/emotion": "^1.2.11",
-    "@labir/react-bridge": "^1.2.11",
-    "@labir/tailwind": "^1.2.11",
+    "@labir/core": "workspace:*",
+    "@labir/embed": "workspace:*",
+    "@labir/emotion": "workspace:*",
+    "@labir/react-bridge": "workspace:*",
+    "@labir/tailwind": "workspace:*",
+    "@nextui-org/react": "^2.4.2",
+    "framer-motion": "^11.2.11",
     "next": "^13.0.6",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "tailwindcss": "^3.4.4"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/node": "18.11.10",
+    "tailwindcss": "^3.4.4",
     "typescript": "^4.9.3"
   }
 }

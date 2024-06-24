@@ -1,23 +1,11 @@
 "use client";
 
 import {
-  PaletteDropdown,
-  ThermalFileApp,
-  ThermalHistogramResolutionInput,
-  ThermalOpacityInput,
-  ThermalRangeAutoButton,
-  ThermalRangeFullButton,
-} from "@labir/emotion";
-import {
-  Orientation,
-  PaletteDropdownHeadless,
   ThermalInstance,
   ThermalRegistryRange,
-  useSingleFileRegistry,
-  useThermalContext,
-  useThermalGroupInstancesState,
+  useSingleFileRegistry
 } from "@labir/react-bridge";
-import React, { useEffect } from "react";
+import React from "react";
 
 export const HomepageIntro: React.FC = () => {
   const tucnaci = useSingleFileRegistry("/tucnaci_04.lrc");

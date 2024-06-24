@@ -3,9 +3,7 @@
 import { ThermalPaletteType } from "@labir/core";
 import {
   PaletteGgradientDisplay,
-  useThermalContext,
-  useThermalManagerPaletteDrive,
-  useThermalObjectPurpose,
+  useThermalManagerPaletteDrive
 } from "@labir/react-bridge";
 import {
   Button,
@@ -24,27 +22,25 @@ type PaletteDropdownProps = {
   triggerButtonProps?: ButtonProps;
   dropdownProps?: DropdownProps;
   dropdownItemProps?: DropdownItemProps;
-  dropdownMenuProps?: DropdownMenuProps<{
-    key: string
-  } & ThermalPaletteType>;
+  dropdownMenuProps?: DropdownMenuProps<
+    {
+      key: string;
+    } & ThermalPaletteType
+  >;
 };
 
-/** 
+/**
  * A palette dropdown
  * @package `@labir/tailwind`
  */
 export const PaletteDropdown: React.FC<PaletteDropdownProps> = ({
-  triggerButtonProps = {},
-  dropdownProps = {},
-  dropdownItemProps = {},
-  dropdownMenuProps,
-  // ...props
+  triggerButtonProps = {
+    variant: "bordered",
+    color: "default"
+  },
 }) => {
-  const manager = useThermalContext();
 
-  const purpose = useThermalObjectPurpose(manager, "PaletteDropdown", true);
-
-  const context = useThermalManagerPaletteDrive(purpose);
+  const context = useThermalManagerPaletteDrive("wtf");
 
   const items = useMemo(
     () =>
@@ -55,21 +51,23 @@ export const PaletteDropdown: React.FC<PaletteDropdownProps> = ({
     [context.availablePalettes]
   );
 
-  // const { items, ...wtf } = dropdownMenuProps;
-
   return (
-    <Dropdown {...dropdownProps}>
-      <DropdownTrigger {...triggerButtonProps} as={Button}>
-        <PaletteGgradientDisplay {...context.palette} />
+    <Dropdown>
+      <DropdownTrigger>
+        <Button {...triggerButtonProps} className="bg-brimary-500">
+          <PaletteGgradientDisplay {...context.palette} />
+        </Button>
       </DropdownTrigger>
       <DropdownMenu
         aria-label="Thermal palette selection"
-        {...dropdownMenuProps}
         items={items}
+        onAction={(key) => {
+          context.set( key )
+        }}
       >
         {(item) => {
           return (
-            <DropdownItem key={item.key} {...dropdownItemProps}>
+            <DropdownItem key={item.key} textValue={item.name}>
               <PaletteGgradientDisplay
                 name={item.name}
                 gradient={item.gradient}

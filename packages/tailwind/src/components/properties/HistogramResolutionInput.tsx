@@ -1,8 +1,8 @@
 "use client";
 
-import { ThermalRegistry } from "@labir/core"
-import { useHistogramResolutionInput, useOpacityInput } from "@labir/react-bridge"
-import {Input, InputProps} from "@nextui-org/react"
+import { ThermalRegistry } from "@labir/core";
+import { useHistogramResolutionInput } from "@labir/react-bridge";
+import { Input, InputProps } from "@nextui-org/react";
 
 type OpacityInputProps = InputProps & {
     registry: ThermalRegistry
@@ -10,6 +10,7 @@ type OpacityInputProps = InputProps & {
 
 /**
  * An input controlling opacity of a ThermalRegistry
+ * 
  * @package `@labir/tailwind`
  */
 export const HistogramResolutionInput: React.FC< OpacityInputProps > = ({
@@ -26,6 +27,8 @@ export const HistogramResolutionInput: React.FC< OpacityInputProps > = ({
         type={type}
         onChange={resolution.onChange}
         onValueChange={resolution.onBlur}
+        min={2}
+        max={200}
     />
 
 }

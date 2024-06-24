@@ -4,7 +4,6 @@ import { ThermalRegistryHistogram } from "./components/histogram/thermalRegistry
 import { useHistogramResolutionInput } from "./components/histogramResolutionInput/useHistogramResolutionInput";
 import { ThermalInstance } from "./components/instance/thermalInstance";
 import { useOpacityInput } from "./components/opacity/useOpacityInput";
-import { PaletteDropdownHeadless } from "./components/palette/PaletteDropdownHeadless";
 import { PaletteGgradientDisplay } from "./components/palette/PaletteGradientDisplay";
 import { ThermalRegistryRange } from "./components/range/ThermalRegistryRange";
 import { useRangeButtonAuto } from "./components/rangeButtonAuto.tsx/useRangeButtonAuto";
@@ -24,6 +23,8 @@ import { useThermalRegistryLoadingState } from "./properties/states/useThermalRe
 import { useThermalRegistryMinmaxState } from "./properties/states/useThermalRegistryMinmaxState";
 import { useSingleFileRegistry } from "./shorthands/useSingleFileRegistry";
 import { Orientation } from "./utilities/orientation";
+
+
 
 
 export {
@@ -54,11 +55,7 @@ export {
 
 
     ThermalDropin,
-
-    // Deprecated components
-    PaletteDropdownHeadless,
     PaletteGgradientDisplay,
-
 
     // Shorthand hooks
     useSingleFileRegistry,

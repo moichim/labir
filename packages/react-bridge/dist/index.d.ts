@@ -67,11 +67,6 @@ declare const useOpacityInput: (registry: ThermalRegistry) => {
     };
 };
 
-/**
- * @deprecated Should not be used. Implement it in final UI instead
- */
-declare const PaletteDropdownHeadless: React$1.FC;
-
 /** Display a palette gradient and its name for the purpose of buttons & dropdowns */
 declare const PaletteGgradientDisplay: React$1.FC<ThermalPaletteType & {
     style?: React$1.CSSProperties;
@@ -226,4 +221,4 @@ declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) =
     instance: ThermalFileInstance | undefined;
 };
 
-export { Orientation, PaletteDropdownHeadless, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+export { Orientation, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

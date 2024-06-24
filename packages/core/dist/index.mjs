@@ -2400,7 +2400,7 @@ var PaletteDrive = class extends AbstractProperty {
   /** Any changes to the value should propagate directly to every instance. */
   afterSetEffect(value) {
     this.parent.forEveryRegistry((registry) => {
-      registry.forEveryGroup((group) => group.instances.forEveryInstance((instance) => instance.recievePalette(value)));
+      registry.forEveryInstance((instance) => instance.recievePalette(value));
     });
   }
   setPalette(key) {
