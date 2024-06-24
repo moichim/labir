@@ -28,7 +28,7 @@ export const HistogramResolutionInput: React.FC< OpacityInputProps > = ({
         onChange={resolution.onChange}
         onValueChange={resolution.onBlur}
         min={2}
-        max={200}
+        max={400}
     />
 
 }

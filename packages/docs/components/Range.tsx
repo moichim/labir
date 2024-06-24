@@ -38,21 +38,10 @@ export const Range: React.FC = () => {
       />
 
       <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">
-        Vertical scale
-      </h2>
-
-      <ThermalRegistryRange
-        registry={registry}
-        step={0.2}
-        trackSizeInPx={40}
-        histogramSizeInPx={200}
-        histogramBorderWidthInPx={0}
-        orientation={Orientation.VERTICAL}
-      />
-
-      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">
         Styled scale
       </h2>
+
+      <p class="py-3">The temperature range mey be styled anyhow.</p>
 
       <ThermalRegistryRange
         registry={registry}
@@ -66,6 +55,23 @@ export const Range: React.FC = () => {
         histogramBackground="lightgray"
         histogramBorderColor="white"
         histogramBarBackground="blue"
+      />
+
+      <h2 className="nx-font-semibold nx-tracking-tight nx-text-slate-900 dark:nx-text-slate-100 nx-mt-10 nx-border-b nx-pb-1 nx-text-3xl nx-border-neutral-200/70 contrast-more:nx-border-neutral-400 dark:nx-border-primary-100/10 contrast-more:dark:nx-border-neutral-400">
+        Vertical scale
+      </h2>
+
+      <p class="py-3">
+        The user interaction in vertical variant is not implemented yet...
+      </p>
+
+      <ThermalRegistryRange
+        registry={registry}
+        step={0.2}
+        trackSizeInPx={40}
+        histogramSizeInPx={200}
+        histogramBorderWidthInPx={0}
+        orientation={Orientation.VERTICAL}
       />
     </div>
   );

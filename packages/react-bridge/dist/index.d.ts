@@ -208,6 +208,19 @@ declare const useThermalRegistryMinmaxState: (registry: ThermalRegistry, purpose
 };
 
 /**
+ * Shorthand hook that loads files in a group
+ */
+declare const useFilesInGroup: (urls: string[], registryId: string, groupId: string) => {
+    registry: _labir_core.ThermalRegistry;
+    group: _labir_core.ThermalGroup;
+    instances: {
+        value: _labir_core.ThermalFileInstance[];
+        instantiateSources: (sources: _labir_core.ThermalFileSource[]) => void;
+        removeAllInstances: () => void;
+    };
+};
+
+/**
  * Shorthand hook that takes care of an isolated single file registry.
  * Creates:
  * - a registry named after the URL + UUID
@@ -221,4 +234,4 @@ declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) =
     instance: ThermalFileInstance | undefined;
 };
 
-export { Orientation, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+export { Orientation, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useFilesInGroup, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

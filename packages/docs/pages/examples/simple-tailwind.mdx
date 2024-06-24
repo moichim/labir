@@ -5,8 +5,8 @@ import { ThermalComponent } from "../../components/tailwind/ThermalComponent"
 
 The simpliest application using [@labir/react-bridge](/react-bridge) and [@labir/tailwind](/tailwind).
 
-- Loads a single file
-- displays basic controls
+- Loads a single file through `useSingleFileRegistry` hook
+- You can change the colour palette and adjust the temperature range
 
 <ThermalComponent>
     <TaildiwndExample />
@@ -25,13 +25,11 @@ import {
   useSingleFileRegistry,
 } from "@labir/react-bridge";
 import {
-  PaletteDropdown,
-  RangeAutoButton,
-  RangeFullButton
+  PaletteDropdown
 } from "@labir/tailwind";
 import { ButtonGroup } from "@nextui-org/react";
 
-export const TaildiwndExample: React.FC = () => {
+export const App: React.FC = () => {
 
   // A shorthand hook simplifies the entire loading process
   const { registry, instance } = useSingleFileRegistry("/tucnaci_04.lrc");

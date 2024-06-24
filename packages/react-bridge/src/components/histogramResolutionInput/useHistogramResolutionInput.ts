@@ -20,7 +20,7 @@ export const useHistogramResolutionInput = (
     // Whenever the internal value changes, project it into histogram
     useEffect(() => {
         if (internal)
-            if (internal >= 2 && internal <= 200) {
+            if (internal >= 2 && internal <= 400) {
                 if (internal !== histogram.resolution) {
                     histogram.setResolution(Math.round(internal));
                 }

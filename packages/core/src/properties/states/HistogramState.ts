@@ -30,7 +30,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
      * @notice Higher the number, lower the resolution.
     */
     public setResolution(value: number) {
-        this._resolution = Math.round( Math.min(Math.max(value, 2), 200) );
+        this._resolution = Math.round( Math.min(Math.max(value, 2), 400) );
     }
 
     /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/

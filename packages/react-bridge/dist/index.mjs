@@ -350,7 +350,7 @@ var useHistogramResolutionInput = (registry) => {
   const [internal, setInternal] = useState3(histogram.resolution);
   useEffect4(() => {
     if (internal)
-      if (internal >= 2 && internal <= 200) {
+      if (internal >= 2 && internal <= 400) {
         if (internal !== histogram.resolution) {
           histogram.setResolution(Math.round(internal));
         }
@@ -1268,18 +1268,47 @@ var useThermalGroupMinmaxState = (group, purpose) => {
   };
 };
 
+// src/shorthands/useFilesInGroup.ts
+import { useEffect as useEffect16, useMemo as useMemo19 } from "react";
+var useFilesInGroup = (urls, registryId, groupId) => {
+  const manager = useThermalContext();
+  const registryIdMemoised = useMemo19(() => registryId, []);
+  const groupIdMemoised = useMemo19(() => groupId, []);
+  const registry = useMemo19(() => manager.addOrGetRegistry(registryIdMemoised), []);
+  const group = useMemo19(() => registry.groups.addOrGetGroup(groupIdMemoised), []);
+  useEffect16(() => {
+    registry.loadFiles({
+      [group.id]: urls.map((url) => ({
+        thermalUrl: url
+      }))
+    });
+  }, []);
+  useEffect16(() => {
+    () => manager.removeRegistry(registryIdMemoised);
+  }, []);
+  const instances = useThermalGroupInstancesState(group, registryIdMemoised);
+  console.log(instances);
+  useEffect16(() => {
+  }, [registry]);
+  return {
+    registry,
+    group,
+    instances
+  };
+};
+
 // src/shorthands/useSingleFileRegistry.ts
-import { useEffect as useEffect16, useMemo as useMemo19, useState as useState15 } from "react";
+import { useEffect as useEffect17, useMemo as useMemo20, useState as useState15 } from "react";
 import { v4 as uuid } from "uuid";
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
-  const registryId = useMemo19(() => {
+  const registryId = useMemo20(() => {
     return `isolated_context_${thermalUrl}_${uuid()}`;
   }, [thermalUrl]);
-  const groupId = useMemo19(() => "isolated_default_group", []);
+  const groupId = useMemo20(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);
   const group = registry.groups.addOrGetGroup(groupId);
-  useEffect16(() => {
+  useEffect17(() => {
     registry.loadOneFile({
       thermalUrl,
       visibleUrl
@@ -1288,14 +1317,14 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   }, [thermalUrl]);
   const [instance, setInstance] = useState15();
   const instances = useThermalGroupInstancesState(group, registryId);
-  useEffect16(() => {
+  useEffect17(() => {
     if (instances.value.length > 0) {
       setInstance(instances.value[0]);
     } else {
       setInstance(void 0);
     }
   }, [instances.value]);
-  useEffect16(() => {
+  useEffect17(() => {
   }, [registry]);
   return {
     registry,
@@ -1311,6 +1340,7 @@ export {
   ThermalProvider,
   ThermalRegistryHistogram,
   ThermalRegistryRange,
+  useFilesInGroup,
   useHistogramResolutionInput,
   useOpacityInput,
   useRangeButtonAuto,

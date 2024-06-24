@@ -86,6 +86,7 @@ __export(src_exports, {
   ThermalProvider: () => ThermalProvider,
   ThermalRegistryHistogram: () => ThermalRegistryHistogram,
   ThermalRegistryRange: () => ThermalRegistryRange,
+  useFilesInGroup: () => useFilesInGroup,
   useHistogramResolutionInput: () => useHistogramResolutionInput,
   useOpacityInput: () => useOpacityInput,
   useRangeButtonAuto: () => useRangeButtonAuto,
@@ -404,7 +405,7 @@ var useHistogramResolutionInput = (registry) => {
   const [internal, setInternal] = (0, import_react8.useState)(histogram.resolution);
   (0, import_react8.useEffect)(() => {
     if (internal)
-      if (internal >= 2 && internal <= 200) {
+      if (internal >= 2 && internal <= 400) {
         if (internal !== histogram.resolution) {
           histogram.setResolution(Math.round(internal));
         }
@@ -1322,34 +1323,63 @@ var useThermalGroupMinmaxState = (group, purpose) => {
   };
 };
 
-// src/shorthands/useSingleFileRegistry.ts
+// src/shorthands/useFilesInGroup.ts
 var import_react35 = require("react");
+var useFilesInGroup = (urls, registryId, groupId) => {
+  const manager = useThermalContext();
+  const registryIdMemoised = (0, import_react35.useMemo)(() => registryId, []);
+  const groupIdMemoised = (0, import_react35.useMemo)(() => groupId, []);
+  const registry = (0, import_react35.useMemo)(() => manager.addOrGetRegistry(registryIdMemoised), []);
+  const group = (0, import_react35.useMemo)(() => registry.groups.addOrGetGroup(groupIdMemoised), []);
+  (0, import_react35.useEffect)(() => {
+    registry.loadFiles({
+      [group.id]: urls.map((url) => ({
+        thermalUrl: url
+      }))
+    });
+  }, []);
+  (0, import_react35.useEffect)(() => {
+    () => manager.removeRegistry(registryIdMemoised);
+  }, []);
+  const instances = useThermalGroupInstancesState(group, registryIdMemoised);
+  console.log(instances);
+  (0, import_react35.useEffect)(() => {
+  }, [registry]);
+  return {
+    registry,
+    group,
+    instances
+  };
+};
+
+// src/shorthands/useSingleFileRegistry.ts
+var import_react36 = require("react");
 var import_uuid2 = require("uuid");
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
-  const registryId = (0, import_react35.useMemo)(() => {
+  const registryId = (0, import_react36.useMemo)(() => {
     return `isolated_context_${thermalUrl}_${(0, import_uuid2.v4)()}`;
   }, [thermalUrl]);
-  const groupId = (0, import_react35.useMemo)(() => "isolated_default_group", []);
+  const groupId = (0, import_react36.useMemo)(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);
   const group = registry.groups.addOrGetGroup(groupId);
-  (0, import_react35.useEffect)(() => {
+  (0, import_react36.useEffect)(() => {
     registry.loadOneFile({
       thermalUrl,
       visibleUrl
     }, group.id);
     return () => registry.destroySelfInTheManager();
   }, [thermalUrl]);
-  const [instance, setInstance] = (0, import_react35.useState)();
+  const [instance, setInstance] = (0, import_react36.useState)();
   const instances = useThermalGroupInstancesState(group, registryId);
-  (0, import_react35.useEffect)(() => {
+  (0, import_react36.useEffect)(() => {
     if (instances.value.length > 0) {
       setInstance(instances.value[0]);
     } else {
       setInstance(void 0);
     }
   }, [instances.value]);
-  (0, import_react35.useEffect)(() => {
+  (0, import_react36.useEffect)(() => {
   }, [registry]);
   return {
     registry,
@@ -1366,6 +1396,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   ThermalProvider,
   ThermalRegistryHistogram,
   ThermalRegistryRange,
+  useFilesInGroup,
   useHistogramResolutionInput,
   useOpacityInput,
   useRangeButtonAuto,

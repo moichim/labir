@@ -21,6 +21,7 @@ import { useThermalGroupMinmaxState } from "./properties/states/useThermalGroupM
 import { useThermalRegistryHistogramState } from "./properties/states/useThermalRegistryHistogramState";
 import { useThermalRegistryLoadingState } from "./properties/states/useThermalRegistryLoadingState";
 import { useThermalRegistryMinmaxState } from "./properties/states/useThermalRegistryMinmaxState";
+import { useFilesInGroup } from "./shorthands/useFilesInGroup";
 import { useSingleFileRegistry } from "./shorthands/useSingleFileRegistry";
 import { Orientation } from "./utilities/orientation";
 
@@ -59,6 +60,7 @@ export {
 
     // Shorthand hooks
     useSingleFileRegistry,
+    useFilesInGroup,
 
 
     // Properties hooks

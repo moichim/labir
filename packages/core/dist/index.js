@@ -1404,7 +1404,7 @@ var HistogramState = class extends AbstractProperty {
    * @notice Higher the number, lower the resolution.
   */
   setResolution(value) {
-    this._resolution = Math.round(Math.min(Math.max(value, 2), 200));
+    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
   }
   /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
   validate(value) {

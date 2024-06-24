@@ -27,7 +27,7 @@ export const RangeFullButton: React.FC<RangeButtonAutoProps> = ({
       color={color}
       variant={variant}
     >
-      Full
+      Full range
     </Button>
   );
 };

@@ -27,7 +27,7 @@ export const RangeAutoButton: React.FC<RangeButtonAutoProps> = ({
       color={color}
       variant={variant}
     >
-      Auto
+      Automatic range
     </Button>
   );
 };

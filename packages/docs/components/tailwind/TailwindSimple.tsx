@@ -5,12 +5,8 @@ import {
   ThermalRegistryRange,
   useSingleFileRegistry,
 } from "@labir/react-bridge";
-import {
-  PaletteDropdown,
-  RangeAutoButton,
-  RangeFullButton
-} from "@labir/tailwind";
-import { ButtonGroup, NextUIProvider } from "@nextui-org/react";
+import { PaletteDropdown } from "@labir/tailwind";
+import { NextUIProvider } from "@nextui-org/react";
 
 export const TaildiwndExample: React.FC = () => {
   const { registry, instance } = useSingleFileRegistry("/tucnaci_04.lrc");
@@ -23,18 +19,11 @@ export const TaildiwndExample: React.FC = () => {
             <PaletteDropdown
               triggerButtonProps={{ color: "default", variant: "bordered" }}
             />
+          </div>
 
-            <ButtonGroup>
-              <RangeAutoButton registry={registry} />
-              <RangeFullButton registry={registry} />
-            </ButtonGroup>
-
-            </div>
-
-            <div className="grow">
-              <ThermalRegistryRange registry={registry} step={0.01} />
-            </div>
-
+          <div className="grow">
+            <ThermalRegistryRange registry={registry} step={0.01} />
+          </div>
         </div>
 
         <div className="py-3">
