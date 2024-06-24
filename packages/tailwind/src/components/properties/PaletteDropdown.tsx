@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalPaletteType } from "@labir/core";
 import {
   PaletteGgradientDisplay,

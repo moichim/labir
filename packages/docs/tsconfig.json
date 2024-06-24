@@ -18,17 +18,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "paths": {
-      "@labir/tailwind": [
-        "./tailwind"
-      ]
-    }
   },
   "include": [
     "next-env.d.ts",
     "**/*.ts",
-    "**/*.tsx",
-    "pages/examples/index.mdx"
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"

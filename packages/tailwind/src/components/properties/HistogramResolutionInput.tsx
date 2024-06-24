@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalRegistry } from "@labir/core"
 import { useHistogramResolutionInput, useOpacityInput } from "@labir/react-bridge"
 import {Input, InputProps} from "@nextui-org/react"

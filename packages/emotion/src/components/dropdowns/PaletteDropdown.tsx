@@ -7,7 +7,7 @@ import {
   MenuItems
 } from "@headlessui/react";
 import {
-  PaletteItem,
+  PaletteGgradientDisplay,
   useThermalManagerPaletteDrive,
 } from "@labir/react-bridge";
 import React, { useMemo } from "react";
@@ -61,7 +61,7 @@ export const PaletteDropdown: React.FC = () => {
       <Menu>
         <MenuButton as={ThermalButton}>
           <>
-            <PaletteItem {...palette.palette} />
+            <PaletteGgradientDisplay {...palette.palette} />
           </>
         </MenuButton>
         <MenuItems
@@ -85,7 +85,7 @@ export const PaletteDropdown: React.FC = () => {
               onClick={() => palette.set(key)}
               className="lrc__paletteDropdown__item"
             >
-              <PaletteItem {...item} />
+              <PaletteGgradientDisplay {...item} />
             </MenuItem>
           ))}
         </MenuItems>
