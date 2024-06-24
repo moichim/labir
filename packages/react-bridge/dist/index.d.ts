@@ -67,9 +67,13 @@ declare const useOpacityInput: (registry: ThermalRegistry) => {
     };
 };
 
+/**
+ * @deprecated Should not be used. Implement it in final UI instead
+ */
 declare const PaletteDropdownHeadless: React$1.FC;
 
-declare const PaletteItem: React$1.FC<ThermalPaletteType & {
+/** Display a palette gradient and its name for the purpose of buttons & dropdowns */
+declare const PaletteGgradientDisplay: React$1.FC<ThermalPaletteType & {
     style?: React$1.CSSProperties;
 }>;
 
@@ -129,7 +133,7 @@ declare const ThermalProvider: React$1.FC<ThermalContextProps>;
 declare const useThermalContext: () => ThermalManager;
 
 /** Creates and stores a thermal object!s ID for the purpose of listeners */
-declare const useThermalObjectPurpose: (object: ThermalRegistry | ThermalGroup | ThermalFileInstance, purpose: string, individual?: boolean | undefined) => string;
+declare const useThermalObjectPurpose: (object: ThermalRegistry | ThermalGroup | ThermalFileInstance | ThermalManager, purpose: string, individual?: boolean | undefined) => string;
 
 /**
  * Creates and stores a registry instance.
@@ -222,4 +226,4 @@ declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) =
     instance: ThermalFileInstance | undefined;
 };
 
-export { Orientation, PaletteDropdownHeadless, PaletteItem, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };
+export { Orientation, PaletteDropdownHeadless, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

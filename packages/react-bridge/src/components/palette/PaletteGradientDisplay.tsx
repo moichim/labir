@@ -2,7 +2,8 @@
 import { ThermalPaletteType } from "@labir/core";
 import React from "react";
 
-export const PaletteItem: React.FC<
+/** Display a palette gradient and its name for the purpose of buttons & dropdowns */
+export const PaletteGgradientDisplay: React.FC<
   ThermalPaletteType & {
     style?: React.CSSProperties;
   }

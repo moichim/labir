@@ -10,9 +10,11 @@ import {
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useThermalManagerPaletteDrive } from "../../properties/drives/useThermalRegistryPaletteDrive";
-import { PaletteItem } from "./PaletteItem";
+import { PaletteGgradientDisplay } from "./PaletteGradientDisplay";
 
-
+/**
+ * @deprecated Should not be used. Implement it in final UI instead
+ */
 export const PaletteDropdownHeadless: React.FC = () => {
   const palette = useThermalManagerPaletteDrive(uuidv4());
 
@@ -20,7 +22,7 @@ export const PaletteDropdownHeadless: React.FC = () => {
     <Menu>
       <MenuButton>
         <>
-          <PaletteItem {...palette.palette} />
+          <PaletteGgradientDisplay {...palette.palette} />
         </>
       </MenuButton>
       <MenuItems unmount={true}>
@@ -28,7 +30,7 @@ export const PaletteDropdownHeadless: React.FC = () => {
             <MenuItem key={key} as={Button} onClick={() => {
               palette.set(key);
             }}>
-                <PaletteItem
+                <PaletteGgradientDisplay
                   {...item}
                 />
             </MenuItem>

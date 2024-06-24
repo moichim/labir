@@ -81,7 +81,7 @@ var src_exports = {};
 __export(src_exports, {
   Orientation: () => Orientation,
   PaletteDropdownHeadless: () => PaletteDropdownHeadless,
-  PaletteItem: () => PaletteItem,
+  PaletteGgradientDisplay: () => PaletteGgradientDisplay,
   ThermalDropin: () => ThermalDropin,
   ThermalInstance: () => ThermalInstance,
   ThermalProvider: () => ThermalProvider,
@@ -217,6 +217,8 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
       objectType = "group";
     else if (object instanceof import_core.ThermalFileInstance)
       objectType = "instance";
+    else if (object instanceof import_core.ThermalManager)
+      objectType = "manager";
     const buffer = [
       objectType,
       object.id,
@@ -532,9 +534,9 @@ var useThermalManagerPaletteDrive = (purpose) => {
   };
 };
 
-// src/components/palette/PaletteItem.tsx
+// src/components/palette/PaletteGradientDisplay.tsx
 var import_react13 = __toESM(require("react"));
-var PaletteItem = (props) => {
+var PaletteGgradientDisplay = (props) => {
   return /* @__PURE__ */ import_react13.default.createElement(
     "div",
     {
@@ -563,10 +565,10 @@ var PaletteItem = (props) => {
 // src/components/palette/PaletteDropdownHeadless.tsx
 var PaletteDropdownHeadless = () => {
   const palette = useThermalManagerPaletteDrive((0, import_uuid2.v4)());
-  return /* @__PURE__ */ import_react15.default.createElement(import_react14.Menu, null, /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuButton, null, /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, /* @__PURE__ */ import_react15.default.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuItem, { key, as: import_react14.Button, onClick: () => {
+  return /* @__PURE__ */ import_react15.default.createElement(import_react14.Menu, null, /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuButton, null, /* @__PURE__ */ import_react15.default.createElement(import_react15.default.Fragment, null, /* @__PURE__ */ import_react15.default.createElement(PaletteGgradientDisplay, __spreadValues({}, palette.palette)))), /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ import_react15.default.createElement(import_react14.MenuItem, { key, as: import_react14.Button, onClick: () => {
     palette.set(key);
   } }, /* @__PURE__ */ import_react15.default.createElement(
-    PaletteItem,
+    PaletteGgradientDisplay,
     __spreadValues({}, item)
   )))));
 };
@@ -1376,7 +1378,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
 0 && (module.exports = {
   Orientation,
   PaletteDropdownHeadless,
-  PaletteItem,
+  PaletteGgradientDisplay,
   ThermalDropin,
   ThermalInstance,
   ThermalProvider,

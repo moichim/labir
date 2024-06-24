@@ -20,6 +20,7 @@
     "@labir/embed": "^1.2.10",
     "@labir/emotion": "^1.2.10",
     "@labir/react-bridge": "^1.2.10",
+    "@labir/tailwind": "workspace:*",
     "next": "^13.0.6",
     "nextra": "latest",
     "nextra-theme-docs": "latest",

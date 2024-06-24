@@ -149,7 +149,7 @@ var useThermalGroupInstancesState = (group, purpose) => {
 };
 
 // src/context/useThermalObjectPurpose.ts
-import { ThermalRegistry, ThermalGroup, ThermalFileInstance } from "@labir/core";
+import { ThermalRegistry, ThermalGroup, ThermalFileInstance, ThermalManager } from "@labir/core";
 import { useMemo as useMemo4 } from "react";
 import { v4 as uuidv4 } from "uuid";
 var useThermalObjectPurpose = (object, purpose, individual = false) => {
@@ -162,6 +162,8 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
       objectType = "group";
     else if (object instanceof ThermalFileInstance)
       objectType = "instance";
+    else if (object instanceof ThermalManager)
+      objectType = "manager";
     const buffer = [
       objectType,
       object.id,
@@ -436,18 +438,18 @@ import { useEffect as useEffect6, useState as useState5, useMemo as useMemo9 } f
 import React4, { createContext, useContext } from "react";
 
 // src/context/useThermalManagerInternal.ts
-import { ThermalManager } from "@labir/core";
+import { ThermalManager as ThermalManager2 } from "@labir/core";
 import { useMemo as useMemo8 } from "react";
 var useThermalManagerInternal = (options, externalInstance) => {
   return useMemo8(() => {
     if (externalInstance) return externalInstance;
-    return new ThermalManager(options);
+    return new ThermalManager2(options);
   }, []);
 };
 
 // src/context/thermalManagerContext.tsx
-import { ThermalManager as ThermalManager2 } from "@labir/core";
-var ThermalManagerContext = createContext(new ThermalManager2());
+import { ThermalManager as ThermalManager3 } from "@labir/core";
+var ThermalManagerContext = createContext(new ThermalManager3());
 var ThermalProvider = ({ options, externalManagerInstance, children }) => {
   const value = useThermalManagerInternal(options, externalManagerInstance);
   return /* @__PURE__ */ React4.createElement(ThermalManagerContext.Provider, { value }, children);
@@ -483,9 +485,9 @@ var useThermalManagerPaletteDrive = (purpose) => {
   };
 };
 
-// src/components/palette/PaletteItem.tsx
+// src/components/palette/PaletteGradientDisplay.tsx
 import React5 from "react";
-var PaletteItem = (props) => {
+var PaletteGgradientDisplay = (props) => {
   return /* @__PURE__ */ React5.createElement(
     "div",
     {
@@ -514,10 +516,10 @@ var PaletteItem = (props) => {
 // src/components/palette/PaletteDropdownHeadless.tsx
 var PaletteDropdownHeadless = () => {
   const palette = useThermalManagerPaletteDrive(uuidv42());
-  return /* @__PURE__ */ React6.createElement(Menu, null, /* @__PURE__ */ React6.createElement(MenuButton, null, /* @__PURE__ */ React6.createElement(React6.Fragment, null, /* @__PURE__ */ React6.createElement(PaletteItem, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React6.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React6.createElement(MenuItem, { key, as: Button, onClick: () => {
+  return /* @__PURE__ */ React6.createElement(Menu, null, /* @__PURE__ */ React6.createElement(MenuButton, null, /* @__PURE__ */ React6.createElement(React6.Fragment, null, /* @__PURE__ */ React6.createElement(PaletteGgradientDisplay, __spreadValues({}, palette.palette)))), /* @__PURE__ */ React6.createElement(MenuItems, { unmount: true }, Object.entries(palette.availablePalettes).map(([key, item]) => /* @__PURE__ */ React6.createElement(MenuItem, { key, as: Button, onClick: () => {
     palette.set(key);
   } }, /* @__PURE__ */ React6.createElement(
-    PaletteItem,
+    PaletteGgradientDisplay,
     __spreadValues({}, item)
   )))));
 };
@@ -1326,7 +1328,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
 export {
   Orientation,
   PaletteDropdownHeadless,
-  PaletteItem,
+  PaletteGgradientDisplay,
   ThermalDropin,
   ThermalInstance,
   ThermalProvider,

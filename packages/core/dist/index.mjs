@@ -1333,7 +1333,7 @@ var GroupsState = class extends AbstractProperty {
 var HistogramState = class extends AbstractProperty {
   constructor() {
     super(...arguments);
-    this._resolution = 50;
+    this._resolution = 200;
     /** Map of temperature => countOfPixels in the scaled down resolution */
     this.buffer = /* @__PURE__ */ new Map();
     /** Total countOfPixels in every image */

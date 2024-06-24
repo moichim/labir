@@ -5,7 +5,7 @@ import { useHistogramResolutionInput } from "./components/histogramResolutionInp
 import { ThermalInstance } from "./components/instance/thermalInstance";
 import { useOpacityInput } from "./components/opacity/useOpacityInput";
 import { PaletteDropdownHeadless } from "./components/palette/PaletteDropdownHeadless";
-import { PaletteItem } from "./components/palette/PaletteItem";
+import { PaletteGgradientDisplay } from "./components/palette/PaletteGradientDisplay";
 import { ThermalRegistryRange } from "./components/range/ThermalRegistryRange";
 import { useRangeButtonAuto } from "./components/rangeButtonAuto.tsx/useRangeButtonAuto";
 import { useRangeButtonFull } from "./components/rangeButtonFull/useRangeButtonFull";
@@ -57,7 +57,7 @@ export {
 
     // Deprecated components
     PaletteDropdownHeadless,
-    PaletteItem,
+    PaletteGgradientDisplay,
 
 
     // Shorthand hooks
