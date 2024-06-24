@@ -41,7 +41,7 @@ export const Range: React.FC = () => {
         Styled scale
       </h2>
 
-      <p class="py-3">The temperature range mey be styled anyhow.</p>
+      <p className="py-3">The temperature range mey be styled anyhow.</p>
 
       <ThermalRegistryRange
         registry={registry}
@@ -61,7 +61,7 @@ export const Range: React.FC = () => {
         Vertical scale
       </h2>
 
-      <p class="py-3">
+      <p className="py-3">
         The user interaction in vertical variant is not implemented yet...
       </p>
 
