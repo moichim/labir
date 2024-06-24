@@ -13,6 +13,9 @@ const config: DocsThemeConfig = {
   footer: {
     text: '@labir - Typescript ecosystem for thermal imaging',
   },
+  sidebar: {
+    autoCollapse: true
+  },
   useNextSeoProps() {
     return {
       titleTemplate: '%s – @labir'

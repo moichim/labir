@@ -1,0 +1,99 @@
+# Webcomponents
+
+We are currently working on webcomponents [@labir/embed](/webcomponents) integration based on [Lit](https://lit.dev/). The work is very much in progress.
+
+<script
+  type="module"
+  src="https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js"
+  async
+></script>
+
+## Example
+
+Showcase of webcomponents that can be used in any Wordpress, Moodle or other LMS.
+
+<div class="w-full pt-3">
+<thermal-manager>
+
+    <thermal-registry uuid="tucnaks">
+
+      <div class="flex flex-wrap w-full gap-3">
+
+        <div class="w-full lg:w-1/3 p-3 bg-slate-200 rounded-xl py-3">
+            <thermal-palette></thermal-palette>
+            <thermal-range-auto></thermal-range-auto>
+            <thermal-range-minmax></thermal-range-minmax>
+            <thermal-opacity></thermal-opacity>
+        </div>
+        <thermal-group>
+            <div class="rounded-xl bg-slate-200 p-3 w-full lg:w-2/3">
+                <thermal-image thermal="/soustruh.lrc"></thermal-image>
+            </div>
+            <div class="w-full grow p-3">
+                <p>There may be any HTML inserted into the webcomponents composition.</p>
+                <thermal-image thermal="/image-thermal 2023-11-24 14-02-55.lrc"></thermal-image>
+            </div>
+            
+        </thermal-group>
+        <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
+
+        </div>
+      </thermal-registry>
+
+    
+</thermal-manager>
+
+</div>
+
+```html
+<div class="w-full">
+  <thermal-manager>
+    <thermal-registry uuid="tucnaks">
+      <div class="flex flex-wrap w-full gap-3">
+        <div class="w-full lg:w-1/3 p-3 bg-slate-200 rounded-xl py-3">
+          <thermal-palette></thermal-palette>
+          <thermal-range-auto></thermal-range-auto>
+          <thermal-range-minmax></thermal-range-minmax>
+          <thermal-opacity></thermal-opacity>
+        </div>
+        <thermal-group>
+          <div class="rounded-xl bg-slate-200 p-3 w-full lg:w-2/3">
+            <thermal-image thermal="/soustruh.lrc"></thermal-image>
+          </div>
+          <div class="w-full grow p-3">
+            <p>
+              There may be any HTML inserted into the webcomponents composition.
+            </p>
+            <thermal-image
+              thermal="/image-thermal 2023-11-24 14-02-55.lrc"
+            ></thermal-image>
+          </div>
+        </thermal-group>
+        <thermal-image thermal="/tucnaci_04.lrc"></thermal-image>
+      </div>
+    </thermal-registry>
+  </thermal-manager>
+</div>
+```
+
+
+
+## A complex app
+
+We work on a single HTML Element that will render a complex analytical application using webcomponents:
+
+```html
+<thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+```
+
+<thermal-manager>
+  <thermal-registry uuid="tucnaks">
+    <thermal-group>
+      <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+    </thermal-group>
+  </thermal-registry>
+</thermal-manager>
+
+## Source code
+
+See our [github](https://github.com/moichim/labir/tree/master/packages/embed) for ongoing progress.
