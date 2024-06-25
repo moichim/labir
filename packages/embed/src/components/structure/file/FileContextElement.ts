@@ -129,6 +129,34 @@ export class FileContextElement extends ElementInheritingGroup {
             gap: 5px;
             align-items: center;
         }
+
+            /* HTML: <div class="loader"></div> */
+
+        .placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var( --thermal-slate );
+        }
+        .loader {
+        width: calc( var( --thermal-gap ) * 2);
+        aspect-ratio: 1;
+        --c: no-repeat linear-gradient(var(--thermal-background) calc(50% - 10px),#0000 0 calc(50% + 10px),var(--thermal-background) 0);
+        background: 
+            var(--c) 0%   100%,
+            var(--c) 50%  100%,
+            var(--c) 100% 100%;
+        background-size: 20% calc(200% + 20px);
+        animation:l4 1s infinite linear;
+        }
+        @keyframes l4 {
+            33%  {background-position: 0% 50%,50% 100%,100% 100%}
+            50%  {background-position: 0%  0%,50%  50%,100% 100%}
+            66%  {background-position: 0%  0%,50%   0%,100%  50%}
+            100% {background-position: 0%  0%,50%   0%,100%   0%}
+        }
     
     `;
 
@@ -214,7 +242,11 @@ export class FileContextElement extends ElementInheritingGroup {
             </div> 
         ` : "" }
 
-        <div class="container">
+        <div class="container"">
+
+            ${ this.file === undefined ? html`
+                <div class="placeholder"><div class="loader"></div></div>
+            ` : "" }
             <div ${ref(this.canvasContainer)} id="canvas-container"></div>
 
             ${this.errors.length > 0 ? html`
