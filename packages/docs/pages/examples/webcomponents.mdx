@@ -2,7 +2,24 @@
 
 We are currently working on webcomponents [@labir/embed](/webcomponents) integration based on [Lit](https://lit.dev/). The work is very much in progress.
 
-## Example
+
+## A simple app
+
+We work on a single HTML Element that will render a complex analytical application using webcomponents:
+
+```html
+<thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+```
+
+<thermal-manager>
+  <thermal-registry uuid="tucnaks">
+    <thermal-group>
+      <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+    </thermal-group>
+  </thermal-registry>
+</thermal-manager>
+
+## Individual components
 
 Showcase of webcomponents that can be used in any Wordpress, Moodle or other LMS.
 
@@ -69,24 +86,6 @@ Showcase of webcomponents that can be used in any Wordpress, Moodle or other LMS
   </thermal-manager>
 </div>
 ```
-
-
-
-## A complex app
-
-We work on a single HTML Element that will render a complex analytical application using webcomponents:
-
-```html
-<thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
-```
-
-<thermal-manager>
-  <thermal-registry uuid="tucnaks">
-    <thermal-group>
-      <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
-    </thermal-group>
-  </thermal-registry>
-</thermal-manager>
 
 ## Source code
 
