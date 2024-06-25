@@ -1,6 +1,6 @@
 # Typescript tools for thermal imaging
 
-Documentation and examples at [https://labir-docs.vercel.app](https://labir-docs.vercel.app).
+Documentation and examples at [https://labir.vercel.app](https://labir-docs.vercel.app).
 
 Set of JS/TS packages for work with recordings from thermal cameras:
 
