@@ -4,9 +4,6 @@ import { customElement, property } from "lit/decorators.js";
 import { ElementInheritingManager } from "../structure/manager/ElementInherigingManager";
 
 
-import '@lion/ui/define/lion-option.js';
-import '@lion/ui/define/lion-select-rich.js';
-
 
 @customElement("thermal-palette")
 export class PaletteDropdownElement extends ElementInheritingManager {
@@ -57,42 +54,23 @@ export class PaletteDropdownElement extends ElementInheritingManager {
 
     static styles = css`
 
+    .container {
+        display: flex;
+        width: content-width;
+        gap: 5px;
+    }
+
     .button {
         margin: 0;
-        cursor: pointer;
         border: 0;
-        display: flex;
-        gap: .5rem;
-        align-items: center;
+        line-height: 0;
     }
 
     .palette {
-        display: inline-block;
-        width: calc( var( --thermal-gap ) * 4 );
+        display: block;
+        width: calc( var( --thermal-gap ) * 2 );
         height: var( --thermal-fs );
         border-radius: 1rem;
-    }
-
-    .invoker {
-        border-radius: 1rem;
-        cursor: pointer;
-    }
-
-    lion-options {
-
-        border-radius: 1rem;
-        overflow: hidden;
-
-        lion-option {
-            padding: .7rem 1rem;
-
-            &:first-child {
-                border-radius: 1rem 1rem 0 0;
-            }
-            &:last-child {
-                border-radius: 0 0 1rem 1rem;
-            }
-        }
     }
 
     `;
@@ -113,19 +91,11 @@ export class PaletteDropdownElement extends ElementInheritingManager {
 
     protected render(): unknown {
         return html`
-
-            <lion-select-rich>
-                <thermal-button slot="invoker">
-                    ${this.paletteTemplate( this.manager.palette.currentPalette )}
-                </thermal-button>
-                ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
-                    <lion-option @click=${() => this.onSelect( key as AvailableThermalPalettes )}>
-                        ${this.paletteTemplate( palette )}
-                    </lion-option>
-                `)}
-            </lion-select-rich>
-
-            <slot></slot>
+        ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
+            <thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
+                ${this.paletteTemplate( palette )}
+            </thermal-button>
+        `)}
         `;
     }
 

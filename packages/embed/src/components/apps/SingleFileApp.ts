@@ -22,10 +22,10 @@ export class SingleFileApp extends ElementInheritingGroup {
     .container {
 
       padding: calc( var( --thermal-gap ) / 3 );
-      background-color: var( --thermal-slate );
-      border: 1px solid var( --thermal-slate-dark );
+      background-color: var( --thermal-slate-light );
+      border: 1px solid var( --thermal-slate );
       border-radius: var( --thermal-radius );
-      box-shadow: var( --thermal-shadow );
+      // box-shadow: var( --thermal-shadow );
 
     }
   
@@ -37,11 +37,15 @@ export class SingleFileApp extends ElementInheritingGroup {
     <div class="container">
 
       <thermal-image thermal="${this.url}">
-        <thermal-opacity slot="bar"></thermal-opacity>
+        <thermal-file-name slot="bar"></thermal-file-name>
+        <thermal-file-info slot="bar"></thermal-file-info>
         <thermal-palette slot="bar"></thermal-palette>
         <thermal-range-auto slot="bar"></thermal-range-auto>
-        <thermal-range-minmax slot="bar"></thermal-range-auto>
-        <thermal-dialog slot="bar"></thermal-dialog>
+        <thermal-range-minmax slot="bar"></thermal-range-minmax>
+        <!--<thermal-opacity slot="bar"></thermal-opacity>-->
+        <div style="flex-grow: 1" slot="bar"></div>
+        <thermal-app-info slot="bar"></thermal-app-info>
+        
       </thermal-image>
 
     </div>

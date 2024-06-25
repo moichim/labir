@@ -36,9 +36,9 @@ export const addDefaultStyles = () => {
             --thermal-background: white;
 
             /** Primary - base */
-            --thermal-primary-base: violet;
+            --thermal-primary-base: blue;
             --thermal-primary-base-dark: navy;
-            --thermal-primary-base-light: rose;
+            --thermal-primary-base-light: lightblue;
 
             /** Primary */
             --thermal-primary: var( --thermal-primary-base );
@@ -46,9 +46,9 @@ export const addDefaultStyles = () => {
             --thermal-primary-dark: var( --thermal-primary-base-dark );
 
             /** Slate -base */
-            --thermal-slate-base: darkgray;
-            --thermal-slate-base-light: lightgray;
-            --thermal-slate-base-dark: gray;
+            --thermal-slate-base: #8e8c8f;
+            --thermal-slate-base-light: #dad7db;
+            --thermal-slate-base-dark: #49474a;
 
             /** Slate */
             --thermal-slate: var( --thermal-slate-base );
@@ -70,8 +70,8 @@ export const addDefaultStyles = () => {
             --thermal-fs-lg: 19px;
             --thermal-fs-xl: 20px; 
             --thermal-fs: var( --thermal-fs-base );
-            --thermal-fs-small: calc( var( --thermal-fs ) * 0.7 );
-            --thermal-fs-large: calc( var( --thermal-fs ) * 1.3 );
+            --thermal-fs-small: calc( var( --thermal-fs ) * 0.9 );
+            --thermal-fs-large: calc( var( --thermal-fs ) * 1.2 );
 
             /** Round corners */
             --thermal-radius-base: 5px;
@@ -82,7 +82,8 @@ export const addDefaultStyles = () => {
             --thermal-radius: var( --thermal-radius-base );
 
             /** Shadows */
-            --thermal-shadow: 2px 2px 3px var( --thermal-slate-dark );
+            --thermal-shadow: 0px 0px 5px var( --thermal-slate-dark );
+            --thermal-shadow-none: 0px 0px 0px transparent;
         
         }
 

@@ -4,16 +4,21 @@ import { customElement, property } from 'lit/decorators.js';
 @customElement( "thermal-button" )
 export class ButtonElement extends LitElement {
 
-    @property( {type: String} )
+    public static VARIANTS = ["slate","primary","foreground", "background"]
+
+    @property( {type: String, converter: {
+        fromAttribute: ( value: string ) => {
+            if ( ButtonElement.VARIANTS.includes( value ) ) {
+                return value;
+            }
+            return "slate"
+        },
+        toAttribute: (value) => value
+    }} )
     public variant: string = "slate";
 
     @property( {type: String} )
     public size: string = "sm";
-
-    constructor() {
-        super();
-        console.log( "Jsem tu" );
-    }
 
     static styles = css`
 
@@ -27,12 +32,33 @@ export class ButtonElement extends LitElement {
         background: var( --thermal-slate-light );
         color: var( --thermal-foreground );
         
-        border: 1px solid var( --thermal-slate-dark );
+        border: 1px solid var( --thermal-slate );
         border-radius: var( --thermal-radius );
-        box-shadow: var( --thermal-shadow );
+
+        transition: all .4 ease-in-out;
+
+        box-shadow: var( --thermal-shadow-none );
+        
 
         &:hover {
-        
+            box-shadow: var( --thermal-shadow );
+        }
+
+        &.slate {
+            background: var( --thermal-slate-light );
+            color: var( --thermal-foreground );
+        }
+        &.primary {
+            background: var( --thermal-primary );
+            color: white;
+        }
+        &.foreground {
+            background: var( --thermal-foreground );
+            color: var( --thermal-background );
+        }
+        &.background {
+            background: var( --thermal-background );
+            color: var( --thermal-foreground );
         }
     }
     
@@ -41,7 +67,7 @@ export class ButtonElement extends LitElement {
     render() {
 
         return html`
-            <button class="">
+            <button class="${this.variant}">
                 <slot></slot>
             </button>
         `;

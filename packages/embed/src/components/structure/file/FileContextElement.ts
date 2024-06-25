@@ -6,8 +6,6 @@ import { PropertyValueMap, css, html } from "lit";
 import { ContextProvider } from "@lit/context";
 import { FileContext } from "../contexts";
 
-import '@lion/ui/define/lion-button.js';
-import '@lion/ui/define/lion-dialog.js';
 
 @customElement("thermal-image")
 export class FileContextElement extends ElementInheritingGroup {
@@ -43,135 +41,94 @@ export class FileContextElement extends ElementInheritingGroup {
     static styles = css`
 
     @keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
-}
-
-    .container {
-
-        box-sizing: border-box;
-        width: 100%;
-        aspect-ratio: 4 / 3;
-    
-        margin: 0;
-        padding: 0;
-    
-        position: relative;
-
-        background: var( --thermal-slate-light );
-
-        color: var( --thermal-foreground );
-
-        font-size: var( --thermal-fs );
-
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
     }
 
-    .errors {
-        box-sizing: border-box;
-        padding: var( --thermal-gap );
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        background: var( --thermal-slate-light );
-        color: var( --thermal-foreground );
-
-        .wrapper {
-        
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: calc( var( --thermal-gap ) * 0.5 );
+        .container {
 
             box-sizing: border-box;
             width: 100%;
-            height: 100%;
-
-            border: 2px dashed var( --thermal-slate-dark );
-            border-radius: calc( var( --thermal-radius ) * 2 );
-
-            padding: var( --thermal-gap );
-
-        }
-
-        .icon {
-            width: 1.5rem;
-        }
-
-        .url {
-            font-size: small;
-            color: var( --thermal-slate-dark );
-        }
-
-        .error-button {
+            aspect-ratio: 4 / 3;
+        
             margin: 0;
             padding: 0;
-            background: transparent;
-            min-width: 2rem;
-            border: 0;
-            cursor: pointer;
-            font-size: small;
-            color: var( --thermal-slate-dark );
-            border-bottom: 1px dotted var( --thermal-slate-dark );
-        }
-
-        .dialog {
-
-            padding: 2rem;
-            background: white;
-            max-width: 500px;
-            border-radius: 2rem;
+        
             position: relative;
 
-            h2 {
-                margin: 0;
-                padding: 0;
-            }
+            background: var( --thermal-slate-light );
 
-            dt {
-                color: gray;
-                margin-bottom: .2rem;
-                margin-top: 1rem;
-            }
+            color: var( --thermal-foreground );
 
-            dd {
-                padding: 0;
-                margin: 0;
-            }
+            font-size: var( --thermal-fs );
 
-            .close-button {
-                position: absolute;
-                top: 2rem;
-                right: 2rem;
-                background: transparent;
-                border: 0;
-                cursor: pointer;
-                font-size: 2rem;
-                line-height: 1rem;
-                &:hover {
-                    color: blue;
-                }
-            }
-        
         }
 
-        
+        .errors {
+            box-sizing: border-box;
+            padding: var( --thermal-gap );
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            background: var( --thermal-slate-light );
+            color: var( --thermal-foreground );
 
-    }
+            .wrapper {
+            
+                display: flex;
+                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: calc( var( --thermal-gap ) * 0.5 );
 
+                box-sizing: border-box;
+                width: 100%;
+                height: 100%;
 
-    .bar {
-        display: flex;
-        gap: var( --thermal-gap );
-    }
+                border: 2px dashed var( --thermal-slate-dark );
+                border-radius: calc( var( --thermal-radius ) * 2 );
+
+                padding: var( --thermal-gap );
+
+            }
+
+            .icon {
+                width: 1.5rem;
+            }
+
+            .url {
+                font-size: small;
+                color: var( --thermal-slate-dark );
+            }
+
+            .error-button {
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                min-width: 2rem;
+                border: 0;
+                cursor: pointer;
+                font-size: small;
+                color: var( --thermal-slate-dark );
+                border-bottom: 1px dotted var( --thermal-slate-dark );
+            }        
+
+        }
+
+        .bar {
+            padding-bottom: calc( var( --thermal-gap ) * 0.5 );
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
     
     `;
 
@@ -197,7 +154,6 @@ export class FileContextElement extends ElementInheritingGroup {
     protected enqueueInTheRegistry(): void {
         if (this.thermal)
             this.group.instances.enqueueAdd(this.thermal, this.visible, (instance, error) => {
-        console.log( instance );
                 if (instance) {
                     this.provider.setValue(instance);
                     this.file = instance;
@@ -244,12 +200,20 @@ export class FileContextElement extends ElementInheritingGroup {
     }
 
     
-
+    @queryAssignedElements( { slot: "bar", flatten: true } )
+    barElements!:Array<HTMLElement>;
 
 
     protected render(): unknown {
         return html`
-        <div class="bar"><slot name="bar"></slot></div>
+
+            
+        ${ this.barElements.length >= 0 ? html`
+            <div class="bar">
+                <slot name="bar"></slot>
+            </div> 
+        ` : "" }
+
         <div class="container">
             <div ${ref(this.canvasContainer)} id="canvas-container"></div>
 
@@ -271,14 +235,12 @@ export class FileContextElement extends ElementInheritingGroup {
                         ${this.thermal}
                     </div>
 
-                        <lion-dialog>
-                            
-                            <button slot="invoker" class="error-button">
-                                details
-                            </button>
+                        <thermal-dialog-component label="Loading error">
 
-                            <div slot="content" class="dialog">
-                                <h2>Loading errors</h2>
+                            <thermal-button slot="invoker">Info</thermal-button>
+
+                            <div slot="content">
+                            
                                 <dl>
                                     <dt>URL:</dt>
                                     <dd>${this.thermal}</dd>
@@ -287,14 +249,12 @@ export class FileContextElement extends ElementInheritingGroup {
                                     ${this.errors.map(error => html`<li>${error}</li>`)}
                                     </ul>
                                 </dl>
-                                <button
-                                    class="close-button"
-                                    @click=${(e: { target: { dispatchEvent: (arg0: Event) => void; }; }) => e.target.dispatchEvent(new Event('close-overlay', { bubbles: true }))}
-                                >
-                                    ⨯
-                                </button>
+                            
                             </div>
-                        </lion-dialog>
+                        
+                        
+                        </thermal-dialog-component>
+
                     </div>
                 </div>    
             `

@@ -13,6 +13,7 @@ import "./components/structure/file/FileContextElement"
 
 
 // UI components go next
+import "./components/ui/Dialog";
 import "./components/ui/ButtonElement";
 import "./components/ui/DialogElement";
 
@@ -21,6 +22,9 @@ import "./components/properties/PaletteDropwodnElement";
 import "./components/properties/OpacityRangeElement";
 import "./components/buttons/RegistrySetAutoRange";
 import "./components/buttons/RegistrySetMnimaxRangeButton";
+import "./components/buttons/FileInfoButton";
+import "./components/buttons/AppInfoButton";
+import "./components/buttons/FileNameButton";
 
 import "./components/apps/SingleFileApp";
 

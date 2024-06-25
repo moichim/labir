@@ -15,7 +15,7 @@ export class RegistrySetAutoRangeElement extends ElementInheritingRegistry {
 
     protected render(): unknown {
         return html`
-            <thermal-button @click=${this.doAction}>Auto</thermal-button>
+            <thermal-button @click=${this.doAction}>Autimatic range</thermal-button>
         `;
     }
 

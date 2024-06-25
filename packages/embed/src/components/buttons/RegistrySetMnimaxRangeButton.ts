@@ -15,7 +15,7 @@ export class RegistrySetMinmaxRangeButton extends ElementInheritingRegistry {
 
     protected render(): unknown {
         return html`
-            <thermal-button @click=${this.doAction}>Maximální rozsah</thermal-button>
+            <thermal-button @click=${this.doAction}>Maximal range</thermal-button>
         `;
     }
 

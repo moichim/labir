@@ -480,8 +480,17 @@ var ThermalFileInstance = class extends EventTarget {
   get url() {
     return this.source.url;
   }
+  get fileName() {
+    return this.source.url.substring(this.source.url.lastIndexOf("/") + 1);
+  }
+  get visibleUrl() {
+    return this.source.visibleUrl;
+  }
   get signature() {
     return this.source.signature;
+  }
+  get dataType() {
+    return this.source.fileDataType;
   }
   get unit() {
     return this.source.unit;
@@ -503,9 +512,6 @@ var ThermalFileInstance = class extends EventTarget {
   }
   get max() {
     return this.source.max;
-  }
-  get visibleUrl() {
-    return this.source.visibleUrl;
   }
   destroySelfAndBelow() {
     this.detachFromDom();
@@ -659,6 +665,12 @@ var ThermalFileInstance = class extends EventTarget {
     if (this.visibleLayer && this.canvasLayer) {
       this.canvasLayer.opacity = value;
     }
+  }
+  get unitHuman() {
+    return this.unit === 0 ? "none" : this.unit === 1 ? "intensity" : this.unit === 2 ? "\xB0C" : this.unit === 3 ? "Kelvin" : "unit not specified";
+  }
+  get dataTypeHuman() {
+    return this.dataType === 0 ? "Float16" : this.dataType === 1 ? "Float32" : this.dataType === 2 ? "Int16" : "error parsing data type";
   }
 };
 

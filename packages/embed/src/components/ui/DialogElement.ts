@@ -1,8 +1,6 @@
 import { LitElement, css, html } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-
-import '@lion/ui/define/lion-option.js';
-import '@lion/ui/define/lion-select-rich.js';
+import { customElement, property, queryAssignedElements, queryAssignedNodes } from 'lit/decorators.js';
+import {Ref, createRef} from 'lit/directives/ref.js';
 
 @customElement( "thermal-dialog" )
 export class DialogElement extends LitElement {
@@ -36,35 +34,53 @@ export class DialogElement extends LitElement {
     
     `;
 
+    @property({type: Boolean, reflect: true})
+    open: boolean = false;
+
+    toggleOpen() {
+        console.log( "this" );
+        this.open = !this.open;
+    }
+
+    setOpen() {
+        this.open = true;
+    }
+
+    setClose() {
+        this.open = false;
+    }
+
+    @queryAssignedNodes({slot: 'content', flatten: false})
+    _content!: Array<HTMLElement>;
+
+    @queryAssignedElements({slot: 'title'})
+    _title!: Array<HTMLElement>;
+
+    templateRef: Ref<HTMLTemplateElement> = createRef();
+
+    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+
+        super.attributeChangedCallback( name, _old, value );
+
+        if ( name === "open") {
+            this.open = value === "true";
+        } 
+
+    }
+
+
     render() {
 
         return html`
-            <lion-dialog>
 
-                    <thermal-button slot="invoker" class="error-button">
-                        details
-                    </thermal-button>
-                            
-                
+            <thermal-dialog-component label="Jsem zder obsah">
+                <thermal-button slot="invoker">Jsem invoker</thermal-button>
+                <div slot="content">Jsem v obsahu a jsem úplně strašně moc širokej a neser mne</div>
+                <thermal-button slot="button">Zavrieť</thermal-button>
+            </thermal-dialog-component>
 
-                <div slot="content" class="dialog">
+            <thermal-button @click=${this.setOpen}>Button</thermal-button>
 
-                    <h2>
-                        <slot name="title"></slot>
-                    </h2>
-                    
-                    <div class="content">
-                        <slot name="content"></slot>
-                    </div>
-
-                    <button
-                        class="close-button"
-                        @click=${(e: { target: { dispatchEvent: (arg0: Event) => void; }; }) => e.target.dispatchEvent(new Event('close-overlay', { bubbles: true }))}
-                    >
-                                    ⨯
-                    </button>
-                </div>
-            </lion-dialog>
         `;
 
     }

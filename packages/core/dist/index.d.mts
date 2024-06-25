@@ -515,7 +515,10 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     protected readonly source: ThermalFileSource;
     readonly group: ThermalGroup;
     get url(): string;
+    get fileName(): string;
+    get visibleUrl(): string | undefined;
     get signature(): string;
+    get dataType(): number;
     get unit(): number;
     get width(): number;
     get height(): number;
@@ -523,7 +526,6 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     get pixels(): number[];
     get min(): number;
     get max(): number;
-    get visibleUrl(): string | undefined;
     readonly id: string;
     protected readonly horizontalLimit: number;
     protected readonly verticalLimit: number;
@@ -590,6 +592,8 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
      */
     /** Recieve the opacity from the registry and project it to the canvas layer */
     recieveOpacity(value: number): void;
+    get unitHuman(): "none" | "intensity" | "°C" | "Kelvin" | "unit not specified";
+    get dataTypeHuman(): "Float16" | "Float32" | "Int16" | "error parsing data type";
 }
 
 /**

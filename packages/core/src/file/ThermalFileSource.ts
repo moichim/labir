@@ -98,4 +98,6 @@ export class ThermalFileSource extends EventTarget implements ThermalFileSourceI
         return new ThermalFileInstance(this, group);
     }
 
+    
+
 }

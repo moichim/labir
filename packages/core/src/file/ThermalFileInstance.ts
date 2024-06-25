@@ -20,9 +20,11 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
 
 
     // Core properties are mirrored from the source
-
     public get url() { return this.source.url };
+    public get fileName() { return this.source.url.substring( this.source.url.lastIndexOf( "/" ) + 1 ) }
+    public get visibleUrl() { return this.source.visibleUrl; }
     public get signature() { return this.source.signature }
+    public get dataType() { return this.source.fileDataType }
     public get unit() { return this.source.unit };
     public get width() { return this.source.width; }
     public get height() { return this.source.height; }
@@ -30,7 +32,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
     public get pixels() { return this.source.pixels; }
     public get min() { return this.source.min; }
     public get max() { return this.source.max; }
-    public get visibleUrl() { return this.source.visibleUrl; }
+    
 
     // Necessary properties are calculated in the constructor
 
@@ -351,6 +353,28 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
         if (this.visibleLayer && this.canvasLayer) {
             this.canvasLayer.opacity = value;
         }
+    }
+
+    public get unitHuman() {
+        return this.unit === 0
+            ? "none"
+            : this.unit === 1
+                ? "intensity"
+                : this.unit === 2
+                    ? "°C"
+                    : this.unit === 3
+                        ? "Kelvin"
+                        : "unit not specified"
+    }
+
+    public get dataTypeHuman() {
+        return this.dataType === 0
+            ? "Float16"
+            : this.dataType === 1
+                ? "Float32"
+                : this.dataType === 2
+                    ? "Int16"
+                    : "error parsing data type"
     }
 
 
