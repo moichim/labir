@@ -3,9 +3,10 @@ export default class ThermalDomFactory {
 
     public static createCanvasContainer(): HTMLDivElement {
         const container = document.createElement( "div" );
-        container.classList.add( "thermalCanvasWeapper" );
+        container.classList.add( "thermalCanvasWrapper" );
         // container.style.transition = "opacity 300ms ease-in-out";
         container.style.position = "relative";
+        container.part.add( "thermal-canvas" );
         return container;
     }
 

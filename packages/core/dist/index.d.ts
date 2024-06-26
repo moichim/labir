@@ -474,6 +474,7 @@ declare class ThermalCanvasLayer extends AbstractLayer {
     /** Returns an array of 255 RGB colors */
     protected getPalette(): string[];
     draw(): void;
+    exportAsPng(): void;
 }
 
 /** Displays the cursor pointer and its value */
@@ -511,11 +512,14 @@ declare class ThermalListenerLayer extends AbstractLayer {
  * @todo implement unmounting
  * @todo rename binding to mounting
  */
-declare class ThermalFileInstance extends EventTarget implements IThermalInstance {
+declare class ThermalFileInstance extends EventTarget implements IThermalInstance, ThermalFileInterface {
     protected readonly source: ThermalFileSource;
     readonly group: ThermalGroup;
+    /** Url of the thermal file source */
     get url(): string;
+    /** Filename of the thermal file */
     get fileName(): string;
+    /** Optional visible URL */
     get visibleUrl(): string | undefined;
     get signature(): string;
     get dataType(): number;
@@ -526,6 +530,9 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     get pixels(): number[];
     get min(): number;
     get max(): number;
+    get version(): number;
+    get streamCount(): number;
+    get fileDataType(): number;
     readonly id: string;
     protected readonly horizontalLimit: number;
     protected readonly verticalLimit: number;
@@ -594,6 +601,7 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     recieveOpacity(value: number): void;
     get unitHuman(): "none" | "intensity" | "°C" | "Kelvin" | "unit not specified";
     get dataTypeHuman(): "Float16" | "Float32" | "Int16" | "error parsing data type";
+    exportAsPng(): void;
 }
 
 /**
@@ -620,20 +628,36 @@ declare class ThermalGroup implements IThermalGroup {
     reset(): void;
 }
 
-interface ThermalFileSourceInterface {
+/** Properties that are common for both source and instance. */
+interface ThermalFileInterface {
+    /** Short filenam of the thermal file */
+    fileName: string;
+    /** Full URL of the thermal file (is used as key for caching) */
     url: string;
-    signature: string;
-    version: number;
-    streamCount: number;
-    fileDataType: number;
-    unit: number;
-    width: number;
-    height: number;
-    timestamp: number;
-    pixels: number[];
-    min: number;
-    max: number;
+    /** Optional URL to a visible file */
     visibleUrl?: string;
+    /** @deprecated LRC only property - should be moved to metadata */
+    signature: string;
+    /** @deprecated LRC only property - should be moved to metadata */
+    version: number;
+    /** @deprecated LRC only property - should be moved to metadata */
+    streamCount: number;
+    /** @deprecated LRC only property - should be moved to metadata */
+    fileDataType: number;
+    /** @deprecated LRC only property - should be moved to metadata */
+    unit: number;
+    /** The timestamp belonging to the entire frame */
+    timestamp: number;
+    /** Width of the image */
+    width: number;
+    /** Height of the image */
+    height: number;
+    /** The current pixels state */
+    pixels: number[];
+    /** Minimal temperature of the entire file */
+    min: number;
+    /** Minimal temperature of the entire file */
+    max: number;
 }
 /**
  * Stores information about a loaded & parsed thermal file
@@ -646,7 +670,7 @@ interface ThermalFileSourceInterface {
  *
  * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
  */
-declare class ThermalFileSource extends EventTarget implements ThermalFileSourceInterface {
+declare class ThermalFileSource extends EventTarget implements ThermalFileInterface {
     readonly url: string;
     readonly signature: string;
     readonly version: number;
@@ -660,11 +684,10 @@ declare class ThermalFileSource extends EventTarget implements ThermalFileSource
     readonly min: number;
     readonly max: number;
     readonly visibleUrl?: string | undefined;
+    readonly fileName: string;
     constructor(url: string, signature: string, version: number, streamCount: number, fileDataType: number, unit: number, width: number, height: number, timestamp: number, pixels: number[], min: number, max: number, visibleUrl?: string | undefined);
     static fromUrl(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
     static fromUrlWithErrors(thermalUrl: string, visibleUrl?: string): Promise<ThermalFileSource | null>;
-    serialize(): string;
-    static fromStorage(stored: string): ThermalFileSource;
     createInstance(group: ThermalGroup): ThermalFileInstance;
 }
 

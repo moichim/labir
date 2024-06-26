@@ -1,6 +1,6 @@
 # React binding to @labir/core
 
-Documentation and examples at [https://labir-docs.vercel.app](https://labir-docs.vercel.app).
+Documentation and examples at [https://labir.vercel.app](https://labir.vercel.app).
 
 This package provides fundamental integration of `@labir/core` in React:
 

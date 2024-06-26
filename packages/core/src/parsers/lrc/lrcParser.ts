@@ -91,6 +91,20 @@ export default class LrcParser extends AbstractParser {
         this._fileDataType = value;
     }
 
+    /** Get byteSize of one pixel depending on the file data type */
+    protected get pixelByteLength() {
+        if ( this._fileDataType === 0 ) {
+            return 2;
+        } 
+        else if ( this._fileDataType === 1 ) {
+            return 4;
+        }
+        else if ( this._fileDataType === 2 ) {
+            return 2;
+        }
+        return undefined;
+    }
+
     // Unit
     // 0 = none
     // 1 = intensity (surová data z termokamery - nelze přepočítat bez kalibrační křivky snímače)
@@ -122,8 +136,16 @@ export default class LrcParser extends AbstractParser {
     // Timestamp
     protected getTimestamp(): number {
 
+        return this.readDotNetTimestamp( 25 );
 
-        const bigIntTime = this.data.getBigInt64(25, true);
+    }
+
+    /** 
+     * Read a .NET timestamp saved as Int64
+     */
+    protected readDotNetTimestamp( byteOffset: number ): number {
+
+        const bigIntTime = this.data.getBigInt64(byteOffset, true);
 
 
         // Constant representing the Unix epoch in milliseconds
@@ -165,7 +187,6 @@ export default class LrcParser extends AbstractParser {
 
         return Number(milliseconds)
 
-
     }
 
 
@@ -174,6 +195,17 @@ export default class LrcParser extends AbstractParser {
 
         // Get the subset of bytes
         const subset = ( await this.blob.arrayBuffer() ).slice( index );
+
+        const numPixels = this.width! * this.height!;
+
+        console.log({
+            url: this.url,
+            numberOfPixels: numPixels,
+            dataType: this._fileDataType,
+            onePixelSize: this.pixelByteLength,
+            subsetLength: subset.byteLength,
+            frameCount: subset.byteLength / this.pixelByteLength! / numPixels
+        });
 
         // UInt16 array needs to be converted to floats
         if ( this._fileDataType === 0 ) {
@@ -237,7 +269,6 @@ export default class LrcParser extends AbstractParser {
             throw new Error(
                 this.encodeErrors()
             );
-            return null;
         }
         return new ThermalFileSource(
             this.url,

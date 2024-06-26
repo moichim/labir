@@ -98,4 +98,12 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
     }
 
+    public exportAsPng() {
+        const image = this.canvas.toDataURL()
+        const link = document.createElement( "a" );
+        link.download = this.instance.fileName.replace( ".lrc", "_exported.png" );
+        link.href = image;
+        link.click();
+    }
+
 }

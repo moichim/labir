@@ -25,7 +25,7 @@ export class FileInfoButton extends ElementInheritingFile {
 
         tr:not(:last-child) {
             td {
-                border-bottom: 1px solid var( --thermal-slate-light );
+                border-bottom: 1px solid var( --thermal-slate );
             }
         }
 

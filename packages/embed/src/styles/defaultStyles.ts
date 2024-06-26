@@ -65,10 +65,10 @@ export const addDefaultStyles = () => {
 
             /** Font sizes */
             --thermal-fs-base: 16px;
-            --thermal-fs-sm: 17px;
-            --thermal-fs-md: 18px;
-            --thermal-fs-lg: 19px;
-            --thermal-fs-xl: 20px; 
+            --thermal-fs-sm: 16px;
+            --thermal-fs-md: 16px;
+            --thermal-fs-lg: 16px;
+            --thermal-fs-xl: 16px; 
             --thermal-fs: var( --thermal-fs-base );
             --thermal-fs-small: calc( var( --thermal-fs ) * 0.9 );
             --thermal-fs-large: calc( var( --thermal-fs ) * 1.2 );

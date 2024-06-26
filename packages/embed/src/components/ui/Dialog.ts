@@ -18,8 +18,6 @@ export class Dialog extends LitElement {
 
     }
 
-    
-
     setClose() {
         this.dialogRef.value?.close();
         window.document.body.style.removeProperty("overflow-y");
@@ -57,7 +55,7 @@ export class Dialog extends LitElement {
     static styles = css`
 
         .dialog {
-            background: var( --thermal-background );
+            background: var( --thermal-slate-light );
             color: var( --thermal-foreground );
             border-radius: var( --thermal-radius );
             border-color: var( --thermal-slate );
@@ -154,7 +152,7 @@ export class Dialog extends LitElement {
 
                 <div class="dialog-footer">
                     <slot name="button"></slot>
-                    <thermal-button @click=${this.setClose}>Zavřít</thermal-button>
+                    <thermal-button variant="foreground" @click=${this.setClose}>Close</thermal-button>
                 </div>
                 
             

@@ -69,7 +69,8 @@ export class PaletteDropdownElement extends ElementInheritingManager {
     .palette {
         display: block;
         width: calc( var( --thermal-gap ) * 2 );
-        height: var( --thermal-fs );
+        height: calc( var( --thermal-fs ) * .8 );
+        // height: .9em;
         border-radius: 1rem;
     }
 
@@ -91,11 +92,22 @@ export class PaletteDropdownElement extends ElementInheritingManager {
 
     protected render(): unknown {
         return html`
-        ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
-            <thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
-                ${this.paletteTemplate( palette )}
-            </thermal-button>
-        `)}
+
+            <thermal-dropdown variant="foreground">
+
+                <div slot="invoker" class="button">
+                    <span class="palette" style="background:${this.manager.palette.currentPalette.gradient}"></span>
+                    <!-- <span>${this.manager.palette.currentPalette.name}</span> -->
+                </div>
+
+                ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
+                    <div slot="option"><thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
+                        ${this.paletteTemplate( palette )}
+                    </thermal-button></div>
+                `)}
+            
+            </thermal-dropdown>
+
         `;
     }
 

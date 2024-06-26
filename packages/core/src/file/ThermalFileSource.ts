@@ -2,21 +2,62 @@ import { ThermalLoader } from "../parsers/thermalLoader";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";
 
-interface ThermalFileSourceInterface {
+/** Properties that are common for both source and instance. */
+export interface ThermalFileInterface {
+
+    /** Short filenam of the thermal file */
+    fileName: string,
+
+    /** Full URL of the thermal file (is used as key for caching) */
     url: string,
+
+    /** Optional URL to a visible file */
+    visibleUrl?: string
+    
+    /** @deprecated LRC only property - should be moved to metadata */
     signature: string,
+    
+    /** @deprecated LRC only property - should be moved to metadata */
     version: number,
+
+    /** @deprecated LRC only property - should be moved to metadata */
     streamCount: number,
+
+    /** @deprecated LRC only property - should be moved to metadata */
     fileDataType: number,
+
+    /** @deprecated LRC only property - should be moved to metadata */
     unit: number,
+
+    /** The timestamp belonging to the entire frame */
+    timestamp: number,
+    
+    /** Width of the image */
     width: number,
+
+    /** Height of the image */
     height: number,
+
+    /** The current pixels state */
+    pixels: number[],
+
+    /** Minimal temperature of the entire file */
+    min: number,
+
+    /** Minimal temperature of the entire file */
+    max: number,
+
+    // frames: ThermalFrames
+
+    
+}
+
+export type ThermalFrame = {
     timestamp: number,
     pixels: number[],
-    min: number,
-    max: number,
-    visibleUrl?: string
 }
+
+// type ThermalFrames = Map<number,ThermalFrame>;
 
 /**
  * Stores information about a loaded & parsed thermal file
@@ -29,7 +70,9 @@ interface ThermalFileSourceInterface {
  * 
  * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
  */
-export class ThermalFileSource extends EventTarget implements ThermalFileSourceInterface {
+export class ThermalFileSource extends EventTarget implements ThermalFileInterface {
+
+    public readonly fileName: string;
 
     public constructor(
         public readonly url: string,
@@ -44,9 +87,10 @@ export class ThermalFileSource extends EventTarget implements ThermalFileSourceI
         public readonly pixels: number[],
         public readonly min: number,
         public readonly max: number,
-        public readonly visibleUrl?: string
+        public readonly visibleUrl?: string,
     ) {
         super();
+        this.fileName = this.url.substring( this.url.lastIndexOf( "/" ) + 1 ) 
     }
 
     public static async fromUrl(
@@ -67,29 +111,6 @@ export class ThermalFileSource extends EventTarget implements ThermalFileSourceI
         visibleUrl?: string
     ) {
         return await ThermalLoader.fromUrl( thermalUrl, visibleUrl );
-    }
-
-    public serialize() {
-        return JSON.stringify(this);
-    }
-
-    public static fromStorage(stored: string) {
-        const parsed = JSON.parse(stored) as ThermalFileSourceInterface;
-        return new ThermalFileSource(
-            parsed.url,
-            parsed.signature,
-            parsed.version,
-            parsed.streamCount,
-            parsed.fileDataType,
-            parsed.unit,
-            parsed.width,
-            parsed.height,
-            parsed.timestamp,
-            parsed.pixels,
-            parsed.min,
-            parsed.max,
-            parsed.visibleUrl
-        );
     }
 
     public createInstance(

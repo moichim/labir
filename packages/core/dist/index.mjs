@@ -94,8 +94,9 @@ var AbstractLayer = class {
 var ThermalDomFactory = class _ThermalDomFactory {
   static createCanvasContainer() {
     const container = document.createElement("div");
-    container.classList.add("thermalCanvasWeapper");
+    container.classList.add("thermalCanvasWrapper");
     container.style.position = "relative";
+    container.part.add("thermal-canvas");
     return container;
   }
   static createCanvas() {
@@ -339,6 +340,13 @@ var ThermalCanvasLayer = class extends AbstractLayer {
       }
     }
   }
+  exportAsPng() {
+    const image = this.canvas.toDataURL();
+    const link = document.createElement("a");
+    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
+    link.href = image;
+    link.click();
+  }
 };
 
 // src/file/instanceUtils/thermalCursorLayer.ts
@@ -477,12 +485,15 @@ var ThermalFileInstance = class extends EventTarget {
     this.verticalLimit = this.height / 4 * 3;
   }
   // Core properties are mirrored from the source
+  /** Url of the thermal file source */
   get url() {
     return this.source.url;
   }
+  /** Filename of the thermal file */
   get fileName() {
-    return this.source.url.substring(this.source.url.lastIndexOf("/") + 1);
+    return this.source.fileName;
   }
+  /** Optional visible URL */
   get visibleUrl() {
     return this.source.visibleUrl;
   }
@@ -512,6 +523,15 @@ var ThermalFileInstance = class extends EventTarget {
   }
   get max() {
     return this.source.max;
+  }
+  get version() {
+    return this.source.version;
+  }
+  get streamCount() {
+    return this.source.streamCount;
+  }
+  get fileDataType() {
+    return this.source.fileDataType;
   }
   destroySelfAndBelow() {
     this.detachFromDom();
@@ -672,10 +692,13 @@ var ThermalFileInstance = class extends EventTarget {
   get dataTypeHuman() {
     return this.dataType === 0 ? "Float16" : this.dataType === 1 ? "Float32" : this.dataType === 2 ? "Int16" : "error parsing data type";
   }
+  exportAsPng() {
+    this.canvasLayer.exportAsPng();
+  }
 };
 
 // src/file/ThermalFileSource.ts
-var ThermalFileSource = class _ThermalFileSource extends EventTarget {
+var ThermalFileSource = class extends EventTarget {
   constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, visibleUrl) {
     super();
     this.url = url;
@@ -691,6 +714,7 @@ var ThermalFileSource = class _ThermalFileSource extends EventTarget {
     this.min = min;
     this.max = max;
     this.visibleUrl = visibleUrl;
+    this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
   }
   static async fromUrl(thermalUrl, visibleUrl) {
     try {
@@ -702,27 +726,6 @@ var ThermalFileSource = class _ThermalFileSource extends EventTarget {
   }
   static async fromUrlWithErrors(thermalUrl, visibleUrl) {
     return await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-  }
-  serialize() {
-    return JSON.stringify(this);
-  }
-  static fromStorage(stored) {
-    const parsed = JSON.parse(stored);
-    return new _ThermalFileSource(
-      parsed.url,
-      parsed.signature,
-      parsed.version,
-      parsed.streamCount,
-      parsed.fileDataType,
-      parsed.unit,
-      parsed.width,
-      parsed.height,
-      parsed.timestamp,
-      parsed.pixels,
-      parsed.min,
-      parsed.max,
-      parsed.visibleUrl
-    );
   }
   createInstance(group) {
     return new ThermalFileInstance(this, group);
@@ -879,6 +882,17 @@ var LrcParser = class extends AbstractParser {
       this.logValidationError("fileDataType", value);
     this._fileDataType = value;
   }
+  /** Get byteSize of one pixel depending on the file data type */
+  get pixelByteLength() {
+    if (this._fileDataType === 0) {
+      return 2;
+    } else if (this._fileDataType === 1) {
+      return 4;
+    } else if (this._fileDataType === 2) {
+      return 2;
+    }
+    return void 0;
+  }
   parseUnit() {
     const value = this.read8bNumber(16);
     if (!this.isValidUnit(value))
@@ -895,7 +909,13 @@ var LrcParser = class extends AbstractParser {
   }
   // Timestamp
   getTimestamp() {
-    const bigIntTime = this.data.getBigInt64(25, true);
+    return this.readDotNetTimestamp(25);
+  }
+  /** 
+   * Read a .NET timestamp saved as Int64
+   */
+  readDotNetTimestamp(byteOffset) {
+    const bigIntTime = this.data.getBigInt64(byteOffset, true);
     const UnixEpoch = 62135596800000n;
     const TicksPerMillisecond = 10000n;
     const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
@@ -917,6 +937,15 @@ var LrcParser = class extends AbstractParser {
   }
   async readTemperatureArray(index) {
     const subset = (await this.blob.arrayBuffer()).slice(index);
+    const numPixels = this.width * this.height;
+    console.log({
+      url: this.url,
+      numberOfPixels: numPixels,
+      dataType: this._fileDataType,
+      onePixelSize: this.pixelByteLength,
+      subsetLength: subset.byteLength,
+      frameCount: subset.byteLength / this.pixelByteLength / numPixels
+    });
     if (this._fileDataType === 0) {
       const array = new Uint16Array(subset);
       const distance = Math.abs(this.min - this.max);
@@ -949,7 +978,6 @@ var LrcParser = class extends AbstractParser {
       throw new Error(
         this.encodeErrors()
       );
-      return null;
     }
     return new ThermalFileSource(
       this.url,

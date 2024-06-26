@@ -14,8 +14,9 @@ import "./components/structure/file/FileContextElement"
 
 // UI components go next
 import "./components/ui/Dialog";
-import "./components/ui/ButtonElement";
-import "./components/ui/DialogElement";
+import "./components/ui/Button";
+// import "./components/ui/DialogElement";
+import "./components/ui/Dropdown";
 
 // Other components may go in any order
 import "./components/properties/PaletteDropwodnElement";

@@ -14,13 +14,26 @@ export enum THERMLGRAM_PATHS {
     CAS = "https://edu.labir.cz/cas.lrc",
 
     /** A non existing route */
-    ERR404 = "https://edu.labir.cz/error/404"
+    ERR404 = "https://edu.labir.cz/error/404",
+
+    /** A LRC file containing a sequence of frames */
+    SEQUENCE = "https://edu.labir.cz/sequence.lrc"
 }
 
 const thermogramMockHandlers =  [
 
     http.get( THERMLGRAM_PATHS.SOUSTRUH, () => {
         const file = fs.readFileSync( path.resolve( "../../public/soustruh.lrc" ) );
+
+        return HttpResponse.arrayBuffer( file, {
+            headers: {
+                "Content-Type": "octet-stream"
+            }
+        } );
+    } ),
+
+    http.get( THERMLGRAM_PATHS.SEQUENCE, () => {
+        const file = fs.readFileSync( path.resolve( "../../public/sequence.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
             headers: {

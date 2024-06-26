@@ -3,7 +3,7 @@ import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPos
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
-import { ThermalFileSource } from "./ThermalFileSource";
+import { ThermalFileInterface, ThermalFileSource } from "./ThermalFileSource";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
@@ -15,23 +15,32 @@ import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
  * @todo implement unmounting
  * @todo rename binding to mounting
  */
-export class ThermalFileInstance extends EventTarget implements IThermalInstance {
+export class ThermalFileInstance extends EventTarget implements IThermalInstance, ThermalFileInterface {
 
 
 
     // Core properties are mirrored from the source
-    public get url() { return this.source.url };
-    public get fileName() { return this.source.url.substring( this.source.url.lastIndexOf( "/" ) + 1 ) }
+
+    /** Url of the thermal file source */
+    public get url() { return this.source.url; }
+    /** Filename of the thermal file */
+    public get fileName() { return this.source.fileName; }
+    /** Optional visible URL */
     public get visibleUrl() { return this.source.visibleUrl; }
-    public get signature() { return this.source.signature }
-    public get dataType() { return this.source.fileDataType }
-    public get unit() { return this.source.unit };
+    public get signature() { return this.source.signature; }
+    public get dataType() { return this.source.fileDataType; }
+    public get unit() { return this.source.unit; };
     public get width() { return this.source.width; }
     public get height() { return this.source.height; }
     public get timestamp() { return this.source.timestamp; }
     public get pixels() { return this.source.pixels; }
     public get min() { return this.source.min; }
     public get max() { return this.source.max; }
+
+    public get version() { return this.source.version; }
+    public get streamCount() { return this.source.streamCount; }
+    public get fileDataType() { return this.source.fileDataType; }
+    // frames: Map<number, ThermalFrame>;
     
 
     // Necessary properties are calculated in the constructor
@@ -51,6 +60,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
         this.horizontalLimit = (this.width / 4) * 3;
         this.verticalLimit = (this.height / 4) * 3;
     }
+    
 
 
 
@@ -375,6 +385,10 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
                 : this.dataType === 2
                     ? "Int16"
                     : "error parsing data type"
+    }
+
+    public exportAsPng() {
+        this.canvasLayer.exportAsPng();
     }
 
 

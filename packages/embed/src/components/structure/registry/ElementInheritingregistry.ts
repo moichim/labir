@@ -15,8 +15,6 @@ export abstract class ElementInheritingRegistry extends ElementInheritingManager
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.log( "injected registry", this._injectedRegistry.value );
-
         if ( this._injectedRegistry.value ) {
             this._registry = this._injectedRegistry.value;
         } else {

@@ -72,5 +72,11 @@ describe("LrcParser", () => {
 
     });
 
+    test( "parsing LRC sequences", async () => {
+
+        const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
+
+    } );
+
 
 });

@@ -214,12 +214,7 @@ export class FileContextElement extends ElementInheritingGroup {
         // After the update, mount the entire new file to the DOM
         if (changedProperties.has("file")) {
 
-            this.log( "file changed", this.file );
-
             const root = this.renderRoot.querySelector<HTMLDivElement>("#canvas-container")!;
-
-            this.log( "canvasContainer", this.canvasContainer.value! )
-
             
             this.file?.mountToDom( root );
             this.file?.draw();
@@ -242,7 +237,10 @@ export class FileContextElement extends ElementInheritingGroup {
             </div> 
         ` : "" }
 
-        <div class="container"">
+        <div part="file-canvas-wrapper">
+        
+            <div class="container" part="file-canvas-container">
+        
 
             ${ this.file === undefined ? html`
                 <div class="placeholder"><div class="loader"></div></div>
@@ -293,6 +291,8 @@ export class FileContextElement extends ElementInheritingGroup {
                 : ""
             }
             <slot></slot>
+
+            </div>
         </div>
         
         `
