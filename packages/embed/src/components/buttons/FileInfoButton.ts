@@ -99,6 +99,24 @@ export class FileInfoButton extends ElementInheritingFile {
                             <td>${this._injectedFile.value?.signature}</td>
                         </tr>
                         <tr>
+                            <td>Frames</td>
+                            <td>${this._injectedFile.value?.frames.length}</td>
+                        </tr>
+                        <tr>
+                            <td>Duration</td>
+                            <td>${this._injectedFile.value
+                                    ? this._injectedFile.value.duration / 1000
+                                    : 0} s</td>
+                        </tr>
+                        <tr>
+                            <td>FPS</td>
+                            <td>${this._injectedFile.value
+                                    ? this._injectedFile.value.frames.length === 1
+                                        ? "-"
+                                        : ( 60 * 10000 ) / this._injectedFile.value.duration + " s"
+                                    : "-"}</td>
+                        </tr>
+                        <tr>
                             <td>Unit</td>
                             <td>${this._injectedFile.value?.unitHuman}</td>
                         </tr>

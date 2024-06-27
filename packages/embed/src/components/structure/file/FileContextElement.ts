@@ -226,6 +226,9 @@ export class FileContextElement extends ElementInheritingGroup {
     @queryAssignedElements( { slot: "bar", flatten: true } )
     barElements!:Array<HTMLElement>;
 
+    @queryAssignedElements( { slot: "pre", flatten: true } )
+    pre!:Array<HTMLElement>;
+
 
     protected render(): unknown {
         return html`
@@ -236,6 +239,13 @@ export class FileContextElement extends ElementInheritingGroup {
                 <slot name="bar"></slot>
             </div> 
         ` : "" }
+
+        ${ this.pre.length >= 0 ? html`
+            <div class="pre">
+                <slot name="pre"></slot>
+            </div> 
+        ` : "" }
+
 
         <div part="file-canvas-wrapper">
         

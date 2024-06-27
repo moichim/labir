@@ -1,6 +1,7 @@
 import { ThermalLoader } from "../parsers/thermalLoader";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";
+import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 
 /** Properties that are common for both source and instance. */
 export interface ThermalFileInterface {
@@ -75,6 +76,8 @@ export type ThermalFrame = {
 export class ThermalFileSource extends EventTarget implements ThermalFileInterface {
 
     public readonly fileName: string;
+    public readonly pixelsForHistogram: number[];
+    public readonly duration: number;
 
     public constructor(
         public readonly url: string,
@@ -90,10 +93,27 @@ export class ThermalFileSource extends EventTarget implements ThermalFileInterfa
         public readonly min: number,
         public readonly max: number,
         public readonly frameCount: number,
+        public readonly frames: ILrcFrame[],
         public readonly visibleUrl?: string,
     ) {
         super();
-        this.fileName = this.url.substring( this.url.lastIndexOf( "/" ) + 1 ) 
+
+        // Get the filename
+        this.fileName = this.url.substring( this.url.lastIndexOf( "/" ) + 1 );
+
+        // Get the pixels in frame
+        const totalPixelsBuffer: number[] = [];
+
+        // this.frames.forEach( frame => {
+            // totalPixelsBuffer = totalPixelsBuffer.concat( frame.pixels )
+        // } );
+
+        this.pixelsForHistogram = totalPixelsBuffer;
+
+        // Get the duration
+        this.duration = this.frames.length === 0
+            ? 0
+            : this.frames[ this.frames.length - 1 ].timestamp - this.frames[0].timestamp;
     }
 
     public static async fromUrl(

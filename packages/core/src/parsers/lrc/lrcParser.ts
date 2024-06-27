@@ -335,6 +335,7 @@ export default class LrcParser extends AbstractParser {
             this.min!,
             this.max!,
             this.frameCount!,
+            this.frames!,
             this.visibleUrl
         );
     }

@@ -9,6 +9,8 @@ import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
 
+import { mkConfig, generateCsv, download } from "export-to-csv";
+
 /**
  * @todo implement variants toggling
  * @todo implement activation properly!
@@ -33,15 +35,18 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
     public get width() { return this.source.width; }
     public get height() { return this.source.height; }
     public get timestamp() { return this.source.timestamp; }
-    public get pixels() { return this.source.pixels; }
-    public get min() { return this.source.min; }
-    public get max() { return this.source.max; }
 
     public get version() { return this.source.version; }
     public get streamCount() { return this.source.streamCount; }
     public get fileDataType() { return this.source.fileDataType; }
     public get frameCount() { return this.source.frameCount; }
-    // frames: Map<number, ThermalFrame>;
+    public get frames() { return this.source.frames; }
+    public get duration() { return this.source.duration; }
+
+    public get min() { return this.source.min; }
+    public get max() { return this.source.max; }
+    public get pixels() { return this.source.pixels; }
+    public get pixelsForHistogram() { return this.source.pixelsForHistogram }
     
 
     // Necessary properties are calculated in the constructor
@@ -390,6 +395,27 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
 
     public exportAsPng() {
         this.canvasLayer.exportAsPng();
+    }
+
+    public exportThermalDataAsSvg() {
+
+        const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.fileName.replace( ".lrc", "__thermal-data" ) });
+
+
+        const data = this.frames.map( frame => {
+
+            const { pixels, ...data } = frame;
+
+            console.log( pixels );
+
+            return data;
+
+        } );
+
+        const csv = generateCsv( csvConfig )( data );
+
+        download( csvConfig )(csv);
+
     }
 
 

@@ -143,7 +143,6 @@ var ThermalDomFactory = class _ThermalDomFactory {
     const container = document.createElement("div");
     container.classList.add("thermalCanvasWrapper");
     container.style.position = "relative";
-    container.part.add("thermal-canvas");
     return container;
   }
   static createCanvas() {
@@ -495,6 +494,7 @@ var ThermalListenerLayer = class extends AbstractLayer {
 };
 
 // src/file/ThermalFileInstance.ts
+var import_export_to_csv = require("export-to-csv");
 var ThermalFileInstance = class extends EventTarget {
   constructor(source, group) {
     super();
@@ -562,15 +562,6 @@ var ThermalFileInstance = class extends EventTarget {
   get timestamp() {
     return this.source.timestamp;
   }
-  get pixels() {
-    return this.source.pixels;
-  }
-  get min() {
-    return this.source.min;
-  }
-  get max() {
-    return this.source.max;
-  }
   get version() {
     return this.source.version;
   }
@@ -579,6 +570,27 @@ var ThermalFileInstance = class extends EventTarget {
   }
   get fileDataType() {
     return this.source.fileDataType;
+  }
+  get frameCount() {
+    return this.source.frameCount;
+  }
+  get frames() {
+    return this.source.frames;
+  }
+  get duration() {
+    return this.source.duration;
+  }
+  get min() {
+    return this.source.min;
+  }
+  get max() {
+    return this.source.max;
+  }
+  get pixels() {
+    return this.source.pixels;
+  }
+  get pixelsForHistogram() {
+    return this.source.pixelsForHistogram;
   }
   destroySelfAndBelow() {
     this.detachFromDom();
@@ -742,11 +754,21 @@ var ThermalFileInstance = class extends EventTarget {
   exportAsPng() {
     this.canvasLayer.exportAsPng();
   }
+  exportThermalDataAsSvg() {
+    const csvConfig = (0, import_export_to_csv.mkConfig)({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.fileName.replace(".lrc", "__thermal-data") });
+    const data = this.frames.map((frame) => {
+      const { pixels, ...data2 } = frame;
+      console.log(pixels);
+      return data2;
+    });
+    const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv.download)(csvConfig)(csv);
+  }
 };
 
 // src/file/ThermalFileSource.ts
 var ThermalFileSource = class extends EventTarget {
-  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, visibleUrl) {
+  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, frameCount, frames, visibleUrl) {
     super();
     this.url = url;
     this.signature = signature;
@@ -760,8 +782,13 @@ var ThermalFileSource = class extends EventTarget {
     this.pixels = pixels;
     this.min = min;
     this.max = max;
+    this.frameCount = frameCount;
+    this.frames = frames;
     this.visibleUrl = visibleUrl;
     this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
+    const totalPixelsBuffer = [];
+    this.pixelsForHistogram = totalPixelsBuffer;
+    this.duration = this.frames.length === 0 ? 0 : this.frames[this.frames.length - 1].timestamp - this.frames[0].timestamp;
   }
   static async fromUrl(thermalUrl, visibleUrl) {
     try {
@@ -793,6 +820,13 @@ var AbstractParser = class {
     };
     this.isValidMin = (value) => value !== void 0;
     this.isValidMax = (value) => value !== void 0;
+    this.isValidFrameCount = (value) => Number.isInteger(value);
+    this.isValidFrames = (value) => {
+      if (value === void 0) return false;
+      if (this.frameCount === void 0) return false;
+      else
+        return value.length === this.frameCount;
+    };
     // Error logging
     /** Buffer of errors that occured during the parsing. */
     this.errors = [];
@@ -801,6 +835,8 @@ var AbstractParser = class {
   async init() {
     const buffer = await this.blob.arrayBuffer();
     this.data = new DataView(buffer);
+    const frameSubset = buffer.slice(25);
+    this.frameSubset = frameSubset;
     return this;
   }
   /** The only public endpoint. This method does all the business. */
@@ -828,7 +864,7 @@ var AbstractParser = class {
     this.height = value;
   }
   async parsePixels() {
-    const value = await this.getPixels();
+    const value = this.getPixels();
     this.pixels = value;
   }
   parseMin() {
@@ -842,6 +878,18 @@ var AbstractParser = class {
     if (!this.isValidMax(value))
       this.logValidationError("max", value);
     this.max = value;
+  }
+  parseFrameCount() {
+    const value = this.getFrameCount();
+    if (!this.isValidFrameCount(value))
+      this.logValidationError("frameCount", value);
+    this.frameCount = value;
+  }
+  parseFrames() {
+    const value = this.getFrames();
+    if (!this.isValidFrames(value))
+      this.logValidationError("frames", value.toString());
+    this.frames = value;
   }
   /** Store an error. */
   logError(message) {
@@ -862,6 +910,97 @@ var AbstractParser = class {
   /**  @deprecated Is not in use */
   static decodeErrors(errorsString) {
     return errorsString.split("+|+");
+  }
+};
+
+// src/parsers/lrc/LrcUtils.ts
+var LrcUtils = class {
+  static readDotnetTimestamp(byteOffset, view) {
+    const bigIntTime = view.getBigInt64(byteOffset, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  }
+  static readFloat32(index, view) {
+    return view.getFloat32(index, true);
+  }
+  static read8bNumber(index, view) {
+    return view.getUint8(index);
+  }
+  static readTemperatureArray(index, view, dataType, min, max) {
+    const subset = view.buffer.slice(index);
+    if (dataType === 0) {
+      const array = new Uint16Array(subset);
+      const distance = Math.abs(min - max);
+      const UINT16_MAX = 65535;
+      return [...array].map((pixel) => {
+        const mappedValue = pixel / UINT16_MAX;
+        return min + distance * mappedValue;
+      });
+    } else if (dataType === 1) {
+      return [...new Float32Array(subset)];
+    }
+    return [];
+  }
+};
+
+// src/parsers/lrc/LrcFrameParser.ts
+var LrcFrameParser = class {
+  constructor(arrayBuffer, width, height, dataType, frameCount, frameByteSize, pixelByteSize) {
+    this.arrayBuffer = arrayBuffer;
+    this.width = width;
+    this.height = height;
+    this.dataType = dataType;
+    this.frameCount = frameCount;
+    this.frameByteSize = frameByteSize;
+    this.pixelByteSize = pixelByteSize;
+  }
+  parseFrame(index) {
+    if (!Number.isInteger(index)) {
+      throw new Error(`The frame index ${index} is invalid!`);
+    }
+    const frameSubsetStart = index * this.frameByteSize;
+    const frameSubsetEnd = frameSubsetStart + this.frameByteSize;
+    const frameArrayBuffer = this.arrayBuffer.slice(
+      frameSubsetStart,
+      frameSubsetEnd
+    );
+    const view = new DataView(frameArrayBuffer);
+    const frameMin = LrcUtils.readFloat32(8, view);
+    const frameMax = LrcUtils.readFloat32(12, view);
+    const frameData = {
+      timestamp: LrcUtils.readDotnetTimestamp(0, view),
+      min: frameMin,
+      max: frameMax,
+      modeMinInKelvin: LrcUtils.readFloat32(16, view),
+      modeMaxInKelvin: LrcUtils.readFloat32(20, view),
+      emissivity: LrcUtils.readFloat32(24, view),
+      reflectedTemperaatureInKelvin: LrcUtils.readFloat32(28, view),
+      distance: LrcUtils.readFloat32(32, view),
+      atmosphereTemperatureInKelvin: LrcUtils.readFloat32(36, view),
+      relativeHumidity: LrcUtils.readFloat32(40, view),
+      tau: LrcUtils.readFloat32(44, view),
+      windowTemperature: LrcUtils.readFloat32(48, view),
+      windowTransmissivity: LrcUtils.readFloat32(52, view),
+      isTauSet: LrcUtils.read8bNumber(53, view),
+      pixels: LrcUtils.readTemperatureArray(57, view, this.dataType, frameMin, frameMax)
+    };
+    return frameData;
   }
 };
 
@@ -900,6 +1039,8 @@ var LrcParser = class extends AbstractParser {
     this.parseUnit();
     this.parseWidth();
     this.parseHeight();
+    this.parseFrameCount();
+    this.parseFrames();
     this.parseMin();
     this.parseMax();
     await this.parsePixels();
@@ -928,23 +1069,37 @@ var LrcParser = class extends AbstractParser {
     if (!this.isDataTypeValid(value))
       this.logValidationError("fileDataType", value);
     this._fileDataType = value;
+    this._pixelByteLength = value === 0 ? 2 : 4;
   }
   /** Get byteSize of one pixel depending on the file data type */
   get pixelByteLength() {
-    if (this._fileDataType === 0) {
-      return 2;
-    } else if (this._fileDataType === 1) {
-      return 4;
-    } else if (this._fileDataType === 2) {
-      return 2;
-    }
-    return void 0;
+    return this._pixelByteLength;
   }
   parseUnit() {
     const value = this.read8bNumber(16);
     if (!this.isValidUnit(value))
       this.logValidationError("unit", value);
     this._unit = value;
+  }
+  getFrameCount() {
+    return this.getNumberOfFrames();
+  }
+  // Min
+  getMin() {
+    return this.frames.reduce((state, current) => {
+      if (current.min < state) {
+        return current.min;
+      }
+      return state;
+    }, Infinity);
+  }
+  getMax() {
+    return this.frames.reduce((state, current) => {
+      if (current.max > state) {
+        return current.max;
+      }
+      return state;
+    }, -Infinity);
   }
   // Width
   getWidth() {
@@ -954,45 +1109,43 @@ var LrcParser = class extends AbstractParser {
   getHeight() {
     return this.read16bNumber(19);
   }
-  // Timestamp
+  // Read the file timestamp from index 5 (first frame timestamp is in index 25)
   getTimestamp() {
-    return this.readDotNetTimestamp(25);
+    return LrcUtils.readDotnetTimestamp(5, this.data);
   }
-  /** 
-   * Read a .NET timestamp saved as Int64
-   */
-  readDotNetTimestamp(byteOffset) {
-    const bigIntTime = this.data.getBigInt64(byteOffset, true);
-    const UnixEpoch = 62135596800000n;
-    const TicksPerMillisecond = 10000n;
-    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-    const TicksCeiling = 0x4000000000000000n;
-    const LocalMask = 0x8000000000000000n;
-    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-    let ticks = bigIntTime & TicksMask;
-    const isLocalTime = bigIntTime & LocalMask;
-    if (isLocalTime) {
-      if (ticks > TicksCeiling - TicksPerDay) {
-        ticks -= TicksCeiling;
-      }
-      if (ticks < 0) {
-        ticks += TicksPerDay;
-      }
+  /** @todo Why must we add 4 bytes at the end of a frame? */
+  getFrameSize() {
+    if (this._fileDataType === void 0 || this.width === void 0 || this.height === void 0 || this.pixelByteLength === void 0) {
+      throw new Error("Trying to read frame size before necessary attributes are known");
+    } else {
+      const frameHeaderSize = 57;
+      const dataSize = this.width * this.height * this.pixelByteLength;
+      return frameHeaderSize + dataSize;
     }
-    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-    return Number(milliseconds);
   }
+  getNumberOfFrames() {
+    const frameSize = this.getFrameSize();
+    return this.frameSubset.byteLength / frameSize;
+  }
+  getFrames() {
+    const frames = [];
+    const frameParser = new LrcFrameParser(
+      this.frameSubset,
+      this.width,
+      this.height,
+      this._fileDataType,
+      this.frameCount,
+      this.getFrameSize(),
+      this.pixelByteLength
+    );
+    for (let i = 0; i < this.frameCount; i++) {
+      frames.push(frameParser.parseFrame(i));
+    }
+    return frames;
+  }
+  /** @deprecated Should move to parsing from frames */
   async readTemperatureArray(index) {
-    const subset = (await this.blob.arrayBuffer()).slice(index);
-    const numPixels = this.width * this.height;
-    console.log({
-      url: this.url,
-      numberOfPixels: numPixels,
-      dataType: this._fileDataType,
-      onePixelSize: this.pixelByteLength,
-      subsetLength: subset.byteLength,
-      frameCount: subset.byteLength / this.pixelByteLength / numPixels
-    });
+    const subset = (await this.blob.arrayBuffer()).slice(index, index + this.width * this.height * this.pixelByteLength);
     if (this._fileDataType === 0) {
       const array = new Uint16Array(subset);
       const distance = Math.abs(this.min - this.max);
@@ -1008,17 +1161,14 @@ var LrcParser = class extends AbstractParser {
   }
   // Pixels
   getPixels() {
-    return this.readTemperatureArray(82);
-  }
-  // Min
-  getMin() {
-    return this.data.getFloat32(33, true);
-  }
-  getMax() {
-    return this.data.getFloat32(37, true);
+    if (this.frames) {
+      if (this.frames.length > 0)
+        return this.frames[0].pixels;
+    }
+    return [];
   }
   isValid() {
-    return this.errors.length === 0 && this.isValidSignature(this._signature) && this.isStreamCountValid(this._streamCount) && this.isDataTypeValid(this._fileDataType) && this.isValidVersion(this._version) && this.isValidUnit(this._unit) && this.isValidTimestamp(this.timestamp) && this.isValidWidth(this.width) && this.isValidHeight(this.height) && this.isValidPixels(this.pixels) && this.isValidMin(this.min) && this.isValidMax(this.max);
+    return this.errors.length === 0 && this.isValidSignature(this._signature) && this.isStreamCountValid(this._streamCount) && this.isDataTypeValid(this._fileDataType) && this.isValidVersion(this._version) && this.isValidUnit(this._unit) && this.isValidTimestamp(this.timestamp) && this.isValidWidth(this.width) && this.isValidHeight(this.height) && this.isValidPixels(this.pixels) && this.isValidMin(this.min) && this.isValidMax(this.max) && this.isValidFrameCount(this.frameCount);
   }
   getThermalFile() {
     if (!this.isValid()) {
@@ -1039,6 +1189,8 @@ var LrcParser = class extends AbstractParser {
       this.pixels,
       this.min,
       this.max,
+      this.frameCount,
+      this.frames,
       this.visibleUrl
     );
   }
@@ -1175,6 +1327,7 @@ var RangeDriver = class extends AbstractProperty {
       const length = this.parent.histogram.value.length;
       const percentage = 100 / length;
       const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
+      console.log(this.parent.histogram.value);
       const newRange = {
         from: histogramBarsOverPercentage[0].from,
         to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
@@ -1420,7 +1573,7 @@ var GroupsState = class extends AbstractProperty {
 var HistogramState = class extends AbstractProperty {
   constructor() {
     super(...arguments);
-    this._resolution = 200;
+    this._resolution = 50;
     /** Map of temperature => countOfPixels in the scaled down resolution */
     this.buffer = /* @__PURE__ */ new Map();
     /** Total countOfPixels in every image */
@@ -1469,7 +1622,7 @@ var HistogramState = class extends AbstractProperty {
         const minmax = this.parent.minmax.value;
         let pixels = [];
         this.parent.forEveryInstance((instance) => {
-          pixels = [...pixels, ...instance.pixels];
+          pixels = pixels.concat(instance.pixelsForHistogram);
         });
         pixels.sort((a, b) => {
           return a - b;

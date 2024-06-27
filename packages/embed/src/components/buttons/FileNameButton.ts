@@ -65,6 +65,10 @@ export class FileNameButton extends ElementInheritingFile {
                     <div slot="option">
                         <thermal-button @click=${() => this._injectedFile.value?.exportAsPng()}>Export as PNG</thermal-button>
                     </div>
+
+                    <div slot="option">
+                        <thermal-button @click=${() => this._injectedFile.value?.exportThermalDataAsSvg()}>Export CSV with thermal data</thermal-button>
+                    </div>
             
             </thermal-dropdown>
 

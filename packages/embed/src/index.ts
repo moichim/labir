@@ -26,6 +26,7 @@ import "./components/buttons/RegistrySetMnimaxRangeButton";
 import "./components/buttons/FileInfoButton";
 import "./components/buttons/AppInfoButton";
 import "./components/buttons/FileNameButton";
+import "./components/properties/RangeSliderElement";
 
 import "./components/apps/SingleFileApp";
 

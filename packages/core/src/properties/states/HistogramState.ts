@@ -11,7 +11,7 @@ export interface IWithHistogram extends IBaseProperty {
  */
 export class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
 
-    protected _resolution = 200;
+    protected _resolution = 50;
     public get resolution() { return this._resolution; };
 
     /** Map of temperature => countOfPixels in the scaled down resolution */
@@ -75,7 +75,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
                 // Collect pixels
                 let pixels: number[] = [];
                 this.parent.forEveryInstance(instance => {
-                    pixels = [...pixels, ...instance.pixels];
+                    pixels = pixels.concat( instance.pixelsForHistogram );
                 });
 
                 // Sort pixels

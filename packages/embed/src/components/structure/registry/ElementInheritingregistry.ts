@@ -2,14 +2,16 @@ import { ThermalRegistry } from "@labir/core";
 import { ContextConsumer } from "@lit/context";
 import { ElementInheritingManager } from "../manager/ElementInherigingManager";
 import { RegistryContext } from "../contexts";
+import { state } from "lit/decorators.js";
 
 export abstract class ElementInheritingRegistry extends ElementInheritingManager {
 
-    private _injectedRegistry = new ContextConsumer( this, { context: RegistryContext, subscribe: true } );
+    public _injectedRegistry = new ContextConsumer( this, { context: RegistryContext, subscribe: true } );
 
     private _registry!: ThermalRegistry;
 
     /** The registry instance injected from above or created in place. */
+    @state()
     public get registry() {return this._registry;}
 
     connectedCallback(): void {

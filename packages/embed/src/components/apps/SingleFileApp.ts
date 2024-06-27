@@ -76,8 +76,6 @@ export class SingleFileApp extends ElementInheritingGroup {
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
     super.attributeChangedCallback( name, _old, value );
 
-    this.log( this );
-
     if ( name === "fullscreen" ) {
       if ( value === "on" ) {
 
@@ -85,14 +83,14 @@ export class SingleFileApp extends ElementInheritingGroup {
         // ...
       } else if ( value === "off" ) {
         // ...
-        document.exitFullscreen();
+        if ( document.fullscreenElement ) 
+          document.exitFullscreen();
       }
     }
 
   }
 
   toggleFullscreen() {
-    this.log(this);
     if ( this.fullscreen === "on" ) {
       this.fullscreen = "off";
     } else {
@@ -108,9 +106,10 @@ export class SingleFileApp extends ElementInheritingGroup {
         <thermal-file-name slot="bar"></thermal-file-name>
         <thermal-file-info slot="bar"></thermal-file-info>
         <thermal-palette slot="bar"></thermal-palette>
-        <thermal-range-auto slot="bar"></thermal-range-auto>
-        <thermal-range-minmax slot="bar"></thermal-range-minmax>
+        <!--<thermal-range-auto slot="bar"></thermal-range-auto>-->
+        <!--<thermal-range-minmax slot="bar"></thermal-range-minmax>-->
         <!--<thermal-opacity slot="bar"></thermal-opacity>-->
+        <thermal-range slot="pre"></thermal-range>
         
         <div style="flex-grow: 1" slot="bar"></div>
         <thermal-app-info slot="bar"></thermal-app-info>

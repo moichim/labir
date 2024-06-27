@@ -34,5 +34,8 @@
   "peerDependencies": {
     "cross-fetch": "^4.0.0",
     "date-fns": "^3.6.0"
+  },
+  "dependencies": {
+    "export-to-csv": "^1.3.0"
   }
 }
