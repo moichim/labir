@@ -1,4 +1,5 @@
 import { ThermalFileSource } from "../file/ThermalFileSource";
+import { ILrcFrame } from "./lrc/LrcTrame";
 
 
 /** 
@@ -93,13 +94,12 @@ export default abstract class AbstractParser {
 
     // Common data parsing
     protected pixels?: number[];
-    protected abstract getPixels(): Promise<number[]>;
+    protected abstract getPixels(): number[];
     protected isValidPixels = (value: number[] | undefined) => {
-        return true;
         return value !== undefined && value.length === (this.width! * this.height!)
     }
     protected async parsePixels() {
-        const value = await this.getPixels();
+        const value = this.getPixels();
         this.pixels = value;
     }
 
@@ -135,6 +135,21 @@ export default abstract class AbstractParser {
         if ( ! this.isValidFrameCount( value ) )
             this.logValidationError( "frameCount", value );
         this.frameCount = value;
+    }
+
+    protected frames?: ILrcFrame[];
+    protected isValidFrames = ( value: ILrcFrame[] | undefined ) => {
+        if ( value === undefined ) return false;
+        if ( this.frameCount === undefined ) return false;
+        else
+            return value.length === this.frameCount 
+    }
+    protected abstract getFrames(): ILrcFrame[];
+    protected parseFrames() {
+        const value = this.getFrames();
+        if ( ! this.isValidFrames(value) )
+            this.logValidationError( "frames", value.toString() ); 
+        this.frames = value;
     }
 
 

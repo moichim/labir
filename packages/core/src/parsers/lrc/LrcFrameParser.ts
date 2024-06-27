@@ -9,7 +9,8 @@ export class LrcFrameParser {
         protected readonly height: number,
         protected readonly dataType: number,
         protected readonly frameCount: number,
-        protected readonly frameByteSize: number
+        protected readonly frameByteSize: number,
+        protected readonly pixelByteSize: number
     ) {
 
     }
@@ -25,24 +26,23 @@ export class LrcFrameParser {
             throw new Error( `The frame index ${index} is invalid!` );
         }
 
-        const baseIndex = ( index * this.frameByteSize );
-
-        
+        const frameSubsetStart = index * this.frameByteSize;
+        const frameSubsetEnd = frameSubsetStart + this.frameByteSize
 
         const frameArrayBuffer = this.arrayBuffer.slice( 
-            baseIndex, 
-            // baseIndex + this.frameByteSize +1 
+            frameSubsetStart, 
+            frameSubsetEnd
         );
 
         const view = new DataView( frameArrayBuffer );
 
-        console.log( "baseIndex", this.frameCount );
-
+        const frameMin = LrcUtils.readFloat32(8, view);
+        const frameMax = LrcUtils.readFloat32(12, view);
         // Get frame timestamp
         const frameData: ILrcFrame = {
             timestamp: LrcUtils.readDotnetTimestamp( 0, view ),
-            min: LrcUtils.readFloat32( 8, view ),
-            max: LrcUtils.readFloat32( 12, view ),
+            min: frameMin,
+            max: frameMax,
             modeMinInKelvin: LrcUtils.readFloat32( 16, view ),
             modeMaxInKelvin: LrcUtils.readFloat32( 20, view ),
             emissivity: LrcUtils.readFloat32( 24, view ),
@@ -53,27 +53,14 @@ export class LrcFrameParser {
             tau: LrcUtils.readFloat32( 44, view ),
             windowTemperature: LrcUtils.readFloat32( 48, view ),
             windowTransmissivity: LrcUtils.readFloat32( 52, view ),
-            isTauSet: LrcUtils.read8bNumber( 53, view )
+            isTauSet: LrcUtils.read8bNumber( 53, view ),
+            pixels: LrcUtils.readTemperatureArray( 57, view, this.dataType, frameMin, frameMax )
         }
 
-        console.log( {
-            "should have pixels": this.width * this.height,
-            "frameViewByteLength": view.byteLength,
-            "fieldDataByteLength": view.byteLength - 54,
-            "fieldDataDividedByFour": ( view.byteLength - 54 ) / 4
-        } );
+        // console.log( frameData );
 
-        const pixels = LrcUtils.readTemperatureArray( 54, view, this.dataType, frameData.min, frameData.max );
 
-        console.log( this.width * this.height, pixels.length, pixels );
-
-        console.log( frameData);
-
-        // Get frame max
-
-        // Get frame emissivity
-
-        // Get reflected
+        return frameData;
 
     }
 

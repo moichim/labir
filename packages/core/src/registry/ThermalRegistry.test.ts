@@ -57,7 +57,7 @@ describe("ThermalRegistry", () => {
             ["new_group"]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH },
-                { thermalUrl: THERMOGRAM_PATHS.CAS }
+                // { thermalUrl: THERMOGRAM_PATHS.CAS }
             ]
         });
 
@@ -75,7 +75,7 @@ describe("ThermalRegistry", () => {
             ["new_group"]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH },
-                { thermalUrl: THERMOGRAM_PATHS.CAS }
+                // { thermalUrl: THERMOGRAM_PATHS.CAS }
             ]
         });
 

@@ -1,5 +1,7 @@
 import { ThermalFileSource } from '../../file/ThermalFileSource';
 import AbstractParser from '../AbstractParser';
+import { LrcFrameParser } from './LrcFrameParser';
+import { ILrcFrame } from './LrcTrame';
 import { LrcUtils } from './LrcUtils';
 
 
@@ -77,6 +79,8 @@ export default class LrcParser extends AbstractParser {
         this.parseWidth();
         this.parseHeight();
         this.parseFrameCount();
+        this.parseFrames();
+        // The following delends on frames
         this.parseMin();
         this.parseMax();
         await this.parsePixels();
@@ -155,11 +159,27 @@ export default class LrcParser extends AbstractParser {
 
     // Min
     protected getMin(): number {
-        return this.data.getFloat32(33, true);
+
+        return this.frames!.reduce( (state, current) => {
+
+            if ( current.min < state ) {
+                return current.min;
+            }
+            return state;
+
+        }, Infinity );
+
     }
 
     protected getMax(): number {
-        return this.data.getFloat32(37, true);
+        return this.frames!.reduce( (state, current) => {
+
+            if ( current.max > state ) {
+                return current.max;
+            }
+            return state;
+
+        }, -Infinity );
     }
 
 
@@ -189,9 +209,9 @@ export default class LrcParser extends AbstractParser {
             throw new Error( "Trying to read frame size before necessary attributes are known" );
         } else {
 
-            const frameHeaderSize = 53;
+            const frameHeaderSize = 57;
             const dataSize = this.width * this.height * this.pixelByteLength;
-            return frameHeaderSize + dataSize + 4;
+            return frameHeaderSize + dataSize;
 
         }
     }
@@ -200,11 +220,34 @@ export default class LrcParser extends AbstractParser {
 
         const frameSize = this.getFrameSize();
 
-        console.log( "frameSize", frameSize, this.frameSubset.byteLength / frameSize );
-
         return this.frameSubset.byteLength / frameSize;
 
     }
+
+    
+
+    protected getFrames() {
+
+        const frames: ILrcFrame[] = [];
+        
+        const frameParser = new LrcFrameParser(
+            this.frameSubset,
+            this.width!,
+            this.height!,
+            this._fileDataType!,
+            this.frameCount!,
+            this.getFrameSize(),
+            this.pixelByteLength!
+        );
+
+        for ( let i = 0; i < this.frameCount!; i++ ) {
+            frames.push( frameParser.parseFrame(i) );
+        }
+
+        return frames;
+
+    }
+
 
 
 
@@ -244,7 +287,13 @@ export default class LrcParser extends AbstractParser {
 
     // Pixels
     protected getPixels() {
-        return this.readTemperatureArray(82);
+
+        if ( this.frames )
+        if ( this.frames.length > 0 )
+            return this.frames[0].pixels;
+
+        return [];
+
     }
 
     

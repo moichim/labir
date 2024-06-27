@@ -66,8 +66,6 @@ export class LrcUtils {
         // Get the subset of bytes
         const subset = view.buffer.slice( index );
 
-        console.log( "subset byte length", subset.byteLength );
-
         // UInt16 array needs to be converted to floats
         if ( dataType === 0 ) {
 

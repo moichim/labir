@@ -124,6 +124,6 @@ export interface ILrcFrame {
      * - relative 54
      * - délka podle data typu streamu
      */
-    // pixels: number[]
+    pixels: number[]
 
 }
