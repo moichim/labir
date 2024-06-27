@@ -1,5 +1,6 @@
 import { ThermalFileSource } from '../../file/ThermalFileSource';
 import AbstractParser from '../AbstractParser';
+import { LrcUtils } from './LrcUtils';
 
 
 /**
@@ -22,6 +23,38 @@ import AbstractParser from '../AbstractParser';
  * - 37 - 4 bity max
  * - 41 - 41 bitů přeskočeno
  * - 82 - začátek dat
+ * 
+ * Popis formátu souboru LRC verze 2		
+		
+Adresa	Datový typ	Význam
+0	4x uint8	Signatura, vždy čtyři znaky "LRC\0"
+4	uint8	Verze souboru, vždy 2
+5	int64	Časová značka souboru
+13	uint8	Počet externích zařízení, typicky 0
+14	uint8	Počet streamů, typicky 1
+15	uint8	Datový typ streamu 1
+16	uint8	Jednotky streamu 1
+17	uint16	Rozlišení teplotních dat, šířka
+19	uint16	Rozlišení teplotních dat, výška
+21	uint32	Příznaky dynamické části hlavičky, typicky 0
+--- konec hlavičky souboru a začátek framu
+25	int64	Časová značka snímku
+33	float	Teplotní rozsah snímku, minimum; jednotky jsou podle streamu
+37	float	Teplotní rozsah snímku, maximum; jednotky jsou podle streamu
+41	float	Měřicí rozsah kamery, minimum [K]
+45	float	Měřicí rozsah kamery, maximum [K]
+49	float	Emisivita [0-1]
+53	float	Odražená teplota [K]
+57	float	Vzdálenost [m]
+61	float	Teplota atmosféry [K]
+65	float	Rel. vlhkost [0-1]
+69	float	Tau (propustnost atmosféry) [0-1]
+73	float	Teplota okénka [K]
+77	float	Propustnost okénka [0-1]
+81	uint8	Je tau nastaveno? Typicky 0, není nastaveno, počítá se z parametrů atmosféry.
+82	podle streamu	Teplotní data
+ * 
+ * 
  */
 
 export default class LrcParser extends AbstractParser {
@@ -30,6 +63,7 @@ export default class LrcParser extends AbstractParser {
     protected _version?: number;
     protected _streamCount?: number;
     protected _fileDataType?: number;
+    protected _pixelByteLength?: number;
     protected _unit?: number;
 
 
@@ -42,6 +76,7 @@ export default class LrcParser extends AbstractParser {
         this.parseUnit();
         this.parseWidth();
         this.parseHeight();
+        this.parseFrameCount();
         this.parseMin();
         this.parseMax();
         await this.parsePixels();
@@ -89,20 +124,13 @@ export default class LrcParser extends AbstractParser {
         if (!this.isDataTypeValid(value))
             this.logValidationError("fileDataType", value);
         this._fileDataType = value;
+        // Assign pixel byte size depending on data type
+        this._pixelByteLength = value === 0 ? 2 : 4;
     }
 
     /** Get byteSize of one pixel depending on the file data type */
     protected get pixelByteLength() {
-        if ( this._fileDataType === 0 ) {
-            return 2;
-        } 
-        else if ( this._fileDataType === 1 ) {
-            return 4;
-        }
-        else if ( this._fileDataType === 2 ) {
-            return 2;
-        }
-        return undefined;
+        return this._pixelByteLength;
     }
 
     // Unit
@@ -120,6 +148,20 @@ export default class LrcParser extends AbstractParser {
         this._unit = value;
     }
 
+    protected getFrameCount(): number {
+        return this.getNumberOfFrames();    
+    }
+
+
+    // Min
+    protected getMin(): number {
+        return this.data.getFloat32(33, true);
+    }
+
+    protected getMax(): number {
+        return this.data.getFloat32(37, true);
+    }
+
 
 
 
@@ -133,79 +175,44 @@ export default class LrcParser extends AbstractParser {
         return this.read16bNumber(19);
     }
 
-    // Timestamp
+    // Read the file timestamp from index 5 (first frame timestamp is in index 25)
     protected getTimestamp(): number {
 
-        return this.readDotNetTimestamp( 25 );
+        return LrcUtils.readDotnetTimestamp( 5, this.data );
 
     }
 
-    /** 
-     * Read a .NET timestamp saved as Int64
-     */
-    protected readDotNetTimestamp( byteOffset: number ): number {
 
-        const bigIntTime = this.data.getBigInt64(byteOffset, true);
+    /** @todo Why must we add 4 bytes at the end of a frame? */
+    protected getFrameSize() {
+        if ( this._fileDataType === undefined || this.width === undefined || this.height === undefined || this.pixelByteLength === undefined ) {
+            throw new Error( "Trying to read frame size before necessary attributes are known" );
+        } else {
 
-
-        // Constant representing the Unix epoch in milliseconds
-        const UnixEpoch: bigint = 62135596800000n;
-
-        // Constants related to ticks (assuming ticks are stored as milliseconds)
-        const TicksPerMillisecond: bigint = 10000n;
-        const TicksPerDay: bigint = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-
-        // Maximum value a 64-bit signed integer can hold
-        const TicksCeiling: bigint = 0x4000000000000000n; // Assuming int64_t behaves like a signed 64-bit integer
-
-        // Mask to extract the sign bit from a 64-bit unsigned integer
-        const LocalMask: bigint = 0x8000000000000000n;
-
-        // Mask to extract the tick value from a 64-bit unsigned integer
-        const TicksMask: bigint = 0x3FFFFFFFFFFFFFFFn;
-
-
-
-        let ticks = bigIntTime & TicksMask;
-
-        const isLocalTime = bigIntTime & LocalMask;
-
-        if (isLocalTime) {
-
-            if (ticks > (TicksCeiling - TicksPerDay)) {
-                ticks -= TicksCeiling;
-            }
-
-            if (ticks < 0) {
-                ticks += TicksPerDay;
-            }
+            const frameHeaderSize = 53;
+            const dataSize = this.width * this.height * this.pixelByteLength;
+            return frameHeaderSize + dataSize + 4;
 
         }
+    }
 
-        // the time is UTC, needs to be converted to local time zone
-        const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    protected getNumberOfFrames() {
 
-        return Number(milliseconds)
+        const frameSize = this.getFrameSize();
+
+        console.log( "frameSize", frameSize, this.frameSubset.byteLength / frameSize );
+
+        return this.frameSubset.byteLength / frameSize;
 
     }
 
 
 
+    /** @deprecated Should move to parsing from frames */
     protected async readTemperatureArray(index: number): Promise<number[]> {
 
         // Get the subset of bytes
-        const subset = ( await this.blob.arrayBuffer() ).slice( index );
-
-        const numPixels = this.width! * this.height!;
-
-        console.log({
-            url: this.url,
-            numberOfPixels: numPixels,
-            dataType: this._fileDataType,
-            onePixelSize: this.pixelByteLength,
-            subsetLength: subset.byteLength,
-            frameCount: subset.byteLength / this.pixelByteLength! / numPixels
-        });
+        const subset = ( await this.blob.arrayBuffer() ).slice( index, index + ( this.width! * this.height! * this.pixelByteLength! ) );
 
         // UInt16 array needs to be converted to floats
         if ( this._fileDataType === 0 ) {
@@ -240,14 +247,7 @@ export default class LrcParser extends AbstractParser {
         return this.readTemperatureArray(82);
     }
 
-    // Min
-    protected getMin(): number {
-        return this.data.getFloat32(33, true);
-    }
-
-    protected getMax(): number {
-        return this.data.getFloat32(37, true);
-    }
+    
 
     isValid(): boolean {
         return this.errors.length === 0
@@ -261,10 +261,12 @@ export default class LrcParser extends AbstractParser {
             && this.isValidHeight( this.height )
             && this.isValidPixels( this.pixels )
             && this.isValidMin( this.min )
-            && this.isValidMax( this.max );
+            && this.isValidMax( this.max )
+            && this.isValidFrameCount( this.frameCount );
     }
 
     getThermalFile() {
+
         if (!this.isValid()) {
             throw new Error(
                 this.encodeErrors()
@@ -283,6 +285,7 @@ export default class LrcParser extends AbstractParser {
             this.pixels!,
             this.min!,
             this.max!,
+            this.frameCount!,
             this.visibleUrl
         );
     }

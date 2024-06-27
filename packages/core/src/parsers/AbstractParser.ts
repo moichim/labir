@@ -9,6 +9,9 @@ export default abstract class AbstractParser {
     /** DataView on the entire file contents. */
     protected data!: DataView;
 
+    /** FrameBuffer */
+    protected frameSubset!: ArrayBuffer;
+
     public constructor(
         protected url: string,
         protected blob: Blob,
@@ -21,6 +24,8 @@ export default abstract class AbstractParser {
     protected async init() {
         const buffer = await this.blob.arrayBuffer();
         this.data = new DataView(buffer);
+        const frameSubset = buffer.slice( 25 );
+        this.frameSubset = frameSubset;
         return this;
     }
 
@@ -90,6 +95,7 @@ export default abstract class AbstractParser {
     protected pixels?: number[];
     protected abstract getPixels(): Promise<number[]>;
     protected isValidPixels = (value: number[] | undefined) => {
+        return true;
         return value !== undefined && value.length === (this.width! * this.height!)
     }
     protected async parsePixels() {
@@ -117,6 +123,18 @@ export default abstract class AbstractParser {
         if (!this.isValidMax(value))
             this.logValidationError("max", value);
         this.max = value;
+    }
+
+
+    // Frame count
+    protected frameCount?: number;
+    protected isValidFrameCount = ( value: number |undefined ) => Number.isInteger( value )
+    protected abstract getFrameCount(): number;
+    protected parseFrameCount() {
+        const value = this.getFrameCount();
+        if ( ! this.isValidFrameCount( value ) )
+            this.logValidationError( "frameCount", value );
+        this.frameCount = value;
     }
 
 

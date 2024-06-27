@@ -6,7 +6,7 @@ export default class ThermalDomFactory {
         container.classList.add( "thermalCanvasWrapper" );
         // container.style.transition = "opacity 300ms ease-in-out";
         container.style.position = "relative";
-        container.part.add( "thermal-canvas" );
+        // container.part.add( "thermal-canvas" );
         return container;
     }
 

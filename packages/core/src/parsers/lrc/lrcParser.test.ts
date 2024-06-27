@@ -72,9 +72,26 @@ describe("LrcParser", () => {
 
     });
 
+    test( "parsing frame count", async () => {
+
+        // Soustruh is a TIMI camaera file and shouls have one frame
+        const soustruh = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.SOUSTRUH )
+        expect( soustruh!.frameCount ).toEqual( 1 );
+
+        // Tucnaci is a HD camera file and should have one frame
+        const tucnaci = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.TUCNACI );
+        expect( tucnaci!.frameCount ).toEqual( 1 );
+
+        // Sequence is a TIMI camera file and should have 518 frames
+        const sequence = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.SEQUENCE )
+        expect( sequence!.frameCount ).toEqual( 518 );
+
+
+    } );
+
     test( "parsing LRC sequences", async () => {
 
-        const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
+        // const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
 
     } );
 

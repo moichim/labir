@@ -47,6 +47,8 @@ export interface ThermalFileInterface {
     /** Minimal temperature of the entire file */
     max: number,
 
+    frameCount: number
+
     // frames: ThermalFrames
 
     
@@ -87,6 +89,7 @@ export class ThermalFileSource extends EventTarget implements ThermalFileInterfa
         public readonly pixels: number[],
         public readonly min: number,
         public readonly max: number,
+        public readonly frameCount: number,
         public readonly visibleUrl?: string,
     ) {
         super();

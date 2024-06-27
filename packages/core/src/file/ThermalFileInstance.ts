@@ -40,6 +40,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
     public get version() { return this.source.version; }
     public get streamCount() { return this.source.streamCount; }
     public get fileDataType() { return this.source.fileDataType; }
+    public get frameCount() { return this.source.frameCount; }
     // frames: Map<number, ThermalFrame>;
     
 
