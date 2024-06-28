@@ -2,7 +2,7 @@ import * as pjson from "../package.json"
 
 // Import individual components
 
-import "./components/single/thermalFileElement";
+// import "./components/single/thermalFileElement";
 
 // These must goo in the following order
 import "./components/structure/manager/ManagerComponent";
