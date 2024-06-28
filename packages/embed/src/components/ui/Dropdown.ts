@@ -49,7 +49,8 @@ export class Dropdown extends LitElement {
 
         computePosition(this.invokerRef.value!, this.optionsRef.value!, {
             middleware: [offset(2), flip(), inline(), shift()],
-            placement: "bottom-start"
+            placement: "bottom-start",
+            strategy: "fixed"
         })
             .then(({ x, y }) => {
 
@@ -121,7 +122,8 @@ export class Dropdown extends LitElement {
             z-index: 9999;
 
             width: max-content;
-            position: absolute;
+            /** position: absolute; */
+            position: fixed;
             top: 0;
             left: 0;
             

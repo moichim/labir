@@ -102,11 +102,11 @@ export class ThermalFileSource extends EventTarget implements ThermalFileInterfa
         this.fileName = this.url.substring( this.url.lastIndexOf( "/" ) + 1 );
 
         // Get the pixels in frame
-        const totalPixelsBuffer: number[] = [];
+        let totalPixelsBuffer: number[] = [];
 
-        // this.frames.forEach( frame => {
-            // totalPixelsBuffer = totalPixelsBuffer.concat( frame.pixels )
-        // } );
+        this.frames.forEach( frame => {
+            totalPixelsBuffer = totalPixelsBuffer.concat( frame.pixels )
+        } );
 
         this.pixelsForHistogram = totalPixelsBuffer;
 

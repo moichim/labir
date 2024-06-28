@@ -17,6 +17,7 @@ import "./components/ui/Dialog";
 import "./components/ui/Button";
 // import "./components/ui/DialogElement";
 import "./components/ui/Dropdown";
+import "./components/ui/Bar";
 
 // Other components may go in any order
 import "./components/properties/PaletteDropwodnElement";
@@ -26,7 +27,11 @@ import "./components/buttons/RegistrySetMnimaxRangeButton";
 import "./components/buttons/FileInfoButton";
 import "./components/buttons/AppInfoButton";
 import "./components/buttons/FileNameButton";
+import "./components/buttons/FileDownloadButton";
 import "./components/properties/RangeSliderElement";
+import "./components/properties/Histogram";
+import "./components/properties/Ticks";
+import "./components/buttons/FileShareButton";
 
 import "./components/apps/SingleFileApp";
 

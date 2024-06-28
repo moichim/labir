@@ -66,6 +66,14 @@ export class RangeSliderElement extends ElementInheritingRegistry {
 
         const slider = this.sliderRef.value!;
 
+        slider.addCSS( `
+                .pointer-shape {
+                    border-color: var( --thermal-foreground );
+                    border-radius: 0;
+                    width: 7px;
+                }
+        ` );
+
         slider.addEventListener("change", (event: Event) => {
 
             const evt = event as CustomEvent;
@@ -99,9 +107,17 @@ export class RangeSliderElement extends ElementInheritingRegistry {
         .container {
             height: var( --thermal-gap );
             padding: calc( var( --thermal-gap ) * .5 );
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-bottom: -6px;
         }
 
         .loading {
+
+            .skeleton {
+                background: var( --thermal-slate );
+                height: .9rem;
+            }
 
             tc-range-slider {
                 display: none;
@@ -109,6 +125,11 @@ export class RangeSliderElement extends ElementInheritingRegistry {
         }
 
         .ready {
+
+            .skeleton {
+                display: none;
+            }
+
         }
     
     `;
@@ -117,6 +138,8 @@ export class RangeSliderElement extends ElementInheritingRegistry {
         return html`
 
         <div class="container ${this.canRanderSlider() ? "ready" : "loading"}">
+
+            <div class="skeleton"></div>
 
             <tc-range-slider 
                 ${ref(this.sliderRef)}
@@ -129,7 +152,14 @@ export class RangeSliderElement extends ElementInheritingRegistry {
                 value1="${this.from}"
                 value2="${this.to}"
 
+                slider-radius="0"
+
+                slider-bg="var( --thermal-slate )"
+                slider-bg-hover="var( --thermal-slate )"
                 slider-bg-fill="${this.palette.gradient}"
+
+                pointer-bg="${this.palette.pixels[0]}"
+                pointer2-bg="${this.palette.pixels[ this.palette.pixels.length - 1 ]}"
                 
                 generate-labels="true"
                 

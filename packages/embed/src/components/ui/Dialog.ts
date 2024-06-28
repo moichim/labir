@@ -2,7 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
-@customElement( "thermal-dialog-component" )
+@customElement( "thermal-dialog" )
 export class Dialog extends LitElement {
 
     protected dialogRef: Ref<HTMLDialogElement> = createRef();

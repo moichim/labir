@@ -11,7 +11,7 @@ export interface IWithHistogram extends IBaseProperty {
  */
 export class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
 
-    protected _resolution = 50;
+    protected _resolution = 150;
     public get resolution() { return this._resolution; };
 
     /** Map of temperature => countOfPixels in the scaled down resolution */

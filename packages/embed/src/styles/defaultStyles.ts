@@ -124,6 +124,7 @@ export const addDefaultStyles = () => {
         
             body.${DARK_MODE_CLASS} {
 
+                --thermal-primary: aqua;
                 --thermal-foreground: white;
                 --thermal-background: black;
             

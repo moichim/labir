@@ -2,8 +2,8 @@ import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
 
-@customElement("thermal-file-name")
-export class FileNameButton extends ElementInheritingFile {
+@customElement("thermal-file-download")
+export class FileDownloadButton extends ElementInheritingFile {
     protected getClassName(): string {
         return "FileNameButton";
     }
@@ -49,20 +49,11 @@ export class FileNameButton extends ElementInheritingFile {
     protected render(): unknown {
         return html`
 
-            <thermal-button variant="foreground">
-            ${this._injectedFile.value 
-                ? this._injectedFile.value.fileName
-                : "Loading..."
-            }
-            </thermal-button>
-
-            <!--
-            
             <thermal-dropdown variant="foreground">
 
                 <div slot="invoker" class="button">
                 ${this._injectedFile.value 
-                    ? this._injectedFile.value.fileName
+                    ? "Download"
                     : "Načítám..."
                 }
                 </div>
@@ -80,8 +71,6 @@ export class FileNameButton extends ElementInheritingFile {
                     </div>
             
             </thermal-dropdown>
-
-            -->
 
         
         `

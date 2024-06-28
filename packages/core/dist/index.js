@@ -786,7 +786,10 @@ var ThermalFileSource = class extends EventTarget {
     this.frames = frames;
     this.visibleUrl = visibleUrl;
     this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
-    const totalPixelsBuffer = [];
+    let totalPixelsBuffer = [];
+    this.frames.forEach((frame) => {
+      totalPixelsBuffer = totalPixelsBuffer.concat(frame.pixels);
+    });
     this.pixelsForHistogram = totalPixelsBuffer;
     this.duration = this.frames.length === 0 ? 0 : this.frames[this.frames.length - 1].timestamp - this.frames[0].timestamp;
   }
@@ -1573,7 +1576,7 @@ var GroupsState = class extends AbstractProperty {
 var HistogramState = class extends AbstractProperty {
   constructor() {
     super(...arguments);
-    this._resolution = 50;
+    this._resolution = 150;
     /** Map of temperature => countOfPixels in the scaled down resolution */
     this.buffer = /* @__PURE__ */ new Map();
     /** Total countOfPixels in every image */

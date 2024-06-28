@@ -49,7 +49,7 @@ export class FileInfoButton extends ElementInheritingFile {
 
     protected render(): unknown {
         return html`
-            <thermal-dialog-component label="File info">
+            <thermal-dialog label="File info">
                 <thermal-button slot="invoker">File info</thermal-button>
                 <div slot="content">
 
