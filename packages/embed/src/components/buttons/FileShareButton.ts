@@ -1,7 +1,6 @@
 import { customElement } from "lit/decorators.js";
 import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
 import { css, html } from "lit";
-import { TimeFormat } from "@labir/core";
 
 @customElement("thermal-file-share")
 export class FileShareButton extends ElementInheritingFile {
@@ -40,7 +39,7 @@ export class FileShareButton extends ElementInheritingFile {
 &lt;script src=&quot; https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js &quot;&gt;&lt;/script&gt;
 
 &lt;!-- The file itself may be placed anywhere in the body --&gt;
-&lt;thermal-file-app url=&quot;${this._injectedFile.value!.url}c&quot;&gt;&lt;/thermal-file-app&gt;
+&lt;thermal-file-app url=&quot;${this._injectedFile.value?.url}c&quot;&gt;&lt;/thermal-file-app&gt;
                     </code>
                 </div>
             </thermal-dialog-component>

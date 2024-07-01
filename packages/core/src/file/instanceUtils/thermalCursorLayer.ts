@@ -103,6 +103,13 @@ export default class ThermalCursorLayer extends AbstractLayer {
 
     }
 
+    public setValue(
+        value?: number
+    ) {
+        if ( value )
+            this.label.innerHTML = `${value.toFixed(3)} °C`;
+    }
+
     public resetCursor(): void {
         // this.axisX.style.left = "0px";
         // this.axisY.style.top = "0px";

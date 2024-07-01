@@ -32,6 +32,7 @@ import "./components/properties/RangeSliderElement";
 import "./components/properties/Histogram";
 import "./components/properties/Ticks";
 import "./components/buttons/FileShareButton";
+import "./components/properties/Timeline";
 
 import "./components/apps/SingleFileApp";
 

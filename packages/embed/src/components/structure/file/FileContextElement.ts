@@ -22,7 +22,7 @@ export class FileContextElement extends ElementInheritingGroup {
     @property({ type: String, reflect: true })
     visible?: string;
 
-    @state()
+    @property()
     file?: ThermalFileInstance
 
     @state()

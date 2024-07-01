@@ -1,5 +1,5 @@
 import { ContextProvider } from "@lit/context";
-import { css, html } from "lit";
+import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ElementInheritingManager } from "../manager/ElementInherigingManager";
 import { RegistryContext } from "../contexts";
@@ -12,26 +12,6 @@ export class ThermalRegistryElement extends ElementInheritingManager {
     }
 
     static DEFAULT_NAME = "default_registry";
-
-    static styles = css`
-
-    button {
-        color: pink;
-    }
-
-    div {
-        color: navy;
-    }
-
-        blockquote {
-            color: gray
-        }
-
-        h2 {
-            color: yellow;
-        }
-    
-    `;
 
     @property( {type: String, attribute: true, reflect: true} )
     uuid: string = ThermalRegistryElement.DEFAULT_NAME;

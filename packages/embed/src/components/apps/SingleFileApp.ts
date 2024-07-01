@@ -121,6 +121,7 @@ export class SingleFileApp extends ElementInheritingGroup {
               <thermal-histogram slot="pre" interactive></thermal-histogram>
               <thermal-range slot="pre"></thermal-range>
               <thermal-ticks slot="pre"></thermal-ticks>
+              <thermal-timeline></thermal-timeline>
 
               <div slot="bar" style="flex-grow: 4;">
                 <thermal-bar>

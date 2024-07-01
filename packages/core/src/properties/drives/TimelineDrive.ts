@@ -39,9 +39,10 @@ export class TimelineDrive extends AbstractProperty<number, ThermalFileInstance>
         frame: FrameType
     ) {
         if ( frame.ms !== this._currentFrame.ms ) {
-            console.log( "Měním frejm" );
             this._currentFrame = frame;
             this._onChangeListeners.forEach(fn => fn(this._currentFrame));
+            console.log( "změnil se mi frame" );
+            this.parent.pixels = frame.pixels;
         }
     }
     public get currentFrame() {
@@ -209,6 +210,32 @@ export class TimelineDrive extends AbstractProperty<number, ThermalFileInstance>
         if (this.nextFrame) {
             this.value = this.nextFrame.ms;
         }
+    }
+
+    static formatDuration( ms: number ) {
+        const millis = ms % 1000;
+        const secs = ( ms - millis ) % ( 1000 * 60 );
+        const mins = ( ms - millis - secs ) / ( 1000 * 60 * 60 );
+
+        return [
+            mins, secs, millis
+        ].join( ":" );
+    }
+
+    protected timer?: ReturnType<typeof setTimeout>;
+    play() {
+
+        this.timer = setInterval( () => {
+            this.goToNextFrame();
+        }, this.nextFrameTimeoutDuration );
+
+    }
+    pause() {
+        clearInterval( this.timer );
+    }
+    stop() {
+        clearInterval( this.timer );
+        this.setMs(0);
     }
 
 

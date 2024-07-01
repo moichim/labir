@@ -26,7 +26,6 @@ export class HistogramElement extends ElementInheritingRegistry {
 
         this.registry.histogram.addListener( this.identificator, value => {
             this.histogram = value;
-            console.log( value );
         } );
 
     }

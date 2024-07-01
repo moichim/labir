@@ -596,6 +596,11 @@ declare class TimelineDrive extends AbstractProperty<number, ThermalFileInstance
     protected afterSetEffect(value: number): void;
     setMs(ms: number): void;
     goToNextFrame(): void;
+    static formatDuration(ms: number): string;
+    protected timer?: ReturnType<typeof setTimeout>;
+    play(): void;
+    pause(): void;
+    stop(): void;
 }
 
 /** Handle the entire exports of a file */
@@ -668,6 +673,7 @@ declare class ThermalCursorLayer extends AbstractLayer {
     get hover(): boolean;
     set hover(value: boolean);
     setCursor(x: number, y: number, value: number): void;
+    setValue(value?: number): void;
     resetCursor(): void;
     protected px(number: number): string;
     getLayerRoot(): HTMLDivElement;
@@ -711,8 +717,10 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     get duration(): number;
     get min(): number;
     get max(): number;
-    get pixels(): number[];
     get pixelsForHistogram(): number[];
+    protected _pixels: number[];
+    get pixels(): number[];
+    set pixels(pixels: number[]);
     readonly id: string;
     protected readonly horizontalLimit: number;
     protected readonly verticalLimit: number;

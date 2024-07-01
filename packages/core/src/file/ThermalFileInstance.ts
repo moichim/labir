@@ -46,8 +46,39 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
 
     public get min() { return this.source.min; }
     public get max() { return this.source.max; }
-    public get pixels() { return this.source.pixels; }
     public get pixelsForHistogram() { return this.source.pixelsForHistogram }
+
+
+    protected _pixels: number[];
+    public get pixels() {
+        return this._pixels;
+    }
+    public set pixels(
+        pixels: number[]
+    ) {
+        this._pixels = pixels;
+        
+        // If this file is loaded, recalculate all side effects
+        if ( this._mounted ) {
+            
+            // Redraw
+            this.draw();
+            
+            // Recalculate the value in the group container
+            this.cursorValue.recalculateFromCursor( this.group.cursorPosition.value );
+
+            // Recalculate the value in the local cursor layer
+            if ( this.group.cursorPosition.value ) {
+                
+                // Get the new value
+                const value = this.getTemperatureAtPoint( this.group.cursorPosition.value.x, this.group.cursorPosition.value.y );
+                
+                // Set the value
+                this.cursorLayer.setValue( value );
+            }
+        }
+    }
+
     
 
     // Necessary properties are calculated in the constructor
@@ -66,6 +97,7 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
         this.id = `instance_${this.group.id}_${this.source.url}`;
         this.horizontalLimit = (this.width / 4) * 3;
         this.verticalLimit = (this.height / 4) * 3;
+        this._pixels = this.timeline.currentFrame.pixels;
     }
     
 

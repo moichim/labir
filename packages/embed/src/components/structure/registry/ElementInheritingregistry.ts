@@ -8,6 +8,7 @@ export abstract class ElementInheritingRegistry extends ElementInheritingManager
 
     public _injectedRegistry = new ContextConsumer( this, { context: RegistryContext, subscribe: true } );
 
+    @state()
     private _registry!: ThermalRegistry;
 
     /** The registry instance injected from above or created in place. */

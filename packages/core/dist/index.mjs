@@ -73,9 +73,10 @@ var TimelineDrive = class extends AbstractProperty {
   }
   set currentFrame(frame) {
     if (frame.ms !== this._currentFrame.ms) {
-      console.log("M\u011Bn\xEDm frejm");
       this._currentFrame = frame;
       this._onChangeListeners.forEach((fn) => fn(this._currentFrame));
+      console.log("zm\u011Bnil se mi frame");
+      this.parent.pixels = frame.pixels;
     }
   }
   get currentFrame() {
@@ -157,6 +158,28 @@ var TimelineDrive = class extends AbstractProperty {
     if (this.nextFrame) {
       this.value = this.nextFrame.ms;
     }
+  }
+  static formatDuration(ms) {
+    const millis = ms % 1e3;
+    const secs = (ms - millis) % (1e3 * 60);
+    const mins = (ms - millis - secs) / (1e3 * 60 * 60);
+    return [
+      mins,
+      secs,
+      millis
+    ].join(":");
+  }
+  play() {
+    this.timer = setInterval(() => {
+      this.goToNextFrame();
+    }, this.nextFrameTimeoutDuration);
+  }
+  pause() {
+    clearInterval(this.timer);
+  }
+  stop() {
+    clearInterval(this.timer);
+    this.setMs(0);
   }
 };
 
@@ -551,6 +574,11 @@ var ThermalCursorLayer = class extends AbstractLayer {
       this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
     }
   }
+  setValue(value) {
+    console.log("setting value", value);
+    if (value)
+      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+  }
   resetCursor() {
     this.center.style.top = "0px";
     this.center.style.left = "0px";
@@ -629,6 +657,7 @@ var ThermalFileInstance = class extends EventTarget {
     this.id = `instance_${this.group.id}_${this.source.url}`;
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
+    this._pixels = this.timeline.currentFrame.pixels;
   }
   // Core properties are mirrored from the source
   /** Url of the thermal file source */
@@ -685,11 +714,23 @@ var ThermalFileInstance = class extends EventTarget {
   get max() {
     return this.source.max;
   }
-  get pixels() {
-    return this.source.pixels;
-  }
+  // public get pixels() { return this.source.pixels; }
   get pixelsForHistogram() {
     return this.source.pixelsForHistogram;
+  }
+  get pixels() {
+    return this._pixels;
+  }
+  set pixels(pixels) {
+    this._pixels = pixels;
+    if (this._mounted) {
+      this.draw();
+      this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
+      if (this.group.cursorPosition.value) {
+        const value = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
+        this.cursorLayer.setValue(value);
+      }
+    }
   }
   destroySelfAndBelow() {
     this.detachFromDom();
