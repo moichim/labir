@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { THERMLGRAM_PATHS } from '../../../node/mocks/thermogram.mock';
 import { ThermalLoader } from '../thermalLoader';
+import { ThermalManager } from '../../manager/ThermalManager';
 
 describe("LrcParser", () => {
 
@@ -33,21 +34,21 @@ describe("LrcParser", () => {
 
     });
 
-    test( "reading thermogram from HD Camera", async () => {
+    test("reading thermogram from HD Camera", async () => {
 
         const tucnaci = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.TUCNACI);
 
-        expect( tucnaci?.timestamp ).toEqual( 1590143917267 );
-        expect( tucnaci?.min ).toEqual( 10.905914306640625 );
-        expect( tucnaci?.max ).toEqual( 35.1416015625 );
-        expect( tucnaci?.pixels.length ).toEqual( 786432 );
-        expect( tucnaci?.unit ).toEqual( 2 );
-        expect( tucnaci?.width ).toEqual( 1024 );
-        expect( tucnaci?.height ).toEqual( 768 );
-        expect( tucnaci?.fileDataType ).toEqual( 0 );
-        expect( tucnaci?.signature ).toEqual( "LRC\u0000" );
+        expect(tucnaci?.timestamp).toEqual(1590143917267);
+        expect(tucnaci?.min).toEqual(10.905914306640625);
+        expect(tucnaci?.max).toEqual(35.1416015625);
+        expect(tucnaci?.pixels.length).toEqual(786432);
+        expect(tucnaci?.unit).toEqual(2);
+        expect(tucnaci?.width).toEqual(1024);
+        expect(tucnaci?.height).toEqual(768);
+        expect(tucnaci?.fileDataType).toEqual(0);
+        expect(tucnaci?.signature).toEqual("LRC\u0000");
 
-    } );
+    });
 
     test("parsing various timestamps", async () => {
 
@@ -66,34 +67,44 @@ describe("LrcParser", () => {
 
 
         // Load the pinguins
-        const tucnaci = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.TUCNACI );
+        const tucnaci = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.TUCNACI);
 
-        expect( tucnaci?.timestamp ).toEqual( 1590143917267 );
+        expect(tucnaci?.timestamp).toEqual(1590143917267);
 
     });
 
-    test( "parsing frame count", async () => {
+    test("parsing frame count", async () => {
 
         // Soustruh is a TIMI camaera file and shouls have one frame
-        const soustruh = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.SOUSTRUH )
-        expect( soustruh!.frameCount ).toEqual( 1 );
+        const soustruh = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SOUSTRUH)
+        expect(soustruh!.frameCount).toEqual(1);
 
         // Tucnaci is a HD camera file and should have one frame
-        const tucnaci = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.TUCNACI );
-        expect( tucnaci!.frameCount ).toEqual( 1 );
+        const tucnaci = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.TUCNACI);
+        expect(tucnaci!.frameCount).toEqual(1);
 
         // Sequence is a TIMI camera file and should have 518 frames
-        const sequence = await ThermalLoader.fromUrl( THERMLGRAM_PATHS.SEQUENCE )
-        expect( sequence!.frameCount ).toEqual( 518 );
+        const sequence = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE)
+        expect(sequence!.frameCount).toEqual(518);
 
 
-    } );
+    });
 
-    test( "parsing LRC sequences", async () => {
+    test("parsing LRC sequences", async () => {
 
-        // const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
+        const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
 
-    } );
+        const manager = new ThermalManager;
+        const registry = manager.addOrGetRegistry("test_registry");
+        const group = registry.groups.addOrGetGroup("test_group");
+
+        const instance = lrc!.createInstance(group);
+
+        const timeline = instance.timeline;
+
+        expect(timeline.value).toEqual(0);
+
+    });
 
 
 });

@@ -38,6 +38,128 @@ var AbstractProperty = class {
   }
 };
 
+// src/properties/drives/TimelineDrive.ts
+var TimelineDrive = class extends AbstractProperty {
+  constructor(parent, initial) {
+    super(parent, initial);
+    this.parent = parent;
+    this.framesByTimestamp = /* @__PURE__ */ new Map();
+    this.framesByMs = /* @__PURE__ */ new Map();
+    this.framesByIndex = /* @__PURE__ */ new Map();
+    this.localTimeline = [];
+    this._onChangeListeners = /* @__PURE__ */ new Map();
+    const startOfSequence = this.parent.frames[0].timestamp;
+    this.frames = this.parent.frames.map((frame, index) => {
+      const ms = frame.timestamp - startOfSequence;
+      const value = {
+        ...frame,
+        index,
+        ms
+      };
+      this.framesByIndex.set(index, value);
+      this.framesByMs.set(value.ms, value);
+      this.framesByTimestamp.set(value.timestamp, value);
+      this.localTimeline.push(value.ms);
+      return value;
+    });
+    this._currentFrame = this.frames[0];
+    console.log("timeline", this.localTimeline);
+  }
+  get duration() {
+    return this.parent.duration;
+  }
+  get frameCount() {
+    return this.frames.length;
+  }
+  set currentFrame(frame) {
+    if (frame.ms !== this._currentFrame.ms) {
+      console.log("M\u011Bn\xEDm frejm");
+      this._currentFrame = frame;
+      this._onChangeListeners.forEach((fn) => fn(this._currentFrame));
+    }
+  }
+  get currentFrame() {
+    return this._currentFrame;
+  }
+  get nextFrame() {
+    const current = this.currentFrame;
+    const nextIndex = current.index + 1;
+    if (nextIndex <= this.frameCount) {
+      return this.framesByIndex.get(nextIndex);
+    }
+    return void 0;
+  }
+  get nextFrameTimeoutDuration() {
+    if (this.nextFrame !== void 0) {
+      return this.nextFrame.ms - this.currentFrame.ms;
+    }
+    return void 0;
+  }
+  /** Event listener to changement of the current frame.
+   * - the current frame is not changed every time the value changes
+   * - the current frame is changed only when the ms value points fo a new previous frame
+   */
+  addChangeListener(identificator, fn) {
+    this._onChangeListeners.set(identificator, fn);
+  }
+  removeChangeListener(identificator) {
+    this._onChangeListeners.delete(identificator);
+  }
+  /** 
+   * Get the next frame to a given MS
+   * @todo improve the performance
+   * @internal
+   */
+  getNextFrameToMs(ms) {
+    const nextTimestamp = this.localTimeline.find((timestamp) => timestamp > ms);
+    if (nextTimestamp === void 0) {
+      return void 0;
+    }
+    return this.framesByMs.get(nextTimestamp);
+  }
+  /** 
+   * Get the previous frame to a given MS 
+   * @todo improve performance
+   * @internal
+   */
+  getPreviousFrameToMs(ms) {
+    const previousTimestamp = this.localTimeline.reverse().find((timestamp) => timestamp < ms);
+    if (previousTimestamp === void 0) {
+      return void 0;
+    }
+    return this.framesByMs.get(previousTimestamp);
+  }
+  /** Check if the value is within the duration */
+  validate(value) {
+    if (value < 0)
+      return 0;
+    return value <= this.duration ? value : this.duration;
+  }
+  /** Any time the value is set, check if there is a frame and eventually setit */
+  afterSetEffect(value) {
+    if (value === this.currentFrame.ms) {
+    } else if (this.localTimeline.includes(value)) {
+      const newFrame = this.framesByMs.get(value);
+      if (this.currentFrame.ms !== newFrame.ms)
+        this.currentFrame = newFrame;
+    } else {
+      const prevFrame = this.getPreviousFrameToMs(value);
+      if (prevFrame) {
+        if (prevFrame.ms !== this.currentFrame.ms)
+          this.currentFrame = prevFrame;
+      }
+    }
+  }
+  setMs(ms) {
+    this.value = ms;
+  }
+  goToNextFrame() {
+    if (this.nextFrame) {
+      this.value = this.nextFrame.ms;
+    }
+  }
+};
+
 // src/properties/states/CursorValueDrive.ts
 var CursorValueDrive = class extends AbstractProperty {
   validate(value) {
@@ -57,6 +179,27 @@ var CursorValueDrive = class extends AbstractProperty {
     const index = x + y * this.parent.width;
     const value = this.parent.pixels[index];
     return value;
+  }
+};
+
+// src/file/instanceUtils/ThermalFileExports.ts
+import { download, generateCsv, mkConfig } from "export-to-csv";
+var ThermalFileExport = class {
+  constructor(file) {
+    this.file = file;
+  }
+  canvasAsPng() {
+    return this.file.canvasLayer.exportAsPng();
+  }
+  thermalDataAsCsv(fileNameSuffix = "__thermal-data") {
+    const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace(".lrc", fileNameSuffix) });
+    const data = this.file.frames.map((frame) => {
+      const { pixels, ...data2 } = frame;
+      console.log(pixels);
+      return data2;
+    });
+    const csv = generateCsv(csvConfig)(data);
+    download(csvConfig)(csv);
   }
 };
 
@@ -447,7 +590,6 @@ var ThermalListenerLayer = class extends AbstractLayer {
 };
 
 // src/file/ThermalFileInstance.ts
-import { mkConfig, generateCsv, download } from "export-to-csv";
 var ThermalFileInstance = class extends EventTarget {
   constructor(source, group) {
     super();
@@ -480,6 +622,10 @@ var ThermalFileInstance = class extends EventTarget {
     */
     this.cursorValue = new CursorValueDrive(this, void 0);
     this._isHover = false;
+    /**
+     * Frames
+     */
+    this.timeline = new TimelineDrive(this, 0);
     this.id = `instance_${this.group.id}_${this.source.url}`;
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
@@ -698,24 +844,34 @@ var ThermalFileInstance = class extends EventTarget {
       this.canvasLayer.opacity = value;
     }
   }
+  //////  Human readable data shall be moved elsewhere!
   get unitHuman() {
     return this.unit === 0 ? "none" : this.unit === 1 ? "intensity" : this.unit === 2 ? "\xB0C" : this.unit === 3 ? "Kelvin" : "unit not specified";
   }
   get dataTypeHuman() {
     return this.dataType === 0 ? "Float16" : this.dataType === 1 ? "Float32" : this.dataType === 2 ? "Int16" : "error parsing data type";
   }
-  exportAsPng() {
-    this.canvasLayer.exportAsPng();
+  /** Lazy-loaded `ThermalFileExport` object */
+  get export() {
+    if (!this._export) {
+      const newExport = new ThermalFileExport(this);
+      this._export = newExport;
+    }
+    return this._export;
   }
+  /** 
+   * Export the current canvas state as PNG 
+   * @deprecated call this.export directly
+  */
+  exportAsPng() {
+    this.export.canvasAsPng();
+  }
+  /** 
+   * Export thermal parameters as CSV table 
+   * @deprecated call this.export directly
+  */
   exportThermalDataAsSvg() {
-    const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.fileName.replace(".lrc", "__thermal-data") });
-    const data = this.frames.map((frame) => {
-      const { pixels, ...data2 } = frame;
-      console.log(pixels);
-      return data2;
-    });
-    const csv = generateCsv(csvConfig)(data);
-    download(csvConfig)(csv);
+    this.export.thermalDataAsCsv();
   }
 };
 

@@ -544,6 +544,68 @@ declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPosition
     recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
 }
 
+type FrameType = ILrcFrame & {
+    /** Index of the frame within the sequence */
+    index: number;
+    /** Milisecondes since start of the sequence */
+    ms: number;
+};
+type Frames = Array<FrameType>;
+type FramesByTimestamp = Map<number, FrameType>;
+type FramesByMs = Map<number, FrameType>;
+type FramesByIndex = Map<number, FrameType>;
+type TimelineFrameChangedEventListener = (frame: FrameType) => void;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class TimelineDrive extends AbstractProperty<number, ThermalFileInstance> {
+    readonly parent: ThermalFileInstance;
+    protected readonly frames: Frames;
+    get duration(): number;
+    get frameCount(): number;
+    readonly framesByTimestamp: FramesByTimestamp;
+    readonly framesByMs: FramesByMs;
+    readonly framesByIndex: FramesByIndex;
+    readonly localTimeline: number[];
+    protected _currentFrame: FrameType;
+    protected set currentFrame(frame: FrameType);
+    get currentFrame(): FrameType;
+    get nextFrame(): FrameType | undefined;
+    get nextFrameTimeoutDuration(): number | undefined;
+    protected _onChangeListeners: Map<string, TimelineFrameChangedEventListener>;
+    /** Event listener to changement of the current frame.
+     * - the current frame is not changed every time the value changes
+     * - the current frame is changed only when the ms value points fo a new previous frame
+     */
+    addChangeListener(identificator: string, fn: TimelineFrameChangedEventListener): void;
+    removeChangeListener(identificator: string): void;
+    constructor(parent: ThermalFileInstance, initial: number);
+    /**
+     * Get the next frame to a given MS
+     * @todo improve the performance
+     * @internal
+     */
+    getNextFrameToMs(ms: number): FrameType | undefined;
+    /**
+     * Get the previous frame to a given MS
+     * @todo improve performance
+     * @internal
+     */
+    getPreviousFrameToMs(ms: number): FrameType | undefined;
+    /** Check if the value is within the duration */
+    protected validate(value: number): number;
+    /** Any time the value is set, check if there is a frame and eventually setit */
+    protected afterSetEffect(value: number): void;
+    setMs(ms: number): void;
+    goToNextFrame(): void;
+}
+
+/** Handle the entire exports of a file */
+declare class ThermalFileExport {
+    readonly file: ThermalFileInstance;
+    constructor(file: ThermalFileInstance);
+    canvasAsPng(): void;
+    thermalDataAsCsv(fileNameSuffix?: string): void;
+}
+
 declare abstract class AbstractLayer {
     protected readonly instance: ThermalFileInstance;
     constructor(instance: ThermalFileInstance);
@@ -719,8 +781,26 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
     recieveOpacity(value: number): void;
     get unitHuman(): "none" | "intensity" | "°C" | "Kelvin" | "unit not specified";
     get dataTypeHuman(): "Float16" | "Float32" | "Int16" | "error parsing data type";
+    /**
+     * Exports
+     */
+    protected _export?: ThermalFileExport;
+    /** Lazy-loaded `ThermalFileExport` object */
+    get export(): ThermalFileExport;
+    /**
+     * Export the current canvas state as PNG
+     * @deprecated call this.export directly
+    */
     exportAsPng(): void;
+    /**
+     * Export thermal parameters as CSV table
+     * @deprecated call this.export directly
+    */
     exportThermalDataAsSvg(): void;
+    /**
+     * Frames
+     */
+    readonly timeline: TimelineDrive;
 }
 
 /**

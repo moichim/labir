@@ -1,15 +1,16 @@
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
+import { TimelineDrive } from "../properties/drives/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
 import { ThermalFileInterface, ThermalFileSource } from "./ThermalFileSource";
+import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
 
-import { mkConfig, generateCsv, download } from "export-to-csv";
 
 /**
  * @todo implement variants toggling
@@ -371,6 +372,11 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
         }
     }
 
+
+
+
+    //////  Human readable data shall be moved elsewhere!
+
     public get unitHuman() {
         return this.unit === 0
             ? "none"
@@ -393,30 +399,51 @@ export class ThermalFileInstance extends EventTarget implements IThermalInstance
                     : "error parsing data type"
     }
 
+
+
+
+    /**
+     * Exports
+     */
+
+
+
+    protected _export?: ThermalFileExport;
+    /** Lazy-loaded `ThermalFileExport` object */
+    public get export() {
+        if ( ! this._export ) {
+            const newExport = new ThermalFileExport( this );
+            this._export = newExport;
+        }
+        return this._export;
+    }
+
+
+    /** 
+     * Export the current canvas state as PNG 
+     * @deprecated call this.export directly
+    */
     public exportAsPng() {
-        this.canvasLayer.exportAsPng();
+        this.export.canvasAsPng();
     }
 
+    /** 
+     * Export thermal parameters as CSV table 
+     * @deprecated call this.export directly
+    */
     public exportThermalDataAsSvg() {
-
-        const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.fileName.replace( ".lrc", "__thermal-data" ) });
-
-
-        const data = this.frames.map( frame => {
-
-            const { pixels, ...data } = frame;
-
-            console.log( pixels );
-
-            return data;
-
-        } );
-
-        const csv = generateCsv( csvConfig )( data );
-
-        download( csvConfig )(csv);
-
+        this.export.thermalDataAsCsv();
     }
+
+
+
+
+    /**
+     * Frames
+     */
+    public readonly timeline = new TimelineDrive( this, 0 );
+
+
 
 
 }
