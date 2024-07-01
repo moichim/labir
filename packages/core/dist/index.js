@@ -201,6 +201,11 @@ var TimelineDrive = class extends AbstractProperty {
   setMs(ms) {
     this.value = ms;
   }
+  setPercentage(percentage) {
+    const percent = Math.min(Math.max(percentage, 0), 100);
+    const time = this.duration / 100 * percent;
+    this.value = Math.floor(time);
+  }
   goToNextFrame() {
     if (this.nextFrame) {
       this.value = this.nextFrame.ms;
@@ -622,7 +627,6 @@ var ThermalCursorLayer = class extends AbstractLayer {
     }
   }
   setValue(value) {
-    console.log("setting value", value);
     if (value)
       this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
   }
@@ -761,7 +765,6 @@ var ThermalFileInstance = class extends EventTarget {
   get max() {
     return this.source.max;
   }
-  // public get pixels() { return this.source.pixels; }
   get pixelsForHistogram() {
     return this.source.pixelsForHistogram;
   }

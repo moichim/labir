@@ -2,7 +2,7 @@ import { ThermalFileInstance } from "@labir/core";
 import { ContextConsumer } from "@lit/context";
 import { FileContext } from "../contexts";
 import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
-import { property, state } from "lit/decorators.js";
+import { state } from "lit/decorators.js";
 import { PropertyValueMap } from "lit";
 
 export abstract class ElementInheritingFile extends ElementInheritingGroup {
@@ -11,11 +11,14 @@ export abstract class ElementInheritingFile extends ElementInheritingGroup {
     protected _injectedFile = new ContextConsumer(this, { context: FileContext, subscribe: true });
 
     @state()
-    protected _file?: ThermalFileInstance;
+    public _file?: ThermalFileInstance;
 
     /** The registry instance injected from above or created in place. */
-    @property()
+    @state()
     public get file() { return this._file; }
+
+    @state()
+    protected ready: boolean = false;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -26,11 +29,13 @@ export abstract class ElementInheritingFile extends ElementInheritingGroup {
 
     }
 
-    protected willUpdate(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): boolean {
-        super.willUpdate(_changedProperties);
+    protected update(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): boolean {
+        super.update(_changedProperties);
 
         if ("_injectedFile" in _changedProperties) {
-            this._file = this._injectedFile.value;
+            // this._file = this._injectedFile.value;
+            // this.ready = this._injectedFile.value !== undefined;
+            // this.onFileLoaded( this._file );
         }
 
         return true;

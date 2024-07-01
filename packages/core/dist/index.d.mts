@@ -595,6 +595,7 @@ declare class TimelineDrive extends AbstractProperty<number, ThermalFileInstance
     /** Any time the value is set, check if there is a frame and eventually setit */
     protected afterSetEffect(value: number): void;
     setMs(ms: number): void;
+    setPercentage(percentage: number): void;
     goToNextFrame(): void;
     static formatDuration(ms: number): string;
     protected timer?: ReturnType<typeof setTimeout>;
@@ -973,4 +974,4 @@ declare class TimeRound extends TimeUtilsBase {
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
-export { type AvailableThermalPalettes, GRAYSCALE, IRON, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };
+export { type AvailableThermalPalettes, GRAYSCALE, IRON, type InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };

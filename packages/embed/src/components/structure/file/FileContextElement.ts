@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "@labir/core";
+import { InstanceFetchCallback, ThermalFileInstance } from "@labir/core";
 import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import {ref, Ref, createRef} from 'lit/directives/ref.js';
@@ -22,7 +22,7 @@ export class FileContextElement extends ElementInheritingGroup {
     @property({ type: String, reflect: true })
     visible?: string;
 
-    @property()
+    @state()
     file?: ThermalFileInstance
 
     @state()
@@ -32,6 +32,7 @@ export class FileContextElement extends ElementInheritingGroup {
     @queryAssignedElements({ slot: "bar", flatten: true })
     protected barItems?: Array<HTMLElement>
 
+    @state()
     private provider = new ContextProvider(this, { context: FileContext, initialValue: undefined });
 
     constructor() {
@@ -180,16 +181,21 @@ export class FileContextElement extends ElementInheritingGroup {
 
 
     protected enqueueInTheRegistry(): void {
-        if (this.thermal)
-            this.group.instances.enqueueAdd(this.thermal, this.visible, (instance, error) => {
+        if (this.thermal) {
+
+            const listener: InstanceFetchCallback = (instance, error): void => {
                 if (instance) {
+                    this.log( "file loaded", this.thermal );
                     this.provider.setValue(instance);
                     this.file = instance;
                     this.errors = [];
                 } else if (error) {
                     this.errors = error.split("+|+");
                 }
-            })
+            };
+
+            this.group.instances.enqueueAdd(this.thermal, this.visible, listener.bind( this ) )
+        }
     }
 
     willUpdate(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {

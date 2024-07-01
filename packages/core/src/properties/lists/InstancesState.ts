@@ -8,7 +8,7 @@ export interface IWithInstances extends IBaseProperty {
     instances: InstancesState
 }
 
-type InstanceFetchCallback = (
+export type InstanceFetchCallback = (
     instance?: ThermalFileInstance,
     errors?: string
 ) => void;

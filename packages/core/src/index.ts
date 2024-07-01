@@ -22,6 +22,8 @@ import { TimeRound } from "./utils/time/rounding";
 
 import { AvailableThermalPalettes } from "./file/palettes";
 
+import { InstanceFetchCallback } from "./properties/lists/InstancesState"
+
 export {
 
 
@@ -32,7 +34,8 @@ export {
     // Registry
     ThermalRegistry,
     ThermalRegistryOptions, 
-    ThermalFileRequest, 
+    ThermalFileRequest,
+    InstanceFetchCallback,
 
     // Group
     ThermalGroup, 

@@ -13,6 +13,10 @@ export class FileInfoButton extends ElementInheritingFile {
         super.connectedCallback();
     }
 
+    protected onFileLoaded(): void {
+        // throw new Error("Method not implemented.");
+    }
+
     static styles = css`
 
         table {

@@ -4,6 +4,7 @@ import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
 
 @customElement("thermal-file-download")
 export class FileDownloadButton extends ElementInheritingFile {
+    
     protected getClassName(): string {
         return "FileNameButton";
     }

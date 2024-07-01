@@ -1,6 +1,7 @@
+import { ThermalFileInstance } from "@labir/core";
 import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
 import { PropertyValueMap, css, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 @customElement("thermal-timeline")
@@ -13,26 +14,38 @@ export class TimelineElement extends ElementInheritingFile {
     protected playing = false;
 
     @state()
-    protected currentMs?: number;
+    protected percentage: number = 0;
 
-    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-        super.attributeChangedCallback( name, _old, value );
-        this.log( name, _old, value );
+    protected timelineRef: Ref<HTMLDivElement> = createRef()
+    protected barRef: Ref<HTMLDivElement> = createRef();
+
+    public onFileLoaded(file?: ThermalFileInstance | undefined): void {
+
+        this.log( "soubor byl načten", file, this.file, file === this.file );
+
+        this._injectedFile.value?.timeline.addListener( this.identificator, (value) => {
+            this.percentage = value / this._injectedFile.value!.duration * 100;
+        } );
+
     }
 
-    protected updated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
-        super.updated( _changedProperties );
-        this.log( _changedProperties );
+    protected update(_changedProperties: Map<PropertyKey, unknown> | PropertyValueMap<this>): boolean {
+        this.log( "proběhla změna", _changedProperties, this._file );
+        return super.update( _changedProperties );
     }
 
     static styles = css`
     
         .container {
 
+            padding-top: calc( var( --thermal-gap ) * .2 );
+
             width: 100%;
 
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: calc( var( --thermal-gap ) * .5 );
 
         }
 
@@ -42,10 +55,11 @@ export class TimelineElement extends ElementInheritingFile {
 
         .button {
             width: var( --thermal-gap );
+            cursor: pointer;
         }
 
         .cursor {
-        
+            width: calc( var( --thermal-gap ) * 4 );
         }
 
         .duration {
@@ -55,6 +69,14 @@ export class TimelineElement extends ElementInheritingFile {
         .timeline {
 
             flex-grow: 1;
+            background: var( --thermal-slate );
+            height: var( --thermal-gap );
+        }
+
+        .bar {
+            height: 100%;
+            background: var( --thermal-primary );
+            content: "";
         }
     
     `;
@@ -92,10 +114,32 @@ export class TimelineElement extends ElementInheritingFile {
     }
 
     play() {
-        console.log( "start" );
         if ( this._injectedFile.value ) {
-            console.log( "začínám" );
+
+            this.playing = true;
             this._injectedFile.value.timeline.play();
+
+        }
+    }
+
+    stop() {
+        if ( this._injectedFile.value ) {
+            this.playing = false;
+            this._injectedFile.value.timeline.pause();
+        }
+    }
+
+    applyBar( event: MouseEvent ) {
+        this.log( event );
+        event.clientX
+        if ( this.timelineRef.value && this.barRef.value && this._injectedFile.value ) {
+
+            const x = event.clientX - this.timelineRef.value.offsetLeft;
+
+            const percent = x / this.timelineRef.value.clientWidth * 100;
+
+            this._injectedFile.value.timeline.setPercentage( percent );
+
         }
     }
 
@@ -111,12 +155,12 @@ export class TimelineElement extends ElementInheritingFile {
             <div class="container">
 
 
-                ${ this._injectedFile !== undefined
+                ${ this._injectedFile.value !== undefined
 
                     ? html`
                         <div class="container">
 
-                            <div class="item button" @click=${this.play.bind(this)}>
+                            <div class="item button" @click=${this.playing ? this.stop.bind(this) : this.play.bind(this)}>
 
 
                                 ${ this.playing
@@ -135,12 +179,12 @@ export class TimelineElement extends ElementInheritingFile {
                             </div>
 
 
-                            <div class="item">
-                                ${ this._injectedFile.value?.timeline.value }
+                            <div class="item cursor">
+                                ${ this.percentage.toFixed(2) }%
                             </div>
 
-                            <div class="item timeline">
-
+                            <div class="item timeline" @click=${this.applyBar.bind(this)} ${ref( this.timelineRef )}>
+                                <div class="bar" style="width: ${this.percentage}%" ${ref( this.barRef )}></div>
                             </div>
 
                             <div class="item">${this.formatDuration( this._injectedFile.value!.timeline.duration )}</div>
