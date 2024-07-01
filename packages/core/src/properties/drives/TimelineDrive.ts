@@ -212,6 +212,7 @@ export class TimelineDrive extends AbstractProperty<number, ThermalFileInstance>
         const percent = Math.min( Math.max( percentage, 0 ), 100 );
         const time = ( this.duration / 100 ) * percent;
         this.value = Math.floor( time );
+        console.log( "Nastavil jsem čas na", this.value );
     }
 
     goToNextFrame() {

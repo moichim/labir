@@ -205,6 +205,7 @@ var TimelineDrive = class extends AbstractProperty {
     const percent = Math.min(Math.max(percentage, 0), 100);
     const time = this.duration / 100 * percent;
     this.value = Math.floor(time);
+    console.log("Nastavil jsem \u010Das na", this.value);
   }
   goToNextFrame() {
     if (this.nextFrame) {

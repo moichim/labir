@@ -22,7 +22,7 @@ export class FileContextElement extends ElementInheritingGroup {
     @property({ type: String, reflect: true })
     visible?: string;
 
-    @state()
+    @property({type: Object})
     file?: ThermalFileInstance
 
     @state()
@@ -41,17 +41,17 @@ export class FileContextElement extends ElementInheritingGroup {
 
     static styles = css`
 
-    @keyframes gradient {
-        0% {
-            background-position: 0% 50%;
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
         }
-        50% {
-            background-position: 100% 50%;
-        }
-        100% {
-            background-position: 0% 50%;
-        }
-    }
 
         .container {
 
