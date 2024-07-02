@@ -7,11 +7,12 @@ import { InstancesState } from "../properties/lists/InstancesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
 import { ThermalRegistry } from "../registry/ThermalRegistry";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 
 /**
  * Group of thermal images
  */
-export class ThermalGroup implements IThermalGroup {
+export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
 
     public readonly hash = Math.random();
@@ -24,6 +25,7 @@ export class ThermalGroup implements IThermalGroup {
         public readonly name?: string,
         public readonly description?: string
     ) {
+        super();
     }
 
 

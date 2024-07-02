@@ -2,12 +2,13 @@ import { ThermalFileSource } from "../file/ThermalFileSource";
 import { ThermalRegistry, ThermalRegistryOptions } from "../registry/ThermalRegistry";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { AvailableThermalPalettes } from "../file/palettes";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
 }
 
-export class ThermalManager extends EventTarget {
+export class ThermalManager extends BaseStructureObject {
 
     public readonly id: number;
 

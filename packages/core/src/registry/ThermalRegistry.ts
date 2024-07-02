@@ -12,6 +12,7 @@ import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
 import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalFetcher } from "./utilities/ThermalFetcher";
 import { ThermalRegistryLoader } from "./utilities/ThermalRegistryLoader";
 import { ThermalFileRequest } from "./utilities/ThermalRequest";
@@ -24,7 +25,7 @@ export type ThermalRegistryOptions = {
  * The global thermal registry
  * @todo implementing EventTarget
  */
-export class ThermalRegistry implements IThermalRegistry {
+export class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
 
     public readonly hash = Math.random();
 
@@ -33,7 +34,7 @@ export class ThermalRegistry implements IThermalRegistry {
         public readonly manager: ThermalManager,
         options?: ThermalRegistryOptions
     ) {
-        // super();
+        super();
 
         // Set thermal palette
         this.palette = this.manager.palette;

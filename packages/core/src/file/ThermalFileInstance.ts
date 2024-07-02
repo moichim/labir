@@ -4,6 +4,7 @@ import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { TimelineDrive } from "../properties/drives/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalFileInterface, ThermalFileSource } from "./ThermalFileSource";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
@@ -18,7 +19,7 @@ import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
  * @todo implement unmounting
  * @todo rename binding to mounting
  */
-export class ThermalFileInstance extends EventTarget implements IThermalInstance, ThermalFileInterface {
+export class ThermalFileInstance extends BaseStructureObject implements IThermalInstance, ThermalFileInterface {
 
 
 

@@ -2,6 +2,7 @@ import { ThermalLoader } from "../parsers/thermalLoader";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
+import { BaseStructureObject } from "../base/BaseStructureObject";
 
 /** Properties that are common for both source and instance. */
 export interface ThermalFileInterface {
@@ -73,7 +74,7 @@ export type ThermalFrame = {
  * 
  * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
  */
-export class ThermalFileSource extends EventTarget implements ThermalFileInterface {
+export class ThermalFileSource extends BaseStructureObject implements ThermalFileInterface {
 
     public readonly fileName: string;
     public readonly pixelsForHistogram: number[];
