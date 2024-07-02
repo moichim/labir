@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalPaletteType } from "@labir/core"
 import { Ranger } from "@tanstack/react-ranger"
 import React, { useMemo } from "react"

@@ -6,7 +6,6 @@ import {
 import { ThermalDropin } from "../../src/components/dropin/ThermalDropin";
 import { ThermalRegistryHistogram } from "../../src/components/histogram/thermalRegistryHistogram";
 import { ThermalInstance } from "../../src/components/instance/thermalInstance";
-import { PaletteDropdownHeadless } from "../../src/components/palette/PaletteDropdownHeadless";
 import { ThermalRegistryRange } from "../../src/components/range/ThermalRegistryRange";
 import { useThermalRegistry } from "../../src/context/useThermalRegistry";
 import { useThermalRegistryOpacityDrive } from "../../src/properties/drives/useThermalRegistryOpacityDrive";
@@ -65,9 +64,6 @@ function App() {
       />
 
       <ThermalDropin registry={dropinRegistry} groupId={"zkušební dropin"} />
-
-
-      <PaletteDropdownHeadless />
 
       <ThermalRegistryRange
         registry={registry}

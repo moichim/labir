@@ -1,3 +1,5 @@
+import Pool from 'workerpool/types/Pool';
+
 /**
  * Celkově framy začínají na indexu 25 (tam je timestamp prvního snímku)
  * Počet byte v hlavičce: 53
@@ -230,6 +232,10 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
     protected afterSetEffect(): void;
     /** Recalculates the value using all current instances and with che current resolution */
     recalculateWithCurrentSetting(): ThermalStatistics[];
+    /**
+     * Recalculate the histogram buffer using web workers.
+     * This is an async operation using `workerpool`
+     */
     refreshBufferFromCurrentPixels(): void;
     protected recalculateHistogram(): void;
     /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
@@ -354,6 +360,15 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithInstan
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
 }
 
+declare abstract class BaseStructureObject {
+    private _pool?;
+    /**
+     * Lazy loaded instance of web worker pool.
+     * @see https://github.com/josdejong/workerpool
+    */
+    get pool(): Pool;
+}
+
 type ThermalFetcherCallbackType = (source?: ThermalFileSource, errors?: string) => void;
 type ThermalFetcherRequest = {
     thermalUrl: string;
@@ -425,7 +440,7 @@ type ThermalRegistryOptions = {
  * The global thermal registry
  * @todo implementing EventTarget
  */
-declare class ThermalRegistry implements IThermalRegistry {
+declare class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
     readonly id: string;
     readonly manager: ThermalManager;
     readonly hash: number;
@@ -695,7 +710,7 @@ declare class ThermalListenerLayer extends AbstractLayer {
  * @todo implement unmounting
  * @todo rename binding to mounting
  */
-declare class ThermalFileInstance extends EventTarget implements IThermalInstance, ThermalFileInterface {
+declare class ThermalFileInstance extends BaseStructureObject implements IThermalInstance, ThermalFileInterface {
     protected readonly source: ThermalFileSource;
     readonly group: ThermalGroup;
     /** Url of the thermal file source */
@@ -815,7 +830,7 @@ declare class ThermalFileInstance extends EventTarget implements IThermalInstanc
 /**
  * Group of thermal images
  */
-declare class ThermalGroup implements IThermalGroup {
+declare class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     readonly registry: ThermalRegistry;
     readonly id: string;
     readonly name?: string | undefined;
@@ -879,7 +894,7 @@ interface ThermalFileInterface {
  *
  * The processing of the file is executed by `Thermalloader`, resp. by parser classes.
  */
-declare class ThermalFileSource extends EventTarget implements ThermalFileInterface {
+declare class ThermalFileSource extends BaseStructureObject implements ThermalFileInterface {
     readonly url: string;
     readonly signature: string;
     readonly version: number;
@@ -907,7 +922,7 @@ declare class ThermalFileSource extends EventTarget implements ThermalFileInterf
 type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes;
 };
-declare class ThermalManager extends EventTarget {
+declare class ThermalManager extends BaseStructureObject {
     readonly id: number;
     constructor(options?: ThermalManagerOptions);
     readonly registries: {

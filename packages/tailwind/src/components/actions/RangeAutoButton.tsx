@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalRegistry } from "@labir/core";
 import { useRangeButtonAuto } from "@labir/react-bridge";
 import { Button, ButtonProps } from "@nextui-org/react";

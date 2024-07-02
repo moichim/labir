@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalRegistry } from "@labir/core";
 import React from "react";
 import { ThermalInstance } from "../instance/thermalInstance";

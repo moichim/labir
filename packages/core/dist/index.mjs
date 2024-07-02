@@ -211,6 +211,24 @@ var CursorValueDrive = class extends AbstractProperty {
   }
 };
 
+// src/base/BaseStructureObject.ts
+import * as workerpool from "workerpool";
+var BaseStructureObject = class {
+  /** 
+   * Lazy loaded instance of web worker pool.
+   * @see https://github.com/josdejong/workerpool
+  */
+  get pool() {
+    if (!this._pool) {
+      this._pool = workerpool.pool({
+        workerType: "web"
+      });
+    }
+    console.log("maximal number of workers", workerpool);
+    return this._pool;
+  }
+};
+
 // src/file/instanceUtils/ThermalFileExports.ts
 import { download, generateCsv, mkConfig } from "export-to-csv";
 var ThermalFileExport = class {
@@ -623,7 +641,7 @@ var ThermalListenerLayer = class extends AbstractLayer {
 };
 
 // src/file/ThermalFileInstance.ts
-var ThermalFileInstance = class extends EventTarget {
+var ThermalFileInstance = class extends BaseStructureObject {
   constructor(source, group) {
     super();
     this.source = source;
@@ -921,7 +939,7 @@ var ThermalFileInstance = class extends EventTarget {
 };
 
 // src/file/ThermalFileSource.ts
-var ThermalFileSource = class extends EventTarget {
+var ThermalFileSource = class extends BaseStructureObject {
   constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, frameCount, frames, visibleUrl) {
     super();
     this.url = url;
@@ -1653,8 +1671,9 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
 };
 
 // src/group/ThermalGroup.ts
-var ThermalGroup = class {
+var ThermalGroup = class extends BaseStructureObject {
   constructor(registry, id, name, description) {
+    super();
     this.registry = registry;
     this.id = id;
     this.name = name;
@@ -1769,35 +1788,52 @@ var HistogramState = class extends AbstractProperty {
     this.recalculateHistogram();
     return this.value;
   }
+  /** 
+   * Recalculate the histogram buffer using web workers.
+   * This is an async operation using `workerpool`
+   */
   refreshBufferFromCurrentPixels() {
-    const buffer = /* @__PURE__ */ new Map();
-    let bufferTotal = 0;
-    if (this.parent.minmax !== void 0 && this.parent.groups.value.length !== 0) {
-      const distance = this.parent.minmax.distanceInCelsius;
-      if (distance !== void 0) {
-        const step = distance / this._bufferResolution;
-        const minmax = this.parent.minmax.value;
-        let pixels = [];
-        this.parent.forEveryInstance((instance) => {
-          pixels = pixels.concat(instance.pixelsForHistogram);
-        });
-        pixels.sort((a, b) => {
-          return a - b;
-        });
-        let nextStep = minmax.min + step;
+    if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
+      const pixels = this.parent.groups.value.map((group) => {
+        return group.instances.value.map((instance) => instance.pixelsForHistogram);
+      });
+      this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
+        const mergedPixels = instancesPixels.reduce((state, current) => {
+          const inner = current.reduce((state2, current2) => {
+            return [...state2, ...current2];
+          }, []);
+          return [...state, ...inner];
+        }, []);
+        let sortedPixels = mergedPixels.sort((a, b) => a - b);
+        const step = distance / resolution;
+        let nextStep = min + step;
+        const result = /* @__PURE__ */ new Map();
+        let resultCount = 0;
         while (nextStep !== false) {
-          const nextIndex = pixels.findIndex((num) => num >= nextStep);
-          const pixelCount = pixels.slice(0, nextIndex).length;
-          buffer.set(nextStep - step / 2, pixelCount);
-          bufferTotal += pixelCount;
-          pixels = pixels.slice(nextIndex);
+          const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
+          const pixelCount = sortedPixels.slice(0, nextIndex).length;
+          result.set(nextStep - step / 2, pixelCount);
+          resultCount += pixelCount;
+          sortedPixels = sortedPixels.slice(nextIndex);
           const nextStepTemporary = nextStep + step;
-          nextStep = nextStepTemporary <= minmax.max ? nextStepTemporary : false;
+          nextStep = nextStepTemporary < max ? nextStepTemporary : false;
         }
-      }
+        return {
+          result,
+          resultCount
+        };
+      }, [
+        pixels,
+        this.parent.minmax.value.min,
+        this.parent.minmax.value.max,
+        this.parent.minmax.distanceInCelsius,
+        this._bufferResolution
+      ]).then((result) => {
+        this.buffer = result.result;
+        this.bufferPixelsCount = result.resultCount;
+        this.recalculateWithCurrentSetting();
+      });
     }
-    this.buffer = buffer;
-    this.bufferPixelsCount = bufferTotal;
   }
   recalculateHistogram() {
     if (this.parent.minmax.value !== void 0 && this.parent.minmax.distanceInCelsius !== void 0) {
@@ -2102,8 +2138,9 @@ var ThermalRegistryLoader = class {
 };
 
 // src/registry/ThermalRegistry.ts
-var ThermalRegistry = class {
+var ThermalRegistry = class extends BaseStructureObject {
   constructor(id, manager, options) {
+    super();
     this.id = id;
     this.manager = manager;
     this.hash = Math.random();
@@ -2214,7 +2251,6 @@ var ThermalRegistry = class {
     if (this.minmax.value)
       this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
     this.histogram.refreshBufferFromCurrentPixels();
-    this.histogram.recalculateWithCurrentSetting();
     this.loading.markAsLoaded();
   }
   reset() {
@@ -2806,7 +2842,7 @@ var PaletteDrive = class extends AbstractProperty {
 };
 
 // src/manager/ThermalManager.ts
-var ThermalManager = class extends EventTarget {
+var ThermalManager = class extends BaseStructureObject {
   constructor(options) {
     super();
     /* registries */

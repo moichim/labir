@@ -8,7 +8,7 @@ import {
 import { PaletteDropdown } from "@labir/tailwind";
 import { NextUIProvider } from "@nextui-org/react";
 
-export const TaildiwndExample: React.FC = () => {
+const TailwindExample: React.FC = () => {
   const { registry, instance } = useSingleFileRegistry("/tucnaci_04.lrc");
 
   return (
@@ -33,3 +33,5 @@ export const TaildiwndExample: React.FC = () => {
     </div>
   );
 };
+
+export default TailwindExample

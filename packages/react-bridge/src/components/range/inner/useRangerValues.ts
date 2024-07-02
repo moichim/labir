@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labir/core";
 import { useThermalRegistryMinmaxState } from "../../../properties/states/useThermalRegistryMinmaxState";
 import { useThermalRegistryRangeDrive } from "../../../properties/drives/useThermalRegistryRangeDrive";

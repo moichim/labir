@@ -1,9 +1,15 @@
 "use client";
 
-import { ThermalProvider } from "@labir/react-bridge";
+import dynamic from "next/dynamic";
 
-export const ThermalComponent: React.FC<React.PropsWithChildren> = props => {
-    return <ThermalProvider>
-        {props.children}
-    </ThermalProvider>
-}
+const ThermalProvider = dynamic( () => import( "@labir/react-bridge" ).then(mod => mod.ThermalProvider), {
+ssr: false
+} )
+
+const ThermalComponent: React.FC<React.PropsWithChildren> = (props) => {
+  return (
+      <ThermalProvider>{props.children}</ThermalProvider>
+  );
+};
+
+export default ThermalComponent;

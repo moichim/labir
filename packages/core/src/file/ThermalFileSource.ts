@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalLoader } from "../parsers/thermalLoader";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";

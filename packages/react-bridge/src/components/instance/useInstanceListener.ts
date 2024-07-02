@@ -1,3 +1,5 @@
+"use client";
+
 import { MouseEventHandler, useMemo } from "react"
 import { ThermalInstanceEventHandler } from "./thermalInstance";
 import { ThermalFileInstance } from "@labir/core";

@@ -207,7 +207,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         // Recalculate the histogram
         this.histogram.refreshBufferFromCurrentPixels();
-        this.histogram.recalculateWithCurrentSetting();
+        // this.histogram.recalculateWithCurrentSetting();
 
         this.loading.markAsLoaded();
 

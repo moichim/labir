@@ -1,3 +1,5 @@
+"use client";
+
 import classNames from "classnames";
 import React, { forwardRef, useMemo } from "react";
 import { Orientation } from "../../../utilities/orientation";

@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalFileSource } from "../file/ThermalFileSource";
 import { ThermalRegistry, ThermalRegistryOptions } from "../registry/ThermalRegistry";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";

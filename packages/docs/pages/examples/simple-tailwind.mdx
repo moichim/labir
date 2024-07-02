@@ -1,5 +1,7 @@
-import { TaildiwndExample } from "../../components/tailwind/TailwindSimple"
-import { ThermalComponent } from "../../components/tailwind/ThermalComponent"
+import dynamic from "next/dynamic";
+
+import ThermalComponent from "../../components/tailwind/ThermalComponent";
+
 
 # Simple application in Tailwind
 
@@ -7,10 +9,6 @@ The simpliest application using [@labir/react-bridge](/react-bridge) and [@labir
 
 - Loads a single file through `useSingleFileRegistry` hook
 - You can change the colour palette and adjust the temperature range
-
-<ThermalComponent>
-    <TaildiwndExample />
-</ThermalComponent>
 
 ## Code
 

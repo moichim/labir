@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo } from "react";
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labir/core";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";

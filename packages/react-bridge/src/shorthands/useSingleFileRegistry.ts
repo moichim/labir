@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../context/thermalManagerContext"
 import { ThermalFileInstance } from "@labir/core";

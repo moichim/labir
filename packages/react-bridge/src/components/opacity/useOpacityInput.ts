@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalRegistry } from "@labir/core";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";
 import { useThermalRegistryOpacityDrive } from "../../properties/drives/useThermalRegistryOpacityDrive";

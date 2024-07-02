@@ -6,6 +6,10 @@ const nextContig = {
 const withNextra = require('nextra')({
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.tsx',
+  pageExtensions: [ "mdx", "tsx" ],
+  external: [
+    "@labir/core"
+  ]
 })
 
 module.exports = withNextra(nextContig)

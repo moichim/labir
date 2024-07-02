@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalDropin } from "./components/dropin/ThermalDropin";
 import { useThermalDropin } from "./components/dropin/useThermalDropin";
 import { ThermalRegistryHistogram } from "./components/histogram/thermalRegistryHistogram";

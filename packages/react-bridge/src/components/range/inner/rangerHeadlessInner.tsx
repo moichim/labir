@@ -1,3 +1,5 @@
+"use client";
+
 import { useRanger } from "@tanstack/react-ranger";
 import React, { useRef } from "react";
 import { useThermalObjectPurpose } from "../../../context/useThermalObjectPurpose";

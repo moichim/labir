@@ -1,3 +1,5 @@
+"use client";
+
 import { RefObject, useLayoutEffect, useState } from "react";
 
 export const useDimensions = (

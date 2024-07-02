@@ -1,3 +1,5 @@
+"use client";
+
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";

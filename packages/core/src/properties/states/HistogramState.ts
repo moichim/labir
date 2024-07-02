@@ -1,5 +1,6 @@
+"use client";
+
 import { ThermalStatistics, ThermalRegistry } from "../../registry/ThermalRegistry";
-import { ThermalMinmaxType } from "../abstractMinmaxProperty";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 export interface IWithHistogram extends IBaseProperty {
@@ -15,12 +16,12 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     public get resolution() { return this._resolution; };
 
     /** Map of temperature => countOfPixels in the scaled down resolution */
-    protected buffer: Map<number,number> = new Map<number,number>();
+    protected buffer: Map<number, number> = new Map<number, number>();
     /** Total countOfPixels in every image */
     protected bufferPixelsCount: number = 0;
     /**  */
     protected _bufferResolution = 1000;
-    public set bufferResolution( value: number ) { this._bufferResolution = Math.round( Math.max( value, 1000 ) ) }
+    public set bufferResolution(value: number) { this._bufferResolution = Math.round(Math.max(value, 1000)) }
     public get bufferResolution() { return this._bufferResolution; }
 
     /** Set the historgam resolution
@@ -30,7 +31,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
      * @notice Higher the number, lower the resolution.
     */
     public setResolution(value: number) {
-        this._resolution = Math.round( Math.min(Math.max(value, 2), 400) );
+        this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
     }
 
     /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
@@ -58,70 +59,90 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     }
 
 
+    /** 
+     * Recalculate the histogram buffer using web workers.
+     * This is an async operation using `workerpool`
+     */
     public refreshBufferFromCurrentPixels() {
 
-        const buffer: Map<number,number> = new Map<number,number>();
-        let bufferTotal = 0;
+        // Start async operation
+        if (this.parent.minmax.value !== undefined
+            && this.parent.groups.value.length !== 0
+            && this.parent.minmax.distanceInCelsius !== undefined
+        ) {
 
-        if (this.parent.minmax !== undefined && this.parent.groups.value.length !== 0) {
+            // Get all pixels of all images
+            const pixels = this.parent.groups.value.map(group => {
+                return group.instances.value.map(instance => instance.pixelsForHistogram);
+            });
 
-            const distance = this.parent.minmax.distanceInCelsius;
+            // Execute the pool
+            this.parent.pool.exec((
+                instancesPixels: number[][][],
+                min: number,
+                max: number,
+                distance: number,
+                resolution: number
+            ) => {
 
-            if (distance !== undefined)  {
+                const mergedPixels = instancesPixels.reduce((state, current) => {
 
-                const step = distance / this._bufferResolution;
-                const minmax = this.parent.minmax.value as ThermalMinmaxType;
+                    const inner = current.reduce((state, current) => {
+                        return [...state, ...current]
+                    }, [] as number[]);
 
-                // Collect pixels
-                let pixels: number[] = [];
-                this.parent.forEveryInstance(instance => {
-                    pixels = pixels.concat( instance.pixelsForHistogram );
-                });
+                    return [...state, ...inner];
 
-                // Sort pixels
-                pixels.sort((a, b) => {
-                    return a - b;
-                });
+                }, [] as number[]);
 
-                // Calculate the buffer
-                let nextStep: number|false = minmax.min + step;
+                let sortedPixels = mergedPixels.sort((a, b) => a - b);
+
+                const step = distance / resolution;
+
+                let nextStep: number | false = min + step;
+
+                const result: Map<number,number> = new Map();
+                let resultCount: number = 0;
+
                 while ( nextStep !== false ) {
+                    const nextIndex = sortedPixels.findIndex( num => num > ( nextStep as number ) );
+                    const pixelCount = sortedPixels.slice( 0, nextIndex ).length;
+                    result.set( nextStep - step / 2, pixelCount );
+                    resultCount += pixelCount;
 
-                    // Find the nearest larger item
-                    const nextIndex = pixels.findIndex( num => num >= ( nextStep as number ) );
-
-                    const pixelCount = pixels.slice(0, nextIndex).length;
-                    // Create the subarray
-                    buffer.set( nextStep - step/2, pixelCount );
-                    bufferTotal += pixelCount;
-
-                    // Modify the pixels
-                    pixels = pixels.slice( nextIndex );
-
-                    // Modify the nextStep
+                    sortedPixels = sortedPixels.slice( nextIndex );
                     const nextStepTemporary: number = nextStep + step;
-                    nextStep = nextStepTemporary <= minmax.max
+                    nextStep = nextStepTemporary < max
                         ? nextStepTemporary
-                        : false;
-
+                        : false
                 }
 
+                return {
+                    result,
+                    resultCount
+                }
+            }, [
+                pixels,
+                this.parent.minmax.value.min,
+                this.parent.minmax.value.max,
+                this.parent.minmax.distanceInCelsius,
+                this._bufferResolution
+            ]).then(result => {
+                this.buffer = result.result;
+                this.bufferPixelsCount = result.resultCount;
+                this.recalculateWithCurrentSetting();
+            });
 
-            }
-
-        }
-
-        this.buffer = buffer;
-        this.bufferPixelsCount = bufferTotal;
+        } // End async operation
 
     }
 
     protected recalculateHistogram() {
 
-        if ( this.parent.minmax.value !== undefined && this.parent.minmax.distanceInCelsius !== undefined ) {
+        if (this.parent.minmax.value !== undefined && this.parent.minmax.distanceInCelsius !== undefined) {
 
-            let temperaturesFromBuffer = Array.from( this.buffer.keys() );
-            let countsFromBuffer = Array.from( this.buffer.values() );
+            let temperaturesFromBuffer = Array.from(this.buffer.keys());
+            let countsFromBuffer = Array.from(this.buffer.values());
             const minmax = this.parent.minmax.value;
             const step = this.parent.minmax.distanceInCelsius / this.resolution;
 
@@ -135,18 +156,18 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
             let bufferMaxCount = 0;
 
             let pointer = minmax.min;
-            while ( pointer < minmax.max ) {
+            while (pointer < minmax.max) {
 
                 const currentStepMin = pointer;
-                const currentStepMax = pointer +  step;
+                const currentStepMax = pointer + step;
 
-                const nextIndex = temperaturesFromBuffer.findIndex( num => num >= currentStepMax );
+                const nextIndex = temperaturesFromBuffer.findIndex(num => num >= currentStepMax);
 
-                const countsSubArray = countsFromBuffer.slice( 0, nextIndex );
+                const countsSubArray = countsFromBuffer.slice(0, nextIndex);
 
-                const currentNumberOfPixels = countsSubArray.reduce( (state,current) => {
+                const currentNumberOfPixels = countsSubArray.reduce((state, current) => {
                     return state + current;
-                }, 0 );
+                }, 0);
 
                 const currentPercentage = currentNumberOfPixels / this.bufferPixelsCount;
 
@@ -159,26 +180,26 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
                 });
 
                 // If current count is higher than maximal count, raise it
-                if ( bufferMaxCount < currentNumberOfPixels ) {
+                if (bufferMaxCount < currentNumberOfPixels) {
                     bufferMaxCount = currentNumberOfPixels;
                 }
 
                 // Modify the buffers
-                temperaturesFromBuffer = temperaturesFromBuffer.slice( nextIndex );
-                countsFromBuffer = countsFromBuffer.slice( nextIndex );
+                temperaturesFromBuffer = temperaturesFromBuffer.slice(nextIndex);
+                countsFromBuffer = countsFromBuffer.slice(nextIndex);
 
                 // At the end, rise the pointer
                 pointer += step;
 
             }
-            
 
-            const result: ThermalStatistics[] = bufferItems.map( item => {
+
+            const result: ThermalStatistics[] = bufferItems.map(item => {
                 return {
                     ...item,
                     height: item.count / bufferMaxCount * 100
                 }
-            } );
+            });
 
             this.value = result;
 

@@ -26,7 +26,6 @@ import { InstanceFetchCallback } from "./properties/lists/InstancesState"
 
 export {
 
-
     // Manager
     ThermalManager,
     ThermalManagerOptions,  

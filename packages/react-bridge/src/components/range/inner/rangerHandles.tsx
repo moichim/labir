@@ -1,3 +1,5 @@
+"use client";
+
 import { Ranger } from "@tanstack/react-ranger";
 import React from "react";
 import { Orientation } from "../../../utilities/orientation";
