@@ -1,4 +1,5 @@
 import { AbstractFileResult } from "./AbstractFileResult";
+import { Instance } from "./instance";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
 
 
@@ -16,6 +17,8 @@ export class FileReaderService extends AbstractFileResult {
     /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
     protected baseInfoCache?: ParsedFileBaseInfo;
 
+    public readonly fileName: string;
+
     public constructor(
         public readonly buffer: ArrayBuffer,
         public readonly parser: IParserObject,
@@ -23,6 +26,8 @@ export class FileReaderService extends AbstractFileResult {
         visibleUrl?: string
     ) {
         super( thermalUrl, visibleUrl );
+
+        this.fileName = this.thermalUrl.substring( this.thermalUrl.lastIndexOf( "/" ) + 1 );
     }
 
     public isSuccess(): boolean {
@@ -66,6 +71,14 @@ export class FileReaderService extends AbstractFileResult {
 
         return await this.parser.frameData( data.array, data.dataType);
 
+    }
+
+
+    public async createInstance(): Promise<Instance> {
+        const baseInfo = await this.baseInfo();
+        const firstFrame = await this.frameData( 0 );
+        const instance = Instance.fromService( this, baseInfo, firstFrame );
+        return instance;
     }
 
 
