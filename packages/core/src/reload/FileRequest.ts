@@ -1,18 +1,24 @@
-import { FileErrors, FileFailureService, FileLoadingError } from "./FileLoadingError";
+import { FileFailureService } from "./errors/FileFailureService";
+import { FileErrors, FileLoadingError } from "./errors/FileLoadingError";
 import { FileReaderService } from "./FileReaderService";
-import { FileResult } from "./FileResult";
+import { AbstractFileResult } from "./AbstractFileResult";
 import { determineParser } from "./parsers";
 
-export type FileResultListener = ( result: FileResult ) => void
+export type FileResultListener = ( result: AbstractFileResult ) => void
 
+/**
+ * Internal member of `FilesService`
+ * - `FileService` members may listen to resolving of this object
+ * - `load()` method effcently handles the fetch and processing of the file
+ */
 export class FileRequest {
 
-    public readonly id = Math.random();
-
+    
     protected constructor(
         public readonly thermalUrl: string,
         public readonly visibleUrl?: string
     ) {}
+
 
     public static fromUrl(
         thermalUrl: string,
@@ -21,38 +27,25 @@ export class FileRequest {
         return new FileRequest( thermalUrl, visibleUrl );
     }
 
-    /** @deprecated Use promises instead of callbacks here! This needs to be removed! */
-    protected listeners: Map<string, FileResultListener> = new Map;
+    
 
-    /** @deprecated Use promises instead of callbacks here! This needs to be removed! */
-    public addListener( key: string, listener: FileResultListener ) {
-        this.listeners.set( key, listener );
-    }
+    /**
+     * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
+     */
+    public response?: Promise<AbstractFileResult>;
 
-    /** @deprecated Use promises instead of callbacks here! This needs to be removed! */
-    public removeListener( key: string ) {
-        this.listeners.delete( key );
-    }
 
-    /** @deprecated Use promises instead of callbacks here! This needs to be removed! */
-    protected callListeners( result: FileResult ) {
-        this.listeners.forEach( listener => listener( result ) );
-        this.listeners.clear();
-    }
-
-    protected processResult( result: FileResult ) {
-        this.callListeners( result );
-        return result;
-    }
-
-    public response?: Promise<FileResult>;
-
-    async load(): Promise<FileResult> {
+    /**
+     * Fetch a file, process the response and return the promise
+     * - the promise is stored internally
+     * - if the request is already loading/processing, any subsequent calls use the stored promise object
+     */
+    async load(): Promise<AbstractFileResult> {
 
         if ( this.response === undefined ) {
 
             // Fetch the file
-            this.response = this.postLoaded( fetch( this.thermalUrl ) );
+            this.response = this.processResponse( fetch( this.thermalUrl ) );
         }
 
         return this.response;
@@ -61,14 +54,20 @@ export class FileRequest {
 
     }
 
-    protected async postLoaded( response: Promise<Response> ) {
+    /** 
+     * Process the raw response:
+     * - decide if the file exists
+     * - assign parser to the file
+     * - create the service
+     */
+    protected async processResponse( response: Promise<Response> ) {
 
         const res = await response;
 
         // If the file was not found, return the appropriate failure
         if ( res.status !== 200 ) {
 
-            return this.processResult( 
+            return this.pocessTheService( 
                 new FileFailureService( 
                     this.thermalUrl, 
                     FileErrors.FILE_NOT_FOUND, 
@@ -86,7 +85,7 @@ export class FileRequest {
 
             const parser = determineParser( buffer, this.thermalUrl );
 
-            return this.processResult( 
+            return this.pocessTheService( 
                 new FileReaderService( 
                     buffer, 
                     parser, 
@@ -98,7 +97,7 @@ export class FileRequest {
         } catch ( error ) {
 
             if ( error instanceof FileLoadingError ) {
-                return this.processResult( 
+                return this.pocessTheService( 
                     FileFailureService.fromError( error ) 
                 );
             }
@@ -109,6 +108,15 @@ export class FileRequest {
 
         }
 
+    }
+
+
+    /**
+     * Actions taken on the `AbstractFileResult` object
+     * @todo because there are no side effects, this method might appear redundant
+     */
+    protected pocessTheService( result: AbstractFileResult ) {
+        return result;
     }
 
 }

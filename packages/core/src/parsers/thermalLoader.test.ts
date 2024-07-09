@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { ThermalLoader } from './thermalLoader';
-import { THERMOGRAM_PATHS } from '../../node/mocks/thermogram.mock';
+import { THERMOGRAM_PATHS } from '../../node/mocks';
 import { ThermalFileSource } from '../file/ThermalFileSource';
 
 describe( "ThermalLoader", () => {

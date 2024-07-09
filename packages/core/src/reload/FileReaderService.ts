@@ -1,24 +1,20 @@
-import { FileResult } from "./FileResult";
-import { IParserObject } from "./parsers";
-
-export enum FileServiceStates {
-    PENDING = 0,
-    LOADING = 1,
-    SUCCESS = 2,
-    ERROR = 3
-}
-
+import { AbstractFileResult } from "./AbstractFileResult";
+import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
 
 
 
 /**
- * Stores the blob and provides all the data for instance
- * - this service is registered in FileService
- * - eventually, this service might be moved to the
+ * Stores the file's `ArrayBuffer` and provides all the data for instance
+ * - this service is registered in FilesService
+ * - the instances are retrieved using `FilesService.loadOneFile`
  */
-export class FileReaderService extends FileResult {
+export class FileReaderService extends AbstractFileResult {
 
+    /** For the purpose of testing we have a unique ID */
     public readonly id = Math.random();
+
+    /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+    protected baseInfoCache?: ParsedFileBaseInfo;
 
     public constructor(
         public readonly buffer: ArrayBuffer,
@@ -33,8 +29,43 @@ export class FileReaderService extends FileResult {
         return true;    
     }
 
-    public dimensions(): ReturnType<IParserObject["dimensions"]> {
-        return this.parser.dimensions( this.buffer );
+
+    /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+    public async baseInfo(): ReturnType<IParserObject["baseInfo"]> {
+
+        // Return the cached result if any
+        if ( this.baseInfoCache ) {
+            return this.baseInfoCache;
+        }
+
+        // Create the promise
+        const baseInfo = this.parser.baseInfo( this.buffer );
+
+        // Make sure the result will be stored in memory
+        baseInfo.then( result => this.baseInfoCache = result );
+
+        // Return the promise
+        return baseInfo;
+    }
+
+    /** 
+     * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
+     * 
+     * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+     */
+    protected getFrameSubset( frameIndex: number ): ReturnType<IParserObject["getFrameSubset"]> {
+        return this.parser.getFrameSubset( this.buffer, frameIndex );
+    }
+
+    /** Read a given frame
+     * @todo Implement index range check
+     */
+    public async frameData( index: number ): ReturnType<IParserObject["frameData"]> {
+
+        const data = this.getFrameSubset( index );
+
+        return await this.parser.frameData( data.array, data.dataType);
+
     }
 
 

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { ThermalRegistry } from '../registry/ThermalRegistry';
-import { THERMOGRAM_PATHS } from '../../node/mocks/thermogram.mock';
+import { THERMOGRAM_PATHS } from '../../node/mocks';
 
 describe( "ThermalManager", () => {
     

@@ -1,4 +1,4 @@
-export abstract class FileResult{
+export abstract class AbstractFileResult{
     
     constructor(
         public readonly thermalUrl: string,
@@ -7,5 +7,6 @@ export abstract class FileResult{
 
     }
 
+    /** @deprecated to identify success, use `instanceof` */
     public abstract isSuccess(): boolean;
 }
