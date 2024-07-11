@@ -1,4 +1,4 @@
-import { IFileInstance } from "../../file/IFileInstance";
+import { AbstractFile } from "../../file/IFileInstance";
 import { ThermalFileSource } from "../../file/ThermalFileSource";
 import { ThermalGroup } from "../../group/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
@@ -9,7 +9,7 @@ export interface IWithInstances extends IBaseProperty {
 }
 
 export type InstanceFetchCallback = (
-    instance?: IFileInstance,
+    instance?: AbstractFile,
     errors?: string
 ) => void;
 
@@ -20,7 +20,7 @@ type InstanceRemoveRequest = {
     callbacks: InstanceRemoveCallback[]
 }
 
-export class InstancesState extends AbstractProperty<IFileInstance[], ThermalGroup> {
+export class InstancesState extends AbstractProperty<AbstractFile[], ThermalGroup> {
 
     protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
 
@@ -78,18 +78,18 @@ export class InstancesState extends AbstractProperty<IFileInstance[], ThermalGro
 
 
 
-    protected _map: Map<string, IFileInstance> = new Map<string, IFileInstance>();
+    protected _map: Map<string, AbstractFile> = new Map<string, AbstractFile>();
 
     public get map() { return this._map; }
 
-    protected validate(value: IFileInstance[]): IFileInstance[] {
+    protected validate(value: AbstractFile[]): AbstractFile[] {
         return value;
     }
 
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: IFileInstance[]) {
+    protected afterSetEffect(value: AbstractFile[]) {
 
         // Clear the index
         this.map.clear();
@@ -124,7 +124,7 @@ export class InstancesState extends AbstractProperty<IFileInstance[], ThermalGro
         sources: ThermalFileSource[]
     ) {
 
-        const newValue: IFileInstance[] = [];
+        const newValue: AbstractFile[] = [];
 
         sources.forEach(source => {
 
@@ -153,7 +153,7 @@ export class InstancesState extends AbstractProperty<IFileInstance[], ThermalGro
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance(fn: ((instance: IFileInstance) => void
+    public forEveryInstance(fn: ((instance: AbstractFile) => void
     )) {
         this.value.forEach(instance => fn(instance));
     }

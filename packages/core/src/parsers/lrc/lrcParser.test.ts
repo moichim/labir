@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalLoader } from '../thermalLoader';
 import { ThermalManager } from '../../manager/ThermalManager';

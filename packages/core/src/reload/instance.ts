@@ -1,51 +1,19 @@
-import { BaseStructureObject } from "../base/BaseStructureObject";
-import { IFileInstance } from "../file/IFileInstance";
-import { ThermalCanvasLayer } from "../file/instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "../file/instanceUtils/thermalCursorLayer";
-import { ThermalFileExport } from "../file/instanceUtils/ThermalFileExports";
-import { ThermalListenerLayer } from "../file/instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "../file/instanceUtils/VisibleLayer";
-import { ThermalFileInstance } from "../file/ThermalFileInstance";
-import { ThermalFileInterface } from "../file/ThermalFileSource";
+import { AbstractFile } from "../file/IFileInstance";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
-import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
-import { TimelineDrive } from "../properties/drives/TimelineDrive";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { IThermalInstance } from "../properties/structure";
 import { FileReaderService } from "./FileReaderService";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "./parsers/types";
 
-export class Instance extends BaseStructureObject implements IFileInstance {
-
-    // Core properties
-    public readonly id: string;
-    public readonly horizontalLimit: number;
-    public readonly verticalLimit: number;
-
-    public get url() { return this.service.thermalUrl; }
-    public get visibleUrl() { return this.service.visibleUrl; }
-    public get filename() { return this.service.fileName; }
+export class Instance extends AbstractFile {
 
 
 
-    protected _pixels: number[];
-    public get pixels() { return this._pixels; }
-
-
-    // DOM root
-    public root: HTMLDivElement | null = null;
-
-    // DOM layers
-    public readonly canvasLayer: ThermalCanvasLayer = new ThermalCanvasLayer( this );
-    public readonly visibleLayer: VisibleLayer = new VisibleLayer( this, this.visibleUrl );
-    public readonly cursorLayer: ThermalCursorLayer = new ThermalCursorLayer( this );
-    public readonly listenerLayer: ThermalListenerLayer = new ThermalListenerLayer( this );
-
-    // Drives
-    public readonly timeline: TimelineDrive = new TimelineDrive( this, 0 );
-    public readonly cursorValue: CursorValueDrive = new CursorValueDrive(this, undefined);
+    public exportAsPng(): void {
+        throw new Error("Method not implemented.");
+    }
+    public exportThermalDataAsSvg(): void {
+        throw new Error("Method not implemented.");
+    }
 
 
     protected constructor(
@@ -57,6 +25,7 @@ export class Instance extends BaseStructureObject implements IFileInstance {
         public readonly frameCount: number,
         public readonly duration: number,
         public readonly frameInterval: number,
+        initialPixels: number[],
         public readonly fps: number,
         public readonly min: number,
         public readonly max: number,
@@ -65,28 +34,31 @@ export class Instance extends BaseStructureObject implements IFileInstance {
         public readonly averageReflectedKelvins: number,
         public readonly frame: ParsedFileFrame
     ) {
-        super();
-        this._pixels = frame.pixels;
-        this.id = `instance_${this.group.id}_${this.service.thermalUrl}`;
-        this.horizontalLimit = (this.width / 4) * 3;
-        this.verticalLimit = (this.height / 4) * 3;
-        this._pixels = this.timeline.currentFrame.pixels;
+        super( 
+            group,
+            service.thermalUrl, 
+            width, 
+            height,
+            initialPixels,
+            timestamp,
+            duration,
+            min,
+            max,
+            frameCount,
+            service.visibleUrl 
+        );
+        this.pixels = frame.pixels;
+        //this._pixels = this.timeline.currentFrame.pixels;
     }
 
-    
+    protected formatId() {
+        return `instance_${this.group.id}_${this.service.thermalUrl}`;
+    }
 
-
-
-    frames: ILrcFrame[];
-    destroySelfAndBelow: () => void;
-    removeAllChildren: () => void;
-    reset: () => void;
-    fileName: string;
-    signature: string;
-    version: number;
-    streamCount: number;
-    fileDataType: number;
-    unit: number;
+    protected onSetPixels(value: number[]): void {
+        console.log( value );
+        throw new Error("Method not implemented.");
+    }
     
 
     public static fromService(

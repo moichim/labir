@@ -1,4 +1,4 @@
-import { IFileInstance } from "../../file/IFileInstance";
+import { AbstractFile } from "../../file/IFileInstance";
 import { ILrcFrame } from "../../parsers/lrc/LrcTrame";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
@@ -23,7 +23,7 @@ type FramesByIndex = Map<number, FrameType>;
 export type TimelineFrameChangedEventListener = (frame: FrameType) => void
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, IFileInstance> {
+export class TimelineDrive extends AbstractProperty<number, AbstractFile> {
 
     protected readonly frames: Frames;
     public get duration() { return this.parent.duration; }
@@ -87,7 +87,7 @@ export class TimelineDrive extends AbstractProperty<number, IFileInstance> {
 
 
     public constructor(
-        public readonly parent: IFileInstance,
+        public readonly parent: AbstractFile,
         initial: number
     ) {
         super(parent, initial);

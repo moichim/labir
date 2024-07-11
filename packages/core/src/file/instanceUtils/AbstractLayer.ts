@@ -1,9 +1,9 @@
-import { IFileInstance } from "../IFileInstance";
+import { AbstractFile } from "../IFileInstance";
 
 export abstract class AbstractLayer {
 
     public constructor(
-        protected readonly instance: IFileInstance
+        protected readonly instance: AbstractFile
     ) {}
 
     public abstract getLayerRoot(): HTMLElement;

@@ -5,6 +5,7 @@ import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 import { BaseStructureObject } from "../base/BaseStructureObject";
+import { AbstractFile } from "./IFileInstance";
 
 /** Properties that are common for both source and instance. */
 export interface ThermalFileInterface {
@@ -142,7 +143,7 @@ export class ThermalFileSource extends BaseStructureObject implements ThermalFil
     public createInstance(
         group: ThermalGroup
     ) {
-        return new ThermalFileInstance(this, group);
+        return new ThermalFileInstance(this, group) as AbstractFile;
     }
 
     

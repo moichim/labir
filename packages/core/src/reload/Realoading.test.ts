@@ -15,8 +15,6 @@ describe( "reloading", () => {
 
         const {service, registry} = FilesService.isolatedInstance();
 
-        console.log( service.manager );
-
         const group = registry.groups.addOrGetGroup( IDS.GR );
 
         expect( service ).toBeInstanceOf( FilesService );
