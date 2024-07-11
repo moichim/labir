@@ -1,6 +1,7 @@
 "use client";
 
-import { ThermalFileInstance } from "../file/ThermalFileInstance";
+import { BaseStructureObject } from "../base/BaseStructureObject";
+import { AbstractFile } from "../file/IFileInstance";
 import { ThermalFileSource } from "../file/ThermalFileSource";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalManager } from "../manager/ThermalManager";
@@ -12,7 +13,6 @@ import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
 import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
-import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalFetcher } from "./utilities/ThermalFetcher";
 import { ThermalRegistryLoader } from "./utilities/ThermalRegistryLoader";
 import { ThermalFileRequest } from "./utilities/ThermalRequest";
@@ -46,6 +46,10 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
                 this.histogram.setResolution( options.histogramResolution )
     }
 
+
+    /** Service */
+    public get service() { return this.manager.service; }
+
     /** Takes care of the entire loading */
     protected readonly loader: ThermalRegistryLoader = new ThermalRegistryLoader(this);
 
@@ -62,8 +66,9 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.groups.value.forEach(fn);
     }
 
-    public forEveryInstance(fn: (instance: ThermalFileInstance) => void) {
+    public forEveryInstance(fn: (instance: AbstractFile) => void) {
         this.forEveryGroup(group => group.instances.forEveryInstance(fn));
+        this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 
     public async loadFiles(

@@ -32,6 +32,8 @@ export class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionO
         this._hover = this.value !== undefined;
 
         this.parent.instances.forEveryInstance( instance => instance.recieveCursorPosition( value ) );
+        
+        this.parent.files.forEveryInstance( instance => instance.recieveCursorPosition( value ) );
 
     }
 

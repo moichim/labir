@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "../ThermalFileInstance";
+import { AbstractFile } from "../IFileInstance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 
@@ -23,7 +23,7 @@ export class VisibleLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: ThermalFileInstance,
+        instance: AbstractFile,
         public _url?: string
     ) {
         super(instance);

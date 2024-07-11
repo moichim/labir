@@ -1,8 +1,14 @@
 import { HttpResponse, http } from "msw";
 import fs from "node:fs";
-import path from "path"
+import path from "path";
 
-export enum THERMLGRAM_PATHS {
+
+const delay = ( time: number ) => {
+    return new Promise( resolve => setTimeout( resolve, time ) );
+}
+
+
+export enum THERMOGRAM_PATHS {
     
     /** A thermogram produced by TIMI Edu camera */
     SOUSTRUH = "https://edu.labir.cz/thermogram.lrc",
@@ -17,12 +23,16 @@ export enum THERMLGRAM_PATHS {
     ERR404 = "https://edu.labir.cz/error/404",
 
     /** A LRC file containing a sequence of frames */
-    SEQUENCE = "https://edu.labir.cz/sequence.lrc"
+    SEQUENCE = "https://edu.labir.cz/sequence.lrc",
+
+    /** A LRC file containing a sequence of frames */
+    DELAYED_SEQUENCE = "https://edu.labir.cz/sequence_delayed.lrc"
+
 }
 
 const thermogramMockHandlers =  [
 
-    http.get( THERMLGRAM_PATHS.SOUSTRUH, () => {
+    http.get( THERMOGRAM_PATHS.SOUSTRUH, () => {
         const file = fs.readFileSync( path.resolve( "../../public/soustruh.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
@@ -32,7 +42,7 @@ const thermogramMockHandlers =  [
         } );
     } ),
 
-    http.get( THERMLGRAM_PATHS.SEQUENCE, () => {
+    http.get( THERMOGRAM_PATHS.SEQUENCE, () => {
         const file = fs.readFileSync( path.resolve( "../../public/sequence.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
@@ -42,8 +52,21 @@ const thermogramMockHandlers =  [
         } );
     } ),
 
+    http.get( THERMOGRAM_PATHS.DELAYED_SEQUENCE, async () => {
 
-    http.get( THERMLGRAM_PATHS.TUCNACI, () => {
+        const file = fs.readFileSync( path.resolve( "../../public/sequence.lrc" ) );
+
+        await delay( 200 );
+
+        return HttpResponse.arrayBuffer( file, {
+            headers: {
+                "Content-Type": "octet-stream"
+            }
+        } );
+    } ),
+
+
+    http.get( THERMOGRAM_PATHS.TUCNACI, () => {
         const file = fs.readFileSync( path.resolve( "../../public/tucnaci_04.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
@@ -53,7 +76,7 @@ const thermogramMockHandlers =  [
         } );
     } ),
 
-    http.get( THERMLGRAM_PATHS.CAS, () => {
+    http.get( THERMOGRAM_PATHS.CAS, () => {
         const file = fs.readFileSync( path.resolve( "../../public/image-thermal 2024-01-12 14-09-37.lrc" ) );
 
         return HttpResponse.arrayBuffer( file, {
@@ -64,7 +87,7 @@ const thermogramMockHandlers =  [
     } ),
 
 
-    http.get( THERMLGRAM_PATHS.ERR404, () => {
+    http.get( THERMOGRAM_PATHS.ERR404, () => {
         return new HttpResponse(null, { status: 404 })
     } )
 ]

@@ -1,11 +1,11 @@
 import { download, generateCsv, mkConfig } from "export-to-csv";
-import { ThermalFileInstance } from "../ThermalFileInstance";
+import { AbstractFile } from "../IFileInstance";
 
 /** Handle the entire exports of a file */
 export class ThermalFileExport {
 
     constructor(
-        public readonly file: ThermalFileInstance
+        public readonly file: AbstractFile
     ) {}
 
 

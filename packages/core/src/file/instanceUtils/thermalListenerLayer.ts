@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "../ThermalFileInstance";
+import { AbstractFile } from "../IFileInstance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 
@@ -8,7 +8,7 @@ export class ThermalListenerLayer extends AbstractLayer {
     protected container: HTMLDivElement;
 
     public constructor(
-        instance: ThermalFileInstance
+        instance: AbstractFile
     ) {
         super( instance );
 

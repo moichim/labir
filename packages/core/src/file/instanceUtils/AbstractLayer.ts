@@ -1,9 +1,9 @@
-import { ThermalFileInstance } from "../ThermalFileInstance";
+import { AbstractFile } from "../IFileInstance";
 
 export abstract class AbstractLayer {
 
     public constructor(
-        protected readonly instance: ThermalFileInstance
+        protected readonly instance: AbstractFile
     ) {}
 
     public abstract getLayerRoot(): HTMLElement;

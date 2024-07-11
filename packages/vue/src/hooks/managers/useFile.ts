@@ -1,9 +1,7 @@
+import type { AbstractFile } from "@labir/core";
 import { ref, watch } from "vue";
-import { useDefineGroup } from "../structure/define/useDefineGroup";
-import { useProvidedGroup } from "@/hooks/structure/provided/useProvidedGroup";
-import { useProvidedOrNewGroup } from "../structure/providedOrNew/useProvidedOrNewGroup";
-import type { ThermalFileInstance } from "@labir/core";
 import { useRegistryLoaded } from "../properties/useRegistryLoaded";
+import { useProvidedOrNewGroup } from "../structure/providedOrNew/useProvidedOrNewGroup";
 
 export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
 
@@ -20,7 +18,7 @@ export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
         shouldLoad = false;
     }
 
-    const instance = ref<ThermalFileInstance>();
+    const instance = ref<AbstractFile>();
 
     const loading = useRegistryLoaded( thermalUrl + Math.random().toFixed(3), group.registry );
 

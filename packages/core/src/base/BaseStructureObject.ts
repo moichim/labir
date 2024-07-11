@@ -14,10 +14,10 @@ export abstract class BaseStructureObject {
     public get pool() {
         if ( ! this._pool ) {
             this._pool = workerpool.pool({
-                workerType: "web"
+                // workerType: "web"
             });
         }
-        console.log("maximal number of workers", workerpool )
+        // console.log("maximal number of workers", workerpool )
         return this._pool;
     }
 

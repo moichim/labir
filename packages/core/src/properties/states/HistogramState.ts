@@ -73,7 +73,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
             // Get all pixels of all images
             const pixels = this.parent.groups.value.map(group => {
-                return group.instances.value.map(instance => instance.pixelsForHistogram);
+                return group.instances.value.map(instance => instance.getPixelsForHistogram());
             });
 
             // Execute the pool

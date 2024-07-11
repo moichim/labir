@@ -2,7 +2,6 @@
 import { ThermalManager, ThermalManagerOptions } from "./manager/ThermalManager";
 import { ThermalRegistry, ThermalRegistryOptions } from "./registry/ThermalRegistry";
 import { ThermalGroup } from "./group/ThermalGroup";
-import { ThermalFileInstance } from "./file/ThermalFileInstance";
 import { ThermalFileSource } from "./file/ThermalFileSource";
 import { ThermalFileRequest } from "./registry/utilities/ThermalRequest";
 
@@ -23,6 +22,8 @@ import { TimeRound } from "./utils/time/rounding";
 import { AvailableThermalPalettes } from "./file/palettes";
 
 import { InstanceFetchCallback } from "./properties/lists/InstancesState"
+import { AbstractFile } from "./file/IFileInstance";
+import { ThermalFileInstance } from "./file/ThermalFileInstance";
 
 export {
 
@@ -42,6 +43,7 @@ export {
     // File
     ThermalFileSource, 
     ThermalFileInstance,
+    AbstractFile,
     
     // Core datatypes
     ThermalRangeOrUndefined, 

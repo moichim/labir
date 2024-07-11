@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "../ThermalFileInstance";
+import { AbstractFile } from "../IFileInstance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 
@@ -35,7 +35,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: ThermalFileInstance
+        instance: AbstractFile
     ) {
 
         super(instance);
@@ -45,6 +45,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas = ThermalDomFactory.createCanvas();
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
+
+        console.log( this.instance.width, this.instance );
 
         this.context = this.canvas.getContext("2d")!;
 

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { THERMLGRAM_PATHS } from '../../../node/mocks/thermogram.mock';
+import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalManager } from '../../manager/ThermalManager';
 import { ThermalLoader } from '../../parsers/thermalLoader';
 import { FrameType, TimelineFrameChangedEventListener } from './TimelineDrive';
@@ -8,7 +8,7 @@ describe("TimelineDrive", () => {
 
     test("control the timeline", async () => {
 
-        const lrc = await ThermalLoader.fromUrl(THERMLGRAM_PATHS.SEQUENCE);
+        const lrc = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.SEQUENCE);
 
         const manager = new ThermalManager;
         const registry = manager.addOrGetRegistry("test_registry");

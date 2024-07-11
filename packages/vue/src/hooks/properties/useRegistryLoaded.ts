@@ -1,7 +1,6 @@
-import { ref, watch } from "vue";
-import { useProvidedRegistry } from "../structure/provided/useProvidedRegistry"
-import { useProvidedOrNewRegistry } from "../structure/providedOrNew/useProvidedOrNewRegistry";
 import type { ThermalRegistry } from "@labir/core";
+import { ref } from "vue";
+import { useProvidedRegistry } from "../structure/provided/useProvidedRegistry";
 
 export const useRegistryLoaded = (
     purpose: string,

@@ -1,5 +1,5 @@
 import { setupServer } from "msw/node";
-import thermogramMockHandlers from "./mocks/thermogram.mock";
+import thermogramMockHandlers from "./mocks";
 
 /** Merge all handlers */
 const handlers = [
