@@ -216,7 +216,7 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
       objectType = "registry";
     else if (object instanceof import_core.ThermalGroup)
       objectType = "group";
-    else if (object instanceof import_core.ThermalFileInstance)
+    else if (object instanceof import_core.AbstractFile)
       objectType = "instance";
     else if (object instanceof import_core.ThermalManager)
       objectType = "manager";

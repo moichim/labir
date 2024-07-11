@@ -68,6 +68,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
     public forEveryInstance(fn: (instance: AbstractFile) => void) {
         this.forEveryGroup(group => group.instances.forEveryInstance(fn));
+        this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 
     public async loadFiles(

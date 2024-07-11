@@ -46,6 +46,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
 
+        console.log( this.instance.width, this.instance );
+
         this.context = this.canvas.getContext("2d")!;
 
         this.container.appendChild(this.canvas);

@@ -4,5 +4,6 @@
   "npmClient": "pnpm",
   "packages": [
     "packages/*"
-  ]
+  ],
+  "ignore": "@labir/emotion"
 }

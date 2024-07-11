@@ -81,6 +81,8 @@ export class FileReaderService extends AbstractFileResult {
         const baseInfo = await this.baseInfo();
         const firstFrame = await this.frameData( 0 );
         const instance = Instance.fromService( group, this, baseInfo, firstFrame );
+
+        group.files.addFile( instance );
         return instance;
     }
 

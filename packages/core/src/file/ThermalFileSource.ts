@@ -143,7 +143,12 @@ export class ThermalFileSource extends BaseStructureObject implements ThermalFil
     public createInstance(
         group: ThermalGroup
     ) {
-        return new ThermalFileInstance(this, group) as AbstractFile;
+
+        const instance = new ThermalFileInstance( this, group );
+
+        instance.postInit();
+
+        return instance as AbstractFile;
     }
 
     

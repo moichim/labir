@@ -3,9 +3,14 @@
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 import { TimelineDrive } from "../properties/drives/TimelineDrive";
+import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { AbstractFile } from "./IFileInstance";
 import { ThermalFileSource } from "./ThermalFileSource";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
+import { VisibleLayer } from "./instanceUtils/VisibleLayer";
+import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
+import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
+import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
 
 
 /**
@@ -21,25 +26,25 @@ export class ThermalFileInstance extends AbstractFile {
     // Core properties are mirrored from the source
 
     /** Optional visible URL */
-    public readonly signature: string;
+    declare public signature: string;
     public get dataType() { return this.source.fileDataType; }
-    public unit: number;
+    declare public unit: number;
 
-    public version: number;
-    public streamCount: number;
-    public fileDataType: number;
-    public frames: ILrcFrame[];
-    public get pixelsForHistogram() { return this.source.pixelsForHistogram }
+    declare public version: number;
+    declare public streamCount: number;
+    declare public fileDataType: number;
+    declare public frames: ILrcFrame[];
+    public getPixelsForHistogram() { return this.source.pixelsForHistogram }
 
     /**
      * Frames
      */
-    public readonly timeline: TimelineDrive = new TimelineDrive( this, 0 );
+    declare public timeline: TimelineDrive;
 
 
-    
 
-    
+
+
 
     // Necessary properties are calculated in the constructor
 
@@ -50,7 +55,7 @@ export class ThermalFileInstance extends AbstractFile {
 
         super(
             group,
-            source.url, 
+            source.url,
             source.width,
             source.height,
             source.pixels,
@@ -59,44 +64,61 @@ export class ThermalFileInstance extends AbstractFile {
             source.min,
             source.max,
             source.frameCount,
-            source.visibleUrl 
+            source.visibleUrl
         );
 
-        this.pixels = this.timeline.currentFrame.pixels;
 
-        this.signature = source.signature;
-        this.unit = source.unit;
-        this.version = source.version;
-        this.streamCount = source.streamCount;
-        this.fileDataType = source.fileDataType;
-        this.frames = source.frames;
+
     }
 
-    protected formatId() {
-        return `instance_${this.group.id}_${this.source.url}`;
+    /** @deprecated */
+    postInit() {
+
+        this.signature = this.source.signature;
+        this.unit = this.source.unit;
+        this.version = this.source.version;
+        this.streamCount = this.source.streamCount;
+        this.fileDataType = this.source.fileDataType;
+
+        this.frames = this.source.frames;
+        this.timeline = new TimelineDrive(this, 0);
+        this.pixels = this.timeline.currentFrame.pixels;
+
+        this.canvasLayer = new ThermalCanvasLayer(this);
+        this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
+        this.cursorLayer = new ThermalCursorLayer(this);
+        this.listenerLayer = new ThermalListenerLayer(this);
+        this.cursorValue = new CursorValueDrive(this, undefined);
+
+
+        return this;
+    }
+
+    protected formatId(thermalUrl: string) {
+        return `instance_${this.group.id}_${thermalUrl}`;
     }
 
     protected onSetPixels(value: number[]): void {
 
-        console.log( "setting pixels", value );
+        console.log("setting pixels", value);
 
         // If this file is loaded, recalculate all side effects
-        if ( this.mountedBaseLayers ) {
-            
+        if (this.mountedBaseLayers) {
+
             // Redraw
             this.draw();
-            
+
             // Recalculate the value in the group container
-            this.cursorValue.recalculateFromCursor( this.group.cursorPosition.value );
+            this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
 
             // Recalculate the value in the local cursor layer
-            if ( this.group.cursorPosition.value ) {
-                
+            if (this.group.cursorPosition.value) {
+
                 // Get the new value
-                const value = this.getTemperatureAtPoint( this.group.cursorPosition.value.x, this.group.cursorPosition.value.y );
-                
+                const value = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
+
                 // Set the value
-                this.cursorLayer.setValue( value );
+                this.cursorLayer.setValue(value);
             }
         }
     }
@@ -135,8 +157,8 @@ export class ThermalFileInstance extends AbstractFile {
     protected _export?: ThermalFileExport;
     /** Lazy-loaded `ThermalFileExport` object */
     public get export() {
-        if ( ! this._export ) {
-            const newExport = new ThermalFileExport( this );
+        if (!this._export) {
+            const newExport = new ThermalFileExport(this);
             this._export = newExport;
         }
         return this._export;

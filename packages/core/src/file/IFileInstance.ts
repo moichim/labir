@@ -55,12 +55,12 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     unit: number = -1;
     
 
-    public readonly width: number;
-    public readonly height: number;
-    public readonly timestamp: number;
-    public readonly duration: number;
-    public readonly min: number;
-    public readonly max: number;
+    public width: number;
+    public height: number;
+    public timestamp: number;
+    public duration: number;
+    public min: number;
+    public max: number;
 
     private _isHover: boolean = false;
     public get isHover() { return this._isHover }
@@ -73,14 +73,14 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public root: HTMLDivElement | null = null;
 
     // DOM layers
-    public readonly canvasLayer: ThermalCanvasLayer = new ThermalCanvasLayer( this );
-    public readonly visibleLayer: VisibleLayer = new VisibleLayer( this, this.visibleUrl );
-    public readonly cursorLayer: ThermalCursorLayer = new ThermalCursorLayer( this );
-    public readonly listenerLayer: ThermalListenerLayer = new ThermalListenerLayer( this );
+    public canvasLayer!: ThermalCanvasLayer;
+    public visibleLayer!: VisibleLayer;
+    public cursorLayer!: ThermalCursorLayer;
+    public listenerLayer!: ThermalListenerLayer;
 
     // Drives
-    public readonly timeline: TimelineDrive = new TimelineDrive( this, 0 );
-    public readonly cursorValue: CursorValueDrive = new CursorValueDrive(this, undefined);
+    public timeline!: TimelineDrive;
+    public cursorValue!: CursorValueDrive;
 
     private _mounted: boolean = false;
     public get mountedBaseLayers() { return this._mounted; }
@@ -95,6 +95,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this._pixels = value;
         this.onSetPixels( value );
     }
+
+    public abstract getPixelsForHistogram(): number[];
 
 
     constructor(
@@ -115,7 +117,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     ) {
         super();
         this.group = group;
-        this.id = this.formatId();
+        this.id = this.formatId( thermalUrl );
 
         this.url = thermalUrl;
         this.thermalUrl = thermalUrl;
@@ -135,11 +137,13 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
         this._pixels = initialPixels;
     }
+
+    public abstract postInit(): AbstractFile;
     
 
     protected abstract onSetPixels( value: number[] ): void;
 
-    protected abstract formatId(): string;
+    protected abstract formatId( thermalUrl: string ): string;
 
     /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
     protected attachToDom(
@@ -161,6 +165,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         // this.root.style.borderStyle = "solid";
         // this.root.style.borderColor = "transparent";
         // this.root.style.margin = "-1px";
+
+        this.root.classList.add( "thermalImageRoot" );
         this.root.style.transition = "border-color .1s ease-in-out";
         this.root.style.zIndex = "10";
         this.root.style.position = "relative";
@@ -211,7 +217,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
-    protected mountListener() {
+    public mountListener() {
 
         if (this.root === undefined) {
             console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
@@ -278,6 +284,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public draw() {
+        console.log( "drawing", this.fileName, this.group.id );
         if (this.mountedBaseLayers === true) 
         this.canvasLayer.draw();
     }
