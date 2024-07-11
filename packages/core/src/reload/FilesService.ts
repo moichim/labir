@@ -1,7 +1,25 @@
-import { FileRequest } from "./FileRequest";
+import { ThermalManager } from "../manager/ThermalManager";
 import { AbstractFileResult } from "./AbstractFileResult";
+import { FileRequest } from "./FileRequest";
 
 export class FilesService {
+
+    constructor(
+        public readonly manager: ThermalManager
+    ) {
+
+    }
+
+    public static isolatedInstance(registryName: string = "isolated_registry") {
+        const manager = new ThermalManager;
+        const registry = manager.addOrGetRegistry(registryName);
+        return {
+            service: registry.service,
+            registry
+        }
+    }
+
+
 
     /** Map of peoding requesta */
     protected readonly requestsByUrl: Map<string, FileRequest> = new Map;
@@ -10,8 +28,8 @@ export class FilesService {
     public get requestsCount() { return this.requestsByUrl.size; }
 
     /** Is an URL currently pending? */
-    public fileIsPending( url: string ) {
-        return this.requestsByUrl.has( url );
+    public fileIsPending(url: string) {
+        return this.requestsByUrl.has(url);
     }
 
     /** Cache of loaded files */
@@ -23,8 +41,8 @@ export class FilesService {
     }
 
     /** Is the URL already in the cache? */
-    public fileIsInCache( url: string ) {
-        return this.cacheByUrl.has( url );
+    public fileIsInCache(url: string) {
+        return this.cacheByUrl.has(url);
     }
 
     async loadFile(
@@ -41,7 +59,7 @@ export class FilesService {
         // Look in the requests and hook into a pending request
         else if (this.requestsByUrl.has(thermalUrl)) {
             return this.requestsByUrl.get(thermalUrl)!.load();
-        } 
+        }
 
         // Otherwise create a new request
         else {

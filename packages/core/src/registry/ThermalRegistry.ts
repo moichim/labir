@@ -46,6 +46,10 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
                 this.histogram.setResolution( options.histogramResolution )
     }
 
+
+    /** Service */
+    public get service() { return this.manager.service; }
+
     /** Takes care of the entire loading */
     protected readonly loader: ThermalRegistryLoader = new ThermalRegistryLoader(this);
 

@@ -8,7 +8,7 @@ describe("LrcParser", () => {
 
     test("is assigned to appropriate files and has all metadata", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SOUSTRUH) as FileReaderService;
 
@@ -22,7 +22,7 @@ describe("LrcParser", () => {
 
     test("reads base info of the file from TIMI Edu camera", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SOUSTRUH) as FileReaderService;
 
@@ -43,7 +43,7 @@ describe("LrcParser", () => {
 
     test("reads base info of a TIMI Edu camera sequence", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SEQUENCE) as FileReaderService;
 
@@ -67,7 +67,7 @@ describe("LrcParser", () => {
 
     test("reads base info of a file from Vario Cam", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.TUCNACI) as FileReaderService;
 
@@ -88,7 +88,7 @@ describe("LrcParser", () => {
 
     test( "is able to store base info in menory", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
         const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH ) as FileReaderService;
 
         // Upon the first load, the value shall be stored in the service to prevent multiple calculations
@@ -105,7 +105,7 @@ describe("LrcParser", () => {
 
     test("read frames of a TIMI Edu sequence", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SEQUENCE) as FileReaderService;
         const baseInfo = await file.baseInfo();
@@ -133,7 +133,7 @@ describe("LrcParser", () => {
 
     test("read a frame from Vario Cam", async () => {
 
-        const service = new FilesService;
+        const {service} = FilesService.isolatedInstance();
 
         const file = await service.loadFile(THERMOGRAM_PATHS.TUCNACI) as FileReaderService;
         const baseInfo = await file.baseInfo();

@@ -13,6 +13,7 @@ import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
+import { IFileInstance } from "./IFileInstance";
 
 
 /**
@@ -21,7 +22,7 @@ import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
  * @todo implement unmounting
  * @todo rename binding to mounting
  */
-export class ThermalFileInstance extends BaseStructureObject implements IThermalInstance, ThermalFileInterface {
+export class ThermalFileInstance extends BaseStructureObject implements IThermalInstance, ThermalFileInterface, IFileInstance {
 
 
 
@@ -87,8 +88,8 @@ export class ThermalFileInstance extends BaseStructureObject implements IThermal
     // Necessary properties are calculated in the constructor
 
     public readonly id: string;
-    protected readonly horizontalLimit: number;
-    protected readonly verticalLimit: number;
+    public readonly horizontalLimit: number;
+    public readonly verticalLimit: number;
 
     public constructor(
         protected readonly source: ThermalFileSource,
@@ -476,7 +477,7 @@ export class ThermalFileInstance extends BaseStructureObject implements IThermal
     /**
      * Frames
      */
-    public readonly timeline = new TimelineDrive( this, 0 );
+    public readonly timeline: TimelineDrive = new TimelineDrive( this, 0 );
 
 
 

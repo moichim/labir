@@ -1,3 +1,4 @@
+import { ThermalGroup } from "../group/ThermalGroup";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { Instance } from "./instance";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
@@ -74,10 +75,12 @@ export class FileReaderService extends AbstractFileResult {
     }
 
 
-    public async createInstance(): Promise<Instance> {
+    public async createInstance(
+        group: ThermalGroup
+    ): Promise<Instance> {
         const baseInfo = await this.baseInfo();
         const firstFrame = await this.frameData( 0 );
-        const instance = Instance.fromService( this, baseInfo, firstFrame );
+        const instance = Instance.fromService( group, this, baseInfo, firstFrame );
         return instance;
     }
 

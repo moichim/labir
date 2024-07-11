@@ -1,11 +1,11 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalLoader } from '../thermalLoader';
 import { ThermalManager } from '../../manager/ThermalManager';
 
 describe("LrcParser", () => {
 
-    test("reading a thermogram from TIMI Edu camera", async () => {
+    it.skip("reading a thermogram from TIMI Edu camera", async () => {
 
         const source = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.SOUSTRUH);
 
@@ -34,7 +34,7 @@ describe("LrcParser", () => {
 
     });
 
-    test("reading thermogram from HD Camera", async () => {
+    it.skip("reading thermogram from HD Camera", async () => {
 
         const tucnaci = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.TUCNACI);
 
@@ -50,7 +50,7 @@ describe("LrcParser", () => {
 
     });
 
-    test("parsing various timestamps", async () => {
+    it.skip("parsing various timestamps", async () => {
 
         // Load the first thermogram
         const cas = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.CAS);
@@ -73,7 +73,7 @@ describe("LrcParser", () => {
 
     });
 
-    test("parsing frame count", async () => {
+    it.skip("parsing frame count", async () => {
 
         // Soustruh is a TIMI camaera file and shouls have one frame
         const soustruh = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.SOUSTRUH)
@@ -90,7 +90,7 @@ describe("LrcParser", () => {
 
     });
 
-    test("parsing LRC sequences", async () => {
+    it.skip("parsing LRC sequences", async () => {
 
         const lrc = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.SEQUENCE);
 

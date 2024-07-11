@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "../../file/ThermalFileInstance";
+import { IFileInstance } from "../../file/IFileInstance";
 import { ThermalFileSource } from "../../file/ThermalFileSource";
 import { ThermalGroup } from "../../group/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
@@ -9,7 +9,7 @@ export interface IWithInstances extends IBaseProperty {
 }
 
 export type InstanceFetchCallback = (
-    instance?: ThermalFileInstance,
+    instance?: IFileInstance,
     errors?: string
 ) => void;
 
@@ -20,7 +20,7 @@ type InstanceRemoveRequest = {
     callbacks: InstanceRemoveCallback[]
 }
 
-export class InstancesState extends AbstractProperty<ThermalFileInstance[], ThermalGroup> {
+export class InstancesState extends AbstractProperty<IFileInstance[], ThermalGroup> {
 
     protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
 
@@ -78,18 +78,18 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[], Ther
 
 
 
-    protected _map: Map<string, ThermalFileInstance> = new Map<string, ThermalFileInstance>();
+    protected _map: Map<string, IFileInstance> = new Map<string, IFileInstance>();
 
     public get map() { return this._map; }
 
-    protected validate(value: ThermalFileInstance[]): ThermalFileInstance[] {
+    protected validate(value: IFileInstance[]): IFileInstance[] {
         return value;
     }
 
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: ThermalFileInstance[]) {
+    protected afterSetEffect(value: IFileInstance[]) {
 
         // Clear the index
         this.map.clear();
@@ -124,7 +124,7 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[], Ther
         sources: ThermalFileSource[]
     ) {
 
-        const newValue: ThermalFileInstance[] = [];
+        const newValue: IFileInstance[] = [];
 
         sources.forEach(source => {
 
@@ -153,7 +153,7 @@ export class InstancesState extends AbstractProperty<ThermalFileInstance[], Ther
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance(fn: ((instance: ThermalFileInstance) => void
+    public forEveryInstance(fn: ((instance: IFileInstance) => void
     )) {
         this.value.forEach(instance => fn(instance));
     }

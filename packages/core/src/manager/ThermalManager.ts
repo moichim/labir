@@ -5,6 +5,7 @@ import { ThermalRegistry, ThermalRegistryOptions } from "../registry/ThermalRegi
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { AvailableThermalPalettes } from "../file/palettes";
 import { BaseStructureObject } from "../base/BaseStructureObject";
+import { FilesService } from "../reload/FilesService";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
@@ -69,6 +70,7 @@ export class ThermalManager extends BaseStructureObject {
     public readonly palette: PaletteDrive = new PaletteDrive(this, "jet");
 
 
+    public readonly service = new FilesService( this );
 
 
 

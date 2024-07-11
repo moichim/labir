@@ -1,3 +1,4 @@
+import { IFileInstance } from "../file/IFileInstance";
 import { ThermalFileInstance } from "../file/ThermalFileInstance";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ThermalStatistics } from "../registry/ThermalRegistry";
@@ -13,7 +14,8 @@ type PropertyListenersTypes = boolean
     | ThermalCursorPositionOrUndefined
     | ThermalGroup[]
     | ThermalFileInstance[]
-    | ThermalStatistics[];
+    | ThermalStatistics[]
+    | IFileInstance[];
 
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 
