@@ -26,17 +26,6 @@ const is: IParserObject["is"] = (data, url) => {
 
 
 
-const dimensions: IParserObject["dimensions"] = buffer => {
-    const view = new DataView(buffer);
-    return {
-        width: view.getUint16(17, true),
-        height: view.getUint16(19, true)
-    }
-}
-
-
-
-
 const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
     const view = new DataView(entireFileBuffer);
@@ -152,7 +141,7 @@ const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
     for (let i = 0; i < frameCount; i++) {
         const frame = readFrame(i);
-        // console.log( frame );
+
         frames.push(frame);
     }
 
@@ -183,6 +172,36 @@ const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
     });
 
+    const timelineStart: number = timestamps[0];
+    let timelineCursor: number = 0;
+
+    const timeline: number[] = [];
+
+    const f: ParsedFileBaseInfo["timeline"] = [];
+
+    timestamps.forEach( (t, index) => {
+
+        const next = timestamps[index + 1];
+        let offset: number = 0;
+        if ( next === undefined ) {
+            offset = 0;
+        }
+        offset = next - t;
+
+        const relative = t - timelineStart ;
+
+        timeline.push( offset );
+        timelineCursor = timelineCursor + offset;
+
+        f.push({
+            absolute: t,
+            relative: relative, // isNaN( relativeTime ) ? 0 : relativeTime,
+            offset: isNaN( offset ) ? 0 : offset,
+            index
+        });
+
+    } );
+
     const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
 
     const frameInterval = duration / (frameCount);
@@ -198,7 +217,7 @@ const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
         duration,
         frameInterval,
         fps,
-        timestamps,
+        timeline: f,
         min: currentMin,
         max: currentMax,
         averageEmissivity: sums.emissivity / frames.length,
@@ -213,6 +232,8 @@ const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
 
 const getFrameSubset: IParserObject["getFrameSubset"] = (entireFileBuffer, index) => {
+
+    console.log( "poptávám index", index );
 
     const headerView = new DataView(entireFileBuffer.slice(0, 25));
 
@@ -251,6 +272,8 @@ const frameData: IParserObject["frameData"] = async (frameSubset, dataType) => {
 
     // Read the timestamp
     const view = new DataView(frameSubset);
+
+    // console.log( "frameSubset", frameSubset );
 
 
     // Timestamp
@@ -350,7 +373,6 @@ export const LrcParser: IParserObject = Object.freeze({
     }],
     extensions,
     is,
-    dimensions,
     baseInfo,
     getFrameSubset,
     frameData

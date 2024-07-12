@@ -17,7 +17,7 @@ type PropertyListenersTypes = boolean
     | ThermalStatistics[]
     | AbstractFile[];
 
-type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
+export type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 
 export interface IBaseProperty { }
 

@@ -51,8 +51,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
 
-        console.log(this.instance.width, this.instance);
-
         // this.offscreen = this.canvas.transferControlToOffscreen();
 
         this.context = this.canvas.getContext("2d")!;
@@ -127,8 +125,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
             const imageData = context.getImageData(0,0,width,height);
 
             const result = await createImageBitmap( imageData );
-
-            console.log( "Vlákno skončilo kresbu", from, to );
 
             return result;
 

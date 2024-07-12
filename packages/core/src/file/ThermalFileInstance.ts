@@ -100,7 +100,7 @@ export class ThermalFileInstance extends AbstractFile {
 
     protected onSetPixels(value: number[]): void {
 
-        console.log("setting pixels", value);
+        value;
 
         // If this file is loaded, recalculate all side effects
         if (this.mountedBaseLayers) {

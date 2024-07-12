@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, it, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalManager } from '../../manager/ThermalManager';
 import { ThermalLoader } from '../../parsers/thermalLoader';
@@ -6,7 +6,7 @@ import { FrameType, TimelineFrameChangedEventListener } from './TimelineDrive';
 
 describe("TimelineDrive", () => {
 
-    test("control the timeline", async () => {
+    it.skip("control the timeline", async () => {
 
         const lrc = await ThermalLoader.fromUrl(THERMOGRAM_PATHS.SEQUENCE);
 

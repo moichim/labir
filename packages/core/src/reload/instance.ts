@@ -4,13 +4,14 @@ import ThermalCursorLayer from "../file/instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "../file/instanceUtils/thermalListenerLayer";
 import { VisibleLayer } from "../file/instanceUtils/VisibleLayer";
 import { ThermalGroup } from "../group/ThermalGroup";
+import { ReTimelineDrive } from "../properties/drives/ReTimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { FileReaderService } from "./FileReaderService";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "./parsers/types";
 
 export class Instance extends AbstractFile {
 
-
+    declare public timeline: ReTimelineDrive;
 
     public exportAsPng(): void {
         throw new Error("Method not implemented.");
@@ -36,7 +37,8 @@ export class Instance extends AbstractFile {
         public readonly bytesize: number,
         public readonly averageEmissivity: number,
         public readonly averageReflectedKelvins: number,
-        public readonly frame: ParsedFileFrame
+        public readonly firstFrame: ParsedFileFrame,
+        public readonly timelineData: ParsedFileBaseInfo["timeline"]
     ) {
         super( 
             group,
@@ -51,8 +53,7 @@ export class Instance extends AbstractFile {
             frameCount,
             service.visibleUrl 
         );
-        this.pixels = frame.pixels;
-        //this._pixels = this.timeline.currentFrame.pixels;
+        this.pixels = firstFrame.pixels;
     }
 
     public postInit() {
@@ -61,7 +62,7 @@ export class Instance extends AbstractFile {
         this.cursorLayer = new ThermalCursorLayer(this);
         this.listenerLayer = new ThermalListenerLayer(this);
         this.cursorValue = new CursorValueDrive(this, undefined);
-
+        this.timeline = new ReTimelineDrive( this, 0, this.timelineData, this.firstFrame );
         return this;
     }
 
@@ -106,7 +107,7 @@ export class Instance extends AbstractFile {
         group: ThermalGroup,
         service: FileReaderService,
         baseInfo: ParsedFileBaseInfo,
-        firstFrame: ParsedFileFrame
+        firstFrame: ParsedFileFrame,
     ): Instance {
 
         const instance = new Instance(
@@ -125,7 +126,8 @@ export class Instance extends AbstractFile {
             baseInfo.bytesize,
             baseInfo.averageEmissivity,
             baseInfo.averageReflectedKelvins,
-            firstFrame
+            firstFrame,
+            baseInfo.timeline
         );
 
         return instance.postInit();

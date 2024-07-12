@@ -2,8 +2,8 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
+import { ITimelineDrive } from "../properties/drives/ITimeline";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
-import { TimelineDrive } from "../properties/drives/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
@@ -19,7 +19,7 @@ interface IFileInstance extends IThermalInstance, ThermalFileInterface, BaseStru
     visibleLayer: VisibleLayer,
     cursorLayer: ThermalCursorLayer,
     listenerLayer: ThermalListenerLayer,
-    timeline: TimelineDrive,
+    timeline: ITimelineDrive,
     frames: ILrcFrame[],
     horizontalLimit: number,
     id: string,
@@ -79,7 +79,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public listenerLayer!: ThermalListenerLayer;
 
     // Drives
-    public timeline!: TimelineDrive;
+    public timeline!: ITimelineDrive;
     public cursorValue!: CursorValueDrive;
 
     private _mounted: boolean = false;

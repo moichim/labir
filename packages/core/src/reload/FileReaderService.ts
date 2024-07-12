@@ -80,7 +80,9 @@ export class FileReaderService extends AbstractFileResult {
 
         const data = this.getFrameSubset( index );
 
-        return await this.parser.frameData( data.array, data.dataType);
+        const result = await this.parser.frameData( data.array, data.dataType);
+
+        return result;
 
     }
 
