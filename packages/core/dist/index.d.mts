@@ -119,6 +119,16 @@ interface ILrcFrame {
     pixels: number[];
 }
 
+interface ITimelineDrive {
+    value: number;
+    play(): void;
+    pause(): void;
+    stop(): void;
+    setValueByPercent(percent: number): void;
+    addListener(key: string, fn: PropertyListenerFn<number>): void;
+    removeListener(key: string): void;
+}
+
 type FrameType = ILrcFrame & {
     /** Index of the frame within the sequence */
     index: number;
@@ -131,7 +141,7 @@ type FramesByMs = Map<number, FrameType>;
 type FramesByIndex = Map<number, FrameType>;
 type TimelineFrameChangedEventListener = (frame: FrameType) => void;
 /** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, AbstractFile> {
+declare class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
     readonly parent: AbstractFile;
     protected readonly frames: Frames;
     get duration(): number;
@@ -170,7 +180,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> {
     /** Any time the value is set, check if there is a frame and eventually setit */
     protected afterSetEffect(value: number): void;
     setMs(ms: number): void;
-    setPercentage(percentage: number): void;
+    setValueByPercent(percentage: number): void;
     goToNextFrame(): void;
     static formatDuration(ms: number): string;
     protected timer?: ReturnType<typeof setTimeout>;
@@ -192,6 +202,7 @@ declare class ThermalFileExport {
  * @todo implement activation properly!
  * @todo implement unmounting
  * @todo rename binding to mounting
+ * @deprecated YES - we have a new variant!
  */
 declare class ThermalFileInstance extends AbstractFile {
     protected readonly source: ThermalFileSource;
@@ -827,7 +838,7 @@ interface IFileInstance extends IThermalInstance, ThermalFileInterface, BaseStru
     visibleLayer: VisibleLayer;
     cursorLayer: ThermalCursorLayer;
     listenerLayer: ThermalListenerLayer;
-    timeline: TimelineDrive;
+    timeline: ITimelineDrive;
     frames: ILrcFrame[];
     horizontalLimit: number;
     id: string;
@@ -867,7 +878,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     visibleLayer: VisibleLayer;
     cursorLayer: ThermalCursorLayer;
     listenerLayer: ThermalListenerLayer;
-    timeline: TimelineDrive;
+    timeline: ITimelineDrive;
     cursorValue: CursorValueDrive;
     private _mounted;
     get mountedBaseLayers(): boolean;
@@ -1112,6 +1123,12 @@ declare class TimeRound extends TimeUtilsBase {
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
+type ParsedTimelineFrame = {
+    index: number;
+    absolute: number;
+    relative: number;
+    offset: number;
+};
 /**
  * Every file needs to have this information
  */
@@ -1125,7 +1142,7 @@ type ParsedFileBaseInfo = {
     fps: number;
     min: number;
     max: number;
-    timestamps: number[];
+    timeline: ParsedTimelineFrame[];
     averageEmissivity: number;
     averageReflectedKelvins: number;
     bytesize: number;
@@ -1198,6 +1215,113 @@ interface IParserObject {
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
 }
 
+declare class FrameBuffer {
+    protected readonly drive: ReTimelineDrive;
+    protected _currentFrame: ParsedFileFrame;
+    get currentFrame(): ParsedFileFrame;
+    set currentFrame(frame: ParsedFileFrame);
+    get currentStep(): ParsedTimelineFrame;
+    protected _bufferBySteps: Map<ParsedTimelineFrame, ParsedFileFrame>;
+    get bufferedStepsArray(): ParsedTimelineFrame[];
+    get bufferRelativeTimestamps(): number[];
+    readonly bufferSize: number;
+    readonly isSequence: boolean;
+    constructor(drive: ReTimelineDrive, firstFrame: ParsedFileFrame);
+    init(): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    /**
+     * Activate a step
+     * - look for the buffer for the corresponding frame
+     * - if there is a corresponding frame, apply it
+     * - if there is none, fetch it
+     * - if sequence, fetch buffer
+     */
+    recieveStep(step: ParsedTimelineFrame): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    protected propagate(): void;
+    protected preload(step: ParsedTimelineFrame): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+}
+
+type FramesMap = Map<number, ParsedTimelineFrame>;
+type ReTimelineFrameChangedEventListener = (frame: ParsedTimelineFrame) => void;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class ReTimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
+    readonly steps: ParsedFileBaseInfo["timeline"];
+    readonly parent: Instance;
+    get duration(): number;
+    get frameCount(): number;
+    readonly startTimestampRelative: number;
+    /** @deprecated not in use? */
+    readonly endTimestampRelative: number;
+    readonly stepsByAbsolute: FramesMap;
+    readonly stepsByRelative: FramesMap;
+    readonly stepsByIndex: FramesMap;
+    readonly relativeSteps: number[];
+    protected _currentStep: ParsedTimelineFrame;
+    get currentStep(): ParsedTimelineFrame;
+    protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener>;
+    protected _isPlayying: boolean;
+    get isPlaying(): boolean;
+    protected timer?: ReturnType<typeof setTimeout>;
+    readonly buffer: FrameBuffer;
+    constructor(parent: AbstractFile, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+    init(): void;
+    protected afterSetEffect(value: number): void;
+    protected validate(value: number): number;
+    _validateRelativeTime(value: number): number;
+    _validateIndex(value: number): number;
+    _convertRelativeToAspect(relativeTimeInMs: number): number;
+    _convertRelativeToPercent(relativeTimeInMs: number): number;
+    _convertPercenttRelative(percent: number): number;
+    /** Event listener to changement of the current frame.
+     * - the current frame is not changed every time the value changes
+     * - the current frame is changed only when the ms value points fo a new previous frame
+     */
+    addChangeListener(identificator: string, fn: ReTimelineFrameChangedEventListener): void;
+    removeChangeListener(identificator: string): void;
+    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
+    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
+    setRelativeTime(relativeTimeInMs: number): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    setValueByPercent(percent: number): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    protected enqueueStep(): void;
+    play(): void;
+    pause(): void;
+    stop(): void;
+}
+
 /**
  * Stores the file's `ArrayBuffer` and provides all the data for instance
  * - this service is registered in FilesService
@@ -1244,10 +1368,12 @@ declare class Instance extends AbstractFile {
     readonly bytesize: number;
     readonly averageEmissivity: number;
     readonly averageReflectedKelvins: number;
-    readonly frame: ParsedFileFrame;
+    readonly firstFrame: ParsedFileFrame;
+    readonly timelineData: ParsedFileBaseInfo["timeline"];
+    timeline: ReTimelineDrive;
     exportAsPng(): void;
     exportThermalDataAsSvg(): void;
-    protected constructor(group: ThermalGroup, service: FileReaderService, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, frame: ParsedFileFrame);
+    protected constructor(group: ThermalGroup, service: FileReaderService, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
     postInit(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;

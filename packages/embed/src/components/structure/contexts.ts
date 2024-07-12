@@ -1,4 +1,4 @@
-import { AbstractFile, ThermalGroup, ThermalManager, ThermalRegistry } from "@labir/core";
+import { Instance, ThermalGroup, ThermalManager, ThermalRegistry } from "@labir/core";
 import { createContext } from "@lit/context";
 
 
@@ -30,5 +30,5 @@ export const GroupContext = createContext<GroupContextType>( ThermalContext.GROU
 
 // File
 
-export type FileContextType = AbstractFile;
+export type FileContextType = Instance;
 export const FileContext = createContext<FileContextType>( ThermalContext.GROUP )

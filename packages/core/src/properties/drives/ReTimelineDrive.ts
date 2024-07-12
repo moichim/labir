@@ -35,7 +35,8 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     public get currentStep() { return this._currentStep; }
     protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener> = new Map;
 
-    protected playing: boolean = false;
+    protected _isPlayying: boolean = false;
+    public get isPlaying() { return this._isPlayying; }
     protected timer?: ReturnType<typeof setTimeout>;
 
     public readonly buffer: FrameBuffer;
@@ -179,9 +180,13 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
 
         const subarray = this.steps.slice(subarrayStart, subarrayEnd);
 
+        console.log( relativeTimeInMs, subarray );
+
         const frame = subarray.find(f => {
-            return f.relative >= relativeTimeInMs
+            return f.relative > relativeTimeInMs
         });
+
+        console.log( frame );
 
         return frame !== undefined
             ? frame
@@ -241,8 +246,6 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
         return await this.setRelativeTime( convertedToRelativeTime );
     }
 
-
-
     protected enqueueStep() {
 
         if (this.timer !== undefined) {
@@ -255,7 +258,7 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
         }
 
         // Do nothing when not playing
-        if ( this.playing === false ) {
+        if ( this._isPlayying === false ) {
             return;
         }
 
@@ -266,29 +269,35 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
 
             if ( next ) {
                 this.value = next.relative;
-                if ( this.playing ) {
+                if ( this._isPlayying ) {
+
+                    console.log( this.value, next );
+                    this.value = next.relative;
+                    this._currentStep = next;
+                    this.buffer.recieveStep( next );
+
                     this.enqueueStep();
                 }
 
             } else {
-                this.playing = false;
+                this._isPlayying = false;
             }
 
         }, this._currentStep.offset )
 
     }
 
-
     play() {
 
         if ( this.steps.length > 1 ) {
-            this.playing = true;
+            console.log( "Spouštím hru!" );
+            this._isPlayying = true;
             this.enqueueStep();
         }
 
     }
     pause() {
-        this.playing = false;
+        this._isPlayying = false;
         clearTimeout( this.timer );
     }
     stop() {

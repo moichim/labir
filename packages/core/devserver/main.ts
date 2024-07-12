@@ -39,18 +39,6 @@ group.instances.addListener("boot", value => {
 
 const group_2 = registry.groups.addOrGetGroup("group_2");
 
-const loaderTest = async (url: string) => {
-
-    const element = document.createElement("div");
-    root?.appendChild(element);
-    element.style.width = "500px";
-    const reader = await registry.service.loadFile(url) as FileReaderService;
-    const instance = await reader.createInstance(group_2);
-    instance.mountToDom(element);
-
-    instance.draw();
-}
-
 
 // loaderTest( "/soustruh.lrc" );
 // loaderTest( "/tucnaci_04.lrc" );
@@ -71,6 +59,17 @@ const mountInstance = (instance: Instance) => {
     desc.innerHTML = `${instance.group.id} - ${instance.fileName}`;
     root?.appendChild( desc );
     // root?.appendChild();
+
+    element.addEventListener( "click", () => {
+
+        if ( instance.timeline.isPlaying ) {
+            instance.timeline.stop();
+        } else {
+            instance.timeline.play();
+        }
+        // console.log( "hraji" );
+        
+    });
 
 }
 

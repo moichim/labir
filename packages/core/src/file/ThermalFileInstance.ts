@@ -18,6 +18,7 @@ import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
  * @todo implement activation properly!
  * @todo implement unmounting
  * @todo rename binding to mounting
+ * @deprecated YES - we have a new variant!
  */
 export class ThermalFileInstance extends AbstractFile {
 

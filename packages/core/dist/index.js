@@ -53,8 +53,8 @@ module.exports = __toCommonJS(src_exports);
 // src/utils/time/pool.ts
 var workerpool = __toESM(require("workerpool"));
 var pool2 = workerpool.pool({
-  maxWorkers: 8,
-  onTerminateWorker: (what) => console.log(what)
+  maxWorkers: 8
+  // onTerminateWorker: what => console.log( what )
 });
 var pool_default = pool2;
 
@@ -130,7 +130,6 @@ var TimelineDrive = class extends AbstractProperty {
       return value;
     });
     this._currentFrame = this.frames[0];
-    console.log("timeline", this.localTimeline);
   }
   get duration() {
     return this.parent.duration;
@@ -220,7 +219,7 @@ var TimelineDrive = class extends AbstractProperty {
   setMs(ms) {
     this.value = ms;
   }
-  setPercentage(percentage) {
+  setValueByPercent(percentage) {
     const percent = Math.min(Math.max(percentage, 0), 100);
     const time = this.duration / 100 * percent;
     this.value = Math.floor(time);
@@ -703,7 +702,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.canvas = ThermalDomFactory.createCanvas();
     this.canvas.width = this.instance.width;
     this.canvas.height = this.instance.height;
-    console.log(this.instance.width, this.instance);
     this.context = this.canvas.getContext("2d");
     this.container.appendChild(this.canvas);
   }
@@ -769,7 +767,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
       }
       const imageData = context.getImageData(0, 0, width, height);
       const result = await createImageBitmap(imageData);
-      console.log("Vl\xE1kno skon\u010Dilo kresbu", from, to);
       return result;
     }, [
       this.from,
@@ -940,7 +937,7 @@ var ThermalFileInstance = class extends AbstractFile {
     return `instance_${this.group.id}_${thermalUrl}`;
   }
   onSetPixels(value) {
-    console.log("setting pixels", value);
+    value;
     if (this.mountedBaseLayers) {
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
@@ -3032,9 +3029,291 @@ var FileLoadingError = class extends Error {
   }
 };
 
+// src/properties/drives/FrameBuffer.ts
+var FrameBuffer = class {
+  constructor(drive, firstFrame) {
+    this.drive = drive;
+    this._bufferBySteps = /* @__PURE__ */ new Map();
+    /*
+    
+        protected get __bufferedIndicies() {
+            return this.bufferedStepsArray.map( step => step.index );
+        }
+    
+        protected get _bufferedAbsoluteTimestamps() {
+            return this.bufferedStepsArray.map( step => step.absolute );
+        }
+    
+        */
+    this.bufferSize = 4;
+    this.isSequence = drive.parent.frameCount > 1;
+    this.currentFrame = firstFrame;
+  }
+  get currentFrame() {
+    return this._currentFrame;
+  }
+  set currentFrame(frame) {
+    this._currentFrame = frame;
+    this.propagate();
+  }
+  get currentStep() {
+    return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
+  }
+  get bufferedStepsArray() {
+    return Array.from(this._bufferBySteps.keys());
+  }
+  get bufferRelativeTimestamps() {
+    return this.bufferedStepsArray.map((step) => step.relative);
+  }
+  async init() {
+    return await this.preload(this.currentStep);
+  }
+  /**
+   * Activate a step
+   * - look for the buffer for the corresponding frame
+   * - if there is a corresponding frame, apply it
+   * - if there is none, fetch it
+   * - if sequence, fetch buffer
+   */
+  async recieveStep(step) {
+    let frame = this._bufferBySteps.get(step);
+    if (frame === void 0) {
+      frame = await this.drive.parent.service.frameData(step.index);
+    }
+    this._currentFrame = frame;
+    const update = await this.preload(step);
+    this.propagate();
+    return update;
+  }
+  propagate() {
+    this.drive.parent.pixels = this.currentFrame.pixels;
+  }
+  async preload(step) {
+    const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
+    const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
+    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
+      if (step.relative === this.drive.parent.duration) {
+        this._bufferBySteps.clear();
+      }
+      return {
+        relativeTime: this.drive.value,
+        currentFrame: this.currentFrame,
+        currentStep: this.currentStep,
+        buffer: this.bufferedStepsArray,
+        preloaded: false,
+        hasChanged: true
+      };
+    }
+    const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
+      return step2.index >= subsetStart && step2.index < subsetEnd;
+    });
+    const newSteps = stepsThatShouldBe.filter((step2) => !this.bufferedStepsArray.includes(step2));
+    const newFrames = await Promise.all(newSteps.map((step2) => {
+      return this.drive.parent.service.frameData(step2.index);
+    }));
+    console.log("On", step, "Steps that should be", stepsThatShouldBe);
+    newFrames.forEach((frame, index) => {
+      const step2 = newSteps[index];
+      this._bufferBySteps.set(step2, frame);
+    });
+    this.bufferedStepsArray.forEach((step2) => {
+      if (!stepsThatShouldBe.includes(step2)) {
+        this._bufferBySteps.delete(step2);
+      }
+    });
+    return {
+      currentFrame: this.currentFrame,
+      currentStep: this.currentStep,
+      relativeTime: this.drive.value,
+      buffer: this.bufferedStepsArray,
+      preloaded: true,
+      hasChanged: true
+    };
+  }
+};
+
+// src/properties/drives/ReTimelineDrive.ts
+var ReTimelineDrive = class extends AbstractProperty {
+  constructor(parent, initial, steps, initialFrameData) {
+    super(parent, Math.max(Math.min(initial, steps.length), 0));
+    this.steps = steps;
+    this.stepsByAbsolute = /* @__PURE__ */ new Map();
+    this.stepsByRelative = /* @__PURE__ */ new Map();
+    this.stepsByIndex = /* @__PURE__ */ new Map();
+    this.relativeSteps = [];
+    this._onChangeListeners = /* @__PURE__ */ new Map();
+    this._isPlayying = false;
+    this._currentStep = this.steps[this._initial];
+    this.startTimestampRelative = 0;
+    this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
+    this.steps.forEach((step) => {
+      this.stepsByIndex.set(step.index, step);
+      this.stepsByAbsolute.set(step.absolute, step);
+      this.stepsByRelative.set(step.relative, step);
+      this.relativeSteps.push(step.relative);
+    });
+    this.buffer = new FrameBuffer(this, initialFrameData);
+  }
+  get duration() {
+    return this.parent.duration;
+  }
+  get frameCount() {
+    return this.steps.length;
+  }
+  get currentStep() {
+    return this._currentStep;
+  }
+  get isPlaying() {
+    return this._isPlayying;
+  }
+  init() {
+    this.buffer.init();
+  }
+  afterSetEffect(value) {
+    value;
+    if (this.steps.length === 1) {
+      return;
+    }
+  }
+  validate(value) {
+    if (this.steps === void 0) {
+      return value;
+    }
+    if (this.steps.length === 1) {
+      return 0;
+    }
+    return this._validateRelativeTime(value);
+  }
+  _validateRelativeTime(value) {
+    return Math.max(Math.min(value, this.steps[this.steps.length - 1].relative), 0);
+  }
+  _validateIndex(value) {
+    return Math.max(Math.min(value, this.steps.length), 0);
+  }
+  _convertRelativeToAspect(relativeTimeInMs) {
+    return relativeTimeInMs / this.duration;
+  }
+  _convertRelativeToPercent(relativeTimeInMs) {
+    return this._convertRelativeToAspect(relativeTimeInMs) * 100;
+  }
+  _convertPercenttRelative(percent) {
+    return this.duration * percent / 100;
+  }
+  /** Event listener to changement of the current frame.
+   * - the current frame is not changed every time the value changes
+   * - the current frame is changed only when the ms value points fo a new previous frame
+   */
+  addChangeListener(identificator, fn) {
+    this._onChangeListeners.set(identificator, fn);
+  }
+  removeChangeListener(identificator) {
+    this._onChangeListeners.delete(identificator);
+  }
+  findPreviousRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.ceil(aspect * this.steps.length) + 5;
+    const sliceStart = this._validateIndex(index - 40);
+    const sliceEnd = this._validateIndex(index);
+    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
+    const frame = reversedSubarray.find((f) => {
+      return f.relative <= relativeTimeInMs;
+    });
+    console.log("find previous from", relativeTimeInMs, frame);
+    return frame !== void 0 ? frame : this.steps[0];
+  }
+  findNextRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.floor(aspect * this.steps.length) - 5;
+    const subarrayStart = this._validateIndex(index);
+    const subarrayEnd = this._validateIndex(index + 40);
+    const subarray = this.steps.slice(subarrayStart, subarrayEnd);
+    console.log(relativeTimeInMs, subarray);
+    const frame = subarray.find((f) => {
+      return f.relative > relativeTimeInMs;
+    });
+    console.log(frame);
+    return frame !== void 0 ? frame : false;
+  }
+  async setRelativeTime(relativeTimeInMs) {
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    this.value = relativeTimeInMs;
+    const currentStep = this.findPreviousRelative(this.value);
+    if (currentStep !== this._currentStep) {
+      this._currentStep = currentStep;
+      const result = await this.buffer.recieveStep(this._currentStep);
+      return {
+        ...result
+        // preloaded: true
+      };
+    }
+    return {
+      relativeTime: this.value,
+      currentStep: this._currentStep,
+      currentFrame: this.buffer.currentFrame,
+      buffer: [],
+      preloaded: false,
+      hasChanged: false
+    };
+  }
+  async setValueByPercent(percent) {
+    percent = Math.max(Math.min(percent, 100), 0);
+    console.log("percent!!!", percent);
+    const convertedToRelativeTime = this._convertPercenttRelative(percent);
+    return await this.setRelativeTime(convertedToRelativeTime);
+  }
+  enqueueStep() {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer);
+    }
+    if (this.steps.length === 1) {
+      return;
+    }
+    if (this._isPlayying === false) {
+      return;
+    }
+    this.timer = setTimeout(() => {
+      const next = this.findNextRelative(this._currentStep.relative);
+      if (next) {
+        this.value = next.relative;
+        if (this._isPlayying) {
+          console.log(this.value, next);
+          this.value = next.relative;
+          this._currentStep = next;
+          this.buffer.recieveStep(next);
+          this.enqueueStep();
+        }
+      } else {
+        this._isPlayying = false;
+      }
+    }, this._currentStep.offset);
+  }
+  play() {
+    if (this.steps.length > 1) {
+      console.log("Spou\u0161t\xEDm hru!");
+      this._isPlayying = true;
+      this.enqueueStep();
+    }
+  }
+  pause() {
+    this._isPlayying = false;
+    clearTimeout(this.timer);
+  }
+  stop() {
+    this.pause();
+    this.value = 0;
+  }
+};
+
 // src/reload/instance.ts
 var Instance = class _Instance extends AbstractFile {
-  constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, frame) {
+  constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
     super(
       group,
       service.thermalUrl,
@@ -3062,8 +3341,9 @@ var Instance = class _Instance extends AbstractFile {
     this.bytesize = bytesize;
     this.averageEmissivity = averageEmissivity;
     this.averageReflectedKelvins = averageReflectedKelvins;
-    this.frame = frame;
-    this.pixels = frame.pixels;
+    this.firstFrame = firstFrame;
+    this.timelineData = timelineData;
+    this.pixels = firstFrame.pixels;
   }
   exportAsPng() {
     throw new Error("Method not implemented.");
@@ -3077,14 +3357,18 @@ var Instance = class _Instance extends AbstractFile {
     this.cursorLayer = new ThermalCursorLayer(this);
     this.listenerLayer = new ThermalListenerLayer(this);
     this.cursorValue = new CursorValueDrive(this, void 0);
+    this.timeline = new ReTimelineDrive(this, 0, this.timelineData, this.firstFrame);
+    this.timeline.init();
     return this;
   }
   formatId(thermalUrl) {
     return `instance_${this.group.id}_${thermalUrl}`;
   }
   onSetPixels(value) {
+    console.log("Pixels changed in", this.thermalUrl);
     value;
     if (this.mountedBaseLayers) {
+      console.log("Drawing!!!");
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
@@ -3113,7 +3397,8 @@ var Instance = class _Instance extends AbstractFile {
       baseInfo2.bytesize,
       baseInfo2.averageEmissivity,
       baseInfo2.averageReflectedKelvins,
-      firstFrame
+      firstFrame,
+      baseInfo2.timeline
     );
     return instance.postInit();
   }
@@ -3155,7 +3440,8 @@ var FileReaderService = class extends AbstractFileResult {
    */
   async frameData(index) {
     const data = this.getFrameSubset(index);
-    return await this.parser.frameData(data.array, data.dataType);
+    const result = await this.parser.frameData(data.array, data.dataType);
+    return result;
   }
   async createInstance(group) {
     const baseInfo2 = await this.baseInfo();
@@ -3176,13 +3462,6 @@ var is = (data, url) => {
   const decoder = new TextDecoder();
   const hasCorrectSignature = decoder.decode(data.slice(0, 4)) === "LRC\0";
   return hasCorrectExtension && hasCorrectSignature;
-};
-var dimensions = (buffer) => {
-  const view = new DataView(buffer);
-  return {
-    width: view.getUint16(17, true),
-    height: view.getUint16(19, true)
-  };
 };
 var baseInfo = async (entireFileBuffer) => {
   const view = new DataView(entireFileBuffer);
@@ -3260,6 +3539,28 @@ var baseInfo = async (entireFileBuffer) => {
     }
     timestamps.push(frame.timestamp);
   });
+  const timelineStart = timestamps[0];
+  let timelineCursor = 0;
+  const timeline = [];
+  const f = [];
+  timestamps.forEach((t, index) => {
+    const next = timestamps[index + 1];
+    let offset = 0;
+    if (next === void 0) {
+      offset = 0;
+    }
+    offset = next - t;
+    const relative = t - timelineStart;
+    timeline.push(offset);
+    timelineCursor = timelineCursor + offset;
+    f.push({
+      absolute: t,
+      relative,
+      // isNaN( relativeTime ) ? 0 : relativeTime,
+      offset: isNaN(offset) ? 0 : offset,
+      index
+    });
+  });
   const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
   const frameInterval = duration / frameCount;
   const fps = 1e3 / frameInterval;
@@ -3272,7 +3573,7 @@ var baseInfo = async (entireFileBuffer) => {
     duration,
     frameInterval,
     fps,
-    timestamps,
+    timeline: f,
     min: currentMin,
     max: currentMax,
     averageEmissivity: sums.emissivity / frames.length,
@@ -3280,6 +3581,7 @@ var baseInfo = async (entireFileBuffer) => {
   };
 };
 var getFrameSubset = (entireFileBuffer, index) => {
+  console.log("popt\xE1v\xE1m index", index);
   const headerView = new DataView(entireFileBuffer.slice(0, 25));
   const dataType = headerView.getUint8(15);
   const width = headerView.getUint16(17, true);
@@ -3355,7 +3657,6 @@ var LrcParser2 = Object.freeze({
   }],
   extensions,
   is,
-  dimensions,
   baseInfo,
   getFrameSubset,
   frameData
