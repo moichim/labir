@@ -1,169 +1,193 @@
-import { ParsedFileFrame } from "../../reload/parsers/types";
+import { ParsedFileFrame, ParsedTimelineFrame } from "../../reload/parsers/types";
 import { ReTimelineDrive } from "./ReTimelineDrive";
 
 export class FrameBuffer {
 
+
     protected _currentFrame!: ParsedFileFrame;
-    public get currentFrame() { return this._currentFrame; }
+
+    public get currentFrame() {
+        return this._currentFrame;
+    }
+
     public set currentFrame( frame: ParsedFileFrame ) {
-
-        // Store the value
         this._currentFrame = frame;
-        
-        const currentStep = this.getFrameStep( frame );
-
-
-        // ABSOLUTNI TIMESTAMPY K KODSTRANENI
-
-        // tento konkrétní jeden
-
-        // Všechny, které jaou menší než tento konrkténí jeden
-
-        // Všechny, které jsou v pořadí nad 4
-
-        // Včechny, které nejsou kontinuální
-
-        // ODSTRANOVANI Z RELATIVNIHO INDEXU
-
-        const allSeps = Array.from( this.bufferByRelativeTime.keys() ).map( frame => this.drive.stepsByRelative.get(frame)! );
-
-        let counter = currentStep.index;
-        const stepsThatRemain = allSeps.filter( ( step, order ) => {
-
-            if ( step.absolute === this.currentFrame.timestamp ) {
-                return false;
-            }
-
-            if ( step.relative < currentStep.relative ) {
-                return false;
-            }
-
-            if ( order > 4 ) {
-                return false;
-            }
-
-            if ( order !== counter + 1 ) {
-                return false;
-            }
-
-            counter = counter + 1;
-
-        } );
-
-
-
-        // this.bufferByRelativeTime =
-
-
-        // Remove bad frames
-        stepsThatRemain.forEach( step => {
-
-            this.bufferByAbsoluteTime.delete( step.absolute );
-            this.bufferByRelativeTime.delete( step.relative );
-            this.bufferByIndex.delete( step.index );
-
-            this.rowIndexes = this.rowIndexes.filter(st => st !== step.index );
-            this.rowRelative = this.rowRelative.filter(st => st !== step.relative );
-
-        } );
-
-        const numberOfStepsToLoad = this.bufferSize - stepsThatRemain.length;
-
-        const firstStepToLoad = stepsThat
-
-
-        // ODENDAM KUR
-
-        // ODENDAM MENSI
-
-        // ODSTRANIM TY? KTERE NEJSOU V RADE
-
-        // SLICNU 0 až 4
-
-        
-
-        
-        
+        this.propagate();
     }
 
-    protected getFrameStep( frame: ParsedFileFrame ) {
-        return this.drive.stepsByAbsolute.get( frame.timestamp )!;
+    public get currentStep() {
+        return this.drive.stepsByAbsolute.get( this._currentFrame.timestamp)!;
     }
 
-    protected rowRelative: number[] = [];
-    protected rowIndexes: number[] = [];
+    protected _bufferBySteps: Map<ParsedTimelineFrame,ParsedFileFrame> = new Map;
+
+    public get bufferedStepsArray() {
+        return Array.from( this._bufferBySteps.keys() );
+    }
+
+    
+
+    public get bufferRelativeTimestamps() {
+        return this.bufferedStepsArray.map( step => step.relative );
+    }
+
+    /*
+
+    protected get __bufferedIndicies() {
+        return this.bufferedStepsArray.map( step => step.index );
+    }
+
+    protected get _bufferedAbsoluteTimestamps() {
+        return this.bufferedStepsArray.map( step => step.absolute );
+    }
+
+    */
+
 
     readonly bufferSize:number =  4;
 
-    readonly bufferByRelativeTime: Map<number, ParsedFileFrame>
-    = new Map;
+    public readonly isSequence: boolean;
 
 
     constructor(
         protected readonly drive: ReTimelineDrive,
         firstFrame: ParsedFileFrame
     ) {
-        this.setFrame( firstFrame );
+
+        this.isSequence = drive.parent.frameCount > 1;
+
+        this.currentFrame = firstFrame;
+
     }
 
-    public async setFrame( parsedFrame: ParsedFileFrame ) {
-        this._currentFrame = parsedFrame;
+    public async init() {
 
-        console.log( "____Nastavuji frame", parsedFrame.timestamp );
+        return await this.preload( this.currentStep );
 
-        await this.preload();
+    }
+
+
+
+    /**
+     * Activate a step
+     * - look for the buffer for the corresponding frame
+     * - if there is a corresponding frame, apply it
+     * - if there is none, fetch it
+     * - if sequence, fetch buffer
+     */
+    public async recieveStep(
+        step: ParsedTimelineFrame
+    ) {
+
+        // CURRENT FRAME
+
+        // Look for buffered frame
+        let frame = this._bufferBySteps.get( step );
+
+        // If the frame is not buffered, fetch it
+        if ( frame === undefined ) {
+            frame = await this.drive.parent.service.frameData( step.index );
+        }
+
+        // Store the new frame
+        this._currentFrame = frame;
+
+
+
+
+        // BUFFER
+
+        const update = await this.preload( step );
 
         this.propagate();
 
+        
+        return update;
+
+
     }
 
-    protected async preload() {
 
-        console.log( "obsah bufferu", Array.from( this.bufferByAbsoluteTime.keys()
-
-     ) );
-
-        // Smazat předchozí framy
-        for ( const [absoluteTimestamp] of this.bufferByAbsoluteTime ) {
-
-            console.log( "///////", absoluteTimestamp, this._currentFrame.timestamp );
-            if ( absoluteTimestamp < this._currentFrame.timestamp ) {
-                console.log( "Mažu přednačtený", absoluteTimestamp, "nechávám", this.currentFrame.timestamp );
-                this.bufferByAbsoluteTime.delete( absoluteTimestamp );
-            }
-        }
-
-        // Zjistit, jaké framy zbývají do naplnění bufferu
-        const latestLoadedAbsoluteTimestamp = this.bufferByAbsoluteTime.size > 0
-            ? Array.from( this.bufferByAbsoluteTime.values() )[this.bufferByAbsoluteTime.size-1].timestamp
-            : this._currentFrame.timestamp;
-        const latestLoadedIndex = this.drive.stepsByAbsolute.get( latestLoadedAbsoluteTimestamp )!.index;
-
-        
-
-        const subarrayEnd = this.drive._validateIndex( 
-            latestLoadedIndex + this.bufferSize 
-        );
-
-        const framesToLoad = Object.keys( this.drive.relativeSteps ).slice( latestLoadedIndex + 1, subarrayEnd ).map( value => parseInt( value ) );
-
-        console.log( "měl bych našíst toto", framesToLoad );
-
-        // Provést dotaz
-        const frames = await Promise.all( framesToLoad.map( index => this.drive.parent.service.frameData( index ) ) )
-
-        frames.map( frame  => console.log( "frejm", frame.timestamp ) )
-
-        
-         frames.forEach( result => this.bufferByAbsoluteTime.set( result.timestamp, result ) );
-
-        console.log(  "Obsah bufferu po načtení", this.currentFrame.timestamp, Array.from( this.bufferByAbsoluteTime.keys() ) );
-
-        return;
-    }
 
     protected propagate() {
-        this.drive.parent.pixels = this._currentFrame.pixels;
+        this.drive.parent.pixels = this.currentFrame.pixels;
+    }
+
+
+    protected async preload( step: ParsedTimelineFrame ) {
+
+        // Get steps that should be in the buffer
+
+        // Select steps from this index
+        const subsetStart = step.index + 1 < this.drive.relativeSteps.length
+            ? step.index + 1
+            : NaN;
+
+        // Select steps to this index
+        const subsetEnd = isNaN( subsetStart )
+            ? NaN
+            : this.drive._validateIndex( subsetStart + this.bufferSize );
+
+        // Do nothing if subset is invalid
+        if (
+            ( isNaN( subsetStart ) || isNaN( subsetEnd ) )
+            || subsetStart > subsetEnd
+        ) {
+
+            if ( step.relative === this.drive.parent.duration ) {
+                this._bufferBySteps.clear();
+            }
+
+            return {
+                relativeTime: this.drive.value,
+                currentFrame: this.currentFrame,
+                currentStep: this.currentStep,
+                buffer: this.bufferedStepsArray,
+                preloaded: false,
+                hasChanged: true
+            };
+        }
+
+        // Steps that should be in the buffer
+        const stepsThatShouldBe = Array.from( this.drive.stepsByIndex.values() ).filter( step => {
+            return step.index >= subsetStart && step.index < subsetEnd
+        } );
+
+
+        // Get only those new steps that are not in the buffer
+        const newSteps = stepsThatShouldBe.filter( step => ! this.bufferedStepsArray.includes( step ) );
+
+        // Asynchronously read the frames
+        const newFrames = await Promise.all( newSteps.map( step => {
+            return this.drive.parent.service.frameData( step.index )
+        } ) );
+
+        console.log( "On",step, "Steps that should be", stepsThatShouldBe );
+
+        // Add new steps to the registry
+        newFrames.forEach( ( frame, index ) => {
+            const step = newSteps[index];
+            this._bufferBySteps.set( step, frame );
+        } );
+
+        // Remove all values that are not in new Steps
+        this.bufferedStepsArray.forEach( (step) => {
+
+            if ( ! stepsThatShouldBe.includes( step ) ) {
+                this._bufferBySteps.delete( step );
+            }
+
+        } );
+
+        return {
+            currentFrame: this.currentFrame,
+            currentStep: this.currentStep,
+            relativeTime: this.drive.value,
+            buffer: this.bufferedStepsArray,
+            preloaded: true,
+            hasChanged: true
+        }
+
     }
 
 }

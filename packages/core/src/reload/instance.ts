@@ -63,6 +63,7 @@ export class Instance extends AbstractFile {
         this.listenerLayer = new ThermalListenerLayer(this);
         this.cursorValue = new CursorValueDrive(this, undefined);
         this.timeline = new ReTimelineDrive( this, 0, this.timelineData, this.firstFrame );
+        this.timeline.init();
         return this;
     }
 
@@ -71,6 +72,8 @@ export class Instance extends AbstractFile {
     }
 
     protected onSetPixels(value: number[]): void {
+
+        console.log( "Pixels changed in", this.thermalUrl );
         
         value;
         // throw new Error("Method not implemented.");
@@ -79,6 +82,9 @@ export class Instance extends AbstractFile {
         // If this file is loaded, recalculate all side effects
         if (this.mountedBaseLayers) {
 
+
+            console.log( "Drawing!!!" );
+            
             // Redraw
             this.draw();
 

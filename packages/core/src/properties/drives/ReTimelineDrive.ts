@@ -31,7 +31,8 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     public readonly stepsByIndex: FramesMap = new Map();
     public readonly relativeSteps: number[] = [];
 
-    protected currentStep: ParsedTimelineFrame;
+    protected _currentStep: ParsedTimelineFrame;
+    public get currentStep() { return this._currentStep; }
     protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener> = new Map;
 
     protected playing: boolean = false;
@@ -49,7 +50,7 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     ) {
         super(parent, Math.max(Math.min(initial, steps.length), 0));
 
-        this.currentStep = this.steps[this._initial];
+        this._currentStep = this.steps[this._initial];
         this.startTimestampRelative = 0;
         this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
 
@@ -62,6 +63,10 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
 
         this.buffer = new FrameBuffer(this, initialFrameData);
 
+    }
+
+    public init() {
+        this.buffer.init();
     }
 
     protected afterSetEffect(value: number): void {
@@ -149,7 +154,7 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
             return f.relative <= relativeTimeInMs
         });
 
-        console.log( "find previous", frame );
+        console.log( "find previous from", relativeTimeInMs, frame );
 
         return frame !== undefined
             ? frame
@@ -185,38 +190,55 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     }
 
     public async setRelativeTime(relativeTimeInMs: number) {
+
         relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+
+        // The value is stored as it came
         this.value = relativeTimeInMs;
 
         
+        // The current (previous) step is stored 
+        const currentStep = this.findPreviousRelative(this.value);
 
-        this.currentStep = this.findPreviousRelative(this.value);
+        // Store propagate the step only when it changed
+        if ( currentStep !== this._currentStep ) {
 
-        let preloadedFrame = this.buffer.bufferByAbsoluteTime.get(this.currentStep.absolute);
+            this._currentStep = currentStep;
+            const result = await this.buffer.recieveStep( this._currentStep );
 
-        // console.log( "Current step", this.currentStep, preloadedFrame, Object.keys( this.buffer.bufferByAbsoluteTime ) );
+            // console.log( "updatoval jsem a mám result", result );
 
-        // Pokud je frame přednačtený, nastav jej
-        if (preloadedFrame !== undefined) {
-            console.log( "je přednastaveno", relativeTimeInMs, preloadedFrame.timestamp );
-            await this.buffer.setFrame(preloadedFrame);
-            return preloadedFrame;
+            return {
+                ...result,
+                // preloaded: true
+            };
+
         }
-        // Pokud není přednačtený
-        else {
 
-            preloadedFrame = await this.parent.service.frameData(this.currentStep.index)
-
-            await this.buffer.setFrame(preloadedFrame);
-
-            return preloadedFrame;
+        return {
+            relativeTime: this.value,
+            currentStep: this._currentStep,
+            currentFrame: this.buffer.currentFrame,
+            buffer: [],
+            preloaded: false,
+            hasChanged: false
         }
+
     }
 
-    public setValueByPercent(percent: number) {
-        percent = Math.min(Math.max(percent, 100), 0);
-        const value = this._validateRelativeTime(Math.round(percent * this.duration));
-        this.value = value;
+    public async setValueByPercent(percent: number) {
+
+        // Normalize the percent value
+        percent = Math.max(Math.min(percent, 100), 0);
+        // percent = this._validateRelativeTime(Math.round(percent * this.duration));
+
+        console.log( "percent!!!", percent );
+
+        // Convert the percent value to relative time
+        const convertedToRelativeTime = this._convertPercenttRelative( percent );
+
+        // Call the primary setter
+        return await this.setRelativeTime( convertedToRelativeTime );
     }
 
 
@@ -240,7 +262,7 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
         
 
         this.timer = setTimeout( () => {
-            const next = this.findNextRelative( this.currentStep.relative );
+            const next = this.findNextRelative( this._currentStep.relative );
 
             if ( next ) {
                 this.value = next.relative;
@@ -252,7 +274,7 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
                 this.playing = false;
             }
 
-        }, this.currentStep.offset )
+        }, this._currentStep.offset )
 
     }
 
