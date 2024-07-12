@@ -1,3 +1,9 @@
+export type ParsedTimelineFrame = {
+    index: number,
+    absolute: number,
+    relative: number,
+    offset: number
+}
 
 /** 
  * Every file needs to have this information
@@ -12,7 +18,7 @@ export type ParsedFileBaseInfo = {
     fps: number,
     min: number,
     max: number,
-    timestamps: number[],
+    timeline: ParsedTimelineFrame[],
     averageEmissivity: number,
     averageReflectedKelvins: number,
     bytesize: number

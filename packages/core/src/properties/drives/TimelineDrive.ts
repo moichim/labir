@@ -1,6 +1,7 @@
 import { AbstractFile } from "../../file/IFileInstance";
 import { ILrcFrame } from "../../parsers/lrc/LrcTrame";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { ITimelineDrive } from "./ITimeline";
 
 export interface IWithTimeline extends IBaseProperty {
     timeline: TimelineDrive
@@ -23,7 +24,7 @@ type FramesByIndex = Map<number, FrameType>;
 export type TimelineFrameChangedEventListener = (frame: FrameType) => void
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, AbstractFile> {
+export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
     protected readonly frames: Frames;
     public get duration() { return this.parent.duration; }
@@ -119,8 +120,6 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> {
 
         this._currentFrame = this.frames[0];
 
-        console.log("timeline", this.localTimeline);
-
     }
 
     /** 
@@ -206,7 +205,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> {
         this.value = ms;
     }
 
-    setPercentage(
+    setValueByPercent(
         percentage: number
     ) {
         const percent = Math.min( Math.max( percentage, 0 ), 100 );

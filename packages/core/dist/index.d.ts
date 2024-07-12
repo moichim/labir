@@ -1,12 +1,8 @@
-import Pool from 'workerpool/types/Pool';
+import * as workerpool_types_Pool from 'workerpool/types/Pool';
+import workerpool_types_Pool__default from 'workerpool/types/Pool';
 
 declare abstract class BaseStructureObject {
-    private _pool?;
-    /**
-     * Lazy loaded instance of web worker pool.
-     * @see https://github.com/josdejong/workerpool
-    */
-    get pool(): Pool;
+    readonly pool: workerpool_types_Pool__default;
 }
 
 /**
@@ -123,6 +119,16 @@ interface ILrcFrame {
     pixels: number[];
 }
 
+interface ITimelineDrive {
+    value: number;
+    play(): void;
+    pause(): void;
+    stop(): void;
+    setValueByPercent(percent: number): void;
+    addListener(key: string, fn: PropertyListenerFn<number>): void;
+    removeListener(key: string): void;
+}
+
 type FrameType = ILrcFrame & {
     /** Index of the frame within the sequence */
     index: number;
@@ -135,7 +141,7 @@ type FramesByMs = Map<number, FrameType>;
 type FramesByIndex = Map<number, FrameType>;
 type TimelineFrameChangedEventListener = (frame: FrameType) => void;
 /** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, AbstractFile> {
+declare class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
     readonly parent: AbstractFile;
     protected readonly frames: Frames;
     get duration(): number;
@@ -174,7 +180,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> {
     /** Any time the value is set, check if there is a frame and eventually setit */
     protected afterSetEffect(value: number): void;
     setMs(ms: number): void;
-    setPercentage(percentage: number): void;
+    setValueByPercent(percentage: number): void;
     goToNextFrame(): void;
     static formatDuration(ms: number): string;
     protected timer?: ReturnType<typeof setTimeout>;
@@ -196,6 +202,7 @@ declare class ThermalFileExport {
  * @todo implement activation properly!
  * @todo implement unmounting
  * @todo rename binding to mounting
+ * @deprecated YES - we have a new variant!
  */
 declare class ThermalFileInstance extends AbstractFile {
     protected readonly source: ThermalFileSource;
@@ -313,6 +320,7 @@ declare class FileRequest {
 
 declare class FilesService {
     readonly manager: ThermalManager;
+    private readonly pool;
     constructor(manager: ThermalManager);
     static isolatedInstance(registryName?: string): {
         service: FilesService;
@@ -759,6 +767,7 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
+    protected readonly pool: workerpool_types_Pool;
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
@@ -775,7 +784,7 @@ declare class ThermalCanvasLayer extends AbstractLayer {
     protected onDestroy(): void;
     /** Returns an array of 255 RGB colors */
     protected getPalette(): string[];
-    draw(): void;
+    draw(): Promise<void>;
     exportAsPng(): void;
 }
 
@@ -829,7 +838,7 @@ interface IFileInstance extends IThermalInstance, ThermalFileInterface, BaseStru
     visibleLayer: VisibleLayer;
     cursorLayer: ThermalCursorLayer;
     listenerLayer: ThermalListenerLayer;
-    timeline: TimelineDrive;
+    timeline: ITimelineDrive;
     frames: ILrcFrame[];
     horizontalLimit: number;
     id: string;
@@ -869,7 +878,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     visibleLayer: VisibleLayer;
     cursorLayer: ThermalCursorLayer;
     listenerLayer: ThermalListenerLayer;
-    timeline: TimelineDrive;
+    timeline: ITimelineDrive;
     cursorValue: CursorValueDrive;
     private _mounted;
     get mountedBaseLayers(): boolean;
@@ -1114,4 +1123,287 @@ declare class TimeRound extends TimeUtilsBase {
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
-export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, type InstanceFetchCallback$1 as InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };
+type ParsedTimelineFrame = {
+    index: number;
+    absolute: number;
+    relative: number;
+    offset: number;
+};
+/**
+ * Every file needs to have this information
+ */
+type ParsedFileBaseInfo = {
+    width: number;
+    height: number;
+    timestamp: number;
+    frameCount: number;
+    duration: number;
+    frameInterval: number;
+    fps: number;
+    min: number;
+    max: number;
+    timeline: ParsedTimelineFrame[];
+    averageEmissivity: number;
+    averageReflectedKelvins: number;
+    bytesize: number;
+};
+type ParsedFileFrame = {
+    timestamp: number;
+    min: number;
+    max: number;
+    emissivity: number;
+    reflectedKelvins: number;
+    pixels: number[];
+};
+/**
+ * Definition of a supported file type
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+*/
+type ParserFileType = {
+    /** File extension, lowercase and without starting dots */
+    extension: string;
+    /** Mime type of the file */
+    minme: string;
+};
+/** A supported device dedfinition */
+type SupportedDeviceType = {
+    deviceName: string;
+    deviceUrl: string;
+    manufacturer: string;
+    manufacturerUrl: string;
+};
+/**
+ * Interface for a parser object
+ * - all methods must be completely and totally static
+ * - data needs to be transferred as ArrayBuffer, since it is serialisable
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
+ */
+interface IParserObject {
+    /** Name of the file format */
+    name: string;
+    /** Description of the file format */
+    description: string;
+    /** List of supported devices */
+    devices: SupportedDeviceType[];
+    /** Define the supported file type for the purpose of display */
+    extensions: ParserFileType[];
+    /** Determine whether the file corresponds to the given parser */
+    is(buffer: ArrayBuffer, url: string): boolean;
+    /**
+     * Get the basic information necessary for every file
+     * - without any pixels!
+     * - this sould be called once only
+     */
+    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
+    /**
+     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
+     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
+     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
+     *
+     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
+     */
+    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
+        array: ArrayBuffer;
+        dataType: number;
+    };
+    /**
+     * Calculate the pixels and other parameters of one frame
+     * @param frameSubset ArrayBuffer of data related to the frame.
+     * @param dataType
+     */
+    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
+}
+
+declare class FrameBuffer {
+    protected readonly drive: ReTimelineDrive;
+    protected _currentFrame: ParsedFileFrame;
+    get currentFrame(): ParsedFileFrame;
+    set currentFrame(frame: ParsedFileFrame);
+    get currentStep(): ParsedTimelineFrame;
+    protected _bufferBySteps: Map<ParsedTimelineFrame, ParsedFileFrame>;
+    get bufferedStepsArray(): ParsedTimelineFrame[];
+    get bufferRelativeTimestamps(): number[];
+    readonly bufferSize: number;
+    readonly isSequence: boolean;
+    constructor(drive: ReTimelineDrive, firstFrame: ParsedFileFrame);
+    init(): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    /**
+     * Activate a step
+     * - look for the buffer for the corresponding frame
+     * - if there is a corresponding frame, apply it
+     * - if there is none, fetch it
+     * - if sequence, fetch buffer
+     */
+    recieveStep(step: ParsedTimelineFrame): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    protected propagate(): void;
+    protected preload(step: ParsedTimelineFrame): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+}
+
+type FramesMap = Map<number, ParsedTimelineFrame>;
+type ReTimelineFrameChangedEventListener = (frame: ParsedTimelineFrame) => void;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class ReTimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
+    readonly steps: ParsedFileBaseInfo["timeline"];
+    readonly parent: Instance;
+    get duration(): number;
+    get frameCount(): number;
+    readonly startTimestampRelative: number;
+    /** @deprecated not in use? */
+    readonly endTimestampRelative: number;
+    readonly stepsByAbsolute: FramesMap;
+    readonly stepsByRelative: FramesMap;
+    readonly stepsByIndex: FramesMap;
+    readonly relativeSteps: number[];
+    protected _currentStep: ParsedTimelineFrame;
+    get currentStep(): ParsedTimelineFrame;
+    protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener>;
+    protected _isPlayying: boolean;
+    get isPlaying(): boolean;
+    protected timer?: ReturnType<typeof setTimeout>;
+    readonly buffer: FrameBuffer;
+    constructor(parent: AbstractFile, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+    init(): void;
+    protected afterSetEffect(value: number): void;
+    protected validate(value: number): number;
+    _validateRelativeTime(value: number): number;
+    _validateIndex(value: number): number;
+    _convertRelativeToAspect(relativeTimeInMs: number): number;
+    _convertRelativeToPercent(relativeTimeInMs: number): number;
+    _convertPercenttRelative(percent: number): number;
+    /** Event listener to changement of the current frame.
+     * - the current frame is not changed every time the value changes
+     * - the current frame is changed only when the ms value points fo a new previous frame
+     */
+    addChangeListener(identificator: string, fn: ReTimelineFrameChangedEventListener): void;
+    removeChangeListener(identificator: string): void;
+    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
+    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
+    setRelativeTime(relativeTimeInMs: number): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    setValueByPercent(percent: number): Promise<{
+        relativeTime: number;
+        currentFrame: ParsedFileFrame;
+        currentStep: ParsedTimelineFrame;
+        buffer: ParsedTimelineFrame[];
+        preloaded: boolean;
+        hasChanged: boolean;
+    }>;
+    protected enqueueStep(): void;
+    play(): void;
+    pause(): void;
+    stop(): void;
+}
+
+/**
+ * Stores the file's `ArrayBuffer` and provides all the data for instance
+ * - this service is registered in FilesService
+ * - the instances are retrieved using `FilesService.loadOneFile`
+ */
+declare class FileReaderService extends AbstractFileResult {
+    readonly buffer: ArrayBuffer;
+    readonly parser: IParserObject;
+    /** For the purpose of testing we have a unique ID */
+    readonly id: number;
+    /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+    protected baseInfoCache?: ParsedFileBaseInfo;
+    readonly fileName: string;
+    private pool;
+    constructor(buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
+    isSuccess(): boolean;
+    /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+    baseInfo(): ReturnType<IParserObject["baseInfo"]>;
+    /**
+     * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data
+     *
+     * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+     */
+    protected getFrameSubset(frameIndex: number): ReturnType<IParserObject["getFrameSubset"]>;
+    /** Read a given frame
+     * @todo Implement index range check
+     */
+    frameData(index: number): ReturnType<IParserObject["frameData"]>;
+    createInstance(group: ThermalGroup): Promise<Instance>;
+}
+
+declare class Instance extends AbstractFile {
+    readonly group: ThermalGroup;
+    readonly service: FileReaderService;
+    readonly width: number;
+    readonly height: number;
+    readonly timestamp: number;
+    readonly frameCount: number;
+    readonly duration: number;
+    readonly frameInterval: number;
+    readonly fps: number;
+    readonly min: number;
+    readonly max: number;
+    readonly bytesize: number;
+    readonly averageEmissivity: number;
+    readonly averageReflectedKelvins: number;
+    readonly firstFrame: ParsedFileFrame;
+    readonly timelineData: ParsedFileBaseInfo["timeline"];
+    timeline: ReTimelineDrive;
+    exportAsPng(): void;
+    exportThermalDataAsSvg(): void;
+    protected constructor(group: ThermalGroup, service: FileReaderService, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
+    postInit(): this;
+    protected formatId(thermalUrl: string): string;
+    protected onSetPixels(value: number[]): void;
+    getPixelsForHistogram(): number[];
+    static fromService(group: ThermalGroup, service: FileReaderService, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
+}
+
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class FileFailureService extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): FileFailureService;
+}
+
+declare const pool: workerpool_types_Pool;
+
+export { AbstractFile, type AvailableThermalPalettes, FileFailureService, FileReaderService, GRAYSCALE, IRON, Instance, type InstanceFetchCallback$1 as InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, pool };

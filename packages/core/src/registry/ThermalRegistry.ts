@@ -199,6 +199,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         console.log( "postprocessing" );
 
+        this.forEveryInstance( console.log );
+
 
         // Recalculate individual minmaxes
         this.forEveryGroup(group => group.minmax.recalculateFromInstances());

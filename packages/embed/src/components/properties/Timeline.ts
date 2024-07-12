@@ -144,7 +144,7 @@ export class TimelineElement extends ElementInheritingFile {
 
             const percent = x / this.timelineRef.value.clientWidth * 100;
 
-            this._injectedFile.value.timeline.setPercentage(percent);
+            this._injectedFile.value.timeline.setValueByPercent(percent);
 
         }
     }

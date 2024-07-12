@@ -1,8 +1,13 @@
 import { ThermalManager } from "../manager/ThermalManager";
+import pool from "../utils/time/pool";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { FileRequest } from "./FileRequest";
 
+import Pool from "workerpool/types/Pool";
+
 export class FilesService {
+
+    private readonly pool: Pool = pool;
 
     constructor(
         public readonly manager: ThermalManager

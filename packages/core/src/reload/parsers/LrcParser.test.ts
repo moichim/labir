@@ -49,6 +49,8 @@ describe("LrcParser", () => {
 
         const baseInfo = await file.baseInfo();
 
+        console.log( baseInfo.timeline.slice(0,10) );
+
         expect(baseInfo.width).toEqual(160);
         expect(baseInfo.height).toEqual(120);
         expect(baseInfo.timestamp).toEqual(1713882140035);

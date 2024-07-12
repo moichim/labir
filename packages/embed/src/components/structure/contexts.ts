@@ -1,7 +1,5 @@
-import { ThermalFileInstance, ThermalRegistry } from "@labir/core";
-import { ThermalGroup } from "@labir/core";
+import { Instance, ThermalGroup, ThermalManager, ThermalRegistry } from "@labir/core";
 import { createContext } from "@lit/context";
-import { ThermalManager } from "@labir/core";
 
 
 export enum ThermalContext {
@@ -32,5 +30,5 @@ export const GroupContext = createContext<GroupContextType>( ThermalContext.GROU
 
 // File
 
-export type FileContextType = ThermalFileInstance;
+export type FileContextType = Instance;
 export const FileContext = createContext<FileContextType>( ThermalContext.GROUP )

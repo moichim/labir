@@ -1,3 +1,4 @@
+import pool from "../../utils/time/pool";
 import { AbstractFile } from "../IFileInstance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
@@ -5,9 +6,13 @@ import ThermalDomFactory from "./domFactories";
 /** Displays the canvas and renders it */
 export class ThermalCanvasLayer extends AbstractLayer {
 
+    protected readonly pool = pool;
+
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
+
+    // protected offscreen: OffscreenCanvas;
 
     protected get width() { return this.instance.width; }
     protected get height() { return this.instance.height; }
@@ -46,11 +51,13 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
 
-        console.log( this.instance.width, this.instance );
+        // this.offscreen = this.canvas.transferControlToOffscreen();
 
         this.context = this.canvas.getContext("2d")!;
 
         this.container.appendChild(this.canvas);
+
+
 
     }
 
@@ -68,42 +75,148 @@ export class ThermalCanvasLayer extends AbstractLayer {
         return this.instance.group.registry.palette.currentPalette.pixels;
     }
 
-    public draw(): void {
+    public async draw(): Promise<void> {
 
-        // Get the displayed range
-        const displayRange = this.to - this.from;
+        const paletteColors = this.getPalette();
 
-        for (let x = 0; x <= this.width; x++) {
+        // Transfer it to thread
+        const image = await this.pool.exec( async (
+            from: number,
+            to: number,
+            width: number,
+            height: number,
+            pixels: number[],
+            palette: string[]
+        ) => {
 
-            for (let y = 0; y <= this.height; y++) {
+            const canvas = new OffscreenCanvas( width, height );
 
-                const index = x + (y * this.width);
+            const context = canvas.getContext( "2d" )!;
 
-                // Clamp temperature to the displayedRange
-                let temperature = this.pixels[index];
-                if (temperature < this.from)
-                    temperature = this.from;
-                if (temperature > this.to)
-                    temperature = this.to;
+            const displayRange = to - from;
 
-                const temperatureRelative = temperature - this.from;
-                const temperatureAspect = temperatureRelative / displayRange;
-                const colorIndex = Math.round(255 * temperatureAspect);
 
-                const color = this.getPalette()[colorIndex];
-                this.context.fillStyle = color;
-                this.context.fillRect(x, y, 1, 1);
+            for (let x = 0; x <= width; x++) {
+
+                for (let y = 0; y <= height; y++) {
+
+                    const index = x + (y * width);
+
+                    // Clamp temperature to the displayedRange
+                    let temperature = pixels[index];
+                    if (temperature < from)
+                        temperature = from;
+                    if (temperature > to)
+                        temperature = to;
+
+                    const temperatureRelative = temperature - from;
+                    const temperatureAspect = temperatureRelative / displayRange;
+                    const colorIndex = Math.round(255 * temperatureAspect);
+
+                    const color = palette[colorIndex];
+
+                    context!.fillStyle = color;
+                    context!.fillRect(x, y, 1, 1);
+
+                }
 
             }
 
-        }
+            const imageData = context.getImageData(0,0,width,height);
+
+            const result = await createImageBitmap( imageData );
+
+            return result;
+
+        }, [
+            this.from,
+            this.to,
+            this.width,
+            this.height,
+            this.pixels,
+            paletteColors
+        ], {});
+
+        console.log( this.pool.stats() )
+
+        // Place it in context
+        this.context.drawImage( image, 0, 0 );
+
+
+
+        /*
+
+        this.pool.exec((
+            offscreen: OffscreenCanvas,
+            from: number,
+            to: number,
+            width: number,
+            height: number,
+            pixels: number[],
+            paletteColors: string[]
+        ) => {
+
+            const context = offscreen.getContext("2d");
+
+            const displayRange = to - from;
+
+
+            for (let x = 0; x <= width; x++) {
+
+                for (let y = 0; y <= height; y++) {
+
+                    const index = x + (y * width);
+
+                    // Clamp temperature to the displayedRange
+                    let temperature = pixels[index];
+                    if (temperature < from)
+                        temperature = from;
+                    if (temperature > to)
+                        temperature = to;
+
+                    const temperatureRelative = temperature - from;
+                    const temperatureAspect = temperatureRelative / displayRange;
+                    const colorIndex = Math.round(255 * temperatureAspect);
+
+                    const color = paletteColors[colorIndex];
+
+                    context!.fillStyle = color;
+                    context!.fillRect(x, y, 1, 1);
+
+                }
+
+            }
+
+            return offscreen;
+
+            // postMessage( offscreen, [offscreen] )
+
+            // offscreen.transferToImageBitmap();
+
+            // return "success"
+
+        }, [
+            this.offscreen,
+            this.from,
+            this.to,
+            this.width,
+            this.height,
+            this.pixels,
+            paletteColors
+        ], {
+            transfer: [this.offscreen],
+        });
+
+        */
+
+        // this.offscreen = this.canvas.transferControlToOffscreen();
 
     }
 
     public exportAsPng() {
         const image = this.canvas.toDataURL()
-        const link = document.createElement( "a" );
-        link.download = this.instance.fileName.replace( ".lrc", "_exported.png" );
+        const link = document.createElement("a");
+        link.download = this.instance.fileName.replace(".lrc", "_exported.png");
         link.href = image;
         link.click();
     }

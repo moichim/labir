@@ -39,18 +39,6 @@ group.instances.addListener("boot", value => {
 
 const group_2 = registry.groups.addOrGetGroup("group_2");
 
-const loaderTest = async (url: string) => {
-
-    const element = document.createElement("div");
-    root?.appendChild(element);
-    element.style.width = "500px";
-    const reader = await registry.service.loadFile(url) as FileReaderService;
-    const instance = await reader.createInstance(group_2);
-    instance.mountToDom(element);
-
-    instance.draw();
-}
-
 
 // loaderTest( "/soustruh.lrc" );
 // loaderTest( "/tucnaci_04.lrc" );
@@ -62,13 +50,26 @@ const mountInstance = (instance: Instance) => {
     root?.appendChild(element);
     element.style.width = "500px";
 
+    console.log( "mounting to", element );
+    console.log( "drawing" );
     instance.mountToDom(element);
-    instance.draw();
+    // instance.draw();
 
     const desc = document.createElement( "div" );
     desc.innerHTML = `${instance.group.id} - ${instance.fileName}`;
     root?.appendChild( desc );
     // root?.appendChild();
+
+    element.addEventListener( "click", () => {
+
+        if ( instance.timeline.isPlaying ) {
+            instance.timeline.stop();
+        } else {
+            instance.timeline.play();
+        }
+        // console.log( "hraji" );
+        
+    });
 
 }
 
@@ -77,18 +78,44 @@ const batchLoading = async (
     files: string[]
 ) => {
 
-    const promises = await Promise.all(
+    console.log( "SERVICE LOADING START" );
+
+    const services = await Promise.all(
         files.map(file => registry.service.loadFile(file) as Promise< FileReaderService > )
     );
 
-    console.log( "SERVICE LOADED" );
+    console.log( "SERVICE LOADING END - START INSTANTIATION", services );
 
-    promises.forEach( async ( reader: FileReaderService ) => {
+    const instances = await Promise.all( 
+        services.map( service => service.createInstance( group_2 ) )
+     );
+
+    console.log( "INSTANCES CREATED", instances );
+
+    instances.map( mountInstance );
+
+    console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
+
+    /*
+
+    const instances = await services.map( async ( reader: FileReaderService ) => {
         const instance = await reader.createInstance( group_2 );
         mountInstance( instance );
+        return instance;
     } );
 
-    group_2.registry.range.imposeRange( {from: -40, to: 200} );
+    */
+
+    //group_2.registry.range.imposeRange( {from: -40, to: 200} );
+
+    //setTimeout( () => group_2.registry.postLoadedProcessing(), 0 );
+    group_2.registry.postLoadedProcessing();
+
+    // group_2.registry.range.imposeRange( {from: -40, to: 200} );
+
+    setTimeout( () => {
+        group_2.registry.range.imposeRange( {from: -40, to: 200} );
+    }, 2000 );
 
 }
 

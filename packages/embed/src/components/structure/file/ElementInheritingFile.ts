@@ -1,4 +1,4 @@
-import { ThermalFileInstance } from "@labir/core";
+import { AbstractFile } from "@labir/core";
 import { ContextConsumer } from "@lit/context";
 import { FileContext } from "../contexts";
 import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
@@ -11,7 +11,7 @@ export abstract class ElementInheritingFile extends ElementInheritingGroup {
     protected _injectedFile = new ContextConsumer(this, { context: FileContext, subscribe: true });
 
     @state()
-    public _file?: ThermalFileInstance;
+    public _file?: AbstractFile;
 
     /** The registry instance injected from above or created in place. */
     @state()
