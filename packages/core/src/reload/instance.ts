@@ -70,7 +70,8 @@ export class Instance extends AbstractFile {
     }
 
     protected onSetPixels(value: number[]): void {
-        console.log( value );
+        
+        value;
         // throw new Error("Method not implemented.");
 
 

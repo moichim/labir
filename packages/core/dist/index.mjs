@@ -1,17 +1,15 @@
-// src/base/BaseStructureObject.ts
+// src/utils/time/pool.ts
 import * as workerpool from "workerpool";
+var pool2 = workerpool.pool({
+  maxWorkers: 8,
+  onTerminateWorker: (what) => console.log(what)
+});
+var pool_default = pool2;
+
+// src/base/BaseStructureObject.ts
 var BaseStructureObject = class {
-  /** 
-   * Lazy loaded instance of web worker pool.
-   * @see https://github.com/josdejong/workerpool
-  */
-  get pool() {
-    if (!this._pool) {
-      this._pool = workerpool.pool({
-        // workerType: "web"
-      });
-    }
-    return this._pool;
+  constructor() {
+    this.pool = pool_default;
   }
 };
 
@@ -647,6 +645,7 @@ var VisibleLayer = class extends AbstractLayer {
 var ThermalCanvasLayer = class extends AbstractLayer {
   constructor(instance) {
     super(instance);
+    this.pool = pool_default;
     this._opacity = 1;
     this.container = ThermalDomFactory.createCanvasContainer();
     this.canvas = ThermalDomFactory.createCanvas();
@@ -656,6 +655,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.context = this.canvas.getContext("2d");
     this.container.appendChild(this.canvas);
   }
+  // protected offscreen: OffscreenCanvas;
   get width() {
     return this.instance.width;
   }
@@ -693,24 +693,42 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   getPalette() {
     return this.instance.group.registry.palette.currentPalette.pixels;
   }
-  draw() {
-    const displayRange = this.to - this.from;
-    for (let x = 0; x <= this.width; x++) {
-      for (let y = 0; y <= this.height; y++) {
-        const index = x + y * this.width;
-        let temperature = this.pixels[index];
-        if (temperature < this.from)
-          temperature = this.from;
-        if (temperature > this.to)
-          temperature = this.to;
-        const temperatureRelative = temperature - this.from;
-        const temperatureAspect = temperatureRelative / displayRange;
-        const colorIndex = Math.round(255 * temperatureAspect);
-        const color = this.getPalette()[colorIndex];
-        this.context.fillStyle = color;
-        this.context.fillRect(x, y, 1, 1);
+  async draw() {
+    const paletteColors = this.getPalette();
+    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+      const canvas = new OffscreenCanvas(width, height);
+      const context = canvas.getContext("2d");
+      const displayRange = to - from;
+      for (let x = 0; x <= width; x++) {
+        for (let y = 0; y <= height; y++) {
+          const index = x + y * width;
+          let temperature = pixels[index];
+          if (temperature < from)
+            temperature = from;
+          if (temperature > to)
+            temperature = to;
+          const temperatureRelative = temperature - from;
+          const temperatureAspect = temperatureRelative / displayRange;
+          const colorIndex = Math.round(255 * temperatureAspect);
+          const color = palette[colorIndex];
+          context.fillStyle = color;
+          context.fillRect(x, y, 1, 1);
+        }
       }
-    }
+      const imageData = context.getImageData(0, 0, width, height);
+      const result = await createImageBitmap(imageData);
+      console.log("Vl\xE1kno skon\u010Dilo kresbu", from, to);
+      return result;
+    }, [
+      this.from,
+      this.to,
+      this.width,
+      this.height,
+      this.pixels,
+      paletteColors
+    ], {});
+    console.log(this.pool.stats());
+    this.context.drawImage(image, 0, 0);
   }
   exportAsPng() {
     const image = this.canvas.toDataURL();
@@ -1736,7 +1754,8 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
     return this.value;
   }
   _getMinmaxFromInstances() {
-    const instances = this.parent.instances.value;
+    const instances = this.parent.files.value;
+    console.log(instances);
     if (instances.length === 0)
       return void 0;
     return instances.reduce((state, current) => {
@@ -2333,6 +2352,7 @@ var ThermalRegistry = class extends BaseStructureObject {
   */
   postLoadedProcessing() {
     console.log("postprocessing");
+    this.forEveryInstance(console.log);
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();
     if (this.minmax.value)
@@ -3011,7 +3031,7 @@ var Instance = class _Instance extends AbstractFile {
     return `instance_${this.group.id}_${thermalUrl}`;
   }
   onSetPixels(value) {
-    console.log(value);
+    value;
     if (this.mountedBaseLayers) {
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
@@ -3055,6 +3075,7 @@ var FileReaderService = class extends AbstractFileResult {
     this.parser = parser;
     /** For the purpose of testing we have a unique ID */
     this.id = Math.random();
+    this.pool = pool_default;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
   }
   isSuccess() {
@@ -3065,8 +3086,8 @@ var FileReaderService = class extends AbstractFileResult {
     if (this.baseInfoCache) {
       return this.baseInfoCache;
     }
-    const baseInfo2 = this.parser.baseInfo(this.buffer);
-    baseInfo2.then((result) => this.baseInfoCache = result);
+    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
+    this.baseInfoCache = baseInfo2;
     return baseInfo2;
   }
   /** 
@@ -3373,6 +3394,7 @@ var FileRequest = class _FileRequest {
 var FilesService = class {
   constructor(manager) {
     this.manager = manager;
+    this.pool = pool_default;
     /** Map of peoding requesta */
     this.requestsByUrl = /* @__PURE__ */ new Map();
     /** Cache of loaded files */
@@ -3594,8 +3616,11 @@ _TimeRound.modify = (value, amount, period) => {
 var TimeRound = _TimeRound;
 export {
   AbstractFile,
+  FileFailureService,
+  FileReaderService,
   GRAYSCALE,
   IRON,
+  Instance,
   JET,
   ThermalFileInstance,
   ThermalFileSource,
@@ -3605,5 +3630,6 @@ export {
   ThermalRegistry,
   TimeFormat,
   TimePeriod,
-  TimeRound
+  TimeRound,
+  pool_default as pool
 };

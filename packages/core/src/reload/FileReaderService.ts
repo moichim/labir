@@ -1,9 +1,10 @@
 import { ThermalGroup } from "../group/ThermalGroup";
+import pool from "../utils/time/pool";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { Instance } from "./instance";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
 
-
+import Pool from "workerpool/types/Pool";
 
 /**
  * Stores the file's `ArrayBuffer` and provides all the data for instance
@@ -19,6 +20,9 @@ export class FileReaderService extends AbstractFileResult {
     protected baseInfoCache?: ParsedFileBaseInfo;
 
     public readonly fileName: string;
+
+
+    private pool: Pool = pool;
 
     public constructor(
         public readonly buffer: ArrayBuffer,
@@ -45,10 +49,16 @@ export class FileReaderService extends AbstractFileResult {
         }
 
         // Create the promise
-        const baseInfo = this.parser.baseInfo( this.buffer );
+        // const baseInfo = this.parser.baseInfo( this.buffer );
+
+        const baseInfo = await this.pool.exec( this.parser.baseInfo, [ this.buffer ] );
+
+        this.baseInfoCache = baseInfo;
+
+
 
         // Make sure the result will be stored in memory
-        baseInfo.then( result => this.baseInfoCache = result );
+        // baseInfo.then( result => this.baseInfoCache = result );
 
         // Return the promise
         return baseInfo;

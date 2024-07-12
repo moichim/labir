@@ -1,12 +1,8 @@
-import Pool from 'workerpool/types/Pool';
+import * as workerpool_types_Pool from 'workerpool/types/Pool';
+import workerpool_types_Pool__default from 'workerpool/types/Pool';
 
 declare abstract class BaseStructureObject {
-    private _pool?;
-    /**
-     * Lazy loaded instance of web worker pool.
-     * @see https://github.com/josdejong/workerpool
-    */
-    get pool(): Pool;
+    readonly pool: workerpool_types_Pool__default;
 }
 
 /**
@@ -313,6 +309,7 @@ declare class FileRequest {
 
 declare class FilesService {
     readonly manager: ThermalManager;
+    private readonly pool;
     constructor(manager: ThermalManager);
     static isolatedInstance(registryName?: string): {
         service: FilesService;
@@ -759,6 +756,7 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
+    protected readonly pool: workerpool_types_Pool;
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
@@ -775,7 +773,7 @@ declare class ThermalCanvasLayer extends AbstractLayer {
     protected onDestroy(): void;
     /** Returns an array of 255 RGB colors */
     protected getPalette(): string[];
-    draw(): void;
+    draw(): Promise<void>;
     exportAsPng(): void;
 }
 
@@ -1114,4 +1112,172 @@ declare class TimeRound extends TimeUtilsBase {
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
-export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, type InstanceFetchCallback$1 as InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };
+/**
+ * Every file needs to have this information
+ */
+type ParsedFileBaseInfo = {
+    width: number;
+    height: number;
+    timestamp: number;
+    frameCount: number;
+    duration: number;
+    frameInterval: number;
+    fps: number;
+    min: number;
+    max: number;
+    timestamps: number[];
+    averageEmissivity: number;
+    averageReflectedKelvins: number;
+    bytesize: number;
+};
+type ParsedFileFrame = {
+    timestamp: number;
+    min: number;
+    max: number;
+    emissivity: number;
+    reflectedKelvins: number;
+    pixels: number[];
+};
+/**
+ * Definition of a supported file type
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+*/
+type ParserFileType = {
+    /** File extension, lowercase and without starting dots */
+    extension: string;
+    /** Mime type of the file */
+    minme: string;
+};
+/** A supported device dedfinition */
+type SupportedDeviceType = {
+    deviceName: string;
+    deviceUrl: string;
+    manufacturer: string;
+    manufacturerUrl: string;
+};
+/**
+ * Interface for a parser object
+ * - all methods must be completely and totally static
+ * - data needs to be transferred as ArrayBuffer, since it is serialisable
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
+ */
+interface IParserObject {
+    /** Name of the file format */
+    name: string;
+    /** Description of the file format */
+    description: string;
+    /** List of supported devices */
+    devices: SupportedDeviceType[];
+    /** Define the supported file type for the purpose of display */
+    extensions: ParserFileType[];
+    /** Determine whether the file corresponds to the given parser */
+    is(buffer: ArrayBuffer, url: string): boolean;
+    /**
+     * Get the basic information necessary for every file
+     * - without any pixels!
+     * - this sould be called once only
+     */
+    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
+    /**
+     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
+     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
+     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
+     *
+     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
+     */
+    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
+        array: ArrayBuffer;
+        dataType: number;
+    };
+    /**
+     * Calculate the pixels and other parameters of one frame
+     * @param frameSubset ArrayBuffer of data related to the frame.
+     * @param dataType
+     */
+    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
+}
+
+/**
+ * Stores the file's `ArrayBuffer` and provides all the data for instance
+ * - this service is registered in FilesService
+ * - the instances are retrieved using `FilesService.loadOneFile`
+ */
+declare class FileReaderService extends AbstractFileResult {
+    readonly buffer: ArrayBuffer;
+    readonly parser: IParserObject;
+    /** For the purpose of testing we have a unique ID */
+    readonly id: number;
+    /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+    protected baseInfoCache?: ParsedFileBaseInfo;
+    readonly fileName: string;
+    private pool;
+    constructor(buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
+    isSuccess(): boolean;
+    /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+    baseInfo(): ReturnType<IParserObject["baseInfo"]>;
+    /**
+     * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data
+     *
+     * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+     */
+    protected getFrameSubset(frameIndex: number): ReturnType<IParserObject["getFrameSubset"]>;
+    /** Read a given frame
+     * @todo Implement index range check
+     */
+    frameData(index: number): ReturnType<IParserObject["frameData"]>;
+    createInstance(group: ThermalGroup): Promise<Instance>;
+}
+
+declare class Instance extends AbstractFile {
+    readonly group: ThermalGroup;
+    readonly service: FileReaderService;
+    readonly width: number;
+    readonly height: number;
+    readonly timestamp: number;
+    readonly frameCount: number;
+    readonly duration: number;
+    readonly frameInterval: number;
+    readonly fps: number;
+    readonly min: number;
+    readonly max: number;
+    readonly bytesize: number;
+    readonly averageEmissivity: number;
+    readonly averageReflectedKelvins: number;
+    readonly frame: ParsedFileFrame;
+    exportAsPng(): void;
+    exportThermalDataAsSvg(): void;
+    protected constructor(group: ThermalGroup, service: FileReaderService, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, frame: ParsedFileFrame);
+    postInit(): this;
+    protected formatId(thermalUrl: string): string;
+    protected onSetPixels(value: number[]): void;
+    getPixelsForHistogram(): number[];
+    static fromService(group: ThermalGroup, service: FileReaderService, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
+}
+
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class FileFailureService extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): FileFailureService;
+}
+
+declare const pool: workerpool_types_Pool;
+
+export { AbstractFile, type AvailableThermalPalettes, FileFailureService, FileReaderService, GRAYSCALE, IRON, Instance, type InstanceFetchCallback$1 as InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, pool };

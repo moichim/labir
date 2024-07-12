@@ -25,7 +25,16 @@ import { InstanceFetchCallback } from "./properties/lists/InstancesState"
 import { AbstractFile } from "./file/IFileInstance";
 import { ThermalFileInstance } from "./file/ThermalFileInstance";
 
+import { Instance } from "./reload/instance";
+import { FileReaderService } from "./reload/FileReaderService";
+import { FileFailureService } from "./reload/errors/FileFailureService";
+import pool from "./utils/time/pool";
+
+
+
 export {
+
+    pool,
 
     // Manager
     ThermalManager,
@@ -44,6 +53,10 @@ export {
     ThermalFileSource, 
     ThermalFileInstance,
     AbstractFile,
+    Instance,
+    FileFailureService,
+    FileReaderService,
+
     
     // Core datatypes
     ThermalRangeOrUndefined, 

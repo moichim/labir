@@ -1,10 +1,10 @@
-import { InstanceFetchCallback, ThermalFileInstance } from "@labir/core";
-import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import {ref, Ref, createRef} from 'lit/directives/ref.js';
-import { PropertyValueMap, css, html } from "lit";
+import { AbstractFile, FileFailureService, FileReaderService } from "@labir/core";
 import { ContextProvider } from "@lit/context";
+import { PropertyValueMap, css, html } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { FileContext } from "../contexts";
+import { ElementInheritingGroup } from "../group/ElementInheritingGroup";
 
 
 @customElement("thermal-image")
@@ -23,7 +23,7 @@ export class FileContextElement extends ElementInheritingGroup {
     visible?: string;
 
     @property({type: Object})
-    file?: ThermalFileInstance
+    file?: AbstractFile
 
     @state()
     protected errors: string[] = [];
@@ -162,7 +162,7 @@ export class FileContextElement extends ElementInheritingGroup {
     `;
 
 
-    public onFileChanged(newValue: ThermalFileInstance | undefined, oldValue: ThermalFileInstance | undefined) {
+    public onFileChanged(newValue: AbstractFile | undefined, oldValue: AbstractFile | undefined) {
         console.log(newValue, oldValue);
     }
 
@@ -180,9 +180,11 @@ export class FileContextElement extends ElementInheritingGroup {
     }
 
 
-    protected enqueueInTheRegistry(): void {
+    protected async enqueueInTheRegistry(): Promise<void> {
         if (this.thermal) {
 
+
+            /*
             const listener: InstanceFetchCallback = (instance, error): void => {
                 if (instance) {
                     this.log( "file loaded", this.thermal );
@@ -195,6 +197,26 @@ export class FileContextElement extends ElementInheritingGroup {
             };
 
             this.group.instances.enqueueAdd(this.thermal, this.visible, listener.bind( this ) )
+
+            */
+
+
+            const reader = await this.registry.service.loadFile( this.thermal, this.visible );
+
+            if ( reader instanceof FileFailureService ) {
+                // Do nothing
+                this.errors = [ reader.message ];
+            } else if (reader instanceof FileReaderService) {
+                const instance = await reader.createInstance( this.group );
+                this.file = instance;
+                this.provider.setValue( instance );
+                this.errors = [];
+                this.registry.postLoadedProcessing();
+
+                console.log( this.group );
+            }
+
+
         }
     }
 
