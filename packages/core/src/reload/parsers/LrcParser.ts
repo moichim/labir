@@ -1,3 +1,4 @@
+import { registryHistogram } from "./histogram";
 import { IParserObject, ParsedFileBaseInfo, ParsedFileFrame } from "./types";
 
 
@@ -233,8 +234,6 @@ const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
 const getFrameSubset: IParserObject["getFrameSubset"] = (entireFileBuffer, index) => {
 
-    console.log( "poptávám index", index );
-
     const headerView = new DataView(entireFileBuffer.slice(0, 25));
 
     const dataType = headerView.getUint8(15);
@@ -272,8 +271,6 @@ const frameData: IParserObject["frameData"] = async (frameSubset, dataType) => {
 
     // Read the timestamp
     const view = new DataView(frameSubset);
-
-    // console.log( "frameSubset", frameSubset );
 
 
     // Timestamp
@@ -362,7 +359,7 @@ const frameData: IParserObject["frameData"] = async (frameSubset, dataType) => {
 
 
 
-export const LrcParser: IParserObject = Object.freeze({
+const parser: IParserObject = {
     name: "LabIR Recording (.lrc)",
     description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
     devices: [{
@@ -375,5 +372,8 @@ export const LrcParser: IParserObject = Object.freeze({
     is,
     baseInfo,
     getFrameSubset,
-    frameData
-} as IParserObject)
+    frameData,
+    registryHistogram
+}
+
+export const LrcParser = Object.freeze( parser );

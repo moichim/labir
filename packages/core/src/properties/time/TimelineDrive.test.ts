@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalManager } from '../../manager/ThermalManager';
 import { FileReaderService } from '../../reload/FileReaderService';
-import { ReTimelineDrive } from './ReTimelineDrive';
+import { TimelineDrive } from './TimelineDrive';
 
 describe("ReTimelineDrive", () => {
 
@@ -19,7 +19,7 @@ describe("ReTimelineDrive", () => {
         const timeline = instance.timeline;
         const buffer = timeline.buffer;
 
-        expect( timeline ).toBeInstanceOf( ReTimelineDrive );
+        expect( timeline ).toBeInstanceOf( TimelineDrive );
 
         // Test timeline initial properties
         expect( timeline._initial ).toEqual(0);

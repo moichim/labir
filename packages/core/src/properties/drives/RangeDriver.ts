@@ -114,8 +114,6 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
 
             const histogramBarsOverPercentage = this.parent.histogram.value.filter( bar => bar.height >= percentage );
 
-            console.log( this.parent.histogram.value );
-
             const newRange: ThermalRangeOrUndefined = {
                 from: histogramBarsOverPercentage[0].from,
                 to: histogramBarsOverPercentage[

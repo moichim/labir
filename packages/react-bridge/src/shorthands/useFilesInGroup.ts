@@ -39,8 +39,6 @@ export const useFilesInGroup = (
     // Get all instances
     const instances = useThermalGroupInstancesState( group, registryIdMemoised );
 
-    console.log( instances );
-
 
     // Remove the registry upon unmount
     useEffect( () => {

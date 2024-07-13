@@ -2,11 +2,11 @@ import { AbstractFile } from "../../file/IFileInstance";
 import { Instance } from "../../reload/instance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../reload/parsers/types";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-import { FrameBuffer } from "./FrameBuffer";
+import { FrameBuffer } from "./internals/FrameBuffer";
 import { ITimelineDrive } from "./ITimeline";
 
 export interface IWithTimeline extends IBaseProperty {
-    timeline: ReTimelineDrive
+    timeline: TimelineDrive
 }
 
 
@@ -16,7 +16,7 @@ type FramesMap = Map<number, ParsedTimelineFrame>
 export type ReTimelineFrameChangedEventListener = (frame: ParsedTimelineFrame) => void
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
+export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
     declare public readonly parent: Instance;
 
@@ -34,6 +34,8 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     protected _currentStep: ParsedTimelineFrame;
     public get currentStep() { return this._currentStep; }
     protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener> = new Map;
+
+    public readonly isSequence: boolean;
 
     protected _isPlayying: boolean = false;
     public get isPlaying() { return this._isPlayying; }
@@ -54,6 +56,8 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
         this._currentStep = this.steps[this._initial];
         this.startTimestampRelative = 0;
         this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
+
+        this.isSequence = this.parent.timelineData.length > 1;
 
         this.steps.forEach(step => {
             this.stepsByIndex.set(step.index, step);
@@ -155,8 +159,6 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
             return f.relative <= relativeTimeInMs
         });
 
-        console.log( "find previous from", relativeTimeInMs, frame );
-
         return frame !== undefined
             ? frame
             : this.steps[0];
@@ -180,13 +182,9 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
 
         const subarray = this.steps.slice(subarrayStart, subarrayEnd);
 
-        console.log( relativeTimeInMs, subarray );
-
         const frame = subarray.find(f => {
             return f.relative > relativeTimeInMs
         });
-
-        console.log( frame );
 
         return frame !== undefined
             ? frame
@@ -235,9 +233,6 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
 
         // Normalize the percent value
         percent = Math.max(Math.min(percent, 100), 0);
-        // percent = this._validateRelativeTime(Math.round(percent * this.duration));
-
-        console.log( "percent!!!", percent );
 
         // Convert the percent value to relative time
         const convertedToRelativeTime = this._convertPercenttRelative( percent );
@@ -246,23 +241,20 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
         return await this.setRelativeTime( convertedToRelativeTime );
     }
 
-    protected enqueueStep() {
+
+
+    protected createNextStepTimer() {
 
         if (this.timer !== undefined) {
             clearTimeout(this.timer);
         }
 
-        // Do nothing for no sequences
-        if ( this.steps.length === 1 ) {
+        if ( 
+            ! this.isSequence
+            || this._isPlayying === false
+        ) {
             return;
         }
-
-        // Do nothing when not playing
-        if ( this._isPlayying === false ) {
-            return;
-        }
-
-        
 
         this.timer = setTimeout( () => {
             const next = this.findNextRelative( this._currentStep.relative );
@@ -271,12 +263,11 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
                 this.value = next.relative;
                 if ( this._isPlayying ) {
 
-                    console.log( this.value, next );
                     this.value = next.relative;
                     this._currentStep = next;
                     this.buffer.recieveStep( next );
 
-                    this.enqueueStep();
+                    this.createNextStepTimer();
                 }
 
             } else {
@@ -290,16 +281,17 @@ export class ReTimelineDrive extends AbstractProperty<number, AbstractFile> impl
     play() {
 
         if ( this.steps.length > 1 ) {
-            console.log( "Spouštím hru!" );
             this._isPlayying = true;
-            this.enqueueStep();
+            this.createNextStepTimer();
         }
 
     }
+
     pause() {
         this._isPlayying = false;
         clearTimeout( this.timer );
     }
+
     stop() {
         this.pause();
         this.value = 0;

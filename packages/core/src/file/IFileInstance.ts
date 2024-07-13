@@ -2,7 +2,7 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { ITimelineDrive } from "../properties/drives/ITimeline";
+import { ITimelineDrive } from "../properties/time/ITimeline";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { IThermalInstance } from "../properties/structure";
@@ -284,13 +284,12 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public draw() {
-        console.log( "drawing", this.fileName, this.group.id );
         if (this.mountedBaseLayers === true) 
         this.canvasLayer.draw();
     }
 
     public recievePalette( palette: string | number ): void {
-        console.log( palette );
+        palette;
         this.draw();
     }
 

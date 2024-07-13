@@ -1,6 +1,6 @@
 import { AbstractFile } from "../../file/IFileInstance";
-import { ThermalFileSource } from "../../file/ThermalFileSource";
 import { ThermalGroup } from "../../group/ThermalGroup";
+import { Instance } from "../../reload/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 
@@ -20,69 +20,15 @@ type InstanceRemoveRequest = {
     callbacks: InstanceRemoveCallback[]
 }
 
-export class FilesState extends AbstractProperty<AbstractFile[], ThermalGroup> {
+export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
 
     protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
 
-    public enqueueAdd(thermalUrl: string, visibleUrl?: string, callback?: InstanceFetchCallback) {
-        this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (
-            source, error
-        ) => {
-            if (source instanceof ThermalFileSource) {
-                const instance = this.instantiateSource(source as ThermalFileSource)
-                if (callback) {
-                    callback(instance);
-                }
-            } else if (callback) {
-                callback(undefined, error ?? "Něco se pokazilo v instanci")
-            }
-        } )
-    }
-
-    public enqueueRemove(thermalUrl: string, callback?:InstanceRemoveCallback) {
-
-        if ( this._requestedRemovals.has( thermalUrl ) ) {
-            if ( callback )
-            this._requestedRemovals.get( thermalUrl )!.callbacks.push( callback )
-        } else {
-            this._requestedRemovals.set( thermalUrl, {
-                url: thermalUrl,
-                callbacks: callback ? [callback] : []
-            } );
-        }
-    }
-
-    public async cleanup() {
-
-        // Add all additions
-
-        // Remove all removals
-
-        const flatRemovalUrls = Object.values( this._requestedRemovals ).map( item => item.url as string );
-
-        this.value = this.value.filter( instance => {
-            const shouldRemove = flatRemovalUrls.includes( instance.url );
-
-            if ( shouldRemove ) {
-                this._requestedRemovals.get( instance.url )?.callbacks.forEach( callback => callback() );
-                return true;
-            }
-            return false;
-        } );
-
-        this._requestedRemovals.clear();
-
-        this.parent.registry.postLoadedProcessing();
-        
-    }
-
-
-
-    protected _map: Map<string, AbstractFile> = new Map<string, AbstractFile>();
+    protected _map: Map<string, AbstractFile> = new Map<string, Instance>();
 
     public get map() { return this._map; }
 
-    protected validate(value: AbstractFile[]): AbstractFile[] {
+    protected validate(value: Instance[]): Instance[] {
         return value;
     }
 
@@ -98,7 +44,7 @@ export class FilesState extends AbstractProperty<AbstractFile[], ThermalGroup> {
         value.forEach(instance => this._map.set(instance.url, instance));
     }
 
-    public addFile( file: AbstractFile ) {
+    public addFile( file: Instance ) {
         if (!this._map.has(file.url)) {
             this.value = [...this.value, file];
             return file;
@@ -108,46 +54,6 @@ export class FilesState extends AbstractProperty<AbstractFile[], ThermalGroup> {
     }
 
 
-    /** 
-     * Creation of of single instance 
-     * @deprecated Instances should not be created one by one, since every single action triggers the listeners
-     */
-    public instantiateSource(
-        source: ThermalFileSource
-    ) {
-
-        if (!this._map.has(source.url)) {
-            const instance = source.createInstance(this.parent);
-            this.value = [...this.value, instance];
-            return instance;
-        } else {
-            return this._map.get(source.url)!;
-        }
-    }
-
-    /**
-     * Creation of instances at once
-     * - triggers listeners only once
-     */
-    public instantiateSources(
-        sources: ThermalFileSource[]
-    ) {
-
-        const newValue: AbstractFile[] = [];
-
-        sources.forEach(source => {
-
-            if (!this._map.has(source.url)) {
-
-                newValue.push(source.createInstance(this.parent));
-
-            }
-
-        });
-
-        this.value = newValue;
-
-    }
 
 
     /**

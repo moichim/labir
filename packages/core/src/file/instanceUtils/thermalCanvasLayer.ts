@@ -137,7 +137,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
             paletteColors
         ], {});
 
-        console.log( this.pool.stats() )
+        // console.log( this.pool.stats() )
 
         // Place it in context
         this.context.drawImage( image, 0, 0 );

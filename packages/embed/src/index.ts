@@ -57,31 +57,3 @@ addDefaultStyles();
 document.addEventListener( "DOMContentLoaded", () => {
     // addDefaultStyles();
 } )
-
-
-
-
-
-/*
-document.addEventListener( "DOMContentLoaded", () => {
-
-    const obj = document.getElementById( "from" );
-
-    if ( obj ) {
-        setTimeout( () => {
-            // target?.appendChild( obj );
-            obj.setAttribute( "name", "Jsme jméno" );
-        }, 5000 );
-    }
-
-    console.log( document );
-
-    const opacita = document.getElementById( "kanal" )!;
-
-    setTimeout( () => {
-        opacita.setAttribute( "value", "0.5" );
-    }, 6000 );
-
-} );
-
-*/

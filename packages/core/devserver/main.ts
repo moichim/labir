@@ -50,8 +50,8 @@ const mountInstance = (instance: Instance) => {
     root?.appendChild(element);
     element.style.width = "500px";
 
-    console.log( "mounting to", element );
-    console.log( "drawing" );
+    // console.log( "mounting to", element );
+    // console.log( "drawing" );
     instance.mountToDom(element);
     // instance.draw();
 
@@ -131,11 +131,11 @@ registry.loadFiles({
 */
 
 batchLoading([
-    "/soustruh.lrc",
-    "/tucnaci_04.lrc",
-    "/image-thermal 2021-11-24 11-18-20.lrc",
-    "/image-thermal 2024-01-12 14-09-37.lrc",
-    "/image-thermal 2024-02-12 10-15-07.lrc",
-    "/image-thermal 2024-02-12 10-15-08.lrc",
+    // "/soustruh.lrc",
+    // "/tucnaci_04.lrc",
+    // "/image-thermal 2021-11-24 11-18-20.lrc",
+    // "/image-thermal 2024-01-12 14-09-37.lrc",
+    // "/image-thermal 2024-02-12 10-15-07.lrc",
+    // "/image-thermal 2024-02-12 10-15-08.lrc",
     "/sequence.lrc"
 ]);

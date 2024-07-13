@@ -29,8 +29,6 @@ export class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
 
         const instances = this.parent.files.value;
 
-        console.log( instances );
-
         if (instances.length === 0)
             return undefined;
         return instances.reduce((state, current) => {

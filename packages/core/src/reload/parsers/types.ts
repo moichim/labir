@@ -1,3 +1,5 @@
+import { ThermalStatistics } from "../../registry/ThermalRegistry"
+
 export type ParsedTimelineFrame = {
     index: number,
     absolute: number,
@@ -102,4 +104,8 @@ export interface IParserObject {
      * @param dataType 
      */
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>,
+
+
+    registryHistogram( files: ArrayBuffer[] ): Promise<ThermalStatistics[]>
+
 }

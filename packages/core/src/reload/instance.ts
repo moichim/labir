@@ -4,14 +4,14 @@ import ThermalCursorLayer from "../file/instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "../file/instanceUtils/thermalListenerLayer";
 import { VisibleLayer } from "../file/instanceUtils/VisibleLayer";
 import { ThermalGroup } from "../group/ThermalGroup";
-import { ReTimelineDrive } from "../properties/drives/ReTimelineDrive";
+import { TimelineDrive } from "../properties/time/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { FileReaderService } from "./FileReaderService";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "./parsers/types";
 
 export class Instance extends AbstractFile {
 
-    declare public timeline: ReTimelineDrive;
+    declare public timeline: TimelineDrive;
 
     public exportAsPng(): void {
         throw new Error("Method not implemented.");
@@ -62,7 +62,7 @@ export class Instance extends AbstractFile {
         this.cursorLayer = new ThermalCursorLayer(this);
         this.listenerLayer = new ThermalListenerLayer(this);
         this.cursorValue = new CursorValueDrive(this, undefined);
-        this.timeline = new ReTimelineDrive( this, 0, this.timelineData, this.firstFrame );
+        this.timeline = new TimelineDrive( this, 0, this.timelineData, this.firstFrame );
         this.timeline.init();
         return this;
     }
@@ -73,7 +73,7 @@ export class Instance extends AbstractFile {
 
     protected onSetPixels(value: number[]): void {
 
-        console.log( "Pixels changed in", this.thermalUrl );
+        // console.log( "Pixels changed in", this.thermalUrl );
         
         value;
         // throw new Error("Method not implemented.");
@@ -83,7 +83,7 @@ export class Instance extends AbstractFile {
         if (this.mountedBaseLayers) {
 
 
-            console.log( "Drawing!!!" );
+            // console.log( "Drawing!!!" );
             
             // Redraw
             this.draw();

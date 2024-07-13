@@ -161,11 +161,6 @@ export class FileContextElement extends ElementInheritingGroup {
     
     `;
 
-
-    public onFileChanged(newValue: AbstractFile | undefined, oldValue: AbstractFile | undefined) {
-        console.log(newValue, oldValue);
-    }
-
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -213,7 +208,6 @@ export class FileContextElement extends ElementInheritingGroup {
                 this.errors = [];
                 this.registry.postLoadedProcessing();
 
-                console.log( this.group );
             }
 
 

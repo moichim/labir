@@ -2,7 +2,7 @@
 
 import { ThermalGroup } from "../group/ThermalGroup";
 import { ILrcFrame } from "../parsers/lrc/LrcTrame";
-import { TimelineDrive } from "../properties/drives/TimelineDrive";
+import { TimelineDriveOld } from "../properties/time/TimelineDriveOld";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { AbstractFile } from "./IFileInstance";
 import { ThermalFileSource } from "./ThermalFileSource";
@@ -40,7 +40,7 @@ export class ThermalFileInstance extends AbstractFile {
     /**
      * Frames
      */
-    declare public timeline: TimelineDrive;
+    declare public timeline: TimelineDriveOld;
 
 
 
@@ -82,7 +82,7 @@ export class ThermalFileInstance extends AbstractFile {
         this.fileDataType = this.source.fileDataType;
 
         this.frames = this.source.frames;
-        this.timeline = new TimelineDrive(this, 0);
+        this.timeline = new TimelineDriveOld(this, 0);
         this.pixels = this.timeline.currentFrame.pixels;
 
         this.canvasLayer = new ThermalCanvasLayer(this);

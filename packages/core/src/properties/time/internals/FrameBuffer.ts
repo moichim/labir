@@ -1,69 +1,48 @@
-import { ParsedFileFrame, ParsedTimelineFrame } from "../../reload/parsers/types";
-import { ReTimelineDrive } from "./ReTimelineDrive";
+import { ParsedFileFrame, ParsedTimelineFrame } from "../../../reload/parsers/types";
+import { TimelineDrive } from "../TimelineDrive";
 
 export class FrameBuffer {
 
-
+    /** @internal use accessors to get and set with side effects */
     protected _currentFrame!: ParsedFileFrame;
 
-    public get currentFrame() {
-        return this._currentFrame;
-    }
+    /** The current frame data @readonly */
+    public get currentFrame() { return this._currentFrame; }
 
+    /** Upon every update of current frame, propagate current pixels to the instance */
     public set currentFrame( frame: ParsedFileFrame ) {
         this._currentFrame = frame;
-        this.propagate();
+        this.drive.parent.pixels = this.currentFrame.pixels;
     }
 
+    /** Get the current step value calculated from _currentFrame */
     public get currentStep() {
         return this.drive.stepsByAbsolute.get( this._currentFrame.timestamp)!;
     }
 
-    protected _bufferBySteps: Map<ParsedTimelineFrame,ParsedFileFrame> = new Map;
-
-    public get bufferedStepsArray() {
-        return Array.from( this._bufferBySteps.keys() );
-    }
-
-    
-
-    public get bufferRelativeTimestamps() {
-        return this.bufferedStepsArray.map( step => step.relative );
-    }
-
-    /*
-
-    protected get __bufferedIndicies() {
-        return this.bufferedStepsArray.map( step => step.index );
-    }
-
-    protected get _bufferedAbsoluteTimestamps() {
-        return this.bufferedStepsArray.map( step => step.absolute );
-    }
-
-    */
-
-
+    /** Number of images to preload at once */
     readonly bufferSize:number =  4;
-
-    public readonly isSequence: boolean;
+    /** The actual buffer holding pair of step & frame */
+    protected buffer: Map<ParsedTimelineFrame,ParsedFileFrame> = new Map;
+    /** Accessor to array of steps preloaded in the given moment */
+    public get preloadedSteps() {
+        return Array.from( this.buffer.keys() );
+    }
+    /** Accessor to array of relative timestamps preloaded in the given moment */
+    public get preloadedTimestampsRelative() {
+        return this.preloadedSteps.map( step => step.relative );
+    }
 
 
     constructor(
-        protected readonly drive: ReTimelineDrive,
+        protected readonly drive: TimelineDrive,
         firstFrame: ParsedFileFrame
     ) {
-
-        this.isSequence = drive.parent.frameCount > 1;
-
         this.currentFrame = firstFrame;
-
     }
 
     public async init() {
-
         return await this.preload( this.currentStep );
-
     }
 
 
@@ -74,6 +53,8 @@ export class FrameBuffer {
      * - if there is a corresponding frame, apply it
      * - if there is none, fetch it
      * - if sequence, fetch buffer
+     * 
+     * **THIS IS THE MAIN SETTER**
      */
     public async recieveStep(
         step: ParsedTimelineFrame
@@ -81,39 +62,30 @@ export class FrameBuffer {
 
         // CURRENT FRAME
 
-        // Look for buffered frame
-        let frame = this._bufferBySteps.get( step );
+        // Look if the frame is already buffered
+        let frame = this.buffer.get( step );
 
-        // If the frame is not buffered, fetch it
+        // If the frame is not buffered, fetch it)
         if ( frame === undefined ) {
             frame = await this.drive.parent.service.frameData( step.index );
         }
 
-        // Store the new frame
-        this._currentFrame = frame;
-
-
-
-
+        
         // BUFFER
 
-        const update = await this.preload( step );
+        // Preload the nearest frames
+        const status = await this.preload( step );
 
-        this.propagate();
+        // Store the new frame and trigger the callback
+        this.currentFrame = frame;
 
-        
-        return update;
+        return status;
 
 
     }
 
 
-
-    protected propagate() {
-        this.drive.parent.pixels = this.currentFrame.pixels;
-    }
-
-
+    /** Preload frame data to the buffer based on the provided step */
     protected async preload( step: ParsedTimelineFrame ) {
 
         // Get steps that should be in the buffer
@@ -135,14 +107,14 @@ export class FrameBuffer {
         ) {
 
             if ( step.relative === this.drive.parent.duration ) {
-                this._bufferBySteps.clear();
+                this.buffer.clear();
             }
 
             return {
                 relativeTime: this.drive.value,
                 currentFrame: this.currentFrame,
                 currentStep: this.currentStep,
-                buffer: this.bufferedStepsArray,
+                buffer: this.preloadedSteps,
                 preloaded: false,
                 hasChanged: true
             };
@@ -155,26 +127,24 @@ export class FrameBuffer {
 
 
         // Get only those new steps that are not in the buffer
-        const newSteps = stepsThatShouldBe.filter( step => ! this.bufferedStepsArray.includes( step ) );
+        const newSteps = stepsThatShouldBe.filter( step => ! this.preloadedSteps.includes( step ) );
 
         // Asynchronously read the frames
         const newFrames = await Promise.all( newSteps.map( step => {
             return this.drive.parent.service.frameData( step.index )
         } ) );
 
-        console.log( "On",step, "Steps that should be", stepsThatShouldBe );
-
         // Add new steps to the registry
         newFrames.forEach( ( frame, index ) => {
             const step = newSteps[index];
-            this._bufferBySteps.set( step, frame );
+            this.buffer.set( step, frame );
         } );
 
         // Remove all values that are not in new Steps
-        this.bufferedStepsArray.forEach( (step) => {
+        this.preloadedSteps.forEach( (step) => {
 
             if ( ! stepsThatShouldBe.includes( step ) ) {
-                this._bufferBySteps.delete( step );
+                this.buffer.delete( step );
             }
 
         } );
@@ -183,7 +153,7 @@ export class FrameBuffer {
             currentFrame: this.currentFrame,
             currentStep: this.currentStep,
             relativeTime: this.drive.value,
-            buffer: this.bufferedStepsArray,
+            buffer: this.preloadedSteps,
             preloaded: true,
             hasChanged: true
         }

@@ -4,7 +4,7 @@ import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { ITimelineDrive } from "./ITimeline";
 
 export interface IWithTimeline extends IBaseProperty {
-    timeline: TimelineDrive
+    timeline: TimelineDriveOld
 }
 
 
@@ -23,8 +23,8 @@ type FramesByIndex = Map<number, FrameType>;
 
 export type TimelineFrameChangedEventListener = (frame: FrameType) => void
 
-/** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
+/** Stores the frames and the time pointer which is in the miliseconds @deprecated */
+export class TimelineDriveOld extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
     protected readonly frames: Frames;
     public get duration() { return this.parent.duration; }
@@ -211,7 +211,6 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
         const percent = Math.min( Math.max( percentage, 0 ), 100 );
         const time = ( this.duration / 100 ) * percent;
         this.value = Math.floor( time );
-        console.log( "Nastavil jsem čas na", this.value );
     }
 
     goToNextFrame() {

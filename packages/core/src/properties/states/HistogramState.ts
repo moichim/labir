@@ -1,6 +1,8 @@
 "use client";
 
-import { ThermalStatistics, ThermalRegistry } from "../../registry/ThermalRegistry";
+import { ThermalRegistry, ThermalStatistics } from "../../registry/ThermalRegistry";
+import { Instance } from "../../reload/instance";
+import { LrcParser } from "../../reload/parsers/LrcParser";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 export interface IWithHistogram extends IBaseProperty {
@@ -137,7 +139,32 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
     }
 
-    protected recalculateHistogram() {
+    protected async recalculateHistogram() {
+
+        // this is the new code
+
+        console.log( "začínám kalkulovat histogram" );
+
+        // All living instances
+        const allFiles = this.parent.groups.value.map( group => group.files.value ).reduce( (state, current) => {
+
+            state = state.concat( current )
+
+            return state;
+
+        }, [] as Instance[] );
+
+        const allBuffers = allFiles.map( reader => reader.service.buffer );
+
+        console.log( "all buffers", allBuffers );
+
+        const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
+
+        this.value = result;
+
+        console.log( "result z vlákna", result );
+
+        /*
 
         if (this.parent.minmax.value !== undefined && this.parent.minmax.distanceInCelsius !== undefined) {
 
@@ -205,6 +232,8 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
 
         }
+
+        */
 
     }
 

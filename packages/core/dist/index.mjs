@@ -1,8 +1,7 @@
 // src/utils/time/pool.ts
 import * as workerpool from "workerpool";
 var pool2 = workerpool.pool({
-  maxWorkers: 8
-  // onTerminateWorker: what => console.log( what )
+  maxWorkers: 6
 });
 var pool_default = pool2;
 
@@ -53,8 +52,8 @@ var AbstractProperty = class {
   }
 };
 
-// src/properties/drives/TimelineDrive.ts
-var TimelineDrive = class extends AbstractProperty {
+// src/properties/time/TimelineDriveOld.ts
+var TimelineDriveOld = class extends AbstractProperty {
   constructor(parent, initial) {
     super(parent, initial);
     this.parent = parent;
@@ -171,7 +170,6 @@ var TimelineDrive = class extends AbstractProperty {
     const percent = Math.min(Math.max(percentage, 0), 100);
     const time = this.duration / 100 * percent;
     this.value = Math.floor(time);
-    console.log("Nastavil jsem \u010Das na", this.value);
   }
   goToNextFrame() {
     if (this.nextFrame) {
@@ -352,12 +350,11 @@ var AbstractFile = class extends BaseStructureObject {
     this.detachFromDom();
   }
   draw() {
-    console.log("drawing", this.fileName, this.group.id);
     if (this.mountedBaseLayers === true)
       this.canvasLayer.draw();
   }
   recievePalette(palette) {
-    console.log(palette);
+    palette;
     this.draw();
   }
   destroySelfAndBelow() {
@@ -724,7 +721,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
       this.pixels,
       paletteColors
     ], {});
-    console.log(this.pool.stats());
     this.context.drawImage(image, 0, 0);
   }
   exportAsPng() {
@@ -872,7 +868,7 @@ var ThermalFileInstance = class extends AbstractFile {
     this.streamCount = this.source.streamCount;
     this.fileDataType = this.source.fileDataType;
     this.frames = this.source.frames;
-    this.timeline = new TimelineDrive(this, 0);
+    this.timeline = new TimelineDriveOld(this, 0);
     this.pixels = this.timeline.currentFrame.pixels;
     this.canvasLayer = new ThermalCanvasLayer(this);
     this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
@@ -1492,7 +1488,6 @@ var RangeDriver = class extends AbstractProperty {
       const length = this.parent.histogram.value.length;
       const percentage = 100 / length;
       const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
-      console.log(this.parent.histogram.value);
       const newRange = {
         from: histogramBarsOverPercentage[0].from,
         to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
@@ -1532,42 +1527,6 @@ var FilesState = class extends AbstractProperty {
     this._requestedRemovals = /* @__PURE__ */ new Map();
     this._map = /* @__PURE__ */ new Map();
   }
-  enqueueAdd(thermalUrl, visibleUrl, callback) {
-    this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (source, error) => {
-      if (source instanceof ThermalFileSource) {
-        const instance = this.instantiateSource(source);
-        if (callback) {
-          callback(instance);
-        }
-      } else if (callback) {
-        callback(void 0, error ?? "N\u011Bco se pokazilo v instanci");
-      }
-    });
-  }
-  enqueueRemove(thermalUrl, callback) {
-    if (this._requestedRemovals.has(thermalUrl)) {
-      if (callback)
-        this._requestedRemovals.get(thermalUrl).callbacks.push(callback);
-    } else {
-      this._requestedRemovals.set(thermalUrl, {
-        url: thermalUrl,
-        callbacks: callback ? [callback] : []
-      });
-    }
-  }
-  async cleanup() {
-    const flatRemovalUrls = Object.values(this._requestedRemovals).map((item) => item.url);
-    this.value = this.value.filter((instance) => {
-      const shouldRemove = flatRemovalUrls.includes(instance.url);
-      if (shouldRemove) {
-        this._requestedRemovals.get(instance.url)?.callbacks.forEach((callback) => callback());
-        return true;
-      }
-      return false;
-    });
-    this._requestedRemovals.clear();
-    this.parent.registry.postLoadedProcessing();
-  }
   get map() {
     return this._map;
   }
@@ -1588,32 +1547,6 @@ var FilesState = class extends AbstractProperty {
     } else {
       return this._map.get(file.url);
     }
-  }
-  /** 
-   * Creation of of single instance 
-   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
-   */
-  instantiateSource(source) {
-    if (!this._map.has(source.url)) {
-      const instance = source.createInstance(this.parent);
-      this.value = [...this.value, instance];
-      return instance;
-    } else {
-      return this._map.get(source.url);
-    }
-  }
-  /**
-   * Creation of instances at once
-   * - triggers listeners only once
-   */
-  instantiateSources(sources) {
-    const newValue = [];
-    sources.forEach((source) => {
-      if (!this._map.has(source.url)) {
-        newValue.push(source.createInstance(this.parent));
-      }
-    });
-    this.value = newValue;
   }
   /**
    * Removal
@@ -1752,7 +1685,6 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
   }
   _getMinmaxFromInstances() {
     const instances = this.parent.files.value;
-    console.log(instances);
     if (instances.length === 0)
       return void 0;
     return instances.reduce((state, current) => {
@@ -1842,6 +1774,302 @@ var GroupsState = class extends AbstractProperty {
     this.value = [];
   }
 };
+
+// src/reload/parsers/histogram.ts
+var registryHistogram = async (files) => {
+  let pixels = [];
+  const readFile = async (file) => {
+    console.log("reading file", file);
+    const headerView = new DataView(file.slice(0, 25));
+    const dataType = headerView.getUint8(15);
+    const width = headerView.getUint16(17, true);
+    const height = headerView.getUint16(19, true);
+    const pixelByteSize = dataType === 1 ? 4 : 2;
+    const frameHeaderSize = 57;
+    const framePixelsSize = width * height * pixelByteSize;
+    const frameSize = frameHeaderSize + framePixelsSize;
+    const streamSubset = file.slice(25);
+    const frameCount = streamSubset.byteLength / frameSize;
+    let filePixels = [];
+    console.log("file was analysed", {
+      dataType,
+      pixelByteSize,
+      streamLength: streamSubset.byteLength,
+      frameCount
+    });
+    for (let i = 0; i < frameCount; i++) {
+      const frameStart = i * frameSize;
+      const pixelsSubsetStart = frameStart + 57;
+      const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
+      const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
+      if (dataType === 0) {
+        const array = new Uint16Array(pixelsSubset);
+        const UINT16_MAX = 65535;
+        array.forEach((pixel) => {
+          const mappedValue = pixel / UINT16_MAX;
+        });
+      } else if (dataType === 1) {
+        filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
+      }
+    }
+    return filePixels;
+  };
+  const result = await Promise.all(files.map((file) => readFile(file)));
+  result.forEach((fileResult) => {
+    pixels = pixels.concat(fileResult);
+  });
+  pixels.sort((a, b) => {
+    return a - b;
+  });
+  const min = pixels[0];
+  const max = pixels[pixels.length - 1];
+  const distance = Math.abs(min - max);
+  const resolution = 200;
+  const step = distance / resolution;
+  const bars = [];
+  let buf = [...pixels];
+  for (let i = 0; i < resolution; i++) {
+    const from = min + step * i;
+    const to = from + step;
+    const nextUpIndex = buf.findIndex((pixel) => pixel > to);
+    const subs = buf.slice(0, nextUpIndex - 1);
+    const count = subs.length;
+    const percentage = count / pixels.length * 100;
+    const bar = {
+      from,
+      to,
+      count,
+      percentage
+    };
+    bars.push(bar);
+    buf = buf.slice(nextUpIndex);
+  }
+  const sortedByPercentage = [...bars].sort((a, b) => {
+    return a.percentage - b.percentage;
+  });
+  const minPercent = sortedByPercentage[0].percentage;
+  const maxPercent = sortedByPercentage[sortedByPercentage.length - 1].percentage;
+  const percentDistance = Math.abs(minPercent - maxPercent);
+  const final = bars.map((bar) => {
+    return {
+      ...bar,
+      height: bar.percentage / percentDistance * 100
+    };
+  });
+  console.log(files.length, final);
+  return final;
+};
+
+// src/reload/parsers/LrcParser.ts
+var extensions = [{
+  extension: "lrc",
+  minme: "application/octet-stream"
+}];
+var is = (data, url) => {
+  const hasCorrectExtension = url.endsWith("lrc");
+  const decoder = new TextDecoder();
+  const hasCorrectSignature = decoder.decode(data.slice(0, 4)) === "LRC\0";
+  return hasCorrectExtension && hasCorrectSignature;
+};
+var baseInfo = async (entireFileBuffer) => {
+  const view = new DataView(entireFileBuffer);
+  const width = view.getUint16(17, true);
+  const height = view.getUint16(19, true);
+  const bytesize = entireFileBuffer.byteLength;
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  };
+  const timestamp = readTimestamp(view, 5);
+  const dataType = view.getUint8(15);
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const frameHeaderByteSize = 57;
+  const framePixelsSize = width * height * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const timestamp2 = readTimestamp(frameView, 0);
+    const emissivity = frameView.getFloat32(24, true);
+    const reflectedKelvins = frameView.getFloat32(28, true);
+    return {
+      timestamp: timestamp2,
+      min,
+      max,
+      emissivity,
+      reflectedKelvins
+    };
+  };
+  const frames = [];
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    frames.push(frame);
+  }
+  const sums = {
+    emissivity: 0,
+    reflectedKelvins: 0
+  };
+  let currentMin = Infinity;
+  let currentMax = -Infinity;
+  const timestamps = [];
+  frames.forEach((frame) => {
+    sums.emissivity = sums.emissivity + frame.emissivity;
+    sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
+    if (frame.min < currentMin) {
+      currentMin = frame.min;
+    }
+    if (frame.max > currentMax) {
+      currentMax = frame.max;
+    }
+    timestamps.push(frame.timestamp);
+  });
+  const timelineStart = timestamps[0];
+  let timelineCursor = 0;
+  const timeline = [];
+  const f = [];
+  timestamps.forEach((t, index) => {
+    const next = timestamps[index + 1];
+    let offset = 0;
+    if (next === void 0) {
+      offset = 0;
+    }
+    offset = next - t;
+    const relative = t - timelineStart;
+    timeline.push(offset);
+    timelineCursor = timelineCursor + offset;
+    f.push({
+      absolute: t,
+      relative,
+      // isNaN( relativeTime ) ? 0 : relativeTime,
+      offset: isNaN(offset) ? 0 : offset,
+      index
+    });
+  });
+  const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
+  const frameInterval = duration / frameCount;
+  const fps = 1e3 / frameInterval;
+  return {
+    width,
+    height,
+    timestamp,
+    bytesize,
+    frameCount,
+    duration,
+    frameInterval,
+    fps,
+    timeline: f,
+    min: currentMin,
+    max: currentMax,
+    averageEmissivity: sums.emissivity / frames.length,
+    averageReflectedKelvins: sums.reflectedKelvins / frames.length
+  };
+};
+var getFrameSubset = (entireFileBuffer, index) => {
+  const headerView = new DataView(entireFileBuffer.slice(0, 25));
+  const dataType = headerView.getUint8(15);
+  const width = headerView.getUint16(17, true);
+  const height = headerView.getUint16(19, true);
+  const pixelByteSize = dataType === 1 ? 4 : 2;
+  const frameHeaderSize = 57;
+  const framePixelsSize = width * height * pixelByteSize;
+  const frameSize = frameHeaderSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameSubsetStart = index * frameSize;
+  const frameSubsetEnd = frameSubsetStart + frameSize;
+  const frameSubset = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+  return {
+    array: frameSubset,
+    dataType
+  };
+};
+var frameData = async (frameSubset, dataType) => {
+  const view = new DataView(frameSubset);
+  const bigIntTime = view.getBigInt64(0, true);
+  const UnixEpoch = 62135596800000n;
+  const TicksPerMillisecond = 10000n;
+  const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+  const TicksCeiling = 0x4000000000000000n;
+  const LocalMask = 0x8000000000000000n;
+  const TicksMask = 0x3FFFFFFFFFFFFFFFn;
+  let ticks = bigIntTime & TicksMask;
+  const isLocalTime = bigIntTime & LocalMask;
+  if (isLocalTime) {
+    if (ticks > TicksCeiling - TicksPerDay) {
+      ticks -= TicksCeiling;
+    }
+    if (ticks < 0) {
+      ticks += TicksPerDay;
+    }
+  }
+  const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+  const timestamp = Number(milliseconds);
+  const min = view.getFloat32(8, true);
+  const max = view.getFloat32(12, true);
+  const emissivity = view.getFloat32(24, true);
+  const reflectedKelvins = view.getFloat32(28, true);
+  const subset = frameSubset.slice(57);
+  let pixels = [];
+  if (dataType === 0) {
+    const array = new Uint16Array(subset);
+    const distance = Math.abs(min - max);
+    const UINT16_MAX = 65535;
+    array.forEach((pixel) => {
+      const mappedValue = pixel / UINT16_MAX;
+      pixels.push(min + distance * mappedValue);
+    });
+  } else if (dataType === 1) {
+    pixels = Array.from(new Float32Array(subset));
+  }
+  return {
+    timestamp,
+    min,
+    max,
+    emissivity,
+    reflectedKelvins,
+    pixels
+  };
+};
+var parser = {
+  name: "LabIR Recording (.lrc)",
+  description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
+  devices: [{
+    deviceName: "TIMI Edu Infrared Camera",
+    deviceUrl: "https://edu.labir.cz",
+    manufacturer: "TIMI Creation, s.r.o.",
+    manufacturerUrl: "https://timic.cz"
+  }],
+  extensions,
+  is,
+  baseInfo,
+  getFrameSubset,
+  frameData,
+  registryHistogram
+};
+var LrcParser2 = Object.freeze(parser);
 
 // src/properties/states/HistogramState.ts
 var HistogramState = class extends AbstractProperty {
@@ -1933,45 +2161,17 @@ var HistogramState = class extends AbstractProperty {
       });
     }
   }
-  recalculateHistogram() {
-    if (this.parent.minmax.value !== void 0 && this.parent.minmax.distanceInCelsius !== void 0) {
-      let temperaturesFromBuffer = Array.from(this.buffer.keys());
-      let countsFromBuffer = Array.from(this.buffer.values());
-      const minmax = this.parent.minmax.value;
-      const step = this.parent.minmax.distanceInCelsius / this.resolution;
-      const bufferItems = [];
-      let bufferMaxCount = 0;
-      let pointer = minmax.min;
-      while (pointer < minmax.max) {
-        const currentStepMin = pointer;
-        const currentStepMax = pointer + step;
-        const nextIndex = temperaturesFromBuffer.findIndex((num) => num >= currentStepMax);
-        const countsSubArray = countsFromBuffer.slice(0, nextIndex);
-        const currentNumberOfPixels = countsSubArray.reduce((state, current) => {
-          return state + current;
-        }, 0);
-        const currentPercentage = currentNumberOfPixels / this.bufferPixelsCount;
-        bufferItems.push({
-          from: currentStepMin,
-          to: currentStepMax,
-          percentage: currentPercentage,
-          count: currentNumberOfPixels
-        });
-        if (bufferMaxCount < currentNumberOfPixels) {
-          bufferMaxCount = currentNumberOfPixels;
-        }
-        temperaturesFromBuffer = temperaturesFromBuffer.slice(nextIndex);
-        countsFromBuffer = countsFromBuffer.slice(nextIndex);
-        pointer += step;
-      }
-      const result = bufferItems.map((item) => {
-        return {
-          ...item,
-          height: item.count / bufferMaxCount * 100
-        };
-      });
-      this.value = result;
-    }
+  async recalculateHistogram() {
+    console.log("za\u010D\xEDn\xE1m kalkulovat histogram");
+    const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
+      state = state.concat(current);
+      return state;
+    }, []);
+    const allBuffers = allFiles.map((reader) => reader.service.buffer);
+    console.log("all buffers", allBuffers);
+    const result = await this.parent.pool.exec(LrcParser2.registryHistogram, [allBuffers]);
+    this.value = result;
+    console.log("result z vl\xE1kna", result);
   }
   /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
   _getHistorgramFromAllGroups() {
@@ -2977,41 +3177,36 @@ var FileLoadingError = class extends Error {
   }
 };
 
-// src/properties/drives/FrameBuffer.ts
+// src/properties/time/internals/FrameBuffer.ts
 var FrameBuffer = class {
   constructor(drive, firstFrame) {
     this.drive = drive;
-    this._bufferBySteps = /* @__PURE__ */ new Map();
-    /*
-    
-        protected get __bufferedIndicies() {
-            return this.bufferedStepsArray.map( step => step.index );
-        }
-    
-        protected get _bufferedAbsoluteTimestamps() {
-            return this.bufferedStepsArray.map( step => step.absolute );
-        }
-    
-        */
+    /** Number of images to preload at once */
     this.bufferSize = 4;
-    this.isSequence = drive.parent.frameCount > 1;
+    /** The actual buffer holding pair of step & frame */
+    this.buffer = /* @__PURE__ */ new Map();
     this.currentFrame = firstFrame;
   }
+  /** The current frame data @readonly */
   get currentFrame() {
     return this._currentFrame;
   }
+  /** Upon every update of current frame, propagate current pixels to the instance */
   set currentFrame(frame) {
     this._currentFrame = frame;
-    this.propagate();
+    this.drive.parent.pixels = this.currentFrame.pixels;
   }
+  /** Get the current step value calculated from _currentFrame */
   get currentStep() {
     return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
   }
-  get bufferedStepsArray() {
-    return Array.from(this._bufferBySteps.keys());
+  /** Accessor to array of steps preloaded in the given moment */
+  get preloadedSteps() {
+    return Array.from(this.buffer.keys());
   }
-  get bufferRelativeTimestamps() {
-    return this.bufferedStepsArray.map((step) => step.relative);
+  /** Accessor to array of relative timestamps preloaded in the given moment */
+  get preloadedTimestampsRelative() {
+    return this.preloadedSteps.map((step) => step.relative);
   }
   async init() {
     return await this.preload(this.currentStep);
@@ -3022,32 +3217,31 @@ var FrameBuffer = class {
    * - if there is a corresponding frame, apply it
    * - if there is none, fetch it
    * - if sequence, fetch buffer
+   * 
+   * **THIS IS THE MAIN SETTER**
    */
   async recieveStep(step) {
-    let frame = this._bufferBySteps.get(step);
+    let frame = this.buffer.get(step);
     if (frame === void 0) {
       frame = await this.drive.parent.service.frameData(step.index);
     }
-    this._currentFrame = frame;
-    const update = await this.preload(step);
-    this.propagate();
-    return update;
+    const status = await this.preload(step);
+    this.currentFrame = frame;
+    return status;
   }
-  propagate() {
-    this.drive.parent.pixels = this.currentFrame.pixels;
-  }
+  /** Preload frame data to the buffer based on the provided step */
   async preload(step) {
     const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
     const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
     if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
       if (step.relative === this.drive.parent.duration) {
-        this._bufferBySteps.clear();
+        this.buffer.clear();
       }
       return {
         relativeTime: this.drive.value,
         currentFrame: this.currentFrame,
         currentStep: this.currentStep,
-        buffer: this.bufferedStepsArray,
+        buffer: this.preloadedSteps,
         preloaded: false,
         hasChanged: true
       };
@@ -3055,33 +3249,32 @@ var FrameBuffer = class {
     const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
       return step2.index >= subsetStart && step2.index < subsetEnd;
     });
-    const newSteps = stepsThatShouldBe.filter((step2) => !this.bufferedStepsArray.includes(step2));
+    const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
     const newFrames = await Promise.all(newSteps.map((step2) => {
       return this.drive.parent.service.frameData(step2.index);
     }));
-    console.log("On", step, "Steps that should be", stepsThatShouldBe);
     newFrames.forEach((frame, index) => {
       const step2 = newSteps[index];
-      this._bufferBySteps.set(step2, frame);
+      this.buffer.set(step2, frame);
     });
-    this.bufferedStepsArray.forEach((step2) => {
+    this.preloadedSteps.forEach((step2) => {
       if (!stepsThatShouldBe.includes(step2)) {
-        this._bufferBySteps.delete(step2);
+        this.buffer.delete(step2);
       }
     });
     return {
       currentFrame: this.currentFrame,
       currentStep: this.currentStep,
       relativeTime: this.drive.value,
-      buffer: this.bufferedStepsArray,
+      buffer: this.preloadedSteps,
       preloaded: true,
       hasChanged: true
     };
   }
 };
 
-// src/properties/drives/ReTimelineDrive.ts
-var ReTimelineDrive = class extends AbstractProperty {
+// src/properties/time/TimelineDrive.ts
+var TimelineDrive = class extends AbstractProperty {
   constructor(parent, initial, steps, initialFrameData) {
     super(parent, Math.max(Math.min(initial, steps.length), 0));
     this.steps = steps;
@@ -3094,6 +3287,7 @@ var ReTimelineDrive = class extends AbstractProperty {
     this._currentStep = this.steps[this._initial];
     this.startTimestampRelative = 0;
     this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
+    this.isSequence = this.parent.timelineData.length > 1;
     this.steps.forEach((step) => {
       this.stepsByIndex.set(step.index, step);
       this.stepsByAbsolute.set(step.absolute, step);
@@ -3170,7 +3364,6 @@ var ReTimelineDrive = class extends AbstractProperty {
     const frame = reversedSubarray.find((f) => {
       return f.relative <= relativeTimeInMs;
     });
-    console.log("find previous from", relativeTimeInMs, frame);
     return frame !== void 0 ? frame : this.steps[0];
   }
   findNextRelative(relativeTimeInMs) {
@@ -3182,11 +3375,9 @@ var ReTimelineDrive = class extends AbstractProperty {
     const subarrayStart = this._validateIndex(index);
     const subarrayEnd = this._validateIndex(index + 40);
     const subarray = this.steps.slice(subarrayStart, subarrayEnd);
-    console.log(relativeTimeInMs, subarray);
     const frame = subarray.find((f) => {
       return f.relative > relativeTimeInMs;
     });
-    console.log(frame);
     return frame !== void 0 ? frame : false;
   }
   async setRelativeTime(relativeTimeInMs) {
@@ -3212,18 +3403,14 @@ var ReTimelineDrive = class extends AbstractProperty {
   }
   async setValueByPercent(percent) {
     percent = Math.max(Math.min(percent, 100), 0);
-    console.log("percent!!!", percent);
     const convertedToRelativeTime = this._convertPercenttRelative(percent);
     return await this.setRelativeTime(convertedToRelativeTime);
   }
-  enqueueStep() {
+  createNextStepTimer() {
     if (this.timer !== void 0) {
       clearTimeout(this.timer);
     }
-    if (this.steps.length === 1) {
-      return;
-    }
-    if (this._isPlayying === false) {
+    if (!this.isSequence || this._isPlayying === false) {
       return;
     }
     this.timer = setTimeout(() => {
@@ -3231,11 +3418,10 @@ var ReTimelineDrive = class extends AbstractProperty {
       if (next) {
         this.value = next.relative;
         if (this._isPlayying) {
-          console.log(this.value, next);
           this.value = next.relative;
           this._currentStep = next;
           this.buffer.recieveStep(next);
-          this.enqueueStep();
+          this.createNextStepTimer();
         }
       } else {
         this._isPlayying = false;
@@ -3244,9 +3430,8 @@ var ReTimelineDrive = class extends AbstractProperty {
   }
   play() {
     if (this.steps.length > 1) {
-      console.log("Spou\u0161t\xEDm hru!");
       this._isPlayying = true;
-      this.enqueueStep();
+      this.createNextStepTimer();
     }
   }
   pause() {
@@ -3305,7 +3490,7 @@ var Instance = class _Instance extends AbstractFile {
     this.cursorLayer = new ThermalCursorLayer(this);
     this.listenerLayer = new ThermalListenerLayer(this);
     this.cursorValue = new CursorValueDrive(this, void 0);
-    this.timeline = new ReTimelineDrive(this, 0, this.timelineData, this.firstFrame);
+    this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
     this.timeline.init();
     return this;
   }
@@ -3313,10 +3498,8 @@ var Instance = class _Instance extends AbstractFile {
     return `instance_${this.group.id}_${thermalUrl}`;
   }
   onSetPixels(value) {
-    console.log("Pixels changed in", this.thermalUrl);
     value;
     if (this.mountedBaseLayers) {
-      console.log("Drawing!!!");
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
@@ -3354,10 +3537,10 @@ var Instance = class _Instance extends AbstractFile {
 
 // src/reload/FileReaderService.ts
 var FileReaderService = class extends AbstractFileResult {
-  constructor(buffer, parser, thermalUrl, visibleUrl) {
+  constructor(buffer, parser2, thermalUrl, visibleUrl) {
     super(thermalUrl, visibleUrl);
     this.buffer = buffer;
-    this.parser = parser;
+    this.parser = parser2;
     /** For the purpose of testing we have a unique ID */
     this.id = Math.random();
     this.pool = pool_default;
@@ -3400,229 +3583,19 @@ var FileReaderService = class extends AbstractFileResult {
   }
 };
 
-// src/reload/parsers/LrcParser.ts
-var extensions = [{
-  extension: "lrc",
-  minme: "application/octet-stream"
-}];
-var is = (data, url) => {
-  const hasCorrectExtension = url.endsWith("lrc");
-  const decoder = new TextDecoder();
-  const hasCorrectSignature = decoder.decode(data.slice(0, 4)) === "LRC\0";
-  return hasCorrectExtension && hasCorrectSignature;
-};
-var baseInfo = async (entireFileBuffer) => {
-  const view = new DataView(entireFileBuffer);
-  const width = view.getUint16(17, true);
-  const height = view.getUint16(19, true);
-  const bytesize = entireFileBuffer.byteLength;
-  const readTimestamp = (readingView, index) => {
-    const bigIntTime = readingView.getBigInt64(index, true);
-    const UnixEpoch = 62135596800000n;
-    const TicksPerMillisecond = 10000n;
-    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-    const TicksCeiling = 0x4000000000000000n;
-    const LocalMask = 0x8000000000000000n;
-    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-    let ticks = bigIntTime & TicksMask;
-    const isLocalTime = bigIntTime & LocalMask;
-    if (isLocalTime) {
-      if (ticks > TicksCeiling - TicksPerDay) {
-        ticks -= TicksCeiling;
-      }
-      if (ticks < 0) {
-        ticks += TicksPerDay;
-      }
-    }
-    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-    return Number(milliseconds);
-  };
-  const timestamp = readTimestamp(view, 5);
-  const dataType = view.getUint8(15);
-  let pixelByteSize = 2;
-  if (dataType === 1) pixelByteSize = 4;
-  const frameHeaderByteSize = 57;
-  const framePixelsSize = width * height * pixelByteSize;
-  const frameSize = frameHeaderByteSize + framePixelsSize;
-  const streamSubset = entireFileBuffer.slice(25);
-  const frameCount = streamSubset.byteLength / frameSize;
-  const readFrame = (index) => {
-    const frameSubsetStart = index * frameSize;
-    const frameSubsetEnd = frameSubsetStart + frameSize;
-    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-    const frameView = new DataView(frameArrayBuffer);
-    const min = frameView.getFloat32(8, true);
-    const max = frameView.getFloat32(12, true);
-    const timestamp2 = readTimestamp(frameView, 0);
-    const emissivity = frameView.getFloat32(24, true);
-    const reflectedKelvins = frameView.getFloat32(28, true);
-    return {
-      timestamp: timestamp2,
-      min,
-      max,
-      emissivity,
-      reflectedKelvins
-    };
-  };
-  const frames = [];
-  for (let i = 0; i < frameCount; i++) {
-    const frame = readFrame(i);
-    frames.push(frame);
-  }
-  const sums = {
-    emissivity: 0,
-    reflectedKelvins: 0
-  };
-  let currentMin = Infinity;
-  let currentMax = -Infinity;
-  const timestamps = [];
-  frames.forEach((frame) => {
-    sums.emissivity = sums.emissivity + frame.emissivity;
-    sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
-    if (frame.min < currentMin) {
-      currentMin = frame.min;
-    }
-    if (frame.max > currentMax) {
-      currentMax = frame.max;
-    }
-    timestamps.push(frame.timestamp);
-  });
-  const timelineStart = timestamps[0];
-  let timelineCursor = 0;
-  const timeline = [];
-  const f = [];
-  timestamps.forEach((t, index) => {
-    const next = timestamps[index + 1];
-    let offset = 0;
-    if (next === void 0) {
-      offset = 0;
-    }
-    offset = next - t;
-    const relative = t - timelineStart;
-    timeline.push(offset);
-    timelineCursor = timelineCursor + offset;
-    f.push({
-      absolute: t,
-      relative,
-      // isNaN( relativeTime ) ? 0 : relativeTime,
-      offset: isNaN(offset) ? 0 : offset,
-      index
-    });
-  });
-  const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
-  const frameInterval = duration / frameCount;
-  const fps = 1e3 / frameInterval;
-  return {
-    width,
-    height,
-    timestamp,
-    bytesize,
-    frameCount,
-    duration,
-    frameInterval,
-    fps,
-    timeline: f,
-    min: currentMin,
-    max: currentMax,
-    averageEmissivity: sums.emissivity / frames.length,
-    averageReflectedKelvins: sums.reflectedKelvins / frames.length
-  };
-};
-var getFrameSubset = (entireFileBuffer, index) => {
-  console.log("popt\xE1v\xE1m index", index);
-  const headerView = new DataView(entireFileBuffer.slice(0, 25));
-  const dataType = headerView.getUint8(15);
-  const width = headerView.getUint16(17, true);
-  const height = headerView.getUint16(19, true);
-  const pixelByteSize = dataType === 1 ? 4 : 2;
-  const frameHeaderSize = 57;
-  const framePixelsSize = width * height * pixelByteSize;
-  const frameSize = frameHeaderSize + framePixelsSize;
-  const streamSubset = entireFileBuffer.slice(25);
-  const frameSubsetStart = index * frameSize;
-  const frameSubsetEnd = frameSubsetStart + frameSize;
-  const frameSubset = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-  return {
-    array: frameSubset,
-    dataType
-  };
-};
-var frameData = async (frameSubset, dataType) => {
-  const view = new DataView(frameSubset);
-  const bigIntTime = view.getBigInt64(0, true);
-  const UnixEpoch = 62135596800000n;
-  const TicksPerMillisecond = 10000n;
-  const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-  const TicksCeiling = 0x4000000000000000n;
-  const LocalMask = 0x8000000000000000n;
-  const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-  let ticks = bigIntTime & TicksMask;
-  const isLocalTime = bigIntTime & LocalMask;
-  if (isLocalTime) {
-    if (ticks > TicksCeiling - TicksPerDay) {
-      ticks -= TicksCeiling;
-    }
-    if (ticks < 0) {
-      ticks += TicksPerDay;
-    }
-  }
-  const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-  const timestamp = Number(milliseconds);
-  const min = view.getFloat32(8, true);
-  const max = view.getFloat32(12, true);
-  const emissivity = view.getFloat32(24, true);
-  const reflectedKelvins = view.getFloat32(28, true);
-  const subset = frameSubset.slice(57);
-  let pixels = [];
-  if (dataType === 0) {
-    const array = new Uint16Array(subset);
-    const distance = Math.abs(min - max);
-    const UINT16_MAX = 65535;
-    array.forEach((pixel) => {
-      const mappedValue = pixel / UINT16_MAX;
-      pixels.push(min + distance * mappedValue);
-    });
-  } else if (dataType === 1) {
-    pixels = Array.from(new Float32Array(subset));
-  }
-  return {
-    timestamp,
-    min,
-    max,
-    emissivity,
-    reflectedKelvins,
-    pixels
-  };
-};
-var LrcParser2 = Object.freeze({
-  name: "LabIR Recording (.lrc)",
-  description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
-  devices: [{
-    deviceName: "TIMI Edu Infrared Camera",
-    deviceUrl: "https://edu.labir.cz",
-    manufacturer: "TIMI Creation, s.r.o.",
-    manufacturerUrl: "https://timic.cz"
-  }],
-  extensions,
-  is,
-  baseInfo,
-  getFrameSubset,
-  frameData
-});
-
 // src/reload/parsers/index.ts
 var parsers = {
   LrcParser: LrcParser2
 };
 var parsersArray = Object.values(parsers);
 var determineParser = (buffer, url) => {
-  const parser = parsersArray.find((parser2) => parser2.is(buffer, url));
-  if (parser === void 0) {
+  const parser2 = parsersArray.find((parser3) => parser3.is(buffer, url));
+  if (parser2 === void 0) {
     throw new FileLoadingError(2 /* MIME_UNSUPPORTED */, url, `No parser found for '${url}'.`);
   }
-  return parser;
+  return parser2;
 };
-var supportedFileTypes = parsersArray.map((parser) => parser.extensions);
+var supportedFileTypes = parsersArray.map((parser2) => parser2.extensions);
 
 // src/reload/FileRequest.ts
 var FileRequest = class _FileRequest {
@@ -3663,11 +3636,11 @@ var FileRequest = class _FileRequest {
     }
     const buffer = await res.arrayBuffer();
     try {
-      const parser = determineParser(buffer, this.thermalUrl);
+      const parser2 = determineParser(buffer, this.thermalUrl);
       return this.pocessTheService(
         new FileReaderService(
           buffer,
-          parser,
+          parser2,
           this.thermalUrl,
           this.visibleUrl
         )

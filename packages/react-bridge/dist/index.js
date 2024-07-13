@@ -1343,7 +1343,6 @@ var useFilesInGroup = (urls, registryId, groupId) => {
     () => manager.removeRegistry(registryIdMemoised);
   }, []);
   const instances = useThermalGroupInstancesState(group, registryIdMemoised);
-  console.log(instances);
   (0, import_react35.useEffect)(() => {
   }, [registry]);
   return {
