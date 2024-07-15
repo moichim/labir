@@ -33,7 +33,7 @@ export class FileContextElement extends ElementInheritingGroup {
     protected barItems?: Array<HTMLElement>
 
     @state()
-    private provider = new ContextProvider(this, { context: FileContext, initialValue: undefined });
+    private fileProvider = new ContextProvider(this, { context: FileContext, initialValue: undefined });
 
     constructor() {
         super();
@@ -163,9 +163,7 @@ export class FileContextElement extends ElementInheritingGroup {
 
     connectedCallback(): void {
         super.connectedCallback();
-
         this.enqueueInTheRegistry();
-
     }
 
     disconnectedCallback(): void {
@@ -198,13 +196,15 @@ export class FileContextElement extends ElementInheritingGroup {
 
             const reader = await this.registry.service.loadFile( this.thermal, this.visible );
 
+            console.log( "výchozí grupa", this.group, this._injectedGroup.value );
+
             if ( reader instanceof FileFailureService ) {
                 // Do nothing
                 this.errors = [ reader.message ];
             } else if (reader instanceof FileReaderService) {
                 const instance = await reader.createInstance( this.group );
                 this.file = instance;
-                this.provider.setValue( instance );
+                this.fileProvider.setValue( instance );
                 this.errors = [];
                 this.registry.postLoadedProcessing();
 

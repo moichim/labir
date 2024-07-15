@@ -142,6 +142,9 @@ importers:
       '@spectrum-web-components/theme':
         specifier: ^0.43.0
         version: 0.43.0
+      date-fns:
+        specifier: ^3.6.0
+        version: 3.6.0
       lit:
         specifier: ^3.1.4
         version: 3.1.4

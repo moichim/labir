@@ -16,14 +16,14 @@ export class ThermalRegistryElement extends ElementInheritingManager {
     @property( {type: String, attribute: true, reflect: true} )
     uuid: string = ThermalRegistryElement.DEFAULT_NAME;
 
-    private provider = new ContextProvider( this, { context: RegistryContext, initialValue: undefined } )
+    private registryProvider = new ContextProvider( this, { context: RegistryContext, initialValue: undefined } )
 
 
     connectedCallback(): void {
         super.connectedCallback();
 
         const registry = this.manager.addOrGetRegistry( this.uuid )
-        this.provider.setValue( registry, true );
+        this.registryProvider.setValue( registry, true );
     }
 
     protected render(): unknown {

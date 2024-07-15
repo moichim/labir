@@ -32,6 +32,8 @@ export abstract class ElementInheritingFile extends ElementInheritingGroup {
     protected update(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): boolean {
         super.update(_changedProperties);
 
+        this.log( "/// update", _changedProperties );
+
         if ("_injectedFile" in _changedProperties) {
             // this._file = this._injectedFile.value;
             // this.ready = this._injectedFile.value !== undefined;

@@ -33,15 +33,32 @@
         <thermal-group>
           <div style="width: 50%">
             <!--<thermal-file-app url="/sequence.lrc"></thermal-file-app>-->
-            <thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>
+            <!--<thermal-file-app url="/tucnaci_04.lrc"></thermal-file-app>-->
           </div>
         </thermal-group>
       </thermal-registry>
     </thermal-manager>
 
+    <thermal-lesson-app url="/sequence.lrc">
+      <thermal-lesson>
+      <thermal-marker slot="mark" say="Hello world!" from="0:30:000" to="0:45:000">
+        Zde je má lekce!
+      </thermal-marker>
+      <thermal-marker slot="mark" say="Hello world!" from="0:00:000" to="0:02:000">
+        Zde je má lekce!
+      </thermal-marker>
+    </thermal-lesson>
+    </thermal-file-app>
+
+    <div style="display: flex">
+      <!--
     <div style="width: 50%">
       <thermal-file-app url="/sequence.lrc"></thermal-file-app>
     </div>
+    -->
+
+      
+  </div>
 
     <!--<thermal-file-app url="/soustruh.lrc"></thermal-file-app>-->
 

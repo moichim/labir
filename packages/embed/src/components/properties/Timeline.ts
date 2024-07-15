@@ -1,7 +1,8 @@
-import { PropertyValueMap, css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { PropertyValueMap, PropertyValues, css, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
+import { Instance } from "@labir/core";
 
 @customElement("thermal-timeline")
 export class TimelineElement extends ElementInheritingFile {
@@ -22,7 +23,15 @@ export class TimelineElement extends ElementInheritingFile {
     protected barRef: Ref<HTMLDivElement> = createRef();
 
 
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated( _changedProperties );
+        this.log( _changedProperties );
+    }
+
+
     protected update(_changedProperties: Map<PropertyKey, unknown> | PropertyValueMap<this>): boolean {
+
+        this.log( this._injectedFile.value );
 
         this._injectedFile.value?.timeline.removeListener(this.identificator);
 
@@ -77,6 +86,20 @@ export class TimelineElement extends ElementInheritingFile {
             background: var( --thermal-slate );
             height: var( --thermal-gap );
             cursor: pointer;
+        }
+        .timeline-bar {
+            width: 100%;
+            height: 100%;
+        }
+
+        .timeline-marks {
+            width: 100%;
+        }
+
+        .mark {
+            background: red;
+            height: 5px;
+            position: relative;
         }
 
         .bar {
@@ -149,6 +172,14 @@ export class TimelineElement extends ElementInheritingFile {
         }
     }
 
+    @state()
+    protected highlights: TimelineHighlightData[] = []
+
+    public recieveHighlights( highlights: TimelineHighlightData[] ) {
+        console.log( "//", highlights );
+        this.highlights = highlights;
+    }
+
     protected render(): unknown {
 
         if (this._injectedFile.value === undefined) {
@@ -158,6 +189,8 @@ export class TimelineElement extends ElementInheritingFile {
         else if ( this._injectedFile.value.timeline.duration === 0 ) {
             return nothing;
         }
+
+        const file = this._injectedFile.value as unknown as Instance;
 
         return html`
             <div class="container">
@@ -192,7 +225,20 @@ export class TimelineElement extends ElementInheritingFile {
                             </div>
 
                             <div class="item timeline" @click=${this.applyBar.bind(this)} ${ref(this.timelineRef)}>
-                                <div class="bar" style="width: ${this.percentage}%" ${ref(this.barRef)}></div>
+                                <div class="timeline-bar">
+                                    <div class="bar" style="width: ${this.percentage}%" ${ref(this.barRef)}></div>
+                                </div>
+                                <div class="timeline-marks">
+                                    ${this.highlights.length > 0 
+                                        ? this.highlights.map( mark => {
+                                        const start = mark.fromMs / file.duration * 100;
+                                        const width = ( mark.toMs - mark.fromMs ) / file.duration * 100
+                                        return html`
+                                        <div class="mark" style="left: ${start}%; width: ${ width }%"></div>
+                                    `
+                                    })
+                                    : nothing}
+                                </div>
                             </div>
 
                             <div class="item">${this.formatDuration(this._injectedFile.value!.timeline.duration)}</div>
@@ -205,4 +251,10 @@ export class TimelineElement extends ElementInheritingFile {
 
           `;
     }
+}
+
+export type TimelineHighlightData = {
+    fromMs: number,
+    toMs: number,
+    text: string
 }

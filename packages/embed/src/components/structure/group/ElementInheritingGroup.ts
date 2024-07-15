@@ -5,7 +5,7 @@ import { GroupContext } from "../contexts";
 
 export abstract class ElementInheritingGroup extends ElementInheritingRegistry {
 
-    private _injectedGroup = new ContextConsumer( this, {context: GroupContext, subscribe: true} );
+    public _injectedGroup = new ContextConsumer( this, {context: GroupContext, subscribe: true} );
 
     private _group!: ThermalGroup;
 

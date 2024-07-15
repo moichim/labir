@@ -29,11 +29,11 @@ export class GroupContextElement extends ElementInheritingRegistry {
         super.connectedCallback();
 
         this.group = this.registry.groups.addOrGetGroup( this.uuid, this.name, this.description )
-        this.provider.setValue( this.group, true );
+        this.groupProvider.setValue( this.group, true );
     }
 
 
-    private provider = new ContextProvider( this, { context: GroupContext, initialValue: undefined } )
+    private groupProvider = new ContextProvider( this, { context: GroupContext, initialValue: undefined } )
     
 
     public updated( _changedProperties: Map<string,string> ) {
