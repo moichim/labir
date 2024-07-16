@@ -1,6 +1,6 @@
 import { AbstractFile } from "../../file/IFileInstance";
-import { Instance } from "../../reload/instance";
-import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../reload/parsers/types";
+import { Instance } from "../../loading/workers/instance";
+import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../loading/workers/parsers/types";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { FrameBuffer } from "./internals/FrameBuffer";
 import { ITimelineDrive } from "./ITimeline";
@@ -209,12 +209,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
             this._currentStep = currentStep;
             const result = await this.buffer.recieveStep( this._currentStep );
 
-            // console.log( "updatoval jsem a mám result", result );
-
-            return {
-                ...result,
-                // preloaded: true
-            };
+            return result;
 
         }
 

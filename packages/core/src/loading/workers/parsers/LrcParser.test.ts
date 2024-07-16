@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { THERMOGRAM_PATHS } from '../../../node/mocks';
+import { THERMOGRAM_PATHS } from '../../../../node/mocks';
 import { FileReaderService } from '../FileReaderService';
 import { FilesService } from '../FilesService';
 import { LrcParser } from './LrcParser';
@@ -48,8 +48,6 @@ describe("LrcParser", () => {
         const file = await service.loadFile(THERMOGRAM_PATHS.SEQUENCE) as FileReaderService;
 
         const baseInfo = await file.baseInfo();
-
-        console.log( baseInfo.timeline.slice(0,10) );
 
         expect(baseInfo.width).toEqual(160);
         expect(baseInfo.height).toEqual(120);

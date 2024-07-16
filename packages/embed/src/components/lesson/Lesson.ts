@@ -1,8 +1,8 @@
-import { customElement, property, queryAssignedNodes } from "lit/decorators.js";
-import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
-import { html, PropertyValues } from "lit";
-import { MarkerElement } from "./marker";
+import { html } from "lit";
+import { customElement, queryAssignedNodes } from "lit/decorators.js";
 import { TimelineElement } from "../properties/Timeline";
+import { ElementInheritingFile } from "../structure/file/ElementInheritingFile";
+import { MarkerElement } from "./Marker";
 
 @customElement("thermal-lesson")
 export class LessonElement extends ElementInheritingFile {
@@ -19,20 +19,6 @@ export class LessonElement extends ElementInheritingFile {
 
     connectedCallback(): void {
         super.connectedCallback();
-    }
-
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated( _changedProperties );
-        this.log( this.timeline );
-
-        this.log( "///// injektované závlislosti", this.group, this._injectedFile.value );
-
-        this.log( "mark slots", this.marksElement);
-    }
-
-
-    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-        this.log( name, _old, value );
     }
 
     protected render(): unknown {

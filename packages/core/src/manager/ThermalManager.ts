@@ -5,7 +5,7 @@ import { ThermalRegistry, ThermalRegistryOptions } from "../registry/ThermalRegi
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { AvailableThermalPalettes } from "../file/palettes";
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { FilesService } from "../reload/FilesService";
+import { FilesService } from "../loading/workers/FilesService";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes

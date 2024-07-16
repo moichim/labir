@@ -42,7 +42,6 @@ export class TimelineDriveOld extends AbstractProperty<number, AbstractFile> imp
         if ( frame.ms !== this._currentFrame.ms ) {
             this._currentFrame = frame;
             this._onChangeListeners.forEach(fn => fn(this._currentFrame));
-            // console.log( "změnil se mi frame" );
             this.parent.pixels = frame.pixels;
         }
     }

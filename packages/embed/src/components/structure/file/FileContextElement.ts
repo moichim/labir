@@ -196,13 +196,12 @@ export class FileContextElement extends ElementInheritingGroup {
 
             const reader = await this.registry.service.loadFile( this.thermal, this.visible );
 
-            console.log( "výchozí grupa", this.group, this._injectedGroup.value );
-
             if ( reader instanceof FileFailureService ) {
                 // Do nothing
                 this.errors = [ reader.message ];
             } else if (reader instanceof FileReaderService) {
                 const instance = await reader.createInstance( this.group );
+                this.log( "load file", instance );
                 this.file = instance;
                 this.fileProvider.setValue( instance );
                 this.errors = [];

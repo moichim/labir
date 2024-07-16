@@ -1,5 +1,5 @@
-import { ThermalGroup } from "../group/ThermalGroup";
-import pool from "../utils/time/pool";
+import { ThermalGroup } from "../../group/ThermalGroup";
+import pool from "../../utils/time/pool";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { Instance } from "./instance";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";

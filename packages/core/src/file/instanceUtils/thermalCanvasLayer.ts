@@ -137,79 +137,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
             paletteColors
         ], {});
 
-        // console.log( this.pool.stats() )
-
         // Place it in context
         this.context.drawImage( image, 0, 0 );
-
-
-
-        /*
-
-        this.pool.exec((
-            offscreen: OffscreenCanvas,
-            from: number,
-            to: number,
-            width: number,
-            height: number,
-            pixels: number[],
-            paletteColors: string[]
-        ) => {
-
-            const context = offscreen.getContext("2d");
-
-            const displayRange = to - from;
-
-
-            for (let x = 0; x <= width; x++) {
-
-                for (let y = 0; y <= height; y++) {
-
-                    const index = x + (y * width);
-
-                    // Clamp temperature to the displayedRange
-                    let temperature = pixels[index];
-                    if (temperature < from)
-                        temperature = from;
-                    if (temperature > to)
-                        temperature = to;
-
-                    const temperatureRelative = temperature - from;
-                    const temperatureAspect = temperatureRelative / displayRange;
-                    const colorIndex = Math.round(255 * temperatureAspect);
-
-                    const color = paletteColors[colorIndex];
-
-                    context!.fillStyle = color;
-                    context!.fillRect(x, y, 1, 1);
-
-                }
-
-            }
-
-            return offscreen;
-
-            // postMessage( offscreen, [offscreen] )
-
-            // offscreen.transferToImageBitmap();
-
-            // return "success"
-
-        }, [
-            this.offscreen,
-            this.from,
-            this.to,
-            this.width,
-            this.height,
-            this.pixels,
-            paletteColors
-        ], {
-            transfer: [this.offscreen],
-        });
-
-        */
-
-        // this.offscreen = this.canvas.transferControlToOffscreen();
 
     }
 

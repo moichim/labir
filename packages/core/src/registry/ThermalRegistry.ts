@@ -13,9 +13,9 @@ import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
 import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
-import { ThermalFetcher } from "./utilities/ThermalFetcher";
-import { ThermalRegistryLoader } from "./utilities/ThermalRegistryLoader";
-import { ThermalFileRequest } from "./utilities/ThermalRequest";
+import { ThermalFetcher } from "../loading/sequential/ThermalFetcher";
+import { ThermalRegistryLoader } from "../loading/batch/ThermalRegistryLoader";
+import { ThermalFileRequest } from "../loading/batch/ThermalRequest";
 
 export type ThermalRegistryOptions = {
     histogramResolution?: number,
@@ -196,10 +196,6 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
      * - recalculate the histogram
     */
     public postLoadedProcessing() {
-
-        console.log( "postprocessing" );
-
-        this.forEveryInstance( console.log );
 
 
         // Recalculate individual minmaxes

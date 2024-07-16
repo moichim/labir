@@ -11,8 +11,6 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
     // Function to read a file returning all its pixels
     const readFile = async (file: ArrayBuffer): Promise<number[]> => {
 
-        console.log( "reading file", file );
-
         const headerView = new DataView(file.slice(0, 25));
 
         // Get header info
@@ -33,13 +31,6 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
         const frameCount = streamSubset.byteLength / frameSize;
 
         let filePixels: number[] = [];
-
-        console.log("file was analysed", {
-            dataType,
-            pixelByteSize,
-            streamLength: streamSubset.byteLength,
-            frameCount
-        });
 
         // Read frames and add pixels to the histogram
         for (let i = 0; i < frameCount; i++) {
@@ -147,8 +138,6 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
             height: bar.percentage / percentDistance * 100
         }
     } );
-
-    console.log( files.length, final );
 
     return final;
 

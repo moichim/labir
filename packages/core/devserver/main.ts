@@ -1,6 +1,6 @@
 import { ThermalManager } from "../src/manager/ThermalManager";
-import { FileReaderService } from "../src/reload/FileReaderService";
-import { Instance } from "../src/reload/instance";
+import { FileReaderService } from "../src/loading/workers/FileReaderService";
+import { Instance } from "../src/loading/workers/instance";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";

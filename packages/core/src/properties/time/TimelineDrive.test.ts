@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { ThermalManager } from '../../manager/ThermalManager';
-import { FileReaderService } from '../../reload/FileReaderService';
+import { FileReaderService } from '../../loading/workers/FileReaderService';
 import { TimelineDrive } from './TimelineDrive';
 
 describe("ReTimelineDrive", () => {
@@ -72,8 +72,6 @@ describe("ReTimelineDrive", () => {
 
         // Now set to the second frame
         const result_second_frame = await timeline.setRelativeTime( 114 );
-
-        console.log( buffer.bufferRelativeTimestamps );
 
         expect( result_second_frame.currentStep.index ).toEqual( 1 );
 

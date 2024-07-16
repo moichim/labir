@@ -1,6 +1,6 @@
 import { AbstractFile } from "../../file/IFileInstance";
 import { ThermalGroup } from "../../group/ThermalGroup";
-import { Instance } from "../../reload/instance";
+import { Instance } from "../../loading/workers/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 

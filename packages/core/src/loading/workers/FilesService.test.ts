@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { FilesService } from './FilesService';
 import { FileReaderService } from './FileReaderService';
-import { THERMOGRAM_PATHS } from '../../node/mocks';
+import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { FileFailureService } from './errors/FileFailureService';
 
 describe( "FilesService", () => {

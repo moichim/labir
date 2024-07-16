@@ -24,7 +24,7 @@ export class ThermalFileExport {
 
             const { pixels, ...data } = frame;
 
-            console.log( pixels );
+            pixels;
 
             return data;
 

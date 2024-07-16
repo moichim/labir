@@ -1,6 +1,6 @@
 import { ThermalFileSource } from "../../file/ThermalFileSource";
-import { ThermalRegistry } from "../ThermalRegistry";
-import { IFetcher } from "./IFetcher";
+import { ThermalRegistry } from "../../registry/ThermalRegistry";
+import { IMainThreadLoader } from "../IMainThreadLoader";
 
 export type ThermalFetcherCallbackType = (
     source?: ThermalFileSource,
@@ -13,7 +13,7 @@ type ThermalFetcherRequest = {
     callbacks: ThermalFetcherCallbackType[]
 }
 
-export class ThermalFetcher implements IFetcher {
+export class ThermalFetcher implements IMainThreadLoader {
 
     protected requests: Map<string,ThermalFetcherRequest> = new Map<string,ThermalFetcherRequest>();
 

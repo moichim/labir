@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { html, LitElement, nothing, PropertyValues } from "lit";
+import { html, LitElement, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 const timeToAttributeConvertor = (value: number) => {
@@ -49,16 +49,6 @@ export class MarkerElement extends LitElement {
         toAttribute: timeToAttributeConvertor
     }})
     public duration?: number = 500;
-
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated( _changedProperties );
-
-        /*
-        setTimeout( () => {
-            this.from = undefined;
-        }, 1000 );
-        */
-    }
 
 
     public getStartMs() {

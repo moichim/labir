@@ -5,7 +5,7 @@ import { ManagerContext } from "../contexts";
 
 export abstract class ElementInheritingManager extends AbstractStructureElement {
 
-    private _injectedManager = new ContextConsumer( this, { context: ManagerContext, subscribe: true } );
+    public _injectedManager = new ContextConsumer( this, { context: ManagerContext, subscribe: true } );
 
     private _manager!: ThermalManager;
 

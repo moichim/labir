@@ -55,10 +55,7 @@ export class LrcFrameParser {
             windowTransmissivity: LrcUtils.readFloat32( 52, view ),
             isTauSet: LrcUtils.read8bNumber( 53, view ),
             pixels: LrcUtils.readTemperatureArray( 57, view, this.dataType, frameMin, frameMax )
-        }
-
-        // console.log( frameData );
-
+        };
 
         return frameData;
 

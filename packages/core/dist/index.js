@@ -470,7 +470,7 @@ var ThermalFileExport = class {
     const csvConfig = (0, import_export_to_csv.mkConfig)({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace(".lrc", fileNameSuffix) });
     const data = this.file.frames.map((frame) => {
       const { pixels, ...data2 } = frame;
-      console.log(pixels);
+      pixels;
       return data2;
     });
     const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
@@ -1831,7 +1831,6 @@ var GroupsState = class extends AbstractProperty {
 var registryHistogram = async (files) => {
   let pixels = [];
   const readFile = async (file) => {
-    console.log("reading file", file);
     const headerView = new DataView(file.slice(0, 25));
     const dataType = headerView.getUint8(15);
     const width = headerView.getUint16(17, true);
@@ -1843,12 +1842,6 @@ var registryHistogram = async (files) => {
     const streamSubset = file.slice(25);
     const frameCount = streamSubset.byteLength / frameSize;
     let filePixels = [];
-    console.log("file was analysed", {
-      dataType,
-      pixelByteSize,
-      streamLength: streamSubset.byteLength,
-      frameCount
-    });
     for (let i = 0; i < frameCount; i++) {
       const frameStart = i * frameSize;
       const pixelsSubsetStart = frameStart + 57;
@@ -1908,7 +1901,6 @@ var registryHistogram = async (files) => {
       height: bar.percentage / percentDistance * 100
     };
   });
-  console.log(files.length, final);
   return final;
 };
 
@@ -2214,16 +2206,13 @@ var HistogramState = class extends AbstractProperty {
     }
   }
   async recalculateHistogram() {
-    console.log("za\u010D\xEDn\xE1m kalkulovat histogram");
     const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
       state = state.concat(current);
       return state;
     }, []);
     const allBuffers = allFiles.map((reader) => reader.service.buffer);
-    console.log("all buffers", allBuffers);
     const result = await this.parent.pool.exec(LrcParser2.registryHistogram, [allBuffers]);
     this.value = result;
-    console.log("result z vl\xE1kna", result);
   }
   /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
   _getHistorgramFromAllGroups() {
@@ -2600,8 +2589,6 @@ var ThermalRegistry = class extends BaseStructureObject {
    * - recalculate the histogram
   */
   postLoadedProcessing() {
-    console.log("postprocessing");
-    this.forEveryInstance(console.log);
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();
     if (this.minmax.value)
@@ -3439,10 +3426,7 @@ var TimelineDrive = class extends AbstractProperty {
     if (currentStep !== this._currentStep) {
       this._currentStep = currentStep;
       const result = await this.buffer.recieveStep(this._currentStep);
-      return {
-        ...result
-        // preloaded: true
-      };
+      return result;
     }
     return {
       relativeTime: this.value,

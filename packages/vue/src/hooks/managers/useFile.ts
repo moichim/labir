@@ -10,8 +10,6 @@ export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
 
     let shouldLoad = true;
 
-    console.log( group.registry );
-
     group.registry.enqueueFile( group.id, thermalUrl, visibleUrl );
 
     if ( isProvided ) {
@@ -25,7 +23,6 @@ export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
     watch( loading.loading, ( next ) => {
 
         if ( next === false ) {
-            console.log( "NAčteno", next, group.instances.map.get( thermalUrl ) );
             instance.value = group.instances.map.get( thermalUrl );
         }
 

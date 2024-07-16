@@ -34,15 +34,6 @@ export class GroupContextElement extends ElementInheritingRegistry {
 
 
     private groupProvider = new ContextProvider( this, { context: GroupContext, initialValue: undefined } )
-    
-
-    public updated( _changedProperties: Map<string,string> ) {
-
-        if ( _changedProperties.has( "name" ) ) {
-            this.log( _changedProperties, this.name );
-        }
-
-    }
 
     protected render(): unknown {
         return html`

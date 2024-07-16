@@ -1,6 +1,6 @@
 import { ThermalFileSource } from "../../file/ThermalFileSource";
 import { ThermalGroup } from "../../group/ThermalGroup";
-import { ThermalRegistry } from "../ThermalRegistry";
+import { ThermalRegistry } from "../../registry/ThermalRegistry";
 import { ThermalFileRequest, ThermalRequest } from "./ThermalRequest";
 
 /**

@@ -9,6 +9,5 @@ export const useDimensions = (
     useLayoutEffect(()=>{
         setDimensions( ref.current?.getBoundingClientRect().toJSON() );
     },[ref.current]);
-    // console.log( dimensions );
     return dimensions;
 }

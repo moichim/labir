@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { THERMOGRAM_PATHS } from '../../node/mocks';
+import { THERMOGRAM_PATHS } from '../../../node/mocks';
 import { FileReaderService } from './FileReaderService';
 import { FilesService } from './FilesService';
 import { Instance } from './instance';

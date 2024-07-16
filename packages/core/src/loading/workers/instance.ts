@@ -1,11 +1,11 @@
-import { AbstractFile } from "../file/IFileInstance";
-import { ThermalCanvasLayer } from "../file/instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "../file/instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "../file/instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "../file/instanceUtils/VisibleLayer";
-import { ThermalGroup } from "../group/ThermalGroup";
-import { TimelineDrive } from "../properties/time/TimelineDrive";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
+import { AbstractFile } from "../../file/IFileInstance";
+import { ThermalCanvasLayer } from "../../file/instanceUtils/thermalCanvasLayer";
+import ThermalCursorLayer from "../../file/instanceUtils/thermalCursorLayer";
+import { ThermalListenerLayer } from "../../file/instanceUtils/thermalListenerLayer";
+import { VisibleLayer } from "../../file/instanceUtils/VisibleLayer";
+import { ThermalGroup } from "../../group/ThermalGroup";
+import { TimelineDrive } from "../../properties/time/TimelineDrive";
+import { CursorValueDrive } from "../../properties/states/CursorValueDrive";
 import { FileReaderService } from "./FileReaderService";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "./parsers/types";
 
@@ -72,8 +72,6 @@ export class Instance extends AbstractFile {
     }
 
     protected onSetPixels(value: number[]): void {
-
-        // console.log( "Pixels changed in", this.thermalUrl );
         
         value;
         // throw new Error("Method not implemented.");
@@ -81,9 +79,6 @@ export class Instance extends AbstractFile {
 
         // If this file is loaded, recalculate all side effects
         if (this.mountedBaseLayers) {
-
-
-            // console.log( "Drawing!!!" );
             
             // Redraw
             this.draw();

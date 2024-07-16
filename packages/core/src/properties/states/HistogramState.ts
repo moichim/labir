@@ -1,8 +1,8 @@
 "use client";
 
 import { ThermalRegistry, ThermalStatistics } from "../../registry/ThermalRegistry";
-import { Instance } from "../../reload/instance";
-import { LrcParser } from "../../reload/parsers/LrcParser";
+import { Instance } from "../../loading/workers/instance";
+import { LrcParser } from "../../loading/workers/parsers/LrcParser";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 export interface IWithHistogram extends IBaseProperty {
@@ -143,8 +143,6 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
         // this is the new code
 
-        console.log( "začínám kalkulovat histogram" );
-
         // All living instances
         const allFiles = this.parent.groups.value.map( group => group.files.value ).reduce( (state, current) => {
 
@@ -156,84 +154,9 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
         const allBuffers = allFiles.map( reader => reader.service.buffer );
 
-        console.log( "all buffers", allBuffers );
-
         const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
 
         this.value = result;
-
-        console.log( "result z vlákna", result );
-
-        /*
-
-        if (this.parent.minmax.value !== undefined && this.parent.minmax.distanceInCelsius !== undefined) {
-
-            let temperaturesFromBuffer = Array.from(this.buffer.keys());
-            let countsFromBuffer = Array.from(this.buffer.values());
-            const minmax = this.parent.minmax.value;
-            const step = this.parent.minmax.distanceInCelsius / this.resolution;
-
-            const bufferItems: {
-                from: number,
-                to: number,
-                count: number,
-                percentage: number
-            }[] = [];
-
-            let bufferMaxCount = 0;
-
-            let pointer = minmax.min;
-            while (pointer < minmax.max) {
-
-                const currentStepMin = pointer;
-                const currentStepMax = pointer + step;
-
-                const nextIndex = temperaturesFromBuffer.findIndex(num => num >= currentStepMax);
-
-                const countsSubArray = countsFromBuffer.slice(0, nextIndex);
-
-                const currentNumberOfPixels = countsSubArray.reduce((state, current) => {
-                    return state + current;
-                }, 0);
-
-                const currentPercentage = currentNumberOfPixels / this.bufferPixelsCount;
-
-                // Assign new temporary item
-                bufferItems.push({
-                    from: currentStepMin,
-                    to: currentStepMax,
-                    percentage: currentPercentage,
-                    count: currentNumberOfPixels
-                });
-
-                // If current count is higher than maximal count, raise it
-                if (bufferMaxCount < currentNumberOfPixels) {
-                    bufferMaxCount = currentNumberOfPixels;
-                }
-
-                // Modify the buffers
-                temperaturesFromBuffer = temperaturesFromBuffer.slice(nextIndex);
-                countsFromBuffer = countsFromBuffer.slice(nextIndex);
-
-                // At the end, rise the pointer
-                pointer += step;
-
-            }
-
-
-            const result: ThermalStatistics[] = bufferItems.map(item => {
-                return {
-                    ...item,
-                    height: item.count / bufferMaxCount * 100
-                }
-            });
-
-            this.value = result;
-
-
-        }
-
-        */
 
     }
 
