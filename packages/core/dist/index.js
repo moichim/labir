@@ -1827,7 +1827,7 @@ var GroupsState = class extends AbstractProperty {
   }
 };
 
-// src/reload/parsers/histogram.ts
+// src/loading/workers/parsers/histogram.ts
 var registryHistogram = async (files) => {
   let pixels = [];
   const readFile = async (file) => {
@@ -1904,7 +1904,7 @@ var registryHistogram = async (files) => {
   return final;
 };
 
-// src/reload/parsers/LrcParser.ts
+// src/loading/workers/parsers/LrcParser.ts
 var extensions = [{
   extension: "lrc",
   minme: "application/octet-stream"
@@ -2311,7 +2311,7 @@ var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
   }
 };
 
-// src/registry/utilities/ThermalFetcher.ts
+// src/loading/sequential/ThermalFetcher.ts
 var ThermalFetcher = class {
   constructor(registry) {
     this.registry = registry;
@@ -2382,7 +2382,7 @@ var ThermalFetcher = class {
   }
 };
 
-// src/registry/utilities/ThermalRequest.ts
+// src/loading/batch/ThermalRequest.ts
 var ThermalRequest = class _ThermalRequest extends EventTarget {
   constructor(group, url, visibleUrl) {
     super();
@@ -2416,7 +2416,7 @@ var ThermalRequest = class _ThermalRequest extends EventTarget {
   }
 };
 
-// src/registry/utilities/ThermalRegistryLoader.ts
+// src/loading/batch/ThermalRegistryLoader.ts
 var ThermalRegistryLoader = class {
   constructor(registry) {
     this.registry = registry;
@@ -3184,7 +3184,7 @@ var PaletteDrive = class extends AbstractProperty {
   }
 };
 
-// src/reload/AbstractFileResult.ts
+// src/loading/workers/AbstractFileResult.ts
 var AbstractFileResult = class {
   constructor(thermalUrl, visibleUrl) {
     this.thermalUrl = thermalUrl;
@@ -3192,7 +3192,7 @@ var AbstractFileResult = class {
   }
 };
 
-// src/reload/errors/FileFailureService.ts
+// src/loading/workers/errors/FileFailureService.ts
 var FileFailureService = class _FileFailureService extends AbstractFileResult {
   constructor(thermalUrl, code, message) {
     super(thermalUrl);
@@ -3207,7 +3207,7 @@ var FileFailureService = class _FileFailureService extends AbstractFileResult {
   }
 };
 
-// src/reload/errors/FileLoadingError.ts
+// src/loading/workers/errors/FileLoadingError.ts
 var FileLoadingError = class extends Error {
   constructor(code, url, message) {
     super(message);
@@ -3480,7 +3480,7 @@ var TimelineDrive = class extends AbstractProperty {
   }
 };
 
-// src/reload/instance.ts
+// src/loading/workers/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
     super(
@@ -3571,7 +3571,7 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
-// src/reload/FileReaderService.ts
+// src/loading/workers/FileReaderService.ts
 var FileReaderService = class extends AbstractFileResult {
   constructor(buffer, parser2, thermalUrl, visibleUrl) {
     super(thermalUrl, visibleUrl);
@@ -3619,7 +3619,7 @@ var FileReaderService = class extends AbstractFileResult {
   }
 };
 
-// src/reload/parsers/index.ts
+// src/loading/workers/parsers/index.ts
 var parsers = {
   LrcParser: LrcParser2
 };
@@ -3633,7 +3633,7 @@ var determineParser = (buffer, url) => {
 };
 var supportedFileTypes = parsersArray.map((parser2) => parser2.extensions);
 
-// src/reload/FileRequest.ts
+// src/loading/workers/FileRequest.ts
 var FileRequest = class _FileRequest {
   constructor(thermalUrl, visibleUrl) {
     this.thermalUrl = thermalUrl;
@@ -3700,7 +3700,7 @@ var FileRequest = class _FileRequest {
   }
 };
 
-// src/reload/FilesService.ts
+// src/loading/workers/FilesService.ts
 var FilesService = class {
   constructor(manager) {
     this.manager = manager;

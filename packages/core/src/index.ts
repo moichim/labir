@@ -3,7 +3,7 @@ import { ThermalManager, ThermalManagerOptions } from "./manager/ThermalManager"
 import { ThermalRegistry, ThermalRegistryOptions } from "./registry/ThermalRegistry";
 import { ThermalGroup } from "./group/ThermalGroup";
 import { ThermalFileSource } from "./file/ThermalFileSource";
-import { ThermalFileRequest } from "./registry/utilities/ThermalRequest";
+import { ThermalFileRequest } from "./loading/batch/ThermalRequest";
 
 // Data types
 import { ThermalMinmaxOrUndefined } from "./properties/abstractMinmaxProperty";
@@ -25,9 +25,9 @@ import { InstanceFetchCallback } from "./properties/lists/InstancesState"
 import { AbstractFile } from "./file/IFileInstance";
 import { ThermalFileInstance } from "./file/ThermalFileInstance";
 
-import { Instance } from "./reload/instance";
-import { FileReaderService } from "./reload/FileReaderService";
-import { FileFailureService } from "./reload/errors/FileFailureService";
+import { Instance } from "./loading/workers/instance";
+import { FileReaderService } from "./loading/workers/FileReaderService";
+import { FileFailureService } from "./loading/workers/errors/FileFailureService";
 import pool from "./utils/time/pool";
 
 

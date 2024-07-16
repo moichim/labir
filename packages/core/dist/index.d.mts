@@ -558,7 +558,7 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithInstan
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
 }
 
-interface IFetcher {
+interface IMainThreadLoader {
     request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
 }
 
@@ -568,7 +568,7 @@ type ThermalFetcherRequest = {
     visibleUrl?: string;
     callbacks: ThermalFetcherCallbackType[];
 };
-declare class ThermalFetcher implements IFetcher {
+declare class ThermalFetcher implements IMainThreadLoader {
     readonly registry: ThermalRegistry;
     protected requests: Map<string, ThermalFetcherRequest>;
     get requestArray(): ThermalFetcherRequest[];
