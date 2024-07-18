@@ -1,5 +1,5 @@
-import { ThermalManager } from "../../manager/ThermalManager";
-import pool from "../../utils/time/pool";
+import { ThermalManager } from "../../hierarchy/ThermalManager";
+import pool from "../../utils/pool";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { FileRequest } from "./FileRequest";
 

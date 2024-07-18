@@ -1,6 +1,6 @@
-import { FileFailureService } from "./errors/FileFailureService";
-import { FileErrors, FileLoadingError } from "./errors/FileLoadingError";
-import { FileReaderService } from "./FileReaderService";
+import { ThermalFileFailure } from "./ThermalFileFailure";
+import { FileErrors, FileLoadingError } from "./errors";
+import { ThermalFileReader } from "./ThermalFileReader";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { determineParser } from "./parsers";
 
@@ -68,7 +68,7 @@ export class FileRequest {
         if ( res.status !== 200 ) {
 
             return this.pocessTheService( 
-                new FileFailureService( 
+                new ThermalFileFailure( 
                     this.thermalUrl, 
                     FileErrors.FILE_NOT_FOUND, 
                     `File '${this.thermalUrl}' was not found.` 
@@ -86,7 +86,7 @@ export class FileRequest {
             const parser = determineParser( buffer, this.thermalUrl );
 
             return this.pocessTheService( 
-                new FileReaderService( 
+                new ThermalFileReader( 
                     buffer, 
                     parser, 
                     this.thermalUrl, 
@@ -98,7 +98,7 @@ export class FileRequest {
 
             if ( error instanceof FileLoadingError ) {
                 return this.pocessTheService( 
-                    FileFailureService.fromError( error ) 
+                    ThermalFileFailure.fromError( error ) 
                 );
             }
 

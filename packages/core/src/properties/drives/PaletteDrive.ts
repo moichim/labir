@@ -1,6 +1,6 @@
 
 import { ThermalPalettes } from "../../file/palettes";
-import { ThermalManager } from "../../manager/ThermalManager";
+import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 export type PaletteId = keyof typeof ThermalPalettes;

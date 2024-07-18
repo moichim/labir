@@ -1,5 +1,5 @@
-import pool from "../../utils/time/pool";
-import { AbstractFile } from "../IFileInstance";
+import pool from "../../utils/pool";
+import { AbstractFile } from "../AbstractFile";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 

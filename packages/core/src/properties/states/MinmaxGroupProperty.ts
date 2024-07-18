@@ -1,4 +1,4 @@
-import { ThermalGroup } from "../../group/ThermalGroup";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractMinmaxProperty, ThermalMinmaxOrUndefined, ThermalMinmaxType } from "../abstractMinmaxProperty";
 import { IBaseProperty } from "../abstractProperty";
 

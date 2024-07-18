@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2022",
     "lib": [
       "dom",
       "dom.iterable",
@@ -18,6 +18,18 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
+    "baseUrl": "./packages",
+    "paths": {
+      "@labir/core": [
+        "core/src"
+      ],
+      "@labir/react-bridge": [
+        "react-bridge/src"
+      ],
+      "@labir/emotion": [
+        "emotion/src"
+      ]
+    },
   },
   "include": [
     "next-env.d.ts",

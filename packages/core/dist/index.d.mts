@@ -1,8 +1,9 @@
-import * as workerpool_types_Pool from 'workerpool/types/Pool';
-import workerpool_types_Pool__default from 'workerpool/types/Pool';
+import * as Pool from 'workerpool/types/Pool';
+import Pool__default from 'workerpool/types/Pool';
+export { pool } from 'workerpool';
 
 declare abstract class BaseStructureObject {
-    readonly pool: workerpool_types_Pool__default;
+    readonly pool: Pool__default;
 }
 
 /**
@@ -259,24 +260,7 @@ type ThermalPaletteType = {
     gradient: string;
 };
 
-type PaletteId = keyof typeof ThermalPalettes;
-interface IWithPalette extends IBaseProperty {
-    palette: PaletteDrive;
-}
-declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
-    get availablePalettes(): {
-        [index: string]: ThermalPaletteType;
-    };
-    /** All the current palette properties should be accessed through this property. */
-    get currentPalette(): ThermalPaletteType;
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    get currentPixels(): string[];
-    protected validate(value: PaletteId): PaletteId;
-    /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId): void;
-    setPalette(key: PaletteId): void;
-}
-
+/** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 declare abstract class AbstractFileResult {
     readonly thermalUrl: string;
     readonly visibleUrl?: string | undefined;
@@ -340,6 +324,60 @@ declare class FilesService {
     /** Is the URL already in the cache? */
     fileIsInCache(url: string): boolean;
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalettes;
+};
+declare class ThermalManager extends BaseStructureObject {
+    readonly id: number;
+    constructor(options?: ThermalManagerOptions);
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    /** The palette is stored absolutely globally */
+    /**
+     * Palette
+     */
+    readonly palette: PaletteDrive;
+    readonly service: FilesService;
+    /** Sources cache */
+    protected _sourcesByUrl: {
+        [index: string]: ThermalFileSource;
+    };
+    /** @deprecated */
+    get sourcesByUrl(): {
+        [index: string]: ThermalFileSource;
+    };
+    /** @deprecated */
+    getSourcesArray(): ThermalFileSource[];
+    /** @deprecated */
+    getRegisteredUrls(): string[];
+    /** @deprecated */
+    registerSource(source: ThermalFileSource): ThermalFileSource;
+    /** @deprecated */
+    isUrlRegistered: (url: string) => boolean;
+}
+
+type PaletteId = keyof typeof ThermalPalettes;
+interface IWithPalette extends IBaseProperty {
+    palette: PaletteDrive;
+}
+declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
+    get availablePalettes(): {
+        [index: string]: ThermalPaletteType;
+    };
+    /** All the current palette properties should be accessed through this property. */
+    get currentPalette(): ThermalPaletteType;
+    /** @deprecated Should not be used at all. Use `currentPalette` instead */
+    get currentPixels(): string[];
+    protected validate(value: PaletteId): PaletteId;
+    /** Any changes to the value should propagate directly to every instance. */
+    protected afterSetEffect(value: PaletteId): void;
+    setPalette(key: PaletteId): void;
 }
 
 interface IWithOpacity extends IBaseProperty {
@@ -558,26 +596,6 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithInstan
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
 }
 
-interface IMainThreadLoader {
-    request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
-}
-
-type ThermalFetcherCallbackType = (source?: ThermalFileSource, errors?: string) => void;
-type ThermalFetcherRequest = {
-    thermalUrl: string;
-    visibleUrl?: string;
-    callbacks: ThermalFetcherCallbackType[];
-};
-declare class ThermalFetcher implements IMainThreadLoader {
-    readonly registry: ThermalRegistry;
-    protected requests: Map<string, ThermalFetcherRequest>;
-    get requestArray(): ThermalFetcherRequest[];
-    protected timer?: ReturnType<typeof setTimeout>;
-    constructor(registry: ThermalRegistry);
-    request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
-    resolve(): Promise<(string | ThermalFileSource | undefined)[]>;
-}
-
 type ThermalFileRequest = {
     thermalUrl: string;
     visibleUrl?: string;
@@ -626,6 +644,26 @@ declare class ThermalRegistryLoader {
     resolveQuery(): Promise<ThermalGroup[]>;
 }
 
+interface IMainThreadLoader {
+    request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
+}
+
+type ThermalFetcherCallbackType = (source?: ThermalFileSource, errors?: string) => void;
+type ThermalFetcherRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+    callbacks: ThermalFetcherCallbackType[];
+};
+declare class ThermalFetcher implements IMainThreadLoader {
+    readonly registry: ThermalRegistry;
+    protected requests: Map<string, ThermalFetcherRequest>;
+    get requestArray(): ThermalFetcherRequest[];
+    protected timer?: ReturnType<typeof setTimeout>;
+    constructor(registry: ThermalRegistry);
+    request(thermalUrl: string, visibleUrl?: string, callback?: ThermalFetcherCallbackType): void;
+    resolve(): Promise<(string | ThermalFileSource | undefined)[]>;
+}
+
 type ThermalRegistryOptions = {
     histogramResolution?: number;
 };
@@ -665,7 +703,7 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
      * - impose new minmax as new range
      * - recalculate the histogram
     */
-    postLoadedProcessing(): void;
+    postLoadedProcessing(): Promise<void>;
     reset(): void;
     removeAllChildren(): void;
     destroySelfAndBelow(): void;
@@ -768,7 +806,7 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
-    protected readonly pool: workerpool_types_Pool;
+    protected readonly pool: Pool;
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
@@ -848,6 +886,7 @@ interface IFileInstance extends IThermalInstance, ThermalFileInterface, BaseStru
     isHover: boolean;
     mountedBaseLayers: boolean;
 }
+
 /** Define methods for all files */
 declare abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
     readonly id: string;
@@ -1136,7 +1175,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
  * - this service is registered in FilesService
  * - the instances are retrieved using `FilesService.loadOneFile`
  */
-declare class FileReaderService extends AbstractFileResult {
+declare class ThermalFileReader extends AbstractFileResult {
     readonly buffer: ArrayBuffer;
     readonly parser: IParserObject;
     /** For the purpose of testing we have a unique ID */
@@ -1164,7 +1203,7 @@ declare class FileReaderService extends AbstractFileResult {
 
 declare class Instance extends AbstractFile {
     readonly group: ThermalGroup;
-    readonly service: FileReaderService;
+    readonly service: ThermalFileReader;
     readonly width: number;
     readonly height: number;
     readonly timestamp: number;
@@ -1182,12 +1221,12 @@ declare class Instance extends AbstractFile {
     timeline: TimelineDrive;
     exportAsPng(): void;
     exportThermalDataAsSvg(): void;
-    protected constructor(group: ThermalGroup, service: FileReaderService, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
+    protected constructor(group: ThermalGroup, service: ThermalFileReader, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
     postInit(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;
     getPixelsForHistogram(): number[];
-    static fromService(group: ThermalGroup, service: FileReaderService, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
+    static fromService(group: ThermalGroup, service: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
 }
 
 type InstanceRemoveCallback = () => void;
@@ -1197,14 +1236,14 @@ type InstanceRemoveRequest = {
 };
 declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     protected _requestedRemovals: Map<string, InstanceRemoveRequest>;
-    protected _map: Map<string, AbstractFile>;
-    get map(): Map<string, AbstractFile>;
+    protected _map: Map<string, Instance>;
+    get map(): Map<string, Instance>;
     protected validate(value: Instance[]): Instance[];
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: AbstractFile[]): void;
-    addFile(file: Instance): AbstractFile | Instance;
+    protected afterSetEffect(value: Instance[]): void;
+    addFile(file: Instance): Instance;
     /**
      * Removal
      */
@@ -1226,6 +1265,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly hash: number;
     constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
     readonly minmax: MinmaxGroupProperty;
+    /** @deprecated */
     readonly instances: InstancesState;
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
@@ -1240,7 +1280,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     reset(): void;
 }
 
-/** Properties that are common for both source and instance. */
+/** Properties that are common for both source and instance. @deprecated */
 interface ThermalFileInterface {
     /** Short filenam of the thermal file */
     fileName: string;
@@ -1308,37 +1348,6 @@ declare class ThermalFileSource extends BaseStructureObject implements ThermalFi
     createInstance(group: ThermalGroup): AbstractFile;
 }
 
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
-};
-declare class ThermalManager extends BaseStructureObject {
-    readonly id: number;
-    constructor(options?: ThermalManagerOptions);
-    readonly registries: {
-        [index: string]: ThermalRegistry;
-    };
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
-    /** The palette is stored absolutely globally */
-    /**
-     * Palette
-     */
-    readonly palette: PaletteDrive;
-    readonly service: FilesService;
-    /** Sources cache */
-    protected _sourcesByUrl: {
-        [index: string]: ThermalFileSource;
-    };
-    get sourcesByUrl(): {
-        [index: string]: ThermalFileSource;
-    };
-    getSourcesArray(): ThermalFileSource[];
-    getRegisteredUrls(): string[];
-    registerSource(source: ThermalFileSource): ThermalFileSource;
-    isUrlRegistered: (url: string) => boolean;
-}
-
 type AcceptableDateInput = number | Date;
 declare abstract class TimeUtilsBase {
     /** Convert an input to a date object */
@@ -1394,14 +1403,12 @@ declare class FileLoadingError extends Error {
     constructor(code: FileErrors, url: string, message?: string);
 }
 
-declare class FileFailureService extends AbstractFileResult {
+declare class ThermalFileFailure extends AbstractFileResult {
     readonly code: FileErrors;
     readonly message: string;
     constructor(thermalUrl: string, code: FileErrors, message: string);
     isSuccess(): boolean;
-    static fromError(error: FileLoadingError): FileFailureService;
+    static fromError(error: FileLoadingError): ThermalFileFailure;
 }
 
-declare const pool: workerpool_types_Pool;
-
-export { AbstractFile, type AvailableThermalPalettes, FileFailureService, FileReaderService, GRAYSCALE, IRON, Instance, type InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileInstance, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, pool };
+export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, type InstanceFetchCallback, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileInstance, ThermalFileReader, type ThermalFileRequest, ThermalFileSource, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };

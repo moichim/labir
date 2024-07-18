@@ -1,5 +1,6 @@
-import { AbstractFile } from "../../file/IFileInstance";
-import { Instance } from "../../loading/workers/instance";
+
+import { AbstractFile } from "../../file/AbstractFile";
+import { Instance } from "../../file/instance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../loading/workers/parsers/types";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { FrameBuffer } from "./internals/FrameBuffer";

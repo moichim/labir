@@ -40,6 +40,9 @@ import "./components/lesson/Lesson";
 import "./components/apps/SingleFileApp";
 import "./components/apps/LessonApp";
 
+import "./structure/manger/Manager";
+import "./structure/registry/Registry";
+
 
 
 

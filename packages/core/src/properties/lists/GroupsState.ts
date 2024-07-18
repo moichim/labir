@@ -1,5 +1,5 @@
-import { ThermalGroup } from "../../group/ThermalGroup";
-import { ThermalRegistry } from "../../registry/ThermalRegistry";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 export interface IWithGroups extends IBaseProperty {

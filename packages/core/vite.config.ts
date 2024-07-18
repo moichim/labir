@@ -4,14 +4,14 @@ import { defineConfig } from "vite"
 import path from "path"
 
 export default defineConfig({
-    root: "./devserver",
+    root: "./devserver/www",
     publicDir: path.resolve( "../../public" ),
     test: {
         root: "./src",
         globals: true,
         environment: "jsdom",
         setupFiles: [
-            "./node/setup.ts",
+            "./devserver/node/setup.ts",
             "./vitest.setup.ts",
         ],
         deps: {

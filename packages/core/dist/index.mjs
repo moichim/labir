@@ -1,28 +1,11 @@
-// src/utils/time/pool.ts
-import * as workerpool from "workerpool";
-var pool2 = workerpool.pool({
-  maxWorkers: 6
-});
-var pool_default = pool2;
-
-// src/base/BaseStructureObject.ts
-var BaseStructureObject = class {
-  constructor() {
-    this.pool = pool_default;
-  }
-};
-
-// src/parsers/thermalLoader.ts
-import fetch2 from "cross-fetch";
-
 // src/properties/abstractProperty.ts
 var AbstractProperty = class {
   constructor(parent, _initial) {
     this.parent = parent;
     this._initial = _initial;
-    this._listeners = {};
     this._value = this.validate(this._initial);
   }
+  _value;
   reset() {
     this.value = this._initial;
   }
@@ -36,6 +19,7 @@ var AbstractProperty = class {
     this.afterSetEffect(this._value);
     Object.values(this._listeners).forEach((listener) => listener(this._value));
   }
+  _listeners = {};
   addListener(id, listener) {
     if (id in this._listeners) {
       delete this._listeners[id];
@@ -57,11 +41,6 @@ var TimelineDriveOld = class extends AbstractProperty {
   constructor(parent, initial) {
     super(parent, initial);
     this.parent = parent;
-    this.framesByTimestamp = /* @__PURE__ */ new Map();
-    this.framesByMs = /* @__PURE__ */ new Map();
-    this.framesByIndex = /* @__PURE__ */ new Map();
-    this.localTimeline = [];
-    this._onChangeListeners = /* @__PURE__ */ new Map();
     const startOfSequence = this.parent.frames[0].timestamp;
     this.frames = this.parent.frames.map((frame, index) => {
       const ms = frame.timestamp - startOfSequence;
@@ -78,12 +57,18 @@ var TimelineDriveOld = class extends AbstractProperty {
     });
     this._currentFrame = this.frames[0];
   }
+  frames;
   get duration() {
     return this.parent.duration;
   }
   get frameCount() {
     return this.frames.length;
   }
+  framesByTimestamp = /* @__PURE__ */ new Map();
+  framesByMs = /* @__PURE__ */ new Map();
+  framesByIndex = /* @__PURE__ */ new Map();
+  localTimeline = [];
+  _currentFrame;
   set currentFrame(frame) {
     if (frame.ms !== this._currentFrame.ms) {
       this._currentFrame = frame;
@@ -108,6 +93,7 @@ var TimelineDriveOld = class extends AbstractProperty {
     }
     return void 0;
   }
+  _onChangeListeners = /* @__PURE__ */ new Map();
   /** Event listener to changement of the current frame.
    * - the current frame is not changed every time the value changes
    * - the current frame is changed only when the ms value points fo a new previous frame
@@ -186,6 +172,7 @@ var TimelineDriveOld = class extends AbstractProperty {
       millis
     ].join(":");
   }
+  timer;
   play() {
     this.timer = setInterval(() => {
       this.goToNextFrame();
@@ -222,23 +209,75 @@ var CursorValueDrive = class extends AbstractProperty {
   }
 };
 
-// src/file/IFileInstance.ts
+// src/utils/pool.ts
+var workerpool = await import("workerpool");
+var pool = workerpool.pool({
+  maxWorkers: 6
+});
+var pool_default = pool;
+
+// src/base/BaseStructureObject.ts
+var BaseStructureObject = class {
+  pool = pool_default;
+};
+
+// src/file/AbstractFile.ts
 var AbstractFile = class extends BaseStructureObject {
+  id;
+  horizontalLimit;
+  verticalLimit;
+  group;
+  url;
+  thermalUrl;
+  visibleUrl;
+  fileName;
+  frameCount;
+  frames = [];
+  signature = "unknown";
+  version = -1;
+  streamCount = -1;
+  fileDataType = -1;
+  unit = -1;
+  width;
+  height;
+  timestamp;
+  duration;
+  min;
+  max;
+  _isHover = false;
+  get isHover() {
+    return this._isHover;
+  }
+  set isHover(value) {
+    this._isHover = value;
+  }
+  // DOM root
+  root = null;
+  // DOM layers
+  canvasLayer;
+  visibleLayer;
+  cursorLayer;
+  listenerLayer;
+  // Drives
+  timeline;
+  cursorValue;
+  _mounted = false;
+  get mountedBaseLayers() {
+    return this._mounted;
+  }
+  set mountedBaseLayers(value) {
+    this._mounted = value;
+  }
+  _pixels;
+  get pixels() {
+    return this._pixels;
+  }
+  set pixels(value) {
+    this._pixels = value;
+    this.onSetPixels(value);
+  }
   constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
     super();
-    this.frames = [];
-    this.signature = "unknown";
-    this.version = -1;
-    this.streamCount = -1;
-    this.fileDataType = -1;
-    this.unit = -1;
-    this._isHover = false;
-    // DOM root
-    this.root = null;
-    this._mounted = false;
-    /** @deprecated */
-    this._onHover = void 0;
-    this._onClick = void 0;
     this.group = group;
     this.id = this.formatId(thermalUrl);
     this.url = thermalUrl;
@@ -255,25 +294,6 @@ var AbstractFile = class extends BaseStructureObject {
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
-  }
-  get isHover() {
-    return this._isHover;
-  }
-  set isHover(value) {
-    this._isHover = value;
-  }
-  get mountedBaseLayers() {
-    return this._mounted;
-  }
-  set mountedBaseLayers(value) {
-    this._mounted = value;
-  }
-  get pixels() {
-    return this._pixels;
-  }
-  set pixels(value) {
-    this._pixels = value;
-    this.onSetPixels(value);
   }
   /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
   attachToDom(container) {
@@ -390,6 +410,8 @@ var AbstractFile = class extends BaseStructureObject {
     }
   }
   /** @deprecated */
+  _onHover = void 0;
+  /** @deprecated */
   setHoverHandler(handler) {
     this._onHover = handler;
   }
@@ -400,6 +422,7 @@ var AbstractFile = class extends BaseStructureObject {
         this.root.style.cursor = value;
     }
   }
+  _onClick = void 0;
   setClickHandler(handler = void 0) {
     this._onClick = handler;
   }
@@ -430,8 +453,8 @@ var ThermalFileExport = class {
 var AbstractLayer = class {
   constructor(instance) {
     this.instance = instance;
-    this._mounted = false;
   }
+  _mounted = false;
   get mounted() {
     return this._mounted;
   }
@@ -616,6 +639,8 @@ var VisibleLayer = class extends AbstractLayer {
       this.container.appendChild(this.image);
     }
   }
+  container;
+  image;
   get url() {
     return this._url;
   }
@@ -639,17 +664,10 @@ var VisibleLayer = class extends AbstractLayer {
 
 // src/file/instanceUtils/thermalCanvasLayer.ts
 var ThermalCanvasLayer = class extends AbstractLayer {
-  constructor(instance) {
-    super(instance);
-    this.pool = pool_default;
-    this._opacity = 1;
-    this.container = ThermalDomFactory.createCanvasContainer();
-    this.canvas = ThermalDomFactory.createCanvas();
-    this.canvas.width = this.instance.width;
-    this.canvas.height = this.instance.height;
-    this.context = this.canvas.getContext("2d");
-    this.container.appendChild(this.canvas);
-  }
+  pool = pool_default;
+  container;
+  canvas;
+  context;
   // protected offscreen: OffscreenCanvas;
   get width() {
     return this.instance.width;
@@ -666,6 +684,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   get to() {
     return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.to : this.instance.max;
   }
+  _opacity = 1;
   get opacity() {
     return this._opacity;
   }
@@ -676,6 +695,15 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     else {
       this.getLayerRoot().style.removeProperty("opacity");
     }
+  }
+  constructor(instance) {
+    super(instance);
+    this.container = ThermalDomFactory.createCanvasContainer();
+    this.canvas = ThermalDomFactory.createCanvas();
+    this.canvas.width = this.instance.width;
+    this.canvas.height = this.instance.height;
+    this.context = this.canvas.getContext("2d");
+    this.container.appendChild(this.canvas);
   }
   getLayerRoot() {
     return this.container;
@@ -734,11 +762,13 @@ var ThermalCanvasLayer = class extends AbstractLayer {
 
 // src/file/instanceUtils/thermalCursorLayer.ts
 var ThermalCursorLayer = class extends AbstractLayer {
+  layerRoot;
+  center;
+  axisX;
+  axisY;
+  label;
   constructor(instance) {
     super(instance);
-    // Set visible / invisible
-    this._show = false;
-    this._hover = false;
     this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
     this.center = ThermalDomFactory.createCursorLayerCenter();
     this.axisX = ThermalDomFactory.createCursorLayerX();
@@ -749,6 +779,8 @@ var ThermalCursorLayer = class extends AbstractLayer {
     this.center.appendChild(this.axisY);
     this.center.appendChild(this.label);
   }
+  // Set visible / invisible
+  _show = false;
   get show() {
     return this._show;
   }
@@ -756,6 +788,7 @@ var ThermalCursorLayer = class extends AbstractLayer {
     this._show = value;
     this.layerRoot.style.opacity = this._show ? "1" : "0";
   }
+  _hover = false;
   get hover() {
     return this._hover;
   }
@@ -822,6 +855,7 @@ var ThermalCursorLayer = class extends AbstractLayer {
 
 // src/file/instanceUtils/thermalListenerLayer.ts
 var ThermalListenerLayer = class extends AbstractLayer {
+  container;
   constructor(instance) {
     super(instance);
     this.container = ThermalDomFactory.createListener();
@@ -898,6 +932,10 @@ var ThermalFileInstance = class extends AbstractFile {
   get dataTypeHuman() {
     return this.dataType === 0 ? "Float16" : this.dataType === 1 ? "Float32" : this.dataType === 2 ? "Int16" : "error parsing data type";
   }
+  /**
+   * Exports
+   */
+  _export;
   /** Lazy-loaded `ThermalFileExport` object */
   get export() {
     if (!this._export) {
@@ -922,76 +960,20 @@ var ThermalFileInstance = class extends AbstractFile {
   }
 };
 
-// src/file/ThermalFileSource.ts
-var ThermalFileSource = class extends BaseStructureObject {
-  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, frameCount, frames, visibleUrl) {
-    super();
-    this.url = url;
-    this.signature = signature;
-    this.version = version;
-    this.streamCount = streamCount;
-    this.fileDataType = fileDataType;
-    this.unit = unit;
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.pixels = pixels;
-    this.min = min;
-    this.max = max;
-    this.frameCount = frameCount;
-    this.frames = frames;
-    this.visibleUrl = visibleUrl;
-    this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
-    let totalPixelsBuffer = [];
-    this.frames.forEach((frame) => {
-      totalPixelsBuffer = totalPixelsBuffer.concat(frame.pixels);
-    });
-    this.pixelsForHistogram = totalPixelsBuffer;
-    this.duration = this.frames.length === 0 ? 0 : this.frames[this.frames.length - 1].timestamp - this.frames[0].timestamp;
-  }
-  static async fromUrl(thermalUrl, visibleUrl) {
-    try {
-      const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-      return file;
-    } catch (error) {
-      return null;
-    }
-  }
-  static async fromUrlWithErrors(thermalUrl, visibleUrl) {
-    return await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-  }
-  createInstance(group) {
-    const instance = new ThermalFileInstance(this, group);
-    instance.postInit();
-    return instance;
-  }
-};
+// src/loading/mainThread/parsers/thermalLoader.ts
+import fetch2 from "cross-fetch";
 
-// src/parsers/AbstractParser.ts
+// src/loading/mainThread/parsers/AbstractParser.ts
 var AbstractParser = class {
   constructor(url, blob, visibleUrl) {
     this.url = url;
     this.blob = blob;
     this.visibleUrl = visibleUrl;
-    this.isValidTimestamp = (value) => Number.isInteger(value);
-    this.isValidWidth = (value) => Number.isInteger(value);
-    this.isValidHeight = (value) => Number.isInteger(value);
-    this.isValidPixels = (value) => {
-      return value !== void 0 && value.length === this.width * this.height;
-    };
-    this.isValidMin = (value) => value !== void 0;
-    this.isValidMax = (value) => value !== void 0;
-    this.isValidFrameCount = (value) => Number.isInteger(value);
-    this.isValidFrames = (value) => {
-      if (value === void 0) return false;
-      if (this.frameCount === void 0) return false;
-      else
-        return value.length === this.frameCount;
-    };
-    // Error logging
-    /** Buffer of errors that occured during the parsing. */
-    this.errors = [];
   }
+  /** DataView on the entire file contents. */
+  data;
+  /** FrameBuffer */
+  frameSubset;
   /** Create the dataview */
   async init() {
     const buffer = await this.blob.arrayBuffer();
@@ -1006,52 +988,86 @@ var AbstractParser = class {
     await this.parseFile();
     return this.getThermalFile();
   }
+  // Common data parsing
+  // Timestamp
+  timestamp;
+  isValidTimestamp = (value) => Number.isInteger(value);
   parseTimestamp() {
     const value = this.getTimestamp();
     if (!this.isValidTimestamp(value))
       this.logValidationError("timestamp", value);
     this.timestamp = value;
   }
+  // Width
+  width;
+  isValidWidth = (value) => Number.isInteger(value);
   parseWidth() {
     const value = this.getWidth();
     if (!this.isValidWidth(value))
       this.logValidationError("width", value);
     this.width = value;
   }
+  // Height
+  height;
+  isValidHeight = (value) => Number.isInteger(value);
   parseHeight() {
     const value = this.getHeight();
     if (!this.isValidHeight(value))
       this.logValidationError("height", value);
     this.height = value;
   }
+  // Common data parsing
+  pixels;
+  isValidPixels = (value) => {
+    return value !== void 0 && value.length === this.width * this.height;
+  };
   async parsePixels() {
     const value = this.getPixels();
     this.pixels = value;
   }
+  // Min
+  min;
+  isValidMin = (value) => value !== void 0;
   parseMin() {
     const value = this.getMin();
     if (!this.isValidMin(value))
       this.logValidationError("min", value);
     this.min = value;
   }
+  // Max
+  max;
+  isValidMax = (value) => value !== void 0;
   parseMax() {
     const value = this.getMax();
     if (!this.isValidMax(value))
       this.logValidationError("max", value);
     this.max = value;
   }
+  // Frame count
+  frameCount;
+  isValidFrameCount = (value) => Number.isInteger(value);
   parseFrameCount() {
     const value = this.getFrameCount();
     if (!this.isValidFrameCount(value))
       this.logValidationError("frameCount", value);
     this.frameCount = value;
   }
+  frames;
+  isValidFrames = (value) => {
+    if (value === void 0) return false;
+    if (this.frameCount === void 0) return false;
+    else
+      return value.length === this.frameCount;
+  };
   parseFrames() {
     const value = this.getFrames();
     if (!this.isValidFrames(value))
       this.logValidationError("frames", value.toString());
     this.frames = value;
   }
+  // Error logging
+  /** Buffer of errors that occured during the parsing. */
+  errors = [];
   /** Store an error. */
   logError(message) {
     console.error(message);
@@ -1074,7 +1090,7 @@ var AbstractParser = class {
   }
 };
 
-// src/parsers/lrc/LrcUtils.ts
+// src/loading/mainThread/parsers/lrc/LrcUtils.ts
 var LrcUtils = class {
   static readDotnetTimestamp(byteOffset, view) {
     const bigIntTime = view.getBigInt64(byteOffset, true);
@@ -1120,7 +1136,7 @@ var LrcUtils = class {
   }
 };
 
-// src/parsers/lrc/LrcFrameParser.ts
+// src/loading/mainThread/parsers/lrc/LrcFrameParser.ts
 var LrcFrameParser = class {
   constructor(arrayBuffer, width, height, dataType, frameCount, frameByteSize, pixelByteSize) {
     this.arrayBuffer = arrayBuffer;
@@ -1165,32 +1181,14 @@ var LrcFrameParser = class {
   }
 };
 
-// src/parsers/lrc/lrcParser.ts
+// src/loading/mainThread/parsers/lrc/lrcParser.ts
 var LrcParser = class extends AbstractParser {
-  constructor() {
-    super(...arguments);
-    // Signature
-    this.isValidSignature = (value) => value === "LRC\0";
-    // Version
-    this.isValidVersion = (value) => value === 2;
-    // Stream count
-    // pro LRC z běžné kamery musí být vždy 1
-    // Je-li streamů více, obsahují doplňkové údaje viz Unit
-    this.isStreamCountValid = (value) => value === 1;
-    // File data type
-    // 0 = float16
-    // 1 = float32 - tento je z LabIR Edu kamery
-    // 2 = int16
-    this.isDataTypeValid = (value) => value === void 0 ? false : [0, 1, 2].includes(value);
-    // Unit
-    // 0 = none
-    // 1 = intensity (surová data z termokamery - nelze přepočítat bez kalibrační křivky snímače)
-    // 2 = stupně celsia
-    // 3 = kelviny (přepočítat jednoduše)
-    // 4 = čas (mimo kontext - neřešit)
-    // 5 = úhel v radiánech čas (mimo kontext - neřešit)
-    this.isValidUnit = (value) => value === 2;
-  }
+  _signature;
+  _version;
+  _streamCount;
+  _fileDataType;
+  _pixelByteLength;
+  _unit;
   async parseFile() {
     await this.parseSignature();
     this.parseVersion();
@@ -1206,6 +1204,8 @@ var LrcParser = class extends AbstractParser {
     this.parseMax();
     await this.parsePixels();
   }
+  // Signature
+  isValidSignature = (value) => value === "LRC\0";
   async parseSignature() {
     const value = await this.readString(0, 4);
     if (!this.isValidSignature(value)) {
@@ -1213,18 +1213,29 @@ var LrcParser = class extends AbstractParser {
     }
     this._signature = value;
   }
+  // Version
+  isValidVersion = (value) => value === 2;
   parseVersion() {
     const value = this.read8bNumber(4);
     if (!this.isValidVersion(value))
       this.logValidationError("version", value);
     this._version = value;
   }
+  // Stream count
+  // pro LRC z běžné kamery musí být vždy 1
+  // Je-li streamů více, obsahují doplňkové údaje viz Unit
+  isStreamCountValid = (value) => value === 1;
   parseStreamCount() {
     const value = this.read8bNumber(14);
     if (!this.isStreamCountValid(value))
       this.logValidationError("streamCount", value);
     this._streamCount = value;
   }
+  // File data type
+  // 0 = float16
+  // 1 = float32 - tento je z LabIR Edu kamery
+  // 2 = int16
+  isDataTypeValid = (value) => value === void 0 ? false : [0, 1, 2].includes(value);
   parseDataType() {
     const value = this.read8bNumber(15);
     if (!this.isDataTypeValid(value))
@@ -1236,6 +1247,14 @@ var LrcParser = class extends AbstractParser {
   get pixelByteLength() {
     return this._pixelByteLength;
   }
+  // Unit
+  // 0 = none
+  // 1 = intensity (surová data z termokamery - nelze přepočítat bez kalibrační křivky snímače)
+  // 2 = stupně celsia
+  // 3 = kelviny (přepočítat jednoduše)
+  // 4 = čas (mimo kontext - neřešit)
+  // 5 = úhel v radiánech čas (mimo kontext - neřešit)
+  isValidUnit = (value) => value === 2;
   parseUnit() {
     const value = this.read8bNumber(16);
     if (!this.isValidUnit(value))
@@ -1367,8 +1386,12 @@ var LrcParser = class extends AbstractParser {
   }
 };
 
-// src/parsers/thermalLoader.ts
+// src/loading/mainThread/parsers/thermalLoader.ts
 var ThermalLoader = class _ThermalLoader {
+  thermalUrl;
+  visibleUrl;
+  parser;
+  blob;
   constructor() {
   }
   /** Load a thermal file from an URL and return a `ThermalFileSource` instance. */
@@ -1410,22 +1433,82 @@ var ThermalLoader = class _ThermalLoader {
   }
 };
 
-// src/properties/drives/OpacityDrive.ts
-var OpacityDrive = class extends AbstractProperty {
-  /** Make sure the value is allways between 0 and 1 */
+// src/file/ThermalFileSource.ts
+var ThermalFileSource = class extends BaseStructureObject {
+  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, frameCount, frames, visibleUrl) {
+    super();
+    this.url = url;
+    this.signature = signature;
+    this.version = version;
+    this.streamCount = streamCount;
+    this.fileDataType = fileDataType;
+    this.unit = unit;
+    this.width = width;
+    this.height = height;
+    this.timestamp = timestamp;
+    this.pixels = pixels;
+    this.min = min;
+    this.max = max;
+    this.frameCount = frameCount;
+    this.frames = frames;
+    this.visibleUrl = visibleUrl;
+    this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
+    let totalPixelsBuffer = [];
+    this.frames.forEach((frame) => {
+      totalPixelsBuffer = totalPixelsBuffer.concat(frame.pixels);
+    });
+    this.pixelsForHistogram = totalPixelsBuffer;
+    this.duration = this.frames.length === 0 ? 0 : this.frames[this.frames.length - 1].timestamp - this.frames[0].timestamp;
+  }
+  fileName;
+  pixelsForHistogram;
+  duration;
+  static async fromUrl(thermalUrl, visibleUrl) {
+    try {
+      const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
+      return file;
+    } catch (error) {
+      return null;
+    }
+  }
+  static async fromUrlWithErrors(thermalUrl, visibleUrl) {
+    return await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
+  }
+  createInstance(group) {
+    const instance = new ThermalFileInstance(this, group);
+    instance.postInit();
+    return instance;
+  }
+};
+
+// src/properties/abstractMinmaxProperty.ts
+var AbstractMinmaxProperty = class extends AbstractProperty {
+  /** Get the current distance between min and max */
+  get distanceInCelsius() {
+    if (this.value === void 0) {
+      return void 0;
+    }
+    return Math.abs(this.value.min - this.value.max);
+  }
+};
+
+// src/properties/drives/CursorPositionDrive.ts
+var CursorPositionDrive = class extends AbstractProperty {
+  _hover = this.value !== void 0;
+  get hover() {
+    return this._hover;
+  }
   validate(value) {
-    return Math.min(Math.max(0, value), 1);
+    return value;
   }
-  /** 
-   * Whenever the opacity changes, propagate the value to all instances
-   */
+  // After the position changes, update the hover & project the position in all instances
   afterSetEffect(value) {
-    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+    this._hover = this.value !== void 0;
+    this.parent.instances.forEveryInstance((instance) => instance.recieveCursorPosition(value));
+    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
   }
-  /** Impose an opacity to all instances */
-  imposeOpacity(value) {
-    this.value = value;
-    return this.value;
+  recieveCursorPosition(position) {
+    this.value = position;
   }
 };
 
@@ -1494,1071 +1577,6 @@ var RangeDriver = class extends AbstractProperty {
       };
       this.imposeRange(newRange);
     }
-  }
-};
-
-// src/properties/drives/CursorPositionDrive.ts
-var CursorPositionDrive = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._hover = this.value !== void 0;
-  }
-  get hover() {
-    return this._hover;
-  }
-  validate(value) {
-    return value;
-  }
-  // After the position changes, update the hover & project the position in all instances
-  afterSetEffect(value) {
-    this._hover = this.value !== void 0;
-    this.parent.instances.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-  }
-  recieveCursorPosition(position) {
-    this.value = position;
-  }
-};
-
-// src/properties/lists/filesState.ts
-var FilesState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._requestedRemovals = /* @__PURE__ */ new Map();
-    this._map = /* @__PURE__ */ new Map();
-  }
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  addFile(file) {
-    if (!this._map.has(file.url)) {
-      this.value = [...this.value, file];
-      return file;
-    } else {
-      return this._map.get(file.url);
-    }
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-};
-
-// src/properties/lists/InstancesState.ts
-var InstancesState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._requestedRemovals = /* @__PURE__ */ new Map();
-    this._map = /* @__PURE__ */ new Map();
-  }
-  enqueueAdd(thermalUrl, visibleUrl, callback) {
-    this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (source, error) => {
-      if (source instanceof ThermalFileSource) {
-        const instance = this.instantiateSource(source);
-        if (callback) {
-          callback(instance);
-        }
-      } else if (callback) {
-        callback(void 0, error ?? "N\u011Bco se pokazilo v instanci");
-      }
-    });
-  }
-  enqueueRemove(thermalUrl, callback) {
-    if (this._requestedRemovals.has(thermalUrl)) {
-      if (callback)
-        this._requestedRemovals.get(thermalUrl).callbacks.push(callback);
-    } else {
-      this._requestedRemovals.set(thermalUrl, {
-        url: thermalUrl,
-        callbacks: callback ? [callback] : []
-      });
-    }
-  }
-  async cleanup() {
-    const flatRemovalUrls = Object.values(this._requestedRemovals).map((item) => item.url);
-    this.value = this.value.filter((instance) => {
-      const shouldRemove = flatRemovalUrls.includes(instance.url);
-      if (shouldRemove) {
-        this._requestedRemovals.get(instance.url)?.callbacks.forEach((callback) => callback());
-        return true;
-      }
-      return false;
-    });
-    this._requestedRemovals.clear();
-    this.parent.registry.postLoadedProcessing();
-  }
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  /** 
-   * Creation of of single instance 
-   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
-   */
-  instantiateSource(source) {
-    if (!this._map.has(source.url)) {
-      const instance = source.createInstance(this.parent);
-      this.value = [...this.value, instance];
-      return instance;
-    } else {
-      return this._map.get(source.url);
-    }
-  }
-  /**
-   * Creation of instances at once
-   * - triggers listeners only once
-   */
-  instantiateSources(sources) {
-    const newValue = [];
-    sources.forEach((source) => {
-      if (!this._map.has(source.url)) {
-        newValue.push(source.createInstance(this.parent));
-      }
-    });
-    this.value = newValue;
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-};
-
-// src/properties/abstractMinmaxProperty.ts
-var AbstractMinmaxProperty = class extends AbstractProperty {
-  /** Get the current distance between min and max */
-  get distanceInCelsius() {
-    if (this.value === void 0) {
-      return void 0;
-    }
-    return Math.abs(this.value.min - this.value.max);
-  }
-};
-
-// src/properties/states/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
-  }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.files.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
-  }
-};
-
-// src/group/ThermalGroup.ts
-var ThermalGroup = class extends BaseStructureObject {
-  constructor(registry, id, name, description) {
-    super();
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
-    this.hash = Math.random();
-    this.minmax = new MinmaxGroupProperty(this, void 0);
-    this.instances = new InstancesState(this, []);
-    this.files = new FilesState(this, []);
-    this.cursorPosition = new CursorPositionDrive(this, void 0);
-    /** Iteration */
-    this.forEveryInstance = (fn) => {
-      this.instances.value.forEach((instance) => fn(instance));
-    };
-  }
-  /**
-   * Destruction
-   */
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.instances.removeAllInstances();
-  }
-  reset() {
-    this.instances.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-  }
-};
-
-// src/properties/lists/GroupsState.ts
-var GroupsState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._map = /* @__PURE__ */ new Map();
-  }
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect(value) {
-    this._map.clear();
-    value.forEach((group) => this._map.set(group.id, group));
-  }
-  addOrGetGroup(groupId, name, description) {
-    if (this._map.has(groupId)) {
-      return this._map.get(groupId);
-    }
-    const group = new ThermalGroup(this.parent, groupId, name, description);
-    this._map.set(groupId, group);
-    this.value.push(group);
-    this.value = [...this.value];
-    return group;
-  }
-  removeGroup(groupId) {
-    if (!this._map.has(groupId)) {
-      return;
-    }
-    this._map.get(groupId)?.destroySelfAndBelow();
-    this._map.delete(groupId);
-    this.value = Array.from(this._map.values());
-  }
-  removeAllGroups() {
-    this.value.forEach((group) => group.destroySelfAndBelow());
-    this.value = [];
-  }
-};
-
-// src/loading/workers/parsers/histogram.ts
-var registryHistogram = async (files) => {
-  let pixels = [];
-  const readFile = async (file) => {
-    const headerView = new DataView(file.slice(0, 25));
-    const dataType = headerView.getUint8(15);
-    const width = headerView.getUint16(17, true);
-    const height = headerView.getUint16(19, true);
-    const pixelByteSize = dataType === 1 ? 4 : 2;
-    const frameHeaderSize = 57;
-    const framePixelsSize = width * height * pixelByteSize;
-    const frameSize = frameHeaderSize + framePixelsSize;
-    const streamSubset = file.slice(25);
-    const frameCount = streamSubset.byteLength / frameSize;
-    let filePixels = [];
-    for (let i = 0; i < frameCount; i++) {
-      const frameStart = i * frameSize;
-      const pixelsSubsetStart = frameStart + 57;
-      const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
-      const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
-      if (dataType === 0) {
-        const array = new Uint16Array(pixelsSubset);
-        const UINT16_MAX = 65535;
-        array.forEach((pixel) => {
-          const mappedValue = pixel / UINT16_MAX;
-        });
-      } else if (dataType === 1) {
-        filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
-      }
-    }
-    return filePixels;
-  };
-  const result = await Promise.all(files.map((file) => readFile(file)));
-  result.forEach((fileResult) => {
-    pixels = pixels.concat(fileResult);
-  });
-  pixels.sort((a, b) => {
-    return a - b;
-  });
-  const min = pixels[0];
-  const max = pixels[pixels.length - 1];
-  const distance = Math.abs(min - max);
-  const resolution = 200;
-  const step = distance / resolution;
-  const bars = [];
-  let buf = [...pixels];
-  for (let i = 0; i < resolution; i++) {
-    const from = min + step * i;
-    const to = from + step;
-    const nextUpIndex = buf.findIndex((pixel) => pixel > to);
-    const subs = buf.slice(0, nextUpIndex - 1);
-    const count = subs.length;
-    const percentage = count / pixels.length * 100;
-    const bar = {
-      from,
-      to,
-      count,
-      percentage
-    };
-    bars.push(bar);
-    buf = buf.slice(nextUpIndex);
-  }
-  const sortedByPercentage = [...bars].sort((a, b) => {
-    return a.percentage - b.percentage;
-  });
-  const minPercent = sortedByPercentage[0].percentage;
-  const maxPercent = sortedByPercentage[sortedByPercentage.length - 1].percentage;
-  const percentDistance = Math.abs(minPercent - maxPercent);
-  const final = bars.map((bar) => {
-    return {
-      ...bar,
-      height: bar.percentage / percentDistance * 100
-    };
-  });
-  return final;
-};
-
-// src/loading/workers/parsers/LrcParser.ts
-var extensions = [{
-  extension: "lrc",
-  minme: "application/octet-stream"
-}];
-var is = (data, url) => {
-  const hasCorrectExtension = url.endsWith("lrc");
-  const decoder = new TextDecoder();
-  const hasCorrectSignature = decoder.decode(data.slice(0, 4)) === "LRC\0";
-  return hasCorrectExtension && hasCorrectSignature;
-};
-var baseInfo = async (entireFileBuffer) => {
-  const view = new DataView(entireFileBuffer);
-  const width = view.getUint16(17, true);
-  const height = view.getUint16(19, true);
-  const bytesize = entireFileBuffer.byteLength;
-  const readTimestamp = (readingView, index) => {
-    const bigIntTime = readingView.getBigInt64(index, true);
-    const UnixEpoch = 62135596800000n;
-    const TicksPerMillisecond = 10000n;
-    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-    const TicksCeiling = 0x4000000000000000n;
-    const LocalMask = 0x8000000000000000n;
-    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-    let ticks = bigIntTime & TicksMask;
-    const isLocalTime = bigIntTime & LocalMask;
-    if (isLocalTime) {
-      if (ticks > TicksCeiling - TicksPerDay) {
-        ticks -= TicksCeiling;
-      }
-      if (ticks < 0) {
-        ticks += TicksPerDay;
-      }
-    }
-    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-    return Number(milliseconds);
-  };
-  const timestamp = readTimestamp(view, 5);
-  const dataType = view.getUint8(15);
-  let pixelByteSize = 2;
-  if (dataType === 1) pixelByteSize = 4;
-  const frameHeaderByteSize = 57;
-  const framePixelsSize = width * height * pixelByteSize;
-  const frameSize = frameHeaderByteSize + framePixelsSize;
-  const streamSubset = entireFileBuffer.slice(25);
-  const frameCount = streamSubset.byteLength / frameSize;
-  const readFrame = (index) => {
-    const frameSubsetStart = index * frameSize;
-    const frameSubsetEnd = frameSubsetStart + frameSize;
-    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-    const frameView = new DataView(frameArrayBuffer);
-    const min = frameView.getFloat32(8, true);
-    const max = frameView.getFloat32(12, true);
-    const timestamp2 = readTimestamp(frameView, 0);
-    const emissivity = frameView.getFloat32(24, true);
-    const reflectedKelvins = frameView.getFloat32(28, true);
-    return {
-      timestamp: timestamp2,
-      min,
-      max,
-      emissivity,
-      reflectedKelvins
-    };
-  };
-  const frames = [];
-  for (let i = 0; i < frameCount; i++) {
-    const frame = readFrame(i);
-    frames.push(frame);
-  }
-  const sums = {
-    emissivity: 0,
-    reflectedKelvins: 0
-  };
-  let currentMin = Infinity;
-  let currentMax = -Infinity;
-  const timestamps = [];
-  frames.forEach((frame) => {
-    sums.emissivity = sums.emissivity + frame.emissivity;
-    sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
-    if (frame.min < currentMin) {
-      currentMin = frame.min;
-    }
-    if (frame.max > currentMax) {
-      currentMax = frame.max;
-    }
-    timestamps.push(frame.timestamp);
-  });
-  const timelineStart = timestamps[0];
-  let timelineCursor = 0;
-  const timeline = [];
-  const f = [];
-  timestamps.forEach((t, index) => {
-    const next = timestamps[index + 1];
-    let offset = 0;
-    if (next === void 0) {
-      offset = 0;
-    }
-    offset = next - t;
-    const relative = t - timelineStart;
-    timeline.push(offset);
-    timelineCursor = timelineCursor + offset;
-    f.push({
-      absolute: t,
-      relative,
-      // isNaN( relativeTime ) ? 0 : relativeTime,
-      offset: isNaN(offset) ? 0 : offset,
-      index
-    });
-  });
-  const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
-  const frameInterval = duration / frameCount;
-  const fps = 1e3 / frameInterval;
-  return {
-    width,
-    height,
-    timestamp,
-    bytesize,
-    frameCount,
-    duration,
-    frameInterval,
-    fps,
-    timeline: f,
-    min: currentMin,
-    max: currentMax,
-    averageEmissivity: sums.emissivity / frames.length,
-    averageReflectedKelvins: sums.reflectedKelvins / frames.length
-  };
-};
-var getFrameSubset = (entireFileBuffer, index) => {
-  const headerView = new DataView(entireFileBuffer.slice(0, 25));
-  const dataType = headerView.getUint8(15);
-  const width = headerView.getUint16(17, true);
-  const height = headerView.getUint16(19, true);
-  const pixelByteSize = dataType === 1 ? 4 : 2;
-  const frameHeaderSize = 57;
-  const framePixelsSize = width * height * pixelByteSize;
-  const frameSize = frameHeaderSize + framePixelsSize;
-  const streamSubset = entireFileBuffer.slice(25);
-  const frameSubsetStart = index * frameSize;
-  const frameSubsetEnd = frameSubsetStart + frameSize;
-  const frameSubset = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-  return {
-    array: frameSubset,
-    dataType
-  };
-};
-var frameData = async (frameSubset, dataType) => {
-  const view = new DataView(frameSubset);
-  const bigIntTime = view.getBigInt64(0, true);
-  const UnixEpoch = 62135596800000n;
-  const TicksPerMillisecond = 10000n;
-  const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-  const TicksCeiling = 0x4000000000000000n;
-  const LocalMask = 0x8000000000000000n;
-  const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-  let ticks = bigIntTime & TicksMask;
-  const isLocalTime = bigIntTime & LocalMask;
-  if (isLocalTime) {
-    if (ticks > TicksCeiling - TicksPerDay) {
-      ticks -= TicksCeiling;
-    }
-    if (ticks < 0) {
-      ticks += TicksPerDay;
-    }
-  }
-  const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-  const timestamp = Number(milliseconds);
-  const min = view.getFloat32(8, true);
-  const max = view.getFloat32(12, true);
-  const emissivity = view.getFloat32(24, true);
-  const reflectedKelvins = view.getFloat32(28, true);
-  const subset = frameSubset.slice(57);
-  let pixels = [];
-  if (dataType === 0) {
-    const array = new Uint16Array(subset);
-    const distance = Math.abs(min - max);
-    const UINT16_MAX = 65535;
-    array.forEach((pixel) => {
-      const mappedValue = pixel / UINT16_MAX;
-      pixels.push(min + distance * mappedValue);
-    });
-  } else if (dataType === 1) {
-    pixels = Array.from(new Float32Array(subset));
-  }
-  return {
-    timestamp,
-    min,
-    max,
-    emissivity,
-    reflectedKelvins,
-    pixels
-  };
-};
-var parser = {
-  name: "LabIR Recording (.lrc)",
-  description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
-  devices: [{
-    deviceName: "TIMI Edu Infrared Camera",
-    deviceUrl: "https://edu.labir.cz",
-    manufacturer: "TIMI Creation, s.r.o.",
-    manufacturerUrl: "https://timic.cz"
-  }],
-  extensions,
-  is,
-  baseInfo,
-  getFrameSubset,
-  frameData,
-  registryHistogram
-};
-var LrcParser2 = Object.freeze(parser);
-
-// src/properties/states/HistogramState.ts
-var HistogramState = class extends AbstractProperty {
-  constructor() {
-    super(...arguments);
-    this._resolution = 150;
-    /** Map of temperature => countOfPixels in the scaled down resolution */
-    this.buffer = /* @__PURE__ */ new Map();
-    /** Total countOfPixels in every image */
-    this.bufferPixelsCount = 0;
-    /**  */
-    this._bufferResolution = 1e3;
-  }
-  get resolution() {
-    return this._resolution;
-  }
-  set bufferResolution(value) {
-    this._bufferResolution = Math.round(Math.max(value, 1e3));
-  }
-  get bufferResolution() {
-    return this._bufferResolution;
-  }
-  /** Set the historgam resolution
-   * - does not recalculate the value!
-   * - to recalculate value, call `recalculateWithCurrentSetting`
-   * 
-   * @notice Higher the number, lower the resolution.
-  */
-  setResolution(value) {
-    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
-  }
-  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-  validate(value) {
-    if (value.length !== this.resolution + 1 && value.length !== 0) {
-    }
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Recalculates the value using all current instances and with che current resolution */
-  recalculateWithCurrentSetting() {
-    this.recalculateHistogram();
-    return this.value;
-  }
-  /** 
-   * Recalculate the histogram buffer using web workers.
-   * This is an async operation using `workerpool`
-   */
-  refreshBufferFromCurrentPixels() {
-    if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
-      const pixels = this.parent.groups.value.map((group) => {
-        return group.instances.value.map((instance) => instance.getPixelsForHistogram());
-      });
-      this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
-        const mergedPixels = instancesPixels.reduce((state, current) => {
-          const inner = current.reduce((state2, current2) => {
-            return [...state2, ...current2];
-          }, []);
-          return [...state, ...inner];
-        }, []);
-        let sortedPixels = mergedPixels.sort((a, b) => a - b);
-        const step = distance / resolution;
-        let nextStep = min + step;
-        const result = /* @__PURE__ */ new Map();
-        let resultCount = 0;
-        while (nextStep !== false) {
-          const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
-          const pixelCount = sortedPixels.slice(0, nextIndex).length;
-          result.set(nextStep - step / 2, pixelCount);
-          resultCount += pixelCount;
-          sortedPixels = sortedPixels.slice(nextIndex);
-          const nextStepTemporary = nextStep + step;
-          nextStep = nextStepTemporary < max ? nextStepTemporary : false;
-        }
-        return {
-          result,
-          resultCount
-        };
-      }, [
-        pixels,
-        this.parent.minmax.value.min,
-        this.parent.minmax.value.max,
-        this.parent.minmax.distanceInCelsius,
-        this._bufferResolution
-      ]).then((result) => {
-        this.buffer = result.result;
-        this.bufferPixelsCount = result.resultCount;
-        this.recalculateWithCurrentSetting();
-      });
-    }
-  }
-  async recalculateHistogram() {
-    const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
-      state = state.concat(current);
-      return state;
-    }, []);
-    const allBuffers = allFiles.map((reader) => reader.service.buffer);
-    const result = await this.parent.pool.exec(LrcParser2.registryHistogram, [allBuffers]);
-    this.value = result;
-  }
-  /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
-  _getHistorgramFromAllGroups() {
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-    }
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-      return [];
-    } else {
-      const allPixels = this.parent.groups.value.reduce((state, current) => {
-        const pixels = current.instances.value.reduce((buf, instance) => {
-          buf = [...buf, ...instance.pixels];
-          return buf;
-        }, []);
-        return [...state, ...pixels];
-      }, []);
-      const segments = [];
-      const numSegments = this.resolution;
-      const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
-      const segment = difference / numSegments;
-      for (let i = 0; i < numSegments; i++) {
-        const from = segment * i + this.parent.minmax.value.min;
-        const to = from + segment;
-        segments.push([from, to]);
-      }
-      const results = [];
-      let sum = allPixels.length;
-      for (const i of segments) {
-        const count = allPixels.filter((pixel) => {
-          return pixel >= i[0] && pixel < i[1];
-        }).length;
-        sum = sum + count;
-        results.push({
-          from: i[0],
-          to: i[1],
-          count
-        });
-      }
-      const recalculated = results.map((i) => {
-        return {
-          ...i,
-          percentage: i.count / sum * 100
-        };
-      });
-      const max = Math.max(...recalculated.map((item) => item.percentage));
-      return recalculated.map((item) => {
-        return {
-          ...item,
-          height: item.percentage / max * 100
-        };
-      });
-    }
-  }
-};
-
-// src/properties/states/LoadingState.ts
-var LoadingState = class extends AbstractProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  markAsLoading() {
-    this.value = true;
-  }
-  markAsLoaded() {
-    this.value = false;
-  }
-};
-
-// src/properties/states/MinmaxRegistryState.ts
-var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  recalculateFromGroups() {
-    const groups = this.parent.groups.value;
-    this.value = this._getMinmaxFromAllGroups(groups);
-    return this.value;
-  }
-  _getMinmaxFromAllGroups(groups) {
-    if (groups.length === 0) {
-      return void 0;
-    }
-    const minmax = groups.reduce((state, current) => {
-      if (current.minmax.value === void 0) {
-        return state;
-      }
-      return {
-        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
-        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
-      };
-    }, { min: Infinity, max: -Infinity });
-    return minmax;
-  }
-};
-
-// src/loading/sequential/ThermalFetcher.ts
-var ThermalFetcher = class {
-  constructor(registry) {
-    this.registry = registry;
-    this.requests = /* @__PURE__ */ new Map();
-  }
-  get requestArray() {
-    return Array.from(this.requests.values());
-  }
-  request(thermalUrl, visibleUrl, callback) {
-    if (this.requests.has(thermalUrl)) {
-      if (callback) {
-        this.requests.get(thermalUrl)?.callbacks.push(callback);
-      }
-    } else {
-      const newRequest = {
-        thermalUrl,
-        visibleUrl,
-        callbacks: callback ? [callback] : []
-      };
-      this.requests.set(thermalUrl, newRequest);
-    }
-    if (this.timer === void 0) {
-      this.timer = setTimeout(this.resolve.bind(this), 0);
-    }
-  }
-  async resolve() {
-    const result = await Promise.all(
-      this.requestArray.map(async (request) => {
-        const result2 = {
-          request
-        };
-        if (this.registry.manager.isUrlRegistered(request.thermalUrl)) {
-          result2.output = this.registry.manager.sourcesByUrl[request.thermalUrl];
-        } else {
-          try {
-            const source = await ThermalFileSource.fromUrlWithErrors(request.thermalUrl, request.visibleUrl);
-            if (source) {
-              result2.output = source;
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              result2.output = error.message;
-            }
-          }
-        }
-        return result2;
-      })
-    ).then((results) => {
-      return results.map((result2) => {
-        if (result2.output instanceof ThermalFileSource) {
-          result2.request.callbacks.forEach((callback) => {
-            callback(result2.output);
-            this.registry.manager.registerSource(result2.output);
-          });
-        } else {
-          result2.request.callbacks.forEach((callback) => {
-            if (result2.output instanceof ThermalFileSource === false)
-              callback(void 0, result2.output ?? "N\u011Bco se pokazilo");
-          });
-        }
-        return result2.output;
-      });
-    });
-    clearTimeout(this.timer);
-    this.timer = void 0;
-    this.registry.postLoadedProcessing();
-    return result;
-  }
-};
-
-// src/loading/batch/ThermalRequest.ts
-var ThermalRequest = class _ThermalRequest extends EventTarget {
-  constructor(group, url, visibleUrl) {
-    super();
-    this.group = group;
-    this.url = url;
-    this.visibleUrl = visibleUrl;
-  }
-  static single(group, thermalUrl, visibleUrl) {
-    return new _ThermalRequest(group, thermalUrl, visibleUrl);
-  }
-  static multiple(group, requests) {
-    return requests.map((request) => new _ThermalRequest(group, request.thermalUrl, request.visibleUrl));
-  }
-  async fetch() {
-    if (this.group.registry.manager.isUrlRegistered(this.url)) {
-      return {
-        file: this.group.registry.manager.sourcesByUrl[this.url],
-        request: this
-      };
-    }
-    const file = await ThermalFileSource.fromUrl(this.url, this.visibleUrl);
-    if (!file) {
-      return null;
-    } else if (file !== null) {
-      return {
-        file,
-        request: this
-      };
-    }
-    return null;
-  }
-};
-
-// src/loading/batch/ThermalRegistryLoader.ts
-var ThermalRegistryLoader = class {
-  constructor(registry) {
-    this.registry = registry;
-    /** Buffer of all pending requests */
-    this._requests = [];
-  }
-  get requests() {
-    return this._requests;
-  }
-  /** Loading state is stored in the registry */
-  get loading() {
-    return this.registry.loading.value;
-  }
-  /** Request a single file. To fetch it, call ``resolveQuery` */
-  requestFile(group, thermalUrl, visibleUrl) {
-    if (this.loading === true) {
-      console.error(`The registry ${this.registry.id} is already loading! Can not request  a single file!`);
-      return;
-    }
-    this._requests.push(ThermalRequest.single(group, thermalUrl, visibleUrl));
-  }
-  /** Request multiple files. To fetch them, call ``resolveQuery` */
-  requestFiles(group, requests) {
-    if (this.loading === true) {
-      console.error(`The group ${this.registry.id} is already loading! Can not request multiple files!`);
-      return;
-    }
-    this._requests = [
-      ...this._requests,
-      ...ThermalRequest.multiple(group, requests)
-    ];
-  }
-  /** @todo If there is an error, it is here. In the instancing, it seems that deleted groups remain and instances are binded to old groups. */
-  async resolveQuery() {
-    if (this.loading === true) {
-    }
-    const result = await Promise.all(
-      this._requests.map((request) => request.fetch())
-    );
-    const mapByGroups = {};
-    for (const response of result) {
-      if (response !== null) {
-        const file = this.registry.manager.registerSource(response.file);
-        if (response.request.group.id in mapByGroups === false) {
-          mapByGroups[response.request.group.id] = [file];
-        } else {
-          mapByGroups[response.request.group.id].push(file);
-        }
-      }
-    }
-    for (const groupId in mapByGroups) {
-      const groupInstance = this.registry.groups.map.get(groupId);
-      groupInstance?.instances.instantiateSources(mapByGroups[groupId]);
-    }
-    this._requests = [];
-    return this.registry.groups.value;
-  }
-};
-
-// src/registry/ThermalRegistry.ts
-var ThermalRegistry = class extends BaseStructureObject {
-  constructor(id, manager, options) {
-    super();
-    this.id = id;
-    this.manager = manager;
-    this.hash = Math.random();
-    /** Takes care of the entire loading */
-    this.loader = new ThermalRegistryLoader(this);
-    /** Groups are stored in an observable property */
-    this.groups = new GroupsState(this, []);
-    this.fetcher = new ThermalFetcher(this);
-    /**
-     * Observable properties and drives
-     */
-    /** 
-     * Opacity property 
-     */
-    this.opacity = new OpacityDrive(this, 1);
-    /** 
-     * Minmax property 
-     */
-    this.minmax = new MinmaxRegistryProperty(this, void 0);
-    /**
-     * Loading
-     */
-    this.loading = new LoadingState(this, false);
-    /**
-     * Range
-     */
-    this.range = new RangeDriver(this, void 0);
-    /**
-     * Histogram
-     */
-    this.histogram = new HistogramState(this, []);
-    this.palette = this.manager.palette;
-    if (options) {
-      if (options.histogramResolution !== void 0) {
-        if (options.histogramResolution > 0)
-          this.histogram.setResolution(options.histogramResolution);
-      }
-    }
-  }
-  /** Service */
-  get service() {
-    return this.manager.service;
-  }
-  /** Iterator methods */
-  forEveryGroup(fn) {
-    this.groups.value.forEach(fn);
-  }
-  forEveryInstance(fn) {
-    this.forEveryGroup((group) => group.instances.forEveryInstance(fn));
-    this.forEveryGroup((group) => group.files.forEveryInstance(fn));
-  }
-  async loadFiles(files) {
-    this.reset();
-    Object.entries(files).forEach(([groupId, files2]) => {
-      const group = this.groups.addOrGetGroup(groupId);
-      files2.forEach((file) => {
-        this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
-      });
-    });
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** Load the registry with only one file. */
-  async loadOneFile(file, groupId) {
-    this.reset();
-    const group = this.groups.addOrGetGroup(groupId);
-    this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
-  async processDroppedFiles(files, groupId) {
-    this.reset();
-    this.loading.markAsLoading();
-    this.removeAllChildren();
-    const parsedFiles = await Promise.all(
-      files.map((file) => ThermalLoader.fromFile(file))
-    ).then((results) => {
-      return results.filter((file) => {
-        return file !== null;
-      });
-    });
-    parsedFiles.forEach((source) => this.manager.registerSource(source));
-    const group = this.groups.addOrGetGroup(groupId);
-    group.instances.instantiateSources(parsedFiles);
-    this.postLoadedProcessing();
-  }
-  /** Register a single file request */
-  enqueueFile(groupId, thermalUrl, visibleUrl) {
-    const group = this.groups.addOrGetGroup(groupId);
-    this.loader.requestFile(group, thermalUrl, visibleUrl);
-  }
-  // Load all the enqueued requests
-  async loadQuery() {
-    this.reset();
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** 
-   * Actions to take after the registry is loaded 
-   * - recalculate the minmax of groups
-   * - recalculate minmax of registry
-   * - impose new minmax as new range
-   * - recalculate the histogram
-  */
-  postLoadedProcessing() {
-    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
-    this.minmax.recalculateFromGroups();
-    if (this.minmax.value)
-      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
-    this.histogram.refreshBufferFromCurrentPixels();
-    this.loading.markAsLoaded();
-  }
-  reset() {
-    this.forEveryGroup((group) => group.reset());
-    if (this.loader.loading === false) {
-      this.opacity.reset();
-      this.minmax.reset();
-    }
-  }
-  removeAllChildren() {
-    this.groups.removeAllGroups();
-  }
-  destroySelfAndBelow() {
-    this.reset();
-  }
-  destroySelfInTheManager() {
-    this.manager.removeRegistry(this.id);
   }
 };
 
@@ -3132,6 +2150,1027 @@ var PaletteDrive = class extends AbstractProperty {
   }
 };
 
+// src/utils/time/formatting.ts
+import { format, formatISO9075 } from "date-fns";
+
+// src/utils/time/base.ts
+var TimeUtilsBase = class {
+  /** Convert an input to a date object */
+  static inputToDate = (value) => {
+    if (typeof value === "number") {
+      const d = /* @__PURE__ */ new Date();
+      d.setTime(value);
+      return d;
+    }
+    return value;
+  };
+};
+
+// src/utils/time/formatting.ts
+var TimeFormat = class _TimeFormat extends TimeUtilsBase {
+  /** YYYY-MM-DD */
+  static isoDate = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return formatISO9075(value, { representation: "date" });
+  };
+  /** HH:MM:SS */
+  static isoTime = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return formatISO9075(value, { representation: "time" });
+  };
+  /** YYYY-MM-DD HH:MM:SS */
+  static isoComplete = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return formatISO9075(value);
+  };
+  /** HH:mm */
+  static humanTime = (value, showSeconds = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return format(value, showSeconds ? "HH:mm:ss" : "HH:mm");
+  };
+  /** j. M. ???? (y) */
+  static humanDate = (value, includeYear = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return format(value, includeYear ? "d. M." : "d. M. yyyy");
+  };
+  /** Range */
+  static humanRangeDates(from, to) {
+    from = _TimeFormat.inputToDate(from);
+    to = _TimeFormat.inputToDate(to);
+    if (from.getUTCDate() === to.getUTCDate()) {
+      return _TimeFormat.humanDate(from);
+    }
+    return [
+      _TimeFormat.humanDate(from),
+      _TimeFormat.humanDate(to)
+    ].join(" - ");
+  }
+  static human(date) {
+    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
+  }
+};
+
+// src/utils/time/periods.ts
+var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
+  TimePeriod2["HOUR"] = "jednu hodinu";
+  TimePeriod2["DAY"] = "jeden den";
+  TimePeriod2["WEEK"] = "jeden t\xFDden";
+  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
+  TimePeriod2["YEAR"] = "jeden rok";
+  return TimePeriod2;
+})(TimePeriod || {});
+
+// src/utils/time/rounding.ts
+import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+var TimeRound = class _TimeRound extends TimeUtilsBase {
+  static down = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return startOfHour(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return startOfDay(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return startOfWeek(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return startOfMonth(value);
+    return startOfYear(value);
+  };
+  static up = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return endOfHour(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return endOfDay(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return endOfWeek(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return endOfMonth(value);
+    return endOfYear(value);
+  };
+  static pick = (value, period) => {
+    return [
+      _TimeRound.down(value, period),
+      _TimeRound.up(value, period)
+    ];
+  };
+  static modify = (value, amount, period) => {
+    switch (period) {
+      case "jednu hodinu" /* HOUR */:
+        return addHours(value, amount);
+      case "jeden den" /* DAY */:
+        return addDays(value, amount);
+      case "jeden t\xFDden" /* WEEK */:
+        return addDays(value, amount * 7);
+      case "jeden m\u011Bs\xEDc" /* MONTH */:
+        return addMonths(value, amount);
+      case "jeden rok" /* YEAR */:
+        return addYears(value, amount);
+    }
+  };
+};
+
+// src/properties/lists/InstancesState.ts
+var InstancesState = class extends AbstractProperty {
+  _requestedRemovals = /* @__PURE__ */ new Map();
+  enqueueAdd(thermalUrl, visibleUrl, callback) {
+    this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (source, error) => {
+      if (source instanceof ThermalFileSource) {
+        const instance = this.instantiateSource(source);
+        if (callback) {
+          callback(instance);
+        }
+      } else if (callback) {
+        callback(void 0, error ?? "N\u011Bco se pokazilo v instanci");
+      }
+    });
+  }
+  enqueueRemove(thermalUrl, callback) {
+    if (this._requestedRemovals.has(thermalUrl)) {
+      if (callback)
+        this._requestedRemovals.get(thermalUrl).callbacks.push(callback);
+    } else {
+      this._requestedRemovals.set(thermalUrl, {
+        url: thermalUrl,
+        callbacks: callback ? [callback] : []
+      });
+    }
+  }
+  async cleanup() {
+    const flatRemovalUrls = Object.values(this._requestedRemovals).map((item) => item.url);
+    this.value = this.value.filter((instance) => {
+      const shouldRemove = flatRemovalUrls.includes(instance.url);
+      if (shouldRemove) {
+        this._requestedRemovals.get(instance.url)?.callbacks.forEach((callback) => callback());
+        return true;
+      }
+      return false;
+    });
+    this._requestedRemovals.clear();
+    this.parent.registry.postLoadedProcessing();
+  }
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.url, instance));
+  }
+  /** 
+   * Creation of of single instance 
+   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
+   */
+  instantiateSource(source) {
+    if (!this._map.has(source.url)) {
+      const instance = source.createInstance(this.parent);
+      this.value = [...this.value, instance];
+      return instance;
+    } else {
+      return this._map.get(source.url);
+    }
+  }
+  /**
+   * Creation of instances at once
+   * - triggers listeners only once
+   */
+  instantiateSources(sources) {
+    const newValue = [];
+    sources.forEach((source) => {
+      if (!this._map.has(source.url)) {
+        newValue.push(source.createInstance(this.parent));
+      }
+    });
+    this.value = newValue;
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+};
+
+// src/properties/drives/OpacityDrive.ts
+var OpacityDrive = class extends AbstractProperty {
+  /** Make sure the value is allways between 0 and 1 */
+  validate(value) {
+    return Math.min(Math.max(0, value), 1);
+  }
+  /** 
+   * Whenever the opacity changes, propagate the value to all instances
+   */
+  afterSetEffect(value) {
+    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+  }
+  /** Impose an opacity to all instances */
+  imposeOpacity(value) {
+    this.value = value;
+    return this.value;
+  }
+};
+
+// src/properties/lists/filesState.ts
+var FilesState = class extends AbstractProperty {
+  _requestedRemovals = /* @__PURE__ */ new Map();
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.url, instance));
+  }
+  addFile(file) {
+    if (!this._map.has(file.url)) {
+      this.value = [...this.value, file];
+      return file;
+    } else {
+      return this._map.get(file.url);
+    }
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+};
+
+// src/properties/states/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.files.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/hierarchy/ThermalGroup.ts
+var ThermalGroup = class extends BaseStructureObject {
+  constructor(registry, id, name, description) {
+    super();
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+  hash = Math.random();
+  minmax = new MinmaxGroupProperty(this, void 0);
+  /** @deprecated */
+  instances = new InstancesState(this, []);
+  files = new FilesState(this, []);
+  cursorPosition = new CursorPositionDrive(this, void 0);
+  /** Iteration */
+  forEveryInstance = (fn) => {
+    this.instances.value.forEach((instance) => fn(instance));
+  };
+  /**
+   * Destruction
+   */
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.instances.removeAllInstances();
+  }
+  reset() {
+    this.instances.reset();
+    this.files.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+  }
+};
+
+// src/properties/lists/GroupsState.ts
+var GroupsState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    this._map.clear();
+    value.forEach((group) => this._map.set(group.id, group));
+  }
+  addOrGetGroup(groupId, name, description) {
+    if (this._map.has(groupId)) {
+      return this._map.get(groupId);
+    }
+    const group = new ThermalGroup(this.parent, groupId, name, description);
+    this._map.set(groupId, group);
+    this.value.push(group);
+    this.value = [...this.value];
+    return group;
+  }
+  removeGroup(groupId) {
+    if (!this._map.has(groupId)) {
+      return;
+    }
+    this._map.get(groupId)?.destroySelfAndBelow();
+    this._map.delete(groupId);
+    this.value = Array.from(this._map.values());
+  }
+  removeAllGroups() {
+    this.value.forEach((group) => group.destroySelfAndBelow());
+    this.value = [];
+  }
+};
+
+// src/loading/workers/parsers/lrc/jobs/baseInfo.ts
+var baseInfo = async (entireFileBuffer) => {
+  const view = new DataView(entireFileBuffer);
+  const width = view.getUint16(17, true);
+  const height = view.getUint16(19, true);
+  const bytesize = entireFileBuffer.byteLength;
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3fffffffffffffffn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  };
+  const timestamp = readTimestamp(view, 5);
+  const dataType = view.getUint8(15);
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const frameHeaderByteSize = 57;
+  const framePixelsSize = width * height * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const timestamp2 = readTimestamp(frameView, 0);
+    const emissivity = frameView.getFloat32(24, true);
+    const reflectedKelvins = frameView.getFloat32(28, true);
+    return {
+      timestamp: timestamp2,
+      min,
+      max,
+      emissivity,
+      reflectedKelvins
+    };
+  };
+  const frames = [];
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    frames.push(frame);
+  }
+  const sums = {
+    emissivity: 0,
+    reflectedKelvins: 0
+  };
+  let currentMin = Infinity;
+  let currentMax = -Infinity;
+  const timestamps = [];
+  frames.forEach((frame) => {
+    sums.emissivity = sums.emissivity + frame.emissivity;
+    sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
+    if (frame.min < currentMin) {
+      currentMin = frame.min;
+    }
+    if (frame.max > currentMax) {
+      currentMax = frame.max;
+    }
+    timestamps.push(frame.timestamp);
+  });
+  const timelineStart = timestamps[0];
+  let timelineCursor = 0;
+  const timeline = [];
+  const f = [];
+  timestamps.forEach((t, index) => {
+    const next = timestamps[index + 1];
+    let offset = 0;
+    if (next === void 0) {
+      offset = 0;
+    }
+    offset = next - t;
+    const relative = t - timelineStart;
+    timeline.push(offset);
+    timelineCursor = timelineCursor + offset;
+    f.push({
+      absolute: t,
+      relative,
+      // isNaN( relativeTime ) ? 0 : relativeTime,
+      offset: isNaN(offset) ? 0 : offset,
+      index
+    });
+  });
+  const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
+  const frameInterval = duration / frameCount;
+  const fps = 1e3 / frameInterval;
+  return {
+    width,
+    height,
+    timestamp,
+    bytesize,
+    frameCount,
+    duration,
+    frameInterval,
+    fps,
+    timeline: f,
+    min: currentMin,
+    max: currentMax,
+    averageEmissivity: sums.emissivity / frames.length,
+    averageReflectedKelvins: sums.reflectedKelvins / frames.length
+  };
+};
+
+// src/loading/workers/parsers/lrc/jobs/getFrameSubset.ts
+var getFrameSubset = (entireFileBuffer, index) => {
+  const headerView = new DataView(entireFileBuffer.slice(0, 25));
+  const dataType = headerView.getUint8(15);
+  const width = headerView.getUint16(17, true);
+  const height = headerView.getUint16(19, true);
+  const pixelByteSize = dataType === 1 ? 4 : 2;
+  const frameHeaderSize = 57;
+  const framePixelsSize = width * height * pixelByteSize;
+  const frameSize = frameHeaderSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameSubsetStart = index * frameSize;
+  const frameSubsetEnd = frameSubsetStart + frameSize;
+  const frameSubset = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+  return {
+    array: frameSubset,
+    dataType
+  };
+};
+var frameData = async (frameSubset, dataType) => {
+  const view = new DataView(frameSubset);
+  const bigIntTime = view.getBigInt64(0, true);
+  const UnixEpoch = 62135596800000n;
+  const TicksPerMillisecond = 10000n;
+  const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+  const TicksCeiling = 0x4000000000000000n;
+  const LocalMask = 0x8000000000000000n;
+  const TicksMask = 0x3fffffffffffffffn;
+  let ticks = bigIntTime & TicksMask;
+  const isLocalTime = bigIntTime & LocalMask;
+  if (isLocalTime) {
+    if (ticks > TicksCeiling - TicksPerDay) {
+      ticks -= TicksCeiling;
+    }
+    if (ticks < 0) {
+      ticks += TicksPerDay;
+    }
+  }
+  const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+  const timestamp = Number(milliseconds);
+  const min = view.getFloat32(8, true);
+  const max = view.getFloat32(12, true);
+  const emissivity = view.getFloat32(24, true);
+  const reflectedKelvins = view.getFloat32(28, true);
+  const subset = frameSubset.slice(57);
+  let pixels = [];
+  if (dataType === 0) {
+    const array = new Uint16Array(subset);
+    const distance = Math.abs(min - max);
+    const UINT16_MAX = 65535;
+    array.forEach((pixel) => {
+      const mappedValue = pixel / UINT16_MAX;
+      pixels.push(min + distance * mappedValue);
+    });
+  } else if (dataType === 1) {
+    pixels = Array.from(new Float32Array(subset));
+  }
+  return {
+    timestamp,
+    min,
+    max,
+    emissivity,
+    reflectedKelvins,
+    pixels
+  };
+};
+
+// src/loading/workers/parsers/lrc/jobs/histogram.ts
+var registryHistogram = async (files) => {
+  let pixels = [];
+  const readFile = async (file) => {
+    const headerView = new DataView(file.slice(0, 25));
+    const dataType = headerView.getUint8(15);
+    const width = headerView.getUint16(17, true);
+    const height = headerView.getUint16(19, true);
+    const pixelByteSize = dataType === 1 ? 4 : 2;
+    const frameHeaderSize = 57;
+    const framePixelsSize = width * height * pixelByteSize;
+    const frameSize = frameHeaderSize + framePixelsSize;
+    const streamSubset = file.slice(25);
+    const frameCount = streamSubset.byteLength / frameSize;
+    let filePixels = [];
+    for (let i = 0; i < frameCount; i++) {
+      const frameStart = i * frameSize;
+      const pixelsSubsetStart = frameStart + 57;
+      const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
+      const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
+      if (dataType === 0) {
+      } else if (dataType === 1) {
+        filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
+      }
+    }
+    return filePixels;
+  };
+  const result = await Promise.all(files.map((file) => readFile(file)));
+  result.forEach((fileResult) => {
+    pixels = pixels.concat(fileResult);
+  });
+  pixels.sort((a, b) => {
+    return a - b;
+  });
+  const min = pixels[0];
+  const max = pixels[pixels.length - 1];
+  const distance = Math.abs(min - max);
+  const resolution = 200;
+  const step = distance / resolution;
+  const bars = [];
+  let buf = [...pixels];
+  for (let i = 0; i < resolution; i++) {
+    const from = min + step * i;
+    const to = from + step;
+    const nextUpIndex = buf.findIndex((pixel) => pixel > to);
+    const subs = buf.slice(0, nextUpIndex - 1);
+    const count = subs.length;
+    const percentage = count / pixels.length * 100;
+    const bar = {
+      from,
+      to,
+      count,
+      percentage
+    };
+    bars.push(bar);
+    buf = buf.slice(nextUpIndex);
+  }
+  const sortedByPercentage = [...bars].sort((a, b) => {
+    return a.percentage - b.percentage;
+  });
+  const minPercent = sortedByPercentage[0].percentage;
+  const maxPercent = sortedByPercentage[sortedByPercentage.length - 1].percentage;
+  const percentDistance = Math.abs(minPercent - maxPercent);
+  const final = bars.map((bar) => {
+    return {
+      ...bar,
+      height: bar.percentage / percentDistance * 100
+    };
+  });
+  return final;
+};
+
+// src/loading/workers/parsers/lrc/jobs/is.ts
+var is = (data, url) => {
+  const hasCorrectExtension = url.endsWith("lrc");
+  const decoder = new TextDecoder();
+  const hasCorrectSignature = decoder.decode(data.slice(0, 4)) === "LRC\0";
+  return hasCorrectExtension && hasCorrectSignature;
+};
+
+// src/loading/workers/parsers/lrc/LrcParser.ts
+var extensions = [{
+  extension: "lrc",
+  minme: "application/octet-stream"
+}];
+var parser = {
+  name: "LabIR Recording (.lrc)",
+  description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
+  devices: [{
+    deviceName: "TIMI Edu Infrared Camera",
+    deviceUrl: "https://edu.labir.cz",
+    manufacturer: "TIMI Creation, s.r.o.",
+    manufacturerUrl: "https://timic.cz"
+  }],
+  extensions,
+  is,
+  baseInfo,
+  getFrameSubset,
+  frameData,
+  registryHistogram
+};
+var LrcParser2 = Object.freeze(parser);
+
+// src/properties/states/HistogramState.ts
+var HistogramState = class extends AbstractProperty {
+  _resolution = 150;
+  get resolution() {
+    return this._resolution;
+  }
+  /** Map of temperature => countOfPixels in the scaled down resolution */
+  buffer = /* @__PURE__ */ new Map();
+  /** Total countOfPixels in every image */
+  bufferPixelsCount = 0;
+  /**  */
+  _bufferResolution = 1e3;
+  set bufferResolution(value) {
+    this._bufferResolution = Math.round(Math.max(value, 1e3));
+  }
+  get bufferResolution() {
+    return this._bufferResolution;
+  }
+  /** Set the historgam resolution
+   * - does not recalculate the value!
+   * - to recalculate value, call `recalculateWithCurrentSetting`
+   * 
+   * @notice Higher the number, lower the resolution.
+  */
+  setResolution(value) {
+    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
+  }
+  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+  validate(value) {
+    if (value.length !== this.resolution + 1 && value.length !== 0) {
+    }
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Recalculates the value using all current instances and with che current resolution */
+  recalculateWithCurrentSetting() {
+    this.recalculateHistogram();
+    return this.value;
+  }
+  /** 
+   * Recalculate the histogram buffer using web workers.
+   * This is an async operation using `workerpool`
+   */
+  refreshBufferFromCurrentPixels() {
+    if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
+      const pixels = this.parent.groups.value.map((group) => {
+        return group.instances.value.map((instance) => instance.getPixelsForHistogram());
+      });
+      this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
+        const mergedPixels = instancesPixels.reduce((state, current) => {
+          const inner = current.reduce((state2, current2) => {
+            return [...state2, ...current2];
+          }, []);
+          return [...state, ...inner];
+        }, []);
+        let sortedPixels = mergedPixels.sort((a, b) => a - b);
+        const step = distance / resolution;
+        let nextStep = min + step;
+        const result = /* @__PURE__ */ new Map();
+        let resultCount = 0;
+        while (nextStep !== false) {
+          const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
+          const pixelCount = sortedPixels.slice(0, nextIndex).length;
+          result.set(nextStep - step / 2, pixelCount);
+          resultCount += pixelCount;
+          sortedPixels = sortedPixels.slice(nextIndex);
+          const nextStepTemporary = nextStep + step;
+          nextStep = nextStepTemporary < max ? nextStepTemporary : false;
+        }
+        return {
+          result,
+          resultCount
+        };
+      }, [
+        pixels,
+        this.parent.minmax.value.min,
+        this.parent.minmax.value.max,
+        this.parent.minmax.distanceInCelsius,
+        this._bufferResolution
+      ]).then((result) => {
+        this.buffer = result.result;
+        this.bufferPixelsCount = result.resultCount;
+        this.recalculateWithCurrentSetting();
+      });
+    }
+  }
+  async recalculateHistogram() {
+    const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
+      state = state.concat(current);
+      return state;
+    }, []);
+    const allBuffers = allFiles.map((reader) => reader.service.buffer);
+    const result = await this.parent.pool.exec(LrcParser2.registryHistogram, [allBuffers]);
+    this.value = result;
+  }
+  /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
+  _getHistorgramFromAllGroups() {
+    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
+    }
+    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
+      return [];
+    } else {
+      const allPixels = this.parent.groups.value.reduce((state, current) => {
+        const pixels = current.instances.value.reduce((buf, instance) => {
+          buf = [...buf, ...instance.pixels];
+          return buf;
+        }, []);
+        return [...state, ...pixels];
+      }, []);
+      const segments = [];
+      const numSegments = this.resolution;
+      const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
+      const segment = difference / numSegments;
+      for (let i = 0; i < numSegments; i++) {
+        const from = segment * i + this.parent.minmax.value.min;
+        const to = from + segment;
+        segments.push([from, to]);
+      }
+      const results = [];
+      let sum = allPixels.length;
+      for (const i of segments) {
+        const count = allPixels.filter((pixel) => {
+          return pixel >= i[0] && pixel < i[1];
+        }).length;
+        sum = sum + count;
+        results.push({
+          from: i[0],
+          to: i[1],
+          count
+        });
+      }
+      const recalculated = results.map((i) => {
+        return {
+          ...i,
+          percentage: i.count / sum * 100
+        };
+      });
+      const max = Math.max(...recalculated.map((item) => item.percentage));
+      return recalculated.map((item) => {
+        return {
+          ...item,
+          height: item.percentage / max * 100
+        };
+      });
+    }
+  }
+};
+
+// src/properties/states/LoadingState.ts
+var LoadingState = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  markAsLoading() {
+    this.value = true;
+  }
+  markAsLoaded() {
+    this.value = false;
+  }
+};
+
+// src/properties/states/MinmaxRegistryState.ts
+var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  recalculateFromGroups() {
+    const groups = this.parent.groups.value;
+    this.value = this._getMinmaxFromAllGroups(groups);
+    return this.value;
+  }
+  _getMinmaxFromAllGroups(groups) {
+    if (groups.length === 0) {
+      return void 0;
+    }
+    const minmax = groups.reduce((state, current) => {
+      if (current.minmax.value === void 0) {
+        return state;
+      }
+      return {
+        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
+        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
+      };
+    }, { min: Infinity, max: -Infinity });
+    return minmax;
+  }
+};
+
+// src/loading/mainThread/batch/ThermalRequest.ts
+var ThermalRequest = class _ThermalRequest extends EventTarget {
+  constructor(group, url, visibleUrl) {
+    super();
+    this.group = group;
+    this.url = url;
+    this.visibleUrl = visibleUrl;
+  }
+  static single(group, thermalUrl, visibleUrl) {
+    return new _ThermalRequest(group, thermalUrl, visibleUrl);
+  }
+  static multiple(group, requests) {
+    return requests.map((request) => new _ThermalRequest(group, request.thermalUrl, request.visibleUrl));
+  }
+  async fetch() {
+    if (this.group.registry.manager.isUrlRegistered(this.url)) {
+      return {
+        file: this.group.registry.manager.sourcesByUrl[this.url],
+        request: this
+      };
+    }
+    const file = await ThermalFileSource.fromUrl(this.url, this.visibleUrl);
+    if (!file) {
+      return null;
+    } else if (file !== null) {
+      return {
+        file,
+        request: this
+      };
+    }
+    return null;
+  }
+};
+
+// src/loading/mainThread/batch/ThermalRegistryLoader.ts
+var ThermalRegistryLoader = class {
+  constructor(registry) {
+    this.registry = registry;
+  }
+  /** Buffer of all pending requests */
+  _requests = [];
+  get requests() {
+    return this._requests;
+  }
+  /** Loading state is stored in the registry */
+  get loading() {
+    return this.registry.loading.value;
+  }
+  /** Request a single file. To fetch it, call ``resolveQuery` */
+  requestFile(group, thermalUrl, visibleUrl) {
+    if (this.loading === true) {
+      console.error(`The registry ${this.registry.id} is already loading! Can not request  a single file!`);
+      return;
+    }
+    this._requests.push(ThermalRequest.single(group, thermalUrl, visibleUrl));
+  }
+  /** Request multiple files. To fetch them, call ``resolveQuery` */
+  requestFiles(group, requests) {
+    if (this.loading === true) {
+      console.error(`The group ${this.registry.id} is already loading! Can not request multiple files!`);
+      return;
+    }
+    this._requests = [
+      ...this._requests,
+      ...ThermalRequest.multiple(group, requests)
+    ];
+  }
+  /** @todo If there is an error, it is here. In the instancing, it seems that deleted groups remain and instances are binded to old groups. */
+  async resolveQuery() {
+    if (this.loading === true) {
+    }
+    const result = await Promise.all(
+      this._requests.map((request) => request.fetch())
+    );
+    const mapByGroups = {};
+    for (const response of result) {
+      if (response !== null) {
+        const file = this.registry.manager.registerSource(response.file);
+        if (response.request.group.id in mapByGroups === false) {
+          mapByGroups[response.request.group.id] = [file];
+        } else {
+          mapByGroups[response.request.group.id].push(file);
+        }
+      }
+    }
+    for (const groupId in mapByGroups) {
+      const groupInstance = this.registry.groups.map.get(groupId);
+      groupInstance?.instances.instantiateSources(mapByGroups[groupId]);
+    }
+    this._requests = [];
+    return this.registry.groups.value;
+  }
+};
+
+// src/loading/mainThread/sequential/ThermalFetcher.ts
+var ThermalFetcher = class {
+  constructor(registry) {
+    this.registry = registry;
+  }
+  requests = /* @__PURE__ */ new Map();
+  get requestArray() {
+    return Array.from(this.requests.values());
+  }
+  timer;
+  request(thermalUrl, visibleUrl, callback) {
+    if (this.requests.has(thermalUrl)) {
+      if (callback) {
+        this.requests.get(thermalUrl)?.callbacks.push(callback);
+      }
+    } else {
+      const newRequest = {
+        thermalUrl,
+        visibleUrl,
+        callbacks: callback ? [callback] : []
+      };
+      this.requests.set(thermalUrl, newRequest);
+    }
+    if (this.timer === void 0) {
+      this.timer = setTimeout(this.resolve.bind(this), 0);
+    }
+  }
+  async resolve() {
+    const result = await Promise.all(
+      this.requestArray.map(async (request) => {
+        const result2 = {
+          request
+        };
+        if (this.registry.manager.isUrlRegistered(request.thermalUrl)) {
+          result2.output = this.registry.manager.sourcesByUrl[request.thermalUrl];
+        } else {
+          try {
+            const source = await ThermalFileSource.fromUrlWithErrors(request.thermalUrl, request.visibleUrl);
+            if (source) {
+              result2.output = source;
+            }
+          } catch (error) {
+            if (error instanceof Error) {
+              result2.output = error.message;
+            }
+          }
+        }
+        return result2;
+      })
+    ).then((results) => {
+      return results.map((result2) => {
+        if (result2.output instanceof ThermalFileSource) {
+          result2.request.callbacks.forEach((callback) => {
+            callback(result2.output);
+            this.registry.manager.registerSource(result2.output);
+          });
+        } else {
+          result2.request.callbacks.forEach((callback) => {
+            if (result2.output instanceof ThermalFileSource === false)
+              callback(void 0, result2.output ?? "N\u011Bco se pokazilo");
+          });
+        }
+        return result2.output;
+      });
+    });
+    clearTimeout(this.timer);
+    this.timer = void 0;
+    this.registry.postLoadedProcessing();
+    return result;
+  }
+};
+
 // src/loading/workers/AbstractFileResult.ts
 var AbstractFileResult = class {
   constructor(thermalUrl, visibleUrl) {
@@ -3140,40 +3179,14 @@ var AbstractFileResult = class {
   }
 };
 
-// src/loading/workers/errors/FileFailureService.ts
-var FileFailureService = class _FileFailureService extends AbstractFileResult {
-  constructor(thermalUrl, code, message) {
-    super(thermalUrl);
-    this.code = code;
-    this.message = message;
-  }
-  isSuccess() {
-    return false;
-  }
-  static fromError(error) {
-    return new _FileFailureService(error.url, error.code, error.message);
-  }
-};
-
-// src/loading/workers/errors/FileLoadingError.ts
-var FileLoadingError = class extends Error {
-  constructor(code, url, message) {
-    super(message);
-    this.code = code;
-    this.url = url;
-  }
-};
-
 // src/properties/time/internals/FrameBuffer.ts
 var FrameBuffer = class {
   constructor(drive, firstFrame) {
     this.drive = drive;
-    /** Number of images to preload at once */
-    this.bufferSize = 4;
-    /** The actual buffer holding pair of step & frame */
-    this.buffer = /* @__PURE__ */ new Map();
     this.currentFrame = firstFrame;
   }
+  /** @internal use accessors to get and set with side effects */
+  _currentFrame;
   /** The current frame data @readonly */
   get currentFrame() {
     return this._currentFrame;
@@ -3187,6 +3200,10 @@ var FrameBuffer = class {
   get currentStep() {
     return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
   }
+  /** Number of images to preload at once */
+  bufferSize = 4;
+  /** The actual buffer holding pair of step & frame */
+  buffer = /* @__PURE__ */ new Map();
   /** Accessor to array of steps preloaded in the given moment */
   get preloadedSteps() {
     return Array.from(this.buffer.keys());
@@ -3265,12 +3282,6 @@ var TimelineDrive = class extends AbstractProperty {
   constructor(parent, initial, steps, initialFrameData) {
     super(parent, Math.max(Math.min(initial, steps.length), 0));
     this.steps = steps;
-    this.stepsByAbsolute = /* @__PURE__ */ new Map();
-    this.stepsByRelative = /* @__PURE__ */ new Map();
-    this.stepsByIndex = /* @__PURE__ */ new Map();
-    this.relativeSteps = [];
-    this._onChangeListeners = /* @__PURE__ */ new Map();
-    this._isPlayying = false;
     this._currentStep = this.steps[this._initial];
     this.startTimestampRelative = 0;
     this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
@@ -3289,12 +3300,25 @@ var TimelineDrive = class extends AbstractProperty {
   get frameCount() {
     return this.steps.length;
   }
+  startTimestampRelative;
+  /** @deprecated not in use? */
+  endTimestampRelative;
+  stepsByAbsolute = /* @__PURE__ */ new Map();
+  stepsByRelative = /* @__PURE__ */ new Map();
+  stepsByIndex = /* @__PURE__ */ new Map();
+  relativeSteps = [];
+  _currentStep;
   get currentStep() {
     return this._currentStep;
   }
+  _onChangeListeners = /* @__PURE__ */ new Map();
+  isSequence;
+  _isPlayying = false;
   get isPlaying() {
     return this._isPlayying;
   }
+  timer;
+  buffer;
   init() {
     this.buffer.init();
   }
@@ -3428,7 +3452,7 @@ var TimelineDrive = class extends AbstractProperty {
   }
 };
 
-// src/loading/workers/instance.ts
+// src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
     super(
@@ -3519,17 +3543,20 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
-// src/loading/workers/FileReaderService.ts
-var FileReaderService = class extends AbstractFileResult {
+// src/loading/workers/ThermalFileReader.ts
+var ThermalFileReader = class extends AbstractFileResult {
   constructor(buffer, parser2, thermalUrl, visibleUrl) {
     super(thermalUrl, visibleUrl);
     this.buffer = buffer;
     this.parser = parser2;
-    /** For the purpose of testing we have a unique ID */
-    this.id = Math.random();
-    this.pool = pool_default;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
   }
+  /** For the purpose of testing we have a unique ID */
+  id = Math.random();
+  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+  baseInfoCache;
+  fileName;
+  pool = pool_default;
   isSuccess() {
     return true;
   }
@@ -3567,6 +3594,180 @@ var FileReaderService = class extends AbstractFileResult {
   }
 };
 
+// src/hierarchy/ThermalRegistry.ts
+var ThermalRegistry = class extends BaseStructureObject {
+  constructor(id, manager, options) {
+    super();
+    this.id = id;
+    this.manager = manager;
+    this.palette = this.manager.palette;
+    if (options) {
+      if (options.histogramResolution !== void 0) {
+        if (options.histogramResolution > 0)
+          this.histogram.setResolution(options.histogramResolution);
+      }
+    }
+  }
+  hash = Math.random();
+  /** Service */
+  get service() {
+    return this.manager.service;
+  }
+  /** Takes care of the entire loading */
+  loader = new ThermalRegistryLoader(this);
+  /** Groups are stored in an observable property */
+  groups = new GroupsState(this, []);
+  /** Iterator methods */
+  forEveryGroup(fn) {
+    this.groups.value.forEach(fn);
+  }
+  forEveryInstance(fn) {
+    this.forEveryGroup((group) => group.instances.forEveryInstance(fn));
+    this.forEveryGroup((group) => group.files.forEveryInstance(fn));
+  }
+  async loadFiles(files) {
+    this.reset();
+    this.loading.markAsLoading();
+    Object.entries(files).forEach(async ([groupId, f]) => {
+      const group = this.groups.addOrGetGroup(groupId);
+      const groupFiles = await Promise.all(f.map((file) => {
+        return this.service.loadFile(file.thermalUrl, file.visibleUrl);
+      }));
+      const instances = groupFiles.forEach(async (file) => {
+        if (file instanceof ThermalFileReader) {
+          return await file.createInstance(group);
+        }
+      });
+      return instances;
+    });
+    await this.loader.resolveQuery();
+    this.postLoadedProcessing();
+  }
+  /** Load the registry with only one file. */
+  async loadOneFile(file, groupId) {
+    this.reset();
+    const group = this.groups.addOrGetGroup(groupId);
+    const result = await this.service.loadFile(file.thermalUrl, file.visibleUrl);
+    if (result instanceof ThermalFileReader) {
+      await result.createInstance(group);
+    }
+    this.loading.markAsLoading();
+    this.postLoadedProcessing();
+  }
+  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
+  async processDroppedFiles(files, groupId) {
+    this.reset();
+    this.loading.markAsLoading();
+    this.removeAllChildren();
+    const parsedFiles = await Promise.all(
+      files.map((file) => ThermalLoader.fromFile(file))
+    ).then((results) => {
+      return results.filter((file) => {
+        return file !== null;
+      });
+    });
+    parsedFiles.forEach((source) => this.manager.registerSource(source));
+    const group = this.groups.addOrGetGroup(groupId);
+    group.instances.instantiateSources(parsedFiles);
+    this.postLoadedProcessing();
+  }
+  fetcher = new ThermalFetcher(this);
+  /** Register a single file request */
+  enqueueFile(groupId, thermalUrl, visibleUrl) {
+    const group = this.groups.addOrGetGroup(groupId);
+    this.loader.requestFile(group, thermalUrl, visibleUrl);
+  }
+  // Load all the enqueued requests
+  async loadQuery() {
+    this.reset();
+    this.loading.markAsLoading();
+    await this.loader.resolveQuery();
+    this.postLoadedProcessing();
+  }
+  /** 
+   * Actions to take after the registry is loaded 
+   * - recalculate the minmax of groups
+   * - recalculate minmax of registry
+   * - impose new minmax as new range
+   * - recalculate the histogram
+  */
+  async postLoadedProcessing() {
+    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
+    this.minmax.recalculateFromGroups();
+    if (this.minmax.value)
+      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+    this.histogram.refreshBufferFromCurrentPixels();
+    this.loading.markAsLoaded();
+  }
+  reset() {
+    this.forEveryGroup((group) => group.reset());
+    if (this.loader.loading === false) {
+      this.opacity.reset();
+      this.minmax.reset();
+    }
+  }
+  removeAllChildren() {
+    this.groups.removeAllGroups();
+  }
+  destroySelfAndBelow() {
+    this.reset();
+  }
+  destroySelfInTheManager() {
+    this.manager.removeRegistry(this.id);
+  }
+  /**
+   * Observable properties and drives
+   */
+  /** 
+   * Opacity property 
+   */
+  opacity = new OpacityDrive(this, 1);
+  /** 
+   * Minmax property 
+   */
+  minmax = new MinmaxRegistryProperty(this, void 0);
+  /**
+   * Loading
+   */
+  loading = new LoadingState(this, false);
+  /**
+   * Range
+   */
+  range = new RangeDriver(this, void 0);
+  /**
+   * Histogram
+   */
+  histogram = new HistogramState(this, []);
+  /**
+   * Palette
+   */
+  palette;
+};
+
+// src/loading/workers/ThermalFileFailure.ts
+var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
+  constructor(thermalUrl, code, message) {
+    super(thermalUrl);
+    this.code = code;
+    this.message = message;
+  }
+  isSuccess() {
+    return false;
+  }
+  static fromError(error) {
+    return new _ThermalFileFailure(error.url, error.code, error.message);
+  }
+};
+
+// src/loading/workers/errors.ts
+var FileLoadingError = class extends Error {
+  constructor(code, url, message) {
+    super(message);
+    this.code = code;
+    this.url = url;
+  }
+};
+
 // src/loading/workers/parsers/index.ts
 var parsers = {
   LrcParser: LrcParser2
@@ -3591,6 +3792,10 @@ var FileRequest = class _FileRequest {
     return new _FileRequest(thermalUrl, visibleUrl);
   }
   /**
+   * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
+   */
+  response;
+  /**
    * Fetch a file, process the response and return the promise
    * - the promise is stored internally
    * - if the request is already loading/processing, any subsequent calls use the stored promise object
@@ -3611,7 +3816,7 @@ var FileRequest = class _FileRequest {
     const res = await response;
     if (res.status !== 200) {
       return this.pocessTheService(
-        new FileFailureService(
+        new ThermalFileFailure(
           this.thermalUrl,
           1 /* FILE_NOT_FOUND */,
           `File '${this.thermalUrl}' was not found.`
@@ -3622,7 +3827,7 @@ var FileRequest = class _FileRequest {
     try {
       const parser2 = determineParser(buffer, this.thermalUrl);
       return this.pocessTheService(
-        new FileReaderService(
+        new ThermalFileReader(
           buffer,
           parser2,
           this.thermalUrl,
@@ -3632,7 +3837,7 @@ var FileRequest = class _FileRequest {
     } catch (error) {
       if (error instanceof FileLoadingError) {
         return this.pocessTheService(
-          FileFailureService.fromError(error)
+          ThermalFileFailure.fromError(error)
         );
       } else {
         throw error;
@@ -3652,12 +3857,8 @@ var FileRequest = class _FileRequest {
 var FilesService = class {
   constructor(manager) {
     this.manager = manager;
-    this.pool = pool_default;
-    /** Map of peoding requesta */
-    this.requestsByUrl = /* @__PURE__ */ new Map();
-    /** Cache of loaded files */
-    this.cacheByUrl = /* @__PURE__ */ new Map();
   }
+  pool = pool_default;
   static isolatedInstance(registryName = "isolated_registry") {
     const manager = new ThermalManager();
     const registry = manager.addOrGetRegistry(registryName);
@@ -3666,6 +3867,8 @@ var FilesService = class {
       registry
     };
   }
+  /** Map of peoding requesta */
+  requestsByUrl = /* @__PURE__ */ new Map();
   /** Number of currently pending requests */
   get requestsCount() {
     return this.requestsByUrl.size;
@@ -3674,6 +3877,8 @@ var FilesService = class {
   fileIsPending(url) {
     return this.requestsByUrl.has(url);
   }
+  /** Cache of loaded files */
+  cacheByUrl = /* @__PURE__ */ new Map();
   /** Number of cached results */
   get cachedServicesCount() {
     return this.cacheByUrl.size;
@@ -3698,21 +3903,11 @@ var FilesService = class {
   }
 };
 
-// src/manager/ThermalManager.ts
+// src/hierarchy/ThermalManager.ts
 var ThermalManager = class extends BaseStructureObject {
+  id;
   constructor(options) {
     super();
-    /* registries */
-    this.registries = {};
-    /** The palette is stored absolutely globally */
-    /**
-     * Palette
-     */
-    this.palette = new PaletteDrive(this, "jet");
-    this.service = new FilesService(this);
-    /** Sources cache */
-    this._sourcesByUrl = {};
-    this.isUrlRegistered = (url) => Object.keys(this.sourcesByUrl).includes(url);
     this.id = Math.random();
     if (options) {
       if (options.palette) {
@@ -3720,6 +3915,8 @@ var ThermalManager = class extends BaseStructureObject {
       }
     }
   }
+  /* registries */
+  registries = {};
   forEveryRegistry(fn) {
     Object.values(this.registries).forEach((registry) => fn(registry));
   }
@@ -3736,15 +3933,27 @@ var ThermalManager = class extends BaseStructureObject {
       delete this.registries[id];
     }
   }
+  /** The palette is stored absolutely globally */
+  /**
+   * Palette
+   */
+  palette = new PaletteDrive(this, "jet");
+  service = new FilesService(this);
+  /** Sources cache */
+  _sourcesByUrl = {};
+  /** @deprecated */
   get sourcesByUrl() {
     return this._sourcesByUrl;
   }
+  /** @deprecated */
   getSourcesArray() {
     return Object.values(this.sourcesByUrl);
   }
+  /** @deprecated */
   getRegisteredUrls() {
     return Object.keys(this.sourcesByUrl);
   }
+  /** @deprecated */
   registerSource(source) {
     if (!this.getRegisteredUrls().includes(source.url)) {
       this.sourcesByUrl[source.url] = source;
@@ -3752,135 +3961,21 @@ var ThermalManager = class extends BaseStructureObject {
     }
     return this.sourcesByUrl[source.url];
   }
+  /** @deprecated */
+  isUrlRegistered = (url) => Object.keys(this.sourcesByUrl).includes(url);
 };
 
-// src/utils/time/formatting.ts
-import { format, formatISO9075 } from "date-fns";
-
-// src/utils/time/base.ts
-var TimeUtilsBase = class {
-};
-/** Convert an input to a date object */
-TimeUtilsBase.inputToDate = (value) => {
-  if (typeof value === "number") {
-    const d = /* @__PURE__ */ new Date();
-    d.setTime(value);
-    return d;
-  }
-  return value;
-};
-
-// src/utils/time/formatting.ts
-var _TimeFormat = class _TimeFormat extends TimeUtilsBase {
-  /** Range */
-  static humanRangeDates(from, to) {
-    from = _TimeFormat.inputToDate(from);
-    to = _TimeFormat.inputToDate(to);
-    if (from.getUTCDate() === to.getUTCDate()) {
-      return _TimeFormat.humanDate(from);
-    }
-    return [
-      _TimeFormat.humanDate(from),
-      _TimeFormat.humanDate(to)
-    ].join(" - ");
-  }
-  static human(date) {
-    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
-  }
-};
-/** YYYY-MM-DD */
-_TimeFormat.isoDate = (value) => {
-  value = _TimeFormat.inputToDate(value);
-  return formatISO9075(value, { representation: "date" });
-};
-/** HH:MM:SS */
-_TimeFormat.isoTime = (value) => {
-  value = _TimeFormat.inputToDate(value);
-  return formatISO9075(value, { representation: "time" });
-};
-/** YYYY-MM-DD HH:MM:SS */
-_TimeFormat.isoComplete = (value) => {
-  value = _TimeFormat.inputToDate(value);
-  return formatISO9075(value);
-};
-/** HH:mm */
-_TimeFormat.humanTime = (value, showSeconds = false) => {
-  value = _TimeFormat.inputToDate(value);
-  return format(value, showSeconds ? "HH:mm:ss" : "HH:mm");
-};
-/** j. M. ???? (y) */
-_TimeFormat.humanDate = (value, includeYear = false) => {
-  value = _TimeFormat.inputToDate(value);
-  return format(value, includeYear ? "d. M." : "d. M. yyyy");
-};
-var TimeFormat = _TimeFormat;
-
-// src/utils/time/periods.ts
-var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
-  TimePeriod2["HOUR"] = "jednu hodinu";
-  TimePeriod2["DAY"] = "jeden den";
-  TimePeriod2["WEEK"] = "jeden t\xFDden";
-  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
-  TimePeriod2["YEAR"] = "jeden rok";
-  return TimePeriod2;
-})(TimePeriod || {});
-
-// src/utils/time/rounding.ts
-import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
-var _TimeRound = class _TimeRound extends TimeUtilsBase {
-};
-_TimeRound.down = (value, roundTo) => {
-  if (roundTo === "jednu hodinu" /* HOUR */)
-    return startOfHour(value);
-  else if (roundTo === "jeden den" /* DAY */)
-    return startOfDay(value);
-  else if (roundTo === "jeden t\xFDden" /* WEEK */)
-    return startOfWeek(value);
-  else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-    return startOfMonth(value);
-  return startOfYear(value);
-};
-_TimeRound.up = (value, roundTo) => {
-  if (roundTo === "jednu hodinu" /* HOUR */)
-    return endOfHour(value);
-  else if (roundTo === "jeden den" /* DAY */)
-    return endOfDay(value);
-  else if (roundTo === "jeden t\xFDden" /* WEEK */)
-    return endOfWeek(value);
-  else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-    return endOfMonth(value);
-  return endOfYear(value);
-};
-_TimeRound.pick = (value, period) => {
-  return [
-    _TimeRound.down(value, period),
-    _TimeRound.up(value, period)
-  ];
-};
-_TimeRound.modify = (value, amount, period) => {
-  switch (period) {
-    case "jednu hodinu" /* HOUR */:
-      return addHours(value, amount);
-    case "jeden den" /* DAY */:
-      return addDays(value, amount);
-    case "jeden t\xFDden" /* WEEK */:
-      return addDays(value, amount * 7);
-    case "jeden m\u011Bs\xEDc" /* MONTH */:
-      return addMonths(value, amount);
-    case "jeden rok" /* YEAR */:
-      return addYears(value, amount);
-  }
-};
-var TimeRound = _TimeRound;
+// src/index.ts
+import { pool as pool2 } from "workerpool";
 export {
   AbstractFile,
-  FileFailureService,
-  FileReaderService,
   GRAYSCALE,
   IRON,
   Instance,
   JET,
+  ThermalFileFailure,
   ThermalFileInstance,
+  ThermalFileReader,
   ThermalFileSource,
   ThermalGroup,
   ThermalManager,
@@ -3889,5 +3984,5 @@ export {
   TimeFormat,
   TimePeriod,
   TimeRound,
-  pool_default as pool
+  pool2 as pool
 };

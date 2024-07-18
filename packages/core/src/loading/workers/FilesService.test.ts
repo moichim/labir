@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vitest';
 import { FilesService } from './FilesService';
-import { FileReaderService } from './FileReaderService';
-import { THERMOGRAM_PATHS } from '../../../node/mocks';
-import { FileFailureService } from './errors/FileFailureService';
+import { ThermalFileReader } from './ThermalFileReader';
+import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
+import { ThermalFileFailure } from './ThermalFileFailure';
 
 describe( "FilesService", () => {
 
@@ -11,8 +11,8 @@ describe( "FilesService", () => {
         const {service} = FilesService.isolatedInstance();
 
         // This file should load successfully
-        const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH, "some_visible_url.png" ) as FileReaderService;
-        expect( file ).toBeInstanceOf( FileReaderService );
+        const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH, "some_visible_url.png" ) as ThermalFileReader;
+        expect( file ).toBeInstanceOf( ThermalFileReader );
 
         // The file should be already in cache
         expect( service.fileIsInCache( THERMOGRAM_PATHS.SOUSTRUH ) ).toEqual( true );
@@ -30,7 +30,7 @@ describe( "FilesService", () => {
 
         // This file should be loaded insuccessfully
         const non_existing_file = await service.loadFile( THERMOGRAM_PATHS.ERR404 );
-        expect( non_existing_file ).toBeInstanceOf( FileFailureService );
+        expect( non_existing_file ).toBeInstanceOf( ThermalFileFailure );
 
         // The file should be already in cache
         expect( service.fileIsInCache( THERMOGRAM_PATHS.ERR404 ) ).toEqual( true );
@@ -41,8 +41,8 @@ describe( "FilesService", () => {
 
         const {service} = FilesService.isolatedInstance();
 
-        const first_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as FileReaderService;
-        const second_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as FileReaderService;
+        const first_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as ThermalFileReader;
+        const second_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as ThermalFileReader;
 
         expect( first_file.id ).toEqual( second_file.id );
         expect( first_file ).toEqual( second_file );
@@ -71,7 +71,7 @@ describe( "FilesService", () => {
         expect( service.fileIsPending( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) ).toEqual( true );
 
         // Now load start one request with avait
-        const request_one = await service.loadFile( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) as FileReaderService;
+        const request_one = await service.loadFile( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) as ThermalFileReader;
 
         // The service should be at hand
         expect( request_one.isSuccess() ).toEqual( true );
@@ -80,7 +80,7 @@ describe( "FilesService", () => {
         expect( service.fileIsPending( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) ).toEqual( false );
 
         // Make sure any subsequent requests to the given file return same service
-        const request_two = await service.loadFile( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) as FileReaderService;
+        const request_two = await service.loadFile( THERMOGRAM_PATHS.DELAYED_SEQUENCE ) as ThermalFileReader;
 
         expect( request_one.id ).toEqual( request_two.id );
         expect( request_one ).toEqual( request_two );        

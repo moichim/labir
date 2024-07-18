@@ -1,4 +1,4 @@
-import { ThermalRegistry } from "../../registry/ThermalRegistry";
+import { ThermalRegistry } from "../../hierarchy/ThermalRegistry";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 

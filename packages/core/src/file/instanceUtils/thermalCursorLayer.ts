@@ -1,4 +1,4 @@
-import { AbstractFile } from "../IFileInstance";
+import { AbstractFile } from "../AbstractFile";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 

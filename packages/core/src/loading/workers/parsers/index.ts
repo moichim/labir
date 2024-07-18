@@ -1,5 +1,6 @@
-import { FileLoadingError, FileErrors } from "../errors/FileLoadingError";
-import { LrcParser } from "./LrcParser"
+import { FileLoadingError, FileErrors } from "../errors";
+import { LrcParser } from "./lrc/LrcParser";
+
 import { IParserObject } from "./types";
 
 /**

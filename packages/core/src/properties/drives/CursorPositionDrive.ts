@@ -1,4 +1,4 @@
-import { ThermalGroup } from "../../group/ThermalGroup";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 /** The cursor position coordinates */

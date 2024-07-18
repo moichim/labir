@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { THERMOGRAM_PATHS } from '../../../node/mocks';
-import { FileReaderService } from './FileReaderService';
+import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
+import { ThermalFileReader } from './ThermalFileReader';
 import { FilesService } from './FilesService';
-import { Instance } from './instance';
+import { Instance } from '../../file/instance';
 
 enum IDS {
     REG = "test_registry",
@@ -20,9 +20,9 @@ describe( "reloading", () => {
         expect( service ).toBeInstanceOf( FilesService );
 
         // Load a group
-        const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH ) as FileReaderService;
+        const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH ) as ThermalFileReader;
 
-        expect( file ).toBeInstanceOf( FileReaderService );
+        expect( file ).toBeInstanceOf( ThermalFileReader );
 
         const instance = await file.createInstance( group );
 

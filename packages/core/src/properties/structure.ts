@@ -1,8 +1,6 @@
-
-
 // Range
 
-import { ThermalGroup } from "../group/ThermalGroup";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { IWithCursorPosition } from "./drives/CursorPositionDrive";
 import { IWithOpacity } from "./drives/OpacityDrive";
 import { IWithPalette } from "./drives/PaletteDrive";

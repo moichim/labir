@@ -1,6 +1,6 @@
-import { AbstractFile } from "../../file/IFileInstance";
-import { ThermalGroup } from "../../group/ThermalGroup";
-import { Instance } from "../../loading/workers/instance";
+import { AbstractFile } from "../../file/AbstractFile";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 
@@ -24,7 +24,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
 
     protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
 
-    protected _map: Map<string, AbstractFile> = new Map<string, Instance>();
+    protected _map: Map<string, Instance> = new Map<string, Instance>();
 
     public get map() { return this._map; }
 
@@ -35,7 +35,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /**
      * Whenever the instances change, recreate the index
      */
-    protected afterSetEffect(value: AbstractFile[]) {
+    protected afterSetEffect(value: Instance[]) {
 
         // Clear the index
         this.map.clear();

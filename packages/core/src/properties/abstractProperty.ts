@@ -1,7 +1,7 @@
-import { AbstractFile } from "../file/IFileInstance";
+import { AbstractFile } from "../file/AbstractFile";
 import { ThermalFileInstance } from "../file/ThermalFileInstance";
-import { ThermalGroup } from "../group/ThermalGroup";
-import { ThermalStatistics } from "../registry/ThermalRegistry";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
 import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./drives/RangeDriver";

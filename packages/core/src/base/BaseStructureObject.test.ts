@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { ThermalManager } from '../manager/ThermalManager';
+import { ThermalManager } from '../hierarchy/ThermalManager';
 
 describe( "Abstract service worker", () => {
 

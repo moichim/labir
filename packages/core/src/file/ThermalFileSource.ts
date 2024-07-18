@@ -1,13 +1,13 @@
 "use client";
 
-import { ThermalLoader } from "../parsers/thermalLoader";
-import { ThermalGroup } from "../group/ThermalGroup";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalFileInstance } from "./ThermalFileInstance";
-import { ILrcFrame } from "../parsers/lrc/LrcTrame";
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { AbstractFile } from "./IFileInstance";
+import { AbstractFile } from "./AbstractFile";
+import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
+import { ThermalLoader } from "../loading/mainThread/parsers/thermalLoader";
 
-/** Properties that are common for both source and instance. */
+/** Properties that are common for both source and instance. @deprecated */
 export interface ThermalFileInterface {
 
     /** Short filenam of the thermal file */

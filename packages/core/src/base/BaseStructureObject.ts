@@ -1,7 +1,7 @@
 "use client";
 
 import Pool from "workerpool/types/Pool";
-import pool from "../utils/time/pool";
+import pool from "../utils/pool";
 
 export abstract class BaseStructureObject {
 

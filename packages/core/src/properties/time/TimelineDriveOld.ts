@@ -1,5 +1,5 @@
-import { AbstractFile } from "../../file/IFileInstance";
-import { ILrcFrame } from "../../parsers/lrc/LrcTrame";
+import { AbstractFile } from "../../file/AbstractFile";
+import { ILrcFrame } from "../../loading/mainThread/parsers/lrc/LrcTrame";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { ITimelineDrive } from "./ITimeline";
 

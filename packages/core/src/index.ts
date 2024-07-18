@@ -1,9 +1,5 @@
 // Core structure
-import { ThermalManager, ThermalManagerOptions } from "./manager/ThermalManager";
-import { ThermalRegistry, ThermalRegistryOptions } from "./registry/ThermalRegistry";
-import { ThermalGroup } from "./group/ThermalGroup";
 import { ThermalFileSource } from "./file/ThermalFileSource";
-import { ThermalFileRequest } from "./loading/batch/ThermalRequest";
 
 // Data types
 import { ThermalMinmaxOrUndefined } from "./properties/abstractMinmaxProperty";
@@ -22,13 +18,17 @@ import { TimeRound } from "./utils/time/rounding";
 import { AvailableThermalPalettes } from "./file/palettes";
 
 import { InstanceFetchCallback } from "./properties/lists/InstancesState"
-import { AbstractFile } from "./file/IFileInstance";
 import { ThermalFileInstance } from "./file/ThermalFileInstance";
+import { ThermalManager, ThermalManagerOptions } from "./hierarchy/ThermalManager";
+import { pool } from "workerpool";
+import { AbstractFile } from "./file/AbstractFile";
+import { Instance } from "./file/instance";
+import { ThermalGroup } from "./hierarchy/ThermalGroup";
+import { ThermalRegistry, ThermalRegistryOptions } from "./hierarchy/ThermalRegistry";
+import { ThermalFileRequest } from "./loading/mainThread/batch/ThermalRequest";
+import { ThermalFileReader } from "./loading/workers/ThermalFileReader";
+import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 
-import { Instance } from "./loading/workers/instance";
-import { FileReaderService } from "./loading/workers/FileReaderService";
-import { FileFailureService } from "./loading/workers/errors/FileFailureService";
-import pool from "./utils/time/pool";
 
 
 
@@ -54,8 +54,8 @@ export {
     ThermalFileInstance,
     AbstractFile,
     Instance,
-    FileFailureService,
-    FileReaderService,
+    ThermalFileReader,
+    ThermalFileFailure,
 
     
     // Core datatypes

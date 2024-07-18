@@ -1,9 +1,9 @@
 "use client";
 
-import { ThermalRegistry, ThermalStatistics } from "../../registry/ThermalRegistry";
-import { Instance } from "../../loading/workers/instance";
-import { LrcParser } from "../../loading/workers/parsers/LrcParser";
+import { ThermalRegistry, ThermalStatistics } from "../../hierarchy/ThermalRegistry";
+import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { LrcParser } from "../../loading/workers/parsers/lrc/LrcParser";
 
 export interface IWithHistogram extends IBaseProperty {
     histogram: HistogramState

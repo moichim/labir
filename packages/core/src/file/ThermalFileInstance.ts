@@ -1,16 +1,16 @@
 "use client";
 
-import { ThermalGroup } from "../group/ThermalGroup";
-import { ILrcFrame } from "../parsers/lrc/LrcTrame";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { TimelineDriveOld } from "../properties/time/TimelineDriveOld";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { AbstractFile } from "./IFileInstance";
+import { AbstractFile } from "./AbstractFile";
 import { ThermalFileSource } from "./ThermalFileSource";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
+import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
 
 
 /**

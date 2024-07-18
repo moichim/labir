@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../file/IFileInstance";
+import { AbstractFile } from "../../file/AbstractFile";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { ThermalCursorPositionOrUndefined } from "../drives/CursorPositionDrive";
 

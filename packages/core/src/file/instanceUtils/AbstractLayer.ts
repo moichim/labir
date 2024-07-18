@@ -1,4 +1,4 @@
-import { AbstractFile } from "../IFileInstance";
+import { AbstractFile } from "../AbstractFile";
 
 export abstract class AbstractLayer {
 

@@ -1,10 +1,14 @@
 "use client";
 
+const {ThermalInstance, ThermalRegistryRange, useFilesInGroup} = await import( "@labir/react-bridge" ); 
+
+/*
 import {
   ThermalInstance,
   ThermalRegistryRange,
   useFilesInGroup,
 } from "@labir/react-bridge";
+*/
 import { PaletteDropdown } from "@labir/tailwind";
 import { NextUIProvider } from "@nextui-org/react";
 import React from "react";
