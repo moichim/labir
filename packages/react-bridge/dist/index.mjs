@@ -128,33 +128,29 @@ var ThermalInstance = (_a) => {
 import { useDropzone } from "react-dropzone";
 
 // src/properties/lists/useThermalGroupInstancesState.ts
-import { useEffect as useEffect2, useMemo as useMemo3, useState } from "react";
+import { useEffect as useEffect2, useState } from "react";
 var useThermalGroupInstancesState = (group, purpose) => {
-  const [value, setValue] = useState(group.instances.value);
+  const [value, setValue] = useState(group.files.value);
   useEffect2(() => {
-    group.instances.addListener(purpose, (newValue) => {
+    group.files.addListener(purpose, (newValue) => {
       setValue(newValue);
     });
-    return () => group.instances.removeListener(purpose);
+    return () => group.files.removeListener(purpose);
   }, [group, value, setValue]);
-  const instantiateSources = useMemo3(() => group.instances.instantiateSources, [group]);
-  const removeAllInstances = useMemo3(() => group.instances.removeAllInstances, [group]);
   useEffect2(() => {
-    return () => group.instances.removeListener(purpose);
+    return () => group.files.removeListener(purpose);
   }, []);
   return {
-    value,
-    instantiateSources,
-    removeAllInstances
+    value
   };
 };
 
 // src/context/useThermalObjectPurpose.ts
 import { ThermalRegistry, ThermalGroup, ThermalManager, AbstractFile } from "@labir/core";
-import { useMemo as useMemo4 } from "react";
+import { useMemo as useMemo3 } from "react";
 import { v4 as uuidv4 } from "uuid";
 var useThermalObjectPurpose = (object, purpose, individual = false) => {
-  return useMemo4(() => {
+  return useMemo3(() => {
     const iteration = (Math.random() * 1e4).toFixed(0);
     let objectType = "object";
     if (object instanceof ThermalRegistry)
@@ -208,10 +204,10 @@ var ThermalDropin = (props) => {
 };
 
 // src/components/histogram/thermalRegistryHistogram.tsx
-import React3, { useMemo as useMemo6 } from "react";
+import React3, { useMemo as useMemo5 } from "react";
 
 // src/properties/states/useThermalRegistryHistogramState.ts
-import { useEffect as useEffect3, useMemo as useMemo5, useState as useState2 } from "react";
+import { useEffect as useEffect3, useMemo as useMemo4, useState as useState2 } from "react";
 var useThermalRegistryHistogramState = (registry, purpose) => {
   const [value, setValue] = useState2(registry.histogram.value);
   useEffect3(() => {
@@ -222,9 +218,9 @@ var useThermalRegistryHistogramState = (registry, purpose) => {
     });
     return () => registry.histogram.removeListener(purpose);
   }, [registry, value, setValue]);
-  const setResolution = useMemo5(() => registry.histogram.setResolution.bind(registry.histogram), [registry]);
-  const recalculate = useMemo5(() => registry.histogram.recalculateWithCurrentSetting.bind(registry.histogram), [registry]);
-  const resolution = useMemo5(() => registry.histogram.resolution, [registry.histogram.resolution]);
+  const setResolution = useMemo4(() => registry.histogram.setResolution.bind(registry.histogram), [registry]);
+  const recalculate = useMemo4(() => registry.histogram.recalculateWithCurrentSetting.bind(registry.histogram), [registry]);
+  const resolution = useMemo4(() => registry.histogram.resolution, [registry.histogram.resolution]);
   useEffect3(() => {
     return () => registry.histogram.removeListener(purpose);
   }, []);
@@ -262,12 +258,12 @@ var ThermalRegistryHistogram = (_a) => {
   ]);
   const purpose = useThermalObjectPurpose(props.registry, "thermalHistogram");
   const histogram = useThermalRegistryHistogramState(props.registry, purpose);
-  const borderWidth = useMemo6(() => `${borderWidthInPx}px`, [borderWidthInPx]);
-  const border = useMemo6(
+  const borderWidth = useMemo5(() => `${borderWidthInPx}px`, [borderWidthInPx]);
+  const border = useMemo5(
     () => `${borderWidth} solid ${borderColor}`,
     [borderColor, borderWidth, histogram.value, histogram.resolution]
   );
-  const mainCss = useMemo6(() => {
+  const mainCss = useMemo5(() => {
     const css = {
       borderStyle: "solid",
       borderColor,
@@ -293,7 +289,7 @@ var ThermalRegistryHistogram = (_a) => {
     }
     return css;
   }, [borderColor, background, orientation, histogram.value, histogram.resolution]);
-  const barCss = useMemo6(() => {
+  const barCss = useMemo5(() => {
     const css = {
       position: "relative",
       boxSizing: "border-box",
@@ -310,7 +306,7 @@ var ThermalRegistryHistogram = (_a) => {
     }
     return css;
   }, [border, borderWidth, orientation, sizeInPx, histogram.value, histogram.resolution]);
-  const valueCss = useMemo6(() => {
+  const valueCss = useMemo5(() => {
     const css = {
       position: "absolute",
       content: "",
@@ -386,7 +382,7 @@ var useHistogramResolutionInput = (registry) => {
 };
 
 // src/properties/drives/useThermalRegistryOpacityDrive.ts
-import { useEffect as useEffect5, useMemo as useMemo7, useState as useState4 } from "react";
+import { useEffect as useEffect5, useMemo as useMemo6, useState as useState4 } from "react";
 var useThermalRegistryOpacityDrive = (registry, purpose) => {
   const [value, setValue] = useState4(registry.opacity.value);
   useEffect5(() => {
@@ -397,7 +393,7 @@ var useThermalRegistryOpacityDrive = (registry, purpose) => {
     });
     return () => registry.opacity.removeListener(purpose);
   }, [registry, value, setValue]);
-  const set = useMemo7(() => registry.opacity.imposeOpacity.bind(registry.opacity), [registry]);
+  const set = useMemo6(() => registry.opacity.imposeOpacity.bind(registry.opacity), [registry]);
   useEffect5(() => {
     return () => registry.opacity.removeListener(purpose);
   }, []);
@@ -449,10 +445,10 @@ var PaletteGgradientDisplay = (props) => {
 };
 
 // src/components/range/ThermalRegistryRange.tsx
-import React14, { useMemo as useMemo15 } from "react";
+import React14, { useMemo as useMemo14 } from "react";
 
 // src/properties/drives/useThermalRegistryRangeDrive.ts
-import { useEffect as useEffect6, useMemo as useMemo8, useState as useState5 } from "react";
+import { useEffect as useEffect6, useMemo as useMemo7, useState as useState5 } from "react";
 var useThermalRegistryRangeDrive = (registry, purpose) => {
   const [value, setValue] = useState5(registry.range.value);
   useEffect6(() => {
@@ -463,7 +459,7 @@ var useThermalRegistryRangeDrive = (registry, purpose) => {
     });
     return () => registry.range.removeListener(purpose);
   }, [registry, value, setValue]);
-  const set = useMemo8(() => registry.range.imposeRange.bind(registry.range), [registry]);
+  const set = useMemo7(() => registry.range.imposeRange.bind(registry.range), [registry]);
   useEffect6(() => {
     return () => registry.range.removeListener(purpose);
   }, []);
@@ -551,16 +547,16 @@ import React13, { useRef as useRef2 } from "react";
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
 import { ThermalPalettes } from "@labir/core";
-import { useEffect as useEffect9, useMemo as useMemo10, useState as useState8 } from "react";
+import { useEffect as useEffect9, useMemo as useMemo9, useState as useState8 } from "react";
 
 // src/context/thermalManagerContext.tsx
 import React7, { createContext, useContext } from "react";
 
 // src/context/useThermalManagerInternal.ts
 import { ThermalManager as ThermalManager2 } from "@labir/core";
-import { useMemo as useMemo9 } from "react";
+import { useMemo as useMemo8 } from "react";
 var useThermalManagerInternal = (options, externalInstance) => {
-  return useMemo9(() => {
+  return useMemo8(() => {
     if (externalInstance) return externalInstance;
     return new ThermalManager2(options);
   }, []);
@@ -589,11 +585,11 @@ var useThermalManagerPaletteDrive = (purpose) => {
     });
     return () => manager.palette.removeListener(purpose);
   }, [manager, value, setValue, palette, setPalette]);
-  const set = useMemo10(() => manager.palette.setPalette.bind(manager.palette), [manager]);
+  const set = useMemo9(() => manager.palette.setPalette.bind(manager.palette), [manager]);
   useEffect9(() => {
     return () => manager.palette.removeListener(purpose);
   }, []);
-  const availablePalettes = useMemo10(() => {
+  const availablePalettes = useMemo9(() => {
     return ThermalPalettes;
   }, []);
   return {
@@ -756,7 +752,7 @@ var RangerTick = (_a) => {
 
 // src/components/range/inner/rangerTrack.tsx
 import classNames2 from "classnames";
-import React10, { forwardRef, useMemo as useMemo11 } from "react";
+import React10, { forwardRef, useMemo as useMemo10 } from "react";
 var RangerTrack = forwardRef(
   (_a, ref) => {
     var _b = _a, {
@@ -770,7 +766,7 @@ var RangerTrack = forwardRef(
       "backgroundColor",
       "volumeInPx"
     ]);
-    const styles = useMemo11(() => {
+    const styles = useMemo10(() => {
       const css = {
         position: "relative",
         userSelect: "none",
@@ -787,7 +783,7 @@ var RangerTrack = forwardRef(
       }
       return css;
     }, [backgroundColor, orientation, volumeInPx]);
-    const classes = useMemo11(
+    const classes = useMemo10(
       () => classNames2(
         "lrc__ranger-track",
         `lrc__ranger-track__${orientation}`,
@@ -846,18 +842,18 @@ var useRangerTicks = (ref, minmax, orientation) => {
 };
 
 // src/components/range/inner/useRangerValues.ts
-import { useCallback as useCallback2, useEffect as useEffect12, useMemo as useMemo12, useState as useState11 } from "react";
+import { useCallback as useCallback2, useEffect as useEffect12, useMemo as useMemo11, useState as useState11 } from "react";
 var useRangerValues = (registry, isLocked, rangeOverride) => {
   const purpose = useThermalObjectPurpose(registry, "useRangerValues");
   const minmax = useThermalRegistryMinmaxState(registry, purpose);
   const range = useThermalRegistryRangeDrive(registry, purpose);
-  const min = useMemo12(() => {
+  const min = useMemo11(() => {
     return minmax.value.min;
   }, [minmax.value]);
-  const max = useMemo12(() => {
+  const max = useMemo11(() => {
     return minmax.value.max;
   }, [minmax.value]);
-  const initialState = useMemo12(() => {
+  const initialState = useMemo11(() => {
     if (rangeOverride !== void 0) {
       return [rangeOverride.from, rangeOverride.to];
     } else if (range.value !== void 0) {
@@ -919,7 +915,7 @@ var useRangerValues = (registry, isLocked, rangeOverride) => {
 
 // src/components/range/inner/RangerContainerInner.tsx
 import classNames3 from "classnames";
-import React11, { useMemo as useMemo13 } from "react";
+import React11, { useMemo as useMemo12 } from "react";
 var RangerContainerInner = (_a) => {
   var _b = _a, {
     orientation = "horizontal" /* HORIZONTAL */,
@@ -942,7 +938,7 @@ var RangerContainerInner = (_a) => {
     css.paddingRight = "20px";
     css.height = "400px";
   }
-  const wrapperCss = useMemo13(() => {
+  const wrapperCss = useMemo12(() => {
     const css2 = {};
     if (orientation === "horizontal" /* HORIZONTAL */) {
       css2.paddingLeft = "20px";
@@ -962,12 +958,12 @@ var RangerContainerInner = (_a) => {
 };
 
 // src/components/range/inner/rangerPalette.tsx
-import React12, { useMemo as useMemo14 } from "react";
+import React12, { useMemo as useMemo13 } from "react";
 var RangerPalette = (props) => {
-  const startInPercent = useMemo14(() => {
+  const startInPercent = useMemo13(() => {
     return `${props.ranger.getPercentageForValue(props.values.values[0])}%`;
   }, [props.ranger, props.values]);
-  const dimensionInPercent = useMemo14(() => {
+  const dimensionInPercent = useMemo13(() => {
     return `${props.ranger.getPercentageForValue(props.values.values[1]) - props.ranger.getPercentageForValue(props.values.values[0])}%`;
   }, [props.ranger, props.values]);
   const css = {
@@ -1138,7 +1134,7 @@ var ThermalRegistryRange = (_a) => {
     purpose
   );
   const range = useThermalRegistryRangeDrive(props.registry, purpose);
-  const isReady = useMemo15(() => {
+  const isReady = useMemo14(() => {
     return minmax.value !== void 0 && range.value !== void 0 && loading === false;
   }, [minmax, loading]);
   const Skeleton = renderSkeleton;
@@ -1191,17 +1187,17 @@ var useRangeButtonFull = (registry) => {
 };
 
 // src/context/useThermalRegistry.ts
-import { useMemo as useMemo16 } from "react";
+import { useMemo as useMemo15 } from "react";
 var useThermalRegistry = (registryId, options) => {
   const manager = useThermalContext();
-  const registry = useMemo16(() => {
+  const registry = useMemo15(() => {
     return manager.addOrGetRegistry(registryId, options);
   }, [registryId, manager]);
   return registry;
 };
 
 // src/properties/drives/useThermalGroupCursorPositionDrive.ts
-import { useEffect as useEffect13, useMemo as useMemo17, useState as useState12 } from "react";
+import { useEffect as useEffect13, useMemo as useMemo16, useState as useState12 } from "react";
 var useThermalGroupCursorPositionDrive = (group, purpose) => {
   const [value, setValue] = useState12(group.cursorPosition.value);
   const [hover, setHover] = useState12(group.cursorPosition.hover);
@@ -1216,7 +1212,7 @@ var useThermalGroupCursorPositionDrive = (group, purpose) => {
     });
     return () => group.cursorPosition.removeListener(purpose);
   }, [group, value, setValue]);
-  const setCursorPosition = useMemo17(() => group.cursorPosition.recieveCursorPosition.bind(group.cursorPosition), [group]);
+  const setCursorPosition = useMemo16(() => group.cursorPosition.recieveCursorPosition.bind(group.cursorPosition), [group]);
   useEffect13(() => {
     return () => group.cursorPosition.removeListener(purpose);
   }, []);
@@ -1228,7 +1224,7 @@ var useThermalGroupCursorPositionDrive = (group, purpose) => {
 };
 
 // src/properties/lists/useThermalRegistryGroupsState.ts
-import { useEffect as useEffect14, useMemo as useMemo18, useState as useState13 } from "react";
+import { useEffect as useEffect14, useMemo as useMemo17, useState as useState13 } from "react";
 var useThermalRegistryGroupsState = (registry, purpose) => {
   const [value, setValue] = useState13(registry.groups.value);
   useEffect14(() => {
@@ -1237,9 +1233,9 @@ var useThermalRegistryGroupsState = (registry, purpose) => {
     });
     return () => registry.groups.removeListener(purpose);
   }, [registry]);
-  const addOrGetGroup = useMemo18(() => registry.groups.addOrGetGroup, [registry]);
-  const removeAllGroups = useMemo18(() => registry.groups.removeAllGroups, [registry]);
-  const removeGroup = useMemo18(() => registry.groups.removeGroup, [registry]);
+  const addOrGetGroup = useMemo17(() => registry.groups.addOrGetGroup, [registry]);
+  const removeAllGroups = useMemo17(() => registry.groups.removeAllGroups, [registry]);
+  const removeGroup = useMemo17(() => registry.groups.removeGroup, [registry]);
   useEffect14(() => {
     return () => registry.groups.removeListener(purpose);
   }, []);
@@ -1270,15 +1266,15 @@ var useThermalGroupMinmaxState = (group, purpose) => {
 };
 
 // src/shorthands/useFilesInGroup.ts
-import { useEffect as useEffect16, useMemo as useMemo19 } from "react";
+import { useEffect as useEffect16, useMemo as useMemo18 } from "react";
 var useFilesInGroup = (urls, registryId, groupId) => {
   const manager = useThermalContext();
-  const registryIdMemoised = useMemo19(() => registryId, []);
-  const groupIdMemoised = useMemo19(() => groupId, []);
-  const registry = useMemo19(() => manager.addOrGetRegistry(registryIdMemoised), []);
-  const group = useMemo19(() => registry.groups.addOrGetGroup(groupIdMemoised), []);
+  const registryIdMemoised = useMemo18(() => registryId, []);
+  const groupIdMemoised = useMemo18(() => groupId, []);
+  const registry = useMemo18(() => manager.addOrGetRegistry(registryIdMemoised), []);
+  const group = useMemo18(() => registry.groups.addOrGetGroup(groupIdMemoised), []);
   useEffect16(() => {
-    registry.loadFiles({
+    registry.loadFullMultipleFiles({
       [group.id]: urls.map((url) => ({
         thermalUrl: url
       }))
@@ -1298,18 +1294,18 @@ var useFilesInGroup = (urls, registryId, groupId) => {
 };
 
 // src/shorthands/useSingleFileRegistry.ts
-import { useEffect as useEffect17, useMemo as useMemo20, useState as useState15 } from "react";
+import { useEffect as useEffect17, useMemo as useMemo19, useState as useState15 } from "react";
 import { v4 as uuid } from "uuid";
 var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const manager = useThermalContext();
-  const registryId = useMemo20(() => {
+  const registryId = useMemo19(() => {
     return `isolated_context_${thermalUrl}_${uuid()}`;
   }, [thermalUrl]);
-  const groupId = useMemo20(() => "isolated_default_group", []);
+  const groupId = useMemo19(() => "isolated_default_group", []);
   const registry = manager.addOrGetRegistry(registryId);
   const group = registry.groups.addOrGetGroup(groupId);
   useEffect17(() => {
-    registry.loadOneFile({
+    registry.loadFullOneFile({
       thermalUrl,
       visibleUrl
     }, group.id);

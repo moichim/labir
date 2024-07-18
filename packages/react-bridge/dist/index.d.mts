@@ -14,8 +14,6 @@ declare const useThermalDropin: (registry: ThermalRegistry, groupId: string) => 
     group: _labir_core.ThermalGroup;
     instances: {
         value: _labir_core.AbstractFile[];
-        instantiateSources: (sources: _labir_core.ThermalFileSource[]) => void;
-        removeAllInstances: () => void;
     };
     dropzone: react_dropzone.DropzoneState;
 };
@@ -164,8 +162,6 @@ declare const useThermalRegistryRangeDrive: (registry: ThermalRegistry, purpose:
 
 declare const useThermalGroupInstancesState: (group: ThermalGroup, purpose: string) => {
     value: AbstractFile[];
-    instantiateSources: (sources: _labir_core.ThermalFileSource[]) => void;
-    removeAllInstances: () => void;
 };
 
 declare const useThermalRegistryGroupsState: (registry: ThermalRegistry, purpose: string) => {
@@ -215,8 +211,6 @@ declare const useFilesInGroup: (urls: string[], registryId: string, groupId: str
     group: _labir_core.ThermalGroup;
     instances: {
         value: _labir_core.AbstractFile[];
-        instantiateSources: (sources: _labir_core.ThermalFileSource[]) => void;
-        removeAllInstances: () => void;
     };
 };
 

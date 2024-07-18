@@ -5,7 +5,6 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { AbstractFile } from "../file/AbstractFile";
 import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
-import { InstancesState } from "../properties/lists/InstancesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
 import { ThermalRegistry } from "./ThermalRegistry";
@@ -31,9 +30,6 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
 
     public readonly minmax: MinmaxGroupProperty = new MinmaxGroupProperty(this, undefined);
-
-    /** @deprecated */
-    public readonly instances: InstancesState = new InstancesState(this, []);
 
     public readonly files: FilesState = new FilesState( this, [] );
 

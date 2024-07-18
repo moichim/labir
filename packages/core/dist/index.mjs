@@ -36,1451 +36,6 @@ var AbstractProperty = class {
   }
 };
 
-// src/properties/time/TimelineDriveOld.ts
-var TimelineDriveOld = class extends AbstractProperty {
-  constructor(parent, initial) {
-    super(parent, initial);
-    this.parent = parent;
-    const startOfSequence = this.parent.frames[0].timestamp;
-    this.frames = this.parent.frames.map((frame, index) => {
-      const ms = frame.timestamp - startOfSequence;
-      const value = {
-        ...frame,
-        index,
-        ms
-      };
-      this.framesByIndex.set(index, value);
-      this.framesByMs.set(value.ms, value);
-      this.framesByTimestamp.set(value.timestamp, value);
-      this.localTimeline.push(value.ms);
-      return value;
-    });
-    this._currentFrame = this.frames[0];
-  }
-  frames;
-  get duration() {
-    return this.parent.duration;
-  }
-  get frameCount() {
-    return this.frames.length;
-  }
-  framesByTimestamp = /* @__PURE__ */ new Map();
-  framesByMs = /* @__PURE__ */ new Map();
-  framesByIndex = /* @__PURE__ */ new Map();
-  localTimeline = [];
-  _currentFrame;
-  set currentFrame(frame) {
-    if (frame.ms !== this._currentFrame.ms) {
-      this._currentFrame = frame;
-      this._onChangeListeners.forEach((fn) => fn(this._currentFrame));
-      this.parent.pixels = frame.pixels;
-    }
-  }
-  get currentFrame() {
-    return this._currentFrame;
-  }
-  get nextFrame() {
-    const current = this.currentFrame;
-    const nextIndex = current.index + 1;
-    if (nextIndex <= this.frameCount) {
-      return this.framesByIndex.get(nextIndex);
-    }
-    return void 0;
-  }
-  get nextFrameTimeoutDuration() {
-    if (this.nextFrame !== void 0) {
-      return this.nextFrame.ms - this.currentFrame.ms;
-    }
-    return void 0;
-  }
-  _onChangeListeners = /* @__PURE__ */ new Map();
-  /** Event listener to changement of the current frame.
-   * - the current frame is not changed every time the value changes
-   * - the current frame is changed only when the ms value points fo a new previous frame
-   */
-  addChangeListener(identificator, fn) {
-    this._onChangeListeners.set(identificator, fn);
-  }
-  removeChangeListener(identificator) {
-    this._onChangeListeners.delete(identificator);
-  }
-  /** 
-   * Get the next frame to a given MS
-   * @todo improve the performance
-   * @internal
-   */
-  getNextFrameToMs(ms) {
-    const nextTimestamp = this.localTimeline.find((timestamp) => timestamp > ms);
-    if (nextTimestamp === void 0) {
-      return void 0;
-    }
-    return this.framesByMs.get(nextTimestamp);
-  }
-  /** 
-   * Get the previous frame to a given MS 
-   * @todo improve performance
-   * @internal
-   */
-  getPreviousFrameToMs(ms) {
-    const previousTimestamp = this.localTimeline.reverse().find((timestamp) => timestamp < ms);
-    if (previousTimestamp === void 0) {
-      return void 0;
-    }
-    return this.framesByMs.get(previousTimestamp);
-  }
-  /** Check if the value is within the duration */
-  validate(value) {
-    if (value < 0)
-      return 0;
-    return value <= this.duration ? value : this.duration;
-  }
-  /** Any time the value is set, check if there is a frame and eventually setit */
-  afterSetEffect(value) {
-    if (value === this.currentFrame.ms) {
-    } else if (this.localTimeline.includes(value)) {
-      const newFrame = this.framesByMs.get(value);
-      if (this.currentFrame.ms !== newFrame.ms)
-        this.currentFrame = newFrame;
-    } else {
-      const prevFrame = this.getPreviousFrameToMs(value);
-      if (prevFrame) {
-        if (prevFrame.ms !== this.currentFrame.ms)
-          this.currentFrame = prevFrame;
-      }
-    }
-  }
-  setMs(ms) {
-    this.value = ms;
-  }
-  setValueByPercent(percentage) {
-    const percent = Math.min(Math.max(percentage, 0), 100);
-    const time = this.duration / 100 * percent;
-    this.value = Math.floor(time);
-  }
-  goToNextFrame() {
-    if (this.nextFrame) {
-      this.value = this.nextFrame.ms;
-    }
-  }
-  static formatDuration(ms) {
-    const millis = ms % 1e3;
-    const secs = (ms - millis) % (1e3 * 60);
-    const mins = (ms - millis - secs) / (1e3 * 60 * 60);
-    return [
-      mins,
-      secs,
-      millis
-    ].join(":");
-  }
-  timer;
-  play() {
-    this.timer = setInterval(() => {
-      this.goToNextFrame();
-    }, this.nextFrameTimeoutDuration);
-  }
-  pause() {
-    clearInterval(this.timer);
-  }
-  stop() {
-    clearInterval(this.timer);
-    this.setMs(0);
-  }
-};
-
-// src/properties/states/CursorValueDrive.ts
-var CursorValueDrive = class extends AbstractProperty {
-  validate(value) {
-    return value;
-  }
-  // Once the value changes, project it to the cursor layer
-  afterSetEffect() {
-  }
-  recalculateFromCursor(position) {
-    if (position)
-      this.value = this._getValueAtCoordinate(position.x, position.y);
-  }
-  _getValueAtCoordinate(x, y) {
-    if (x === void 0 || y === void 0) {
-      return void 0;
-    }
-    const index = x + y * this.parent.width;
-    const value = this.parent.pixels[index];
-    return value;
-  }
-};
-
-// src/utils/pool.ts
-var workerpool = await import("workerpool");
-var pool = workerpool.pool({
-  maxWorkers: 6
-});
-var pool_default = pool;
-
-// src/base/BaseStructureObject.ts
-var BaseStructureObject = class {
-  pool = pool_default;
-};
-
-// src/file/AbstractFile.ts
-var AbstractFile = class extends BaseStructureObject {
-  id;
-  horizontalLimit;
-  verticalLimit;
-  group;
-  url;
-  thermalUrl;
-  visibleUrl;
-  fileName;
-  frameCount;
-  frames = [];
-  signature = "unknown";
-  version = -1;
-  streamCount = -1;
-  fileDataType = -1;
-  unit = -1;
-  width;
-  height;
-  timestamp;
-  duration;
-  min;
-  max;
-  _isHover = false;
-  get isHover() {
-    return this._isHover;
-  }
-  set isHover(value) {
-    this._isHover = value;
-  }
-  // DOM root
-  root = null;
-  // DOM layers
-  canvasLayer;
-  visibleLayer;
-  cursorLayer;
-  listenerLayer;
-  // Drives
-  timeline;
-  cursorValue;
-  _mounted = false;
-  get mountedBaseLayers() {
-    return this._mounted;
-  }
-  set mountedBaseLayers(value) {
-    this._mounted = value;
-  }
-  _pixels;
-  get pixels() {
-    return this._pixels;
-  }
-  set pixels(value) {
-    this._pixels = value;
-    this.onSetPixels(value);
-  }
-  constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
-    super();
-    this.group = group;
-    this.id = this.formatId(thermalUrl);
-    this.url = thermalUrl;
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.duration = duration;
-    this.min = min;
-    this.max = max;
-    this.frameCount = frameCount;
-    this.horizontalLimit = this.width / 4 * 3;
-    this.verticalLimit = this.height / 4 * 3;
-    this._pixels = initialPixels;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  attachToDom(container) {
-    if (this.root !== null || this.mountedBaseLayers === true) {
-      console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
-      this.detachFromDom();
-      this.unmountListener();
-    }
-    this.root = container;
-    this.root.classList.add("thermalImageRoot");
-    this.root.style.transition = "border-color .1s ease-in-out";
-    this.root.style.zIndex = "10";
-    this.root.style.position = "relative";
-    this.root.style.lineHeight = "0";
-    if (this.visibleLayer.exists)
-      this.visibleLayer.mount();
-    this.canvasLayer.mount();
-    this.cursorLayer.mount();
-    this.root.dataset.thermalFile = this.id;
-    this.root.dataset.mounted = "true";
-    this.mountListener();
-    this.mountedBaseLayers = true;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  detachFromDom() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
-    }
-    if (this.root) {
-      this.root.dataset.mounted = "false";
-      this.root.dataset.thermalFile = void 0;
-    }
-    this.visibleLayer.unmount();
-    this.canvasLayer.unmount();
-    this.cursorLayer.unmount();
-    this.unmountListener();
-    this.mountedBaseLayers = false;
-  }
-  mountListener() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-      return;
-    }
-    this.listenerLayer.mount();
-    this.listenerLayer.getLayerRoot().onmousemove = (event) => {
-      this.cursorLayer.show = true;
-      this.isHover = true;
-      const client = this.width;
-      const parent = this.root.clientWidth;
-      const aspect = client / parent;
-      const x = Math.round(event.offsetX * aspect);
-      const y = Math.round(event.offsetY * aspect);
-      this.group.cursorPosition.recieveCursorPosition({ x, y });
-      if (this._onHover)
-        this._onHover(event, this);
-    };
-    this.listenerLayer.getLayerRoot().onmouseleave = () => {
-      this.cursorLayer.show = false;
-      this.isHover = false;
-      this.group.cursorPosition.recieveCursorPosition(void 0);
-    };
-    this.listenerLayer.getLayerRoot().onclick = (event) => {
-      if (this._onClick)
-        this._onClick(event, this);
-    };
-  }
-  unmountListener() {
-    this.listenerLayer.unmount();
-  }
-  mountToDom(container) {
-    this.attachToDom(container);
-  }
-  unmountFromDom() {
-    this.detachFromDom();
-  }
-  draw() {
-    if (this.mountedBaseLayers === true)
-      this.canvasLayer.draw();
-  }
-  recievePalette(palette) {
-    palette;
-    this.draw();
-  }
-  destroySelfAndBelow() {
-    this.detachFromDom();
-  }
-  removeAllChildren() {
-    this.detachFromDom();
-  }
-  recieveCursorPosition(position) {
-    this.cursorValue.recalculateFromCursor(position);
-    if (position !== void 0 && this.cursorValue.value !== void 0) {
-      this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
-      this.cursorLayer.show = true;
-    } else {
-      this.cursorLayer.show = false;
-      this.cursorLayer.resetCursor();
-    }
-  }
-  getTemperatureAtPoint(x, y) {
-    const index = y * this.width + x;
-    return this.pixels[index];
-  }
-  recieveRange(value) {
-    if (value !== void 0) {
-      this.draw();
-    }
-  }
-  reset() {
-  }
-  recieveOpacity(value) {
-    if (this.visibleLayer && this.canvasLayer) {
-      this.canvasLayer.opacity = value;
-    }
-  }
-  /** @deprecated */
-  _onHover = void 0;
-  /** @deprecated */
-  setHoverHandler(handler) {
-    this._onHover = handler;
-  }
-  /** @deprecated */
-  setHoverCursor(value) {
-    if (this.root) {
-      if (this.root.style.cursor !== value)
-        this.root.style.cursor = value;
-    }
-  }
-  _onClick = void 0;
-  setClickHandler(handler = void 0) {
-    this._onClick = handler;
-  }
-};
-
-// src/file/instanceUtils/ThermalFileExports.ts
-import { download, generateCsv, mkConfig } from "export-to-csv";
-var ThermalFileExport = class {
-  constructor(file) {
-    this.file = file;
-  }
-  canvasAsPng() {
-    return this.file.canvasLayer.exportAsPng();
-  }
-  thermalDataAsCsv(fileNameSuffix = "__thermal-data") {
-    const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace(".lrc", fileNameSuffix) });
-    const data = this.file.frames.map((frame) => {
-      const { pixels, ...data2 } = frame;
-      pixels;
-      return data2;
-    });
-    const csv = generateCsv(csvConfig)(data);
-    download(csvConfig)(csv);
-  }
-};
-
-// src/file/instanceUtils/AbstractLayer.ts
-var AbstractLayer = class {
-  constructor(instance) {
-    this.instance = instance;
-  }
-  _mounted = false;
-  get mounted() {
-    return this._mounted;
-  }
-  mount() {
-    if (!this._mounted) {
-      if (this.instance.root !== null) {
-        this._mounted = true;
-        this.instance.root.appendChild(this.getLayerRoot());
-      }
-    }
-  }
-  unmount() {
-    if (this._mounted) {
-      if (this.instance.root !== null) {
-        this._mounted = false;
-        this.instance.root.removeChild(this.getLayerRoot());
-      }
-    }
-  }
-  destroy() {
-    this.onDestroy();
-  }
-};
-
-// src/file/instanceUtils/domFactories.ts
-var ThermalDomFactory = class _ThermalDomFactory {
-  static createCanvasContainer() {
-    const container = document.createElement("div");
-    container.classList.add("thermalCanvasWrapper");
-    container.style.position = "relative";
-    return container;
-  }
-  static createCanvas() {
-    const canvas = document.createElement("canvas");
-    canvas.classList.add("thermalCanvas");
-    canvas.style.padding = "0px";
-    canvas.style.margin = "0px";
-    canvas.style.objectFit = "contain";
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.objectPosition = "top left";
-    return canvas;
-  }
-  static createDateLayer() {
-    const layer = document.createElement("div");
-    layer.classList.add("dateLayer");
-    layer.style.margin = "0px";
-    layer.style.padding = "0px";
-    layer.style.position = "absolute";
-    layer.style.top = "0px";
-    layer.style.left = "0%";
-    layer.style.width = "100%";
-    layer.style.fontSize = "small";
-    return layer;
-  }
-  static createDateLayerInner() {
-    const inner = document.createElement("div");
-    inner.classList.add("dateLayerInner");
-    inner.style.margin = "0px";
-    inner.style.padding = ".3rem 0rem";
-    inner.style.backgroundColor = "black";
-    inner.style.color = "white";
-    inner.style.borderRadius = ".5rem .5rem 0 0";
-    inner.style.width = "calc(100% + 4px )";
-    inner.style.position = "absolute";
-    inner.style.top = "0rem";
-    inner.style.left = "-2px";
-    inner.style.opacity = "0";
-    inner.style.transition = "opacity .1s ease-in-out";
-    inner.style.textAlign = "center";
-    return inner;
-  }
-  static createVisibleLayer() {
-    const layer = document.createElement("div");
-    layer.classList.add("visibleLayer");
-    layer.style.margin = "0px";
-    layer.style.padding = "0px";
-    layer.style.height = "100%";
-    layer.style.width = "100%";
-    layer.style.position = "absolute";
-    layer.style.top = "0px";
-    layer.style.left = "0px";
-    return layer;
-  }
-  static createVisibleImage() {
-    const img = document.createElement("img");
-    img.classList.add("visibleLayerImage");
-    img.style.padding = "0px";
-    img.style.margin = "0px";
-    img.style.objectFit = "contain";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectPosition = "top left";
-    return img;
-  }
-  static createListener() {
-    const listener = document.createElement("div");
-    listener.classList.add("thermalListener");
-    listener.style.margin = "0px";
-    listener.style.padding = "0px";
-    listener.style.height = "100%";
-    listener.style.width = "100%";
-    listener.style.position = "absolute";
-    listener.style.top = "0px";
-    listener.style.left = "0px";
-    listener.style.cursor = "pointer";
-    listener.setAttribute("id", Math.random().toString());
-    return listener;
-  }
-  static createCursorLayerRoot() {
-    const layer = document.createElement("div");
-    layer.classList.add("cursorLayerRoot");
-    layer.style.width = "100%";
-    layer.style.height = "100%";
-    layer.style.position = "absolute";
-    layer.style.top = "0";
-    layer.style.left = "0";
-    layer.style.opacity = "0";
-    layer.style.overflow = "hidden";
-    layer.style.lineHeight = "1rem";
-    return layer;
-  }
-  static createCursorLayerCenter() {
-    const container = document.createElement("div");
-    container.classList.add("cursorLayerCenter");
-    container.style.position = "absolute";
-    container.style.top = "0px";
-    container.style.left = "0px";
-    container.style.width = "0px";
-    container.style.height = "0px";
-    return container;
-  }
-  static createCursorLayerAxeBase() {
-    const axe = document.createElement("div");
-    axe.classList.add("cursorLayerAxe");
-    axe.style.backdropFilter = "invert(100)";
-    axe.style.position = "absolute";
-    axe.style.top = "0px";
-    axe.style.left = "0px";
-    axe.style.content = "";
-    return axe;
-  }
-  static createCursorLayerX() {
-    const axeX = _ThermalDomFactory.createCursorLayerAxeBase();
-    axeX.classList.add("cursorLayerAxeX");
-    axeX.style.width = "1px";
-    axeX.style.height = "20px";
-    axeX.style.top = "-10px";
-    return axeX;
-  }
-  static createCursorLayerY() {
-    const axeY = _ThermalDomFactory.createCursorLayerAxeBase();
-    axeY.classList.add("cursorLayerAxeY");
-    axeY.style.width = "20px";
-    axeY.style.height = "1px";
-    axeY.style.left = "-10px";
-    return axeY;
-  }
-  static createCursorLayerLabel() {
-    const axeLabel = document.createElement("div");
-    axeLabel.classList.add("cursorLayerLabel");
-    axeLabel.style.position = "absolute";
-    axeLabel.style.padding = "1px 3px";
-    axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
-    axeLabel.style.color = "white";
-    axeLabel.style.whiteSpace = "nowrap";
-    axeLabel.style.fontSize = "small";
-    axeLabel.style.borderRadius = "5px";
-    return axeLabel;
-  }
-};
-
-// src/file/instanceUtils/VisibleLayer.ts
-var VisibleLayer = class extends AbstractLayer {
-  constructor(instance, _url) {
-    super(instance);
-    this._url = _url;
-    this.container = ThermalDomFactory.createVisibleLayer();
-    if (this._url) {
-      this.image = ThermalDomFactory.createVisibleImage();
-      this.url = this._url;
-      this.container.appendChild(this.image);
-    }
-  }
-  container;
-  image;
-  get url() {
-    return this._url;
-  }
-  set url(value) {
-    this._url = value;
-    if (this.image && value) {
-      this.image.src = value;
-    }
-  }
-  get exists() {
-    return this._url !== void 0;
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    if (this.image) this.image.remove();
-    this.container.remove();
-  }
-};
-
-// src/file/instanceUtils/thermalCanvasLayer.ts
-var ThermalCanvasLayer = class extends AbstractLayer {
-  pool = pool_default;
-  container;
-  canvas;
-  context;
-  // protected offscreen: OffscreenCanvas;
-  get width() {
-    return this.instance.width;
-  }
-  get height() {
-    return this.instance.height;
-  }
-  get pixels() {
-    return this.instance.pixels;
-  }
-  get from() {
-    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.from : this.instance.min;
-  }
-  get to() {
-    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.to : this.instance.max;
-  }
-  _opacity = 1;
-  get opacity() {
-    return this._opacity;
-  }
-  set opacity(value) {
-    this._opacity = Math.max(Math.min(value, 1), 0);
-    if (this._opacity !== 1)
-      this.getLayerRoot().style.opacity = this._opacity.toString();
-    else {
-      this.getLayerRoot().style.removeProperty("opacity");
-    }
-  }
-  constructor(instance) {
-    super(instance);
-    this.container = ThermalDomFactory.createCanvasContainer();
-    this.canvas = ThermalDomFactory.createCanvas();
-    this.canvas.width = this.instance.width;
-    this.canvas.height = this.instance.height;
-    this.context = this.canvas.getContext("2d");
-    this.container.appendChild(this.canvas);
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    this.canvas.remove();
-    this.container.remove();
-  }
-  /** Returns an array of 255 RGB colors */
-  getPalette() {
-    return this.instance.group.registry.palette.currentPalette.pixels;
-  }
-  async draw() {
-    const paletteColors = this.getPalette();
-    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
-      const canvas = new OffscreenCanvas(width, height);
-      const context = canvas.getContext("2d");
-      const displayRange = to - from;
-      for (let x = 0; x <= width; x++) {
-        for (let y = 0; y <= height; y++) {
-          const index = x + y * width;
-          let temperature = pixels[index];
-          if (temperature < from)
-            temperature = from;
-          if (temperature > to)
-            temperature = to;
-          const temperatureRelative = temperature - from;
-          const temperatureAspect = temperatureRelative / displayRange;
-          const colorIndex = Math.round(255 * temperatureAspect);
-          const color = palette[colorIndex];
-          context.fillStyle = color;
-          context.fillRect(x, y, 1, 1);
-        }
-      }
-      const imageData = context.getImageData(0, 0, width, height);
-      const result = await createImageBitmap(imageData);
-      return result;
-    }, [
-      this.from,
-      this.to,
-      this.width,
-      this.height,
-      this.pixels,
-      paletteColors
-    ], {});
-    this.context.drawImage(image, 0, 0);
-  }
-  exportAsPng() {
-    const image = this.canvas.toDataURL();
-    const link = document.createElement("a");
-    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
-    link.href = image;
-    link.click();
-  }
-};
-
-// src/file/instanceUtils/thermalCursorLayer.ts
-var ThermalCursorLayer = class extends AbstractLayer {
-  layerRoot;
-  center;
-  axisX;
-  axisY;
-  label;
-  constructor(instance) {
-    super(instance);
-    this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
-    this.center = ThermalDomFactory.createCursorLayerCenter();
-    this.axisX = ThermalDomFactory.createCursorLayerX();
-    this.axisY = ThermalDomFactory.createCursorLayerY();
-    this.label = ThermalDomFactory.createCursorLayerLabel();
-    this.layerRoot.appendChild(this.center);
-    this.center.appendChild(this.axisX);
-    this.center.appendChild(this.axisY);
-    this.center.appendChild(this.label);
-  }
-  // Set visible / invisible
-  _show = false;
-  get show() {
-    return this._show;
-  }
-  set show(value) {
-    this._show = value;
-    this.layerRoot.style.opacity = this._show ? "1" : "0";
-  }
-  _hover = false;
-  get hover() {
-    return this._hover;
-  }
-  set hover(value) {
-    this._hover = value;
-    this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
-  }
-  setCursor(x, y, value) {
-    if (this.instance.root === null) {
-    } else {
-      const aspect = this.instance.root.offsetWidth / this.instance.width;
-      const centerX = Math.round(x * aspect);
-      const centerY = Math.round(y * aspect);
-      this.center.style.left = this.px(centerX);
-      this.center.style.top = this.px(centerY);
-      if (x > this.instance.width / 3) {
-        this.label.style.right = "3px";
-        this.label.style.removeProperty("left");
-      } else {
-        this.label.style.left = "3px";
-        this.label.style.removeProperty("right");
-      }
-      if (y > this.instance.height / 4) {
-        if (this.label.style.bottom !== "3px") {
-          this.label.style.bottom = "3px";
-          this.label.style.removeProperty("top");
-        }
-      } else {
-        if (this.label.style.top !== "3px") {
-          this.label.style.top = "3px";
-          this.label.style.removeProperty("bottom");
-        }
-      }
-      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
-    }
-  }
-  setValue(value) {
-    if (value)
-      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
-  }
-  resetCursor() {
-    this.center.style.top = "0px";
-    this.center.style.left = "0px";
-    this.label.style.removeProperty("right");
-    this.label.style.removeProperty("bottom");
-    this.label.style.top = "3px";
-    this.label.style.left = "3px";
-    this.label.innerHTML = "";
-  }
-  px(number) {
-    return `${number}px`;
-  }
-  getLayerRoot() {
-    return this.layerRoot;
-  }
-  onDestroy() {
-    this.label.remove();
-    this.axisX.remove();
-    this.axisY.remove();
-    this.center.remove();
-    this.layerRoot.remove();
-  }
-};
-
-// src/file/instanceUtils/thermalListenerLayer.ts
-var ThermalListenerLayer = class extends AbstractLayer {
-  container;
-  constructor(instance) {
-    super(instance);
-    this.container = ThermalDomFactory.createListener();
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    this.container.remove();
-  }
-};
-
-// src/file/ThermalFileInstance.ts
-var ThermalFileInstance = class extends AbstractFile {
-  // Necessary properties are calculated in the constructor
-  constructor(source, group) {
-    super(
-      group,
-      source.url,
-      source.width,
-      source.height,
-      source.pixels,
-      source.timestamp,
-      source.duration,
-      source.min,
-      source.max,
-      source.frameCount,
-      source.visibleUrl
-    );
-    this.source = source;
-    this.group = group;
-  }
-  get dataType() {
-    return this.source.fileDataType;
-  }
-  getPixelsForHistogram() {
-    return this.source.pixelsForHistogram;
-  }
-  /** @deprecated */
-  postInit() {
-    this.signature = this.source.signature;
-    this.unit = this.source.unit;
-    this.version = this.source.version;
-    this.streamCount = this.source.streamCount;
-    this.fileDataType = this.source.fileDataType;
-    this.frames = this.source.frames;
-    this.timeline = new TimelineDriveOld(this, 0);
-    this.pixels = this.timeline.currentFrame.pixels;
-    this.canvasLayer = new ThermalCanvasLayer(this);
-    this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
-    this.cursorLayer = new ThermalCursorLayer(this);
-    this.listenerLayer = new ThermalListenerLayer(this);
-    this.cursorValue = new CursorValueDrive(this, void 0);
-    return this;
-  }
-  formatId(thermalUrl) {
-    return `instance_${this.group.id}_${thermalUrl}`;
-  }
-  onSetPixels(value) {
-    value;
-    if (this.mountedBaseLayers) {
-      this.draw();
-      this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
-      if (this.group.cursorPosition.value) {
-        const value2 = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
-        this.cursorLayer.setValue(value2);
-      }
-    }
-  }
-  //////  Human readable data shall be moved elsewhere!
-  get unitHuman() {
-    return this.unit === 0 ? "none" : this.unit === 1 ? "intensity" : this.unit === 2 ? "\xB0C" : this.unit === 3 ? "Kelvin" : "unit not specified";
-  }
-  get dataTypeHuman() {
-    return this.dataType === 0 ? "Float16" : this.dataType === 1 ? "Float32" : this.dataType === 2 ? "Int16" : "error parsing data type";
-  }
-  /**
-   * Exports
-   */
-  _export;
-  /** Lazy-loaded `ThermalFileExport` object */
-  get export() {
-    if (!this._export) {
-      const newExport = new ThermalFileExport(this);
-      this._export = newExport;
-    }
-    return this._export;
-  }
-  /** 
-   * Export the current canvas state as PNG 
-   * @deprecated call this.export directly
-  */
-  exportAsPng() {
-    this.export.canvasAsPng();
-  }
-  /** 
-   * Export thermal parameters as CSV table 
-   * @deprecated call this.export directly
-  */
-  exportThermalDataAsSvg() {
-    this.export.thermalDataAsCsv();
-  }
-};
-
-// src/loading/mainThread/parsers/thermalLoader.ts
-import fetch2 from "cross-fetch";
-
-// src/loading/mainThread/parsers/AbstractParser.ts
-var AbstractParser = class {
-  constructor(url, blob, visibleUrl) {
-    this.url = url;
-    this.blob = blob;
-    this.visibleUrl = visibleUrl;
-  }
-  /** DataView on the entire file contents. */
-  data;
-  /** FrameBuffer */
-  frameSubset;
-  /** Create the dataview */
-  async init() {
-    const buffer = await this.blob.arrayBuffer();
-    this.data = new DataView(buffer);
-    const frameSubset = buffer.slice(25);
-    this.frameSubset = frameSubset;
-    return this;
-  }
-  /** The only public endpoint. This method does all the business. */
-  async parse() {
-    await this.init();
-    await this.parseFile();
-    return this.getThermalFile();
-  }
-  // Common data parsing
-  // Timestamp
-  timestamp;
-  isValidTimestamp = (value) => Number.isInteger(value);
-  parseTimestamp() {
-    const value = this.getTimestamp();
-    if (!this.isValidTimestamp(value))
-      this.logValidationError("timestamp", value);
-    this.timestamp = value;
-  }
-  // Width
-  width;
-  isValidWidth = (value) => Number.isInteger(value);
-  parseWidth() {
-    const value = this.getWidth();
-    if (!this.isValidWidth(value))
-      this.logValidationError("width", value);
-    this.width = value;
-  }
-  // Height
-  height;
-  isValidHeight = (value) => Number.isInteger(value);
-  parseHeight() {
-    const value = this.getHeight();
-    if (!this.isValidHeight(value))
-      this.logValidationError("height", value);
-    this.height = value;
-  }
-  // Common data parsing
-  pixels;
-  isValidPixels = (value) => {
-    return value !== void 0 && value.length === this.width * this.height;
-  };
-  async parsePixels() {
-    const value = this.getPixels();
-    this.pixels = value;
-  }
-  // Min
-  min;
-  isValidMin = (value) => value !== void 0;
-  parseMin() {
-    const value = this.getMin();
-    if (!this.isValidMin(value))
-      this.logValidationError("min", value);
-    this.min = value;
-  }
-  // Max
-  max;
-  isValidMax = (value) => value !== void 0;
-  parseMax() {
-    const value = this.getMax();
-    if (!this.isValidMax(value))
-      this.logValidationError("max", value);
-    this.max = value;
-  }
-  // Frame count
-  frameCount;
-  isValidFrameCount = (value) => Number.isInteger(value);
-  parseFrameCount() {
-    const value = this.getFrameCount();
-    if (!this.isValidFrameCount(value))
-      this.logValidationError("frameCount", value);
-    this.frameCount = value;
-  }
-  frames;
-  isValidFrames = (value) => {
-    if (value === void 0) return false;
-    if (this.frameCount === void 0) return false;
-    else
-      return value.length === this.frameCount;
-  };
-  parseFrames() {
-    const value = this.getFrames();
-    if (!this.isValidFrames(value))
-      this.logValidationError("frames", value.toString());
-    this.frames = value;
-  }
-  // Error logging
-  /** Buffer of errors that occured during the parsing. */
-  errors = [];
-  /** Store an error. */
-  logError(message) {
-    console.error(message);
-    this.errors.push(message);
-  }
-  /** Store an error during parsing. */
-  logValidationError(property, value) {
-    const msg = `Invalid ${property} of ${this.url}: '${value.toString()}'`;
-    this.logError(msg);
-  }
-  getErrors() {
-    return this.errors;
-  }
-  encodeErrors() {
-    return this.errors.join("+|+");
-  }
-  /**  @deprecated Is not in use */
-  static decodeErrors(errorsString) {
-    return errorsString.split("+|+");
-  }
-};
-
-// src/loading/mainThread/parsers/lrc/LrcUtils.ts
-var LrcUtils = class {
-  static readDotnetTimestamp(byteOffset, view) {
-    const bigIntTime = view.getBigInt64(byteOffset, true);
-    const UnixEpoch = 62135596800000n;
-    const TicksPerMillisecond = 10000n;
-    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-    const TicksCeiling = 0x4000000000000000n;
-    const LocalMask = 0x8000000000000000n;
-    const TicksMask = 0x3FFFFFFFFFFFFFFFn;
-    let ticks = bigIntTime & TicksMask;
-    const isLocalTime = bigIntTime & LocalMask;
-    if (isLocalTime) {
-      if (ticks > TicksCeiling - TicksPerDay) {
-        ticks -= TicksCeiling;
-      }
-      if (ticks < 0) {
-        ticks += TicksPerDay;
-      }
-    }
-    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-    return Number(milliseconds);
-  }
-  static readFloat32(index, view) {
-    return view.getFloat32(index, true);
-  }
-  static read8bNumber(index, view) {
-    return view.getUint8(index);
-  }
-  static readTemperatureArray(index, view, dataType, min, max) {
-    const subset = view.buffer.slice(index);
-    if (dataType === 0) {
-      const array = new Uint16Array(subset);
-      const distance = Math.abs(min - max);
-      const UINT16_MAX = 65535;
-      return [...array].map((pixel) => {
-        const mappedValue = pixel / UINT16_MAX;
-        return min + distance * mappedValue;
-      });
-    } else if (dataType === 1) {
-      return [...new Float32Array(subset)];
-    }
-    return [];
-  }
-};
-
-// src/loading/mainThread/parsers/lrc/LrcFrameParser.ts
-var LrcFrameParser = class {
-  constructor(arrayBuffer, width, height, dataType, frameCount, frameByteSize, pixelByteSize) {
-    this.arrayBuffer = arrayBuffer;
-    this.width = width;
-    this.height = height;
-    this.dataType = dataType;
-    this.frameCount = frameCount;
-    this.frameByteSize = frameByteSize;
-    this.pixelByteSize = pixelByteSize;
-  }
-  parseFrame(index) {
-    if (!Number.isInteger(index)) {
-      throw new Error(`The frame index ${index} is invalid!`);
-    }
-    const frameSubsetStart = index * this.frameByteSize;
-    const frameSubsetEnd = frameSubsetStart + this.frameByteSize;
-    const frameArrayBuffer = this.arrayBuffer.slice(
-      frameSubsetStart,
-      frameSubsetEnd
-    );
-    const view = new DataView(frameArrayBuffer);
-    const frameMin = LrcUtils.readFloat32(8, view);
-    const frameMax = LrcUtils.readFloat32(12, view);
-    const frameData2 = {
-      timestamp: LrcUtils.readDotnetTimestamp(0, view),
-      min: frameMin,
-      max: frameMax,
-      modeMinInKelvin: LrcUtils.readFloat32(16, view),
-      modeMaxInKelvin: LrcUtils.readFloat32(20, view),
-      emissivity: LrcUtils.readFloat32(24, view),
-      reflectedTemperaatureInKelvin: LrcUtils.readFloat32(28, view),
-      distance: LrcUtils.readFloat32(32, view),
-      atmosphereTemperatureInKelvin: LrcUtils.readFloat32(36, view),
-      relativeHumidity: LrcUtils.readFloat32(40, view),
-      tau: LrcUtils.readFloat32(44, view),
-      windowTemperature: LrcUtils.readFloat32(48, view),
-      windowTransmissivity: LrcUtils.readFloat32(52, view),
-      isTauSet: LrcUtils.read8bNumber(53, view),
-      pixels: LrcUtils.readTemperatureArray(57, view, this.dataType, frameMin, frameMax)
-    };
-    return frameData2;
-  }
-};
-
-// src/loading/mainThread/parsers/lrc/lrcParser.ts
-var LrcParser = class extends AbstractParser {
-  _signature;
-  _version;
-  _streamCount;
-  _fileDataType;
-  _pixelByteLength;
-  _unit;
-  async parseFile() {
-    await this.parseSignature();
-    this.parseVersion();
-    this.parseDataType();
-    this.parseStreamCount();
-    this.parseTimestamp();
-    this.parseUnit();
-    this.parseWidth();
-    this.parseHeight();
-    this.parseFrameCount();
-    this.parseFrames();
-    this.parseMin();
-    this.parseMax();
-    await this.parsePixels();
-  }
-  // Signature
-  isValidSignature = (value) => value === "LRC\0";
-  async parseSignature() {
-    const value = await this.readString(0, 4);
-    if (!this.isValidSignature(value)) {
-      this.logValidationError("signature", value);
-    }
-    this._signature = value;
-  }
-  // Version
-  isValidVersion = (value) => value === 2;
-  parseVersion() {
-    const value = this.read8bNumber(4);
-    if (!this.isValidVersion(value))
-      this.logValidationError("version", value);
-    this._version = value;
-  }
-  // Stream count
-  // pro LRC z běžné kamery musí být vždy 1
-  // Je-li streamů více, obsahují doplňkové údaje viz Unit
-  isStreamCountValid = (value) => value === 1;
-  parseStreamCount() {
-    const value = this.read8bNumber(14);
-    if (!this.isStreamCountValid(value))
-      this.logValidationError("streamCount", value);
-    this._streamCount = value;
-  }
-  // File data type
-  // 0 = float16
-  // 1 = float32 - tento je z LabIR Edu kamery
-  // 2 = int16
-  isDataTypeValid = (value) => value === void 0 ? false : [0, 1, 2].includes(value);
-  parseDataType() {
-    const value = this.read8bNumber(15);
-    if (!this.isDataTypeValid(value))
-      this.logValidationError("fileDataType", value);
-    this._fileDataType = value;
-    this._pixelByteLength = value === 0 ? 2 : 4;
-  }
-  /** Get byteSize of one pixel depending on the file data type */
-  get pixelByteLength() {
-    return this._pixelByteLength;
-  }
-  // Unit
-  // 0 = none
-  // 1 = intensity (surová data z termokamery - nelze přepočítat bez kalibrační křivky snímače)
-  // 2 = stupně celsia
-  // 3 = kelviny (přepočítat jednoduše)
-  // 4 = čas (mimo kontext - neřešit)
-  // 5 = úhel v radiánech čas (mimo kontext - neřešit)
-  isValidUnit = (value) => value === 2;
-  parseUnit() {
-    const value = this.read8bNumber(16);
-    if (!this.isValidUnit(value))
-      this.logValidationError("unit", value);
-    this._unit = value;
-  }
-  getFrameCount() {
-    return this.getNumberOfFrames();
-  }
-  // Min
-  getMin() {
-    return this.frames.reduce((state, current) => {
-      if (current.min < state) {
-        return current.min;
-      }
-      return state;
-    }, Infinity);
-  }
-  getMax() {
-    return this.frames.reduce((state, current) => {
-      if (current.max > state) {
-        return current.max;
-      }
-      return state;
-    }, -Infinity);
-  }
-  // Width
-  getWidth() {
-    return this.read16bNumber(17);
-  }
-  // Height
-  getHeight() {
-    return this.read16bNumber(19);
-  }
-  // Read the file timestamp from index 5 (first frame timestamp is in index 25)
-  getTimestamp() {
-    return LrcUtils.readDotnetTimestamp(5, this.data);
-  }
-  /** @todo Why must we add 4 bytes at the end of a frame? */
-  getFrameSize() {
-    if (this._fileDataType === void 0 || this.width === void 0 || this.height === void 0 || this.pixelByteLength === void 0) {
-      throw new Error("Trying to read frame size before necessary attributes are known");
-    } else {
-      const frameHeaderSize = 57;
-      const dataSize = this.width * this.height * this.pixelByteLength;
-      return frameHeaderSize + dataSize;
-    }
-  }
-  getNumberOfFrames() {
-    const frameSize = this.getFrameSize();
-    return this.frameSubset.byteLength / frameSize;
-  }
-  getFrames() {
-    const frames = [];
-    const frameParser = new LrcFrameParser(
-      this.frameSubset,
-      this.width,
-      this.height,
-      this._fileDataType,
-      this.frameCount,
-      this.getFrameSize(),
-      this.pixelByteLength
-    );
-    for (let i = 0; i < this.frameCount; i++) {
-      frames.push(frameParser.parseFrame(i));
-    }
-    return frames;
-  }
-  /** @deprecated Should move to parsing from frames */
-  async readTemperatureArray(index) {
-    const subset = (await this.blob.arrayBuffer()).slice(index, index + this.width * this.height * this.pixelByteLength);
-    if (this._fileDataType === 0) {
-      const array = new Uint16Array(subset);
-      const distance = Math.abs(this.min - this.max);
-      const UINT16_MAX = 65535;
-      return [...array].map((pixel) => {
-        const mappedValue = pixel / UINT16_MAX;
-        return this.min + distance * mappedValue;
-      });
-    } else if (this._fileDataType === 1) {
-      return [...new Float32Array(subset)];
-    }
-    return [];
-  }
-  // Pixels
-  getPixels() {
-    if (this.frames) {
-      if (this.frames.length > 0)
-        return this.frames[0].pixels;
-    }
-    return [];
-  }
-  isValid() {
-    return this.errors.length === 0 && this.isValidSignature(this._signature) && this.isStreamCountValid(this._streamCount) && this.isDataTypeValid(this._fileDataType) && this.isValidVersion(this._version) && this.isValidUnit(this._unit) && this.isValidTimestamp(this.timestamp) && this.isValidWidth(this.width) && this.isValidHeight(this.height) && this.isValidPixels(this.pixels) && this.isValidMin(this.min) && this.isValidMax(this.max) && this.isValidFrameCount(this.frameCount);
-  }
-  getThermalFile() {
-    if (!this.isValid()) {
-      throw new Error(
-        this.encodeErrors()
-      );
-    }
-    return new ThermalFileSource(
-      this.url,
-      this._signature,
-      this._version,
-      this._streamCount,
-      this._fileDataType,
-      this._unit,
-      this.width,
-      this.height,
-      this.timestamp,
-      this.pixels,
-      this.min,
-      this.max,
-      this.frameCount,
-      this.frames,
-      this.visibleUrl
-    );
-  }
-  // Binary operations
-  async readString(startIndex, stringLength) {
-    return await this.blob.slice(startIndex, stringLength).text();
-  }
-  read16bNumber(index) {
-    return this.data.getUint16(index, true);
-  }
-  read8bNumber(index) {
-    return this.data.getUint8(index);
-  }
-};
-
-// src/loading/mainThread/parsers/thermalLoader.ts
-var ThermalLoader = class _ThermalLoader {
-  thermalUrl;
-  visibleUrl;
-  parser;
-  blob;
-  constructor() {
-  }
-  /** Load a thermal file from an URL and return a `ThermalFileSource` instance. */
-  static async fromUrl(thermalUrl, visibleUrl) {
-    const loader = new _ThermalLoader();
-    loader.thermalUrl = thermalUrl;
-    loader.visibleUrl = visibleUrl;
-    return await loader.loadFromUrl();
-  }
-  async loadFromUrl() {
-    const response = await fetch2(this.thermalUrl);
-    this.blob = await response.blob();
-    if (response.status !== 200) {
-      throw new Error(`There was an error loading '${this.thermalUrl}'`);
-    }
-    this.parser = this.getParserInstance();
-    return await this.parser.parse();
-  }
-  /** Load a thermal file from a provided Blob/File and return a `ThermalFileSource` instance. */
-  static async fromFile(file) {
-    const loader = new _ThermalLoader();
-    loader.thermalUrl = file.name;
-    loader.blob = file;
-    return await loader.loadFromBlob();
-  }
-  async loadFromBlob() {
-    this.parser = this.getParserInstance();
-    return await this.parser.parse();
-  }
-  /** 
-   * Determine the file type and return the corresponding parser. 
-   * @todo In the future, new parsers shall be added.
-   */
-  getParserInstance() {
-    if (this.thermalUrl.endsWith(".lrc")) {
-      return new LrcParser(this.thermalUrl, this.blob, this.visibleUrl);
-    }
-    throw new Error("No parser found!");
-  }
-};
-
-// src/file/ThermalFileSource.ts
-var ThermalFileSource = class extends BaseStructureObject {
-  constructor(url, signature, version, streamCount, fileDataType, unit, width, height, timestamp, pixels, min, max, frameCount, frames, visibleUrl) {
-    super();
-    this.url = url;
-    this.signature = signature;
-    this.version = version;
-    this.streamCount = streamCount;
-    this.fileDataType = fileDataType;
-    this.unit = unit;
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.pixels = pixels;
-    this.min = min;
-    this.max = max;
-    this.frameCount = frameCount;
-    this.frames = frames;
-    this.visibleUrl = visibleUrl;
-    this.fileName = this.url.substring(this.url.lastIndexOf("/") + 1);
-    let totalPixelsBuffer = [];
-    this.frames.forEach((frame) => {
-      totalPixelsBuffer = totalPixelsBuffer.concat(frame.pixels);
-    });
-    this.pixelsForHistogram = totalPixelsBuffer;
-    this.duration = this.frames.length === 0 ? 0 : this.frames[this.frames.length - 1].timestamp - this.frames[0].timestamp;
-  }
-  fileName;
-  pixelsForHistogram;
-  duration;
-  static async fromUrl(thermalUrl, visibleUrl) {
-    try {
-      const file = await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-      return file;
-    } catch (error) {
-      return null;
-    }
-  }
-  static async fromUrlWithErrors(thermalUrl, visibleUrl) {
-    return await ThermalLoader.fromUrl(thermalUrl, visibleUrl);
-  }
-  createInstance(group) {
-    const instance = new ThermalFileInstance(this, group);
-    instance.postInit();
-    return instance;
-  }
-};
-
 // src/properties/abstractMinmaxProperty.ts
 var AbstractMinmaxProperty = class extends AbstractProperty {
   /** Get the current distance between min and max */
@@ -1504,7 +59,6 @@ var CursorPositionDrive = class extends AbstractProperty {
   // After the position changes, update the hover & project the position in all instances
   afterSetEffect(value) {
     this._hover = this.value !== void 0;
-    this.parent.instances.forEveryInstance((instance) => instance.recieveCursorPosition(value));
     this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
   }
   recieveCursorPosition(position) {
@@ -2267,259 +821,1113 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   };
 };
 
-// src/properties/lists/InstancesState.ts
-var InstancesState = class extends AbstractProperty {
-  _requestedRemovals = /* @__PURE__ */ new Map();
-  enqueueAdd(thermalUrl, visibleUrl, callback) {
-    this.parent.registry.fetcher.request(thermalUrl, visibleUrl, (source, error) => {
-      if (source instanceof ThermalFileSource) {
-        const instance = this.instantiateSource(source);
-        if (callback) {
-          callback(instance);
-        }
-      } else if (callback) {
-        callback(void 0, error ?? "N\u011Bco se pokazilo v instanci");
-      }
-    });
-  }
-  enqueueRemove(thermalUrl, callback) {
-    if (this._requestedRemovals.has(thermalUrl)) {
-      if (callback)
-        this._requestedRemovals.get(thermalUrl).callbacks.push(callback);
-    } else {
-      this._requestedRemovals.set(thermalUrl, {
-        url: thermalUrl,
-        callbacks: callback ? [callback] : []
-      });
-    }
-  }
-  async cleanup() {
-    const flatRemovalUrls = Object.values(this._requestedRemovals).map((item) => item.url);
-    this.value = this.value.filter((instance) => {
-      const shouldRemove = flatRemovalUrls.includes(instance.url);
-      if (shouldRemove) {
-        this._requestedRemovals.get(instance.url)?.callbacks.forEach((callback) => callback());
-        return true;
-      }
-      return false;
-    });
-    this._requestedRemovals.clear();
-    this.parent.registry.postLoadedProcessing();
-  }
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  /** 
-   * Creation of of single instance 
-   * @deprecated Instances should not be created one by one, since every single action triggers the listeners
-   */
-  instantiateSource(source) {
-    if (!this._map.has(source.url)) {
-      const instance = source.createInstance(this.parent);
-      this.value = [...this.value, instance];
-      return instance;
-    } else {
-      return this._map.get(source.url);
-    }
-  }
-  /**
-   * Creation of instances at once
-   * - triggers listeners only once
-   */
-  instantiateSources(sources) {
-    const newValue = [];
-    sources.forEach((source) => {
-      if (!this._map.has(source.url)) {
-        newValue.push(source.createInstance(this.parent));
-      }
-    });
-    this.value = newValue;
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
+// src/utils/pool.ts
+var workerpool = await import("workerpool");
+var pool = workerpool.pool({
+  maxWorkers: 6
+});
+var pool_default = pool;
+
+// src/base/BaseStructureObject.ts
+var BaseStructureObject = class {
+  pool = pool_default;
+};
+
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
   }
 };
 
-// src/properties/drives/OpacityDrive.ts
-var OpacityDrive = class extends AbstractProperty {
-  /** Make sure the value is allways between 0 and 1 */
-  validate(value) {
-    return Math.min(Math.max(0, value), 1);
+// src/loading/workers/ThermalFileFailure.ts
+var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
+  constructor(thermalUrl, code, message) {
+    super(thermalUrl);
+    this.code = code;
+    this.message = message;
   }
-  /** 
-   * Whenever the opacity changes, propagate the value to all instances
-   */
-  afterSetEffect(value) {
-    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+  isSuccess() {
+    return false;
   }
-  /** Impose an opacity to all instances */
-  imposeOpacity(value) {
-    this.value = value;
-    return this.value;
+  static fromError(error) {
+    return new _ThermalFileFailure(error.url, error.code, error.message);
   }
 };
 
-// src/properties/lists/filesState.ts
-var FilesState = class extends AbstractProperty {
-  _requestedRemovals = /* @__PURE__ */ new Map();
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  addFile(file) {
-    if (!this._map.has(file.url)) {
-      this.value = [...this.value, file];
-      return file;
-    } else {
-      return this._map.get(file.url);
-    }
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
+// src/loading/workers/errors.ts
+var FileLoadingError = class extends Error {
+  constructor(code, url, message) {
+    super(message);
+    this.code = code;
+    this.url = url;
   }
 };
 
-// src/properties/states/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
+// src/file/AbstractFile.ts
+var AbstractFile = class extends BaseStructureObject {
+  id;
+  horizontalLimit;
+  verticalLimit;
+  group;
+  url;
+  thermalUrl;
+  visibleUrl;
+  fileName;
+  frameCount;
+  frames = [];
+  signature = "unknown";
+  version = -1;
+  streamCount = -1;
+  fileDataType = -1;
+  unit = -1;
+  width;
+  height;
+  timestamp;
+  duration;
+  min;
+  max;
+  _isHover = false;
+  get isHover() {
+    return this._isHover;
   }
-  afterSetEffect() {
+  set isHover(value) {
+    this._isHover = value;
   }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
+  // DOM root
+  root = null;
+  // DOM layers
+  canvasLayer;
+  visibleLayer;
+  cursorLayer;
+  listenerLayer;
+  // Drives
+  timeline;
+  cursorValue;
+  _mounted = false;
+  get mountedBaseLayers() {
+    return this._mounted;
   }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.files.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
+  set mountedBaseLayers(value) {
+    this._mounted = value;
   }
-};
-
-// src/hierarchy/ThermalGroup.ts
-var ThermalGroup = class extends BaseStructureObject {
-  constructor(registry, id, name, description) {
+  _pixels;
+  get pixels() {
+    return this._pixels;
+  }
+  set pixels(value) {
+    this._pixels = value;
+    this.onSetPixels(value);
+  }
+  constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
     super();
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
+    this.group = group;
+    this.id = this.formatId(thermalUrl);
+    this.url = thermalUrl;
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+    this.width = width;
+    this.height = height;
+    this.timestamp = timestamp;
+    this.duration = duration;
+    this.min = min;
+    this.max = max;
+    this.frameCount = frameCount;
+    this.horizontalLimit = this.width / 4 * 3;
+    this.verticalLimit = this.height / 4 * 3;
+    this._pixels = initialPixels;
   }
-  hash = Math.random();
-  minmax = new MinmaxGroupProperty(this, void 0);
-  /** @deprecated */
-  instances = new InstancesState(this, []);
-  files = new FilesState(this, []);
-  cursorPosition = new CursorPositionDrive(this, void 0);
-  /** Iteration */
-  forEveryInstance = (fn) => {
-    this.instances.value.forEach((instance) => fn(instance));
-  };
-  /**
-   * Destruction
-   */
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.instances.removeAllInstances();
-  }
-  reset() {
-    this.instances.reset();
-    this.files.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-  }
-};
-
-// src/properties/lists/GroupsState.ts
-var GroupsState = class extends AbstractProperty {
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect(value) {
-    this._map.clear();
-    value.forEach((group) => this._map.set(group.id, group));
-  }
-  addOrGetGroup(groupId, name, description) {
-    if (this._map.has(groupId)) {
-      return this._map.get(groupId);
+  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
+  attachToDom(container) {
+    if (this.root !== null || this.mountedBaseLayers === true) {
+      console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
+      this.detachFromDom();
+      this.unmountListener();
     }
-    const group = new ThermalGroup(this.parent, groupId, name, description);
-    this._map.set(groupId, group);
-    this.value.push(group);
-    this.value = [...this.value];
-    return group;
+    this.root = container;
+    this.root.classList.add("thermalImageRoot");
+    this.root.style.transition = "border-color .1s ease-in-out";
+    this.root.style.zIndex = "10";
+    this.root.style.position = "relative";
+    this.root.style.lineHeight = "0";
+    if (this.visibleLayer.exists)
+      this.visibleLayer.mount();
+    this.canvasLayer.mount();
+    this.cursorLayer.mount();
+    this.root.dataset.thermalFile = this.id;
+    this.root.dataset.mounted = "true";
+    this.mountListener();
+    this.mountedBaseLayers = true;
   }
-  removeGroup(groupId) {
-    if (!this._map.has(groupId)) {
+  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
+  detachFromDom() {
+    if (this.root === void 0) {
+      console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
+    }
+    if (this.root) {
+      this.root.dataset.mounted = "false";
+      this.root.dataset.thermalFile = void 0;
+    }
+    this.visibleLayer.unmount();
+    this.canvasLayer.unmount();
+    this.cursorLayer.unmount();
+    this.unmountListener();
+    this.mountedBaseLayers = false;
+  }
+  mountListener() {
+    if (this.root === void 0) {
+      console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
       return;
     }
-    this._map.get(groupId)?.destroySelfAndBelow();
-    this._map.delete(groupId);
-    this.value = Array.from(this._map.values());
+    this.listenerLayer.mount();
+    this.listenerLayer.getLayerRoot().onmousemove = (event) => {
+      this.cursorLayer.show = true;
+      this.isHover = true;
+      const client = this.width;
+      const parent = this.root.clientWidth;
+      const aspect = client / parent;
+      const x = Math.round(event.offsetX * aspect);
+      const y = Math.round(event.offsetY * aspect);
+      this.group.cursorPosition.recieveCursorPosition({ x, y });
+      if (this._onHover)
+        this._onHover(event, this);
+    };
+    this.listenerLayer.getLayerRoot().onmouseleave = () => {
+      this.cursorLayer.show = false;
+      this.isHover = false;
+      this.group.cursorPosition.recieveCursorPosition(void 0);
+    };
+    this.listenerLayer.getLayerRoot().onclick = (event) => {
+      if (this._onClick)
+        this._onClick(event, this);
+    };
   }
-  removeAllGroups() {
-    this.value.forEach((group) => group.destroySelfAndBelow());
-    this.value = [];
+  unmountListener() {
+    this.listenerLayer.unmount();
+  }
+  mountToDom(container) {
+    this.attachToDom(container);
+  }
+  unmountFromDom() {
+    this.detachFromDom();
+  }
+  draw() {
+    if (this.mountedBaseLayers === true)
+      this.canvasLayer.draw();
+  }
+  recievePalette(palette) {
+    palette;
+    this.draw();
+  }
+  destroySelfAndBelow() {
+    this.detachFromDom();
+  }
+  removeAllChildren() {
+    this.detachFromDom();
+  }
+  recieveCursorPosition(position) {
+    this.cursorValue.recalculateFromCursor(position);
+    if (position !== void 0 && this.cursorValue.value !== void 0) {
+      this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
+      this.cursorLayer.show = true;
+    } else {
+      this.cursorLayer.show = false;
+      this.cursorLayer.resetCursor();
+    }
+  }
+  getTemperatureAtPoint(x, y) {
+    const index = y * this.width + x;
+    return this.pixels[index];
+  }
+  recieveRange(value) {
+    if (value !== void 0) {
+      this.draw();
+    }
+  }
+  reset() {
+  }
+  recieveOpacity(value) {
+    if (this.visibleLayer && this.canvasLayer) {
+      this.canvasLayer.opacity = value;
+    }
+  }
+  /** @deprecated */
+  _onHover = void 0;
+  /** @deprecated */
+  setHoverHandler(handler) {
+    this._onHover = handler;
+  }
+  /** @deprecated */
+  setHoverCursor(value) {
+    if (this.root) {
+      if (this.root.style.cursor !== value)
+        this.root.style.cursor = value;
+    }
+  }
+  _onClick = void 0;
+  setClickHandler(handler = void 0) {
+    this._onClick = handler;
+  }
+};
+
+// src/file/instanceUtils/AbstractLayer.ts
+var AbstractLayer = class {
+  constructor(instance) {
+    this.instance = instance;
+  }
+  _mounted = false;
+  get mounted() {
+    return this._mounted;
+  }
+  mount() {
+    if (!this._mounted) {
+      if (this.instance.root !== null) {
+        this._mounted = true;
+        this.instance.root.appendChild(this.getLayerRoot());
+      }
+    }
+  }
+  unmount() {
+    if (this._mounted) {
+      if (this.instance.root !== null) {
+        this._mounted = false;
+        this.instance.root.removeChild(this.getLayerRoot());
+      }
+    }
+  }
+  destroy() {
+    this.onDestroy();
+  }
+};
+
+// src/file/instanceUtils/domFactories.ts
+var ThermalDomFactory = class _ThermalDomFactory {
+  static createCanvasContainer() {
+    const container = document.createElement("div");
+    container.classList.add("thermalCanvasWrapper");
+    container.style.position = "relative";
+    return container;
+  }
+  static createCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.classList.add("thermalCanvas");
+    canvas.style.padding = "0px";
+    canvas.style.margin = "0px";
+    canvas.style.objectFit = "contain";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.objectPosition = "top left";
+    return canvas;
+  }
+  static createDateLayer() {
+    const layer = document.createElement("div");
+    layer.classList.add("dateLayer");
+    layer.style.margin = "0px";
+    layer.style.padding = "0px";
+    layer.style.position = "absolute";
+    layer.style.top = "0px";
+    layer.style.left = "0%";
+    layer.style.width = "100%";
+    layer.style.fontSize = "small";
+    return layer;
+  }
+  static createDateLayerInner() {
+    const inner = document.createElement("div");
+    inner.classList.add("dateLayerInner");
+    inner.style.margin = "0px";
+    inner.style.padding = ".3rem 0rem";
+    inner.style.backgroundColor = "black";
+    inner.style.color = "white";
+    inner.style.borderRadius = ".5rem .5rem 0 0";
+    inner.style.width = "calc(100% + 4px )";
+    inner.style.position = "absolute";
+    inner.style.top = "0rem";
+    inner.style.left = "-2px";
+    inner.style.opacity = "0";
+    inner.style.transition = "opacity .1s ease-in-out";
+    inner.style.textAlign = "center";
+    return inner;
+  }
+  static createVisibleLayer() {
+    const layer = document.createElement("div");
+    layer.classList.add("visibleLayer");
+    layer.style.margin = "0px";
+    layer.style.padding = "0px";
+    layer.style.height = "100%";
+    layer.style.width = "100%";
+    layer.style.position = "absolute";
+    layer.style.top = "0px";
+    layer.style.left = "0px";
+    return layer;
+  }
+  static createVisibleImage() {
+    const img = document.createElement("img");
+    img.classList.add("visibleLayerImage");
+    img.style.padding = "0px";
+    img.style.margin = "0px";
+    img.style.objectFit = "contain";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectPosition = "top left";
+    return img;
+  }
+  static createListener() {
+    const listener = document.createElement("div");
+    listener.classList.add("thermalListener");
+    listener.style.margin = "0px";
+    listener.style.padding = "0px";
+    listener.style.height = "100%";
+    listener.style.width = "100%";
+    listener.style.position = "absolute";
+    listener.style.top = "0px";
+    listener.style.left = "0px";
+    listener.style.cursor = "pointer";
+    listener.setAttribute("id", Math.random().toString());
+    return listener;
+  }
+  static createCursorLayerRoot() {
+    const layer = document.createElement("div");
+    layer.classList.add("cursorLayerRoot");
+    layer.style.width = "100%";
+    layer.style.height = "100%";
+    layer.style.position = "absolute";
+    layer.style.top = "0";
+    layer.style.left = "0";
+    layer.style.opacity = "0";
+    layer.style.overflow = "hidden";
+    layer.style.lineHeight = "1rem";
+    return layer;
+  }
+  static createCursorLayerCenter() {
+    const container = document.createElement("div");
+    container.classList.add("cursorLayerCenter");
+    container.style.position = "absolute";
+    container.style.top = "0px";
+    container.style.left = "0px";
+    container.style.width = "0px";
+    container.style.height = "0px";
+    return container;
+  }
+  static createCursorLayerAxeBase() {
+    const axe = document.createElement("div");
+    axe.classList.add("cursorLayerAxe");
+    axe.style.backdropFilter = "invert(100)";
+    axe.style.position = "absolute";
+    axe.style.top = "0px";
+    axe.style.left = "0px";
+    axe.style.content = "";
+    return axe;
+  }
+  static createCursorLayerX() {
+    const axeX = _ThermalDomFactory.createCursorLayerAxeBase();
+    axeX.classList.add("cursorLayerAxeX");
+    axeX.style.width = "1px";
+    axeX.style.height = "20px";
+    axeX.style.top = "-10px";
+    return axeX;
+  }
+  static createCursorLayerY() {
+    const axeY = _ThermalDomFactory.createCursorLayerAxeBase();
+    axeY.classList.add("cursorLayerAxeY");
+    axeY.style.width = "20px";
+    axeY.style.height = "1px";
+    axeY.style.left = "-10px";
+    return axeY;
+  }
+  static createCursorLayerLabel() {
+    const axeLabel = document.createElement("div");
+    axeLabel.classList.add("cursorLayerLabel");
+    axeLabel.style.position = "absolute";
+    axeLabel.style.padding = "1px 3px";
+    axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
+    axeLabel.style.color = "white";
+    axeLabel.style.whiteSpace = "nowrap";
+    axeLabel.style.fontSize = "small";
+    axeLabel.style.borderRadius = "5px";
+    return axeLabel;
+  }
+};
+
+// src/file/instanceUtils/thermalCanvasLayer.ts
+var ThermalCanvasLayer = class extends AbstractLayer {
+  pool = pool_default;
+  container;
+  canvas;
+  context;
+  // protected offscreen: OffscreenCanvas;
+  get width() {
+    return this.instance.width;
+  }
+  get height() {
+    return this.instance.height;
+  }
+  get pixels() {
+    return this.instance.pixels;
+  }
+  get from() {
+    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.from : this.instance.min;
+  }
+  get to() {
+    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.to : this.instance.max;
+  }
+  _opacity = 1;
+  get opacity() {
+    return this._opacity;
+  }
+  set opacity(value) {
+    this._opacity = Math.max(Math.min(value, 1), 0);
+    if (this._opacity !== 1)
+      this.getLayerRoot().style.opacity = this._opacity.toString();
+    else {
+      this.getLayerRoot().style.removeProperty("opacity");
+    }
+  }
+  constructor(instance) {
+    super(instance);
+    this.container = ThermalDomFactory.createCanvasContainer();
+    this.canvas = ThermalDomFactory.createCanvas();
+    this.canvas.width = this.instance.width;
+    this.canvas.height = this.instance.height;
+    this.context = this.canvas.getContext("2d");
+    this.container.appendChild(this.canvas);
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    this.canvas.remove();
+    this.container.remove();
+  }
+  /** Returns an array of 255 RGB colors */
+  getPalette() {
+    return this.instance.group.registry.palette.currentPalette.pixels;
+  }
+  async draw() {
+    const paletteColors = this.getPalette();
+    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+      const canvas = new OffscreenCanvas(width, height);
+      const context = canvas.getContext("2d");
+      const displayRange = to - from;
+      for (let x = 0; x <= width; x++) {
+        for (let y = 0; y <= height; y++) {
+          const index = x + y * width;
+          let temperature = pixels[index];
+          if (temperature < from)
+            temperature = from;
+          if (temperature > to)
+            temperature = to;
+          const temperatureRelative = temperature - from;
+          const temperatureAspect = temperatureRelative / displayRange;
+          const colorIndex = Math.round(255 * temperatureAspect);
+          const color = palette[colorIndex];
+          context.fillStyle = color;
+          context.fillRect(x, y, 1, 1);
+        }
+      }
+      const imageData = context.getImageData(0, 0, width, height);
+      const result = await createImageBitmap(imageData);
+      return result;
+    }, [
+      this.from,
+      this.to,
+      this.width,
+      this.height,
+      this.pixels,
+      paletteColors
+    ], {});
+    this.context.drawImage(image, 0, 0);
+  }
+  exportAsPng() {
+    const image = this.canvas.toDataURL();
+    const link = document.createElement("a");
+    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
+    link.href = image;
+    link.click();
+  }
+};
+
+// src/file/instanceUtils/thermalCursorLayer.ts
+var ThermalCursorLayer = class extends AbstractLayer {
+  layerRoot;
+  center;
+  axisX;
+  axisY;
+  label;
+  constructor(instance) {
+    super(instance);
+    this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
+    this.center = ThermalDomFactory.createCursorLayerCenter();
+    this.axisX = ThermalDomFactory.createCursorLayerX();
+    this.axisY = ThermalDomFactory.createCursorLayerY();
+    this.label = ThermalDomFactory.createCursorLayerLabel();
+    this.layerRoot.appendChild(this.center);
+    this.center.appendChild(this.axisX);
+    this.center.appendChild(this.axisY);
+    this.center.appendChild(this.label);
+  }
+  // Set visible / invisible
+  _show = false;
+  get show() {
+    return this._show;
+  }
+  set show(value) {
+    this._show = value;
+    this.layerRoot.style.opacity = this._show ? "1" : "0";
+  }
+  _hover = false;
+  get hover() {
+    return this._hover;
+  }
+  set hover(value) {
+    this._hover = value;
+    this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
+  }
+  setCursor(x, y, value) {
+    if (this.instance.root === null) {
+    } else {
+      const aspect = this.instance.root.offsetWidth / this.instance.width;
+      const centerX = Math.round(x * aspect);
+      const centerY = Math.round(y * aspect);
+      this.center.style.left = this.px(centerX);
+      this.center.style.top = this.px(centerY);
+      if (x > this.instance.width / 3) {
+        this.label.style.right = "3px";
+        this.label.style.removeProperty("left");
+      } else {
+        this.label.style.left = "3px";
+        this.label.style.removeProperty("right");
+      }
+      if (y > this.instance.height / 4) {
+        if (this.label.style.bottom !== "3px") {
+          this.label.style.bottom = "3px";
+          this.label.style.removeProperty("top");
+        }
+      } else {
+        if (this.label.style.top !== "3px") {
+          this.label.style.top = "3px";
+          this.label.style.removeProperty("bottom");
+        }
+      }
+      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+    }
+  }
+  setValue(value) {
+    if (value)
+      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+  }
+  resetCursor() {
+    this.center.style.top = "0px";
+    this.center.style.left = "0px";
+    this.label.style.removeProperty("right");
+    this.label.style.removeProperty("bottom");
+    this.label.style.top = "3px";
+    this.label.style.left = "3px";
+    this.label.innerHTML = "";
+  }
+  px(number) {
+    return `${number}px`;
+  }
+  getLayerRoot() {
+    return this.layerRoot;
+  }
+  onDestroy() {
+    this.label.remove();
+    this.axisX.remove();
+    this.axisY.remove();
+    this.center.remove();
+    this.layerRoot.remove();
+  }
+};
+
+// src/file/instanceUtils/thermalListenerLayer.ts
+var ThermalListenerLayer = class extends AbstractLayer {
+  container;
+  constructor(instance) {
+    super(instance);
+    this.container = ThermalDomFactory.createListener();
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    this.container.remove();
+  }
+};
+
+// src/file/instanceUtils/VisibleLayer.ts
+var VisibleLayer = class extends AbstractLayer {
+  constructor(instance, _url) {
+    super(instance);
+    this._url = _url;
+    this.container = ThermalDomFactory.createVisibleLayer();
+    if (this._url) {
+      this.image = ThermalDomFactory.createVisibleImage();
+      this.url = this._url;
+      this.container.appendChild(this.image);
+    }
+  }
+  container;
+  image;
+  get url() {
+    return this._url;
+  }
+  set url(value) {
+    this._url = value;
+    if (this.image && value) {
+      this.image.src = value;
+    }
+  }
+  get exists() {
+    return this._url !== void 0;
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    if (this.image) this.image.remove();
+    this.container.remove();
+  }
+};
+
+// src/properties/time/internals/FrameBuffer.ts
+var FrameBuffer = class {
+  constructor(drive, firstFrame) {
+    this.drive = drive;
+    this.currentFrame = firstFrame;
+  }
+  /** @internal use accessors to get and set with side effects */
+  _currentFrame;
+  /** The current frame data @readonly */
+  get currentFrame() {
+    return this._currentFrame;
+  }
+  /** Upon every update of current frame, propagate current pixels to the instance */
+  set currentFrame(frame) {
+    this._currentFrame = frame;
+    this.drive.parent.pixels = this.currentFrame.pixels;
+  }
+  /** Get the current step value calculated from _currentFrame */
+  get currentStep() {
+    return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
+  }
+  /** Number of images to preload at once */
+  bufferSize = 4;
+  /** The actual buffer holding pair of step & frame */
+  buffer = /* @__PURE__ */ new Map();
+  /** Accessor to array of steps preloaded in the given moment */
+  get preloadedSteps() {
+    return Array.from(this.buffer.keys());
+  }
+  /** Accessor to array of relative timestamps preloaded in the given moment */
+  get preloadedTimestampsRelative() {
+    return this.preloadedSteps.map((step) => step.relative);
+  }
+  async init() {
+    return await this.preloadAfterFrameSet(this.currentStep);
+  }
+  /**
+   * Activate a step
+   * - look for the buffer for the corresponding frame
+   * - if there is a corresponding frame, apply it
+   * - if there is none, fetch it
+   * - if sequence, fetch buffer
+   * 
+   * **THIS IS THE MAIN SETTER**
+   */
+  async recieveStep(step) {
+    let frame = this.buffer.get(step);
+    if (frame === void 0) {
+      frame = await this.drive.parent.service.frameData(step.index);
+    }
+    this.currentFrame = frame;
+    const status = await this.preloadAfterFrameSet(step);
+    return status;
+  }
+  /** Preload frame data to the buffer based on the provided step */
+  async preloadAfterFrameSet(step) {
+    const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
+    const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
+    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
+      if (step.relative === this.drive.parent.duration) {
+        this.buffer.clear();
+      }
+      return {
+        absoluteTime: this.drive.currentStep.absolute,
+        relativeTime: this.drive.value,
+        currentFrame: this.currentFrame,
+        currentStep: this.currentStep,
+        buffer: this.preloadedSteps,
+        preloaded: false,
+        hasChanged: true
+      };
+    }
+    const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
+      return step2.index >= subsetStart && step2.index < subsetEnd;
+    });
+    const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
+    const newFrames = await Promise.all(newSteps.map((step2) => {
+      return this.drive.parent.service.frameData(step2.index);
+    }));
+    newFrames.forEach((frame, index) => {
+      const step2 = newSteps[index];
+      this.buffer.set(step2, frame);
+    });
+    this.preloadedSteps.forEach((step2) => {
+      if (!stepsThatShouldBe.includes(step2)) {
+        this.buffer.delete(step2);
+      }
+    });
+    return {
+      absoluteTime: this.drive.currentStep.absolute,
+      currentFrame: this.currentFrame,
+      currentStep: this.currentStep,
+      relativeTime: this.drive.value,
+      buffer: this.preloadedSteps,
+      preloaded: true,
+      hasChanged: true
+    };
+  }
+};
+
+// src/properties/time/TimelineDrive.ts
+var TimelineDrive = class extends AbstractProperty {
+  constructor(parent, initial, steps, initialFrameData) {
+    super(parent, Math.max(Math.min(initial, steps.length), 0));
+    this.steps = steps;
+    this._currentStep = this.steps[this._initial];
+    this.startTimestampRelative = 0;
+    this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
+    this.isSequence = this.parent.timelineData.length > 1;
+    this.steps.forEach((step) => {
+      this.stepsByIndex.set(step.index, step);
+      this.stepsByAbsolute.set(step.absolute, step);
+      this.stepsByRelative.set(step.relative, step);
+      this.relativeSteps.push(step.relative);
+    });
+    this.buffer = new FrameBuffer(this, initialFrameData);
+  }
+  get duration() {
+    return this.parent.duration;
+  }
+  get frameCount() {
+    return this.steps.length;
+  }
+  startTimestampRelative;
+  /** @deprecated not in use? */
+  endTimestampRelative;
+  stepsByAbsolute = /* @__PURE__ */ new Map();
+  stepsByRelative = /* @__PURE__ */ new Map();
+  stepsByIndex = /* @__PURE__ */ new Map();
+  relativeSteps = [];
+  _currentStep;
+  get currentStep() {
+    return this._currentStep;
+  }
+  _onChangeListeners = /* @__PURE__ */ new Map();
+  isSequence;
+  _isPlayying = false;
+  get isPlaying() {
+    return this._isPlayying;
+  }
+  timer;
+  buffer;
+  init() {
+    this.buffer.init();
+  }
+  afterSetEffect(value) {
+    value;
+    if (this.steps.length === 1) {
+      return;
+    }
+  }
+  validate(value) {
+    if (this.steps === void 0) {
+      return value;
+    }
+    if (this.steps.length === 1) {
+      return 0;
+    }
+    return this._validateRelativeTime(value);
+  }
+  _validateRelativeTime(value) {
+    return Math.max(Math.min(value, this.steps[this.steps.length - 1].relative), 0);
+  }
+  _validateIndex(value) {
+    return Math.max(Math.min(value, this.steps.length), 0);
+  }
+  _convertRelativeToAspect(relativeTimeInMs) {
+    return relativeTimeInMs / this.duration;
+  }
+  _convertRelativeToPercent(relativeTimeInMs) {
+    return this._convertRelativeToAspect(relativeTimeInMs) * 100;
+  }
+  _convertPercenttRelative(percent) {
+    return this.duration * percent / 100;
+  }
+  /** Event listener to changement of the current frame.
+   * - the current frame is not changed every time the value changes
+   * - the current frame is changed only when the ms value points fo a new previous frame
+   */
+  addChangeListener(identificator, fn) {
+    this._onChangeListeners.set(identificator, fn);
+  }
+  removeChangeListener(identificator) {
+    this._onChangeListeners.delete(identificator);
+  }
+  findPreviousRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.ceil(aspect * this.steps.length) + 5;
+    const sliceStart = this._validateIndex(index - 40);
+    const sliceEnd = this._validateIndex(index);
+    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
+    const frame = reversedSubarray.find((f) => {
+      return f.relative <= relativeTimeInMs;
+    });
+    return frame !== void 0 ? frame : this.steps[0];
+  }
+  findNextRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.floor(aspect * this.steps.length) - 5;
+    const subarrayStart = this._validateIndex(index);
+    const subarrayEnd = this._validateIndex(index + 40);
+    const subarray = this.steps.slice(subarrayStart, subarrayEnd);
+    const frame = subarray.find((f) => {
+      return f.relative > relativeTimeInMs;
+    });
+    return frame !== void 0 ? frame : false;
+  }
+  async setRelativeTime(relativeTimeInMs) {
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    this.value = relativeTimeInMs;
+    const currentStep = this.findPreviousRelative(this.value);
+    if (currentStep !== this._currentStep) {
+      this._currentStep = currentStep;
+      const result = await this.buffer.recieveStep(this._currentStep);
+      return result;
+    }
+    return {
+      absoluteTime: this._currentStep.absolute,
+      relativeTime: this.value,
+      currentStep: this._currentStep,
+      currentFrame: this.buffer.currentFrame,
+      buffer: [],
+      preloaded: false,
+      hasChanged: false
+    };
+  }
+  async setValueByPercent(percent) {
+    percent = Math.max(Math.min(percent, 100), 0);
+    const convertedToRelativeTime = this._convertPercenttRelative(percent);
+    return await this.setRelativeTime(convertedToRelativeTime);
+  }
+  createNextStepTimer() {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer);
+    }
+    if (!this.isSequence || this._isPlayying === false) {
+      return;
+    }
+    this.timer = setTimeout(() => {
+      const next = this.findNextRelative(this._currentStep.relative);
+      if (next) {
+        this.value = next.relative;
+        if (this._isPlayying) {
+          this.value = next.relative;
+          this._currentStep = next;
+          this.buffer.recieveStep(next);
+          this.createNextStepTimer();
+        }
+      } else {
+        this._isPlayying = false;
+      }
+    }, this._currentStep.offset);
+  }
+  play() {
+    if (this.steps.length > 1) {
+      this._isPlayying = true;
+      this.createNextStepTimer();
+    }
+  }
+  pause() {
+    this._isPlayying = false;
+    clearTimeout(this.timer);
+  }
+  stop() {
+    this.pause();
+    this.value = 0;
+  }
+};
+
+// src/properties/states/CursorValueDrive.ts
+var CursorValueDrive = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  // Once the value changes, project it to the cursor layer
+  afterSetEffect() {
+  }
+  recalculateFromCursor(position) {
+    if (position)
+      this.value = this._getValueAtCoordinate(position.x, position.y);
+  }
+  _getValueAtCoordinate(x, y) {
+    if (x === void 0 || y === void 0) {
+      return void 0;
+    }
+    const index = x + y * this.parent.width;
+    const value = this.parent.pixels[index];
+    return value;
+  }
+};
+
+// src/file/instance.ts
+var Instance = class _Instance extends AbstractFile {
+  constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
+    super(
+      group,
+      service.thermalUrl,
+      width,
+      height,
+      initialPixels,
+      timestamp,
+      duration,
+      min,
+      max,
+      frameCount,
+      service.visibleUrl
+    );
+    this.group = group;
+    this.service = service;
+    this.width = width;
+    this.height = height;
+    this.timestamp = timestamp;
+    this.frameCount = frameCount;
+    this.duration = duration;
+    this.frameInterval = frameInterval;
+    this.fps = fps;
+    this.min = min;
+    this.max = max;
+    this.bytesize = bytesize;
+    this.averageEmissivity = averageEmissivity;
+    this.averageReflectedKelvins = averageReflectedKelvins;
+    this.firstFrame = firstFrame;
+    this.timelineData = timelineData;
+    this.pixels = firstFrame.pixels;
+  }
+  exportAsPng() {
+    throw new Error("Method not implemented.");
+  }
+  exportThermalDataAsSvg() {
+    throw new Error("Method not implemented.");
+  }
+  postInit() {
+    this.canvasLayer = new ThermalCanvasLayer(this);
+    this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
+    this.cursorLayer = new ThermalCursorLayer(this);
+    this.listenerLayer = new ThermalListenerLayer(this);
+    this.cursorValue = new CursorValueDrive(this, void 0);
+    this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
+    this.timeline.init();
+    return this;
+  }
+  formatId(thermalUrl) {
+    return `instance_${this.group.id}_${thermalUrl}`;
+  }
+  onSetPixels(value) {
+    value;
+    if (this.mountedBaseLayers) {
+      this.draw();
+      this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
+      if (this.group.cursorPosition.value) {
+        const value2 = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
+        this.cursorLayer.setValue(value2);
+      }
+    }
+  }
+  getPixelsForHistogram() {
+    return [];
+  }
+  static fromService(group, service, baseInfo2, firstFrame) {
+    const instance = new _Instance(
+      group,
+      service,
+      baseInfo2.width,
+      baseInfo2.height,
+      baseInfo2.timestamp,
+      baseInfo2.frameCount,
+      baseInfo2.duration,
+      baseInfo2.frameInterval,
+      firstFrame.pixels,
+      baseInfo2.fps,
+      baseInfo2.min,
+      baseInfo2.max,
+      baseInfo2.bytesize,
+      baseInfo2.averageEmissivity,
+      baseInfo2.averageReflectedKelvins,
+      firstFrame,
+      baseInfo2.timeline
+    );
+    return instance.postInit();
+  }
+};
+
+// src/loading/workers/ThermalFileReader.ts
+var ThermalFileReader = class extends AbstractFileResult {
+  constructor(buffer, parser2, thermalUrl, visibleUrl) {
+    super(thermalUrl, visibleUrl);
+    this.buffer = buffer;
+    this.parser = parser2;
+    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+  }
+  /** For the purpose of testing we have a unique ID */
+  id = Math.random();
+  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+  baseInfoCache;
+  fileName;
+  pool = pool_default;
+  isSuccess() {
+    return true;
+  }
+  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+  async baseInfo() {
+    if (this.baseInfoCache) {
+      return this.baseInfoCache;
+    }
+    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
+    this.baseInfoCache = baseInfo2;
+    return baseInfo2;
+  }
+  /** 
+   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
+   * 
+   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+   */
+  getFrameSubset(frameIndex) {
+    return this.parser.getFrameSubset(this.buffer, frameIndex);
+  }
+  /** Read a given frame
+   * @todo Implement index range check
+   */
+  async frameData(index) {
+    const data = this.getFrameSubset(index);
+    const result = await this.parser.frameData(data.array, data.dataType);
+    return result;
+  }
+  async createInstance(group) {
+    const baseInfo2 = await this.baseInfo();
+    const firstFrame = await this.frameData(0);
+    const instance = Instance.fromService(group, this, baseInfo2, firstFrame);
+    group.files.addFile(instance);
+    return instance;
   }
 };
 
@@ -2810,967 +2218,11 @@ var parser = {
   frameData,
   registryHistogram
 };
-var LrcParser2 = Object.freeze(parser);
-
-// src/properties/states/HistogramState.ts
-var HistogramState = class extends AbstractProperty {
-  _resolution = 150;
-  get resolution() {
-    return this._resolution;
-  }
-  /** Map of temperature => countOfPixels in the scaled down resolution */
-  buffer = /* @__PURE__ */ new Map();
-  /** Total countOfPixels in every image */
-  bufferPixelsCount = 0;
-  /**  */
-  _bufferResolution = 1e3;
-  set bufferResolution(value) {
-    this._bufferResolution = Math.round(Math.max(value, 1e3));
-  }
-  get bufferResolution() {
-    return this._bufferResolution;
-  }
-  /** Set the historgam resolution
-   * - does not recalculate the value!
-   * - to recalculate value, call `recalculateWithCurrentSetting`
-   * 
-   * @notice Higher the number, lower the resolution.
-  */
-  setResolution(value) {
-    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
-  }
-  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-  validate(value) {
-    if (value.length !== this.resolution + 1 && value.length !== 0) {
-    }
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Recalculates the value using all current instances and with che current resolution */
-  recalculateWithCurrentSetting() {
-    this.recalculateHistogram();
-    return this.value;
-  }
-  /** 
-   * Recalculate the histogram buffer using web workers.
-   * This is an async operation using `workerpool`
-   */
-  refreshBufferFromCurrentPixels() {
-    if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
-      const pixels = this.parent.groups.value.map((group) => {
-        return group.instances.value.map((instance) => instance.getPixelsForHistogram());
-      });
-      this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
-        const mergedPixels = instancesPixels.reduce((state, current) => {
-          const inner = current.reduce((state2, current2) => {
-            return [...state2, ...current2];
-          }, []);
-          return [...state, ...inner];
-        }, []);
-        let sortedPixels = mergedPixels.sort((a, b) => a - b);
-        const step = distance / resolution;
-        let nextStep = min + step;
-        const result = /* @__PURE__ */ new Map();
-        let resultCount = 0;
-        while (nextStep !== false) {
-          const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
-          const pixelCount = sortedPixels.slice(0, nextIndex).length;
-          result.set(nextStep - step / 2, pixelCount);
-          resultCount += pixelCount;
-          sortedPixels = sortedPixels.slice(nextIndex);
-          const nextStepTemporary = nextStep + step;
-          nextStep = nextStepTemporary < max ? nextStepTemporary : false;
-        }
-        return {
-          result,
-          resultCount
-        };
-      }, [
-        pixels,
-        this.parent.minmax.value.min,
-        this.parent.minmax.value.max,
-        this.parent.minmax.distanceInCelsius,
-        this._bufferResolution
-      ]).then((result) => {
-        this.buffer = result.result;
-        this.bufferPixelsCount = result.resultCount;
-        this.recalculateWithCurrentSetting();
-      });
-    }
-  }
-  async recalculateHistogram() {
-    const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
-      state = state.concat(current);
-      return state;
-    }, []);
-    const allBuffers = allFiles.map((reader) => reader.service.buffer);
-    const result = await this.parent.pool.exec(LrcParser2.registryHistogram, [allBuffers]);
-    this.value = result;
-  }
-  /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
-  _getHistorgramFromAllGroups() {
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-    }
-    if (this.parent.minmax.value === void 0 || this.parent.groups.value.length === 0) {
-      return [];
-    } else {
-      const allPixels = this.parent.groups.value.reduce((state, current) => {
-        const pixels = current.instances.value.reduce((buf, instance) => {
-          buf = [...buf, ...instance.pixels];
-          return buf;
-        }, []);
-        return [...state, ...pixels];
-      }, []);
-      const segments = [];
-      const numSegments = this.resolution;
-      const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
-      const segment = difference / numSegments;
-      for (let i = 0; i < numSegments; i++) {
-        const from = segment * i + this.parent.minmax.value.min;
-        const to = from + segment;
-        segments.push([from, to]);
-      }
-      const results = [];
-      let sum = allPixels.length;
-      for (const i of segments) {
-        const count = allPixels.filter((pixel) => {
-          return pixel >= i[0] && pixel < i[1];
-        }).length;
-        sum = sum + count;
-        results.push({
-          from: i[0],
-          to: i[1],
-          count
-        });
-      }
-      const recalculated = results.map((i) => {
-        return {
-          ...i,
-          percentage: i.count / sum * 100
-        };
-      });
-      const max = Math.max(...recalculated.map((item) => item.percentage));
-      return recalculated.map((item) => {
-        return {
-          ...item,
-          height: item.percentage / max * 100
-        };
-      });
-    }
-  }
-};
-
-// src/properties/states/LoadingState.ts
-var LoadingState = class extends AbstractProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  markAsLoading() {
-    this.value = true;
-  }
-  markAsLoaded() {
-    this.value = false;
-  }
-};
-
-// src/properties/states/MinmaxRegistryState.ts
-var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  recalculateFromGroups() {
-    const groups = this.parent.groups.value;
-    this.value = this._getMinmaxFromAllGroups(groups);
-    return this.value;
-  }
-  _getMinmaxFromAllGroups(groups) {
-    if (groups.length === 0) {
-      return void 0;
-    }
-    const minmax = groups.reduce((state, current) => {
-      if (current.minmax.value === void 0) {
-        return state;
-      }
-      return {
-        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
-        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
-      };
-    }, { min: Infinity, max: -Infinity });
-    return minmax;
-  }
-};
-
-// src/loading/mainThread/batch/ThermalRequest.ts
-var ThermalRequest = class _ThermalRequest extends EventTarget {
-  constructor(group, url, visibleUrl) {
-    super();
-    this.group = group;
-    this.url = url;
-    this.visibleUrl = visibleUrl;
-  }
-  static single(group, thermalUrl, visibleUrl) {
-    return new _ThermalRequest(group, thermalUrl, visibleUrl);
-  }
-  static multiple(group, requests) {
-    return requests.map((request) => new _ThermalRequest(group, request.thermalUrl, request.visibleUrl));
-  }
-  async fetch() {
-    if (this.group.registry.manager.isUrlRegistered(this.url)) {
-      return {
-        file: this.group.registry.manager.sourcesByUrl[this.url],
-        request: this
-      };
-    }
-    const file = await ThermalFileSource.fromUrl(this.url, this.visibleUrl);
-    if (!file) {
-      return null;
-    } else if (file !== null) {
-      return {
-        file,
-        request: this
-      };
-    }
-    return null;
-  }
-};
-
-// src/loading/mainThread/batch/ThermalRegistryLoader.ts
-var ThermalRegistryLoader = class {
-  constructor(registry) {
-    this.registry = registry;
-  }
-  /** Buffer of all pending requests */
-  _requests = [];
-  get requests() {
-    return this._requests;
-  }
-  /** Loading state is stored in the registry */
-  get loading() {
-    return this.registry.loading.value;
-  }
-  /** Request a single file. To fetch it, call ``resolveQuery` */
-  requestFile(group, thermalUrl, visibleUrl) {
-    if (this.loading === true) {
-      console.error(`The registry ${this.registry.id} is already loading! Can not request  a single file!`);
-      return;
-    }
-    this._requests.push(ThermalRequest.single(group, thermalUrl, visibleUrl));
-  }
-  /** Request multiple files. To fetch them, call ``resolveQuery` */
-  requestFiles(group, requests) {
-    if (this.loading === true) {
-      console.error(`The group ${this.registry.id} is already loading! Can not request multiple files!`);
-      return;
-    }
-    this._requests = [
-      ...this._requests,
-      ...ThermalRequest.multiple(group, requests)
-    ];
-  }
-  /** @todo If there is an error, it is here. In the instancing, it seems that deleted groups remain and instances are binded to old groups. */
-  async resolveQuery() {
-    if (this.loading === true) {
-    }
-    const result = await Promise.all(
-      this._requests.map((request) => request.fetch())
-    );
-    const mapByGroups = {};
-    for (const response of result) {
-      if (response !== null) {
-        const file = this.registry.manager.registerSource(response.file);
-        if (response.request.group.id in mapByGroups === false) {
-          mapByGroups[response.request.group.id] = [file];
-        } else {
-          mapByGroups[response.request.group.id].push(file);
-        }
-      }
-    }
-    for (const groupId in mapByGroups) {
-      const groupInstance = this.registry.groups.map.get(groupId);
-      groupInstance?.instances.instantiateSources(mapByGroups[groupId]);
-    }
-    this._requests = [];
-    return this.registry.groups.value;
-  }
-};
-
-// src/loading/mainThread/sequential/ThermalFetcher.ts
-var ThermalFetcher = class {
-  constructor(registry) {
-    this.registry = registry;
-  }
-  requests = /* @__PURE__ */ new Map();
-  get requestArray() {
-    return Array.from(this.requests.values());
-  }
-  timer;
-  request(thermalUrl, visibleUrl, callback) {
-    if (this.requests.has(thermalUrl)) {
-      if (callback) {
-        this.requests.get(thermalUrl)?.callbacks.push(callback);
-      }
-    } else {
-      const newRequest = {
-        thermalUrl,
-        visibleUrl,
-        callbacks: callback ? [callback] : []
-      };
-      this.requests.set(thermalUrl, newRequest);
-    }
-    if (this.timer === void 0) {
-      this.timer = setTimeout(this.resolve.bind(this), 0);
-    }
-  }
-  async resolve() {
-    const result = await Promise.all(
-      this.requestArray.map(async (request) => {
-        const result2 = {
-          request
-        };
-        if (this.registry.manager.isUrlRegistered(request.thermalUrl)) {
-          result2.output = this.registry.manager.sourcesByUrl[request.thermalUrl];
-        } else {
-          try {
-            const source = await ThermalFileSource.fromUrlWithErrors(request.thermalUrl, request.visibleUrl);
-            if (source) {
-              result2.output = source;
-            }
-          } catch (error) {
-            if (error instanceof Error) {
-              result2.output = error.message;
-            }
-          }
-        }
-        return result2;
-      })
-    ).then((results) => {
-      return results.map((result2) => {
-        if (result2.output instanceof ThermalFileSource) {
-          result2.request.callbacks.forEach((callback) => {
-            callback(result2.output);
-            this.registry.manager.registerSource(result2.output);
-          });
-        } else {
-          result2.request.callbacks.forEach((callback) => {
-            if (result2.output instanceof ThermalFileSource === false)
-              callback(void 0, result2.output ?? "N\u011Bco se pokazilo");
-          });
-        }
-        return result2.output;
-      });
-    });
-    clearTimeout(this.timer);
-    this.timer = void 0;
-    this.registry.postLoadedProcessing();
-    return result;
-  }
-};
-
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-  }
-};
-
-// src/properties/time/internals/FrameBuffer.ts
-var FrameBuffer = class {
-  constructor(drive, firstFrame) {
-    this.drive = drive;
-    this.currentFrame = firstFrame;
-  }
-  /** @internal use accessors to get and set with side effects */
-  _currentFrame;
-  /** The current frame data @readonly */
-  get currentFrame() {
-    return this._currentFrame;
-  }
-  /** Upon every update of current frame, propagate current pixels to the instance */
-  set currentFrame(frame) {
-    this._currentFrame = frame;
-    this.drive.parent.pixels = this.currentFrame.pixels;
-  }
-  /** Get the current step value calculated from _currentFrame */
-  get currentStep() {
-    return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
-  }
-  /** Number of images to preload at once */
-  bufferSize = 4;
-  /** The actual buffer holding pair of step & frame */
-  buffer = /* @__PURE__ */ new Map();
-  /** Accessor to array of steps preloaded in the given moment */
-  get preloadedSteps() {
-    return Array.from(this.buffer.keys());
-  }
-  /** Accessor to array of relative timestamps preloaded in the given moment */
-  get preloadedTimestampsRelative() {
-    return this.preloadedSteps.map((step) => step.relative);
-  }
-  async init() {
-    return await this.preload(this.currentStep);
-  }
-  /**
-   * Activate a step
-   * - look for the buffer for the corresponding frame
-   * - if there is a corresponding frame, apply it
-   * - if there is none, fetch it
-   * - if sequence, fetch buffer
-   * 
-   * **THIS IS THE MAIN SETTER**
-   */
-  async recieveStep(step) {
-    let frame = this.buffer.get(step);
-    if (frame === void 0) {
-      frame = await this.drive.parent.service.frameData(step.index);
-    }
-    const status = await this.preload(step);
-    this.currentFrame = frame;
-    return status;
-  }
-  /** Preload frame data to the buffer based on the provided step */
-  async preload(step) {
-    const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
-    const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
-    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
-      if (step.relative === this.drive.parent.duration) {
-        this.buffer.clear();
-      }
-      return {
-        relativeTime: this.drive.value,
-        currentFrame: this.currentFrame,
-        currentStep: this.currentStep,
-        buffer: this.preloadedSteps,
-        preloaded: false,
-        hasChanged: true
-      };
-    }
-    const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
-      return step2.index >= subsetStart && step2.index < subsetEnd;
-    });
-    const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
-    const newFrames = await Promise.all(newSteps.map((step2) => {
-      return this.drive.parent.service.frameData(step2.index);
-    }));
-    newFrames.forEach((frame, index) => {
-      const step2 = newSteps[index];
-      this.buffer.set(step2, frame);
-    });
-    this.preloadedSteps.forEach((step2) => {
-      if (!stepsThatShouldBe.includes(step2)) {
-        this.buffer.delete(step2);
-      }
-    });
-    return {
-      currentFrame: this.currentFrame,
-      currentStep: this.currentStep,
-      relativeTime: this.drive.value,
-      buffer: this.preloadedSteps,
-      preloaded: true,
-      hasChanged: true
-    };
-  }
-};
-
-// src/properties/time/TimelineDrive.ts
-var TimelineDrive = class extends AbstractProperty {
-  constructor(parent, initial, steps, initialFrameData) {
-    super(parent, Math.max(Math.min(initial, steps.length), 0));
-    this.steps = steps;
-    this._currentStep = this.steps[this._initial];
-    this.startTimestampRelative = 0;
-    this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
-    this.isSequence = this.parent.timelineData.length > 1;
-    this.steps.forEach((step) => {
-      this.stepsByIndex.set(step.index, step);
-      this.stepsByAbsolute.set(step.absolute, step);
-      this.stepsByRelative.set(step.relative, step);
-      this.relativeSteps.push(step.relative);
-    });
-    this.buffer = new FrameBuffer(this, initialFrameData);
-  }
-  get duration() {
-    return this.parent.duration;
-  }
-  get frameCount() {
-    return this.steps.length;
-  }
-  startTimestampRelative;
-  /** @deprecated not in use? */
-  endTimestampRelative;
-  stepsByAbsolute = /* @__PURE__ */ new Map();
-  stepsByRelative = /* @__PURE__ */ new Map();
-  stepsByIndex = /* @__PURE__ */ new Map();
-  relativeSteps = [];
-  _currentStep;
-  get currentStep() {
-    return this._currentStep;
-  }
-  _onChangeListeners = /* @__PURE__ */ new Map();
-  isSequence;
-  _isPlayying = false;
-  get isPlaying() {
-    return this._isPlayying;
-  }
-  timer;
-  buffer;
-  init() {
-    this.buffer.init();
-  }
-  afterSetEffect(value) {
-    value;
-    if (this.steps.length === 1) {
-      return;
-    }
-  }
-  validate(value) {
-    if (this.steps === void 0) {
-      return value;
-    }
-    if (this.steps.length === 1) {
-      return 0;
-    }
-    return this._validateRelativeTime(value);
-  }
-  _validateRelativeTime(value) {
-    return Math.max(Math.min(value, this.steps[this.steps.length - 1].relative), 0);
-  }
-  _validateIndex(value) {
-    return Math.max(Math.min(value, this.steps.length), 0);
-  }
-  _convertRelativeToAspect(relativeTimeInMs) {
-    return relativeTimeInMs / this.duration;
-  }
-  _convertRelativeToPercent(relativeTimeInMs) {
-    return this._convertRelativeToAspect(relativeTimeInMs) * 100;
-  }
-  _convertPercenttRelative(percent) {
-    return this.duration * percent / 100;
-  }
-  /** Event listener to changement of the current frame.
-   * - the current frame is not changed every time the value changes
-   * - the current frame is changed only when the ms value points fo a new previous frame
-   */
-  addChangeListener(identificator, fn) {
-    this._onChangeListeners.set(identificator, fn);
-  }
-  removeChangeListener(identificator) {
-    this._onChangeListeners.delete(identificator);
-  }
-  findPreviousRelative(relativeTimeInMs) {
-    if (this.steps.length === 1) {
-      return this.steps[0];
-    }
-    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
-    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
-    const index = Math.ceil(aspect * this.steps.length) + 5;
-    const sliceStart = this._validateIndex(index - 40);
-    const sliceEnd = this._validateIndex(index);
-    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
-    const frame = reversedSubarray.find((f) => {
-      return f.relative <= relativeTimeInMs;
-    });
-    return frame !== void 0 ? frame : this.steps[0];
-  }
-  findNextRelative(relativeTimeInMs) {
-    if (this.steps.length === 1) {
-      return this.steps[0];
-    }
-    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
-    const index = Math.floor(aspect * this.steps.length) - 5;
-    const subarrayStart = this._validateIndex(index);
-    const subarrayEnd = this._validateIndex(index + 40);
-    const subarray = this.steps.slice(subarrayStart, subarrayEnd);
-    const frame = subarray.find((f) => {
-      return f.relative > relativeTimeInMs;
-    });
-    return frame !== void 0 ? frame : false;
-  }
-  async setRelativeTime(relativeTimeInMs) {
-    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
-    this.value = relativeTimeInMs;
-    const currentStep = this.findPreviousRelative(this.value);
-    if (currentStep !== this._currentStep) {
-      this._currentStep = currentStep;
-      const result = await this.buffer.recieveStep(this._currentStep);
-      return result;
-    }
-    return {
-      relativeTime: this.value,
-      currentStep: this._currentStep,
-      currentFrame: this.buffer.currentFrame,
-      buffer: [],
-      preloaded: false,
-      hasChanged: false
-    };
-  }
-  async setValueByPercent(percent) {
-    percent = Math.max(Math.min(percent, 100), 0);
-    const convertedToRelativeTime = this._convertPercenttRelative(percent);
-    return await this.setRelativeTime(convertedToRelativeTime);
-  }
-  createNextStepTimer() {
-    if (this.timer !== void 0) {
-      clearTimeout(this.timer);
-    }
-    if (!this.isSequence || this._isPlayying === false) {
-      return;
-    }
-    this.timer = setTimeout(() => {
-      const next = this.findNextRelative(this._currentStep.relative);
-      if (next) {
-        this.value = next.relative;
-        if (this._isPlayying) {
-          this.value = next.relative;
-          this._currentStep = next;
-          this.buffer.recieveStep(next);
-          this.createNextStepTimer();
-        }
-      } else {
-        this._isPlayying = false;
-      }
-    }, this._currentStep.offset);
-  }
-  play() {
-    if (this.steps.length > 1) {
-      this._isPlayying = true;
-      this.createNextStepTimer();
-    }
-  }
-  pause() {
-    this._isPlayying = false;
-    clearTimeout(this.timer);
-  }
-  stop() {
-    this.pause();
-    this.value = 0;
-  }
-};
-
-// src/file/instance.ts
-var Instance = class _Instance extends AbstractFile {
-  constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
-    super(
-      group,
-      service.thermalUrl,
-      width,
-      height,
-      initialPixels,
-      timestamp,
-      duration,
-      min,
-      max,
-      frameCount,
-      service.visibleUrl
-    );
-    this.group = group;
-    this.service = service;
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.frameCount = frameCount;
-    this.duration = duration;
-    this.frameInterval = frameInterval;
-    this.fps = fps;
-    this.min = min;
-    this.max = max;
-    this.bytesize = bytesize;
-    this.averageEmissivity = averageEmissivity;
-    this.averageReflectedKelvins = averageReflectedKelvins;
-    this.firstFrame = firstFrame;
-    this.timelineData = timelineData;
-    this.pixels = firstFrame.pixels;
-  }
-  exportAsPng() {
-    throw new Error("Method not implemented.");
-  }
-  exportThermalDataAsSvg() {
-    throw new Error("Method not implemented.");
-  }
-  postInit() {
-    this.canvasLayer = new ThermalCanvasLayer(this);
-    this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
-    this.cursorLayer = new ThermalCursorLayer(this);
-    this.listenerLayer = new ThermalListenerLayer(this);
-    this.cursorValue = new CursorValueDrive(this, void 0);
-    this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
-    this.timeline.init();
-    return this;
-  }
-  formatId(thermalUrl) {
-    return `instance_${this.group.id}_${thermalUrl}`;
-  }
-  onSetPixels(value) {
-    value;
-    if (this.mountedBaseLayers) {
-      this.draw();
-      this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
-      if (this.group.cursorPosition.value) {
-        const value2 = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
-        this.cursorLayer.setValue(value2);
-      }
-    }
-  }
-  getPixelsForHistogram() {
-    return [];
-  }
-  static fromService(group, service, baseInfo2, firstFrame) {
-    const instance = new _Instance(
-      group,
-      service,
-      baseInfo2.width,
-      baseInfo2.height,
-      baseInfo2.timestamp,
-      baseInfo2.frameCount,
-      baseInfo2.duration,
-      baseInfo2.frameInterval,
-      firstFrame.pixels,
-      baseInfo2.fps,
-      baseInfo2.min,
-      baseInfo2.max,
-      baseInfo2.bytesize,
-      baseInfo2.averageEmissivity,
-      baseInfo2.averageReflectedKelvins,
-      firstFrame,
-      baseInfo2.timeline
-    );
-    return instance.postInit();
-  }
-};
-
-// src/loading/workers/ThermalFileReader.ts
-var ThermalFileReader = class extends AbstractFileResult {
-  constructor(buffer, parser2, thermalUrl, visibleUrl) {
-    super(thermalUrl, visibleUrl);
-    this.buffer = buffer;
-    this.parser = parser2;
-    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-  }
-  /** For the purpose of testing we have a unique ID */
-  id = Math.random();
-  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-  baseInfoCache;
-  fileName;
-  pool = pool_default;
-  isSuccess() {
-    return true;
-  }
-  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
-  async baseInfo() {
-    if (this.baseInfoCache) {
-      return this.baseInfoCache;
-    }
-    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
-    this.baseInfoCache = baseInfo2;
-    return baseInfo2;
-  }
-  /** 
-   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
-   * 
-   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
-   */
-  getFrameSubset(frameIndex) {
-    return this.parser.getFrameSubset(this.buffer, frameIndex);
-  }
-  /** Read a given frame
-   * @todo Implement index range check
-   */
-  async frameData(index) {
-    const data = this.getFrameSubset(index);
-    const result = await this.parser.frameData(data.array, data.dataType);
-    return result;
-  }
-  async createInstance(group) {
-    const baseInfo2 = await this.baseInfo();
-    const firstFrame = await this.frameData(0);
-    const instance = Instance.fromService(group, this, baseInfo2, firstFrame);
-    group.files.addFile(instance);
-    return instance;
-  }
-};
-
-// src/hierarchy/ThermalRegistry.ts
-var ThermalRegistry = class extends BaseStructureObject {
-  constructor(id, manager, options) {
-    super();
-    this.id = id;
-    this.manager = manager;
-    this.palette = this.manager.palette;
-    if (options) {
-      if (options.histogramResolution !== void 0) {
-        if (options.histogramResolution > 0)
-          this.histogram.setResolution(options.histogramResolution);
-      }
-    }
-  }
-  hash = Math.random();
-  /** Service */
-  get service() {
-    return this.manager.service;
-  }
-  /** Takes care of the entire loading */
-  loader = new ThermalRegistryLoader(this);
-  /** Groups are stored in an observable property */
-  groups = new GroupsState(this, []);
-  /** Iterator methods */
-  forEveryGroup(fn) {
-    this.groups.value.forEach(fn);
-  }
-  forEveryInstance(fn) {
-    this.forEveryGroup((group) => group.instances.forEveryInstance(fn));
-    this.forEveryGroup((group) => group.files.forEveryInstance(fn));
-  }
-  async loadFiles(files) {
-    this.reset();
-    this.loading.markAsLoading();
-    Object.entries(files).forEach(async ([groupId, f]) => {
-      const group = this.groups.addOrGetGroup(groupId);
-      const groupFiles = await Promise.all(f.map((file) => {
-        return this.service.loadFile(file.thermalUrl, file.visibleUrl);
-      }));
-      const instances = groupFiles.forEach(async (file) => {
-        if (file instanceof ThermalFileReader) {
-          return await file.createInstance(group);
-        }
-      });
-      return instances;
-    });
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** Load the registry with only one file. */
-  async loadOneFile(file, groupId) {
-    this.reset();
-    const group = this.groups.addOrGetGroup(groupId);
-    const result = await this.service.loadFile(file.thermalUrl, file.visibleUrl);
-    if (result instanceof ThermalFileReader) {
-      await result.createInstance(group);
-    }
-    this.loading.markAsLoading();
-    this.postLoadedProcessing();
-  }
-  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
-  async processDroppedFiles(files, groupId) {
-    this.reset();
-    this.loading.markAsLoading();
-    this.removeAllChildren();
-    const parsedFiles = await Promise.all(
-      files.map((file) => ThermalLoader.fromFile(file))
-    ).then((results) => {
-      return results.filter((file) => {
-        return file !== null;
-      });
-    });
-    parsedFiles.forEach((source) => this.manager.registerSource(source));
-    const group = this.groups.addOrGetGroup(groupId);
-    group.instances.instantiateSources(parsedFiles);
-    this.postLoadedProcessing();
-  }
-  fetcher = new ThermalFetcher(this);
-  /** Register a single file request */
-  enqueueFile(groupId, thermalUrl, visibleUrl) {
-    const group = this.groups.addOrGetGroup(groupId);
-    this.loader.requestFile(group, thermalUrl, visibleUrl);
-  }
-  // Load all the enqueued requests
-  async loadQuery() {
-    this.reset();
-    this.loading.markAsLoading();
-    await this.loader.resolveQuery();
-    this.postLoadedProcessing();
-  }
-  /** 
-   * Actions to take after the registry is loaded 
-   * - recalculate the minmax of groups
-   * - recalculate minmax of registry
-   * - impose new minmax as new range
-   * - recalculate the histogram
-  */
-  async postLoadedProcessing() {
-    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
-    this.minmax.recalculateFromGroups();
-    if (this.minmax.value)
-      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
-    this.histogram.refreshBufferFromCurrentPixels();
-    this.loading.markAsLoaded();
-  }
-  reset() {
-    this.forEveryGroup((group) => group.reset());
-    if (this.loader.loading === false) {
-      this.opacity.reset();
-      this.minmax.reset();
-    }
-  }
-  removeAllChildren() {
-    this.groups.removeAllGroups();
-  }
-  destroySelfAndBelow() {
-    this.reset();
-  }
-  destroySelfInTheManager() {
-    this.manager.removeRegistry(this.id);
-  }
-  /**
-   * Observable properties and drives
-   */
-  /** 
-   * Opacity property 
-   */
-  opacity = new OpacityDrive(this, 1);
-  /** 
-   * Minmax property 
-   */
-  minmax = new MinmaxRegistryProperty(this, void 0);
-  /**
-   * Loading
-   */
-  loading = new LoadingState(this, false);
-  /**
-   * Range
-   */
-  range = new RangeDriver(this, void 0);
-  /**
-   * Histogram
-   */
-  histogram = new HistogramState(this, []);
-  /**
-   * Palette
-   */
-  palette;
-};
-
-// src/loading/workers/ThermalFileFailure.ts
-var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
-  constructor(thermalUrl, code, message) {
-    super(thermalUrl);
-    this.code = code;
-    this.message = message;
-  }
-  isSuccess() {
-    return false;
-  }
-  static fromError(error) {
-    return new _ThermalFileFailure(error.url, error.code, error.message);
-  }
-};
-
-// src/loading/workers/errors.ts
-var FileLoadingError = class extends Error {
-  constructor(code, url, message) {
-    super(message);
-    this.code = code;
-    this.url = url;
-  }
-};
+var LrcParser = Object.freeze(parser);
 
 // src/loading/workers/parsers/index.ts
 var parsers = {
-  LrcParser: LrcParser2
+  LrcParser
 };
 var parsersArray = Object.values(parsers);
 var determineParser = (buffer, url) => {
@@ -3903,9 +2355,443 @@ var FilesService = class {
   }
 };
 
+// src/properties/drives/OpacityDrive.ts
+var OpacityDrive = class extends AbstractProperty {
+  /** Make sure the value is allways between 0 and 1 */
+  validate(value) {
+    return Math.min(Math.max(0, value), 1);
+  }
+  /** 
+   * Whenever the opacity changes, propagate the value to all instances
+   */
+  afterSetEffect(value) {
+    this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+  }
+  /** Impose an opacity to all instances */
+  imposeOpacity(value) {
+    this.value = value;
+    return this.value;
+  }
+};
+
+// src/properties/lists/filesState.ts
+var FilesState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.url, instance));
+  }
+  addFile(file) {
+    if (!this._map.has(file.url)) {
+      this.value = [...this.value, file];
+      return file;
+    } else {
+      return this._map.get(file.url);
+    }
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+};
+
+// src/properties/states/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.files.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/hierarchy/ThermalGroup.ts
+var ThermalGroup = class extends BaseStructureObject {
+  constructor(registry, id, name, description) {
+    super();
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+  hash = Math.random();
+  minmax = new MinmaxGroupProperty(this, void 0);
+  files = new FilesState(this, []);
+  cursorPosition = new CursorPositionDrive(this, void 0);
+  /** Iteration */
+  forEveryInstance = (fn) => {
+    this.files.value.forEach((instance) => fn(instance));
+  };
+  /**
+   * Destruction
+   */
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.files.removeAllInstances();
+  }
+  reset() {
+    this.files.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+  }
+};
+
+// src/properties/lists/GroupsState.ts
+var GroupsState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    this._map.clear();
+    value.forEach((group) => this._map.set(group.id, group));
+  }
+  addOrGetGroup(groupId, name, description) {
+    if (this._map.has(groupId)) {
+      return this._map.get(groupId);
+    }
+    const group = new ThermalGroup(this.parent, groupId, name, description);
+    this._map.set(groupId, group);
+    this.value.push(group);
+    this.value = [...this.value];
+    return group;
+  }
+  removeGroup(groupId) {
+    if (!this._map.has(groupId)) {
+      return;
+    }
+    this._map.get(groupId)?.destroySelfAndBelow();
+    this._map.delete(groupId);
+    this.value = Array.from(this._map.values());
+  }
+  removeAllGroups() {
+    this.value.forEach((group) => group.destroySelfAndBelow());
+    this.value = [];
+  }
+};
+
+// src/properties/states/HistogramState.ts
+var HistogramState = class extends AbstractProperty {
+  _resolution = 150;
+  get resolution() {
+    return this._resolution;
+  }
+  /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
+  buffer = /* @__PURE__ */ new Map();
+  /** Total countOfPixels in every image @deprecated */
+  bufferPixelsCount = 0;
+  /** @deprecated */
+  _bufferResolution = 1e3;
+  set bufferResolution(value) {
+    this._bufferResolution = Math.round(Math.max(value, 1e3));
+  }
+  get bufferResolution() {
+    return this._bufferResolution;
+  }
+  /** Set the historgam resolution
+   * - does not recalculate the value!
+   * - to recalculate value, call `recalculateWithCurrentSetting`
+   * 
+   * @notice Higher the number, lower the resolution.
+   * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
+  */
+  setResolution(value) {
+    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
+  }
+  /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
+  recalculateWithCurrentSetting() {
+    this.recalculateHistogram();
+    return this.value;
+  }
+  /** 
+   * Recalculate the histogram buffer using web workers.
+   * This is an async operation using `workerpool`
+   */
+  recalculateHistogramBufferInWorker() {
+    if (this.parent.minmax.value !== void 0 && this.parent.groups.value.length !== 0 && this.parent.minmax.distanceInCelsius !== void 0) {
+      const pixels = this.parent.groups.value.map((group) => {
+        return group.files.value.map((instance) => instance.getPixelsForHistogram());
+      });
+      this.parent.pool.exec((instancesPixels, min, max, distance, resolution) => {
+        const mergedPixels = instancesPixels.reduce((state, current) => {
+          const inner = current.reduce((state2, current2) => {
+            return [...state2, ...current2];
+          }, []);
+          return [...state, ...inner];
+        }, []);
+        let sortedPixels = mergedPixels.sort((a, b) => a - b);
+        const step = distance / resolution;
+        let nextStep = min + step;
+        const result = /* @__PURE__ */ new Map();
+        let resultCount = 0;
+        while (nextStep !== false) {
+          const nextIndex = sortedPixels.findIndex((num) => num > nextStep);
+          const pixelCount = sortedPixels.slice(0, nextIndex).length;
+          result.set(nextStep - step / 2, pixelCount);
+          resultCount += pixelCount;
+          sortedPixels = sortedPixels.slice(nextIndex);
+          const nextStepTemporary = nextStep + step;
+          nextStep = nextStepTemporary < max ? nextStepTemporary : false;
+        }
+        return {
+          result,
+          resultCount
+        };
+      }, [
+        pixels,
+        this.parent.minmax.value.min,
+        this.parent.minmax.value.max,
+        this.parent.minmax.distanceInCelsius,
+        this._bufferResolution
+      ]).then((result) => {
+        this.buffer = result.result;
+        this.bufferPixelsCount = result.resultCount;
+        this.recalculateWithCurrentSetting();
+      });
+    }
+  }
+  async recalculateHistogram() {
+    const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
+      state = state.concat(current);
+      return state;
+    }, []);
+    const allBuffers = allFiles.map((reader) => reader.service.buffer);
+    const result = await this.parent.pool.exec(LrcParser.registryHistogram, [allBuffers]);
+    this.value = result;
+  }
+};
+
+// src/properties/states/LoadingState.ts
+var LoadingState = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  markAsLoading() {
+    this.value = true;
+  }
+  markAsLoaded() {
+    this.value = false;
+  }
+};
+
+// src/properties/states/MinmaxRegistryState.ts
+var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  recalculateFromGroups() {
+    const groups = this.parent.groups.value;
+    this.value = this._getMinmaxFromAllGroups(groups);
+    return this.value;
+  }
+  _getMinmaxFromAllGroups(groups) {
+    if (groups.length === 0) {
+      return void 0;
+    }
+    const minmax = groups.reduce((state, current) => {
+      if (current.minmax.value === void 0) {
+        return state;
+      }
+      return {
+        min: current.minmax.value.min < state.min ? current.minmax.value.min : state.min,
+        max: current.minmax.value.max > state.max ? current.minmax.value.max : state.max
+      };
+    }, { min: Infinity, max: -Infinity });
+    return minmax;
+  }
+};
+
+// src/hierarchy/ThermalRegistry.ts
+var ThermalRegistry = class extends BaseStructureObject {
+  constructor(id, manager, options) {
+    super();
+    this.id = id;
+    this.manager = manager;
+    this.palette = this.manager.palette;
+    if (options) {
+      if (options.histogramResolution !== void 0) {
+        if (options.histogramResolution > 0)
+          this.histogram.setResolution(options.histogramResolution);
+      }
+    }
+  }
+  hash = Math.random();
+  /** Service */
+  get service() {
+    return this.manager.service;
+  }
+  /** Groups are stored in an observable property */
+  groups = new GroupsState(this, []);
+  /** Iterator methods */
+  forEveryGroup(fn) {
+    this.groups.value.forEach(fn);
+  }
+  forEveryInstance(fn) {
+    this.forEveryGroup((group) => group.files.forEveryInstance(fn));
+  }
+  /** Full load of the registry with multiple files @deprecated */
+  async loadFullMultipleFiles(files) {
+    this.reset();
+    this.loading.markAsLoading();
+    const servicesByGroup = await Promise.all(Object.entries(files).map(async ([groupId, fs]) => {
+      const group = this.groups.addOrGetGroup(groupId);
+      const groupFiles = await Promise.all(fs.map((file) => {
+        return this.service.loadFile(file.thermalUrl, file.visibleUrl);
+      }));
+      return {
+        group,
+        groupFiles
+      };
+    }));
+    await Promise.all(servicesByGroup.map(async ({ group, groupFiles }) => {
+      const instances = await Promise.all(groupFiles.map(async (service) => {
+        if (service instanceof ThermalFileReader) {
+          return await service.createInstance(group);
+        } else {
+          return false;
+        }
+      }));
+      return instances;
+    }));
+    this.postLoadedProcessing();
+  }
+  /** Load the registry with only one file. @deprecated */
+  async loadFullOneFile(file, groupId) {
+    this.reset();
+    const group = this.groups.addOrGetGroup(groupId);
+    const result = await this.service.loadFile(file.thermalUrl, file.visibleUrl);
+    if (result instanceof ThermalFileReader) {
+      await result.createInstance(group);
+    }
+    this.loading.markAsLoading();
+    this.postLoadedProcessing();
+  }
+  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
+  async processDroppedFiles(files, groupId) {
+    files;
+    groupId;
+    throw new Error("Method not implemented");
+  }
+  /** 
+   * Actions to take after the registry is loaded 
+   * - recalculate the minmax of groups
+   * - recalculate minmax of registry
+   * - impose new minmax as new range
+   * - recalculate the histogram
+  */
+  async postLoadedProcessing() {
+    this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
+    this.minmax.recalculateFromGroups();
+    if (this.minmax.value)
+      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+    this.histogram.recalculateHistogramBufferInWorker();
+    this.loading.markAsLoaded();
+  }
+  reset() {
+    this.forEveryGroup((group) => group.reset());
+    this.opacity.reset();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.groups.removeAllGroups();
+  }
+  destroySelfAndBelow() {
+    this.reset();
+  }
+  destroySelfInTheManager() {
+    this.manager.removeRegistry(this.id);
+  }
+  /**
+   * Observable properties and drives
+   */
+  /** 
+   * Opacity property 
+   */
+  opacity = new OpacityDrive(this, 1);
+  /** 
+   * Minmax property 
+   */
+  minmax = new MinmaxRegistryProperty(this, void 0);
+  /**
+   * Loading
+   */
+  loading = new LoadingState(this, false);
+  /**
+   * Range
+   */
+  range = new RangeDriver(this, void 0);
+  /**
+   * Histogram
+   */
+  histogram = new HistogramState(this, []);
+  /**
+   * Palette
+   */
+  palette;
+};
+
 // src/hierarchy/ThermalManager.ts
 var ThermalManager = class extends BaseStructureObject {
   id;
+  /** Service for creation of loading and caching the files. */
+  service = new FilesService(this);
+  /** Index of existing registries */
+  registries = {};
+  /** A palette is common to all registries within the manager */
+  palette = new PaletteDrive(this, "jet");
   constructor(options) {
     super();
     this.id = Math.random();
@@ -3916,7 +2802,6 @@ var ThermalManager = class extends BaseStructureObject {
     }
   }
   /* registries */
-  registries = {};
   forEveryRegistry(fn) {
     Object.values(this.registries).forEach((registry) => fn(registry));
   }
@@ -3933,36 +2818,6 @@ var ThermalManager = class extends BaseStructureObject {
       delete this.registries[id];
     }
   }
-  /** The palette is stored absolutely globally */
-  /**
-   * Palette
-   */
-  palette = new PaletteDrive(this, "jet");
-  service = new FilesService(this);
-  /** Sources cache */
-  _sourcesByUrl = {};
-  /** @deprecated */
-  get sourcesByUrl() {
-    return this._sourcesByUrl;
-  }
-  /** @deprecated */
-  getSourcesArray() {
-    return Object.values(this.sourcesByUrl);
-  }
-  /** @deprecated */
-  getRegisteredUrls() {
-    return Object.keys(this.sourcesByUrl);
-  }
-  /** @deprecated */
-  registerSource(source) {
-    if (!this.getRegisteredUrls().includes(source.url)) {
-      this.sourcesByUrl[source.url] = source;
-      return source;
-    }
-    return this.sourcesByUrl[source.url];
-  }
-  /** @deprecated */
-  isUrlRegistered = (url) => Object.keys(this.sourcesByUrl).includes(url);
 };
 
 // src/index.ts
@@ -3974,9 +2829,7 @@ export {
   Instance,
   JET,
   ThermalFileFailure,
-  ThermalFileInstance,
   ThermalFileReader,
-  ThermalFileSource,
   ThermalGroup,
   ThermalManager,
   ThermalPalettes,

@@ -24,7 +24,7 @@ export const useFilesInGroup = (
     // Load upon mount, destroy self upon unmount
     useEffect( () => {
 
-        registry.loadFiles( {
+        registry.loadFullMultipleFiles( {
             [group.id]: urls.map( url => ({
                 thermalUrl: url
             }) )

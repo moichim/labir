@@ -36,7 +36,7 @@ export const useSingleFileRegistry = (
     // Load upon mount, destroy self upon unmount
     useEffect( () => {
 
-        registry.loadOneFile( {
+        registry.loadFullOneFile( {
             thermalUrl,
             visibleUrl
         }, group.id );

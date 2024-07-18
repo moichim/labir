@@ -185,22 +185,18 @@ var import_react_dropzone = require("react-dropzone");
 // src/properties/lists/useThermalGroupInstancesState.ts
 var import_react3 = require("react");
 var useThermalGroupInstancesState = (group, purpose) => {
-  const [value, setValue] = (0, import_react3.useState)(group.instances.value);
+  const [value, setValue] = (0, import_react3.useState)(group.files.value);
   (0, import_react3.useEffect)(() => {
-    group.instances.addListener(purpose, (newValue) => {
+    group.files.addListener(purpose, (newValue) => {
       setValue(newValue);
     });
-    return () => group.instances.removeListener(purpose);
+    return () => group.files.removeListener(purpose);
   }, [group, value, setValue]);
-  const instantiateSources = (0, import_react3.useMemo)(() => group.instances.instantiateSources, [group]);
-  const removeAllInstances = (0, import_react3.useMemo)(() => group.instances.removeAllInstances, [group]);
   (0, import_react3.useEffect)(() => {
-    return () => group.instances.removeListener(purpose);
+    return () => group.files.removeListener(purpose);
   }, []);
   return {
-    value,
-    instantiateSources,
-    removeAllInstances
+    value
   };
 };
 
@@ -1333,7 +1329,7 @@ var useFilesInGroup = (urls, registryId, groupId) => {
   const registry = (0, import_react35.useMemo)(() => manager.addOrGetRegistry(registryIdMemoised), []);
   const group = (0, import_react35.useMemo)(() => registry.groups.addOrGetGroup(groupIdMemoised), []);
   (0, import_react35.useEffect)(() => {
-    registry.loadFiles({
+    registry.loadFullMultipleFiles({
       [group.id]: urls.map((url) => ({
         thermalUrl: url
       }))
@@ -1364,7 +1360,7 @@ var useSingleFileRegistry = (thermalUrl, visibleUrl) => {
   const registry = manager.addOrGetRegistry(registryId);
   const group = registry.groups.addOrGetGroup(groupId);
   (0, import_react36.useEffect)(() => {
-    registry.loadOneFile({
+    registry.loadFullOneFile({
       thermalUrl,
       visibleUrl
     }, group.id);

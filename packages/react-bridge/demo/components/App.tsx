@@ -27,14 +27,14 @@ function App() {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      registry.loadFiles({
+      registry.loadFullMultipleFiles({
         [group.id]: [
-          { thermalUrl: "/tucnaci_04.lrc" },
+          // { thermalUrl: "/tucnaci_04.lrc" },
           { thermalUrl: "/image-thermal 2021-11-24 11-18-20.lrc" },
-          { thermalUrl: "/image-thermal 2024-01-12 14-09-37.lrc" },
-          { thermalUrl: "/image-thermal 2024-01-24 10-05-03.lrc" },
-          { thermalUrl: "/image-thermal 2024-01-26 10-12-52.lrc" },
-          { thermalUrl: "/image-thermal 2024-02-12 10-15-07.lrc" },
+          // { thermalUrl: "/image-thermal 2024-01-12 14-09-37.lrc" },
+          // { thermalUrl: "/image-thermal 2024-01-24 10-05-03.lrc" },
+          // { thermalUrl: "/image-thermal 2024-01-26 10-12-52.lrc" },
+          // { thermalUrl: "/image-thermal 2024-02-12 10-15-07.lrc" },
         ],
       });
     }, 1000);

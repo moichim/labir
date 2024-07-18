@@ -63,7 +63,7 @@ describe("ThermalRegistry", () => {
         });
 
         expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
-        expect(group.instances.value.length).toEqual(0);
+        expect(group.files.value.length).toEqual(0);
 
     });
 

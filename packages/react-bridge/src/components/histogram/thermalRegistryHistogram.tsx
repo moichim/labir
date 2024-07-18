@@ -104,6 +104,7 @@ export const ThermalRegistryHistogram: React.FC<RegistryHistogramProps> = ({
     <div style={mainCss}>
       {histogram.value &&
         histogram.value.map((entry) => {
+
           const height = `${entry.height}%`;
 
           const css = {

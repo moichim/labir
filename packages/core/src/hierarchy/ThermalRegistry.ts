@@ -2,8 +2,8 @@
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { AbstractFile } from "../file/AbstractFile";
-import { ThermalFileSource } from "../file/ThermalFileSource";
-import { ThermalGroup } from "./ThermalGroup";
+import { ThermalFileRequest } from "../loading/mainThread/batch/ThermalRequest";
+import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
 import { RangeDriver } from "../properties/drives/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
@@ -11,12 +11,8 @@ import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
 import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
+import { ThermalGroup } from "./ThermalGroup";
 import { ThermalManager } from "./ThermalManager";
-import { ThermalRegistryLoader } from "../loading/mainThread/batch/ThermalRegistryLoader";
-import { ThermalFileRequest } from "../loading/mainThread/batch/ThermalRequest";
-import { ThermalLoader } from "../loading/mainThread/parsers/thermalLoader";
-import { ThermalFetcher } from "../loading/mainThread/sequential/ThermalFetcher";
-import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 
 export type ThermalRegistryOptions = {
     histogramResolution?: number,
@@ -50,9 +46,6 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
     /** Service */
     public get service() { return this.manager.service; }
-
-    /** Takes care of the entire loading */
-    protected readonly loader: ThermalRegistryLoader = new ThermalRegistryLoader(this);
 
 
 
@@ -142,11 +135,18 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     }
 
 
-    /** Completely flush the entire registry and process evyrything from the files that are being dropped here. */
+    /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
     public async processDroppedFiles(
         files: File[],
         groupId: string
     ) {
+
+        files;
+        groupId;
+
+        throw new Error( "Method not implemented" );
+
+        /*
 
         this.reset();
 
@@ -164,39 +164,22 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
             }) as ThermalFileSource[]
         });
 
+        groupId;
+        parsedFiles;
+
         // Register the sources
-        parsedFiles.forEach(source => this.manager.registerSource(source));
+        // parsedFiles.forEach(source => this.manager.registerSource(source));
 
         // Create the group for the request
-        const group = this.groups.addOrGetGroup(groupId);
+        // const group = this.groups.addOrGetGroup(groupId);
 
         // Instantiate everything
-        group.instances.instantiateSources(parsedFiles);
+        // group.instances.instantiateSources(parsedFiles);
 
         // Cecalculate everything
         this.postLoadedProcessing();
 
-    }
-
-    public readonly fetcher = new ThermalFetcher(this);
-
-
-    /** Register a single file request */
-    enqueueFile(groupId: string, thermalUrl: string, visibleUrl?: string) {
-        const group = this.groups.addOrGetGroup(groupId);
-        this.loader.requestFile(group, thermalUrl, visibleUrl);
-    }
-
-    // Load all the enqueued requests
-    async loadQuery() {
-
-        this.reset();
-        this.loading.markAsLoading();
-
-        await this.loader.resolveQuery();
-
-        this.postLoadedProcessing();
-
+        */
 
     }
 
@@ -238,11 +221,10 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         this.forEveryGroup(group => group.reset());
 
-        if (this.loader.loading === false) {
-            // this.removeAllChildren();
+        // if (this.loader.loading === false) {
             this.opacity.reset();
             this.minmax.reset();
-        }
+        // }
 
     }
 

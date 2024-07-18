@@ -17,8 +17,6 @@ import { TimeRound } from "./utils/time/rounding";
 
 import { AvailableThermalPalettes } from "./file/palettes";
 
-import { InstanceFetchCallback } from "./properties/lists/InstancesState"
-import { ThermalFileInstance } from "./file/ThermalFileInstance";
 import { ThermalManager, ThermalManagerOptions } from "./hierarchy/ThermalManager";
 import { pool } from "workerpool";
 import { AbstractFile } from "./file/AbstractFile";
@@ -44,14 +42,11 @@ export {
     ThermalRegistry,
     ThermalRegistryOptions, 
     ThermalFileRequest,
-    InstanceFetchCallback,
 
     // Group
     ThermalGroup, 
 
     // File
-    ThermalFileSource, 
-    ThermalFileInstance,
     AbstractFile,
     Instance,
     ThermalFileReader,

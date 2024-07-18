@@ -1,12 +1,10 @@
-import { describe, expect, it, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { ThermalRegistry } from './ThermalRegistry';
-import { THERMOGRAM_PATHS } from '../../devserver/node/mocks';
 
 describe( "ThermalManager", () => {
     
     const REGISTRY_ID = "registry_id";
-    const GROUP_ID = "group_id";
 
     test( "handling registries", () => {
 
@@ -40,29 +38,6 @@ describe( "ThermalManager", () => {
 
         const manager_with_options = new ThermalManager( { palette: "iron" } );
         expect( manager_with_options.palette.value ).toEqual( "iron" );
-
-    } );
-
-    it.skip( "caching file sources", async () => {
-
-        const manager = new ThermalManager;
-        const registry = manager.addOrGetRegistry( REGISTRY_ID );
-
-        // Load one file
-        await registry.loadFullOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
-
-        expect( manager.isUrlRegistered( THERMOGRAM_PATHS.SOUSTRUH ) ).toBe( true );
-        expect( manager.getSourcesArray().length ).toEqual( 1 );
-
-        // Load that file again
-        await registry.loadFullOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
-        expect( manager.getSourcesArray().length ).toEqual( 1 );
-
-        // Load that file in another group
-        await registry.loadFullOneFile( {thermalUrl: THERMOGRAM_PATHS.SOUSTRUH}, "another_group" );
-        expect( manager.getSourcesArray().length ).toEqual( 1 );
-
-        expect( manager.getRegisteredUrls().includes( THERMOGRAM_PATHS.SOUSTRUH ) ).toEqual( true );
 
     } );
 

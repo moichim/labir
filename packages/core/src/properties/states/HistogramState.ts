@@ -134,8 +134,6 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
     protected async recalculateHistogram() {
 
-        // this is the new code
-
         // All living instances
         const allFiles = this.parent.groups.value.map( group => group.files.value ).reduce( (state, current) => {
 
