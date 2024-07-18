@@ -57,43 +57,41 @@ describe("ReTimelineDrive", () => {
         expect( result_after_negative.buffer.length ).toEqual( 0 );
 
         const result_after_too_much = await timeline.setRelativeTime( 999 * 9999 );
-        // await timeline.setRelativeTime( 999 * 9999 );
         expect( timeline.value ).toEqual( 61085 );
         expect( timeline.value ).toEqual( instance.duration );
         expect( result_after_too_much.preloaded ).toEqual( false );
         expect( result_after_too_much.buffer.length ).toEqual( 0);
+
+        expect( result_after_too_much.absoluteTime ).toEqual( result_after_too_much.currentFrame.timestamp );
 
         expect( result_after_too_much.relativeTime ).toEqual( 61085 );
         expect( result_after_too_much.currentStep.index ).toEqual( 517 );
         expect( result_after_too_much.preloaded ).toEqual( false );
         expect( result_after_too_much.hasChanged ).toEqual( true );
 
-        // expect( result_after_too_much.buffer ).toEqual( buffer.bufferedStepsArray );
-
         // Now set to the second frame
         const result_second_frame = await timeline.setRelativeTime( 114 );
 
-        // expect( result_second_frame.currentStep.index ).toEqual( 1 );
+        expect( result_second_frame.currentStep.index ).toEqual( 1 );
 
         expect( buffer.currentFrame.timestamp ).toEqual( timeline.currentStep.absolute );
-        // expect( buffer.bufferedStepsArray[0].index ).toEqual(result_second_frame.currentStep.index + 1);
 
         // Now move one second later (no change should happen)
         const result_after_second_frame = await timeline.setRelativeTime( 114 + 60 );
 
-        // expect( result_after_second_frame.hasChanged ).toEqual( false );
-        // expect( result_after_second_frame.preloaded ).toEqual( false );
+        expect( result_after_second_frame.hasChanged ).toEqual( false );
+        expect( result_after_second_frame.preloaded ).toEqual( false );
 
         // now set to the half of the sequence
         const result_in_half = await timeline.setValueByPercent( 50 );
 
-        // expect( result_in_half.currentFrame.timestamp ).toEqual( result_in_half.currentStep.absolute );
+        expect( result_in_half.currentFrame.timestamp ).toEqual( result_in_half.currentStep.absolute );
 
-        // expect( result_in_half.currentStep.index ).toEqual( 249 );
+        expect( result_in_half.currentStep.index ).toEqual( 249 );
 
-        // expect( result_in_half.preloaded ).toEqual( true );
+        expect( result_in_half.preloaded ).toEqual( true );
 
-        // expect( result_in_half.buffer[0].index ).toEqual( result_in_half.currentStep.index + 1 );
+        expect( result_in_half.buffer[0].index ).toEqual( result_in_half.currentStep.index + 1 );
 
     });
 

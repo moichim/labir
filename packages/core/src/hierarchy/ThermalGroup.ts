@@ -41,7 +41,8 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     /** Iteration */
     public forEveryInstance = ( fn: ( (instance: AbstractFile) => void ) ) => {
-        this.instances.value.forEach( instance => fn( instance ) );
+        this.files.value.forEach( instance => fn( instance ) );
+
     }
 
 
@@ -61,14 +62,15 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
 
     public removeAllChildren() {
-        this.instances.removeAllInstances();
+        this.files.removeAllInstances();
     }
 
     public reset() {
-        this.instances.reset();
+
         this.files.reset();
         this.minmax.reset();
         this.cursorPosition.reset();
+
     }
 
 

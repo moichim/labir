@@ -14,9 +14,7 @@ describe("ThermalRegistry", () => {
         const group = registry.groups.addOrGetGroup(GROUP_ID);
 
         // First load
-        await registry.loadOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID);
-
-        console.log( group.files );
+        await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID);
 
         expect(registry.groups.value.length).toEqual(1);
         expect(group.files.value.length).toEqual(1);
@@ -25,15 +23,16 @@ describe("ThermalRegistry", () => {
         expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
 
 
-        // Second load
-        await registry.loadOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID);
+        // Second load - the instance should be loaded only once
+        await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID);
 
         expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
+        
         expect(group.files.value.length).toEqual(1);
 
 
         // Third load
-        await registry.loadFiles({
+        await registry.loadFullMultipleFiles({
             [GROUP_ID]: [{ thermalUrl: THERMOGRAM_PATHS.CAS }]
         });
 
@@ -42,7 +41,7 @@ describe("ThermalRegistry", () => {
 
 
         // Fourth load
-        await registry.loadFiles({
+        await registry.loadFullMultipleFiles({
             [GROUP_ID]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }
@@ -55,7 +54,7 @@ describe("ThermalRegistry", () => {
 
         // Fifth load to a new group
 
-        await registry.loadFiles({
+        await registry.loadFullMultipleFiles({
             ["new_group"]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH },
@@ -73,7 +72,7 @@ describe("ThermalRegistry", () => {
         const manager = new ThermalManager;
         const registry = manager.addOrGetRegistry(REGISTRY_ID);
 
-        await registry.loadFiles({
+        await registry.loadFullMultipleFiles({
             ["new_group"]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH },

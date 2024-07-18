@@ -17,11 +17,11 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     protected _resolution = 150;
     public get resolution() { return this._resolution; };
 
-    /** Map of temperature => countOfPixels in the scaled down resolution */
+    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
     protected buffer: Map<number, number> = new Map<number, number>();
-    /** Total countOfPixels in every image */
+    /** Total countOfPixels in every image @deprecated */
     protected bufferPixelsCount: number = 0;
-    /**  */
+    /** @deprecated */
     protected _bufferResolution = 1000;
     public set bufferResolution(value: number) { this._bufferResolution = Math.round(Math.max(value, 1000)) }
     public get bufferResolution() { return this._bufferResolution; }
@@ -31,6 +31,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
      * - to recalculate value, call `recalculateWithCurrentSetting`
      * 
      * @notice Higher the number, lower the resolution.
+     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
     */
     public setResolution(value: number) {
         this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
@@ -38,14 +39,6 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
     /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
     protected validate(value: ThermalStatistics[]): ThermalStatistics[] {
-        if (value.length !== this.resolution + 1 && value.length !== 0) {
-            /*
-            console.warn(`Tried to set a histogram with an incorrect resolution. 
-            Desired resolution: '${this.resolution}'. Number of histogram pieces ${value.length}. 
-            => No changes in the histogram were made - using the old value instead the new one.` );
-            */
-            // return this.value;
-        }
         return value;
     }
 
@@ -54,7 +47,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     }
 
 
-    /** Recalculates the value using all current instances and with che current resolution */
+    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
     public recalculateWithCurrentSetting() {
         this.recalculateHistogram();
         return this.value;
@@ -65,7 +58,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
      * Recalculate the histogram buffer using web workers.
      * This is an async operation using `workerpool`
      */
-    public refreshBufferFromCurrentPixels() {
+    public recalculateHistogramBufferInWorker() {
 
         // Start async operation
         if (this.parent.minmax.value !== undefined
@@ -75,10 +68,10 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
             // Get all pixels of all images
             const pixels = this.parent.groups.value.map(group => {
-                return group.instances.value.map(instance => instance.getPixelsForHistogram());
+                return group.files.value.map(instance => instance.getPixelsForHistogram());
             });
 
-            // Execute the pool
+            // REcalculate the buffer in a worker
             this.parent.pool.exec((
                 instancesPixels: number[][][],
                 min: number,
@@ -160,97 +153,5 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
     }
 
-
-    /** Get the pixels from images, calculate the 1000 and store that in the buffer. @deprecated */
-    public _getHistorgramFromAllGroups() {
-
-
-        if (this.parent.minmax.value === undefined || this.parent.groups.value.length === 0) {
-            // Do nothing
-        }
-
-        if (this.parent.minmax.value === undefined || this.parent.groups.value.length === 0) {
-            return [];
-        } else {
-
-            // Get all pixels
-            const allPixels = this.parent.groups.value.reduce((
-                state,
-                current
-            ) => {
-
-                const pixels = current.instances.value.reduce((buf, instance) => {
-
-                    buf = [...buf, ...instance.pixels];
-
-                    return buf;
-
-                }, [] as number[]);
-
-                return [...state, ...pixels]
-
-            }, [] as number[]);
-
-
-            // Calculate the ten segments
-            const segments: [number, number][] = [];
-
-            const numSegments = this.resolution;
-            const difference = this.parent.minmax.value.max - this.parent.minmax.value.min;
-            const segment = difference / numSegments;
-
-            for (let i = 0; i < numSegments; i++) {
-
-                const from = (segment * i) + this.parent.minmax.value.min;
-                const to = from + segment;
-
-                segments.push([from, to]);
-
-            }
-
-            const results: {
-                from: number,
-                to: number,
-                count: number
-            }[] = [];
-
-            let sum = allPixels.length;
-
-            for (const i of segments) {
-
-                const count = allPixels.filter(pixel => {
-                    return pixel >= i[0] && pixel < i[1];
-                }).length;
-
-                sum = sum + count;
-
-                results.push({
-                    from: i[0],
-                    to: i[1],
-                    count: count
-                });
-
-            }
-
-            const recalculated = results.map(i => {
-                return {
-                    ...i,
-                    percentage: i.count / sum * 100,
-                }
-            });
-
-            const max = Math.max(...recalculated.map(item => item.percentage));
-
-            return recalculated.map(item => {
-                return {
-                    ...item,
-                    height: item.percentage / max * 100
-                }
-            }) as ThermalStatistics[];
-
-        }
-
-
-    }
 
 }

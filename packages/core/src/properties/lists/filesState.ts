@@ -4,8 +4,8 @@ import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 
-export interface IWithInstances extends IBaseProperty {
-    instances: FilesState
+export interface IWithFiles extends IBaseProperty {
+    files: FilesState
 }
 
 export type InstanceFetchCallback = (
@@ -13,16 +13,7 @@ export type InstanceFetchCallback = (
     errors?: string
 ) => void;
 
-type InstanceRemoveCallback = () => void;
-
-type InstanceRemoveRequest = {
-    url: string,
-    callbacks: InstanceRemoveCallback[]
-}
-
 export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
-
-    protected _requestedRemovals: Map<string,InstanceRemoveRequest> = new Map;
 
     protected _map: Map<string, Instance> = new Map<string, Instance>();
 
@@ -45,6 +36,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     }
 
     public addFile( file: Instance ) {
+
         if (!this._map.has(file.url)) {
             this.value = [...this.value, file];
             return file;

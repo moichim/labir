@@ -1,5 +1,5 @@
 import { ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/types";
-import { TimelineDrive } from "../TimelineDrive";
+import { TimelineChangedStatusType, TimelineDrive } from "../TimelineDrive";
 
 export class FrameBuffer {
 
@@ -10,7 +10,7 @@ export class FrameBuffer {
     public get currentFrame() { return this._currentFrame; }
 
     /** Upon every update of current frame, propagate current pixels to the instance */
-    public set currentFrame( frame: ParsedFileFrame ) {
+    protected set currentFrame( frame: ParsedFileFrame ) {
         this._currentFrame = frame;
         this.drive.parent.pixels = this.currentFrame.pixels;
     }
@@ -42,7 +42,7 @@ export class FrameBuffer {
     }
 
     public async init() {
-        return await this.preload( this.currentStep );
+        return await this.preloadAfterFrameSet( this.currentStep );
     }
 
 
@@ -58,7 +58,7 @@ export class FrameBuffer {
      */
     public async recieveStep(
         step: ParsedTimelineFrame
-    ) {
+    ): Promise<TimelineChangedStatusType> {
 
         // CURRENT FRAME
 
@@ -70,14 +70,15 @@ export class FrameBuffer {
             frame = await this.drive.parent.service.frameData( step.index );
         }
 
-        
-        // BUFFER
-
-        // Preload the nearest frames
-        const status = await this.preload( step );
 
         // Store the new frame and trigger the callback
         this.currentFrame = frame;
+
+        
+        // BUFFER NEEDS TO BE UPDATED LAST
+
+        // Preload the nearest frames
+        const status = await this.preloadAfterFrameSet( step );
 
         return status;
 
@@ -86,7 +87,7 @@ export class FrameBuffer {
 
 
     /** Preload frame data to the buffer based on the provided step */
-    protected async preload( step: ParsedTimelineFrame ) {
+    protected async preloadAfterFrameSet( step: ParsedTimelineFrame ): Promise<TimelineChangedStatusType> {
 
         // Get steps that should be in the buffer
 
@@ -111,6 +112,7 @@ export class FrameBuffer {
             }
 
             return {
+                absoluteTime: this.drive.currentStep.absolute,
                 relativeTime: this.drive.value,
                 currentFrame: this.currentFrame,
                 currentStep: this.currentStep,
@@ -150,6 +152,7 @@ export class FrameBuffer {
         } );
 
         return {
+            absoluteTime: this.drive.currentStep.absolute,
             currentFrame: this.currentFrame,
             currentStep: this.currentStep,
             relativeTime: this.drive.value,

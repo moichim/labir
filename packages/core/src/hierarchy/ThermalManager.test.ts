@@ -49,17 +49,17 @@ describe( "ThermalManager", () => {
         const registry = manager.addOrGetRegistry( REGISTRY_ID );
 
         // Load one file
-        await registry.loadOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
+        await registry.loadFullOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
 
         expect( manager.isUrlRegistered( THERMOGRAM_PATHS.SOUSTRUH ) ).toBe( true );
         expect( manager.getSourcesArray().length ).toEqual( 1 );
 
         // Load that file again
-        await registry.loadOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
+        await registry.loadFullOneFile( { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID );
         expect( manager.getSourcesArray().length ).toEqual( 1 );
 
         // Load that file in another group
-        await registry.loadOneFile( {thermalUrl: THERMOGRAM_PATHS.SOUSTRUH}, "another_group" );
+        await registry.loadFullOneFile( {thermalUrl: THERMOGRAM_PATHS.SOUSTRUH}, "another_group" );
         expect( manager.getSourcesArray().length ).toEqual( 1 );
 
         expect( manager.getRegisteredUrls().includes( THERMOGRAM_PATHS.SOUSTRUH ) ).toEqual( true );

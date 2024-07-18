@@ -7,6 +7,8 @@ import { ThermalFileRequest, ThermalRequest } from "./ThermalRequest";
  * Member of ThermalRegistry.
  * 
  * - takes care of loading files.
+ * 
+ * @deprecated
  */
 export class ThermalRegistryLoader {
 

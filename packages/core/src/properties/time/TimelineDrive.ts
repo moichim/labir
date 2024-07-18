@@ -16,6 +16,16 @@ type FramesMap = Map<number, ParsedTimelineFrame>
 
 export type ReTimelineFrameChangedEventListener = (frame: ParsedTimelineFrame) => void
 
+export type TimelineChangedStatusType = {
+    absoluteTime: number,
+    relativeTime: number;
+    currentFrame: ParsedFileFrame;
+    currentStep: ParsedTimelineFrame;
+    buffer: ParsedTimelineFrame[];
+    preloaded: boolean;
+    hasChanged: boolean;
+};
+
 /** Stores the frames and the time pointer which is in the miliseconds */
 export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
@@ -193,7 +203,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     }
 
-    public async setRelativeTime(relativeTimeInMs: number) {
+    public async setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType> {
 
         relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
 
@@ -215,6 +225,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
         }
 
         return {
+            absoluteTime: this._currentStep.absolute,
             relativeTime: this.value,
             currentStep: this._currentStep,
             currentFrame: this.buffer.currentFrame,

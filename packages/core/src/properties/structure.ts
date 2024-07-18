@@ -5,8 +5,8 @@ import { IWithCursorPosition } from "./drives/CursorPositionDrive";
 import { IWithOpacity } from "./drives/OpacityDrive";
 import { IWithPalette } from "./drives/PaletteDrive";
 import { IWithRange } from "./drives/RangeDriver";
+import { IWithFiles } from "./lists/filesState";
 import { IWithGroups } from "./lists/GroupsState";
-import { IWithInstances } from "./lists/InstancesState";
 import { IWithCursorValue } from "./states/CursorValueDrive";
 import { IWithLoading } from "./states/LoadingState";
 import { IWithMinmaxGroup } from "./states/MinmaxGroupProperty";
@@ -41,7 +41,7 @@ export interface IThermalInstance
 export interface IThermalGroup
     extends IThermalContainer,
     IWithMinmaxGroup,
-    IWithInstances,
+    IWithFiles,
     IWithCursorPosition { }
 
 /** Thermal registry definition with all its properties */

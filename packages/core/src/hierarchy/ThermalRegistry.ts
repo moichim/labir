@@ -68,11 +68,11 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     }
 
     public forEveryInstance(fn: (instance: AbstractFile) => void) {
-        this.forEveryGroup(group => group.instances.forEveryInstance(fn));
         this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 
-    public async loadFiles(
+    /** Full load of the registry with multiple files @deprecated */
+    public async loadFullMultipleFiles(
         files: {
             [index: string]: ThermalFileRequest[]
         }
@@ -82,38 +82,47 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         this.loading.markAsLoading();
 
-        Object.entries(files)
-            .forEach(async ([groupId, f]) => {
+        // Load services for every group
+        const servicesByGroup = await Promise.all( Object.entries( files ).map( async ([groupId, fs]) => {
 
-                const group = this.groups.addOrGetGroup(groupId);
+            const group = this.groups.addOrGetGroup( groupId );
 
-                const groupFiles = await Promise.all(f.map(file => {
-                    return this.service.loadFile(file.thermalUrl, file.visibleUrl)
-                }));
+            const groupFiles = await Promise.all(fs.map(( file ) => {
+                return this.service.loadFile(file.thermalUrl, file.visibleUrl)
+            }));
 
-                const instances = groupFiles.forEach( async (file ) => {
+            return {
+                group,
+                groupFiles
+            }
 
-                    if (file instanceof ThermalFileReader) {
-                        return await file.createInstance(group)
-                    }
+        } ) );
 
-                });
+        // Create instances from loaded services
+        await Promise.all( servicesByGroup.map( async ({group, groupFiles}) => {
 
-                return instances;
+            const instances = await Promise.all( groupFiles.map( async ( service ) => {
 
+                if ( service instanceof ThermalFileReader ) {
+                    return await service.createInstance( group )
+                } else {
+                    return false;
+                }
 
-            });
+            } ) );
 
+            return instances;
 
-        await this.loader.resolveQuery();
+        } ) );
+
 
         this.postLoadedProcessing();
 
     }
 
 
-    /** Load the registry with only one file. */
-    public async loadOneFile(file: ThermalFileRequest, groupId: string) {
+    /** Load the registry with only one file. @deprecated */
+    public async loadFullOneFile(file: ThermalFileRequest, groupId: string) {
 
         this.reset();
 
@@ -126,20 +135,9 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
             await result.createInstance( group );
         }
 
-
-        // this.loader.requestFile(group, file.thermalUrl, file.visibleUrl);
-
         this.loading.markAsLoading();
 
-        /** @todo there had to be a timeout for some reason... */
-        // setTimeout(async () => {
-
-        // Resolve the entire query
-        // await this.loader.resolveQuery();
-
         this.postLoadedProcessing();
-
-        // }, 0);
 
     }
 
@@ -226,7 +224,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
             this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
 
         // Recalculate the histogram
-        this.histogram.refreshBufferFromCurrentPixels();
+        this.histogram.recalculateHistogramBufferInWorker();
         // this.histogram.recalculateWithCurrentSetting();
 
         this.loading.markAsLoaded();

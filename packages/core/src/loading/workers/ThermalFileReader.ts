@@ -49,16 +49,10 @@ export class ThermalFileReader extends AbstractFileResult {
         }
 
         // Create the promise
-        // const baseInfo = this.parser.baseInfo( this.buffer );
 
         const baseInfo = await this.pool.exec( this.parser.baseInfo, [ this.buffer ] );
 
         this.baseInfoCache = baseInfo;
-
-
-
-        // Make sure the result will be stored in memory
-        // baseInfo.then( result => this.baseInfoCache = result );
 
         // Return the promise
         return baseInfo;
