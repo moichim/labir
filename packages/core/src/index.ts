@@ -1,5 +1,4 @@
 // Core structure
-import { ThermalFileSource } from "./file/ThermalFileSource";
 
 // Data types
 import { ThermalMinmaxOrUndefined } from "./properties/abstractMinmaxProperty";
@@ -28,11 +27,11 @@ import { ThermalFileReader } from "./loading/workers/ThermalFileReader";
 import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 
 
-
+import {getPool} from "./utils/pool"
 
 export {
 
-    pool,
+    getPool,
 
     // Manager
     ThermalManager,

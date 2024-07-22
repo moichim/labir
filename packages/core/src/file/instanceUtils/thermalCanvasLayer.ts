@@ -1,4 +1,3 @@
-import pool from "../../utils/pool";
 import { AbstractFile } from "../AbstractFile";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
@@ -6,7 +5,9 @@ import ThermalDomFactory from "./domFactories";
 /** Displays the canvas and renders it */
 export class ThermalCanvasLayer extends AbstractLayer {
 
-    protected readonly pool = pool;
+    protected get pool() {
+        return this.instance.pool;
+    }
 
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;

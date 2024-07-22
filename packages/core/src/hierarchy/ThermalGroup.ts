@@ -17,7 +17,9 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly hash = Math.random();
 
-
+    public get pool() {
+        return this.registry.manager.pool;
+    }
 
     public constructor(
         public readonly registry: ThermalRegistry,

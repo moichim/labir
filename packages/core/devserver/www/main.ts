@@ -1,17 +1,20 @@
 import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
+import { getPool } from "../../src/utils/pool";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
 
-const manager = new ThermalManager;
+const pool = await getPool();
+
+const manager = new ThermalManager( pool );
 const registry = manager.addOrGetRegistry(REGISTRY_ID);
 const group = registry.groups.addOrGetGroup(GROUP_ID);
 
 const root = document.getElementById("root");
 
-group.instances.addListener("boot", value => {
+group.files.addListener("boot", value => {
 
     console.log( "OLD LOADED" );
 
@@ -137,5 +140,5 @@ batchLoading([
     // "/image-thermal 2024-01-12 14-09-37.lrc",
     // "/image-thermal 2024-02-12 10-15-07.lrc",
     // "/image-thermal 2024-02-12 10-15-08.lrc",
-    "/sequence.lrc"
+    "/namrzani_skla.lrc"
 ]);

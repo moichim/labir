@@ -1,14 +1,17 @@
 import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { ThermalRegistry } from './ThermalRegistry';
+import { getPool } from '../utils/pool';
 
-describe( "ThermalManager", () => {
+describe( "ThermalManager", async () => {
     
     const REGISTRY_ID = "registry_id";
 
-    test( "handling registries", () => {
+    const pool = await getPool();
 
-        const manager = new ThermalManager;
+    test( "handling registries", async () => {
+
+        const manager = new ThermalManager(pool);
         
         const registry = manager.addOrGetRegistry( REGISTRY_ID );
 
@@ -33,16 +36,16 @@ describe( "ThermalManager", () => {
 
     test( "initialisation with options", () => {
 
-        const manager_with_defaults = new ThermalManager;
+        const manager_with_defaults = new ThermalManager(pool);
         expect( manager_with_defaults.palette.value ).toEqual( "jet" );
 
-        const manager_with_options = new ThermalManager( { palette: "iron" } );
+        const manager_with_options = new ThermalManager( pool, { palette: "iron" } );
         expect( manager_with_options.palette.value ).toEqual( "iron" );
 
     } );
 
     test( "palette management", () => {
-        const manager = new ThermalManager;
+        const manager = new ThermalManager(pool);
         const registry = manager.addOrGetRegistry( REGISTRY_ID );
 
         // Checks before the change

@@ -555,16 +555,18 @@ import React7, { createContext, useContext } from "react";
 // src/context/useThermalManagerInternal.ts
 import { ThermalManager as ThermalManager2 } from "@labir/core";
 import { useMemo as useMemo8 } from "react";
+import * as workerpool from "workerpool";
 var useThermalManagerInternal = (options, externalInstance) => {
   return useMemo8(() => {
     if (externalInstance) return externalInstance;
-    return new ThermalManager2(options);
+    return new ThermalManager2(workerpool.pool(), options);
   }, []);
 };
 
 // src/context/thermalManagerContext.tsx
 import { ThermalManager as ThermalManager3 } from "@labir/core";
-var ThermalManagerContext = createContext(new ThermalManager3());
+import * as workerpool2 from "workerpool";
+var ThermalManagerContext = createContext(new ThermalManager3(workerpool2.pool()));
 var ThermalProvider = ({ options, externalManagerInstance, children }) => {
   const value = useThermalManagerInternal(options, externalManagerInstance);
   return /* @__PURE__ */ React7.createElement(ThermalManagerContext.Provider, { value }, children);

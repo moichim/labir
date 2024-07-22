@@ -3,12 +3,15 @@ import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { ThermalManager } from '../../hierarchy/ThermalManager';
 import { ThermalFileReader } from '../../loading/workers/ThermalFileReader';
 import { TimelineDrive } from './TimelineDrive';
+import { getPool } from '../../utils/pool';
 
-describe("ReTimelineDrive", () => {
+describe("ReTimelineDrive", async () => {
+
+    const pool = await getPool();
 
     it("control the timeline", async () => {
 
-        const manager = new ThermalManager;
+        const manager = new ThermalManager(pool);
         const registry = manager.addOrGetRegistry("test_registry");
         const group = registry.groups.addOrGetGroup("test_group");
 

@@ -3,6 +3,7 @@ import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { ThermalFileReader } from './ThermalFileReader';
 import { FilesService } from './FilesService';
 import { Instance } from '../../file/instance';
+import { getPool } from '../../utils/pool';
 
 enum IDS {
     REG = "test_registry",
@@ -13,7 +14,9 @@ describe( "reloading", () => {
 
     it( "should be accessible", async () => {
 
-        const {service, registry} = FilesService.isolatedInstance();
+        const pool = await getPool();
+
+        const {service, registry} = FilesService.isolatedInstance( pool );
 
         const group = registry.groups.addOrGetGroup( IDS.GR );
 

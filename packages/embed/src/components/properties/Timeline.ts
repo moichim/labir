@@ -174,8 +174,6 @@ export class TimelineElement extends ElementInheritingFile {
 
     protected render(): unknown {
 
-        this.log( "FILE...", this.file, this._injectedFile.value );
-
         const file = this._injectedFile.value as Instance;
 
         if (file === undefined) {
@@ -185,8 +183,6 @@ export class TimelineElement extends ElementInheritingFile {
         else if ( file.duration === 0 ) {
             return nothing;
         }
-
-        console.log( file );
 
         return html`
             <div class="container">

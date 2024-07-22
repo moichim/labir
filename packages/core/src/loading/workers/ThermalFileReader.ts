@@ -1,10 +1,9 @@
-import { ThermalGroup } from "../../hierarchy/ThermalGroup";
-import pool from "../../utils/pool";
-import { AbstractFileResult } from "./AbstractFileResult";
 import { Instance } from "../../file/instance";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { AbstractFileResult } from "./AbstractFileResult";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
 
-import Pool from "workerpool/types/Pool";
+import { FilesService } from "./FilesService";
 
 /**
  * Stores the file's `ArrayBuffer` and provides all the data for instance
@@ -21,10 +20,12 @@ export class ThermalFileReader extends AbstractFileResult {
 
     public readonly fileName: string;
 
-
-    private pool: Pool = pool;
+    private get pool() {
+        return this.service.pool;
+    }
 
     public constructor(
+        public readonly service: FilesService,
         public readonly buffer: ArrayBuffer,
         public readonly parser: IParserObject,
         thermalUrl: string,

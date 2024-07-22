@@ -3,6 +3,7 @@ import { FileErrors, FileLoadingError } from "./errors";
 import { ThermalFileReader } from "./ThermalFileReader";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { determineParser } from "./parsers";
+import { FilesService } from "./FilesService";
 
 export type FileResultListener = ( result: AbstractFileResult ) => void
 
@@ -15,16 +16,18 @@ export class FileRequest {
 
     
     protected constructor(
+        protected readonly service: FilesService,
         public readonly thermalUrl: string,
         public readonly visibleUrl?: string
     ) {}
 
 
     public static fromUrl(
+        service: FilesService,
         thermalUrl: string,
         visibleUrl?: string
     ) {
-        return new FileRequest( thermalUrl, visibleUrl );
+        return new FileRequest( service, thermalUrl, visibleUrl );
     }
 
     
@@ -87,6 +90,7 @@ export class FileRequest {
 
             return this.pocessTheService( 
                 new ThermalFileReader( 
+                    this.service,
                     buffer, 
                     parser, 
                     this.thermalUrl, 

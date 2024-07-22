@@ -3,12 +3,15 @@ import { FilesService } from './FilesService';
 import { ThermalFileReader } from './ThermalFileReader';
 import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { ThermalFileFailure } from './ThermalFileFailure';
+import { getPool } from '../../utils/pool';
 
-describe( "FilesService", () => {
+describe( "FilesService", async () => {
+
+    const pool = await getPool();
 
     test( "loading one file", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         // This file should load successfully
         const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH, "some_visible_url.png" ) as ThermalFileReader;
@@ -26,7 +29,7 @@ describe( "FilesService", () => {
 
     test( "loading fails when the file does not exist", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         // This file should be loaded insuccessfully
         const non_existing_file = await service.loadFile( THERMOGRAM_PATHS.ERR404 );
@@ -39,7 +42,7 @@ describe( "FilesService", () => {
 
     test( "loading file that is already in the cache", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const first_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as ThermalFileReader;
         const second_file = await service.loadFile( THERMOGRAM_PATHS.SEQUENCE ) as ThermalFileReader;
@@ -51,7 +54,7 @@ describe( "FilesService", () => {
 
     test( "concurrent requests to one file", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         // The first request
         service.loadFile( THERMOGRAM_PATHS.DELAYED_SEQUENCE );
@@ -89,7 +92,7 @@ describe( "FilesService", () => {
 
     test( "loading multiple files paralelly", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const batch = await Promise.all([
             service.loadFile( THERMOGRAM_PATHS.SOUSTRUH ),

@@ -3,12 +3,15 @@ import { LrcParser } from './LrcParser';
 import { FilesService } from '../../FilesService';
 import { ThermalFileReader } from '../../ThermalFileReader';
 import { THERMOGRAM_PATHS } from '../../../../../devserver/node/mocks';
+import { getPool } from '../../../../utils/pool';
 
-describe("LrcParser", () => {
+describe("LrcParser", async () => {
+
+    const pool = await getPool();
 
     test("is assigned to appropriate files and has all metadata", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance( pool );
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SOUSTRUH) as ThermalFileReader;
 
@@ -22,7 +25,7 @@ describe("LrcParser", () => {
 
     test("reads base info of the file from TIMI Edu camera", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SOUSTRUH) as ThermalFileReader;
 
@@ -43,7 +46,7 @@ describe("LrcParser", () => {
 
     test("reads base info of a TIMI Edu camera sequence", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SEQUENCE) as ThermalFileReader;
 
@@ -67,7 +70,7 @@ describe("LrcParser", () => {
 
     test("reads base info of a file from Vario Cam", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const file = await service.loadFile(THERMOGRAM_PATHS.TUCNACI) as ThermalFileReader;
 
@@ -88,7 +91,7 @@ describe("LrcParser", () => {
 
     test( "is able to store base info in menory", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
         const file = await service.loadFile( THERMOGRAM_PATHS.SOUSTRUH ) as ThermalFileReader;
 
         // Upon the first load, the value shall be stored in the service to prevent multiple calculations
@@ -105,7 +108,7 @@ describe("LrcParser", () => {
 
     test("read frames of a TIMI Edu sequence", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const file = await service.loadFile(THERMOGRAM_PATHS.SEQUENCE) as ThermalFileReader;
         const baseInfo = await file.baseInfo();
@@ -133,7 +136,7 @@ describe("LrcParser", () => {
 
     test("read a frame from Vario Cam", async () => {
 
-        const {service} = FilesService.isolatedInstance();
+        const {service} = FilesService.isolatedInstance(pool);
 
         const file = await service.loadFile(THERMOGRAM_PATHS.TUCNACI) as ThermalFileReader;
         const baseInfo = await file.baseInfo();

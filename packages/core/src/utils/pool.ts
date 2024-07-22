@@ -1,9 +1,17 @@
 // import * as workerpool from "workerpool"
 
-const workerpool = await import( "workerpool" );
+import Pool from "workerpool/types/Pool";
 
-const pool = workerpool.pool({
-    maxWorkers: 6,
-});
 
-export default pool;
+let pool: Pool|undefined = undefined;
+
+export const getPool = async () => {
+   if ( !pool ) {
+        const workerpool = await import( "workerpool" );
+        pool = workerpool.pool({
+            maxWorkers: 6
+        });
+   }
+   return pool;
+
+}

@@ -610,16 +610,18 @@ var import_react17 = __toESM(require("react"));
 // src/context/useThermalManagerInternal.ts
 var import_core2 = require("@labir/core");
 var import_react16 = require("react");
+var workerpool = __toESM(require("workerpool"));
 var useThermalManagerInternal = (options, externalInstance) => {
   return (0, import_react16.useMemo)(() => {
     if (externalInstance) return externalInstance;
-    return new import_core2.ThermalManager(options);
+    return new import_core2.ThermalManager(workerpool.pool(), options);
   }, []);
 };
 
 // src/context/thermalManagerContext.tsx
 var import_core3 = require("@labir/core");
-var ThermalManagerContext = (0, import_react17.createContext)(new import_core3.ThermalManager());
+var workerpool2 = __toESM(require("workerpool"));
+var ThermalManagerContext = (0, import_react17.createContext)(new import_core3.ThermalManager(workerpool2.pool()));
 var ThermalProvider = ({ options, externalManagerInstance, children }) => {
   const value = useThermalManagerInternal(options, externalManagerInstance);
   return /* @__PURE__ */ import_react17.default.createElement(ThermalManagerContext.Provider, { value }, children);

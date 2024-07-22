@@ -47,6 +47,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     /** Service */
     public get service() { return this.manager.service; }
 
+    public get pool() {return this.manager.pool; }
+
 
 
     /** Groups are stored in an observable property */

@@ -21,6 +21,9 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public readonly verticalLimit: number;
 
     public readonly group: ThermalGroup;
+    public get pool() {
+        return this.group.registry.manager.pool;
+    }
 
     public readonly url: string;
     public readonly thermalUrl: string;

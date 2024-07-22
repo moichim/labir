@@ -4,7 +4,9 @@ import React, { createContext, useContext } from "react";
 import { useThermalManagerInternal } from "./useThermalManagerInternal";
 import { ThermalManager, ThermalManagerOptions } from "@labir/core";
 
-const ThermalManagerContext = createContext<ReturnType<typeof useThermalManagerInternal>>( new ThermalManager );
+import * as workerpool from "workerpool"
+
+const ThermalManagerContext = createContext<ReturnType<typeof useThermalManagerInternal>>( new ThermalManager( workerpool.pool() ) );
 
 type ThermalContextProps = React.PropsWithChildren & {
     options?: ThermalManagerOptions,

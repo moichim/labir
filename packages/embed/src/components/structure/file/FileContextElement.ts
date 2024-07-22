@@ -1,4 +1,4 @@
-import { AbstractFile, FileFailureService, FileReaderService } from "@labir/core";
+import { AbstractFile, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { ContextProvider } from "@lit/context";
 import { PropertyValueMap, css, html } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -196,10 +196,10 @@ export class FileContextElement extends ElementInheritingGroup {
 
             const reader = await this.registry.service.loadFile( this.thermal, this.visible );
 
-            if ( reader instanceof FileFailureService ) {
+            if ( reader instanceof ThermalFileFailure ) {
                 // Do nothing
                 this.errors = [ reader.message ];
-            } else if (reader instanceof FileReaderService) {
+            } else if (reader instanceof ThermalFileReader) {
                 const instance = await reader.createInstance( this.group );
                 this.log( "load file", instance );
                 this.file = instance;

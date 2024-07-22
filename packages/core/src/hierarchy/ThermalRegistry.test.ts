@@ -1,15 +1,18 @@
 import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { THERMOGRAM_PATHS as THERMOGRAM_PATHS } from '../../devserver/node/mocks';
+import { getPool } from '../utils/pool';
 
-describe("ThermalRegistry", () => {
+describe("ThermalRegistry", async () => {
 
     const REGISTRY_ID = "registry_id";
     const GROUP_ID = "group_id";
 
+    const pool = await getPool();
+
     test("loading of files", async () => {
 
-        const manager = new ThermalManager;
+        const manager = new ThermalManager( pool );
         const registry = manager.addOrGetRegistry(REGISTRY_ID);
         const group = registry.groups.addOrGetGroup(GROUP_ID);
 
@@ -69,7 +72,7 @@ describe("ThermalRegistry", () => {
 
     test("minmax is calculated from the groups", async () => {
 
-        const manager = new ThermalManager;
+        const manager = new ThermalManager(pool);
         const registry = manager.addOrGetRegistry(REGISTRY_ID);
 
         await registry.loadFullMultipleFiles({

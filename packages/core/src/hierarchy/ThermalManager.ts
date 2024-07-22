@@ -1,5 +1,6 @@
 "use client";
 
+import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { AvailableThermalPalettes } from "../file/palettes";
 import { FilesService } from "../loading/workers/FilesService";
@@ -26,6 +27,7 @@ export class ThermalManager extends BaseStructureObject {
     public readonly palette: PaletteDrive = new PaletteDrive(this, "jet");
 
     public constructor(
+        public readonly pool: Pool,
         options?: ThermalManagerOptions
     ) {
         super();

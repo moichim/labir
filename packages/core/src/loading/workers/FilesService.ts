@@ -1,5 +1,4 @@
 import { ThermalManager } from "../../hierarchy/ThermalManager";
-import pool from "../../utils/pool";
 import { AbstractFileResult } from "./AbstractFileResult";
 import { FileRequest } from "./FileRequest";
 
@@ -7,16 +6,18 @@ import Pool from "workerpool/types/Pool";
 
 export class FilesService {
 
-    private readonly pool: Pool = pool;
+    public get pool() {
+        return this.manager.pool;
+    }
 
     constructor(
-        public readonly manager: ThermalManager
+        public readonly manager: ThermalManager,
     ) {
 
     }
 
-    public static isolatedInstance(registryName: string = "isolated_registry") {
-        const manager = new ThermalManager;
+    public static isolatedInstance(pool: Pool, registryName: string = "isolated_registry") {
+        const manager = new ThermalManager(pool);
         const registry = manager.addOrGetRegistry(registryName);
         return {
             service: registry.service,
@@ -69,7 +70,7 @@ export class FilesService {
         // Otherwise create a new request
         else {
 
-            const request = FileRequest.fromUrl(thermalUrl, visibleUrl);
+            const request = FileRequest.fromUrl(this, thermalUrl, visibleUrl);
 
             // Register the request
             this.requestsByUrl.set(thermalUrl, request);
