@@ -35,7 +35,9 @@ export class ThermalManager extends BaseStructureObject {
     ) {
         super();
 
-        this.pool = pool ? pool : workerpool.pool();
+        this.pool = pool 
+            ? pool 
+            : workerpool.pool();
 
         this.id = Math.random();
 

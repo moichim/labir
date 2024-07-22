@@ -2366,8 +2366,8 @@ var FilesService = class {
   get pool() {
     return this.manager.pool;
   }
-  static isolatedInstance(pool3, registryName = "isolated_registry") {
-    const manager = new ThermalManager(pool3);
+  static isolatedInstance(pool4, registryName = "isolated_registry") {
+    const manager = new ThermalManager(pool4);
     const registry = manager.addOrGetRegistry(registryName);
     return {
       service: registry.service,
@@ -2855,9 +2855,9 @@ var ThermalManager = class extends BaseStructureObject {
   /** A palette is common to all registries within the manager */
   palette = new PaletteDrive(this, "jet");
   pool;
-  constructor(pool3, options) {
+  constructor(pool4, options) {
     super();
-    this.pool = pool3 ? pool3 : workerpool.pool();
+    this.pool = pool4 ? pool4 : workerpool.pool();
     this.id = Math.random();
     if (options) {
       if (options.palette) {
@@ -2885,15 +2885,15 @@ var ThermalManager = class extends BaseStructureObject {
 };
 
 // src/utils/pool.ts
-var pool2 = void 0;
+var workerpool2 = __toESM(require("workerpool"));
+var pool3 = void 0;
 var getPool = async () => {
-  if (!pool2) {
-    const workerpool2 = await import("workerpool");
-    pool2 = workerpool2.pool({
+  if (!pool3) {
+    pool3 = workerpool2.pool({
       maxWorkers: 6
     });
   }
-  return pool2;
+  return pool3;
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

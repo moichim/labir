@@ -34,8 +34,8 @@ import "./components/properties/Ticks";
 import "./components/buttons/FileShareButton";
 import "./components/properties/Timeline";
 
-import "./components/lesson/Marker";
-import "./components/lesson/Lesson";
+// import "./components/lesson/Marker";
+// import "./components/lesson/Lesson";
 
 import "./components/apps/SingleFileApp";
 import "./components/apps/LessonApp";
