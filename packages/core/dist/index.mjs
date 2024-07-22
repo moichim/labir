@@ -821,16 +821,9 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   };
 };
 
-// src/utils/pool.ts
-var workerpool = await import("workerpool");
-var pool = workerpool.pool({
-  maxWorkers: 6
-});
-var pool_default = pool;
-
 // src/base/BaseStructureObject.ts
 var BaseStructureObject = class {
-  pool = pool_default;
+  // public readonly pool: Pool;
 };
 
 // src/loading/workers/AbstractFileResult.ts
@@ -871,6 +864,9 @@ var AbstractFile = class extends BaseStructureObject {
   horizontalLimit;
   verticalLimit;
   group;
+  get pool() {
+    return this.group.registry.manager.pool;
+  }
   url;
   thermalUrl;
   visibleUrl;
@@ -1252,7 +1248,9 @@ var ThermalDomFactory = class _ThermalDomFactory {
 
 // src/file/instanceUtils/thermalCanvasLayer.ts
 var ThermalCanvasLayer = class extends AbstractLayer {
-  pool = pool_default;
+  get pool() {
+    return this.instance.pool;
+  }
   container;
   canvas;
   context;
@@ -1882,8 +1880,9 @@ var Instance = class _Instance extends AbstractFile {
 
 // src/loading/workers/ThermalFileReader.ts
 var ThermalFileReader = class extends AbstractFileResult {
-  constructor(buffer, parser2, thermalUrl, visibleUrl) {
+  constructor(service, buffer, parser2, thermalUrl, visibleUrl) {
     super(thermalUrl, visibleUrl);
+    this.service = service;
     this.buffer = buffer;
     this.parser = parser2;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
@@ -1893,7 +1892,9 @@ var ThermalFileReader = class extends AbstractFileResult {
   /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
   baseInfoCache;
   fileName;
-  pool = pool_default;
+  get pool() {
+    return this.service.pool;
+  }
   isSuccess() {
     return true;
   }
@@ -2236,12 +2237,13 @@ var supportedFileTypes = parsersArray.map((parser2) => parser2.extensions);
 
 // src/loading/workers/FileRequest.ts
 var FileRequest = class _FileRequest {
-  constructor(thermalUrl, visibleUrl) {
+  constructor(service, thermalUrl, visibleUrl) {
+    this.service = service;
     this.thermalUrl = thermalUrl;
     this.visibleUrl = visibleUrl;
   }
-  static fromUrl(thermalUrl, visibleUrl) {
-    return new _FileRequest(thermalUrl, visibleUrl);
+  static fromUrl(service, thermalUrl, visibleUrl) {
+    return new _FileRequest(service, thermalUrl, visibleUrl);
   }
   /**
    * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
@@ -2280,6 +2282,7 @@ var FileRequest = class _FileRequest {
       const parser2 = determineParser(buffer, this.thermalUrl);
       return this.pocessTheService(
         new ThermalFileReader(
+          this.service,
           buffer,
           parser2,
           this.thermalUrl,
@@ -2310,9 +2313,11 @@ var FilesService = class {
   constructor(manager) {
     this.manager = manager;
   }
-  pool = pool_default;
-  static isolatedInstance(registryName = "isolated_registry") {
-    const manager = new ThermalManager();
+  get pool() {
+    return this.manager.pool;
+  }
+  static isolatedInstance(pool4, registryName = "isolated_registry") {
+    const manager = new ThermalManager(pool4);
     const registry = manager.addOrGetRegistry(registryName);
     return {
       service: registry.service,
@@ -2345,7 +2350,7 @@ var FilesService = class {
     } else if (this.requestsByUrl.has(thermalUrl)) {
       return this.requestsByUrl.get(thermalUrl).load();
     } else {
-      const request = FileRequest.fromUrl(thermalUrl, visibleUrl);
+      const request = FileRequest.fromUrl(this, thermalUrl, visibleUrl);
       this.requestsByUrl.set(thermalUrl, request);
       const result = await request.load();
       this.requestsByUrl.delete(thermalUrl);
@@ -2451,6 +2456,9 @@ var ThermalGroup = class extends BaseStructureObject {
     this.description = description;
   }
   hash = Math.random();
+  get pool() {
+    return this.registry.manager.pool;
+  }
   minmax = new MinmaxGroupProperty(this, void 0);
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
@@ -2673,6 +2681,9 @@ var ThermalRegistry = class extends BaseStructureObject {
   get service() {
     return this.manager.service;
   }
+  get pool() {
+    return this.manager.pool;
+  }
   /** Groups are stored in an observable property */
   groups = new GroupsState(this, []);
   /** Iterator methods */
@@ -2784,6 +2795,7 @@ var ThermalRegistry = class extends BaseStructureObject {
 };
 
 // src/hierarchy/ThermalManager.ts
+import * as workerpool from "workerpool";
 var ThermalManager = class extends BaseStructureObject {
   id;
   /** Service for creation of loading and caching the files. */
@@ -2792,8 +2804,10 @@ var ThermalManager = class extends BaseStructureObject {
   registries = {};
   /** A palette is common to all registries within the manager */
   palette = new PaletteDrive(this, "jet");
-  constructor(options) {
+  pool;
+  constructor(pool4, options) {
     super();
+    this.pool = pool4 ? pool4 : workerpool.pool();
     this.id = Math.random();
     if (options) {
       if (options.palette) {
@@ -2820,8 +2834,17 @@ var ThermalManager = class extends BaseStructureObject {
   }
 };
 
-// src/index.ts
-import { pool as pool2 } from "workerpool";
+// src/utils/pool.ts
+import * as workerpool2 from "workerpool";
+var pool3 = void 0;
+var getPool = async () => {
+  if (!pool3) {
+    pool3 = workerpool2.pool({
+      maxWorkers: 6
+    });
+  }
+  return pool3;
+};
 export {
   AbstractFile,
   GRAYSCALE,
@@ -2837,5 +2860,5 @@ export {
   TimeFormat,
   TimePeriod,
   TimeRound,
-  pool2 as pool
+  getPool
 };

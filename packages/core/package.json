@@ -10,7 +10,7 @@
     "url": "https://github.com/moichim/labir"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs, esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "vite",
     "lint": "eslint src",
     "test": "vitest src",

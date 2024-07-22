@@ -1,9 +1,7 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
-export { pool } from 'workerpool';
 
 declare abstract class BaseStructureObject {
-    readonly pool: Pool__default;
 }
 
 /**
@@ -148,10 +146,11 @@ declare abstract class AbstractFileResult {
  * - `load()` method effcently handles the fetch and processing of the file
  */
 declare class FileRequest {
+    protected readonly service: FilesService;
     readonly thermalUrl: string;
     readonly visibleUrl?: string | undefined;
-    protected constructor(thermalUrl: string, visibleUrl?: string | undefined);
-    static fromUrl(thermalUrl: string, visibleUrl?: string): FileRequest;
+    protected constructor(service: FilesService, thermalUrl: string, visibleUrl?: string | undefined);
+    static fromUrl(service: FilesService, thermalUrl: string, visibleUrl?: string): FileRequest;
     /**
      * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
      */
@@ -178,9 +177,9 @@ declare class FileRequest {
 
 declare class FilesService {
     readonly manager: ThermalManager;
-    private readonly pool;
+    get pool(): Pool__default;
     constructor(manager: ThermalManager);
-    static isolatedInstance(registryName?: string): {
+    static isolatedInstance(pool: Pool__default, registryName?: string): {
         service: FilesService;
         registry: ThermalRegistry;
     };
@@ -212,7 +211,8 @@ declare class ThermalManager extends BaseStructureObject {
     };
     /** A palette is common to all registries within the manager */
     readonly palette: PaletteDrive;
-    constructor(options?: ThermalManagerOptions);
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
     forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
     addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
     removeRegistry(id: string): void;
@@ -559,6 +559,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
  * - the instances are retrieved using `FilesService.loadOneFile`
  */
 declare class ThermalFileReader extends AbstractFileResult {
+    readonly service: FilesService;
     readonly buffer: ArrayBuffer;
     readonly parser: IParserObject;
     /** For the purpose of testing we have a unique ID */
@@ -566,8 +567,8 @@ declare class ThermalFileReader extends AbstractFileResult {
     /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
     protected baseInfoCache?: ParsedFileBaseInfo;
     readonly fileName: string;
-    private pool;
-    constructor(buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
+    private get pool();
+    constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
     isSuccess(): boolean;
     /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
     baseInfo(): ReturnType<IParserObject["baseInfo"]>;
@@ -692,6 +693,7 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     constructor(id: string, manager: ThermalManager, options?: ThermalRegistryOptions);
     /** Service */
     get service(): FilesService;
+    get pool(): Pool;
     /** Groups are stored in an observable property */
     readonly groups: GroupsState;
     /** Iterator methods */
@@ -815,7 +817,7 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
-    protected readonly pool: Pool;
+    protected get pool(): Pool;
     protected container: HTMLDivElement;
     protected canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
@@ -935,6 +937,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     readonly horizontalLimit: number;
     readonly verticalLimit: number;
     readonly group: ThermalGroup;
+    get pool(): Pool;
     readonly url: string;
     readonly thermalUrl: string;
     readonly visibleUrl?: string;
@@ -1011,6 +1014,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly name?: string | undefined;
     readonly description?: string | undefined;
     readonly hash: number;
+    get pool(): Pool;
     constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
     readonly minmax: MinmaxGroupProperty;
     readonly files: FilesState;
@@ -1102,4 +1106,6 @@ declare class ThermalFileFailure extends AbstractFileResult {
     static fromError(error: FileLoadingError): ThermalFileFailure;
 }
 
-export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound };
+declare const getPool: () => Promise<Pool__default>;
+
+export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, getPool };
