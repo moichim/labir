@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { useFile } from "@/hooks/managers/useFile";
-import { onMounted, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     url: {
@@ -22,16 +22,14 @@ watch(file.instance, (newInstance, oldInstance) => {
     }
 });
 
-console.log(file.instance.value);
-
 </script>
 
 <template>
-    <div ref="instanceRef" :class="file.instance !== undefined ? 'wtf' : 'omg'"></div>
+    <div ref="instanceRef" :class="file.instance !== undefined ? 'loading' : 'loaded'"></div>
 </template>
 
 <style scoped>
-.wtf {
+.loading {
     position: relative;
     background: green;
     aspect-ratio: 4/3;
@@ -39,7 +37,7 @@ console.log(file.instance.value);
     padding: 0;
 }
 
-.omg {
+.loaded {
     background: red;
     aspect-ratio: 4 / 3;
 }

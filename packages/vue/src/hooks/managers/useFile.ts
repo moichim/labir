@@ -1,6 +1,5 @@
-import type { AbstractFile } from "@labir/core";
-import { ref, watch } from "vue";
-import { useRegistryLoaded } from "../properties/useRegistryLoaded";
+import { ThermalFileReader, type AbstractFile } from "@labir/core";
+import { shallowRef } from "vue";
 import { useProvidedOrNewGroup } from "../structure/providedOrNew/useProvidedOrNewGroup";
 
 export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
@@ -10,25 +9,21 @@ export const useFile = ( thermalUrl: string, visibleUrl?: string ) => {
 
     let shouldLoad = true;
 
-    group.registry.enqueueFile( group.id, thermalUrl, visibleUrl );
-
     if ( isProvided ) {
         shouldLoad = false;
     }
 
-    const instance = ref<AbstractFile>();
+    const instance = shallowRef<AbstractFile>();
 
-    const loading = useRegistryLoaded( thermalUrl + Math.random().toFixed(3), group.registry );
+    group.registry.service.loadFile( thermalUrl, visibleUrl )
+        .then( async (reader) => {
 
-    watch( loading.loading, ( next ) => {
+            if ( reader instanceof ThermalFileReader ) {
+                const instannce = await reader.createInstance( group );
+                instance.value = instannce;
+            }
 
-        if ( next === false ) {
-            instance.value = group.instances.map.get( thermalUrl );
-        }
-
-    } );
-
-
+        } )
 
     return {
         group,

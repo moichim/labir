@@ -202,7 +202,6 @@ type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes;
 };
 declare class ThermalManager extends BaseStructureObject {
-    readonly pool: Pool__default;
     readonly id: number;
     /** Service for creation of loading and caching the files. */
     readonly service: FilesService;
@@ -212,7 +211,8 @@ declare class ThermalManager extends BaseStructureObject {
     };
     /** A palette is common to all registries within the manager */
     readonly palette: PaletteDrive;
-    constructor(pool: Pool__default, options?: ThermalManagerOptions);
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
     forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
     addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
     removeRegistry(id: string): void;

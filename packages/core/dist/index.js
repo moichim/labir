@@ -2366,8 +2366,8 @@ var FilesService = class {
   get pool() {
     return this.manager.pool;
   }
-  static isolatedInstance(pool2, registryName = "isolated_registry") {
-    const manager = new ThermalManager(pool2);
+  static isolatedInstance(pool3, registryName = "isolated_registry") {
+    const manager = new ThermalManager(pool3);
     const registry = manager.addOrGetRegistry(registryName);
     return {
       service: registry.service,
@@ -2845,17 +2845,8 @@ var ThermalRegistry = class extends BaseStructureObject {
 };
 
 // src/hierarchy/ThermalManager.ts
+var workerpool = __toESM(require("workerpool"));
 var ThermalManager = class extends BaseStructureObject {
-  constructor(pool2, options) {
-    super();
-    this.pool = pool2;
-    this.id = Math.random();
-    if (options) {
-      if (options.palette) {
-        this.palette.setPalette(options.palette);
-      }
-    }
-  }
   id;
   /** Service for creation of loading and caching the files. */
   service = new FilesService(this);
@@ -2863,6 +2854,17 @@ var ThermalManager = class extends BaseStructureObject {
   registries = {};
   /** A palette is common to all registries within the manager */
   palette = new PaletteDrive(this, "jet");
+  pool;
+  constructor(pool3, options) {
+    super();
+    this.pool = pool3 ? pool3 : workerpool.pool();
+    this.id = Math.random();
+    if (options) {
+      if (options.palette) {
+        this.palette.setPalette(options.palette);
+      }
+    }
+  }
   /* registries */
   forEveryRegistry(fn) {
     Object.values(this.registries).forEach((registry) => fn(registry));
@@ -2883,15 +2885,15 @@ var ThermalManager = class extends BaseStructureObject {
 };
 
 // src/utils/pool.ts
-var pool = void 0;
+var pool2 = void 0;
 var getPool = async () => {
-  if (!pool) {
-    const workerpool = await import("workerpool");
-    pool = workerpool.pool({
+  if (!pool2) {
+    const workerpool2 = await import("workerpool");
+    pool2 = workerpool2.pool({
       maxWorkers: 6
     });
   }
-  return pool;
+  return pool2;
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

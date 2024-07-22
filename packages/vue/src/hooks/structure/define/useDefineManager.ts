@@ -2,6 +2,8 @@ import { ThermalManager } from "@labir/core";
 import { provide } from "vue";
 import { Structure } from "../structure";
 
+import * as workerpool from "workerpool"
+
 export type UseManagerType = ReturnType<typeof useDefineManager>
 
 /** 
@@ -17,7 +19,7 @@ export const useDefineManager = (
     if ( window.thermalManagers.has( id ) ) {
         manager = window.thermalManagers.get( id )!;
     } else {
-        manager = new ThermalManager;
+        manager = new ThermalManager( workerpool.pool() );
         window.thermalManagers.set( id, manager );
     }
 

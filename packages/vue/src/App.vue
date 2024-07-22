@@ -7,7 +7,6 @@ import ThermalRegistryWrapper from './components/structure/ThermalRegistryWrappe
 <template>
   <header>
 
-    <h2>Samostatný prd</h2>
       <ThermalFileWrapper url="/image-thermal 2024-01-24 10-05-03.lrc" />
 
     <div class="wrapper">

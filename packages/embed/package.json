@@ -21,7 +21,6 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.6",
     "@labir/core": "workspace:*",
-    "@labir/emotion": "workspace:*",
     "@labir/react-bridge": "workspace:*",
     "@lit/context": "^1.1.2",
     "@spectrum-web-components/button": "^0.43.0",

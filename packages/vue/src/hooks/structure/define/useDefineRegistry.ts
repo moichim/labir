@@ -2,6 +2,7 @@ import { provide } from "vue";
 import { useProvidedManager } from "../provided/useProvidedManager";
 import { useDefineManager, type UseManagerType } from "./useDefineManager";
 import { Structure } from "../structure";
+import { ThermalFileReader } from "@labir/core";
 
 export type UseRegistryType = ReturnType<typeof useDefineRegistry>
 
@@ -23,23 +24,23 @@ export const useDefineRegistry = (id: string) => {
         manager.manager.removeRegistry(id);
     }
 
-    const enqueueFile = (groupId: string, thermalUrl: string, visibleUrl?: string) => {
-        registry.enqueueFile(groupId, thermalUrl, visibleUrl);
-    }
+    const enqueueFile = async (groupId: string, thermalUrl: string, visibleUrl?: string) => {
 
-    const fetchQuery = () => {
-        registry.loadQuery();
-    }
+        const reader = registry.service.loadFile( thermalUrl, visibleUrl );
 
-    setTimeout( () => {
-        registry.loadQuery();
-    }, 1000 );
+        if ( reader instanceof ThermalFileReader ) {
+            const group = registry.groups.addOrGetGroup( groupId );
+            const instance = await reader.createInstance( group );
+            console.log( instance );
+        }
+
+        // registry.enqueueFile(groupId, thermalUrl, visibleUrl);
+    }
 
     const value = {
         registry,
         removeSelf,
         enqueueFile,
-        fetchQuery,
         isProvided: false
     }
 
