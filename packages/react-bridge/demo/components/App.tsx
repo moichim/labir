@@ -9,14 +9,13 @@ import { ThermalInstance } from "../../src/components/instance/thermalInstance";
 import { ThermalRegistryRange } from "../../src/components/range/ThermalRegistryRange";
 import { useThermalRegistry } from "../../src/context/useThermalRegistry";
 import { useThermalRegistryOpacityDrive } from "../../src/properties/drives/useThermalRegistryOpacityDrive";
-import { useSingleFileRegistry } from "../../src/shorthands/useSingleFileRegistry";
 import { Orientation } from "../../src/utilities/orientation";
 
 function App() {
   const [count, setCount] = useState(0);
 
-  const [ singleUrl, setSingleUrl ] = useState<string>("/tucnaci_04.lrc");
-  const single = useSingleFileRegistry( singleUrl );
+  // const [ singleUrl, setSingleUrl ] = useState<string>("/tucnaci_04.lrc");
+  // const single = useSingleFileRegistry( singleUrl );
 
   const registry = useThermalRegistry("first", { histogramResolution: 100 });
   const group = registry.groups.addOrGetGroup(

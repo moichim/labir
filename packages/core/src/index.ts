@@ -17,7 +17,6 @@ import { TimeRound } from "./utils/time/rounding";
 import { AvailableThermalPalettes } from "./file/palettes";
 
 import { ThermalManager, ThermalManagerOptions } from "./hierarchy/ThermalManager";
-import { pool } from "workerpool";
 import { AbstractFile } from "./file/AbstractFile";
 import { Instance } from "./file/instance";
 import { ThermalGroup } from "./hierarchy/ThermalGroup";

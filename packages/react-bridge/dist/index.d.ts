@@ -2,6 +2,7 @@ import * as _labir_core from '@labir/core';
 import { ThermalRegistry, AbstractFile, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labir/core';
 import React$1, { MouseEvent, ChangeEventHandler } from 'react';
 import * as react_dropzone from 'react-dropzone';
+import Pool from 'workerpool/types/Pool';
 
 type ThermalDropinProps = {
     registry: ThermalRegistry;
@@ -116,6 +117,7 @@ declare const useRangeButtonFull: (registry: ThermalRegistry) => {
 };
 
 type ThermalContextProps = React$1.PropsWithChildren & {
+    pool: Pool;
     options?: ThermalManagerOptions;
     /** Provide an external instance of the manager. */
     externalManagerInstance?: ThermalManager;

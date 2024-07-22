@@ -601,7 +601,7 @@ var import_react_ranger = require("@tanstack/react-ranger");
 var import_react27 = __toESM(require("react"));
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
-var import_core4 = require("@labir/core");
+var import_core3 = require("@labir/core");
 var import_react18 = require("react");
 
 // src/context/thermalManagerContext.tsx
@@ -610,20 +610,18 @@ var import_react17 = __toESM(require("react"));
 // src/context/useThermalManagerInternal.ts
 var import_core2 = require("@labir/core");
 var import_react16 = require("react");
-var workerpool = __toESM(require("workerpool"));
-var useThermalManagerInternal = (options, externalInstance) => {
+var useThermalManagerInternal = (pool, options, externalInstance) => {
   return (0, import_react16.useMemo)(() => {
-    if (externalInstance) return externalInstance;
-    return new import_core2.ThermalManager(workerpool.pool(), options);
+    if (externalInstance)
+      return externalInstance;
+    return new import_core2.ThermalManager(pool, options);
   }, []);
 };
 
 // src/context/thermalManagerContext.tsx
-var import_core3 = require("@labir/core");
-var workerpool2 = __toESM(require("workerpool"));
-var ThermalManagerContext = (0, import_react17.createContext)(new import_core3.ThermalManager(workerpool2.pool()));
-var ThermalProvider = ({ options, externalManagerInstance, children }) => {
-  const value = useThermalManagerInternal(options, externalManagerInstance);
+var ThermalManagerContext = (0, import_react17.createContext)(null);
+var ThermalProvider = ({ pool, options, externalManagerInstance, children }) => {
+  const value = useThermalManagerInternal(pool, options, externalManagerInstance);
   return /* @__PURE__ */ import_react17.default.createElement(ThermalManagerContext.Provider, { value }, children);
 };
 var useThermalContext = () => {
@@ -647,7 +645,7 @@ var useThermalManagerPaletteDrive = (purpose) => {
     return () => manager.palette.removeListener(purpose);
   }, []);
   const availablePalettes = (0, import_react18.useMemo)(() => {
-    return import_core4.ThermalPalettes;
+    return import_core3.ThermalPalettes;
   }, []);
   return {
     value,

@@ -2,8 +2,7 @@
 
 import { ThermalManager, ThermalManagerOptions } from "@labir/core";
 import { useMemo } from "react";
-
-import * as workerpool from "workerpool"
+import Pool from "workerpool/types/Pool";
 
 /**
  * Handles the global instance of the ThermalManager
@@ -12,12 +11,14 @@ import * as workerpool from "workerpool"
  * - to get the instance of the global `ThermalManager`, use `useThermalManagerContext` hook
  * - the instance may be provided from the outside if necessary
  */
-export const useThermalManagerInternal = ( options?: ThermalManagerOptions, externalInstance?: ThermalManager ) => {
+export const useThermalManagerInternal = ( pool: Pool, options?: ThermalManagerOptions, externalInstance?: ThermalManager ) => {
 
     return useMemo( () => {
 
-        if ( externalInstance ) return externalInstance;
-        return new ThermalManager( workerpool.pool(), options );
+        if ( externalInstance ) 
+            return externalInstance;
+        
+        return new ThermalManager( pool, options );
 
     }, [] );
 

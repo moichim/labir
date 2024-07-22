@@ -4,13 +4,15 @@ import App from './components/App'
 import { ThermalProvider } from '../src/context/thermalManagerContext'
 import { ThermalManager } from '@labir/core'
 
-const manager = new ThermalManager( {
+import * as workerpool from "workerpool";
+
+const manager = new ThermalManager( workerpool.pool(), {
   palette: "iron"
 } );
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ThermalProvider options={{palette: "jet"}} externalManagerInstance={manager}>
+    <ThermalProvider pool={workerpool.pool()} options={{palette: "jet"}} externalManagerInstance={manager}>
         <App />
     </ThermalProvider>
   </React.StrictMode>,
