@@ -1,9 +1,11 @@
-import { html } from "lit";
+import { Instance, ThermalFileFailure } from "@labir/core";
+import { html, PropertyValues, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { GroupConsumer } from "./consumers/GroupConsumer";
+import { FileConsumer } from "./consumers/FileConsumer";
 
 @customElement("test-component")
-export class TestComponent extends GroupConsumer {
+export class TestComponent extends FileConsumer {
+    
 
     @property({
         type: String,
@@ -23,11 +25,45 @@ export class TestComponent extends GroupConsumer {
         });
     }
 
-    protected render(): unknown {
-        return html`
-            <div>Jsem consumer a tester</div>
-            <slot></slot>
-        `;
+    public onInstanceCreated( instance: Instance ): void {
+        this.log( instance );
+    }
+    public onFailure( error: ThermalFileFailure ): void {
+        this.log( error );
+    }
+
+    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+        super.attributeChangedCallback( name, _old, value );
+        this.log( name, _old, value );
+    }
+
+    protected willUpdate(_changedProperties: PropertyValues): void {
+        super.willUpdate( _changedProperties );
+        this.log( _changedProperties, this.instance );
+    }
+
+    protected render() {
+
+        if ( this.instance === undefined && this.error === undefined ) {
+            return this.renderLoading();
+        } else if ( this.instance !== undefined ) {
+            return this.renderSuccess();
+        } else {
+            return this.renderFailure();
+        }
+
+    }
+
+    protected renderLoading(): TemplateResult {
+        return html`<div>Načítám</div>`;
+    }
+
+    protected renderSuccess(): TemplateResult {
+        return html`<div>${this.instance?.fileName}</div>`;
+    }
+
+    protected renderFailure(): TemplateResult {
+        return html`<div>${this.error?.message}</div>`;
     }
 
 }

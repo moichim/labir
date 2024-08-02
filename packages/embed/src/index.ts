@@ -40,13 +40,11 @@ import "./components/properties/Timeline";
 import "./components/apps/SingleFileApp";
 import "./components/apps/LessonApp";
 
-import "./structure/manger/Manager";
-import "./structure/registry/Registry";
-
 
 import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 import "./hierarchy/providers/GroupProvider";
+import "./hierarchy/providers/FileProvider";
 import "./hierarchy/TestComponent";
 
 
