@@ -44,6 +44,12 @@ import "./structure/manger/Manager";
 import "./structure/registry/Registry";
 
 
+import "./hierarchy/providers/ManagerProvider";
+import "./hierarchy/providers/RegistryProvider";
+import "./hierarchy/providers/GroupProvider";
+import "./hierarchy/TestComponent";
+
+
 
 
 // Log the start info
