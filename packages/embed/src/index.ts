@@ -45,6 +45,16 @@ import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 import "./hierarchy/providers/GroupProvider";
 import "./hierarchy/providers/FileProvider";
+
+import "./controls/manager/PaletteDropdown";
+import "./controls/registry/OpacitySlider";
+import "./controls/file/FileShareButton";
+import "./controls/file/FileInfoButton";
+import "./controls/registry/RangeAutoButton";
+import "./controls/registry/RangeFullButton";
+import "./controls/registry/TicksBar";
+import "./controls/registry/RegistryLog";
+
 import "./hierarchy/TestComponent";
 
 

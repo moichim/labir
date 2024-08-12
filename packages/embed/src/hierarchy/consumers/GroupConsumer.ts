@@ -13,9 +13,11 @@ export abstract class GroupConsumer extends RegistryConsumer {
 
     public constructor() {
         super();
+    }
 
+    connectedCallback(): void {
+        super.connectedCallback();
         this._group = this.getParentGroup();
-
     }
 
     private getParentGroup(): ThermalGroup {

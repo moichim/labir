@@ -1,6 +1,7 @@
 import { ThermalRegistry } from "@labir/core";
 import { ManagerConsumer } from "./ManagerConsumer";
 import { getDefaultRegistry } from "../providers/getters";
+import { RegistryProviderElement } from "../providers/RegistryProvider";
 
 export abstract class RegistryConsumer extends ManagerConsumer {
 
@@ -13,41 +14,35 @@ export abstract class RegistryConsumer extends ManagerConsumer {
 
     public constructor() {
         super();
+    }
 
+    connectedCallback(): void {
+        super.connectedCallback();
         this._registry = this.getParentRegistry();
-
     }
 
     private getParentRegistry(): ThermalRegistry {
-    
-        let node = this.parentElement;
-        let registry: ThermalRegistry | undefined;
-    
-    
-        // If there is no parent, return the default manager instead
-        if (!node) {
+
+        let currentParent: HTMLElement | RegistryProviderElement | null = this.parentElement;
+
+        let reg: ThermalRegistry | undefined;
+
+        if ( currentParent === null ) {
             return getDefaultRegistry( this.manager );
         }
-    
-        // Otherwise iterate over all parents and look for manager
-        while (node && !registry) {
-    
-            if ("registry" in node) {
-                if (node.registry instanceof ThermalRegistry) {
-                    registry = node.registry;
-                    node = null;
-                }
+
+        while ( currentParent && reg === undefined) {
+
+            if ( currentParent instanceof RegistryProviderElement ) {
+                reg = currentParent.registry;
             }
-    
-            if (node) {
-                node = node.parentElement;
-            }
-    
+
+            currentParent = currentParent.parentElement;
+
         }
-    
-        // Return the found manager or the default one
-        return registry 
-            ? registry 
+
+        return reg
+            ? reg
             : getDefaultRegistry( this.manager );
     
     

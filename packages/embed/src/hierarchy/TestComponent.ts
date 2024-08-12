@@ -17,19 +17,23 @@ export class TestComponent extends FileConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
+        /*
         this.log( this, {
             managerId: this.manager.id, 
             registryId: this.registry.id,
             groupId: this.group.id,
             group: this.group
         });
+        */
     }
 
     public onInstanceCreated( instance: Instance ): void {
-        this.log( instance );
+        instance;
+        // this.log( instance );
     }
     public onFailure( error: ThermalFileFailure ): void {
-        this.log( error );
+        error;
+        // this.log( error );
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
@@ -39,7 +43,7 @@ export class TestComponent extends FileConsumer {
 
     protected willUpdate(_changedProperties: PropertyValues): void {
         super.willUpdate( _changedProperties );
-        this.log( _changedProperties, this.instance );
+       //  this.log( _changedProperties, this.instance );
     }
 
     protected render() {

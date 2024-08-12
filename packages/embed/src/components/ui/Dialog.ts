@@ -81,7 +81,7 @@ export class Dialog extends LitElement {
 
         .dialog-header {
             display: flex;
-            flex-wrap: no-wrap;
+            flex-wrap: nowrap;
             justify-content: space-between; 
         }
 

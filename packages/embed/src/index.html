@@ -1,39 +1,54 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@labir/embed</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      button {
-        color: red;
-      }
-    </style>
-  </head>
-  <body>
-    <button>Tlač</button>
-    <div id="root"></div>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@labir/embed</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    button {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <button>Tlač</button>
+  <div id="root"></div>
+
+  <manager-provider palette="iron" id="nějaký manager">
+
+    
 
     <registry-provider id="nějaký registr">
+      <ticks-bar></ticks-bar>
+
+      <registry-log></registry-log>
+
+      <palette-control></palette-control>
+
+      <opacity-control></opacity-control>
+
       <group-provider id="kompletní grupa">
-        <file-provider thermal="/soustruh.lrc">
+        <file-provider thermal="/soustruh.lrc" visible="/kitten.jpg">
+          <button-file-share></button-file-share>
+          <button-file-info></button-file-info>
+          <button-range-auto></button-range-auto>
+          <button-range-full></button-range-full>
           <test-component></test-component>
         </file-provider>
-        
+
       </group-provider>
     </registry-provider>
 
-    <group-provider id="toto nemá rodiče">
-      <test-component></test-component>
-    </group-provider>
+  </manager-provider>
 
-    <test-component></test-component>
-
-    <!--
+  <!--
 
     <manager-new>
 
@@ -68,7 +83,8 @@
 
   -->
 
-  
-    <script type="module" src="/index.ts"></script>
-  </body>
+
+  <script type="module" src="/index.ts"></script>
+</body>
+
 </html>
