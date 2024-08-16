@@ -1,12 +1,12 @@
 import { AvailableThermalPalettes, ThermalPaletteType, ThermalPalettes } from "@labir/core";
 import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
+import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 
 
 
-@customElement("manager-palette-dropdown")
-export class PaletteDropdownElement extends ManagerConsumer {
+@customElement("registry-palette-dropdown")
+export class PaletteDropdownElement extends RegistryConsumer {
 
 
     @property({ type: String, reflect: true, attribute: true })
@@ -17,8 +17,6 @@ export class PaletteDropdownElement extends ManagerConsumer {
 
         // Set the default value from the registry
         this.value = this.manager.palette.value as AvailableThermalPalettes;
-
-        this.log( this.manager );
 
         // Handler of incoming changes
 
@@ -34,19 +32,19 @@ export class PaletteDropdownElement extends ManagerConsumer {
         }
 
         // Register incoming changes
-        this.manager.palette.addListener( this.UUID, handleChange.bind( this ) );
+        this.registry.palette.addListener( this.UUID, handleChange.bind( this ) );
 
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        this.manager.palette.removeListener( this.UUID )
+        this.registry.palette.removeListener( this.UUID )
     }
 
     /** Handle user input events */
     onSelect( palette: AvailableThermalPalettes ) {
 
-        this.manager.palette.setPalette( palette );
+        this.registry.palette.setPalette( palette );
         this.value = palette;
     }
 
@@ -94,7 +92,7 @@ export class PaletteDropdownElement extends ManagerConsumer {
             <thermal-dropdown variant="foreground">
 
                 <div slot="invoker" class="button">
-                    <span class="palette" style="background:${this.manager.palette.currentPalette.gradient}"></span>
+                    <span class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
                     <!-- <span>${this.manager.palette.currentPalette.name}</span> -->
                 </div>
 
