@@ -5,7 +5,7 @@ import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 
 
 
-@customElement("palette-control")
+@customElement("manager-palette-control")
 export class PaletteDropdownElement extends ManagerConsumer {
 
 

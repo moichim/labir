@@ -9,7 +9,7 @@ import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 
 
 
-@customElement("range-slider")
+@customElement("registry-range-slider")
 export class RangeSliderElement extends RegistryConsumer {
 
     @property({ type: Number, reflect: true })

@@ -4,7 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { ThermalRegistry } from "@labir/core";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 
-@customElement("histogram-element")
+@customElement("registry-histogram")
 export class HistogramElement extends RegistryConsumer {
 
 

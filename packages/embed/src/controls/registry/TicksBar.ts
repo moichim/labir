@@ -9,7 +9,7 @@ type TickType = {
     value: number
 }
 
-@customElement("ticks-bar")
+@customElement("registry-ticks-bar")
 export class TicksElement extends RegistryConsumer {
 
     static TICK_WIDTH = 40;

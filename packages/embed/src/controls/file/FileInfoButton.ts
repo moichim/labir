@@ -4,7 +4,7 @@ import { Instance, ThermalFileFailure, TimeFormat } from "@labir/core";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 
-@customElement("button-file-info")
+@customElement("file-info-button")
 export class FileInfoButton extends FileConsumer {
     public onLoadingStart(): void {
         // throw new Error("Method not implemented.");

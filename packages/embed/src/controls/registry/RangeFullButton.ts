@@ -2,7 +2,7 @@ import { html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 
-@customElement("button-range-full")
+@customElement("registry-range-full-button")
 export class RegistrySetAutoRangeElement extends RegistryConsumer {
 
     doAction() {

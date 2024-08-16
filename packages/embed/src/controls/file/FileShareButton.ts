@@ -3,7 +3,7 @@ import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
-@customElement("button-file-share")
+@customElement("file-share-button")
 export class FileShareButton extends FileConsumer {
     public onLoadingStart(): void {
         // throw new Error("Method not implemented.");

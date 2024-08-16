@@ -2,7 +2,7 @@ import { PropertyValueMap, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 
-@customElement("opacity-control")
+@customElement("registry-opacity-slider")
 export class OpacityRangeElement extends RegistryConsumer {
 
 
