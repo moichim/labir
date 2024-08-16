@@ -6,6 +6,9 @@ import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 
 @customElement("button-file-info")
 export class FileInfoButton extends FileConsumer {
+    public onLoadingStart(): void {
+        // throw new Error("Method not implemented.");
+    }
 
     protected onFileLoaded(): void {
         // throw new Error("Method not implemented.");

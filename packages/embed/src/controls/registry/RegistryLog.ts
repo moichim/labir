@@ -1,7 +1,7 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { ThermalMinmaxOrUndefined } from "@labir/core";
+import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
 
 @customElement("registry-log")
 export class RegistryLog extends RegistryConsumer {
@@ -10,51 +10,79 @@ export class RegistryLog extends RegistryConsumer {
     protected minmax: ThermalMinmaxOrUndefined;
 
     @state()
+    protected range: ThermalRangeOrUndefined;
+
+    @state()
     protected opacity!: number;
 
-    connectedCallback(): void {
-        super.connectedCallback();
+    @state()
+    protected palette!: string;
 
-        this.log( "---------", "CONNECTED", this.id, this.registry.id, this.registry.groups.value.length );
+    connectedCallback(): void {
+        super.connectedCallback()
 
         this.registry.opacity.addListener( this.UUID, value => {
-            this.log( "opacity", value );
+            this.opacity = value;
         } );
 
         this.registry.range.addListener( this.UUID, value => {
-            this.log( value ); 
-            console.log( value );
+            this.range = value;
         } );
 
-        this.registry.minmax.addListener( this.UUID, this.log );
+        this.registry.minmax.addListener( this.UUID, value => {
+            this.minmax = value;
+        } );
+
+        this.registry.palette.addListener( this.UUID, value => {
+            this.palette = value.toString();
+        } );
     }
 
     protected renderRow(
         label: string,
-        content: string
+        content?: string
     ) {
         return html`<tr>
             <td>${label}</td>
-            <td>${content}</td>
+            <td>${content ?? "undefined" }</td>
         </tr>`;
+    }
+
+    protected getTableData() {
+        const table: {
+            [index: string]: string
+        } = {};
+
+        table["ID"] = this.registry.id;
+
+        table["OPACITY"] = this.registry.opacity.value.toString();
+
+        table[ "GROUP COUNT" ] = this.registry.groups.value.length.toString();
+
+        table["PALETTE"] = this.palette;
+
+        table["RANGE"] = this.range === undefined
+            ? "undefined"
+            : Object.values( this.range ).join( " - " );
+
+        table["MINMAX"] = this.minmax === undefined
+            ? "undefined"
+            : Object.values( this.minmax ).join( " - " );
+
+        return table;
     }
 
     protected render(): unknown {
         return html`<div>
         
-            <h2>Registry</h2>
+            <h2>Registry log: ${this.registry.id}</h2>
 
             <div>
                 <table>
-                
-                    ${this.renderRow( "ID", this.registry.id )}
 
-                    ${ this.minmax === undefined
-                        ? nothing
-                        : this.renderRow( "MIN", this.minmax.min.toString() ) }
+                ${ Object.entries( this.getTableData() ).map( ([label, value]) => this.renderRow( label, value ) ) }
                 
                 </table>
-                ${ this.registry.id }
             </div>
         
         </div>`;

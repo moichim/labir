@@ -5,10 +5,14 @@ import * as pjson from "../package.json"
 // import "./components/single/thermalFileElement";
 
 // These must goo in the following order
+/**
+
 import "./components/structure/manager/ManagerComponent";
 import "./components/structure/registry/RegistryContextConponent";
 import "./components/structure/group/GroupContextComponent";
-import "./components/structure/file/FileContextElement"
+import "./components/structure/file/FileContextElement";
+
+*/
 
 
 
@@ -19,6 +23,7 @@ import "./components/ui/Button";
 import "./components/ui/Dropdown";
 import "./components/ui/Bar";
 
+/**
 // Other components may go in any order
 import "./components/properties/PaletteDropwodnElement";
 import "./components/properties/OpacityRangeElement";
@@ -39,12 +44,14 @@ import "./components/properties/Timeline";
 
 import "./components/apps/SingleFileApp";
 import "./components/apps/LessonApp";
+*/
 
 
 import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 import "./hierarchy/providers/GroupProvider";
 import "./hierarchy/providers/FileProvider";
+import "./controls/file/FileCanvas";
 
 import "./controls/manager/PaletteDropdown";
 import "./controls/registry/OpacitySlider";
@@ -54,6 +61,9 @@ import "./controls/registry/RangeAutoButton";
 import "./controls/registry/RangeFullButton";
 import "./controls/registry/TicksBar";
 import "./controls/registry/RegistryLog";
+import "./controls/registry/RangeSlider";
+import "./controls/file/FileDownloadDropdown";
+import "./controls/registry/Histogram";
 
 import "./hierarchy/TestComponent";
 

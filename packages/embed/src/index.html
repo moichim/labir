@@ -26,7 +26,7 @@
     
 
     <registry-provider id="nějaký registr">
-      <ticks-bar></ticks-bar>
+      
 
       <registry-log></registry-log>
 
@@ -34,13 +34,19 @@
 
       <opacity-control></opacity-control>
 
+      <histogram-element></histogram-element>
+      <range-slider></range-slider>
+      <ticks-bar></ticks-bar>
+
       <group-provider id="kompletní grupa">
-        <file-provider thermal="/soustruh.lrc" visible="/kitten.jpg">
+        <file-provider thermal="/sequence.lrc">
           <button-file-share></button-file-share>
           <button-file-info></button-file-info>
           <button-range-auto></button-range-auto>
           <button-range-full></button-range-full>
+          <file-download-dropdown></file-download-dropdown>
           <test-component></test-component>
+          <file-canvas></file-canvas>
         </file-provider>
 
       </group-provider>

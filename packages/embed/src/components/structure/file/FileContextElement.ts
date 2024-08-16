@@ -175,25 +175,7 @@ export class FileContextElement extends ElementInheritingGroup {
 
     protected async enqueueInTheRegistry(): Promise<void> {
         if (this.thermal) {
-
-
-            /*
-            const listener: InstanceFetchCallback = (instance, error): void => {
-                if (instance) {
-                    this.log( "file loaded", this.thermal );
-                    this.provider.setValue(instance);
-                    this.file = instance;
-                    this.errors = [];
-                } else if (error) {
-                    this.errors = error.split("+|+");
-                }
-            };
-
-            this.group.instances.enqueueAdd(this.thermal, this.visible, listener.bind( this ) )
-
-            */
-
-
+            
             const reader = await this.registry.service.loadFile( this.thermal, this.visible );
 
             if ( reader instanceof ThermalFileFailure ) {

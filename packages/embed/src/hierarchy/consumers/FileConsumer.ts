@@ -7,6 +7,11 @@ export abstract class FileConsumer extends GroupConsumer {
 
     protected parentFileProviderElement?: FileProviderElement;
 
+    protected internalCallbackUUID = `${this.UUID}__internal_callback`;
+
+    @state()
+    protected loading: boolean = true;
+
     @state()
     protected instance?: Instance;
 
@@ -29,17 +34,27 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
+            this.parentFileProviderElement.registerLoadingCallback(
+                this.internalCallbackUUID,
+                () => {
+                    this.log( "načítání začítání" );
+                    this.loading = true;
+                }
+            );
+
             this.parentFileProviderElement.registerSuccessCallback(
-                [this.UUID, "internal"].join("_"),
+                this.internalCallbackUUID,
                 instance => {
                     this.instance = instance;
+                    this.loading = false;
                 }
             );
 
             this.parentFileProviderElement.registerFailureCallback(
-                [this.UUID, "internal"].join("_"),
+                this.internalCallbackUUID,
                 failure => {
                     this.error = failure;
+                    this.loading = false;
                 }
             );
 
@@ -84,6 +99,8 @@ export abstract class FileConsumer extends GroupConsumer {
         return provider;
 
     }
+
+    public abstract onLoadingStart(): void;
 
     public abstract onInstanceCreated(instance: Instance): void;
 

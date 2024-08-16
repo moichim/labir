@@ -1,4 +1,4 @@
-import { css, html } from "lit";
+import { css, html, PropertyValueMap } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ThermalMinmaxOrUndefined } from "@labir/core";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
@@ -42,14 +42,9 @@ export class TicksElement extends RegistryConsumer {
 
     }
 
-
-    /*
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
-        super.firstUpdated(_changedProperties);
-        this.registry.minmax.addListener(this.UUID, value => {
-            this.minmax = value;
-            this.calculateTicks( value, this.ticksRef.value!.clientWidth )
-        });
+
+        super.firstUpdated( _changedProperties );
 
         this.observer = new ResizeObserver( entries => {
 
@@ -61,8 +56,6 @@ export class TicksElement extends RegistryConsumer {
         this.observer.observe( this.ticksRef.value! );
 
     }
-
-    */
 
     protected clamp(input: number, min: number, max: number): number {
         return input < min ? min : input > max ? max : input;

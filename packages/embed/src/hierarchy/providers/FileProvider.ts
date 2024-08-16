@@ -1,22 +1,23 @@
 import { Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import { FileCanvas } from "../../controls/file/FileCanvas";
 import { GroupConsumer } from "../consumers/GroupConsumer";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
 
     @state()
-    reader?: ThermalFileReader;
+    protected reader?: ThermalFileReader;
 
     @state()
-    instance?: Instance;
-
-    canvasContainer: Ref<HTMLDivElement> = createRef();
+    protected instance?: Instance;
 
     @state()
-    error?: ThermalFileFailure;
+    protected loading: boolean = false;
+
+    @state()
+    protected error?: ThermalFileFailure;
 
     @property({
         type: String,
@@ -32,27 +33,32 @@ export class FileProviderElement extends GroupConsumer {
     })
     public visible!: string;
 
+    @state()
+    protected canvasElement?: FileCanvas;
 
-    connectedCallback(): void {
+    /** Load the file and call all necessary callbacks */
+    protected async load() {
 
-        super.connectedCallback();
+        this.loading = true;
 
-        this.registry.service.loadFile(this.thermal, this.visible)
+        this.log( "provider se začíná načítat" );
+
+        // Trigger all callbacks
+        this.callbacks.loading.forEach( fn => fn() );        
+
+        // Load the file and create the instance
+        const value = await this.registry.service.loadFile(this.thermal, this.visible)
             .then( async (result) => {
+                
+                // Success
                 if (result instanceof ThermalFileReader) {
                     // Assign reader
                     this.reader = result;
 
                     // Create the instance
-                    const instance = await this.reader.createInstance(this.group).then(instance => {
+                    return await this.reader.createInstance(this.group).then(instance => {
                         // Assign the instance
                         this.instance = instance;
-
-                        // Bind the instance to the DOM
-                        if (this.canvasContainer.value) {
-                            this.instance.mountToDom(this.canvasContainer.value);
-                            this.instance.draw();
-                        }
 
                         // Call all callbacks
                         this.callbacks.success.forEach(fn => fn(instance));
@@ -60,50 +66,60 @@ export class FileProviderElement extends GroupConsumer {
                         // Clear the callbacks to free the memory
                         this.clearCallbacks();
 
-                        // this.registry.minmax.recalculateFromGroups();
+                        instance.group.registry.postLoadedProcessing();
 
                         return instance;
 
-                        // this.log(this.registry);
-
-                        // Recalculate the histogram and minmax
-                        this.registry.minmax.recalculateFromGroups();
-                        // this.registry.histogram.recalculateHistogramBufferInWorker();
-
                     });
 
-                    return instance;
-
-                } else if (result instanceof ThermalFileFailure) {
+                } 
+                // Failure
+                else {
                     // Assign failure
-                    this.error = result;
+                    this.error = result as ThermalFileFailure;
                     // Call all callbacks
-                    this.callbacks.failure.forEach(fn => fn(result));
+                    this.callbacks.failure.forEach(fn => fn(this.error!));
                     // Clear the callbacks to free the memory
                     this.clearCallbacks();
 
                     return result;
                 }
             })
-            .then( input => {
+            .then( result => {
 
-                if ( input instanceof Instance ) {
-                    this.log( "byla vytvořena další instance", input );
-                    input.group.registry.minmax.recalculateFromGroups();
-                }
-
-                // this.log( "byla vytvořena instance", result );
+                this.loading = false;
+                return result;
 
             } );
+
+        return value;
+
+    }
+
+    /** Called by a child FileCanvas element */
+    public bindCanvasOnMount( canvas: FileCanvas ) {
+        this.canvasElement = canvas;
+    }
+
+
+    connectedCallback(): void {
+
+        super.connectedCallback();
+
+
+        setTimeout( this.load.bind(this), 1000 );
+        // this.load();
 
     }
 
     protected readonly callbacks: {
         success: Map<string, (instance: Instance) => void>,
-        failure: Map<string, (error: ThermalFileFailure) => void>
+        failure: Map<string, (error: ThermalFileFailure) => void>,
+        loading: Map<string, () => void>
     } = {
             success: new Map,
-            failure: new Map
+            failure: new Map,
+            loading: new Map
         }
 
     public registerSuccessCallback(
@@ -120,29 +136,21 @@ export class FileProviderElement extends GroupConsumer {
         this.callbacks.failure.set(id, fn);
     }
 
+    public registerLoadingCallback(
+        id: string,
+        fn: () => void
+    ) {
+        this.callbacks.loading.set(id, fn);
+    }
+
     private clearCallbacks() {
         this.callbacks.success.clear();
         this.callbacks.failure.clear();
-    }
-
-    attributeChangedCallback(
-        name: string,
-        _old: string | null,
-        value: string | null
-    ): void {
-
-        super.attributeChangedCallback(name, _old, value);
-
-        this.log(name, _old, value);
-
+        this.callbacks.loading.clear();
     }
 
     protected render(): unknown {
-        return html`
-            <div ${ref(this.canvasContainer)} id="canvas-container"></div>
-            <slot></slot>
-        
-        `;
+        return html`<slot></slot>`;
     }
 
 }
