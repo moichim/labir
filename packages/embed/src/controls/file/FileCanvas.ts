@@ -1,8 +1,8 @@
 import { Instance } from "@labir/core";
-import { css, html, nothing, PropertyValues } from "lit";
-import {classMap} from 'lit/directives/class-map.js';
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import { classMap } from 'lit/directives/class-map.js';
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-canvas")
@@ -33,7 +33,7 @@ export class FileCanvas extends FileConsumer {
         .canvas-container {
 
             max-width: 100vw;
-            max-height: 100vh;
+            /** max-height: 100vh; */
 
             aspect-ratio: 4 / 3;
             width: 100%;
@@ -124,11 +124,6 @@ export class FileCanvas extends FileConsumer {
             100% {background-position: 0%  0%,50%   0%,100%   0%}
         }
     `;
-
-    protected willUpdate(_changedProperties: PropertyValues): void {
-        super.willUpdate( _changedProperties );
-        this.log( _changedProperties, this.loading );
-    }
 
     protected render(): unknown {
 

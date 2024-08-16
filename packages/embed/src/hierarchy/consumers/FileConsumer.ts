@@ -2,6 +2,7 @@ import { Instance, ThermalFileFailure } from "@labir/core";
 import { state } from "lit/decorators.js";
 import { FileProviderElement } from "../providers/FileProvider";
 import { GroupConsumer } from "./GroupConsumer";
+import { LitElement } from "lit";
 
 export abstract class FileConsumer extends GroupConsumer {
 
@@ -18,11 +19,10 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected error?: ThermalFileFailure;
 
-    public constructor() {
-        super();
-    }
 
     connectedCallback(): void {
+
+        this.log( "Připojuji", this.tagName, this.parentFileProviderElement, this.parentElement );
 
         super.connectedCallback();
 
@@ -84,6 +84,10 @@ export abstract class FileConsumer extends GroupConsumer {
             return undefined;
         }
 
+        if ( currentParent instanceof FileProviderElement ) {
+            return currentParent;
+        }
+
 
         while (currentParent && !provider) {
 
@@ -91,7 +95,28 @@ export abstract class FileConsumer extends GroupConsumer {
                 provider = currentParent;
                 currentParent = null;
             } else {
-                currentParent = currentParent.parentElement;
+
+                // If parent is a custom element, there is a chance that the parent is above the shadow DOM
+                if ( currentParent instanceof LitElement ) {
+
+                    // If the parent has a parent, take it
+                    if ( currentParent.parentElement ) {
+                        currentParent = currentParent.parentElement
+                    } 
+                    // If the parent has no parent, it means the component is nested and therefore we need to look beyond the shadow root boundaries
+                    else {
+
+                        const node = currentParent.getRootNode() as unknown as Element;
+
+                        if ( "host" in node ) {
+                            currentParent = node.host as HTMLElement; //eslint-disable-line
+                        }
+                    }
+
+                } else {
+                    currentParent = currentParent.parentElement;
+                }
+
             }
 
         }

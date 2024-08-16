@@ -19,10 +19,32 @@ export class Button extends LitElement {
     })
     public variant: string = "slate";
 
+    @property({
+        type: Boolean,
+        reflect: true,
+        converter: {
+            fromAttribute: ( value: string ) => {
+                return value === "true";
+            },
+            toAttribute: ( value: boolean ) => {
+                return value ? "true" : "false"
+            }
+        }
+    })
+    interactive: boolean = true;
+
     @property({ type: String })
     public size: string = "sm";
 
     static styles = css`
+
+    :host([interactive="true"]) button:hover {
+        box-shadow: var( --thermal-shadow );
+    }
+
+    :host([interactive="false"]) button:hover {
+        cursor: default;
+    }
 
     button {
         
@@ -41,11 +63,6 @@ export class Button extends LitElement {
 
         box-shadow: var( --thermal-shadow-none );
         
-
-        &:hover {
-            box-shadow: var( --thermal-shadow );
-        }
-
         &.slate {
             background: var( --thermal-slate-light );
             color: var( --thermal-foreground );

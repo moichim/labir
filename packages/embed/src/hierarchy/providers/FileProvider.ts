@@ -104,11 +104,13 @@ export class FileProviderElement extends GroupConsumer {
 
     connectedCallback(): void {
 
+        this.log( "Připojuji", this.tagName );
+
         super.connectedCallback();
 
 
-        setTimeout( this.load.bind(this), 1000 );
-        // this.load();
+        // setTimeout( this.load.bind(this), 1000 );
+        this.load();
 
     }
 

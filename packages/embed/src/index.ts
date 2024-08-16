@@ -22,6 +22,7 @@ import "./components/ui/Button";
 // import "./components/ui/DialogElement";
 import "./components/ui/Dropdown";
 import "./components/ui/Bar";
+import "./components/ui/App";
 
 /**
 // Other components may go in any order
@@ -46,6 +47,7 @@ import "./components/apps/SingleFileApp";
 import "./components/apps/LessonApp";
 */
 
+import "./controls/AppInfoButton";
 
 import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
@@ -64,8 +66,11 @@ import "./controls/registry/RegistryLog";
 import "./controls/registry/RangeSlider";
 import "./controls/file/FileDownloadDropdown";
 import "./controls/registry/Histogram";
+import "./controls/file/FileTimeline";
 
 import "./hierarchy/TestComponent";
+
+import "./apps/SingleFileApp";
 
 
 

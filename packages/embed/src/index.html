@@ -21,6 +21,8 @@
   <button>Tlač</button>
   <div id="root"></div>
 
+  
+
   <manager-provider palette="iron" id="nějaký manager">
 
     
@@ -30,7 +32,7 @@
 
       <registry-log></registry-log>
 
-      <manager-palette-control></manager-palette-control>
+      <manager-palette-dropdown></manager-palette-dropdown>
 
       <registry-opacity-control></registry-opacity-control>
 
@@ -39,6 +41,16 @@
       <registry-ticks-bar></registry-ticks-bar>
 
       <group-provider id="kompletní grupa">
+
+
+        <file-provider thermal="/sequence.lrc" open>
+
+          <file-app></file-app>
+      
+        </file-provider>
+
+
+        <!--
         <file-provider thermal="/sequence.lrc">
           <file-share-button></file-share-button>
           <file-info-button></file-info-button>
@@ -48,6 +60,8 @@
           <test-component></test-component>
           <file-canvas></file-canvas>
         </file-provider>
+
+      -->
 
       </group-provider>
     </registry-provider>

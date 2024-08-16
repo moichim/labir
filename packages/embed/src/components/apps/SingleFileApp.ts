@@ -137,7 +137,7 @@ export class SingleFileApp extends ElementInheritingGroup {
 
                     <thermal-file-share></thermal-file-share>
 
-                    <thermal-app-info></thermal-app-info>
+                    <app-info-button></app-info-button>
                 </thermal-bar>
               </div>
               

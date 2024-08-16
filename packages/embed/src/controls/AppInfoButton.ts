@@ -1,9 +1,9 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import pjson from "../../../package.json";
+import pjson from "../../package.json";
 
-@customElement("thermal-app-info")
+@customElement("app-info-button")
 export class AppInfoButton extends LitElement {
 
     static styles = css`

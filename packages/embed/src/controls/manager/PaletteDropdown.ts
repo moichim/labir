@@ -5,7 +5,7 @@ import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 
 
 
-@customElement("manager-palette-control")
+@customElement("manager-palette-dropdown")
 export class PaletteDropdownElement extends ManagerConsumer {
 
 
@@ -17,6 +17,8 @@ export class PaletteDropdownElement extends ManagerConsumer {
 
         // Set the default value from the registry
         this.value = this.manager.palette.value as AvailableThermalPalettes;
+
+        this.log( this.manager );
 
         // Handler of incoming changes
 
