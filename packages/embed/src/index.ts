@@ -9,12 +9,12 @@ console.info( `@labir/embed ${pjson.version}
 
 
 // UI components go next
-import "./components/ui/Dialog";
-import "./components/ui/Button";
+import "./ui/Dialog";
+import "./ui/Button";
 // import "./components/ui/DialogElement";
-import "./components/ui/Dropdown";
-import "./components/ui/Bar";
-import "./components/ui/App";
+import "./ui/Dropdown";
+import "./ui/Bar";
+import "./ui/App";
 
 import "./controls/AppInfoButton";
 
