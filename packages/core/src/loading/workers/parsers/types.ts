@@ -50,6 +50,7 @@ type ParserFileType = {
 /** A supported device dedfinition */
 type SupportedDeviceType = {
     deviceName: string,
+    deviceDescription: string,
     deviceUrl: string,
     manufacturer: string,
     manufacturerUrl: string,

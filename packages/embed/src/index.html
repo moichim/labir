@@ -1,22 +1,76 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@labir/embed</title>
-    <style>
-      body {
-        font-family: sans-serif;
-      }
-      button {
-        color: red;
-      }
-    </style>
-  </head>
-  <body>
-    <button>Tlač</button>
-    <div id="root"></div>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@labir/embed</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+
+    button {
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+  <button>Tlač</button>
+  <div id="root"></div>
+
+  <thermal-file-app url="/soustruh.lrc"></thermal-file-app>
+
+  
+
+  <manager-provider palette="iron" id="nějaký manager">
+
+    
+
+    <registry-provider id="nějaký registr">
+      
+
+      <registry-log></registry-log>
+
+      <manager-palette-dropdown></manager-palette-dropdown>
+
+      <registry-opacity-control></registry-opacity-control>
+
+      <registry-histogram-element></registry-histogram-element>
+      <registry-range-slider></registry-range-slider>
+      <registry-ticks-bar></registry-ticks-bar>
+
+      <group-provider id="kompletní grupa">
+
+
+        <file-provider thermal="/sequence.lrc" open>
+
+          <file-app></file-app>
+      
+        </file-provider>
+
+
+        <!--
+        <file-provider thermal="/sequence.lrc">
+          <file-share-button></file-share-button>
+          <file-info-button></file-info-button>
+          <registry-range-auto-button></registry-range-auto-button>
+          <registry-range-full-button></registry-range-full-button>
+          <file-download-dropdown></file-download-dropdown>
+          <test-component></test-component>
+          <file-canvas></file-canvas>
+        </file-provider>
+
+      -->
+
+      </group-provider>
+    </registry-provider>
+
+  </manager-provider>
+
+  <!--
 
     <manager-new>
 
@@ -49,7 +103,10 @@
       </thermal-registry>
     </thermal-manager>
 
-  
-    <script type="module" src="/index.ts"></script>
-  </body>
+  -->
+
+
+  <script type="module" src="/index.ts"></script>
+</body>
+
 </html>

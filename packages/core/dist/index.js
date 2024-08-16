@@ -2255,13 +2255,23 @@ var extensions = [{
 }];
 var parser = {
   name: "LabIR Recording (.lrc)",
-  description: "Radiometric data saved by thermal cameras TIMI Edu and by measurement systems developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
-  devices: [{
-    deviceName: "TIMI Edu Infrared Camera",
-    deviceUrl: "https://edu.labir.cz",
-    manufacturer: "TIMI Creation, s.r.o.",
-    manufacturerUrl: "https://timic.cz"
-  }],
+  description: "Radiometric data developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
+  devices: [
+    {
+      deviceName: "TIMI Edu Infrared Camera",
+      deviceUrl: "https://edu.labir.cz",
+      deviceDescription: "A thermal camera designed for school education.",
+      manufacturer: "TIMI Creation, s.r.o.",
+      manufacturerUrl: "https://timic.cz"
+    },
+    {
+      deviceName: "Custom measurement systems by IRT UWB in Pilsen (CZ)",
+      deviceUrl: "https://irt.zcu.cz",
+      deviceDescription: "A thermal camera designed for school education.",
+      manufacturer: "IRT UWB in Pilsen (CZ)",
+      manufacturerUrl: "https://irt.zcu.cz"
+    }
+  ],
   extensions,
   is,
   baseInfo,
