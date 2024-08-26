@@ -452,6 +452,15 @@ interface IParserObject {
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
 }
 
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
+    protected readonly timeline: TimelineDrive;
+    protected callbacks: Map<string, CallbackType>;
+    constructor(timeline: TimelineDrive);
+    add(key: string, callback: CallbackType): void;
+    remove(key: string): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
 declare class FrameBuffer {
     protected readonly drive: TimelineDrive;
     /** @internal use accessors to get and set with side effects */
@@ -508,10 +517,23 @@ type TimelineChangedStatusType = {
     preloaded: boolean;
     hasChanged: boolean;
 };
+declare const playbackSpeed: {
+    1: number;
+    0.5: number;
+    2: number;
+    3: number;
+    5: number;
+    10: number;
+};
 /** Stores the frames and the time pointer which is in the miliseconds */
 declare class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
     readonly steps: ParsedFileBaseInfo["timeline"];
     readonly parent: Instance;
+    protected _playbackSpeed: keyof typeof playbackSpeed;
+    get playbackSpeed(): keyof typeof playbackSpeed;
+    set playbackSpeed(value: keyof typeof playbackSpeed);
+    get playbackSpeedAspect(): number;
+    readonly callbackdPlaybackSpeed: CallbacksManager<(value: keyof typeof playbackSpeed) => void>;
     get duration(): number;
     get frameCount(): number;
     readonly startTimestampRelative: number;
@@ -525,10 +547,18 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     get currentStep(): ParsedTimelineFrame;
     protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener>;
     readonly isSequence: boolean;
-    protected _isPlayying: boolean;
+    protected _isPlaying: boolean;
     get isPlaying(): boolean;
     protected timer?: ReturnType<typeof setTimeout>;
     readonly buffer: FrameBuffer;
+    readonly callbacksPlay: CallbacksManager<() => void>;
+    readonly callbacksPause: CallbacksManager<() => void>;
+    readonly callbacksStop: CallbacksManager<() => void>;
+    readonly callbacksEnd: CallbacksManager<() => void>;
+    get currentMs(): number;
+    get currentPercentage(): number;
+    get currentFrameIndex(): number;
+    get currentTime(): string;
     constructor(parent: AbstractFile, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
     init(): void;
     protected afterSetEffect(value: number): void;
@@ -538,6 +568,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     _convertRelativeToAspect(relativeTimeInMs: number): number;
     _convertRelativeToPercent(relativeTimeInMs: number): number;
     _convertPercenttRelative(percent: number): number;
+    formatDuration(ms: number): string;
     /** Event listener to changement of the current frame.
      * - the current frame is not changed every time the value changes
      * - the current frame is changed only when the ms value points fo a new previous frame
@@ -1109,4 +1140,4 @@ declare class ThermalFileFailure extends AbstractFileResult {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, getPool };
+export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };

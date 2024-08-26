@@ -127,7 +127,7 @@ export class FileInfoButton extends FileConsumer {
 
     protected render(): unknown {
 
-        if ( ! this.instance ) {
+        if ( ! this.file ) {
             return nothing;
         }
 
@@ -138,50 +138,50 @@ export class FileInfoButton extends FileConsumer {
 
                     <table>
 
-                        ${ unsafeHTML( this.renderRow( "Thermal file name", this.instance.fileName ) ) }
+                        ${ unsafeHTML( this.renderRow( "Thermal file name", this.file.fileName ) ) }
 
-                        ${ unsafeHTML( this.renderDownloadRow( "Thermal file URL", this.instance.thermalUrl, this.instance.thermalUrl, "Download thermal file" ) ) }
+                        ${ unsafeHTML( this.renderDownloadRow( "Thermal file URL", this.file.thermalUrl, this.file.thermalUrl, "Download thermal file" ) ) }
 
-                        ${ this.instance.visibleUrl 
+                        ${ this.file.visibleUrl 
                             ? unsafeHTML( this.renderDownloadRow( 
                                 "Visible file URL", 
-                                this.instance.visibleUrl, 
-                                this.instance.visibleUrl, 
+                                this.file.visibleUrl, 
+                                this.file.visibleUrl, 
                                 "Download visible file" 
                             ) )
                             : nothing 
                         }
 
-                        ${ unsafeHTML( this.renderRow( "Time", TimeFormat.human( this.instance.timestamp ) ) ) }
+                        ${ unsafeHTML( this.renderRow( "Time", TimeFormat.human( this.file.timestamp ) ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
                             "Duration",
-                            this.instance.duration,
+                            this.file.duration,
                             0,
                             "ms"
                         ) ) }
 
                         ${ unsafeHTML( this.renderRow( 
                             "Resolution", 
-                            `${this.instance.width} x ${this.instance.height} px <small class="opaque">${this.instance.pixels.length} pixels</small>` 
+                            `${this.file.width} x ${this.file.height} px <small class="opaque">${this.file.pixels.length} pixels</small>` 
                         ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
                             "Bytesize",
-                            this.instance.bytesize,
+                            this.file.bytesize,
                             0
                         ) ) }
                         
                         ${ unsafeHTML( this.renderNumericalRow(
                             "Maximal temperature",
-                            this.instance.max,
+                            this.file.max,
                             10,
                             "°C"
                         ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
                             "Minimal temperature",
-                            this.instance.min,
+                            this.file.min,
                             10,
                             "°C"
                         ) ) }
@@ -194,16 +194,16 @@ export class FileInfoButton extends FileConsumer {
                     <table>
                     ${ unsafeHTML( this.renderRow(
                         "Type",
-                        this.instance.service.parser.name
+                        this.file.service.parser.name
                     ) ) }
                     ${ unsafeHTML( this.renderRow(
                         "Description",
-                        this.instance.service.parser.description
+                        this.file.service.parser.description
                     ) ) }
 
                     <tr>
                         <td>Supported devices</td>
-                        <td><ul>${this.instance.service.parser.devices.map( device => html`<li>
+                        <td><ul>${this.file.service.parser.devices.map( device => html`<li>
                             <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
                             <div class="small">${device.deviceDescription}</div>
                             <div class="small">Manufactured by <a href="${device.manufacturerUrl}" target="_blank">${device.manufacturer}</a></div>

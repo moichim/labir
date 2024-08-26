@@ -5,6 +5,9 @@ import { FileConsumer } from "./consumers/FileConsumer";
 
 @customElement("test-component")
 export class TestComponent extends FileConsumer {
+    public onLoadingStart(): void {
+        throw new Error("Method not implemented.");
+    }
     
 
     @property({
@@ -48,9 +51,9 @@ export class TestComponent extends FileConsumer {
 
     protected render() {
 
-        if ( this.instance === undefined && this.error === undefined ) {
+        if ( this.file === undefined && this.failure === undefined ) {
             return this.renderLoading();
-        } else if ( this.instance !== undefined ) {
+        } else if ( this.file !== undefined ) {
             return this.renderSuccess();
         } else {
             return this.renderFailure();
@@ -63,11 +66,11 @@ export class TestComponent extends FileConsumer {
     }
 
     protected renderSuccess(): TemplateResult {
-        return html`<div>${this.instance?.fileName}</div>`;
+        return html`<div>${this.file?.fileName}</div>`;
     }
 
     protected renderFailure(): TemplateResult {
-        return html`<div>${this.error?.message}</div>`;
+        return html`<div>${this.failure?.message}</div>`;
     }
 
 }

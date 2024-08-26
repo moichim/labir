@@ -36,6 +36,7 @@ import "./controls/registry/RangeSlider";
 import "./controls/file/FileDownloadDropdown";
 import "./controls/registry/Histogram";
 import "./controls/file/FileTimeline";
+import "./controls/file/FilePlaybackSpeedDropdown";
 
 import "./hierarchy/TestComponent";
 

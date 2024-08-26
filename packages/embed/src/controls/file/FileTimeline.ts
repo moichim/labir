@@ -1,35 +1,23 @@
-import { Instance } from "@labir/core";
+import { Instance, TimeFormat } from "@labir/core";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { format } from "date-fns";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
     public onLoadingStart(): void {
-        this.instance?.timeline.removeListener(this.UUID);
+        this.file?.timeline.removeListener(this.UUID);
     }
-    public onInstanceCreated(instance: Instance): void {
-        instance.timeline.addListener(this.UUID, value => {
-            this.percentage = value / instance.duration * 100;
-            this.ms = this.formatDuration(instance.timeline.value);
-        });
+    public onInstanceCreated(): void {
+        // ...nothing
     }
     public onFailure(
         // error: ThermalFileFailure
     ): void {
-        this.instance?.timeline.removeListener(this.UUID);
+        this.file?.timeline.removeListener(this.UUID);
     }
-
-
-    @state()
-    protected playing = false;
-
-    @state()
-    protected percentage: number = 0;
-
-    @state()
-    protected ms: string = "0:00:000";
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
     protected barRef: Ref<HTMLDivElement> = createRef();
@@ -71,6 +59,17 @@ export class TimelineElement extends FileConsumer {
         
         }
 
+        .small {
+            font-size: var( --thermal-fs-small );
+        }
+
+        .real {
+            display: flex;
+            gap: 1rem;
+
+            .label { opacity: .5; }
+        }
+
         .timeline {
 
             flex-grow: 1;
@@ -101,63 +100,16 @@ export class TimelineElement extends FileConsumer {
     
     `;
 
-    protected formatDuration(ms: number) {
-        const millis = ms % 1000;
-        const minute = (1000 * 60);
-        const mins = Math.floor(ms / minute);
 
-        const seconds = (ms - (mins * minute) - millis) / 1000;
-
-        const toFixed = (val: number, fixed: number) => {
-            const vals = val.toString();
-            if (vals.length === fixed) {
-                return vals;
-            } else if (vals.length < fixed) {
-
-                const difference = fixed - vals.length;
-
-                let result = "";
-                for (let i = 0; i < difference; i++) {
-                    result = result + "0";
-                }
-
-                return result + vals;
-
-            }
-        }
-
-        return [
-            mins,
-            toFixed(seconds, 2),
-            toFixed(millis, 3)
-        ].join(":");
-    }
-
-    play() {
-        if (this.instance) {
-
-            this.playing = true;
-            this.instance.timeline.play();
-
-        }
-    }
-
-    pause() {
-        if (this.instance) {
-            this.playing = false;
-            this.instance.timeline.pause();
-        }
-    }
-
-    applyBar(event: MouseEvent) {
+    applyBarClick(event: MouseEvent) {
         
-        if (this.timelineRef.value && this.barRef.value && this.instance) {
+        if (this.timelineRef.value && this.barRef.value && this.file) {
 
             const x = event.clientX - this.timelineRef.value.offsetLeft;
 
             const percent = x / this.timelineRef.value.clientWidth * 100;
 
-            this.instance.timeline.setValueByPercent(percent);
+            this.file.timeline.setValueByPercent(percent);
 
         }
     }
@@ -171,13 +123,17 @@ export class TimelineElement extends FileConsumer {
 
     protected render(): unknown {
 
-        const file = this.instance as Instance;
+        const file = this.file as Instance;
 
         if (file === undefined) {
             return nothing;
         }
 
         else if ( file.duration === 0 ) {
+            return nothing;
+        }
+
+        else if ( this.parentFileProviderElement === undefined ) {
             return nothing;
         }
 
@@ -190,7 +146,10 @@ export class TimelineElement extends FileConsumer {
                 ? html`
                         <div class="container">
 
-                            <div class="item button" @click=${this.playing ? this.pause.bind(this) : this.play.bind(this)}>
+                            <div class="item button" @click=${this.playing 
+                                ? this.parentFileProviderElement.pause.bind(this.parentFileProviderElement) 
+                                : this.parentFileProviderElement.play.bind(this.parentFileProviderElement) 
+                            }>
 
 
                                 ${this.playing
@@ -210,12 +169,12 @@ export class TimelineElement extends FileConsumer {
 
 
                             <div class="item cursor">
-                                ${this.ms}
+                                ${this.currentFrame?.time}
                             </div>
 
-                            <div class="item timeline" @click=${this.applyBar.bind(this)} ${ref(this.timelineRef)}>
+                            <div class="item timeline" @click=${this.applyBarClick.bind(this)} ${ref(this.timelineRef)}>
                                 <div class="timeline-bar">
-                                    <div class="bar" style="width: ${this.percentage}%" ${ref(this.barRef)}></div>
+                                    <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
                                 </div>
                                 <div class="timeline-marks">
                                     ${this.highlights.length > 0 
@@ -230,13 +189,24 @@ export class TimelineElement extends FileConsumer {
                                 </div>
                             </div>
 
-                            <div class="item">${this.formatDuration(file.timeline.duration)}</div>
+                            <div class="item">${this.duration?.time}</div>
                         </div>
                     `
                 : nothing
             }
+
+            <file-playback-speed-dropdown></file-playback-speed-dropdown>
             
             </div>
+
+            ${ this.currentFrame !== undefined
+                ? html`<div class="small real">
+                    <div>
+                        <span class="label">Date:</span> ${format(this.currentFrame.absolute, "d. L. Y")}</div>
+                    <div><span class="label">Time:</span> ${format(this.currentFrame.absolute, "H:mm:ss:SSS")}</div>
+                    <div>`
+                : nothing
+            }
 
           `;
     }

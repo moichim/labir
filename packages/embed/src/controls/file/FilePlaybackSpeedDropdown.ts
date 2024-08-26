@@ -1,9 +1,11 @@
+import { playbackSpeed } from "@labir/core";
 import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { Dropdown } from "../../ui/Dropdown";
 
-@customElement("file-download-dropdown")
-export class FileDownloadButton extends FileConsumer {
+@customElement("file-playback-speed-dropdown")
+export class FilePlaybackSpeedDropdown extends FileConsumer {
     public onLoadingStart(): void {
         // throw new Error("Method not implemented.");
     }
@@ -60,23 +62,28 @@ export class FileDownloadButton extends FileConsumer {
             <thermal-dropdown variant="foreground">
 
                 <div slot="invoker" class="button">
-                ${this.file 
-                    ? "Download"
-                    : "Načítám..."
-                }
+                ${this.playbackSpeed}x
                 </div>
 
-                    <div slot="option">
-                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">Download LRC</thermal-button>
-                    </div>
+                <div slot="option">Adjust playback speed</div>
 
-                    <div slot="option">
-                        <thermal-button @click=${() => this.file!.exportAsPng()}>Export as PNG</thermal-button>
-                    </div>
+                    ${Object.entries( playbackSpeed ).map( ([key]) => {
+                        return html`<thermal-button slot="option" @click="${(event: MouseEvent) => {
+                        if ( this.file ) {
+                            this.file.timeline.playbackSpeed = parseFloat(key) as keyof typeof playbackSpeed;
+                        }
 
-                    <div slot="option">
-                        <thermal-button @click=${() => this.file!.exportThermalDataAsSvg()}>Export CSV with thermal data</thermal-button>
-                    </div>
+                        const target = event.target as HTMLElement;
+
+                        if ( target ) {
+                            console.log( target.parentElement );
+
+                            if ( target.parentElement instanceof Dropdown ) {
+                                target.parentElement.setClose();
+                            }
+                        }
+                        }}">${key}x</thermal-button>`;
+                    } )}
             
             </thermal-dropdown>
 

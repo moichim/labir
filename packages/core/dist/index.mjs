@@ -1489,6 +1489,26 @@ var VisibleLayer = class extends AbstractLayer {
   }
 };
 
+// src/properties/time/TimelineDrive.ts
+import { format as format2 } from "date-fns";
+
+// src/properties/time/internals/callbacksManager.ts
+var CallbacksManager = class {
+  constructor(timeline) {
+    this.timeline = timeline;
+  }
+  callbacks = /* @__PURE__ */ new Map();
+  add(key, callback) {
+    this.callbacks.set(key, callback);
+  }
+  remove(key) {
+    this.callbacks.delete(key);
+  }
+  call(...args) {
+    this.callbacks.forEach((fn) => fn(...args));
+  }
+};
+
 // src/properties/time/internals/FrameBuffer.ts
 var FrameBuffer = class {
   constructor(drive, firstFrame) {
@@ -1590,6 +1610,14 @@ var FrameBuffer = class {
 };
 
 // src/properties/time/TimelineDrive.ts
+var playbackSpeed = {
+  1: 1,
+  0.5: 2,
+  2: 0.5,
+  3: 0.333333333333,
+  5: 0.25,
+  10: 0.1
+};
 var TimelineDrive = class extends AbstractProperty {
   constructor(parent, initial, steps, initialFrameData) {
     super(parent, Math.max(Math.min(initial, steps.length), 0));
@@ -1606,6 +1634,18 @@ var TimelineDrive = class extends AbstractProperty {
     });
     this.buffer = new FrameBuffer(this, initialFrameData);
   }
+  _playbackSpeed = 1;
+  get playbackSpeed() {
+    return this._playbackSpeed;
+  }
+  set playbackSpeed(value) {
+    this._playbackSpeed = value;
+    this.callbackdPlaybackSpeed.call(this._playbackSpeed);
+  }
+  get playbackSpeedAspect() {
+    return playbackSpeed[this.playbackSpeed];
+  }
+  callbackdPlaybackSpeed = new CallbacksManager(this);
   get duration() {
     return this.parent.duration;
   }
@@ -1625,12 +1665,28 @@ var TimelineDrive = class extends AbstractProperty {
   }
   _onChangeListeners = /* @__PURE__ */ new Map();
   isSequence;
-  _isPlayying = false;
+  _isPlaying = false;
   get isPlaying() {
-    return this._isPlayying;
+    return this._isPlaying;
   }
   timer;
   buffer;
+  callbacksPlay = new CallbacksManager(this);
+  callbacksPause = new CallbacksManager(this);
+  callbacksStop = new CallbacksManager(this);
+  callbacksEnd = new CallbacksManager(this);
+  get currentMs() {
+    return this.currentStep.relative;
+  }
+  get currentPercentage() {
+    return this._convertRelativeToPercent(this.currentStep.relative);
+  }
+  get currentFrameIndex() {
+    return this.currentStep.index;
+  }
+  get currentTime() {
+    return this.formatDuration(this.currentStep.relative);
+  }
   init() {
     this.buffer.init();
   }
@@ -1663,6 +1719,11 @@ var TimelineDrive = class extends AbstractProperty {
   }
   _convertPercenttRelative(percent) {
     return this.duration * percent / 100;
+  }
+  formatDuration(ms) {
+    const date = /* @__PURE__ */ new Date(0);
+    date.setMilliseconds(ms);
+    return format2(date, "mm:ss:SSS");
   }
   /** Event listener to changement of the current frame.
    * - the current frame is not changed every time the value changes
@@ -1710,6 +1771,7 @@ var TimelineDrive = class extends AbstractProperty {
     if (currentStep !== this._currentStep) {
       this._currentStep = currentStep;
       const result = await this.buffer.recieveStep(this._currentStep);
+      this._onChangeListeners.forEach((fn) => fn(this._currentStep));
       return result;
     }
     return {
@@ -1731,37 +1793,42 @@ var TimelineDrive = class extends AbstractProperty {
     if (this.timer !== void 0) {
       clearTimeout(this.timer);
     }
-    if (!this.isSequence || this._isPlayying === false) {
+    if (!this.isSequence || this._isPlaying === false) {
       return;
     }
     this.timer = setTimeout(() => {
       const next = this.findNextRelative(this._currentStep.relative);
       if (next) {
         this.value = next.relative;
-        if (this._isPlayying) {
+        if (this._isPlaying) {
           this.value = next.relative;
           this._currentStep = next;
           this.buffer.recieveStep(next);
+          this._onChangeListeners.forEach((fn) => fn(next));
           this.createNextStepTimer();
         }
       } else {
-        this._isPlayying = false;
+        this._isPlaying = false;
+        this.callbacksEnd.call();
       }
-    }, this._currentStep.offset);
+    }, this._currentStep.offset * this.playbackSpeedAspect);
   }
   play() {
     if (this.steps.length > 1) {
-      this._isPlayying = true;
+      this._isPlaying = true;
       this.createNextStepTimer();
+      this.callbacksPlay.call();
     }
   }
   pause() {
-    this._isPlayying = false;
+    this._isPlaying = false;
     clearTimeout(this.timer);
+    this.callbacksPause.call();
   }
   stop() {
     this.pause();
     this.value = 0;
+    this.callbacksStop.call();
   }
 };
 
@@ -2870,5 +2937,6 @@ export {
   TimeFormat,
   TimePeriod,
   TimeRound,
-  getPool
+  getPool,
+  playbackSpeed
 };

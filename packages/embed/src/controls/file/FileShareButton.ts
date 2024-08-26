@@ -33,7 +33,7 @@ export class FileShareButton extends FileConsumer {
 
     protected render(): unknown {
 
-        if ( ! this.instance ) {
+        if ( ! this.file ) {
             return nothing;
         }
 
@@ -51,7 +51,7 @@ export class FileShareButton extends FileConsumer {
 &lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- The file itself may be placed anywhere in the body --&gt;
-&lt;thermal-file-app url=&quot;${this.instance.url}&quot;&gt;&lt;/thermal-file-app&gt;
+&lt;thermal-file-app url=&quot;${this.file.url}&quot;&gt;&lt;/thermal-file-app&gt;
                     </code>
                 </div>
             </thermal-dialog-component>

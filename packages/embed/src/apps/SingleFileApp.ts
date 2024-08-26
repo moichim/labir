@@ -34,7 +34,7 @@ export class SingleFileApp extends FileConsumer {
     return html`
         <thermal-app>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.instance ? this.instance.fileName : "Načítám..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.file.fileName : "Načítám..."}</thermal-button>
 
           
   

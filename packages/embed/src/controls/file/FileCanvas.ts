@@ -127,9 +127,9 @@ export class FileCanvas extends FileConsumer {
 
     protected render(): unknown {
 
-        const isError = this.loading === false && this.error !== undefined;
+        const isError = this.loading === false && this.failure !== undefined;
 
-        const isSuccess = this.loading === false && this.instance !== undefined;
+        const isSuccess = this.loading === false && this.file !== undefined;
 
         const classes = {
             "canvas-container": true,
@@ -160,10 +160,10 @@ export class FileCanvas extends FileConsumer {
                             </div>
 
                             <div class="error-url">
-                                ${this.error?.thermalUrl}
+                                ${this.failure?.thermalUrl}
                             </div>
                             <div class="error-message">
-                                ${this.error?.message}
+                                ${this.failure?.message}
                             </div>
                         </div>`
                         : nothing

@@ -1,8 +1,10 @@
-import { Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, playbackSpeed, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileCanvas } from "../../controls/file/FileCanvas";
 import { GroupConsumer } from "../consumers/GroupConsumer";
+import { provide } from "@lit/context";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, playbackSpeedContext, playingContext } from "./context/PlaybackContext";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
@@ -10,14 +12,43 @@ export class FileProviderElement extends GroupConsumer {
     @state()
     protected reader?: ThermalFileReader;
 
+    /** @deprecated */
     @state()
     protected instance?: Instance;
 
     @state()
     protected loading: boolean = false;
 
+    /** @deprecated */
     @state()
     protected error?: ThermalFileFailure;
+
+    @provide( {context: playingContext} )
+    @property({type: String, reflect: true, attribute: true})
+    playing: boolean = false;
+
+    @provide( {context: durationContext} )
+    @state()
+    duration?: DurationContext;
+
+    @provide( {context: currentFrameContext} )
+    @state()
+    currentFrame?: CurrentFrameContext;
+
+    @provide( {context: fileContext} )
+    @state()
+    file?: Instance;
+
+    @provide( {context: FailureContext} )
+    @state()
+    failure?: ThermalFileFailure;
+
+    @provide( {context: playbackSpeedContext} )
+    @state()
+    playbackSpeed: keyof typeof playbackSpeed =  1;
+
+
+
 
     @property({
         type: String,
@@ -59,6 +90,8 @@ export class FileProviderElement extends GroupConsumer {
                     return await this.reader.createInstance(this.group).then(instance => {
                         // Assign the instance
                         this.instance = instance;
+
+                        this.file = instance;
 
                         // Call all callbacks
                         this.callbacks.success.forEach(fn => fn(instance));
@@ -104,15 +137,88 @@ export class FileProviderElement extends GroupConsumer {
 
     connectedCallback(): void {
 
-        this.log( "Připojuji", this.tagName );
-
         super.connectedCallback();
 
+        this.load().then( result => {
+            if ( result instanceof Instance ) {
 
-        // setTimeout( this.load.bind(this), 1000 );
-        this.load();
+
+                // Update duration context
+                this.duration = {
+                    ms: result.timeline.duration,
+                    time: result.timeline.formatDuration( result.timeline.duration )
+                }
+
+                const playCallback = () => {
+                    this.playing = true;
+                }
+                const stopCallback = () => { 
+                    this.playing = false;
+                }
+
+                // State callbacks
+                result.timeline.callbacksPlay.add( this.UUID, playCallback );
+                result.timeline.callbacksPause.add( this.UUID, stopCallback );
+                result.timeline.callbacksStop.add( this.UUID, stopCallback );
+                result.timeline.callbacksEnd.add( this.UUID, stopCallback );
+
+                // Set the current frame
+                this.currentFrame = {
+                    ms: result.timeline.currentMs,
+                    time: result.timeline.currentTime,
+                    percentage: result.timeline.currentPercentage,
+                    index: result.timeline.currentStep.index,
+                    absolute: result.timeline.currentStep.absolute
+                }
+
+                // Listen to changes during playback
+                result.timeline.addChangeListener(this.UUID, frame => {
+
+                    this.currentFrame = {
+                        ms: frame.relative,
+                        time: result.timeline.currentTime,
+                        percentage: result.timeline.currentPercentage,
+                        index: frame.index,
+                        absolute: frame.absolute
+                    }
+                });
+
+                // Update playback speed context
+                result.timeline.callbackdPlaybackSpeed.add( this.UUID, value => this.playbackSpeed = value );
+
+
+            } else {
+                this.failure = result as ThermalFileFailure;
+            }
+        } );
 
     }
+
+
+    /** Playback */
+
+    public play() {
+
+        if ( this.file ) {
+            this.file.timeline.play();
+        }
+
+    }
+
+    public pause() {
+        if ( this.file ) {
+            this.file.timeline.pause();
+        }
+    }
+
+    public stop() {
+        if ( this.file ) {
+            this.file.timeline.stop();
+        }
+    }
+
+
+    /** Callbacks handling */
 
     protected readonly callbacks: {
         success: Map<string, (instance: Instance) => void>,
@@ -150,6 +256,16 @@ export class FileProviderElement extends GroupConsumer {
         this.callbacks.failure.clear();
         this.callbacks.loading.clear();
     }
+
+
+
+
+
+
+
+
+
+    /** Rendering */
 
     protected render(): unknown {
         return html`<slot></slot>`;

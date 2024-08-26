@@ -27,6 +27,8 @@ import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 
 
 import {getPool} from "./utils/pool"
+import { playbackSpeed } from "./properties/time/TimelineDrive";
+
 
 export {
 
@@ -49,6 +51,7 @@ export {
     Instance,
     ThermalFileReader,
     ThermalFileFailure,
+    playbackSpeed,
 
     
     // Core datatypes

@@ -1,8 +1,10 @@
 
+import { format } from "date-fns";
 import { AbstractFile } from "../../file/AbstractFile";
 import { Instance } from "../../file/instance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../loading/workers/parsers/types";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { CallbacksManager } from "./internals/callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
 import { ITimelineDrive } from "./ITimeline";
 
@@ -26,11 +28,32 @@ export type TimelineChangedStatusType = {
     hasChanged: boolean;
 };
 
+export const playbackSpeed = {
+    1: 1,
+    0.5: 2,
+    2: 0.5,
+    3: 0.333333333333,
+    5: 0.25,
+    10: 0.1
+}
+
 /** Stores the frames and the time pointer which is in the miliseconds */
 export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
     declare public readonly parent: Instance;
 
+    protected _playbackSpeed: keyof typeof playbackSpeed = 1;
+    public get playbackSpeed() {
+        return this._playbackSpeed;
+    }
+    public set playbackSpeed( value: keyof typeof playbackSpeed ) {
+        this._playbackSpeed = value;
+        this.callbackdPlaybackSpeed.call( this._playbackSpeed );
+    }
+    public get playbackSpeedAspect() {
+        return playbackSpeed[this.playbackSpeed];
+    }
+    public readonly callbackdPlaybackSpeed = new CallbacksManager<( value: keyof typeof playbackSpeed ) => void>(this);
     public get duration() { return this.parent.duration; }
     public get frameCount() { return this.steps.length; }
     public readonly startTimestampRelative: number;
@@ -48,11 +71,32 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     public readonly isSequence: boolean;
 
-    protected _isPlayying: boolean = false;
-    public get isPlaying() { return this._isPlayying; }
+    protected _isPlaying: boolean = false;
+    public get isPlaying() { return this._isPlaying; }
     protected timer?: ReturnType<typeof setTimeout>;
 
     public readonly buffer: FrameBuffer;
+
+    public readonly callbacksPlay = new CallbacksManager<() => void>(this);
+    public readonly callbacksPause = new CallbacksManager<() => void>(this);
+    public readonly callbacksStop = new CallbacksManager<() => void>(this);
+    public readonly callbacksEnd = new CallbacksManager<() => void>(this);
+
+    public get currentMs() {
+        return this.currentStep.relative;
+    }
+
+    public get currentPercentage() {
+        return this._convertRelativeToPercent( this.currentStep.relative );
+    }
+
+    public get currentFrameIndex() {
+        return this.currentStep.index;
+    }
+
+    public get currentTime() {
+        return this.formatDuration( this.currentStep.relative );
+    }
 
 
 
@@ -124,6 +168,14 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     public _convertPercenttRelative(percent: number) {
         return (this.duration * percent) / 100;
+    }
+
+    public formatDuration(
+        ms: number
+    ): string {
+        const date = new Date(0);
+        date.setMilliseconds( ms );
+        return format( date, "mm:ss:SSS" );
     }
 
 
@@ -220,6 +272,8 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
             this._currentStep = currentStep;
             const result = await this.buffer.recieveStep( this._currentStep );
 
+            this._onChangeListeners.forEach( fn => fn(this._currentStep) );
+
             return result;
 
         }
@@ -258,7 +312,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
         if ( 
             ! this.isSequence
-            || this._isPlayying === false
+            || this._isPlaying === false
         ) {
             return;
         }
@@ -268,41 +322,49 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
             if ( next ) {
                 this.value = next.relative;
-                if ( this._isPlayying ) {
+                if ( this._isPlaying ) {
 
                     this.value = next.relative;
                     this._currentStep = next;
                     this.buffer.recieveStep( next );
 
+                    this._onChangeListeners.forEach( fn => fn(next) );
+
                     this.createNextStepTimer();
                 }
 
             } else {
-                this._isPlayying = false;
+                this._isPlaying = false;
+                this.callbacksEnd.call();
             }
 
-        }, this._currentStep.offset )
+        }, this._currentStep.offset * this.playbackSpeedAspect )
 
     }
 
     play() {
 
         if ( this.steps.length > 1 ) {
-            this._isPlayying = true;
+            this._isPlaying = true;
             this.createNextStepTimer();
+            this.callbacksPlay.call();
         }
 
     }
 
     pause() {
-        this._isPlayying = false;
+        this._isPlaying = false;
         clearTimeout( this.timer );
+        this.callbacksPause.call();
     }
 
     stop() {
         this.pause();
         this.value = 0;
+        this.callbacksStop.call();
     }
+
+
 
 
 

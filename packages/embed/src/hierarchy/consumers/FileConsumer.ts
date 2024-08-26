@@ -3,6 +3,8 @@ import { state } from "lit/decorators.js";
 import { FileProviderElement } from "../providers/FileProvider";
 import { GroupConsumer } from "./GroupConsumer";
 import { LitElement } from "lit";
+import { consume } from "@lit/context";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, playbackSpeedContext, playingContext } from "../providers/context/PlaybackContext";
 
 export abstract class FileConsumer extends GroupConsumer {
 
@@ -13,11 +15,29 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected loading: boolean = true;
 
+    @consume({context: playingContext, subscribe: true})
     @state()
-    protected instance?: Instance;
+    protected playing: boolean = false;
 
+    @consume( {context: durationContext, subscribe: true} )
     @state()
-    protected error?: ThermalFileFailure;
+    protected duration?: DurationContext;
+
+    @consume( {context: currentFrameContext, subscribe: true} )
+    @state()
+    protected currentFrame?: CurrentFrameContext;
+
+    @consume( {context: fileContext, subscribe: true} )
+    @state()
+    protected file?: Instance;
+
+    @consume({context: FailureContext, subscribe: true})
+    @state()
+    protected failure?: ThermalFileFailure;
+
+    @consume({context: playbackSpeedContext, subscribe: true})
+    @state()
+    protected playbackSpeed?: ThermalFileFailure;
 
 
     connectedCallback(): void {
@@ -44,16 +64,14 @@ export abstract class FileConsumer extends GroupConsumer {
 
             this.parentFileProviderElement.registerSuccessCallback(
                 this.internalCallbackUUID,
-                instance => {
-                    this.instance = instance;
+                () => {
                     this.loading = false;
                 }
             );
 
             this.parentFileProviderElement.registerFailureCallback(
                 this.internalCallbackUUID,
-                failure => {
-                    this.error = failure;
+                () => {
                     this.loading = false;
                 }
             );
@@ -118,6 +136,8 @@ export abstract class FileConsumer extends GroupConsumer {
                 }
 
             }
+
+            this.log( currentParent );
 
         }
 
