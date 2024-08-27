@@ -1,4 +1,4 @@
-import { PropertyListenerFn } from "../abstractProperty";
+import { PropertyListenerFn } from "../../abstractProperty";
 
 /** Interface to temporarily describe timeline drives during refactor */
 export interface ITimelineDrive {

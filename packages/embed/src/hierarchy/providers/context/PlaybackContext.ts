@@ -22,6 +22,9 @@ type FailureContext = ThermalFileFailure;
 
 type PlaybackSpeedContext = keyof typeof playbackSpeed;
 
+type RecordingContext = boolean;
+type MayStopContext = boolean;
+
 export const currentFrameContext = createContext<CurrentFrameContext|undefined>( "playback" );
 
 export const durationContext = createContext<DurationContext|undefined>( "duration" );
@@ -33,3 +36,7 @@ export const fileContext = createContext<FileContext|undefined>( "file" );
 export const FailureContext = createContext<FailureContext|undefined>( "failure" );
 
 export const playbackSpeedContext = createContext<PlaybackSpeedContext>( "playbackSpeed" );
+
+export const recordingContext = createContext<RecordingContext>( "recording" );
+
+export const mayStopContext = createContext<MayStopContext>( "mayStop" );

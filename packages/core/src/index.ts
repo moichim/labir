@@ -27,7 +27,7 @@ import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 
 
 import {getPool} from "./utils/pool"
-import { playbackSpeed } from "./properties/time/TimelineDrive";
+import { playbackSpeed } from "./properties/time/playback/TimelineDrive";
 
 
 export {

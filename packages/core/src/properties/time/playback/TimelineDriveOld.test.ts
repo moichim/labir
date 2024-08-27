@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
+import { THERMOGRAM_PATHS } from '../../../../devserver/node/mocks';
 import { FrameType, TimelineFrameChangedEventListener } from './TimelineDriveOld';
-import { ThermalLoader } from '../../loading/mainThread/parsers/thermalLoader';
-import { ThermalManager } from '../../hierarchy/ThermalManager';
+import { ThermalLoader } from '../../../loading/mainThread/parsers/thermalLoader';
+import { ThermalManager } from '../../../hierarchy/ThermalManager';
 
 describe("TimelineDriveOld", () => {
 

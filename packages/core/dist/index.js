@@ -952,6 +952,8 @@ var AbstractFile = class extends BaseStructureObject {
   // Drives
   timeline;
   cursorValue;
+  // Recording is lazyloaded
+  recording;
   _mounted = false;
   get mountedBaseLayers() {
     return this._mounted;
@@ -1540,15 +1542,14 @@ var VisibleLayer = class extends AbstractLayer {
   }
 };
 
-// src/properties/time/TimelineDrive.ts
+// src/properties/time/playback/TimelineDrive.ts
 var import_date_fns3 = require("date-fns");
 
-// src/properties/time/internals/callbacksManager.ts
+// src/properties/callbacksManager.ts
 var CallbacksManager = class {
-  constructor(timeline) {
-    this.timeline = timeline;
-  }
   callbacks = /* @__PURE__ */ new Map();
+  constructor() {
+  }
   add(key, callback) {
     this.callbacks.set(key, callback);
   }
@@ -1560,7 +1561,7 @@ var CallbacksManager = class {
   }
 };
 
-// src/properties/time/internals/FrameBuffer.ts
+// src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
   constructor(drive, firstFrame) {
     this.drive = drive;
@@ -1660,7 +1661,7 @@ var FrameBuffer = class {
   }
 };
 
-// src/properties/time/TimelineDrive.ts
+// src/properties/time/playback/TimelineDrive.ts
 var playbackSpeed = {
   1: 1,
   0.5: 2,
@@ -1696,7 +1697,6 @@ var TimelineDrive = class extends AbstractProperty {
   get playbackSpeedAspect() {
     return playbackSpeed[this.playbackSpeed];
   }
-  callbackdPlaybackSpeed = new CallbacksManager(this);
   get duration() {
     return this.parent.duration;
   }
@@ -1714,7 +1714,6 @@ var TimelineDrive = class extends AbstractProperty {
   get currentStep() {
     return this._currentStep;
   }
-  _onChangeListeners = /* @__PURE__ */ new Map();
   isSequence;
   _isPlaying = false;
   get isPlaying() {
@@ -1722,10 +1721,14 @@ var TimelineDrive = class extends AbstractProperty {
   }
   timer;
   buffer;
-  callbacksPlay = new CallbacksManager(this);
-  callbacksPause = new CallbacksManager(this);
-  callbacksStop = new CallbacksManager(this);
-  callbacksEnd = new CallbacksManager(this);
+  // Callbacks & Listeners
+  callbackdPlaybackSpeed = new CallbacksManager();
+  callbacksPlay = new CallbacksManager();
+  callbacksPause = new CallbacksManager();
+  callbacksStop = new CallbacksManager();
+  callbacksEnd = new CallbacksManager();
+  callbacksChangeFrame = new CallbacksManager();
+  // : Map<string, ReTimelineFrameChangedEventListener> = new Map;
   get currentMs() {
     return this.currentStep.relative;
   }
@@ -1776,16 +1779,6 @@ var TimelineDrive = class extends AbstractProperty {
     date.setMilliseconds(ms);
     return (0, import_date_fns3.format)(date, "mm:ss:SSS");
   }
-  /** Event listener to changement of the current frame.
-   * - the current frame is not changed every time the value changes
-   * - the current frame is changed only when the ms value points fo a new previous frame
-   */
-  addChangeListener(identificator, fn) {
-    this._onChangeListeners.set(identificator, fn);
-  }
-  removeChangeListener(identificator) {
-    this._onChangeListeners.delete(identificator);
-  }
   findPreviousRelative(relativeTimeInMs) {
     if (this.steps.length === 1) {
       return this.steps[0];
@@ -1822,7 +1815,7 @@ var TimelineDrive = class extends AbstractProperty {
     if (currentStep !== this._currentStep) {
       this._currentStep = currentStep;
       const result = await this.buffer.recieveStep(this._currentStep);
-      this._onChangeListeners.forEach((fn) => fn(this._currentStep));
+      this.callbacksChangeFrame.call(this._currentStep);
       return result;
     }
     return {
@@ -1840,6 +1833,7 @@ var TimelineDrive = class extends AbstractProperty {
     const convertedToRelativeTime = this._convertPercenttRelative(percent);
     return await this.setRelativeTime(convertedToRelativeTime);
   }
+  /** This is the main play method */
   createNextStepTimer() {
     if (this.timer !== void 0) {
       clearTimeout(this.timer);
@@ -1855,7 +1849,7 @@ var TimelineDrive = class extends AbstractProperty {
           this.value = next.relative;
           this._currentStep = next;
           this.buffer.recieveStep(next);
-          this._onChangeListeners.forEach((fn) => fn(next));
+          this.callbacksChangeFrame.call(next);
           this.createNextStepTimer();
         }
       } else {
@@ -1865,6 +1859,7 @@ var TimelineDrive = class extends AbstractProperty {
     }, this._currentStep.offset * this.playbackSpeedAspect);
   }
   play() {
+    console.log("pokou\u0161\xEDm se hr\xE1t");
     if (this.steps.length > 1) {
       this._isPlaying = true;
       this.createNextStepTimer();
@@ -1905,6 +1900,148 @@ var CursorValueDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/time/recording/RecordingDrive.ts
+var RecordingDrive = class extends AbstractProperty {
+  stream;
+  recorder;
+  mimeType;
+  _isRecording = false;
+  _mayStop = true;
+  get mayStop() {
+    return this._mayStop;
+  }
+  set mayStop(value) {
+    this._mayStop = value;
+    this.callbackMayStop.call(this.mayStop);
+  }
+  recordedChunks = [];
+  callbackMayStop = new CallbacksManager();
+  validate(value) {
+    return value;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  afterSetEffect(value) {
+  }
+  start() {
+    if (this.value === true) {
+      throw new Error("Recording already in process - can not start another one");
+    }
+    const { stream, recorder } = this.initRecording();
+    this.stream = stream;
+    this.recorder = recorder;
+    this.value = true;
+    this.recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) {
+        this.recordedChunks.push(event.data);
+        this.download();
+        this.clearRecording();
+      }
+    });
+    this.recorder.start();
+  }
+  end() {
+    if (this.value === false) {
+      throw new Error("Recording has not started yet - can not end it!");
+    }
+    if (this.recorder === void 0) {
+      throw new Error("Error ending recording - no MediaRecorder instance created.");
+    }
+    this.recorder.stop();
+    this.value = false;
+    this.mayStop = true;
+  }
+  /** Records the entire file from start to the end. */
+  async recordEntireFile() {
+    if (this.value === true) {
+      throw new Error("Already recording the entire file. Can not start until the current recording ends.");
+    }
+    await this.parent.timeline.setValueByPercent(0);
+    this.mayStop = false;
+    const cllbackId = "recording entire file";
+    this.parent.timeline.callbacksEnd.add(cllbackId, () => {
+      console.log("playback ended");
+      this.end();
+      this.parent.timeline.callbacksEnd.remove(cllbackId);
+    });
+    this.parent.timeline.play();
+    this.start();
+  }
+  initRecording() {
+    if (this.stream || this.recorder) {
+      throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
+    }
+    const stream = this.parent.canvasLayer.canvas.captureStream(25);
+    const types = [
+      "video/mp4",
+      "video/webm;codecs=h264",
+      "video/webm;codecs=vp8",
+      "video/webm;codecs=daala",
+      "video/webm"
+    ];
+    types.forEach((type) => {
+      if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
+        this.mimeType = type;
+    });
+    const options = {
+      mimeType: this.mimeType
+    };
+    const recorder = new MediaRecorder(stream, options);
+    return {
+      stream,
+      recorder,
+      options
+    };
+  }
+  download() {
+    const blob = new Blob(this.recordedChunks, {
+      type: this.mimeType
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = this.parent.fileName.replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value.from.toFixed(2)}_to-${this.parent.group.registry.range.value.to.toFixed(2)}.webm`);
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+  clearRecording() {
+    if (this.recorder) {
+      this.recorder.stop();
+      delete this.recorder;
+    }
+    if (this.stream) {
+      delete this.stream;
+    }
+    if (this.recordedChunks.length > 0) {
+      this.recordedChunks = [];
+    }
+    this.value = false;
+    this.mimeType = void 0;
+  }
+};
+
+// src/file/instanceUtils/ThermalFileExports.ts
+var import_export_to_csv = require("export-to-csv");
+var ThermalFileExport = class {
+  constructor(file) {
+    this.file = file;
+  }
+  canvasAsPng() {
+    return this.file.canvasLayer.exportAsPng();
+  }
+  thermalDataAsCsv(fileNameSuffix = "__thermal-data") {
+    const csvConfig = (0, import_export_to_csv.mkConfig)({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace(".lrc", fileNameSuffix) });
+    const data = this.file.frames.map((frame) => {
+      const { pixels, ...data2 } = frame;
+      pixels;
+      return data2;
+    });
+    const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv.download)(csvConfig)(csv);
+  }
+};
+
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
@@ -1940,10 +2077,22 @@ var Instance = class _Instance extends AbstractFile {
     this.pixels = firstFrame.pixels;
   }
   exportAsPng() {
-    throw new Error("Method not implemented.");
+    this.export.canvasAsPng();
   }
   exportThermalDataAsSvg() {
-    throw new Error("Method not implemented.");
+    this.export.thermalDataAsCsv();
+  }
+  /**
+   * Exports
+   */
+  _export;
+  /** Lazy-loaded `ThermalFileExport` object */
+  get export() {
+    if (!this._export) {
+      const newExport = new ThermalFileExport(this);
+      this._export = newExport;
+    }
+    return this._export;
   }
   postInit() {
     this.canvasLayer = new ThermalCanvasLayer(this);
@@ -1953,6 +2102,7 @@ var Instance = class _Instance extends AbstractFile {
     this.cursorValue = new CursorValueDrive(this, void 0);
     this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
     this.timeline.init();
+    this.recording = new RecordingDrive(this, false);
     return this;
   }
   formatId(thermalUrl) {

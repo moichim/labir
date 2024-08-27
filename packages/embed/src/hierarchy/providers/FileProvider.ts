@@ -4,7 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { FileCanvas } from "../../controls/file/FileCanvas";
 import { GroupConsumer } from "../consumers/GroupConsumer";
 import { provide } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, playbackSpeedContext, playingContext } from "./context/PlaybackContext";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/PlaybackContext";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
@@ -47,6 +47,14 @@ export class FileProviderElement extends GroupConsumer {
     @state()
     playbackSpeed: keyof typeof playbackSpeed =  1;
 
+    @provide( {context: recordingContext} )
+    @state()
+    recording: boolean = false;
+
+    @provide( {context: mayStopContext} )
+    @state()
+    mayStop: boolean = true;
+
 
 
 
@@ -71,8 +79,6 @@ export class FileProviderElement extends GroupConsumer {
     protected async load() {
 
         this.loading = true;
-
-        this.log( "provider se začíná načítat" );
 
         // Trigger all callbacks
         this.callbacks.loading.forEach( fn => fn() );        
@@ -172,7 +178,7 @@ export class FileProviderElement extends GroupConsumer {
                 }
 
                 // Listen to changes during playback
-                result.timeline.addChangeListener(this.UUID, frame => {
+                result.timeline.callbacksChangeFrame.add(this.UUID, frame => {
 
                     this.currentFrame = {
                         ms: frame.relative,
@@ -185,6 +191,12 @@ export class FileProviderElement extends GroupConsumer {
 
                 // Update playback speed context
                 result.timeline.callbackdPlaybackSpeed.add( this.UUID, value => this.playbackSpeed = value );
+
+                // Update recording state
+                result.recording.addListener( this.UUID, value => this.recording = value );
+
+                // Update mayStop state
+                result.recording.callbackMayStop.add( this.UUID, value => this.mayStop = value );
 
 
             } else {

@@ -11,6 +11,7 @@ import { IWithCursorValue } from "./states/CursorValueDrive";
 import { IWithLoading } from "./states/LoadingState";
 import { IWithMinmaxGroup } from "./states/MinmaxGroupProperty";
 import { IWithMinmaxRegistry } from "./states/MinmaxRegistryState";
+import { IWithRedording } from "./time/recording/RecordingDrive";
 
 
 
@@ -32,7 +33,7 @@ interface IThermalContainer
 /** An instance and its properties */
 export interface IThermalInstance
     extends IThermalObjectBase,
-    IWithCursorValue {
+    IWithCursorValue, IWithRedording {
         group: ThermalGroup
     }
 

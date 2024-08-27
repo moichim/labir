@@ -1,7 +1,7 @@
 "use client";
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { TimelineDriveOld } from "../properties/time/TimelineDriveOld";
+import { TimelineDriveOld } from "../properties/time/playback/TimelineDriveOld";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { AbstractFile } from "./AbstractFile";
 import { ThermalFileSource } from "./ThermalFileSource";

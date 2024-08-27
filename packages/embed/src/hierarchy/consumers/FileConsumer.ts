@@ -4,7 +4,7 @@ import { FileProviderElement } from "../providers/FileProvider";
 import { GroupConsumer } from "./GroupConsumer";
 import { LitElement } from "lit";
 import { consume } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, playbackSpeedContext, playingContext } from "../providers/context/PlaybackContext";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/PlaybackContext";
 
 export abstract class FileConsumer extends GroupConsumer {
 
@@ -39,10 +39,15 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected playbackSpeed?: ThermalFileFailure;
 
+    @consume({context: recordingContext, subscribe: true})
+    @state()
+    protected recording: boolean = false;
+
+    @consume({context: mayStopContext, subscribe: true})
+    @state()
+    protected mayStop: boolean = true;
 
     connectedCallback(): void {
-
-        this.log( "Připojuji", this.tagName, this.parentFileProviderElement, this.parentElement );
 
         super.connectedCallback();
 
@@ -57,7 +62,6 @@ export abstract class FileConsumer extends GroupConsumer {
             this.parentFileProviderElement.registerLoadingCallback(
                 this.internalCallbackUUID,
                 () => {
-                    this.log( "načítání začítání" );
                     this.loading = true;
                 }
             );
@@ -136,8 +140,6 @@ export abstract class FileConsumer extends GroupConsumer {
                 }
 
             }
-
-            this.log( currentParent );
 
         }
 

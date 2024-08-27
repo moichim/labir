@@ -1,13 +1,14 @@
-import { TimelineDrive } from "../TimelineDrive";
 
-
+/**
+ * Manage callbacks on optional property values
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class CallbacksManager<CallbackType extends (...args: any[]) => any> {
 
     protected callbacks: Map<string,CallbackType> = new Map;
 
     constructor(
-        protected readonly timeline: TimelineDrive
+        // protected readonly timeline: TimelineDrive
     ) {
 
     }

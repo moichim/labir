@@ -20,17 +20,21 @@
 <body>
   <button>Tlač</button>
   <div id="root"></div>
+  <div style="width: 50%">
+    <thermal-file-app url="/sequence.lrc"></thermal-file-app>
+  </div>
 
-  <thermal-file-app url="/sequence.lrc"></thermal-file-app>
+  <div style="width: 405px">
+    <thermal-file-app url="/sequence.lrc"></thermal-file-app>
+  </div>
 
-  
 
   <manager-provider palette="iron" id="nějaký manager">
 
-    
+
 
     <registry-provider id="nějaký registr">
-      
+
 
       <registry-log></registry-log>
 
@@ -48,7 +52,7 @@
         <file-provider thermal="/sequence.lrc" open>
 
           <file-app></file-app>
-      
+
         </file-provider>
 
 

@@ -1,10 +1,10 @@
 
 import { format } from "date-fns";
-import { AbstractFile } from "../../file/AbstractFile";
-import { Instance } from "../../file/instance";
-import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../loading/workers/parsers/types";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-import { CallbacksManager } from "./internals/callbacksManager";
+import { AbstractFile } from "../../../file/AbstractFile";
+import { Instance } from "../../../file/instance";
+import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/types";
+import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
+import { CallbacksManager } from "../../callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
 import { ITimelineDrive } from "./ITimeline";
 
@@ -53,7 +53,8 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     public get playbackSpeedAspect() {
         return playbackSpeed[this.playbackSpeed];
     }
-    public readonly callbackdPlaybackSpeed = new CallbacksManager<( value: keyof typeof playbackSpeed ) => void>(this);
+    
+
     public get duration() { return this.parent.duration; }
     public get frameCount() { return this.steps.length; }
     public readonly startTimestampRelative: number;
@@ -67,7 +68,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     protected _currentStep: ParsedTimelineFrame;
     public get currentStep() { return this._currentStep; }
-    protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener> = new Map;
+    
 
     public readonly isSequence: boolean;
 
@@ -77,10 +78,14 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     public readonly buffer: FrameBuffer;
 
-    public readonly callbacksPlay = new CallbacksManager<() => void>(this);
-    public readonly callbacksPause = new CallbacksManager<() => void>(this);
-    public readonly callbacksStop = new CallbacksManager<() => void>(this);
-    public readonly callbacksEnd = new CallbacksManager<() => void>(this);
+    // Callbacks & Listeners
+
+    public readonly callbackdPlaybackSpeed = new CallbacksManager<( value: keyof typeof playbackSpeed ) => void>();
+    public readonly callbacksPlay = new CallbacksManager<() => void>();
+    public readonly callbacksPause = new CallbacksManager<() => void>();
+    public readonly callbacksStop = new CallbacksManager<() => void>();
+    public readonly callbacksEnd = new CallbacksManager<() => void>();
+    public readonly callbacksChangeFrame = new CallbacksManager<(frame: ParsedTimelineFrame) => void>();// : Map<string, ReTimelineFrameChangedEventListener> = new Map;
 
     public get currentMs() {
         return this.currentStep.relative;
@@ -97,8 +102,6 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     public get currentTime() {
         return this.formatDuration( this.currentStep.relative );
     }
-
-
 
     public constructor(
         parent: AbstractFile,
@@ -181,23 +184,6 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
 
 
-    /** Event listener to changement of the current frame.
-     * - the current frame is not changed every time the value changes
-     * - the current frame is changed only when the ms value points fo a new previous frame
-     */
-    public addChangeListener(
-        identificator: string,
-        fn: ReTimelineFrameChangedEventListener
-    ) {
-        this._onChangeListeners.set(identificator, fn);
-    }
-
-    public removeChangeListener(
-        identificator: string
-    ) {
-        this._onChangeListeners.delete(identificator);
-    }
-
     public findPreviousRelative(relativeTimeInMs: number) {
 
         // Return The first step if no sequence
@@ -272,7 +258,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
             this._currentStep = currentStep;
             const result = await this.buffer.recieveStep( this._currentStep );
 
-            this._onChangeListeners.forEach( fn => fn(this._currentStep) );
+            this.callbacksChangeFrame.call(this._currentStep);
 
             return result;
 
@@ -303,7 +289,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     }
 
 
-
+    /** This is the main play method */
     protected createNextStepTimer() {
 
         if (this.timer !== undefined) {
@@ -328,7 +314,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
                     this._currentStep = next;
                     this.buffer.recieveStep( next );
 
-                    this._onChangeListeners.forEach( fn => fn(next) );
+                    this.callbacksChangeFrame.call( next );
 
                     this.createNextStepTimer();
                 }
@@ -343,6 +329,8 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     }
 
     play() {
+
+        console.log( "pokouším se hrát" );
 
         if ( this.steps.length > 1 ) {
             this._isPlaying = true;

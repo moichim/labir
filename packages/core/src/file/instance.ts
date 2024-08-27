@@ -4,20 +4,35 @@ import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { TimelineDrive } from "../properties/time/TimelineDrive";
+import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/types";
+import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
+import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 
 export class Instance extends AbstractFile {
 
     declare public timeline: TimelineDrive;
 
     public exportAsPng(): void {
-        throw new Error("Method not implemented.");
+        this.export.canvasAsPng();
     }
     public exportThermalDataAsSvg(): void {
         throw new Error("Method not implemented.");
+    }
+
+    /**
+     * Exports
+     */
+    protected _export?: ThermalFileExport;
+    /** Lazy-loaded `ThermalFileExport` object */
+    public get export() {
+        if (!this._export) {
+            const newExport = new ThermalFileExport(this);
+            this._export = newExport;
+        }
+        return this._export;
     }
 
 
@@ -64,6 +79,7 @@ export class Instance extends AbstractFile {
         this.cursorValue = new CursorValueDrive(this, undefined);
         this.timeline = new TimelineDrive( this, 0, this.timelineData, this.firstFrame );
         this.timeline.init();
+        this.recording = new RecordingDrive( this, false );
         return this;
     }
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
-import { ThermalManager } from '../../hierarchy/ThermalManager';
-import { ThermalFileReader } from '../../loading/workers/ThermalFileReader';
+import { THERMOGRAM_PATHS } from '../../../../devserver/node/mocks';
+import { ThermalManager } from '../../../hierarchy/ThermalManager';
+import { ThermalFileReader } from '../../../loading/workers/ThermalFileReader';
 import { TimelineDrive } from './TimelineDrive';
-import { getPool } from '../../utils/pool';
+import { getPool } from '../../../utils/pool';
 
 describe("ReTimelineDrive", async () => {
 

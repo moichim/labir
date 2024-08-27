@@ -1,10 +1,16 @@
 import { computePosition, flip, inline, offset, shift } from "@floating-ui/dom";
 import { LitElement, PropertyValueMap, css, html } from "lit";
-import { customElement, property, queryAssignedElements } from 'lit/decorators.js';
+import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
+import { classMap } from "lit/directives/class-map.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 @customElement("thermal-dropdown")
-export class Dropdown extends LitElement {
+export class ThermalDropdown extends LitElement {
+
+    static shadowRootOptions: ShadowRootInit = {
+        ...LitElement.shadowRootOptions,
+        mode: "open"
+    }
 
     @queryAssignedElements({ slot: 'option' })
     _options!: Array<HTMLElement>;
@@ -15,6 +21,10 @@ export class Dropdown extends LitElement {
 
     @property({ type: String, reflect: true })
     open: string = "close";
+
+    @property({ type: String, reflect: true, attribute: true })
+    @state()
+    interactive: "on"|"off" = "on";
 
     @property({
         type: String,
@@ -31,6 +41,9 @@ export class Dropdown extends LitElement {
     }
 
     toggle() {
+        if ( this.interactive === "off" ) {
+            return;
+        }
         if (this.open === "open")
             this.open = "close";
         else
@@ -96,6 +109,11 @@ export class Dropdown extends LitElement {
 
 
     static styles = css`
+
+        .mayNot {
+            opacity: .5;
+            cursor: not-allowed;
+        }
 
         .dropdown {
             width: max-content;
@@ -170,11 +188,17 @@ export class Dropdown extends LitElement {
 
     render() {
 
+        const invokerClasses = {
+            "dropdown-invoker": true,
+            may: this.interactive === "on",
+            mayNot: this.interactive === "off"
+        };
+
         return html`
 
             <div class="dropdown" ${ref(this.dropdownRef)}>
 
-                <thermal-button class="dropdown-invoker" ${ref(this.invokerRef)} @click=${this.toggle.bind(this)} variant="${this.variant}">
+                <thermal-button class="${classMap(invokerClasses)}" ${ref(this.invokerRef)} @click=${this.toggle.bind(this)} variant="${this.variant}" interactive="${this.interactive === "on" ? "true" : "false"}">
                     <div class="dropdown-invoker-wrapper">
                         <slot name="invoker">
                             <div>Dropdown</div>

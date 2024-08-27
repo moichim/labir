@@ -1,5 +1,5 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { ITimelineDrive } from "../properties/time/ITimeline";
+import { ITimelineDrive } from "../properties/time/playback/ITimeline";
 import { IThermalInstance } from "../properties/structure";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";

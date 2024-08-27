@@ -2,14 +2,19 @@ import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
 @customElement("thermal-button")
-export class Button extends LitElement {
+export class ThermalButton extends LitElement {
 
     public static VARIANTS = ["slate", "primary", "foreground", "background"]
+
+    static shadowRootOptions: ShadowRootInit = {
+        ...LitElement.shadowRootOptions,
+        mode: "open"
+    }
 
     @property({
         type: String, converter: {
             fromAttribute: (value: string) => {
-                if (Button.VARIANTS.includes(value)) {
+                if (ThermalButton.VARIANTS.includes(value)) {
                     return value;
                 }
                 return "slate"

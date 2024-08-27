@@ -1,9 +1,10 @@
-import { Instance, TimeFormat } from "@labir/core";
-import { css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { Instance } from "@labir/core";
 import { format } from "date-fns";
+import { css, html, nothing, PropertyValues } from "lit";
+import { customElement, state } from "lit/decorators.js";
+import { classMap } from "lit/directives/class-map.js";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
@@ -11,7 +12,7 @@ export class TimelineElement extends FileConsumer {
         this.file?.timeline.removeListener(this.UUID);
     }
     public onInstanceCreated(): void {
-        // ...nothing
+        // ... nothing
     }
     public onFailure(
         // error: ThermalFileFailure
@@ -21,6 +22,46 @@ export class TimelineElement extends FileConsumer {
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
     protected barRef: Ref<HTMLDivElement> = createRef();
+
+    protected containerRef: Ref<HTMLDivElement> = createRef();
+
+    protected observer!: ResizeObserver;
+
+    @state()
+    protected collapsed: boolean = false;
+
+    public static collapseWidth = 500;
+
+    protected update(changedProperties: PropertyValues): void {
+        super.update( changedProperties );
+
+        if ( 
+            this.observer === undefined
+            && this.containerRef.value instanceof Element
+         ) {
+
+            this.observer = new ResizeObserver( ( entries ) => {
+                const entry = entries[0];
+    
+                if (entry.contentRect.width < TimelineElement.collapseWidth) {
+                    if ( this.collapsed === false ) {
+                        this.collapsed = true;
+                    }
+                } else {
+                    if ( this.collapsed === true ) {
+                        this.collapsed = false;
+                    }
+                }
+    
+            } );
+            this.observer.observe( this.containerRef.value! );
+
+        }
+
+        
+
+    }
+
 
     static styles = css`
     
@@ -38,7 +79,8 @@ export class TimelineElement extends FileConsumer {
         }
 
         .item {
-        
+            font-size: var( --thermal-fs );
+            order: 2;
         }
 
         .button {
@@ -52,7 +94,7 @@ export class TimelineElement extends FileConsumer {
         }
 
         .cursor {
-            width: calc( var( --thermal-gap ) * 5 );
+            width: 70px;
         }
 
         .duration {
@@ -66,8 +108,16 @@ export class TimelineElement extends FileConsumer {
         .real {
             display: flex;
             gap: 1rem;
+            align-items: center;
+            padding-top: 5px;
+            justify-content: space-between;
+            width: 100%;
 
             .label { opacity: .5; }
+        }
+
+        .inline {
+            white-space: nowrap;
         }
 
         .timeline {
@@ -97,11 +147,69 @@ export class TimelineElement extends FileConsumer {
             background: var( --thermal-primary );
             content: "";
         }
+
+        .collapsed {
+            .container {
+                flex-wrap: wrap;
+            }
+            .timeline {
+                order: 1;
+                width: 100%;
+                height: 10px;
+            }
+
+            .cursor {
+                flex-grow: 1;
+            }
+            &.real {
+                flex-wrap: wrap;
+                gap: 2px;
+            }
+        }
+
+        .mayNot {
+            opacity: .5;
+            cursor: not-allowed;
+        }
     
     `;
 
 
-    applyBarClick(event: MouseEvent) {
+    
+
+    @state()
+    protected highlights: TimelineHighlightData[] = []
+
+    public recieveHighlights( highlights: TimelineHighlightData[] ) {
+        this.highlights = highlights;
+    }
+
+
+
+
+    /** Handlers */
+
+
+    /** Handle playback buttons */
+    protected handlePlayButtonClick() {
+
+        if ( this.playing === true && this.mayStop === false ) {
+            return;
+        }
+
+        if ( this.playing ) {
+            this.parentFileProviderElement?.stop();
+        } else {
+            this.parentFileProviderElement?.play();
+        }
+
+    }
+
+    handleBarClick(event: MouseEvent) {
+
+        if ( this.mayStop === false ) {
+            return;
+        }
         
         if (this.timelineRef.value && this.barRef.value && this.file) {
 
@@ -114,12 +222,10 @@ export class TimelineElement extends FileConsumer {
         }
     }
 
-    @state()
-    protected highlights: TimelineHighlightData[] = []
 
-    public recieveHighlights( highlights: TimelineHighlightData[] ) {
-        this.highlights = highlights;
-    }
+
+
+
 
     protected render(): unknown {
 
@@ -137,8 +243,30 @@ export class TimelineElement extends FileConsumer {
             return nothing;
         }
 
+        const containerClasses = {
+            container: true,
+            collapsed: this.collapsed
+        }
+
+        const mayClasses = {
+            may: this.mayStop === true,
+            mayNot: this.mayStop === false
+        }
+
+        const playButtonClasses = {
+            item: true,
+            button: true,
+            ...mayClasses
+        }
+
+        const barClasses = {
+            item: true,
+            timeline: true,
+            ...mayClasses
+        }
+
         return html`
-            <div class="container">
+            <div class="${classMap(containerClasses)}" ${ref(this.containerRef)}>
 
 
                 ${file !== undefined
@@ -146,10 +274,7 @@ export class TimelineElement extends FileConsumer {
                 ? html`
                         <div class="container">
 
-                            <div class="item button" @click=${this.playing 
-                                ? this.parentFileProviderElement.pause.bind(this.parentFileProviderElement) 
-                                : this.parentFileProviderElement.play.bind(this.parentFileProviderElement) 
-                            }>
+                            <div class="${classMap(playButtonClasses)}" @click=${this.handlePlayButtonClick.bind(this)}>
 
 
                                 ${this.playing
@@ -168,11 +293,11 @@ export class TimelineElement extends FileConsumer {
                             </div>
 
 
-                            <div class="item cursor">
+                            <div class="item cursor inline small">
                                 ${this.currentFrame?.time}
                             </div>
 
-                            <div class="item timeline" @click=${this.applyBarClick.bind(this)} ${ref(this.timelineRef)}>
+                            <div class="${classMap(barClasses)}" @click=${this.handleBarClick.bind(this)} ${ref(this.timelineRef)}>
                                 <div class="timeline-bar">
                                     <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
                                 </div>
@@ -189,22 +314,33 @@ export class TimelineElement extends FileConsumer {
                                 </div>
                             </div>
 
-                            <div class="item">${this.duration?.time}</div>
+                            <div class="item inline small">${this.duration?.time}</div>
+
+                            <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
                         </div>
                     `
                 : nothing
             }
 
-            <file-playback-speed-dropdown></file-playback-speed-dropdown>
+            
             
             </div>
 
             ${ this.currentFrame !== undefined
-                ? html`<div class="small real">
-                    <div>
-                        <span class="label">Date:</span> ${format(this.currentFrame.absolute, "d. L. Y")}</div>
-                    <div><span class="label">Time:</span> ${format(this.currentFrame.absolute, "H:mm:ss:SSS")}</div>
-                    <div>`
+                ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
+                        <div>
+                            <span class="label">Date:</span> 
+                            <span class="inline">${format(this.currentFrame.absolute, "d. L. y")}</span>
+                        </div>
+                        <div>
+                            <span class="label">Time:</span> 
+                            <span class="inline">${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
+                        </div>
+                        <div>
+                            <span class="label">Frame:</span> 
+                            <span class="inline">${this.currentFrame.index} / ${this.file?.frameCount}</span>
+                        </div>
+                    </div>`
                 : nothing
             }
 

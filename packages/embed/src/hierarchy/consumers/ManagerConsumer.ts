@@ -20,8 +20,6 @@ export abstract class ManagerConsumer extends BaseElement {
         let node = firstParent;
         let manager: ThermalManager | undefined;
 
-        this.log( this, node );
-
         // Otherwise iterate over all parents and look for manager
         while (node && !manager) {
 

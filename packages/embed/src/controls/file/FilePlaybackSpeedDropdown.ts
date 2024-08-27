@@ -1,8 +1,8 @@
 import { playbackSpeed } from "@labir/core";
 import { css, html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { Dropdown } from "../../ui/Dropdown";
+import { ThermalDropdown } from "../../ui/Dropdown";
 
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
@@ -16,6 +16,9 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
+
+    @property({type: String, reflect: true})
+    enabled: "on"|"off" = "on";
 
     static styles = css`
 
@@ -59,7 +62,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
 
         return html`
 
-            <thermal-dropdown variant="foreground">
+            <thermal-dropdown variant="foreground" interactive="${this.enabled}">
 
                 <div slot="invoker" class="button">
                 ${this.playbackSpeed}x
@@ -78,7 +81,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
                         if ( target ) {
                             console.log( target.parentElement );
 
-                            if ( target.parentElement instanceof Dropdown ) {
+                            if ( target.parentElement instanceof ThermalDropdown ) {
                                 target.parentElement.setClose();
                             }
                         }

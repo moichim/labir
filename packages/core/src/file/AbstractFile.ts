@@ -4,7 +4,8 @@ import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { ITimelineDrive } from "../properties/time/ITimeline";
+import { ITimelineDrive } from "../properties/time/playback/ITimeline";
+import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { IFileInstance } from "./IFileInstance";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
@@ -65,6 +66,10 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     // Drives
     public timeline!: ITimelineDrive;
     public cursorValue!: CursorValueDrive;
+
+    // Recording is lazyloaded
+
+    public recording!: RecordingDrive;
 
     private _mounted: boolean = false;
     public get mountedBaseLayers() { return this._mounted; }
@@ -278,6 +283,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public destroySelfAndBelow() {
         this.detachFromDom();
     };
+
     public removeAllChildren() {
         this.detachFromDom();
     };

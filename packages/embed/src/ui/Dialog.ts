@@ -3,7 +3,12 @@ import { customElement, property } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 @customElement( "thermal-dialog" )
-export class Dialog extends LitElement {
+export class ThermalDialog extends LitElement {
+
+    static shadowRootOptions: ShadowRootInit = {
+        ...LitElement.shadowRootOptions,
+        mode: "open"
+    }
 
     protected dialogRef: Ref<HTMLDialogElement> = createRef();
     protected closeButtonRef: Ref<HTMLButtonElement> = createRef();

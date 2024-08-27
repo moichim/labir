@@ -10,7 +10,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
     }
 
     protected container: HTMLDivElement;
-    protected canvas: HTMLCanvasElement;
+    public readonly canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
 
     // protected offscreen: OffscreenCanvas;

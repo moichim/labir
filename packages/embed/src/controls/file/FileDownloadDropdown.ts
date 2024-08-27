@@ -67,16 +67,19 @@ export class FileDownloadButton extends FileConsumer {
                 </div>
 
                     <div slot="option">
-                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">Download LRC</thermal-button>
+                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">Download original file (${this.file.service.parser.extensions[0].extension.toUpperCase()})</thermal-button>
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${() => this.file!.exportAsPng()}>Export as PNG</thermal-button>
+                        <thermal-button @click=${() => this.file!.exportAsPng()}>Export current frame as PNG image</thermal-button>
                     </div>
 
-                    <div slot="option">
-                        <thermal-button @click=${() => this.file!.exportThermalDataAsSvg()}>Export CSV with thermal data</thermal-button>
-                    </div>
+                    ${this.file.timeline.isSequence
+                        ? html`<div slot="option">
+                            <thermal-button @click="${() => this.file?.recording.recordEntireFile()}">Convert entire sequence to video</thermal-button>
+                        </div>`
+                        : nothing
+                    }
             
             </thermal-dropdown>
 

@@ -452,10 +452,12 @@ interface IParserObject {
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
 }
 
+/**
+ * Manage callbacks on optional property values
+ */
 declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
-    protected readonly timeline: TimelineDrive;
     protected callbacks: Map<string, CallbackType>;
-    constructor(timeline: TimelineDrive);
+    constructor();
     add(key: string, callback: CallbackType): void;
     remove(key: string): void;
     call(...args: Parameters<CallbackType>): void;
@@ -507,7 +509,6 @@ interface ITimelineDrive {
 }
 
 type FramesMap = Map<number, ParsedTimelineFrame>;
-type ReTimelineFrameChangedEventListener = (frame: ParsedTimelineFrame) => void;
 type TimelineChangedStatusType = {
     absoluteTime: number;
     relativeTime: number;
@@ -533,7 +534,6 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     get playbackSpeed(): keyof typeof playbackSpeed;
     set playbackSpeed(value: keyof typeof playbackSpeed);
     get playbackSpeedAspect(): number;
-    readonly callbackdPlaybackSpeed: CallbacksManager<(value: keyof typeof playbackSpeed) => void>;
     get duration(): number;
     get frameCount(): number;
     readonly startTimestampRelative: number;
@@ -545,16 +545,17 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     readonly relativeSteps: number[];
     protected _currentStep: ParsedTimelineFrame;
     get currentStep(): ParsedTimelineFrame;
-    protected _onChangeListeners: Map<string, ReTimelineFrameChangedEventListener>;
     readonly isSequence: boolean;
     protected _isPlaying: boolean;
     get isPlaying(): boolean;
     protected timer?: ReturnType<typeof setTimeout>;
     readonly buffer: FrameBuffer;
+    readonly callbackdPlaybackSpeed: CallbacksManager<(value: keyof typeof playbackSpeed) => void>;
     readonly callbacksPlay: CallbacksManager<() => void>;
     readonly callbacksPause: CallbacksManager<() => void>;
     readonly callbacksStop: CallbacksManager<() => void>;
     readonly callbacksEnd: CallbacksManager<() => void>;
+    readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
     get currentMs(): number;
     get currentPercentage(): number;
     get currentFrameIndex(): number;
@@ -569,16 +570,11 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     _convertRelativeToPercent(relativeTimeInMs: number): number;
     _convertPercenttRelative(percent: number): number;
     formatDuration(ms: number): string;
-    /** Event listener to changement of the current frame.
-     * - the current frame is not changed every time the value changes
-     * - the current frame is changed only when the ms value points fo a new previous frame
-     */
-    addChangeListener(identificator: string, fn: ReTimelineFrameChangedEventListener): void;
-    removeChangeListener(identificator: string): void;
     findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
     findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
     setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
     setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
+    /** This is the main play method */
     protected createNextStepTimer(): void;
     play(): void;
     pause(): void;
@@ -617,6 +613,14 @@ declare class ThermalFileReader extends AbstractFileResult {
     createInstance(group: ThermalGroup): Promise<Instance>;
 }
 
+/** Handle the entire exports of a file */
+declare class ThermalFileExport {
+    readonly file: AbstractFile;
+    constructor(file: AbstractFile);
+    canvasAsPng(): void;
+    thermalDataAsCsv(fileNameSuffix?: string): void;
+}
+
 declare class Instance extends AbstractFile {
     readonly group: ThermalGroup;
     readonly service: ThermalFileReader;
@@ -637,6 +641,12 @@ declare class Instance extends AbstractFile {
     timeline: TimelineDrive;
     exportAsPng(): void;
     exportThermalDataAsSvg(): void;
+    /**
+     * Exports
+     */
+    protected _export?: ThermalFileExport;
+    /** Lazy-loaded `ThermalFileExport` object */
+    get export(): ThermalFileExport;
     protected constructor(group: ThermalGroup, service: ThermalFileReader, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
     postInit(): this;
     protected formatId(thermalUrl: string): string;
@@ -688,6 +698,35 @@ declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
     protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
 }
 
+interface IWithRedording extends IBaseProperty {
+    recording: RecordingDrive;
+}
+declare class RecordingDrive extends AbstractProperty<boolean, AbstractFile> {
+    parent: Instance;
+    protected stream?: MediaStream;
+    protected recorder?: MediaRecorder;
+    protected mimeType?: string;
+    protected _isRecording: boolean;
+    protected _mayStop: boolean;
+    get mayStop(): boolean;
+    protected set mayStop(value: boolean);
+    protected recordedChunks: Blob[];
+    readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    start(): void;
+    end(): void;
+    /** Records the entire file from start to the end. */
+    recordEntireFile(): Promise<void>;
+    protected initRecording(): {
+        stream: MediaStream;
+        recorder: MediaRecorder;
+        options: MediaRecorderOptions;
+    };
+    protected download(): void;
+    protected clearRecording(): void;
+}
+
 /**
  * Object types
  */
@@ -701,7 +740,7 @@ interface IThermalObjectBase {
 interface IThermalContainer extends IThermalObjectBase {
 }
 /** An instance and its properties */
-interface IThermalInstance extends IThermalObjectBase, IWithCursorValue {
+interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRedording {
     group: ThermalGroup;
 }
 /** Thermal group definition with all its properties */
@@ -851,7 +890,7 @@ declare abstract class AbstractLayer {
 declare class ThermalCanvasLayer extends AbstractLayer {
     protected get pool(): Pool;
     protected container: HTMLDivElement;
-    protected canvas: HTMLCanvasElement;
+    readonly canvas: HTMLCanvasElement;
     protected context: CanvasRenderingContext2D;
     protected get width(): number;
     protected get height(): number;
@@ -997,6 +1036,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     listenerLayer: ThermalListenerLayer;
     timeline: ITimelineDrive;
     cursorValue: CursorValueDrive;
+    recording: RecordingDrive;
     private _mounted;
     get mountedBaseLayers(): boolean;
     set mountedBaseLayers(value: boolean);

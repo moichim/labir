@@ -1,6 +1,6 @@
-import { AbstractFile } from "../../file/AbstractFile";
-import { ILrcFrame } from "../../loading/mainThread/parsers/lrc/LrcTrame";
-import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractFile } from "../../../file/AbstractFile";
+import { ILrcFrame } from "../../../loading/mainThread/parsers/lrc/LrcTrame";
+import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
 import { ITimelineDrive } from "./ITimeline";
 
 export interface IWithTimeline extends IBaseProperty {

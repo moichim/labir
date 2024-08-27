@@ -42,37 +42,73 @@ group.files.addListener("boot", value => {
 
 const group_2 = registry.groups.addOrGetGroup("group_2");
 
-
-// loaderTest( "/soustruh.lrc" );
-// loaderTest( "/tucnaci_04.lrc" );
-// loaderTest( "/sequence.lrc" );
-
 const mountInstance = (instance: Instance) => {
 
-    const element = document.createElement("div");
-    root?.appendChild(element);
-    element.style.width = "500px";
+    const container = document.createElement("div");
+    root?.appendChild(container);
+    container.style.width = "500px";
 
-    // console.log( "mounting to", element );
-    // console.log( "drawing" );
-    instance.mountToDom(element);
-    // instance.draw();
+    // Canvas container
+    const canvasContainer = document.createElement( "div" );
+    container.appendChild( canvasContainer );
 
+    instance.mountToDom(canvasContainer);
+    instance.timeline.playbackSpeed = 5;
+
+    // Playback button
+    const playbackButton = document.createElement( "button" );
+    playbackButton.innerHTML = "Playback";
+    playbackButton.onclick = () => {
+
+        // instance.timeline.play();
+        console.log( "WTF? začínám hrát", instance.timeline.isPlaying );
+        if ( instance.timeline.isPlaying === true ) {
+            instance.timeline.pause();
+        } else if ( instance.timeline.isPlaying === false ) {
+            instance.timeline.play();
+        }
+    }
+    // container.appendChild( playbackButton );
+
+    let recording = false;
+
+    // Record button
+    const recordButton = document.createElement( "button" );
+    recordButton.innerHTML = "Record";
+    recordButton.onclick = () => {
+
+        instance.recording.recordEntireFile();
+
+        return;
+
+        if ( recording === false ) {
+            instance.recording.start();
+            recording = true;
+        } else {
+            instance.recording.end();
+            recording = false;
+        }
+
+    }
+
+    container.appendChild( recordButton );
+
+    // Description
     const desc = document.createElement( "div" );
     desc.innerHTML = `${instance.group.id} - ${instance.fileName}`;
     root?.appendChild( desc );
-    // root?.appendChild();
 
-    element.addEventListener( "click", () => {
+    /*
+    container.addEventListener( "click", () => {
 
         if ( instance.timeline.isPlaying ) {
             instance.timeline.stop();
         } else {
             instance.timeline.play();
         }
-        // console.log( "hraji" );
         
     });
+    */
 
 }
 
@@ -99,39 +135,13 @@ const batchLoading = async (
 
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 
-    /*
-
-    const instances = await services.map( async ( reader: FileReaderService ) => {
-        const instance = await reader.createInstance( group_2 );
-        mountInstance( instance );
-        return instance;
-    } );
-
-    */
-
-    //group_2.registry.range.imposeRange( {from: -40, to: 200} );
-
-    //setTimeout( () => group_2.registry.postLoadedProcessing(), 0 );
     group_2.registry.postLoadedProcessing();
-
-    // group_2.registry.range.imposeRange( {from: -40, to: 200} );
 
     setTimeout( () => {
         group_2.registry.range.imposeRange( {from: -40, to: 200} );
     }, 2000 );
 
 }
-
-/*
-
-registry.loadFiles({
-    [group.id]: [
-        { thermalUrl: "/tucnaci_04.lrc" },
-        { thermalUrl: "/soustruh.lrc" }
-    ]
-});
-
-*/
 
 batchLoading([
     // "/soustruh.lrc",
@@ -140,5 +150,5 @@ batchLoading([
     // "/image-thermal 2024-01-12 14-09-37.lrc",
     // "/image-thermal 2024-02-12 10-15-07.lrc",
     // "/image-thermal 2024-02-12 10-15-08.lrc",
-    "/namrzani_skla.lrc"
+    "/sequence.lrc"
 ]);
