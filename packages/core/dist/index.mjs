@@ -2029,7 +2029,7 @@ var Instance = class _Instance extends AbstractFile {
     this.export.canvasAsPng();
   }
   exportThermalDataAsSvg() {
-    this.export.thermalDataAsCsv();
+    throw new Error("Method not implemented.");
   }
   /**
    * Exports

@@ -338,7 +338,7 @@ export class TimelineElement extends FileConsumer {
                         </div>
                         <div>
                             <span class="label">Frame:</span> 
-                            <span class="inline">${this.currentFrame.index} / ${this.file?.frameCount}</span>
+                            <span class="inline">${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
                         </div>
                     </div>`
                 : nothing

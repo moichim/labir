@@ -25,6 +25,7 @@ export class SingleFileApp extends FileConsumer {
       
       box-sizing: border-box;
       width: 100%;
+      
     }
   
   `;
