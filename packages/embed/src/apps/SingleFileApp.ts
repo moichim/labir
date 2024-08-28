@@ -1,9 +1,18 @@
-import { css, html } from "lit";
-import { customElement } from "lit/decorators.js";
+import { css, html, PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
+
+  @property({type: Number})
+  from?: number;
+
+  @property({type: Number})
+  to?: number;
+
+  @property({type: Number})
+  speed: 0.5|1|2|3|5|10 = 1;
 
   public onLoadingStart(): void {
       // throw new Error("Method not implemented.");
@@ -30,6 +39,26 @@ export class SingleFileApp extends FileConsumer {
   
   `;
 
+  protected willUpdate(_changedProperties: PropertyValues): void {
+    super.willUpdate( _changedProperties );
+
+    // Project eventual changes into the file
+    if ( this.file ) {
+      // Project the speed
+      if ( this.speed !== undefined ) {
+        this.file.timeline.playbackSpeed = this.speed;
+      }
+      // Project the range
+      if ( this.from !== undefined && this.to !== undefined ) {
+        this.registry.range.setFixedRange( {
+          from: this.from,
+          to: this.to
+        } );
+      }
+    }
+
+  }
+
   protected render(): unknown {
 
     return html`
@@ -52,11 +81,11 @@ export class SingleFileApp extends FileConsumer {
             </thermal-bar>
           </div>
             
-            
             <registry-histogram slot="pre"></registry-histogram>
             <registry-range-slider slot="pre"></registry-range-slider>
+            <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
 
-            <registry-ticks-bar slot="pre"></registry-ticks-bar>
+            
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
         </thermal-app>

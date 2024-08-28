@@ -144,13 +144,14 @@ export class TicksElement extends RegistryConsumer {
                 display: block;
                 content: "";
                 width: 1px;
-                height: 5px;
+                height: 7px;
                 //background: currentcolor;
             }
         
         }
 
         .placement-top {
+            margin-top: 10x;
             margin-bottom: calc( var( --thermal-gap ) * .5 );
             .tick {
                 &::before {

@@ -61,7 +61,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
         this.registry.range.addListener(this.UUID, value => {
             if (value) {
-                this.log( "recieved range", value );
                     this.from = value.from;
                     this.to = value.to;
             }
@@ -71,7 +70,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
     protected willUpdate(_changedProperties: PropertyValues): void {
         super.willUpdate( _changedProperties );
-        console.log( _changedProperties );
 
         if ( "from" in _changedProperties && "to" in _changedProperties ) {
 
@@ -88,7 +86,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
         // Set the fixed value if necessary
         if ( this.from && this.to ) {
-            this.log( "setting fixed range", this.from, this.to );
             this.registry.range.setFixedRange( {
                 from: this.from,
                 to: this.to
@@ -190,12 +187,6 @@ export class RangeSliderElement extends RegistryConsumer {
     `;
 
     protected render(): unknown {
-
-        this.log( "render", {
-            from: this.from, to: this.to,
-            min: this.min,
-            max: this.max
-        } );
 
         if ( this.canRanderSlider() === false ) {
             return html`

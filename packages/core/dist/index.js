@@ -133,6 +133,12 @@ var RangeDriver = class extends AbstractProperty {
       this.imposeRange(this.fixedRange);
     }
   }
+  get currentRange() {
+    if (this.fixedRange === void 0) {
+      return this.value;
+    }
+    return this.fixedRange;
+  }
   /** 
    * Make sure the range is allways within the minmax values.
    * 
@@ -160,6 +166,7 @@ var RangeDriver = class extends AbstractProperty {
    * Whenever the range changes, propagate the value to all instances
    */
   afterSetEffect(value) {
+    console.log(value);
     if (value)
       this.parent.forEveryInstance((instance) => instance.recieveRange(value));
   }
@@ -1346,10 +1353,10 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     return this.instance.pixels;
   }
   get from() {
-    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.from : this.instance.min;
+    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.from : this.instance.min;
   }
   get to() {
-    return this.instance.group.registry.range.value ? this.instance.group.registry.range.value.to : this.instance.max;
+    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.to : this.instance.max;
   }
   _opacity = 1;
   get opacity() {

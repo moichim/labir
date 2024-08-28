@@ -43,6 +43,13 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
         }
     }
 
+    public get currentRange() {
+        if ( this.fixedRange === undefined ) {
+            return this.value;
+        }
+        return this.fixedRange;
+    }
+
 
     /** 
      * Make sure the range is allways within the minmax values.
@@ -81,6 +88,8 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * Whenever the range changes, propagate the value to all instances
      */
     protected afterSetEffect(value: ThermalRangeOrUndefined) {
+
+        console.log( value );
     
         if ( value )
             this.parent.forEveryInstance( instance => instance.recieveRange( value ) );

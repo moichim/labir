@@ -19,13 +19,13 @@ export class ThermalCanvasLayer extends AbstractLayer {
     protected get height() { return this.instance.height; }
     protected get pixels() { return this.instance.pixels; }
     protected get from() {
-        return this.instance.group.registry.range.value
-            ? this.instance.group.registry.range.value.from
+        return this.instance.group.registry.range.currentRange
+            ? this.instance.group.registry.range.currentRange.from
             : this.instance.min;
     }
     protected get to() {
-        return this.instance.group.registry.range.value
-            ? this.instance.group.registry.range.value.to
+        return this.instance.group.registry.range.currentRange
+            ? this.instance.group.registry.range.currentRange.to
             : this.instance.max;
     }
 
