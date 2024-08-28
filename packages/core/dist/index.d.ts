@@ -267,6 +267,8 @@ interface IWithRange extends IBaseProperty {
 }
 /** Handles the thermal range display. */
 declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
+    protected fixedRange: ThermalRangeOrUndefined;
+    setFixedRange(value: ThermalRangeOrUndefined): void;
     /**
      * Make sure the range is allways within the minmax values.
      *

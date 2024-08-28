@@ -24,6 +24,25 @@ export interface IWithRange extends IBaseProperty {}
 /** Handles the thermal range display. */
 export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, ThermalRegistry> {
 
+    protected fixedRange: ThermalRangeOrUndefined;
+
+    public setFixedRange( value: ThermalRangeOrUndefined ) {
+
+        // Make sure the fixed range is valid
+        if ( value ) {
+            if ( value.from > value.to ) {
+                const fromTmp = value.from;
+                value.from = value.to;
+                value.to = fromTmp;
+            }
+        }
+
+        this.fixedRange = value;
+        if ( value ) {
+            this.imposeRange( this.fixedRange );
+        }
+    }
+
 
     /** 
      * Make sure the range is allways within the minmax values.
@@ -31,6 +50,10 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * If this method should work, the value needs to be set before the minmax is calculated.
      */
     protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined {
+
+        if ( this.fixedRange !== undefined ) {
+            return this.fixedRange;
+        }
 
         if ( value === undefined ) {
             return undefined;
@@ -70,9 +93,14 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * - needs to be called before the minmax is calculated!
      */
     public imposeRange( value: ThermalRangeOrUndefined ) {
+
+        // If the value is fixed, do nothing
+        if ( this.fixedRange ) {
+            this.value = this.fixedRange;
+        }
         
         // If new and old are undefined, do nothing
-        if ( value === undefined && this.value === undefined ) {
+        else if ( value === undefined && this.value === undefined ) {
             // ..do nothing
         }
         // If the new one is undefined and old one exists, set undefined
@@ -100,7 +128,13 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
     /** Sets the range to the current minmax values */
     public applyMinmax() {
         if ( this.parent.minmax.value ) {
-            this.imposeRange( { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max } );
+            const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
+            if (this.fixedRange) {
+                this.setFixedRange( newRange );
+            } else {
+                this.imposeRange( newRange );
+            }
+            
         }
     }
 
@@ -121,11 +155,19 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
                 ].to
             };
 
-            this.imposeRange( newRange );
+            if ( this.fixedRange ) {
+                this.setFixedRange( newRange );
+            } else {
+                this.imposeRange( newRange );
+            }
+
+            
 
         }
 
 
     }
+
+    
 
 }

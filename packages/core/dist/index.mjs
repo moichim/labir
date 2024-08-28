@@ -68,12 +68,29 @@ var CursorPositionDrive = class extends AbstractProperty {
 
 // src/properties/drives/RangeDriver.ts
 var RangeDriver = class extends AbstractProperty {
+  fixedRange;
+  setFixedRange(value) {
+    if (value) {
+      if (value.from > value.to) {
+        const fromTmp = value.from;
+        value.from = value.to;
+        value.to = fromTmp;
+      }
+    }
+    this.fixedRange = value;
+    if (value) {
+      this.imposeRange(this.fixedRange);
+    }
+  }
   /** 
    * Make sure the range is allways within the minmax values.
    * 
    * If this method should work, the value needs to be set before the minmax is calculated.
    */
   validate(value) {
+    if (this.fixedRange !== void 0) {
+      return this.fixedRange;
+    }
     if (value === void 0) {
       return void 0;
     }
@@ -100,7 +117,9 @@ var RangeDriver = class extends AbstractProperty {
    * - needs to be called before the minmax is calculated!
    */
   imposeRange(value) {
-    if (value === void 0 && this.value === void 0) {
+    if (this.fixedRange) {
+      this.value = this.fixedRange;
+    } else if (value === void 0 && this.value === void 0) {
     } else if (value === void 0 && this.value !== void 0) {
       this.value = value;
     }
@@ -116,7 +135,12 @@ var RangeDriver = class extends AbstractProperty {
   /** Sets the range to the current minmax values */
   applyMinmax() {
     if (this.parent.minmax.value) {
-      this.imposeRange({ from: this.parent.minmax.value.min, to: this.parent.minmax.value.max });
+      const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
+      if (this.fixedRange) {
+        this.setFixedRange(newRange);
+      } else {
+        this.imposeRange(newRange);
+      }
     }
   }
   /** Sets the range automatically based on the current histogram */
@@ -129,7 +153,11 @@ var RangeDriver = class extends AbstractProperty {
         from: histogramBarsOverPercentage[0].from,
         to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
       };
-      this.imposeRange(newRange);
+      if (this.fixedRange) {
+        this.setFixedRange(newRange);
+      } else {
+        this.imposeRange(newRange);
+      }
     }
   }
 };

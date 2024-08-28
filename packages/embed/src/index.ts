@@ -37,6 +37,7 @@ import "./controls/file/FileDownloadDropdown";
 import "./controls/registry/Histogram";
 import "./controls/file/FileTimeline";
 import "./controls/file/FilePlaybackSpeedDropdown";
+import "./controls/manager/PaletteButtons";
 
 import "./hierarchy/TestComponent";
 
