@@ -88,8 +88,6 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * Whenever the range changes, propagate the value to all instances
      */
     protected afterSetEffect(value: ThermalRangeOrUndefined) {
-
-        console.log( value );
     
         if ( value )
             this.parent.forEveryInstance( instance => instance.recieveRange( value ) );

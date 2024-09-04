@@ -115,7 +115,6 @@ var RangeDriver = class extends AbstractProperty {
    * Whenever the range changes, propagate the value to all instances
    */
   afterSetEffect(value) {
-    console.log(value);
     if (value)
       this.parent.forEveryInstance((instance) => instance.recieveRange(value));
   }

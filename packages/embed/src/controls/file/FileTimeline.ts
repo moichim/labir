@@ -217,6 +217,8 @@ export class TimelineElement extends FileConsumer {
 
             const percent = x / this.timelineRef.value.clientWidth * 100;
 
+            this.log( percent );
+
             this.file.timeline.setValueByPercent(percent);
 
         }
