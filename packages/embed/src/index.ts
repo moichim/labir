@@ -38,6 +38,10 @@ import "./controls/registry/Histogram";
 import "./controls/file/FileTimeline";
 import "./controls/file/FilePlaybackSpeedDropdown";
 import "./controls/manager/PaletteButtons";
+import "./controls/registry/RangeDisplay";
+import "./controls/file/FileVideo";
+import "./controls/file/markers/ImageMarker";
+import "./controls/file/markers/MarkerTimeline";
 
 import "./hierarchy/TestComponent";
 

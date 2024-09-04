@@ -67,7 +67,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
         if ("from" in _changedProperties && "to" in _changedProperties) {
 
-            this.registry.range.imposeRange({
+            this.registry.range.setFixedRange({
                 from: _changedProperties.from as number,
                 to: _changedProperties.to as number
             });
@@ -85,7 +85,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
     public sliderUpListener() {
         if (this.from !== undefined && this.to !== undefined)
-            this.registry.range.imposeRange({ from: this.from, to: this.to });
+            this.registry.range.setFixedRange({ from: this.from, to: this.to });
     }
 
     public updated(_changedProperties: PropertyValues): void {
@@ -117,7 +117,7 @@ export class RangeSliderElement extends RegistryConsumer {
             slider.addEventListener("onMouseUp", () => {
 
                 if (this.from !== undefined && this.to !== undefined)
-                    this.registry.range.imposeRange({ from: this.from, to: this.to });
+                    this.registry.range.setFixedRange({ from: this.from, to: this.to });
 
             });
 
