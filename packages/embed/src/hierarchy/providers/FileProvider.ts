@@ -1,20 +1,18 @@
 import { Instance, playbackSpeed, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FileCanvas } from "../../controls/file/FileCanvas";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { provide } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/PlaybackContext";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
 
+    @provide({context: fileProviderContext})
+    protected element: FileProviderElement = this;
+
     @state()
     protected reader?: ThermalFileReader;
-
-    /** @deprecated */
-    @state()
-    protected instance?: Instance;
 
     @state()
     protected loading: boolean = false;
@@ -35,6 +33,9 @@ export class FileProviderElement extends GroupConsumer {
     @state()
     currentFrame?: CurrentFrameContext;
 
+    @property({type: Number, reflect: true, attribute: true})
+    ms: number = 0;
+
     @provide( {context: fileContext} )
     @state()
     file?: Instance;
@@ -44,11 +45,11 @@ export class FileProviderElement extends GroupConsumer {
     failure?: ThermalFileFailure;
 
     @provide( {context: playbackSpeedContext} )
-    @state()
+    @property({type: Number, reflect: true, attribute: true})
     playbackSpeed: keyof typeof playbackSpeed =  1;
 
     @provide( {context: recordingContext} )
-    @state()
+    @property({type: String, reflect: true, attribute: true})
     recording: boolean = false;
 
     @provide( {context: mayStopContext} )
@@ -72,9 +73,6 @@ export class FileProviderElement extends GroupConsumer {
     })
     public visible!: string;
 
-    @state()
-    protected canvasElement?: FileCanvas;
-
     /** Load the file and call all necessary callbacks */
     protected async load() {
 
@@ -94,9 +92,8 @@ export class FileProviderElement extends GroupConsumer {
 
                     // Create the instance
                     return await this.reader.createInstance(this.group).then(instance => {
-                        // Assign the instance
-                        this.instance = instance;
 
+                        // Assign the instance
                         this.file = instance;
 
                         // Call all callbacks
@@ -135,12 +132,8 @@ export class FileProviderElement extends GroupConsumer {
 
     }
 
-    /** Called by a child FileCanvas element */
-    public bindCanvasOnMount( canvas: FileCanvas ) {
-        this.canvasElement = canvas;
-    }
 
-
+    /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
     connectedCallback(): void {
 
         super.connectedCallback();
@@ -187,6 +180,7 @@ export class FileProviderElement extends GroupConsumer {
                         index: frame.index,
                         absolute: frame.absolute
                     }
+                    this.ms = frame.relative;
                 });
 
                 // Update playback speed context
@@ -206,27 +200,52 @@ export class FileProviderElement extends GroupConsumer {
 
     }
 
+    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+        super.attributeChangedCallback( name, _old, value );
 
-    /** Playback */
-
-    public play() {
-
-        if ( this.file ) {
-            this.file.timeline.play();
+        if ( name === "ms" ) {
+            if ( value && this.duration && this.currentFrame ) {
+                const newMs = Math.min( this.duration!.ms, Math.max( 0, parseInt( value ) ) );
+                if ( newMs !== this.currentFrame.ms ) {
+                    this.file?.timeline.setRelativeTime( newMs );
+                }
+            }
         }
 
-    }
+        // Playing state
+        if ( name === "playing" ) {
 
-    public pause() {
-        if ( this.file ) {
-            this.file.timeline.pause();
-        }
-    }
+            if ( value === "true" ) {
+                    this.file?.timeline.play();
+            }
 
-    public stop() {
-        if ( this.file ) {
-            this.file.timeline.stop();
+            else if ( value === "false" ) {
+                    this.file?.timeline.pause();
+            }
         }
+
+        // Playback speed state
+        if ( name === "playbackspeed" ) {
+            if ( this.file ) {
+                if ( value && Object.keys(playbackSpeed).includes( value ) ) {
+                    this.file.timeline.playbackSpeed = parseFloat( value ) as keyof typeof playbackSpeed;
+                }
+            }
+            
+        }
+
+        // Recording
+        if ( name === "recording" ) {
+            if ( this.file ) {
+                if ( this.recording === true && value === "false" ) {
+                    this.file.recording.end();
+                }
+                else if ( this.recording === false && value === "true" ) {
+                    this.file.recording.start();
+                }
+            }
+        }
+
     }
 
 
@@ -254,13 +273,6 @@ export class FileProviderElement extends GroupConsumer {
         fn: (error: ThermalFileFailure) => void
     ) {
         this.callbacks.failure.set(id, fn);
-    }
-
-    public registerLoadingCallback(
-        id: string,
-        fn: () => void
-    ) {
-        this.callbacks.loading.set(id, fn);
     }
 
     private clearCallbacks() {

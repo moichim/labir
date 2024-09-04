@@ -6,9 +6,6 @@ import { ThermalDropdown } from "../../ui/Dropdown";
 
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
-    public onLoadingStart(): void {
-        // throw new Error("Method not implemented.");
-    }
     
     public onInstanceCreated(): void {
         // throw new Error("Method not implemented.");

@@ -1,52 +1,36 @@
 import { ThermalGroup } from "@labir/core";
+import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
+import { groupContext } from "./context/GroupContext";
 import { getDefaultGroup } from "./getters";
 
 @customElement("group-provider")
 export class GroupProviderElement extends RegistryConsumer {
 
-    /** Registry is stored internally because it is created in connected callback - not in the constructor */
-    private _group!: ThermalGroup;
-
-    /** Accessible after connectedCallback, not in the constructor */
-    public get group() {
-        return this._group;
-    }
+    protected UUIDGroupListeners = this.UUID + "__group-listener";
 
     @property({
         type: String,
         attribute: true,
         reflect: true,
     })
-    public id!: string;
+    public slug!: string;
+
+    @provide( {context: groupContext})
+    group!: ThermalGroup;
 
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        if ( this.id ) {
-            this._group = this.registry.groups.addOrGetGroup( this.id );
+        if ( this.slug ) {
+            this.group = this.registry.groups.addOrGetGroup( this.slug );
         } else {
-            this._group = getDefaultGroup( this.registry );
+            this.group = getDefaultGroup( this.registry );
         }
         
-    }
-
-    attributeChangedCallback(
-        name: string, 
-        _old: string | null, 
-        value: string | null
-    ): void {
-
-        super.attributeChangedCallback( name, _old, value );
-
-        if ( name === "id" ) {
-            // if ( this._registry === undefined && value ) {
-                // this._registry = this.manager.addOrGetRegistry( value );
-            // }
-        }
     }
 
     protected render(): unknown {

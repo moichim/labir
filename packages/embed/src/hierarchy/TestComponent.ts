@@ -5,9 +5,6 @@ import { FileConsumer } from "./consumers/FileConsumer";
 
 @customElement("test-component")
 export class TestComponent extends FileConsumer {
-    public onLoadingStart(): void {
-        throw new Error("Method not implemented.");
-    }
     
 
     @property({

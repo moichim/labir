@@ -18,10 +18,7 @@ export class SingleFileApp extends BaseElement {
   to?: number;
 
   @property({type: Number, reflect: true})
-  speed?: number = 1;
-
-  @property({type: Number, reflect: true})
-  time?: number;
+  speed?: number;
 
   // Declare reactive properties
   @property({ type: String, reflect: true })

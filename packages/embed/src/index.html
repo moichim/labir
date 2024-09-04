@@ -24,9 +24,11 @@
 
     <h2>Příklad ukazující barevnou paletu</h2>
 
-    <manager-provider id="palette-example" palette="iron">
-      <registry-provider>
+    <manager-provider slug="palette-example" palette="iron">
+      <registry-provider slug="wtf!">
         <registry-palette-buttons></registry-palette-buttons>
+        <registry-opacity-slider></registry-opacity-slider>
+        <registry-opacity-slider></registry-opacity-slider>
         <group-provider>
             <file-provider thermal="/tucnaci_04.lrc">
               <file-canvas></file-canvas>
@@ -39,14 +41,15 @@
 
   <div>
 
+
     <h2>Příklad ukazující teplotní rozsah</h2>
 
-    <manager-provider id="palette-example" palette="jet">
+    <manager-provider palette="jet" slug="some-example">
       <registry-provider>
         <registry-range-slider from="15" to="20"></registry-range-slider>
         <registry-ticks-bar></registry-ticks-bar>
         <group-provider>
-            <file-provider thermal="/tucnaci_04.lrc">
+            <file-provider thermal="/soustruh.lrc">
               <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -55,17 +58,18 @@
 
   </div>
 
-  <div style="width: 405px">
-    <thermal-file-app url="/pokus_voda_proudeni_sklenice.lrc" speed="10" palette="iron" ></thermal-file-app>
-  </div>
   <!--
+  <div style="width: 405px">
+    <thermal-file-app url="/proudeni_sklenice.lrc" speed="10" palette="iron" from="15" to="45"></thermal-file-app>
+  </div>
+  -->
 
 
-  <manager-provider palette="iron" id="nějaký manager">
+  <manager-provider palette="iron" slug="nějaký manager">
 
 
 
-    <registry-provider id="nějaký registr">
+    <registry-provider slug="nějaký registr">
 
 
       <registry-log></registry-log>
@@ -78,7 +82,7 @@
       <registry-range-slider></registry-range-slider>
       <registry-ticks-bar></registry-ticks-bar>
 
-      <group-provider id="kompletní grupa">
+      <group-provider slug="kompletní grupa">
 
 
         <file-provider thermal="/sequence.lrc" open>
@@ -88,7 +92,7 @@
         </file-provider>
 
 
-        <file-provider thermal="/sequence.lrc">
+        <file-provider thermal="/soustruh.lrc">
           <file-share-button></file-share-button>
           <file-info-button></file-info-button>
           <registry-range-auto-button></registry-range-auto-button>
@@ -104,7 +108,6 @@
 
   </manager-provider>
 
--->
 
   <!--
 

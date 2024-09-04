@@ -5,9 +5,6 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-share-button")
 export class FileShareButton extends FileConsumer {
-    public onLoadingStart(): void {
-        // throw new Error("Method not implemented.");
-    }
     public onInstanceCreated(instance: Instance): void {
         // throw new Error("Method not implemented.");
         // this.log( instance );

@@ -1,14 +1,14 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
-import { state } from "lit/decorators.js";
-import { FileProviderElement } from "../providers/FileProvider";
-import { GroupConsumer } from "./GroupConsumer";
-import { LitElement } from "lit";
 import { consume } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/PlaybackContext";
+import { state } from "lit/decorators.js";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileProviderContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
+import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
 
-    protected parentFileProviderElement?: FileProviderElement;
+    @consume({context: fileProviderContext, subscribe: true})
+    @state()
+    protected parentFileProviderElement?: FileProviderContext;
 
     protected internalCallbackUUID = `${this.UUID}__internal_callback`;
 
@@ -51,20 +51,10 @@ export abstract class FileConsumer extends GroupConsumer {
 
         super.connectedCallback();
 
-        // Get the parent provider element from the hierarchy
-        this.parentFileProviderElement = this.getParentFile();
-
         // if the provider exists, append all the callbacks
         if (this.parentFileProviderElement) {
 
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
-
-            this.parentFileProviderElement.registerLoadingCallback(
-                this.internalCallbackUUID,
-                () => {
-                    this.loading = true;
-                }
-            );
 
             this.parentFileProviderElement.registerSuccessCallback(
                 this.internalCallbackUUID,
@@ -96,58 +86,6 @@ export abstract class FileConsumer extends GroupConsumer {
             throw new Error("Tento komponent není v souboru!");
         }
     }
-
-    private getParentFile(): FileProviderElement | undefined {
-
-        let currentParent = this.parentElement;
-        let provider: FileProviderElement | undefined;
-
-        if (!currentParent) {
-            return undefined;
-        }
-
-        if ( currentParent instanceof FileProviderElement ) {
-            return currentParent;
-        }
-
-
-        while (currentParent && !provider) {
-
-            if (currentParent instanceof FileProviderElement) {
-                provider = currentParent;
-                currentParent = null;
-            } else {
-
-                // If parent is a custom element, there is a chance that the parent is above the shadow DOM
-                if ( currentParent instanceof LitElement ) {
-
-                    // If the parent has a parent, take it
-                    if ( currentParent.parentElement ) {
-                        currentParent = currentParent.parentElement
-                    } 
-                    // If the parent has no parent, it means the component is nested and therefore we need to look beyond the shadow root boundaries
-                    else {
-
-                        const node = currentParent.getRootNode() as unknown as Element;
-
-                        if ( "host" in node ) {
-                            currentParent = node.host as HTMLElement; //eslint-disable-line
-                        }
-                    }
-
-                } else {
-                    currentParent = currentParent.parentElement;
-                }
-
-            }
-
-        }
-
-        return provider;
-
-    }
-
-    public abstract onLoadingStart(): void;
 
     public abstract onInstanceCreated(instance: Instance): void;
 

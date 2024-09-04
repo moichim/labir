@@ -1,27 +1,33 @@
-import { ThermalPaletteType } from "@labir/core";
-import { PropertyValueMap, PropertyValues, css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { consume } from "@lit/context";
+import { PropertyValues, css, html } from "lit";
+import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
 import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
 
 
 
 @customElement("registry-range-slider")
 export class RangeSliderElement extends RegistryConsumer {
 
-    @property({ type: Number, reflect: false })
+    @consume({ context: registryMinContext, subscribe: true })
+    @state()
     public min?: number;
 
-    @property({ type: Number, reflect: false })
+    @consume({ context: registryMaxContext, subscribe: true })
+    @state()
     public max?: number;
 
-    @property({ type: Number, reflect: true })
+    @consume({ context: registryRangeFromContext, subscribe: true })
+    @state()
     public from?: number;
 
-    @property({ type: Number, reflect: true })
+    @consume({ context: registryRangeToContext, subscribe: true })
+    @state()
     public to?: number;
 
     @state()
@@ -30,8 +36,9 @@ export class RangeSliderElement extends RegistryConsumer {
     @state()
     protected hasFixedTo: boolean = false;
 
+    @consume({ context: managerPaletteContext, subscribe: true })
     @state()
-    protected palette!: ThermalPaletteType;
+    protected palette!: ManagerPaletteContext;
 
     @state()
     protected sliderRef: Ref<RangeSlider> = createRef();
@@ -46,53 +53,25 @@ export class RangeSliderElement extends RegistryConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.palette = this.registry.palette.currentPalette;
-
-        this.registry.palette.addListener( this.UUID, () => {
-            this.palette = this.registry.palette.currentPalette;
-        } );
-
-        this.registry.minmax.addListener(this.UUID, value => {
-            if (value) {
-                this.min = value.min;
-                this.max = value.max;
-            }
-        });
-
         this.registry.range.addListener(this.UUID, value => {
             if (value) {
-                    this.from = value.from;
-                    this.to = value.to;
+                this.from = value.from;
+                this.to = value.to;
             }
         });
 
     }
 
     protected willUpdate(_changedProperties: PropertyValues): void {
-        super.willUpdate( _changedProperties );
+        super.willUpdate(_changedProperties);
 
-        if ( "from" in _changedProperties && "to" in _changedProperties ) {
+        if ("from" in _changedProperties && "to" in _changedProperties) {
 
-            this.registry.range.setFixedRange( {
-                from: _changedProperties.from as number, 
+            this.registry.range.imposeRange({
+                from: _changedProperties.from as number,
                 to: _changedProperties.to as number
-            } );
+            });
         }
-    }
-
-    protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
-
-        super.firstUpdated(_changedProperties);
-
-        // Set the fixed value if necessary
-        if ( this.from && this.to ) {
-            this.registry.range.setFixedRange( {
-                from: this.from,
-                to: this.to
-            } );
-        }
-
-
     }
 
     public sliderDownListener(event: Event) {
@@ -106,17 +85,17 @@ export class RangeSliderElement extends RegistryConsumer {
 
     public sliderUpListener() {
         if (this.from !== undefined && this.to !== undefined)
-            this.registry.range.setFixedRange({ from: this.from, to: this.to });
+            this.registry.range.imposeRange({ from: this.from, to: this.to });
     }
 
     public updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
+        super.updated(_changedProperties);
 
         const slider = this.sliderRef.value;
 
-        if ( slider && this.initialised === false ) {
+        if (slider && this.initialised === false) {
             this.initialised = true;
-            slider.addCSS( `
+            slider.addCSS(`
                 .pointer-shape {
                     border-color: var( --thermal-foreground );
                     border-radius: 0;
@@ -124,23 +103,28 @@ export class RangeSliderElement extends RegistryConsumer {
                 }
         ` );
 
-        slider.addEventListener("change", (event: Event) => {
+            slider.addEventListener("change", (event: Event) => {
 
-            const evt = event as CustomEvent;
-            const detail = evt.detail as { value1: number, value2: number };
+                const evt = event as CustomEvent;
+                const detail = evt.detail as { value1: number, value2: number };
 
-            this.from = detail.value1;
-            this.to = detail.value2;
+                this.from = detail.value1;
+                this.to = detail.value2;
 
-        });
+            });
 
 
-        slider.addEventListener("onMouseUp", () => {
+            slider.addEventListener("onMouseUp", () => {
 
-            if (this.from !== undefined && this.to !== undefined)
-                this.registry.range.setFixedRange({ from: this.from, to: this.to });
+                if (this.from !== undefined && this.to !== undefined)
+                    this.registry.range.imposeRange({ from: this.from, to: this.to });
 
-        });
+            });
+
+            slider.addEventListener( "onMouseDown", event => {
+                this.log( event );
+            } );
+
         }
 
     }
@@ -188,7 +172,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
     protected render(): unknown {
 
-        if ( this.canRanderSlider() === false ) {
+        if (this.canRanderSlider() === false) {
             return html`
                 <div class="container loading">
                     <div class="skeleton"></div>
@@ -217,10 +201,10 @@ export class RangeSliderElement extends RegistryConsumer {
 
                 slider-bg="var( --thermal-slate )"
                 slider-bg-hover="var( --thermal-slate )"
-                slider-bg-fill="${this.palette.gradient}"
+                slider-bg-fill="${this.palette.data.gradient}"
 
-                pointer-bg="${this.palette.pixels[0]}"
-                pointer2-bg="${this.palette.pixels[ this.palette.pixels.length - 1 ]}"
+                pointer-bg="${this.palette.data.pixels[0]}"
+                pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
                 
                 generate-labels="true"
                 

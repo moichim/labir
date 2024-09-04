@@ -8,9 +8,6 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
-    public onLoadingStart(): void {
-        this.file?.timeline.removeListener(this.UUID);
-    }
     public onInstanceCreated(): void {
         // ... nothing
     }
@@ -198,9 +195,9 @@ export class TimelineElement extends FileConsumer {
         }
 
         if ( this.playing ) {
-            this.parentFileProviderElement?.stop();
+            this.file?.timeline.stop();
         } else {
-            this.parentFileProviderElement?.play();
+            this.file?.timeline.play();
         }
 
     }
@@ -216,6 +213,8 @@ export class TimelineElement extends FileConsumer {
             const x = event.clientX - this.timelineRef.value.offsetLeft;
 
             const percent = x / this.timelineRef.value.clientWidth * 100;
+
+            this.log( percent );
 
             this.file.timeline.setValueByPercent(percent);
 
@@ -236,10 +235,6 @@ export class TimelineElement extends FileConsumer {
         }
 
         else if ( file.duration === 0 ) {
-            return nothing;
-        }
-
-        else if ( this.parentFileProviderElement === undefined ) {
             return nothing;
         }
 
