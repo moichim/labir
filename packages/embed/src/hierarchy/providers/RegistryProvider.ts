@@ -1,8 +1,8 @@
 import { provide } from "@lit/context";
 import { html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
-import { RegistryContext, registryContext, registryLoadingContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
+import { RegistryContext, registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
 import { getDefaultRegistry } from "./getters";
 
 @customElement("registry-provider")
@@ -21,6 +21,14 @@ export class RegistryProviderElement extends ManagerConsumer {
     @provide( {context: registryOpacityContext} )
     @property({type: Number, reflect: true, attribute: true})
     public opacity: number = 1;
+
+    @provide( {context: registryMinContext} )
+    @state()
+    protected min?: number;
+
+    @provide( {context: registryMaxContext} )
+    @state()
+    protected max?: number;
 
     @provide({context: registryRangeFromContext})
     @property({type: Number, reflect: true, attribute: true})
@@ -49,6 +57,17 @@ export class RegistryProviderElement extends ManagerConsumer {
         // Bind opacity to the element property
         this.registry.opacity.addListener( this.UUIDRegistryListeners, value => {
             this.opacity = value;
+        } );
+
+        // Bind minmax changes to the element state
+        this.registry.minmax.addListener( this.UUIDRegistryListeners, value => {
+            if ( value === undefined ) {
+                this.min = undefined;
+                this.max = undefined;
+            } else {
+                this.min = value.min;
+                this.max = value.max;
+            }
         } );
 
         // Bind range changes to the element property
@@ -92,11 +111,11 @@ export class RegistryProviderElement extends ManagerConsumer {
                     const valueDiffers = this.from !== range.value?.from || this.to !== range.value.to;
 
                     if ( valueDiffers ) {
-                        range.setFixedRange( newValue );
+                        range.imposeRange( newValue );
                     }
 
                 } else {
-                    range.setFixedRange( newValue );
+                    range.imposeRange( newValue );
                 }
 
 

@@ -17,3 +17,9 @@ export const registryRangeToContext = createContext<RegistryRangeToContext>( "re
 
 export type RegistryLoadingContext = boolean;
 export const registryLoadingContext = createContext<RegistryLoadingContext>( "registry-loading" );
+
+export type RegistryMinContext = number|undefined;
+export const registryMinContext = createContext<RegistryMinContext>("registry-min");
+
+export type RegistryMaxContext = number|undefined;
+export const registryMaxContext = createContext<RegistryMaxContext>("registry-max");

@@ -1,5 +1,9 @@
 import { Instance, playbackSpeed, ThermalFileFailure } from "@labir/core"
 import { createContext } from "@lit/context"
+import { FileProviderElement } from "../FileProvider";
+
+export type FileProviderContext = FileProviderElement;
+export const fileProviderContext = createContext<FileProviderContext>( "file-provider-element" );
 
 type FileContext = Instance;
 

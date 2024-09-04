@@ -8,17 +8,12 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
 
-    public onLoadingStart(): void {
-        // throw new Error("Method not implemented.");
-    }
-
     public onInstanceCreated(instance: Instance): void {
 
-        if ( this.container.value !== undefined && this.parentFileProviderElement !== undefined ) {
+        if ( this.container.value !== undefined ) {
             instance.mountToDom( this.container.value );
-            this.parentFileProviderElement.bindCanvasOnMount( this );
         } else {
-            this.log( this.parentFileProviderElement, this.container.value );
+            this.log( this.container.value );
             throw new Error( "Error mounting the instance to the canvas!" );
         }
     }

@@ -3,7 +3,7 @@ import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
-import { ManagerContext, managerContext } from "./context/ManagerContext";
+import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext } from "./context/ManagerContext";
 import { defaultManager } from "./getters";
 
 @customElement("manager-provider")
@@ -17,20 +17,27 @@ export class ManagerProviderElement extends BaseElement {
     @property({ type: String, reflect: true, attribute: true })
     slug!: string;
 
+    @provide( {context: managerPaletteContext} )
     @property({
         type: String,
         attribute: true,
         reflect: true,
         converter: {
-            fromAttribute: (value): AvailableThermalPalettes => {
-                return ManagerProviderElement.sanitizeStringPalette(value)
+            fromAttribute: (value: AvailableThermalPalettes): ManagerPaletteContext => {
+                return {
+                    key: value,
+                    data: ThermalPalettes[value]
+                };
             },
-            toAttribute: (value: AvailableThermalPalettes): string => {
-                return value.toString();
+            toAttribute: (value: ManagerPaletteContext): string => {
+                return value.key.toString();
             }
         }
     })
-    public palette: AvailableThermalPalettes = "jet";
+    public palette: ManagerPaletteContext = {
+        key: "jet",
+        data: ThermalPalettes["jet"]
+    }
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -43,7 +50,7 @@ export class ManagerProviderElement extends BaseElement {
 
             const options: ThermalManagerOptions = {};
 
-            const palette = ManagerProviderElement.sanitizeStringPalette(this.palette);
+            const palette = ManagerProviderElement.sanitizeStringPalette(this.palette.key);
 
             options.palette = palette;
 
@@ -52,7 +59,7 @@ export class ManagerProviderElement extends BaseElement {
 
         this.manager = manager;
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
-            this.palette = value as AvailableThermalPalettes;
+            this.setPalette( value as AvailableThermalPalettes );
         } );
 
     }
@@ -80,6 +87,13 @@ export class ManagerProviderElement extends BaseElement {
         return valid
             ? input as AvailableThermalPalettes
             : "jet"
+    }
+
+    protected setPalette( key: AvailableThermalPalettes ) {
+        this.palette = {
+            key: key,
+            data: ThermalPalettes[key]
+        }
     }
 
     protected render(): unknown {

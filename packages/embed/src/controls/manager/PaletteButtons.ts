@@ -1,7 +1,9 @@
 import { AvailableThermalPalettes, ThermalPaletteType, ThermalPalettes } from "@labir/core";
+import { consume } from "@lit/context";
 import { css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 
 
 
@@ -9,43 +11,15 @@ import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 export class PaletteButtonsElement extends RegistryConsumer {
 
 
-    @property({ type: String, reflect: true, attribute: true })
-    value!: AvailableThermalPalettes;
+    @consume({context: managerPaletteContext, subscribe: true})
+    @state()
+    value!: ManagerPaletteContext;
 
-    connectedCallback(): void {
-        super.connectedCallback();
 
-        // Set the default value from the registry
-        this.value = this.manager.palette.value as AvailableThermalPalettes;
-
-        // Handler of incoming changes
-
-        const handleChange = (value: string|number) => {
-
-            if ( typeof value === "string" ) {
-
-                const val = value as AvailableThermalPalettes;
-                this.value = val;
-
-            }
-           
-        }
-
-        // Register incoming changes
-        this.registry.palette.addListener( this.UUID, handleChange.bind( this ) );
-
-    }
-
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-        this.registry.palette.removeListener( this.UUID )
-    }
 
     /** Handle user input events */
     onSelect( palette: AvailableThermalPalettes ) {
-
         this.registry.palette.setPalette( palette );
-        this.value = palette;
     }
 
     static styles = css`

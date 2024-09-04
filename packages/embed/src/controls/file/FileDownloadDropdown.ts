@@ -4,9 +4,6 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
-    public onLoadingStart(): void {
-        // throw new Error("Method not implemented.");
-    }
     
     public onInstanceCreated(): void {
         // throw new Error("Method not implemented.");

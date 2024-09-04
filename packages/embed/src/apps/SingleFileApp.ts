@@ -14,9 +14,6 @@ export class SingleFileApp extends FileConsumer {
   @property({type: Number})
   speed?: 0.5|1|2|3|5|10;
 
-  public onLoadingStart(): void {
-      // throw new Error("Method not implemented.");
-  }
   public onInstanceCreated(
     // instance: Instance
   ): void {

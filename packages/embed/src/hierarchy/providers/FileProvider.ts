@@ -1,13 +1,15 @@
 import { Instance, playbackSpeed, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FileCanvas } from "../../controls/file/FileCanvas";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { provide } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
+
+    @provide({context: fileProviderContext})
+    protected element: FileProviderElement = this;
 
     @state()
     protected reader?: ThermalFileReader;
@@ -71,9 +73,6 @@ export class FileProviderElement extends GroupConsumer {
     })
     public visible!: string;
 
-    @state()
-    protected canvasElement?: FileCanvas;
-
     /** Load the file and call all necessary callbacks */
     protected async load() {
 
@@ -131,11 +130,6 @@ export class FileProviderElement extends GroupConsumer {
 
         return value;
 
-    }
-
-    /** Called by a child FileCanvas element */
-    public bindCanvasOnMount( canvas: FileCanvas ) {
-        this.canvasElement = canvas;
     }
 
 
@@ -222,11 +216,11 @@ export class FileProviderElement extends GroupConsumer {
         if ( name === "playing" ) {
 
             if ( value === "true" ) {
-                    this.play();
+                    this.file?.timeline.play();
             }
 
             else if ( value === "false" ) {
-                    this.pause();
+                    this.file?.timeline.pause();
             }
         }
 
@@ -255,31 +249,6 @@ export class FileProviderElement extends GroupConsumer {
     }
 
 
-
-
-    /** Playback */
-
-    public play() {
-
-        if ( this.file ) {
-            this.file.timeline.play();
-        }
-
-    }
-
-    public pause() {
-        if ( this.file ) {
-            this.file.timeline.pause();
-        }
-    }
-
-    public stop() {
-        if ( this.file ) {
-            this.file.timeline.stop();
-        }
-    }
-
-
     /** Callbacks handling */
 
     protected readonly callbacks: {
@@ -304,13 +273,6 @@ export class FileProviderElement extends GroupConsumer {
         fn: (error: ThermalFileFailure) => void
     ) {
         this.callbacks.failure.set(id, fn);
-    }
-
-    public registerLoadingCallback(
-        id: string,
-        fn: () => void
-    ) {
-        this.callbacks.loading.set(id, fn);
     }
 
     private clearCallbacks() {
