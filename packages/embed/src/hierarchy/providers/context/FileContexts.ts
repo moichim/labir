@@ -1,6 +1,8 @@
 import { Instance, playbackSpeed, ThermalFileFailure } from "@labir/core"
 import { createContext } from "@lit/context"
 
+type FileContext = Instance;
+
 export type CurrentFrameContext = {
     index: number,
     ms: number,
@@ -8,35 +10,29 @@ export type CurrentFrameContext = {
     percentage: number,
     absolute: number
 }
+export const currentFrameContext = createContext<CurrentFrameContext|undefined>( "playback" );
+
 
 export type DurationContext = {
     ms: number,
     time: string
 }
-
-type PlayingContext = boolean;
-
-type FileContext = Instance;
-
-type FailureContext = ThermalFileFailure;
-
-type PlaybackSpeedContext = keyof typeof playbackSpeed;
-
-type RecordingContext = boolean;
-type MayStopContext = boolean;
-
-export const currentFrameContext = createContext<CurrentFrameContext|undefined>( "playback" );
-
 export const durationContext = createContext<DurationContext|undefined>( "duration" );
 
+type PlayingContext = boolean;
 export const playingContext = createContext<PlayingContext>( "playing" );
 
 export const fileContext = createContext<FileContext|undefined>( "file" );
 
+type FailureContext = ThermalFileFailure;
 export const FailureContext = createContext<FailureContext|undefined>( "failure" );
 
+type PlaybackSpeedContext = keyof typeof playbackSpeed;
 export const playbackSpeedContext = createContext<PlaybackSpeedContext>( "playbackSpeed" );
 
+type RecordingContext = boolean;
 export const recordingContext = createContext<RecordingContext>( "recording" );
 
+
+type MayStopContext = boolean;
 export const mayStopContext = createContext<MayStopContext>( "mayStop" );

@@ -4,7 +4,7 @@ import { FileProviderElement } from "../providers/FileProvider";
 import { GroupConsumer } from "./GroupConsumer";
 import { LitElement } from "lit";
 import { consume } from "@lit/context";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/PlaybackContext";
+import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
 
 export abstract class FileConsumer extends GroupConsumer {
 

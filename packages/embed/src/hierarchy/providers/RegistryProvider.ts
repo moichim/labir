@@ -1,51 +1,117 @@
-import { ThermalRegistry } from "@labir/core";
+import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
+import { RegistryContext, registryContext, registryLoadingContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
 import { getDefaultRegistry } from "./getters";
 
 @customElement("registry-provider")
 export class RegistryProviderElement extends ManagerConsumer {
 
-    /** Registry is stored internally because it is created in connected callback - not in the constructor */
-    private _registry!: ThermalRegistry;
 
-    /** Accessible after connectedCallback, not in the constructor */
-    public get registry() {
-        return this._registry;
-    }
+    protected UUIDRegistryListeners = this.UUID + "__registry-listener";
 
-    @property({
-        type: String,
-        attribute: true,
-        reflect: true,
-    })
-    public id!: string;
+    @property({ type: String, reflect: true, attribute: true })
+    slug!: string;
+
+    
+    @provide({ context: registryContext })
+    public registry!: RegistryContext;
+
+    @provide( {context: registryOpacityContext} )
+    @property({type: Number, reflect: true, attribute: true})
+    public opacity: number = 1;
+
+    @provide({context: registryRangeFromContext})
+    @property({type: Number, reflect: true, attribute: true})
+    public from?: number;
+
+    @provide({context: registryRangeToContext})
+    @property({type: Number, reflect: true, attribute: true})
+    public to?: number;
+
+    @provide({context: registryLoadingContext})
+    @property({type: String, reflect: true, attribute: true})
+    public loading: boolean = false;
 
 
     connectedCallback(): void {
         super.connectedCallback();
-        if ( this.id ) {
-            this._registry = this.manager.addOrGetRegistry( this.id );
-        } else {
-            this._registry = getDefaultRegistry( this.manager );
+
+        let registry = getDefaultRegistry( this.manager );
+
+        if ( this.slug === undefined ) {
+            registry = this.manager.addOrGetRegistry( this.slug );
         }
+
+        this.registry = registry;
+
+        // Bind opacity to the element property
+        this.registry.opacity.addListener( this.UUIDRegistryListeners, value => {
+            this.opacity = value;
+        } );
+
+        // Bind range changes to the element property
+        this.registry.range.addListener( this.UUIDRegistryListeners, value => {
+
+            if ( value === undefined ) {
+                this.from = undefined;
+                this.to = undefined;
+            } else {
+                this.from = value.from;
+                this.to = value.to;
+            }
+        } );
+
+        // Bind loading changes to the element property
+        this.registry.loading.addListener( this.UUIDRegistryListeners, value => {
+            this.loading = value;
+        } );
         
     }
 
-    attributeChangedCallback(
-        name: string, 
-        _old: string | null, 
-        value: string | null
-    ): void {
-
+    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback( name, _old, value );
 
-        if ( name === "id" ) {
-            // if ( this._registry === undefined && value ) {
-                // this._registry = this.manager.addOrGetRegistry( value );
-            // }
+
+        // Project the range to internals
+
+        if ( ( name === "from" || name === "to" ) && value ) {
+
+            const range = this.registry.range;
+
+            if ( this.from !== undefined && this.to !== undefined ) {
+
+                const newValue = {
+                    from: name === "from" ? parseFloat(value) : this.from,
+                    to: name === "to" ? parseFloat( value ) : this.to
+                }
+
+                if ( range.value !== undefined ) {
+
+                    const valueDiffers = this.from !== range.value?.from || this.to !== range.value.to;
+
+                    if ( valueDiffers ) {
+                        range.setFixedRange( newValue );
+                    }
+
+                } else {
+                    range.setFixedRange( newValue );
+                }
+
+
+            }
+
         }
+
+        // Project the opacity to internals
+        if ( name=== "opacity" ) {
+            const sanitisedOpacity = Math.min( 1, Math.max( 0, this.opacity ) );
+            if ( sanitisedOpacity !== this.registry.opacity.value ) {
+                this.registry.opacity.imposeOpacity( sanitisedOpacity );
+            }
+        }
+
     }
 
     protected render(): unknown {
