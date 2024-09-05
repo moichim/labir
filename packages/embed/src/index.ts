@@ -42,6 +42,7 @@ import "./controls/registry/RangeDisplay";
 import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
+import "./controls/file/markers/MarksContent";
 
 import "./hierarchy/TestComponent";
 

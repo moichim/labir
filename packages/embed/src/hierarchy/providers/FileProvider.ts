@@ -310,7 +310,7 @@ export class FileProviderElement extends GroupConsumer {
 
     protected willUpdate(_changedProperties: PropertyValues): void {
         super.willUpdate( _changedProperties );
-        this.log( _changedProperties );
+        // this.log( _changedProperties );
     }
 
 
@@ -318,7 +318,6 @@ export class FileProviderElement extends GroupConsumer {
     /** Rendering */
 
     protected render(): unknown {
-        this.log( this.marksElement );
         return html`
             <slot></slot>
             <slot name="mark"></slot>
