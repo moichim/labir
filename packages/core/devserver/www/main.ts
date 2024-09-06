@@ -2,6 +2,7 @@ import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
+import { TestAnalysis } from "../../src/file/analysis/TestAnalysis";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
@@ -27,6 +28,8 @@ group.files.addListener("boot", value => {
         // element.style.position = "relative";
 
         instance.mountToDom(element);
+
+        instance.analysis.addAnalysis( new TestAnalysis( instance ) );
 
     });
 
@@ -132,6 +135,10 @@ const batchLoading = async (
     console.log( "INSTANCES CREATED", instances );
 
     instances.map( mountInstance );
+
+    instances.forEach( instance => {
+        instance.analysis.addAnalysis( new TestAnalysis( instance ) );
+    } );
 
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 

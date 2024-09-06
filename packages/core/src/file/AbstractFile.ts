@@ -1,6 +1,7 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
+import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
@@ -66,6 +67,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     // Drives
     public timeline!: ITimelineDrive;
     public cursorValue!: CursorValueDrive;
+    public analysis: AnalysisDrive = new AnalysisDrive(this, []);
 
     // Recording is lazyloaded
 
@@ -212,6 +214,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         }
 
         this.listenerLayer.mount();
+        this.analysis.activateListeners();
 
         this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
 
@@ -259,6 +262,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     protected unmountListener() {
 
         this.listenerLayer.unmount();
+        this.analysis.deactivateListeners();
 
     }
 

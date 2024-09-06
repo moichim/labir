@@ -1,4 +1,5 @@
 import { AbstractFile } from "../file/AbstractFile";
+import { AbstractAnalysis } from "../file/analysis/AbstractAnalysis";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
@@ -13,7 +14,8 @@ type PropertyListenersTypes = boolean
     | ThermalCursorPositionOrUndefined
     | ThermalGroup[]
     | ThermalStatistics[]
-    | AbstractFile[];
+    | AbstractFile[]
+    | AbstractAnalysis[];
 
 export type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 

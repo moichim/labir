@@ -1,6 +1,7 @@
 // Range
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { IWithAnalysis } from "./analysis/AnalysisDrive";
 import { IWithCursorPosition } from "./drives/CursorPositionDrive";
 import { IWithOpacity } from "./drives/OpacityDrive";
 import { IWithPalette } from "./drives/PaletteDrive";
@@ -33,7 +34,7 @@ interface IThermalContainer
 /** An instance and its properties */
 export interface IThermalInstance
     extends IThermalObjectBase,
-    IWithCursorValue, IWithRedording {
+    IWithCursorValue, IWithRedording, IWithAnalysis {
         group: ThermalGroup
     }
 
