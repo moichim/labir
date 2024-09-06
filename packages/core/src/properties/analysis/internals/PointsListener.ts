@@ -1,4 +1,4 @@
-import { AbstractFile } from "../AbstractFile";
+import { AbstractFile } from "../../../file/AbstractFile";
 
 export class PointsListener {
 

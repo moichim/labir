@@ -1,5 +1,5 @@
-import { AbstractAnalysis } from "./AbstractAnalysis";
-import { AbstractPoint } from "./AbstractPoint";
+import { AbstractAnalysis } from "../AbstractAnalysis";
+import { AbstractPoint } from "../AbstractPoint";
 
 export class TestPoint extends AbstractPoint {
     public getRadius(): number {
@@ -23,12 +23,32 @@ export class TestPoint extends AbstractPoint {
 
     public isMoving: boolean = false;
 
+    syncXWith( point: TestPoint ) {
+        this.onX.add( `sync X with ${point.key} `, value => {
+            if ( point.x !== value ) {
+                point.x = value;
+            }
+        } )
+    }
+
+    syncYWith( point: TestPoint ) {
+        this.onY.add( `sync Y with ${point.key} `, value => {
+            if ( point.y !== value ) {
+                point.y = value;
+            }
+        } )
+    }
+    
+    
+
     protected inner?: HTMLDivElement;
 
     constructor(
+        protected readonly key: string,
         x: number,
         y: number,
-        analysis: AbstractAnalysis
+        analysis: AbstractAnalysis,
+        protected readonly color: string
     ) {
         super(x,y,analysis);
     }
@@ -46,7 +66,7 @@ export class TestPoint extends AbstractPoint {
         inner.style.width = "10px";
         inner.style.height = "10px";
         inner.style.position = "absolute";
-        inner.style.backgroundColor = "black";
+        inner.style.backgroundColor = this.color;
 
         this.inner = inner;
 
@@ -71,10 +91,14 @@ export class TestPoint extends AbstractPoint {
         throw new Error("Method not implemented.");
     }
     public onMouseEnter(): void {
-        throw new Error("Method not implemented.");
+        this._isHover = true;
+        if ( this.inner ) 
+            this.inner.style.background = "green";
     }
     public onMouseLeave(): void {
-        throw new Error("Method not implemented.");
+        this._isHover = false;
+        if ( this.inner ) 
+            this.inner.style.background = this.color;
     }
     public onPointerUp(): void {
         throw new Error("Method not implemented.");
@@ -92,7 +116,7 @@ export class TestPoint extends AbstractPoint {
     
     protected onDeactivate(): void {
         if ( this.inner ) {
-            this.inner.style.backgroundColor = "black";
+            this.inner.style.backgroundColor = this.color;
         }
     }
     

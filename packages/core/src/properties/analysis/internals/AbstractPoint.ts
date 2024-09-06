@@ -1,3 +1,4 @@
+import { CallbacksManager } from "../../callbacksManager";
 import { AbstractAnalysis } from "./AbstractAnalysis";
 
 export abstract class AbstractPoint {
@@ -8,26 +9,36 @@ export abstract class AbstractPoint {
     }
     public set x( value: number ) {
         this._x = value;
+        this.onX.call( this._x );
         if ( this.element ) {
             this.element.style.left = this.getPercentageX() + "%";
         }
     }
+    public onX = new CallbacksManager<(x:number)=>void>
 
     protected _y: number;
     public get y() {
         return this._y;
     }
 
+    
     public set y( value: number ) {
         this._y = value;
+        this.onY.call( this._y );
         if ( this.element ) {
             this.element.style.top = this.getPercentageY() + "%";
         }
     }
+    public onY = new CallbacksManager<(y:number)=>void>
 
     protected _active: boolean = false;
     public get active() {
         return this._active;
+    }
+
+    protected _isHover: boolean = false;
+    public get isHover() {
+        return this._isHover;
     }
 
     public get root() {
@@ -71,9 +82,17 @@ export abstract class AbstractPoint {
 
     public abstract onPointerDown(): void;
 
-    public abstract onMouseEnter(): void;
+    public mouseEnter() {
+        this.onMouseEnter();
+    }
 
-    public abstract onMouseLeave(): void;
+    public mouseLeave() {
+        this.onMouseLeave();
+    }
+
+    protected abstract onMouseEnter(): void;
+
+    protected abstract onMouseLeave(): void;
 
     public abstract onPointerUp(): void;
 

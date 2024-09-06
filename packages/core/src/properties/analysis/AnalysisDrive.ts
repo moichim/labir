@@ -1,8 +1,9 @@
 import { AbstractFile } from "../../file/AbstractFile";
-import { AbstractAnalysis } from "../../file/analysis/AbstractAnalysis";
-import { AbstractPoint } from "../../file/analysis/AbstractPoint";
-import { PointsListener } from "../../file/analysis/PointsListener";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractAnalysis } from "./internals/AbstractAnalysis";
+import { AbstractPoint } from "./internals/AbstractPoint";
+import { PointsListener } from "./internals/PointsListener";
+import { AnalysisStorage } from "./internals/tools/AnalysisStorage";
 
 export interface IWithAnalysis extends IBaseProperty {
     analysis: AnalysisDrive
@@ -10,17 +11,21 @@ export interface IWithAnalysis extends IBaseProperty {
 
 export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
 
+    public readonly storage = new AnalysisStorage( this );
+
     public readonly listener = new PointsListener(this.parent);
 
     public get points() {
-        return this.value.reduce((state, current) => {
-            return [...state, ...current.arrayOfPoints]
-        }, [] as AbstractPoint[])
+
+        return this.storage.allPoints;
     }
 
     public get activePoints() {
-        return this.points
-            .filter(point => point.active)
+        return this.storage.allPoints.filter( point => point.active );
+    }
+
+    public dangerouslySetValueFromStorage( value: AbstractAnalysis[] ) {
+        this.value = value;
     }
 
     /** Make sure the value is allways between 0 and 1 */
@@ -82,13 +87,25 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
             const position = this.getRelativePosition(event);
 
             // Move active points
-            this.points
-                .filter(point => point.active)
-                .forEach(point => {
+
+            this.activePoints
+                .forEach( point => {
                     point.x = position.x;
                     point.y = position.y;
-                });
+                } );
 
+            // Mark hovered points as hovered
+            this.points.forEach( point => {
+                if ( point.isWithin( position.x, position.y ) ) {
+                    if ( ! point.isHover ) {
+                        point.mouseEnter();
+                    }
+                } else {
+                    if ( point.isHover ) {
+                        point.mouseLeave();
+                    }
+                }
+            } );
 
         });
 
