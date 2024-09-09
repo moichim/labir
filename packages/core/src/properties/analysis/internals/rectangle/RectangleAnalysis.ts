@@ -14,18 +14,21 @@ export class RectangleAnalysis extends AbstractAnalysis {
     public readonly bl: CornerPoint;
     public readonly br: CornerPoint;
 
-    public readonly corners: CornerPoint[] = [];
-
-    public readonly center: CenterPoint;
+    public readonly corners: CornerPoint[] = []
 
     public readonly area: RectangleArea;
-
-    
 
     public left!: number;
     public top!: number;
     public width!: number;
     public height!: number;
+
+    public isWithin(x: number, y: number): boolean {
+        return x >= this.left
+            && x <= this.left + this.width
+            && y >= this.top
+            && y <= this.top + this.height
+    }
 
     constructor(
         key: string,
@@ -70,16 +73,11 @@ export class RectangleAnalysis extends AbstractAnalysis {
             this.calculateBounds();
         });
 
-        const center = this.area.center;
-        this.center = new CenterPoint("center", center.x, center.y, this, "black");
-
-        this.points.set("center", this.center);
-
 
 
     }
 
-    public onSetColor(value: string): void {
+    public setColorCallback(value: string): void {
         this.points.forEach( point => point.setColor( value ) );
         this.area.setColor(value)
     }
@@ -125,11 +123,6 @@ export class RectangleAnalysis extends AbstractAnalysis {
         this.area.width = this.width;
         this.area.top = this.top;
 
-        if (this.center) {
-            const { x, y } = this.area.center;
-            this.center.x = x;
-            this.center.y = y;
-        }
     }
 
     addPoint(

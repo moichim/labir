@@ -109,7 +109,7 @@ export class Instance extends AbstractFile {
                 const value = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
 
                 // Set the value
-                this.cursorLayer.setLabel(value);
+                this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, value.toString());
             }
         }
         

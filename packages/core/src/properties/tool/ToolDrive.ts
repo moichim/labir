@@ -16,14 +16,23 @@ export const definedTools = {
     edit: EditTool
 }
 
-export type Tool = AbstractTool & ITool;
+type ToolKeys = keyof typeof definedTools;
 
-export class ToolDrive extends AbstractProperty<Tool, ThermalGroup >{
+export type ThermalTool = AbstractTool & ITool & {
+    key: string
+};
+
+export class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup >{
 
     /** Create own set of tools from the registry of tools */
-    protected _tools = Object.fromEntries( Object.entries(definedTools).map( ([key, cls]) => {
-        return [key, new cls]
-    } ) );
+    protected _tools = Object.fromEntries<ThermalTool>( Object.entries(definedTools).map( ([key, cls]) => {
+        return [
+            key as ToolKeys, 
+            new cls
+        ]
+    } ) ) as {
+        [index in ToolKeys]: ThermalTool
+    };
     /** Readonly list of available tools */
     public get tools() {
         return this._tools;
@@ -31,15 +40,15 @@ export class ToolDrive extends AbstractProperty<Tool, ThermalGroup >{
 
     public constructor(
         parent: ThermalGroup,
-        initial: Tool
+        initial: ThermalTool
     ) {
         super( parent, initial );
     }
 
-    protected validate(value: Tool): Tool {
+    protected validate(value: ThermalTool): ThermalTool {
         return value;
     }
-    protected afterSetEffect(value: Tool): void {
+    protected afterSetEffect(value: ThermalTool): void {
         // Activate the selected tool
         value.activate();
         // Deactivate all other tools
@@ -52,7 +61,7 @@ export class ToolDrive extends AbstractProperty<Tool, ThermalGroup >{
 
     /** Pick a tool. Its activation is handled by the `afterSetEffect` */
     selectTool(
-        tool: Tool| keyof ToolDrive["tools"]
+        tool: ThermalTool| keyof ToolDrive["tools"]
     ) {
         if ( tool instanceof AbstractTool ) {
             this.value = tool;

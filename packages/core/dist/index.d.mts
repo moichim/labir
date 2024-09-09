@@ -118,6 +118,105 @@ interface ILrcFrame {
     pixels: number[];
 }
 
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
+    protected callbacks: Map<string, CallbackType>;
+    constructor();
+    add(key: string, callback: CallbackType): void;
+    remove(key: string): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
+type AnalysisEvent = (analysis: AbstractAnalysis) => void;
+declare abstract class AbstractAnalysis {
+    readonly key: string;
+    readonly file: AbstractFile;
+    /** Activation status */
+    protected _active: boolean;
+    get active(): boolean;
+    readonly onActivation: CallbacksManager<AnalysisEvent>;
+    readonly onDeactivation: CallbacksManager<AnalysisEvent>;
+    /** Selection status */
+    protected _selected: boolean;
+    get selected(): boolean;
+    readonly onSelected: CallbacksManager<AnalysisEvent>;
+    readonly onDeselected: CallbacksManager<AnalysisEvent>;
+    readonly layerRoot: HTMLDivElement;
+    readonly renderRoot: HTMLElement;
+    readonly points: Map<string, AbstractPoint>;
+    get arrayOfPoints(): AbstractPoint[];
+    get arrayOfActivePoints(): AbstractPoint[];
+    protected _color: string;
+    get color(): string;
+    setColor(value: string): void;
+    abstract onSetColor(value: string): void;
+    ready: boolean;
+    constructor(key: string, file: AbstractFile);
+    abstract init(): void;
+    remove(): void;
+    /** Activation / Deactivation */
+    activate(): void;
+    deactivate(): void;
+    /** Selection / Deselection */
+    setSelected(): void;
+    setDeselected(): void;
+    onResize: CallbacksManager<() => void>;
+    abstract isWithin(x: number, y: number): boolean;
+}
+
+declare abstract class AbstractPoint {
+    readonly key: string;
+    readonly analysis: AbstractAnalysis;
+    get file(): AbstractFile;
+    protected _x: number;
+    get x(): number;
+    set x(value: number);
+    onX: CallbacksManager<(x: number, prev: number) => void>;
+    abstract mayMoveToX(value: number): boolean;
+    protected _y: number;
+    get y(): number;
+    set y(value: number);
+    onY: CallbacksManager<(y: number, prev: number) => void>;
+    abstract mayMoveToY(value: number): boolean;
+    protected _color: string;
+    protected get color(): string;
+    setColor(value: string): void;
+    protected _active: boolean;
+    get active(): boolean;
+    protected _isHover: boolean;
+    get isHover(): boolean;
+    get root(): HTMLDivElement;
+    abstract getRadius(): number;
+    container: HTMLDivElement;
+    innerElement: HTMLDivElement;
+    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
+    isWithin(x: number, y: number): boolean;
+    isInActiveLayer(): boolean;
+    protected getPercentageX(): number;
+    protected getPercentageY(): number;
+    getPercentageCoordinates(): {
+        x: number;
+        y: number;
+    };
+    /** Create the display element */
+    abstract createInnerElement(): HTMLDivElement;
+    /** Take the internal position value and project it to the DOM element */
+    projectInnerPositionToDom(): void;
+    abstract onPointerDown(): void;
+    mouseEnter(): void;
+    mouseLeave(): void;
+    protected abstract onMouseEnter(): void;
+    protected abstract onMouseLeave(): void;
+    abstract onPointerUp(): void;
+    abstract onMove(): void;
+    protected abstract onActivate(): void;
+    protected abstract onDeactivate(): void;
+    activate(): void;
+    deactivate(): void;
+}
+
 declare const JET: string[];
 declare const IRON: string[];
 declare const GRAYSCALE: string[];
@@ -361,6 +460,26 @@ declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegis
     protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
 }
 
+/** The cursor position coordinates */
+type ThermalCursorPosition = {
+    x: number;
+    y: number;
+};
+/** The cursor position coordinates or undefined */
+type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
+/** An object that has CursorPositionDrive should implement it in one particular way. */
+interface IWithCursorPosition extends IBaseProperty {
+    cursorPosition: CursorPositionDrive;
+}
+/** Handles cursor position */
+declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
+    protected _hover: boolean;
+    get hover(): boolean;
+    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
+    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
+    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
+}
+
 type ParsedTimelineFrame = {
     index: number;
     absolute: number;
@@ -453,17 +572,6 @@ interface IParserObject {
      */
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
-}
-
-/**
- * Manage callbacks on optional property values
- */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
-    protected callbacks: Map<string, CallbackType>;
-    constructor();
-    add(key: string, callback: CallbackType): void;
-    remove(key: string): void;
-    call(...args: Parameters<CallbackType>): void;
 }
 
 declare class FrameBuffer {
@@ -730,6 +838,101 @@ declare class RecordingDrive extends AbstractProperty<boolean, AbstractFile> {
     protected clearRecording(): void;
 }
 
+interface ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+}
+declare abstract class AbstractTool {
+    /** Action taken upon tool activation */
+    activate(): void;
+    protected abstract onActivate(): void;
+    /** Actions taken upon tool deactivation */
+    deactivate(): void;
+    protected abstract onDeactivate(): void;
+    /** Assamble the cursor label at the given point */
+    abstract getLabelValue(x: number, y: number, file: AbstractFile): string;
+    abstract onCanvasClick(x: number, y: number, file: AbstractFile): void;
+    abstract onCanvasLeave(file: AbstractFile): void;
+    /** Whenever a point is entered by the mouse */
+    abstract onPointEnter(point: AbstractPoint): void;
+    /** Whenever the mouse leaves the point */
+    abstract onPointLeave(point: AbstractPoint): void;
+    /** Whenever the point should move to a new position */
+    abstract onPointMove(point: AbstractPoint, x: number, y: number): void;
+    /** Whenever a point is clicked */
+    abstract onPointDown(point: AbstractPoint): void;
+    /** Whenever a point is ended clicking */
+    abstract onPointUp(point: AbstractPoint): void;
+}
+
+declare abstract class AbstractAddTool extends AbstractTool {
+}
+
+declare class AddRectangleTool extends AbstractAddTool implements ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+    onCanvasClick(x: number, y: number, file: AbstractFile): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
+    onCanvasLeave(file: AbstractFile): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onPointMove(point: AbstractPoint, x: number, y: number): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointEnter(point: AbstractPoint): void;
+}
+
+declare class InspectTool extends AbstractTool implements ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+    onCanvasClick(x: number, y: number, file: AbstractFile): void;
+    onCanvasLeave(file: AbstractFile): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onPointEnter(point: AbstractPoint): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, x: number, y: number): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
+}
+
+interface IWithTool extends IBaseProperty {
+    tool: ToolDrive;
+}
+type ThermalTool = AbstractTool & ITool & {
+    key: string;
+};
+declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
+    /** Create own set of tools from the registry of tools */
+    protected _tools: {
+        inspect: ThermalTool;
+        addTest: ThermalTool;
+        edit: ThermalTool;
+    };
+    /** Readonly list of available tools */
+    get tools(): {
+        inspect: ThermalTool;
+        addTest: ThermalTool;
+        edit: ThermalTool;
+    };
+    constructor(parent: ThermalGroup, initial: ThermalTool);
+    protected validate(value: ThermalTool): ThermalTool;
+    protected afterSetEffect(value: ThermalTool): void;
+    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
+    selectTool(tool: ThermalTool | keyof ToolDrive["tools"]): void;
+}
+
 /**
  * Object types
  */
@@ -743,11 +946,11 @@ interface IThermalObjectBase {
 interface IThermalContainer extends IThermalObjectBase {
 }
 /** An instance and its properties */
-interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRedording {
+interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRedording, IWithAnalysis {
     group: ThermalGroup;
 }
 /** Thermal group definition with all its properties */
-interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition {
+interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool {
 }
 /** Thermal registry definition with all its properties */
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
@@ -829,7 +1032,7 @@ type ThermalStatistics = {
     height: number;
 };
 
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | AbstractFile[];
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | AbstractFile[] | AbstractAnalysis[] | AbstractTool;
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
 interface IBaseProperty {
 }
@@ -857,24 +1060,61 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
     clearAllListeners(): void;
 }
 
-/** The cursor position coordinates */
-type ThermalCursorPosition = {
-    x: number;
-    y: number;
-};
-/** The cursor position coordinates or undefined */
-type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
-/** An object that has CursorPositionDrive should implement it in one particular way. */
-interface IWithCursorPosition extends IBaseProperty {
-    cursorPosition: CursorPositionDrive;
+declare class PointsListener {
+    readonly instance: AbstractFile;
+    constructor(instance: AbstractFile);
+    onMouseMove(): void;
+    onClick(): void;
+    onMouseLeave(): void;
 }
-/** Handles cursor position */
-declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
-    protected _hover: boolean;
-    get hover(): boolean;
-    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
-    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
-    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
+
+type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
+type AnalysisRemovedCallback = (key: string) => void;
+type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+declare enum AnalysisAddPosition {
+    PREPEND = 0,
+    APPEND = 1
+}
+declare class AnalysisStorage extends Map<string, AbstractAnalysis> {
+    readonly drive: AnalysisDrive;
+    protected layers: Array<AbstractAnalysis>;
+    readonly colors: string[];
+    constructor(drive: AnalysisDrive);
+    readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
+    addAnalysis(analysis: AbstractAnalysis, where?: AnalysisAddPosition): this;
+    onRemove: CallbacksManager<AnalysisRemovedCallback>;
+    removeAnalysis(key: string): void;
+    readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
+    /** Mark an analysis as selected */
+    select(analysis: string | AbstractAnalysis, exclusive?: boolean): this;
+    get all(): AbstractAnalysis[];
+    get activeOnly(): AbstractAnalysis[];
+    get selectedOnly(): AbstractAnalysis[];
+    get allPoints(): AbstractPoint[];
+    get selectedOnlyPoints(): AbstractPoint[];
+    protected extractPointsFromLayers(layers: AbstractAnalysis[], activeOnly?: boolean): AbstractPoint[];
+    protected getNextColor(): string;
+}
+
+interface IWithAnalysis extends IBaseProperty {
+    analysis: AnalysisDrive;
+}
+declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
+    readonly storage: AnalysisStorage;
+    readonly listener: PointsListener;
+    get points(): AbstractPoint[];
+    get activePoints(): AbstractPoint[];
+    dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
+    protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
+    protected afterSetEffect(value: AbstractAnalysis[]): void;
+    addRectAt(x: number, y: number): void;
+    getLayerRoot(): HTMLElement;
+    protected getRelativePosition(event: MouseEvent): {
+        x: number;
+        y: number;
+    };
+    activateListeners(): void;
+    deactivateListeners(): void;
 }
 
 declare abstract class AbstractLayer {
@@ -926,7 +1166,10 @@ declare class ThermalCursorLayer extends AbstractLayer {
     protected _hover: boolean;
     get hover(): boolean;
     set hover(value: boolean);
+    protected recalculateLabelPosition(x: number, y: number): void;
+    /** @deprecated */
     setCursor(x: number, y: number, value: number): void;
+    setLabel(x: number, y: number, value: string): void;
     setValue(value?: number): void;
     resetCursor(): void;
     protected px(number: number): string;
@@ -1039,6 +1282,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     listenerLayer: ThermalListenerLayer;
     timeline: ITimelineDrive;
     cursorValue: CursorValueDrive;
+    analysis: AnalysisDrive;
     recording: RecordingDrive;
     private _mounted;
     get mountedBaseLayers(): boolean;
@@ -1092,6 +1336,8 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     get pool(): Pool;
     constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
     readonly minmax: MinmaxGroupProperty;
+    /** Tool drive */
+    readonly tool: ToolDrive;
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
     /** Iteration */
@@ -1183,4 +1429,79 @@ declare class ThermalFileFailure extends AbstractFileResult {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractFile, type AvailableThermalPalettes, GRAYSCALE, IRON, Instance, JET, type PaletteId, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };
+declare abstract class AbstractArea {
+    readonly analysis: AbstractAnalysis;
+    get fileWidth(): number;
+    get fileHeight(): number;
+    get root(): HTMLDivElement;
+    protected element: HTMLDivElement;
+    protected _top: number;
+    protected _width: number;
+    protected _left: number;
+    protected _height: number;
+    get top(): number;
+    set top(value: number);
+    get left(): number;
+    set left(value: number);
+    get height(): number;
+    set height(value: number);
+    get width(): number;
+    set width(value: number);
+    get center(): {
+        x: number;
+        y: number;
+    };
+    constructor(analysis: AbstractAnalysis, top: number, right: number, left: number, bottom: number);
+    build(): void;
+    abstract onBuild(): void;
+    setColor(value: string): void;
+    abstract onSetColor(value: string): void;
+}
+
+declare class RectangleArea extends AbstractArea {
+    onBuild(): void;
+    onSetColor(value: string): void;
+}
+
+declare abstract class AbstractHandlePoint extends AbstractPoint {
+    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
+    createInnerElement(): HTMLDivElement;
+    onMouseEnter(): void;
+    onMouseLeave(): void;
+}
+
+declare class CornerPoint extends AbstractHandlePoint {
+    getRadius(): number;
+    mayMoveToX(value: number): boolean;
+    mayMoveToY(value: number): boolean;
+    isMoving: boolean;
+    syncXWith(point: CornerPoint): void;
+    syncYWith(point: CornerPoint): void;
+    onPointerDown(): void;
+    onPointerUp(): void;
+    onMove(): void;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+}
+
+declare class RectangleAnalysis extends AbstractAnalysis {
+    readonly tl: CornerPoint;
+    readonly tr: CornerPoint;
+    readonly bl: CornerPoint;
+    readonly br: CornerPoint;
+    readonly corners: CornerPoint[];
+    readonly area: RectangleArea;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    isWithin(x: number, y: number): boolean;
+    constructor(key: string, file: AbstractFile, x: number, y: number);
+    onSetColor(value: string): void;
+    init(): void;
+    protected draw(): void;
+    protected calculateBounds(): void;
+    addPoint(role: string, x: number, y: number, color: string): CornerPoint;
+}
+
+export { AbstractAnalysis, AbstractFile, AbstractTool, AddRectangleTool, type AvailableThermalPalettes, CornerPoint, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };

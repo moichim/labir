@@ -1,4 +1,4 @@
-import { Instance, playbackSpeed, ThermalFileFailure } from "@labir/core"
+import { AbstractAnalysis, Instance, playbackSpeed, ThermalFileFailure } from "@labir/core"
 import { createContext } from "@lit/context"
 import { FileProviderElement } from "../FileProvider";
 import { FileMarker } from "../../../controls/file/markers/ImageMarker";
@@ -47,3 +47,6 @@ export const recordingContext = createContext<RecordingContext>( "recording" );
 
 type MayStopContext = boolean;
 export const mayStopContext = createContext<MayStopContext>( "mayStop" );
+
+export type AnalysisList = AbstractAnalysis[];
+export const analysisList = createContext<AnalysisList>( "analysislist" );

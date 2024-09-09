@@ -4,7 +4,8 @@ import { html, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileMarkersContext, fileMsContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileMarkersContext, fileMsContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { FileAnalysisList } from "../../controls/file/FileAnalysis";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
@@ -65,6 +66,9 @@ export class FileProviderElement extends GroupConsumer {
 
     @provide( {context: fileMarkersContext} )
     marks: FileMarker[] = [];
+
+    @provide({context:analysisList})
+    analysis: AnalysisList = [];
 
 
 
@@ -201,6 +205,12 @@ export class FileProviderElement extends GroupConsumer {
 
                 // Update mayStop state
                 result.recording.callbackMayStop.add( this.UUID, value => this.mayStop = value );
+
+                // Update analysis list
+                this.analysis = result.analysis.storage.all;
+                result.analysis.addListener( this.UUID, value => {
+                    this.analysis = value;
+                } );
 
 
             } else {

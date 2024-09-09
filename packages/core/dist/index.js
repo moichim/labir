@@ -30,11 +30,17 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var src_exports = {};
 __export(src_exports, {
+  AbstractAnalysis: () => AbstractAnalysis,
   AbstractFile: () => AbstractFile,
+  AbstractTool: () => AbstractTool,
+  AddRectangleTool: () => AddRectangleTool,
+  CornerPoint: () => CornerPoint,
   GRAYSCALE: () => GRAYSCALE,
   IRON: () => IRON,
+  InspectTool: () => InspectTool,
   Instance: () => Instance,
   JET: () => JET,
+  RectangleAnalysis: () => RectangleAnalysis,
   ThermalFileFailure: () => ThermalFileFailure,
   ThermalFileReader: () => ThermalFileReader,
   ThermalGroup: () => ThermalGroup,
@@ -906,6 +912,9 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   };
 };
 
+// src/hierarchy/ThermalManager.ts
+var workerpool = __toESM(require("workerpool"));
+
 // src/base/BaseStructureObject.ts
 var BaseStructureObject = class {
   // public readonly pool: Pool;
@@ -940,6 +949,667 @@ var FileLoadingError = class extends Error {
     super(message);
     this.code = code;
     this.url = url;
+  }
+};
+
+// src/properties/analysis/internals/PointsListener.ts
+var PointsListener = class {
+  constructor(instance) {
+    this.instance = instance;
+  }
+  onMouseMove() {
+  }
+  onClick() {
+  }
+  onMouseLeave() {
+  }
+};
+
+// src/properties/callbacksManager.ts
+var CallbacksManager = class {
+  callbacks = /* @__PURE__ */ new Map();
+  constructor() {
+  }
+  add(key, callback) {
+    this.callbacks.set(key, callback);
+  }
+  remove(key) {
+    this.callbacks.delete(key);
+  }
+  call(...args) {
+    this.callbacks.forEach((fn) => fn(...args));
+  }
+};
+
+// src/properties/analysis/internals/AbstractAnalysis.ts
+var AbstractAnalysis = class {
+  constructor(key, file) {
+    this.key = key;
+    this.file = file;
+    this.renderRoot = this.file.canvasLayer.getLayerRoot();
+    this.layerRoot = document.createElement("div");
+    this.layerRoot.style.position = "absolute";
+    this.layerRoot.style.top = "0px";
+    this.layerRoot.style.left = "0px";
+    this.layerRoot.style.width = "100%";
+    this.layerRoot.style.height = "100%";
+    this.layerRoot.style.overflow = "hidden";
+    this.layerRoot.id = `analysis_${this.key}`;
+    this.renderRoot.appendChild(this.layerRoot);
+  }
+  /** Activation status */
+  _active = true;
+  get active() {
+    return this._active;
+  }
+  onActivation = new CallbacksManager();
+  onDeactivation = new CallbacksManager();
+  /** Selection status */
+  _selected = false;
+  get selected() {
+    return this._selected;
+  }
+  onSelected = new CallbacksManager();
+  onDeselected = new CallbacksManager();
+  layerRoot;
+  renderRoot;
+  points = /* @__PURE__ */ new Map();
+  get arrayOfPoints() {
+    return Array.from(this.points.values());
+  }
+  get arrayOfActivePoints() {
+    return this.arrayOfPoints.filter((point) => point.active);
+  }
+  _color = "black";
+  get color() {
+    return this._color;
+  }
+  setColor(value) {
+    this._color = value;
+    this.onSetColor(value);
+  }
+  ready = false;
+  remove() {
+    this.deactivate();
+    this.renderRoot.removeChild(this.layerRoot);
+  }
+  /** Activation / Deactivation */
+  activate() {
+    this._active = true;
+    this.onActivation.call(this);
+  }
+  deactivate() {
+    this._active = false;
+    this.onDeactivation.call(this);
+  }
+  /** Selection / Deselection */
+  setSelected() {
+    this._selected = true;
+    this.onSelected.call(this);
+  }
+  setDeselected() {
+    this._selected = false;
+    this.onDeselected.call(this);
+  }
+  onResize = new CallbacksManager();
+};
+
+// src/properties/analysis/internals/AbstractArea.ts
+var AbstractArea = class {
+  constructor(analysis, top, right, left, bottom) {
+    this.analysis = analysis;
+    this.build();
+    this.top = top;
+    this.left = left;
+    this.width = right;
+    this.height = bottom;
+  }
+  get fileWidth() {
+    return this.analysis.file.width;
+  }
+  get fileHeight() {
+    return this.analysis.file.height;
+  }
+  get root() {
+    return this.analysis.layerRoot;
+  }
+  element;
+  _top;
+  _width;
+  _left;
+  _height;
+  get top() {
+    return this._top;
+  }
+  set top(value) {
+    this._top = value;
+    if (this.element) {
+      this.element.style.top = `${this._top / this.fileHeight * 100}%`;
+    }
+  }
+  get left() {
+    return this._left;
+  }
+  set left(value) {
+    this._left = value;
+    if (this.element) {
+      this.element.style.left = `${this._left / this.fileWidth * 100}%`;
+    }
+  }
+  get height() {
+    return this._height;
+  }
+  set height(value) {
+    this._height = value;
+    if (this.element) {
+      this.element.style.height = `${this.height / this.fileHeight * 100}%`;
+    }
+  }
+  get width() {
+    return this._width;
+  }
+  set width(value) {
+    this._width = value;
+    if (this.element) {
+      this.element.style.width = `${this.width / this.fileWidth * 100}%`;
+    }
+  }
+  get center() {
+    return {
+      x: this.left + this.width / 2,
+      y: this.top + this.height / 2
+    };
+  }
+  build() {
+    this.element = document.createElement("div");
+    this.element.style.position = "absolute";
+    this.onBuild();
+    this.root.appendChild(this.element);
+  }
+  setColor(value) {
+    this.onSetColor(value);
+  }
+};
+
+// src/properties/analysis/internals/rectangle/RectangleArea.ts
+var RectangleArea = class extends AbstractArea {
+  onBuild() {
+    this.element.style.borderWidth = "1px";
+    this.element.style.borderColor = this.analysis.color;
+    this.element.style.borderStyle = "solid";
+  }
+  onSetColor(value) {
+    this.element.style.borderColor = value;
+  }
+};
+
+// src/properties/analysis/internals/AbstractPoint.ts
+var AbstractPoint = class {
+  constructor(key, x, y, analysis, color) {
+    this.key = key;
+    this.analysis = analysis;
+    this._x = x;
+    this._y = y;
+    this._color = color;
+    this.container = document.createElement("div");
+    this.container.style.position = "absolute";
+    this.container.id = `analysis_${this.analysis.key}_${this.key}_${this.file.id}`;
+    this.innerElement = this.createInnerElement();
+    this.container.appendChild(this.innerElement);
+    this.projectInnerPositionToDom();
+    this.setColor(color);
+    this.root.appendChild(this.container);
+  }
+  get file() {
+    return this.analysis.file;
+  }
+  _x;
+  get x() {
+    return this._x;
+  }
+  set x(value) {
+    if (this.mayMoveToX(value)) {
+      const prev = this._x;
+      this._x = value;
+      this.onX.call(this._x, prev);
+      if (this.container) {
+        this.container.style.left = this.getPercentageX() + "%";
+      }
+    }
+  }
+  onX = new CallbacksManager();
+  _y;
+  get y() {
+    return this._y;
+  }
+  set y(value) {
+    if (this.mayMoveToY(value)) {
+      const prev = this._y;
+      this._y = value;
+      this.onY.call(this._y, prev);
+      if (this.container) {
+        this.container.style.top = this.getPercentageY() + "%";
+      }
+    }
+  }
+  onY = new CallbacksManager();
+  _color;
+  get color() {
+    return this._color;
+  }
+  setColor(value) {
+    this._color = value;
+    if (this.innerElement) {
+      this.innerElement.style.backgroundColor = this._color;
+    }
+  }
+  _active = false;
+  get active() {
+    return this._active;
+  }
+  _isHover = false;
+  get isHover() {
+    return this._isHover;
+  }
+  get root() {
+    return this.analysis.layerRoot;
+  }
+  container;
+  innerElement;
+  isWithin(x, y) {
+    const offset = this.getRadius() / 2;
+    const minX = this.x - offset;
+    const maxX = this.x + offset;
+    const minY = this.y - offset;
+    const maxY = this.y + offset;
+    return x >= minX && x <= maxX && y >= minY && y <= maxY;
+  }
+  isInActiveLayer() {
+    return this.analysis.active;
+  }
+  getPercentageX() {
+    return this.x / this.analysis.file.width * 100;
+  }
+  getPercentageY() {
+    return this.y / this.analysis.file.height * 100;
+  }
+  getPercentageCoordinates() {
+    const x = this.getPercentageX();
+    const y = this.getPercentageY();
+    return {
+      x,
+      y
+    };
+  }
+  /** Take the internal position value and project it to the DOM element */
+  projectInnerPositionToDom() {
+    if (this.container) {
+      const position = this.getPercentageCoordinates();
+      this.container.style.left = `${position.x}%`;
+      this.container.style.top = `${position.y}%`;
+    }
+  }
+  mouseEnter() {
+    this.onMouseEnter();
+  }
+  mouseLeave() {
+    this.onMouseLeave();
+  }
+  activate() {
+    this._active = true;
+    this.onActivate();
+  }
+  deactivate() {
+    this._active = false;
+    this.onDeactivate();
+  }
+};
+
+// src/properties/analysis/internals/AbstractHandlePoint.ts
+var AbstractHandlePoint = class extends AbstractPoint {
+  constructor(key, x, y, analysis, color) {
+    super(key, x, y, analysis, color);
+    this._color = color;
+    this.setColor(color);
+  }
+  createInnerElement() {
+    const inner = document.createElement("div");
+    inner.style.position = "absolute";
+    inner.style.top = "-5px";
+    inner.style.left = "-5px";
+    inner.style.width = "10px";
+    inner.style.height = "10px";
+    inner.style.position = "absolute";
+    inner.style.backgroundColor = this.color;
+    return inner;
+  }
+  onMouseEnter() {
+    this._isHover = true;
+    if (this.innerElement) {
+      this.innerElement.style.boxShadow = "0px 0px 10px white";
+      this.innerElement.style.borderWidth = "1px";
+      this.innerElement.style.borderStyle = "solid";
+      this.innerElement.style.borderColor = "white";
+    }
+  }
+  onMouseLeave() {
+    this._isHover = false;
+    if (this.innerElement) {
+      this.innerElement.style.removeProperty("box-shadow");
+      this.innerElement.style.removeProperty("border-width");
+      this.innerElement.style.removeProperty("border-style");
+      this.innerElement.style.removeProperty("border-color");
+    }
+  }
+};
+
+// src/properties/analysis/internals/rectangle/CornerPoint.ts
+var CornerPoint = class extends AbstractHandlePoint {
+  getRadius() {
+    return 10;
+  }
+  mayMoveToX(value) {
+    return value <= this.file.width && value >= 0;
+  }
+  mayMoveToY(value) {
+    return value <= this.file.height && value >= 0;
+  }
+  isMoving = false;
+  syncXWith(point) {
+    this.onX.add(`sync X with ${point.key} `, (value) => {
+      if (point.x !== value) {
+        point.x = value;
+      }
+    });
+  }
+  syncYWith(point) {
+    this.onY.add(`sync Y with ${point.key} `, (value) => {
+      if (point.y !== value) {
+        point.y = value;
+      }
+    });
+  }
+  onPointerDown() {
+    throw new Error("Method not implemented.");
+  }
+  onPointerUp() {
+    throw new Error("Method not implemented.");
+  }
+  onMove() {
+    throw new Error("Method not implemented.");
+  }
+  onActivate() {
+    if (this.innerElement) {
+      this.innerElement.style.backgroundColor = "yellow";
+    }
+  }
+  onDeactivate() {
+    if (this.innerElement) {
+      this.innerElement.style.backgroundColor = this.color;
+    }
+  }
+};
+
+// src/properties/analysis/internals/rectangle/RectangleAnalysis.ts
+var RectangleAnalysis = class extends AbstractAnalysis {
+  tl;
+  tr;
+  bl;
+  br;
+  corners = [];
+  area;
+  left;
+  top;
+  width;
+  height;
+  isWithin(x, y) {
+    return x >= this.left && x <= this.left + this.width && y >= this.top && y <= this.top + this.height;
+  }
+  constructor(key, file, x, y) {
+    super(key, file);
+    this.area = new RectangleArea(this, x, y, x, y);
+    this.tl = this.addPoint("tl", x, y, "pink");
+    this.tr = this.addPoint("tr", x, y, "orange");
+    this.bl = this.addPoint("bl", x, y, "lightgray");
+    this.br = this.addPoint("br", x, y, "violet");
+    this.corners = [
+      this.tl,
+      this.tr,
+      this.br,
+      this.bl
+    ];
+    this.tl.syncXWith(this.bl);
+    this.tl.syncYWith(this.tr);
+    this.tr.syncXWith(this.br);
+    this.tr.syncYWith(this.tl);
+    this.bl.syncXWith(this.tl);
+    this.bl.syncYWith(this.br);
+    this.br.syncXWith(this.tr);
+    this.br.syncYWith(this.bl);
+    this.br.activate();
+    this.calculateBounds();
+    this.onResize.add("sync the area", () => {
+      console.log("resizing");
+      this.calculateBounds();
+    });
+  }
+  onSetColor(value) {
+    this.points.forEach((point) => point.setColor(value));
+    this.area.setColor(value);
+  }
+  init() {
+    this.points.forEach((point) => point.createInnerElement());
+    this.points.forEach((point) => point.projectInnerPositionToDom());
+  }
+  draw() {
+  }
+  calculateBounds() {
+    let leftMost = this.file.width;
+    let rightMost = 0;
+    let topMost = this.file.height;
+    let bottomMost = 0;
+    this.points.forEach((point) => {
+      if (point.x > rightMost) {
+        rightMost = point.x;
+      }
+      if (point.x < leftMost) {
+        leftMost = point.x;
+      }
+      if (point.y < topMost) {
+        topMost = point.y;
+      }
+      if (point.y > bottomMost) {
+        bottomMost = point.y;
+      }
+    });
+    this.left = leftMost;
+    this.top = topMost;
+    this.width = rightMost - leftMost;
+    this.height = bottomMost - topMost;
+    this.area.left = this.left;
+    this.area.height = this.height;
+    this.area.width = this.width;
+    this.area.top = this.top;
+  }
+  addPoint(role, x, y, color) {
+    const point = new CornerPoint(role, x, y, this, color);
+    this.points.set(role, point);
+    return point;
+  }
+};
+
+// src/properties/analysis/internals/tools/AnalysisStorage.ts
+var AnalysisStorage = class extends Map {
+  constructor(drive) {
+    super();
+    this.drive = drive;
+  }
+  layers = [];
+  colors = [
+    "orange",
+    "lightblue",
+    "green",
+    "brown",
+    "yellow",
+    "blue",
+    "pink"
+  ];
+  // Adding analysis
+  onAdd = new CallbacksManager();
+  addAnalysis(analysis, where = 0 /* PREPEND */) {
+    if (this.has(analysis.key)) {
+      this.removeAnalysis(analysis.key);
+    }
+    analysis.setColor(this.getNextColor());
+    this.set(analysis.key, analysis);
+    analysis.init();
+    if (where === 0 /* PREPEND */) {
+      this.layers = [analysis, ...this.layers];
+    } else {
+      this.layers = [...this.layers, analysis];
+    }
+    this.onAdd.call(analysis, this.all);
+    this.drive.dangerouslySetValueFromStorage(this.all);
+    return this;
+  }
+  // Removing analysis
+  onRemove = new CallbacksManager();
+  removeAnalysis(key) {
+    if (this.has(key)) {
+      this.get(key)?.remove();
+      this.delete(key);
+      this.layers = this.layers.filter((analysis) => analysis.key !== key);
+      this.onRemove.call(key);
+      this.drive.dangerouslySetValueFromStorage(this.all);
+    }
+  }
+  // Selecting analysis
+  onSelectionChange = new CallbacksManager();
+  /** Mark an analysis as selected */
+  select(analysis, exclusive = false) {
+    const item = analysis instanceof AbstractAnalysis ? analysis : this.get(analysis);
+    if (item) {
+      item.setSelected();
+      if (exclusive) {
+        this.all.filter((analysis2) => analysis2.key !== item.key).forEach((analysis2) => analysis2.setDeselected());
+      }
+      this.onSelectionChange.call(this.selectedOnly);
+    } else {
+      throw new Error(`Analysis ${analysis} not registered yet!`);
+    }
+    return this;
+  }
+  get all() {
+    return this.layers;
+  }
+  get activeOnly() {
+    return this.all.filter((analysis) => analysis.active);
+  }
+  get selectedOnly() {
+    return this.all.filter((analysis) => analysis.selected === true);
+  }
+  get allPoints() {
+    return this.extractPointsFromLayers(this.all);
+  }
+  get selectedOnlyPoints() {
+    return this.extractPointsFromLayers(this.selectedOnly);
+  }
+  extractPointsFromLayers(layers, activeOnly = false) {
+    return layers.reduce((state, current) => {
+      const currentPoints = activeOnly ? current.arrayOfActivePoints : current.arrayOfPoints;
+      return [...state, ...currentPoints];
+    }, []);
+  }
+  getNextColor() {
+    let nextNum = this.all.length;
+    if (nextNum < this.colors.length) {
+      return this.colors[nextNum];
+    } else {
+      return this.colors[nextNum % this.colors.length];
+    }
+  }
+};
+
+// src/properties/analysis/AnalysisDrive.ts
+var AnalysisDrive = class extends AbstractProperty {
+  storage = new AnalysisStorage(this);
+  listener = new PointsListener(this.parent);
+  get points() {
+    return this.storage.allPoints;
+  }
+  get activePoints() {
+    return this.storage.allPoints.filter((point) => point.active);
+  }
+  dangerouslySetValueFromStorage(value) {
+    this.value = value;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    value;
+  }
+  addRectAt(x, y) {
+    const analysisName = `Rectangle ${this.value.length}`;
+    const newRect = new RectangleAnalysis(analysisName, this.parent, x, y);
+    this.storage.addAnalysis(newRect);
+  }
+  getLayerRoot() {
+    return this.parent.listenerLayer.getLayerRoot();
+  }
+  getRelativePosition(event) {
+    const absoluteWidth = this.getLayerRoot().clientWidth;
+    const fileWidth = this.parent.width;
+    const layerX = event.layerX;
+    const xAspect = layerX / absoluteWidth;
+    const x = Math.round(fileWidth * xAspect);
+    const absoluteHeight = this.getLayerRoot().clientHeight;
+    const fileHeight = this.parent.height;
+    const layerY = event.layerY;
+    const yAspect = layerY / absoluteHeight;
+    const y = Math.round(fileHeight * yAspect);
+    return {
+      x,
+      y
+    };
+  }
+  activateListeners() {
+    this.getLayerRoot().onmouseenter = (event) => {
+      console.log(event);
+    };
+    this.getLayerRoot().addEventListener("mousemove", (event) => {
+      const position = this.getRelativePosition(event);
+      const activeTool = this.parent.group.tool.value;
+      this.points.forEach((point) => {
+        if (point.active) {
+          activeTool.onPointMove(point, position.x, position.y);
+        }
+        const pointIsUnderCursor = point.isWithin(position.x, position.y);
+        if (pointIsUnderCursor && !point.isHover) {
+          activeTool.onPointEnter(point);
+        } else if (!pointIsUnderCursor && point.isHover) {
+          activeTool.onPointLeave(point);
+        }
+      });
+    });
+    this.getLayerRoot().addEventListener("pointerdown", (event) => {
+      const position = this.getRelativePosition(event);
+      const activeTool = this.parent.group.tool.value;
+      activeTool.onCanvasClick(position.x, position.y, this.parent);
+      this.points.forEach((point) => {
+        if (point.isWithin(position.x, position.y)) {
+          activeTool.onPointDown(point);
+        }
+      });
+    });
+    this.getLayerRoot().addEventListener("pointerup", () => {
+      const activeTool = this.parent.group.tool.value;
+      this.points.forEach((point) => {
+        activeTool.onPointUp(point);
+      });
+    });
+  }
+  deactivateListeners() {
   }
 };
 
@@ -986,6 +1656,7 @@ var AbstractFile = class extends BaseStructureObject {
   // Drives
   timeline;
   cursorValue;
+  analysis = new AnalysisDrive(this, []);
   // Recording is lazyloaded
   recording;
   _mounted = false;
@@ -1065,6 +1736,7 @@ var AbstractFile = class extends BaseStructureObject {
       return;
     }
     this.listenerLayer.mount();
+    this.analysis.activateListeners();
     this.listenerLayer.getLayerRoot().onmousemove = (event) => {
       this.cursorLayer.show = true;
       this.isHover = true;
@@ -1089,6 +1761,7 @@ var AbstractFile = class extends BaseStructureObject {
   }
   unmountListener() {
     this.listenerLayer.unmount();
+    this.analysis.deactivateListeners();
   }
   mountToDom(container) {
     this.attachToDom(container);
@@ -1111,14 +1784,15 @@ var AbstractFile = class extends BaseStructureObject {
     this.detachFromDom();
   }
   recieveCursorPosition(position) {
-    this.cursorValue.recalculateFromCursor(position);
-    if (position !== void 0 && this.cursorValue.value !== void 0) {
-      this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
+    if (position !== void 0) {
+      const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
+      this.cursorLayer.setLabel(position.x, position.y, label);
       this.cursorLayer.show = true;
     } else {
       this.cursorLayer.show = false;
       this.cursorLayer.resetCursor();
     }
+    this.cursorValue.recalculateFromCursor(position);
   }
   getTemperatureAtPoint(x, y) {
     const index = y * this.width + x;
@@ -1469,7 +2143,7 @@ var ThermalCursorLayer = class extends AbstractLayer {
     this._hover = value;
     this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
   }
-  setCursor(x, y, value) {
+  recalculateLabelPosition(x, y) {
     if (this.instance.root === null) {
     } else {
       const aspect = this.instance.root.offsetWidth / this.instance.width;
@@ -1495,7 +2169,21 @@ var ThermalCursorLayer = class extends AbstractLayer {
           this.label.style.removeProperty("bottom");
         }
       }
+    }
+  }
+  /** @deprecated */
+  setCursor(x, y, value) {
+    if (this.instance.root === null) {
+    } else {
+      this.recalculateLabelPosition(x, y);
       this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+    }
+  }
+  setLabel(x, y, value) {
+    if (this.instance.root === null) {
+    } else {
+      this.recalculateLabelPosition(x, y);
+      this.label.innerHTML = value;
     }
   }
   setValue(value) {
@@ -1578,22 +2266,6 @@ var VisibleLayer = class extends AbstractLayer {
 
 // src/properties/time/playback/TimelineDrive.ts
 var import_date_fns3 = require("date-fns");
-
-// src/properties/callbacksManager.ts
-var CallbacksManager = class {
-  callbacks = /* @__PURE__ */ new Map();
-  constructor() {
-  }
-  add(key, callback) {
-    this.callbacks.set(key, callback);
-  }
-  remove(key) {
-    this.callbacks.delete(key);
-  }
-  call(...args) {
-    this.callbacks.forEach((fn) => fn(...args));
-  }
-};
 
 // src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
@@ -2149,7 +2821,7 @@ var Instance = class _Instance extends AbstractFile {
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
         const value2 = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
-        this.cursorLayer.setValue(value2);
+        this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, value2.toString());
       }
     }
   }
@@ -2758,6 +3430,185 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
   }
 };
 
+// src/properties/tool/internals/AbstractTool.ts
+var AbstractTool = class {
+  /** Action taken upon tool activation */
+  activate() {
+    this.onActivate();
+  }
+  /** Actions taken upon tool deactivation */
+  deactivate() {
+    this.onDeactivate();
+  }
+};
+
+// src/properties/tool/internals/InspectTool.ts
+var InspectTool = class extends AbstractTool {
+  key = "inspect";
+  name = "Inspect";
+  description = "Inspect temperature values";
+  icon = "";
+  active = false;
+  onCanvasClick(x, y, file) {
+  }
+  onCanvasLeave(file) {
+  }
+  getLabelValue = (x, y, file) => {
+    return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
+  };
+  onActivate() {
+  }
+  onDeactivate() {
+  }
+  onPointEnter(point) {
+  }
+  onPointLeave(point) {
+  }
+  onPointMove(point, x, y) {
+  }
+  onPointDown(point) {
+  }
+  onPointUp(point) {
+  }
+};
+
+// src/properties/analysis/internals/AbstractAddTool.ts
+var AbstractAddTool = class extends AbstractTool {
+};
+
+// src/properties/analysis/internals/rectangle/AddRectangleTool.ts
+var AddRectangleTool = class extends AbstractAddTool {
+  key = "add-rect";
+  name = "Add a test tool";
+  description = "";
+  icon = "";
+  active = false;
+  onCanvasClick(x, y, file) {
+    file.analysis.addRectAt(x, y);
+  }
+  onPointDown(point) {
+  }
+  onPointUp(point) {
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+  }
+  onCanvasLeave(file) {
+  }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
+  onActivate() {
+  }
+  onDeactivate() {
+  }
+  onPointMove(point, x, y) {
+    if (point.isInActiveLayer() && point.active) {
+      point.x = x;
+      point.y = y;
+      point.analysis.onResize.call();
+    }
+  }
+  onPointLeave(point) {
+  }
+  onPointEnter(point) {
+  }
+};
+
+// src/properties/tool/internals/EditTool.ts
+var EditTool = class extends AbstractTool {
+  key = "edit";
+  name = "Edit analysis";
+  description = "Use analysis points to edit analysis dimensions.";
+  icon = "";
+  active = false;
+  getLabelValue(x, y, file) {
+    const hoveredAnalysis = file.analysis.storage.activeOnly.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => analysis2.key);
+    const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
+    return `${analysis}X: ${x}<br />Y: ${y}`;
+  }
+  onActivate() {
+  }
+  onDeactivate() {
+  }
+  onCanvasClick(x, y, file) {
+  }
+  onCanvasLeave(file) {
+  }
+  onPointEnter(point) {
+    if (point.isInActiveLayer()) {
+      point.mouseEnter();
+    }
+  }
+  onPointLeave(point) {
+    if (point.isInActiveLayer()) {
+      point.mouseLeave();
+    }
+  }
+  onPointMove(point, x, y) {
+    if (point.isInActiveLayer() && point.active && point.isWithin(x, y)) {
+      point.x = x;
+      point.y = y;
+      if (point instanceof CornerPoint) {
+        point.analysis.onResize.call();
+      }
+    }
+  }
+  onPointDown(point) {
+    if (point.isInActiveLayer() && point.active === false) {
+      point.activate();
+    }
+  }
+  onPointUp(point) {
+    if (point.active === true) {
+      point.deactivate();
+    }
+  }
+};
+
+// src/properties/tool/ToolDrive.ts
+var definedTools = {
+  inspect: InspectTool,
+  addTest: AddRectangleTool,
+  edit: EditTool
+};
+var ToolDrive = class extends AbstractProperty {
+  /** Create own set of tools from the registry of tools */
+  _tools = Object.fromEntries(Object.entries(definedTools).map(([key, cls]) => {
+    return [
+      key,
+      new cls()
+    ];
+  }));
+  /** Readonly list of available tools */
+  get tools() {
+    return this._tools;
+  }
+  constructor(parent, initial) {
+    super(parent, initial);
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    value.activate();
+    Object.values(this.tools).forEach((tool) => {
+      if (tool.key !== value.key) {
+        tool.deactivate();
+      }
+    });
+  }
+  /** Pick a tool. Its activation is handled by the `afterSetEffect` */
+  selectTool(tool) {
+    if (tool instanceof AbstractTool) {
+      this.value = tool;
+    } else {
+      this.value = this.tools[tool];
+    }
+  }
+};
+
 // src/hierarchy/ThermalGroup.ts
 var ThermalGroup = class extends BaseStructureObject {
   constructor(registry, id, name, description) {
@@ -2772,6 +3623,8 @@ var ThermalGroup = class extends BaseStructureObject {
     return this.registry.manager.pool;
   }
   minmax = new MinmaxGroupProperty(this, void 0);
+  /** Tool drive */
+  tool = new ToolDrive(this, new InspectTool());
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
   /** Iteration */
@@ -3107,7 +3960,6 @@ var ThermalRegistry = class extends BaseStructureObject {
 };
 
 // src/hierarchy/ThermalManager.ts
-var workerpool = __toESM(require("workerpool"));
 var ThermalManager = class extends BaseStructureObject {
   id;
   /** Service for creation of loading and caching the files. */
@@ -3159,11 +4011,17 @@ var getPool = async () => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  AbstractAnalysis,
   AbstractFile,
+  AbstractTool,
+  AddRectangleTool,
+  CornerPoint,
   GRAYSCALE,
   IRON,
+  InspectTool,
   Instance,
   JET,
+  RectangleAnalysis,
   ThermalFileFailure,
   ThermalFileReader,
   ThermalGroup,

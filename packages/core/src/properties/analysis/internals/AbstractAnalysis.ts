@@ -37,9 +37,11 @@ export abstract class AbstractAnalysis {
     public get color() {return this._color;}
     public setColor( value: string ) {
         this._color = value;
-        this.onSetColor(value);
+        this.setColorCallback(value);
+        this.onSetColor.call( value );
     }
-    public abstract onSetColor( value: string ): void;
+    protected abstract setColorCallback( value: string ): void;
+    public onSetColor = new CallbacksManager<(value:string) => void>
 
 
     public ready: boolean = false;
@@ -97,6 +99,8 @@ export abstract class AbstractAnalysis {
     }
 
     onResize = new CallbacksManager<() => void>;
+
+    public abstract isWithin( x: number, y: number): boolean;
 
     
 

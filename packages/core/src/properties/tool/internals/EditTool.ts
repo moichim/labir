@@ -17,7 +17,18 @@ export class EditTool extends AbstractTool implements ITool {
     active = false;
 
     public getLabelValue(x: number, y: number, file: AbstractFile): string {
-        return `X: ${x}<br />Y: ${y}`;
+
+
+        const hoveredAnalysis = file.analysis.storage.activeOnly
+            .filter( analysis => analysis.isWithin( x, y ) )
+            .map( analysis => analysis.key );
+
+        const analysis = hoveredAnalysis.length > 0
+            ? hoveredAnalysis.join("<br />") +  "<br />"
+            : "";
+
+
+        return `${analysis}X: ${x}<br />Y: ${y}`;
     }
 
     public onActivate(): void {

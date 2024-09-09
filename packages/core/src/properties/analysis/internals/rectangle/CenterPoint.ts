@@ -3,6 +3,7 @@ import { AbstractHandlePoint } from "../AbstractHandlePoint";
 import { AbstractPoint } from "../AbstractPoint";
 import { RectangleAnalysis } from "./RectangleAnalysis";
 
+/** @deprecated Not implemented at all */
 export class CenterPoint extends AbstractHandlePoint {
 
 

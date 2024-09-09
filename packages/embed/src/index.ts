@@ -43,6 +43,8 @@ import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
+import "./controls/group/GroupToolButtons";
+import "./controls/file/FileAnalysis";
 
 import "./hierarchy/TestComponent";
 

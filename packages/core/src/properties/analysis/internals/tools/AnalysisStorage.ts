@@ -68,6 +68,7 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
     public onRemove = new CallbacksManager<AnalysisRemovedCallback>();
     removeAnalysis(key: string) {
         if (this.has(key)) {
+            this.get( key )?.remove();
             this.delete(key);
             // remove the analysis from layer
             this.layers = this.layers.filter( analysis => analysis.key !== key );
