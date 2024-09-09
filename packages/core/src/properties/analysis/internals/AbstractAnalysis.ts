@@ -64,6 +64,8 @@ export abstract class AbstractAnalysis {
         this.onDeselected.call( this );
     }
 
+    onResize = new CallbacksManager<() => void>;
+
     
 
 }

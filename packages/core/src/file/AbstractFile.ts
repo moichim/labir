@@ -296,8 +296,25 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         position: ThermalCursorPositionOrUndefined
     ) {
 
+        // If position
+        if ( position !== undefined ) {
+
+            // Get label value from the current tool
+            const label = this.group.registry.manager.tool.value.getLabelValue( position.x, position.y, this );
+            this.cursorLayer.setLabel( position.x, position.y, label );
+
+            this.cursorLayer.show = true;
+
+        } else {
+            this.cursorLayer.show = false;
+            this.cursorLayer.resetCursor();
+        }
+
+        
+        // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
 
+        /*
         if (position !== undefined && this.cursorValue.value !== undefined) {
             this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
             this.cursorLayer.show = true;
@@ -305,6 +322,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
             this.cursorLayer.show = false;
             this.cursorLayer.resetCursor();
         }
+        */
 
     }
 

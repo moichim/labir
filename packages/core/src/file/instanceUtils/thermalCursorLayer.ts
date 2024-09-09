@@ -49,6 +49,53 @@ export default class ThermalCursorLayer extends AbstractLayer {
             : "rgba( 0,0,0,0.5 )";
     }
 
+    protected recalculateLabelPosition(
+        x: number,
+        y: number
+    ) {
+        if ( this.instance.root === null ) {
+            // Do nothing
+        } else {
+            // Get the aspect
+            const aspect = this.instance.root.offsetWidth / this.instance.width;
+
+            // Calculate the center coordinate
+            const centerX = Math.round( x * aspect );
+            const centerY = Math.round( y * aspect );
+
+            // Move the axes
+            // this.axisX.style.left = this.px( centerX );
+            // this.axisY.style.top = this.px( centerY );
+
+            // Update the value center
+            this.center.style.left = this.px( centerX );
+            this.center.style.top = this.px( centerY );
+
+            // Update the label X position
+            if ( x > ( this.instance.width / 3 ) ) {
+                this.label.style.right = "3px";
+                this.label.style.removeProperty( "left" );
+            } else {
+                this.label.style.left = "3px";
+                this.label.style.removeProperty( "right" );
+            }
+
+            // Update the label Y position
+            if ( y > ( this.instance.height / 4 ) ) {
+                if ( this.label.style.bottom !== "3px" ) {
+                    this.label.style.bottom = "3px";
+                    this.label.style.removeProperty( "top" );
+                }
+            } else {
+                if ( this.label.style.top !== "3px" ) {
+                    this.label.style.top = "3px";
+                    this.label.style.removeProperty( "bottom" );
+                }
+            }
+        }
+    }
+
+    /** @deprecated */
     public setCursor(
         x: number,
         y: number,
@@ -58,6 +105,10 @@ export default class ThermalCursorLayer extends AbstractLayer {
         if ( this.instance.root === null ) {
             // Do nothing
         } else {
+
+            this.recalculateLabelPosition( x, y );
+
+            /*
             
             // Get the aspect
             const aspect = this.instance.root.offsetWidth / this.instance.width;
@@ -96,11 +147,26 @@ export default class ThermalCursorLayer extends AbstractLayer {
                 }
             }
 
+            */
+
             // Update the label content
             this.label.innerHTML = `${value.toFixed(3)} °C`;
 
         }
 
+    }
+
+    setLabel(
+        x: number,
+        y: number,
+        value: string
+    ) {
+        if ( this.instance.root === null ) {
+            // Do nothing
+        } else {
+            this.recalculateLabelPosition( x, y );
+            this.label.innerHTML = value;
+        }
     }
 
     public setValue(

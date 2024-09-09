@@ -17,13 +17,13 @@ export abstract class AbstractArea {
     protected element!: HTMLDivElement;
 
 
-    protected _top: number;
-    protected _right: number;
-    protected _left: number;
-    protected _bottom: number;
+    protected _top!: number;
+    protected _width!: number;
+    protected _left!: number;
+    protected _height!: number;
 
     public get top() {return this._top;}
-    protected set top( value: number ) {
+    public set top( value: number ) {
         this._top = value;
         if ( this.element ) {
             this.element.style.top = `${this._top / this.fileHeight * 100}%`;
@@ -39,23 +39,31 @@ export abstract class AbstractArea {
         }
     }
 
-    public get bottom() {
-        return this._bottom;
+    public get height() {
+        return this._height;
     }
-    public set bottom( value ) {
-        this._bottom = value;
+    public set height( value ) {
+        this._height = value;
         if ( this.element ) {
-            this.element.style.height = `${( this.bottom - this.top ) / this.fileHeight * 100 }%`;
+            this.element.style.height = `${( this.height ) / this.fileHeight * 100 }%`;
         }
     }
 
-    public get right() {
-        return this._right;
+    public get width() {
+        return this._width;
     }
-    public set right( value: number ) {
-        this._right = value;
+    public set width( value: number ) {
+        this._width = value;
         if ( this.element ) {
-            this.element.style.width = `${(this.right - this.left) / this.fileWidth * 100}%`;
+            this.element.style.width = `${(this.width) / this.fileWidth * 100}%`;
+        }
+    }
+
+
+    public get center() {
+        return {
+            x: this.left + (this.width / 2),
+            y: this.top + (this.height / 2)
         }
     }
 
@@ -71,11 +79,8 @@ export abstract class AbstractArea {
 
         this.top = top;
         this.left = left;
-        this.right = right;
-        
-        this.bottom = bottom;
-
-        
+        this.width = right;
+        this.height = bottom;
 
     }
 
@@ -86,47 +91,10 @@ export abstract class AbstractArea {
         this.element.style.opacity = ".5";
         this.element.style.backgroundColor = "white";
         this.element.style.position = "absolute";
-
+        this.element.style.borderRadius = "50%";
 
         this.root.appendChild( this.element );
-    }
 
-    setTop(value: number) {
-
-        if ( value > this.bottom ) {
-            this.top = this.bottom;
-            this.bottom = value;
-        } else {
-            this._top = value;
-        }
-
-    }
-
-    setBottom( value: number ) {
-        if (value < this.top ) {
-            this.bottom = this.top;
-            this.top = value;
-        } else {
-            this.bottom = value;
-        }
-    }
-
-    setLeft( value: number ) {
-        if ( value > this.right ) {
-            this.left = this.right;
-            this.right = value;
-        } else {
-            this.left = value;
-        }
-    }
-
-    setRight( value: number ) {
-        if ( value < this.right ) {
-            this.right = this.left;
-            this.left = value;
-        } else {
-            this.right = value;
-        }
     }
 
 }

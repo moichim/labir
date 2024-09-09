@@ -3,6 +3,7 @@ import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
 import { TestAnalysis } from "../../src/properties/analysis/internals/test/TestAnalysis";
+import { definedTools } from "../../src/properties/tool/ToolDrive";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
@@ -159,3 +160,20 @@ batchLoading([
     // "/image-thermal 2024-02-12 10-15-08.lrc",
     "/sequence.lrc"
 ]);
+
+const buildControls = () => {
+    Object.entries( manager.tool.tools ).forEach( ( [key, instance] ) => {
+        const btn = document.createElement( "button" );
+        btn.innerHTML = key;
+
+        btn.onclick = () => {
+            manager.tool.selectTool( instance );
+        }
+
+        document.body.appendChild( btn );
+    } );
+
+    manager.tool.addListener( "main manager", console.log );
+}
+
+buildControls();

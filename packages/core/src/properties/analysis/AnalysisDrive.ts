@@ -1,7 +1,6 @@
 import { AbstractFile } from "../../file/AbstractFile";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
-import { AbstractPoint } from "./internals/AbstractPoint";
 import { PointsListener } from "./internals/PointsListener";
 import { AnalysisStorage } from "./internals/tools/AnalysisStorage";
 
@@ -104,6 +103,13 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
                     if ( point.isHover ) {
                         point.mouseLeave();
                     }
+                }
+            } );
+
+            // If there are active points, do call isResize in their analysis
+            this.storage.all.forEach( analysis => {
+                if ( analysis.arrayOfActivePoints.length > 0 ) {
+                    analysis.onResize.call();
                 }
             } );
 

@@ -3,33 +3,61 @@ import { AbstractAnalysis } from "./AbstractAnalysis";
 
 export abstract class AbstractPoint {
 
+    public get file() {
+        return this.analysis.file;
+    }
+
     protected _x: number;
     public get x() {
         return this._x;
     }
-    public set x( value: number ) {
-        this._x = value;
-        this.onX.call( this._x );
-        if ( this.element ) {
-            this.element.style.left = this.getPercentageX() + "%";
+    public set x(value: number) {
+        if (this.mayMoveToX(value)) {
+            this._x = value;
+            this.onX.call(this._x);
+            if (this.element) {
+                this.element.style.left = this.getPercentageX() + "%";
+            }
         }
     }
-    public onX = new CallbacksManager<(x:number)=>void>
+    public onX = new CallbacksManager<(x: number) => void>
+    public abstract mayMoveToX(value: number): boolean;
 
     protected _y: number;
     public get y() {
         return this._y;
     }
 
-    
-    public set y( value: number ) {
-        this._y = value;
-        this.onY.call( this._y );
-        if ( this.element ) {
-            this.element.style.top = this.getPercentageY() + "%";
+
+    public set y(value: number) {
+        if (this.mayMoveToY(value)) {
+            this._y = value;
+            this.onY.call(this._y);
+            if (this.element) {
+                this.element.style.top = this.getPercentageY() + "%";
+            }
         }
     }
-    public onY = new CallbacksManager<(y:number)=>void>
+    public onY = new CallbacksManager<(y: number) => void>
+    public abstract mayMoveToY(value: number): boolean;
+
+    public isWithin(x: number, y: number): boolean {
+
+        const offset = this.getRadius() / 2;
+
+        const minX = this.x - offset;
+        const maxX = this.x + offset;
+        const minY = this.y - offset;
+        const maxY = this.y + offset;
+
+        return x >= minX
+            && x <= maxX
+            && y >= minY
+            && y <= maxY;
+
+    }
+
+
 
     protected _active: boolean = false;
     public get active() {
@@ -46,8 +74,6 @@ export abstract class AbstractPoint {
     }
 
     public abstract getRadius(): number;
-
-    public abstract isWithin( x: number, y: number ): boolean;
 
     element?: HTMLDivElement;
 

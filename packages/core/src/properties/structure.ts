@@ -13,6 +13,7 @@ import { IWithLoading } from "./states/LoadingState";
 import { IWithMinmaxGroup } from "./states/MinmaxGroupProperty";
 import { IWithMinmaxRegistry } from "./states/MinmaxRegistryState";
 import { IWithRedording } from "./time/recording/RecordingDrive";
+import { IWithTool } from "./tool/ToolDrive";
 
 
 
@@ -55,3 +56,8 @@ export interface IThermalRegistry
     IWithMinmaxRegistry,
     IWithRange,
     IWithPalette { }
+
+/** Thermal manager definition with all its properties */
+export interface IThermalManager
+    extends IThermalContainer,
+    IWithTool {}
