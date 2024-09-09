@@ -1,7 +1,10 @@
 import { AbstractFile } from "../../file/AbstractFile";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AbstractAddTool } from "./internals/AbstractAddTool";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
 import { PointsListener } from "./internals/PointsListener";
+import { RectangleAnalysis } from "./internals/rectangle/RectangleAnalysis";
 import { AnalysisStorage } from "./internals/tools/AnalysisStorage";
 
 export interface IWithAnalysis extends IBaseProperty {
@@ -13,6 +16,8 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
     public readonly storage = new AnalysisStorage( this );
 
     public readonly listener = new PointsListener(this.parent);
+
+    
 
     public get points() {
 
@@ -27,24 +32,24 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
         this.value = value;
     }
 
-    /** Make sure the value is allways between 0 and 1 */
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[] {
 
         return value;
-        // return Math.min( Math.max( 0, value ), 1 );
     }
 
-    /** 
-     * Whenever the opacity changes, propagate the value to all instances
-     */
     protected afterSetEffect(value: AbstractAnalysis[]) {
         value;
     }
 
 
-    public addAnalysis(analysis: AbstractAnalysis) {
-        this.value = [...this.value, analysis];
-        analysis.init();
+    public addRectAt( x: number, y: number ) {
+
+        const analysisName = `Rectangle ${this.value.length}`;
+
+        const newRect = new RectangleAnalysis( analysisName, this.parent, x, y  );
+
+        this.storage.addAnalysis( newRect )
+
     }
 
 
@@ -85,49 +90,62 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
 
             const position = this.getRelativePosition(event);
 
-            // Move active points
+            const activeTool = this.parent.group.tool.value;
 
-            this.activePoints
-                .forEach( point => {
-                    point.x = position.x;
-                    point.y = position.y;
-                } );
-
-            // Mark hovered points as hovered
+    
             this.points.forEach( point => {
-                if ( point.isWithin( position.x, position.y ) ) {
-                    if ( ! point.isHover ) {
-                        point.mouseEnter();
-                    }
-                } else {
-                    if ( point.isHover ) {
-                        point.mouseLeave();
-                    }
+                
+                // Move all active points within all layers
+                if ( point.active ) {
+                    activeTool.onPointMove( point, position.x, position.y );
                 }
+
+                // Detectt eventual mouse enter or mouse leave of points
+                const pointIsUnderCursor = point.isWithin( position.x, position.y );
+
+                if ( pointIsUnderCursor && ! point.isHover ) {
+                    activeTool.onPointEnter( point );
+                }
+
+                else if ( ! pointIsUnderCursor && point.isHover ) {
+                    activeTool.onPointLeave( point );
+                }
+
+
+
             } );
 
-            // If there are active points, do call isResize in their analysis
-            this.storage.all.forEach( analysis => {
-                if ( analysis.arrayOfActivePoints.length > 0 ) {
-                    analysis.onResize.call();
-                }
-            } );
 
         });
 
         this.getLayerRoot().addEventListener("pointerdown", event => {
+
             const position = this.getRelativePosition(event);
 
-            // Activate points within
-            this.points
-                .filter(point => point.isWithin(position.x, position.y))
-                .forEach(point => point.activate());
+            const activeTool =this.parent.group.tool.value;
+
+
+            // Call the click of the active tool
+            activeTool.onCanvasClick( position.x, position.y, this.parent );
+
+            // Call the click on all points
+            this.points.forEach( point => {
+                if ( point.isWithin( position.x, position.y ) ) {
+                    activeTool.onPointDown( point );
+                }
+            } );
+
 
         })
 
         this.getLayerRoot().addEventListener("pointerup", () => {
-            // deactivate all points
-            this.activePoints.forEach( point => point.deactivate() );
+
+            const activeTool =this.parent.group.tool.value;
+
+            this.points.forEach( point => {
+                activeTool.onPointUp( point );
+            } );
+        
         });
 
     }

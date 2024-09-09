@@ -1,10 +1,12 @@
 import { Instance } from "../../../../file/instance";
 import { AbstractAnalysis } from "../AbstractAnalysis";
-import { TestArea } from "./TestArea";
+import { RectangleArea } from "./RectangleArea";
 import { CornerPoint } from "./CornerPoint";
 import { CenterPoint } from "./CenterPoint";
+import { AbstractFile } from "../../../../file/AbstractFile";
+import { CallbacksManager } from "../../../callbacksManager";
 
-export class TestAnalysis extends AbstractAnalysis {
+export class RectangleAnalysis extends AbstractAnalysis {
 
 
     public readonly tl: CornerPoint;
@@ -14,7 +16,7 @@ export class TestAnalysis extends AbstractAnalysis {
 
     public readonly center: CenterPoint;
 
-    public readonly area: TestArea;
+    public readonly area: RectangleArea;
 
     public left!: number;
     public top!: number;
@@ -23,15 +25,19 @@ export class TestAnalysis extends AbstractAnalysis {
 
     constructor(
         key: string,
-        file: Instance
+        file: AbstractFile,
+        x: number,
+        y: number
     ) {
         super(key, file);
 
+        this.area = new RectangleArea(this, x, y, x, y);
+
         // Create points
-        this.tl = this.addPoint("tl", 10, 10, "pink");
-        this.tr = this.addPoint("tr", 100, 10, "orange");
-        this.bl = this.addPoint("bl", 10, 100, "lightgray");
-        this.br = this.addPoint("br", 100, 100, "violet");
+        this.tl = this.addPoint("tl", x, y, "pink");
+        this.tr = this.addPoint("tr", x, y, "orange");
+        this.bl = this.addPoint("bl", x, y, "lightgray");
+        this.br = this.addPoint("br", x, y, "violet");
 
         this.tl.syncXWith(this.bl);
         this.tl.syncYWith(this.tr);
@@ -45,7 +51,7 @@ export class TestAnalysis extends AbstractAnalysis {
         this.br.syncXWith(this.tr);
         this.br.syncYWith(this.bl);
 
-        this.area = new TestArea(this, 10, 100, 10, 100);
+        this.br.activate();
 
         this.calculateBounds();
 
@@ -58,11 +64,18 @@ export class TestAnalysis extends AbstractAnalysis {
 
         this.points.set("center", this.center);
 
+
+
+    }
+
+    public onSetColor(value: string): void {
+        this.points.forEach( point => point.setColor( value ) );
+        this.area.setColor(value)
     }
 
     public init(): void {
-        this.points.forEach(point => point.createElement());
-        this.points.forEach(point => point.draw());
+        this.points.forEach(point => point.createInnerElement());
+        this.points.forEach(point => point.projectInnerPositionToDom());
     }
 
     protected draw(): void {

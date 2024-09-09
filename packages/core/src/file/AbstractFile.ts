@@ -300,7 +300,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         if ( position !== undefined ) {
 
             // Get label value from the current tool
-            const label = this.group.registry.manager.tool.value.getLabelValue( position.x, position.y, this );
+            const label = this.group.tool.value.getLabelValue( position.x, position.y, this );
             this.cursorLayer.setLabel( position.x, position.y, label );
 
             this.cursorLayer.show = true;

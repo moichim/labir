@@ -1,3 +1,4 @@
+import { AbstractFile } from "../../../file/AbstractFile";
 import { Instance } from "../../../file/instance";
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
@@ -19,7 +20,8 @@ export abstract class AbstractAnalysis {
     public readonly onSelected = new CallbacksManager<AnalysisEvent>;
     public readonly onDeselected = new CallbacksManager<AnalysisEvent>;
 
-
+    public readonly layerRoot: HTMLDivElement;
+    public readonly renderRoot: HTMLElement;
 
     public readonly points: Map<string,AbstractPoint> = new Map;
 
@@ -31,14 +33,41 @@ export abstract class AbstractAnalysis {
         return this.arrayOfPoints.filter( point => point.active );
     }
 
+    protected _color: string = "black";
+    public get color() {return this._color;}
+    public setColor( value: string ) {
+        this._color = value;
+        this.onSetColor(value);
+    }
+    public abstract onSetColor( value: string ): void;
+
     public constructor(
         public readonly key: string,
-        public readonly file: Instance
+        public readonly file: AbstractFile
     ) {
-        
+
+        // Append the render root
+        this.renderRoot = this.file.canvasLayer.getLayerRoot();
+
+        // Create the layer root
+        this.layerRoot = document.createElement( "div" );
+        this.layerRoot.style.position = "absolute";
+        this.layerRoot.style.top = "0px";
+        this.layerRoot.style.left = "0px";
+        this.layerRoot.style.width = "100%";
+        this.layerRoot.style.height = "100%";
+        this.layerRoot.style.overflow = "hidden";
+        this.layerRoot.id = `analysis_${this.key}`;
+
+        this.renderRoot.appendChild( this.layerRoot );
     }
 
     public abstract init(): void;
+
+    public remove() {
+        this.deactivate();
+        this.renderRoot.removeChild( this.layerRoot );
+    }
 
     /** Activation / Deactivation */
 

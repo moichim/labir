@@ -1,7 +1,9 @@
 import { AbstractFile } from "../../file/AbstractFile";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-import { AddTestTool } from "../analysis/internals/test/AddTestTool";
+import { AddRectangleTool } from "../analysis/internals/rectangle/AddRectangleTool";
 import { AbstractTool, ITool } from "./internals/AbstractTool";
+import { EditTool } from "./internals/EditTool";
 import { InspectTool } from "./internals/InspectTool";
 
 export interface IWithTool extends IBaseProperty {
@@ -10,22 +12,25 @@ export interface IWithTool extends IBaseProperty {
 
 export const definedTools = {
     inspect: InspectTool,
-    addTest: AddTestTool
+    addTest: AddRectangleTool,
+    edit: EditTool
 }
 
 export type Tool = AbstractTool & ITool;
 
-export class ToolDrive extends AbstractProperty<Tool, AbstractFile >{
+export class ToolDrive extends AbstractProperty<Tool, ThermalGroup >{
 
+    /** Create own set of tools from the registry of tools */
     protected _tools = Object.fromEntries( Object.entries(definedTools).map( ([key, cls]) => {
         return [key, new cls]
     } ) );
+    /** Readonly list of available tools */
     public get tools() {
         return this._tools;
     }
 
     public constructor(
-        parent: AbstractFile,
+        parent: ThermalGroup,
         initial: Tool
     ) {
         super( parent, initial );
@@ -45,6 +50,7 @@ export class ToolDrive extends AbstractProperty<Tool, AbstractFile >{
         } );
     }
 
+    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
     selectTool(
         tool: Tool| keyof ToolDrive["tools"]
     ) {

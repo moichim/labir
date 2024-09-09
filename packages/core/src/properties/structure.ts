@@ -45,7 +45,8 @@ export interface IThermalGroup
     extends IThermalContainer,
     IWithMinmaxGroup,
     IWithFiles,
-    IWithCursorPosition { }
+    IWithCursorPosition,
+    IWithTool { }
 
 /** Thermal registry definition with all its properties */
 export interface IThermalRegistry
@@ -56,8 +57,3 @@ export interface IThermalRegistry
     IWithMinmaxRegistry,
     IWithRange,
     IWithPalette { }
-
-/** Thermal manager definition with all its properties */
-export interface IThermalManager
-    extends IThermalContainer,
-    IWithTool {}

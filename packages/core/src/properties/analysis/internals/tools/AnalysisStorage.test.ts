@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../../devserver/node/scaffold';
-import { TestAnalysis } from '../test/TestAnalysis';
+import { RectangleAnalysis } from '../rectangle/RectangleAnalysis';
 import { AnalysisAddPosition, AnalysisStorage } from './AnalysisStorage';
 
 enum IDS {
@@ -22,11 +22,11 @@ describe( "AnalysisStorage", () => {
         expect( storage.all.length ).toEqual(0);
 
         // Add one
-        storage.addAnalysis( new TestAnalysis( "test", instance ) );
+        storage.addAnalysis( new RectangleAnalysis( "test", instance ) );
         expect( storage.all.length ).toEqual(1);
 
         // Add another
-        storage.addAnalysis( new TestAnalysis( "another", instance ) );
+        storage.addAnalysis( new RectangleAnalysis( "another", instance ) );
         expect( storage.all.length ).toEqual(2);
 
         let counter = 0;
@@ -35,7 +35,7 @@ describe( "AnalysisStorage", () => {
         } );
 
         // Add yet another on the place of the another
-        storage.addAnalysis( new TestAnalysis( "another", instance ) );
+        storage.addAnalysis( new RectangleAnalysis( "another", instance ) );
 
         expect( storage.all.length ).toEqual(2);
         expect( counter ).toEqual(1);
@@ -48,10 +48,10 @@ describe( "AnalysisStorage", () => {
 
         const storage = instance.analysis.storage;
 
-        const analysis1 = new TestAnalysis("test1", instance);
+        const analysis1 = new RectangleAnalysis("test1", instance);
         storage.addAnalysis( analysis1 );
 
-        const analysis2 = new TestAnalysis("test2", instance);
+        const analysis2 = new RectangleAnalysis("test2", instance);
         storage.addAnalysis( analysis2 );
 
         expect( storage.all.length ).toEqual(2);
@@ -75,8 +75,8 @@ describe( "AnalysisStorage", () => {
     test( "layers", async () => {
         const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
         const storage = instance.analysis.storage;
-        const analysis1 = new TestAnalysis( "test1", instance );
-        const analysis2 = new TestAnalysis( "test2", instance );
+        const analysis1 = new RectangleAnalysis( "test1", instance );
+        const analysis2 = new RectangleAnalysis( "test2", instance );
         storage.addAnalysis( analysis1 );
         storage.addAnalysis( analysis2 );
         expect( storage.all[0].key ).toEqual( analysis2.key );
@@ -97,15 +97,15 @@ describe( "AnalysisStorage", () => {
 
         expect( counter ).toEqual(0);
 
-        drive.storage.addAnalysis( new TestAnalysis( "debug", instance ) );
+        drive.storage.addAnalysis( new RectangleAnalysis( "debug", instance ) );
 
         expect( counter ).toEqual(1);
 
-        drive.storage.addAnalysis( new TestAnalysis("debug", instance) );
+        drive.storage.addAnalysis( new RectangleAnalysis("debug", instance) );
 
         expect( counter ).toEqual(3);
 
-        drive.storage.addAnalysis( new TestAnalysis( "debug2", instance ) );
+        drive.storage.addAnalysis( new RectangleAnalysis( "debug2", instance ) );
 
         expect( counter ).toEqual(4);
 

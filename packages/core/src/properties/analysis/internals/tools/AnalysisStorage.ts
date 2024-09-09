@@ -18,6 +18,16 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
 
     protected layers: Array<AbstractAnalysis> = [];
 
+    public readonly colors = [
+        "orange",
+        "lightblue",
+        "green",
+        "brown",
+        "yellow",
+        "blue",
+        "pink"
+    ];
+
     public constructor(
         public readonly drive: AnalysisDrive
     ) {
@@ -35,6 +45,9 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
         if ( this.has( analysis.key ) ) {
             this.removeAnalysis( analysis.key );
         }
+
+        // Add the color to the analysis
+        analysis.setColor( this.getNextColor() );
 
         this.set(analysis.key, analysis);
         analysis.init();
@@ -134,6 +147,15 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
 
             return [...state, ...currentPoints]
         }, [] as AbstractPoint[] );
+    }
+
+    protected getNextColor() {
+        let nextNum = this.all.length;
+        if ( nextNum < this.colors.length ) {
+            return this.colors[ nextNum ];
+        } else {
+            return this.colors[ nextNum % this.colors.length ];
+        }
     }
 
 

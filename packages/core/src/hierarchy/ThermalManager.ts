@@ -29,8 +29,7 @@ export class ThermalManager extends BaseStructureObject {
     /** A palette is common to all registries within the manager */
     public readonly palette: PaletteDrive = new PaletteDrive(this, "jet");
 
-    /** Tool drive */
-    public readonly tool: ToolDrive = new ToolDrive(this, new InspectTool);
+    
 
     public readonly pool: Pool;
 

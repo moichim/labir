@@ -7,6 +7,8 @@ import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
+import { InspectTool } from "../properties/tool/internals/InspectTool";
+import { ToolDrive } from "../properties/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
 
 /**
@@ -32,6 +34,9 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
 
     public readonly minmax: MinmaxGroupProperty = new MinmaxGroupProperty(this, undefined);
+
+    /** Tool drive */
+    public readonly tool: ToolDrive = new ToolDrive(this, new InspectTool);
 
     public readonly files: FilesState = new FilesState( this, [] );
 

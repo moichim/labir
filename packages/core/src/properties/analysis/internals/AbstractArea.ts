@@ -11,7 +11,7 @@ export abstract class AbstractArea {
     }
 
     public get root() {
-        return this.analysis.file.canvasLayer.getLayerRoot();
+        return this.analysis.layerRoot;
     }
 
     protected element!: HTMLDivElement;
@@ -88,13 +88,22 @@ export abstract class AbstractArea {
 
         this.element = document.createElement( "div" );
 
-        this.element.style.opacity = ".5";
-        this.element.style.backgroundColor = "white";
         this.element.style.position = "absolute";
-        this.element.style.borderRadius = "50%";
+
+        this.onBuild();
 
         this.root.appendChild( this.element );
 
+
+
     }
+
+    abstract onBuild(): void;
+
+    setColor( value: string ) {
+        this.onSetColor(value);
+    }
+
+    abstract onSetColor( value: string ): void;
 
 }

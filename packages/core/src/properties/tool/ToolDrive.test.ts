@@ -1,11 +1,16 @@
 import { describe, expect, test } from 'vitest';
 import { ThermalManager } from '../../hierarchy/ThermalManager';
+import { loadFileForTests } from '../../../devserver/node/scaffold';
+import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 
 describe( "ToolDrive", () => {
-    test( "Tool selection", () => {
-        const manager = new ThermalManager;
+    test( "Tool selection", async () => {
 
-        const tools = manager.tool;
+        const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
+        
+        const group = instance.group;
+
+        const tools = group.tool;
 
         expect( tools.value.key ).toEqual( "inspect" );
 

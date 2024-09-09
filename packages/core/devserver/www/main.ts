@@ -2,7 +2,7 @@ import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
-import { TestAnalysis } from "../../src/properties/analysis/internals/test/TestAnalysis";
+import { RectangleAnalysis } from "../../src/properties/analysis/internals/rectangle/RectangleAnalysis";
 import { definedTools } from "../../src/properties/tool/ToolDrive";
 
 const REGISTRY_ID = "registry_id";
@@ -30,7 +30,7 @@ group.files.addListener("boot", value => {
 
         instance.mountToDom(element);
 
-        instance.analysis.storage.addAnalysis( new TestAnalysis( "sth", instance ) );
+        // instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
 
     });
 
@@ -137,9 +137,11 @@ const batchLoading = async (
 
     instances.map( mountInstance );
 
+    /*
     instances.forEach( instance => {
-        instance.analysis.storage.addAnalysis( new TestAnalysis( "sth", instance ) );
+        instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
     } );
+     */
 
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 
@@ -162,18 +164,18 @@ batchLoading([
 ]);
 
 const buildControls = () => {
-    Object.entries( manager.tool.tools ).forEach( ( [key, instance] ) => {
+    Object.entries( group_2.tool.tools ).forEach( ( [key, instance] ) => {
         const btn = document.createElement( "button" );
         btn.innerHTML = key;
 
         btn.onclick = () => {
-            manager.tool.selectTool( instance );
+            group_2.tool.selectTool( instance );
         }
 
         document.body.appendChild( btn );
     } );
 
-    manager.tool.addListener( "main manager", console.log );
+    group_2.tool.addListener( "main manager", console.log );
 }
 
 buildControls();
