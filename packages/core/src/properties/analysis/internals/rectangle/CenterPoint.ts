@@ -1,22 +1,54 @@
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractHandlePoint } from "../AbstractHandlePoint";
 import { AbstractPoint } from "../AbstractPoint";
+import { RectangleAnalysis } from "./RectangleAnalysis";
 
 export class CenterPoint extends AbstractHandlePoint {
+
+
+    declare analysis: RectangleAnalysis;
+
+
     public getRadius(): number {
         return 10;
     }
 
     public mayMoveToX(value: number): boolean {
-        
-        console.log( value );
 
-        return value <= this.file.width && value >= 0;
+        if ( this.active === false ) {
+            return true;
+        }
+
+        const leftBoundary = this.analysis.width / 2;
+        const rightBoundary = this.file.width - ( this.analysis.width / 2 );
+
+        const result = value > leftBoundary && value < rightBoundary;
+
+        console.log( "y", {
+            result, leftBoundary, rightBoundary, value
+        } );
+
+        return result;
+
     }
 
     public mayMoveToY(value: number): boolean {
-        console.log( value );
-        return value <= this.file.height && value >= 0;
+
+        if ( this.active === false ) {
+            return true;
+        }
+
+        const topBoundary = this.analysis.height / 2;
+        const bottomBoundary = this.analysis.file.height - ( this.analysis.height / 2 );
+
+        const result = value < bottomBoundary && value > topBoundary;
+
+        console.log( "y", {
+            result, topBoundary, bottomBoundary, value
+        } );
+
+        return result;
+    
     }
 
     

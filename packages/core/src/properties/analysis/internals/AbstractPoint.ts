@@ -13,14 +13,15 @@ export abstract class AbstractPoint {
     }
     public set x(value: number) {
         if (this.mayMoveToX(value)) {
+            const prev = this._x;
             this._x = value;
-            this.onX.call(this._x);
+            this.onX.call(this._x, prev);
             if (this.container) {
                 this.container.style.left = this.getPercentageX() + "%";
             }
         }
     }
-    public onX = new CallbacksManager<(x: number) => void>
+    public onX = new CallbacksManager<(x: number, prev: number) => void>
     public abstract mayMoveToX(value: number): boolean;
 
 
@@ -31,14 +32,15 @@ export abstract class AbstractPoint {
     }
     public set y(value: number) {
         if (this.mayMoveToY(value)) {
+            const prev = this._y;
             this._y = value;
-            this.onY.call(this._y);
+            this.onY.call(this._y, prev);
             if (this.container) {
                 this.container.style.top = this.getPercentageY() + "%";
             }
         }
     }
-    public onY = new CallbacksManager<(y: number) => void>
+    public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
 
     

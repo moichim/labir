@@ -14,9 +14,13 @@ export class RectangleAnalysis extends AbstractAnalysis {
     public readonly bl: CornerPoint;
     public readonly br: CornerPoint;
 
+    public readonly corners: CornerPoint[] = [];
+
     public readonly center: CenterPoint;
 
     public readonly area: RectangleArea;
+
+    
 
     public left!: number;
     public top!: number;
@@ -38,6 +42,12 @@ export class RectangleAnalysis extends AbstractAnalysis {
         this.tr = this.addPoint("tr", x, y, "orange");
         this.bl = this.addPoint("bl", x, y, "lightgray");
         this.br = this.addPoint("br", x, y, "violet");
+        this.corners = [
+            this.tl,
+            this.tr,
+            this.br,
+            this.bl
+        ];
 
         this.tl.syncXWith(this.bl);
         this.tl.syncYWith(this.tr);
@@ -56,6 +66,7 @@ export class RectangleAnalysis extends AbstractAnalysis {
         this.calculateBounds();
 
         this.onResize.add("sync the area", () => {
+            console.log( "resizing" );
             this.calculateBounds();
         });
 

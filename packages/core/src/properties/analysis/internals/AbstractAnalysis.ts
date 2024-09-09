@@ -41,6 +41,9 @@ export abstract class AbstractAnalysis {
     }
     public abstract onSetColor( value: string ): void;
 
+
+    public ready: boolean = false;
+
     public constructor(
         public readonly key: string,
         public readonly file: AbstractFile

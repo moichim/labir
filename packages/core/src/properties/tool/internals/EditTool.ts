@@ -1,5 +1,6 @@
 import { AbstractFile } from "../../../file/AbstractFile";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
+import { CornerPoint } from "../../analysis/internals/rectangle/CornerPoint";
 import { AbstractTool, ITool } from "./AbstractTool";
 
 export class EditTool extends AbstractTool implements ITool {
@@ -55,12 +56,19 @@ export class EditTool extends AbstractTool implements ITool {
 
 
     public onPointMove(point: AbstractPoint, x: number, y: number): void {
+
+        
         if ( point.isInActiveLayer() && point.active && point.isWithin(x,y)) {
+
             // Set new position
             point.x = x;
             point.y = y;
+
             // Call the resize
-            point.analysis.onResize.call();
+            if ( point instanceof CornerPoint ) {
+                point.analysis.onResize.call();
+            }
+            
         }
     }
 

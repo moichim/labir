@@ -22,6 +22,7 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
     public onPointUp(point: AbstractPoint): void {
         point.deactivate();
         point.analysis.file.group.tool.selectTool( "edit" );
+        point.analysis.ready = true;
     }
 
     public onCanvasLeave(file: AbstractFile): void {
