@@ -45,6 +45,7 @@ import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
 import "./controls/group/GroupToolButtons";
 import "./controls/file/FileAnalysis";
+import "./controls/file/FileAnalysisTableRow";
 
 import "./hierarchy/TestComponent";
 

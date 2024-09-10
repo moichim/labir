@@ -10,9 +10,12 @@ export class EditTool extends AbstractTool implements ITool {
 
     name = "Edit analysis";
 
-    description = "Use analysis points to edit analysis dimensions.";
+    description = "Drag corners of selected analysis to edit their dimensions.";
 
-    icon = "";
+    icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
+</svg>`;
 
     active = false;
 
@@ -52,7 +55,7 @@ export class EditTool extends AbstractTool implements ITool {
 
     public onPointEnter(point: AbstractPoint): void {
 
-        if ( point.isInActiveLayer() ) {
+        if ( point.isInSelectedLayer() ) {
             point.mouseEnter();
         }
 
@@ -60,7 +63,7 @@ export class EditTool extends AbstractTool implements ITool {
 
 
     public onPointLeave(point: AbstractPoint): void {
-        if ( point.isInActiveLayer() ) {
+        if ( point.isInSelectedLayer() ) {
             point.mouseLeave();
         }
     }
@@ -69,7 +72,7 @@ export class EditTool extends AbstractTool implements ITool {
     public onPointMove(point: AbstractPoint, x: number, y: number): void {
 
         
-        if ( point.isInActiveLayer() && point.active && point.isWithin(x,y)) {
+        if ( point.isInSelectedLayer() && point.active && point.isWithin(x,y)) {
 
             // Set new position
             point.x = x;
@@ -84,7 +87,7 @@ export class EditTool extends AbstractTool implements ITool {
     }
 
     public onPointDown(point: AbstractPoint): void {
-        if ( point.isInActiveLayer() && point.active === false ) {
+        if ( point.isInSelectedLayer() && point.active === false ) {
             point.activate();
         }
     }

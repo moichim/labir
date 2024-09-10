@@ -85,6 +85,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public set pixels(value: number[]) {
         this._pixels = value;
         this.onSetPixels(value);
+        this.analysis.value.forEach( analysis => analysis.recalculateValues() );
     }
 
     public abstract getPixelsForHistogram(): number[];

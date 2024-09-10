@@ -1,11 +1,16 @@
-import { AbstractTool, AvailableThermalPalettes, ThermalGroup, ThermalPaletteType, ThermalPalettes, ThermalTool } from "@labir/core";
+import { ThermalGroup, ThermalTool } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/GroupContext";
+
+
+import { classMap } from 'lit/directives/class-map.js';
+
+
+
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 
 
 
@@ -13,65 +18,139 @@ import { toolContext, toolsContext } from "../../hierarchy/providers/context/Gro
 export class GroupToolButtons extends GroupConsumer {
 
 
-    @consume({context: toolContext, subscribe: true})
+    @consume({ context: toolContext, subscribe: true })
     @state()
     value!: ThermalTool;
 
-    @consume( {context: toolsContext, subscribe: true} )
+    @consume({ context: toolsContext, subscribe: true })
     @state()
-    tools!: ThermalGroup["tool"]["tools"]
+    tools!: ThermalGroup["tool"]["tools"];
+
+    @state()
+    hint!: string;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.hint = this.value.description;
+        this.group.tool.addListener( this.UUID + "spying on hints", value => {
+            this.hint = value.description;
+        } );
+    }
+
+
+    
+
 
 
 
     /** Handle user input events */
-    onSelect( tool: ThermalTool ) {
-        this.group.tool.selectTool( tool );
+    onSelect(tool: ThermalTool) {
+        this.group.tool.selectTool(tool);
     }
 
     static styles = css`
 
-    .container {
+    :host {
+        width: 100%;
+        display: flex;
+        gap: var( --thermal-gap );
+    }
+
+    .switchers {
         display: flex;
         width: content-width;
         gap: 5px;
+        aligni-items: center;
     }
 
     .button {
+
         margin: 0;
-        border: 0;
-        line-height: 0;
-        display: flex;
-        align-items: center;
-        gap: 3px;
+        border: 1px solid var(--thermal-slate);
+        background-color: var(--thermal-slate-light );
+        color: var( --thermal-foreground );
+        border-radius: var( --thermal-radius );
+        padding: 3px;
+    
     }
 
-    .palette {
-        width: calc( var( --thermal-gap ) * 2 );
-        height: calc( var( --thermal-fs ) * .8 );
-        border-radius: 1rem;
+    .switch {
+
+        line-height: 0;
+        cursor: pointer;
+
+        transition: all .25s ease-in-out;
+
+        &:hover,
+        &.active {
+            color: var( --thermal-primary );
+        }
+
+    }
+
+    .current {
+        flex-grow: 1;
+        font-size: var( --thermal-fs-small );
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var( --thermal-foreground );
+    }
+
+    .thermal-tool-icon {
+        width: calc( var( --thermal-gap ) * 1.2 );
+        margin: 0;
+        padding: 0;
+    }
+
+    .tool-name {
+        font-weight: bold;
+    }
+    
+    .tool-description {
+        opacity: .5;
     }
 
     `;
 
     protected render(): unknown {
 
-        this.log( this.value.name, this.value.active );
-
-
-        if ( this.group === undefined ) {
+        if (this.group === undefined) {
             return nothing;
         }
 
         return html`
-            <div class="container">
-                ${Object.entries( this.group.tool.tools ).map( ([key,tool]) => html`
-                    
-                    <thermal-button  variant="${tool.key === this.value.key ? "background" : "slate"}" @click=${ () => { this.group.tool.selectTool( tool ) } }>
-                        ${tool.name}
-                    </thermal-button>
-                    
-                `)}
-            </div>
+                <div class="switchers">
+                    ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
+
+                const classes = {
+                    button: true,
+                    switch: true,
+                    active: tool.key === this.value.key
+                }
+
+                return html`
+                        
+                        <button 
+                            class=${classMap(classes)} 
+                            @click=${() => { this.group.tool.selectTool(tool) }}
+                            @mouseenter=${()=>{
+                                this.hint = tool.name;
+                            }}
+                            @mouseleave=${()=>{
+                                this.hint = this.value.description;
+                            }}
+                        >
+                            ${unsafeSVG(tool.icon)}
+                        </button>
+                        
+                    ` }
+            )}
+                </div>
+
+                <div class="current">
+                    <div class="tool-description">${this.hint}</div>
+                </div>
         `;
     }
 

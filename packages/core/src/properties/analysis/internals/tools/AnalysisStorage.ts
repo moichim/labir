@@ -47,17 +47,21 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
         }
 
         // Add the color to the analysis
-        analysis.setColor( this.getNextColor() );
+        analysis.setColor( analysis.initialColor );
 
         this.set(analysis.key, analysis);
         analysis.init();
 
+        this.layers = [ ...this.layers, analysis ];
+
         // Add analysis to layer
+        /*
         if ( where === AnalysisAddPosition.PREPEND ) {
             this.layers = [ analysis, ...this.layers ];
         } else {
             this.layers = [ ...this.layers, analysis ];
         }
+        */
 
         this.onAdd.call(analysis, this.all);
         this.drive.dangerouslySetValueFromStorage( this.all );
@@ -114,6 +118,13 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
 
     }
 
+    public deselect(
+        analysis: AbstractAnalysis
+    ) {
+        analysis.setDeselected();
+        this.onSelectionChange.call( this.selectedOnly );
+    }
+
 
 
     public get all() {
@@ -150,7 +161,7 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
         }, [] as AbstractPoint[] );
     }
 
-    protected getNextColor() {
+    public getNextColor() {
         let nextNum = this.all.length;
         if ( nextNum < this.colors.length ) {
             return this.colors[ nextNum ];

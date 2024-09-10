@@ -127,6 +127,10 @@ export abstract class AbstractPoint {
         return this.analysis.active;
     }
 
+    public isInSelectedLayer() {
+        return this.analysis.selected;
+    }
+
 
 
 

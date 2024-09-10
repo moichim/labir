@@ -1,9 +1,10 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { consume } from "@lit/context";
 import { AnalysisList, analysisList } from "../../hierarchy/providers/context/FileContexts";
+import {map} from 'lit/directives/map.js';
 
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
@@ -11,7 +12,20 @@ export class FileAnalysisList extends FileConsumer {
     @consume( {context: analysisList, subscribe: true})
     analysis: AnalysisList = [];
 
+    @state()
+    protected allSelected: boolean = false;
+
     public onInstanceCreated(): void {
+
+        if ( this.file !== undefined ) {
+            this.file.analysis.storage.onSelectionChange.add( this.UUID, value => {
+                if ( this.file ) {
+                    this.allSelected = this.file.analysis.value.length === value.length;
+                }
+                
+            } );
+        }
+
     }
 
     public onFailure(): void {
@@ -19,55 +33,94 @@ export class FileAnalysisList extends FileConsumer {
     }
 
 
-
-    @property({type: String, reflect: true, attribute: true})
-    url?: string;
-
-    container: Ref<HTMLVideoElement> = createRef();
-
-    protected shouldUpdate(_changedProperties: PropertyValues): boolean {
-
-        if (  this.container.value !== undefined && this.currentFrame !== undefined ) {
-
-            const value = parseFloat((this.currentFrame.ms / 1000).toFixed(3));
-
-            this.container.value.fastSeek( value );
-
-        }
-
-        return super.shouldUpdate( _changedProperties );
-    }
-
     static styles?: CSSResultGroup | undefined = css`
         .container {
         
-            video {
-
-                max-width: 100%;
-                height: auto;
-            
-            }
         
+        }
+
+        .container table {
+            width: 100%;
+            border-collapse:collapse;
+            font-size: var( --thermal-fs-small );
+        }
+
+        .container table th {
+            text-align: left;
+            padding: calc( var( --thermal-gap ) / 3 );
+        }
+
+        .container table file-analysis-row {
+            border-bottom: 1px var( --thermal-foreground ) dotted;
+        }
+
+        .container table file-analysis-row:first-child {
+            border-top: 1px var( --thermal-foreground ) dotted;
+        }
+
+        .selected {
+            width: calc( var( --thermal-gap ) / 2 );
+            height: calc( var( --thermal-gap ) / 2 );
+            border-radius: 50%;
+            border: 2px solid var( --thermal-slate );
+            display: inline-block;
+            cursor: pointer;
+
+            &.all {
+                background-color: var( --thermal-foreground );
+            }
         }
     `;
 
+
     protected render(): unknown {
+
+        if ( this.analysis.length === 0 ) {
+            return nothing;
+        }
+
 
         return html`
             <div class="container">
 
-            ${this.analysis.map( analysis => {
-                return html`<div>${analysis.key}</div>`
-            } )}
-            
-                <video ${ref(this.container)} preload="metadata">
+            <table>
 
-                    ${ this.url === undefined
-                        ? nothing
-                        : html`<source src="${this.url}" type="video/mp4"></source>`
-                    }
+                <caption>
+                    Current analysis on the file ${this.file?.fileName}
+                </caption>
 
-                </video>
+                <thead>
+                    <tr>
+                        <th>
+                            <div 
+                                class="selected ${this.allSelected ? "all" : ""}"
+                                @click=${() => {
+                                    if ( this.allSelected ) {
+                                        this.allSelected = false;
+                                        this.analysis.forEach( analysis => analysis.setDeselected() );
+                                    } else {
+                                        this.allSelected = true;
+                                        this.analysis.forEach( analysis => analysis.setSelected() );
+                                    }
+                                }}
+                            ></div>
+                            Analysis
+                        </th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>Avg</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    ${map( this.analysis, item => html`
+                        <file-analysis-row .analysis=${item}></file-analysis-row>
+                    ` )}
+
+                </tbody>
+
+            </table>
             
             </div>
         

@@ -1,12 +1,11 @@
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
-import { RectangleArea } from "./RectangleArea";
+import { EllipsisArea } from "./EllipsisArea";
 
-export class RectangleAnalysis extends AbstractAreaAnalysis {
-
+export class EllipsisAnalysis extends AbstractAreaAnalysis {
 
     protected buildArea(x: number, y: number): AbstractArea {
-        return new RectangleArea(this, x, y, x, y);
+        return new EllipsisArea(this, x, y, x, y);
     }
 
     protected getValues(): { min?: number; max?: number; avg?: number; } {
@@ -49,6 +48,5 @@ export class RectangleAnalysis extends AbstractAreaAnalysis {
         }
 
     }
-
 
 }

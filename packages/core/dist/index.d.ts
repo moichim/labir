@@ -133,6 +133,7 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
     readonly file: AbstractFile;
+    readonly initialColor: string;
     /** Activation status */
     protected _active: boolean;
     get active(): boolean;
@@ -146,14 +147,21 @@ declare abstract class AbstractAnalysis {
     readonly layerRoot: HTMLDivElement;
     readonly renderRoot: HTMLElement;
     readonly points: Map<string, AbstractPoint>;
+    protected _min?: number;
+    get min(): number | undefined;
+    protected _max?: number;
+    get max(): number | undefined;
+    protected _avg?: number;
+    get avg(): number | undefined;
     get arrayOfPoints(): AbstractPoint[];
     get arrayOfActivePoints(): AbstractPoint[];
     protected _color: string;
     get color(): string;
     setColor(value: string): void;
-    abstract onSetColor(value: string): void;
+    protected abstract setColorCallback(value: string): void;
+    onSetColor: CallbacksManager<(value: string) => void>;
     ready: boolean;
-    constructor(key: string, file: AbstractFile);
+    constructor(key: string, file: AbstractFile, initialColor: string);
     abstract init(): void;
     remove(): void;
     /** Activation / Deactivation */
@@ -164,6 +172,13 @@ declare abstract class AbstractAnalysis {
     setDeselected(): void;
     onResize: CallbacksManager<() => void>;
     abstract isWithin(x: number, y: number): boolean;
+    recalculateValues(): void;
+    protected abstract getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
 }
 
 declare abstract class AbstractPoint {
@@ -194,6 +209,7 @@ declare abstract class AbstractPoint {
     constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
     isWithin(x: number, y: number): boolean;
     isInActiveLayer(): boolean;
+    isInSelectedLayer(): boolean;
     protected getPercentageX(): number;
     protected getPercentageY(): number;
     getPercentageCoordinates(): {
@@ -846,6 +862,8 @@ interface ITool {
     active: boolean;
 }
 declare abstract class AbstractTool {
+    readonly group: ThermalGroup;
+    constructor(group: ThermalGroup);
     /** Action taken upon tool activation */
     activate(): void;
     protected abstract onActivate(): void;
@@ -917,13 +935,15 @@ declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
     /** Create own set of tools from the registry of tools */
     protected _tools: {
         inspect: ThermalTool;
-        addTest: ThermalTool;
+        addRectangle: ThermalTool;
+        addEllipsis: ThermalTool;
         edit: ThermalTool;
     };
     /** Readonly list of available tools */
     get tools(): {
         inspect: ThermalTool;
-        addTest: ThermalTool;
+        addRectangle: ThermalTool;
+        addEllipsis: ThermalTool;
         edit: ThermalTool;
     };
     constructor(parent: ThermalGroup, initial: ThermalTool);
@@ -1060,12 +1080,106 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
     clearAllListeners(): void;
 }
 
+declare abstract class AbstractArea {
+    readonly analysis: AbstractAnalysis;
+    get fileWidth(): number;
+    get fileHeight(): number;
+    get root(): HTMLDivElement;
+    protected element: HTMLDivElement;
+    protected _top: number;
+    protected _width: number;
+    protected _left: number;
+    protected _height: number;
+    get top(): number;
+    set top(value: number);
+    get left(): number;
+    set left(value: number);
+    get height(): number;
+    set height(value: number);
+    get width(): number;
+    set width(value: number);
+    get center(): {
+        x: number;
+        y: number;
+    };
+    constructor(analysis: AbstractAnalysis, top: number, right: number, left: number, bottom: number);
+    build(): void;
+    abstract onBuild(): void;
+    setColor(value: string): void;
+    abstract onSetColor(value: string): void;
+}
+
+declare abstract class AbstractHandlePoint extends AbstractPoint {
+    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
+    createInnerElement(): HTMLDivElement;
+    onMouseEnter(): void;
+    onMouseLeave(): void;
+}
+
+declare class CornerPoint extends AbstractHandlePoint {
+    getRadius(): number;
+    mayMoveToX(value: number): boolean;
+    mayMoveToY(value: number): boolean;
+    isMoving: boolean;
+    syncXWith(point: CornerPoint): void;
+    syncYWith(point: CornerPoint): void;
+    onPointerDown(): void;
+    onPointerUp(): void;
+    onMove(): void;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+}
+
+declare class RectangleArea extends AbstractArea {
+    onBuild(): void;
+    onSetColor(value: string): void;
+}
+
+declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+    readonly tl: CornerPoint;
+    readonly tr: CornerPoint;
+    readonly bl: CornerPoint;
+    readonly br: CornerPoint;
+    readonly corners: CornerPoint[];
+    readonly area: RectangleArea;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    isWithin(x: number, y: number): boolean;
+    protected abstract buildArea(x: number, y: number): AbstractArea;
+    constructor(key: string, file: AbstractFile, x: number, y: number, color: string);
+    setColorCallback(value: string): void;
+    init(): void;
+    protected draw(): void;
+    protected calculateBounds(): void;
+    addPoint(role: string, x: number, y: number, color: string): CornerPoint;
+}
+
+declare class EllipsisAnalysis extends AbstractAreaAnalysis {
+    protected buildArea(x: number, y: number): AbstractArea;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+}
+
 declare class PointsListener {
     readonly instance: AbstractFile;
     constructor(instance: AbstractFile);
     onMouseMove(): void;
     onClick(): void;
     onMouseLeave(): void;
+}
+
+declare class RectangleAnalysis extends AbstractAreaAnalysis {
+    protected buildArea(x: number, y: number): AbstractArea;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
 }
 
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
@@ -1087,13 +1201,14 @@ declare class AnalysisStorage extends Map<string, AbstractAnalysis> {
     readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
     /** Mark an analysis as selected */
     select(analysis: string | AbstractAnalysis, exclusive?: boolean): this;
+    deselect(analysis: AbstractAnalysis): void;
     get all(): AbstractAnalysis[];
     get activeOnly(): AbstractAnalysis[];
     get selectedOnly(): AbstractAnalysis[];
     get allPoints(): AbstractPoint[];
     get selectedOnlyPoints(): AbstractPoint[];
     protected extractPointsFromLayers(layers: AbstractAnalysis[], activeOnly?: boolean): AbstractPoint[];
-    protected getNextColor(): string;
+    getNextColor(): string;
 }
 
 interface IWithAnalysis extends IBaseProperty {
@@ -1107,7 +1222,8 @@ declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstrac
     dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
     protected afterSetEffect(value: AbstractAnalysis[]): void;
-    addRectAt(x: number, y: number): void;
+    addRectAt(x: number, y: number): RectangleAnalysis;
+    addEllipsisAt(x: number, y: number): EllipsisAnalysis;
     getLayerRoot(): HTMLElement;
     protected getRelativePosition(event: MouseEvent): {
         x: number;
@@ -1428,80 +1544,5 @@ declare class ThermalFileFailure extends AbstractFileResult {
 }
 
 declare const getPool: () => Promise<Pool__default>;
-
-declare abstract class AbstractArea {
-    readonly analysis: AbstractAnalysis;
-    get fileWidth(): number;
-    get fileHeight(): number;
-    get root(): HTMLDivElement;
-    protected element: HTMLDivElement;
-    protected _top: number;
-    protected _width: number;
-    protected _left: number;
-    protected _height: number;
-    get top(): number;
-    set top(value: number);
-    get left(): number;
-    set left(value: number);
-    get height(): number;
-    set height(value: number);
-    get width(): number;
-    set width(value: number);
-    get center(): {
-        x: number;
-        y: number;
-    };
-    constructor(analysis: AbstractAnalysis, top: number, right: number, left: number, bottom: number);
-    build(): void;
-    abstract onBuild(): void;
-    setColor(value: string): void;
-    abstract onSetColor(value: string): void;
-}
-
-declare class RectangleArea extends AbstractArea {
-    onBuild(): void;
-    onSetColor(value: string): void;
-}
-
-declare abstract class AbstractHandlePoint extends AbstractPoint {
-    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
-    createInnerElement(): HTMLDivElement;
-    onMouseEnter(): void;
-    onMouseLeave(): void;
-}
-
-declare class CornerPoint extends AbstractHandlePoint {
-    getRadius(): number;
-    mayMoveToX(value: number): boolean;
-    mayMoveToY(value: number): boolean;
-    isMoving: boolean;
-    syncXWith(point: CornerPoint): void;
-    syncYWith(point: CornerPoint): void;
-    onPointerDown(): void;
-    onPointerUp(): void;
-    onMove(): void;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-}
-
-declare class RectangleAnalysis extends AbstractAnalysis {
-    readonly tl: CornerPoint;
-    readonly tr: CornerPoint;
-    readonly bl: CornerPoint;
-    readonly br: CornerPoint;
-    readonly corners: CornerPoint[];
-    readonly area: RectangleArea;
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-    isWithin(x: number, y: number): boolean;
-    constructor(key: string, file: AbstractFile, x: number, y: number);
-    onSetColor(value: string): void;
-    init(): void;
-    protected draw(): void;
-    protected calculateBounds(): void;
-    addPoint(role: string, x: number, y: number, color: string): CornerPoint;
-}
 
 export { AbstractAnalysis, AbstractFile, AbstractTool, AddRectangleTool, type AvailableThermalPalettes, CornerPoint, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };

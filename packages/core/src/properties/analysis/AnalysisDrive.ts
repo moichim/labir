@@ -3,6 +3,7 @@ import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AbstractAddTool } from "./internals/AbstractAddTool";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
+import { EllipsisAnalysis } from "./internals/ellipsis/EllipsisAnalysis";
 import { PointsListener } from "./internals/PointsListener";
 import { RectangleAnalysis } from "./internals/rectangle/RectangleAnalysis";
 import { AnalysisStorage } from "./internals/tools/AnalysisStorage";
@@ -46,9 +47,23 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
 
         const analysisName = `Rectangle ${this.value.length}`;
 
-        const newRect = new RectangleAnalysis( analysisName, this.parent, x, y  );
+        const newRect = new RectangleAnalysis( analysisName, this.parent, x, y, this.storage.getNextColor()  );
 
         this.storage.addAnalysis( newRect )
+
+        return newRect;
+
+    }
+
+    public addEllipsisAt( x: number, y: number ) {
+        const analysisName = `Ellipsis ${this.value.length}`;
+
+        const newRect = new EllipsisAnalysis( analysisName, this.parent, x, y, this.storage.getNextColor()  );
+
+        this.storage.addAnalysis( newRect )
+
+        return newRect;
+
 
     }
 
@@ -82,16 +97,11 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
 
     activateListeners() {
 
-        this.getLayerRoot().onmouseenter = event => {
-            console.log(event);
-        }
-
         this.getLayerRoot().addEventListener("mousemove", event => {
 
             const position = this.getRelativePosition(event);
 
             const activeTool = this.parent.group.tool.value;
-
     
             this.points.forEach( point => {
                 

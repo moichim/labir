@@ -1,6 +1,7 @@
 import { AbstractFile } from "../../file/AbstractFile";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { AddEllipsisTool } from "../analysis/internals/ellipsis/AddEllipsisTool";
 import { AddRectangleTool } from "../analysis/internals/rectangle/AddRectangleTool";
 import { AbstractTool, ITool } from "./internals/AbstractTool";
 import { EditTool } from "./internals/EditTool";
@@ -12,7 +13,8 @@ export interface IWithTool extends IBaseProperty {
 
 export const definedTools = {
     inspect: InspectTool,
-    addTest: AddRectangleTool,
+    addRectangle: AddRectangleTool,
+    addEllipsis: AddEllipsisTool,
     edit: EditTool
 }
 
@@ -28,7 +30,7 @@ export class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup >{
     protected _tools = Object.fromEntries<ThermalTool>( Object.entries(definedTools).map( ([key, cls]) => {
         return [
             key as ToolKeys, 
-            new cls
+            new cls( this.parent )
         ]
     } ) ) as {
         [index in ToolKeys]: ThermalTool

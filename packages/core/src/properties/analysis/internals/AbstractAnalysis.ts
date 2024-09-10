@@ -25,6 +25,22 @@ export abstract class AbstractAnalysis {
 
     public readonly points: Map<string,AbstractPoint> = new Map;
 
+    protected _min?: number;
+    public get min() {
+        return this._min;
+    }
+    
+    protected _max?: number;
+    public get max() {
+        return this._max;
+    }
+
+    protected _avg?: number;
+    public get avg() {
+        return this._avg;
+    }
+
+
     public get arrayOfPoints() {
         return Array.from( this.points.values() );
     }
@@ -41,14 +57,15 @@ export abstract class AbstractAnalysis {
         this.onSetColor.call( value );
     }
     protected abstract setColorCallback( value: string ): void;
-    public onSetColor = new CallbacksManager<(value:string) => void>
+    public onSetColor = new CallbacksManager<(value:string) => void>;
 
 
     public ready: boolean = false;
 
     public constructor(
         public readonly key: string,
-        public readonly file: AbstractFile
+        public readonly file: AbstractFile,
+        public readonly initialColor: string
     ) {
 
         // Append the render root
@@ -65,6 +82,7 @@ export abstract class AbstractAnalysis {
         this.layerRoot.id = `analysis_${this.key}`;
 
         this.renderRoot.appendChild( this.layerRoot );
+
     }
 
     public abstract init(): void;
@@ -91,16 +109,30 @@ export abstract class AbstractAnalysis {
     public setSelected() {
         this._selected = true;
         this.onSelected.call( this );
+        this.setColor( this.initialColor );
     }
 
     public setDeselected() {
         this._selected = false;
         this.onDeselected.call( this );
+        this.setColor( "black" );
     }
 
     onResize = new CallbacksManager<() => void>;
 
     public abstract isWithin( x: number, y: number): boolean;
+
+    public recalculateValues() {
+        const { min, max, avg } = this.getValues();
+        this._min = min;
+        this._max = max;
+        this._avg = avg;
+        this.onValues.call( this.min, this.max, this.avg );
+    }
+
+    protected abstract getValues(): {min?: number, max?: number, avg?: number}
+
+    public readonly onValues = new CallbacksManager< (min?: number, max?: number, avg?: number) => void >;
 
     
 
