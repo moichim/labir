@@ -32,11 +32,11 @@ export class SingleFileApp extends BaseElement {
 
     return html`
 
-    <manager-provider id="manager_${this.UUID}" palette=${this.palette}>
+    <manager-provider slug="manager_${this.UUID}" palette=${this.palette}>
 
-      <registry-provider id="registry_${this.UUID}">
+      <registry-provider slug="registry_${this.UUID}">
 
-        <group-provider id="group_${this.UUID}">
+        <group-provider slug="group_${this.UUID}">
 
           <file-provider thermal="${this.url}" open>
 

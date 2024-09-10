@@ -1,4 +1,4 @@
-var gl=Object.defineProperty;var ml=(t,e,r)=>e in t?gl(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var d=(t,e,r)=>(ml(t,typeof e!="symbol"?e+"":e,r),r);const vl="@labir/embed",Co="1.2.28",bl="Embedded display of thermograms",yl="dist/embed.js",wl="module",So={type:"git",url:"https://github.com/moichim/labir"},xl={vite:"vite",eslint:"eslint src",test:"vitest src",build:"vite build",serve:"serve dist/",lint:"eslint src"},Oo="Jan Jáchim <jachim5@gmail.com>",kl="ISC",_l={"@floating-ui/dom":"^1.6.6","@labir/core":"workspace:*","@labir/react-bridge":"workspace:*","@lit/context":"^1.1.2","@types/uuid":"^9.0.8","date-fns":"^3.6.0",lit:"^3.1.4","toolcool-range-slider":"^4.0.28",uuid:"^9.0.1","web-dialog":"^0.0.11",workerpool:"^9.1.3"},$l={"@eslint/js":"^9.4.0","@types/node":"^20.14.2","@types/react-dom":"^18.3.0","@vitejs/plugin-react":"^4.3.0",eslint:"^8.57.0",jsdom:"^24.1.0",serve:"^14.2.3",tsup:"^8.1.0",typescript:"^5.4.5","typescript-eslint":"^7.12.0",vite:"^5.2.12","vite-plugin-static-copy":"^1.0.5",vitest:"^1.6.0"},Eo={name:vl,version:Co,description:bl,main:yl,type:wl,repository:So,scripts:xl,author:Oo,license:kl,dependencies:_l,devDependencies:$l};/**
+var gl=Object.defineProperty;var ml=(t,e,r)=>e in t?gl(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var d=(t,e,r)=>(ml(t,typeof e!="symbol"?e+"":e,r),r);const vl="@labir/embed",Co="1.2.29",bl="Embedded display of thermograms",yl="dist/embed.js",wl="module",So={type:"git",url:"https://github.com/moichim/labir"},xl={vite:"vite",eslint:"eslint src",test:"vitest src",build:"vite build",serve:"serve dist/",lint:"eslint src"},Oo="Jan Jáchim <jachim5@gmail.com>",kl="ISC",_l={"@floating-ui/dom":"^1.6.6","@labir/core":"workspace:*","@labir/react-bridge":"workspace:*","@lit/context":"^1.1.2","@types/uuid":"^9.0.8","date-fns":"^3.6.0",lit:"^3.1.4","toolcool-range-slider":"^4.0.28",uuid:"^9.0.1","web-dialog":"^0.0.11",workerpool:"^9.1.3"},$l={"@eslint/js":"^9.4.0","@types/node":"^20.14.2","@types/react-dom":"^18.3.0","@vitejs/plugin-react":"^4.3.0",eslint:"^8.57.0",jsdom:"^24.1.0",serve:"^14.2.3",tsup:"^8.1.0",typescript:"^5.4.5","typescript-eslint":"^7.12.0",vite:"^5.2.12","vite-plugin-static-copy":"^1.0.5",vitest:"^1.6.0"},Eo={name:vl,version:Co,description:bl,main:yl,type:wl,repository:So,scripts:xl,author:Oo,license:kl,dependencies:_l,devDependencies:$l};/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -2025,11 +2025,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
  * SPDX-License-Identifier: BSD-3-Clause
  */const Ys=t=>t??Z;var nf=Object.defineProperty,of=Object.getOwnPropertyDescriptor,Ar=(t,e,r,i)=>{for(var s=i>1?void 0:i?of(e,r):e,n=t.length-1,o;n>=0;n--)(o=t[n])&&(s=(i?o(e,r,s):o(s))||s);return i&&s&&nf(e,r,s),s};let or=class extends bn{constructor(){super(...arguments),this.palette="jet",this.url=""}render(){return this.url===""?Z:T`
 
-    <manager-provider id="manager_${this.UUID}" palette=${this.palette}>
+    <manager-provider slug="manager_${this.UUID}" palette=${this.palette}>
 
-      <registry-provider id="registry_${this.UUID}">
+      <registry-provider slug="registry_${this.UUID}">
 
-        <group-provider id="group_${this.UUID}">
+        <group-provider slug="group_${this.UUID}">
 
           <file-provider thermal="${this.url}" open>
 
