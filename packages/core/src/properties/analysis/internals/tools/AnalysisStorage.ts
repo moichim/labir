@@ -55,13 +55,14 @@ export class AnalysisStorage extends Map<string, AbstractAnalysis> {
         this.layers = [ ...this.layers, analysis ];
 
         // Add analysis to layer
+
         /*
         if ( where === AnalysisAddPosition.PREPEND ) {
             this.layers = [ analysis, ...this.layers ];
         } else {
             this.layers = [ ...this.layers, analysis ];
         }
-        */
+            */
 
         this.onAdd.call(analysis, this.all);
         this.drive.dangerouslySetValueFromStorage( this.all );

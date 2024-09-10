@@ -37,12 +37,6 @@ export class GroupToolButtons extends GroupConsumer {
         } );
     }
 
-
-    
-
-
-
-
     /** Handle user input events */
     onSelect(tool: ThermalTool) {
         this.group.tool.selectTool(tool);

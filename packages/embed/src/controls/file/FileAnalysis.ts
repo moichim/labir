@@ -36,6 +36,10 @@ export class FileAnalysisList extends FileConsumer {
     static styles?: CSSResultGroup | undefined = css`
         .container {
         
+            overflow: hidden;
+            border-radius: var( --thermal-radius );
+            border: 1px solid var( --thermal-slate );
+            margin-top: calc( var( --thermal-gap ) / 3 );
         
         }
 
@@ -43,6 +47,10 @@ export class FileAnalysisList extends FileConsumer {
             width: 100%;
             border-collapse:collapse;
             font-size: var( --thermal-fs-small );
+        }
+
+        .container table caption {
+            display: none !important;
         }
 
         .container table th {

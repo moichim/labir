@@ -2881,8 +2881,8 @@ var Instance = class _Instance extends AbstractFile {
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
-        const value2 = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
-        this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, value2.toString());
+        const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
+        this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
     }
   }
@@ -3723,12 +3723,14 @@ var ToolDrive = class extends AbstractProperty {
     return value;
   }
   afterSetEffect(value) {
-    value.activate();
-    Object.values(this.tools).forEach((tool) => {
-      if (tool.key !== value.key) {
-        tool.deactivate();
-      }
-    });
+    if (value) {
+      value.activate();
+      Object.values(this.tools).forEach((tool) => {
+        if (tool.key !== value.key) {
+          tool.deactivate();
+        }
+      });
+    }
   }
   /** Pick a tool. Its activation is handled by the `afterSetEffect` */
   selectTool(tool) {

@@ -4,6 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import {ifDefined} from 'lit/directives/if-defined.js';
+import { ThermalButton } from "../../ui/Button";
 
 @customElement("file-analysis-row")
 export class FileAnalysisList extends FileConsumer {
@@ -42,6 +43,10 @@ export class FileAnalysisList extends FileConsumer {
     public connectedCallback(): void {
         
         super.connectedCallback();
+
+        this.hydrate( this.analysis );
+
+        /*
 
         this.selected = this.analysis.selected;
         this.active = this.analysis.active;
@@ -90,11 +95,15 @@ export class FileAnalysisList extends FileConsumer {
 
         } );
 
+        */
+
     
     }
 
 
     protected hydrate( analysis: AbstractAnalysis ) {
+
+        this.log( "HYDRATUJI", analysis.key );
 
 
         this.selected = analysis.selected;
@@ -133,22 +142,33 @@ export class FileAnalysisList extends FileConsumer {
             }
         );
 
+        this.clickListener = (event: Event) => {
 
-        this.renderRoot.addEventListener( "click", () => {
+            console.log( analysis );
 
-            if ( this.selected === false ) {
-                analysis.file.analysis.storage.select( analysis );
-            } else {
-                analysis.file.analysis.storage.deselect( analysis );
-            }
+            // if ( ! ( event.target instanceof ThermalButton ) ) {
 
-        } );
+                if ( this.selected === false ) {
+                    this.selected = true;
+                    this.analysis.file.analysis.storage.select( analysis );
+                } else {
+                    this.selected = false;
+                    this.analysis.file.analysis.storage.deselect( analysis );
+                }
 
+            // }
 
+        };
+
+        this.renderRoot.addEventListener( "click", this.clickListener! );
 
     }
 
+    public clickListener?: EventListener
+
     protected dehydrate( analysis: AbstractAnalysis ) {
+
+        this.log( "DEHYDRATUJI", analysis.key );
 
 
         // Add listeners
@@ -160,27 +180,26 @@ export class FileAnalysisList extends FileConsumer {
 
         analysis.onValues.remove( this.uuid( "onValues" ) );
 
+            this.renderRoot.removeEventListener( "click", this.clickListener! );
 
-        this.renderRoot.addEventListener( "click", () => {
+    }
 
-            if ( this.selected === false ) {
-                analysis.file.analysis.storage.select( analysis );
-            } else {
-                analysis.file.analysis.storage.deselect( analysis );
-            }
-
-        } );
+    public handleClick() {
 
     }
 
     public willUpdate(_changedProperties: PropertyValues): void {
+
         super.willUpdate( _changedProperties );
 
-        if ( "analysis" in _changedProperties ) {
-            this.log( _changedProperties["analysis"] );
+        if ( _changedProperties.has( "analysis" ) ) {
 
-            const oldAnalysis = _changedProperties["analysis"] as AbstractAnalysis;
-            this.dehydrate( oldAnalysis );
+            const oldAnalysis = _changedProperties.get("analysis") as AbstractAnalysis;
+
+            if ( oldAnalysis ) {
+                this.dehydrate( oldAnalysis );
+            } 
+            
             this.hydrate( this.analysis );
 
         }
@@ -238,7 +257,7 @@ export class FileAnalysisList extends FileConsumer {
         if ( value === undefined ) {
             return "-";
         }
-        return value.toFixed(4) + " °C"
+        return value.toFixed(1) + " °C"
     }
 
 
@@ -261,8 +280,6 @@ export class FileAnalysisList extends FileConsumer {
                 <td>
                     <thermal-button @click=${()=> {this.analysis.file.analysis.storage.removeAnalysis( this.analysis.key )}}>Remove</thermal-button>
                 </td>
-
-        
         `;
     }
 
