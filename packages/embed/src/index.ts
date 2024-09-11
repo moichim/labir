@@ -1,10 +1,18 @@
-import * as pjson from "../package.json"
+import {author, version } from "../package.json"
+
+/**!
+ * ===========
+ * LabIR Embed
+ * ===========
+ * 
+ * A webcomponents library for display and analysis of thermal images.
+ * 
+ */
 
 
 // Log the start info
-console.info( `@labir/embed ${pjson.version}
-    Author: ${pjson.author}
-    Repository: ${pjson.repository.url}
+console.info( `@labir/embed ${version}
+    Author: ${author}
     ` );
 
 
@@ -38,6 +46,14 @@ import "./controls/registry/Histogram";
 import "./controls/file/FileTimeline";
 import "./controls/file/FilePlaybackSpeedDropdown";
 import "./controls/manager/PaletteButtons";
+import "./controls/registry/RangeDisplay";
+import "./controls/file/FileVideo";
+import "./controls/file/markers/ImageMarker";
+import "./controls/file/markers/MarkerTimeline";
+import "./controls/file/markers/MarksContent";
+import "./controls/group/GroupToolButtons";
+import "./controls/file/FileAnalysis";
+import "./controls/file/FileAnalysisTableRow";
 
 import "./hierarchy/TestComponent";
 

@@ -86,6 +86,14 @@ export class RegistryProviderElement extends ManagerConsumer {
         this.registry.loading.addListener( this.UUIDRegistryListeners, value => {
             this.loading = value;
         } );
+
+        // Set the fixed range if necessary
+        if ( this.from !== undefined && this.to !== undefined ) {
+            this.registry.range.setFixedRange( {
+                from: this.from,
+                to: this.to
+            } );
+        }
         
     }
 
@@ -95,7 +103,7 @@ export class RegistryProviderElement extends ManagerConsumer {
 
         // Project the range to internals
 
-        if ( ( name === "from" || name === "to" ) && value ) {
+        if ( ( name === "from" || name === "to" ) && value && this.registry ) {
 
             const range = this.registry.range;
 
@@ -111,11 +119,11 @@ export class RegistryProviderElement extends ManagerConsumer {
                     const valueDiffers = this.from !== range.value?.from || this.to !== range.value.to;
 
                     if ( valueDiffers ) {
-                        range.imposeRange( newValue );
+                        range.setFixedRange( newValue );
                     }
 
                 } else {
-                    range.imposeRange( newValue );
+                    range.setFixedRange( newValue );
                 }
 
 

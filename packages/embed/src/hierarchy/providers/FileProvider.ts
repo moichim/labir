@@ -1,9 +1,10 @@
 import { Instance, playbackSpeed, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
-import { html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { html, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileMarkersContext, fileMsContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
@@ -33,6 +34,7 @@ export class FileProviderElement extends GroupConsumer {
     @state()
     currentFrame?: CurrentFrameContext;
 
+    @provide( {context: fileMsContext} )
     @property({type: Number, reflect: true, attribute: true})
     ms: number = 0;
 
@@ -55,6 +57,17 @@ export class FileProviderElement extends GroupConsumer {
     @provide( {context: mayStopContext} )
     @state()
     mayStop: boolean = true;
+
+
+    @queryAssignedElements({slot: "mark", flatten: true})
+    @property( {type: Object, reflect: true})
+    marksElement: FileMarker[] = [];
+
+    @provide( {context: fileMarkersContext} )
+    marks: FileMarker[] = [];
+
+    @provide({context:analysisList})
+    analysis: AnalysisList = [];
 
 
 
@@ -192,6 +205,12 @@ export class FileProviderElement extends GroupConsumer {
                 // Update mayStop state
                 result.recording.callbackMayStop.add( this.UUID, value => this.mayStop = value );
 
+                // Update analysis list
+                this.analysis = result.analysis.layers.all;
+                result.analysis.addListener( this.UUID, value => {
+                    this.analysis = value;
+                } );
+
 
             } else {
                 this.failure = result as ThermalFileFailure;
@@ -199,6 +218,16 @@ export class FileProviderElement extends GroupConsumer {
         } );
 
     }
+
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated( _changedProperties );
+        this.marks = this.marksElement;
+
+        this.marks.forEach( mark => console.log( mark.innerHTML ) );
+    }
+
+
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback( name, _old, value );
@@ -283,16 +312,25 @@ export class FileProviderElement extends GroupConsumer {
 
 
 
+    
+    
 
 
 
+    protected willUpdate(_changedProperties: PropertyValues): void {
+        super.willUpdate( _changedProperties );
+        // this.log( _changedProperties );
+    }
 
 
 
     /** Rendering */
 
     protected render(): unknown {
-        return html`<slot></slot>`;
+        return html`
+            <slot></slot>
+            <slot name="mark"></slot>
+        `;
     }
 
 }

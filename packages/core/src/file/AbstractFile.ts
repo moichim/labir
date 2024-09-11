@@ -1,6 +1,7 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
+import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
@@ -66,6 +67,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     // Drives
     public timeline!: ITimelineDrive;
     public cursorValue!: CursorValueDrive;
+    public analysis: AnalysisDrive = new AnalysisDrive(this, []);
 
     // Recording is lazyloaded
 
@@ -83,6 +85,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public set pixels(value: number[]) {
         this._pixels = value;
         this.onSetPixels(value);
+        this.analysis.value.forEach( analysis => analysis.recalculateValues() );
     }
 
     public abstract getPixelsForHistogram(): number[];
@@ -212,6 +215,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         }
 
         this.listenerLayer.mount();
+        this.analysis.activateListeners();
 
         this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
 
@@ -259,6 +263,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     protected unmountListener() {
 
         this.listenerLayer.unmount();
+        this.analysis.deactivateListeners();
 
     }
 
@@ -292,8 +297,25 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         position: ThermalCursorPositionOrUndefined
     ) {
 
+        // If position
+        if ( position !== undefined ) {
+
+            // Get label value from the current tool
+            const label = this.group.tool.value.getLabelValue( position.x, position.y, this );
+            this.cursorLayer.setLabel( position.x, position.y, label );
+
+            this.cursorLayer.show = true;
+
+        } else {
+            this.cursorLayer.show = false;
+            this.cursorLayer.resetCursor();
+        }
+
+        
+        // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
 
+        /*
         if (position !== undefined && this.cursorValue.value !== undefined) {
             this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
             this.cursorLayer.show = true;
@@ -301,6 +323,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
             this.cursorLayer.show = false;
             this.cursorLayer.resetCursor();
         }
+        */
 
     }
 

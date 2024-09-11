@@ -1,10 +1,13 @@
 import { Instance } from "@labir/core";
+import { consume } from "@lit/context";
 import { format } from "date-fns";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { fileMarkersContext } from "../../hierarchy/providers/context/FileContexts";
+import { FileMarker } from "./markers/ImageMarker";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
@@ -120,13 +123,21 @@ export class TimelineElement extends FileConsumer {
         .timeline {
 
             flex-grow: 1;
-            background: var( --thermal-slate );
-            height: var( --thermal-gap );
+            
+            
             cursor: pointer;
+
+            
         }
         .timeline-bar {
             width: 100%;
-            height: 100%;
+            height: var( --thermal-gap );
+            background: var( --thermal-slate );
+            transition: background-color .2s ease-in-out;
+
+            &:hover {
+                /** background: var( --thermal-slate-light ); */
+            }
         }
 
         .timeline-marks {
@@ -143,6 +154,7 @@ export class TimelineElement extends FileConsumer {
             height: 100%;
             background: var( --thermal-primary );
             content: "";
+            border-right: 1px solid var( --thermal-foreground );
         }
 
         .collapsed {
@@ -181,6 +193,9 @@ export class TimelineElement extends FileConsumer {
         this.highlights = highlights;
     }
 
+    @consume( {context: fileMarkersContext, subscribe: true} )
+    public markers!: FileMarker[];
+
 
 
 
@@ -214,8 +229,6 @@ export class TimelineElement extends FileConsumer {
 
             const percent = x / this.timelineRef.value.clientWidth * 100;
 
-            this.log( percent );
-
             this.file.timeline.setValueByPercent(percent);
 
         }
@@ -227,6 +240,8 @@ export class TimelineElement extends FileConsumer {
 
 
     protected render(): unknown {
+
+        // this.log( this.markers );
 
         const file = this.file as Instance;
 
@@ -292,21 +307,17 @@ export class TimelineElement extends FileConsumer {
                                 ${this.currentFrame?.time}
                             </div>
 
-                            <div class="${classMap(barClasses)}" @click=${this.handleBarClick.bind(this)} ${ref(this.timelineRef)}>
-                                <div class="timeline-bar">
+                            <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
+                                <div class="timeline-bar" @click=${this.handleBarClick.bind(this)}>
                                     <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
                                 </div>
-                                <div class="timeline-marks">
-                                    ${this.highlights.length > 0 
-                                        ? this.highlights.map( mark => {
-                                        const start = mark.fromMs / file.duration * 100;
-                                        const width = ( mark.toMs - mark.fromMs ) / file.duration * 100
-                                        return html`
-                                        <div class="mark" style="left: ${start}%; width: ${ width }%"></div>
-                                    `
-                                    })
-                                    : nothing}
+
+                                <div>
+                                    ${ this.markers.map( element => {
+                                     return html`<file-marker-timeline start=${element.fromMs} end=${element.endMs} ></file-marker-timeline>`
+                                    } ) }
                                 </div>
+
                             </div>
 
                             <div class="item inline small">${this.duration?.time}</div>

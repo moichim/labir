@@ -7,6 +7,7 @@ export default class ThermalDomFactory {
         // container.style.transition = "opacity 300ms ease-in-out";
         container.style.position = "relative";
         // container.part.add( "thermal-canvas" );
+        container.style.userSelect = "none";
         return container;
     }
 
@@ -21,22 +22,8 @@ export default class ThermalDomFactory {
         canvas.style.objectPosition = "top left";
         // canvas.style.cursor = "crosshair";
         //canvas.style.transition = "opacity 300ms ease-in-out";
+        canvas.style.userSelect = "none";
         return canvas;
-    }
-
-
-    public static createDateLayer(): HTMLDivElement {
-        const layer = document.createElement( "div" );
-        layer.classList.add( "dateLayer" );
-        layer.style.margin = "0px";
-        layer.style.padding = "0px";
-        layer.style.position = "absolute";
-        layer.style.top = "0px";
-        layer.style.left = "0%";
-        layer.style.width = "100%";
-        layer.style.fontSize = "small";
-        // layer.style.transition = "opacity 300ms ease-in-out";
-        return layer;
     }
 
     public static createDateLayerInner(): HTMLDivElement {
@@ -55,6 +42,7 @@ export default class ThermalDomFactory {
         inner.style.opacity = "0";
         inner.style.transition = "opacity .1s ease-in-out";
         inner.style.textAlign = "center";
+        inner.style.userSelect = "none";
         return inner;
     }
 
@@ -68,6 +56,7 @@ export default class ThermalDomFactory {
         layer.style.position = "absolute";
         layer.style.top = "0px";
         layer.style.left = "0px";
+        layer.style.userSelect = "none";
         // layer.style.transition = "opacity 300ms ease-in-out";
         return layer;
     }
@@ -81,6 +70,7 @@ export default class ThermalDomFactory {
         img.style.width = "100%";
         img.style.height = "100%";
         img.style.objectPosition = "top left";
+        img.style.userSelect = "none";
         // canvas.style.cursor = "crosshair";
         return img;
     }
@@ -98,6 +88,8 @@ export default class ThermalDomFactory {
         listener.style.top = "0px";
         listener.style.left = "0px";
         listener.style.cursor = "pointer";
+        listener.style.touchAction = "none";
+        listener.style.userSelect = "none";
         listener.setAttribute( "id", ( Math.random() ).toString() );
 
         return listener;
@@ -115,6 +107,7 @@ export default class ThermalDomFactory {
         layer.style.opacity = "0";
         layer.style.overflow = "hidden";
         layer.style.lineHeight = "1rem";
+        layer.style.userSelect = "none";
         return layer;
     }
 
@@ -126,6 +119,7 @@ export default class ThermalDomFactory {
         container.style.left = "0px";
         container.style.width = "0px";
         container.style.height = "0px";
+        container.style.userSelect = "none";
         // container.style.transition = "all 50ms ease-in-out";
         return container;
     }
@@ -138,6 +132,7 @@ export default class ThermalDomFactory {
         axe.style.top = "0px";
         axe.style.left = "0px";
         axe.style.content = "";
+        axe.style.userSelect = "none";
         return axe;
     }
 
@@ -147,6 +142,7 @@ export default class ThermalDomFactory {
         axeX.style.width = "1px";
         axeX.style.height = "20px";
         axeX.style.top = "-10px";
+        axeX.style.userSelect = "none";
         return axeX;
     }
 
@@ -156,6 +152,7 @@ export default class ThermalDomFactory {
         axeY.style.width = "20px";
         axeY.style.height = "1px";
         axeY.style.left = "-10px";
+        axeY.style.userSelect = "none";
         return axeY;
     }
 
@@ -169,6 +166,7 @@ export default class ThermalDomFactory {
         axeLabel.style.whiteSpace = "nowrap";
         axeLabel.style.fontSize = "small";
         axeLabel.style.borderRadius = "5px";
+        axeLabel.style.userSelect = "none";
         return axeLabel;
     }
 

@@ -119,7 +119,7 @@ export class ThermalFileInstance extends AbstractFile {
                 const value = this.getTemperatureAtPoint(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y);
 
                 // Set the value
-                this.cursorLayer.setValue(value);
+                this.cursorLayer.setLabel(value);
             }
         }
     }

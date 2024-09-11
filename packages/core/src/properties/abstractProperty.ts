@@ -2,8 +2,10 @@ import { AbstractFile } from "../file/AbstractFile";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
+import { AbstractAnalysis } from "./analysis/internals/AbstractAnalysis";
 import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./drives/RangeDriver";
+import { AbstractTool } from "./tool/internals/AbstractTool";
 
 type PropertyListenersTypes = boolean
     | number
@@ -13,7 +15,9 @@ type PropertyListenersTypes = boolean
     | ThermalCursorPositionOrUndefined
     | ThermalGroup[]
     | ThermalStatistics[]
-    | AbstractFile[];
+    | AbstractFile[]
+    | AbstractAnalysis[]
+    | AbstractTool;
 
 export type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 

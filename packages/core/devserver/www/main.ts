@@ -2,6 +2,8 @@ import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
+import { RectangleAnalysis } from "../../src/properties/analysis/internals/rectangle/RectangleAnalysis";
+import { definedTools } from "../../src/properties/tool/ToolDrive";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
@@ -27,6 +29,8 @@ group.files.addListener("boot", value => {
         // element.style.position = "relative";
 
         instance.mountToDom(element);
+
+        // instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
 
     });
 
@@ -133,6 +137,12 @@ const batchLoading = async (
 
     instances.map( mountInstance );
 
+    /*
+    instances.forEach( instance => {
+        instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
+    } );
+     */
+
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 
     group_2.registry.postLoadedProcessing();
@@ -152,3 +162,61 @@ batchLoading([
     // "/image-thermal 2024-02-12 10-15-08.lrc",
     "/sequence.lrc"
 ]);
+
+const buildControls = () => {
+    Object.entries( group_2.tool.tools ).forEach( ( [key, instance] ) => {
+        const btn = document.createElement( "button" );
+        btn.innerHTML = key;
+
+        btn.onclick = () => {
+            group_2.tool.selectTool( instance );
+        }
+
+        document.body.appendChild( btn );
+    } );
+
+    group_2.tool.addListener( "main manager", console.log );
+
+
+    const randomizer = document.createElement( "button" );
+    randomizer.innerHTML = "Vytvořit náhodnou";
+
+
+    randomizer.addEventListener( "click", () => {
+
+        group_2.forEveryInstance( instance => {
+
+            const top = Math.random() * instance.height;
+            const bottom = Math.random() * instance.height;
+            const left = Math.random() * instance.width;
+            const right = Math.random() * instance.width;
+
+            instance.analysis.layers.placeRectAt( Math.random().toFixed(5), top, left, right, bottom );
+
+        } );
+
+    } );
+
+
+    document.body.appendChild( randomizer );
+
+    const rrand = document.createElement( "button" );
+    rrand.innerHTML = "Vytvořit známou";
+
+
+    rrand.addEventListener( "click", () => {
+
+        group_2.forEveryInstance( instance => {
+
+            instance.analysis.layers.placeRectAt( Math.random().toFixed(5), 10, 10, 100, 100 );
+
+        } );
+
+    } );
+
+
+    document.body.appendChild( rrand );
+
+}
+
+buildControls();

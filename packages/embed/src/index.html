@@ -19,6 +19,7 @@
 
 <body>
 
+<!--
 
   <div>
 
@@ -39,17 +40,39 @@
 
   </div>
 
+-->
+
   <div>
 
 
-    <h2>Příklad ukazující teplotní rozsah</h2>
+    <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
     <manager-provider palette="jet" slug="some-example">
-      <registry-provider>
-        <registry-range-slider from="15" to="20"></registry-range-slider>
+      <registry-provider from="28" to="85">
+        <registry-range-display></registry-range-display>
+        <registry-range-slider></registry-range-slider>
         <registry-ticks-bar></registry-ticks-bar>
+        
         <group-provider>
-            <file-provider thermal="/soustruh.lrc">
+          <group-tool-buttons></group-tool-buttons>
+            <file-provider thermal="/tucnaci_04.lrc">
+
+              <file-analysis-list></file-analysis-list>
+
+              <file-marker slot="mark" label="Úvod do videa" start="0:02:300" dur="0:10:000" say="Při aktivaci markeru mohu přečíst nějaký text. Během čtení mohu zastavit přehrávání a po dočtení mohu zase začít přehrávat.">
+                <div onClick="(function(){alert('ano?');return false;})()">Jsem tady a jsem hezký!</div>
+              </file-marker>
+              <file-marker slot="mark" start="0:010:000" end="0:30:000" say="Toto je popiska ke druhému markeru.">
+                <h2>Jsem tady a jsem krásný</h2>
+                <p>Ano? My jsme tady!</p>
+              </file-marker>
+
+
+              
+              <file-timeline></file-timeline>
+
+              <file-marks-content></file-marks-content>
+
               <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -85,13 +108,14 @@
       <group-provider slug="kompletní grupa">
 
 
-        <file-provider thermal="/sequence.lrc" open>
+        <file-provider thermal="/soustruh.lrc" open>
 
           <file-app></file-app>
 
         </file-provider>
 
 
+        <!--
         <file-provider thermal="/soustruh.lrc">
           <file-share-button></file-share-button>
           <file-info-button></file-info-button>
@@ -101,6 +125,7 @@
           <test-component></test-component>
           <file-canvas></file-canvas>
         </file-provider>
+        -->
 
 
       </group-provider>

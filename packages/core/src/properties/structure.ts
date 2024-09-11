@@ -1,6 +1,7 @@
 // Range
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { IWithAnalysis } from "./analysis/AnalysisDrive";
 import { IWithCursorPosition } from "./drives/CursorPositionDrive";
 import { IWithOpacity } from "./drives/OpacityDrive";
 import { IWithPalette } from "./drives/PaletteDrive";
@@ -12,6 +13,7 @@ import { IWithLoading } from "./states/LoadingState";
 import { IWithMinmaxGroup } from "./states/MinmaxGroupProperty";
 import { IWithMinmaxRegistry } from "./states/MinmaxRegistryState";
 import { IWithRedording } from "./time/recording/RecordingDrive";
+import { IWithTool } from "./tool/ToolDrive";
 
 
 
@@ -33,7 +35,7 @@ interface IThermalContainer
 /** An instance and its properties */
 export interface IThermalInstance
     extends IThermalObjectBase,
-    IWithCursorValue, IWithRedording {
+    IWithCursorValue, IWithRedording, IWithAnalysis {
         group: ThermalGroup
     }
 
@@ -43,7 +45,8 @@ export interface IThermalGroup
     extends IThermalContainer,
     IWithMinmaxGroup,
     IWithFiles,
-    IWithCursorPosition { }
+    IWithCursorPosition,
+    IWithTool { }
 
 /** Thermal registry definition with all its properties */
 export interface IThermalRegistry

@@ -33,6 +33,10 @@ export class SingleFileApp extends FileConsumer {
       width: 100%;
       
     }
+
+    group-tool-buttons {
+      padding-bottom: calc( var(--thermal-gap) / 2 );
+    }
   
   `;
 
@@ -77,14 +81,16 @@ export class SingleFileApp extends FileConsumer {
               <app-info-button ></app-info-button>
             </thermal-bar>
           </div>
-            
+            <group-tool-buttons slot="pre"></group-tool-buttons>
             <registry-histogram slot="pre"></registry-histogram>
             <registry-range-slider slot="pre"></registry-range-slider>
             <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
+            
 
             
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
+            <file-analysis-list slot="post"></file-analysis-list>
         </thermal-app>
     `;
   }

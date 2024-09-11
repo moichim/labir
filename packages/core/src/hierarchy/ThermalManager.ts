@@ -1,12 +1,12 @@
 "use client";
 
+import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { AvailableThermalPalettes } from "../file/palettes";
 import { FilesService } from "../loading/workers/FilesService";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
-import * as workerpool from "workerpool";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
@@ -26,6 +26,8 @@ export class ThermalManager extends BaseStructureObject {
 
     /** A palette is common to all registries within the manager */
     public readonly palette: PaletteDrive = new PaletteDrive(this, "jet");
+
+    
 
     public readonly pool: Pool;
 
