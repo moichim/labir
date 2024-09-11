@@ -3,6 +3,11 @@ import { AbstractFileResult } from "./AbstractFileResult";
 import { FileRequest } from "./FileRequest";
 
 import Pool from "workerpool/types/Pool";
+import { determineParser } from "./parsers";
+import { ThermalFileReader } from "./ThermalFileReader";
+import { ThermalFileFailure } from "./ThermalFileFailure";
+import { FileErrors } from "./errors";
+import { Instance } from "../../file/instance";
 
 export class FilesService {
 
@@ -50,6 +55,31 @@ export class FilesService {
     public fileIsInCache(url: string) {
         return this.cacheByUrl.has(url);
     }
+
+    async loadFromDropin(file: File): Promise<AbstractFileResult> {
+
+        try {
+
+            const buffer = await file.arrayBuffer();
+
+            const parser = determineParser(buffer, file.name);
+
+            return new ThermalFileReader(this, buffer, parser, file.name)
+
+        } catch (error) {
+
+            return new ThermalFileFailure(
+                file.name,
+                FileErrors.PARSING_ERROR,
+                (error as Error).message
+            );
+
+        }
+
+
+    }
+
+   
 
     async loadFile(
         thermalUrl: string,

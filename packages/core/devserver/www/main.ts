@@ -4,6 +4,8 @@ import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
 import { RectangleAnalysis } from "../../src/properties/analysis/internals/rectangle/RectangleAnalysis";
 import { definedTools } from "../../src/properties/tool/ToolDrive";
+import { supportedFileTypes, supportedFileTypesInputProperty } from "../../src/loading/workers/parsers";
+import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure";
 
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
@@ -216,6 +218,92 @@ const buildControls = () => {
 
 
     document.body.appendChild( rrand );
+
+
+
+    const upload = document.createElement( "input" );
+
+    upload.type = "file";
+
+    // upload.accept = supportedFileTypesInputProperty;
+
+    upload.addEventListener( "change", async (event) => {
+        console.log( event );
+
+        const target = event.target as HTMLInputElement;
+
+        if ( target.files ) {
+            const file = target.files[0];
+
+            const result = await manager.service.loadFromDropin( file );
+
+            if ( result instanceof ThermalFileReader ) {
+
+                const r = manager.addOrGetRegistry( file.name );
+                const g = r.groups.addOrGetGroup( file.name );
+
+                const instance = await result.createInstance( g );
+
+                const container = document.createElement( "div" );
+
+                instance.mountToDom( container );
+                instance.draw();
+
+                document.body.appendChild( container );
+
+                console.log( result );
+
+            } else if ( result instanceof ThermalFileFailure ) {
+
+                const container = document.createElement( "div" );
+
+                container.innerHTML = result.message;
+
+                document.body.appendChild( container );
+
+            }
+
+            console.log( await file.arrayBuffer() );
+
+        }
+
+    
+    } );
+
+    document.body.appendChild( upload );
+
+
+
+    const dropin = document.createElement( "div" );
+
+    dropin.style.backgroundColor = "gray";
+    dropin.style.width = "300px";
+    dropin.style.height = "100px";
+
+    dropin.ondrop = event => {
+        event.preventDefault();
+        console.log( event.dataTransfer );
+    }
+
+    /*
+    dropin.addEventListener( "drop", async ( event ) => {
+        event.preventDefault();
+
+        console.log( event );
+
+        const files = event.dataTransfer;
+
+        if ( files && files.items ) {
+
+            console.log( files.items );
+
+        }
+        console.log( event );
+    } );
+     */
+
+    document.body.appendChild( dropin );
+
 
 }
 

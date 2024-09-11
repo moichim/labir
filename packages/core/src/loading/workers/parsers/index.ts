@@ -38,3 +38,8 @@ export const determineParser = (
  */
 export const supportedFileTypes: IParserObject["extensions"][] = parsersArray.map( parser => parser.extensions );
 
+export const supportedFileTypesInputProperty = supportedFileTypes
+.map( type => type
+    .map( entry => entry.minme + ", ." + entry.extension ).join( ", " ) 
+).join(", ");
+
