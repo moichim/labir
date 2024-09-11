@@ -33,8 +33,11 @@ __export(src_exports, {
   AbstractAnalysis: () => AbstractAnalysis,
   AbstractFile: () => AbstractFile,
   AbstractTool: () => AbstractTool,
+  AddEllipsisTool: () => AddEllipsisTool,
   AddRectangleTool: () => AddRectangleTool,
   CornerPoint: () => CornerPoint,
+  EditTool: () => EditTool,
+  EllipsisAnalysis: () => EllipsisAnalysis,
   GRAYSCALE: () => GRAYSCALE,
   IRON: () => IRON,
   InspectTool: () => InspectTool,
@@ -985,13 +988,6 @@ var AbstractAnalysis = class {
     this.layerRoot.id = `analysis_${this.key}`;
     this.renderRoot.appendChild(this.layerRoot);
   }
-  /** Activation status */
-  _active = true;
-  get active() {
-    return this._active;
-  }
-  onActivation = new CallbacksManager();
-  onDeactivation = new CallbacksManager();
   /** Selection status */
   _selected = false;
   get selected() {
@@ -999,9 +995,17 @@ var AbstractAnalysis = class {
   }
   onSelected = new CallbacksManager();
   onDeselected = new CallbacksManager();
+  onResize = new CallbacksManager();
   layerRoot;
   renderRoot;
   points = /* @__PURE__ */ new Map();
+  left;
+  top;
+  width;
+  height;
+  get layers() {
+    return this.file.analysis.layers;
+  }
   _min;
   get min() {
     return this._min;
@@ -1032,30 +1036,40 @@ var AbstractAnalysis = class {
   onSetColor = new CallbacksManager();
   ready = false;
   remove() {
-    this.deactivate();
+    this.setDeselected();
     this.renderRoot.removeChild(this.layerRoot);
   }
-  /** Activation / Deactivation */
-  activate() {
-    this._active = true;
-    this.onActivation.call(this);
-  }
-  deactivate() {
-    this._active = false;
-    this.onDeactivation.call(this);
-  }
   /** Selection / Deselection */
-  setSelected() {
+  setSelected(exclusive = false, emitGlobalEvent = true) {
+    if (this.selected === true) {
+      return;
+    }
     this._selected = true;
     this.onSelected.call(this);
     this.setColor(this.initialColor);
+    if (exclusive === true) {
+      this.layers.all.filter((analysis) => analysis.key !== this.key).forEach((analysis) => {
+        if (analysis.selected) {
+          analysis.setDeselected(false);
+        }
+      });
+    }
+    if (emitGlobalEvent === true) {
+      this.layers.onSelectionChange.call(this.layers.selectedOnly);
+    }
   }
-  setDeselected() {
+  setDeselected(emitGlobalEvent = true) {
+    if (this.selected === false) {
+      return;
+    }
     this._selected = false;
     this.onDeselected.call(this);
     this.setColor("black");
+    this.arrayOfActivePoints.forEach((point) => point.deactivate());
+    if (emitGlobalEvent === true) {
+      this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+    }
   }
-  onResize = new CallbacksManager();
   recalculateValues() {
     const { min, max, avg } = this.getValues();
     this._min = min;
@@ -1068,11 +1082,11 @@ var AbstractAnalysis = class {
 
 // src/properties/analysis/internals/AbstractPoint.ts
 var AbstractPoint = class {
-  constructor(key, x, y, analysis, color) {
+  constructor(key, top, left, analysis, color) {
     this.key = key;
     this.analysis = analysis;
-    this._x = x;
-    this._y = y;
+    this._x = left;
+    this._y = top;
     this._color = color;
     this.container = document.createElement("div");
     this.container.style.position = "absolute";
@@ -1139,16 +1153,13 @@ var AbstractPoint = class {
   }
   container;
   innerElement;
-  isWithin(x, y) {
+  isWithin(top, left) {
     const offset = this.getRadius() / 2;
     const minX = this.x - offset;
     const maxX = this.x + offset;
     const minY = this.y - offset;
     const maxY = this.y + offset;
-    return x >= minX && x <= maxX && y >= minY && y <= maxY;
-  }
-  isInActiveLayer() {
-    return this.analysis.active;
+    return left >= minX && left <= maxX && top >= minY && top <= maxY;
   }
   isInSelectedLayer() {
     return this.analysis.selected;
@@ -1193,8 +1204,8 @@ var AbstractPoint = class {
 
 // src/properties/analysis/internals/AbstractHandlePoint.ts
 var AbstractHandlePoint = class extends AbstractPoint {
-  constructor(key, x, y, analysis, color) {
-    super(key, x, y, analysis, color);
+  constructor(key, top, left, analysis, color) {
+    super(key, top, left, analysis, color);
     this._color = color;
     this.setColor(color);
   }
@@ -1282,28 +1293,37 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
   tr;
   bl;
   br;
-  corners = [];
   area;
-  left;
-  top;
-  width;
-  height;
   isWithin(x, y) {
     return x >= this.left && x <= this.left + this.width && y >= this.top && y <= this.top + this.height;
   }
-  constructor(key, file, x, y, color) {
+  static calculateDimensionsFromCorners(top, left, right, bottom) {
+    const t = Math.min(top, bottom);
+    const b = Math.max(top, bottom);
+    const l = Math.min(left, right);
+    const r = Math.max(left, right);
+    const w = r - l;
+    const h = b - t;
+    return {
+      top: t,
+      left: l,
+      width: w,
+      height: h
+    };
+  }
+  constructor(key, color, file, top, left, width, height) {
     super(key, file, color);
-    this.area = this.buildArea(x, y);
-    this.tl = this.addPoint("tl", x, y, "pink");
-    this.tr = this.addPoint("tr", x, y, "orange");
-    this.bl = this.addPoint("bl", x, y, "lightgray");
-    this.br = this.addPoint("br", x, y, "violet");
-    this.corners = [
-      this.tl,
-      this.tr,
-      this.br,
-      this.bl
-    ];
+    let right = left;
+    let bottom = top;
+    if (width !== void 0 && height !== void 0) {
+      right = left + width;
+      bottom = top + height;
+    }
+    this.area = this.buildArea(top, left, width, height);
+    this.tl = this.addPoint("tl", top, left);
+    this.tr = this.addPoint("tr", top, right);
+    this.bl = this.addPoint("bl", bottom, left);
+    this.br = this.addPoint("br", bottom, right);
     this.tl.syncXWith(this.bl);
     this.tl.syncYWith(this.tr);
     this.tr.syncXWith(this.br);
@@ -1312,7 +1332,6 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.bl.syncYWith(this.br);
     this.br.syncXWith(this.tr);
     this.br.syncYWith(this.bl);
-    this.br.activate();
     this.calculateBounds();
     this.onResize.add("sync the area", () => {
       this.calculateBounds();
@@ -1357,8 +1376,8 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.area.width = this.width;
     this.area.top = this.top;
   }
-  addPoint(role, x, y, color) {
-    const point = new CornerPoint(role, x, y, this, color);
+  addPoint(role, top, left) {
+    const point = new CornerPoint(role, top, left, this, this.color);
     this.points.set(role, point);
     return point;
   }
@@ -1455,23 +1474,56 @@ var EllipsisArea = class extends AbstractArea {
 };
 
 // src/properties/analysis/internals/ellipsis/EllipsisAnalysis.ts
-var EllipsisAnalysis = class extends AbstractAreaAnalysis {
-  buildArea(x, y) {
+var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
+  static startAddingAtPoint(key, color, file, top, left) {
+    const item = new _EllipsisAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left
+    );
+    item.br.activate();
+    return item;
+  }
+  static build(key, color, file, _top, _left, _right, _bottom) {
+    const { top, left, width, height } = _EllipsisAnalysis.calculateDimensionsFromCorners(_top, _left, _right, _bottom);
+    const item = new _EllipsisAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left,
+      width,
+      height
+    );
+    return item;
+  }
+  buildArea(x, y, width, height) {
+    if (width !== void 0 && height !== void 0) {
+      return new EllipsisArea(
+        this,
+        x,
+        y,
+        x + width,
+        y + height
+      );
+    }
     return new EllipsisArea(this, x, y, x, y);
   }
   getValues() {
-    let fromX = this.left;
-    let toX = this.left + this.width;
-    let fromY = this.top;
-    let toY = this.top + this.height;
+    const fromX = this.left;
+    const toX = this.left + this.width;
+    const fromY = this.top;
+    const toY = this.top + this.height;
     let min = Infinity;
     let max = -Infinity;
     let count = 0;
     let sum = 0;
     for (let y = fromY; y < toY; y++) {
-      let rowOffset = this.file.width * y;
+      const rowOffset = this.file.width * y;
       for (let x = fromX; x <= toX; x++) {
-        let point = this.file.pixels[rowOffset + x];
+        const point = this.file.pixels[rowOffset + x];
         if (point < min) {
           min = point;
         }
@@ -1487,19 +1539,6 @@ var EllipsisAnalysis = class extends AbstractAreaAnalysis {
       max,
       avg: sum / count
     };
-  }
-};
-
-// src/properties/analysis/internals/PointsListener.ts
-var PointsListener = class {
-  constructor(instance) {
-    this.instance = instance;
-  }
-  onMouseMove() {
-  }
-  onClick() {
-  }
-  onMouseLeave() {
   }
 };
 
@@ -1516,23 +1555,56 @@ var RectangleArea = class extends AbstractArea {
 };
 
 // src/properties/analysis/internals/rectangle/RectangleAnalysis.ts
-var RectangleAnalysis = class extends AbstractAreaAnalysis {
-  buildArea(x, y) {
+var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
+  static startAddingAtPoint(key, color, file, top, left) {
+    const item = new _RectangleAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left
+    );
+    item.br.activate();
+    return item;
+  }
+  static build(key, color, file, _top, _left, _right, _bottom) {
+    const { top, left, width, height } = _RectangleAnalysis.calculateDimensionsFromCorners(_top, _left, _right, _bottom);
+    const item = new _RectangleAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left,
+      width,
+      height
+    );
+    return item;
+  }
+  buildArea(x, y, width, height) {
+    if (width !== void 0 && height !== void 0) {
+      return new RectangleArea(
+        this,
+        x,
+        y,
+        x + width,
+        y + height
+      );
+    }
     return new RectangleArea(this, x, y, x, y);
   }
   getValues() {
-    let fromX = this.left;
-    let toX = this.left + this.width;
-    let fromY = this.top;
-    let toY = this.top + this.height;
+    const fromX = this.left;
+    const toX = this.left + this.width;
+    const fromY = this.top;
+    const toY = this.top + this.height;
     let min = Infinity;
     let max = -Infinity;
     let count = 0;
     let sum = 0;
     for (let y = fromY; y < toY; y++) {
-      let rowOffset = this.file.width * y;
+      const rowOffset = this.file.width * y;
       for (let x = fromX; x <= toX; x++) {
-        let point = this.file.pixels[rowOffset + x];
+        const point = this.file.pixels[rowOffset + x];
         if (point < min) {
           min = point;
         }
@@ -1551,13 +1623,21 @@ var RectangleAnalysis = class extends AbstractAreaAnalysis {
   }
 };
 
-// src/properties/analysis/internals/tools/AnalysisStorage.ts
-var AnalysisStorage = class extends Map {
+// src/properties/analysis/internals/tools/AnalysisLayersStorage.ts
+var AnalysisLayersStorage = class extends Map {
   constructor(drive) {
     super();
     this.drive = drive;
   }
+  /** Array of all layers ordered from oldest to the newest */
   layers = [];
+  /** Fired whenever an analysis is added */
+  onAdd = new CallbacksManager();
+  /** Fired whenever an analysis is removed */
+  onRemove = new CallbacksManager();
+  /** Fired whenever the selection list changes */
+  onSelectionChange = new CallbacksManager();
+  /** Array of available colors */
   colors = [
     "orange",
     "lightblue",
@@ -1568,8 +1648,7 @@ var AnalysisStorage = class extends Map {
     "pink"
   ];
   // Adding analysis
-  onAdd = new CallbacksManager();
-  addAnalysis(analysis, where = 0 /* PREPEND */) {
+  addAnalysis(analysis) {
     if (this.has(analysis.key)) {
       this.removeAnalysis(analysis.key);
     }
@@ -1581,8 +1660,6 @@ var AnalysisStorage = class extends Map {
     this.drive.dangerouslySetValueFromStorage(this.all);
     return this;
   }
-  // Removing analysis
-  onRemove = new CallbacksManager();
   removeAnalysis(key) {
     if (this.has(key)) {
       this.get(key)?.remove();
@@ -1592,67 +1669,127 @@ var AnalysisStorage = class extends Map {
       this.drive.dangerouslySetValueFromStorage(this.all);
     }
   }
-  // Selecting analysis
-  onSelectionChange = new CallbacksManager();
-  /** Mark an analysis as selected */
-  select(analysis, exclusive = false) {
-    const item = analysis instanceof AbstractAnalysis ? analysis : this.get(analysis);
-    if (item) {
-      item.setSelected();
-      if (exclusive) {
-        this.all.filter((analysis2) => analysis2.key !== item.key).forEach((analysis2) => analysis2.setDeselected());
-      }
-      this.onSelectionChange.call(this.selectedOnly);
-    } else {
-      throw new Error(`Analysis ${analysis} not registered yet!`);
-    }
-    return this;
+  /** Add a rectangular analysis in the given position and start editing it. */
+  createRectFrom(top, left) {
+    const newAnalysis = RectangleAnalysis.startAddingAtPoint(
+      this.getNextName("Rectangle"),
+      this.getNextColor(),
+      this.drive.parent,
+      top,
+      left
+    );
+    this.addAnalysis(newAnalysis);
+    return newAnalysis;
   }
-  deselect(analysis) {
-    analysis.setDeselected();
+  /** Build an ellyptical analysis at the given position. */
+  placeRectAt(key, top, left, right, bottom) {
+    const newAnalysis = RectangleAnalysis.build(
+      key,
+      this.getNextColor(),
+      this.drive.parent,
+      top,
+      left,
+      right,
+      bottom
+    );
+    this.addAnalysis(newAnalysis);
+    return newAnalysis;
+  }
+  /** Add an ellyptical analysis in the given position and start editing it */
+  createEllipsisFrom(top, left) {
+    const newAnalysis = EllipsisAnalysis.startAddingAtPoint(
+      this.getNextName("Ellipsis"),
+      this.getNextColor(),
+      this.drive.parent,
+      top,
+      left
+    );
+    this.addAnalysis(newAnalysis);
+    return newAnalysis;
+  }
+  /** Build an ellyptical analysis at the given position. */
+  placeEllipsisAt(key, top, left, right, bottom) {
+    const newAnalysis = EllipsisAnalysis.build(
+      key,
+      this.getNextColor(),
+      this.drive.parent,
+      top,
+      left,
+      right,
+      bottom
+    );
+    this.addAnalysis(newAnalysis);
+    return newAnalysis;
+  }
+  selectAll() {
+    this.all.filter((analysis) => {
+      if (analysis.selected === false) {
+        analysis.setSelected(false, false);
+      }
+    });
     this.onSelectionChange.call(this.selectedOnly);
   }
+  deselectAll() {
+    this.selectedOnly.forEach((analysis) => {
+      analysis.setDeselected(false);
+    });
+    this.onSelectionChange.call(this.selectedOnly);
+  }
+  /** Accessors */
+  /** Array of all analysis ordered from the oldest to the newest. */
   get all() {
     return this.layers;
   }
-  get activeOnly() {
-    return this.all.filter((analysis) => analysis.active);
-  }
+  /** Array of all active analysis ordered from the oldest to the newest. */
   get selectedOnly() {
     return this.all.filter((analysis) => analysis.selected === true);
   }
-  get allPoints() {
-    return this.extractPointsFromLayers(this.all);
-  }
-  get selectedOnlyPoints() {
-    return this.extractPointsFromLayers(this.selectedOnly);
-  }
-  extractPointsFromLayers(layers, activeOnly = false) {
-    return layers.reduce((state, current) => {
-      const currentPoints = activeOnly ? current.arrayOfActivePoints : current.arrayOfPoints;
-      return [...state, ...currentPoints];
-    }, []);
-  }
+  /** Get color for the next analysis */
   getNextColor() {
-    let nextNum = this.all.length;
+    const nextNum = this.all.length;
     if (nextNum < this.colors.length) {
       return this.colors[nextNum];
     } else {
       return this.colors[nextNum % this.colors.length];
     }
   }
+  /** Get name for the next analysis */
+  getNextName(type) {
+    return `${type} ${this.all.length}`;
+  }
+};
+
+// src/properties/analysis/internals/tools/AnalysisPointsAccessor.ts
+var AnalysisPointsAccessor = class {
+  constructor(drive) {
+    this.drive = drive;
+  }
+  /** Get all points from all layers */
+  get all() {
+    return this.extractPointsFromLayers(this.drive.layers.all);
+  }
+  /** Get all points from selected layers */
+  get allInSelectedLayers() {
+    return this.extractPointsFromLayers(this.drive.layers.selectedOnly);
+  }
+  /** Get only active points from selected layers */
+  get activeInSelectedLayers() {
+    return this.extractPointsFromLayers(this.drive.layers.selectedOnly, true);
+  }
+  /** Extract points from all provided layers */
+  extractPointsFromLayers(layers, activeOnly = false) {
+    return layers.reduce((state, current) => {
+      const currentPoints = activeOnly ? current.arrayOfActivePoints : current.arrayOfPoints;
+      return [...state, ...currentPoints];
+    }, []);
+  }
 };
 
 // src/properties/analysis/AnalysisDrive.ts
 var AnalysisDrive = class extends AbstractProperty {
-  storage = new AnalysisStorage(this);
-  listener = new PointsListener(this.parent);
-  get points() {
-    return this.storage.allPoints;
-  }
-  get activePoints() {
-    return this.storage.allPoints.filter((point) => point.active);
-  }
+  layers = new AnalysisLayersStorage(this);
+  points = new AnalysisPointsAccessor(this);
+  /** Value may be modified only from `AnalysisLayersStorage`! */
   dangerouslySetValueFromStorage(value) {
     this.value = value;
   }
@@ -1661,18 +1798,6 @@ var AnalysisDrive = class extends AbstractProperty {
   }
   afterSetEffect(value) {
     value;
-  }
-  addRectAt(x, y) {
-    const analysisName = `Rectangle ${this.value.length}`;
-    const newRect = new RectangleAnalysis(analysisName, this.parent, x, y, this.storage.getNextColor());
-    this.storage.addAnalysis(newRect);
-    return newRect;
-  }
-  addEllipsisAt(x, y) {
-    const analysisName = `Ellipsis ${this.value.length}`;
-    const newRect = new EllipsisAnalysis(analysisName, this.parent, x, y, this.storage.getNextColor());
-    this.storage.addAnalysis(newRect);
-    return newRect;
   }
   getLayerRoot() {
     return this.parent.listenerLayer.getLayerRoot();
@@ -1689,19 +1814,19 @@ var AnalysisDrive = class extends AbstractProperty {
     const yAspect = layerY / absoluteHeight;
     const y = Math.round(fileHeight * yAspect);
     return {
-      x,
-      y
+      top: y,
+      left: x
     };
   }
   activateListeners() {
-    this.getLayerRoot().addEventListener("mousemove", (event) => {
+    this.getLayerRoot().addEventListener("pointermove", (event) => {
       const position = this.getRelativePosition(event);
       const activeTool = this.parent.group.tool.value;
-      this.points.forEach((point) => {
+      this.points.all.forEach((point) => {
         if (point.active) {
-          activeTool.onPointMove(point, position.x, position.y);
+          activeTool.onPointMove(point, position.top, position.left);
         }
-        const pointIsUnderCursor = point.isWithin(position.x, position.y);
+        const pointIsUnderCursor = point.isWithin(position.top, position.left);
         if (pointIsUnderCursor && !point.isHover) {
           activeTool.onPointEnter(point);
         } else if (!pointIsUnderCursor && point.isHover) {
@@ -1712,16 +1837,16 @@ var AnalysisDrive = class extends AbstractProperty {
     this.getLayerRoot().addEventListener("pointerdown", (event) => {
       const position = this.getRelativePosition(event);
       const activeTool = this.parent.group.tool.value;
-      activeTool.onCanvasClick(position.x, position.y, this.parent);
-      this.points.forEach((point) => {
-        if (point.isWithin(position.x, position.y)) {
+      activeTool.onCanvasClick(position.top, position.left, this.parent);
+      this.points.all.forEach((point) => {
+        if (point.isWithin(position.top, position.left)) {
           activeTool.onPointDown(point);
         }
       });
     });
     this.getLayerRoot().addEventListener("pointerup", () => {
       const activeTool = this.parent.group.tool.value;
-      this.points.forEach((point) => {
+      this.points.all.forEach((point) => {
         activeTool.onPointUp(point);
       });
     });
@@ -1983,6 +2108,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     const container = document.createElement("div");
     container.classList.add("thermalCanvasWrapper");
     container.style.position = "relative";
+    container.style.userSelect = "none";
     return container;
   }
   static createCanvas() {
@@ -1994,19 +2120,8 @@ var ThermalDomFactory = class _ThermalDomFactory {
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.objectPosition = "top left";
+    canvas.style.userSelect = "none";
     return canvas;
-  }
-  static createDateLayer() {
-    const layer = document.createElement("div");
-    layer.classList.add("dateLayer");
-    layer.style.margin = "0px";
-    layer.style.padding = "0px";
-    layer.style.position = "absolute";
-    layer.style.top = "0px";
-    layer.style.left = "0%";
-    layer.style.width = "100%";
-    layer.style.fontSize = "small";
-    return layer;
   }
   static createDateLayerInner() {
     const inner = document.createElement("div");
@@ -2023,6 +2138,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     inner.style.opacity = "0";
     inner.style.transition = "opacity .1s ease-in-out";
     inner.style.textAlign = "center";
+    inner.style.userSelect = "none";
     return inner;
   }
   static createVisibleLayer() {
@@ -2035,6 +2151,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     layer.style.position = "absolute";
     layer.style.top = "0px";
     layer.style.left = "0px";
+    layer.style.userSelect = "none";
     return layer;
   }
   static createVisibleImage() {
@@ -2046,6 +2163,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     img.style.width = "100%";
     img.style.height = "100%";
     img.style.objectPosition = "top left";
+    img.style.userSelect = "none";
     return img;
   }
   static createListener() {
@@ -2059,6 +2177,8 @@ var ThermalDomFactory = class _ThermalDomFactory {
     listener.style.top = "0px";
     listener.style.left = "0px";
     listener.style.cursor = "pointer";
+    listener.style.touchAction = "none";
+    listener.style.userSelect = "none";
     listener.setAttribute("id", Math.random().toString());
     return listener;
   }
@@ -2073,6 +2193,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     layer.style.opacity = "0";
     layer.style.overflow = "hidden";
     layer.style.lineHeight = "1rem";
+    layer.style.userSelect = "none";
     return layer;
   }
   static createCursorLayerCenter() {
@@ -2083,6 +2204,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     container.style.left = "0px";
     container.style.width = "0px";
     container.style.height = "0px";
+    container.style.userSelect = "none";
     return container;
   }
   static createCursorLayerAxeBase() {
@@ -2093,6 +2215,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     axe.style.top = "0px";
     axe.style.left = "0px";
     axe.style.content = "";
+    axe.style.userSelect = "none";
     return axe;
   }
   static createCursorLayerX() {
@@ -2101,6 +2224,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     axeX.style.width = "1px";
     axeX.style.height = "20px";
     axeX.style.top = "-10px";
+    axeX.style.userSelect = "none";
     return axeX;
   }
   static createCursorLayerY() {
@@ -2109,6 +2233,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     axeY.style.width = "20px";
     axeY.style.height = "1px";
     axeY.style.left = "-10px";
+    axeY.style.userSelect = "none";
     return axeY;
   }
   static createCursorLayerLabel() {
@@ -2121,6 +2246,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     axeLabel.style.whiteSpace = "nowrap";
     axeLabel.style.fontSize = "small";
     axeLabel.style.borderRadius = "5px";
+    axeLabel.style.userSelect = "none";
     return axeLabel;
   }
 };
@@ -3567,15 +3693,15 @@ var AbstractTool = class {
 var InspectTool = class extends AbstractTool {
   key = "inspect";
   name = "Inspect temperatures";
-  description = "Use mouse to inspect temperature values displayed in the image.";
+  description = "Use mouse to inspect temperature values.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M17.58,42.03c-1.39,0-2.65-.34-3.79-1.01-1.14-.68-2.04-1.58-2.72-2.72-.68-1.14-1.01-2.4-1.01-3.78s.34-2.65,1.01-3.79c.67-1.14,1.58-2.04,2.72-2.72,1.14-.68,2.4-1.01,3.79-1.01s2.65.34,3.79,1.01c1.14.68,2.04,1.58,2.72,2.72s1.01,2.4,1.01,3.79-.34,2.64-1.01,3.78c-.68,1.14-1.58,2.05-2.72,2.72-1.14.68-2.4,1.01-3.79,1.01ZM17.58,37.04c.47,0,.9-.11,1.28-.34.38-.23.69-.53.91-.92.22-.39.34-.81.34-1.27s-.11-.9-.34-1.28c-.23-.38-.53-.69-.91-.91s-.81-.34-1.28-.34-.88.11-1.27.34c-.39.23-.69.53-.92.91-.23.38-.34.81-.34,1.28s.11.88.34,1.27c.22.39.53.69.92.92.39.23.81.34,1.27.34ZM56.24,38.45h-8.28c-.06-.69-.21-1.31-.46-1.87-.25-.56-.59-1.04-1.03-1.45-.44-.41-.96-.72-1.58-.94s-1.32-.33-2.1-.33c-1.37,0-2.53.33-3.47,1s-1.66,1.62-2.14,2.86-.73,2.74-.73,4.48c0,1.84.25,3.38.74,4.62s1.21,2.17,2.15,2.79c.94.62,2.07.93,3.39.93.75,0,1.43-.1,2.03-.29.6-.19,1.12-.47,1.56-.83.44-.36.8-.8,1.08-1.31.28-.51.47-1.09.57-1.74l8.28.06c-.1,1.27-.46,2.57-1.07,3.88-.62,1.32-1.49,2.53-2.62,3.64s-2.53,2-4.19,2.68c-1.67.68-3.6,1.01-5.8,1.01-2.76,0-5.24-.59-7.43-1.78-2.19-1.18-3.92-2.93-5.18-5.23-1.27-2.3-1.9-5.12-1.9-8.45s.65-6.17,1.94-8.47c1.29-2.3,3.04-4.03,5.23-5.21,2.19-1.18,4.64-1.77,7.34-1.77,1.9,0,3.65.26,5.24.78,1.6.52,3,1.28,4.2,2.27,1.2.99,2.17,2.22,2.91,3.66s1.18,3.11,1.34,4.98ZM30,0H0v30L30,0Z" fill="currentcolor"/>
 </svg>`;
   active = false;
-  onCanvasClick(x, y, file) {
+  onCanvasClick() {
   }
-  onCanvasLeave(file) {
+  onCanvasLeave() {
   }
   getLabelValue = (x, y, file) => {
     return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
@@ -3584,15 +3710,15 @@ var InspectTool = class extends AbstractTool {
   }
   onDeactivate() {
   }
-  onPointEnter(point) {
+  onPointEnter() {
   }
-  onPointLeave(point) {
+  onPointLeave() {
   }
-  onPointMove(point, x, y) {
+  onPointMove() {
   }
-  onPointDown(point) {
+  onPointDown() {
   }
-  onPointUp(point) {
+  onPointUp() {
   }
 };
 
@@ -3604,25 +3730,28 @@ var AbstractAddTool = class extends AbstractTool {
 var AddEllipsisTool = class extends AbstractAddTool {
   key = "add-ellipsis";
   name = "Add an elyptical analysis";
-  description = "Click and drag to add an elyptical analysis to the image.";
+  description = "Click and drag to add an elyptical analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
 </svg>`;
   active = false;
-  onCanvasClick(x, y, file) {
-    const newRect = file.analysis.addEllipsisAt(x, y);
-    file.analysis.storage.select(newRect, true);
+  onCanvasClick(top, left, file) {
+    const newRect = file.analysis.layers.createEllipsisFrom(top, left);
+    newRect.setSelected(true);
   }
-  onPointDown(point) {
+  onPointDown() {
   }
   onPointUp(point) {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
     point.analysis.recalculateValues();
+    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
+      point.analysis.layers.removeAnalysis(point.analysis.key);
+    }
   }
-  onCanvasLeave(file) {
+  onCanvasLeave() {
   }
   getLabelValue = (x, y, file) => {
     const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
@@ -3630,23 +3759,23 @@ var AddEllipsisTool = class extends AbstractAddTool {
   };
   onActivate() {
     this.group.forEveryInstance((instance) => {
-      instance.analysis.value.forEach((analysis) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
         analysis.setDeselected();
       });
     });
   }
   onDeactivate() {
   }
-  onPointMove(point, x, y) {
-    if (point.isInActiveLayer() && point.active) {
-      point.x = x;
-      point.y = y;
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.x = left;
+      point.y = top;
       point.analysis.onResize.call();
     }
   }
-  onPointLeave(point) {
+  onPointLeave() {
   }
-  onPointEnter(point) {
+  onPointEnter() {
   }
 };
 
@@ -3654,25 +3783,28 @@ var AddEllipsisTool = class extends AbstractAddTool {
 var AddRectangleTool = class extends AbstractAddTool {
   key = "add-rect";
   name = "Add a rectangular analysis";
-  description = "Click and drag to add a rectangular analysis to the image.";
+  description = "Click and drag to add a rectangular analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
 </svg>`;
   active = false;
   onCanvasClick(x, y, file) {
-    const newRect = file.analysis.addRectAt(x, y);
-    file.analysis.storage.select(newRect, true);
+    const newRect = file.analysis.layers.createRectFrom(x, y);
+    newRect.setSelected(true);
   }
-  onPointDown(point) {
+  onPointDown() {
   }
   onPointUp(point) {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
     point.analysis.recalculateValues();
+    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
+      point.analysis.layers.removeAnalysis(point.analysis.key);
+    }
   }
-  onCanvasLeave(file) {
+  onCanvasLeave() {
   }
   getLabelValue = (x, y, file) => {
     const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
@@ -3680,23 +3812,23 @@ var AddRectangleTool = class extends AbstractAddTool {
   };
   onActivate() {
     this.group.forEveryInstance((instance) => {
-      instance.analysis.value.forEach((analysis) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
         analysis.setDeselected();
       });
     });
   }
   onDeactivate() {
   }
-  onPointMove(point, x, y) {
-    if (point.isInActiveLayer() && point.active) {
-      point.x = x;
-      point.y = y;
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.x = left;
+      point.y = top;
       point.analysis.onResize.call();
     }
   }
-  onPointLeave(point) {
+  onPointLeave() {
   }
-  onPointEnter(point) {
+  onPointEnter() {
   }
 };
 
@@ -3704,14 +3836,20 @@ var AddRectangleTool = class extends AbstractAddTool {
 var EditTool = class extends AbstractTool {
   key = "edit";
   name = "Edit analysis";
-  description = "Drag corners of selected analysis to edit their dimensions.";
+  description = "Drag corners of any selected analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
 </svg>`;
   active = false;
   getLabelValue(x, y, file) {
-    const hoveredAnalysis = file.analysis.storage.activeOnly.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => analysis2.key);
+    const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
+      if (analysis2.selected) {
+        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
+      } else {
+        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
+      }
+    });
     const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
     return `${analysis}X: ${x}<br />Y: ${y}`;
   }
@@ -3719,9 +3857,9 @@ var EditTool = class extends AbstractTool {
   }
   onDeactivate() {
   }
-  onCanvasClick(x, y, file) {
+  onCanvasClick() {
   }
-  onCanvasLeave(file) {
+  onCanvasLeave() {
   }
   onPointEnter(point) {
     if (point.isInSelectedLayer()) {
@@ -3729,14 +3867,14 @@ var EditTool = class extends AbstractTool {
     }
   }
   onPointLeave(point) {
-    if (point.isInSelectedLayer()) {
+    if (point.isInSelectedLayer() && point.analysis.ready) {
       point.mouseLeave();
     }
   }
-  onPointMove(point, x, y) {
-    if (point.isInSelectedLayer() && point.active && point.isWithin(x, y)) {
-      point.x = x;
-      point.y = y;
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active && point.isWithin(top, left)) {
+      point.x = left;
+      point.y = top;
       if (point instanceof CornerPoint) {
         point.analysis.onResize.call();
       }
@@ -4204,8 +4342,11 @@ var getPool = async () => {
   AbstractAnalysis,
   AbstractFile,
   AbstractTool,
+  AddEllipsisTool,
   AddRectangleTool,
   CornerPoint,
+  EditTool,
+  EllipsisAnalysis,
   GRAYSCALE,
   IRON,
   InspectTool,

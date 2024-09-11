@@ -1,6 +1,4 @@
-import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractHandlePoint } from "../AbstractHandlePoint";
-import { AbstractPoint } from "../AbstractPoint";
 
 export class CornerPoint extends AbstractHandlePoint {
     public getRadius(): number {

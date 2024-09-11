@@ -1,4 +1,3 @@
-import { AbstractFile } from "../../file/AbstractFile";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AddEllipsisTool } from "../analysis/internals/ellipsis/AddEllipsisTool";

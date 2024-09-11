@@ -1,5 +1,4 @@
 import { AbstractFile } from "../../../file/AbstractFile";
-import { Instance } from "../../../file/instance";
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
 
@@ -8,22 +7,28 @@ type AnalysisEvent = ( analysis: AbstractAnalysis ) => void;
 
 export abstract class AbstractAnalysis {
 
-    /** Activation status */
-    protected _active: boolean = true;
-    public get active() { return this._active; }
-    public readonly onActivation = new CallbacksManager<AnalysisEvent>();
-    public readonly onDeactivation = new CallbacksManager<AnalysisEvent>();
-
     /** Selection status */
     protected _selected: boolean = false;
     public get selected() { return this._selected; }
     public readonly onSelected = new CallbacksManager<AnalysisEvent>;
     public readonly onDeselected = new CallbacksManager<AnalysisEvent>;
 
+    public readonly onResize = new CallbacksManager<() => void>;
+
     public readonly layerRoot: HTMLDivElement;
     public readonly renderRoot: HTMLElement;
 
     public readonly points: Map<string,AbstractPoint> = new Map;
+
+    public left!: number;
+    public top!: number;
+    public width!: number;
+    public height!: number;
+
+
+    public get layers() {
+        return this.file.analysis.layers;
+    }
 
     protected _min?: number;
     public get min() {
@@ -88,37 +93,65 @@ export abstract class AbstractAnalysis {
     public abstract init(): void;
 
     public remove() {
-        this.deactivate();
+        this.setDeselected();
         this.renderRoot.removeChild( this.layerRoot );
-    }
-
-    /** Activation / Deactivation */
-
-    public activate() {
-        this._active = true;
-        this.onActivation.call( this );
-    }
-
-    public deactivate() {
-        this._active = false;
-        this.onDeactivation.call( this );
     }
 
     /** Selection / Deselection */
     
-    public setSelected() {
+    public setSelected( 
+        exclusive: boolean = false,
+        emitGlobalEvent: boolean = true
+    ) {
+
+        if ( this.selected === true ) {
+            return;
+        }
+
+        // Internal mechanisms
         this._selected = true;
         this.onSelected.call( this );
         this.setColor( this.initialColor );
+
+        // Eventually disable all other analysis
+        if ( exclusive === true ) {
+            this.layers.all
+                .filter( analysis => analysis.key !== this.key )
+                .forEach( analysis => {
+                    if ( analysis.selected ) {
+                        analysis.setDeselected( false );
+                    }
+                } )
+        }
+
+        // Call selected listener
+        if ( emitGlobalEvent === true ) {
+            this.layers.onSelectionChange.call( this.layers.selectedOnly );
+        }
+
     }
 
-    public setDeselected() {
+    public setDeselected( emitGlobalEvent: boolean = true ) {
+
+        if ( this.selected === false ) {
+            return;
+        }
+
+        // Internal mechanisms
         this._selected = false;
         this.onDeselected.call( this );
         this.setColor( "black" );
+
+        // Deactivate all points
+        this.arrayOfActivePoints.forEach( point => point.deactivate() );
+
+        // Eventually call global mechanisms
+        if ( emitGlobalEvent === true ) {
+            this.file.analysis.layers.onSelectionChange.call( this.file.analysis.layers.selectedOnly );
+        }
     }
 
-    onResize = new CallbacksManager<() => void>;
+    
 
     public abstract isWithin( x: number, y: number): boolean;
 

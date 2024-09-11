@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { ThermalManager } from '../../hierarchy/ThermalManager';
-import { loadFileForTests } from '../../../devserver/node/scaffold';
 import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
+import { loadFileForTests } from '../../../devserver/node/scaffold';
 
 describe( "ToolDrive", () => {
     test( "Tool selection", async () => {
@@ -22,7 +21,7 @@ describe( "ToolDrive", () => {
         } );
 
 
-        tools.selectTool( "addTest" );
+        tools.selectTool( "addRectangle");
 
         expect(counter).toEqual(1);
         expect( tools.value.key ).toEqual( "add-rect" );

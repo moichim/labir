@@ -1,7 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 
-import pjson from "../../package.json";
+import {version} from "../../package.json";
 
 @customElement("app-info-button")
 export class AppInfoButton extends LitElement {
@@ -101,7 +101,7 @@ export class AppInfoButton extends LitElement {
                     
                     <div style="text-align: center">
                         <p>A webapp reading thermal images from infrared cameras TIMI Edu.</p>
-                        <p>version ${pjson.version}</p>
+                        <p>version ${version}</p>
                     </div>
 
 

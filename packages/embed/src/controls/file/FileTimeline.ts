@@ -136,7 +136,7 @@ export class TimelineElement extends FileConsumer {
             transition: background-color .2s ease-in-out;
 
             &:hover {
-                background: var( --thermal-slate-light );
+                /** background: var( --thermal-slate-light ); */
             }
         }
 

@@ -1,13 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../../devserver/node/scaffold';
-import { RectangleAnalysis } from '../rectangle/RectangleAnalysis';
-import { AnalysisAddPosition, AnalysisStorage } from './AnalysisStorage';
 
-enum IDS {
-    REG = "test_registry",
-    GR = "test_group", 
-}
 
 describe( "AnalysisStorage", () => {
 
@@ -16,17 +10,19 @@ describe( "AnalysisStorage", () => {
         const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
 
 
-        const storage = instance.analysis.storage;
+        const storage = instance.analysis.layers;
 
         // Default = 0
         expect( storage.all.length ).toEqual(0);
 
         // Add one
-        storage.addAnalysis( new RectangleAnalysis( "test", instance ) );
+
+        storage.placeEllipsisAt( "test", 10, 10, 100, 100 );
+
         expect( storage.all.length ).toEqual(1);
 
         // Add another
-        storage.addAnalysis( new RectangleAnalysis( "another", instance ) );
+        storage.placeRectAt( "another", 20,20, 110, 110 );
         expect( storage.all.length ).toEqual(2);
 
         let counter = 0;
@@ -35,7 +31,7 @@ describe( "AnalysisStorage", () => {
         } );
 
         // Add yet another on the place of the another
-        storage.addAnalysis( new RectangleAnalysis( "another", instance ) );
+        storage.placeRectAt( "another", 14, 14, 20, 20 );
 
         expect( storage.all.length ).toEqual(2);
         expect( counter ).toEqual(1);
@@ -46,25 +42,24 @@ describe( "AnalysisStorage", () => {
     test("selecting", async () => {
         const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
 
-        const storage = instance.analysis.storage;
+        const storage = instance.analysis.layers;
 
-        const analysis1 = new RectangleAnalysis("test1", instance);
-        storage.addAnalysis( analysis1 );
+        const analysis1 = storage.placeRectAt( "test1", 10, 10, 100, 100 );
 
-        const analysis2 = new RectangleAnalysis("test2", instance);
-        storage.addAnalysis( analysis2 );
+        const analysis2 = storage.placeEllipsisAt( "test2", 100, 100, 110, 110 );
 
         expect( storage.all.length ).toEqual(2);
 
         expect( storage.selectedOnly.length ).toEqual(0);
 
-        storage.select( analysis1 );
+        analysis1.setSelected();
         expect( storage.selectedOnly.length ).toEqual(1);
 
-        storage.select( analysis2.key );
+        analysis2.setSelected();
+
         expect( storage.selectedOnly.length ).toEqual(2);
 
-        storage.select( analysis1, true );
+        analysis1.setSelected( true );
         expect( storage.selectedOnly.length ).toEqual(1);
 
         analysis1.setDeselected();
@@ -74,38 +69,34 @@ describe( "AnalysisStorage", () => {
 
     test( "layers", async () => {
         const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
-        const storage = instance.analysis.storage;
-        const analysis1 = new RectangleAnalysis( "test1", instance );
-        const analysis2 = new RectangleAnalysis( "test2", instance );
-        storage.addAnalysis( analysis1 );
-        storage.addAnalysis( analysis2 );
-        expect( storage.all[0].key ).toEqual( analysis2.key );
-        storage.addAnalysis( analysis2, AnalysisAddPosition.APPEND );
+        const storage = instance.analysis.layers;
+        const analysis1 = storage.placeEllipsisAt( "test1", 10, 10, 100, 100 );
+        const analysis2 = storage.placeRectAt( "test2", 14, 14, 20, 20 );
         expect( storage.all[0].key ).toEqual( analysis1.key );
+        expect( storage.all[storage.all.length - 1].key ).toEqual( analysis2.key );
     } );
 
     test( "drive integration", async () => {
         const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
-        const storage = instance.analysis.storage;
 
         const drive = instance.analysis;
 
         let counter = 0;
-        drive.addListener( "Testuji listener", value => {
+        drive.addListener( "Testuji listener", () => {
             counter++;
         } );
 
         expect( counter ).toEqual(0);
 
-        drive.storage.addAnalysis( new RectangleAnalysis( "debug", instance ) );
+        drive.layers.placeRectAt( "debug", 0, 0, 100, 100 );
 
         expect( counter ).toEqual(1);
 
-        drive.storage.addAnalysis( new RectangleAnalysis("debug", instance) );
+        drive.layers.placeRectAt( "debug", 0, 0, 100, 100 );
 
         expect( counter ).toEqual(3);
 
-        drive.storage.addAnalysis( new RectangleAnalysis( "debug2", instance ) );
+        drive.layers.placeRectAt( "debug2", 0, 0, 100, 100 );
 
         expect( counter ).toEqual(4);
 

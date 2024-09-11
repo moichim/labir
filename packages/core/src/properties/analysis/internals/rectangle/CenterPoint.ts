@@ -1,6 +1,4 @@
-import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractHandlePoint } from "../AbstractHandlePoint";
-import { AbstractPoint } from "../AbstractPoint";
 import { RectangleAnalysis } from "./RectangleAnalysis";
 
 /** @deprecated Not implemented at all */

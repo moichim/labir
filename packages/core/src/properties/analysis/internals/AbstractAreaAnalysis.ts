@@ -6,20 +6,15 @@ import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
-    
+
     public readonly tl: CornerPoint;
     public readonly tr: CornerPoint;
     public readonly bl: CornerPoint;
     public readonly br: CornerPoint;
 
-    public readonly corners: CornerPoint[] = []
-
     public readonly area: RectangleArea;
 
-    public left!: number;
-    public top!: number;
-    public width!: number;
-    public height!: number;
+    
 
     public isWithin(x: number, y: number): boolean {
         return x >= this.left
@@ -28,30 +23,64 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             && y <= this.top + this.height
     }
 
-    protected abstract buildArea(x: number, y: number): AbstractArea;
+    protected abstract buildArea(left: number, top: number, width?: number, height?: number): AbstractArea;
 
-    constructor(
+
+
+    public static calculateDimensionsFromCorners(
+        top: number,
+        left: number,
+        right: number,
+        bottom: number
+    ) {
+
+        const t = Math.min(top, bottom);
+        const b = Math.max(top, bottom);
+        const l = Math.min(left, right);
+        const r = Math.max(left, right);
+
+        const w = r - l;
+        const h = b - t;
+
+        return {
+            top: t,
+            left: l,
+            width: w,
+            height: h
+        }
+
+    }
+
+
+
+    protected constructor(
         key: string,
+        color: string,
         file: AbstractFile,
-        x: number,
-        y: number,
-        color: string
+        top: number,
+        left: number,
+        width?: number,
+        height?: number
     ) {
         super(key, file, color);
 
-        this.area = this.buildArea(x,y);
+
+        let right = left;
+        let bottom = top;
+
+        if (width !== undefined && height !== undefined) {
+            right = left + width;
+            bottom = top + height;
+        }
+
+        this.area = this.buildArea(top, left, width, height);
+
 
         // Create points
-        this.tl = this.addPoint("tl", x, y, "pink");
-        this.tr = this.addPoint("tr", x, y, "orange");
-        this.bl = this.addPoint("bl", x, y, "lightgray");
-        this.br = this.addPoint("br", x, y, "violet");
-        this.corners = [
-            this.tl,
-            this.tr,
-            this.br,
-            this.bl
-        ];
+        this.tl = this.addPoint("tl", top, left);
+        this.tr = this.addPoint("tr", top, right);
+        this.bl = this.addPoint("bl", bottom, left);
+        this.br = this.addPoint("br", bottom, right);
 
         this.tl.syncXWith(this.bl);
         this.tl.syncYWith(this.tr);
@@ -65,7 +94,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.br.syncXWith(this.tr);
         this.br.syncYWith(this.bl);
 
-        this.br.activate();
+        // this.br.activate();
 
         this.calculateBounds();
 
@@ -77,7 +106,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     }
 
     public setColorCallback(value: string): void {
-        this.points.forEach( point => point.setColor( value ) );
+        this.points.forEach(point => point.setColor(value));
         this.area.setColor(value)
     }
 
@@ -124,13 +153,12 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
-    addPoint(
+    protected addPoint(
         role: string,
-        x: number,
-        y: number,
-        color: string
+        top: number,
+        left: number
     ) {
-        const point = new CornerPoint(role, x, y, this, color);
+        const point = new CornerPoint(role, top, left, this, this.color);
         this.points.set(role, point);
         return point;
     }

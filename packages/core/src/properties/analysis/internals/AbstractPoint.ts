@@ -43,12 +43,12 @@ export abstract class AbstractPoint {
     public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
 
-    
+
     protected _color: string;
     protected get color() { return this._color; }
-    public setColor( value: string ) {
+    public setColor(value: string) {
         this._color = value;
-        if ( this.innerElement ) {
+        if (this.innerElement) {
             this.innerElement.style.backgroundColor = this._color;
         }
     }
@@ -76,38 +76,38 @@ export abstract class AbstractPoint {
 
     public constructor(
         public readonly key: string,
-        x: number,
-        y: number,
+        top: number,
+        left: number,
         public readonly analysis: AbstractAnalysis,
         color: string
     ) {
-        this._x = x;
-        this._y = y;
+        this._x = left;
+        this._y = top;
 
         this._color = color;
 
         // Create the container
-        this.container = document.createElement( "div" );
+        this.container = document.createElement("div");
         this.container.style.position = "absolute";
         this.container.id = `analysis_${this.analysis.key}_${this.key}_${this.file.id}`;
 
         // Create the inner element
         this.innerElement = this.createInnerElement();
-        this.container.appendChild( this.innerElement );
+        this.container.appendChild(this.innerElement);
 
         // Set initial position
         this.projectInnerPositionToDom();
-        
+
         // Set the color again once the inner element is created
-        this.setColor( color );
+        this.setColor(color);
 
         // Display the point
-        this.root.appendChild( this.container );
+        this.root.appendChild(this.container);
 
 
     }
 
-    public isWithin(x: number, y: number): boolean {
+    public isWithin(top: number, left: number): boolean {
 
         const offset = this.getRadius() / 2;
 
@@ -116,15 +116,11 @@ export abstract class AbstractPoint {
         const minY = this.y - offset;
         const maxY = this.y + offset;
 
-        return x >= minX
-            && x <= maxX
-            && y >= minY
-            && y <= maxY;
+        return left >= minX
+            && left <= maxX
+            && top >= minY
+            && top <= maxY;
 
-    }
-
-    public isInActiveLayer() {
-        return this.analysis.active;
     }
 
     public isInSelectedLayer() {
@@ -158,7 +154,7 @@ export abstract class AbstractPoint {
     /** Take the internal position value and project it to the DOM element */
     projectInnerPositionToDom(): void {
 
-        if ( this.container ) {
+        if (this.container) {
             const position = this.getPercentageCoordinates();
 
             this.container.style.left = `${position.x}%`;

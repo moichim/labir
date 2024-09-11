@@ -1,10 +1,18 @@
-import * as pjson from "../package.json"
+import {author, version } from "../package.json"
+
+/**!
+ * ===========
+ * LabIR Embed
+ * ===========
+ * 
+ * A webcomponents library for display and analysis of thermal images.
+ * 
+ */
 
 
 // Log the start info
-console.info( `@labir/embed ${pjson.version}
-    Author: ${pjson.author}
-    Repository: ${pjson.repository.url}
+console.info( `@labir/embed ${version}
+    Author: ${author}
     ` );
 
 

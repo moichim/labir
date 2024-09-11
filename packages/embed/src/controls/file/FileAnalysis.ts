@@ -1,15 +1,14 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { consume } from "@lit/context";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, state } from "lit/decorators.js";
+import { map } from 'lit/directives/map.js';
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { AnalysisList, analysisList } from "../../hierarchy/providers/context/FileContexts";
-import {map} from 'lit/directives/map.js';
 
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
 
-    @consume( {context: analysisList, subscribe: true})
+    @consume({ context: analysisList, subscribe: true })
     analysis: AnalysisList = [];
 
     @state()
@@ -17,13 +16,13 @@ export class FileAnalysisList extends FileConsumer {
 
     public onInstanceCreated(): void {
 
-        if ( this.file !== undefined ) {
-            this.file.analysis.storage.onSelectionChange.add( this.UUID, value => {
-                if ( this.file ) {
+        if (this.file !== undefined) {
+            this.file.analysis.layers.onSelectionChange.add(this.UUID, value => {
+                if (this.file) {
                     this.allSelected = this.file.analysis.value.length === value.length;
                 }
-                
-            } );
+
+            });
         }
 
     }
@@ -35,11 +34,14 @@ export class FileAnalysisList extends FileConsumer {
 
     static styles?: CSSResultGroup | undefined = css`
         .container {
+
+            white-space: nowrap;
         
             overflow: hidden;
             border-radius: var( --thermal-radius );
             border: 1px solid var( --thermal-slate );
             margin-top: calc( var( --thermal-gap ) / 3 );
+            color: var( --thermal-foreground );
         
         }
 
@@ -78,12 +80,23 @@ export class FileAnalysisList extends FileConsumer {
                 background-color: var( --thermal-foreground );
             }
         }
+
+        .container .interactive {
+        
+            cursor: pointer;
+            user-select: none;
+
+            &:hover {
+                color: var( --thermal-primary );
+            }
+        
+        }
     `;
 
 
     protected render(): unknown {
 
-        if ( this.analysis.length === 0 ) {
+        if (this.analysis.length === 0) {
             return nothing;
         }
 
@@ -99,30 +112,40 @@ export class FileAnalysisList extends FileConsumer {
 
                 <thead>
                     <tr>
-                        <th>
-                            <div 
-                                class="selected ${this.allSelected ? "all" : ""}"
-                                @click=${() => {
-                                    if ( this.allSelected ) {
+                        <th 
+                            class="interactive" 
+                            @click=${() => {
+                                if (this.file) {
+                                    if (this.allSelected) {
+
+                                        this.file.analysis.layers.deselectAll();
+
                                         this.allSelected = false;
-                                        this.analysis.forEach( analysis => analysis.setDeselected() );
+
                                     } else {
                                         this.allSelected = true;
-                                        this.analysis.forEach( analysis => analysis.setSelected() );
+
+                                        this.file.analysis.layers.selectAll();
+
                                     }
-                                }}
+                                }
+                            }}
+                        >
+                            <div 
+                                class="selected ${this.allSelected ? "all" : ""}"
                             ></div>
                             Analysis
                         </th>
                         <th>Min</th>
                         <th>Max</th>
                         <th>Avg</th>
+                        <th>Size</th>
                     </tr>
                 </thead>
 
                 <tbody>
 
-                    ${map( this.analysis, item => html`
+                    ${map(this.analysis, item => html`
                         <file-analysis-row .analysis=${item}></file-analysis-row>
                     ` )}
 

@@ -1,20 +1,82 @@
+import { AbstractFile } from "../../../../file/AbstractFile";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
 import { RectangleArea } from "./RectangleArea";
 
 export class RectangleAnalysis extends AbstractAreaAnalysis {
 
+    public static startAddingAtPoint(
+        key: string,
+        color: string,
+        file: AbstractFile,
+        top: number,
+        left: number
+    ): RectangleAnalysis {
 
-    protected buildArea(x: number, y: number): AbstractArea {
+        const item = new RectangleAnalysis(
+            key,
+            color,
+            file,
+            top,
+            left
+        );
+
+        /** Bottom right point needs to be active from the beginning */
+        item.br.activate();
+        return item;
+
+    }
+
+
+
+    public static build(
+        key: string,
+        color: string,
+        file: AbstractFile,
+        _top: number,
+        _left: number,
+        _right: number,
+        _bottom: number
+    ): RectangleAnalysis {
+
+        const {top, left, width, height } = RectangleAnalysis.calculateDimensionsFromCorners( _top, _left, _right, _bottom );
+
+        const item = new RectangleAnalysis(
+            key, 
+            color, 
+            file, 
+            top, 
+            left, 
+            width, 
+            height
+        );
+
+        return item;
+
+    }
+
+
+    protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea {
+
+        if ( width !== undefined && height !== undefined ) {
+            return new RectangleArea(
+                this,
+                x,
+                y,
+                x + width,
+                y + height
+            );
+        }
+
         return new RectangleArea(this, x, y, x, y);
     }
 
     protected getValues(): { min?: number; max?: number; avg?: number; } {
 
-        let fromX = this.left;
-        let toX = this.left + this.width;
-        let fromY = this.top;
-        let toY = this.top + this.height;
+        const fromX = this.left;
+        const toX = this.left + this.width;
+        const fromY = this.top;
+        const toY = this.top + this.height;
 
         let min = Infinity;
         let max = -Infinity;
@@ -23,11 +85,11 @@ export class RectangleAnalysis extends AbstractAreaAnalysis {
 
         for (let y = fromY; y < toY; y++) {
 
-            let rowOffset = this.file.width * y;
+            const rowOffset = this.file.width * y;
 
             for (let x = fromX; x <= toX; x++) {
 
-                let point = this.file.pixels[ rowOffset + x ];
+                const point = this.file.pixels[ rowOffset + x ];
 
                 if ( point < min ) {
                     min = point;

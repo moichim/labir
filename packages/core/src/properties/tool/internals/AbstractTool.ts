@@ -46,7 +46,7 @@ export abstract class AbstractTool {
     public abstract onPointLeave( point: AbstractPoint ): void;
 
     /** Whenever the point should move to a new position */
-    public abstract onPointMove( point: AbstractPoint, x: number, y: number ): void;
+    public abstract onPointMove( point: AbstractPoint, top: number, left: number ): void;
 
     /** Whenever a point is clicked */
     public abstract onPointDown( point: AbstractPoint ): void;

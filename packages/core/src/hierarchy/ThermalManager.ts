@@ -6,8 +6,6 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { AvailableThermalPalettes } from "../file/palettes";
 import { FilesService } from "../loading/workers/FilesService";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
-import { InspectTool } from "../properties/tool/internals/InspectTool";
-import { ToolDrive } from "../properties/tool/ToolDrive";
 import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
 
 export type ThermalManagerOptions = {

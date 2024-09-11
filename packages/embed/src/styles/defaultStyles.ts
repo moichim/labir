@@ -1,19 +1,21 @@
-import pjson from "../../package.json";
+import {version as pversion} from "../../package.json";
 import { DARK_MODE_CLASS } from "./mode";
 
-const version = pjson.version.toString().replaceAll(".", "-");
+const version = pversion.toString().replaceAll(".", "-");
 const getStylesheetId = (scope: string) => {
     return `thermal__${scope}__${version}`;
 }
 
+/*
 const cssStyleIsAppended = (scope: string) => {
     const element = document.getElementById(getStylesheetId(scope));
     return element !== null;
 }
+    */
 
 const appendHeadCss = (scope: string, styles: string) => {
 
-    if (!cssStyleIsAppended(scope)) {
+    // if (!cssStyleIsAppended(scope)) {
 
         const element = document.createElement("style");
         element.setAttribute("id", getStylesheetId(scope));
@@ -21,7 +23,7 @@ const appendHeadCss = (scope: string, styles: string) => {
 
         document.head.appendChild(element);
 
-    }
+    // }
 
 }
 

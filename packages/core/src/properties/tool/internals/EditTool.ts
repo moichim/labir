@@ -10,7 +10,7 @@ export class EditTool extends AbstractTool implements ITool {
 
     name = "Edit analysis";
 
-    description = "Drag corners of selected analysis to edit their dimensions.";
+    description = "Drag corners of any selected analysis.";
 
     icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -22,9 +22,14 @@ export class EditTool extends AbstractTool implements ITool {
     public getLabelValue(x: number, y: number, file: AbstractFile): string {
 
 
-        const hoveredAnalysis = file.analysis.storage.activeOnly
+        const hoveredAnalysis = file.analysis.layers.all
             .filter( analysis => analysis.isWithin( x, y ) )
-            .map( analysis => analysis.key );
+            .map( analysis => {
+                if ( analysis.selected ) { 
+                    return `<span style="color:${analysis.initialColor}">${analysis.key}</span>` 
+                } 
+                else { return `<s style="color:${analysis.initialColor}">${analysis.key}</s>` }
+            } );
 
         const analysis = hoveredAnalysis.length > 0
             ? hoveredAnalysis.join("<br />") +  "<br />"
@@ -43,11 +48,11 @@ export class EditTool extends AbstractTool implements ITool {
     }
 
 
-    public onCanvasClick(x: number, y: number, file: AbstractFile): void {
+    public onCanvasClick(): void {
         // throw new Error("Method not implemented.");
     }
 
-    public onCanvasLeave( file: AbstractFile ) {
+    public onCanvasLeave() {
         // fix all points
         
     }
@@ -63,20 +68,20 @@ export class EditTool extends AbstractTool implements ITool {
 
 
     public onPointLeave(point: AbstractPoint): void {
-        if ( point.isInSelectedLayer() ) {
+        if ( point.isInSelectedLayer() && point.analysis.ready ) {
             point.mouseLeave();
         }
     }
 
 
-    public onPointMove(point: AbstractPoint, x: number, y: number): void {
+    public onPointMove(point: AbstractPoint, top: number, left: number): void {
 
         
-        if ( point.isInSelectedLayer() && point.active && point.isWithin(x,y)) {
+        if ( point.isInSelectedLayer() && point.active && point.isWithin(top,left)) {
 
             // Set new position
-            point.x = x;
-            point.y = y;
+            point.x = left;
+            point.y = top;
 
             // Call the resize
             if ( point instanceof CornerPoint ) {

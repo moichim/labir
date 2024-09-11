@@ -5,7 +5,6 @@ import { customElement, property, queryAssignedElements, state } from "lit/decor
 import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
 import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileMarkersContext, fileMsContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
-import { FileAnalysisList } from "../../controls/file/FileAnalysis";
 
 @customElement("file-provider")
 export class FileProviderElement extends GroupConsumer {
@@ -207,7 +206,7 @@ export class FileProviderElement extends GroupConsumer {
                 result.recording.callbackMayStop.add( this.UUID, value => this.mayStop = value );
 
                 // Update analysis list
-                this.analysis = result.analysis.storage.all;
+                this.analysis = result.analysis.layers.all;
                 result.analysis.addListener( this.UUID, value => {
                     this.analysis = value;
                 } );

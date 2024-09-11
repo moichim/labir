@@ -32,9 +32,9 @@ export class GroupToolButtons extends GroupConsumer {
     connectedCallback(): void {
         super.connectedCallback();
         this.hint = this.value.description;
-        this.group.tool.addListener( this.UUID + "spying on hints", value => {
+        this.group.tool.addListener(this.UUID + "spying on hints", value => {
             this.hint = value.description;
-        } );
+        });
     }
 
     /** Handle user input events */
@@ -75,6 +75,9 @@ export class GroupToolButtons extends GroupConsumer {
 
         transition: all .25s ease-in-out;
 
+        width: calc( var( --thermal-gap ) * 1.2 + 6px);
+        height: calc( var( --thermal-gap ) * 1.2 + 6px);
+
         &:hover,
         &.active {
             color: var( --thermal-primary );
@@ -89,6 +92,9 @@ export class GroupToolButtons extends GroupConsumer {
         align-items: center;
         gap: 7px;
         color: var( --thermal-foreground );
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     .thermal-tool-icon {
@@ -103,6 +109,9 @@ export class GroupToolButtons extends GroupConsumer {
     
     .tool-description {
         opacity: .5;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
     }
 
     `;
@@ -117,29 +126,30 @@ export class GroupToolButtons extends GroupConsumer {
                 <div class="switchers">
                     ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
 
-                const classes = {
-                    button: true,
-                    switch: true,
-                    active: tool.key === this.value.key
-                }
+            const classes = {
+                [key]: true,
+                button: true,
+                switch: true,
+                active: tool.key === this.value.key
+            }
 
-                return html`
+            return html`
                         
                         <button 
                             class=${classMap(classes)} 
                             @click=${() => { this.group.tool.selectTool(tool) }}
-                            @mouseenter=${()=>{
-                                this.hint = tool.name;
-                            }}
-                            @mouseleave=${()=>{
-                                this.hint = this.value.description;
-                            }}
+                            @mouseenter=${() => {
+                    this.hint = tool.name;
+                }}
+                            @mouseleave=${() => {
+                    this.hint = this.value.description;
+                }}
                         >
                             ${unsafeSVG(tool.icon)}
                         </button>
                         
                     ` }
-            )}
+        )}
                 </div>
 
                 <div class="current">

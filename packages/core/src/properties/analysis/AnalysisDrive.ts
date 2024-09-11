@@ -1,12 +1,8 @@
 import { AbstractFile } from "../../file/AbstractFile";
-import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-import { AbstractAddTool } from "./internals/AbstractAddTool";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
-import { EllipsisAnalysis } from "./internals/ellipsis/EllipsisAnalysis";
-import { PointsListener } from "./internals/PointsListener";
-import { RectangleAnalysis } from "./internals/rectangle/RectangleAnalysis";
-import { AnalysisStorage } from "./internals/tools/AnalysisStorage";
+import { AnalysisLayersStorage } from "./internals/tools/AnalysisLayersStorage";
+import { AnalysisPointsAccessor } from "./internals/tools/AnalysisPointsAccessor";
 
 export interface IWithAnalysis extends IBaseProperty {
     analysis: AnalysisDrive
@@ -14,22 +10,15 @@ export interface IWithAnalysis extends IBaseProperty {
 
 export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
 
-    public readonly storage = new AnalysisStorage( this );
+    public readonly layers = new AnalysisLayersStorage(this);
 
-    public readonly listener = new PointsListener(this.parent);
+    public readonly points = new AnalysisPointsAccessor(this);
 
-    
 
-    public get points() {
 
-        return this.storage.allPoints;
-    }
 
-    public get activePoints() {
-        return this.storage.allPoints.filter( point => point.active );
-    }
-
-    public dangerouslySetValueFromStorage( value: AbstractAnalysis[] ) {
+    /** Value may be modified only from `AnalysisLayersStorage`! */
+    public dangerouslySetValueFromStorage(value: AbstractAnalysis[]) {
         this.value = value;
     }
 
@@ -42,30 +31,6 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
         value;
     }
 
-
-    public addRectAt( x: number, y: number ) {
-
-        const analysisName = `Rectangle ${this.value.length}`;
-
-        const newRect = new RectangleAnalysis( analysisName, this.parent, x, y, this.storage.getNextColor()  );
-
-        this.storage.addAnalysis( newRect )
-
-        return newRect;
-
-    }
-
-    public addEllipsisAt( x: number, y: number ) {
-        const analysisName = `Ellipsis ${this.value.length}`;
-
-        const newRect = new EllipsisAnalysis( analysisName, this.parent, x, y, this.storage.getNextColor()  );
-
-        this.storage.addAnalysis( newRect )
-
-        return newRect;
-
-
-    }
 
 
 
@@ -89,41 +54,41 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
         const y = Math.round(fileHeight * yAspect);
 
         return {
-            x,
-            y
+            top: y,
+            left: x
         }
 
     }
 
     activateListeners() {
 
-        this.getLayerRoot().addEventListener("mousemove", event => {
+        this.getLayerRoot().addEventListener("pointermove", event => {
 
             const position = this.getRelativePosition(event);
 
             const activeTool = this.parent.group.tool.value;
-    
-            this.points.forEach( point => {
-                
+
+            this.points.all.forEach(point => {
+
                 // Move all active points within all layers
-                if ( point.active ) {
-                    activeTool.onPointMove( point, position.x, position.y );
+                if (point.active) {
+                    activeTool.onPointMove(point, position.top, position.left);
                 }
 
                 // Detectt eventual mouse enter or mouse leave of points
-                const pointIsUnderCursor = point.isWithin( position.x, position.y );
+                const pointIsUnderCursor = point.isWithin(position.top, position.left);
 
-                if ( pointIsUnderCursor && ! point.isHover ) {
-                    activeTool.onPointEnter( point );
+                if (pointIsUnderCursor && !point.isHover) {
+                    activeTool.onPointEnter(point);
                 }
 
-                else if ( ! pointIsUnderCursor && point.isHover ) {
-                    activeTool.onPointLeave( point );
+                else if (!pointIsUnderCursor && point.isHover) {
+                    activeTool.onPointLeave(point);
                 }
 
 
 
-            } );
+            });
 
 
         });
@@ -132,30 +97,30 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
 
             const position = this.getRelativePosition(event);
 
-            const activeTool =this.parent.group.tool.value;
+            const activeTool = this.parent.group.tool.value;
 
 
             // Call the click of the active tool
-            activeTool.onCanvasClick( position.x, position.y, this.parent );
+            activeTool.onCanvasClick(position.top, position.left, this.parent);
 
             // Call the click on all points
-            this.points.forEach( point => {
-                if ( point.isWithin( position.x, position.y ) ) {
-                    activeTool.onPointDown( point );
+            this.points.all.forEach(point => {
+                if (point.isWithin(position.top, position.left)) {
+                    activeTool.onPointDown(point);
                 }
-            } );
+            });
 
 
         })
 
         this.getLayerRoot().addEventListener("pointerup", () => {
 
-            const activeTool =this.parent.group.tool.value;
+            const activeTool = this.parent.group.tool.value;
 
-            this.points.forEach( point => {
-                activeTool.onPointUp( point );
-            } );
-        
+            this.points.all.forEach(point => {
+                activeTool.onPointUp(point);
+            });
+
         });
 
     }

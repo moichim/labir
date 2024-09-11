@@ -35,6 +35,9 @@ import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalys
 import { RectangleAnalysis } from "./properties/analysis/internals/rectangle/RectangleAnalysis";
 import { CornerPoint } from "./properties/analysis/internals/rectangle/CornerPoint";
 import { ThermalTool } from "./properties/tool/ToolDrive";
+import { AddEllipsisTool } from "./properties/analysis/internals/ellipsis/AddEllipsisTool";
+import { EditTool } from "./properties/tool/internals/EditTool";
+import { EllipsisAnalysis } from "./properties/analysis/internals/ellipsis/EllipsisAnalysis";
 
 
 
@@ -83,9 +86,16 @@ export {
     AbstractTool,
     InspectTool,
     AddRectangleTool,
+    AddEllipsisTool,
+    EditTool,
+    ThermalTool,
+
+    // Analysis
     AbstractAnalysis,
     RectangleAnalysis,
-    CornerPoint,
-    ThermalTool
-};
+    EllipsisAnalysis,
 
+    // Points
+    CornerPoint,
+    
+};

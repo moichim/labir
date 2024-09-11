@@ -118,121 +118,6 @@ interface ILrcFrame {
     pixels: number[];
 }
 
-/**
- * Manage callbacks on optional property values
- */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
-    protected callbacks: Map<string, CallbackType>;
-    constructor();
-    add(key: string, callback: CallbackType): void;
-    remove(key: string): void;
-    call(...args: Parameters<CallbackType>): void;
-}
-
-type AnalysisEvent = (analysis: AbstractAnalysis) => void;
-declare abstract class AbstractAnalysis {
-    readonly key: string;
-    readonly file: AbstractFile;
-    readonly initialColor: string;
-    /** Activation status */
-    protected _active: boolean;
-    get active(): boolean;
-    readonly onActivation: CallbacksManager<AnalysisEvent>;
-    readonly onDeactivation: CallbacksManager<AnalysisEvent>;
-    /** Selection status */
-    protected _selected: boolean;
-    get selected(): boolean;
-    readonly onSelected: CallbacksManager<AnalysisEvent>;
-    readonly onDeselected: CallbacksManager<AnalysisEvent>;
-    readonly layerRoot: HTMLDivElement;
-    readonly renderRoot: HTMLElement;
-    readonly points: Map<string, AbstractPoint>;
-    protected _min?: number;
-    get min(): number | undefined;
-    protected _max?: number;
-    get max(): number | undefined;
-    protected _avg?: number;
-    get avg(): number | undefined;
-    get arrayOfPoints(): AbstractPoint[];
-    get arrayOfActivePoints(): AbstractPoint[];
-    protected _color: string;
-    get color(): string;
-    setColor(value: string): void;
-    protected abstract setColorCallback(value: string): void;
-    onSetColor: CallbacksManager<(value: string) => void>;
-    ready: boolean;
-    constructor(key: string, file: AbstractFile, initialColor: string);
-    abstract init(): void;
-    remove(): void;
-    /** Activation / Deactivation */
-    activate(): void;
-    deactivate(): void;
-    /** Selection / Deselection */
-    setSelected(): void;
-    setDeselected(): void;
-    onResize: CallbacksManager<() => void>;
-    abstract isWithin(x: number, y: number): boolean;
-    recalculateValues(): void;
-    protected abstract getValues(): {
-        min?: number;
-        max?: number;
-        avg?: number;
-    };
-    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
-}
-
-declare abstract class AbstractPoint {
-    readonly key: string;
-    readonly analysis: AbstractAnalysis;
-    get file(): AbstractFile;
-    protected _x: number;
-    get x(): number;
-    set x(value: number);
-    onX: CallbacksManager<(x: number, prev: number) => void>;
-    abstract mayMoveToX(value: number): boolean;
-    protected _y: number;
-    get y(): number;
-    set y(value: number);
-    onY: CallbacksManager<(y: number, prev: number) => void>;
-    abstract mayMoveToY(value: number): boolean;
-    protected _color: string;
-    protected get color(): string;
-    setColor(value: string): void;
-    protected _active: boolean;
-    get active(): boolean;
-    protected _isHover: boolean;
-    get isHover(): boolean;
-    get root(): HTMLDivElement;
-    abstract getRadius(): number;
-    container: HTMLDivElement;
-    innerElement: HTMLDivElement;
-    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
-    isWithin(x: number, y: number): boolean;
-    isInActiveLayer(): boolean;
-    isInSelectedLayer(): boolean;
-    protected getPercentageX(): number;
-    protected getPercentageY(): number;
-    getPercentageCoordinates(): {
-        x: number;
-        y: number;
-    };
-    /** Create the display element */
-    abstract createInnerElement(): HTMLDivElement;
-    /** Take the internal position value and project it to the DOM element */
-    projectInnerPositionToDom(): void;
-    abstract onPointerDown(): void;
-    mouseEnter(): void;
-    mouseLeave(): void;
-    protected abstract onMouseEnter(): void;
-    protected abstract onMouseLeave(): void;
-    abstract onPointerUp(): void;
-    abstract onMove(): void;
-    protected abstract onActivate(): void;
-    protected abstract onDeactivate(): void;
-    activate(): void;
-    deactivate(): void;
-}
-
 declare const JET: string[];
 declare const IRON: string[];
 declare const GRAYSCALE: string[];
@@ -590,6 +475,17 @@ interface IParserObject {
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
 }
 
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
+    protected callbacks: Map<string, CallbackType>;
+    constructor();
+    add(key: string, callback: CallbackType): void;
+    remove(key: string): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
 declare class FrameBuffer {
     protected readonly drive: TimelineDrive;
     /** @internal use accessors to get and set with side effects */
@@ -854,6 +750,244 @@ declare class RecordingDrive extends AbstractProperty<boolean, AbstractFile> {
     protected clearRecording(): void;
 }
 
+declare abstract class AbstractArea {
+    readonly analysis: AbstractAnalysis;
+    get fileWidth(): number;
+    get fileHeight(): number;
+    get root(): HTMLDivElement;
+    protected element: HTMLDivElement;
+    protected _top: number;
+    protected _width: number;
+    protected _left: number;
+    protected _height: number;
+    get top(): number;
+    set top(value: number);
+    get left(): number;
+    set left(value: number);
+    get height(): number;
+    set height(value: number);
+    get width(): number;
+    set width(value: number);
+    get center(): {
+        x: number;
+        y: number;
+    };
+    constructor(analysis: AbstractAnalysis, top: number, right: number, left: number, bottom: number);
+    build(): void;
+    abstract onBuild(): void;
+    setColor(value: string): void;
+    abstract onSetColor(value: string): void;
+}
+
+declare abstract class AbstractHandlePoint extends AbstractPoint {
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    createInnerElement(): HTMLDivElement;
+    onMouseEnter(): void;
+    onMouseLeave(): void;
+}
+
+declare class CornerPoint extends AbstractHandlePoint {
+    getRadius(): number;
+    mayMoveToX(value: number): boolean;
+    mayMoveToY(value: number): boolean;
+    isMoving: boolean;
+    syncXWith(point: CornerPoint): void;
+    syncYWith(point: CornerPoint): void;
+    onPointerDown(): void;
+    onPointerUp(): void;
+    onMove(): void;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+}
+
+declare class RectangleArea extends AbstractArea {
+    onBuild(): void;
+    onSetColor(value: string): void;
+}
+
+declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+    readonly tl: CornerPoint;
+    readonly tr: CornerPoint;
+    readonly bl: CornerPoint;
+    readonly br: CornerPoint;
+    readonly area: RectangleArea;
+    isWithin(x: number, y: number): boolean;
+    protected abstract buildArea(left: number, top: number, width?: number, height?: number): AbstractArea;
+    static calculateDimensionsFromCorners(top: number, left: number, right: number, bottom: number): {
+        top: number;
+        left: number;
+        width: number;
+        height: number;
+    };
+    protected constructor(key: string, color: string, file: AbstractFile, top: number, left: number, width?: number, height?: number);
+    setColorCallback(value: string): void;
+    init(): void;
+    protected draw(): void;
+    protected calculateBounds(): void;
+    protected addPoint(role: string, top: number, left: number): CornerPoint;
+}
+
+declare class EllipsisAnalysis extends AbstractAreaAnalysis {
+    static startAddingAtPoint(key: string, color: string, file: AbstractFile, top: number, left: number): EllipsisAnalysis;
+    static build(key: string, color: string, file: AbstractFile, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
+    protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+}
+
+declare class RectangleAnalysis extends AbstractAreaAnalysis {
+    static startAddingAtPoint(key: string, color: string, file: AbstractFile, top: number, left: number): RectangleAnalysis;
+    static build(key: string, color: string, file: AbstractFile, _top: number, _left: number, _right: number, _bottom: number): RectangleAnalysis;
+    protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+}
+
+type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
+type AnalysisRemovedCallback = (key: string) => void;
+type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
+    readonly drive: AnalysisDrive;
+    /** Array of all layers ordered from oldest to the newest */
+    protected layers: Array<AbstractAnalysis>;
+    /** Fired whenever an analysis is added */
+    readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
+    /** Fired whenever an analysis is removed */
+    readonly onRemove: CallbacksManager<AnalysisRemovedCallback>;
+    /** Fired whenever the selection list changes */
+    readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
+    /** Array of available colors */
+    readonly colors: string[];
+    constructor(drive: AnalysisDrive);
+    protected addAnalysis(analysis: AbstractAnalysis): this;
+    removeAnalysis(key: string): void;
+    /** Add a rectangular analysis in the given position and start editing it. */
+    createRectFrom(top: number, left: number): RectangleAnalysis;
+    /** Build an ellyptical analysis at the given position. */
+    placeRectAt(key: string, top: number, left: number, right: number, bottom: number): RectangleAnalysis;
+    /** Add an ellyptical analysis in the given position and start editing it */
+    createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
+    /** Build an ellyptical analysis at the given position. */
+    placeEllipsisAt(key: string, top: number, left: number, right: number, bottom: number): EllipsisAnalysis;
+    selectAll(): void;
+    deselectAll(): void;
+    /** Accessors */
+    /** Array of all analysis ordered from the oldest to the newest. */
+    get all(): AbstractAnalysis[];
+    /** Array of all active analysis ordered from the oldest to the newest. */
+    get selectedOnly(): AbstractAnalysis[];
+    /** Get color for the next analysis */
+    protected getNextColor(): string;
+    /** Get name for the next analysis */
+    protected getNextName(type: string): string;
+}
+
+type AnalysisEvent = (analysis: AbstractAnalysis) => void;
+declare abstract class AbstractAnalysis {
+    readonly key: string;
+    readonly file: AbstractFile;
+    readonly initialColor: string;
+    /** Selection status */
+    protected _selected: boolean;
+    get selected(): boolean;
+    readonly onSelected: CallbacksManager<AnalysisEvent>;
+    readonly onDeselected: CallbacksManager<AnalysisEvent>;
+    readonly onResize: CallbacksManager<() => void>;
+    readonly layerRoot: HTMLDivElement;
+    readonly renderRoot: HTMLElement;
+    readonly points: Map<string, AbstractPoint>;
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+    get layers(): AnalysisLayersStorage;
+    protected _min?: number;
+    get min(): number | undefined;
+    protected _max?: number;
+    get max(): number | undefined;
+    protected _avg?: number;
+    get avg(): number | undefined;
+    get arrayOfPoints(): AbstractPoint[];
+    get arrayOfActivePoints(): AbstractPoint[];
+    protected _color: string;
+    get color(): string;
+    setColor(value: string): void;
+    protected abstract setColorCallback(value: string): void;
+    onSetColor: CallbacksManager<(value: string) => void>;
+    ready: boolean;
+    constructor(key: string, file: AbstractFile, initialColor: string);
+    abstract init(): void;
+    remove(): void;
+    /** Selection / Deselection */
+    setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
+    setDeselected(emitGlobalEvent?: boolean): void;
+    abstract isWithin(x: number, y: number): boolean;
+    recalculateValues(): void;
+    protected abstract getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
+}
+
+declare abstract class AbstractPoint {
+    readonly key: string;
+    readonly analysis: AbstractAnalysis;
+    get file(): AbstractFile;
+    protected _x: number;
+    get x(): number;
+    set x(value: number);
+    onX: CallbacksManager<(x: number, prev: number) => void>;
+    abstract mayMoveToX(value: number): boolean;
+    protected _y: number;
+    get y(): number;
+    set y(value: number);
+    onY: CallbacksManager<(y: number, prev: number) => void>;
+    abstract mayMoveToY(value: number): boolean;
+    protected _color: string;
+    protected get color(): string;
+    setColor(value: string): void;
+    protected _active: boolean;
+    get active(): boolean;
+    protected _isHover: boolean;
+    get isHover(): boolean;
+    get root(): HTMLDivElement;
+    abstract getRadius(): number;
+    container: HTMLDivElement;
+    innerElement: HTMLDivElement;
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    isWithin(top: number, left: number): boolean;
+    isInSelectedLayer(): boolean;
+    protected getPercentageX(): number;
+    protected getPercentageY(): number;
+    getPercentageCoordinates(): {
+        x: number;
+        y: number;
+    };
+    /** Create the display element */
+    abstract createInnerElement(): HTMLDivElement;
+    /** Take the internal position value and project it to the DOM element */
+    projectInnerPositionToDom(): void;
+    abstract onPointerDown(): void;
+    mouseEnter(): void;
+    mouseLeave(): void;
+    protected abstract onMouseEnter(): void;
+    protected abstract onMouseLeave(): void;
+    abstract onPointerUp(): void;
+    abstract onMove(): void;
+    protected abstract onActivate(): void;
+    protected abstract onDeactivate(): void;
+    activate(): void;
+    deactivate(): void;
+}
+
 interface ITool {
     key: string;
     name: string;
@@ -879,7 +1013,7 @@ declare abstract class AbstractTool {
     /** Whenever the mouse leaves the point */
     abstract onPointLeave(point: AbstractPoint): void;
     /** Whenever the point should move to a new position */
-    abstract onPointMove(point: AbstractPoint, x: number, y: number): void;
+    abstract onPointMove(point: AbstractPoint, top: number, left: number): void;
     /** Whenever a point is clicked */
     abstract onPointDown(point: AbstractPoint): void;
     /** Whenever a point is ended clicking */
@@ -889,6 +1023,24 @@ declare abstract class AbstractTool {
 declare abstract class AbstractAddTool extends AbstractTool {
 }
 
+declare class AddEllipsisTool extends AbstractAddTool implements ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+    onCanvasClick(top: number, left: number, file: AbstractFile): void;
+    onPointDown(): void;
+    onPointUp(point: AbstractPoint): void;
+    onCanvasLeave(): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointLeave(): void;
+    onPointEnter(): void;
+}
+
 declare class AddRectangleTool extends AbstractAddTool implements ITool {
     key: string;
     name: string;
@@ -896,15 +1048,33 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
     icon: string;
     active: boolean;
     onCanvasClick(x: number, y: number, file: AbstractFile): void;
-    onPointDown(point: AbstractPoint): void;
+    onPointDown(): void;
     onPointUp(point: AbstractPoint): void;
-    onCanvasLeave(file: AbstractFile): void;
+    onCanvasLeave(): void;
     getLabelValue: (x: number, y: number, file: AbstractFile) => string;
     protected onActivate(): void;
     protected onDeactivate(): void;
-    onPointMove(point: AbstractPoint, x: number, y: number): void;
-    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointLeave(): void;
+    onPointEnter(): void;
+}
+
+declare class EditTool extends AbstractTool implements ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+    getLabelValue(x: number, y: number, file: AbstractFile): string;
+    onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasClick(): void;
+    onCanvasLeave(): void;
     onPointEnter(point: AbstractPoint): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
 }
 
 declare class InspectTool extends AbstractTool implements ITool {
@@ -913,16 +1083,16 @@ declare class InspectTool extends AbstractTool implements ITool {
     description: string;
     icon: string;
     active: boolean;
-    onCanvasClick(x: number, y: number, file: AbstractFile): void;
-    onCanvasLeave(file: AbstractFile): void;
+    onCanvasClick(): void;
+    onCanvasLeave(): void;
     getLabelValue: (x: number, y: number, file: AbstractFile) => string;
     protected onActivate(): void;
     protected onDeactivate(): void;
-    onPointEnter(point: AbstractPoint): void;
-    onPointLeave(point: AbstractPoint): void;
-    onPointMove(point: AbstractPoint, x: number, y: number): void;
-    onPointDown(point: AbstractPoint): void;
-    onPointUp(point: AbstractPoint): void;
+    onPointEnter(): void;
+    onPointLeave(): void;
+    onPointMove(): void;
+    onPointDown(): void;
+    onPointUp(): void;
 }
 
 interface IWithTool extends IBaseProperty {
@@ -1080,154 +1250,34 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
     clearAllListeners(): void;
 }
 
-declare abstract class AbstractArea {
-    readonly analysis: AbstractAnalysis;
-    get fileWidth(): number;
-    get fileHeight(): number;
-    get root(): HTMLDivElement;
-    protected element: HTMLDivElement;
-    protected _top: number;
-    protected _width: number;
-    protected _left: number;
-    protected _height: number;
-    get top(): number;
-    set top(value: number);
-    get left(): number;
-    set left(value: number);
-    get height(): number;
-    set height(value: number);
-    get width(): number;
-    set width(value: number);
-    get center(): {
-        x: number;
-        y: number;
-    };
-    constructor(analysis: AbstractAnalysis, top: number, right: number, left: number, bottom: number);
-    build(): void;
-    abstract onBuild(): void;
-    setColor(value: string): void;
-    abstract onSetColor(value: string): void;
-}
-
-declare abstract class AbstractHandlePoint extends AbstractPoint {
-    constructor(key: string, x: number, y: number, analysis: AbstractAnalysis, color: string);
-    createInnerElement(): HTMLDivElement;
-    onMouseEnter(): void;
-    onMouseLeave(): void;
-}
-
-declare class CornerPoint extends AbstractHandlePoint {
-    getRadius(): number;
-    mayMoveToX(value: number): boolean;
-    mayMoveToY(value: number): boolean;
-    isMoving: boolean;
-    syncXWith(point: CornerPoint): void;
-    syncYWith(point: CornerPoint): void;
-    onPointerDown(): void;
-    onPointerUp(): void;
-    onMove(): void;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-}
-
-declare class RectangleArea extends AbstractArea {
-    onBuild(): void;
-    onSetColor(value: string): void;
-}
-
-declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
-    readonly tl: CornerPoint;
-    readonly tr: CornerPoint;
-    readonly bl: CornerPoint;
-    readonly br: CornerPoint;
-    readonly corners: CornerPoint[];
-    readonly area: RectangleArea;
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-    isWithin(x: number, y: number): boolean;
-    protected abstract buildArea(x: number, y: number): AbstractArea;
-    constructor(key: string, file: AbstractFile, x: number, y: number, color: string);
-    setColorCallback(value: string): void;
-    init(): void;
-    protected draw(): void;
-    protected calculateBounds(): void;
-    addPoint(role: string, x: number, y: number, color: string): CornerPoint;
-}
-
-declare class EllipsisAnalysis extends AbstractAreaAnalysis {
-    protected buildArea(x: number, y: number): AbstractArea;
-    protected getValues(): {
-        min?: number;
-        max?: number;
-        avg?: number;
-    };
-}
-
-declare class PointsListener {
-    readonly instance: AbstractFile;
-    constructor(instance: AbstractFile);
-    onMouseMove(): void;
-    onClick(): void;
-    onMouseLeave(): void;
-}
-
-declare class RectangleAnalysis extends AbstractAreaAnalysis {
-    protected buildArea(x: number, y: number): AbstractArea;
-    protected getValues(): {
-        min?: number;
-        max?: number;
-        avg?: number;
-    };
-}
-
-type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
-type AnalysisRemovedCallback = (key: string) => void;
-type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
-declare enum AnalysisAddPosition {
-    PREPEND = 0,
-    APPEND = 1
-}
-declare class AnalysisStorage extends Map<string, AbstractAnalysis> {
+/** Access list of points from analysis layers */
+declare class AnalysisPointsAccessor {
     readonly drive: AnalysisDrive;
-    protected layers: Array<AbstractAnalysis>;
-    readonly colors: string[];
     constructor(drive: AnalysisDrive);
-    readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
-    addAnalysis(analysis: AbstractAnalysis, where?: AnalysisAddPosition): this;
-    onRemove: CallbacksManager<AnalysisRemovedCallback>;
-    removeAnalysis(key: string): void;
-    readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
-    /** Mark an analysis as selected */
-    select(analysis: string | AbstractAnalysis, exclusive?: boolean): this;
-    deselect(analysis: AbstractAnalysis): void;
-    get all(): AbstractAnalysis[];
-    get activeOnly(): AbstractAnalysis[];
-    get selectedOnly(): AbstractAnalysis[];
-    get allPoints(): AbstractPoint[];
-    get selectedOnlyPoints(): AbstractPoint[];
+    /** Get all points from all layers */
+    get all(): AbstractPoint[];
+    /** Get all points from selected layers */
+    get allInSelectedLayers(): AbstractPoint[];
+    /** Get only active points from selected layers */
+    get activeInSelectedLayers(): AbstractPoint[];
+    /** Extract points from all provided layers */
     protected extractPointsFromLayers(layers: AbstractAnalysis[], activeOnly?: boolean): AbstractPoint[];
-    getNextColor(): string;
 }
 
 interface IWithAnalysis extends IBaseProperty {
     analysis: AnalysisDrive;
 }
 declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
-    readonly storage: AnalysisStorage;
-    readonly listener: PointsListener;
-    get points(): AbstractPoint[];
-    get activePoints(): AbstractPoint[];
+    readonly layers: AnalysisLayersStorage;
+    readonly points: AnalysisPointsAccessor;
+    /** Value may be modified only from `AnalysisLayersStorage`! */
     dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
     protected afterSetEffect(value: AbstractAnalysis[]): void;
-    addRectAt(x: number, y: number): RectangleAnalysis;
-    addEllipsisAt(x: number, y: number): EllipsisAnalysis;
     getLayerRoot(): HTMLElement;
     protected getRelativePosition(event: MouseEvent): {
-        x: number;
-        y: number;
+        top: number;
+        left: number;
     };
     activateListeners(): void;
     deactivateListeners(): void;
@@ -1545,4 +1595,4 @@ declare class ThermalFileFailure extends AbstractFileResult {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractAnalysis, AbstractFile, AbstractTool, AddRectangleTool, type AvailableThermalPalettes, CornerPoint, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };
+export { AbstractAnalysis, AbstractFile, AbstractTool, AddEllipsisTool, AddRectangleTool, type AvailableThermalPalettes, CornerPoint, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed };

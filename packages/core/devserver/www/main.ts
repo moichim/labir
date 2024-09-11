@@ -176,6 +176,47 @@ const buildControls = () => {
     } );
 
     group_2.tool.addListener( "main manager", console.log );
+
+
+    const randomizer = document.createElement( "button" );
+    randomizer.innerHTML = "Vytvořit náhodnou";
+
+
+    randomizer.addEventListener( "click", () => {
+
+        group_2.forEveryInstance( instance => {
+
+            const top = Math.random() * instance.height;
+            const bottom = Math.random() * instance.height;
+            const left = Math.random() * instance.width;
+            const right = Math.random() * instance.width;
+
+            instance.analysis.layers.placeRectAt( Math.random().toFixed(5), top, left, right, bottom );
+
+        } );
+
+    } );
+
+
+    document.body.appendChild( randomizer );
+
+    const rrand = document.createElement( "button" );
+    rrand.innerHTML = "Vytvořit známou";
+
+
+    rrand.addEventListener( "click", () => {
+
+        group_2.forEveryInstance( instance => {
+
+            instance.analysis.layers.placeRectAt( Math.random().toFixed(5), 10, 10, 100, 100 );
+
+        } );
+
+    } );
+
+
+    document.body.appendChild( rrand );
+
 }
 
 buildControls();
