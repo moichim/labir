@@ -2,11 +2,12 @@ import { AbstractAnalysis, Instance, playbackSpeed, ThermalFileFailure } from "@
 import { createContext } from "@lit/context"
 import { FileProviderElement } from "../FileProvider";
 import { FileMarker } from "../../../controls/file/markers/ImageMarker";
+import { AbstractFileProvider } from "../AbstractFileProvider";
 
 type FileMarkersContext = FileMarker[];
 export const fileMarkersContext = createContext<FileMarkersContext>( "file-markers-context" );
 
-export type FileProviderContext = FileProviderElement;
+export type FileProviderContext = AbstractFileProvider;
 export const fileProviderContext = createContext<FileProviderContext>( "file-provider-element" );
 
 type FileContext = Instance;

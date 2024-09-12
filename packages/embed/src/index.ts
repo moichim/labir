@@ -30,6 +30,9 @@ import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 import "./hierarchy/providers/GroupProvider";
 import "./hierarchy/providers/FileProvider";
+import "./hierarchy/providers/FileDropin";
+import "./controls/group/GroupDropin";
+
 import "./controls/file/FileCanvas";
 
 import "./controls/manager/PaletteDropdown";
@@ -54,6 +57,7 @@ import "./controls/file/markers/MarksContent";
 import "./controls/group/GroupToolButtons";
 import "./controls/file/FileAnalysis";
 import "./controls/file/FileAnalysisTableRow";
+
 
 import "./hierarchy/TestComponent";
 

@@ -4421,10 +4421,13 @@ var getPool = async () => {
 export {
   AbstractAnalysis,
   AbstractFile,
+  AbstractFileResult,
   AbstractTool,
   AddEllipsisTool,
   AddRectangleTool,
+  CallbacksManager,
   CornerPoint,
+  DropinElementListener,
   EditTool,
   EllipsisAnalysis,
   GRAYSCALE,
@@ -4443,5 +4446,6 @@ export {
   TimePeriod,
   TimeRound,
   getPool,
-  playbackSpeed
+  playbackSpeed,
+  supportedFileTypes
 };

@@ -38,6 +38,10 @@ import { ThermalTool } from "./properties/tool/ToolDrive";
 import { AddEllipsisTool } from "./properties/analysis/internals/ellipsis/AddEllipsisTool";
 import { EditTool } from "./properties/tool/internals/EditTool";
 import { EllipsisAnalysis } from "./properties/analysis/internals/ellipsis/EllipsisAnalysis";
+import { supportedFileTypes } from "./loading/workers/parsers";
+import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
+import { CallbacksManager } from "./properties/callbacksManager";
+import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
 
 
 
@@ -60,6 +64,7 @@ export {
     // File
     AbstractFile,
     Instance,
+    AbstractFileResult,
     ThermalFileReader,
     ThermalFileFailure,
     playbackSpeed,
@@ -97,5 +102,15 @@ export {
 
     // Points
     CornerPoint,
-    
+
+    supportedFileTypes,
+    CallbacksManager,
+
+    DropinElementListener
 };
+
+
+
+
+
+

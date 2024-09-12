@@ -10,6 +10,8 @@ export class FileCanvas extends FileConsumer {
 
     public onInstanceCreated(instance: Instance): void {
 
+        console.log( "Načetl jsem jinstanci a vykresluji canvas", instance );
+
         if ( this.container.value !== undefined ) {
             instance.mountToDom( this.container.value );
         } else {

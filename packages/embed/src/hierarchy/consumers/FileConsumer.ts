@@ -3,12 +3,14 @@ import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileProviderContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
 import { GroupConsumer } from "./GroupConsumer";
+import { PropertyValues } from "lit";
+import { AbstractFileProvider } from "../providers/AbstractFileProvider";
 
 export abstract class FileConsumer extends GroupConsumer {
 
     @consume({context: fileProviderContext, subscribe: true})
     @state()
-    protected parentFileProviderElement?: FileProviderContext;
+    protected parentFileProviderElement?: AbstractFileProvider;
 
     protected internalCallbackUUID = `${this.UUID}__internal_callback`;
 
@@ -51,19 +53,29 @@ export abstract class FileConsumer extends GroupConsumer {
 
         super.connectedCallback();
 
-        // if the provider exists, append all the callbacks
+        this.hookCallbacks();
+
+    }
+
+
+
+    protected hookCallbacks() {
+
+
+        this.log( "Hookuji file consumera", this, this.parentElement, this.parentFileProviderElement );
+
         if (this.parentFileProviderElement) {
 
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
-            this.parentFileProviderElement.registerSuccessCallback(
+            this.parentFileProviderElement.onSuccess.add(
                 this.internalCallbackUUID,
                 () => {
                     this.loading = false;
                 }
             );
 
-            this.parentFileProviderElement.registerFailureCallback(
+            this.parentFileProviderElement.onFailure.add(
                 this.internalCallbackUUID,
                 () => {
                     this.loading = false;
@@ -73,12 +85,12 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // IMPLEMENTED CALLBACKS
 
-            this.parentFileProviderElement.registerSuccessCallback(
+            this.parentFileProviderElement.onSuccess.add(
                 this.UUID,
                 this.onInstanceCreated.bind(this)
             );
 
-            this.parentFileProviderElement.registerFailureCallback(
+            this.parentFileProviderElement.onFailure.add(
                 this.UUID,
                 this.onFailure.bind(this)
             );
