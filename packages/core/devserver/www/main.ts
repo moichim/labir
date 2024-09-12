@@ -235,7 +235,7 @@ const buildControls = () => {
         if ( target.files ) {
             const file = target.files[0];
 
-            const result = await manager.service.loadFromDropin( file );
+            const result = await manager.service.loadUploadedFile( file );
 
             if ( result instanceof ThermalFileReader ) {
 
@@ -280,29 +280,110 @@ const buildControls = () => {
     dropin.style.width = "300px";
     dropin.style.height = "100px";
 
+    /*
+
     dropin.ondrop = event => {
         event.preventDefault();
         console.log( event.dataTransfer );
     }
 
-    /*
+    */
+
+    const indicator = document.createElement( "div" );
+
+    document.body.appendChild( indicator );
+
+    dropin.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropin.classList.add("dropzone--over");
+        indicator.innerHTML = "over";
+      });
+
+      ["dragleave", "dragend"].forEach((type) => {
+        dropin.addEventListener(type, (e) => {
+            dropin.classList.remove("dropzone--over");
+            indicator.innerHTML = "out";
+        });
+      });
+
     dropin.addEventListener( "drop", async ( event ) => {
         event.preventDefault();
 
-        console.log( event );
 
         const files = event.dataTransfer;
 
         if ( files && files.items ) {
 
-            console.log( files.items );
+            const array = Array.from( files.items );
+
+            for ( let entry of array ) {
+                console.log( entry, entry.getAsFile() );
+
+                const file = entry.getAsFile();
+
+                if ( file ) {
+                    const service = await manager.service.loadUploadedFile( file );
+
+                    if ( service instanceof ThermalFileReader ) {
+
+                        const instance = await service.createInstance( group );
+
+                        const container = document.createElement( "div" );
+
+                        instance.mountToDom( container );
+                        instance.draw();
+
+                        instance.listenerLayer.getLayerRoot().addEventListener( "click", () => {
+                            if ( instance.timeline.isPlaying ) {
+                                instance.timeline.pause();
+                            } else {
+                                instance.timeline.play();
+                            }
+                        } )
+
+                        document.body.appendChild( container );
+
+                    }
+                }
+
+                
+
+            }
+
 
         }
         console.log( event );
     } );
-     */
+
 
     document.body.appendChild( dropin );
+
+    /** Dropzone */
+    const dropzone = document.createElement( "div" );
+
+    dropzone.style.backgroundColor = "red";
+    dropzone.style.width = "500px";
+    dropzone.style.height = "500px";
+
+    const listener = manager.service.handleDropzone( dropzone );
+
+    listener.onMouseEnter.add( "debug", () => {
+        dropzone.style.backgroundColor = "yellow";
+    } );
+
+    listener.onMouseLeave.add( "debug", () => {
+        dropzone.style.backgroundColor = "red";
+    } );
+
+    listener.onDrop.add( "debug", (value) => {
+        console.log( "wtf", value );
+        listener.dehydrate();
+        console.log( listener );
+
+        setTimeout( () => listener.hydrate(), 5000 );
+    } );
+
+    document.body.appendChild( dropzone );
 
 
 }

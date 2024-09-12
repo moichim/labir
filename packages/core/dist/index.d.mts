@@ -175,6 +175,52 @@ declare class FileRequest {
     protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
 }
 
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
+    protected callbacks: Map<string, CallbackType>;
+    constructor();
+    add(key: string, callback: CallbackType): void;
+    remove(key: string): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
+/** Turn any element into a dropzone! */
+declare class DropinElementListener {
+    readonly service: FilesService;
+    readonly element: HTMLElement;
+    protected _hover: boolean;
+    get hover(): boolean;
+    readonly onMouseEnter: CallbacksManager<() => void>;
+    readonly onMouseLeave: CallbacksManager<() => void>;
+    readonly onDrop: CallbacksManager<(results: AbstractFileResult[]) => void>;
+    readonly onProcessingEnd: CallbacksManager<() => void>;
+    /** An invissible input element */
+    input?: HTMLInputElement;
+    protected hydrated: boolean;
+    protected bindedEnterListener: DropinElementListener["handleEnter"];
+    protected bindedLeaveListener: DropinElementListener["handleLeave"];
+    protected bindedDropListener: DropinElementListener["handleDrop"];
+    protected bindedInputChangeListener: DropinElementListener["handleInputChange"];
+    protected bindedDragoverListener: DropinElementListener["handleDragover"];
+    protected bindedClickListener: DropinElementListener["handleClick"];
+    protected constructor(service: FilesService, element: HTMLElement);
+    static listenOnElement(service: FilesService, element: HTMLElement): DropinElementListener;
+    /** Bind all event listeners to the provided element */
+    hydrate(): void;
+    /** Remove all event listeners from the element */
+    dehydrate(): void;
+    handleClick(event: PointerEvent): void;
+    handleDragover(event: DragEvent): void;
+    handleDrop(event: DragEvent): Promise<AbstractFileResult[]>;
+    handleInputChange(event: Event): Promise<void>;
+    handleEnter(): void;
+    handleLeave(): void;
+    /** Build the internal input */
+    protected getInput(): HTMLInputElement;
+}
+
 declare class FilesService {
     readonly manager: ThermalManager;
     get pool(): Pool__default;
@@ -195,6 +241,11 @@ declare class FilesService {
     get cachedServicesCount(): number;
     /** Is the URL already in the cache? */
     fileIsInCache(url: string): boolean;
+    /** Process a file obrained from anywhere */
+    loadUploadedFile(file: File): Promise<AbstractFileResult>;
+    /** Create a dropzone listener on a HTML element */
+    handleDropzone(element: HTMLElement): DropinElementListener;
+    /** Load a file from URL, eventually using already cached result */
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
 }
 
@@ -473,17 +524,6 @@ interface IParserObject {
      */
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
-}
-
-/**
- * Manage callbacks on optional property values
- */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
-    protected callbacks: Map<string, CallbackType>;
-    constructor();
-    add(key: string, callback: CallbackType): void;
-    remove(key: string): void;
-    call(...args: Parameters<CallbackType>): void;
 }
 
 declare class FrameBuffer {
