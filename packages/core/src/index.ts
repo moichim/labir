@@ -27,7 +27,7 @@ import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 
 
 import { getPool } from "./utils/pool"
-import { playbackSpeed } from "./properties/time/playback/TimelineDrive";
+import { playbackSpeed, PlaybackSpeeds } from "./properties/time/playback/TimelineDrive";
 import { AbstractTool } from "./properties/tool/internals/AbstractTool";
 import { InspectTool } from "./properties/tool/internals/InspectTool";
 import { AddRectangleTool } from "./properties/analysis/internals/rectangle/AddRectangleTool";
@@ -38,6 +38,11 @@ import { ThermalTool } from "./properties/tool/ToolDrive";
 import { AddEllipsisTool } from "./properties/analysis/internals/ellipsis/AddEllipsisTool";
 import { EditTool } from "./properties/tool/internals/EditTool";
 import { EllipsisAnalysis } from "./properties/analysis/internals/ellipsis/EllipsisAnalysis";
+import { supportedFileTypes } from "./loading/workers/parsers";
+import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
+import { CallbacksManager } from "./properties/callbacksManager";
+import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
+import { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
 
 
 
@@ -60,6 +65,7 @@ export {
     // File
     AbstractFile,
     Instance,
+    AbstractFileResult,
     ThermalFileReader,
     ThermalFileFailure,
     playbackSpeed,
@@ -97,5 +103,20 @@ export {
 
     // Points
     CornerPoint,
-    
+
+    supportedFileTypes,
+    CallbacksManager,
+
+    DropinElementListener,
+
+    ParsedTimelineFrame,
+    PlaybackSpeeds
+
+
 };
+
+
+
+
+
+

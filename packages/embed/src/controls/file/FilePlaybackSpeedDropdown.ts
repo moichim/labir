@@ -1,11 +1,20 @@
-import { playbackSpeed } from "@labir/core";
+import { playbackSpeed, ThermalFileFailure } from "@labir/core";
 import { css, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { ThermalDropdown } from "../../ui/Dropdown";
+import { consume } from "@lit/context";
+import { playbackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
 
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
+
+    @property({type: String, reflect: true})
+    enabled: "on"|"off" = "on";
+
+    @consume({context: playbackSpeedContext, subscribe: true})
+    @state()
+    protected playbackSpeed?: ThermalFileFailure;
     
     public onInstanceCreated(): void {
         // throw new Error("Method not implemented.");
@@ -14,8 +23,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
         // throw new Error("Method not implemented.");
     }
 
-    @property({type: String, reflect: true})
-    enabled: "on"|"off" = "on";
+    
 
     static styles = css`
 

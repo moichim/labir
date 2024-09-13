@@ -1,4 +1,4 @@
-import { ParsedFileFrame, ParsedTimelineFrame } from "../../../../loading/workers/parsers/types";
+import { ParsedFileFrame, ParsedTimelineFrame } from "../../../../loading/workers/parsers/structure";
 import { TimelineChangedStatusType, TimelineDrive } from "../TimelineDrive";
 
 export class FrameBuffer {

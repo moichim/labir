@@ -32,10 +32,13 @@ var src_exports = {};
 __export(src_exports, {
   AbstractAnalysis: () => AbstractAnalysis,
   AbstractFile: () => AbstractFile,
+  AbstractFileResult: () => AbstractFileResult,
   AbstractTool: () => AbstractTool,
   AddEllipsisTool: () => AddEllipsisTool,
   AddRectangleTool: () => AddRectangleTool,
+  CallbacksManager: () => CallbacksManager,
   CornerPoint: () => CornerPoint,
+  DropinElementListener: () => DropinElementListener,
   EditTool: () => EditTool,
   EllipsisAnalysis: () => EllipsisAnalysis,
   GRAYSCALE: () => GRAYSCALE,
@@ -54,7 +57,8 @@ __export(src_exports, {
   TimePeriod: () => TimePeriod,
   TimeRound: () => TimeRound,
   getPool: () => getPool,
-  playbackSpeed: () => playbackSpeed
+  playbackSpeed: () => playbackSpeed,
+  supportedFileTypes: () => supportedFileTypes
 });
 module.exports = __toCommonJS(src_exports);
 
@@ -956,18 +960,13 @@ var FileLoadingError = class extends Error {
 };
 
 // src/properties/callbacksManager.ts
-var CallbacksManager = class {
-  callbacks = /* @__PURE__ */ new Map();
-  constructor() {
-  }
+var CallbacksManager = class extends Map {
+  /** @deprecated use set method instead */
   add(key, callback) {
-    this.callbacks.set(key, callback);
-  }
-  remove(key) {
-    this.callbacks.delete(key);
+    this.set(key, callback);
   }
   call(...args) {
-    this.callbacks.forEach((fn) => fn(...args));
+    this.forEach((fn) => fn(...args));
   }
 };
 
@@ -2911,7 +2910,7 @@ var RecordingDrive = class extends AbstractProperty {
     this.parent.timeline.callbacksEnd.add(cllbackId, () => {
       console.log("playback ended");
       this.end();
-      this.parent.timeline.callbacksEnd.remove(cllbackId);
+      this.parent.timeline.callbacksEnd.delete(cllbackId);
     });
     this.parent.timeline.play();
     this.start();
@@ -3462,6 +3461,9 @@ var determineParser = (buffer, url) => {
   return parser2;
 };
 var supportedFileTypes = parsersArray.map((parser2) => parser2.extensions);
+var supportedFileTypesInputProperty = supportedFileTypes.map(
+  (type) => type.map((entry) => entry.minme + ", ." + entry.extension).join(", ")
+).join(", ");
 
 // src/loading/workers/FileRequest.ts
 var FileRequest = class _FileRequest {
@@ -3536,6 +3538,127 @@ var FileRequest = class _FileRequest {
   }
 };
 
+// src/loading/workers/dropin/DropinElementManager.ts
+var DropinElementListener = class _DropinElementListener {
+  constructor(service, element) {
+    this.service = service;
+    this.element = element;
+    this.bindedLeaveListener = this.handleLeave.bind(this);
+    this.bindedEnterListener = this.handleEnter.bind(this);
+    this.bindedDropListener = this.handleDrop.bind(this);
+    this.bindedInputChangeListener = this.handleInputChange.bind(this);
+    this.bindedDragoverListener = this.handleDragover.bind(this);
+    this.bindedClickListener = this.handleClick.bind(this);
+  }
+  _hover = false;
+  get hover() {
+    return this._hover;
+  }
+  onMouseEnter = new CallbacksManager();
+  onMouseLeave = new CallbacksManager();
+  onDrop = new CallbacksManager();
+  onProcessingEnd = new CallbacksManager();
+  /** An invissible input element */
+  input;
+  hydrated = false;
+  // Listeners are not added from the class, but binded
+  // into the following properties
+  bindedEnterListener;
+  bindedLeaveListener;
+  bindedDropListener;
+  bindedInputChangeListener;
+  bindedDragoverListener;
+  bindedClickListener;
+  static listenOnElement(service, element) {
+    const listener = new _DropinElementListener(service, element);
+    listener.hydrate();
+    return listener;
+  }
+  /** Bind all event listeners to the provided element */
+  hydrate() {
+    if (this.hydrated === false) {
+      this.hydrated = true;
+      this.input = this.getInput();
+      this.element.addEventListener("dragover", this.bindedDragoverListener);
+      this.element.addEventListener("dragleave", this.bindedLeaveListener);
+      this.element.addEventListener("dragend", this.bindedLeaveListener);
+      this.element.addEventListener("pointerdown", this.bindedClickListener);
+      this.element.addEventListener("drop", this.bindedDropListener);
+      this.input.addEventListener("change", this.bindedInputChangeListener);
+    }
+  }
+  /** Remove all event listeners from the element */
+  dehydrate() {
+    if (this.hydrated === true) {
+      this.hydrated = false;
+      if (this.input)
+        this.input.remove();
+      this.element.removeEventListener("dragover", this.bindedDragoverListener);
+      this.element.removeEventListener("dragleave", this.bindedLeaveListener);
+      this.element.removeEventListener("dragend", this.bindedLeaveListener);
+      this.element.removeEventListener("pointerdown", this.bindedClickListener);
+      this.element.removeEventListener("drop", this.bindedDropListener);
+    }
+  }
+  handleClick(event) {
+    event.preventDefault();
+    if (this.input)
+      this.input.click();
+  }
+  handleDragover(event) {
+    event.preventDefault();
+    this.handleEnter();
+  }
+  async handleDrop(event) {
+    event.preventDefault();
+    const results = [];
+    const transfer = event.dataTransfer;
+    if (transfer && transfer.files) {
+      for (const file of Array.from(transfer.files)) {
+        if (file) {
+          const service = await this.service.loadUploadedFile(file);
+          results.push(service);
+        }
+      }
+    }
+    this.onDrop.call(results);
+    this.handleLeave();
+    return results;
+  }
+  async handleInputChange(event) {
+    event.preventDefault();
+    const target = event.target;
+    if (target.files) {
+      const file = target.files[0];
+      const result = await this.service.loadUploadedFile(file);
+      this.onDrop.call([result]);
+      this.handleLeave();
+    }
+  }
+  handleEnter() {
+    if (this._hover === false) {
+      this._hover = true;
+      this.onMouseEnter.call();
+    }
+  }
+  handleLeave() {
+    if (this._hover === true) {
+      this._hover = false;
+      this.onMouseLeave.call();
+    }
+  }
+  /** Build the internal input */
+  getInput() {
+    const element = document.createElement("input");
+    element.type = "file";
+    element.accept = supportedFileTypesInputProperty;
+    return element;
+  }
+  openFileDialog() {
+    this.input?.click();
+  }
+};
+
 // src/loading/workers/FilesService.ts
 var FilesService = class {
   constructor(manager) {
@@ -3572,6 +3695,25 @@ var FilesService = class {
   fileIsInCache(url) {
     return this.cacheByUrl.has(url);
   }
+  /** Process a file obrained from anywhere */
+  async loadUploadedFile(file) {
+    try {
+      const buffer = await file.arrayBuffer();
+      const parser2 = determineParser(buffer, file.name);
+      return new ThermalFileReader(this, buffer, parser2, file.name);
+    } catch (error) {
+      return new ThermalFileFailure(
+        file.name,
+        3 /* PARSING_ERROR */,
+        error.message
+      );
+    }
+  }
+  /** Create a dropzone listener on a HTML element */
+  handleDropzone(element) {
+    return DropinElementListener.listenOnElement(this, element);
+  }
+  /** Load a file from URL, eventually using already cached result */
   async loadFile(thermalUrl, visibleUrl) {
     if (this.cacheByUrl.has(thermalUrl)) {
       return this.cacheByUrl.get(thermalUrl);
@@ -3704,6 +3846,7 @@ var InspectTool = class extends AbstractTool {
   onCanvasLeave() {
   }
   getLabelValue = (x, y, file) => {
+    if (file === void 0) return "";
     return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
   };
   onActivate() {
@@ -4341,10 +4484,13 @@ var getPool = async () => {
 0 && (module.exports = {
   AbstractAnalysis,
   AbstractFile,
+  AbstractFileResult,
   AbstractTool,
   AddEllipsisTool,
   AddRectangleTool,
+  CallbacksManager,
   CornerPoint,
+  DropinElementListener,
   EditTool,
   EllipsisAnalysis,
   GRAYSCALE,
@@ -4363,5 +4509,6 @@ var getPool = async () => {
   TimePeriod,
   TimeRound,
   getPool,
-  playbackSpeed
+  playbackSpeed,
+  supportedFileTypes
 });

@@ -19,7 +19,7 @@
 
 <body>
 
-<!--
+  <!--
 
   <div>
 
@@ -45,6 +45,9 @@
   <div>
 
 
+    <thermal-dropin-app></thermal-dropin-app>
+
+
     <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
     <manager-provider palette="jet" slug="some-example">
@@ -52,42 +55,54 @@
         <registry-range-display></registry-range-display>
         <registry-range-slider></registry-range-slider>
         <registry-ticks-bar></registry-ticks-bar>
-        
-        <group-provider>
+
+        <group-provider slug="grup">
+
+          <file-dropin>
+            <!--<file-canvas></file-canvas>-->
+            <file-app></file-app>
+          </file-dropin>
           <group-tool-buttons></group-tool-buttons>
-            <file-provider thermal="/tucnaci_04.lrc">
 
-              <file-analysis-list></file-analysis-list>
+          
 
-              <file-marker slot="mark" label="Úvod do videa" start="0:02:300" dur="0:10:000" say="Při aktivaci markeru mohu přečíst nějaký text. Během čtení mohu zastavit přehrávání a po dočtení mohu zase začít přehrávat.">
-                <div onClick="(function(){alert('ano?');return false;})()">Jsem tady a jsem hezký!</div>
-              </file-marker>
-              <file-marker slot="mark" start="0:010:000" end="0:30:000" say="Toto je popiska ke druhému markeru.">
-                <h2>Jsem tady a jsem krásný</h2>
-                <p>Ano? My jsme tady!</p>
-              </file-marker>
+          <!--
+          <file-provider thermal="/tucnaci_04.lrc">
+
+            <file-analysis-list></file-analysis-list>
+
+            <file-marker slot="mark" label="Úvod do videa" start="0:02:300" dur="0:10:000"
+              say="Při aktivaci markeru mohu přečíst nějaký text. Během čtení mohu zastavit přehrávání a po dočtení mohu zase začít přehrávat.">
+              <div onClick="(function(){alert('ano?');return false;})()">Jsem tady a jsem hezký!</div>
+            </file-marker>
+            <file-marker slot="mark" start="0:010:000" end="0:30:000" say="Toto je popiska ke druhému markeru.">
+              <h2>Jsem tady a jsem krásný</h2>
+              <p>Ano? My jsme tady!</p>
+            </file-marker>
 
 
-              
-              <file-timeline></file-timeline>
 
-              <file-marks-content></file-marks-content>
+            <file-timeline></file-timeline>
 
-              <file-canvas></file-canvas>
-            </file-provider>
+            <file-marks-content></file-marks-content>
+
+            <file-canvas></file-canvas>
+          </file-provider>
+        -->
         </group-provider>
       </registry-provider>
     </manager-provider>
 
   </div>
 
-  <!--
+
   <div style="width: 405px">
-    <thermal-file-app url="/proudeni_sklenice.lrc" speed="10" palette="iron" from="15" to="45"></thermal-file-app>
+    <thermal-file-app url="/soustruh.lrc" speed="10" palette="iron"></thermal-file-app>
   </div>
-  -->
 
+  
 
+<!--
   <manager-provider palette="iron" slug="nějaký manager">
 
 
@@ -115,7 +130,6 @@
         </file-provider>
 
 
-        <!--
         <file-provider thermal="/soustruh.lrc">
           <file-share-button></file-share-button>
           <file-info-button></file-info-button>
@@ -125,13 +139,14 @@
           <test-component></test-component>
           <file-canvas></file-canvas>
         </file-provider>
-        -->
 
 
       </group-provider>
     </registry-provider>
 
   </manager-provider>
+
+-->
 
 
   <!--

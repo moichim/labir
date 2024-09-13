@@ -7,7 +7,7 @@ export abstract class BaseElement extends LitElement {
     public readonly UUID = uuid();
 
     log( ...args: unknown[] ) {
-        console.log( this.tagName, this.UUID, ...args );
+        console.log( this.tagName, this.UUID.substring(0,5), ...args );
     }
 
     /*

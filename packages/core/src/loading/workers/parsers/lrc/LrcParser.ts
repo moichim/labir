@@ -1,5 +1,5 @@
 
-import { IParserObject } from "../types";
+import { IParserObject } from "../structure";
 import { baseInfo } from "./jobs/baseInfo";
 import { frameData, getFrameSubset } from "./jobs/getFrameSubset";
 import { registryHistogram } from "./jobs/histogram";

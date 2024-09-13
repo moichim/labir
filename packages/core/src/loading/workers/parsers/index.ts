@@ -1,7 +1,7 @@
 import { FileLoadingError, FileErrors } from "../errors";
 import { LrcParser } from "./lrc/LrcParser";
 
-import { IParserObject } from "./types";
+import { IParserObject } from "./structure";
 
 /**
  * Add parser objects here to register them
@@ -37,4 +37,9 @@ export const determineParser = (
  * - all the functionality needs to be implemented in static functions of the parser itself
  */
 export const supportedFileTypes: IParserObject["extensions"][] = parsersArray.map( parser => parser.extensions );
+
+export const supportedFileTypesInputProperty = supportedFileTypes
+.map( type => type
+    .map( entry => entry.minme + ", ." + entry.extension ).join( ", " ) 
+).join(", ");
 

@@ -14,6 +14,7 @@ export abstract class GroupConsumer extends RegistryConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
+        
     }
 
 }

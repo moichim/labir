@@ -1,7 +1,7 @@
 import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractFileResult } from "./AbstractFileResult";
-import { IParserObject, ParsedFileBaseInfo } from "./parsers/types";
+import { IParserObject, ParsedFileBaseInfo } from "./parsers/structure";
 
 import { FilesService } from "./FilesService";
 

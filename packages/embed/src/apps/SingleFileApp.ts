@@ -1,28 +1,38 @@
-import { css, html, PropertyValues } from "lit";
+import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
 
-  @property({type: Number})
+  @property({ type: Number })
   from?: number;
 
-  @property({type: Number})
+  @property({ type: Number })
   to?: number;
 
-  @property({type: Number})
-  speed?: 0.5|1|2|3|5|10;
+  @property({ type: Number })
+  speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
+
+  @property({ type: String, reflect: true, attribute: true })
+  showembed: boolean = true;
+
+  @property({ type: String, reflect: true, attribute: true })
+  showabout: boolean = true;
+
+  @property({ type: String, reflect: true, attribute: true })
+  showfullscreen: boolean = true;
+
 
   public onInstanceCreated(
     // instance: Instance
   ): void {
-      // throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
   public onFailure(
     // error: ThermalFileFailure
   ): void {
-      // throw new Error("Method not implemented.");
+    // throw new Error("Method not implemented.");
   }
 
   static styles = css`
@@ -41,20 +51,20 @@ export class SingleFileApp extends FileConsumer {
   `;
 
   protected willUpdate(_changedProperties: PropertyValues): void {
-    super.willUpdate( _changedProperties );
+    super.willUpdate(_changedProperties);
 
     // Project eventual changes into the file
-    if ( this.file ) {
+    if (this.file) {
       // Project the speed
-      if ( this.speed !== undefined ) {
+      if (this.speed !== undefined) {
         this.file.timeline.playbackSpeed = this.speed;
       }
       // Project the range
-      if ( this.from !== undefined && this.to !== undefined ) {
-        this.registry.range.setFixedRange( {
+      if (this.from !== undefined && this.to !== undefined) {
+        this.registry.range.setFixedRange({
           from: this.from,
           to: this.to
-        } );
+        });
       }
     }
 
@@ -72,13 +82,13 @@ export class SingleFileApp extends FileConsumer {
           <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
           
           <div slot="bar" style="flex-grow: 4;">
-            <thermal-bar slot="bar">
+            <thermal-bar>
               <registry-range-auto-button ></registry-range-auto-button>
               <registry-range-full-button ></registry-range-full-button>
               <file-info-button></file-info-button>
               <file-download-dropdown ></file-download-dropdown>
-              <file-share-button ></file-share-button>
-              <app-info-button ></app-info-button>
+              ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
+              ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
             </thermal-bar>
           </div>
             <group-tool-buttons slot="pre"></group-tool-buttons>

@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { fileMsContext } from "../../../hierarchy/providers/context/FileContexts";
+import { fileMsContext, playingContext } from "../../../hierarchy/providers/context/FileContexts";
 import { msToTime, timeToMs } from "./utils";
 
 const converter = {
@@ -27,6 +27,10 @@ export class FileMarker extends FileConsumer {
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
+
+    @consume({context: playingContext, subscribe: true})
+    @state()
+    protected playing: boolean = false;
 
     @consume({ context: fileMsContext, subscribe: true })
     @state()

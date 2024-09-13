@@ -3,28 +3,15 @@
  * Manage callbacks on optional property values
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class CallbacksManager<CallbackType extends (...args: any[]) => any> {
+export class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string,CallbackType> {
 
-    protected callbacks: Map<string,CallbackType> = new Map;
-
-    constructor(
-        // protected readonly timeline: TimelineDrive
-    ) {
-
-    }
-
+    /** @deprecated use set method instead */
     add( key: string, callback: CallbackType ) {
-        this.callbacks.set( key, callback );
-    }
-
-    remove( key: string ) {
-        this.callbacks.delete( key );
+        this.set(key, callback);
     }
 
     call( ...args: Parameters<CallbackType> ) {
-        this.callbacks.forEach( fn => fn( ...args ) );
+        this.forEach( fn => fn( ...args ) );
     }
-
-
 
 }

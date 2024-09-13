@@ -8,6 +8,8 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
 
+    protected container: Ref<HTMLDivElement> = createRef();
+
     public onInstanceCreated(instance: Instance): void {
 
         if ( this.container.value !== undefined ) {
@@ -21,8 +23,6 @@ export class FileCanvas extends FileConsumer {
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
-
-    container: Ref<HTMLDivElement> = createRef();
 
     static styles = css`
         .canvas-container {

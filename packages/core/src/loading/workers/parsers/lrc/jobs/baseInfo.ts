@@ -1,4 +1,4 @@
-import { IParserObject, ParsedFileBaseInfo } from "../../types";
+import { IParserObject, ParsedFileBaseInfo } from "../../structure";
 
 export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 

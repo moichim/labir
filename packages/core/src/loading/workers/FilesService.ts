@@ -3,6 +3,11 @@ import { AbstractFileResult } from "./AbstractFileResult";
 import { FileRequest } from "./FileRequest";
 
 import Pool from "workerpool/types/Pool";
+import { DropinElementListener } from "./dropin/DropinElementManager";
+import { FileErrors } from "./errors";
+import { determineParser } from "./parsers";
+import { ThermalFileFailure } from "./ThermalFileFailure";
+import { ThermalFileReader } from "./ThermalFileReader";
 
 export class FilesService {
 
@@ -51,6 +56,40 @@ export class FilesService {
         return this.cacheByUrl.has(url);
     }
 
+    /** Process a file obrained from anywhere */
+    async loadUploadedFile(file: File): Promise<AbstractFileResult> {
+
+        try {
+
+            const buffer = await file.arrayBuffer();
+
+            const parser = determineParser(buffer, file.name);
+
+            return new ThermalFileReader(this, buffer, parser, file.name)
+
+        } catch (error) {
+
+            return new ThermalFileFailure(
+                file.name,
+                FileErrors.PARSING_ERROR,
+                (error as Error).message
+            );
+
+        }
+
+
+    }
+
+
+    /** Create a dropzone listener on a HTML element */
+    public handleDropzone(
+        element: HTMLElement
+    ) {
+        return DropinElementListener.listenOnElement( this, element );
+    }
+
+   
+    /** Load a file from URL, eventually using already cached result */
     async loadFile(
         thermalUrl: string,
         visibleUrl?: string

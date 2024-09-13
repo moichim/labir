@@ -1,31 +1,21 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileProviderContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
+import { AbstractFileProvider } from "../providers/AbstractFileProvider";
+import { FailureContext, fileContext, fileProviderContext, loadingContext, recordingContext } from "../providers/context/FileContexts";
 import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
 
     @consume({context: fileProviderContext, subscribe: true})
     @state()
-    protected parentFileProviderElement?: FileProviderContext;
+    protected parentFileProviderElement?: AbstractFileProvider;
 
     protected internalCallbackUUID = `${this.UUID}__internal_callback`;
 
+    @consume({context: loadingContext, subscribe: true})
     @state()
     protected loading: boolean = true;
-
-    @consume({context: playingContext, subscribe: true})
-    @state()
-    protected playing: boolean = false;
-
-    @consume( {context: durationContext, subscribe: true} )
-    @state()
-    protected duration?: DurationContext;
-
-    @consume( {context: currentFrameContext, subscribe: true} )
-    @state()
-    protected currentFrame?: CurrentFrameContext;
 
     @consume( {context: fileContext, subscribe: true} )
     @state()
@@ -35,35 +25,36 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected failure?: ThermalFileFailure;
 
-    @consume({context: playbackSpeedContext, subscribe: true})
-    @state()
-    protected playbackSpeed?: ThermalFileFailure;
-
     @consume({context: recordingContext, subscribe: true})
     @state()
     protected recording: boolean = false;
 
-    @consume({context: mayStopContext, subscribe: true})
-    @state()
-    protected mayStop: boolean = true;
+    
 
     connectedCallback(): void {
 
         super.connectedCallback();
 
-        // if the provider exists, append all the callbacks
+        this.hookCallbacks();
+
+    }
+
+
+
+    protected hookCallbacks() {
+
         if (this.parentFileProviderElement) {
 
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
-            this.parentFileProviderElement.registerSuccessCallback(
+            this.parentFileProviderElement.onSuccess.add(
                 this.internalCallbackUUID,
                 () => {
                     this.loading = false;
                 }
             );
 
-            this.parentFileProviderElement.registerFailureCallback(
+            this.parentFileProviderElement.onFailure.add(
                 this.internalCallbackUUID,
                 () => {
                     this.loading = false;
@@ -73,12 +64,12 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // IMPLEMENTED CALLBACKS
 
-            this.parentFileProviderElement.registerSuccessCallback(
+            this.parentFileProviderElement.onSuccess.add(
                 this.UUID,
                 this.onInstanceCreated.bind(this)
             );
 
-            this.parentFileProviderElement.registerFailureCallback(
+            this.parentFileProviderElement.onFailure.add(
                 this.UUID,
                 this.onFailure.bind(this)
             );

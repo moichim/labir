@@ -3,7 +3,7 @@ import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { fileMsContext } from "../../../hierarchy/providers/context/FileContexts";
+import { currentFrameContext, CurrentFrameContext, DurationContext, durationContext, fileMsContext } from "../../../hierarchy/providers/context/FileContexts";
 
 
 @customElement("file-marker-timeline")
@@ -14,6 +14,14 @@ export class FileMarker extends FileConsumer {
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
+
+    @consume( {context: durationContext, subscribe: true} )
+    @state()
+    protected duration?: DurationContext;
+
+    @consume( {context: currentFrameContext, subscribe: true} )
+    @state()
+    protected currentFrame?: CurrentFrameContext;
 
     @consume({ context: fileMsContext, subscribe: true })
     @state()

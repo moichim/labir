@@ -59,10 +59,10 @@ describe( "AnalysisStorage", () => {
 
         expect( storage.selectedOnly.length ).toEqual(2);
 
-        analysis1.setSelected( true );
+        analysis1.setDeselected( true );
         expect( storage.selectedOnly.length ).toEqual(1);
 
-        analysis1.setDeselected();
+        analysis2.setDeselected();
         expect( storage.selectedOnly.length ).toEqual(0);
 
     });

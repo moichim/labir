@@ -1,4 +1,4 @@
-import { IParserObject } from "../../types";
+import { IParserObject } from "../../structure";
 
 
 

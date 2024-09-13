@@ -1,4 +1,4 @@
-import { IParserObject, ParsedFileFrame } from "../../types";
+import { IParserObject, ParsedFileFrame } from "../../structure";
 
 export const getFrameSubset: IParserObject["getFrameSubset"] = (entireFileBuffer, index) => {
 
