@@ -197,6 +197,10 @@ export class DropinElementListener {
         return element;
     }
 
+    public openFileDialog() {
+        this.input?.click();
+    }
+
     
 
 

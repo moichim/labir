@@ -1,4 +1,4 @@
-import { LitElement, PropertyValues, css, html } from "lit";
+import { LitElement, PropertyValues, css, html, nothing } from "lit";
 import { customElement, property, queryAssignedElements } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 
@@ -19,6 +19,12 @@ export class FileContextElement extends LitElement {
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
 
+    @property({ type: String, reflect: true, attribute: true })
+    showfullscreen: boolean = true;
+
+    @property( {type: String, reflect: true, attribute: true} )
+    dark: boolean = false;
+
     protected appRef: Ref<HTMLDivElement> = createRef();
 
     protected contentRef: Ref<HTMLDivElement> = createRef();
@@ -37,7 +43,6 @@ export class FileContextElement extends LitElement {
     }
 
     toggleFullscreen() {
-        console.log("fullscreen");
         if (this.fullscreen === "on") {
             this.fullscreen = "off";
         } else {
@@ -130,6 +135,10 @@ export class FileContextElement extends LitElement {
 
     static styles = css`
 
+        .dark {
+            background-color: var( --thermal-slate ) !important;
+        }
+
         .container {
 
             padding: calc( var( --thermal-gap ) / 3 );
@@ -176,25 +185,33 @@ export class FileContextElement extends LitElement {
 
         return html`
 
-        <div class="container" ${ref(this.appRef)}>
+        <div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
 
         <header>
             
         ${this.barElements.length >= 0 ? html`
             <div class="bar">
                 <slot name="bar"></slot>
-                <thermal-button slot="bar" @click=${this.toggleFullscreen.bind(this)}>
-                <div style="width: calc( var( --thermal-gap ) * .9 );line-height: 0;">
-                ${this.fullscreen === "on"
-                    ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
-                  </svg>`
-                    : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                  </svg>`
-                }
-                </div>
-              </thermal-button>
+
+                <slot name="close"></slot>
+
+                <!--
+                ${ this.showfullscreen === true ? html`
+                    <thermal-button @click=${this.toggleFullscreen.bind(this)}>
+                        ${this.fullscreen === "on"
+                            ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
+                        </svg>`
+                            : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                        </svg>`
+                        }
+                        </div>
+                    </thermal-button>
+                ` : nothing }
+
+                -->
+                
             </div> 
         ` : ""}
 

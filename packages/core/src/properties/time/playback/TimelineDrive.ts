@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { AbstractFile } from "../../../file/AbstractFile";
 import { Instance } from "../../../file/instance";
-import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/types";
+import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/structure";
 import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
@@ -37,16 +37,18 @@ export const playbackSpeed = {
     10: 0.1
 }
 
+export type PlaybackSpeeds = keyof typeof playbackSpeed;
+
 /** Stores the frames and the time pointer which is in the miliseconds */
 export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
 
     declare public readonly parent: Instance;
 
-    protected _playbackSpeed: keyof typeof playbackSpeed = 1;
+    protected _playbackSpeed: PlaybackSpeeds = 1;
     public get playbackSpeed() {
         return this._playbackSpeed;
     }
-    public set playbackSpeed( value: keyof typeof playbackSpeed ) {
+    public set playbackSpeed( value: PlaybackSpeeds ) {
         this._playbackSpeed = value;
         this.callbackdPlaybackSpeed.call( this._playbackSpeed );
     }
@@ -80,7 +82,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
 
     // Callbacks & Listeners
 
-    public readonly callbackdPlaybackSpeed = new CallbacksManager<( value: keyof typeof playbackSpeed ) => void>();
+    public readonly callbackdPlaybackSpeed = new CallbacksManager<( value: PlaybackSpeeds ) => void>();
     public readonly callbacksPlay = new CallbacksManager<() => void>();
     public readonly callbacksPause = new CallbacksManager<() => void>();
     public readonly callbacksStop = new CallbacksManager<() => void>();

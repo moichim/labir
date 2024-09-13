@@ -1,10 +1,9 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileProviderContext, fileProviderContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
-import { GroupConsumer } from "./GroupConsumer";
-import { PropertyValues } from "lit";
 import { AbstractFileProvider } from "../providers/AbstractFileProvider";
+import { FailureContext, fileContext, fileProviderContext, loadingContext, recordingContext } from "../providers/context/FileContexts";
+import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
 
@@ -14,20 +13,9 @@ export abstract class FileConsumer extends GroupConsumer {
 
     protected internalCallbackUUID = `${this.UUID}__internal_callback`;
 
+    @consume({context: loadingContext, subscribe: true})
     @state()
     protected loading: boolean = true;
-
-    @consume({context: playingContext, subscribe: true})
-    @state()
-    protected playing: boolean = false;
-
-    @consume( {context: durationContext, subscribe: true} )
-    @state()
-    protected duration?: DurationContext;
-
-    @consume( {context: currentFrameContext, subscribe: true} )
-    @state()
-    protected currentFrame?: CurrentFrameContext;
 
     @consume( {context: fileContext, subscribe: true} )
     @state()
@@ -37,17 +25,11 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected failure?: ThermalFileFailure;
 
-    @consume({context: playbackSpeedContext, subscribe: true})
-    @state()
-    protected playbackSpeed?: ThermalFileFailure;
-
     @consume({context: recordingContext, subscribe: true})
     @state()
     protected recording: boolean = false;
 
-    @consume({context: mayStopContext, subscribe: true})
-    @state()
-    protected mayStop: boolean = true;
+    
 
     connectedCallback(): void {
 
@@ -60,9 +42,6 @@ export abstract class FileConsumer extends GroupConsumer {
 
 
     protected hookCallbacks() {
-
-
-        this.log( "Hookuji file consumera", this, this.parentElement, this.parentFileProviderElement );
 
         if (this.parentFileProviderElement) {
 

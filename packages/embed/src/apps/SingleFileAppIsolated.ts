@@ -1,8 +1,6 @@
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../hierarchy/BaseElement";
-	
-
 import {ifDefined} from 'lit/directives/if-defined.js';
 
 @customElement("thermal-file-app")

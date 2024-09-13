@@ -960,18 +960,13 @@ var FileLoadingError = class extends Error {
 };
 
 // src/properties/callbacksManager.ts
-var CallbacksManager = class {
-  callbacks = /* @__PURE__ */ new Map();
-  constructor() {
-  }
+var CallbacksManager = class extends Map {
+  /** @deprecated use set method instead */
   add(key, callback) {
-    this.callbacks.set(key, callback);
-  }
-  remove(key) {
-    this.callbacks.delete(key);
+    this.set(key, callback);
   }
   call(...args) {
-    this.callbacks.forEach((fn) => fn(...args));
+    this.forEach((fn) => fn(...args));
   }
 };
 
@@ -2915,7 +2910,7 @@ var RecordingDrive = class extends AbstractProperty {
     this.parent.timeline.callbacksEnd.add(cllbackId, () => {
       console.log("playback ended");
       this.end();
-      this.parent.timeline.callbacksEnd.remove(cllbackId);
+      this.parent.timeline.callbacksEnd.delete(cllbackId);
     });
     this.parent.timeline.play();
     this.start();
@@ -3658,6 +3653,9 @@ var DropinElementListener = class _DropinElementListener {
     element.type = "file";
     element.accept = supportedFileTypesInputProperty;
     return element;
+  }
+  openFileDialog() {
+    this.input?.click();
   }
 };
 

@@ -7,7 +7,7 @@ import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
-import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/types";
+import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 

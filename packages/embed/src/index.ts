@@ -16,16 +16,17 @@ console.info( `@labir/embed ${version}
     ` );
 
 
-// UI components go next
+// 1. UI components
 import "./ui/Dialog";
 import "./ui/Button";
-// import "./components/ui/DialogElement";
 import "./ui/Dropdown";
 import "./ui/Bar";
 import "./ui/App";
 
 import "./controls/AppInfoButton";
 
+
+// 2. Providers
 import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 import "./hierarchy/providers/GroupProvider";
@@ -33,37 +34,46 @@ import "./hierarchy/providers/FileProvider";
 import "./hierarchy/providers/FileDropin";
 import "./controls/group/GroupDropin";
 
-import "./controls/file/FileCanvas";
 
+// 3. Manager controls
 import "./controls/manager/PaletteDropdown";
+import "./controls/manager/PaletteButtons";
+
+
+// 4. Registry controls
 import "./controls/registry/OpacitySlider";
-import "./controls/file/FileShareButton";
-import "./controls/file/FileInfoButton";
 import "./controls/registry/RangeAutoButton";
 import "./controls/registry/RangeFullButton";
 import "./controls/registry/TicksBar";
 import "./controls/registry/RegistryLog";
 import "./controls/registry/RangeSlider";
-import "./controls/file/FileDownloadDropdown";
+import "./controls/registry/RangeDisplay";
 import "./controls/registry/Histogram";
+
+
+// 5. Group controls
+import "./controls/group/GroupToolButtons";
+
+
+// 5. File controls
+import "./controls/file/FileCanvas";
+import "./controls/file/FileShareButton";
+import "./controls/file/FileInfoButton";
+import "./controls/file/FileDownloadDropdown";
 import "./controls/file/FileTimeline";
 import "./controls/file/FilePlaybackSpeedDropdown";
-import "./controls/manager/PaletteButtons";
-import "./controls/registry/RangeDisplay";
 import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
-import "./controls/group/GroupToolButtons";
 import "./controls/file/FileAnalysis";
 import "./controls/file/FileAnalysisTableRow";
 
 
-import "./hierarchy/TestComponent";
-
+// 7. Complex apps go last
 import "./apps/SingleFileApp";
-
 import "./apps/SingleFileAppIsolated";
+import "./apps/DropinApp";
 
 
 

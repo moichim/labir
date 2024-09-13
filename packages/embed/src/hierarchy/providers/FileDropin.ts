@@ -13,48 +13,26 @@ export class FileDropinElement extends AbstractFileProvider {
 
 
     @provide({ context: fileProviderContext })
-    public selfElement: FileDropinElement = this;
+    public providedSelf: FileDropinElement = this;
 
     @state()
     protected container: Ref<HTMLDivElement> = createRef();
 
     @state()
-    protected loaded: boolean = false;
+    protected ready: boolean = false;
 
     @state()
     protected hover: boolean = false;
 
     @state()
-    listener?: DropinElementListener;
+    public listener?: DropinElementListener;
 
-    public static styles = css`
-
-        .container {
-
-        }
-
-        .dropin {
-            background: var( --thermal-slate );
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            transition: background-color .3s ease-in-out;
-            cursor: pointer;
-        }
-
-        .hover {
-            background: var( --thermal-slate-light );
-        }
     
-    `;
 
-
-    constructor() {
-        super();
-    }
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selfElement = this;
+        this.providedSelf = this;
     }
 
 
@@ -64,11 +42,11 @@ export class FileDropinElement extends AbstractFileProvider {
         if (this.container.value !== undefined) {
 
             this.container.value.addEventListener("mouseenter", () => {
-                this.hover = true;
+                // this.hover = true;
             });
 
             this.container.value.addEventListener("mouseleave", () => {
-                this.hover = false;
+                // this.hover = false;
             });
 
             this.listener = this.manager.service.handleDropzone(this.container.value);
@@ -91,9 +69,7 @@ export class FileDropinElement extends AbstractFileProvider {
 
     public async handleDrop(results: AbstractFileResult[]) {
 
-        this.log(this.onSuccess);
-
-        this.onLoading.call();
+        this.onLoadingStart.call();
 
         const result = results[0];
 
@@ -103,14 +79,12 @@ export class FileDropinElement extends AbstractFileProvider {
 
                 const instance = await result.createInstance(this.group);
 
-                this.reader = result;
-
-                this.loading = false;
-
                 this.file = instance;
 
                 // Call all callbacks
-                this.onSuccess.call(instance);
+                this.onSuccess.call( instance );
+
+                this.recieveInstance( instance );
 
                 instance.group.registry.postLoadedProcessing();
 
@@ -124,9 +98,67 @@ export class FileDropinElement extends AbstractFileProvider {
 
         }
 
-        this.loaded = true;
+        this.ready = true;
+        this.loading = false;
 
     }
+
+
+    public static styles = css`
+
+        .container {
+
+            
+
+        }
+
+        .dropin {
+            
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            transition: all .3s ease-in-out;
+            cursor: pointer;
+
+            border-radius: var( --thermal-radius );
+            padding: var( --thermal-gap );
+            box-sizing: border-box;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            background: var( --thermal-slate );
+            color: var( --thermal-foreground );
+
+        }
+
+        .dropin-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .dropin-title {
+            font-weight: bold;
+        }
+
+        .dropin-supported-files {
+
+            font-size: small !important;
+
+        }
+
+        .hover {
+            opacity: .7;
+        }
+
+        thermal-button {
+            cursor: pointer;
+        }
+    
+    `;
 
 
 
@@ -134,7 +166,7 @@ export class FileDropinElement extends AbstractFileProvider {
 
     protected render(): unknown {
 
-        if (this.file === undefined && this.loaded === false) {
+        if ( this.ready === false) {
 
             const dropinClasses = {
                 dropin: true,
@@ -143,25 +175,34 @@ export class FileDropinElement extends AbstractFileProvider {
 
             return html`
 
-                <div>
                     <div class="container">
                         <div ${ref(this.container)} class="${classMap(dropinClasses)}">
 
-                            <div>Drag a thermal file here</div>
+                            <div class="dropin-wrapper">
 
-                            <div>${supportedFileTypes.map(item => item.map(item => item.extension))}</div>
+                                <div class="dropin-title">Upload a thermal file from your computer</div>
 
-                            <div>${this.listener?.input}</div>
+                                <div class="dropin-supported-files">
+                                    <p>Drag and drop a file here from your computer or click the button to browse local files.</p>
+                                    <p>Supported formats:${supportedFileTypes.map(item => item.map(item => "." + item.extension))}</p>
+                                </div>
+
+                                <div class="dropin-input">
+                                    <thermal-button @click=${() => {
+                                        this.listener?.input?.click();
+                                    }}>Choose from your computer</thermal-button>
+                                </div>
+
+                            </div>
                         
                         </div>
                     </div>
-                </div>
             `;
 
         }
 
         return html`
-            ${this.loaded ? html`<slot></slot>` : nothing}
+            ${this.ready ? html`<slot></slot>` : nothing}
             <slot name="mark"></slot>
         `;
     }

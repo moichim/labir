@@ -178,11 +178,9 @@ declare class FileRequest {
 /**
  * Manage callbacks on optional property values
  */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> {
-    protected callbacks: Map<string, CallbackType>;
-    constructor();
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
+    /** @deprecated use set method instead */
     add(key: string, callback: CallbackType): void;
-    remove(key: string): void;
     call(...args: Parameters<CallbackType>): void;
 }
 
@@ -219,6 +217,7 @@ declare class DropinElementListener {
     handleLeave(): void;
     /** Build the internal input */
     protected getInput(): HTMLInputElement;
+    openFileDialog(): void;
 }
 
 declare class FilesService {
@@ -589,13 +588,14 @@ declare const playbackSpeed: {
     5: number;
     10: number;
 };
+type PlaybackSpeeds = keyof typeof playbackSpeed;
 /** Stores the frames and the time pointer which is in the miliseconds */
 declare class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
     readonly steps: ParsedFileBaseInfo["timeline"];
     readonly parent: Instance;
-    protected _playbackSpeed: keyof typeof playbackSpeed;
-    get playbackSpeed(): keyof typeof playbackSpeed;
-    set playbackSpeed(value: keyof typeof playbackSpeed);
+    protected _playbackSpeed: PlaybackSpeeds;
+    get playbackSpeed(): PlaybackSpeeds;
+    set playbackSpeed(value: PlaybackSpeeds);
     get playbackSpeedAspect(): number;
     get duration(): number;
     get frameCount(): number;
@@ -613,7 +613,7 @@ declare class TimelineDrive extends AbstractProperty<number, AbstractFile> imple
     get isPlaying(): boolean;
     protected timer?: ReturnType<typeof setTimeout>;
     readonly buffer: FrameBuffer;
-    readonly callbackdPlaybackSpeed: CallbacksManager<(value: keyof typeof playbackSpeed) => void>;
+    readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
     readonly callbacksPlay: CallbacksManager<() => void>;
     readonly callbacksPause: CallbacksManager<() => void>;
     readonly callbacksStop: CallbacksManager<() => void>;
@@ -1643,4 +1643,4 @@ declare const getPool: () => Promise<Pool__default>;
  */
 declare const supportedFileTypes: IParserObject["extensions"][];
 
-export { AbstractAnalysis, AbstractFile, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };
+export { AbstractAnalysis, AbstractFile, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };

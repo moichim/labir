@@ -1,7 +1,7 @@
 import { FileLoadingError, FileErrors } from "../errors";
 import { LrcParser } from "./lrc/LrcParser";
 
-import { IParserObject } from "./types";
+import { IParserObject } from "./structure";
 
 /**
  * Add parser objects here to register them

@@ -6,11 +6,44 @@ import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { fileMarkersContext } from "../../hierarchy/providers/context/FileContexts";
+import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
 import { FileMarker } from "./markers/ImageMarker";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
+
+    @consume({context: playingContext, subscribe: true})
+    @state()
+    protected playing: boolean = false;
+
+    @consume( {context: currentFrameContext, subscribe: true} )
+    @state()
+    protected currentFrame?: CurrentFrameContext;
+
+    @consume( {context: durationContext, subscribe: true} )
+    @state()
+    protected duration?: DurationContext;
+
+    @consume({context: mayStopContext, subscribe: true})
+    @state()
+    protected mayStop: boolean = true;
+    
+
+    protected timelineRef: Ref<HTMLDivElement> = createRef()
+    protected barRef: Ref<HTMLDivElement> = createRef();
+    protected containerRef: Ref<HTMLDivElement> = createRef();
+
+    protected observer!: ResizeObserver;
+
+
+    @consume( {context: fileMarkersContext, subscribe: true} )
+    public markers!: FileMarker[];
+
+    @state()
+    protected collapsed: boolean = false;
+
+    public static collapseWidth = 500;
+
     public onInstanceCreated(): void {
         // ... nothing
     }
@@ -19,18 +52,6 @@ export class TimelineElement extends FileConsumer {
     ): void {
         this.file?.timeline.removeListener(this.UUID);
     }
-
-    protected timelineRef: Ref<HTMLDivElement> = createRef()
-    protected barRef: Ref<HTMLDivElement> = createRef();
-
-    protected containerRef: Ref<HTMLDivElement> = createRef();
-
-    protected observer!: ResizeObserver;
-
-    @state()
-    protected collapsed: boolean = false;
-
-    public static collapseWidth = 500;
 
     protected update(changedProperties: PropertyValues): void {
         super.update( changedProperties );
@@ -62,6 +83,52 @@ export class TimelineElement extends FileConsumer {
 
     }
 
+
+    
+
+
+
+
+
+    
+
+
+
+
+    /** Handlers */
+
+
+    /** Handle playback buttons */
+    protected handlePlayButtonClick() {
+
+        if ( this.playing === true && this.mayStop === false ) {
+            return;
+        }
+
+        if ( this.playing ) {
+            this.file?.timeline.stop();
+        } else {
+            this.file?.timeline.play();
+        }
+
+    }
+
+    handleBarClick(event: MouseEvent) {
+
+        if ( this.mayStop === false ) {
+            return;
+        }
+        
+        if (this.timelineRef.value && this.barRef.value && this.file) {
+
+            const x = event.clientX - this.timelineRef.value.offsetLeft;
+
+            const percent = x / this.timelineRef.value.clientWidth * 100;
+
+            this.file.timeline.setValueByPercent(percent);
+
+        }
+    }
 
     static styles = css`
     
@@ -182,57 +249,6 @@ export class TimelineElement extends FileConsumer {
         }
     
     `;
-
-
-    
-
-    @state()
-    protected highlights: TimelineHighlightData[] = []
-
-    public recieveHighlights( highlights: TimelineHighlightData[] ) {
-        this.highlights = highlights;
-    }
-
-    @consume( {context: fileMarkersContext, subscribe: true} )
-    public markers!: FileMarker[];
-
-
-
-
-    /** Handlers */
-
-
-    /** Handle playback buttons */
-    protected handlePlayButtonClick() {
-
-        if ( this.playing === true && this.mayStop === false ) {
-            return;
-        }
-
-        if ( this.playing ) {
-            this.file?.timeline.stop();
-        } else {
-            this.file?.timeline.play();
-        }
-
-    }
-
-    handleBarClick(event: MouseEvent) {
-
-        if ( this.mayStop === false ) {
-            return;
-        }
-        
-        if (this.timelineRef.value && this.barRef.value && this.file) {
-
-            const x = event.clientX - this.timelineRef.value.offsetLeft;
-
-            const percent = x / this.timelineRef.value.clientWidth * 100;
-
-            this.file.timeline.setValueByPercent(percent);
-
-        }
-    }
 
 
 

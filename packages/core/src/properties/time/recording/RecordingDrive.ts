@@ -96,7 +96,7 @@ export class RecordingDrive extends AbstractProperty<boolean, AbstractFile> {
         this.parent.timeline.callbacksEnd.add(cllbackId, () => {
             console.log("playback ended");
             this.end();
-            this.parent.timeline.callbacksEnd.remove(cllbackId);
+            this.parent.timeline.callbacksEnd.delete(cllbackId);
         });
 
         this.parent.timeline.play();

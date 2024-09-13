@@ -8,9 +8,9 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
 
-    public onInstanceCreated(instance: Instance): void {
+    protected container: Ref<HTMLDivElement> = createRef();
 
-        console.log( "Načetl jsem jinstanci a vykresluji canvas", instance );
+    public onInstanceCreated(instance: Instance): void {
 
         if ( this.container.value !== undefined ) {
             instance.mountToDom( this.container.value );
@@ -23,8 +23,6 @@ export class FileCanvas extends FileConsumer {
     public onFailure(): void {
         // throw new Error("Method not implemented.");
     }
-
-    container: Ref<HTMLDivElement> = createRef();
 
     static styles = css`
         .canvas-container {
