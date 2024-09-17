@@ -1,4 +1,4 @@
-import { AbstractAnalysis } from "./AbstractAnalysis";
+import { AbstractAnalysis } from "../AbstractAnalysis";
 
 export abstract class AbstractArea {
 

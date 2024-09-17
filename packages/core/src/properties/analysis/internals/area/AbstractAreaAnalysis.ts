@@ -1,5 +1,5 @@
-import { AbstractFile } from "../../../file/AbstractFile";
-import { AbstractAnalysis } from "./AbstractAnalysis";
+import { AbstractFile } from "../../../../file/AbstractFile";
+import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./rectangle/CornerPoint";
 import { RectangleArea } from "./rectangle/RectangleArea";
@@ -103,6 +103,9 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.recalculateValues();
         });
 
+        this.points.forEach(point => point.createInnerElement());
+        this.points.forEach(point => point.projectInnerPositionToDom());
+
     }
 
     public setColorCallback(value: string): void {
@@ -111,12 +114,8 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     }
 
     public init(): void {
-        this.points.forEach(point => point.createInnerElement());
-        this.points.forEach(point => point.projectInnerPositionToDom());
-    }
-
-    protected draw(): void {
-        // throw new Error("Method not implemented.");
+        // this.points.forEach(point => point.createInnerElement());
+        // this.points.forEach(point => point.projectInnerPositionToDom());
     }
 
     protected calculateBounds() {

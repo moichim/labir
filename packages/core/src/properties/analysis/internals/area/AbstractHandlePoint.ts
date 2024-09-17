@@ -1,5 +1,5 @@
-import { AbstractAnalysis } from "./AbstractAnalysis";
-import { AbstractPoint } from "./AbstractPoint";
+import { AbstractAnalysis } from "../AbstractAnalysis";
+import { AbstractPoint } from "../AbstractPoint";
 
 export abstract class AbstractHandlePoint extends AbstractPoint {
 
@@ -33,8 +33,7 @@ export abstract class AbstractHandlePoint extends AbstractPoint {
 
     }
 
-    public onMouseEnter(): void {
-        this._isHover = true;
+    public actionOnMouseEnter(): void {
         if (this.innerElement) {
             this.innerElement.style.boxShadow = "0px 0px 10px white";
             this.innerElement.style.borderWidth = "1px";
@@ -42,8 +41,7 @@ export abstract class AbstractHandlePoint extends AbstractPoint {
             this.innerElement.style.borderColor = "white";
         }
     }
-    public onMouseLeave(): void {
-        this._isHover = false;
+    public actionOnMouseLeave(): void {
         if (this.innerElement) {
             this.innerElement.style.removeProperty("box-shadow");
             this.innerElement.style.removeProperty("border-width");

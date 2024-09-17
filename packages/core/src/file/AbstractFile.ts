@@ -337,6 +337,26 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
+    public getColorAtPoint(
+        x: number,
+        y: number
+    ): string | undefined {
+
+        const temperature = this.getTemperatureAtPoint( x, y );
+
+        const min = this.group.registry.range.value?.from;
+        const max = this.group.registry.range.value?.to;
+
+        if ( min !== undefined && max !== undefined ) {
+            const temperatureRelative = temperature - min;
+            const temperatureAspect = temperatureRelative / ( max - min );
+            const colorIndex = Math.round( 255 * temperatureAspect );
+            return this.group.registry.palette.currentPalette.pixels[ colorIndex ]
+        }
+
+        return undefined;
+    }
+
     public recieveRange(
         value: ThermalRangeOrUndefined
     ) {

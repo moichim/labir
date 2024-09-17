@@ -156,6 +156,7 @@ export abstract class AbstractAnalysis {
     public abstract isWithin( x: number, y: number): boolean;
 
     public recalculateValues() {
+
         const { min, max, avg } = this.getValues();
         this._min = min;
         this._max = max;

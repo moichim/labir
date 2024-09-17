@@ -822,8 +822,8 @@ declare abstract class AbstractArea {
 declare abstract class AbstractHandlePoint extends AbstractPoint {
     constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
     createInnerElement(): HTMLDivElement;
-    onMouseEnter(): void;
-    onMouseLeave(): void;
+    actionOnMouseEnter(): void;
+    actionOnMouseLeave(): void;
 }
 
 declare class CornerPoint extends AbstractHandlePoint {
@@ -831,13 +831,11 @@ declare class CornerPoint extends AbstractHandlePoint {
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;
     isMoving: boolean;
+    protected onSetColor(value: string): void;
     syncXWith(point: CornerPoint): void;
     syncYWith(point: CornerPoint): void;
-    onPointerDown(): void;
-    onPointerUp(): void;
-    onMove(): void;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
+    protected actionOnActivate(): void;
+    protected actionOnDeactivate(): void;
 }
 
 declare class RectangleArea extends AbstractArea {
@@ -862,7 +860,6 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected constructor(key: string, color: string, file: AbstractFile, top: number, left: number, width?: number, height?: number);
     setColorCallback(value: string): void;
     init(): void;
-    protected draw(): void;
     protected calculateBounds(): void;
     protected addPoint(role: string, top: number, left: number): CornerPoint;
 }
@@ -871,6 +868,41 @@ declare class EllipsisAnalysis extends AbstractAreaAnalysis {
     static startAddingAtPoint(key: string, color: string, file: AbstractFile, top: number, left: number): EllipsisAnalysis;
     static build(key: string, color: string, file: AbstractFile, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
     protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+}
+
+declare class PointPoint extends AbstractPoint {
+    static size: number;
+    static sizePx(aspect?: number): string;
+    protected axisX?: HTMLDivElement;
+    protected axisY?: HTMLDivElement;
+    protected center?: HTMLDivElement;
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    mayMoveToX(value: number): boolean;
+    mayMoveToY(value: number): boolean;
+    createInnerElement(): HTMLDivElement;
+    protected buildAxisX(): HTMLDivElement;
+    protected buildAxisY(): HTMLDivElement;
+    protected buildCenter(): HTMLDivElement;
+    protected onSetColor(value: string): void;
+    protected actionOnMouseEnter(): void;
+    protected actionOnMouseLeave(): void;
+    protected actionOnActivate(): void;
+    protected actionOnDeactivate(): void;
+    getRadius(): number;
+}
+
+declare class PointAnalysis extends AbstractAnalysis {
+    protected center: PointPoint;
+    static addAtPoint(key: string, color: string, file: AbstractFile, top: number, left: number): PointAnalysis;
+    protected constructor(key: string, color: string, file: AbstractFile, top: number, left: number);
+    setColorCallback(value: string): void;
+    init(): void;
+    isWithin(x: number, y: number): boolean;
     protected getValues(): {
         min?: number;
         max?: number;
@@ -915,6 +947,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
     /** Build an ellyptical analysis at the given position. */
     placeEllipsisAt(key: string, top: number, left: number, right: number, bottom: number): EllipsisAnalysis;
+    createPointAt(top: number, left: number): PointAnalysis;
     selectAll(): void;
     deselectAll(): void;
     /** Accessors */
@@ -994,20 +1027,23 @@ declare abstract class AbstractPoint {
     protected _color: string;
     protected get color(): string;
     setColor(value: string): void;
+    protected abstract onSetColor(value: string): void;
     protected _active: boolean;
     get active(): boolean;
     protected _isHover: boolean;
     get isHover(): boolean;
     get root(): HTMLDivElement;
     abstract getRadius(): number;
+    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
     container: HTMLDivElement;
+    /** The display element. */
     innerElement: HTMLDivElement;
     constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
     isWithin(top: number, left: number): boolean;
     isInSelectedLayer(): boolean;
     protected getPercentageX(): number;
     protected getPercentageY(): number;
-    getPercentageCoordinates(): {
+    protected getPercentageCoordinates(): {
         x: number;
         y: number;
     };
@@ -1015,15 +1051,16 @@ declare abstract class AbstractPoint {
     abstract createInnerElement(): HTMLDivElement;
     /** Take the internal position value and project it to the DOM element */
     projectInnerPositionToDom(): void;
-    abstract onPointerDown(): void;
     mouseEnter(): void;
     mouseLeave(): void;
-    protected abstract onMouseEnter(): void;
-    protected abstract onMouseLeave(): void;
-    abstract onPointerUp(): void;
-    abstract onMove(): void;
-    protected abstract onActivate(): void;
-    protected abstract onDeactivate(): void;
+    readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onMouseLeave: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onActivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onDeactivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    protected abstract actionOnMouseEnter(): void;
+    protected abstract actionOnMouseLeave(): void;
+    protected abstract actionOnActivate(): void;
+    protected abstract actionOnDeactivate(): void;
     activate(): void;
     deactivate(): void;
 }
@@ -1138,6 +1175,7 @@ declare class InspectTool extends AbstractTool implements ITool {
 interface IWithTool extends IBaseProperty {
     tool: ToolDrive;
 }
+/** The tool type merging Abstract class and the interface */
 type ThermalTool = AbstractTool & ITool & {
     key: string;
 };
@@ -1145,6 +1183,7 @@ declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
     /** Create own set of tools from the registry of tools */
     protected _tools: {
         inspect: ThermalTool;
+        addPoint: ThermalTool;
         addRectangle: ThermalTool;
         addEllipsis: ThermalTool;
         edit: ThermalTool;
@@ -1152,6 +1191,7 @@ declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
     /** Readonly list of available tools */
     get tools(): {
         inspect: ThermalTool;
+        addPoint: ThermalTool;
         addRectangle: ThermalTool;
         addEllipsis: ThermalTool;
         edit: ThermalTool;
@@ -1515,6 +1555,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     removeAllChildren(): void;
     recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
     getTemperatureAtPoint(x: number, y: number): number;
+    getColorAtPoint(x: number, y: number): string | undefined;
     recieveRange(value: ThermalRangeOrUndefined): void;
     reset(): void;
     recieveOpacity(value: number): void;

@@ -2,7 +2,7 @@ import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
 import { getPool } from "../../src/utils/pool";
-import { RectangleAnalysis } from "../../src/properties/analysis/internals/rectangle/RectangleAnalysis";
+import { RectangleAnalysis } from "../../src/properties/analysis/internals/area/rectangle/RectangleAnalysis";
 import { definedTools } from "../../src/properties/tool/ToolDrive";
 import { supportedFileTypes, supportedFileTypesInputProperty } from "../../src/loading/workers/parsers";
 import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure";
@@ -156,7 +156,7 @@ const batchLoading = async (
 }
 
 batchLoading([
-    // "/soustruh.lrc",
+    "/soustruh.lrc",
     // "/tucnaci_04.lrc",
     // "/image-thermal 2021-11-24 11-18-20.lrc",
     // "/image-thermal 2024-01-12 14-09-37.lrc",
@@ -177,7 +177,7 @@ const buildControls = () => {
         document.body.appendChild( btn );
     } );
 
-    group_2.tool.addListener( "main manager", console.log );
+    // group_2.tool.addListener( "main manager", console.log );
 
 
     const randomizer = document.createElement( "button" );

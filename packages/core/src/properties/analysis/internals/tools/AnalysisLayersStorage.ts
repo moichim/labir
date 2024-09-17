@@ -1,8 +1,9 @@
 import { CallbacksManager } from "../../../callbacksManager";
 import { AnalysisDrive } from "../../AnalysisDrive";
 import { AbstractAnalysis } from "../AbstractAnalysis";
-import { EllipsisAnalysis } from "../ellipsis/EllipsisAnalysis";
-import { RectangleAnalysis } from "../rectangle/RectangleAnalysis";
+import { EllipsisAnalysis } from "../area/ellipsis/EllipsisAnalysis";
+import { PointAnalysis } from "../point/PointAnalysis";
+import { RectangleAnalysis } from "../area/rectangle/RectangleAnalysis";
 
 
 
@@ -166,6 +167,26 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         this.addAnalysis( newAnalysis );
 
         return newAnalysis;
+    }
+
+
+    public createPointAt(
+        top: number,
+        left: number
+    ) {
+
+        const newAnalysis = PointAnalysis.addAtPoint(
+            this.getNextName( "Point" ),
+            this.getNextColor(),
+            this.drive.parent,
+            top,
+            left
+        );
+
+        this.addAnalysis( newAnalysis );
+
+        return newAnalysis;
+
     }
 
 

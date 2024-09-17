@@ -1,10 +1,9 @@
-import { AbstractFile } from "../../../../file/AbstractFile";
+import { AbstractFile } from "../../../../../file/AbstractFile";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
-import { EllipsisArea } from "./EllipsisArea";
+import { RectangleArea } from "./RectangleArea";
 
-export class EllipsisAnalysis extends AbstractAreaAnalysis {
-
+export class RectangleAnalysis extends AbstractAreaAnalysis {
 
     public static startAddingAtPoint(
         key: string,
@@ -12,9 +11,9 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         file: AbstractFile,
         top: number,
         left: number
-    ): EllipsisAnalysis {
+    ): RectangleAnalysis {
 
-        const item = new EllipsisAnalysis(
+        const item = new RectangleAnalysis(
             key,
             color,
             file,
@@ -22,11 +21,12 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
             left
         );
 
+        /** Bottom right point needs to be active from the beginning */
         item.br.activate();
-
         return item;
 
     }
+
 
 
     public static build(
@@ -37,11 +37,11 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         _left: number,
         _right: number,
         _bottom: number
-    ): EllipsisAnalysis {
+    ): RectangleAnalysis {
 
-        const {top, left, width, height } = EllipsisAnalysis.calculateDimensionsFromCorners( _top, _left, _right, _bottom );
+        const {top, left, width, height } = RectangleAnalysis.calculateDimensionsFromCorners( _top, _left, _right, _bottom );
 
-        const item = new EllipsisAnalysis(
+        const item = new RectangleAnalysis(
             key, 
             color, 
             file, 
@@ -56,10 +56,10 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     }
 
 
-    protected buildArea(x: number, y: number, width?: number, height?: number ): AbstractArea {
+    protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea {
 
         if ( width !== undefined && height !== undefined ) {
-            return new EllipsisArea(
+            return new RectangleArea(
                 this,
                 x,
                 y,
@@ -68,7 +68,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
             );
         }
 
-        return new EllipsisArea(this, x, y, x, y);
+        return new RectangleArea(this, x, y, x, y);
     }
 
     protected getValues(): { min?: number; max?: number; avg?: number; } {
@@ -111,5 +111,6 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         }
 
     }
+
 
 }

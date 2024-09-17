@@ -30,19 +30,19 @@ import { getPool } from "./utils/pool"
 import { playbackSpeed, PlaybackSpeeds } from "./properties/time/playback/TimelineDrive";
 import { AbstractTool } from "./properties/tool/internals/AbstractTool";
 import { InspectTool } from "./properties/tool/internals/InspectTool";
-import { AddRectangleTool } from "./properties/analysis/internals/rectangle/AddRectangleTool";
-import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalysis";
-import { RectangleAnalysis } from "./properties/analysis/internals/rectangle/RectangleAnalysis";
-import { CornerPoint } from "./properties/analysis/internals/rectangle/CornerPoint";
-import { ThermalTool } from "./properties/tool/ToolDrive";
-import { AddEllipsisTool } from "./properties/analysis/internals/ellipsis/AddEllipsisTool";
-import { EditTool } from "./properties/tool/internals/EditTool";
-import { EllipsisAnalysis } from "./properties/analysis/internals/ellipsis/EllipsisAnalysis";
 import { supportedFileTypes } from "./loading/workers/parsers";
 import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
 import { CallbacksManager } from "./properties/callbacksManager";
 import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
 import { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
+import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalysis";
+import { AddEllipsisTool } from "./properties/analysis/internals/area/ellipsis/AddEllipsisTool";
+import { EllipsisAnalysis } from "./properties/analysis/internals/area/ellipsis/EllipsisAnalysis";
+import { AddRectangleTool } from "./properties/analysis/internals/area/rectangle/AddRectangleTool";
+import { CornerPoint } from "./properties/analysis/internals/area/rectangle/CornerPoint";
+import { RectangleAnalysis } from "./properties/analysis/internals/area/rectangle/RectangleAnalysis";
+import { EditTool } from "./properties/tool/internals/EditTool";
+import { ThermalTool } from "./properties/tool/ToolDrive";
 
 
 

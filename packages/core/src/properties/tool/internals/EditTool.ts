@@ -1,6 +1,6 @@
 import { AbstractFile } from "../../../file/AbstractFile";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
-import { CornerPoint } from "../../analysis/internals/rectangle/CornerPoint";
+import { CornerPoint } from "../../analysis/internals/area/rectangle/CornerPoint";
 import { AbstractTool, ITool } from "./AbstractTool";
 
 export class EditTool extends AbstractTool implements ITool {

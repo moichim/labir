@@ -1,7 +1,7 @@
-import { AbstractFile } from "../../../../file/AbstractFile";
-import { ITool } from "../../../tool/internals/AbstractTool";
-import { AbstractAddTool } from "../AbstractAddTool";
-import { AbstractPoint } from "../AbstractPoint";
+import { AbstractFile } from "../../../../../file/AbstractFile";
+import { ITool } from "../../../../tool/internals/AbstractTool";
+import { AbstractAddTool } from "../../AbstractAddTool";
+import { AbstractPoint } from "../../AbstractPoint";
 
 export class AddEllipsisTool extends AbstractAddTool implements ITool {
     

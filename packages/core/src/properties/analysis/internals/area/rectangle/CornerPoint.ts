@@ -16,6 +16,10 @@ export class CornerPoint extends AbstractHandlePoint {
     
 
     public isMoving: boolean = false;
+    protected onSetColor(value: string): void {
+        if ( this.innerElement )
+            this.innerElement.style.backgroundColor = value;
+    }
 
     syncXWith( point: CornerPoint ) {
         this.onX.add( `sync X with ${point.key} `, value => {
@@ -33,28 +37,16 @@ export class CornerPoint extends AbstractHandlePoint {
         } )
     }
 
-
-    public onPointerDown(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    public onPointerUp(): void {
-        throw new Error("Method not implemented.");
-    }
-    public onMove(): void {
-        throw new Error("Method not implemented.");
-    }
-
-    protected onActivate(): void {
+    protected actionOnActivate(): void {
         if ( this.innerElement ) {
-            this.innerElement.style.backgroundColor = "yellow";
+            this.setColor( "yellow" );
         }
     }
 
     
-    protected onDeactivate(): void {
+    protected actionOnDeactivate(): void {
         if ( this.innerElement ) {
-            this.innerElement.style.backgroundColor = this.color;
+            this.setColor( this.color );
         }
     }
 
