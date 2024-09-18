@@ -1,4 +1,4 @@
-import { AbstractFile } from "../AbstractFile";
+import { Instance } from "../instance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 
@@ -12,7 +12,7 @@ export default class ThermalCursorLayer extends AbstractLayer {
     protected label: HTMLDivElement;
 
     public constructor(
-        instance: AbstractFile
+        instance: Instance
     ){
 
         super( instance );

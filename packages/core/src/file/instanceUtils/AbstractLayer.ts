@@ -1,9 +1,9 @@
-import { AbstractFile } from "../AbstractFile";
+import { Instance } from "../instance";
 
 export abstract class AbstractLayer {
 
     public constructor(
-        protected readonly instance: AbstractFile
+        protected readonly instance: Instance
     ) {}
 
     public abstract getLayerRoot(): HTMLElement;

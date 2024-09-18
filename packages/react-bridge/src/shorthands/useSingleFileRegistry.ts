@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../context/thermalManagerContext"
-import { AbstractFile } from "@labir/core";
+import { Instance } from "@labir/core";
 import { useThermalGroupInstancesState } from "../properties/lists/useThermalGroupInstancesState";
 import { v4 as uuid } from "uuid";
 
@@ -45,7 +45,7 @@ export const useSingleFileRegistry = (
 
     }, [ thermalUrl ] );
 
-    const [ instance, setInstance ] = useState<AbstractFile>();
+    const [ instance, setInstance ] = useState<Instance>();
 
     // Get all instances
     const instances = useThermalGroupInstancesState( group, registryId );

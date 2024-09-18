@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../../../file/AbstractFile";
+import { Instance } from "../../../../../file/instance";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
 import { EllipsisArea } from "./EllipsisArea";
@@ -9,7 +9,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     public static startAddingAtPoint(
         key: string,
         color: string,
-        file: AbstractFile,
+        file: Instance,
         top: number,
         left: number
     ): EllipsisAnalysis {
@@ -32,7 +32,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     public static build(
         key: string,
         color: string,
-        file: AbstractFile,
+        file: Instance,
         _top: number,
         _left: number,
         _right: number,

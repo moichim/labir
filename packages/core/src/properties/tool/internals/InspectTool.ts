@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../file/AbstractFile";
+import { Instance } from "../../../file/instance";
 import { AbstractTool, ITool } from "./AbstractTool";
 
 export class InspectTool extends AbstractTool implements ITool {
@@ -31,7 +31,7 @@ export class InspectTool extends AbstractTool implements ITool {
     public onPointUp(): void { }
 
 
-    getLabelValue = (x: number, y: number, file: AbstractFile): string => {
+    getLabelValue = (x: number, y: number, file: Instance): string => {
         if (file === undefined) return "";
         return file.getTemperatureAtPoint(x, y).toFixed(2) + " °C"
     };

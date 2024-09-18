@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../../../file/AbstractFile";
+import { Instance } from "../../../../../file/instance";
 import { ITool } from "../../../../tool/internals/AbstractTool";
 import { AbstractAddTool } from "../../AbstractAddTool";
 import { AbstractPoint } from "../../AbstractPoint";
@@ -31,7 +31,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
     public onCanvasLeave(): void { }
 
 
-    public onCanvasClick(top: number, left: number, file: AbstractFile): void {
+    public onCanvasClick(top: number, left: number, file: Instance): void {
         const newRect = file.analysis.layers.createEllipsisFrom(top, left);
         newRect.setSelected(true);
     }
@@ -68,7 +68,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
     public onPointEnter(): void { }
 
 
-    getLabelValue = (x: number, y: number, file: AbstractFile): string => {
+    getLabelValue = (x: number, y: number, file: Instance): string => {
         const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
         return `X:${x}<br />Y:${y}<br />${temperature}`;
     }

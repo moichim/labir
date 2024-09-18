@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../../file/AbstractFile";
+import { Instance } from "../../../../file/instance";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./rectangle/CornerPoint";
@@ -56,7 +56,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected constructor(
         key: string,
         color: string,
-        file: AbstractFile,
+        file: Instance,
         top: number,
         left: number,
         width?: number,

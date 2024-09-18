@@ -31,7 +31,6 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var src_exports = {};
 __export(src_exports, {
   AbstractAnalysis: () => AbstractAnalysis,
-  AbstractFile: () => AbstractFile,
   AbstractFileResult: () => AbstractFileResult,
   AbstractTool: () => AbstractTool,
   AddEllipsisTool: () => AddEllipsisTool,
@@ -920,45 +919,615 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   };
 };
 
-// src/hierarchy/ThermalManager.ts
-var workerpool = __toESM(require("workerpool"));
-
 // src/base/BaseStructureObject.ts
 var BaseStructureObject = class {
   // public readonly pool: Pool;
 };
 
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
+// src/file/AbstractFile.ts
+var AbstractFile = class extends BaseStructureObject {
+  id;
+  horizontalLimit;
+  verticalLimit;
+  group;
+  get pool() {
+    return this.group.registry.manager.pool;
+  }
+  url;
+  thermalUrl;
+  visibleUrl;
+  fileName;
+  frameCount;
+  signature = "unknown";
+  version = -1;
+  streamCount = -1;
+  fileDataType = -1;
+  unit = -1;
+  width;
+  height;
+  timestamp;
+  duration;
+  min;
+  max;
+  _isHover = false;
+  get isHover() {
+    return this._isHover;
+  }
+  set isHover(value) {
+    this._isHover = value;
+  }
+  // DOM root
+  root = null;
+  // DOM layers
+  canvasLayer;
+  visibleLayer;
+  cursorLayer;
+  listenerLayer;
+  // Drives
+  timeline;
+  cursorValue;
+  analysis;
+  // Recording is lazyloaded
+  recording;
+  _mounted = false;
+  get mountedBaseLayers() {
+    return this._mounted;
+  }
+  set mountedBaseLayers(value) {
+    this._mounted = value;
+  }
+  _pixels;
+  get pixels() {
+    return this._pixels;
+  }
+  set pixels(value) {
+    this._pixels = value;
+    this.onSetPixels(value);
+  }
+  constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
+    super();
+    this.group = group;
+    this.id = this.formatId(thermalUrl);
+    this.url = thermalUrl;
     this.thermalUrl = thermalUrl;
     this.visibleUrl = visibleUrl;
+    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+    this.width = width;
+    this.height = height;
+    this.timestamp = timestamp;
+    this.duration = duration;
+    this.min = min;
+    this.max = max;
+    this.frameCount = frameCount;
+    this.horizontalLimit = this.width / 4 * 3;
+    this.verticalLimit = this.height / 4 * 3;
+    this._pixels = initialPixels;
+  }
+  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
+  attachToDom(container) {
+    if (this.root !== null || this.mountedBaseLayers === true) {
+      console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
+      this.detachFromDom();
+      this.unmountListener();
+    }
+    this.root = container;
+    this.root.classList.add("thermalImageRoot");
+    this.root.style.transition = "border-color .1s ease-in-out";
+    this.root.style.zIndex = "10";
+    this.root.style.position = "relative";
+    this.root.style.lineHeight = "0";
+    if (this.visibleLayer.exists)
+      this.visibleLayer.mount();
+    this.canvasLayer.mount();
+    this.cursorLayer.mount();
+    this.root.dataset.thermalFile = this.id;
+    this.root.dataset.mounted = "true";
+    this.mountListener();
+    this.mountedBaseLayers = true;
+  }
+  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
+  detachFromDom() {
+    if (this.root === void 0) {
+      console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
+    }
+    if (this.root) {
+      this.root.dataset.mounted = "false";
+      this.root.dataset.thermalFile = void 0;
+    }
+    this.visibleLayer.unmount();
+    this.canvasLayer.unmount();
+    this.cursorLayer.unmount();
+    this.unmountListener();
+    this.mountedBaseLayers = false;
+  }
+  mountToDom(container) {
+    this.attachToDom(container);
+  }
+  unmountFromDom() {
+    this.detachFromDom();
+  }
+  draw() {
+    if (this.mountedBaseLayers === true)
+      this.canvasLayer.draw();
+  }
+  recievePalette(palette) {
+    palette;
+    this.draw();
+  }
+  destroySelfAndBelow() {
+    this.detachFromDom();
+  }
+  removeAllChildren() {
+    this.detachFromDom();
+  }
+  getTemperatureAtPoint(x, y) {
+    const index = y * this.width + x;
+    return this.pixels[index];
+  }
+  getColorAtPoint(x, y) {
+    const temperature = this.getTemperatureAtPoint(x, y);
+    const min = this.group.registry.range.value?.from;
+    const max = this.group.registry.range.value?.to;
+    if (min !== void 0 && max !== void 0) {
+      const temperatureRelative = temperature - min;
+      const temperatureAspect = temperatureRelative / (max - min);
+      const colorIndex = Math.round(255 * temperatureAspect);
+      return this.group.registry.palette.currentPalette.pixels[colorIndex];
+    }
+    return void 0;
+  }
+  recieveRange(value) {
+    if (value !== void 0) {
+      this.draw();
+    }
+  }
+  reset() {
+  }
+  recieveOpacity(value) {
+    if (this.visibleLayer && this.canvasLayer) {
+      this.canvasLayer.opacity = value;
+    }
   }
 };
 
-// src/loading/workers/ThermalFileFailure.ts
-var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
-  constructor(thermalUrl, code, message) {
-    super(thermalUrl);
-    this.code = code;
-    this.message = message;
+// src/file/instanceUtils/AbstractLayer.ts
+var AbstractLayer = class {
+  constructor(instance) {
+    this.instance = instance;
   }
-  isSuccess() {
-    return false;
+  _mounted = false;
+  get mounted() {
+    return this._mounted;
   }
-  static fromError(error) {
-    return new _ThermalFileFailure(error.url, error.code, error.message);
+  mount() {
+    if (!this._mounted) {
+      if (this.instance.root !== null) {
+        this._mounted = true;
+        this.instance.root.appendChild(this.getLayerRoot());
+      }
+    }
+  }
+  unmount() {
+    if (this._mounted) {
+      if (this.instance.root !== null) {
+        this._mounted = false;
+        this.instance.root.removeChild(this.getLayerRoot());
+      }
+    }
+  }
+  destroy() {
+    this.onDestroy();
   }
 };
 
-// src/loading/workers/errors.ts
-var FileLoadingError = class extends Error {
-  constructor(code, url, message) {
-    super(message);
-    this.code = code;
-    this.url = url;
+// src/file/instanceUtils/domFactories.ts
+var ThermalDomFactory = class _ThermalDomFactory {
+  static createCanvasContainer() {
+    const container = document.createElement("div");
+    container.classList.add("thermalCanvasWrapper");
+    container.style.position = "relative";
+    container.style.userSelect = "none";
+    return container;
+  }
+  static createCanvas() {
+    const canvas = document.createElement("canvas");
+    canvas.classList.add("thermalCanvas");
+    canvas.style.padding = "0px";
+    canvas.style.margin = "0px";
+    canvas.style.objectFit = "contain";
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.objectPosition = "top left";
+    canvas.style.userSelect = "none";
+    return canvas;
+  }
+  static createDateLayerInner() {
+    const inner = document.createElement("div");
+    inner.classList.add("dateLayerInner");
+    inner.style.margin = "0px";
+    inner.style.padding = ".3rem 0rem";
+    inner.style.backgroundColor = "black";
+    inner.style.color = "white";
+    inner.style.borderRadius = ".5rem .5rem 0 0";
+    inner.style.width = "calc(100% + 4px )";
+    inner.style.position = "absolute";
+    inner.style.top = "0rem";
+    inner.style.left = "-2px";
+    inner.style.opacity = "0";
+    inner.style.transition = "opacity .1s ease-in-out";
+    inner.style.textAlign = "center";
+    inner.style.userSelect = "none";
+    return inner;
+  }
+  static createVisibleLayer() {
+    const layer = document.createElement("div");
+    layer.classList.add("visibleLayer");
+    layer.style.margin = "0px";
+    layer.style.padding = "0px";
+    layer.style.height = "100%";
+    layer.style.width = "100%";
+    layer.style.position = "absolute";
+    layer.style.top = "0px";
+    layer.style.left = "0px";
+    layer.style.userSelect = "none";
+    return layer;
+  }
+  static createVisibleImage() {
+    const img = document.createElement("img");
+    img.classList.add("visibleLayerImage");
+    img.style.padding = "0px";
+    img.style.margin = "0px";
+    img.style.objectFit = "contain";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.objectPosition = "top left";
+    img.style.userSelect = "none";
+    return img;
+  }
+  static createListener() {
+    const listener = document.createElement("div");
+    listener.classList.add("thermalListener");
+    listener.style.margin = "0px";
+    listener.style.padding = "0px";
+    listener.style.height = "100%";
+    listener.style.width = "100%";
+    listener.style.position = "absolute";
+    listener.style.top = "0px";
+    listener.style.left = "0px";
+    listener.style.cursor = "pointer";
+    listener.style.touchAction = "none";
+    listener.style.userSelect = "none";
+    listener.setAttribute("id", Math.random().toString());
+    return listener;
+  }
+  static createCursorLayerRoot() {
+    const layer = document.createElement("div");
+    layer.classList.add("cursorLayerRoot");
+    layer.style.width = "100%";
+    layer.style.height = "100%";
+    layer.style.position = "absolute";
+    layer.style.top = "0";
+    layer.style.left = "0";
+    layer.style.opacity = "0";
+    layer.style.overflow = "hidden";
+    layer.style.lineHeight = "1rem";
+    layer.style.userSelect = "none";
+    return layer;
+  }
+  static createCursorLayerCenter() {
+    const container = document.createElement("div");
+    container.classList.add("cursorLayerCenter");
+    container.style.position = "absolute";
+    container.style.top = "0px";
+    container.style.left = "0px";
+    container.style.width = "0px";
+    container.style.height = "0px";
+    container.style.userSelect = "none";
+    return container;
+  }
+  static createCursorLayerAxeBase() {
+    const axe = document.createElement("div");
+    axe.classList.add("cursorLayerAxe");
+    axe.style.backdropFilter = "invert(100)";
+    axe.style.position = "absolute";
+    axe.style.top = "0px";
+    axe.style.left = "0px";
+    axe.style.content = "";
+    axe.style.userSelect = "none";
+    return axe;
+  }
+  static createCursorLayerX() {
+    const axeX = _ThermalDomFactory.createCursorLayerAxeBase();
+    axeX.classList.add("cursorLayerAxeX");
+    axeX.style.width = "1px";
+    axeX.style.height = "20px";
+    axeX.style.top = "-10px";
+    axeX.style.userSelect = "none";
+    return axeX;
+  }
+  static createCursorLayerY() {
+    const axeY = _ThermalDomFactory.createCursorLayerAxeBase();
+    axeY.classList.add("cursorLayerAxeY");
+    axeY.style.width = "20px";
+    axeY.style.height = "1px";
+    axeY.style.left = "-10px";
+    axeY.style.userSelect = "none";
+    return axeY;
+  }
+  static createCursorLayerLabel() {
+    const axeLabel = document.createElement("div");
+    axeLabel.classList.add("cursorLayerLabel");
+    axeLabel.style.position = "absolute";
+    axeLabel.style.padding = "1px 3px";
+    axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
+    axeLabel.style.color = "white";
+    axeLabel.style.whiteSpace = "nowrap";
+    axeLabel.style.fontSize = "small";
+    axeLabel.style.borderRadius = "5px";
+    axeLabel.style.userSelect = "none";
+    return axeLabel;
   }
 };
+
+// src/file/instanceUtils/thermalCanvasLayer.ts
+var ThermalCanvasLayer = class extends AbstractLayer {
+  get pool() {
+    return this.instance.pool;
+  }
+  container;
+  canvas;
+  context;
+  // protected offscreen: OffscreenCanvas;
+  get width() {
+    return this.instance.width;
+  }
+  get height() {
+    return this.instance.height;
+  }
+  get pixels() {
+    return this.instance.pixels;
+  }
+  get from() {
+    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.from : this.instance.min;
+  }
+  get to() {
+    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.to : this.instance.max;
+  }
+  _opacity = 1;
+  get opacity() {
+    return this._opacity;
+  }
+  set opacity(value) {
+    this._opacity = Math.max(Math.min(value, 1), 0);
+    if (this._opacity !== 1)
+      this.getLayerRoot().style.opacity = this._opacity.toString();
+    else {
+      this.getLayerRoot().style.removeProperty("opacity");
+    }
+  }
+  constructor(instance) {
+    super(instance);
+    this.container = ThermalDomFactory.createCanvasContainer();
+    this.canvas = ThermalDomFactory.createCanvas();
+    this.canvas.width = this.instance.width;
+    this.canvas.height = this.instance.height;
+    this.context = this.canvas.getContext("2d");
+    this.container.appendChild(this.canvas);
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    this.canvas.remove();
+    this.container.remove();
+  }
+  /** Returns an array of 255 RGB colors */
+  getPalette() {
+    return this.instance.group.registry.palette.currentPalette.pixels;
+  }
+  async draw() {
+    const paletteColors = this.getPalette();
+    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+      const canvas = new OffscreenCanvas(width, height);
+      const context = canvas.getContext("2d");
+      const displayRange = to - from;
+      for (let x = 0; x <= width; x++) {
+        for (let y = 0; y <= height; y++) {
+          const index = x + y * width;
+          let temperature = pixels[index];
+          if (temperature < from)
+            temperature = from;
+          if (temperature > to)
+            temperature = to;
+          const temperatureRelative = temperature - from;
+          const temperatureAspect = temperatureRelative / displayRange;
+          const colorIndex = Math.round(255 * temperatureAspect);
+          const color = palette[colorIndex];
+          context.fillStyle = color;
+          context.fillRect(x, y, 1, 1);
+        }
+      }
+      const imageData = context.getImageData(0, 0, width, height);
+      const result = await createImageBitmap(imageData);
+      return result;
+    }, [
+      this.from,
+      this.to,
+      this.width,
+      this.height,
+      this.pixels,
+      paletteColors
+    ], {});
+    this.context.drawImage(image, 0, 0);
+  }
+  exportAsPng() {
+    const image = this.canvas.toDataURL();
+    const link = document.createElement("a");
+    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
+    link.href = image;
+    link.click();
+  }
+};
+
+// src/file/instanceUtils/thermalCursorLayer.ts
+var ThermalCursorLayer = class extends AbstractLayer {
+  layerRoot;
+  center;
+  axisX;
+  axisY;
+  label;
+  constructor(instance) {
+    super(instance);
+    this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
+    this.center = ThermalDomFactory.createCursorLayerCenter();
+    this.axisX = ThermalDomFactory.createCursorLayerX();
+    this.axisY = ThermalDomFactory.createCursorLayerY();
+    this.label = ThermalDomFactory.createCursorLayerLabel();
+    this.layerRoot.appendChild(this.center);
+    this.center.appendChild(this.axisX);
+    this.center.appendChild(this.axisY);
+    this.center.appendChild(this.label);
+  }
+  // Set visible / invisible
+  _show = false;
+  get show() {
+    return this._show;
+  }
+  set show(value) {
+    this._show = value;
+    this.layerRoot.style.opacity = this._show ? "1" : "0";
+  }
+  _hover = false;
+  get hover() {
+    return this._hover;
+  }
+  set hover(value) {
+    this._hover = value;
+    this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
+  }
+  recalculateLabelPosition(x, y) {
+    if (this.instance.root === null) {
+    } else {
+      const aspect = this.instance.root.offsetWidth / this.instance.width;
+      const centerX = Math.round(x * aspect);
+      const centerY = Math.round(y * aspect);
+      this.center.style.left = this.px(centerX);
+      this.center.style.top = this.px(centerY);
+      if (x > this.instance.width / 3) {
+        this.label.style.right = "3px";
+        this.label.style.removeProperty("left");
+      } else {
+        this.label.style.left = "3px";
+        this.label.style.removeProperty("right");
+      }
+      if (y > this.instance.height / 4) {
+        if (this.label.style.bottom !== "3px") {
+          this.label.style.bottom = "3px";
+          this.label.style.removeProperty("top");
+        }
+      } else {
+        if (this.label.style.top !== "3px") {
+          this.label.style.top = "3px";
+          this.label.style.removeProperty("bottom");
+        }
+      }
+    }
+  }
+  /** @deprecated */
+  setCursor(x, y, value) {
+    if (this.instance.root === null) {
+    } else {
+      this.recalculateLabelPosition(x, y);
+      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+    }
+  }
+  setLabel(x, y, value) {
+    if (this.instance.root === null) {
+    } else {
+      this.recalculateLabelPosition(x, y);
+      this.label.innerHTML = value;
+    }
+  }
+  setValue(value) {
+    if (value)
+      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
+  }
+  resetCursor() {
+    this.center.style.top = "0px";
+    this.center.style.left = "0px";
+    this.label.style.removeProperty("right");
+    this.label.style.removeProperty("bottom");
+    this.label.style.top = "3px";
+    this.label.style.left = "3px";
+    this.label.innerHTML = "";
+  }
+  px(number) {
+    return `${number}px`;
+  }
+  getLayerRoot() {
+    return this.layerRoot;
+  }
+  onDestroy() {
+    this.label.remove();
+    this.axisX.remove();
+    this.axisY.remove();
+    this.center.remove();
+    this.layerRoot.remove();
+  }
+};
+
+// src/file/instanceUtils/thermalListenerLayer.ts
+var ThermalListenerLayer = class extends AbstractLayer {
+  container;
+  constructor(instance) {
+    super(instance);
+    this.container = ThermalDomFactory.createListener();
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    this.container.remove();
+  }
+};
+
+// src/file/instanceUtils/VisibleLayer.ts
+var VisibleLayer = class extends AbstractLayer {
+  constructor(instance, _url) {
+    super(instance);
+    this._url = _url;
+    this.container = ThermalDomFactory.createVisibleLayer();
+    if (this._url) {
+      this.image = ThermalDomFactory.createVisibleImage();
+      this.url = this._url;
+      this.container.appendChild(this.image);
+    }
+  }
+  container;
+  image;
+  get url() {
+    return this._url;
+  }
+  set url(value) {
+    this._url = value;
+    if (this.image && value) {
+      this.image.src = value;
+    }
+  }
+  get exists() {
+    return this._url !== void 0;
+  }
+  getLayerRoot() {
+    return this.container;
+  }
+  onDestroy() {
+    if (this.image) this.image.remove();
+    this.container.remove();
+  }
+};
+
+// src/properties/time/playback/TimelineDrive.ts
+var import_date_fns3 = require("date-fns");
 
 // src/properties/callbacksManager.ts
 var CallbacksManager = class extends Map {
@@ -968,6 +1537,478 @@ var CallbacksManager = class extends Map {
   }
   call(...args) {
     this.forEach((fn) => fn(...args));
+  }
+};
+
+// src/properties/time/playback/internals/FrameBuffer.ts
+var FrameBuffer = class {
+  constructor(drive, firstFrame) {
+    this.drive = drive;
+    this.currentFrame = firstFrame;
+  }
+  /** @internal use accessors to get and set with side effects */
+  _currentFrame;
+  /** The current frame data @readonly */
+  get currentFrame() {
+    return this._currentFrame;
+  }
+  /** Upon every update of current frame, propagate current pixels to the instance */
+  set currentFrame(frame) {
+    this._currentFrame = frame;
+    this.drive.parent.pixels = this.currentFrame.pixels;
+  }
+  /** Get the current step value calculated from _currentFrame */
+  get currentStep() {
+    return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
+  }
+  /** Number of images to preload at once */
+  bufferSize = 4;
+  /** The actual buffer holding pair of step & frame */
+  buffer = /* @__PURE__ */ new Map();
+  /** Accessor to array of steps preloaded in the given moment */
+  get preloadedSteps() {
+    return Array.from(this.buffer.keys());
+  }
+  /** Accessor to array of relative timestamps preloaded in the given moment */
+  get preloadedTimestampsRelative() {
+    return this.preloadedSteps.map((step) => step.relative);
+  }
+  async init() {
+    return await this.preloadAfterFrameSet(this.currentStep);
+  }
+  /**
+   * Activate a step
+   * - look for the buffer for the corresponding frame
+   * - if there is a corresponding frame, apply it
+   * - if there is none, fetch it
+   * - if sequence, fetch buffer
+   * 
+   * **THIS IS THE MAIN SETTER**
+   */
+  async recieveStep(step) {
+    let frame = this.buffer.get(step);
+    if (frame === void 0) {
+      frame = await this.drive.parent.service.frameData(step.index);
+    }
+    this.currentFrame = frame;
+    const status = await this.preloadAfterFrameSet(step);
+    return status;
+  }
+  /** Preload frame data to the buffer based on the provided step */
+  async preloadAfterFrameSet(step) {
+    const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
+    const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
+    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
+      if (step.relative === this.drive.parent.duration) {
+        this.buffer.clear();
+      }
+      return {
+        absoluteTime: this.drive.currentStep.absolute,
+        relativeTime: this.drive.value,
+        currentFrame: this.currentFrame,
+        currentStep: this.currentStep,
+        buffer: this.preloadedSteps,
+        preloaded: false,
+        hasChanged: true
+      };
+    }
+    const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
+      return step2.index >= subsetStart && step2.index < subsetEnd;
+    });
+    const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
+    const newFrames = await Promise.all(newSteps.map((step2) => {
+      return this.drive.parent.service.frameData(step2.index);
+    }));
+    newFrames.forEach((frame, index) => {
+      const step2 = newSteps[index];
+      this.buffer.set(step2, frame);
+    });
+    this.preloadedSteps.forEach((step2) => {
+      if (!stepsThatShouldBe.includes(step2)) {
+        this.buffer.delete(step2);
+      }
+    });
+    return {
+      absoluteTime: this.drive.currentStep.absolute,
+      currentFrame: this.currentFrame,
+      currentStep: this.currentStep,
+      relativeTime: this.drive.value,
+      buffer: this.preloadedSteps,
+      preloaded: true,
+      hasChanged: true
+    };
+  }
+};
+
+// src/properties/time/playback/TimelineDrive.ts
+var playbackSpeed = {
+  1: 1,
+  0.5: 2,
+  2: 0.5,
+  3: 0.333333333333,
+  5: 0.25,
+  10: 0.1
+};
+var TimelineDrive = class extends AbstractProperty {
+  constructor(parent, initial, steps, initialFrameData) {
+    super(parent, Math.max(Math.min(initial, steps.length), 0));
+    this.steps = steps;
+    this._currentStep = this.steps[this._initial];
+    this.startTimestampRelative = 0;
+    this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
+    this.isSequence = this.parent.timelineData.length > 1;
+    this.steps.forEach((step) => {
+      this.stepsByIndex.set(step.index, step);
+      this.stepsByAbsolute.set(step.absolute, step);
+      this.stepsByRelative.set(step.relative, step);
+      this.relativeSteps.push(step.relative);
+    });
+    this.buffer = new FrameBuffer(this, initialFrameData);
+  }
+  _playbackSpeed = 1;
+  get playbackSpeed() {
+    return this._playbackSpeed;
+  }
+  set playbackSpeed(value) {
+    this._playbackSpeed = value;
+    this.callbackdPlaybackSpeed.call(this._playbackSpeed);
+  }
+  get playbackSpeedAspect() {
+    return playbackSpeed[this.playbackSpeed];
+  }
+  get duration() {
+    return this.parent.duration;
+  }
+  get frameCount() {
+    return this.steps.length;
+  }
+  startTimestampRelative;
+  /** @deprecated not in use? */
+  endTimestampRelative;
+  stepsByAbsolute = /* @__PURE__ */ new Map();
+  stepsByRelative = /* @__PURE__ */ new Map();
+  stepsByIndex = /* @__PURE__ */ new Map();
+  relativeSteps = [];
+  _currentStep;
+  get currentStep() {
+    return this._currentStep;
+  }
+  isSequence;
+  _isPlaying = false;
+  get isPlaying() {
+    return this._isPlaying;
+  }
+  timer;
+  buffer;
+  // Callbacks & Listeners
+  callbackdPlaybackSpeed = new CallbacksManager();
+  callbacksPlay = new CallbacksManager();
+  callbacksPause = new CallbacksManager();
+  callbacksStop = new CallbacksManager();
+  callbacksEnd = new CallbacksManager();
+  callbacksChangeFrame = new CallbacksManager();
+  get currentMs() {
+    return this.currentStep.relative;
+  }
+  get currentPercentage() {
+    return this._convertRelativeToPercent(this.currentStep.relative);
+  }
+  get currentFrameIndex() {
+    return this.currentStep.index;
+  }
+  get currentTime() {
+    return this.formatDuration(this.currentStep.relative);
+  }
+  init() {
+    this.buffer.init();
+  }
+  afterSetEffect(value) {
+    value;
+    if (this.steps.length === 1) {
+      return;
+    }
+  }
+  validate(value) {
+    if (this.steps === void 0) {
+      return value;
+    }
+    if (this.steps.length === 1) {
+      return 0;
+    }
+    return this._validateRelativeTime(value);
+  }
+  _validateRelativeTime(value) {
+    return Math.max(Math.min(value, this.steps[this.steps.length - 1].relative), 0);
+  }
+  _validateIndex(value) {
+    return Math.max(Math.min(value, this.steps.length), 0);
+  }
+  _convertRelativeToAspect(relativeTimeInMs) {
+    return relativeTimeInMs / this.duration;
+  }
+  _convertRelativeToPercent(relativeTimeInMs) {
+    return this._convertRelativeToAspect(relativeTimeInMs) * 100;
+  }
+  _convertPercenttRelative(percent) {
+    return this.duration * percent / 100;
+  }
+  formatDuration(ms) {
+    const date = /* @__PURE__ */ new Date(0);
+    date.setMilliseconds(ms);
+    return (0, import_date_fns3.format)(date, "mm:ss:SSS");
+  }
+  findPreviousRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.ceil(aspect * this.steps.length) + 5;
+    const sliceStart = this._validateIndex(index - 40);
+    const sliceEnd = this._validateIndex(index);
+    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
+    const frame = reversedSubarray.find((f) => {
+      return f.relative <= relativeTimeInMs;
+    });
+    return frame !== void 0 ? frame : this.steps[0];
+  }
+  findNextRelative(relativeTimeInMs) {
+    if (this.steps.length === 1) {
+      return this.steps[0];
+    }
+    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
+    const index = Math.floor(aspect * this.steps.length) - 5;
+    const subarrayStart = this._validateIndex(index);
+    const subarrayEnd = this._validateIndex(index + 40);
+    const subarray = this.steps.slice(subarrayStart, subarrayEnd);
+    const frame = subarray.find((f) => {
+      return f.relative > relativeTimeInMs;
+    });
+    return frame !== void 0 ? frame : false;
+  }
+  async setRelativeTime(relativeTimeInMs) {
+    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
+    this.value = relativeTimeInMs;
+    const currentStep = this.findPreviousRelative(this.value);
+    if (currentStep !== this._currentStep) {
+      this._currentStep = currentStep;
+      const result = await this.buffer.recieveStep(this._currentStep);
+      this.callbacksChangeFrame.call(this._currentStep);
+      return result;
+    }
+    return {
+      absoluteTime: this._currentStep.absolute,
+      relativeTime: this.value,
+      currentStep: this._currentStep,
+      currentFrame: this.buffer.currentFrame,
+      buffer: [],
+      preloaded: false,
+      hasChanged: false
+    };
+  }
+  async setValueByPercent(percent) {
+    percent = Math.max(Math.min(percent, 100), 0);
+    const convertedToRelativeTime = this._convertPercenttRelative(percent);
+    return await this.setRelativeTime(convertedToRelativeTime);
+  }
+  /** This is the main play method */
+  createNextStepTimer() {
+    if (this.timer !== void 0) {
+      clearTimeout(this.timer);
+    }
+    if (!this.isSequence || this._isPlaying === false) {
+      return;
+    }
+    this.timer = setTimeout(() => {
+      const next = this.findNextRelative(this._currentStep.relative);
+      if (next) {
+        this.value = next.relative;
+        if (this._isPlaying) {
+          this.value = next.relative;
+          this._currentStep = next;
+          this.buffer.recieveStep(next);
+          this.callbacksChangeFrame.call(next);
+          this.createNextStepTimer();
+        }
+      } else {
+        this._isPlaying = false;
+        this.callbacksEnd.call();
+      }
+    }, this._currentStep.offset * this.playbackSpeedAspect);
+  }
+  play() {
+    console.log("pokou\u0161\xEDm se hr\xE1t");
+    if (this.steps.length > 1) {
+      this._isPlaying = true;
+      this.createNextStepTimer();
+      this.callbacksPlay.call();
+    }
+  }
+  pause() {
+    this._isPlaying = false;
+    clearTimeout(this.timer);
+    this.callbacksPause.call();
+  }
+  stop() {
+    this.pause();
+    this.value = 0;
+    this.callbacksStop.call();
+  }
+};
+
+// src/properties/states/CursorValueDrive.ts
+var CursorValueDrive = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  // Once the value changes, project it to the cursor layer
+  afterSetEffect() {
+  }
+  recalculateFromCursor(position) {
+    if (position)
+      this.value = this._getValueAtCoordinate(position.x, position.y);
+  }
+  _getValueAtCoordinate(x, y) {
+    if (x === void 0 || y === void 0) {
+      return void 0;
+    }
+    const index = x + y * this.parent.width;
+    const value = this.parent.pixels[index];
+    return value;
+  }
+};
+
+// src/properties/time/recording/RecordingDrive.ts
+var RecordingDrive = class extends AbstractProperty {
+  stream;
+  recorder;
+  mimeType;
+  _isRecording = false;
+  _mayStop = true;
+  get mayStop() {
+    return this._mayStop;
+  }
+  set mayStop(value) {
+    this._mayStop = value;
+    this.callbackMayStop.call(this.mayStop);
+  }
+  recordedChunks = [];
+  callbackMayStop = new CallbacksManager();
+  validate(value) {
+    return value;
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  afterSetEffect(value) {
+  }
+  start() {
+    if (this.value === true) {
+      throw new Error("Recording already in process - can not start another one");
+    }
+    const { stream, recorder } = this.initRecording();
+    this.stream = stream;
+    this.recorder = recorder;
+    this.value = true;
+    this.recorder.addEventListener("dataavailable", (event) => {
+      if (event.data.size > 0) {
+        this.recordedChunks.push(event.data);
+        this.download();
+        this.clearRecording();
+      }
+    });
+    this.recorder.start();
+  }
+  end() {
+    if (this.value === false) {
+      throw new Error("Recording has not started yet - can not end it!");
+    }
+    if (this.recorder === void 0) {
+      throw new Error("Error ending recording - no MediaRecorder instance created.");
+    }
+    this.recorder.stop();
+    this.value = false;
+    this.mayStop = true;
+  }
+  /** Records the entire file from start to the end. */
+  async recordEntireFile() {
+    if (this.value === true) {
+      throw new Error("Already recording the entire file. Can not start until the current recording ends.");
+    }
+    await this.parent.timeline.setValueByPercent(0);
+    this.mayStop = false;
+    const cllbackId = "recording entire file";
+    this.parent.timeline.callbacksEnd.add(cllbackId, () => {
+      console.log("playback ended");
+      this.end();
+      this.parent.timeline.callbacksEnd.delete(cllbackId);
+    });
+    this.parent.timeline.play();
+    this.start();
+  }
+  initRecording() {
+    if (this.stream || this.recorder) {
+      throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
+    }
+    const stream = this.parent.canvasLayer.canvas.captureStream(25);
+    const types = [
+      "video/mp4",
+      "video/webm;codecs=h264",
+      "video/webm;codecs=vp8",
+      "video/webm;codecs=daala",
+      "video/webm"
+    ];
+    types.forEach((type) => {
+      if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
+        this.mimeType = type;
+    });
+    const options = {
+      mimeType: this.mimeType
+    };
+    const recorder = new MediaRecorder(stream, options);
+    return {
+      stream,
+      recorder,
+      options
+    };
+  }
+  download() {
+    const blob = new Blob(this.recordedChunks, {
+      type: this.mimeType
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = this.parent.fileName.replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value.from.toFixed(2)}_to-${this.parent.group.registry.range.value.to.toFixed(2)}.webm`);
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+  clearRecording() {
+    if (this.recorder) {
+      this.recorder.stop();
+      delete this.recorder;
+    }
+    if (this.stream) {
+      delete this.stream;
+    }
+    if (this.recordedChunks.length > 0) {
+      this.recordedChunks = [];
+    }
+    this.value = false;
+    this.mimeType = void 0;
+  }
+};
+
+// src/file/instanceUtils/ThermalFileExports.ts
+var ThermalFileExport = class {
+  constructor(file) {
+    this.file = file;
+  }
+  canvasAsPng() {
+    return this.file.canvasLayer.exportAsPng();
+  }
+  thermalDataAsCsv() {
+    throw new Error("Not implemented");
   }
 };
 
@@ -2087,1155 +3128,6 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
-// src/file/AbstractFile.ts
-var AbstractFile = class extends BaseStructureObject {
-  id;
-  horizontalLimit;
-  verticalLimit;
-  group;
-  get pool() {
-    return this.group.registry.manager.pool;
-  }
-  url;
-  thermalUrl;
-  visibleUrl;
-  fileName;
-  frameCount;
-  frames = [];
-  signature = "unknown";
-  version = -1;
-  streamCount = -1;
-  fileDataType = -1;
-  unit = -1;
-  width;
-  height;
-  timestamp;
-  duration;
-  min;
-  max;
-  _isHover = false;
-  get isHover() {
-    return this._isHover;
-  }
-  set isHover(value) {
-    this._isHover = value;
-  }
-  // DOM root
-  root = null;
-  // DOM layers
-  canvasLayer;
-  visibleLayer;
-  cursorLayer;
-  listenerLayer;
-  // Drives
-  timeline;
-  cursorValue;
-  analysis = new AnalysisDrive(this, []);
-  // Recording is lazyloaded
-  recording;
-  _mounted = false;
-  get mountedBaseLayers() {
-    return this._mounted;
-  }
-  set mountedBaseLayers(value) {
-    this._mounted = value;
-  }
-  _pixels;
-  get pixels() {
-    return this._pixels;
-  }
-  set pixels(value) {
-    this._pixels = value;
-    this.onSetPixels(value);
-    this.analysis.value.forEach((analysis) => analysis.recalculateValues());
-  }
-  constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
-    super();
-    this.group = group;
-    this.id = this.formatId(thermalUrl);
-    this.url = thermalUrl;
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.duration = duration;
-    this.min = min;
-    this.max = max;
-    this.frameCount = frameCount;
-    this.horizontalLimit = this.width / 4 * 3;
-    this.verticalLimit = this.height / 4 * 3;
-    this._pixels = initialPixels;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  attachToDom(container) {
-    if (this.root !== null || this.mountedBaseLayers === true) {
-      console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
-      this.detachFromDom();
-      this.unmountListener();
-    }
-    this.root = container;
-    this.root.classList.add("thermalImageRoot");
-    this.root.style.transition = "border-color .1s ease-in-out";
-    this.root.style.zIndex = "10";
-    this.root.style.position = "relative";
-    this.root.style.lineHeight = "0";
-    if (this.visibleLayer.exists)
-      this.visibleLayer.mount();
-    this.canvasLayer.mount();
-    this.cursorLayer.mount();
-    this.root.dataset.thermalFile = this.id;
-    this.root.dataset.mounted = "true";
-    this.mountListener();
-    this.mountedBaseLayers = true;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  detachFromDom() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
-    }
-    if (this.root) {
-      this.root.dataset.mounted = "false";
-      this.root.dataset.thermalFile = void 0;
-    }
-    this.visibleLayer.unmount();
-    this.canvasLayer.unmount();
-    this.cursorLayer.unmount();
-    this.unmountListener();
-    this.mountedBaseLayers = false;
-  }
-  mountListener() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-      return;
-    }
-    this.listenerLayer.mount();
-    this.analysis.activateListeners();
-    this.listenerLayer.getLayerRoot().onmousemove = (event) => {
-      this.cursorLayer.show = true;
-      this.isHover = true;
-      const client = this.width;
-      const parent = this.root.clientWidth;
-      const aspect = client / parent;
-      const x = Math.round(event.offsetX * aspect);
-      const y = Math.round(event.offsetY * aspect);
-      this.group.cursorPosition.recieveCursorPosition({ x, y });
-      if (this._onHover)
-        this._onHover(event, this);
-    };
-    this.listenerLayer.getLayerRoot().onmouseleave = () => {
-      this.cursorLayer.show = false;
-      this.isHover = false;
-      this.group.cursorPosition.recieveCursorPosition(void 0);
-    };
-    this.listenerLayer.getLayerRoot().onclick = (event) => {
-      if (this._onClick)
-        this._onClick(event, this);
-    };
-  }
-  unmountListener() {
-    this.listenerLayer.unmount();
-    this.analysis.deactivateListeners();
-  }
-  mountToDom(container) {
-    this.attachToDom(container);
-  }
-  unmountFromDom() {
-    this.detachFromDom();
-  }
-  draw() {
-    if (this.mountedBaseLayers === true)
-      this.canvasLayer.draw();
-  }
-  recievePalette(palette) {
-    palette;
-    this.draw();
-  }
-  destroySelfAndBelow() {
-    this.detachFromDom();
-  }
-  removeAllChildren() {
-    this.detachFromDom();
-  }
-  recieveCursorPosition(position) {
-    if (position !== void 0) {
-      const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
-      this.cursorLayer.setLabel(position.x, position.y, label);
-      this.cursorLayer.show = true;
-    } else {
-      this.cursorLayer.show = false;
-      this.cursorLayer.resetCursor();
-    }
-    this.cursorValue.recalculateFromCursor(position);
-  }
-  getTemperatureAtPoint(x, y) {
-    const index = y * this.width + x;
-    return this.pixels[index];
-  }
-  getColorAtPoint(x, y) {
-    const temperature = this.getTemperatureAtPoint(x, y);
-    const min = this.group.registry.range.value?.from;
-    const max = this.group.registry.range.value?.to;
-    if (min !== void 0 && max !== void 0) {
-      const temperatureRelative = temperature - min;
-      const temperatureAspect = temperatureRelative / (max - min);
-      const colorIndex = Math.round(255 * temperatureAspect);
-      return this.group.registry.palette.currentPalette.pixels[colorIndex];
-    }
-    return void 0;
-  }
-  recieveRange(value) {
-    if (value !== void 0) {
-      this.draw();
-    }
-  }
-  reset() {
-  }
-  recieveOpacity(value) {
-    if (this.visibleLayer && this.canvasLayer) {
-      this.canvasLayer.opacity = value;
-    }
-  }
-  /** @deprecated */
-  _onHover = void 0;
-  /** @deprecated */
-  setHoverHandler(handler) {
-    this._onHover = handler;
-  }
-  /** @deprecated */
-  setHoverCursor(value) {
-    if (this.root) {
-      if (this.root.style.cursor !== value)
-        this.root.style.cursor = value;
-    }
-  }
-  _onClick = void 0;
-  setClickHandler(handler = void 0) {
-    this._onClick = handler;
-  }
-};
-
-// src/file/instanceUtils/AbstractLayer.ts
-var AbstractLayer = class {
-  constructor(instance) {
-    this.instance = instance;
-  }
-  _mounted = false;
-  get mounted() {
-    return this._mounted;
-  }
-  mount() {
-    if (!this._mounted) {
-      if (this.instance.root !== null) {
-        this._mounted = true;
-        this.instance.root.appendChild(this.getLayerRoot());
-      }
-    }
-  }
-  unmount() {
-    if (this._mounted) {
-      if (this.instance.root !== null) {
-        this._mounted = false;
-        this.instance.root.removeChild(this.getLayerRoot());
-      }
-    }
-  }
-  destroy() {
-    this.onDestroy();
-  }
-};
-
-// src/file/instanceUtils/domFactories.ts
-var ThermalDomFactory = class _ThermalDomFactory {
-  static createCanvasContainer() {
-    const container = document.createElement("div");
-    container.classList.add("thermalCanvasWrapper");
-    container.style.position = "relative";
-    container.style.userSelect = "none";
-    return container;
-  }
-  static createCanvas() {
-    const canvas = document.createElement("canvas");
-    canvas.classList.add("thermalCanvas");
-    canvas.style.padding = "0px";
-    canvas.style.margin = "0px";
-    canvas.style.objectFit = "contain";
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.objectPosition = "top left";
-    canvas.style.userSelect = "none";
-    return canvas;
-  }
-  static createDateLayerInner() {
-    const inner = document.createElement("div");
-    inner.classList.add("dateLayerInner");
-    inner.style.margin = "0px";
-    inner.style.padding = ".3rem 0rem";
-    inner.style.backgroundColor = "black";
-    inner.style.color = "white";
-    inner.style.borderRadius = ".5rem .5rem 0 0";
-    inner.style.width = "calc(100% + 4px )";
-    inner.style.position = "absolute";
-    inner.style.top = "0rem";
-    inner.style.left = "-2px";
-    inner.style.opacity = "0";
-    inner.style.transition = "opacity .1s ease-in-out";
-    inner.style.textAlign = "center";
-    inner.style.userSelect = "none";
-    return inner;
-  }
-  static createVisibleLayer() {
-    const layer = document.createElement("div");
-    layer.classList.add("visibleLayer");
-    layer.style.margin = "0px";
-    layer.style.padding = "0px";
-    layer.style.height = "100%";
-    layer.style.width = "100%";
-    layer.style.position = "absolute";
-    layer.style.top = "0px";
-    layer.style.left = "0px";
-    layer.style.userSelect = "none";
-    return layer;
-  }
-  static createVisibleImage() {
-    const img = document.createElement("img");
-    img.classList.add("visibleLayerImage");
-    img.style.padding = "0px";
-    img.style.margin = "0px";
-    img.style.objectFit = "contain";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.objectPosition = "top left";
-    img.style.userSelect = "none";
-    return img;
-  }
-  static createListener() {
-    const listener = document.createElement("div");
-    listener.classList.add("thermalListener");
-    listener.style.margin = "0px";
-    listener.style.padding = "0px";
-    listener.style.height = "100%";
-    listener.style.width = "100%";
-    listener.style.position = "absolute";
-    listener.style.top = "0px";
-    listener.style.left = "0px";
-    listener.style.cursor = "pointer";
-    listener.style.touchAction = "none";
-    listener.style.userSelect = "none";
-    listener.setAttribute("id", Math.random().toString());
-    return listener;
-  }
-  static createCursorLayerRoot() {
-    const layer = document.createElement("div");
-    layer.classList.add("cursorLayerRoot");
-    layer.style.width = "100%";
-    layer.style.height = "100%";
-    layer.style.position = "absolute";
-    layer.style.top = "0";
-    layer.style.left = "0";
-    layer.style.opacity = "0";
-    layer.style.overflow = "hidden";
-    layer.style.lineHeight = "1rem";
-    layer.style.userSelect = "none";
-    return layer;
-  }
-  static createCursorLayerCenter() {
-    const container = document.createElement("div");
-    container.classList.add("cursorLayerCenter");
-    container.style.position = "absolute";
-    container.style.top = "0px";
-    container.style.left = "0px";
-    container.style.width = "0px";
-    container.style.height = "0px";
-    container.style.userSelect = "none";
-    return container;
-  }
-  static createCursorLayerAxeBase() {
-    const axe = document.createElement("div");
-    axe.classList.add("cursorLayerAxe");
-    axe.style.backdropFilter = "invert(100)";
-    axe.style.position = "absolute";
-    axe.style.top = "0px";
-    axe.style.left = "0px";
-    axe.style.content = "";
-    axe.style.userSelect = "none";
-    return axe;
-  }
-  static createCursorLayerX() {
-    const axeX = _ThermalDomFactory.createCursorLayerAxeBase();
-    axeX.classList.add("cursorLayerAxeX");
-    axeX.style.width = "1px";
-    axeX.style.height = "20px";
-    axeX.style.top = "-10px";
-    axeX.style.userSelect = "none";
-    return axeX;
-  }
-  static createCursorLayerY() {
-    const axeY = _ThermalDomFactory.createCursorLayerAxeBase();
-    axeY.classList.add("cursorLayerAxeY");
-    axeY.style.width = "20px";
-    axeY.style.height = "1px";
-    axeY.style.left = "-10px";
-    axeY.style.userSelect = "none";
-    return axeY;
-  }
-  static createCursorLayerLabel() {
-    const axeLabel = document.createElement("div");
-    axeLabel.classList.add("cursorLayerLabel");
-    axeLabel.style.position = "absolute";
-    axeLabel.style.padding = "1px 3px";
-    axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
-    axeLabel.style.color = "white";
-    axeLabel.style.whiteSpace = "nowrap";
-    axeLabel.style.fontSize = "small";
-    axeLabel.style.borderRadius = "5px";
-    axeLabel.style.userSelect = "none";
-    return axeLabel;
-  }
-};
-
-// src/file/instanceUtils/thermalCanvasLayer.ts
-var ThermalCanvasLayer = class extends AbstractLayer {
-  get pool() {
-    return this.instance.pool;
-  }
-  container;
-  canvas;
-  context;
-  // protected offscreen: OffscreenCanvas;
-  get width() {
-    return this.instance.width;
-  }
-  get height() {
-    return this.instance.height;
-  }
-  get pixels() {
-    return this.instance.pixels;
-  }
-  get from() {
-    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.from : this.instance.min;
-  }
-  get to() {
-    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.to : this.instance.max;
-  }
-  _opacity = 1;
-  get opacity() {
-    return this._opacity;
-  }
-  set opacity(value) {
-    this._opacity = Math.max(Math.min(value, 1), 0);
-    if (this._opacity !== 1)
-      this.getLayerRoot().style.opacity = this._opacity.toString();
-    else {
-      this.getLayerRoot().style.removeProperty("opacity");
-    }
-  }
-  constructor(instance) {
-    super(instance);
-    this.container = ThermalDomFactory.createCanvasContainer();
-    this.canvas = ThermalDomFactory.createCanvas();
-    this.canvas.width = this.instance.width;
-    this.canvas.height = this.instance.height;
-    this.context = this.canvas.getContext("2d");
-    this.container.appendChild(this.canvas);
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    this.canvas.remove();
-    this.container.remove();
-  }
-  /** Returns an array of 255 RGB colors */
-  getPalette() {
-    return this.instance.group.registry.palette.currentPalette.pixels;
-  }
-  async draw() {
-    const paletteColors = this.getPalette();
-    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
-      const canvas = new OffscreenCanvas(width, height);
-      const context = canvas.getContext("2d");
-      const displayRange = to - from;
-      for (let x = 0; x <= width; x++) {
-        for (let y = 0; y <= height; y++) {
-          const index = x + y * width;
-          let temperature = pixels[index];
-          if (temperature < from)
-            temperature = from;
-          if (temperature > to)
-            temperature = to;
-          const temperatureRelative = temperature - from;
-          const temperatureAspect = temperatureRelative / displayRange;
-          const colorIndex = Math.round(255 * temperatureAspect);
-          const color = palette[colorIndex];
-          context.fillStyle = color;
-          context.fillRect(x, y, 1, 1);
-        }
-      }
-      const imageData = context.getImageData(0, 0, width, height);
-      const result = await createImageBitmap(imageData);
-      return result;
-    }, [
-      this.from,
-      this.to,
-      this.width,
-      this.height,
-      this.pixels,
-      paletteColors
-    ], {});
-    this.context.drawImage(image, 0, 0);
-  }
-  exportAsPng() {
-    const image = this.canvas.toDataURL();
-    const link = document.createElement("a");
-    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
-    link.href = image;
-    link.click();
-  }
-};
-
-// src/file/instanceUtils/thermalCursorLayer.ts
-var ThermalCursorLayer = class extends AbstractLayer {
-  layerRoot;
-  center;
-  axisX;
-  axisY;
-  label;
-  constructor(instance) {
-    super(instance);
-    this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
-    this.center = ThermalDomFactory.createCursorLayerCenter();
-    this.axisX = ThermalDomFactory.createCursorLayerX();
-    this.axisY = ThermalDomFactory.createCursorLayerY();
-    this.label = ThermalDomFactory.createCursorLayerLabel();
-    this.layerRoot.appendChild(this.center);
-    this.center.appendChild(this.axisX);
-    this.center.appendChild(this.axisY);
-    this.center.appendChild(this.label);
-  }
-  // Set visible / invisible
-  _show = false;
-  get show() {
-    return this._show;
-  }
-  set show(value) {
-    this._show = value;
-    this.layerRoot.style.opacity = this._show ? "1" : "0";
-  }
-  _hover = false;
-  get hover() {
-    return this._hover;
-  }
-  set hover(value) {
-    this._hover = value;
-    this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
-  }
-  recalculateLabelPosition(x, y) {
-    if (this.instance.root === null) {
-    } else {
-      const aspect = this.instance.root.offsetWidth / this.instance.width;
-      const centerX = Math.round(x * aspect);
-      const centerY = Math.round(y * aspect);
-      this.center.style.left = this.px(centerX);
-      this.center.style.top = this.px(centerY);
-      if (x > this.instance.width / 3) {
-        this.label.style.right = "3px";
-        this.label.style.removeProperty("left");
-      } else {
-        this.label.style.left = "3px";
-        this.label.style.removeProperty("right");
-      }
-      if (y > this.instance.height / 4) {
-        if (this.label.style.bottom !== "3px") {
-          this.label.style.bottom = "3px";
-          this.label.style.removeProperty("top");
-        }
-      } else {
-        if (this.label.style.top !== "3px") {
-          this.label.style.top = "3px";
-          this.label.style.removeProperty("bottom");
-        }
-      }
-    }
-  }
-  /** @deprecated */
-  setCursor(x, y, value) {
-    if (this.instance.root === null) {
-    } else {
-      this.recalculateLabelPosition(x, y);
-      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
-    }
-  }
-  setLabel(x, y, value) {
-    if (this.instance.root === null) {
-    } else {
-      this.recalculateLabelPosition(x, y);
-      this.label.innerHTML = value;
-    }
-  }
-  setValue(value) {
-    if (value)
-      this.label.innerHTML = `${value.toFixed(3)} \xB0C`;
-  }
-  resetCursor() {
-    this.center.style.top = "0px";
-    this.center.style.left = "0px";
-    this.label.style.removeProperty("right");
-    this.label.style.removeProperty("bottom");
-    this.label.style.top = "3px";
-    this.label.style.left = "3px";
-    this.label.innerHTML = "";
-  }
-  px(number) {
-    return `${number}px`;
-  }
-  getLayerRoot() {
-    return this.layerRoot;
-  }
-  onDestroy() {
-    this.label.remove();
-    this.axisX.remove();
-    this.axisY.remove();
-    this.center.remove();
-    this.layerRoot.remove();
-  }
-};
-
-// src/file/instanceUtils/thermalListenerLayer.ts
-var ThermalListenerLayer = class extends AbstractLayer {
-  container;
-  constructor(instance) {
-    super(instance);
-    this.container = ThermalDomFactory.createListener();
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    this.container.remove();
-  }
-};
-
-// src/file/instanceUtils/VisibleLayer.ts
-var VisibleLayer = class extends AbstractLayer {
-  constructor(instance, _url) {
-    super(instance);
-    this._url = _url;
-    this.container = ThermalDomFactory.createVisibleLayer();
-    if (this._url) {
-      this.image = ThermalDomFactory.createVisibleImage();
-      this.url = this._url;
-      this.container.appendChild(this.image);
-    }
-  }
-  container;
-  image;
-  get url() {
-    return this._url;
-  }
-  set url(value) {
-    this._url = value;
-    if (this.image && value) {
-      this.image.src = value;
-    }
-  }
-  get exists() {
-    return this._url !== void 0;
-  }
-  getLayerRoot() {
-    return this.container;
-  }
-  onDestroy() {
-    if (this.image) this.image.remove();
-    this.container.remove();
-  }
-};
-
-// src/properties/time/playback/TimelineDrive.ts
-var import_date_fns3 = require("date-fns");
-
-// src/properties/time/playback/internals/FrameBuffer.ts
-var FrameBuffer = class {
-  constructor(drive, firstFrame) {
-    this.drive = drive;
-    this.currentFrame = firstFrame;
-  }
-  /** @internal use accessors to get and set with side effects */
-  _currentFrame;
-  /** The current frame data @readonly */
-  get currentFrame() {
-    return this._currentFrame;
-  }
-  /** Upon every update of current frame, propagate current pixels to the instance */
-  set currentFrame(frame) {
-    this._currentFrame = frame;
-    this.drive.parent.pixels = this.currentFrame.pixels;
-  }
-  /** Get the current step value calculated from _currentFrame */
-  get currentStep() {
-    return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
-  }
-  /** Number of images to preload at once */
-  bufferSize = 4;
-  /** The actual buffer holding pair of step & frame */
-  buffer = /* @__PURE__ */ new Map();
-  /** Accessor to array of steps preloaded in the given moment */
-  get preloadedSteps() {
-    return Array.from(this.buffer.keys());
-  }
-  /** Accessor to array of relative timestamps preloaded in the given moment */
-  get preloadedTimestampsRelative() {
-    return this.preloadedSteps.map((step) => step.relative);
-  }
-  async init() {
-    return await this.preloadAfterFrameSet(this.currentStep);
-  }
-  /**
-   * Activate a step
-   * - look for the buffer for the corresponding frame
-   * - if there is a corresponding frame, apply it
-   * - if there is none, fetch it
-   * - if sequence, fetch buffer
-   * 
-   * **THIS IS THE MAIN SETTER**
-   */
-  async recieveStep(step) {
-    let frame = this.buffer.get(step);
-    if (frame === void 0) {
-      frame = await this.drive.parent.service.frameData(step.index);
-    }
-    this.currentFrame = frame;
-    const status = await this.preloadAfterFrameSet(step);
-    return status;
-  }
-  /** Preload frame data to the buffer based on the provided step */
-  async preloadAfterFrameSet(step) {
-    const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
-    const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
-    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
-      if (step.relative === this.drive.parent.duration) {
-        this.buffer.clear();
-      }
-      return {
-        absoluteTime: this.drive.currentStep.absolute,
-        relativeTime: this.drive.value,
-        currentFrame: this.currentFrame,
-        currentStep: this.currentStep,
-        buffer: this.preloadedSteps,
-        preloaded: false,
-        hasChanged: true
-      };
-    }
-    const stepsThatShouldBe = Array.from(this.drive.stepsByIndex.values()).filter((step2) => {
-      return step2.index >= subsetStart && step2.index < subsetEnd;
-    });
-    const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
-    const newFrames = await Promise.all(newSteps.map((step2) => {
-      return this.drive.parent.service.frameData(step2.index);
-    }));
-    newFrames.forEach((frame, index) => {
-      const step2 = newSteps[index];
-      this.buffer.set(step2, frame);
-    });
-    this.preloadedSteps.forEach((step2) => {
-      if (!stepsThatShouldBe.includes(step2)) {
-        this.buffer.delete(step2);
-      }
-    });
-    return {
-      absoluteTime: this.drive.currentStep.absolute,
-      currentFrame: this.currentFrame,
-      currentStep: this.currentStep,
-      relativeTime: this.drive.value,
-      buffer: this.preloadedSteps,
-      preloaded: true,
-      hasChanged: true
-    };
-  }
-};
-
-// src/properties/time/playback/TimelineDrive.ts
-var playbackSpeed = {
-  1: 1,
-  0.5: 2,
-  2: 0.5,
-  3: 0.333333333333,
-  5: 0.25,
-  10: 0.1
-};
-var TimelineDrive = class extends AbstractProperty {
-  constructor(parent, initial, steps, initialFrameData) {
-    super(parent, Math.max(Math.min(initial, steps.length), 0));
-    this.steps = steps;
-    this._currentStep = this.steps[this._initial];
-    this.startTimestampRelative = 0;
-    this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
-    this.isSequence = this.parent.timelineData.length > 1;
-    this.steps.forEach((step) => {
-      this.stepsByIndex.set(step.index, step);
-      this.stepsByAbsolute.set(step.absolute, step);
-      this.stepsByRelative.set(step.relative, step);
-      this.relativeSteps.push(step.relative);
-    });
-    this.buffer = new FrameBuffer(this, initialFrameData);
-  }
-  _playbackSpeed = 1;
-  get playbackSpeed() {
-    return this._playbackSpeed;
-  }
-  set playbackSpeed(value) {
-    this._playbackSpeed = value;
-    this.callbackdPlaybackSpeed.call(this._playbackSpeed);
-  }
-  get playbackSpeedAspect() {
-    return playbackSpeed[this.playbackSpeed];
-  }
-  get duration() {
-    return this.parent.duration;
-  }
-  get frameCount() {
-    return this.steps.length;
-  }
-  startTimestampRelative;
-  /** @deprecated not in use? */
-  endTimestampRelative;
-  stepsByAbsolute = /* @__PURE__ */ new Map();
-  stepsByRelative = /* @__PURE__ */ new Map();
-  stepsByIndex = /* @__PURE__ */ new Map();
-  relativeSteps = [];
-  _currentStep;
-  get currentStep() {
-    return this._currentStep;
-  }
-  isSequence;
-  _isPlaying = false;
-  get isPlaying() {
-    return this._isPlaying;
-  }
-  timer;
-  buffer;
-  // Callbacks & Listeners
-  callbackdPlaybackSpeed = new CallbacksManager();
-  callbacksPlay = new CallbacksManager();
-  callbacksPause = new CallbacksManager();
-  callbacksStop = new CallbacksManager();
-  callbacksEnd = new CallbacksManager();
-  callbacksChangeFrame = new CallbacksManager();
-  // : Map<string, ReTimelineFrameChangedEventListener> = new Map;
-  get currentMs() {
-    return this.currentStep.relative;
-  }
-  get currentPercentage() {
-    return this._convertRelativeToPercent(this.currentStep.relative);
-  }
-  get currentFrameIndex() {
-    return this.currentStep.index;
-  }
-  get currentTime() {
-    return this.formatDuration(this.currentStep.relative);
-  }
-  init() {
-    this.buffer.init();
-  }
-  afterSetEffect(value) {
-    value;
-    if (this.steps.length === 1) {
-      return;
-    }
-  }
-  validate(value) {
-    if (this.steps === void 0) {
-      return value;
-    }
-    if (this.steps.length === 1) {
-      return 0;
-    }
-    return this._validateRelativeTime(value);
-  }
-  _validateRelativeTime(value) {
-    return Math.max(Math.min(value, this.steps[this.steps.length - 1].relative), 0);
-  }
-  _validateIndex(value) {
-    return Math.max(Math.min(value, this.steps.length), 0);
-  }
-  _convertRelativeToAspect(relativeTimeInMs) {
-    return relativeTimeInMs / this.duration;
-  }
-  _convertRelativeToPercent(relativeTimeInMs) {
-    return this._convertRelativeToAspect(relativeTimeInMs) * 100;
-  }
-  _convertPercenttRelative(percent) {
-    return this.duration * percent / 100;
-  }
-  formatDuration(ms) {
-    const date = /* @__PURE__ */ new Date(0);
-    date.setMilliseconds(ms);
-    return (0, import_date_fns3.format)(date, "mm:ss:SSS");
-  }
-  findPreviousRelative(relativeTimeInMs) {
-    if (this.steps.length === 1) {
-      return this.steps[0];
-    }
-    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
-    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
-    const index = Math.ceil(aspect * this.steps.length) + 5;
-    const sliceStart = this._validateIndex(index - 40);
-    const sliceEnd = this._validateIndex(index);
-    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
-    const frame = reversedSubarray.find((f) => {
-      return f.relative <= relativeTimeInMs;
-    });
-    return frame !== void 0 ? frame : this.steps[0];
-  }
-  findNextRelative(relativeTimeInMs) {
-    if (this.steps.length === 1) {
-      return this.steps[0];
-    }
-    const aspect = this._convertRelativeToAspect(relativeTimeInMs);
-    const index = Math.floor(aspect * this.steps.length) - 5;
-    const subarrayStart = this._validateIndex(index);
-    const subarrayEnd = this._validateIndex(index + 40);
-    const subarray = this.steps.slice(subarrayStart, subarrayEnd);
-    const frame = subarray.find((f) => {
-      return f.relative > relativeTimeInMs;
-    });
-    return frame !== void 0 ? frame : false;
-  }
-  async setRelativeTime(relativeTimeInMs) {
-    relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
-    this.value = relativeTimeInMs;
-    const currentStep = this.findPreviousRelative(this.value);
-    if (currentStep !== this._currentStep) {
-      this._currentStep = currentStep;
-      const result = await this.buffer.recieveStep(this._currentStep);
-      this.callbacksChangeFrame.call(this._currentStep);
-      return result;
-    }
-    return {
-      absoluteTime: this._currentStep.absolute,
-      relativeTime: this.value,
-      currentStep: this._currentStep,
-      currentFrame: this.buffer.currentFrame,
-      buffer: [],
-      preloaded: false,
-      hasChanged: false
-    };
-  }
-  async setValueByPercent(percent) {
-    percent = Math.max(Math.min(percent, 100), 0);
-    const convertedToRelativeTime = this._convertPercenttRelative(percent);
-    return await this.setRelativeTime(convertedToRelativeTime);
-  }
-  /** This is the main play method */
-  createNextStepTimer() {
-    if (this.timer !== void 0) {
-      clearTimeout(this.timer);
-    }
-    if (!this.isSequence || this._isPlaying === false) {
-      return;
-    }
-    this.timer = setTimeout(() => {
-      const next = this.findNextRelative(this._currentStep.relative);
-      if (next) {
-        this.value = next.relative;
-        if (this._isPlaying) {
-          this.value = next.relative;
-          this._currentStep = next;
-          this.buffer.recieveStep(next);
-          this.callbacksChangeFrame.call(next);
-          this.createNextStepTimer();
-        }
-      } else {
-        this._isPlaying = false;
-        this.callbacksEnd.call();
-      }
-    }, this._currentStep.offset * this.playbackSpeedAspect);
-  }
-  play() {
-    console.log("pokou\u0161\xEDm se hr\xE1t");
-    if (this.steps.length > 1) {
-      this._isPlaying = true;
-      this.createNextStepTimer();
-      this.callbacksPlay.call();
-    }
-  }
-  pause() {
-    this._isPlaying = false;
-    clearTimeout(this.timer);
-    this.callbacksPause.call();
-  }
-  stop() {
-    this.pause();
-    this.value = 0;
-    this.callbacksStop.call();
-  }
-};
-
-// src/properties/states/CursorValueDrive.ts
-var CursorValueDrive = class extends AbstractProperty {
-  validate(value) {
-    return value;
-  }
-  // Once the value changes, project it to the cursor layer
-  afterSetEffect() {
-  }
-  recalculateFromCursor(position) {
-    if (position)
-      this.value = this._getValueAtCoordinate(position.x, position.y);
-  }
-  _getValueAtCoordinate(x, y) {
-    if (x === void 0 || y === void 0) {
-      return void 0;
-    }
-    const index = x + y * this.parent.width;
-    const value = this.parent.pixels[index];
-    return value;
-  }
-};
-
-// src/properties/time/recording/RecordingDrive.ts
-var RecordingDrive = class extends AbstractProperty {
-  stream;
-  recorder;
-  mimeType;
-  _isRecording = false;
-  _mayStop = true;
-  get mayStop() {
-    return this._mayStop;
-  }
-  set mayStop(value) {
-    this._mayStop = value;
-    this.callbackMayStop.call(this.mayStop);
-  }
-  recordedChunks = [];
-  callbackMayStop = new CallbacksManager();
-  validate(value) {
-    return value;
-  }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  afterSetEffect(value) {
-  }
-  start() {
-    if (this.value === true) {
-      throw new Error("Recording already in process - can not start another one");
-    }
-    const { stream, recorder } = this.initRecording();
-    this.stream = stream;
-    this.recorder = recorder;
-    this.value = true;
-    this.recorder.addEventListener("dataavailable", (event) => {
-      if (event.data.size > 0) {
-        this.recordedChunks.push(event.data);
-        this.download();
-        this.clearRecording();
-      }
-    });
-    this.recorder.start();
-  }
-  end() {
-    if (this.value === false) {
-      throw new Error("Recording has not started yet - can not end it!");
-    }
-    if (this.recorder === void 0) {
-      throw new Error("Error ending recording - no MediaRecorder instance created.");
-    }
-    this.recorder.stop();
-    this.value = false;
-    this.mayStop = true;
-  }
-  /** Records the entire file from start to the end. */
-  async recordEntireFile() {
-    if (this.value === true) {
-      throw new Error("Already recording the entire file. Can not start until the current recording ends.");
-    }
-    await this.parent.timeline.setValueByPercent(0);
-    this.mayStop = false;
-    const cllbackId = "recording entire file";
-    this.parent.timeline.callbacksEnd.add(cllbackId, () => {
-      console.log("playback ended");
-      this.end();
-      this.parent.timeline.callbacksEnd.delete(cllbackId);
-    });
-    this.parent.timeline.play();
-    this.start();
-  }
-  initRecording() {
-    if (this.stream || this.recorder) {
-      throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
-    }
-    const stream = this.parent.canvasLayer.canvas.captureStream(25);
-    const types = [
-      "video/mp4",
-      "video/webm;codecs=h264",
-      "video/webm;codecs=vp8",
-      "video/webm;codecs=daala",
-      "video/webm"
-    ];
-    types.forEach((type) => {
-      if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
-        this.mimeType = type;
-    });
-    const options = {
-      mimeType: this.mimeType
-    };
-    const recorder = new MediaRecorder(stream, options);
-    return {
-      stream,
-      recorder,
-      options
-    };
-  }
-  download() {
-    const blob = new Blob(this.recordedChunks, {
-      type: this.mimeType
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.style.display = "none";
-    a.href = url;
-    a.download = this.parent.fileName.replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value.from.toFixed(2)}_to-${this.parent.group.registry.range.value.to.toFixed(2)}.webm`);
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-  }
-  clearRecording() {
-    if (this.recorder) {
-      this.recorder.stop();
-      delete this.recorder;
-    }
-    if (this.stream) {
-      delete this.stream;
-    }
-    if (this.recordedChunks.length > 0) {
-      this.recordedChunks = [];
-    }
-    this.value = false;
-    this.mimeType = void 0;
-  }
-};
-
-// src/file/instanceUtils/ThermalFileExports.ts
-var import_export_to_csv = require("export-to-csv");
-var ThermalFileExport = class {
-  constructor(file) {
-    this.file = file;
-  }
-  canvasAsPng() {
-    return this.file.canvasLayer.exportAsPng();
-  }
-  thermalDataAsCsv(fileNameSuffix = "__thermal-data") {
-    const csvConfig = (0, import_export_to_csv.mkConfig)({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace(".lrc", fileNameSuffix) });
-    const data = this.file.frames.map((frame) => {
-      const { pixels, ...data2 } = frame;
-      pixels;
-      return data2;
-    });
-    const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
-    (0, import_export_to_csv.download)(csvConfig)(csv);
-  }
-};
-
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
@@ -3297,6 +3189,7 @@ var Instance = class _Instance extends AbstractFile {
     this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
     this.timeline.init();
     this.recording = new RecordingDrive(this, false);
+    this.analysis = new AnalysisDrive(this, []);
     return this;
   }
   formatId(thermalUrl) {
@@ -3311,6 +3204,7 @@ var Instance = class _Instance extends AbstractFile {
         const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
         this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
+      this.analysis.value.forEach((analysis) => analysis.recalculateValues());
     }
   }
   getPixelsForHistogram() {
@@ -3337,6 +3231,490 @@ var Instance = class _Instance extends AbstractFile {
       baseInfo2.timeline
     );
     return instance.postInit();
+  }
+  mountListener() {
+    if (this.root === void 0) {
+      console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
+      return;
+    }
+    this.listenerLayer.mount();
+    this.analysis.activateListeners();
+    this.listenerLayer.getLayerRoot().onmousemove = (event) => {
+      this.cursorLayer.show = true;
+      this.isHover = true;
+      const client = this.width;
+      const parent = this.root.clientWidth;
+      const aspect = client / parent;
+      const x = Math.round(event.offsetX * aspect);
+      const y = Math.round(event.offsetY * aspect);
+      this.group.cursorPosition.recieveCursorPosition({ x, y });
+    };
+    this.listenerLayer.getLayerRoot().onmouseleave = () => {
+      this.cursorLayer.show = false;
+      this.isHover = false;
+      this.group.cursorPosition.recieveCursorPosition(void 0);
+    };
+  }
+  unmountListener() {
+    this.listenerLayer.unmount();
+    this.analysis.deactivateListeners();
+  }
+  recieveCursorPosition(position) {
+    if (position !== void 0) {
+      const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
+      this.cursorLayer.setLabel(position.x, position.y, label);
+      this.cursorLayer.show = true;
+    } else {
+      this.cursorLayer.show = false;
+      this.cursorLayer.resetCursor();
+    }
+    this.cursorValue.recalculateFromCursor(position);
+  }
+};
+
+// src/properties/lists/filesState.ts
+var FilesState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value;
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.url, instance));
+  }
+  addFile(file) {
+    if (!this._map.has(file.url)) {
+      this.value = [...this.value, file];
+      return file;
+    } else {
+      return this._map.get(file.url);
+    }
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+};
+
+// src/properties/states/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.files.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/properties/tool/internals/AbstractTool.ts
+var AbstractTool = class {
+  constructor(group) {
+    this.group = group;
+  }
+  active = false;
+  /** Action taken upon tool activation */
+  activate() {
+    this.onActivate();
+  }
+  /** Actions taken upon tool deactivation */
+  deactivate() {
+    this.onDeactivate();
+  }
+};
+
+// src/properties/tool/internals/InspectTool.ts
+var InspectTool = class extends AbstractTool {
+  key = "inspect";
+  name = "Inspect temperatures";
+  description = "Use mouse to inspect temperature values.";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M17.58,42.03c-1.39,0-2.65-.34-3.79-1.01-1.14-.68-2.04-1.58-2.72-2.72-.68-1.14-1.01-2.4-1.01-3.78s.34-2.65,1.01-3.79c.67-1.14,1.58-2.04,2.72-2.72,1.14-.68,2.4-1.01,3.79-1.01s2.65.34,3.79,1.01c1.14.68,2.04,1.58,2.72,2.72s1.01,2.4,1.01,3.79-.34,2.64-1.01,3.78c-.68,1.14-1.58,2.05-2.72,2.72-1.14.68-2.4,1.01-3.79,1.01ZM17.58,37.04c.47,0,.9-.11,1.28-.34.38-.23.69-.53.91-.92.22-.39.34-.81.34-1.27s-.11-.9-.34-1.28c-.23-.38-.53-.69-.91-.91s-.81-.34-1.28-.34-.88.11-1.27.34c-.39.23-.69.53-.92.91-.23.38-.34.81-.34,1.28s.11.88.34,1.27c.22.39.53.69.92.92.39.23.81.34,1.27.34ZM56.24,38.45h-8.28c-.06-.69-.21-1.31-.46-1.87-.25-.56-.59-1.04-1.03-1.45-.44-.41-.96-.72-1.58-.94s-1.32-.33-2.1-.33c-1.37,0-2.53.33-3.47,1s-1.66,1.62-2.14,2.86-.73,2.74-.73,4.48c0,1.84.25,3.38.74,4.62s1.21,2.17,2.15,2.79c.94.62,2.07.93,3.39.93.75,0,1.43-.1,2.03-.29.6-.19,1.12-.47,1.56-.83.44-.36.8-.8,1.08-1.31.28-.51.47-1.09.57-1.74l8.28.06c-.1,1.27-.46,2.57-1.07,3.88-.62,1.32-1.49,2.53-2.62,3.64s-2.53,2-4.19,2.68c-1.67.68-3.6,1.01-5.8,1.01-2.76,0-5.24-.59-7.43-1.78-2.19-1.18-3.92-2.93-5.18-5.23-1.27-2.3-1.9-5.12-1.9-8.45s.65-6.17,1.94-8.47c1.29-2.3,3.04-4.03,5.23-5.21,2.19-1.18,4.64-1.77,7.34-1.77,1.9,0,3.65.26,5.24.78,1.6.52,3,1.28,4.2,2.27,1.2.99,2.17,2.22,2.91,3.66s1.18,3.11,1.34,4.98ZM30,0H0v30L30,0Z" fill="currentcolor"/>
+</svg>`;
+  onActivate() {
+  }
+  onDeactivate() {
+  }
+  onCanvasClick() {
+  }
+  onCanvasLeave() {
+  }
+  onPointEnter() {
+  }
+  onPointLeave() {
+  }
+  onPointMove() {
+  }
+  onPointDown() {
+  }
+  onPointUp() {
+  }
+  getLabelValue = (x, y, file) => {
+    if (file === void 0) return "";
+    return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
+  };
+};
+
+// src/properties/analysis/internals/AbstractAddTool.ts
+var AbstractAddTool = class extends AbstractTool {
+};
+
+// src/properties/analysis/internals/area/ellipsis/AddEllipsisTool.ts
+var AddEllipsisTool = class extends AbstractAddTool {
+  key = "add-ellipsis";
+  name = "Add an elyptical analysis";
+  description = "Click and drag to add an elyptical analysis.";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
+</svg>`;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
+  onCanvasClick(top, left, file) {
+    const newRect = file.analysis.layers.createEllipsisFrom(top, left);
+    newRect.setSelected(true);
+  }
+  onPointDown() {
+  }
+  onPointUp(point) {
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
+      point.analysis.layers.removeAnalysis(point.analysis.key);
+    }
+  }
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.x = left;
+      point.y = top;
+      point.analysis.onMoveOrResize.call();
+    }
+  }
+  onPointLeave() {
+  }
+  onPointEnter() {
+  }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
+};
+
+// src/properties/analysis/internals/point/AddPointTool.ts
+var AddPointTool = class extends AbstractAddTool {
+  key = "add-point";
+  name = "Add a point analysis";
+  description = "Click to add a point analysis.";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
+</svg>`;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
+  onCanvasClick(x, y, file) {
+    const newPoint = file.analysis.layers.createPointAt(x, y);
+    newPoint.setSelected(true);
+  }
+  onPointDown() {
+  }
+  onPointUp(point) {
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+  }
+  onPointMove() {
+  }
+  onPointLeave() {
+  }
+  onPointEnter() {
+  }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
+};
+
+// src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
+var AddRectangleTool = class extends AbstractAddTool {
+  key = "add-rect";
+  name = "Add a rectangular analysis";
+  description = "Click and drag to add a rectangular analysis.";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
+</svg>`;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
+  onCanvasClick(x, y, file) {
+    const newRect = file.analysis.layers.createRectFrom(x, y);
+    newRect.setSelected(true);
+  }
+  onPointDown() {
+  }
+  onPointUp(point) {
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
+      point.analysis.layers.removeAnalysis(point.analysis.key);
+    }
+  }
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.x = left;
+      point.y = top;
+      point.analysis.onMoveOrResize.call();
+    }
+  }
+  onPointLeave() {
+  }
+  onPointEnter() {
+  }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
+};
+
+// src/properties/tool/internals/EditTool.ts
+var EditTool = class extends AbstractTool {
+  key = "edit";
+  name = "Edit analysis";
+  description = "Drag corners of any selected analysis.";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
+</svg>`;
+  onActivate() {
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
+  onCanvasClick() {
+  }
+  onPointEnter(point) {
+    point.mouseEnter();
+  }
+  onPointLeave(point) {
+    if (point.active === false) {
+      point.mouseLeave();
+    }
+  }
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.x = left;
+      point.y = top;
+      point.analysis.onMoveOrResize.call();
+    }
+  }
+  onPointDown(point) {
+    if (point.isInSelectedLayer() && point.active === false) {
+      point.activate();
+    }
+  }
+  onPointUp(point) {
+    if (point.active === true) {
+      point.deactivate();
+    }
+  }
+  getLabelValue(x, y, file) {
+    const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
+      if (analysis2.selected) {
+        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
+      } else {
+        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
+      }
+    });
+    const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
+    return `${analysis}X: ${x}<br />Y: ${y}`;
+  }
+};
+
+// src/properties/tool/ToolDrive.ts
+var toolsRegistry = [
+  InspectTool,
+  AddPointTool,
+  AddRectangleTool,
+  AddEllipsisTool,
+  EditTool
+];
+var createDefinedTools = (group) => {
+  const arrayOfEntries = toolsRegistry.map((cls) => {
+    const instance = new cls(group);
+    return [
+      instance.key,
+      instance
+    ];
+  });
+  return Object.fromEntries(arrayOfEntries);
+};
+var ToolDrive = class extends AbstractProperty {
+  /** Create own set of tools from the registry of tools */
+  _tools = createDefinedTools(this.parent);
+  /** Readonly list of available tools */
+  get tools() {
+    return this._tools;
+  }
+  constructor(parent, initial) {
+    super(parent, initial);
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    if (value) {
+      value.activate();
+      Object.values(this.tools).forEach((tool) => {
+        if (tool.key !== value.key) {
+          tool.deactivate();
+        }
+      });
+    }
+  }
+  /** Pick a tool. Its activation is handled by the `afterSetEffect` */
+  selectTool(tool) {
+    if (tool instanceof AbstractTool) {
+      this.value = tool;
+    } else {
+      this.value = this.tools[tool];
+    }
+  }
+};
+
+// src/hierarchy/ThermalGroup.ts
+var ThermalGroup = class extends BaseStructureObject {
+  constructor(registry, id, name, description) {
+    super();
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+  hash = Math.random();
+  get pool() {
+    return this.registry.manager.pool;
+  }
+  minmax = new MinmaxGroupProperty(this, void 0);
+  /** Tool drive */
+  tool = new ToolDrive(this, new InspectTool(this));
+  files = new FilesState(this, []);
+  cursorPosition = new CursorPositionDrive(this, void 0);
+  /** Iteration */
+  forEveryInstance = (fn) => {
+    this.files.value.forEach((instance) => fn(instance));
+  };
+  /**
+   * Destruction
+   */
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.files.removeAllInstances();
+  }
+  reset() {
+    this.files.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+  }
+};
+
+// src/hierarchy/ThermalManager.ts
+var workerpool = __toESM(require("workerpool"));
+
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+  }
+};
+
+// src/loading/workers/ThermalFileFailure.ts
+var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
+  constructor(thermalUrl, code, message) {
+    super(thermalUrl);
+    this.code = code;
+    this.message = message;
+  }
+  isSuccess() {
+    return false;
+  }
+  static fromError(error) {
+    return new _ThermalFileFailure(error.url, error.code, error.message);
+  }
+};
+
+// src/loading/workers/errors.ts
+var FileLoadingError = class extends Error {
+  constructor(code, url, message) {
+    super(message);
+    this.code = code;
+    this.url = url;
   }
 };
 
@@ -3994,417 +4372,6 @@ var OpacityDrive = class extends AbstractProperty {
   }
 };
 
-// src/properties/lists/filesState.ts
-var FilesState = class extends AbstractProperty {
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value;
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
-  }
-  addFile(file) {
-    if (!this._map.has(file.url)) {
-      this.value = [...this.value, file];
-      return file;
-    } else {
-      return this._map.get(file.url);
-    }
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-};
-
-// src/properties/states/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
-  }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.files.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
-  }
-};
-
-// src/properties/tool/internals/AbstractTool.ts
-var AbstractTool = class {
-  constructor(group) {
-    this.group = group;
-  }
-  active = false;
-  /** Action taken upon tool activation */
-  activate() {
-    this.onActivate();
-  }
-  /** Actions taken upon tool deactivation */
-  deactivate() {
-    this.onDeactivate();
-  }
-};
-
-// src/properties/tool/internals/InspectTool.ts
-var InspectTool = class extends AbstractTool {
-  key = "inspect";
-  name = "Inspect temperatures";
-  description = "Use mouse to inspect temperature values.";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path d="M17.58,42.03c-1.39,0-2.65-.34-3.79-1.01-1.14-.68-2.04-1.58-2.72-2.72-.68-1.14-1.01-2.4-1.01-3.78s.34-2.65,1.01-3.79c.67-1.14,1.58-2.04,2.72-2.72,1.14-.68,2.4-1.01,3.79-1.01s2.65.34,3.79,1.01c1.14.68,2.04,1.58,2.72,2.72s1.01,2.4,1.01,3.79-.34,2.64-1.01,3.78c-.68,1.14-1.58,2.05-2.72,2.72-1.14.68-2.4,1.01-3.79,1.01ZM17.58,37.04c.47,0,.9-.11,1.28-.34.38-.23.69-.53.91-.92.22-.39.34-.81.34-1.27s-.11-.9-.34-1.28c-.23-.38-.53-.69-.91-.91s-.81-.34-1.28-.34-.88.11-1.27.34c-.39.23-.69.53-.92.91-.23.38-.34.81-.34,1.28s.11.88.34,1.27c.22.39.53.69.92.92.39.23.81.34,1.27.34ZM56.24,38.45h-8.28c-.06-.69-.21-1.31-.46-1.87-.25-.56-.59-1.04-1.03-1.45-.44-.41-.96-.72-1.58-.94s-1.32-.33-2.1-.33c-1.37,0-2.53.33-3.47,1s-1.66,1.62-2.14,2.86-.73,2.74-.73,4.48c0,1.84.25,3.38.74,4.62s1.21,2.17,2.15,2.79c.94.62,2.07.93,3.39.93.75,0,1.43-.1,2.03-.29.6-.19,1.12-.47,1.56-.83.44-.36.8-.8,1.08-1.31.28-.51.47-1.09.57-1.74l8.28.06c-.1,1.27-.46,2.57-1.07,3.88-.62,1.32-1.49,2.53-2.62,3.64s-2.53,2-4.19,2.68c-1.67.68-3.6,1.01-5.8,1.01-2.76,0-5.24-.59-7.43-1.78-2.19-1.18-3.92-2.93-5.18-5.23-1.27-2.3-1.9-5.12-1.9-8.45s.65-6.17,1.94-8.47c1.29-2.3,3.04-4.03,5.23-5.21,2.19-1.18,4.64-1.77,7.34-1.77,1.9,0,3.65.26,5.24.78,1.6.52,3,1.28,4.2,2.27,1.2.99,2.17,2.22,2.91,3.66s1.18,3.11,1.34,4.98ZM30,0H0v30L30,0Z" fill="currentcolor"/>
-</svg>`;
-  onActivate() {
-  }
-  onDeactivate() {
-  }
-  onCanvasClick() {
-  }
-  onCanvasLeave() {
-  }
-  onPointEnter() {
-  }
-  onPointLeave() {
-  }
-  onPointMove() {
-  }
-  onPointDown() {
-  }
-  onPointUp() {
-  }
-  getLabelValue = (x, y, file) => {
-    if (file === void 0) return "";
-    return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
-  };
-};
-
-// src/properties/analysis/internals/AbstractAddTool.ts
-var AbstractAddTool = class extends AbstractTool {
-};
-
-// src/properties/analysis/internals/area/ellipsis/AddEllipsisTool.ts
-var AddEllipsisTool = class extends AbstractAddTool {
-  key = "add-ellipsis";
-  name = "Add an elyptical analysis";
-  description = "Click and drag to add an elyptical analysis.";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
-</svg>`;
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
-  onCanvasLeave() {
-  }
-  onCanvasClick(top, left, file) {
-    const newRect = file.analysis.layers.createEllipsisFrom(top, left);
-    newRect.setSelected(true);
-  }
-  onPointDown() {
-  }
-  onPointUp(point) {
-    point.deactivate();
-    point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
-    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
-      point.analysis.layers.removeAnalysis(point.analysis.key);
-    }
-  }
-  onPointMove(point, top, left) {
-    if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
-      point.analysis.onMoveOrResize.call();
-    }
-  }
-  onPointLeave() {
-  }
-  onPointEnter() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-};
-
-// src/properties/analysis/internals/point/AddPointTool.ts
-var AddPointTool = class extends AbstractAddTool {
-  key = "add-point";
-  name = "Add a point analysis";
-  description = "Click to add a point analysis.";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
-</svg>`;
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
-  onCanvasLeave() {
-  }
-  onCanvasClick(x, y, file) {
-    const newPoint = file.analysis.layers.createPointAt(x, y);
-    newPoint.setSelected(true);
-  }
-  onPointDown() {
-  }
-  onPointUp(point) {
-    point.deactivate();
-    point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
-  }
-  onPointMove() {
-  }
-  onPointLeave() {
-  }
-  onPointEnter() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-};
-
-// src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
-var AddRectangleTool = class extends AbstractAddTool {
-  key = "add-rect";
-  name = "Add a rectangular analysis";
-  description = "Click and drag to add a rectangular analysis.";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
-</svg>`;
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
-  onCanvasLeave() {
-  }
-  onCanvasClick(x, y, file) {
-    const newRect = file.analysis.layers.createRectFrom(x, y);
-    newRect.setSelected(true);
-  }
-  onPointDown() {
-  }
-  onPointUp(point) {
-    point.deactivate();
-    point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
-    if (point.analysis.width <= 0 || point.analysis.height <= 0) {
-      point.analysis.layers.removeAnalysis(point.analysis.key);
-    }
-  }
-  onPointMove(point, top, left) {
-    if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
-      point.analysis.onMoveOrResize.call();
-    }
-  }
-  onPointLeave() {
-  }
-  onPointEnter() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-};
-
-// src/properties/tool/internals/EditTool.ts
-var EditTool = class extends AbstractTool {
-  key = "edit";
-  name = "Edit analysis";
-  description = "Drag corners of any selected analysis.";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
-</svg>`;
-  onActivate() {
-  }
-  onDeactivate() {
-  }
-  onCanvasLeave() {
-  }
-  onCanvasClick() {
-  }
-  onPointEnter(point) {
-    point.mouseEnter();
-  }
-  onPointLeave(point) {
-    if (point.active === false) {
-      point.mouseLeave();
-    }
-  }
-  onPointMove(point, top, left) {
-    if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
-      point.analysis.onMoveOrResize.call();
-    }
-  }
-  onPointDown(point) {
-    if (point.isInSelectedLayer() && point.active === false) {
-      point.activate();
-    }
-  }
-  onPointUp(point) {
-    if (point.active === true) {
-      point.deactivate();
-    }
-  }
-  getLabelValue(x, y, file) {
-    const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
-      if (analysis2.selected) {
-        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
-      } else {
-        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
-      }
-    });
-    const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
-    return `${analysis}X: ${x}<br />Y: ${y}`;
-  }
-};
-
-// src/properties/tool/ToolDrive.ts
-var toolsRegistry = [
-  InspectTool,
-  AddPointTool,
-  AddRectangleTool,
-  AddEllipsisTool,
-  EditTool
-];
-var createDefinedTools = (group) => {
-  const arrayOfEntries = toolsRegistry.map((cls) => {
-    const instance = new cls(group);
-    return [
-      instance.key,
-      instance
-    ];
-  });
-  return Object.fromEntries(arrayOfEntries);
-};
-var ToolDrive = class extends AbstractProperty {
-  /** Create own set of tools from the registry of tools */
-  _tools = createDefinedTools(this.parent);
-  /** Readonly list of available tools */
-  get tools() {
-    return this._tools;
-  }
-  constructor(parent, initial) {
-    super(parent, initial);
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect(value) {
-    if (value) {
-      value.activate();
-      Object.values(this.tools).forEach((tool) => {
-        if (tool.key !== value.key) {
-          tool.deactivate();
-        }
-      });
-    }
-  }
-  /** Pick a tool. Its activation is handled by the `afterSetEffect` */
-  selectTool(tool) {
-    if (tool instanceof AbstractTool) {
-      this.value = tool;
-    } else {
-      this.value = this.tools[tool];
-    }
-  }
-};
-
-// src/hierarchy/ThermalGroup.ts
-var ThermalGroup = class extends BaseStructureObject {
-  constructor(registry, id, name, description) {
-    super();
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
-  }
-  hash = Math.random();
-  get pool() {
-    return this.registry.manager.pool;
-  }
-  minmax = new MinmaxGroupProperty(this, void 0);
-  /** Tool drive */
-  tool = new ToolDrive(this, new InspectTool(this));
-  files = new FilesState(this, []);
-  cursorPosition = new CursorPositionDrive(this, void 0);
-  /** Iteration */
-  forEveryInstance = (fn) => {
-    this.files.value.forEach((instance) => fn(instance));
-  };
-  /**
-   * Destruction
-   */
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.files.removeAllInstances();
-  }
-  reset() {
-    this.files.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-  }
-};
-
 // src/properties/lists/GroupsState.ts
 var GroupsState = class extends AbstractProperty {
   _map = /* @__PURE__ */ new Map();
@@ -4768,7 +4735,6 @@ var getPool = async () => {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AbstractAnalysis,
-  AbstractFile,
   AbstractFileResult,
   AbstractTool,
   AddEllipsisTool,

@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../file/AbstractFile";
+import { Instance } from "../../../file/instance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
 
@@ -32,9 +32,9 @@ export abstract class AbstractTool {
 
 
 
-    public abstract onCanvasClick(x: number, y: number, file: AbstractFile): void;
+    public abstract onCanvasClick(x: number, y: number, file: Instance): void;
 
-    public abstract onCanvasLeave(file: AbstractFile): void;
+    public abstract onCanvasLeave(file: Instance): void;
 
     /** Whenever a point is entered by the mouse */
     public abstract onPointEnter(point: AbstractPoint): void;
@@ -52,6 +52,6 @@ export abstract class AbstractTool {
     public abstract onPointUp(point: AbstractPoint): void;
 
     /** Assamble the cursor label at the given point */
-    public abstract getLabelValue(x: number, y: number, file: AbstractFile): string;
+    public abstract getLabelValue(x: number, y: number, file: Instance): string;
 
 }

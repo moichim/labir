@@ -1,11 +1,10 @@
-import { download, generateCsv, mkConfig } from "export-to-csv";
-import { AbstractFile } from "../AbstractFile";
+import { Instance } from "../instance";
 
 /** Handle the entire exports of a file */
 export class ThermalFileExport {
 
     constructor(
-        public readonly file: AbstractFile
+        public readonly file: Instance
     ) {}
 
 
@@ -14,25 +13,12 @@ export class ThermalFileExport {
     }
 
     public thermalDataAsCsv(
-        fileNameSuffix = "__thermal-data"
+        // fileNameSuffix = "__thermal-data"
     ) {
 
-        const csvConfig = mkConfig({ useKeysAsHeaders: true, fieldSeparator: ";", filename: this.file.fileName.replace( ".lrc", fileNameSuffix ) });
 
+        throw new Error("Not implemented");
 
-        const data = this.file.frames.map( frame => {
-
-            const { pixels, ...data } = frame;
-
-            pixels;
-
-            return data;
-
-        } );
-
-        const csv = generateCsv( csvConfig )( data );
-
-        download( csvConfig )(csv);
 
     }
 

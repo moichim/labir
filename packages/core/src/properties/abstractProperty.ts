@@ -1,4 +1,4 @@
-import { AbstractFile } from "../file/AbstractFile";
+import { Instance } from "../file/instance";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
@@ -15,7 +15,7 @@ type PropertyListenersTypes = boolean
     | ThermalCursorPositionOrUndefined
     | ThermalGroup[]
     | ThermalStatistics[]
-    | AbstractFile[]
+    | Instance[]
     | AbstractAnalysis[]
     | AbstractTool;
 

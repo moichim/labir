@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../file/AbstractFile";
+import { Instance } from "../../../file/instance";
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
 
@@ -83,7 +83,7 @@ export abstract class AbstractAnalysis {
 
     public constructor(
         public readonly key: string,
-        public readonly file: AbstractFile,
+        public readonly file: Instance,
         initialColor: string
     ) {
 

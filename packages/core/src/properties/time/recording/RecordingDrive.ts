@@ -1,4 +1,3 @@
-import { AbstractFile } from "../../../file/AbstractFile";
 import { Instance } from "../../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
@@ -7,7 +6,7 @@ export interface IWithRedording extends IBaseProperty {
     recording: RecordingDrive
 }
 
-export class RecordingDrive extends AbstractProperty<boolean, AbstractFile> {
+export class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
     declare parent: Instance;
 

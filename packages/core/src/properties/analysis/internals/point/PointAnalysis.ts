@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../../file/AbstractFile";
+import { Instance } from "../../../../file/instance";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
 
@@ -10,7 +10,7 @@ export class PointAnalysis extends AbstractAnalysis {
     public static addAtPoint(
         key: string,
         color: string,
-        file: AbstractFile,
+        file: Instance,
         top: number,
         left: number
     ): PointAnalysis {
@@ -28,7 +28,7 @@ export class PointAnalysis extends AbstractAnalysis {
     protected constructor(
         key: string,
         color: string,
-        file: AbstractFile,
+        file: Instance,
         top: number,
         left: number
     ) {

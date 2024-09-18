@@ -1,7 +1,5 @@
-import { AbstractFile } from "../../../file/AbstractFile";
+import { Instance } from "../../../file/instance";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
-import { CornerPoint } from "../../analysis/internals/area/rectangle/CornerPoint";
-import { PointPoint } from "../../analysis/internals/point/PointPoint";
 import { AbstractTool, ITool } from "./AbstractTool";
 
 export class EditTool extends AbstractTool implements ITool {
@@ -60,6 +58,7 @@ export class EditTool extends AbstractTool implements ITool {
             // This is very very important:
             // - update the value
             // - and call other eventual callbacks
+            // (Update value event is )
             point.analysis.onMoveOrResize.call();
 
         }
@@ -78,7 +77,7 @@ export class EditTool extends AbstractTool implements ITool {
     }
 
 
-    public getLabelValue(x: number, y: number, file: AbstractFile): string {
+    public getLabelValue(x: number, y: number, file: Instance): string {
 
 
         const hoveredAnalysis = file.analysis.layers.all

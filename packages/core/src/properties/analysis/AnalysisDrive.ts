@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../file/AbstractFile";
+import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
 import { AnalysisLayersStorage } from "./internals/storage/AnalysisLayersStorage";
@@ -8,7 +8,7 @@ export interface IWithAnalysis extends IBaseProperty {
     analysis: AnalysisDrive
 }
 
-export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
+export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
 
     public readonly layers = new AnalysisLayersStorage(this);
     public readonly points = new AnalysisPointsAccessor(this);

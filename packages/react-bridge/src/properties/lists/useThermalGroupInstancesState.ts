@@ -1,6 +1,6 @@
 "use client";
 
-import { AbstractFile, ThermalGroup } from "@labir/core";
+import { Instance, ThermalGroup } from "@labir/core";
 import { useEffect, useState } from "react";
 
 export const useThermalGroupInstancesState = (
@@ -8,7 +8,7 @@ export const useThermalGroupInstancesState = (
     purpose: string
 ) => {
 
-    const [value, setValue] = useState<AbstractFile[]>(group.files.value);
+    const [value, setValue] = useState<Instance[]>(group.files.value);
 
     // Bind all the values to the local state
     useEffect(() => {

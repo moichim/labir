@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../../../../file/AbstractFile";
+import { Instance } from "../../../../../file/instance";
 import { ITool } from "../../../../tool/internals/AbstractTool";
 import { AbstractAddTool } from "../../AbstractAddTool";
 import { AbstractPoint } from "../../AbstractPoint";
@@ -29,7 +29,7 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
     public onCanvasLeave(): void { }
 
 
-    public onCanvasClick(x: number, y: number, file: AbstractFile): void {
+    public onCanvasClick(x: number, y: number, file: Instance): void {
         const newRect = file.analysis.layers.createRectFrom(x, y);
         newRect.setSelected(true);
     }
@@ -66,7 +66,7 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
     public onPointEnter(): void { }
 
 
-    public getLabelValue = (x: number, y: number, file: AbstractFile): string => {
+    public getLabelValue = (x: number, y: number, file: Instance): string => {
         const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
         return `X:${x}<br />Y:${y}<br />${temperature}`;
     }

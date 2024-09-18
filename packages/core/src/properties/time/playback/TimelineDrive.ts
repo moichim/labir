@@ -1,12 +1,10 @@
 
 import { format } from "date-fns";
-import { AbstractFile } from "../../../file/AbstractFile";
 import { Instance } from "../../../file/instance";
 import { ParsedFileBaseInfo, ParsedFileFrame, ParsedTimelineFrame } from "../../../loading/workers/parsers/structure";
 import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { FrameBuffer } from "./internals/FrameBuffer";
-import { ITimelineDrive } from "./ITimeline";
 
 export interface IWithTimeline extends IBaseProperty {
     timeline: TimelineDrive
@@ -40,7 +38,7 @@ export const playbackSpeed = {
 export type PlaybackSpeeds = keyof typeof playbackSpeed;
 
 /** Stores the frames and the time pointer which is in the miliseconds */
-export class TimelineDrive extends AbstractProperty<number, AbstractFile> implements ITimelineDrive {
+export class TimelineDrive extends AbstractProperty<number, Instance> {
 
     declare public readonly parent: Instance;
 
@@ -87,7 +85,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     public readonly callbacksPause = new CallbacksManager<() => void>();
     public readonly callbacksStop = new CallbacksManager<() => void>();
     public readonly callbacksEnd = new CallbacksManager<() => void>();
-    public readonly callbacksChangeFrame = new CallbacksManager<(frame: ParsedTimelineFrame) => void>();// : Map<string, ReTimelineFrameChangedEventListener> = new Map;
+    public readonly callbacksChangeFrame = new CallbacksManager<(frame: ParsedTimelineFrame) => void>();
 
     public get currentMs() {
         return this.currentStep.relative;
@@ -106,7 +104,7 @@ export class TimelineDrive extends AbstractProperty<number, AbstractFile> implem
     }
 
     public constructor(
-        parent: AbstractFile,
+        parent: Instance,
         initial: number,
         public readonly steps: ParsedFileBaseInfo["timeline"],
         initialFrameData: ParsedFileFrame
