@@ -3482,6 +3482,7 @@ var AddPointTool = class extends AbstractAddTool {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
+    point.analysis.onMoveOrResize.call();
   }
   onPointMove() {
   }
@@ -3747,6 +3748,9 @@ var ThermalFileReader = class extends AbstractFileResult {
   isSuccess() {
     return true;
   }
+  async getPointAnalysisData(x, y) {
+    return await this.parser.getPointAnalysisData(this.buffer, x, y);
+  }
   /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
   async baseInfo() {
     if (this.baseInfoCache) {
@@ -3967,6 +3971,14 @@ var frameData = async (frameSubset, dataType) => {
   };
 };
 
+// src/loading/workers/parsers/lrc/jobs/getPointAnalysisData.ts
+var getPointAnalysisData = async (file, x, y) => {
+  const values = {
+    temperatures: {}
+  };
+  return values;
+};
+
 // src/loading/workers/parsers/lrc/jobs/histogram.ts
 var registryHistogram = async (files) => {
   let pixels = [];
@@ -4076,7 +4088,8 @@ var parser = {
   baseInfo,
   getFrameSubset,
   frameData,
-  registryHistogram
+  registryHistogram,
+  getPointAnalysisData
 };
 var LrcParser = Object.freeze(parser);
 

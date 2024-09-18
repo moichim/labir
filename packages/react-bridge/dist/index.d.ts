@@ -1,5 +1,5 @@
 import * as _labir_core from '@labir/core';
-import { ThermalRegistry, AbstractFile, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labir/core';
+import { ThermalRegistry, Instance, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labir/core';
 import React$1, { MouseEvent, ChangeEventHandler } from 'react';
 import * as react_dropzone from 'react-dropzone';
 import Pool from 'workerpool/types/Pool';
@@ -14,7 +14,7 @@ declare const ThermalDropin: React$1.FC<ThermalDropinProps>;
 declare const useThermalDropin: (registry: ThermalRegistry, groupId: string) => {
     group: _labir_core.ThermalGroup;
     instances: {
-        value: _labir_core.AbstractFile[];
+        value: _labir_core.Instance[];
     };
     dropzone: react_dropzone.DropzoneState;
 };
@@ -41,9 +41,9 @@ declare const useHistogramResolutionInput: (registry: ThermalRegistry) => {
     internal: number;
 };
 
-type ThermalInstanceEventHandler = (listenerLayerEvent: MouseEvent<HTMLDivElement>, instance: AbstractFile) => void;
+type ThermalInstanceEventHandler = (listenerLayerEvent: MouseEvent<HTMLDivElement>, instance: Instance) => void;
 type ThermalInstanceProps = React$1.PropsWithChildren & {
-    instance: AbstractFile;
+    instance: Instance;
     onMouseEnter?: ThermalInstanceEventHandler;
     onClick?: ThermalInstanceEventHandler;
     onMouseLeave?: ThermalInstanceEventHandler;
@@ -128,7 +128,7 @@ declare const ThermalProvider: React$1.FC<ThermalContextProps>;
 declare const useThermalContext: () => ThermalManager;
 
 /** Creates and stores a thermal object!s ID for the purpose of listeners */
-declare const useThermalObjectPurpose: (object: ThermalRegistry | ThermalGroup | AbstractFile | ThermalManager, purpose: string, individual?: boolean | undefined) => string;
+declare const useThermalObjectPurpose: (object: ThermalRegistry | ThermalGroup | Instance | ThermalManager, purpose: string, individual?: boolean | undefined) => string;
 
 /**
  * Creates and stores a registry instance.
@@ -163,7 +163,7 @@ declare const useThermalRegistryRangeDrive: (registry: ThermalRegistry, purpose:
 };
 
 declare const useThermalGroupInstancesState: (group: ThermalGroup, purpose: string) => {
-    value: AbstractFile[];
+    value: Instance[];
 };
 
 declare const useThermalRegistryGroupsState: (registry: ThermalRegistry, purpose: string) => {
@@ -212,7 +212,7 @@ declare const useFilesInGroup: (urls: string[], registryId: string, groupId: str
     registry: _labir_core.ThermalRegistry;
     group: _labir_core.ThermalGroup;
     instances: {
-        value: _labir_core.AbstractFile[];
+        value: _labir_core.Instance[];
     };
 };
 
@@ -227,7 +227,7 @@ declare const useFilesInGroup: (urls: string[], registryId: string, groupId: str
 declare const useSingleFileRegistry: (thermalUrl: string, visibleUrl?: string) => {
     registry: _labir_core.ThermalRegistry;
     group: _labir_core.ThermalGroup;
-    instance: AbstractFile | undefined;
+    instance: Instance | undefined;
 };
 
 export { Orientation, PaletteGgradientDisplay, ThermalDropin, ThermalInstance, ThermalProvider, ThermalRegistryHistogram, ThermalRegistryRange, useFilesInGroup, useHistogramResolutionInput, useOpacityInput, useRangeButtonAuto, useRangeButtonFull, useSingleFileRegistry, useThermalContext, useThermalDropin, useThermalGroupCursorPositionDrive, useThermalGroupInstancesState, useThermalGroupMinmaxState, useThermalManagerPaletteDrive, useThermalObjectPurpose, useThermalRegistry, useThermalRegistryGroupsState, useThermalRegistryHistogramState, useThermalRegistryLoadingState, useThermalRegistryMinmaxState, useThermalRegistryOpacityDrive, useThermalRegistryRangeDrive };

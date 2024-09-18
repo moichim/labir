@@ -361,240 +361,6 @@ declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
     protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
 }
 
-type ParsedTimelineFrame = {
-    index: number;
-    absolute: number;
-    relative: number;
-    offset: number;
-};
-/**
- * Every file needs to have this information
- */
-type ParsedFileBaseInfo = {
-    width: number;
-    height: number;
-    timestamp: number;
-    frameCount: number;
-    duration: number;
-    frameInterval: number;
-    fps: number;
-    min: number;
-    max: number;
-    timeline: ParsedTimelineFrame[];
-    averageEmissivity: number;
-    averageReflectedKelvins: number;
-    bytesize: number;
-};
-type ParsedFileFrame = {
-    timestamp: number;
-    min: number;
-    max: number;
-    emissivity: number;
-    reflectedKelvins: number;
-    pixels: number[];
-};
-/**
- * Definition of a supported file type
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-*/
-type ParserFileType = {
-    /** File extension, lowercase and without starting dots */
-    extension: string;
-    /** Mime type of the file */
-    minme: string;
-};
-/** A supported device dedfinition */
-type SupportedDeviceType = {
-    deviceName: string;
-    deviceDescription: string;
-    deviceUrl: string;
-    manufacturer: string;
-    manufacturerUrl: string;
-};
-/**
- * Interface for a parser object
- * - all methods must be completely and totally static
- * - data needs to be transferred as ArrayBuffer, since it is serialisable
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
- */
-interface IParserObject {
-    /** Name of the file format */
-    name: string;
-    /** Description of the file format */
-    description: string;
-    /** List of supported devices */
-    devices: SupportedDeviceType[];
-    /** Define the supported file type for the purpose of display */
-    extensions: ParserFileType[];
-    /** Determine whether the file corresponds to the given parser */
-    is(buffer: ArrayBuffer, url: string): boolean;
-    /**
-     * Get the basic information necessary for every file
-     * - without any pixels!
-     * - this sould be called once only
-     */
-    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
-    /**
-     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
-     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
-     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
-     *
-     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
-     */
-    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
-        array: ArrayBuffer;
-        dataType: number;
-    };
-    /**
-     * Calculate the pixels and other parameters of one frame
-     * @param frameSubset ArrayBuffer of data related to the frame.
-     * @param dataType
-     */
-    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
-    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
-}
-
-declare class FrameBuffer {
-    protected readonly drive: TimelineDrive;
-    /** @internal use accessors to get and set with side effects */
-    protected _currentFrame: ParsedFileFrame;
-    /** The current frame data @readonly */
-    get currentFrame(): ParsedFileFrame;
-    /** Upon every update of current frame, propagate current pixels to the instance */
-    protected set currentFrame(frame: ParsedFileFrame);
-    /** Get the current step value calculated from _currentFrame */
-    get currentStep(): ParsedTimelineFrame;
-    /** Number of images to preload at once */
-    readonly bufferSize: number;
-    /** The actual buffer holding pair of step & frame */
-    protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
-    /** Accessor to array of steps preloaded in the given moment */
-    get preloadedSteps(): ParsedTimelineFrame[];
-    /** Accessor to array of relative timestamps preloaded in the given moment */
-    get preloadedTimestampsRelative(): number[];
-    constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
-    init(): Promise<TimelineChangedStatusType>;
-    /**
-     * Activate a step
-     * - look for the buffer for the corresponding frame
-     * - if there is a corresponding frame, apply it
-     * - if there is none, fetch it
-     * - if sequence, fetch buffer
-     *
-     * **THIS IS THE MAIN SETTER**
-     */
-    recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-    /** Preload frame data to the buffer based on the provided step */
-    protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-}
-
-interface IWithTimeline extends IBaseProperty {
-    timeline: TimelineDrive;
-}
-type FramesMap = Map<number, ParsedTimelineFrame>;
-type TimelineChangedStatusType = {
-    absoluteTime: number;
-    relativeTime: number;
-    currentFrame: ParsedFileFrame;
-    currentStep: ParsedTimelineFrame;
-    buffer: ParsedTimelineFrame[];
-    preloaded: boolean;
-    hasChanged: boolean;
-};
-declare const playbackSpeed: {
-    1: number;
-    0.5: number;
-    2: number;
-    3: number;
-    5: number;
-    10: number;
-};
-type PlaybackSpeeds = keyof typeof playbackSpeed;
-/** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, Instance> {
-    readonly steps: ParsedFileBaseInfo["timeline"];
-    readonly parent: Instance;
-    protected _playbackSpeed: PlaybackSpeeds;
-    get playbackSpeed(): PlaybackSpeeds;
-    set playbackSpeed(value: PlaybackSpeeds);
-    get playbackSpeedAspect(): number;
-    get duration(): number;
-    get frameCount(): number;
-    readonly startTimestampRelative: number;
-    /** @deprecated not in use? */
-    readonly endTimestampRelative: number;
-    readonly stepsByAbsolute: FramesMap;
-    readonly stepsByRelative: FramesMap;
-    readonly stepsByIndex: FramesMap;
-    readonly relativeSteps: number[];
-    protected _currentStep: ParsedTimelineFrame;
-    get currentStep(): ParsedTimelineFrame;
-    readonly isSequence: boolean;
-    protected _isPlaying: boolean;
-    get isPlaying(): boolean;
-    protected timer?: ReturnType<typeof setTimeout>;
-    readonly buffer: FrameBuffer;
-    readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
-    readonly callbacksPlay: CallbacksManager<() => void>;
-    readonly callbacksPause: CallbacksManager<() => void>;
-    readonly callbacksStop: CallbacksManager<() => void>;
-    readonly callbacksEnd: CallbacksManager<() => void>;
-    readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
-    get currentMs(): number;
-    get currentPercentage(): number;
-    get currentFrameIndex(): number;
-    get currentTime(): string;
-    constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
-    init(): void;
-    protected afterSetEffect(value: number): void;
-    protected validate(value: number): number;
-    _validateRelativeTime(value: number): number;
-    _validateIndex(value: number): number;
-    _convertRelativeToAspect(relativeTimeInMs: number): number;
-    _convertRelativeToPercent(relativeTimeInMs: number): number;
-    _convertPercenttRelative(percent: number): number;
-    formatDuration(ms: number): string;
-    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
-    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
-    setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
-    setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
-    /** This is the main play method */
-    protected createNextStepTimer(): void;
-    play(): void;
-    pause(): void;
-    stop(): void;
-}
-
-interface IWithRedording extends IBaseProperty {
-    recording: RecordingDrive;
-}
-declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
-    parent: Instance;
-    protected stream?: MediaStream;
-    protected recorder?: MediaRecorder;
-    protected mimeType?: string;
-    protected _isRecording: boolean;
-    protected _mayStop: boolean;
-    get mayStop(): boolean;
-    protected set mayStop(value: boolean);
-    protected recordedChunks: Blob[];
-    readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    start(): void;
-    end(): void;
-    /** Records the entire file from start to the end. */
-    recordEntireFile(): Promise<void>;
-    protected initRecording(): {
-        stream: MediaStream;
-        recorder: MediaRecorder;
-        options: MediaRecorderOptions;
-    };
-    protected download(): void;
-    protected clearRecording(): void;
-}
-
 declare abstract class AbstractArea {
     readonly analysis: AbstractAnalysis;
     get fileWidth(): number;
@@ -622,6 +388,67 @@ declare abstract class AbstractArea {
     abstract onBuild(): void;
     setColor(value: string): void;
     abstract onSetColor(value: string): void;
+}
+
+declare abstract class AbstractPoint {
+    readonly key: string;
+    readonly analysis: AbstractAnalysis;
+    get file(): Instance;
+    protected _x: number;
+    get x(): number;
+    set x(value: number);
+    onX: CallbacksManager<(x: number, prev: number) => void>;
+    abstract mayMoveToX(value: number): boolean;
+    protected _y: number;
+    get y(): number;
+    set y(value: number);
+    onY: CallbacksManager<(y: number, prev: number) => void>;
+    abstract mayMoveToY(value: number): boolean;
+    protected _color: string;
+    protected get color(): string;
+    setColor(value: string): void;
+    protected abstract onSetColor(value: string): void;
+    get initialColor(): string;
+    get activeColor(): string;
+    get inactiveColor(): string;
+    protected _active: boolean;
+    get active(): boolean;
+    protected _isHover: boolean;
+    get isHover(): boolean;
+    protected _isDragging: boolean;
+    get isDragging(): boolean;
+    get root(): HTMLDivElement;
+    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
+    abstract getRadius(): number;
+    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
+    container: HTMLDivElement;
+    /** The display element. */
+    innerElement: HTMLDivElement;
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    isWithin(top: number, left: number): boolean;
+    isInSelectedLayer(): boolean;
+    protected getPercentageX(): number;
+    protected getPercentageY(): number;
+    protected getPercentageCoordinates(): {
+        x: number;
+        y: number;
+    };
+    /** Create the display element */
+    abstract createInnerElement(): HTMLDivElement;
+    /** Take the internal position value and project it to the DOM element */
+    projectInnerPositionToDom(): void;
+    mouseEnter(): void;
+    mouseLeave(): void;
+    readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onMouseLeave: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onActivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onDeactivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    protected abstract actionOnMouseEnter(): void;
+    protected abstract actionOnMouseLeave(): void;
+    protected abstract actionOnActivate(): void;
+    protected abstract actionOnDeactivate(): void;
+    activate(): void;
+    deactivate(): void;
 }
 
 declare abstract class AbstractHandlePoint extends AbstractPoint {
@@ -825,65 +652,247 @@ declare abstract class AbstractAnalysis {
     };
 }
 
-declare abstract class AbstractPoint {
-    readonly key: string;
-    readonly analysis: AbstractAnalysis;
-    get file(): Instance;
-    protected _x: number;
-    get x(): number;
-    set x(value: number);
-    onX: CallbacksManager<(x: number, prev: number) => void>;
-    abstract mayMoveToX(value: number): boolean;
-    protected _y: number;
-    get y(): number;
-    set y(value: number);
-    onY: CallbacksManager<(y: number, prev: number) => void>;
-    abstract mayMoveToY(value: number): boolean;
-    protected _color: string;
-    protected get color(): string;
-    setColor(value: string): void;
-    protected abstract onSetColor(value: string): void;
-    get initialColor(): string;
-    get activeColor(): string;
-    get inactiveColor(): string;
-    protected _active: boolean;
-    get active(): boolean;
-    protected _isHover: boolean;
-    get isHover(): boolean;
-    protected _isDragging: boolean;
-    get isDragging(): boolean;
-    get root(): HTMLDivElement;
-    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
-    abstract getRadius(): number;
-    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
-    container: HTMLDivElement;
-    /** The display element. */
-    innerElement: HTMLDivElement;
-    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
-    isWithin(top: number, left: number): boolean;
-    isInSelectedLayer(): boolean;
-    protected getPercentageX(): number;
-    protected getPercentageY(): number;
-    protected getPercentageCoordinates(): {
-        x: number;
-        y: number;
+type GraphData = {};
+
+type PointGraphData = GraphData & {
+    temperatures: {
+        [index: number]: number;
     };
-    /** Create the display element */
-    abstract createInnerElement(): HTMLDivElement;
-    /** Take the internal position value and project it to the DOM element */
-    projectInnerPositionToDom(): void;
-    mouseEnter(): void;
-    mouseLeave(): void;
-    readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onMouseLeave: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onActivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onDeactivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    protected abstract actionOnMouseEnter(): void;
-    protected abstract actionOnMouseLeave(): void;
-    protected abstract actionOnActivate(): void;
-    protected abstract actionOnDeactivate(): void;
-    activate(): void;
-    deactivate(): void;
+};
+
+type ParsedTimelineFrame = {
+    index: number;
+    absolute: number;
+    relative: number;
+    offset: number;
+};
+/**
+ * Every file needs to have this information
+ */
+type ParsedFileBaseInfo = {
+    width: number;
+    height: number;
+    timestamp: number;
+    frameCount: number;
+    duration: number;
+    frameInterval: number;
+    fps: number;
+    min: number;
+    max: number;
+    timeline: ParsedTimelineFrame[];
+    averageEmissivity: number;
+    averageReflectedKelvins: number;
+    bytesize: number;
+};
+type ParsedFileFrame = {
+    timestamp: number;
+    min: number;
+    max: number;
+    emissivity: number;
+    reflectedKelvins: number;
+    pixels: number[];
+};
+/**
+ * Definition of a supported file type
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+*/
+type ParserFileType = {
+    /** File extension, lowercase and without starting dots */
+    extension: string;
+    /** Mime type of the file */
+    minme: string;
+};
+/** A supported device dedfinition */
+type SupportedDeviceType = {
+    deviceName: string;
+    deviceDescription: string;
+    deviceUrl: string;
+    manufacturer: string;
+    manufacturerUrl: string;
+};
+/**
+ * Interface for a parser object
+ * - all methods must be completely and totally static
+ * - data needs to be transferred as ArrayBuffer, since it is serialisable
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
+ */
+interface IParserObject {
+    /** Name of the file format */
+    name: string;
+    /** Description of the file format */
+    description: string;
+    /** List of supported devices */
+    devices: SupportedDeviceType[];
+    /** Define the supported file type for the purpose of display */
+    extensions: ParserFileType[];
+    /** Determine whether the file corresponds to the given parser */
+    is(buffer: ArrayBuffer, url: string): boolean;
+    /**
+     * Get the basic information necessary for every file
+     * - without any pixels!
+     * - this sould be called once only
+     */
+    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
+    /**
+     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
+     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
+     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
+     *
+     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
+     */
+    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
+        array: ArrayBuffer;
+        dataType: number;
+    };
+    /**
+     * Calculate the pixels and other parameters of one frame
+     * @param frameSubset ArrayBuffer of data related to the frame.
+     * @param dataType
+     */
+    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
+    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
+    getPointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointGraphData>;
+}
+
+declare class FrameBuffer {
+    protected readonly drive: TimelineDrive;
+    /** @internal use accessors to get and set with side effects */
+    protected _currentFrame: ParsedFileFrame;
+    /** The current frame data @readonly */
+    get currentFrame(): ParsedFileFrame;
+    /** Upon every update of current frame, propagate current pixels to the instance */
+    protected set currentFrame(frame: ParsedFileFrame);
+    /** Get the current step value calculated from _currentFrame */
+    get currentStep(): ParsedTimelineFrame;
+    /** Number of images to preload at once */
+    readonly bufferSize: number;
+    /** The actual buffer holding pair of step & frame */
+    protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
+    /** Accessor to array of steps preloaded in the given moment */
+    get preloadedSteps(): ParsedTimelineFrame[];
+    /** Accessor to array of relative timestamps preloaded in the given moment */
+    get preloadedTimestampsRelative(): number[];
+    constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
+    init(): Promise<TimelineChangedStatusType>;
+    /**
+     * Activate a step
+     * - look for the buffer for the corresponding frame
+     * - if there is a corresponding frame, apply it
+     * - if there is none, fetch it
+     * - if sequence, fetch buffer
+     *
+     * **THIS IS THE MAIN SETTER**
+     */
+    recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+    /** Preload frame data to the buffer based on the provided step */
+    protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+}
+
+interface IWithTimeline extends IBaseProperty {
+    timeline: TimelineDrive;
+}
+type FramesMap = Map<number, ParsedTimelineFrame>;
+type TimelineChangedStatusType = {
+    absoluteTime: number;
+    relativeTime: number;
+    currentFrame: ParsedFileFrame;
+    currentStep: ParsedTimelineFrame;
+    buffer: ParsedTimelineFrame[];
+    preloaded: boolean;
+    hasChanged: boolean;
+};
+declare const playbackSpeed: {
+    1: number;
+    0.5: number;
+    2: number;
+    3: number;
+    5: number;
+    10: number;
+};
+type PlaybackSpeeds = keyof typeof playbackSpeed;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class TimelineDrive extends AbstractProperty<number, Instance> {
+    readonly steps: ParsedFileBaseInfo["timeline"];
+    readonly parent: Instance;
+    protected _playbackSpeed: PlaybackSpeeds;
+    get playbackSpeed(): PlaybackSpeeds;
+    set playbackSpeed(value: PlaybackSpeeds);
+    get playbackSpeedAspect(): number;
+    get duration(): number;
+    get frameCount(): number;
+    readonly startTimestampRelative: number;
+    /** @deprecated not in use? */
+    readonly endTimestampRelative: number;
+    readonly stepsByAbsolute: FramesMap;
+    readonly stepsByRelative: FramesMap;
+    readonly stepsByIndex: FramesMap;
+    readonly relativeSteps: number[];
+    protected _currentStep: ParsedTimelineFrame;
+    get currentStep(): ParsedTimelineFrame;
+    readonly isSequence: boolean;
+    protected _isPlaying: boolean;
+    get isPlaying(): boolean;
+    protected timer?: ReturnType<typeof setTimeout>;
+    readonly buffer: FrameBuffer;
+    readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
+    readonly callbacksPlay: CallbacksManager<() => void>;
+    readonly callbacksPause: CallbacksManager<() => void>;
+    readonly callbacksStop: CallbacksManager<() => void>;
+    readonly callbacksEnd: CallbacksManager<() => void>;
+    readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
+    get currentMs(): number;
+    get currentPercentage(): number;
+    get currentFrameIndex(): number;
+    get currentTime(): string;
+    constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+    init(): void;
+    protected afterSetEffect(value: number): void;
+    protected validate(value: number): number;
+    _validateRelativeTime(value: number): number;
+    _validateIndex(value: number): number;
+    _convertRelativeToAspect(relativeTimeInMs: number): number;
+    _convertRelativeToPercent(relativeTimeInMs: number): number;
+    _convertPercenttRelative(percent: number): number;
+    formatDuration(ms: number): string;
+    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
+    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
+    setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
+    setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
+    /** This is the main play method */
+    protected createNextStepTimer(): void;
+    play(): void;
+    pause(): void;
+    stop(): void;
+}
+
+interface IWithRedording extends IBaseProperty {
+    recording: RecordingDrive;
+}
+declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
+    parent: Instance;
+    protected stream?: MediaStream;
+    protected recorder?: MediaRecorder;
+    protected mimeType?: string;
+    protected _isRecording: boolean;
+    protected _mayStop: boolean;
+    get mayStop(): boolean;
+    protected set mayStop(value: boolean);
+    protected recordedChunks: Blob[];
+    readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    start(): void;
+    end(): void;
+    /** Records the entire file from start to the end. */
+    recordEntireFile(): Promise<void>;
+    protected initRecording(): {
+        stream: MediaStream;
+        recorder: MediaRecorder;
+        options: MediaRecorderOptions;
+    };
+    protected download(): void;
+    protected clearRecording(): void;
 }
 
 interface ITool {
@@ -1298,6 +1307,7 @@ declare class ThermalFileReader extends AbstractFileResult {
     private get pool();
     constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
     isSuccess(): boolean;
+    getPointAnalysisData(x: number, y: number): Promise<PointGraphData>;
     /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
     baseInfo(): ReturnType<IParserObject["baseInfo"]>;
     /**
