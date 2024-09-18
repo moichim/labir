@@ -57,14 +57,10 @@ export class EditTool extends AbstractTool implements ITool {
             point.x = left;
             point.y = top;
 
+            // This is very very important:
+            // - update the value
+            // - and call other eventual callbacks
             point.analysis.onMoveOrResize.call();
-
-            // Call the resize
-            if (point instanceof CornerPoint) {
-                point.analysis.onResize.call();
-            } else if (point instanceof PointPoint) {
-                point.analysis.recalculateValues();
-            }
 
         }
     }

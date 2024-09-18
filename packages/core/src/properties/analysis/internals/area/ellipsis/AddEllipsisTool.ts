@@ -45,7 +45,6 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
         point.analysis.ready = true;
-        point.analysis.recalculateValues();
 
         if (point.analysis.width <= 0 || point.analysis.height <= 0) {
             point.analysis.layers.removeAnalysis(point.analysis.key);
@@ -58,7 +57,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
         if (point.isInSelectedLayer() && point.active) {
             point.x = left;
             point.y = top;
-            point.analysis.onResize.call();
+            point.analysis.onMoveOrResize.call();
         }
     }
 

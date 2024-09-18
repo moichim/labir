@@ -96,10 +96,16 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
         this.calculateBounds();
 
+        /*
         this.onResize.add("sync the area", () => {
             this.calculateBounds();
             this.recalculateValues();
         });
+        */
+
+        this.onMoveOrResize.set( "sync the area", () => {
+            this.calculateBounds();
+        } );
 
         /** @todo Look if this is really necessary */
         this.points.forEach(point => point.projectInnerPositionToDom());

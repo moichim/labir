@@ -13,8 +13,11 @@ export abstract class AbstractAnalysis {
     public readonly onSelected = new CallbacksManager<AnalysisEvent>;
     public readonly onDeselected = new CallbacksManager<AnalysisEvent>;
 
-    /** @deprecated Replace by onMoveOrResize */
-    public readonly onResize = new CallbacksManager<() => void>;
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
+    public readonly onValues = new CallbacksManager< (min?: number, max?: number, avg?: number) => void >;
+
+    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+    public readonly onMoveOrResize = new CallbacksManager< () => void>
 
     /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     public readonly layerRoot: HTMLDivElement;
@@ -98,6 +101,8 @@ export abstract class AbstractAnalysis {
 
         this.renderRoot.appendChild( this.layerRoot );
 
+        // This callback is absolutely crucial and may never be removed!
+        /** @todo what happend if the callback key is set rendomly? I do not want this callback to be overriden anyhow! */
         this.onMoveOrResize.set( "call recalculate values when a control point moves", () => {
             this.recalculateValues();
         } )
@@ -167,7 +172,7 @@ export abstract class AbstractAnalysis {
     /** Detect whether a coordinate is withing the analysis. */
     public abstract isWithin( x: number, y: number): boolean;
 
-    /** Recalculate the analysis' values from the current position and dimensions. */
+    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
     public recalculateValues() {
 
         const { min, max, avg } = this.getValues();
@@ -180,11 +185,7 @@ export abstract class AbstractAnalysis {
     /** Obtain the current values of the analysis using current position and dimensions */
     protected abstract getValues(): {min?: number, max?: number, avg?: number}
 
-    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-    public readonly onValues = new CallbacksManager< (min?: number, max?: number, avg?: number) => void >;
-
-    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
-    public readonly onMoveOrResize = new CallbacksManager< () => void>
+    
 
     
 

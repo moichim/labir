@@ -921,6 +921,9 @@ var AbstractAnalysis = class {
     this.layerRoot.style.overflow = "hidden";
     this.layerRoot.id = `analysis_${this.key}`;
     this.renderRoot.appendChild(this.layerRoot);
+    this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
+      this.recalculateValues();
+    });
   }
   /** Selection status */
   _selected = false;
@@ -929,7 +932,10 @@ var AbstractAnalysis = class {
   }
   onSelected = new CallbacksManager();
   onDeselected = new CallbacksManager();
-  onResize = new CallbacksManager();
+  /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
+  onValues = new CallbacksManager();
+  /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+  onMoveOrResize = new CallbacksManager();
   /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
   layerRoot;
   /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
@@ -1013,7 +1019,7 @@ var AbstractAnalysis = class {
       this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
     }
   }
-  /** Recalculate the analysis' values from the current position and dimensions. */
+  /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
   recalculateValues() {
     const { min, max, avg } = this.getValues();
     this._min = min;
@@ -1021,8 +1027,6 @@ var AbstractAnalysis = class {
     this._avg = avg;
     this.onValues.call(this.min, this.max, this.avg);
   }
-  /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-  onValues = new CallbacksManager();
 };
 
 // src/properties/analysis/internals/AbstractPoint.ts
@@ -1298,9 +1302,8 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.br.syncXWith(this.tr);
     this.br.syncYWith(this.bl);
     this.calculateBounds();
-    this.onResize.add("sync the area", () => {
+    this.onMoveOrResize.set("sync the area", () => {
       this.calculateBounds();
-      this.recalculateValues();
     });
     this.points.forEach((point) => point.projectInnerPositionToDom());
   }
@@ -1654,10 +1657,6 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.center = new PointPoint("center", top, left, this, color);
     this.points.set("center", this.center);
     this.center.projectInnerPositionToDom();
-    this.center.onX.set("move x", () => {
-    });
-    this.center.onY.set("move y", () => {
-    });
   }
   setColorCallback(value) {
     this.center.setColor(value);
@@ -4080,7 +4079,6 @@ var AddEllipsisTool = class extends AbstractAddTool {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
-    point.analysis.recalculateValues();
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     }
@@ -4089,7 +4087,7 @@ var AddEllipsisTool = class extends AbstractAddTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      point.analysis.onResize.call();
+      point.analysis.onMoveOrResize.call();
     }
   }
   onPointLeave() {
@@ -4132,7 +4130,6 @@ var AddPointTool = class extends AbstractAddTool {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
-    point.analysis.recalculateValues();
   }
   onPointMove() {
   }
@@ -4176,7 +4173,6 @@ var AddRectangleTool = class extends AbstractAddTool {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
-    point.analysis.recalculateValues();
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     }
@@ -4185,7 +4181,7 @@ var AddRectangleTool = class extends AbstractAddTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      point.analysis.onResize.call();
+      point.analysis.onMoveOrResize.call();
     }
   }
   onPointLeave() {
@@ -4227,11 +4223,7 @@ var EditTool = class extends AbstractTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      if (point instanceof CornerPoint) {
-        point.analysis.onResize.call();
-      } else if (point instanceof PointPoint) {
-        point.analysis.recalculateValues();
-      }
+      point.analysis.onMoveOrResize.call();
     }
   }
   onPointDown(point) {

@@ -969,7 +969,10 @@ declare abstract class AbstractAnalysis {
     get selected(): boolean;
     readonly onSelected: CallbacksManager<AnalysisEvent>;
     readonly onDeselected: CallbacksManager<AnalysisEvent>;
-    readonly onResize: CallbacksManager<() => void>;
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
+    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
+    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+    readonly onMoveOrResize: CallbacksManager<() => void>;
     /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     readonly layerRoot: HTMLDivElement;
     /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
@@ -1006,7 +1009,7 @@ declare abstract class AbstractAnalysis {
     setDeselected(emitGlobalEvent?: boolean): void;
     /** Detect whether a coordinate is withing the analysis. */
     abstract isWithin(x: number, y: number): boolean;
-    /** Recalculate the analysis' values from the current position and dimensions. */
+    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
     recalculateValues(): void;
     /** Obtain the current values of the analysis using current position and dimensions */
     protected abstract getValues(): {
@@ -1014,8 +1017,6 @@ declare abstract class AbstractAnalysis {
         max?: number;
         avg?: number;
     };
-    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
 }
 
 declare abstract class AbstractPoint {
