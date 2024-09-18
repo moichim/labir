@@ -2592,15 +2592,17 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
     for (let y = fromY; y < toY; y++) {
       const rowOffset = this.file.width * y;
       for (let x = fromX; x <= toX; x++) {
-        const point = this.file.pixels[rowOffset + x];
-        if (point < min) {
-          min = point;
+        if (this.isWithin(x, y)) {
+          const point = this.file.pixels[rowOffset + x];
+          if (point < min) {
+            min = point;
+          }
+          if (point > max) {
+            max = point;
+          }
+          sum += point;
+          count++;
         }
-        if (point > max) {
-          max = point;
-        }
-        sum += point;
-        count++;
       }
     }
     return {
@@ -2608,6 +2610,13 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
       max,
       avg: sum / count
     };
+  }
+  isWithin(x, y) {
+    const centerX = this.left + this.width / 2;
+    const centerY = this.top + this.height / 2;
+    const normalizedX = (x - centerX) / (this.width / 2);
+    const normalizedY = (y - centerY) / (this.height / 2);
+    return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
   }
 };
 

@@ -677,6 +677,7 @@ declare class EllipsisAnalysis extends AbstractAreaAnalysis {
         max?: number;
         avg?: number;
     };
+    isWithin(x: number, y: number): boolean;
 }
 
 declare class PointPoint extends AbstractPoint {

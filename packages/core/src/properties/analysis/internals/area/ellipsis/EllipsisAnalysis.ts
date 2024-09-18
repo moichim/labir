@@ -39,15 +39,15 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         _bottom: number
     ): EllipsisAnalysis {
 
-        const {top, left, width, height } = EllipsisAnalysis.calculateDimensionsFromCorners( _top, _left, _right, _bottom );
+        const { top, left, width, height } = EllipsisAnalysis.calculateDimensionsFromCorners(_top, _left, _right, _bottom);
 
         const item = new EllipsisAnalysis(
-            key, 
-            color, 
-            file, 
-            top, 
-            left, 
-            width, 
+            key,
+            color,
+            file,
+            top,
+            left,
+            width,
             height
         );
 
@@ -56,9 +56,9 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     }
 
 
-    protected buildArea(x: number, y: number, width?: number, height?: number ): AbstractArea {
+    protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea {
 
-        if ( width !== undefined && height !== undefined ) {
+        if (width !== undefined && height !== undefined) {
             return new EllipsisArea(
                 this,
                 x,
@@ -89,17 +89,21 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
 
             for (let x = fromX; x <= toX; x++) {
 
-                const point = this.file.pixels[ rowOffset + x ];
+                if (this.isWithin(x, y)) {
 
-                if ( point < min ) {
-                    min = point;
-                }
-                if ( point > max ) {
-                    max = point;
-                }
+                    const point = this.file.pixels[rowOffset + x];
 
-                sum += point;
-                count++;
+                    if (point < min) {
+                        min = point;
+                    }
+                    if (point > max) {
+                        max = point;
+                    }
+
+                    sum += point;
+                    count++;
+
+                }
 
             }
         }
@@ -110,6 +114,14 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
             avg: sum / count
         }
 
+    }
+
+    public isWithin(x: number, y: number): boolean {
+        const centerX = this.left + this.width / 2;
+        const centerY = this.top + this.height / 2;
+        const normalizedX = (x - centerX) / (this.width / 2);
+        const normalizedY = (y - centerY) / (this.height / 2);
+        return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
     }
 
 }
