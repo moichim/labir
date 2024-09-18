@@ -51,6 +51,15 @@ export abstract class AbstractPoint {
         this.onSetColor(value);
     }
     protected abstract onSetColor(value: string): void;
+    public get initialColor(): string {
+        return this.analysis.initialColor;
+    }
+    public get activeColor() {
+        return this.analysis.activeColor;
+    };
+    public get inactiveColor() {
+        return this.analysis.inactiveColor;
+    };
 
 
     protected _active: boolean = false;
@@ -63,10 +72,16 @@ export abstract class AbstractPoint {
         return this._isHover;
     }
 
+    protected _isDragging: boolean = false;
+    public get isDragging() {
+        return this._isDragging;
+    }
+
     public get root() {
         return this.analysis.layerRoot;
     }
 
+    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
     public abstract getRadius(): number;
 
     /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */

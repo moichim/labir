@@ -43,17 +43,23 @@ import { CornerPoint } from "./properties/analysis/internals/area/rectangle/Corn
 import { RectangleAnalysis } from "./properties/analysis/internals/area/rectangle/RectangleAnalysis";
 import { EditTool } from "./properties/tool/internals/EditTool";
 import { ThermalTool } from "./properties/tool/ToolDrive";
+import { PointAnalysis } from "./properties/analysis/internals/point/PointAnalysis";
 
 
 
 export {
 
+    // General utilities
     getPool,
+    CallbacksManager,
+    supportedFileTypes,
 
     // Manager
     ThermalManager,
     ThermalManagerOptions,
 
+    DropinElementListener,
+    
     // Registry
     ThermalRegistry,
     ThermalRegistryOptions,
@@ -69,6 +75,8 @@ export {
     ThermalFileReader,
     ThermalFileFailure,
     playbackSpeed,
+    ParsedTimelineFrame,
+    PlaybackSpeeds,
 
 
     // Core datatypes
@@ -100,18 +108,10 @@ export {
     AbstractAnalysis,
     RectangleAnalysis,
     EllipsisAnalysis,
+    PointAnalysis,
 
     // Points
-    CornerPoint,
-
-    supportedFileTypes,
-    CallbacksManager,
-
-    DropinElementListener,
-
-    ParsedTimelineFrame,
-    PlaybackSpeeds
-
+    CornerPoint
 
 };
 

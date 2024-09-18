@@ -46,6 +46,7 @@ __export(src_exports, {
   InspectTool: () => InspectTool,
   Instance: () => Instance,
   JET: () => JET,
+  PointAnalysis: () => PointAnalysis,
   RectangleAnalysis: () => RectangleAnalysis,
   ThermalFileFailure: () => ThermalFileFailure,
   ThermalFileReader: () => ThermalFileReader,
@@ -976,7 +977,6 @@ var AbstractAnalysis = class {
     this.key = key;
     this.file = file;
     this.initialColor = initialColor;
-    this.renderRoot = this.file.canvasLayer.getLayerRoot();
     this.layerRoot = document.createElement("div");
     this.layerRoot.style.position = "absolute";
     this.layerRoot.style.top = "0px";
@@ -995,13 +995,18 @@ var AbstractAnalysis = class {
   onSelected = new CallbacksManager();
   onDeselected = new CallbacksManager();
   onResize = new CallbacksManager();
+  /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
   layerRoot;
-  renderRoot;
+  /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+  get renderRoot() {
+    return this.file.canvasLayer.getLayerRoot();
+  }
   points = /* @__PURE__ */ new Map();
   left;
   top;
   width;
   height;
+  /** Access all the file's analysis layers. */
   get layers() {
     return this.file.analysis.layers;
   }
@@ -1033,6 +1038,10 @@ var AbstractAnalysis = class {
     this.onSetColor.call(value);
   }
   onSetColor = new CallbacksManager();
+  initialColor;
+  activeColor = "yellow";
+  inactiveColor = "black";
+  /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
   ready = false;
   remove() {
     this.setDeselected();
@@ -1063,12 +1072,13 @@ var AbstractAnalysis = class {
     }
     this._selected = false;
     this.onDeselected.call(this);
-    this.setColor("black");
+    this.setColor(this.inactiveColor);
     this.arrayOfActivePoints.forEach((point) => point.deactivate());
     if (emitGlobalEvent === true) {
       this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
     }
   }
+  /** Recalculate the analysis' values from the current position and dimensions. */
   recalculateValues() {
     const { min, max, avg } = this.getValues();
     this._min = min;
@@ -1076,6 +1086,7 @@ var AbstractAnalysis = class {
     this._avg = avg;
     this.onValues.call(this.min, this.max, this.avg);
   }
+  /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
   onValues = new CallbacksManager();
 };
 
@@ -1137,6 +1148,15 @@ var AbstractPoint = class {
     this._color = value;
     this.onSetColor(value);
   }
+  get initialColor() {
+    return this.analysis.initialColor;
+  }
+  get activeColor() {
+    return this.analysis.activeColor;
+  }
+  get inactiveColor() {
+    return this.analysis.inactiveColor;
+  }
   _active = false;
   get active() {
     return this._active;
@@ -1144,6 +1164,10 @@ var AbstractPoint = class {
   _isHover = false;
   get isHover() {
     return this._isHover;
+  }
+  _isDragging = false;
+  get isDragging() {
+    return this._isDragging;
   }
   get root() {
     return this.analysis.layerRoot;
@@ -1232,8 +1256,8 @@ var AbstractHandlePoint = class extends AbstractPoint {
     return inner;
   }
   actionOnMouseEnter() {
-    if (this.innerElement) {
-      this.innerElement.style.boxShadow = "0px 0px 10px white";
+    if (this.innerElement && this.isInSelectedLayer()) {
+      this.innerElement.style.boxShadow = "0px 0px 10px 2px white";
       this.innerElement.style.borderWidth = "1px";
       this.innerElement.style.borderStyle = "solid";
       this.innerElement.style.borderColor = "white";
@@ -1281,12 +1305,14 @@ var CornerPoint = class extends AbstractHandlePoint {
   }
   actionOnActivate() {
     if (this.innerElement) {
-      this.setColor("yellow");
+      this.setColor(this.activeColor);
     }
   }
   actionOnDeactivate() {
     if (this.innerElement) {
-      this.setColor(this.color);
+      this.setColor(
+        this.isInSelectedLayer() ? this.initialColor : this.inactiveColor
+      );
     }
   }
 };
@@ -1341,14 +1367,11 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
       this.calculateBounds();
       this.recalculateValues();
     });
-    this.points.forEach((point) => point.createInnerElement());
     this.points.forEach((point) => point.projectInnerPositionToDom());
   }
   setColorCallback(value) {
     this.points.forEach((point) => point.setColor(value));
     this.area.setColor(value);
-  }
-  init() {
   }
   calculateBounds() {
     let leftMost = this.file.width;
@@ -1623,7 +1646,6 @@ var PointPoint = class _PointPoint extends AbstractPoint {
     return center;
   }
   onSetColor(value) {
-    console.log("setting color", value, this.axisX, this.axisY);
     if (this.axisX) {
       this.axisX.style.backgroundColor = value;
     }
@@ -1635,31 +1657,43 @@ var PointPoint = class _PointPoint extends AbstractPoint {
     }
   }
   actionOnMouseEnter() {
-    console.log("mouseenter point", this, this.isInSelectedLayer());
     if (this.isInSelectedLayer()) {
-      this.setColor("yellow");
+      this.setColor(this.activeColor);
+      this.setBoxShadow("white");
     }
   }
   actionOnMouseLeave() {
-    console.log("mouseleave point", this, this.isInSelectedLayer());
     if (this.isInSelectedLayer()) {
       this.setColor(this.analysis.initialColor);
     } else {
-      this.setColor("black");
+      this.setColor(this.inactiveColor);
     }
+    this.setBoxShadow(void 0);
   }
   actionOnActivate() {
     if (this.innerElement) {
-      this.setColor("yellow");
+      this.setColor(this.activeColor);
     }
   }
   actionOnDeactivate() {
     if (this.innerElement) {
-      this.setColor(this.color);
+      this.setColor(this.inactiveColor);
     }
   }
   getRadius() {
     return 10;
+  }
+  setBoxShadow(color = void 0) {
+    if (color === void 0) {
+      this.axisX?.style.removeProperty("box-shadow");
+      this.axisY?.style.removeProperty("box-shadow");
+      this.center?.style.removeProperty("box-shadow");
+    } else {
+      const shadow = `0 0 5px 2px ${color}`;
+      if (this.axisX) this.axisX.style.boxShadow = shadow;
+      if (this.axisY) this.axisY.style.boxShadow = shadow;
+      if (this.center) this.center.style.boxShadow = shadow;
+    }
   }
 };
 
@@ -1686,16 +1720,12 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.points.set("center", this.center);
     this.center.projectInnerPositionToDom();
     this.center.onX.set("move x", () => {
-      this.recalculateValues();
     });
     this.center.onY.set("move y", () => {
-      this.recalculateValues();
     });
   }
   setColorCallback(value) {
     this.center.setColor(value);
-  }
-  init() {
   }
   isWithin(x, y) {
     return this.center.isWithin(y, x);
@@ -1791,7 +1821,7 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   }
 };
 
-// src/properties/analysis/internals/tools/AnalysisLayersStorage.ts
+// src/properties/analysis/internals/storage/AnalysisLayersStorage.ts
 var AnalysisLayersStorage = class extends Map {
   constructor(drive) {
     super();
@@ -1822,7 +1852,6 @@ var AnalysisLayersStorage = class extends Map {
     }
     analysis.setColor(analysis.initialColor);
     this.set(analysis.key, analysis);
-    analysis.init();
     this.layers = [...this.layers, analysis];
     this.onAdd.call(analysis, this.all);
     this.drive.dangerouslySetValueFromStorage(this.all);
@@ -1938,7 +1967,7 @@ var AnalysisLayersStorage = class extends Map {
   }
 };
 
-// src/properties/analysis/internals/tools/AnalysisPointsAccessor.ts
+// src/properties/analysis/internals/storage/AnalysisPointsAccessor.ts
 var AnalysisPointsAccessor = class {
   constructor(drive) {
     this.drive = drive;
@@ -1968,26 +1997,40 @@ var AnalysisPointsAccessor = class {
 var AnalysisDrive = class extends AbstractProperty {
   layers = new AnalysisLayersStorage(this);
   points = new AnalysisPointsAccessor(this);
-  /** Value may be modified only from `AnalysisLayersStorage`! */
+  /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
+  get listenerLayerContainer() {
+    return this.parent.listenerLayer.getLayerRoot();
+  }
+  /** Alias of the current `ToolDrive` value. */
+  get currentTool() {
+    return this.parent.group.tool.value;
+  }
+  /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
+  bindedPointerMoveListener;
+  /** Cached listener on `this.listenerLayerContainer` - pointerdown event. */
+  bindedPointerDownListener;
+  /** Cached listener on `this.listenerLayerContainer` - pointerup event. */
+  bindedPointerUpListener;
+  /** 
+   * Value of this drive is stored in `AnalysisLayersStorage` and from there, it is mirrored to the drive.
+   * It is better to add listeners to the storage, not to the drive.
+   */
   dangerouslySetValueFromStorage(value) {
     this.value = value;
   }
   validate(value) {
     return value;
   }
-  afterSetEffect(value) {
-    value;
+  afterSetEffect() {
   }
-  getLayerRoot() {
-    return this.parent.listenerLayer.getLayerRoot();
-  }
+  /** Calculate the top/left position from a `MouseEvent` */
   getRelativePosition(event) {
-    const absoluteWidth = this.getLayerRoot().clientWidth;
+    const absoluteWidth = this.listenerLayerContainer.clientWidth;
     const fileWidth = this.parent.width;
     const layerX = event.layerX;
     const xAspect = layerX / absoluteWidth;
     const x = Math.round(fileWidth * xAspect);
-    const absoluteHeight = this.getLayerRoot().clientHeight;
+    const absoluteHeight = this.listenerLayerContainer.clientHeight;
     const fileHeight = this.parent.height;
     const layerY = event.layerY;
     const yAspect = layerY / absoluteHeight;
@@ -1997,40 +2040,51 @@ var AnalysisDrive = class extends AbstractProperty {
       left: x
     };
   }
+  /** Activate listeners for the current drive on the file's listener layer. */
   activateListeners() {
-    this.getLayerRoot().addEventListener("pointermove", (event) => {
+    this.bindedPointerMoveListener = (event) => {
       const position = this.getRelativePosition(event);
-      const activeTool = this.parent.group.tool.value;
       this.points.all.forEach((point) => {
         if (point.active) {
-          activeTool.onPointMove(point, position.top, position.left);
+          this.currentTool.onPointMove(point, position.top, position.left);
         }
         const pointIsUnderCursor = point.isWithin(position.top, position.left);
-        if (pointIsUnderCursor && !point.isHover) {
-          activeTool.onPointEnter(point);
-        } else if (!pointIsUnderCursor && point.isHover) {
-          activeTool.onPointLeave(point);
+        if (pointIsUnderCursor) {
+          this.currentTool.onPointEnter(point);
+        } else if (!pointIsUnderCursor) {
+          this.currentTool.onPointLeave(point);
         }
       });
-    });
-    this.getLayerRoot().addEventListener("pointerdown", (event) => {
+    };
+    this.bindedPointerDownListener = (event) => {
       const position = this.getRelativePosition(event);
-      const activeTool = this.parent.group.tool.value;
-      activeTool.onCanvasClick(position.top, position.left, this.parent);
+      this.currentTool.onCanvasClick(position.top, position.left, this.parent);
       this.points.all.forEach((point) => {
         if (point.isWithin(position.top, position.left)) {
-          activeTool.onPointDown(point);
+          this.currentTool.onPointDown(point);
         }
       });
-    });
-    this.getLayerRoot().addEventListener("pointerup", () => {
-      const activeTool = this.parent.group.tool.value;
+    };
+    this.bindedPointerUpListener = () => {
       this.points.all.forEach((point) => {
-        activeTool.onPointUp(point);
+        this.currentTool.onPointUp(point);
       });
-    });
+    };
+    this.listenerLayerContainer.addEventListener("pointermove", this.bindedPointerMoveListener);
+    this.listenerLayerContainer.addEventListener("pointerdown", this.bindedPointerDownListener);
+    this.listenerLayerContainer.addEventListener("pointerup", this.bindedPointerUpListener);
   }
+  /** Remove all listeners from the file's listener layer */
   deactivateListeners() {
+    if (this.bindedPointerMoveListener) {
+      this.listenerLayerContainer.removeEventListener("pointermove", this.bindedPointerMoveListener);
+    }
+    if (this.bindedPointerDownListener) {
+      this.listenerLayerContainer.removeEventListener("pointerdown", this.bindedPointerDownListener);
+    }
+    if (this.bindedPointerUpListener) {
+      this.listenerLayerContainer.removeEventListener("pointerup", this.bindedPointerUpListener);
+    }
   }
 };
 
@@ -4013,6 +4067,7 @@ var AbstractTool = class {
   constructor(group) {
     this.group = group;
   }
+  active = false;
   /** Action taken upon tool activation */
   activate() {
     this.onActivate();
@@ -4032,18 +4087,13 @@ var InspectTool = class extends AbstractTool {
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M17.58,42.03c-1.39,0-2.65-.34-3.79-1.01-1.14-.68-2.04-1.58-2.72-2.72-.68-1.14-1.01-2.4-1.01-3.78s.34-2.65,1.01-3.79c.67-1.14,1.58-2.04,2.72-2.72,1.14-.68,2.4-1.01,3.79-1.01s2.65.34,3.79,1.01c1.14.68,2.04,1.58,2.72,2.72s1.01,2.4,1.01,3.79-.34,2.64-1.01,3.78c-.68,1.14-1.58,2.05-2.72,2.72-1.14.68-2.4,1.01-3.79,1.01ZM17.58,37.04c.47,0,.9-.11,1.28-.34.38-.23.69-.53.91-.92.22-.39.34-.81.34-1.27s-.11-.9-.34-1.28c-.23-.38-.53-.69-.91-.91s-.81-.34-1.28-.34-.88.11-1.27.34c-.39.23-.69.53-.92.91-.23.38-.34.81-.34,1.28s.11.88.34,1.27c.22.39.53.69.92.92.39.23.81.34,1.27.34ZM56.24,38.45h-8.28c-.06-.69-.21-1.31-.46-1.87-.25-.56-.59-1.04-1.03-1.45-.44-.41-.96-.72-1.58-.94s-1.32-.33-2.1-.33c-1.37,0-2.53.33-3.47,1s-1.66,1.62-2.14,2.86-.73,2.74-.73,4.48c0,1.84.25,3.38.74,4.62s1.21,2.17,2.15,2.79c.94.62,2.07.93,3.39.93.75,0,1.43-.1,2.03-.29.6-.19,1.12-.47,1.56-.83.44-.36.8-.8,1.08-1.31.28-.51.47-1.09.57-1.74l8.28.06c-.1,1.27-.46,2.57-1.07,3.88-.62,1.32-1.49,2.53-2.62,3.64s-2.53,2-4.19,2.68c-1.67.68-3.6,1.01-5.8,1.01-2.76,0-5.24-.59-7.43-1.78-2.19-1.18-3.92-2.93-5.18-5.23-1.27-2.3-1.9-5.12-1.9-8.45s.65-6.17,1.94-8.47c1.29-2.3,3.04-4.03,5.23-5.21,2.19-1.18,4.64-1.77,7.34-1.77,1.9,0,3.65.26,5.24.78,1.6.52,3,1.28,4.2,2.27,1.2.99,2.17,2.22,2.91,3.66s1.18,3.11,1.34,4.98ZM30,0H0v30L30,0Z" fill="currentcolor"/>
 </svg>`;
-  active = false;
-  onCanvasClick() {
-  }
-  onCanvasLeave() {
-  }
-  getLabelValue = (x, y, file) => {
-    if (file === void 0) return "";
-    return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
-  };
   onActivate() {
   }
   onDeactivate() {
+  }
+  onCanvasClick() {
+  }
+  onCanvasLeave() {
   }
   onPointEnter() {
   }
@@ -4055,6 +4105,10 @@ var InspectTool = class extends AbstractTool {
   }
   onPointUp() {
   }
+  getLabelValue = (x, y, file) => {
+    if (file === void 0) return "";
+    return file.getTemperatureAtPoint(x, y).toFixed(2) + " \xB0C";
+  };
 };
 
 // src/properties/analysis/internals/AbstractAddTool.ts
@@ -4070,7 +4124,17 @@ var AddEllipsisTool = class extends AbstractAddTool {
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
 </svg>`;
-  active = false;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
   onCanvasClick(top, left, file) {
     const newRect = file.analysis.layers.createEllipsisFrom(top, left);
     newRect.setSelected(true);
@@ -4086,21 +4150,6 @@ var AddEllipsisTool = class extends AbstractAddTool {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     }
   }
-  onCanvasLeave() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
   onPointMove(point, top, left) {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
@@ -4112,6 +4161,10 @@ var AddEllipsisTool = class extends AbstractAddTool {
   }
   onPointEnter() {
   }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
 };
 
 // src/properties/analysis/internals/point/AddPointTool.ts
@@ -4123,7 +4176,17 @@ var AddPointTool = class extends AbstractAddTool {
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
 </svg>`;
-  active = false;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
   onCanvasClick(x, y, file) {
     const newPoint = file.analysis.layers.createPointAt(x, y);
     newPoint.setSelected(true);
@@ -4136,27 +4199,16 @@ var AddPointTool = class extends AbstractAddTool {
     point.analysis.ready = true;
     point.analysis.recalculateValues();
   }
-  onCanvasLeave() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
   onPointMove() {
   }
   onPointLeave() {
   }
   onPointEnter() {
   }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
 };
 
 // src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
@@ -4168,7 +4220,17 @@ var AddRectangleTool = class extends AbstractAddTool {
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
 </svg>`;
-  active = false;
+  onActivate() {
+    this.group.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
   onCanvasClick(x, y, file) {
     const newRect = file.analysis.layers.createRectFrom(x, y);
     newRect.setSelected(true);
@@ -4184,21 +4246,6 @@ var AddRectangleTool = class extends AbstractAddTool {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     }
   }
-  onCanvasLeave() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-  onActivate() {
-    this.group.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
   onPointMove(point, top, left) {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
@@ -4210,6 +4257,10 @@ var AddRectangleTool = class extends AbstractAddTool {
   }
   onPointEnter() {
   }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
 };
 
 // src/properties/tool/internals/EditTool.ts
@@ -4221,42 +4272,30 @@ var EditTool = class extends AbstractTool {
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
 </svg>`;
-  active = false;
-  getLabelValue(x, y, file) {
-    const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
-      if (analysis2.selected) {
-        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
-      } else {
-        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
-      }
-    });
-    const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
-    return `${analysis}X: ${x}<br />Y: ${y}`;
-  }
   onActivate() {
   }
   onDeactivate() {
   }
-  onCanvasClick() {
-  }
   onCanvasLeave() {
   }
+  onCanvasClick() {
+  }
   onPointEnter(point) {
-    if (point.isInSelectedLayer()) {
-      point.mouseEnter();
-    }
+    point.mouseEnter();
   }
   onPointLeave(point) {
-    if (point.isInSelectedLayer() && point.analysis.ready) {
+    if (point.active === false) {
       point.mouseLeave();
     }
   }
   onPointMove(point, top, left) {
-    if (point.isInSelectedLayer() && point.active && point.isWithin(top, left)) {
+    if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
       if (point instanceof CornerPoint) {
         point.analysis.onResize.call();
+      } else if (point instanceof PointPoint) {
+        point.analysis.recalculateValues();
       }
     }
   }
@@ -4270,21 +4309,33 @@ var EditTool = class extends AbstractTool {
       point.deactivate();
     }
   }
+  getLabelValue(x, y, file) {
+    const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
+      if (analysis2.selected) {
+        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
+      } else {
+        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
+      }
+    });
+    const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
+    return `${analysis}X: ${x}<br />Y: ${y}`;
+  }
 };
 
 // src/properties/tool/ToolDrive.ts
-var definedTools = {
-  inspect: InspectTool,
-  addPoint: AddPointTool,
-  addRectangle: AddRectangleTool,
-  addEllipsis: AddEllipsisTool,
-  edit: EditTool
-};
+var toolsRegistry = [
+  InspectTool,
+  AddPointTool,
+  AddRectangleTool,
+  AddEllipsisTool,
+  EditTool
+];
 var createDefinedTools = (group) => {
-  const arrayOfEntries = Object.entries(definedTools).map(([key, cls]) => {
+  const arrayOfEntries = toolsRegistry.map((cls) => {
+    const instance = new cls(group);
     return [
-      key,
-      new cls(group)
+      instance.key,
+      instance
     ];
   });
   return Object.fromEntries(arrayOfEntries);
@@ -4740,6 +4791,7 @@ var getPool = async () => {
   InspectTool,
   Instance,
   JET,
+  PointAnalysis,
   RectangleAnalysis,
   ThermalFileFailure,
   ThermalFileReader,

@@ -34,8 +34,8 @@ export abstract class AbstractHandlePoint extends AbstractPoint {
     }
 
     public actionOnMouseEnter(): void {
-        if (this.innerElement) {
-            this.innerElement.style.boxShadow = "0px 0px 10px white";
+        if (this.innerElement && this.isInSelectedLayer() ) {
+            this.innerElement.style.boxShadow = "0px 0px 10px 2px white";
             this.innerElement.style.borderWidth = "1px";
             this.innerElement.style.borderStyle = "solid";
             this.innerElement.style.borderColor = "white";

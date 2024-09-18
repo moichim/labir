@@ -36,6 +36,7 @@ export class PointPoint extends AbstractPoint {
         this.innerElement.appendChild( this.axisY );
         this.innerElement.appendChild( this.center );
 
+        // Update the center color whenever the values move
         this.analysis.onValues.set( this.key, () => {
             
             const colorFromCurrentPalette = this.analysis.file.getColorAtPoint(this.x, this.y);
@@ -106,7 +107,6 @@ export class PointPoint extends AbstractPoint {
     }
 
     protected onSetColor(value: string): void {
-        console.log( "setting color", value, this.axisX, this.axisY );
         if ( this.axisX ) {
             this.axisX.style.backgroundColor = value;
         }
@@ -120,35 +120,49 @@ export class PointPoint extends AbstractPoint {
 
 
     protected actionOnMouseEnter(): void {
-        console.log( "mouseenter point", this, this.isInSelectedLayer() );
         if ( this.isInSelectedLayer() ) {
-            this.setColor( "yellow" );
+            this.setColor( this.activeColor);
+            this.setBoxShadow( "white")
         }
         
     }
     protected actionOnMouseLeave(): void {
-        console.log( "mouseleave point", this, this.isInSelectedLayer() );
         if (this.isInSelectedLayer()) {
             this.setColor( this.analysis.initialColor );
         } else {
-            this.setColor( "black" );
+            this.setColor( this.inactiveColor );
         }
-        // throw new Error("Method not implemented.");
+        this.setBoxShadow( undefined)
     }
 
     protected actionOnActivate(): void {
         if ( this.innerElement ) {
-            this.setColor( "yellow" );
+            this.setColor( this.activeColor );
         }
     }
     protected actionOnDeactivate(): void {
         if ( this.innerElement ) {
-            this.setColor( this.color );
+            this.setColor( this.inactiveColor );
         }
     }
     
     public getRadius(): number {
         return 10;
+    }
+
+    protected setBoxShadow(
+        color: string | undefined = undefined
+    ) {
+        if ( color === undefined ) {
+            this.axisX?.style.removeProperty( "box-shadow" );
+            this.axisY?.style.removeProperty( "box-shadow" );
+            this.center?.style.removeProperty( "box-shadow" );
+        } else {
+            const shadow = `0 0 5px 2px ${color}`;
+            if ( this.axisX ) this.axisX.style.boxShadow = shadow;
+            if ( this.axisY ) this.axisY.style.boxShadow = shadow;
+            if ( this.center ) this.center.style.boxShadow = shadow;
+        }
     }
 
     

@@ -59,7 +59,6 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         analysis.setColor( analysis.initialColor );
 
         this.set(analysis.key, analysis);
-        analysis.init();
 
         // Add analysis to layer
         this.layers = [ ...this.layers, analysis ];

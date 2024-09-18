@@ -859,7 +859,6 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     };
     protected constructor(key: string, color: string, file: AbstractFile, top: number, left: number, width?: number, height?: number);
     setColorCallback(value: string): void;
-    init(): void;
     protected calculateBounds(): void;
     protected addPoint(role: string, top: number, left: number): CornerPoint;
 }
@@ -894,6 +893,7 @@ declare class PointPoint extends AbstractPoint {
     protected actionOnActivate(): void;
     protected actionOnDeactivate(): void;
     getRadius(): number;
+    protected setBoxShadow(color?: string | undefined): void;
 }
 
 declare class PointAnalysis extends AbstractAnalysis {
@@ -901,7 +901,6 @@ declare class PointAnalysis extends AbstractAnalysis {
     static addAtPoint(key: string, color: string, file: AbstractFile, top: number, left: number): PointAnalysis;
     protected constructor(key: string, color: string, file: AbstractFile, top: number, left: number);
     setColorCallback(value: string): void;
-    init(): void;
     isWithin(x: number, y: number): boolean;
     protected getValues(): {
         min?: number;
@@ -965,20 +964,22 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
     readonly file: AbstractFile;
-    readonly initialColor: string;
     /** Selection status */
     protected _selected: boolean;
     get selected(): boolean;
     readonly onSelected: CallbacksManager<AnalysisEvent>;
     readonly onDeselected: CallbacksManager<AnalysisEvent>;
     readonly onResize: CallbacksManager<() => void>;
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     readonly layerRoot: HTMLDivElement;
-    readonly renderRoot: HTMLElement;
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    get renderRoot(): HTMLElement;
     readonly points: Map<string, AbstractPoint>;
     left: number;
     top: number;
     width: number;
     height: number;
+    /** Access all the file's analysis layers. */
     get layers(): AnalysisLayersStorage;
     protected _min?: number;
     get min(): number | undefined;
@@ -993,20 +994,27 @@ declare abstract class AbstractAnalysis {
     setColor(value: string): void;
     protected abstract setColorCallback(value: string): void;
     onSetColor: CallbacksManager<(value: string) => void>;
+    readonly initialColor: string;
+    readonly activeColor = "yellow";
+    readonly inactiveColor = "black";
+    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     ready: boolean;
     constructor(key: string, file: AbstractFile, initialColor: string);
-    abstract init(): void;
     remove(): void;
     /** Selection / Deselection */
     setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
     setDeselected(emitGlobalEvent?: boolean): void;
+    /** Detect whether a coordinate is withing the analysis. */
     abstract isWithin(x: number, y: number): boolean;
+    /** Recalculate the analysis' values from the current position and dimensions. */
     recalculateValues(): void;
+    /** Obtain the current values of the analysis using current position and dimensions */
     protected abstract getValues(): {
         min?: number;
         max?: number;
         avg?: number;
     };
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
     readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
 }
 
@@ -1028,11 +1036,17 @@ declare abstract class AbstractPoint {
     protected get color(): string;
     setColor(value: string): void;
     protected abstract onSetColor(value: string): void;
+    get initialColor(): string;
+    get activeColor(): string;
+    get inactiveColor(): string;
     protected _active: boolean;
     get active(): boolean;
     protected _isHover: boolean;
     get isHover(): boolean;
+    protected _isDragging: boolean;
+    get isDragging(): boolean;
     get root(): HTMLDivElement;
+    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
     abstract getRadius(): number;
     /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
     container: HTMLDivElement;
@@ -1074,6 +1088,7 @@ interface ITool {
 }
 declare abstract class AbstractTool {
     readonly group: ThermalGroup;
+    active: boolean;
     constructor(group: ThermalGroup);
     /** Action taken upon tool activation */
     activate(): void;
@@ -1081,8 +1096,6 @@ declare abstract class AbstractTool {
     /** Actions taken upon tool deactivation */
     deactivate(): void;
     protected abstract onDeactivate(): void;
-    /** Assamble the cursor label at the given point */
-    abstract getLabelValue(x: number, y: number, file: AbstractFile): string;
     abstract onCanvasClick(x: number, y: number, file: AbstractFile): void;
     abstract onCanvasLeave(file: AbstractFile): void;
     /** Whenever a point is entered by the mouse */
@@ -1095,81 +1108,8 @@ declare abstract class AbstractTool {
     abstract onPointDown(point: AbstractPoint): void;
     /** Whenever a point is ended clicking */
     abstract onPointUp(point: AbstractPoint): void;
-}
-
-declare abstract class AbstractAddTool extends AbstractTool {
-}
-
-declare class AddEllipsisTool extends AbstractAddTool implements ITool {
-    key: string;
-    name: string;
-    description: string;
-    icon: string;
-    active: boolean;
-    onCanvasClick(top: number, left: number, file: AbstractFile): void;
-    onPointDown(): void;
-    onPointUp(point: AbstractPoint): void;
-    onCanvasLeave(): void;
-    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-    onPointMove(point: AbstractPoint, top: number, left: number): void;
-    onPointLeave(): void;
-    onPointEnter(): void;
-}
-
-declare class AddRectangleTool extends AbstractAddTool implements ITool {
-    key: string;
-    name: string;
-    description: string;
-    icon: string;
-    active: boolean;
-    onCanvasClick(x: number, y: number, file: AbstractFile): void;
-    onPointDown(): void;
-    onPointUp(point: AbstractPoint): void;
-    onCanvasLeave(): void;
-    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-    onPointMove(point: AbstractPoint, top: number, left: number): void;
-    onPointLeave(): void;
-    onPointEnter(): void;
-}
-
-declare class EditTool extends AbstractTool implements ITool {
-    key: string;
-    name: string;
-    description: string;
-    icon: string;
-    active: boolean;
-    getLabelValue(x: number, y: number, file: AbstractFile): string;
-    onActivate(): void;
-    protected onDeactivate(): void;
-    onCanvasClick(): void;
-    onCanvasLeave(): void;
-    onPointEnter(point: AbstractPoint): void;
-    onPointLeave(point: AbstractPoint): void;
-    onPointMove(point: AbstractPoint, top: number, left: number): void;
-    onPointDown(point: AbstractPoint): void;
-    onPointUp(point: AbstractPoint): void;
-}
-
-declare class InspectTool extends AbstractTool implements ITool {
-    key: string;
-    name: string;
-    description: string;
-    icon: string;
-    active: boolean;
-    onCanvasClick(): void;
-    onCanvasLeave(): void;
-    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-    onPointEnter(): void;
-    onPointLeave(): void;
-    onPointMove(): void;
-    onPointDown(): void;
-    onPointUp(): void;
+    /** Assamble the cursor label at the given point */
+    abstract getLabelValue(x: number, y: number, file: AbstractFile): string;
 }
 
 interface IWithTool extends IBaseProperty {
@@ -1182,19 +1122,11 @@ type ThermalTool = AbstractTool & ITool & {
 declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
     /** Create own set of tools from the registry of tools */
     protected _tools: {
-        inspect: ThermalTool;
-        addPoint: ThermalTool;
-        addRectangle: ThermalTool;
-        addEllipsis: ThermalTool;
-        edit: ThermalTool;
+        [x: string]: ThermalTool;
     };
     /** Readonly list of available tools */
     get tools(): {
-        inspect: ThermalTool;
-        addPoint: ThermalTool;
-        addRectangle: ThermalTool;
-        addEllipsis: ThermalTool;
-        edit: ThermalTool;
+        [x: string]: ThermalTool;
     };
     constructor(parent: ThermalGroup, initial: ThermalTool);
     protected validate(value: ThermalTool): ThermalTool;
@@ -1350,16 +1282,31 @@ interface IWithAnalysis extends IBaseProperty {
 declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
     readonly layers: AnalysisLayersStorage;
     readonly points: AnalysisPointsAccessor;
-    /** Value may be modified only from `AnalysisLayersStorage`! */
+    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
+    get listenerLayerContainer(): HTMLElement;
+    /** Alias of the current `ToolDrive` value. */
+    protected get currentTool(): ThermalTool;
+    /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
+    protected bindedPointerMoveListener?: (event: PointerEvent) => void;
+    /** Cached listener on `this.listenerLayerContainer` - pointerdown event. */
+    protected bindedPointerDownListener?: (event: PointerEvent) => void;
+    /** Cached listener on `this.listenerLayerContainer` - pointerup event. */
+    protected bindedPointerUpListener?: (event: PointerEvent) => void;
+    /**
+     * Value of this drive is stored in `AnalysisLayersStorage` and from there, it is mirrored to the drive.
+     * It is better to add listeners to the storage, not to the drive.
+     */
     dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
-    protected afterSetEffect(value: AbstractAnalysis[]): void;
-    getLayerRoot(): HTMLElement;
+    protected afterSetEffect(): void;
+    /** Calculate the top/left position from a `MouseEvent` */
     protected getRelativePosition(event: MouseEvent): {
         top: number;
         left: number;
     };
+    /** Activate listeners for the current drive on the file's listener layer. */
     activateListeners(): void;
+    /** Remove all listeners from the file's listener layer */
     deactivateListeners(): void;
 }
 
@@ -1676,6 +1623,23 @@ declare class ThermalFileFailure extends AbstractFileResult {
 
 declare const getPool: () => Promise<Pool__default>;
 
+declare class InspectTool extends AbstractTool implements ITool {
+    readonly key = "inspect";
+    readonly name: string;
+    readonly description: string;
+    readonly icon: string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasClick(): void;
+    onCanvasLeave(): void;
+    onPointEnter(): void;
+    onPointLeave(): void;
+    onPointMove(): void;
+    onPointDown(): void;
+    onPointUp(): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+}
+
 /**
  * Array of all supported file types and extensions
  * - this is only for the purpose of display!
@@ -1684,4 +1648,59 @@ declare const getPool: () => Promise<Pool__default>;
  */
 declare const supportedFileTypes: IParserObject["extensions"][];
 
-export { AbstractAnalysis, AbstractFile, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };
+/** Tool for analysis addition */
+declare abstract class AbstractAddTool extends AbstractTool {
+}
+
+declare class AddEllipsisTool extends AbstractAddTool implements ITool {
+    readonly key: string;
+    readonly name: string;
+    readonly description: string;
+    readonly icon: string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasLeave(): void;
+    onCanvasClick(top: number, left: number, file: AbstractFile): void;
+    onPointDown(): void;
+    onPointUp(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointLeave(): void;
+    onPointEnter(): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+}
+
+declare class AddRectangleTool extends AbstractAddTool implements ITool {
+    readonly key: string;
+    readonly name: string;
+    readonly description: string;
+    readonly icon: string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasLeave(): void;
+    onCanvasClick(x: number, y: number, file: AbstractFile): void;
+    onPointDown(): void;
+    onPointUp(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointLeave(): void;
+    onPointEnter(): void;
+    getLabelValue: (x: number, y: number, file: AbstractFile) => string;
+}
+
+declare class EditTool extends AbstractTool implements ITool {
+    readonly key = "edit";
+    readonly name = "Edit analysis";
+    readonly description = "Drag corners of any selected analysis.";
+    readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
+    onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasLeave(): void;
+    onCanvasClick(): void;
+    onPointEnter(point: AbstractPoint): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
+    getLabelValue(x: number, y: number, file: AbstractFile): string;
+}
+
+export { AbstractAnalysis, AbstractFile, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, type ThermalFileRequest, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };

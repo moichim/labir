@@ -42,22 +42,13 @@ export class PointAnalysis extends AbstractAnalysis {
         this.points.set( "center", this.center );
         this.center.projectInnerPositionToDom();
 
-        this.center.onX.set( "move x", () => {
-            this.recalculateValues();
-        } );
-
-        this.center.onY.set( "move y", () => {
-            this.recalculateValues();
-        } );
     }
+
 
     public setColorCallback(value: string): void {
         this.center.setColor( value );
     }
 
-    public init(): void {
-        // throw new Error("Method not implemented.");
-    }
     public isWithin(x: number, y: number): boolean {
         return this.center.isWithin( y, x );
     }

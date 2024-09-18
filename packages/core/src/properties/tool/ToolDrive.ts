@@ -11,21 +11,25 @@ export interface IWithTool extends IBaseProperty {
     tool: ToolDrive
 }
 
-/** Registry of defined tools in the form of key:class */
-export const definedTools = {
-    inspect: InspectTool,
-    addPoint: AddPointTool,
-    addRectangle: AddRectangleTool,
-    addEllipsis: AddEllipsisTool,
-    edit: EditTool
-}
+type ToolClass = new (group: ThermalGroup) => AbstractTool & ITool & { key: string}
+
+const toolsRegistry: ToolClass[] = [
+    InspectTool,
+    AddPointTool,
+    AddRectangleTool,
+    AddEllipsisTool,
+    EditTool
+]
 
 /** Instantiates the tool for the given group. Uses `definedTools` as source. */
 const createDefinedTools = (group: ThermalGroup) => {
-    const arrayOfEntries = Object.entries( definedTools ).map(([key, cls]) => {
+    const arrayOfEntries = toolsRegistry.map((cls) => {
+
+        const instance = new cls( group );
+
         return [
-            key as ToolKeys,
-            new cls(group) as ThermalTool
+            instance.key as ToolKeys,
+            instance as ThermalTool
         ]
     });
 
@@ -34,8 +38,8 @@ const createDefinedTools = (group: ThermalGroup) => {
     }
 }
 
-/** Indicies of defined tools */
-type ToolKeys = keyof typeof definedTools;
+/** @deprecated Indicies of defined tools. Not inferred properly. */
+type ToolKeys = InstanceType<ToolClass>["key"];
 
 /** The tool type merging Abstract class and the interface */
 export type ThermalTool = AbstractTool & ITool & {

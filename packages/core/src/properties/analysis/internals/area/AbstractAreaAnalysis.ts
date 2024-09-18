@@ -94,8 +94,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.br.syncXWith(this.tr);
         this.br.syncYWith(this.bl);
 
-        // this.br.activate();
-
         this.calculateBounds();
 
         this.onResize.add("sync the area", () => {
@@ -103,7 +101,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.recalculateValues();
         });
 
-        this.points.forEach(point => point.createInnerElement());
+        /** @todo Look if this is really necessary */
         this.points.forEach(point => point.projectInnerPositionToDom());
 
     }
@@ -111,11 +109,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     public setColorCallback(value: string): void {
         this.points.forEach(point => point.setColor(value));
         this.area.setColor(value)
-    }
-
-    public init(): void {
-        // this.points.forEach(point => point.createInnerElement());
-        // this.points.forEach(point => point.projectInnerPositionToDom());
     }
 
     protected calculateBounds() {

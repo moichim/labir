@@ -39,14 +39,17 @@ export class CornerPoint extends AbstractHandlePoint {
 
     protected actionOnActivate(): void {
         if ( this.innerElement ) {
-            this.setColor( "yellow" );
+            this.setColor( this.activeColor );
         }
     }
 
     
     protected actionOnDeactivate(): void {
         if ( this.innerElement ) {
-            this.setColor( this.color );
+            this.setColor( this.isInSelectedLayer() 
+                ? this.initialColor 
+                : this.inactiveColor
+            );
         }
     }
 

@@ -13,10 +13,16 @@ export abstract class AbstractAnalysis {
     public readonly onSelected = new CallbacksManager<AnalysisEvent>;
     public readonly onDeselected = new CallbacksManager<AnalysisEvent>;
 
+    /** @deprecated Replace by onMoveOrResize */
     public readonly onResize = new CallbacksManager<() => void>;
 
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     public readonly layerRoot: HTMLDivElement;
-    public readonly renderRoot: HTMLElement;
+
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    public get renderRoot(): HTMLElement {
+        return this.file.canvasLayer.getLayerRoot()
+    }
 
     public readonly points: Map<string,AbstractPoint> = new Map;
 
@@ -26,6 +32,7 @@ export abstract class AbstractAnalysis {
     public height!: number;
 
 
+    /** Access all the file's analysis layers. */
     public get layers() {
         return this.file.analysis.layers;
     }
@@ -64,17 +71,20 @@ export abstract class AbstractAnalysis {
     protected abstract setColorCallback( value: string ): void;
     public onSetColor = new CallbacksManager<(value:string) => void>;
 
+    public readonly initialColor: string;
+    public readonly activeColor = "yellow";
+    public readonly inactiveColor = "black";
 
+    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     public ready: boolean = false;
 
     public constructor(
         public readonly key: string,
         public readonly file: AbstractFile,
-        public readonly initialColor: string
+        initialColor: string
     ) {
 
-        // Append the render root
-        this.renderRoot = this.file.canvasLayer.getLayerRoot();
+        this.initialColor = initialColor;
 
         // Create the layer root
         this.layerRoot = document.createElement( "div" );
@@ -88,9 +98,11 @@ export abstract class AbstractAnalysis {
 
         this.renderRoot.appendChild( this.layerRoot );
 
-    }
+        this.onMoveOrResize.set( "call recalculate values when a control point moves", () => {
+            this.recalculateValues();
+        } )
 
-    public abstract init(): void;
+    }
 
     public remove() {
         this.setDeselected();
@@ -140,7 +152,7 @@ export abstract class AbstractAnalysis {
         // Internal mechanisms
         this._selected = false;
         this.onDeselected.call( this );
-        this.setColor( "black" );
+        this.setColor( this.inactiveColor );
 
         // Deactivate all points
         this.arrayOfActivePoints.forEach( point => point.deactivate() );
@@ -152,9 +164,10 @@ export abstract class AbstractAnalysis {
     }
 
     
-
+    /** Detect whether a coordinate is withing the analysis. */
     public abstract isWithin( x: number, y: number): boolean;
 
+    /** Recalculate the analysis' values from the current position and dimensions. */
     public recalculateValues() {
 
         const { min, max, avg } = this.getValues();
@@ -164,9 +177,14 @@ export abstract class AbstractAnalysis {
         this.onValues.call( this.min, this.max, this.avg );
     }
 
+    /** Obtain the current values of the analysis using current position and dimensions */
     protected abstract getValues(): {min?: number, max?: number, avg?: number}
 
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
     public readonly onValues = new CallbacksManager< (min?: number, max?: number, avg?: number) => void >;
+
+    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+    public readonly onMoveOrResize = new CallbacksManager< () => void>
 
     
 

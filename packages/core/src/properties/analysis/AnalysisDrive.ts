@@ -1,8 +1,8 @@
 import { AbstractFile } from "../../file/AbstractFile";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AbstractAnalysis } from "./internals/AbstractAnalysis";
-import { AnalysisLayersStorage } from "./internals/tools/AnalysisLayersStorage";
-import { AnalysisPointsAccessor } from "./internals/tools/AnalysisPointsAccessor";
+import { AnalysisLayersStorage } from "./internals/storage/AnalysisLayersStorage";
+import { AnalysisPointsAccessor } from "./internals/storage/AnalysisPointsAccessor";
 
 export interface IWithAnalysis extends IBaseProperty {
     analysis: AnalysisDrive
@@ -11,43 +11,57 @@ export interface IWithAnalysis extends IBaseProperty {
 export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], AbstractFile> {
 
     public readonly layers = new AnalysisLayersStorage(this);
-
     public readonly points = new AnalysisPointsAccessor(this);
 
+    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
+    public get listenerLayerContainer() {
+        return this.parent.listenerLayer.getLayerRoot();
+    }
+
+    /** Alias of the current `ToolDrive` value. */
+    protected get currentTool() {
+        return this.parent.group.tool.value;
+    }
+
+
+    /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
+    protected bindedPointerMoveListener?: ( event: PointerEvent ) => void;
+
+    /** Cached listener on `this.listenerLayerContainer` - pointerdown event. */
+    protected bindedPointerDownListener?: ( event: PointerEvent ) => void;
+
+    /** Cached listener on `this.listenerLayerContainer` - pointerup event. */
+    protected bindedPointerUpListener?: ( event: PointerEvent ) => void;
 
 
 
-    /** Value may be modified only from `AnalysisLayersStorage`! */
+
+    /** 
+     * Value of this drive is stored in `AnalysisLayersStorage` and from there, it is mirrored to the drive.
+     * It is better to add listeners to the storage, not to the drive.
+     */
     public dangerouslySetValueFromStorage(value: AbstractAnalysis[]) {
         this.value = value;
     }
 
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[] {
-
         return value;
     }
 
-    protected afterSetEffect(value: AbstractAnalysis[]) {
-        value;
-    }
+    protected afterSetEffect() {}
 
 
 
-
-    public getLayerRoot() {
-        return this.parent.listenerLayer.getLayerRoot();
-    }
-
-
+    /** Calculate the top/left position from a `MouseEvent` */
     protected getRelativePosition(event: MouseEvent) {
 
-        const absoluteWidth = this.getLayerRoot().clientWidth;
+        const absoluteWidth = this.listenerLayerContainer.clientWidth;
         const fileWidth = this.parent.width;
         const layerX = event.layerX;
         const xAspect = layerX / absoluteWidth;
         const x = Math.round(fileWidth * xAspect);
 
-        const absoluteHeight = this.getLayerRoot().clientHeight;
+        const absoluteHeight = this.listenerLayerContainer.clientHeight;
         const fileHeight = this.parent.height;
         const layerY = event.layerY;
         const yAspect = layerY / absoluteHeight;
@@ -60,76 +74,94 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Abstract
 
     }
 
+    /** Activate listeners for the current drive on the file's listener layer. */
     activateListeners() {
 
-        this.getLayerRoot().addEventListener("pointermove", event => {
+        // Create pointermove listener
+        this.bindedPointerMoveListener = (event: PointerEvent): void => {
 
             const position = this.getRelativePosition(event);
-
-            const activeTool = this.parent.group.tool.value;
-
+    
             this.points.all.forEach(point => {
-
+    
                 // Move all active points within all layers
                 if (point.active) {
-                    activeTool.onPointMove(point, position.top, position.left);
+                    this.currentTool.onPointMove(point, position.top, position.left);
                 }
-
+    
                 // Detectt eventual mouse enter or mouse leave of points
                 const pointIsUnderCursor = point.isWithin(position.top, position.left);
-
-                if (pointIsUnderCursor && !point.isHover) {
-                    activeTool.onPointEnter(point);
+    
+                if (pointIsUnderCursor) {
+                    this.currentTool.onPointEnter(point);
                 }
-
-                else if (!pointIsUnderCursor && point.isHover) {
-                    activeTool.onPointLeave(point);
+    
+                else if (!pointIsUnderCursor) {
+                    this.currentTool.onPointLeave(point);
                 }
-
-
-
+    
             });
+    
+        }
 
 
-        });
-
-        this.getLayerRoot().addEventListener("pointerdown", event => {
+        // Create pointerdown listener
+        this.bindedPointerDownListener = event => {
 
             const position = this.getRelativePosition(event);
 
-            const activeTool = this.parent.group.tool.value;
-
-
             // Call the click of the active tool
-            activeTool.onCanvasClick(position.top, position.left, this.parent);
+            this.currentTool.onCanvasClick(position.top, position.left, this.parent);
 
             // Call the click on all points
             this.points.all.forEach(point => {
                 if (point.isWithin(position.top, position.left)) {
-                    activeTool.onPointDown(point);
+                    this.currentTool.onPointDown(point);
                 }
             });
 
+        }
 
-        })
 
-        this.getLayerRoot().addEventListener("pointerup", () => {
-
-            const activeTool = this.parent.group.tool.value;
+        // Create pointerup listener
+        this.bindedPointerUpListener = () => {
 
             this.points.all.forEach(point => {
-                activeTool.onPointUp(point);
+                this.currentTool.onPointUp(point);
             });
 
-        });
+        }
+
+
+
+        // Bind listeners
+
+        this.listenerLayerContainer.addEventListener("pointermove", this.bindedPointerMoveListener );
+
+        this.listenerLayerContainer.addEventListener("pointerdown", this.bindedPointerDownListener )
+
+        this.listenerLayerContainer.addEventListener("pointerup", this.bindedPointerUpListener );
 
     }
 
+    /** Remove all listeners from the file's listener layer */
     deactivateListeners() {
 
+        if ( this.bindedPointerMoveListener ) {
+            this.listenerLayerContainer.removeEventListener("pointermove", this.bindedPointerMoveListener );
+        }
 
+        if ( this.bindedPointerDownListener ) {
+            this.listenerLayerContainer.removeEventListener("pointerdown", this.bindedPointerDownListener );
+        }
+
+        if ( this.bindedPointerUpListener ) {
+            this.listenerLayerContainer.removeEventListener("pointerup", this.bindedPointerUpListener );
+        }
 
     }
+
+    
 
 
 
