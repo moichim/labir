@@ -4,6 +4,8 @@ import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure
 import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { getPool } from "../../src/utils/pool";
 
+import { add, baseInfo } from "@labir/jobs";
+
 const REGISTRY_ID = "registry_id";
 const GROUP_ID = "group_id";
 
@@ -127,6 +129,10 @@ const batchLoading = async (
     );
 
     console.log( "SERVICE LOADING END - START INSTANTIATION", services );
+
+    services.forEach( instance => {
+        console.log( baseInfo( instance.buffer), instance.buffer.byteLength );
+    } );
 
     const instances = await Promise.all( 
         services.map( service => service.createInstance( group_2 ) )

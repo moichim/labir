@@ -40,6 +40,19 @@ export class FileProviderElement extends AbstractFileProvider {
                 // Success
                 if (result instanceof ThermalFileReader) {
 
+                    console.log( 
+                        result.buffer
+                    );
+
+                    const res = this.manager.wasm.baseinfo( 
+                        result.buffer 
+                    );
+
+                    console.log( 
+                        "result calculated by the buffer!", 
+                        res 
+                    );
+
                     // Create the instance
                     return await result.createInstance(this.group).then(instance => {
 
@@ -53,6 +66,8 @@ export class FileProviderElement extends AbstractFileProvider {
                         this.clearCallbacks();
 
                         instance.group.registry.postLoadedProcessing();
+
+                        
 
                         return instance;
 

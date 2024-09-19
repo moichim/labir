@@ -62,6 +62,12 @@ export class ManagerProviderElement extends BaseElement {
             this.setPalette( value as AvailableThermalPalettes );
         } );
 
+        // console.log( this.manager.wasm.add( 42, 1 ) );
+
+        setTimeout(()=>{
+            this.log( this.manager.wasm.add( 42, 1 ) );
+        }, 0)
+
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {

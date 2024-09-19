@@ -1,4 +1,4 @@
-import {author, version } from "../package.json"
+import { author, version } from "../package.json"
 
 /**!
  * ===========
@@ -11,10 +11,9 @@ import {author, version } from "../package.json"
 
 
 // Log the start info
-console.info( `@labir/embed ${version}
+console.info(`@labir/embed ${version}
     Author: ${author}
     ` );
-
 
 // 1. UI components
 import "./ui/Dialog";
@@ -81,14 +80,14 @@ import "./apps/DropinApp";
 
 
 // Initialise dark mode
-import {initialiseMode} from "./styles/mode";
+import { initialiseMode } from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import {addDefaultStyles} from "./styles/defaultStyles";
+import { addDefaultStyles } from "./styles/defaultStyles";
 
 addDefaultStyles();
 
-document.addEventListener( "DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     // addDefaultStyles();
-} )
+})

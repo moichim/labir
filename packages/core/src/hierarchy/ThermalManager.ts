@@ -7,6 +7,7 @@ import { AvailableThermalPalettes } from "../file/palettes";
 import { FilesService } from "../loading/workers/FilesService";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
+import { WasmApp } from "../wasm/wasm";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
@@ -15,6 +16,8 @@ export type ThermalManagerOptions = {
 export class ThermalManager extends BaseStructureObject {
 
     public readonly id: number;
+
+    public readonly wasm = new WasmApp;
 
     /** Service for creation of loading and caching the files. */
     public readonly service = new FilesService(this);
@@ -48,6 +51,8 @@ export class ThermalManager extends BaseStructureObject {
                 this.palette.setPalette(options.palette);
             }
         }
+
+        this.wasm.init();
     }
 
     /* registries */

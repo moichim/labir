@@ -4,26 +4,35 @@ import { defineConfig, normalizePath } from "vite"
 import path from "path"
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+
 export default defineConfig({
     root: path.resolve( "./src" ),
     publicDir: path.resolve( "../../public" ),
     build: {
+        
         rollupOptions: {
             input: {
                 embed: path.resolve( "./src/index.ts" ),
                 //index: path.resolve( "./public/index.html" )
             },
             output: {
-                entryFileNames: '[name].js'
+                entryFileNames: '[name].js',
+                // format: "iife",
+                inlineDynamicImports: true,
             },
         },
         outDir: path.resolve( "./dist" ),
         emptyOutDir: true,
         copyPublicDir: false,
-        minify: true
+        minify: true,
     },
 
     plugins: [
+
+        wasm(),
+        topLevelAwait(),
         
         // react({ 
             // jsxImportSource: '@emotion/react' 
@@ -43,20 +52,4 @@ export default defineConfig({
             ]
         })
     ],
-
-    test: {
-        root: "./src",
-        globals: true,
-        environment: "jsdom",
-        setupFiles: [
-            "./node/setup.ts",
-            "./vitest.setup.ts"
-        ],
-        deps: {
-            inline: [ "vitest-canvas-mock" ]
-        },
-        coverage: {
-            provider: "v8"
-        }
-    }
 })

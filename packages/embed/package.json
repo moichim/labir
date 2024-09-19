@@ -21,6 +21,7 @@
   "dependencies": {
     "@floating-ui/dom": "^1.6.6",
     "@labir/core": "workspace:*",
+    "@labir/jobs": "workspace:*",
     "@labir/react-bridge": "workspace:*",
     "@lit/context": "^1.1.2",
     "@types/uuid": "^9.0.8",
@@ -44,6 +45,8 @@
     "typescript-eslint": "^7.12.0",
     "vite": "^5.2.12",
     "vite-plugin-static-copy": "^1.0.5",
+    "vite-plugin-top-level-await": "^1.4.4",
+    "vite-plugin-wasm": "^3.3.0",
     "vitest": "^1.6.0"
   }
 }
