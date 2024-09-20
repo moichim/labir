@@ -56,6 +56,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
         this.context = this.canvas.getContext("2d")!;
 
+        this.context.imageSmoothingEnabled = false;
+
         this.container.appendChild(this.canvas);
 
 

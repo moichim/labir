@@ -108,7 +108,6 @@ export const pointAnalysisData: IParserObject["pointAnalysisData"] = async (enti
 
             temperature = min + (range * mappedValue);
 
-            console.log( temperature );
         }
 
 
@@ -119,10 +118,17 @@ export const pointAnalysisData: IParserObject["pointAnalysisData"] = async (enti
 
     };
 
+    let firstTimestamp: number = 0;
+
 
     for (let i = 0; i < frameCount; i++) {
         const frame = readFrame(i);
-        output[frame.timestamp] = frame.temperature;
+
+        if ( firstTimestamp === 0 ) {
+            firstTimestamp = frame.timestamp;
+        }
+
+        output[frame.timestamp - firstTimestamp] = frame.temperature;
     }
 
     return output;

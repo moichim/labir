@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import { PointAnalysisData } from "../../../loading/workers/parsers/structure";
 import { AnalysisDataState, AnalysisDataStateValue, ValueRow } from "../AnalysisDataState";
 
@@ -69,7 +70,7 @@ export class GoogleGraphsStorage {
                 const row = output.values[index + 1];
 
                 if ( row === undefined ) {
-                    output.values[index + 1] = [timestamp];
+                    output.values[index + 1] = [format( parseInt( timestamp ), "m:ss:SSS" ) ];
                 }
 
                 const array = output.values[index + 1] as ValueRow;

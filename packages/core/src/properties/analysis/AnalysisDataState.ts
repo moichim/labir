@@ -32,20 +32,13 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
                 const data = await this.parent.service.pointAnalysisData( l.left, l.top);
 
-                console.log( {
-                    lTop: l.top,
-                    lLeft: l.left,
-                    layerTop: layer.top,
-                    layerLeft: layer.left
-                },"načetl jsem datatata", Object.values( data )[0] );
-
-                this.google.setPointAnalysis( l.key, layer.color, data );
+                this.google.setPointAnalysis( l.key, l.initialColor, data );
 
             });
 
             const data = await this.parent.service.pointAnalysisData( layer.left, layer.top);
 
-            this.google.setPointAnalysis( layer.key, layer.color, data );
+            this.google.setPointAnalysis( layer.key, layer.initialColor, data );
 
 
         } );

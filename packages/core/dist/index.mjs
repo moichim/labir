@@ -1248,6 +1248,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.canvas.width = this.instance.width;
     this.canvas.height = this.instance.height;
     this.context = this.canvas.getContext("2d");
+    this.context.imageSmoothingEnabled = false;
     this.container.appendChild(this.canvas);
   }
   getLayerRoot() {
@@ -3080,6 +3081,7 @@ var AnalysisDrive = class extends AbstractProperty {
 };
 
 // src/properties/analysis/graphs/GoogleGraphsStorage.ts
+import { format as format3 } from "date-fns";
 var GoogleGraphsStorage = class {
   constructor(parent) {
     this.parent = parent;
@@ -3119,7 +3121,7 @@ var GoogleGraphsStorage = class {
       Object.entries(analysis.data).forEach(([timestamp, temperature], index) => {
         const row = output.values[index + 1];
         if (row === void 0) {
-          output.values[index + 1] = [timestamp];
+          output.values[index + 1] = [format3(parseInt(timestamp), "m:ss:SSS")];
         }
         const array = output.values[index + 1];
         array.push(temperature);
@@ -3144,16 +3146,10 @@ var AnalysisDataState = class extends AbstractProperty {
       const key = "listen to layer state";
       layer.onMoveOrResize.set(key, async (l) => {
         const data2 = await this.parent.service.pointAnalysisData(l.left, l.top);
-        console.log({
-          lTop: l.top,
-          lLeft: l.left,
-          layerTop: layer.top,
-          layerLeft: layer.left
-        }, "na\u010Detl jsem datatata", Object.values(data2)[0]);
-        this.google.setPointAnalysis(l.key, layer.color, data2);
+        this.google.setPointAnalysis(l.key, l.initialColor, data2);
       });
       const data = await this.parent.service.pointAnalysisData(layer.left, layer.top);
-      this.google.setPointAnalysis(layer.key, layer.color, data);
+      this.google.setPointAnalysis(layer.key, layer.initialColor, data);
     });
     this.parent.analysis.layers.onRemove.set("listen to analysisState", async (layer) => {
       this.google.removeAnalysis(layer);
@@ -4078,16 +4074,19 @@ var pointAnalysisData = async (entireFileBuffer, x, y) => {
       const UINT16_MAX = 65535;
       const mappedValue = rawtemperature / UINT16_MAX;
       temperature = min + range * mappedValue;
-      console.log(temperature);
     }
     return {
       timestamp,
       temperature
     };
   };
+  let firstTimestamp = 0;
   for (let i = 0; i < frameCount; i++) {
     const frame = readFrame(i);
-    output[frame.timestamp] = frame.temperature;
+    if (firstTimestamp === 0) {
+      firstTimestamp = frame.timestamp;
+    }
+    output[frame.timestamp - firstTimestamp] = frame.temperature;
   }
   return output;
 };

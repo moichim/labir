@@ -5,9 +5,12 @@ import { customElement, state } from "lit/decorators.js";
 import { map } from 'lit/directives/map.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { AnalysisList, analysisList } from "../../hierarchy/providers/context/FileContexts";
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
 
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
+
+    
 
     @consume({ context: analysisList, subscribe: true })
     analysis: AnalysisList = [];
@@ -20,6 +23,13 @@ export class FileAnalysisList extends FileConsumer {
         values: [[]],
         colors: []
     }
+
+    @state()
+    protected graphWidth: number = 0;
+
+    graphParentElement: Ref<HTMLDivElement> = createRef();
+
+
 
     public onInstanceCreated(): void {
 
@@ -37,7 +47,41 @@ export class FileAnalysisList extends FileConsumer {
                 console.log(value.values[1]);
             });
 
+            this.log( this.graphParentElement.value )
+
+            if ( this.graphParentElement.value ) {
+                this.graphWidth = this.graphParentElement.value.clientWidth;
+                console.log(this.graphWidth);
+
+                const observer = new ResizeObserver( entries => {
+                    this.graphWidth = entries[0].contentRect.width;
+                    console.log(this.graphWidth);
+                } );
+                
+                observer.observe( this.graphParentElement.value );
+
+            }
+
+
         }
+
+
+        this.log( "VELJÚUU", this.graphParentElement.value )
+
+            if ( this.graphParentElement.value ) {
+                this.graphWidth = this.graphParentElement.value.clientWidth;
+                console.log(this.graphWidth);
+
+                const observer = new ResizeObserver( entries => {
+                    this.graphWidth = entries[0].contentRect.width;
+                    console.log(this.graphWidth);
+                } );
+                
+                observer.observe( this.graphParentElement.value );
+
+            }
+
+
 
     }
 
@@ -105,20 +149,26 @@ export class FileAnalysisList extends FileConsumer {
             }
         
         }
+
+        google.charts {
+           border-radius: var( --thermal-radius );
+                border: 1px solid var( --thermal-slate );
+        }
     `;
 
 
     protected render(): unknown {
 
-        if (this.analysis.length === 0) {
-            return nothing;
-        }
-
 
         return html`
-            <div class="container">
+            
 
-            <table>
+            ${ this.analysis.length === 0
+
+                ? nothing
+                : html`
+                <div class="container">
+                <table>
 
                 <caption>
                     Current analysis on the file ${this.file?.fileName}
@@ -129,21 +179,21 @@ export class FileAnalysisList extends FileConsumer {
                         <th 
                             class="interactive" 
                             @click=${() => {
-                                if (this.file) {
-                                    if (this.allSelected) {
+                if (this.file) {
+                    if (this.allSelected) {
 
-                                        this.file.analysis.layers.deselectAll();
+                        this.file.analysis.layers.deselectAll();
 
-                                        this.allSelected = false;
+                        this.allSelected = false;
 
-                                    } else {
-                                        this.allSelected = true;
+                    } else {
+                        this.allSelected = true;
 
-                                        this.file.analysis.layers.selectAll();
+                        this.file.analysis.layers.selectAll();
 
-                                    }
-                                }
-                            }}
+                    }
+                }
+            }}
                         >
                             <div 
                                 class="selected ${this.allSelected ? "all" : ""}"
@@ -166,12 +216,26 @@ export class FileAnalysisList extends FileConsumer {
                 </tbody>
 
             </table>
-            
             </div>
+                `
+             }
+            
+            
+            
 
-            <div>
-                ${this.graphs.colors.length > 0 ? html`<google-chart type="line" .data=${this.graphs.values} .options=${{colors: this.graphs.colors}}></google-chart>`
-                    : nothing}
+            <div style="width: 100%;" ${ref(this.graphParentElement)}>
+                ${this.graphs.colors.length > 0 ? html`<google-chart 
+                    type="line" 
+                    .data=${this.graphs.values} 
+                    .options=${{
+                        colors: this.graphs.colors,
+                        legend: { position: 'bottom' },
+                        hAxis: { title: 'Time' },
+                        vAxis: { title: 'Temperature °C' },
+                        width: this.graphWidth,
+                    }}
+                    ></google-chart>`
+                : nothing}
             </div>
         
         `;
