@@ -17,7 +17,7 @@ export abstract class AbstractAnalysis {
     public readonly onValues = new CallbacksManager< (min?: number, max?: number, avg?: number) => void >;
 
     /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
-    public readonly onMoveOrResize = new CallbacksManager< () => void>
+    public readonly onMoveOrResize = new CallbacksManager< (analysis: AbstractAnalysis) => void>
 
     /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     public readonly layerRoot: HTMLDivElement;

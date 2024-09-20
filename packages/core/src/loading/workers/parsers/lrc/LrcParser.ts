@@ -2,8 +2,10 @@
 import { IParserObject } from "../structure";
 import { baseInfo } from "./jobs/baseInfo";
 import { frameData, getFrameSubset } from "./jobs/getFrameSubset";
+import { pointAnalysisData } from "./jobs/pointAnalysisData";
 import { registryHistogram } from "./jobs/histogram";
 import { is } from "./jobs/is";
+
 
 
 const extensions: IParserObject["extensions"] = [{
@@ -36,7 +38,8 @@ const parser: IParserObject = {
     baseInfo,
     getFrameSubset,
     frameData,
-    registryHistogram
+    registryHistogram,
+    pointAnalysisData
 }
 
 export const LrcParser = Object.freeze( parser );

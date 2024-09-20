@@ -126,6 +126,11 @@ const batchLoading = async (
         files.map(file => registry.service.loadFile(file) as Promise< ThermalFileReader > )
     );
 
+    services.forEach( async ( service ) => {
+        const data = await service.pointAnalysisData(10,10);
+        console.log( data );
+    } )
+
     console.log( "SERVICE LOADING END - START INSTANTIATION", services );
 
     const instances = await Promise.all( 
@@ -153,13 +158,13 @@ const batchLoading = async (
 }
 
 batchLoading([
-    // "/soustruh.lrc",
+    "/soustruh.lrc",
     "/tucnaci_04.lrc",
     // "/image-thermal 2021-11-24 11-18-20.lrc",
     // "/image-thermal 2024-01-12 14-09-37.lrc",
     // "/image-thermal 2024-02-12 10-15-07.lrc",
     // "/image-thermal 2024-02-12 10-15-08.lrc",
-    // "/sequence.lrc"
+    "/sequence.lrc"
 ]);
 
 const buildControls = () => {

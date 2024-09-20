@@ -56,6 +56,10 @@ type SupportedDeviceType = {
     manufacturerUrl: string,
 }
 
+export type PointAnalysisData = {
+    [time: number]: number
+}
+
 
 
 /**
@@ -107,6 +111,9 @@ export interface IParserObject {
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>,
 
 
-    registryHistogram( files: ArrayBuffer[] ): Promise<ThermalStatistics[]>
+    registryHistogram( files: ArrayBuffer[] ): Promise<ThermalStatistics[]>,
+
+    pointAnalysisData( file: ArrayBuffer, x: number, y: number ): Promise<PointAnalysisData>
 
 }
+

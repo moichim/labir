@@ -59,7 +59,7 @@ export class EditTool extends AbstractTool implements ITool {
             // - update the value
             // - and call other eventual callbacks
             // (Update value event is )
-            point.analysis.onMoveOrResize.call();
+            point.analysis.onMoveOrResize.call( point.analysis );
 
         }
     }

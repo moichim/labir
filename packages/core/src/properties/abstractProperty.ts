@@ -2,6 +2,7 @@ import { Instance } from "../file/instance";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
+import { AnalysisDataStateValue } from "./analysis/AnalysisDataState";
 import { AbstractAnalysis } from "./analysis/internals/AbstractAnalysis";
 import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./drives/RangeDriver";
@@ -17,7 +18,8 @@ type PropertyListenersTypes = boolean
     | ThermalStatistics[]
     | Instance[]
     | AbstractAnalysis[]
-    | AbstractTool;
+    | AbstractTool
+    | AnalysisDataStateValue;
 
 export type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 

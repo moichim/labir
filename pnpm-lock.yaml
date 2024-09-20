@@ -118,6 +118,9 @@ importers:
       '@floating-ui/dom':
         specifier: ^1.6.6
         version: 1.6.6
+      '@google-web-components/google-chart':
+        specifier: ^5.1.0
+        version: 5.1.0
       '@labir/core':
         specifier: workspace:*
         version: link:../core
@@ -130,6 +133,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.8
         version: 9.0.8
+      chartjs-web-components:
+        specifier: ^2.8.0
+        version: 2.8.0(chart.js@2.9.4)(lit-element@4.0.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vue-property-decorator@8.5.1(vue@3.4.28(typescript@5.4.5)))(vue@3.4.28(typescript@5.4.5))
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -916,6 +922,9 @@ packages:
 
   '@formatjs/intl-localematcher@0.5.4':
     resolution: {integrity: sha512-zTwEpWOzZ2CiKcB93BLngUX59hQkuZjT2+SAQEscSm52peDW/getsawMcWF1rGRpMCX6D7nSJA3CzJ8gn13N/g==}
+
+  '@google-web-components/google-chart@5.1.0':
+    resolution: {integrity: sha512-WtAemdDoDMUWvWRgFCJKVjWOACN8eZm8YPvtWSL85F4AgzrL5CU9va720jPLJjY3iKddPO771EeqdbSTHMM4oQ==}
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
@@ -3154,6 +3163,25 @@ packages:
   chardet@0.7.0:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
 
+  chart.js@2.9.4:
+    resolution: {integrity: sha512-B07aAzxcrikjAPyV+01j7BmOpxtQETxTSlQ26BEYJ+3iUkbNKaOJ/nDbT6JjyqYxseM0ON12COHYdU2cTIjC7A==}
+
+  chartjs-color-string@0.6.0:
+    resolution: {integrity: sha512-TIB5OKn1hPJvO7JcteW4WY/63v6KwEdt6udfnDE9iCAZgy+V4SrbSxoIbTw/xkUIapjEI4ExGtD0+6D3KyFd7A==}
+
+  chartjs-color@2.4.1:
+    resolution: {integrity: sha512-haqOg1+Yebys/Ts/9bLo/BqUcONQOdr/hoEr2LLTRl6C5LXctUdHxsCYfvQVg5JIxITrfCNUDr4ntqmQk9+/0w==}
+
+  chartjs-web-components@2.8.0:
+    resolution: {integrity: sha512-17fqftQYGPdc5Nj6HXw2kqg2pNRw/REvSCPpaCdFzFFR/9grKzlF4oGGqojNF9pcjLBAcXdB2mRrB6PN5AODLw==}
+    peerDependencies:
+      chart.js: ^2.8.0
+      lit-element: 2.5.0
+      react: ^16.8.4
+      react-dom: ^16.8.4
+      vue: ^2.6.10
+      vue-property-decorator: ^8.1.0
+
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
 
@@ -5377,6 +5405,9 @@ packages:
     resolution: {integrity: sha512-xV2bxeN6F7oYjZWTe/YPAy6MN2M+sL4u/Rlm2AHCIVGfo2p1yGmBHQ6vHehl4bRTZBdHu3TSkWdYgkwpYzAGSw==}
     engines: {node: '>=0.10.0'}
 
+  moment@2.30.1:
+    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+
   moo-color@1.0.3:
     resolution: {integrity: sha512-i/+ZKXMDf6aqYtBhuOcej71YSlbjT3wCO/4H1j8rPvxDJEifdwgg5MaFyu6iYAT8GBZJg2z0dkgK4YMzvURALQ==}
 
@@ -6333,6 +6364,9 @@ packages:
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
+  safevalues@0.5.2:
+    resolution: {integrity: sha512-8MeVqP6q2UompeFEUVphKZyLzeenFrSATIAAeSE5+6aGiozwVe3mK61TCODNrBFHocBJdpGL/lCmdYWiocdMng==}
+
   saxes@6.0.0:
     resolution: {integrity: sha512-xAg7SOnEhrm5zI3puOOKyy1OMcMlIJZYNJY7xLBwSze0UjhPLnWfj2GF2EpT0jmzaJKIWKHLsaSSajf35bcYnA==}
     engines: {node: '>=v12.22.7'}
@@ -7253,6 +7287,11 @@ packages:
   vscode-uri@3.0.8:
     resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
 
+  vue-class-component@7.2.6:
+    resolution: {integrity: sha512-+eaQXVrAm/LldalI272PpDe3+i4mPis0ORiMYxF6Ae4hyuCh15W8Idet7wPUEs4N4YptgFHGys4UrgNQOMyO6w==}
+    peerDependencies:
+      vue: ^2.0.0
+
   vue-component-type-helpers@2.0.21:
     resolution: {integrity: sha512-3NaicyZ7N4B6cft4bfb7dOnPbE9CjLcx+6wZWAg5zwszfO4qXRh+U52dN5r5ZZfc6iMaxKCEcoH9CmxxoFZHLg==}
 
@@ -7261,6 +7300,11 @@ packages:
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: '>=6.0.0'
+
+  vue-property-decorator@8.5.1:
+    resolution: {integrity: sha512-O6OUN2OMsYTGPvgFtXeBU3jPnX5ffQ9V4I1WfxFQ6dqz6cOUbR3Usou7kgFpfiXDvV7dJQSFcJ5yUPgOtPPm1Q==}
+    peerDependencies:
+      vue: '*'
 
   vue-template-compiler@2.7.16:
     resolution: {integrity: sha512-AYbUWAJHLGGQM7+cNTELw+KsOG9nl2CnSv467WobS5Cv9uk3wFcnr1Etsz2sEIHEZvw1U+o9mRlEO6QbZvUPGQ==}
@@ -7975,6 +8019,11 @@ snapshots:
   '@formatjs/intl-localematcher@0.5.4':
     dependencies:
       tslib: 2.6.3
+
+  '@google-web-components/google-chart@5.1.0':
+    dependencies:
+      lit: 3.1.4
+      safevalues: 0.5.2
 
   '@hapi/hoek@9.3.0': {}
 
@@ -11151,6 +11200,29 @@ snapshots:
 
   chardet@0.7.0: {}
 
+  chart.js@2.9.4:
+    dependencies:
+      chartjs-color: 2.4.1
+      moment: 2.30.1
+
+  chartjs-color-string@0.6.0:
+    dependencies:
+      color-name: 1.1.4
+
+  chartjs-color@2.4.1:
+    dependencies:
+      chartjs-color-string: 0.6.0
+      color-convert: 1.9.3
+
+  chartjs-web-components@2.8.0(chart.js@2.9.4)(lit-element@4.0.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vue-property-decorator@8.5.1(vue@3.4.28(typescript@5.4.5)))(vue@3.4.28(typescript@5.4.5)):
+    dependencies:
+      chart.js: 2.9.4
+      lit-element: 4.0.6
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
+      vue: 3.4.28(typescript@5.4.5)
+      vue-property-decorator: 8.5.1(vue@3.4.28(typescript@5.4.5))
+
   check-error@1.0.3:
     dependencies:
       get-func-name: 2.0.2
@@ -13992,6 +14064,8 @@ snapshots:
 
   modify-values@1.0.1: {}
 
+  moment@2.30.1: {}
+
   moo-color@1.0.3:
     dependencies:
       color-name: 1.1.4
@@ -15120,6 +15194,8 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
+  safevalues@0.5.2: {}
+
   saxes@6.0.0:
     dependencies:
       xmlchars: 2.2.0
@@ -16115,6 +16191,10 @@ snapshots:
 
   vscode-uri@3.0.8: {}
 
+  vue-class-component@7.2.6(vue@3.4.28(typescript@5.4.5)):
+    dependencies:
+      vue: 3.4.28(typescript@5.4.5)
+
   vue-component-type-helpers@2.0.21: {}
 
   vue-eslint-parser@9.4.3(eslint@8.57.0):
@@ -16129,6 +16209,11 @@ snapshots:
       semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
+
+  vue-property-decorator@8.5.1(vue@3.4.28(typescript@5.4.5)):
+    dependencies:
+      vue: 3.4.28(typescript@5.4.5)
+      vue-class-component: 7.2.6(vue@3.4.28(typescript@5.4.5))
 
   vue-template-compiler@2.7.16:
     dependencies:

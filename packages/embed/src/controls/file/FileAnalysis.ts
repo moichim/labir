@@ -1,3 +1,4 @@
+import { AnalysisDataStateValue } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
@@ -14,15 +15,28 @@ export class FileAnalysisList extends FileConsumer {
     @state()
     protected allSelected: boolean = false;
 
+    @state()
+    protected graphs: AnalysisDataStateValue = {
+        values: [[]],
+        colors: []
+    }
+
     public onInstanceCreated(): void {
 
         if (this.file !== undefined) {
+
             this.file.analysis.layers.onSelectionChange.add(this.UUID, value => {
                 if (this.file) {
                     this.allSelected = this.file.analysis.value.length === value.length;
                 }
 
             });
+
+            this.file.analysisData.addListener(this.UUID, (value) => {
+                this.graphs = value;
+                console.log(value.values[1]);
+            });
+
         }
 
     }
@@ -153,6 +167,11 @@ export class FileAnalysisList extends FileConsumer {
 
             </table>
             
+            </div>
+
+            <div>
+                ${this.graphs.colors.length > 0 ? html`<google-chart type="line" .data=${this.graphs.values} .options=${{colors: this.graphs.colors}}></google-chart>`
+                    : nothing}
             </div>
         
         `;

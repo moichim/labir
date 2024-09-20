@@ -57,7 +57,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
         if (point.isInSelectedLayer() && point.active) {
             point.x = left;
             point.y = top;
-            point.analysis.onMoveOrResize.call();
+            point.analysis.onMoveOrResize.call( point.analysis );
         }
     }
 

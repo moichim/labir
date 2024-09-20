@@ -81,6 +81,10 @@ export class ThermalFileReader extends AbstractFileResult {
 
     }
 
+    public async pointAnalysisData( x: number, y: number ): ReturnType<IParserObject["pointAnalysisData"]> {
+        return await this.parser.pointAnalysisData( this.buffer, x, y );
+    }
+
 
     public async createInstance(
         group: ThermalGroup

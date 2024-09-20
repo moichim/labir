@@ -2772,6 +2772,12 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.center = new PointPoint("center", top, left, this, color);
     this.points.set("center", this.center);
     this.center.projectInnerPositionToDom();
+    this.center.onX.set("update point", (x) => {
+      this.left = x;
+    });
+    this.center.onY.set("update point", (y) => {
+      this.top = y;
+    });
   }
   setColorCallback(value) {
     this.center.setColor(value);
@@ -3137,6 +3143,115 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/analysis/graphs/GoogleGraphsStorage.ts
+var GoogleGraphsStorage = class {
+  constructor(parent) {
+    this.parent = parent;
+  }
+  raw = /* @__PURE__ */ new Map();
+  get all() {
+    return Array.from(this.raw.values());
+  }
+  output = {
+    values: [[]],
+    colors: []
+  };
+  setPointAnalysis(name, color, data) {
+    this.raw.set(name, {
+      name,
+      color,
+      data
+    });
+    this.parent.dangerouslyUpdateValue(this.formatOutput());
+  }
+  removeAnalysis(...name) {
+    name.forEach((n) => {
+      this.raw.delete(n);
+    });
+    this.parent.dangerouslyUpdateValue(this.formatOutput());
+  }
+  formatOutput() {
+    const output = {
+      values: [["Time"]],
+      colors: []
+    };
+    this.raw.forEach((rata, name) => {
+      output.values[0].push(name);
+      output.colors.push(rata.color);
+    });
+    for (const analysis of this.raw.values()) {
+      Object.entries(analysis.data).forEach(([timestamp, temperature], index) => {
+        const row = output.values[index + 1];
+        if (row === void 0) {
+          output.values[index + 1] = [timestamp];
+        }
+        const array = output.values[index + 1];
+        array.push(temperature);
+      });
+    }
+    return output;
+  }
+  has(name) {
+    return this.raw.has(name);
+  }
+  forEach(callback) {
+    this.raw.forEach(callback);
+  }
+};
+
+// src/properties/analysis/AnalysisDataState.ts
+var AnalysisDataState = class extends AbstractProperty {
+  google = new GoogleGraphsStorage(this);
+  constructor(parent) {
+    super(parent, { values: [[]], colors: [] });
+    this.parent.analysis.layers.onAdd.set("listen to analysisState", async (layer) => {
+      const key = "listen to layer state";
+      layer.onMoveOrResize.set(key, async (l) => {
+        const data2 = await this.parent.service.pointAnalysisData(l.left, l.top);
+        console.log({
+          lTop: l.top,
+          lLeft: l.left,
+          layerTop: layer.top,
+          layerLeft: layer.left
+        }, "na\u010Detl jsem datatata", Object.values(data2)[0]);
+        this.google.setPointAnalysis(l.key, layer.color, data2);
+      });
+      const data = await this.parent.service.pointAnalysisData(layer.left, layer.top);
+      this.google.setPointAnalysis(layer.key, layer.color, data);
+    });
+    this.parent.analysis.layers.onRemove.set("listen to analysisState", async (layer) => {
+      this.google.removeAnalysis(layer);
+    });
+    this.parent.analysis.layers.onSelectionChange.set("listen to analysisState", async (layers) => {
+      const selectedKeys = layers.map((layer) => layer.key);
+      const keysInGraphs = this.google.all.map((graph) => graph.name);
+      const graphsToAdd = selectedKeys.filter((key) => !keysInGraphs.includes(key)).map((key) => {
+        return layers.find((layer) => layer.key === key);
+      });
+      const graphToRemove = keysInGraphs.filter((key) => !selectedKeys.includes(key));
+      this.google.removeAnalysis(...graphToRemove);
+      graphsToAdd.forEach(async (analysis) => {
+        const data = await analysis.file.service.pointAnalysisData(analysis.left, analysis.top);
+        this.google.setPointAnalysis(analysis.key, analysis.color, data);
+      });
+      this.google.forEach((existingGraph) => {
+        if (!selectedKeys.includes(existingGraph.name)) {
+          this.google.removeAnalysis();
+        }
+      });
+    });
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    console.log("p\u0159i\u0161ly data", value);
+  }
+  dangerouslyUpdateValue(value) {
+    this.value = value;
+  }
+};
+
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
@@ -3199,6 +3314,7 @@ var Instance = class _Instance extends AbstractFile {
     this.timeline.init();
     this.recording = new RecordingDrive(this, false);
     this.analysis = new AnalysisDrive(this, []);
+    this.analysisData = new AnalysisDataState(this);
     return this;
   }
   formatId(thermalUrl) {
@@ -3439,7 +3555,7 @@ var AddEllipsisTool = class extends AbstractAddTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      point.analysis.onMoveOrResize.call();
+      point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
   onPointLeave() {
@@ -3482,7 +3598,7 @@ var AddPointTool = class extends AbstractAddTool {
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
-    point.analysis.onMoveOrResize.call();
+    point.analysis.onMoveOrResize.call(point.analysis);
   }
   onPointMove() {
   }
@@ -3534,7 +3650,7 @@ var AddRectangleTool = class extends AbstractAddTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      point.analysis.onMoveOrResize.call();
+      point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
   onPointLeave() {
@@ -3576,7 +3692,7 @@ var EditTool = class extends AbstractTool {
     if (point.isInSelectedLayer() && point.active) {
       point.x = left;
       point.y = top;
-      point.analysis.onMoveOrResize.call();
+      point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
   onPointDown(point) {
@@ -3748,9 +3864,6 @@ var ThermalFileReader = class extends AbstractFileResult {
   isSuccess() {
     return true;
   }
-  async getPointAnalysisData(x, y) {
-    return await this.parser.getPointAnalysisData(this.buffer, x, y);
-  }
   /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
   async baseInfo() {
     if (this.baseInfoCache) {
@@ -3775,6 +3888,9 @@ var ThermalFileReader = class extends AbstractFileResult {
     const data = this.getFrameSubset(index);
     const result = await this.parser.frameData(data.array, data.dataType);
     return result;
+  }
+  async pointAnalysisData(x, y) {
+    return await this.parser.pointAnalysisData(this.buffer, x, y);
   }
   async createInstance(group) {
     const baseInfo2 = await this.baseInfo();
@@ -3971,12 +4087,73 @@ var frameData = async (frameSubset, dataType) => {
   };
 };
 
-// src/loading/workers/parsers/lrc/jobs/getPointAnalysisData.ts
-var getPointAnalysisData = async (file, x, y) => {
-  const values = {
-    temperatures: {}
+// src/loading/workers/parsers/lrc/jobs/pointAnalysisData.ts
+var pointAnalysisData = async (entireFileBuffer, x, y) => {
+  const view = new DataView(entireFileBuffer);
+  const width = view.getUint16(17, true);
+  const height = view.getUint16(19, true);
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3fffffffffffffffn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
   };
-  return values;
+  const dataType = view.getUint8(15);
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const frameHeaderByteSize = 57;
+  const framePixelsSize = width * height * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const output = {};
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const timestamp = readTimestamp(frameView, 0);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const range = max - min;
+    const frameHeaderByteSize2 = 57;
+    const pointIndex = frameHeaderByteSize2 + y * pixelByteSize * width + x * pixelByteSize;
+    let temperature = 0;
+    if (dataType === 1) {
+      temperature = frameView.getFloat32(pointIndex, true);
+    } else if (dataType === 0) {
+      console.log("jsem uvnit\u0159 varia");
+      const rawtemperature = frameView.getInt16(pointIndex, true);
+      const UINT16_MAX = 65535;
+      const mappedValue = rawtemperature / UINT16_MAX;
+      temperature = min + range * mappedValue;
+      console.log(temperature);
+    }
+    return {
+      timestamp,
+      temperature
+    };
+  };
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    output[frame.timestamp] = frame.temperature;
+  }
+  return output;
 };
 
 // src/loading/workers/parsers/lrc/jobs/histogram.ts
@@ -4089,7 +4266,7 @@ var parser = {
   getFrameSubset,
   frameData,
   registryHistogram,
-  getPointAnalysisData
+  pointAnalysisData
 };
 var LrcParser = Object.freeze(parser);
 

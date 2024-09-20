@@ -42,6 +42,14 @@ export class PointAnalysis extends AbstractAnalysis {
         this.points.set( "center", this.center );
         this.center.projectInnerPositionToDom();
 
+        this.center.onX.set( "update point", ( x ) => {
+            this.left = x;
+        });
+
+        this.center.onY.set( "update point", ( y ) => {
+            this.top = y;
+        });
+
     }
 
 

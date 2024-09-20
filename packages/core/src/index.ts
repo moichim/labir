@@ -43,7 +43,7 @@ import { InspectTool } from "./properties/tool/internals/InspectTool";
 import { ThermalTool } from "./properties/tool/ToolDrive";
 import { getPool } from "./utils/pool";
 
-
+import { AnalysisDataStateValue } from "./properties/analysis/AnalysisDataState";
 
 export {
 
@@ -72,7 +72,9 @@ export {
     ThermalRegistry,
     ThermalRegistryOptions, ThermalTool,
     // Utils - Time
-    TimeFormat, TimePeriod, TimeRound
+    TimeFormat, TimePeriod, TimeRound,
+
+    AnalysisDataStateValue
 };
 
 

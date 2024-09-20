@@ -1,3 +1,4 @@
+import '@google-web-components/google-chart';
 import { AbstractAnalysis } from "@labir/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -97,7 +98,7 @@ export class FileAnalysisList extends FileConsumer {
         );
 
 
-        analysis.onResize.add( "__onResize", () => {
+        analysis.onMoveOrResize.add( "__onResize", () => {
             this.top = analysis.top;
             this.left = analysis.left;
             this.width = analysis.width;
@@ -110,10 +111,10 @@ export class FileAnalysisList extends FileConsumer {
 
         this.log("DEHYDRATUJI", analysis.key);
 
-        analysis.onSelected.remove("__onSelected");
-        analysis.onDeselected.remove("__onDeselected");
-        analysis.onValues.remove("__onValues");
-        analysis.onResize.remove( "__onResize" );
+        analysis.onSelected.delete("__onSelected");
+        analysis.onDeselected.delete("__onDeselected");
+        analysis.onValues.delete("__onValues");
+        analysis.onMoveOrResize.delete( "__onResize" );
 
     }
 
