@@ -1,14 +1,21 @@
 import { format } from "date-fns";
-import { PointAnalysisData } from "../../../loading/workers/parsers/structure";
+import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
 import { AnalysisDataState, AnalysisDataStateValue, ValueRow } from "../AnalysisDataState";
+import { AbstractAnalysis } from "../internals/AbstractAnalysis";
+import { RectangleAnalysis } from "../internals/area/rectangle/RectangleAnalysis";
+import { PointAnalysis } from "../internals/point/PointAnalysis";
+import { AbstractAreaAnalysis } from "../internals/area/AbstractAreaAnalysis";
 
 type RawData = {
     name: string,
     color: string,
-    data: PointAnalysisData
+    data: PointAnalysisData|AreaAnalysisData,
+    analysis: AbstractAnalysis
 }
 
 export class GoogleGraphsStorage {
+
+    protected readonly activeGraphs: Map<string,AbstractAnalysis> = new Map;
 
     protected readonly raw = new Map<string, RawData>();
 
@@ -25,16 +32,29 @@ export class GoogleGraphsStorage {
         private readonly parent: AnalysisDataState
     ) { }
 
-    setPointAnalysis( name: string, color: string, data: PointAnalysisData ) {
+    setPointAnalysis( name: string, color: string, data: PointAnalysisData, analysis: PointAnalysis ) {
 
         this.raw.set( name, {
             name,
             color,
-            data
+            data,
+            analysis
         });
 
         this.parent.dangerouslyUpdateValue( this.formatOutput() );
 
+    }
+
+    setAreaAnalysis( name: string, color: string, data: AreaAnalysisData, analysis: AbstractAreaAnalysis ) {
+
+        this.raw.set( name, {
+            name,
+            color,
+            data,
+            analysis
+        });
+
+        this.parent.dangerouslyUpdateValue( this.formatOutput() );
     }
 
     removeAnalysis(...name: string[]) {
@@ -56,8 +76,32 @@ export class GoogleGraphsStorage {
         // Push names and colors
         this.raw.forEach( (rata, name) => {
 
-            output.values[0].push( name );
-            output.colors.push( rata.color );
+            if ( Object.values( rata.data )[0] instanceof Object ) {
+
+                if ( rata.analysis.graphMinActive) {
+                    output.values[0].push( name + " MIN");
+                    output.colors.push( rata.color );
+                }
+
+                if ( rata.analysis.graphMaxActive ) {
+                    output.values[0].push( name + " MAX");
+                    output.colors.push( rata.color );
+                }
+
+                if ( rata.analysis.graphAvgActive ) {
+                    output.values[0].push( name + " AVG");
+                    output.colors.push( rata.color );
+                }
+
+
+            } else {
+
+                if ( rata.analysis.graphAvgActive ) {
+                    output.values[0].push( name );
+                    output.colors.push( rata.color );
+                }
+
+            }
 
         });
 
@@ -65,7 +109,7 @@ export class GoogleGraphsStorage {
         // Push temperatures
         for (const analysis of this.raw.values()) {
             
-            Object.entries( analysis.data ).forEach( ([timestamp, temperature], index) => {
+            Object.entries( analysis.data ).forEach( ([timestamp, value]: [string,number|{min: number, max: number, avg: number}], index) => {
 
                 const row = output.values[index + 1];
 
@@ -75,7 +119,25 @@ export class GoogleGraphsStorage {
 
                 const array = output.values[index + 1] as ValueRow;
 
-                array.push( temperature );
+                if ( value instanceof Object ) {
+
+                    if ( analysis.analysis.graphMinActive ) {
+                        array.push( value.min );
+                    }
+                    if ( analysis.analysis.graphMaxActive ) {
+                        array.push( value.max );
+                    }
+                    if ( analysis.analysis.graphAvgActive ) {
+                        array.push( value.avg );
+                    }
+
+                } else {
+
+                    if (analysis.analysis.graphAvgActive) {
+                        array.push( value );
+                    }
+                    
+                }
 
             });
 

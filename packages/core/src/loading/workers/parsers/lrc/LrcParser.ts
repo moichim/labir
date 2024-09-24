@@ -3,8 +3,10 @@ import { IParserObject } from "../structure";
 import { baseInfo } from "./jobs/baseInfo";
 import { frameData, getFrameSubset } from "./jobs/getFrameSubset";
 import { pointAnalysisData } from "./jobs/pointAnalysisData";
+import { rectAnalysisData } from "./jobs/rectAnalysisData";
 import { registryHistogram } from "./jobs/histogram";
 import { is } from "./jobs/is";
+import { ellipsisAnalysisData } from "./jobs/ellipsisAnalysisData";
 
 
 
@@ -39,7 +41,9 @@ const parser: IParserObject = {
     getFrameSubset,
     frameData,
     registryHistogram,
-    pointAnalysisData
+    pointAnalysisData,
+    rectAnalysisData,
+    ellipsisAnalysisData
 }
 
 export const LrcParser = Object.freeze( parser );

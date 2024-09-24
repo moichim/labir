@@ -78,6 +78,46 @@ export abstract class AbstractAnalysis {
     public readonly activeColor = "yellow";
     public readonly inactiveColor = "black";
 
+    protected _graphMinActive: boolean = false;
+    public get graphMinActive(): boolean {
+        return this._graphMinActive;
+    }
+    public setGraphMinActivation(value: boolean) {
+        this._graphMinActive = value;
+        this.emitGraphActivation();
+    }
+
+    protected _graphMaxActive: boolean = false;
+    public get graphMaxActive(): boolean {
+        return this._graphMaxActive;
+    }
+    public setGraphMaxActivation(value: boolean) {
+        this._graphMaxActive = value;
+        this.emitGraphActivation();
+    }
+
+    protected _graphAvgActive: boolean = false;
+    public get graphAvgActive(): boolean {
+        return this._graphAvgActive;
+    }
+    public setGraphAvgActivation(value: boolean) {
+        this._graphAvgActive = value;
+        this.emitGraphActivation();
+    }
+
+    public readonly onGraphActivation = new CallbacksManager<(
+        min: boolean,
+        max: boolean,
+        avg: boolean
+    ) => void>()
+
+    protected emitGraphActivation() {
+        this.onGraphActivation.call(
+            this._graphMinActive,
+            this._graphMaxActive,
+            this._graphAvgActive
+        );
+    }
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     public ready: boolean = false;
 

@@ -414,6 +414,13 @@ type SupportedDeviceType = {
 type PointAnalysisData = {
     [time: number]: number;
 };
+type AreaAnalysisData = {
+    [time: number]: {
+        min: number;
+        max: number;
+        avg: number;
+    };
+};
 /**
  * Interface for a parser object
  * - all methods must be completely and totally static
@@ -457,6 +464,8 @@ interface IParserObject {
     frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
     registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
     pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
+    rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
+    ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
 }
 
 declare class FrameBuffer {
@@ -810,6 +819,17 @@ declare abstract class AbstractAnalysis {
     readonly initialColor: string;
     readonly activeColor = "yellow";
     readonly inactiveColor = "black";
+    protected _graphMinActive: boolean;
+    get graphMinActive(): boolean;
+    setGraphMinActivation(value: boolean): void;
+    protected _graphMaxActive: boolean;
+    get graphMaxActive(): boolean;
+    setGraphMaxActivation(value: boolean): void;
+    protected _graphAvgActive: boolean;
+    get graphAvgActive(): boolean;
+    setGraphAvgActivation(value: boolean): void;
+    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    protected emitGraphActivation(): void;
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     ready: boolean;
     constructor(key: string, file: Instance, initialColor: string);
@@ -1048,15 +1068,18 @@ type ThermalStatistics = {
 type RawData = {
     name: string;
     color: string;
-    data: PointAnalysisData;
+    data: PointAnalysisData | AreaAnalysisData;
+    analysis: AbstractAnalysis;
 };
 declare class GoogleGraphsStorage {
     private readonly parent;
+    protected readonly activeGraphs: Map<string, AbstractAnalysis>;
     protected readonly raw: Map<string, RawData>;
     get all(): RawData[];
     protected output: AnalysisDataStateValue;
     constructor(parent: AnalysisDataState);
-    setPointAnalysis(name: string, color: string, data: PointAnalysisData): void;
+    setPointAnalysis(name: string, color: string, data: PointAnalysisData, analysis: PointAnalysis): void;
+    setAreaAnalysis(name: string, color: string, data: AreaAnalysisData, analysis: AbstractAreaAnalysis): void;
     removeAnalysis(...name: string[]): void;
     protected formatOutput(): AnalysisDataStateValue;
     has(name: string): boolean;
@@ -1348,6 +1371,8 @@ declare class ThermalFileReader extends AbstractFileResult {
      */
     frameData(index: number): ReturnType<IParserObject["frameData"]>;
     pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
+    rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
+    ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
     createInstance(group: ThermalGroup): Promise<Instance>;
 }
 
@@ -1583,4 +1608,4 @@ declare class InspectTool extends AbstractTool implements ITool {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };
+export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };

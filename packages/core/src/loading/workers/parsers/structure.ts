@@ -60,6 +60,14 @@ export type PointAnalysisData = {
     [time: number]: number
 }
 
+export type AreaAnalysisData = {
+    [time: number]: {
+        min: number,
+        max: number,
+        avg: number
+    }
+}
+
 
 
 /**
@@ -113,7 +121,11 @@ export interface IParserObject {
 
     registryHistogram( files: ArrayBuffer[] ): Promise<ThermalStatistics[]>,
 
-    pointAnalysisData( file: ArrayBuffer, x: number, y: number ): Promise<PointAnalysisData>
+    pointAnalysisData( file: ArrayBuffer, x: number, y: number ): Promise<PointAnalysisData>,
+
+    rectAnalysisData( file: ArrayBuffer, x: number, y: number, width: number, height: number ): Promise<AreaAnalysisData>,
+
+    ellipsisAnalysisData( file: ArrayBuffer, x: number, y: number, width: number, height: number ): Promise<AreaAnalysisData>,
 
 }
 

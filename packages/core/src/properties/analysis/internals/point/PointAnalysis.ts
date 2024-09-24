@@ -1,9 +1,9 @@
 import { Instance } from "../../../../file/instance";
+import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
 
 export class PointAnalysis extends AbstractAnalysis {
-    
 
     protected center!: PointPoint;
 

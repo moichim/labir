@@ -69,6 +69,7 @@ import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
 import "./controls/file/FileAnalysis";
+import "./controls/file/FileAnalysisTableValueCell";
 import "./controls/file/FileAnalysisTableRow";
 
 

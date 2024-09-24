@@ -44,6 +44,7 @@ import { ThermalTool } from "./properties/tool/ToolDrive";
 import { getPool } from "./utils/pool";
 
 import { AnalysisDataStateValue } from "./properties/analysis/AnalysisDataState";
+import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
 
 export {
 
@@ -75,7 +76,11 @@ export {
     TimeFormat, TimePeriod, TimeRound,
 
     AnalysisDataStateValue
+    ,AbstractAreaAnalysis
+    
 };
+
+
 
 
 

@@ -1,4 +1,5 @@
 import { Instance } from "../../../../file/instance";
+import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./rectangle/CornerPoint";
@@ -13,7 +14,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     public readonly br: CornerPoint;
 
     public readonly area: RectangleArea;
-
     
 
     public isWithin(x: number, y: number): boolean {

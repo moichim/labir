@@ -2025,6 +2025,38 @@ var AbstractAnalysis = class {
   initialColor;
   activeColor = "yellow";
   inactiveColor = "black";
+  _graphMinActive = false;
+  get graphMinActive() {
+    return this._graphMinActive;
+  }
+  setGraphMinActivation(value) {
+    this._graphMinActive = value;
+    this.emitGraphActivation();
+  }
+  _graphMaxActive = false;
+  get graphMaxActive() {
+    return this._graphMaxActive;
+  }
+  setGraphMaxActivation(value) {
+    this._graphMaxActive = value;
+    this.emitGraphActivation();
+  }
+  _graphAvgActive = false;
+  get graphAvgActive() {
+    return this._graphAvgActive;
+  }
+  setGraphAvgActivation(value) {
+    this._graphAvgActive = value;
+    this.emitGraphActivation();
+  }
+  onGraphActivation = new CallbacksManager();
+  emitGraphActivation() {
+    this.onGraphActivation.call(
+      this._graphMinActive,
+      this._graphMaxActive,
+      this._graphAvgActive
+    );
+  }
   /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
   ready = false;
   remove() {
@@ -3086,6 +3118,7 @@ var GoogleGraphsStorage = class {
   constructor(parent) {
     this.parent = parent;
   }
+  activeGraphs = /* @__PURE__ */ new Map();
   raw = /* @__PURE__ */ new Map();
   get all() {
     return Array.from(this.raw.values());
@@ -3094,11 +3127,21 @@ var GoogleGraphsStorage = class {
     values: [[]],
     colors: []
   };
-  setPointAnalysis(name, color, data) {
+  setPointAnalysis(name, color, data, analysis) {
     this.raw.set(name, {
       name,
       color,
-      data
+      data,
+      analysis
+    });
+    this.parent.dangerouslyUpdateValue(this.formatOutput());
+  }
+  setAreaAnalysis(name, color, data, analysis) {
+    this.raw.set(name, {
+      name,
+      color,
+      data,
+      analysis
     });
     this.parent.dangerouslyUpdateValue(this.formatOutput());
   }
@@ -3114,17 +3157,48 @@ var GoogleGraphsStorage = class {
       colors: []
     };
     this.raw.forEach((rata, name) => {
-      output.values[0].push(name);
-      output.colors.push(rata.color);
+      if (Object.values(rata.data)[0] instanceof Object) {
+        if (rata.analysis.graphMinActive) {
+          output.values[0].push(name + " MIN");
+          output.colors.push(rata.color);
+        }
+        if (rata.analysis.graphMaxActive) {
+          output.values[0].push(name + " MAX");
+          output.colors.push(rata.color);
+        }
+        if (rata.analysis.graphAvgActive) {
+          output.values[0].push(name + " AVG");
+          output.colors.push(rata.color);
+        }
+      } else {
+        if (rata.analysis.graphAvgActive) {
+          output.values[0].push(name);
+          output.colors.push(rata.color);
+        }
+      }
     });
     for (const analysis of this.raw.values()) {
-      Object.entries(analysis.data).forEach(([timestamp, temperature], index) => {
+      Object.entries(analysis.data).forEach(([timestamp, value], index) => {
         const row = output.values[index + 1];
         if (row === void 0) {
           output.values[index + 1] = [format3(parseInt(timestamp), "m:ss:SSS")];
         }
         const array = output.values[index + 1];
-        array.push(temperature);
+        if (value instanceof Object) {
+          if (analysis.analysis.graphMinActive) {
+            array.push(value.min);
+          }
+          if (analysis.analysis.graphMaxActive) {
+            array.push(value.max);
+          }
+          if (analysis.analysis.graphAvgActive) {
+            array.push(value.avg);
+          }
+        } else {
+          if (analysis.analysis.graphAvgActive) {
+            array.push(value);
+          }
+        }
       });
     }
     return output;
@@ -3145,11 +3219,27 @@ var AnalysisDataState = class extends AbstractProperty {
     this.parent.analysis.layers.onAdd.set("listen to analysisState", async (layer) => {
       const key = "listen to layer state";
       layer.onMoveOrResize.set(key, async (l) => {
-        const data2 = await this.parent.service.pointAnalysisData(l.left, l.top);
-        this.google.setPointAnalysis(l.key, l.initialColor, data2);
+        if (l instanceof PointAnalysis) {
+          const data = await this.parent.service.pointAnalysisData(l.left, l.top);
+          this.google.setPointAnalysis(l.key, l.initialColor, data, l);
+        } else if (l instanceof RectangleAnalysis) {
+          const data = await this.parent.service.rectAnalysisData(l.left, l.top, l.width, l.height);
+          this.google.setAreaAnalysis(l.key, l.initialColor, data, l);
+        } else if (l instanceof EllipsisAnalysis) {
+          const data = await this.parent.service.ellipsisAnalysisData(l.left, l.top, l.width, l.height);
+          this.google.setAreaAnalysis(l.key, l.initialColor, data, l);
+        }
       });
-      const data = await this.parent.service.pointAnalysisData(layer.left, layer.top);
-      this.google.setPointAnalysis(layer.key, layer.initialColor, data);
+      if (layer instanceof PointAnalysis) {
+        const data = await this.parent.service.pointAnalysisData(layer.left, layer.top);
+        this.google.setPointAnalysis(layer.key, layer.initialColor, data, layer);
+      } else if (layer instanceof RectangleAnalysis) {
+        const data = await this.parent.service.rectAnalysisData(layer.left, layer.top, layer.width, layer.height);
+        this.google.setAreaAnalysis(layer.key, layer.initialColor, data, layer);
+      } else if (layer instanceof EllipsisAnalysis) {
+        const data = await this.parent.service.ellipsisAnalysisData(layer.left, layer.top, layer.width, layer.height);
+        this.google.setAreaAnalysis(layer.key, layer.initialColor, data, layer);
+      }
     });
     this.parent.analysis.layers.onRemove.set("listen to analysisState", async (layer) => {
       this.google.removeAnalysis(layer);
@@ -3163,8 +3253,16 @@ var AnalysisDataState = class extends AbstractProperty {
       const graphToRemove = keysInGraphs.filter((key) => !selectedKeys.includes(key));
       this.google.removeAnalysis(...graphToRemove);
       graphsToAdd.forEach(async (analysis) => {
-        const data = await analysis.file.service.pointAnalysisData(analysis.left, analysis.top);
-        this.google.setPointAnalysis(analysis.key, analysis.color, data);
+        if (analysis instanceof PointAnalysis) {
+          const data = await this.parent.service.pointAnalysisData(analysis.left, analysis.top);
+          this.google.setPointAnalysis(analysis.key, analysis.initialColor, data, analysis);
+        } else if (analysis instanceof RectangleAnalysis) {
+          const data = await this.parent.service.rectAnalysisData(analysis.left, analysis.top, analysis.width, analysis.height);
+          this.google.setAreaAnalysis(analysis.key, analysis.initialColor, data, analysis);
+        } else if (analysis instanceof EllipsisAnalysis) {
+          const data = await this.parent.service.ellipsisAnalysisData(analysis.left, analysis.top, analysis.width, analysis.height);
+          this.google.setAreaAnalysis(analysis.key, analysis.initialColor, data, analysis);
+        }
       });
       this.google.forEach((existingGraph) => {
         if (!selectedKeys.includes(existingGraph.name)) {
@@ -3824,6 +3922,12 @@ var ThermalFileReader = class extends AbstractFileResult {
   async pointAnalysisData(x, y) {
     return await this.parser.pointAnalysisData(this.buffer, x, y);
   }
+  async rectAnalysisData(x, y, width, height) {
+    return await this.parser.rectAnalysisData(this.buffer, x, y, width, height);
+  }
+  async ellipsisAnalysisData(x, y, width, height) {
+    return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
+  }
   async createInstance(group) {
     const baseInfo2 = await this.baseInfo();
     const firstFrame = await this.frameData(0);
@@ -4091,6 +4195,106 @@ var pointAnalysisData = async (entireFileBuffer, x, y) => {
   return output;
 };
 
+// src/loading/workers/parsers/lrc/jobs/rectAnalysisData.ts
+var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
+  const view = new DataView(entireFileBuffer);
+  const fileWidth = view.getUint16(17, true);
+  const fileHeight = view.getUint16(19, true);
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3fffffffffffffffn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  };
+  const dataType = view.getUint8(15);
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const frameHeaderByteSize = 57;
+  const framePixelsSize = fileWidth * fileHeight * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const output = {};
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const timestamp = readTimestamp(frameView, 0);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const range = max - min;
+    const frameHeaderByteSize2 = 57;
+    const pointIndex = frameHeaderByteSize2 + top * pixelByteSize * fileWidth + left * pixelByteSize;
+    const fromX = left;
+    const toX = left + _width;
+    const fromY = top;
+    const toY = top + _height;
+    let _min = Infinity;
+    let _max = -Infinity;
+    let count = 0;
+    let sum = 0;
+    console.log(dataType);
+    for (let y = fromY; y <= toY; y++) {
+      const rowOffset = y * fileWidth;
+      for (let x = fromX; x <= toX; x++) {
+        let pointIndex2 = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+        let value = NaN;
+        if (dataType === 1) {
+          value = frameView.getFloat32(pointIndex2, true);
+        } else {
+          let valueRaw = frameView.getInt16(pointIndex2, true);
+          const UINT16_MAX = 65535;
+          const mappedValue = valueRaw / UINT16_MAX;
+          value = min + range * mappedValue;
+        }
+        if (value < _min) {
+          _min = value;
+        }
+        if (value > _max) {
+          _max = value;
+        }
+        sum += value;
+        count++;
+      }
+    }
+    const result = {
+      min: _min,
+      max: _max,
+      avg: sum / count,
+      count
+    };
+    return {
+      timestamp,
+      result
+    };
+  };
+  let firstTimestamp = 0;
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    if (firstTimestamp === 0) {
+      firstTimestamp = frame.timestamp;
+    }
+    output[frame.timestamp - firstTimestamp] = frame.result;
+  }
+  return output;
+};
+
 // src/loading/workers/parsers/lrc/jobs/histogram.ts
 var registryHistogram = async (files) => {
   let pixels = [];
@@ -4171,6 +4375,113 @@ var is = (data, url) => {
   return hasCorrectExtension && hasCorrectSignature;
 };
 
+// src/loading/workers/parsers/lrc/jobs/ellipsisAnalysisData.ts
+var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
+  const view = new DataView(entireFileBuffer);
+  const fileWidth = view.getUint16(17, true);
+  const fileHeight = view.getUint16(19, true);
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3fffffffffffffffn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  };
+  const dataType = view.getUint8(15);
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const frameHeaderByteSize = 57;
+  const framePixelsSize = fileWidth * fileHeight * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const output = {};
+  const isWithin = (x, y) => {
+    const centerX = left + _width / 2;
+    const centerY = top + _height / 2;
+    const normalizedX = (x - centerX) / (_width / 2);
+    const normalizedY = (y - centerY) / (_height / 2);
+    return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+  };
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const timestamp = readTimestamp(frameView, 0);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const range = max - min;
+    const frameHeaderByteSize2 = 57;
+    const fromX = left;
+    const toX = left + _width;
+    const fromY = top;
+    const toY = top + _height;
+    let _min = Infinity;
+    let _max = -Infinity;
+    let count = 0;
+    let sum = 0;
+    for (let y = fromY; y <= toY; y++) {
+      const rowOffset = y * fileWidth;
+      for (let x = fromX; x <= toX; x++) {
+        if (isWithin(x, y)) {
+          let pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+          let value = NaN;
+          if (dataType === 1) {
+            value = frameView.getFloat32(pointIndex, true);
+          } else {
+            let valueRaw = frameView.getInt16(pointIndex, true);
+            const UINT16_MAX = 65535;
+            const mappedValue = valueRaw / UINT16_MAX;
+            value = min + range * mappedValue;
+          }
+          if (value < _min) {
+            _min = value;
+          }
+          if (value > _max) {
+            _max = value;
+          }
+          sum += value;
+          count++;
+        }
+      }
+    }
+    const result = {
+      min: _min,
+      max: _max,
+      avg: sum / count,
+      count
+    };
+    return {
+      timestamp,
+      result
+    };
+  };
+  let firstTimestamp = 0;
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    if (firstTimestamp === 0) {
+      firstTimestamp = frame.timestamp;
+    }
+    output[frame.timestamp - firstTimestamp] = frame.result;
+  }
+  return output;
+};
+
 // src/loading/workers/parsers/lrc/LrcParser.ts
 var extensions = [{
   extension: "lrc",
@@ -4201,7 +4512,9 @@ var parser = {
   getFrameSubset,
   frameData,
   registryHistogram,
-  pointAnalysisData
+  pointAnalysisData,
+  rectAnalysisData,
+  ellipsisAnalysisData
 };
 var LrcParser = Object.freeze(parser);
 
@@ -4868,6 +5181,7 @@ var getPool = async () => {
 };
 export {
   AbstractAnalysis,
+  AbstractAreaAnalysis,
   AbstractFileResult,
   AbstractTool,
   AddEllipsisTool,
