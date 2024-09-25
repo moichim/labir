@@ -2,14 +2,12 @@ import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/pa
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractAnalysis } from "../internals/AbstractAnalysis";
 import { PointAnalysis } from "../internals/point/PointAnalysis";
-import { AnalysisGraphsStorage } from "./AnalysisGraphsStorage";
 
 type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
 
 export class AnalysisGraph {
 
     public constructor(
-        public readonly storage: AnalysisGraphsStorage,
         public readonly analysis: AbstractAnalysis
     ) {
 
@@ -21,7 +19,7 @@ export class AnalysisGraph {
     protected _max: boolean = false;
     protected _avg: boolean = false;
 
-    protected get state() {
+    public get state() {
         return {
             "MIN": this._min,
             "MAX": this._max,

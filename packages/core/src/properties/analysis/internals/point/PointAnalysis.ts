@@ -1,12 +1,22 @@
 import { Instance } from "../../../../file/instance";
 import { PointAnalysisData, AreaAnalysisData } from "../../../../loading/workers/parsers/structure";
 import { CallbacksManager } from "../../../callbacksManager";
+import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
 
 export class PointAnalysis extends AbstractAnalysis {
 
     protected center!: PointPoint;
+
+    protected _graph: AnalysisGraph|undefined;
+
+    public get graph(): AnalysisGraph {
+        if (!this._graph) {
+            this._graph = new AnalysisGraph(this);
+        }
+        return this._graph;
+    }
 
     public static addAtPoint(
         key: string,

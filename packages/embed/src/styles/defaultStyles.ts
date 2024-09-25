@@ -1,6 +1,13 @@
 import {version as pversion} from "../../package.json";
 import { DARK_MODE_CLASS } from "./mode";
 
+
+export const appendStyles = () => {
+    const styles = document.createElement("link");
+    styles.href = "https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.css"
+    document.head.appendChild( styles );
+}
+
 const version = pversion.toString().replaceAll(".", "-");
 const getStylesheetId = (scope: string) => {
     return `thermal__${scope}__${version}`;

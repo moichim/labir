@@ -45,6 +45,7 @@ import { getPool } from "./utils/pool";
 
 import { AnalysisDataStateValue } from "./properties/analysis/AnalysisDataState";
 import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
+import { AnalysisGraph } from "./properties/analysis/graphs/AnalysisGraph";
 
 export {
 
@@ -75,8 +76,9 @@ export {
     // Utils - Time
     TimeFormat, TimePeriod, TimeRound,
 
-    AnalysisDataStateValue
-    ,AbstractAreaAnalysis
+    AnalysisDataStateValue,
+    AbstractAreaAnalysis,
+    AnalysisGraph
     
 };
 

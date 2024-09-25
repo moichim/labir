@@ -1,12 +1,8 @@
 import { format } from "date-fns";
-import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
+import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisDataState, AnalysisDataStateValue, ValueRow } from "../AnalysisDataState";
-import { EllipsisAnalysis } from "../internals/area/ellipsis/EllipsisAnalysis";
-import { RectangleAnalysis } from "../internals/area/rectangle/RectangleAnalysis";
-import { PointAnalysis } from "../internals/point/PointAnalysis";
 import { AnalysisLayersStorage } from "../internals/storage/AnalysisLayersStorage";
 import { AnalysisGraph } from "./AnalysisGraph";
-import { CallbacksManager } from "../../callbacksManager";
 
 export class AnalysisGraphsStorage {
 
@@ -60,10 +56,11 @@ export class AnalysisGraphsStorage {
         public readonly drive: AnalysisDataState
     ) {
 
+
         // listen to layer state
         this.layers.onAdd.set(this.listenerKey, async (layer) => {
 
-            let item = new AnalysisGraph( this, layer);
+            let item = layer.graph; 
             this.addGraph(item);
             
             item.onAnalysisSelection.set(this.listenerKey, async (layer) => {
@@ -82,9 +79,11 @@ export class AnalysisGraphsStorage {
 
         this.layers.onRemove.set(this.listenerKey, async (layer) => {
 
-            this.removeGraph(layer )
+            this.removeGraph(layer );
+            this.refreshOutput();
 
-        })
+        });
+
 
     }
 

@@ -1,11 +1,6 @@
 import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AnalysisGraphsStorage } from "./graphs/AnalysisGraphsStorage";
-import { GoogleGraphsStorage } from "./graphs/GoogleGraphsStorage";
-import { AbstractAnalysis } from "./internals/AbstractAnalysis";
-import { EllipsisAnalysis } from "./internals/area/ellipsis/EllipsisAnalysis";
-import { RectangleAnalysis } from "./internals/area/rectangle/RectangleAnalysis";
-import { PointAnalysis } from "./internals/point/PointAnalysis";
 
 export interface IWithAnalysisDataState extends IBaseProperty {
     analysisDataState: AnalysisDataState
@@ -23,9 +18,7 @@ export type AnalysisDataStateValue = {
 
 export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
 
-    protected readonly google = new GoogleGraphsStorage(this);
-
-    protected readonly listeners = new AnalysisGraphsStorage(this)
+    public readonly listeners = new AnalysisGraphsStorage(this)
 
     public constructor(parent: Instance) {
         super(parent, { values: [[]], colors: [] });

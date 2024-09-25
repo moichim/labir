@@ -1,5 +1,6 @@
 import { Instance } from "../../../../file/instance";
 import { CallbacksManager } from "../../../callbacksManager";
+import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./rectangle/CornerPoint";
@@ -14,6 +15,15 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     public readonly br: CornerPoint;
 
     public readonly area: RectangleArea;
+
+    protected _graph: AnalysisGraph|undefined;
+
+    public get graph(): AnalysisGraph {
+        if (!this._graph) {
+            this._graph = new AnalysisGraph(this);
+        }
+        return this._graph;
+    }
     
 
     public isWithin(x: number, y: number): boolean {

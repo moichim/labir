@@ -143,6 +143,8 @@ export class TimelineElement extends FileConsumer {
             align-items: center;
             gap: calc( var( --thermal-gap ) * .5 );
 
+            color: var( --thermal-foreground );
+
         }
 
         .item {
@@ -170,6 +172,7 @@ export class TimelineElement extends FileConsumer {
 
         .small {
             font-size: var( --thermal-fs-small );
+            color: var( --thermal-foreground );
         }
 
         .real {

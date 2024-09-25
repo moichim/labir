@@ -1,5 +1,7 @@
 import {author, version } from "../package.json"
 
+import "./styles/styles.css";
+
 /**!
  * ===========
  * LabIR Embed
@@ -8,6 +10,8 @@ import {author, version } from "../package.json"
  * A webcomponents library for display and analysis of thermal images.
  * 
  */
+
+appendStyles();
 
 
 // Log the start info
@@ -68,9 +72,11 @@ import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
-import "./controls/file/FileAnalysis";
-import "./controls/file/FileAnalysisTableValueCell";
-import "./controls/file/FileAnalysisTableRow";
+
+import "./controls/file/analysis/FileAnalysisGraph";
+import "./controls/file/analysis/FileAnalysisRow";
+import "./controls/file/analysis/FileAnalysisTable";
+
 
 
 // 7. Complex apps go last
@@ -88,7 +94,7 @@ import {initialiseMode} from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import {addDefaultStyles} from "./styles/defaultStyles";
+import {addDefaultStyles, appendStyles} from "./styles/defaultStyles";
 
 addDefaultStyles();
 

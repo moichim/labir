@@ -143,8 +143,6 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
 
                 }
 
-
-
             }
 
         }

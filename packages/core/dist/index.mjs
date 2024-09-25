@@ -2029,25 +2029,13 @@ var AbstractAnalysis = class {
   get graphMinActive() {
     return this._graphMinActive;
   }
-  setGraphMinActivation(value) {
-    this._graphMinActive = value;
-    this.emitGraphActivation();
-  }
   _graphMaxActive = false;
   get graphMaxActive() {
     return this._graphMaxActive;
   }
-  setGraphMaxActivation(value) {
-    this._graphMaxActive = value;
-    this.emitGraphActivation();
-  }
   _graphAvgActive = false;
   get graphAvgActive() {
     return this._graphAvgActive;
-  }
-  setGraphAvgActivation(value) {
-    this._graphAvgActive = value;
-    this.emitGraphActivation();
   }
   onGraphActivation = new CallbacksManager();
   emitGraphActivation() {
@@ -2251,6 +2239,314 @@ var AbstractPoint = class {
   }
 };
 
+// src/properties/analysis/internals/point/PointPoint.ts
+var PointPoint = class _PointPoint extends AbstractPoint {
+  static size = 20;
+  static sizePx(aspect = 1) {
+    return Math.round(_PointPoint.size * aspect).toString() + "px";
+  }
+  axisX;
+  axisY;
+  center;
+  constructor(key, top, left, analysis, color) {
+    super(
+      key,
+      top,
+      left,
+      analysis,
+      color
+    );
+    this.axisX = this.buildAxisX();
+    this.axisY = this.buildAxisY();
+    this.center = this.buildCenter();
+    this.innerElement.appendChild(this.axisX);
+    this.innerElement.appendChild(this.axisY);
+    this.innerElement.appendChild(this.center);
+    this.analysis.onValues.set(this.key, () => {
+      const colorFromCurrentPalette = this.analysis.file.getColorAtPoint(this.x, this.y);
+      if (this.center && colorFromCurrentPalette) {
+        this.center.style.backgroundColor = colorFromCurrentPalette;
+      }
+    });
+  }
+  mayMoveToX(value) {
+    return value <= this.file.width && value >= 0;
+  }
+  mayMoveToY(value) {
+    return value <= this.file.height && value >= 0;
+  }
+  createInnerElement() {
+    const element = document.createElement("div");
+    element.style.position = "absolute";
+    element.style.top = _PointPoint.sizePx(-0.5);
+    element.style.left = _PointPoint.sizePx(-0.5);
+    element.style.width = _PointPoint.sizePx();
+    element.style.height = _PointPoint.sizePx();
+    return element;
+  }
+  buildAxisX() {
+    const axis = document.createElement("div");
+    axis.style.position = "absolute";
+    axis.style.width = "100%";
+    axis.style.height = "1px";
+    axis.style.left = "0px";
+    axis.style.top = _PointPoint.sizePx(0.5);
+    return axis;
+  }
+  buildAxisY() {
+    const axis = document.createElement("div");
+    axis.style.position = "absolute";
+    axis.style.width = "1px";
+    axis.style.height = "100%";
+    axis.style.left = _PointPoint.sizePx(0.5);
+    axis.style.top = "0px";
+    return axis;
+  }
+  buildCenter() {
+    const center = document.createElement("div");
+    center.style.position = "absolute";
+    center.style.top = `calc( ${_PointPoint.sizePx(0.5)} - 3px )`;
+    center.style.left = `calc( ${_PointPoint.sizePx(0.5)} - 3px )`;
+    ;
+    center.style.width = "5px";
+    center.style.height = "5px";
+    center.style.borderStyle = "solid";
+    center.style.borderWidth = "1px";
+    const currentColor = this.analysis.file.getColorAtPoint(this.x, this.y);
+    if (currentColor)
+      center.style.backgroundColor = currentColor;
+    return center;
+  }
+  onSetColor(value) {
+    if (this.axisX) {
+      this.axisX.style.backgroundColor = value;
+    }
+    if (this.axisY) {
+      this.axisY.style.backgroundColor = value;
+    }
+    if (this.center) {
+      this.center.style.borderColor = value;
+    }
+  }
+  actionOnMouseEnter() {
+    if (this.isInSelectedLayer()) {
+      this.setColor(this.activeColor);
+      this.setBoxShadow("white");
+    }
+  }
+  actionOnMouseLeave() {
+    if (this.isInSelectedLayer()) {
+      this.setColor(this.analysis.initialColor);
+    } else {
+      this.setColor(this.inactiveColor);
+    }
+    this.setBoxShadow(void 0);
+  }
+  actionOnActivate() {
+    if (this.innerElement) {
+      this.setColor(this.activeColor);
+    }
+  }
+  actionOnDeactivate() {
+    if (this.innerElement) {
+      this.setColor(this.inactiveColor);
+    }
+  }
+  getRadius() {
+    return 10;
+  }
+  setBoxShadow(color = void 0) {
+    if (color === void 0) {
+      this.axisX?.style.removeProperty("box-shadow");
+      this.axisY?.style.removeProperty("box-shadow");
+      this.center?.style.removeProperty("box-shadow");
+    } else {
+      const shadow = `0 0 5px 2px ${color}`;
+      if (this.axisX) this.axisX.style.boxShadow = shadow;
+      if (this.axisY) this.axisY.style.boxShadow = shadow;
+      if (this.center) this.center.style.boxShadow = shadow;
+    }
+  }
+};
+
+// src/properties/analysis/internals/point/PointAnalysis.ts
+var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
+  center;
+  _graph;
+  get graph() {
+    if (!this._graph) {
+      this._graph = new AnalysisGraph(this);
+    }
+    return this._graph;
+  }
+  static addAtPoint(key, color, file, top, left) {
+    const item = new _PointAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left
+    );
+    return item;
+  }
+  constructor(key, color, file, top, left) {
+    super(key, file, color);
+    this.top = top;
+    this.left = left;
+    this.width = 1;
+    this.height = 1;
+    this.center = new PointPoint("center", top, left, this, color);
+    this.points.set("center", this.center);
+    this.center.projectInnerPositionToDom();
+    this.center.onX.set("update point", (x) => {
+      this.left = x;
+    });
+    this.center.onY.set("update point", (y) => {
+      this.top = y;
+    });
+  }
+  setColorCallback(value) {
+    this.center.setColor(value);
+  }
+  isWithin(x, y) {
+    return this.center.isWithin(y, x);
+  }
+  getValues() {
+    const value = this.file.getTemperatureAtPoint(this.center.x, this.center.y);
+    return {
+      min: value,
+      max: value,
+      avg: value
+    };
+  }
+  async getAnalysisData() {
+    return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
+  }
+};
+
+// src/properties/analysis/graphs/AnalysisGraph.ts
+var AnalysisGraph = class {
+  constructor(analysis) {
+    this.analysis = analysis;
+    this.hydrate();
+  }
+  _min = false;
+  _max = false;
+  _avg = false;
+  get state() {
+    return {
+      "MIN": this._min,
+      "MAX": this._max,
+      "AVG": this._avg
+    };
+  }
+  _value;
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    this._value = value;
+    this.onGraphData.call(value, this.analysis);
+  }
+  setMinActivation(active) {
+    if (this._min !== active) {
+      this._min = active;
+      this.emitGraphActivation();
+    }
+  }
+  setMaxActivation(active) {
+    if (this._max !== active) {
+      this._max = active;
+      this.emitGraphActivation();
+    }
+  }
+  setAvgActivation(active) {
+    if (this._avg !== active) {
+      this._avg = active;
+      this.emitGraphActivation();
+    }
+  }
+  onGraphActivation = new CallbacksManager();
+  onGraphData = new CallbacksManager();
+  onAnalysisSelection = new CallbacksManager();
+  emitGraphActivation() {
+    this.onGraphActivation.call(
+      this._min,
+      this._max,
+      this._avg
+    );
+  }
+  async hydrate() {
+    this.analysis.onSelected.set("__graphs", (analysis) => {
+      this.onAnalysisSelection.call(true, analysis);
+    });
+    this.analysis.onMoveOrResize.set("__graphs", async (analysis) => {
+      const data2 = await analysis.getAnalysisData();
+      this.value = data2;
+    });
+    const data = await this.getGraphData();
+    this.value = data;
+  }
+  async getGraphData() {
+    const data = await this.analysis.getAnalysisData();
+    return data;
+  }
+  getGraphColors() {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        return [this.analysis.initialColor];
+      } else return [];
+    }
+    let output = [];
+    Object.entries(this.state).forEach(([key, value]) => {
+      if (value) {
+        output.push(this.analysis.initialColor);
+      }
+    });
+    return output;
+  }
+  getGraphLabels() {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        return [this.analysis.key];
+      } else return [];
+    }
+    let output = [];
+    Object.entries(this.state).forEach(([key, value]) => {
+      if (value) {
+        output.push(`${this.analysis.key} ${key}`);
+      }
+    });
+    return output;
+  }
+  hasDataToPrint() {
+    if (this.analysis instanceof PointAnalysis) {
+      return this._avg;
+    }
+    return this._min || this._max || this._avg;
+  }
+  getDtaAtTime(timestamp) {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        const value2 = this.value;
+        return [value2[timestamp]];
+      } else return [];
+    }
+    let output = [];
+    const value = this.value;
+    if (this._min) {
+      output.push(value[timestamp].min);
+    }
+    if (this._max) {
+      output.push(value[timestamp].max);
+    }
+    if (this._avg) {
+      output.push(value[timestamp].avg);
+    }
+    return output;
+  }
+};
+
 // src/properties/analysis/internals/area/AbstractHandlePoint.ts
 var AbstractHandlePoint = class extends AbstractPoint {
   constructor(key, top, left, analysis, color) {
@@ -2338,6 +2634,13 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
   bl;
   br;
   area;
+  _graph;
+  get graph() {
+    if (!this._graph) {
+      this._graph = new AnalysisGraph(this);
+    }
+    return this._graph;
+  }
   isWithin(x, y) {
     return x >= this.left && x <= this.left + this.width && y >= this.top && y <= this.top + this.height;
   }
@@ -2594,184 +2897,6 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
       this.width,
       this.height
     );
-  }
-};
-
-// src/properties/analysis/internals/point/PointPoint.ts
-var PointPoint = class _PointPoint extends AbstractPoint {
-  static size = 20;
-  static sizePx(aspect = 1) {
-    return Math.round(_PointPoint.size * aspect).toString() + "px";
-  }
-  axisX;
-  axisY;
-  center;
-  constructor(key, top, left, analysis, color) {
-    super(
-      key,
-      top,
-      left,
-      analysis,
-      color
-    );
-    this.axisX = this.buildAxisX();
-    this.axisY = this.buildAxisY();
-    this.center = this.buildCenter();
-    this.innerElement.appendChild(this.axisX);
-    this.innerElement.appendChild(this.axisY);
-    this.innerElement.appendChild(this.center);
-    this.analysis.onValues.set(this.key, () => {
-      const colorFromCurrentPalette = this.analysis.file.getColorAtPoint(this.x, this.y);
-      if (this.center && colorFromCurrentPalette) {
-        this.center.style.backgroundColor = colorFromCurrentPalette;
-      }
-    });
-  }
-  mayMoveToX(value) {
-    return value <= this.file.width && value >= 0;
-  }
-  mayMoveToY(value) {
-    return value <= this.file.height && value >= 0;
-  }
-  createInnerElement() {
-    const element = document.createElement("div");
-    element.style.position = "absolute";
-    element.style.top = _PointPoint.sizePx(-0.5);
-    element.style.left = _PointPoint.sizePx(-0.5);
-    element.style.width = _PointPoint.sizePx();
-    element.style.height = _PointPoint.sizePx();
-    return element;
-  }
-  buildAxisX() {
-    const axis = document.createElement("div");
-    axis.style.position = "absolute";
-    axis.style.width = "100%";
-    axis.style.height = "1px";
-    axis.style.left = "0px";
-    axis.style.top = _PointPoint.sizePx(0.5);
-    return axis;
-  }
-  buildAxisY() {
-    const axis = document.createElement("div");
-    axis.style.position = "absolute";
-    axis.style.width = "1px";
-    axis.style.height = "100%";
-    axis.style.left = _PointPoint.sizePx(0.5);
-    axis.style.top = "0px";
-    return axis;
-  }
-  buildCenter() {
-    const center = document.createElement("div");
-    center.style.position = "absolute";
-    center.style.top = `calc( ${_PointPoint.sizePx(0.5)} - 3px )`;
-    center.style.left = `calc( ${_PointPoint.sizePx(0.5)} - 3px )`;
-    ;
-    center.style.width = "5px";
-    center.style.height = "5px";
-    center.style.borderStyle = "solid";
-    center.style.borderWidth = "1px";
-    const currentColor = this.analysis.file.getColorAtPoint(this.x, this.y);
-    if (currentColor)
-      center.style.backgroundColor = currentColor;
-    return center;
-  }
-  onSetColor(value) {
-    if (this.axisX) {
-      this.axisX.style.backgroundColor = value;
-    }
-    if (this.axisY) {
-      this.axisY.style.backgroundColor = value;
-    }
-    if (this.center) {
-      this.center.style.borderColor = value;
-    }
-  }
-  actionOnMouseEnter() {
-    if (this.isInSelectedLayer()) {
-      this.setColor(this.activeColor);
-      this.setBoxShadow("white");
-    }
-  }
-  actionOnMouseLeave() {
-    if (this.isInSelectedLayer()) {
-      this.setColor(this.analysis.initialColor);
-    } else {
-      this.setColor(this.inactiveColor);
-    }
-    this.setBoxShadow(void 0);
-  }
-  actionOnActivate() {
-    if (this.innerElement) {
-      this.setColor(this.activeColor);
-    }
-  }
-  actionOnDeactivate() {
-    if (this.innerElement) {
-      this.setColor(this.inactiveColor);
-    }
-  }
-  getRadius() {
-    return 10;
-  }
-  setBoxShadow(color = void 0) {
-    if (color === void 0) {
-      this.axisX?.style.removeProperty("box-shadow");
-      this.axisY?.style.removeProperty("box-shadow");
-      this.center?.style.removeProperty("box-shadow");
-    } else {
-      const shadow = `0 0 5px 2px ${color}`;
-      if (this.axisX) this.axisX.style.boxShadow = shadow;
-      if (this.axisY) this.axisY.style.boxShadow = shadow;
-      if (this.center) this.center.style.boxShadow = shadow;
-    }
-  }
-};
-
-// src/properties/analysis/internals/point/PointAnalysis.ts
-var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
-  center;
-  static addAtPoint(key, color, file, top, left) {
-    const item = new _PointAnalysis(
-      key,
-      color,
-      file,
-      top,
-      left
-    );
-    return item;
-  }
-  constructor(key, color, file, top, left) {
-    super(key, file, color);
-    this.top = top;
-    this.left = left;
-    this.width = 1;
-    this.height = 1;
-    this.center = new PointPoint("center", top, left, this, color);
-    this.points.set("center", this.center);
-    this.center.projectInnerPositionToDom();
-    this.center.onX.set("update point", (x) => {
-      this.left = x;
-    });
-    this.center.onY.set("update point", (y) => {
-      this.top = y;
-    });
-  }
-  setColorCallback(value) {
-    this.center.setColor(value);
-  }
-  isWithin(x, y) {
-    return this.center.isWithin(y, x);
-  }
-  getValues() {
-    const value = this.file.getTemperatureAtPoint(this.center.x, this.center.y);
-    return {
-      min: value,
-      max: value,
-      avg: value
-    };
-  }
-  async getAnalysisData() {
-    return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
   }
 };
 
@@ -3133,137 +3258,11 @@ var AnalysisDrive = class extends AbstractProperty {
 
 // src/properties/analysis/graphs/AnalysisGraphsStorage.ts
 import { format as format3 } from "date-fns";
-
-// src/properties/analysis/graphs/AnalysisGraph.ts
-var AnalysisGraph = class {
-  constructor(storage, analysis) {
-    this.storage = storage;
-    this.analysis = analysis;
-    this.hydrate();
-  }
-  _min = false;
-  _max = false;
-  _avg = false;
-  get state() {
-    return {
-      "MIN": this._min,
-      "MAX": this._max,
-      "AVG": this._avg
-    };
-  }
-  _value;
-  get value() {
-    return this._value;
-  }
-  set value(value) {
-    this._value = value;
-    this.onGraphData.call(value, this.analysis);
-  }
-  setMinActivation(active) {
-    if (this._min !== active) {
-      this._min = active;
-      this.emitGraphActivation();
-    }
-  }
-  setMaxActivation(active) {
-    if (this._max !== active) {
-      this._max = active;
-      this.emitGraphActivation();
-    }
-  }
-  setAvgActivation(active) {
-    if (this._avg !== active) {
-      this._avg = active;
-      this.emitGraphActivation();
-    }
-  }
-  onGraphActivation = new CallbacksManager();
-  onGraphData = new CallbacksManager();
-  onAnalysisSelection = new CallbacksManager();
-  emitGraphActivation() {
-    this.onGraphActivation.call(
-      this._min,
-      this._max,
-      this._avg
-    );
-  }
-  async hydrate() {
-    this.analysis.onSelected.set("__graphs", (analysis) => {
-      this.onAnalysisSelection.call(true, analysis);
-    });
-    this.analysis.onMoveOrResize.set("__graphs", async (analysis) => {
-      const data2 = await analysis.getAnalysisData();
-      this.value = data2;
-    });
-    const data = await this.getGraphData();
-    this.value = data;
-  }
-  async getGraphData() {
-    const data = await this.analysis.getAnalysisData();
-    return data;
-  }
-  getGraphColors() {
-    if (this.analysis instanceof PointAnalysis) {
-      if (this._avg) {
-        return [this.analysis.initialColor];
-      } else return [];
-    }
-    let output = [];
-    Object.entries(this.state).forEach(([key, value]) => {
-      if (value) {
-        output.push(this.analysis.initialColor);
-      }
-    });
-    return output;
-  }
-  getGraphLabels() {
-    if (this.analysis instanceof PointAnalysis) {
-      if (this._avg) {
-        return [this.analysis.key];
-      } else return [];
-    }
-    let output = [];
-    Object.entries(this.state).forEach(([key, value]) => {
-      if (value) {
-        output.push(`${this.analysis.key} ${key}`);
-      }
-    });
-    return output;
-  }
-  hasDataToPrint() {
-    if (this.analysis instanceof PointAnalysis) {
-      return this._avg;
-    }
-    return this._min || this._max || this._avg;
-  }
-  getDtaAtTime(timestamp) {
-    if (this.analysis instanceof PointAnalysis) {
-      if (this._avg) {
-        const value2 = this.value;
-        return [value2[timestamp]];
-      } else return [];
-    }
-    let output = [];
-    const value = this.value;
-    if (this._min) {
-      output.push(value[timestamp].min);
-    }
-    if (this._max) {
-      output.push(value[timestamp].max);
-    }
-    if (this._avg) {
-      output.push(value[timestamp].avg);
-    }
-    return output;
-  }
-};
-
-// src/properties/analysis/graphs/AnalysisGraphsStorage.ts
 var AnalysisGraphsStorage = class {
   constructor(drive) {
     this.drive = drive;
     this.layers.onAdd.set(this.listenerKey, async (layer) => {
-      let item = new AnalysisGraph(this, layer);
+      let item = layer.graph;
       this.addGraph(item);
       item.onAnalysisSelection.set(this.listenerKey, async (layer2) => {
         this.refreshOutput();
@@ -3277,6 +3276,7 @@ var AnalysisGraphsStorage = class {
     });
     this.layers.onRemove.set(this.listenerKey, async (layer) => {
       this.removeGraph(layer);
+      this.refreshOutput();
     });
   }
   listenerKey = "___listen-to-graphs___";
@@ -3341,108 +3341,8 @@ var AnalysisGraphsStorage = class {
   }
 };
 
-// src/properties/analysis/graphs/GoogleGraphsStorage.ts
-import { format as format4 } from "date-fns";
-var GoogleGraphsStorage = class {
-  constructor(parent) {
-    this.parent = parent;
-  }
-  activeGraphs = /* @__PURE__ */ new Map();
-  raw = /* @__PURE__ */ new Map();
-  get all() {
-    return Array.from(this.raw.values());
-  }
-  output = {
-    values: [[]],
-    colors: []
-  };
-  setPointAnalysis(name, color, data, analysis) {
-    this.raw.set(name, {
-      name,
-      color,
-      data,
-      analysis
-    });
-    this.parent.dangerouslyUpdateValue(this.formatOutput());
-  }
-  setAreaAnalysis(name, color, data, analysis) {
-    this.raw.set(name, {
-      name,
-      color,
-      data,
-      analysis
-    });
-    this.parent.dangerouslyUpdateValue(this.formatOutput());
-  }
-  removeAnalysis(...name) {
-    name.forEach((n) => {
-      this.raw.delete(n);
-    });
-    this.parent.dangerouslyUpdateValue(this.formatOutput());
-  }
-  formatOutput() {
-    const output = {
-      values: [["Time"]],
-      colors: []
-    };
-    this.raw.forEach((rata, name) => {
-      if (Object.values(rata.data)[0] instanceof Object) {
-        if (rata.analysis.graphMinActive) {
-          output.values[0].push(name + " MIN");
-          output.colors.push(rata.color);
-        }
-        if (rata.analysis.graphMaxActive) {
-          output.values[0].push(name + " MAX");
-          output.colors.push(rata.color);
-        }
-        if (rata.analysis.graphAvgActive) {
-          output.values[0].push(name + " AVG");
-          output.colors.push(rata.color);
-        }
-      } else {
-        if (rata.analysis.graphAvgActive) {
-          output.values[0].push(name);
-          output.colors.push(rata.color);
-        }
-      }
-    });
-    for (const analysis of this.raw.values()) {
-      Object.entries(analysis.data).forEach(([timestamp, value], index) => {
-        const row = output.values[index + 1];
-        if (row === void 0) {
-          output.values[index + 1] = [format4(parseInt(timestamp), "m:ss:SSS")];
-        }
-        const array = output.values[index + 1];
-        if (value instanceof Object) {
-          if (analysis.analysis.graphMinActive) {
-            array.push(value.min);
-          }
-          if (analysis.analysis.graphMaxActive) {
-            array.push(value.max);
-          }
-          if (analysis.analysis.graphAvgActive) {
-            array.push(value.avg);
-          }
-        } else {
-          if (analysis.analysis.graphAvgActive) {
-            array.push(value);
-          }
-        }
-      });
-    }
-    return output;
-  }
-  has(name) {
-    return this.raw.has(name);
-  }
-  forEach(callback) {
-    this.raw.forEach(callback);
-  }
-};
-
 // src/properties/analysis/AnalysisDataState.ts
 var AnalysisDataState = class extends AbstractProperty {
-  google = new GoogleGraphsStorage(this);
   listeners = new AnalysisGraphsStorage(this);
   constructor(parent) {
     super(parent, { values: [[]], colors: [] });
@@ -5362,6 +5262,7 @@ export {
   AbstractTool,
   AddEllipsisTool,
   AddRectangleTool,
+  AnalysisGraph,
   CallbacksManager,
   CornerPoint,
   DropinElementListener,
