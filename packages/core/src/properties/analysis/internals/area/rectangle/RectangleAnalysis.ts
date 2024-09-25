@@ -1,4 +1,5 @@
 import { Instance } from "../../../../../file/instance";
+import { PointAnalysisData, AreaAnalysisData } from "../../../../../loading/workers/parsers/structure";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
 import { RectangleArea } from "./RectangleArea";
@@ -110,6 +111,15 @@ export class RectangleAnalysis extends AbstractAreaAnalysis {
             avg: sum / count
         }
 
+    }
+
+    public async getAnalysisData(): Promise<AreaAnalysisData> {
+        return await this.file.service.rectAnalysisData(
+            this.top,
+            this.left,
+            this.width,
+            this.height
+        );
     }
 
 

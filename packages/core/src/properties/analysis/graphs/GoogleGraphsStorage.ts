@@ -13,6 +13,7 @@ type RawData = {
     analysis: AbstractAnalysis
 }
 
+/** @deprecated */
 export class GoogleGraphsStorage {
 
     protected readonly activeGraphs: Map<string,AbstractAnalysis> = new Map;
@@ -30,7 +31,9 @@ export class GoogleGraphsStorage {
 
     public constructor(
         private readonly parent: AnalysisDataState
-    ) { }
+    ) {
+
+    }
 
     setPointAnalysis( name: string, color: string, data: PointAnalysisData, analysis: PointAnalysis ) {
 

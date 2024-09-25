@@ -2587,6 +2587,14 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
     const normalizedY = (y - centerY) / (this.height / 2);
     return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
   }
+  async getAnalysisData() {
+    return await this.file.service.ellipsisAnalysisData(
+      this.left,
+      this.top,
+      this.width,
+      this.height
+    );
+  }
 };
 
 // src/properties/analysis/internals/point/PointPoint.ts
@@ -2762,6 +2770,9 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
       avg: value
     };
   }
+  async getAnalysisData() {
+    return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
+  }
 };
 
 // src/properties/analysis/internals/area/rectangle/RectangleArea.ts
@@ -2842,6 +2853,14 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
       max,
       avg: sum / count
     };
+  }
+  async getAnalysisData() {
+    return await this.file.service.rectAnalysisData(
+      this.top,
+      this.left,
+      this.width,
+      this.height
+    );
   }
 };
 
@@ -3112,8 +3131,218 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
-// src/properties/analysis/graphs/GoogleGraphsStorage.ts
+// src/properties/analysis/graphs/AnalysisGraphsStorage.ts
 import { format as format3 } from "date-fns";
+
+// src/properties/analysis/graphs/AnalysisGraph.ts
+var AnalysisGraph = class {
+  constructor(storage, analysis) {
+    this.storage = storage;
+    this.analysis = analysis;
+    this.hydrate();
+  }
+  _min = false;
+  _max = false;
+  _avg = false;
+  get state() {
+    return {
+      "MIN": this._min,
+      "MAX": this._max,
+      "AVG": this._avg
+    };
+  }
+  _value;
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    this._value = value;
+    this.onGraphData.call(value, this.analysis);
+  }
+  setMinActivation(active) {
+    if (this._min !== active) {
+      this._min = active;
+      this.emitGraphActivation();
+    }
+  }
+  setMaxActivation(active) {
+    if (this._max !== active) {
+      this._max = active;
+      this.emitGraphActivation();
+    }
+  }
+  setAvgActivation(active) {
+    if (this._avg !== active) {
+      this._avg = active;
+      this.emitGraphActivation();
+    }
+  }
+  onGraphActivation = new CallbacksManager();
+  onGraphData = new CallbacksManager();
+  onAnalysisSelection = new CallbacksManager();
+  emitGraphActivation() {
+    this.onGraphActivation.call(
+      this._min,
+      this._max,
+      this._avg
+    );
+  }
+  async hydrate() {
+    this.analysis.onSelected.set("__graphs", (analysis) => {
+      this.onAnalysisSelection.call(true, analysis);
+    });
+    this.analysis.onMoveOrResize.set("__graphs", async (analysis) => {
+      const data2 = await analysis.getAnalysisData();
+      this.value = data2;
+    });
+    const data = await this.getGraphData();
+    this.value = data;
+  }
+  async getGraphData() {
+    const data = await this.analysis.getAnalysisData();
+    return data;
+  }
+  getGraphColors() {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        return [this.analysis.initialColor];
+      } else return [];
+    }
+    let output = [];
+    Object.entries(this.state).forEach(([key, value]) => {
+      if (value) {
+        output.push(this.analysis.initialColor);
+      }
+    });
+    return output;
+  }
+  getGraphLabels() {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        return [this.analysis.key];
+      } else return [];
+    }
+    let output = [];
+    Object.entries(this.state).forEach(([key, value]) => {
+      if (value) {
+        output.push(`${this.analysis.key} ${key}`);
+      }
+    });
+    return output;
+  }
+  hasDataToPrint() {
+    if (this.analysis instanceof PointAnalysis) {
+      return this._avg;
+    }
+    return this._min || this._max || this._avg;
+  }
+  getDtaAtTime(timestamp) {
+    if (this.analysis instanceof PointAnalysis) {
+      if (this._avg) {
+        const value2 = this.value;
+        return [value2[timestamp]];
+      } else return [];
+    }
+    let output = [];
+    const value = this.value;
+    if (this._min) {
+      output.push(value[timestamp].min);
+    }
+    if (this._max) {
+      output.push(value[timestamp].max);
+    }
+    if (this._avg) {
+      output.push(value[timestamp].avg);
+    }
+    return output;
+  }
+};
+
+// src/properties/analysis/graphs/AnalysisGraphsStorage.ts
+var AnalysisGraphsStorage = class {
+  constructor(drive) {
+    this.drive = drive;
+    this.layers.onAdd.set(this.listenerKey, async (layer) => {
+      let item = new AnalysisGraph(this, layer);
+      this.addGraph(item);
+      item.onAnalysisSelection.set(this.listenerKey, async (layer2) => {
+        this.refreshOutput();
+      });
+      item.onGraphActivation.set(this.listenerKey, async (layer2) => {
+        this.refreshOutput();
+      });
+      item.onGraphData.set(this.listenerKey, async (layer2) => {
+        this.refreshOutput();
+      });
+    });
+    this.layers.onRemove.set(this.listenerKey, async (layer) => {
+      this.removeGraph(layer);
+    });
+  }
+  listenerKey = "___listen-to-graphs___";
+  get layers() {
+    return this.drive.parent.analysis.layers;
+  }
+  _graphs = /* @__PURE__ */ new Map();
+  get graphs() {
+    return this._graphs;
+  }
+  addGraph(graph) {
+    this._graphs.set(graph.analysis.key, graph);
+    this.onAddGraph.call(graph);
+  }
+  removeGraph(graph) {
+    this._graphs.delete(graph);
+    this.onRemoveGraph.call(graph);
+  }
+  _output = {
+    values: [[]],
+    colors: []
+  };
+  get output() {
+    return this._output;
+  }
+  set output(output) {
+    this._output = output;
+    this.onOutput.call(output);
+  }
+  onOutput = new CallbacksManager();
+  onAddGraph = new CallbacksManager();
+  onRemoveGraph = new CallbacksManager();
+  refreshOutput() {
+    const output = {
+      values: [["Time"]],
+      colors: []
+    };
+    this.graphs.forEach((graph) => {
+      output.values[0].push(...graph.getGraphLabels());
+      output.colors.push(...graph.getGraphColors());
+    });
+    this.graphs.forEach((graph) => {
+      if (graph.hasDataToPrint()) {
+        if (graph.value) {
+          Object.keys(graph.value).forEach((key, index) => {
+            let row = output.values[index + 1];
+            if (row === void 0) {
+              row = [format3(parseInt(key), "m:ss:SSS")];
+              output.values[index + 1] = row;
+            }
+            let array = row;
+            array.push(...graph.getDtaAtTime(parseInt(key)));
+          });
+        }
+      }
+    });
+    this.output = output;
+    return output;
+  }
+  hasGraph() {
+    return Object.values(this.graphs).find((graph) => graph.hasDataToPrint()).length > 0;
+  }
+};
+
+// src/properties/analysis/graphs/GoogleGraphsStorage.ts
+import { format as format4 } from "date-fns";
 var GoogleGraphsStorage = class {
   constructor(parent) {
     this.parent = parent;
@@ -3181,7 +3410,7 @@ var GoogleGraphsStorage = class {
       Object.entries(analysis.data).forEach(([timestamp, value], index) => {
         const row = output.values[index + 1];
         if (row === void 0) {
-          output.values[index + 1] = [format3(parseInt(timestamp), "m:ss:SSS")];
+          output.values[index + 1] = [format4(parseInt(timestamp), "m:ss:SSS")];
         }
         const array = output.values[index + 1];
         if (value instanceof Object) {
@@ -3214,68 +3443,17 @@ var GoogleGraphsStorage = class {
 // src/properties/analysis/AnalysisDataState.ts
 var AnalysisDataState = class extends AbstractProperty {
   google = new GoogleGraphsStorage(this);
+  listeners = new AnalysisGraphsStorage(this);
   constructor(parent) {
     super(parent, { values: [[]], colors: [] });
-    this.parent.analysis.layers.onAdd.set("listen to analysisState", async (layer) => {
-      const key = "listen to layer state";
-      layer.onMoveOrResize.set(key, async (l) => {
-        if (l instanceof PointAnalysis) {
-          const data = await this.parent.service.pointAnalysisData(l.left, l.top);
-          this.google.setPointAnalysis(l.key, l.initialColor, data, l);
-        } else if (l instanceof RectangleAnalysis) {
-          const data = await this.parent.service.rectAnalysisData(l.left, l.top, l.width, l.height);
-          this.google.setAreaAnalysis(l.key, l.initialColor, data, l);
-        } else if (l instanceof EllipsisAnalysis) {
-          const data = await this.parent.service.ellipsisAnalysisData(l.left, l.top, l.width, l.height);
-          this.google.setAreaAnalysis(l.key, l.initialColor, data, l);
-        }
-      });
-      if (layer instanceof PointAnalysis) {
-        const data = await this.parent.service.pointAnalysisData(layer.left, layer.top);
-        this.google.setPointAnalysis(layer.key, layer.initialColor, data, layer);
-      } else if (layer instanceof RectangleAnalysis) {
-        const data = await this.parent.service.rectAnalysisData(layer.left, layer.top, layer.width, layer.height);
-        this.google.setAreaAnalysis(layer.key, layer.initialColor, data, layer);
-      } else if (layer instanceof EllipsisAnalysis) {
-        const data = await this.parent.service.ellipsisAnalysisData(layer.left, layer.top, layer.width, layer.height);
-        this.google.setAreaAnalysis(layer.key, layer.initialColor, data, layer);
-      }
-    });
-    this.parent.analysis.layers.onRemove.set("listen to analysisState", async (layer) => {
-      this.google.removeAnalysis(layer);
-    });
-    this.parent.analysis.layers.onSelectionChange.set("listen to analysisState", async (layers) => {
-      const selectedKeys = layers.map((layer) => layer.key);
-      const keysInGraphs = this.google.all.map((graph) => graph.name);
-      const graphsToAdd = selectedKeys.filter((key) => !keysInGraphs.includes(key)).map((key) => {
-        return layers.find((layer) => layer.key === key);
-      });
-      const graphToRemove = keysInGraphs.filter((key) => !selectedKeys.includes(key));
-      this.google.removeAnalysis(...graphToRemove);
-      graphsToAdd.forEach(async (analysis) => {
-        if (analysis instanceof PointAnalysis) {
-          const data = await this.parent.service.pointAnalysisData(analysis.left, analysis.top);
-          this.google.setPointAnalysis(analysis.key, analysis.initialColor, data, analysis);
-        } else if (analysis instanceof RectangleAnalysis) {
-          const data = await this.parent.service.rectAnalysisData(analysis.left, analysis.top, analysis.width, analysis.height);
-          this.google.setAreaAnalysis(analysis.key, analysis.initialColor, data, analysis);
-        } else if (analysis instanceof EllipsisAnalysis) {
-          const data = await this.parent.service.ellipsisAnalysisData(analysis.left, analysis.top, analysis.width, analysis.height);
-          this.google.setAreaAnalysis(analysis.key, analysis.initialColor, data, analysis);
-        }
-      });
-      this.google.forEach((existingGraph) => {
-        if (!selectedKeys.includes(existingGraph.name)) {
-          this.google.removeAnalysis();
-        }
-      });
+    this.listeners.onOutput.set("__mirror_output_to_local_state", async (output) => {
+      this.value = output;
     });
   }
   validate(value) {
     return value;
   }
   afterSetEffect(value) {
-    console.log("p\u0159i\u0161ly data", value);
   }
   dangerouslyUpdateValue(value) {
     this.value = value;
@@ -4240,7 +4418,6 @@ var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
     const max = frameView.getFloat32(12, true);
     const range = max - min;
     const frameHeaderByteSize2 = 57;
-    const pointIndex = frameHeaderByteSize2 + top * pixelByteSize * fileWidth + left * pixelByteSize;
     const fromX = left;
     const toX = left + _width;
     const fromY = top;
@@ -4249,16 +4426,15 @@ var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
     let _max = -Infinity;
     let count = 0;
     let sum = 0;
-    console.log(dataType);
     for (let y = fromY; y <= toY; y++) {
       const rowOffset = y * fileWidth;
       for (let x = fromX; x <= toX; x++) {
-        let pointIndex2 = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+        let pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
         let value = NaN;
         if (dataType === 1) {
-          value = frameView.getFloat32(pointIndex2, true);
+          value = frameView.getFloat32(pointIndex, true);
         } else {
-          let valueRaw = frameView.getInt16(pointIndex2, true);
+          let valueRaw = frameView.getInt16(pointIndex, true);
           const UINT16_MAX = 65535;
           const mappedValue = valueRaw / UINT16_MAX;
           value = min + range * mappedValue;

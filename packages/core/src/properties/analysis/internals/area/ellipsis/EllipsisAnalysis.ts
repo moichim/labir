@@ -1,4 +1,5 @@
 import { Instance } from "../../../../../file/instance";
+import { PointAnalysisData, AreaAnalysisData } from "../../../../../loading/workers/parsers/structure";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
 import { EllipsisArea } from "./EllipsisArea";
@@ -122,6 +123,15 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         const normalizedX = (x - centerX) / (this.width / 2);
         const normalizedY = (y - centerY) / (this.height / 2);
         return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+    }
+
+    public async getAnalysisData(): Promise<AreaAnalysisData> {
+        return await this.file.service.ellipsisAnalysisData(
+            this.left,
+            this.top,
+            this.width,
+            this.height
+        );
     }
 
 }

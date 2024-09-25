@@ -1,4 +1,5 @@
 import { Instance } from "../../../../file/instance";
+import { PointAnalysisData, AreaAnalysisData } from "../../../../loading/workers/parsers/structure";
 import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
@@ -67,6 +68,12 @@ export class PointAnalysis extends AbstractAnalysis {
             max: value,
             avg: value
         }
+    }
+
+    public async getAnalysisData(): Promise<PointAnalysisData> {
+        
+        return await this.file.service.pointAnalysisData( this.center.x, this.center.y );
+
     }
 
 }

@@ -691,6 +691,7 @@ declare class EllipsisAnalysis extends AbstractAreaAnalysis {
         avg?: number;
     };
     isWithin(x: number, y: number): boolean;
+    getAnalysisData(): Promise<AreaAnalysisData>;
 }
 
 declare class PointPoint extends AbstractPoint {
@@ -726,6 +727,7 @@ declare class PointAnalysis extends AbstractAnalysis {
         max?: number;
         avg?: number;
     };
+    getAnalysisData(): Promise<PointAnalysisData>;
 }
 
 declare class RectangleAnalysis extends AbstractAreaAnalysis {
@@ -737,6 +739,7 @@ declare class RectangleAnalysis extends AbstractAreaAnalysis {
         max?: number;
         avg?: number;
     };
+    getAnalysisData(): Promise<AreaAnalysisData>;
 }
 
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
@@ -847,6 +850,8 @@ declare abstract class AbstractAnalysis {
         max?: number;
         avg?: number;
     };
+    /** Override this method to get proper analysis data. */
+    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
 }
 
 declare abstract class AbstractPoint {
@@ -1065,12 +1070,63 @@ type ThermalStatistics = {
     height: number;
 };
 
+type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
+declare class AnalysisGraph {
+    readonly storage: AnalysisGraphsStorage;
+    readonly analysis: AbstractAnalysis;
+    constructor(storage: AnalysisGraphsStorage, analysis: AbstractAnalysis);
+    protected _min: boolean;
+    protected _max: boolean;
+    protected _avg: boolean;
+    protected get state(): {
+        MIN: boolean;
+        MAX: boolean;
+        AVG: boolean;
+    };
+    protected _value?: GraphDataTypes;
+    get value(): GraphDataTypes | undefined;
+    protected set value(value: GraphDataTypes | undefined);
+    setMinActivation(active: boolean): void;
+    setMaxActivation(active: boolean): void;
+    setAvgActivation(active: boolean): void;
+    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    readonly onGraphData: CallbacksManager<(data: GraphDataTypes | undefined, analysis: AbstractAnalysis) => void>;
+    readonly onAnalysisSelection: CallbacksManager<(activated: boolean, analysis: AbstractAnalysis) => void>;
+    protected emitGraphActivation(): void;
+    protected hydrate(): Promise<void>;
+    protected getGraphData(): Promise<GraphDataTypes>;
+    getGraphColors(): string[];
+    getGraphLabels(): string[];
+    hasDataToPrint(): boolean;
+    getDtaAtTime(timestamp: number): number[];
+}
+
+declare class AnalysisGraphsStorage {
+    readonly drive: AnalysisDataState;
+    readonly listenerKey = "___listen-to-graphs___";
+    get layers(): AnalysisLayersStorage;
+    protected readonly _graphs: Map<string, AnalysisGraph>;
+    get graphs(): Map<string, AnalysisGraph>;
+    protected addGraph(graph: AnalysisGraph): void;
+    protected removeGraph(graph: string): void;
+    protected _output: AnalysisDataStateValue;
+    get output(): AnalysisDataStateValue;
+    protected set output(output: AnalysisDataStateValue);
+    onOutput: CallbacksManager<(output: AnalysisDataStateValue) => void>;
+    onAddGraph: CallbacksManager<(graph: AnalysisGraph) => void>;
+    onRemoveGraph: CallbacksManager<(graph: string) => void>;
+    constructor(drive: AnalysisDataState);
+    refreshOutput(): AnalysisDataStateValue;
+    hasGraph(): boolean;
+}
+
 type RawData = {
     name: string;
     color: string;
     data: PointAnalysisData | AreaAnalysisData;
     analysis: AbstractAnalysis;
 };
+/** @deprecated */
 declare class GoogleGraphsStorage {
     private readonly parent;
     protected readonly activeGraphs: Map<string, AbstractAnalysis>;
@@ -1095,6 +1151,7 @@ type AnalysisDataStateValue = {
 };
 declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
     protected readonly google: GoogleGraphsStorage;
+    protected readonly listeners: AnalysisGraphsStorage;
     constructor(parent: Instance);
     protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
     protected afterSetEffect(value: AnalysisDataStateValue): void;

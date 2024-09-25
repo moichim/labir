@@ -1,4 +1,5 @@
 import { Instance } from "../../../file/instance";
+import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
 
@@ -224,6 +225,9 @@ export abstract class AbstractAnalysis {
 
     /** Obtain the current values of the analysis using current position and dimensions */
     protected abstract getValues(): {min?: number, max?: number, avg?: number}
+
+    /** Override this method to get proper analysis data. */
+    public abstract getAnalysisData(): Promise<PointAnalysisData|AreaAnalysisData>;
 
     
 

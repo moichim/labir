@@ -92,8 +92,6 @@ export const rectAnalysisData: IParserObject["rectAnalysisData"] = async (entire
 
         const frameHeaderByteSize = 57;
 
-        const pointIndex = frameHeaderByteSize + (top * pixelByteSize * fileWidth ) + left * pixelByteSize;
-
 
         const fromX = left;
         const toX = left + _width;
@@ -104,8 +102,6 @@ export const rectAnalysisData: IParserObject["rectAnalysisData"] = async (entire
         let _max = -Infinity;
         let count = 0;
         let sum = 0;
-
-        console.log( dataType );
 
         for (let y = fromY; y <= toY; y++ ) {
 
