@@ -60,18 +60,18 @@ export class AnalysisGraphsStorage {
         // listen to layer state
         this.layers.onAdd.set(this.listenerKey, async (layer) => {
 
-            let item = layer.graph; 
+            const item = layer.graph; 
             this.addGraph(item);
             
-            item.onAnalysisSelection.set(this.listenerKey, async (layer) => {
+            item.onAnalysisSelection.set(this.listenerKey, async () => {
                 this.refreshOutput();
             });
 
-            item.onGraphActivation.set(this.listenerKey, async (layer) => {
+            item.onGraphActivation.set(this.listenerKey, async () => {
                 this.refreshOutput();
             });
 
-            item.onGraphData.set(this.listenerKey, async (layer) => {
+            item.onGraphData.set(this.listenerKey, async () => {
                 this.refreshOutput();
             });
 
@@ -125,7 +125,7 @@ export class AnalysisGraphsStorage {
                             output.values[index + 1] = row;
                         }
 
-                        let array = row as ValueRow;
+                        const array = row as ValueRow;
 
                         array.push( ...graph.getDtaAtTime( parseInt( key) ) );
 

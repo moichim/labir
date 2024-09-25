@@ -1,6 +1,5 @@
 import { Instance } from "../../../../file/instance";
-import { PointAnalysisData, AreaAnalysisData } from "../../../../loading/workers/parsers/structure";
-import { CallbacksManager } from "../../../callbacksManager";
+import { PointAnalysisData } from "../../../../loading/workers/parsers/structure";
 import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";

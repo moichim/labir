@@ -39,7 +39,7 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
         // throw new Error("Method not implemented.");
         return value;
     }
-    protected afterSetEffect(value: AnalysisDataStateValue): void {
+    protected afterSetEffect(): void {
         // throw new Error("Method not implemented.");
         // console.log("přišly data", value)
     }

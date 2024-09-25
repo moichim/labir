@@ -1,5 +1,5 @@
 import { Instance } from "../../../../../file/instance";
-import { PointAnalysisData, AreaAnalysisData } from "../../../../../loading/workers/parsers/structure";
+import { AreaAnalysisData } from "../../../../../loading/workers/parsers/structure";
 import { AbstractArea } from "../AbstractArea";
 import { AbstractAreaAnalysis } from "../AbstractAreaAnalysis";
 import { EllipsisArea } from "./EllipsisArea";

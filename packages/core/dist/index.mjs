@@ -2497,8 +2497,9 @@ var AnalysisGraph = class {
         return [this.analysis.initialColor];
       } else return [];
     }
-    let output = [];
+    const output = [];
     Object.entries(this.state).forEach(([key, value]) => {
+      key;
       if (value) {
         output.push(this.analysis.initialColor);
       }
@@ -2511,7 +2512,7 @@ var AnalysisGraph = class {
         return [this.analysis.key];
       } else return [];
     }
-    let output = [];
+    const output = [];
     Object.entries(this.state).forEach(([key, value]) => {
       if (value) {
         output.push(`${this.analysis.key} ${key}`);
@@ -2532,7 +2533,7 @@ var AnalysisGraph = class {
         return [value2[timestamp]];
       } else return [];
     }
-    let output = [];
+    const output = [];
     const value = this.value;
     if (this._min) {
       output.push(value[timestamp].min);
@@ -3262,15 +3263,15 @@ var AnalysisGraphsStorage = class {
   constructor(drive) {
     this.drive = drive;
     this.layers.onAdd.set(this.listenerKey, async (layer) => {
-      let item = layer.graph;
+      const item = layer.graph;
       this.addGraph(item);
-      item.onAnalysisSelection.set(this.listenerKey, async (layer2) => {
+      item.onAnalysisSelection.set(this.listenerKey, async () => {
         this.refreshOutput();
       });
-      item.onGraphActivation.set(this.listenerKey, async (layer2) => {
+      item.onGraphActivation.set(this.listenerKey, async () => {
         this.refreshOutput();
       });
-      item.onGraphData.set(this.listenerKey, async (layer2) => {
+      item.onGraphData.set(this.listenerKey, async () => {
         this.refreshOutput();
       });
     });
@@ -3327,7 +3328,7 @@ var AnalysisGraphsStorage = class {
               row = [format3(parseInt(key), "m:ss:SSS")];
               output.values[index + 1] = row;
             }
-            let array = row;
+            const array = row;
             array.push(...graph.getDtaAtTime(parseInt(key)));
           });
         }
@@ -3353,7 +3354,7 @@ var AnalysisDataState = class extends AbstractProperty {
   validate(value) {
     return value;
   }
-  afterSetEffect(value) {
+  afterSetEffect() {
   }
   dangerouslyUpdateValue(value) {
     this.value = value;
@@ -4329,12 +4330,12 @@ var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
     for (let y = fromY; y <= toY; y++) {
       const rowOffset = y * fileWidth;
       for (let x = fromX; x <= toX; x++) {
-        let pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+        const pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
         let value = NaN;
         if (dataType === 1) {
           value = frameView.getFloat32(pointIndex, true);
         } else {
-          let valueRaw = frameView.getInt16(pointIndex, true);
+          const valueRaw = frameView.getInt16(pointIndex, true);
           const UINT16_MAX = 65535;
           const mappedValue = valueRaw / UINT16_MAX;
           value = min + range * mappedValue;
@@ -4515,12 +4516,12 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
       const rowOffset = y * fileWidth;
       for (let x = fromX; x <= toX; x++) {
         if (isWithin(x, y)) {
-          let pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+          const pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
           let value = NaN;
           if (dataType === 1) {
             value = frameView.getFloat32(pointIndex, true);
           } else {
-            let valueRaw = frameView.getInt16(pointIndex, true);
+            const valueRaw = frameView.getInt16(pointIndex, true);
             const UINT16_MAX = 65535;
             const mappedValue = valueRaw / UINT16_MAX;
             value = min + range * mappedValue;

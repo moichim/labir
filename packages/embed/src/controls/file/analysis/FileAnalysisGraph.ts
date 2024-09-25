@@ -1,5 +1,5 @@
-import { AnalysisDataStateValue, Instance, ThermalFileFailure } from "@labir/core";
-import { html, nothing, PropertyValues } from "lit";
+import { AnalysisDataStateValue, Instance } from "@labir/core";
+import { html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
@@ -48,9 +48,7 @@ export class FileAnalysisGraph extends FileConsumer {
     }
 
 
-    public onFailure(error: ThermalFileFailure): void {
-        //
-    }
+    public onFailure(): void {}
 
     protected render(): unknown {
         return html`

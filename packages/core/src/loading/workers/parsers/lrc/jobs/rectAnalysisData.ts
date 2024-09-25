@@ -109,14 +109,14 @@ export const rectAnalysisData: IParserObject["rectAnalysisData"] = async (entire
 
             for ( let x = fromX; x <= toX; x++ ) {
 
-                let pointIndex = frameHeaderByteSize + ( ( rowOffset + x ) * pixelByteSize );
+                const pointIndex = frameHeaderByteSize + ( ( rowOffset + x ) * pixelByteSize );
 
                 let value: number = NaN;
 
                 if ( dataType === 1 ) {
                     value = frameView.getFloat32(pointIndex, true);
                 } else {
-                    let valueRaw = frameView.getInt16(pointIndex, true);
+                    const valueRaw = frameView.getInt16(pointIndex, true);
                     const UINT16_MAX = 65535;
                     const mappedValue = valueRaw / UINT16_MAX;
                     value  = min + ( range * mappedValue );

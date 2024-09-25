@@ -1,7 +1,7 @@
+import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labir/core";
+import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { AbstractAnalysis, AnalysisGraph, Instance, ThermalFileFailure } from "@labir/core";
-import { css, CSSResultGroup, html, nothing } from "lit";
 
 @customElement("file-analysis-table")
 export class FileAnalysisTable extends FileConsumer {

@@ -119,14 +119,14 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
 
                 if (isWithin(x, y)) {
 
-                    let pointIndex = frameHeaderByteSize + ((rowOffset + x) * pixelByteSize);
+                    const pointIndex = frameHeaderByteSize + ((rowOffset + x) * pixelByteSize);
 
                     let value: number = NaN;
 
                     if (dataType === 1) {
                         value = frameView.getFloat32(pointIndex, true);
                     } else {
-                        let valueRaw = frameView.getInt16(pointIndex, true);
+                        const valueRaw = frameView.getInt16(pointIndex, true);
                         const UINT16_MAX = 65535;
                         const mappedValue = valueRaw / UINT16_MAX;
                         value = min + (range * mappedValue);

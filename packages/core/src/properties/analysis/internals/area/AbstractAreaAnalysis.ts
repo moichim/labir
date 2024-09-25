@@ -1,5 +1,4 @@
 import { Instance } from "../../../../file/instance";
-import { CallbacksManager } from "../../../callbacksManager";
 import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";

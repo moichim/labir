@@ -1132,7 +1132,7 @@ declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue,
     readonly listeners: AnalysisGraphsStorage;
     constructor(parent: Instance);
     protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
-    protected afterSetEffect(value: AnalysisDataStateValue): void;
+    protected afterSetEffect(): void;
     dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
 }
 
