@@ -2470,6 +2470,7 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.center.onY.set("update point", (y) => {
       this.top = y;
     });
+    this.recalculateValues();
   }
   setColorCallback(value) {
     this.center.setColor(value);
@@ -3048,8 +3049,8 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   }
   async getAnalysisData() {
     return await this.file.service.rectAnalysisData(
-      this.top,
       this.left,
+      this.top,
       this.width,
       this.height
     );
@@ -3406,15 +3407,84 @@ var AnalysisGraphsStorage = class {
   hasGraph() {
     return Object.values(this.graphs).find((graph) => graph.hasDataToPrint()).length > 0;
   }
+  generateExportData() {
+    const dataBuffer = {};
+    const header = [
+      {
+        key: "time_relative",
+        displayLabel: "Relative Time"
+      },
+      {
+        key: "time_absolute",
+        displayLabel: "Absolute Time"
+      },
+      {
+        key: "millisecondy",
+        displayLabel: "Milliseconds"
+      },
+      {
+        key: "timestamp",
+        displayLabel: "Timestamp"
+      }
+    ];
+    for (const graph of this.graphs.values()) {
+      const labels = graph.getGraphLabels();
+      for (const label of labels) {
+        header.push({
+          key: label,
+          displayLabel: `${label} (${graph.analysis.initialColor}, ${graph.analysis.width} x ${graph.analysis.height} px)`
+        });
+      }
+      if (graph.value) {
+        Object.keys(graph.value).forEach((key, index) => {
+          if (!Object.keys(dataBuffer).includes(key)) {
+            const timestamp_relative = parseInt(key);
+            const timestamp_absolute = timestamp_relative + graph.analysis.file.timestamp;
+            dataBuffer[key] = {
+              [header[0].key]: (0, import_date_fns4.format)(timestamp_relative, "m:ss:SSS") + " ",
+              [header[1].key]: (0, import_date_fns4.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
+              [header[2].key]: timestamp_relative,
+              [header[3].key]: timestamp_absolute
+            };
+          }
+          const values = graph.getDtaAtTime(parseInt(key));
+          labels.forEach((label, index2) => {
+            dataBuffer[key][label] = values[index2];
+          });
+        });
+      }
+    }
+    return {
+      header,
+      data: Object.values(dataBuffer)
+    };
+  }
 };
 
 // src/properties/analysis/AnalysisDataState.ts
+var import_export_to_csv = require("export-to-csv");
 var AnalysisDataState = class extends AbstractProperty {
+  _hasActiveGraphs = false;
+  get hasActiveGraphs() {
+    return this._hasActiveGraphs;
+  }
+  onGraphsPresence = new CallbacksManager();
   listeners = new AnalysisGraphsStorage(this);
   constructor(parent) {
     super(parent, { values: [[]], colors: [] });
     this.listeners.onOutput.set("__mirror_output_to_local_state", async (output) => {
       this.value = output;
+      if (output.colors.length > 0) {
+        if (!this.hasActiveGraphs) {
+          this._hasActiveGraphs = true;
+          this.onGraphsPresence.call(true);
+        }
+      } else {
+        if (this.hasActiveGraphs) {
+          this._hasActiveGraphs = false;
+          this.onGraphsPresence.call(false);
+        }
+      }
     });
   }
   validate(value) {
@@ -3424,6 +3494,16 @@ var AnalysisDataState = class extends AbstractProperty {
   }
   dangerouslyUpdateValue(value) {
     this.value = value;
+  }
+  downloadData() {
+    const { data, header } = this.listeners.generateExportData();
+    const csvConfig = (0, import_export_to_csv.mkConfig)({
+      fieldSeparator: ";",
+      filename: `analysis_${this.parent.fileName}_${Date.now()}.csv`,
+      columnHeaders: header
+    });
+    const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv.download)(csvConfig)(csv);
   }
 };
 
@@ -3881,6 +3961,7 @@ var EditTool = class extends AbstractTool {
     }
   }
   getLabelValue(x, y, file) {
+    const temperature = file.getTemperatureAtPoint(x, y);
     const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
       if (analysis2.selected) {
         return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
@@ -3889,7 +3970,7 @@ var EditTool = class extends AbstractTool {
       }
     });
     const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
-    return `${analysis}X: ${x}<br />Y: ${y}`;
+    return `${analysis}${temperature && temperature.toFixed(2) + " \xB0C<br />"}X: ${x}<br />Y: ${y}`;
   }
 };
 

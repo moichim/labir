@@ -1,8 +1,12 @@
 import { AnalysisDataStateValue, Instance } from "@labir/core";
-import { html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { css, html, nothing, PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { consume } from "@lit/context";
+import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext } from "../../../hierarchy/providers/context/FileContexts";
+import { GoogleChart } from "@google-web-components/google-chart";
+import { ThermalChart } from "./chart/chart";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
@@ -13,11 +17,31 @@ export class FileAnalysisGraph extends FileConsumer {
 
     container: Ref<HTMLDivElement> = createRef();
 
+    graphRef: Ref<ThermalChart> = createRef();
+
     @state()
     protected graphs: AnalysisDataStateValue = {
         values: [[]],
         colors: []
     }
+
+    @consume({ context: fileCursorContext, subscribe: true })
+    protected cursor: FileCursorContext;
+
+    @consume({ context: fileCursorSetterContext, subscribe: true })
+    protected cursorSetter?: FileCursorSetterContext;
+
+    @state()
+    left: number = 0;
+
+    @state()
+    top: number = 0;
+
+    @state()
+    width: number = 0;
+
+    @state()
+    height: number = 0;
 
     public onInstanceCreated(instance: Instance): void {
 
@@ -35,27 +59,65 @@ export class FileAnalysisGraph extends FileConsumer {
             this.graphWidth = this.container.value.clientWidth;
 
             const observer = new ResizeObserver(entries => {
-                console.log( entries );
                 this.graphWidth = entries[0].contentRect.width;
+
+                if (this.graphRef.value) {
+
+                    this.left = this.graphRef.value.left;
+                    this.top = this.graphRef.value.top;
+                    this.width = this.graphRef.value.w;
+                    this.height = this.graphRef.value.h;
+                }
             });
 
             observer.observe(this.container.value);
 
         }
 
-        
 
     }
 
 
-    public onFailure(): void {}
+    public onFailure(): void { }
+
+    public update(changedProperties: PropertyValues): void {
+        super.update(changedProperties);
+        if (this.graphRef.value) {
+
+            this.left = this.graphRef.value.left;
+            this.top = this.graphRef.value.top;
+            this.width = this.graphRef.value.w;
+            this.height = this.graphRef.value.h;
+        }
+    }
+
+    public static styles = css`
+
+        :host {
+            background: white;
+        }
+    
+        google-chart {
+            width: 100%;
+            height: 500px;
+        }
+    `;
 
     protected render(): unknown {
         return html`
+
+            <div style="position: relative; background-color: white;">
+
+            <div style="position: absolute; top:${this.top}px; left: ${this.left}px; width: ${this.width}px; height: ${this.height}px;">
+                ${this.cursor && html`
+                    <div style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
+                `}
+            </div>
         
             <div ${ref(this.container)}>
                 ${this.graphs.colors.length > 0
-                ? html`<google-chart 
+                ? html`<thermal-chart 
+                        ${ref(this.graphRef)}
                         type="line" 
                         .data=${this.graphs.values} 
                         .options=${{
@@ -64,10 +126,18 @@ export class FileAnalysisGraph extends FileConsumer {
                         hAxis: { title: 'Time' },
                         vAxis: { title: 'Temperature °C' },
                         width: this.graphWidth,
+                        chartArea: { 
+                            width: '80%', 
+                        },
+                        backgroundColor: { fill: 'transparent' },
                     }}
-                        ></google-chart>`
+                        ></thermal-chart>`
                 : nothing
             }
+            </div>
+
+            
+
             </div>
         
         `

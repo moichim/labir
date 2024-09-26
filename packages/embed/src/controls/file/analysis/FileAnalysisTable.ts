@@ -16,6 +16,9 @@ export class FileAnalysisTable extends FileConsumer {
         console.log(error);
     }
 
+    @state()
+    protected hasHighlightedData: boolean = false;
+
     public onInstanceCreated(instance: Instance): void {
         
         // Mirror all analysis to local state
@@ -28,11 +31,20 @@ export class FileAnalysisTable extends FileConsumer {
             this.allSelected = instance.analysis.layers.all.length === instance.analysis.layers.selectedOnly.length;
         } );
 
+
+        // Mirror hasSelectedData
+        instance.analysisData.onGraphsPresence.set( this.UUID, value => {
+            this.hasHighlightedData = value;
+        })
+
         // Set initial allSelected
         this.allSelected = instance.analysis.layers.all.length === instance.analysis.layers.selectedOnly.length;
 
         // Set initial allSelected
         this.analysis = instance.analysis.value;
+
+        // Set initial hasHighlightedData
+        this.hasHighlightedData = instance.analysisData.hasActiveGraphs;
 
     }
 
@@ -136,6 +148,12 @@ export class FileAnalysisTable extends FileConsumer {
                     <th>Min</th>
                     <th>Max</th>
                     <th>Size</th>
+                    <th style="padding-top: 0; padding-bottom: 0;">
+                        ${this.hasHighlightedData 
+                            ? html`<thermal-button variant="foreground" @click=${() => {this.file?.analysisData.downloadData()}} title="Download graph data as CSV">CSV</thermal-button>`
+                            : nothing
+                        }
+                    </th>
                 </tr>
             
             </thead>

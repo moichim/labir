@@ -1119,6 +1119,15 @@ declare class AnalysisGraphsStorage {
     constructor(drive: AnalysisDataState);
     refreshOutput(): AnalysisDataStateValue;
     hasGraph(): boolean;
+    generateExportData(): {
+        header: {
+            key: string;
+            displayLabel: string;
+        }[];
+        data: {
+            [index: string]: string | number;
+        }[];
+    };
 }
 
 type HeaderRow = string[];
@@ -1129,11 +1138,15 @@ type AnalysisDataStateValue = {
     colors: string[];
 };
 declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+    protected _hasActiveGraphs: boolean;
+    get hasActiveGraphs(): boolean;
+    readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
     readonly listeners: AnalysisGraphsStorage;
     constructor(parent: Instance);
     protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
     protected afterSetEffect(): void;
     dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
+    downloadData(): void;
 }
 
 type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue;

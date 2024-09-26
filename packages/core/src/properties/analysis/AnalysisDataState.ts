@@ -1,6 +1,8 @@
 import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
+import { CallbacksManager } from "../callbacksManager";
 import { AnalysisGraphsStorage } from "./graphs/AnalysisGraphsStorage";
+import { mkConfig, generateCsv, download } from "export-to-csv";
 
 export interface IWithAnalysisDataState extends IBaseProperty {
     analysisDataState: AnalysisDataState
@@ -18,6 +20,14 @@ export type AnalysisDataStateValue = {
 
 export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
 
+    protected _hasActiveGraphs: boolean = false;
+    public get hasActiveGraphs() {
+        return this._hasActiveGraphs;
+    }
+    public readonly onGraphsPresence = new CallbacksManager<(
+        hasActiveGraphs: boolean
+    ) => void>()
+
     public readonly listeners = new AnalysisGraphsStorage(this)
 
     public constructor(parent: Instance) {
@@ -28,9 +38,21 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
             this.value = output;
 
+            if ( output.colors.length > 0) {
+                if ( ! this.hasActiveGraphs ) {
+                    this._hasActiveGraphs = true;
+                    this.onGraphsPresence.call( true );
+                }
+            } else {
+                if ( this.hasActiveGraphs ) {
+                    this._hasActiveGraphs = false;
+                    this.onGraphsPresence.call( false );
+                }
+            }
+
         });
 
-        
+
 
     }
 
@@ -46,6 +68,21 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
     public dangerouslyUpdateValue(value: AnalysisDataStateValue) {
         this.value = value;
+    }
+
+    public downloadData() {
+
+        const { data, header } = this.listeners.generateExportData();
+        const csvConfig = mkConfig({
+            fieldSeparator: ";",
+            filename: `analysis_${this.parent.fileName}_${Date.now()}.csv`,
+            columnHeaders: header
+        });
+        const csv = generateCsv(csvConfig)(data);
+
+        download( csvConfig )( csv );
+
+
     }
 
 

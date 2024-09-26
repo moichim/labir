@@ -105,11 +105,12 @@ export const rectAnalysisData: IParserObject["rectAnalysisData"] = async (entire
 
         for (let y = fromY; y <= toY; y++ ) {
 
-            const rowOffset = y * fileWidth
+            const rowOffset = y * fileWidth;
 
             for ( let x = fromX; x <= toX; x++ ) {
 
                 const pointIndex = frameHeaderByteSize + ( ( rowOffset + x ) * pixelByteSize );
+                // console.log(pointIndex, frameView.byteLength);
 
                 let value: number = NaN;
 

@@ -79,6 +79,7 @@ export class EditTool extends AbstractTool implements ITool {
 
     public getLabelValue(x: number, y: number, file: Instance): string {
 
+        const temperature = file.getTemperatureAtPoint(x,y);
 
         const hoveredAnalysis = file.analysis.layers.all
             .filter(analysis => analysis.isWithin(x, y))
@@ -94,7 +95,7 @@ export class EditTool extends AbstractTool implements ITool {
             : "";
 
 
-        return `${analysis}X: ${x}<br />Y: ${y}`;
+        return `${analysis}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
 
     }
 

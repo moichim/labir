@@ -113,7 +113,7 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
 
         for (let y = fromY; y <= toY; y++) {
 
-            const rowOffset = y * fileWidth
+            const rowOffset = y * fileWidth;
 
             for (let x = fromX; x <= toX; x++) {
 

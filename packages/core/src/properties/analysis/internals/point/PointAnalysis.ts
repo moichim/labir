@@ -60,6 +60,8 @@ export class PointAnalysis extends AbstractAnalysis {
             this.top = y;
         });
 
+        this.recalculateValues();
+
     }
 
 

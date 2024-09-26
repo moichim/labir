@@ -142,6 +142,9 @@ importers:
       lit:
         specifier: ^3.1.4
         version: 3.1.4
+      safevalues:
+        specifier: ^0.5.2
+        version: 0.5.2
       toolcool-range-slider:
         specifier: ^4.0.28
         version: 4.0.28

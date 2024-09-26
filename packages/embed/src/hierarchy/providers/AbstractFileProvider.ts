@@ -4,7 +4,7 @@ import { PropertyValues } from "lit";
 import { property, queryAssignedElements, state } from "lit/decorators.js";
 import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileCursorContext, fileCursorContext, fileCursorSetterContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 export class AbstractFileProvider extends GroupConsumer {
 
@@ -36,6 +36,27 @@ export class AbstractFileProvider extends GroupConsumer {
     @provide({ context: currentFrameContext })
     @state()
     protected currentFrame?: CurrentFrameContext;
+
+    @provide({context: fileCursorContext})
+    protected cursor: FileCursorContext = undefined;
+
+    @provide({context: fileCursorSetterContext})
+    protected cursorSetter = (percent: number|undefined) => {
+        if ( percent === undefined ) {
+            if ( this.cursor !== undefined ) {
+                this.cursor = undefined;
+            }
+        } else if ( this.file ) {
+            const relativeTime = this.file.timeline._convertPercenttRelative(percent);
+            const frame = this.file.timeline.findPreviousRelative(relativeTime);
+            this.cursor = {
+                absolute: frame.absolute,
+                ms: frame.relative,
+                percentage: percent
+            }
+        }
+    };
+
 
     @provide({ context: fileMsContext })
     @property({ type: Number, reflect: true, attribute: true })

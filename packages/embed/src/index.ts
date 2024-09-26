@@ -21,6 +21,7 @@ console.info( `@labir/embed ${version}
 
 // 0. External components
 import '@google-web-components/google-chart';
+import "./controls/file/analysis/chart/chart";
 
 // 1. UI components
 import "./ui/Dialog";
