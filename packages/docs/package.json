@@ -1,6 +1,6 @@
 {
   "name": "@labir/docs",
-  "version": "1.2.38",
+  "version": "1.2.39",
   "description": "Documentation site for @labir/* packages",
   "private": true,
   "scripts": {
