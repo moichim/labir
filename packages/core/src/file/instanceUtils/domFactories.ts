@@ -20,6 +20,7 @@ export default class ThermalDomFactory {
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.style.objectPosition = "top left";
+        canvas.style.imageRendering = "pixelated";
         // canvas.style.cursor = "crosshair";
         //canvas.style.transition = "opacity 300ms ease-in-out";
         canvas.style.userSelect = "none";

@@ -86,6 +86,12 @@ export class AnalysisGraph {
 
     protected async hydrate() {
 
+
+        // Refresh the output whenever the initial color changes
+        this.analysis.onSetInitialColor.set( "__graphs", value => {
+            this.analysis.file.analysisData.listeners.refreshOutput();
+        } );
+
         // Listen to analysis selection
         // This is perhaps redundant, but for the purpose of encapsulation it seems reasonable
         this.analysis.onSelected.set( "__graphs", ( analysis ) => {

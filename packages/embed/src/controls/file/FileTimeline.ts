@@ -197,7 +197,7 @@ export class TimelineElement extends FileConsumer {
 
         .real {
             display: flex;
-            gap: 1rem;
+            gap: var( --thermal-fs-small );
             align-items: center;
             padding-top: 5px;
             justify-content: space-between;

@@ -6,10 +6,23 @@ import { PointAnalysis } from "../point/PointAnalysis";
 import { RectangleAnalysis } from "../area/rectangle/RectangleAnalysis";
 
 
-
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
 type AnalysisRemovedCallback = (key: string) => void;
 type SelectionChangeEvent = ( selectedAnalysis: AbstractAnalysis[] ) => void;
+
+export const availableAnalysisColors = [
+    "Orange",
+    "Lightblue",
+    "Green",
+    "Brown",
+    "Yellow",
+    "Blue",
+    "Pink",
+    "DarkGoldenRod",
+    "GreenYellow",
+    "SpringGreen",
+    "SkyBlue"
+];
 
 export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
@@ -28,15 +41,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     /** Array of available colors */
-    public readonly colors = [
-        "orange",
-        "lightblue",
-        "green",
-        "brown",
-        "yellow",
-        "blue",
-        "pink"
-    ];
+    public readonly colors = availableAnalysisColors;
 
     public constructor(
         public readonly drive: AnalysisDrive
@@ -231,12 +236,17 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     /** Get color for the next analysis */
     protected getNextColor() {
-        const nextNum = this.all.length;
-        if ( nextNum < this.colors.length ) {
-            return this.colors[ nextNum ];
+
+        const usedColors = this.all.map( analysis => analysis.initialColor );
+
+        const availableColors = availableAnalysisColors.filter( color => !usedColors.includes( color ) );
+
+        if ( availableColors.length > 0 ) {
+            return availableColors[0];
         } else {
-            return this.colors[ nextNum % this.colors.length ];
+            return availableAnalysisColors[0];
         }
+
     }
 
 

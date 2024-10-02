@@ -74,6 +74,10 @@ import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
 
+import "./controls/file/analysis/edit/analysisColor";
+import "./controls/file/analysis/edit/editArea";
+import "./controls/file/analysis/edit/editPoint";
+import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";

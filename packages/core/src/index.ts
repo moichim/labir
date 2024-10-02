@@ -26,7 +26,7 @@ import { ThermalFileReader } from "./loading/workers/ThermalFileReader";
 
 import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
 import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
-import { supportedFileTypes } from "./loading/workers/parsers";
+import { supportedFileTypes, supportedFileTypesInputProperty } from "./loading/workers/parsers";
 import { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
 import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalysis";
 import { AddEllipsisTool } from "./properties/analysis/internals/area/ellipsis/AddEllipsisTool";
@@ -46,6 +46,7 @@ import { getPool } from "./utils/pool";
 import { AnalysisDataStateValue } from "./properties/analysis/AnalysisDataState";
 import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
 import { AnalysisGraph } from "./properties/analysis/graphs/AnalysisGraph";
+import { availableAnalysisColors } from "./properties/analysis/internals/storage/AnalysisLayersStorage";
 
 export {
 
@@ -78,9 +79,12 @@ export {
 
     AnalysisDataStateValue,
     AbstractAreaAnalysis,
-    AnalysisGraph
+    AnalysisGraph,
+    supportedFileTypesInputProperty,
+    availableAnalysisColors
     
 };
+
 
 
 

@@ -692,6 +692,8 @@ declare class RectangleArea extends AbstractArea {
 }
 
 declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+    protected readonly wPx: string;
+    protected readonly hPx: string;
     readonly tl: CornerPoint;
     readonly tr: CornerPoint;
     readonly bl: CornerPoint;
@@ -779,6 +781,7 @@ declare class RectangleAnalysis extends AbstractAreaAnalysis {
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
 type AnalysisRemovedCallback = (key: string) => void;
 type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+declare const availableAnalysisColors: string[];
 declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly drive: AnalysisDrive;
     /** Array of all layers ordered from oldest to the newest */
@@ -853,8 +856,11 @@ declare abstract class AbstractAnalysis {
     get color(): string;
     setColor(value: string): void;
     protected abstract setColorCallback(value: string): void;
-    onSetColor: CallbacksManager<(value: string) => void>;
-    readonly initialColor: string;
+    readonly onSetColor: CallbacksManager<(value: string) => void>;
+    protected _initialColor: string;
+    get initialColor(): string;
+    setInitialColor(value: string): void;
+    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
     readonly activeColor = "yellow";
     readonly inactiveColor = "black";
     protected _graphMinActive: boolean;
@@ -1131,7 +1137,7 @@ declare class AnalysisGraphsStorage {
 }
 
 type HeaderRow = string[];
-type ValueRow = [string, ...number[]];
+type ValueRow = [Date, ...number[]];
 type DataType = [HeaderRow, ...ValueRow[]];
 type AnalysisDataStateValue = {
     values: DataType;
@@ -1581,6 +1587,7 @@ declare class ThermalFileFailure extends AbstractFileResult {
  * - all the functionality needs to be implemented in static functions of the parser itself
  */
 declare const supportedFileTypes: IParserObject["extensions"][];
+declare const supportedFileTypesInputProperty: string;
 
 /** Tool for analysis addition */
 declare abstract class AbstractAddTool extends AbstractTool {
@@ -1656,4 +1663,4 @@ declare class InspectTool extends AbstractTool implements ITool {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, getPool, playbackSpeed, supportedFileTypes };
+export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };

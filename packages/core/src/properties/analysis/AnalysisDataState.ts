@@ -9,7 +9,7 @@ export interface IWithAnalysisDataState extends IBaseProperty {
 }
 
 type HeaderRow = string[];
-export type ValueRow = [string, ...number[]];
+export type ValueRow = [Date, ...number[]];
 
 type DataType = [HeaderRow, ...ValueRow[]];
 

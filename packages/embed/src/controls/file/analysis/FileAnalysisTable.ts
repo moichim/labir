@@ -58,7 +58,7 @@ export class FileAnalysisTable extends FileConsumer {
             border: 1px solid var( --thermal-slate );
             border-radius: var( --thermal-radius );
             td, th {
-                padding: .5rem;
+                padding: calc( var( --thermal-fs ) * .5 )
             }
         }
 

@@ -68,6 +68,7 @@ export class FileAnalysisRow extends BaseElement {
                 oldAnalysis.onValues.delete(this.UUID);
                 oldAnalysis.onMoveOrResize.delete(this.UUID);
                 oldAnalysis.graph.onGraphActivation.delete(this.UUID);
+                oldAnalysis.onSetInitialColor.delete(this.UUID);
             }
 
             const newAnalysis = this.analysis;
@@ -128,6 +129,12 @@ export class FileAnalysisRow extends BaseElement {
             newAnalysis.onDeselected.set(this.UUID, () => {
                 this.selected = false;
             });
+
+            // Listen to initialColor
+            newAnalysis.onSetInitialColor.set(this.UUID, (value) => {
+                this.color = value;
+            });
+
 
 
         }
@@ -286,6 +293,7 @@ export class FileAnalysisRow extends BaseElement {
         <thermal-button @click=${() => {
             this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key )
         }}>Remove</thermal-button>
+        <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
         </td>
         
         `;

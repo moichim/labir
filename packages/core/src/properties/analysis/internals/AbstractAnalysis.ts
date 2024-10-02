@@ -76,9 +76,27 @@ export abstract class AbstractAnalysis {
         this.onSetColor.call(value);
     }
     protected abstract setColorCallback(value: string): void;
-    public onSetColor = new CallbacksManager<(value: string) => void>;
+    public readonly onSetColor = new CallbacksManager<(value: string) => void>;
 
-    public readonly initialColor: string;
+
+    protected _initialColor: string;
+    public get initialColor(){
+        return this._initialColor;
+    }
+
+    public setInitialColor( value: string ) {
+        this._initialColor = value;
+        this.onSetInitialColor.call( value );
+        if ( this.selected === true ) {
+            this.setColor( value );
+        }
+
+    }
+
+    public readonly onSetInitialColor = new CallbacksManager<(value: string) => void>;
+
+
+    // public readonly initialColor: string;
     public readonly activeColor = "yellow";
     public readonly inactiveColor = "black";
 
@@ -119,7 +137,8 @@ export abstract class AbstractAnalysis {
         initialColor: string
     ) {
 
-        this.initialColor = initialColor;
+        this._initialColor = initialColor;
+        // this.setInitialColor( initialColor );
 
         // Create the layer root
         this.layerRoot = document.createElement("div");

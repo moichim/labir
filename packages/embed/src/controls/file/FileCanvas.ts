@@ -84,7 +84,7 @@ export class FileCanvas extends FileConsumer {
         }
 
         .error-icon {
-            width: 2rem;
+            width: calc( var( --thermal-fs ) * 2 );
         }
 
         .error-message {

@@ -116,15 +116,15 @@ export class AnalysisGraphsStorage {
                         let row = output.values[index + 1];
 
                         if (row === undefined) {
-                            row = [format(parseInt(key), "m:ss:SSS")];
+                            const date = new Date();
+                            date.setTime( parseInt( key ) );
+                            row = [date];
                             output.values[index + 1] = row;
                         }
 
                         const array = row as ValueRow;
 
                         array.push(...graph.getDtaAtTime(parseInt(key)));
-
-
 
                     });
 

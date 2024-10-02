@@ -67,9 +67,16 @@ export default class ThermalCursorLayer extends AbstractLayer {
             // this.axisX.style.left = this.px( centerX );
             // this.axisY.style.top = this.px( centerY );
 
+            const wPx = 100 / this.instance.width / 2;
+            const hPx = 100 / this.instance.height / 2;
+
+
+
             // Update the value center
-            this.center.style.left = this.px( centerX );
-            this.center.style.top = this.px( centerY );
+            this.center.style.left = `calc( ${this.px( centerX )} + ${wPx}%)`;
+            this.center.style.top = `calc( ${this.px(centerY)} + ${hPx}%)`;
+
+
 
             // Update the label X position
             if ( x > ( this.instance.width / 3 ) ) {

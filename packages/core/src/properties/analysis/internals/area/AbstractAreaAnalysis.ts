@@ -7,6 +7,9 @@ import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
+    protected readonly wPx = ( 100 / this.file.width / 2 ).toString() + "%";
+    protected readonly hPx = ( 100 / this.file.height / 2 ).toString() + "%";
+
 
     public readonly tl: CornerPoint;
     public readonly tr: CornerPoint;

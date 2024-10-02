@@ -370,6 +370,8 @@ export class ThermalChart extends LitElement {
   @property({type: Number, reflect: true})
   h: number = 0;
 
+  public visualisation?: google.visualisation;
+
   protected override firstUpdated() {
     createChartWrapper(this.shadowRoot!.getElementById('chartdiv')!)
         .then(chartWrapper => {

@@ -152,7 +152,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
             .skeleton {
                 background: var( --thermal-slate );
-                height: .9rem;
+                height: calc( var( --thermal-fs ) * .9 );
             }
 
             tc-range-slider {
@@ -189,7 +189,7 @@ export class RangeSliderElement extends RegistryConsumer {
             <tc-range-slider 
                 ${ref(this.sliderRef)}
                 slider-width="100%"
-                slider-height="0.9rem"
+                slider-height="calc( var( --thermal-fs-sm ) * 0.9)"
                 animate-onclick="false"
                 min="${this.min}"
                 max="${this.max}"

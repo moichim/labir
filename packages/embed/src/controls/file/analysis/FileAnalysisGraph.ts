@@ -1,11 +1,10 @@
 import { AnalysisDataStateValue, Instance } from "@labir/core";
+import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { consume } from "@lit/context";
 import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext } from "../../../hierarchy/providers/context/FileContexts";
-import { GoogleChart } from "@google-web-components/google-chart";
 import { ThermalChart } from "./chart/chart";
 
 @customElement("file-analysis-graph")
@@ -88,6 +87,7 @@ export class FileAnalysisGraph extends FileConsumer {
             this.top = this.graphRef.value.top;
             this.width = this.graphRef.value.w;
             this.height = this.graphRef.value.h;
+            console.log( this.graphRef.value.chartWrapper );
         }
     }
 
@@ -121,16 +121,17 @@ export class FileAnalysisGraph extends FileConsumer {
                         type="line" 
                         .data=${this.graphs.values} 
                         .options=${{
-                        colors: this.graphs.colors,
-                        legend: { position: 'bottom' },
-                        hAxis: { title: 'Time' },
-                        vAxis: { title: 'Temperature °C' },
-                        width: this.graphWidth,
-                        chartArea: { 
-                            width: '80%', 
-                        },
-                        backgroundColor: { fill: 'transparent' },
-                    }}
+                            colors: this.graphs.colors,
+                            legend: { position: 'bottom' },
+                            hAxis: { title: 'Time', format: `m:ss:SSS` },
+                            vAxis: { title: 'Temperature °C' },
+                            width: this.graphWidth,
+                            chartArea: { 
+                                width: '80%', 
+                            },
+                            backgroundColor: { fill: 'transparent' },
+                            
+                        }}
                         ></thermal-chart>`
                 : nothing
             }

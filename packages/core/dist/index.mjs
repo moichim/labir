@@ -1074,6 +1074,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     canvas.style.objectPosition = "top left";
+    canvas.style.imageRendering = "pixelated";
     canvas.style.userSelect = "none";
     return canvas;
   }
@@ -1348,8 +1349,10 @@ var ThermalCursorLayer = class extends AbstractLayer {
       const aspect = this.instance.root.offsetWidth / this.instance.width;
       const centerX = Math.round(x * aspect);
       const centerY = Math.round(y * aspect);
-      this.center.style.left = this.px(centerX);
-      this.center.style.top = this.px(centerY);
+      const wPx = 100 / this.instance.width / 2;
+      const hPx = 100 / this.instance.height / 2;
+      this.center.style.left = `calc( ${this.px(centerX)} + ${wPx}%)`;
+      this.center.style.top = `calc( ${this.px(centerY)} + ${hPx}%)`;
       if (x > this.instance.width / 3) {
         this.label.style.right = "3px";
         this.label.style.removeProperty("left");
@@ -1954,7 +1957,7 @@ var AbstractAnalysis = class {
   constructor(key, file, initialColor) {
     this.key = key;
     this.file = file;
-    this.initialColor = initialColor;
+    this._initialColor = initialColor;
     this.layerRoot = document.createElement("div");
     this.layerRoot.style.position = "absolute";
     this.layerRoot.style.top = "0px";
@@ -2022,7 +2025,19 @@ var AbstractAnalysis = class {
     this.onSetColor.call(value);
   }
   onSetColor = new CallbacksManager();
-  initialColor;
+  _initialColor;
+  get initialColor() {
+    return this._initialColor;
+  }
+  setInitialColor(value) {
+    this._initialColor = value;
+    this.onSetInitialColor.call(value);
+    if (this.selected === true) {
+      this.setColor(value);
+    }
+  }
+  onSetInitialColor = new CallbacksManager();
+  // public readonly initialColor: string;
   activeColor = "yellow";
   inactiveColor = "black";
   _graphMinActive = false;
@@ -2478,6 +2493,9 @@ var AnalysisGraph = class {
     );
   }
   async hydrate() {
+    this.analysis.onSetInitialColor.set("__graphs", (value) => {
+      this.analysis.file.analysisData.listeners.refreshOutput();
+    });
     this.analysis.onSelected.set("__graphs", (analysis) => {
       this.onAnalysisSelection.call(true, analysis);
     });
@@ -2631,6 +2649,8 @@ var CornerPoint = class extends AbstractHandlePoint {
 
 // src/properties/analysis/internals/area/AbstractAreaAnalysis.ts
 var AbstractAreaAnalysis = class extends AbstractAnalysis {
+  wPx = (100 / this.file.width / 2).toString() + "%";
+  hPx = (100 / this.file.height / 2).toString() + "%";
   tl;
   tr;
   bl;
@@ -2992,6 +3012,19 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
 };
 
 // src/properties/analysis/internals/storage/AnalysisLayersStorage.ts
+var availableAnalysisColors = [
+  "Orange",
+  "Lightblue",
+  "Green",
+  "Brown",
+  "Yellow",
+  "Blue",
+  "Pink",
+  "DarkGoldenRod",
+  "GreenYellow",
+  "SpringGreen",
+  "SkyBlue"
+];
 var AnalysisLayersStorage = class extends Map {
   constructor(drive) {
     super();
@@ -3006,15 +3039,7 @@ var AnalysisLayersStorage = class extends Map {
   /** Fired whenever the selection list changes */
   onSelectionChange = new CallbacksManager();
   /** Array of available colors */
-  colors = [
-    "orange",
-    "lightblue",
-    "green",
-    "brown",
-    "yellow",
-    "blue",
-    "pink"
-  ];
+  colors = availableAnalysisColors;
   // Adding analysis
   addAnalysis(analysis) {
     if (this.has(analysis.key)) {
@@ -3124,11 +3149,12 @@ var AnalysisLayersStorage = class extends Map {
   }
   /** Get color for the next analysis */
   getNextColor() {
-    const nextNum = this.all.length;
-    if (nextNum < this.colors.length) {
-      return this.colors[nextNum];
+    const usedColors = this.all.map((analysis) => analysis.initialColor);
+    const availableColors = availableAnalysisColors.filter((color) => !usedColors.includes(color));
+    if (availableColors.length > 0) {
+      return availableColors[0];
     } else {
-      return this.colors[nextNum % this.colors.length];
+      return availableAnalysisColors[0];
     }
   }
   /** Get name for the next analysis */
@@ -3326,7 +3352,9 @@ var AnalysisGraphsStorage = class {
           Object.keys(graph.value).forEach((key, index) => {
             let row = output.values[index + 1];
             if (row === void 0) {
-              row = [format3(parseInt(key), "m:ss:SSS")];
+              const date = /* @__PURE__ */ new Date();
+              date.setTime(parseInt(key));
+              row = [date];
               output.values[index + 1] = row;
             }
             const array = row;
@@ -5366,7 +5394,9 @@ export {
   TimeFormat,
   TimePeriod,
   TimeRound,
+  availableAnalysisColors,
   getPool,
   playbackSpeed,
-  supportedFileTypes
+  supportedFileTypes,
+  supportedFileTypesInputProperty
 };
