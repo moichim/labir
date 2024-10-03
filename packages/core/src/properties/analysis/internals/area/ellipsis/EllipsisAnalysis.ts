@@ -6,6 +6,10 @@ import { EllipsisArea } from "./EllipsisArea";
 
 export class EllipsisAnalysis extends AbstractAreaAnalysis {
 
+    public getType(): string {
+        return "ellipsis";
+    }
+
 
     public static startAddingAtPoint(
         key: string,

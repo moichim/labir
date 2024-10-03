@@ -29,6 +29,7 @@ import "./ui/Button";
 import "./ui/Dropdown";
 import "./ui/Bar";
 import "./ui/App";
+import "./ui/Field";
 
 import "./controls/AppInfoButton";
 
@@ -74,6 +75,7 @@ import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
 
+import "./controls/file/analysis/edit/analysisName";
 import "./controls/file/analysis/edit/analysisColor";
 import "./controls/file/analysis/edit/editArea";
 import "./controls/file/analysis/edit/editPoint";

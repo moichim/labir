@@ -50,9 +50,14 @@ export class FileAnalysisTable extends FileConsumer {
 
     public static styles = css`
     
-        :host {
-            display: table;
+        .overflow {
+            overflow-x:auto;
             width: 100%;
+        }
+
+        table {
+            display: table;
+            min-width: 100%;
             border-collapse: collapse;
             color: var( --thermal-foreground );
             border: 1px solid var( --thermal-slate );
@@ -66,8 +71,9 @@ export class FileAnalysisTable extends FileConsumer {
             text-align: left;
         }
 
-        th, td, button {
-            font-size: var( --thermal-fs-sm ) !important;
+        th, td, button, thermal-button {
+            font-size: var( --thermal-fs-sm );
+            font-size: 14px;
         }
 
         caption {
@@ -126,6 +132,10 @@ export class FileAnalysisTable extends FileConsumer {
 
         return html`
 
+        <div class="overflow">
+
+        <table>
+
 
             <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
@@ -169,6 +179,10 @@ export class FileAnalysisTable extends FileConsumer {
                         )}
             
             </tbody>
+
+            </table>
+
+            </div>
         `;
     }
 

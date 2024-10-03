@@ -32,7 +32,7 @@ import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalys
 import { AddEllipsisTool } from "./properties/analysis/internals/area/ellipsis/AddEllipsisTool";
 import { EllipsisAnalysis } from "./properties/analysis/internals/area/ellipsis/EllipsisAnalysis";
 import { AddRectangleTool } from "./properties/analysis/internals/area/rectangle/AddRectangleTool";
-import { CornerPoint } from "./properties/analysis/internals/area/rectangle/CornerPoint";
+import { CornerPoint } from "./properties/analysis/internals/area/CornerPoint";
 import { RectangleAnalysis } from "./properties/analysis/internals/area/rectangle/RectangleAnalysis";
 import { PointAnalysis } from "./properties/analysis/internals/point/PointAnalysis";
 import { CallbacksManager } from "./properties/callbacksManager";

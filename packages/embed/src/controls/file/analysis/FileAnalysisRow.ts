@@ -51,6 +51,9 @@ export class FileAnalysisRow extends BaseElement {
     @property({type: Boolean, reflect: true, attribute: true})
     protected selected: boolean = false;
 
+    @state()
+    protected name?: string;
+
     
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -69,9 +72,13 @@ export class FileAnalysisRow extends BaseElement {
                 oldAnalysis.onMoveOrResize.delete(this.UUID);
                 oldAnalysis.graph.onGraphActivation.delete(this.UUID);
                 oldAnalysis.onSetInitialColor.delete(this.UUID);
+                oldAnalysis.onSetName.delete( this.UUID );
             }
 
             const newAnalysis = this.analysis;
+
+            // Update the name
+            this.name = newAnalysis.name;
 
             // Update activation
             this.selected = newAnalysis.selected;
@@ -135,6 +142,12 @@ export class FileAnalysisRow extends BaseElement {
                 this.color = value;
             });
 
+            // Listen to the name changes
+            newAnalysis.onSetName.set(this.UUID, (value) => {
+                this.name = value;
+            });
+
+
 
 
         }
@@ -161,7 +174,7 @@ export class FileAnalysisRow extends BaseElement {
                     ? html`
                         <button
                             @click=${clickFn}
-                            style="background-color: ${active ? this.color : "transparent"}"
+                            style="background-color: ${active ? this.color : "transparent"};"
                             title="${active ? "Hide graph" : "Show graph"}"
                         >
                             ${this.valueOrNothing(value)}
@@ -180,12 +193,14 @@ export class FileAnalysisRow extends BaseElement {
     
         :host {
             display: table-row;
-            font-size: var( --thermal-fs-sm ) !important;
+            white-space: nowrap;
         }
 
         button, td {
-            font-size: var( --thermal-fs-sm ) !important;
+            font-size: var( --thermal-fs-sm );
+            font-size: 14px;
             color: var( --thermal-foreground);
+            white-space: nowrap;
         }
 
         .may button {
@@ -258,7 +273,7 @@ export class FileAnalysisRow extends BaseElement {
         >
             <u aria-hidden="true"></u>
             <b aria-hidden="true" style="background-color: ${this.color}"></b>
-            <span>${this.analysis.key}</span>
+            <span>${this.analysis.name}</span>
         </td>
 
         ${this.renderCell(
@@ -267,7 +282,6 @@ export class FileAnalysisRow extends BaseElement {
             this.graph.avg, 
             () => {
                     this.analysis.graph.setAvgActivation( ! this.graph.avg );
-                    console.log( "WTF!!", this.analysis.graph.state );
             }
         )}
         ${this.renderCell(
@@ -276,7 +290,6 @@ export class FileAnalysisRow extends BaseElement {
             this.graph.min, 
             () => {
                     this.analysis.graph.setMinActivation( ! this.graph.min );
-                    console.log( "WTF!!", this.analysis.graph.state );
             }
         )}
         ${this.renderCell(
@@ -285,15 +298,14 @@ export class FileAnalysisRow extends BaseElement {
             this.graph.max, 
             () => {
                     this.analysis.graph.setMaxActivation( ! this.graph.max );
-                    console.log( "WTF!!", this.analysis.graph.state );
             }
         )}
         <td>${this.dimension}</td>
         <td>
-        <thermal-button @click=${() => {
-            this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key )
-        }}>Remove</thermal-button>
-        <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
+            <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
+            <thermal-button @click=${() => {
+                this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key )
+            }}>Remove</thermal-button>
         </td>
         
         `;

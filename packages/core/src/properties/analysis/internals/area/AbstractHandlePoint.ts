@@ -1,13 +1,15 @@
-import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractPoint } from "../AbstractPoint";
+import { AbstractAreaAnalysis } from "./AbstractAreaAnalysis";
 
 export abstract class AbstractHandlePoint extends AbstractPoint {
+
+    declare analysis: AbstractAreaAnalysis;
 
     constructor(
         key: string,
         top: number,
         left: number,
-        analysis: AbstractAnalysis,
+        analysis: AbstractAreaAnalysis,
         color: string
     ) {
         super(key, top, left, analysis, color);

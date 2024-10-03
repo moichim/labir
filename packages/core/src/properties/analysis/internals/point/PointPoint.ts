@@ -13,6 +13,15 @@ export class PointPoint extends AbstractPoint {
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
 
+    protected getPercentXTranslationFromValue(value: number): number {
+        return this.pxX / 2;
+    }
+
+    protected getPercentYTranslationFromValue(value: number): number {
+        return this.pxY / 2;
+    }
+
+
     public constructor(
         key: string,
         top: number,
@@ -58,6 +67,8 @@ export class PointPoint extends AbstractPoint {
     }
     createInnerElement(): HTMLDivElement {
         const element = document.createElement( "div" );
+
+        element.classList.add( "innerElement" );
 
         element.style.position = "absolute";
         element.style.top = PointPoint.sizePx( -.5 );

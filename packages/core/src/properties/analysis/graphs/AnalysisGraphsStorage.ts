@@ -75,6 +75,10 @@ export class AnalysisGraphsStorage {
                 this.refreshOutput();
             });
 
+            item.analysis.onSetName.set( this.listenerKey, () => {
+                this.refreshOutput();
+            } );
+
         });
 
         this.layers.onRemove.set(this.listenerKey, async (layer) => {

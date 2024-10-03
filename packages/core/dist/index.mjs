@@ -1958,6 +1958,8 @@ var AbstractAnalysis = class {
     this.key = key;
     this.file = file;
     this._initialColor = initialColor;
+    this.nameInitial = key;
+    this._name = key;
     this.layerRoot = document.createElement("div");
     this.layerRoot.style.position = "absolute";
     this.layerRoot.style.top = "0px";
@@ -2062,6 +2064,16 @@ var AbstractAnalysis = class {
   }
   /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
   ready = false;
+  nameInitial;
+  _name;
+  get name() {
+    return this._name;
+  }
+  setName(value) {
+    this._name = value;
+    this.onSetName.call(value);
+  }
+  onSetName = new CallbacksManager();
   remove() {
     this.setDeselected();
     this.renderRoot.removeChild(this.layerRoot);
@@ -2112,6 +2124,8 @@ var AbstractPoint = class {
   constructor(key, top, left, analysis, color) {
     this.key = key;
     this.analysis = analysis;
+    this.pxX = 100 / this.analysis.file.width;
+    this.pxY = 100 / this.analysis.file.height;
     this._x = left;
     this._y = top;
     this._color = color;
@@ -2127,6 +2141,7 @@ var AbstractPoint = class {
   get file() {
     return this.analysis.file;
   }
+  pxX;
   _x;
   get x() {
     return this._x;
@@ -2142,6 +2157,7 @@ var AbstractPoint = class {
     }
   }
   onX = new CallbacksManager();
+  pxY;
   _y;
   get y() {
     return this._y;
@@ -2263,6 +2279,12 @@ var PointPoint = class _PointPoint extends AbstractPoint {
   axisX;
   axisY;
   center;
+  getPercentXTranslationFromValue(value) {
+    return this.pxX / 2;
+  }
+  getPercentYTranslationFromValue(value) {
+    return this.pxY / 2;
+  }
   constructor(key, top, left, analysis, color) {
     super(
       key,
@@ -2292,6 +2314,7 @@ var PointPoint = class _PointPoint extends AbstractPoint {
   }
   createInnerElement() {
     const element = document.createElement("div");
+    element.classList.add("innerElement");
     element.style.position = "absolute";
     element.style.top = _PointPoint.sizePx(-0.5);
     element.style.left = _PointPoint.sizePx(-0.5);
@@ -2386,6 +2409,9 @@ var PointPoint = class _PointPoint extends AbstractPoint {
 
 // src/properties/analysis/internals/point/PointAnalysis.ts
 var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
+  getType() {
+    return "point";
+  }
   center;
   _graph;
   get graph() {
@@ -2437,6 +2463,14 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   }
   async getAnalysisData() {
     return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
+  }
+  setLeft(value) {
+    const validatedValue = Math.max(0, Math.min(this.file.width, Math.round(value)));
+    this.center.x = validatedValue;
+  }
+  setTop(value) {
+    const validatedValue = Math.max(0, Math.min(this.file.height, Math.round(value)));
+    this.center.y = validatedValue;
   }
 };
 
@@ -2528,13 +2562,13 @@ var AnalysisGraph = class {
   getGraphLabels() {
     if (this.analysis instanceof PointAnalysis) {
       if (this._avg) {
-        return [this.analysis.key];
+        return [this.analysis.name];
       } else return [];
     }
     const output = [];
     Object.entries(this.state).forEach(([key, value]) => {
       if (value) {
-        output.push(`${this.analysis.key} ${key}`);
+        output.push(`${this.analysis.name} ${key}`);
       }
     });
     return output;
@@ -2603,10 +2637,22 @@ var AbstractHandlePoint = class extends AbstractPoint {
   }
 };
 
-// src/properties/analysis/internals/area/rectangle/CornerPoint.ts
+// src/properties/analysis/internals/area/CornerPoint.ts
 var CornerPoint = class extends AbstractHandlePoint {
   getRadius() {
     return 10;
+  }
+  getPercentXTranslationFromValue(value) {
+    if (this.analysis.width + this.analysis.left === value) {
+      return this.pxX;
+    }
+    return 0;
+  }
+  getPercentYTranslationFromValue(value) {
+    if (this.analysis.height + this.analysis.top === value) {
+      return this.pxY;
+    }
+    return 0;
   }
   mayMoveToX(value) {
     return value <= this.file.width && value >= 0;
@@ -2735,13 +2781,61 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.width = rightMost - leftMost;
     this.height = bottomMost - topMost;
     this.area.left = this.left;
+    this.area.top = this.top;
     this.area.height = this.height;
     this.area.width = this.width;
-    this.area.top = this.top;
   }
   addPoint(role, top, left) {
     const point = new CornerPoint(role, top, left, this, this.color);
     this.points.set(role, point);
+    return point;
+  }
+  setLeft(value) {
+    this.leftmostPoint.x = value;
+  }
+  setRight(value) {
+    this.rightmostPoint.x = value;
+  }
+  setTop(value) {
+    this.topmostPoint.y = value;
+  }
+  setBottom(value) {
+    this.bottommostPoint.y = value;
+  }
+  get leftmostPoint() {
+    let point = this.tl;
+    this.points.forEach((p) => {
+      if (p.x < point.x) {
+        point = p;
+      }
+    });
+    return point;
+  }
+  get rightmostPoint() {
+    let point = this.tr;
+    this.points.forEach((p) => {
+      if (p.x > point.x) {
+        point = p;
+      }
+    });
+    return point;
+  }
+  get topmostPoint() {
+    let point = this.tl;
+    this.points.forEach((p) => {
+      if (p.y < point.y) {
+        point = p;
+      }
+    });
+    return point;
+  }
+  get bottommostPoint() {
+    let point = this.br;
+    this.points.forEach((p) => {
+      if (p.y > point.y) {
+        point = p;
+      }
+    });
     return point;
   }
 };
@@ -2838,6 +2932,9 @@ var EllipsisArea = class extends AbstractArea {
 
 // src/properties/analysis/internals/area/ellipsis/EllipsisAnalysis.ts
 var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
+  getType() {
+    return "ellipsis";
+  }
   static startAddingAtPoint(key, color, file, top, left) {
     const item = new _EllipsisAnalysis(
       key,
@@ -2936,6 +3033,9 @@ var RectangleArea = class extends AbstractArea {
 
 // src/properties/analysis/internals/area/rectangle/RectangleAnalysis.ts
 var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
+  getType() {
+    return "rectangle";
+  }
   static startAddingAtPoint(key, color, file, top, left) {
     const item = new _RectangleAnalysis(
       key,
@@ -3299,6 +3399,9 @@ var AnalysisGraphsStorage = class {
         this.refreshOutput();
       });
       item.onGraphData.set(this.listenerKey, async () => {
+        this.refreshOutput();
+      });
+      item.analysis.onSetName.set(this.listenerKey, () => {
         this.refreshOutput();
       });
     });

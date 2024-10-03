@@ -6,6 +6,10 @@ import { RectangleArea } from "./RectangleArea";
 
 export class RectangleAnalysis extends AbstractAreaAnalysis {
 
+    public getType(): string {
+        return "rectangle";
+    }
+
     public static startAddingAtPoint(
         key: string,
         color: string,

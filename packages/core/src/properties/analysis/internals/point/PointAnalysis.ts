@@ -6,6 +6,10 @@ import { PointPoint } from "./PointPoint";
 
 export class PointAnalysis extends AbstractAnalysis {
 
+    public getType(): string {
+        return "point";
+    }
+
     protected center!: PointPoint;
 
     protected _graph: AnalysisGraph|undefined;
@@ -85,6 +89,16 @@ export class PointAnalysis extends AbstractAnalysis {
         
         return await this.file.service.pointAnalysisData( this.center.x, this.center.y );
 
+    }
+
+    public setLeft( value: number ) {
+        const validatedValue = Math.max( 0, Math.min( this.file.width, Math.round( value ) ) );
+        this.center.x = validatedValue;
+    }
+
+    public setTop( value: number ) {
+        const validatedValue = Math.max( 0, Math.min( this.file.height, Math.round( value ) ) );
+        this.center.y = validatedValue;
     }
 
 }

@@ -151,7 +151,7 @@ export class AnalysisGraph {
         if ( this.analysis instanceof PointAnalysis ) {
             // point analysis are controlled by the AVG
             if ( this._avg ) {
-                return [this.analysis.key];
+                return [this.analysis.name];
             } else return [];
         }
 
@@ -161,7 +161,7 @@ export class AnalysisGraph {
         Object.entries( this.state ).forEach( ([key, value]) => {
 
             if ( value ) {
-                output.push( `${this.analysis.key} ${key}` );
+                output.push( `${this.analysis.name} ${key}` );
             }
         } );
 

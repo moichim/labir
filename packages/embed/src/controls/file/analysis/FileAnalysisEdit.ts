@@ -10,13 +10,7 @@ export class FileAnalisisEdit extends BaseElement {
     public analysis!: AbstractAnalysis;
 
     @state()
-    protected color?: string;
-
-    @state()
-    protected tl?: {x: number, y: number};
-
-    @state()
-    protected br?: {x: number, y: number};
+    protected name?: string;
 
     @state()
     protected type?: string;
@@ -28,7 +22,19 @@ export class FileAnalisisEdit extends BaseElement {
 
             const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
 
+            if ( oldAnalysis ) {
+                oldAnalysis.onSetName.delete( this.UUID );
+            }
+
             const newAnalysis = this.analysis;
+            this.name = newAnalysis.name;
+            this.type = newAnalysis.getType();
+
+
+            newAnalysis.onSetName.set(this.UUID, (value) => {
+                this.name = value;
+            });
+
 
         }
     }
@@ -36,7 +42,7 @@ export class FileAnalisisEdit extends BaseElement {
     protected render() {
         return html`
 
-            <thermal-dialog label="Edit ${this.analysis.key}">
+            <thermal-dialog label="Edit ${this.type} analysis">
 
                 <thermal-button slot="invoker">Edit</thermal-button>
 

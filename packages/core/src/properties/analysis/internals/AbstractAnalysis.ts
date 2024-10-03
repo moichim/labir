@@ -131,6 +131,20 @@ export abstract class AbstractAnalysis {
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     public ready: boolean = false;
 
+    public readonly nameInitial: string;
+    protected _name: string;
+    public get name() { return this._name; }
+    public setName( value: string ) {
+        this._name = value;
+        this.onSetName.call( value );
+    }
+    public readonly onSetName = new CallbacksManager<(value: string) => void>;
+
+
+    public abstract getType(): string;
+
+
+
     public constructor(
         public readonly key: string,
         public readonly file: Instance,
@@ -138,6 +152,8 @@ export abstract class AbstractAnalysis {
     ) {
 
         this._initialColor = initialColor;
+        this.nameInitial = key;
+        this._name = key;
         // this.setInitialColor( initialColor );
 
         // Create the layer root

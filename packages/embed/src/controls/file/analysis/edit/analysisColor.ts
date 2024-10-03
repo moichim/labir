@@ -1,7 +1,7 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
 import { AbstractAnalysis, availableAnalysisColors } from "@labir/core";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import {map} from 'lit/directives/map.js';
 
 @customElement("analysis-color")
@@ -39,34 +39,54 @@ export class AnalysisColor extends BaseElement {
 
     static styles?: CSSResultGroup | undefined = css`
 
-        :host {
+        thermal-dropdown div {
             display: flex;
-            width: 100%;
-            gap: var( --thermal-gap );
+            gap: 0.5em;
+            border-radius: var( --thermal-radius );
+            cursor: pointer;
             align-items: center;
+        }
+
+        thermal-dropdown .option {
+            margin-bottom: 0px;
+            padding: 5px;
+        }
+
+        thermal-dropdown div i {
+            width: 1em;
+            height: 1em;
+            border-radius: 50%;
+        }
+
+        thermal-dropdown .option:hover {
+            background-color: var( --thermal-slate );
         }
     
     `;
 
+    protected renderColor( value: string ) {
+        return html`<i style="background-color: ${value};" aria-hidden></i><span>${value}</span>`;
+    }
+
     protected render(): unknown {
+
+        if ( this.color === undefined ) {
+            return nothing;
+        }
         return html`
 
-            <div>Color:</div>
+            <thermal-dropdown>
+                <div slot="invoker">
+                    ${this.renderColor( this.color )}
+                </div>
 
-            <select 
-                @change=${(event:Event) => {this.analysis.setInitialColor((event.target as HTMLSelectElement).value)}} 
-                value=${this.color}
-            >
-
-                ${map(availableAnalysisColors, color => html`<option 
-                    value="${color}" 
-                    style="background-color: ${color};"
-                    ?selected=${color === this.color}
-                >
-                    ${color}
-                </option>`)}
-
-            </select>
+                ${map(availableAnalysisColors, color => html`
+                    <div class="option" slot="option" @click=${() => {this.analysis.setInitialColor( color )}}>
+                        ${this.renderColor( color )}
+                    </div>
+                `)}
+                    
+            </thermal-dropdown>
 
         `;
     }

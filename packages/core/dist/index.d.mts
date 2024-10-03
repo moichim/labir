@@ -668,7 +668,8 @@ declare class AnalysisGraph {
 }
 
 declare abstract class AbstractHandlePoint extends AbstractPoint {
-    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    analysis: AbstractAreaAnalysis;
+    constructor(key: string, top: number, left: number, analysis: AbstractAreaAnalysis, color: string);
     createInnerElement(): HTMLDivElement;
     actionOnMouseEnter(): void;
     actionOnMouseLeave(): void;
@@ -676,6 +677,8 @@ declare abstract class AbstractHandlePoint extends AbstractPoint {
 
 declare class CornerPoint extends AbstractHandlePoint {
     getRadius(): number;
+    protected getPercentXTranslationFromValue(value: number): number;
+    protected getPercentYTranslationFromValue(value: number): number;
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;
     isMoving: boolean;
@@ -713,9 +716,18 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     setColorCallback(value: string): void;
     protected calculateBounds(): void;
     protected addPoint(role: string, top: number, left: number): CornerPoint;
+    setLeft(value: number): void;
+    setRight(value: number): void;
+    setTop(value: number): void;
+    setBottom(value: number): void;
+    get leftmostPoint(): CornerPoint;
+    get rightmostPoint(): CornerPoint;
+    get topmostPoint(): CornerPoint;
+    get bottommostPoint(): CornerPoint;
 }
 
 declare class EllipsisAnalysis extends AbstractAreaAnalysis {
+    getType(): string;
     static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): EllipsisAnalysis;
     static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): EllipsisAnalysis;
     protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
@@ -734,6 +746,8 @@ declare class PointPoint extends AbstractPoint {
     protected axisX?: HTMLDivElement;
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
+    protected getPercentXTranslationFromValue(value: number): number;
+    protected getPercentYTranslationFromValue(value: number): number;
     constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;
@@ -751,6 +765,7 @@ declare class PointPoint extends AbstractPoint {
 }
 
 declare class PointAnalysis extends AbstractAnalysis {
+    getType(): string;
     protected center: PointPoint;
     protected _graph: AnalysisGraph | undefined;
     get graph(): AnalysisGraph;
@@ -764,9 +779,12 @@ declare class PointAnalysis extends AbstractAnalysis {
         avg?: number;
     };
     getAnalysisData(): Promise<PointAnalysisData>;
+    setLeft(value: number): void;
+    setTop(value: number): void;
 }
 
 declare class RectangleAnalysis extends AbstractAreaAnalysis {
+    getType(): string;
     static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): RectangleAnalysis;
     static build(key: string, color: string, file: Instance, _top: number, _left: number, _right: number, _bottom: number): RectangleAnalysis;
     protected buildArea(x: number, y: number, width?: number, height?: number): AbstractArea;
@@ -873,6 +891,12 @@ declare abstract class AbstractAnalysis {
     protected emitGraphActivation(): void;
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     ready: boolean;
+    readonly nameInitial: string;
+    protected _name: string;
+    get name(): string;
+    setName(value: string): void;
+    readonly onSetName: CallbacksManager<(value: string) => void>;
+    abstract getType(): string;
     constructor(key: string, file: Instance, initialColor: string);
     remove(): void;
     /** Selection / Deselection */
@@ -896,16 +920,20 @@ declare abstract class AbstractPoint {
     readonly key: string;
     readonly analysis: AbstractAnalysis;
     get file(): Instance;
+    protected pxX: number;
     protected _x: number;
     get x(): number;
     set x(value: number);
     onX: CallbacksManager<(x: number, prev: number) => void>;
     abstract mayMoveToX(value: number): boolean;
+    protected abstract getPercentXTranslationFromValue(value: number): number;
+    protected pxY: number;
     protected _y: number;
     get y(): number;
     set y(value: number);
     onY: CallbacksManager<(y: number, prev: number) => void>;
     abstract mayMoveToY(value: number): boolean;
+    protected abstract getPercentYTranslationFromValue(value: number): number;
     protected _color: string;
     protected get color(): string;
     setColor(value: string): void;

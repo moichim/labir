@@ -7,6 +7,7 @@ export abstract class AbstractPoint {
         return this.analysis.file;
     }
 
+    protected pxX: number;
     protected _x: number;
     public get x() {
         return this._x;
@@ -23,9 +24,12 @@ export abstract class AbstractPoint {
     }
     public onX = new CallbacksManager<(x: number, prev: number) => void>
     public abstract mayMoveToX(value: number): boolean;
+    protected abstract getPercentXTranslationFromValue(value: number): number;
 
 
 
+
+    protected pxY: number;
     protected _y: number;
     public get y() {
         return this._y;
@@ -42,6 +46,7 @@ export abstract class AbstractPoint {
     }
     public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
+    protected abstract getPercentYTranslationFromValue(value: number): number;
 
 
     protected _color: string;
@@ -97,8 +102,13 @@ export abstract class AbstractPoint {
         public readonly analysis: AbstractAnalysis,
         color: string
     ) {
+
+        this.pxX = 100 / this.analysis.file.width;
+        this.pxY = 100 / this.analysis.file.height;
+
         this._x = left;
         this._y = top;
+
 
         this._color = color;
 
@@ -189,7 +199,7 @@ export abstract class AbstractPoint {
     }
 
     public mouseLeave() {
-        if ( this.isHover === true ) {
+        if (this.isHover === true) {
             this._isHover = false;
             this.actionOnMouseLeave();
             this.onMouseLeave.call(this);

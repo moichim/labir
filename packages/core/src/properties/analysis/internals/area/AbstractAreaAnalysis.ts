@@ -1,8 +1,9 @@
 import { Instance } from "../../../../file/instance";
 import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
+import { AbstractPoint } from "../AbstractPoint";
 import { AbstractArea } from "./AbstractArea";
-import { CornerPoint } from "./rectangle/CornerPoint";
+import { CornerPoint } from "./CornerPoint";
 import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
@@ -157,9 +158,9 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.height = bottomMost - topMost;
 
         this.area.left = this.left;
+        this.area.top = this.top;
         this.area.height = this.height;
         this.area.width = this.width;
-        this.area.top = this.top;
 
     }
 
@@ -172,5 +173,91 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.points.set(role, point);
         return point;
     }
+
+    public setLeft(
+        value: number
+    ) {
+        this.leftmostPoint.x = value;
+    }
+
+    public setRight(
+        value: number
+    ) {
+        this.rightmostPoint.x = value;
+    }
+
+    public setTop(
+        value: number
+    ) {
+        this.topmostPoint.y = value;
+    }
+
+    public setBottom(
+        value: number
+    ) {
+        this.bottommostPoint.y = value;
+    }
+
+
+
+
+
+    public get leftmostPoint(): CornerPoint {
+    
+        let point = this.tl;
+
+        this.points.forEach( p => {
+            if ( p.x < point.x ) {
+                point = p as CornerPoint;
+            }
+        } );
+
+        return point;
+    
+    }
+
+    public get rightmostPoint(): CornerPoint {
+    
+        let point = this.tr;
+
+        this.points.forEach( p => {
+            if ( p.x > point.x ) {
+                point = p as CornerPoint;
+            }
+        } );
+
+        return point;
+    
+    }
+
+    public get topmostPoint(): CornerPoint {
+    
+        let point = this.tl;
+
+        this.points.forEach( p => {
+            if ( p.y < point.y ) {
+                point = p as CornerPoint;
+            }
+        } );
+
+        return point;
+    
+    }
+
+    public get bottommostPoint(): CornerPoint {
+    
+        let point = this.br;
+
+        this.points.forEach( p => {
+            if ( p.y > point.y ) {
+                point = p as CornerPoint;
+            }
+
+        });
+
+        return point;
+
+    }
+
 
 }

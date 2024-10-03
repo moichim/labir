@@ -1,8 +1,24 @@
-import { AbstractHandlePoint } from "../AbstractHandlePoint";
+import { AbstractHandlePoint } from "./AbstractHandlePoint";
 
 export class CornerPoint extends AbstractHandlePoint {
     public getRadius(): number {
         return 10;
+    }
+
+    protected getPercentXTranslationFromValue(value: number): number {
+
+        if ( this.analysis.width + this.analysis.left === value) {
+            return this.pxX;
+        }
+
+        return 0;
+    }
+
+    protected getPercentYTranslationFromValue(value: number): number {
+        if ( this.analysis.height + this.analysis.top === value ) {
+            return this.pxY;
+        }
+        return 0;
     }
 
     public mayMoveToX(value: number): boolean {
