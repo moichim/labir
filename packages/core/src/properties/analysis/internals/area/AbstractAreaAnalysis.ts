@@ -1,7 +1,6 @@
 import { Instance } from "../../../../file/instance";
 import { AnalysisGraph } from "../../graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
-import { AbstractPoint } from "../AbstractPoint";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./CornerPoint";
 import { RectangleArea } from "./rectangle/RectangleArea";

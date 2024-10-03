@@ -189,7 +189,7 @@ export class AnalysisGraphsStorage {
 
             if (graph.value) {
 
-                Object.keys(graph.value).forEach((key, index) => {
+                Object.keys(graph.value).forEach((key) => {
 
                     if (!Object.keys(dataBuffer).includes(key)) {
 

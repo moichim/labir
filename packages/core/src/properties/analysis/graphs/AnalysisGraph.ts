@@ -88,7 +88,7 @@ export class AnalysisGraph {
 
 
         // Refresh the output whenever the initial color changes
-        this.analysis.onSetInitialColor.set( "__graphs", value => {
+        this.analysis.onSetInitialColor.set( "__graphs", () => {
             this.analysis.file.analysisData.listeners.refreshOutput();
         } );
 

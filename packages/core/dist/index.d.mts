@@ -746,8 +746,8 @@ declare class PointPoint extends AbstractPoint {
     protected axisX?: HTMLDivElement;
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
-    protected getPercentXTranslationFromValue(value: number): number;
-    protected getPercentYTranslationFromValue(value: number): number;
+    protected getPercentXTranslationFromValue(): number;
+    protected getPercentYTranslationFromValue(): number;
     constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;

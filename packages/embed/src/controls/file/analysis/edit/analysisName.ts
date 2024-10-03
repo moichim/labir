@@ -1,8 +1,7 @@
+import { AbstractAnalysis } from "@labir/core";
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
-import { AbstractAnalysis, availableAnalysisColors } from "@labir/core";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
-import {map} from 'lit/directives/map.js';
 
 @customElement("analysis-name")
 export class AnalysisColor extends BaseElement {

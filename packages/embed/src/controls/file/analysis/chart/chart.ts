@@ -239,7 +239,7 @@ export class ThermalChart extends LitElement {
    * (Note: Missing parent properties are not automatically created.)
    */
   @property({type: Object, hasChanged: () => true})
-  options: {}|undefined = undefined;
+  options: object|undefined = undefined;
 
   /**
    * Sets the data columns for this object.

@@ -2347,10 +2347,10 @@ var PointPoint = class _PointPoint extends AbstractPoint {
   axisX;
   axisY;
   center;
-  getPercentXTranslationFromValue(value) {
+  getPercentXTranslationFromValue() {
     return this.pxX / 2;
   }
-  getPercentYTranslationFromValue(value) {
+  getPercentYTranslationFromValue() {
     return this.pxY / 2;
   }
   constructor(key, top, left, analysis, color) {
@@ -2595,7 +2595,7 @@ var AnalysisGraph = class {
     );
   }
   async hydrate() {
-    this.analysis.onSetInitialColor.set("__graphs", (value) => {
+    this.analysis.onSetInitialColor.set("__graphs", () => {
       this.analysis.file.analysisData.listeners.refreshOutput();
     });
     this.analysis.onSelected.set("__graphs", (analysis) => {
@@ -3569,7 +3569,7 @@ var AnalysisGraphsStorage = class {
         });
       }
       if (graph.value) {
-        Object.keys(graph.value).forEach((key, index) => {
+        Object.keys(graph.value).forEach((key) => {
           if (!Object.keys(dataBuffer).includes(key)) {
             const timestamp_relative = parseInt(key);
             const timestamp_absolute = timestamp_relative + graph.analysis.file.timestamp;
@@ -3581,8 +3581,8 @@ var AnalysisGraphsStorage = class {
             };
           }
           const values = graph.getDtaAtTime(parseInt(key));
-          labels.forEach((label, index2) => {
-            dataBuffer[key][label] = values[index2];
+          labels.forEach((label, index) => {
+            dataBuffer[key][label] = values[index];
           });
         });
       }

@@ -13,11 +13,11 @@ export class PointPoint extends AbstractPoint {
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
 
-    protected getPercentXTranslationFromValue(value: number): number {
+    protected getPercentXTranslationFromValue(): number {
         return this.pxX / 2;
     }
 
-    protected getPercentYTranslationFromValue(value: number): number {
+    protected getPercentYTranslationFromValue(): number {
         return this.pxY / 2;
     }
 

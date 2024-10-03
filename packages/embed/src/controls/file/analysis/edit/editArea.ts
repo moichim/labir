@@ -1,6 +1,6 @@
-import { customElement, property, state } from "lit/decorators.js";
 import { AbstractAnalysis, AbstractAreaAnalysis } from "@labir/core";
 import { css, html, PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
 
 @customElement("edit-area")

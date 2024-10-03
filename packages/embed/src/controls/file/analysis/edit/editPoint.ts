@@ -1,8 +1,8 @@
-import { customElement, property, state } from "lit/decorators.js";
 import { AbstractAnalysis, PointAnalysis } from "@labir/core";
 import { css, html, PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { createRef, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 @customElement("edit-point")
 export class EditPoint extends BaseElement {
