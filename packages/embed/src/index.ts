@@ -31,6 +31,7 @@ import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
 
+
 import "./controls/AppInfoButton";
 
 
@@ -84,7 +85,8 @@ import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
 
-
+import "./ui/TimelineRequest";
+import "./ui/Timeline";
 
 // 7. Complex apps go last
 import "./apps/SingleFileApp";

@@ -16,7 +16,7 @@ export class ThermalFileReader extends AbstractFileResult {
     public readonly id = Math.random();
 
     /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-    protected baseInfoCache?: ParsedFileBaseInfo;
+    public baseInfoCache?: ParsedFileBaseInfo;
 
     public readonly fileName: string;
 

@@ -8,6 +8,7 @@ import { FileErrors } from "./errors";
 import { determineParser } from "./parsers";
 import { ThermalFileFailure } from "./ThermalFileFailure";
 import { ThermalFileReader } from "./ThermalFileReader";
+import { ThermalFileRequest } from "../ThermalRequest";
 
 export class FilesService {
 
@@ -126,6 +127,26 @@ export class FilesService {
             return result;
 
         }
+
+    }
+
+    async loadFiles(
+        ...files: (string| ThermalFileRequest)[]
+    ): Promise<AbstractFileResult[]> {
+
+        const requests = files.map( file => {
+            if ( file instanceof String ) {
+                return {
+                    thermalUrl: file
+                } as ThermalFileRequest
+            } else return file as ThermalFileRequest;
+        } );
+
+        const results = await Promise.all(
+            requests.map( request => this.loadFile( request.thermalUrl, request.visibleUrl ) )
+        );
+
+        return results;
 
     }
 

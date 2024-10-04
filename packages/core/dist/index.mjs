@@ -5087,6 +5087,19 @@ var FilesService = class {
       return result;
     }
   }
+  async loadFiles(...files) {
+    const requests = files.map((file) => {
+      if (file instanceof String) {
+        return {
+          thermalUrl: file
+        };
+      } else return file;
+    });
+    const results = await Promise.all(
+      requests.map((request) => this.loadFile(request.thermalUrl, request.visibleUrl))
+    );
+    return results;
+  }
 };
 
 // src/properties/drives/OpacityDrive.ts

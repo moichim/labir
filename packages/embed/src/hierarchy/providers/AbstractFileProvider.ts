@@ -11,7 +11,7 @@ export class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: fileContext })
     @state()
-    protected file?: Instance;
+    public file?: Instance;
 
     @provide({ context: FailureContext })
     @state()

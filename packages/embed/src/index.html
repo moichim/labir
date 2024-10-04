@@ -19,6 +19,31 @@
 
 <body>
 
+  
+
+  <timeline-element slug="timeline">
+    <timeline-request slot="file" thermal="/soustruh.lrc"></timeline-request>
+    <timeline-request slot="file" thermal="/tucnaci_04.lrc"></timeline-request>
+  </timeline-element>
+
+  <script>
+
+    const fun = () => {
+      const timeline = document.querySelector('timeline-element');
+      console.log( timeline );
+
+      const request = document.createElement( "timeline-request" );
+      request.slot = "file";
+      request.thermal = "/tucnaci_04.lrc";
+
+      // timeline.appendChild( request );
+
+    }
+
+    setTimeout( fun, 1000 );
+
+  </script>
+
   <!--
 
   <div>
@@ -49,7 +74,11 @@
     </div>
 
 
-    <thermal-dropin-app></thermal-dropin-app>
+    <thermal-dropin-app>
+
+      <div slot="file">Ano?</div>
+
+    </thermal-dropin-app>
 
 
     <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
@@ -74,11 +103,11 @@
   </div>
 
 
-  
 
-  
 
-<!--
+
+
+  <!--
   <manager-provider palette="iron" slug="nějaký manager">
 
 

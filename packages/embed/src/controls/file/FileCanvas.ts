@@ -24,6 +24,13 @@ export class FileCanvas extends FileConsumer {
         // throw new Error("Method not implemented.");
     }
 
+    public disconnectedCallback() {
+        super.disconnectedCallback();
+        if ( this.file ) {
+            this.file.unmountFromDom();
+        }
+    }
+
     static styles = css`
         .canvas-container {
 

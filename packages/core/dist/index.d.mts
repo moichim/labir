@@ -106,6 +106,12 @@ declare class DropinElementListener {
     openFileDialog(): void;
 }
 
+/** A stupid object containing only requested URLS. Does not perform any further logic. */
+type ThermalFileRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+};
+
 declare class FilesService {
     readonly manager: ThermalManager;
     get pool(): Pool__default;
@@ -132,6 +138,7 @@ declare class FilesService {
     handleDropzone(element: HTMLElement): DropinElementListener;
     /** Load a file from URL, eventually using already cached result */
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
+    loadFiles(...files: (string | ThermalFileRequest)[]): Promise<AbstractFileResult[]>;
 }
 
 type ThermalManagerOptions = {
@@ -171,12 +178,6 @@ declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     protected afterSetEffect(value: PaletteId): void;
     setPalette(key: PaletteId): void;
 }
-
-/** A stupid object containing only requested URLS. Does not perform any further logic. */
-type ThermalFileRequest = {
-    thermalUrl: string;
-    visibleUrl?: string;
-};
 
 interface IWithOpacity extends IBaseProperty {
     opacity: OpacityDrive;
@@ -1435,7 +1436,7 @@ declare class ThermalFileReader extends AbstractFileResult {
     /** For the purpose of testing we have a unique ID */
     readonly id: number;
     /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-    protected baseInfoCache?: ParsedFileBaseInfo;
+    baseInfoCache?: ParsedFileBaseInfo;
     readonly fileName: string;
     private get pool();
     constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);

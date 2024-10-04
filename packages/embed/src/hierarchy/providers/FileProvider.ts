@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { AbstractFileResult, CallbacksManager, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -25,6 +25,8 @@ export class FileProviderElement extends AbstractFileProvider {
     })
     public visible!: string;
 
+    public readonly onLoad = new CallbacksManager<(result: Instance|ThermalFileFailure) => void>;
+
     /** Load the file and call all necessary callbacks */
     protected async load() {
 
@@ -37,11 +39,15 @@ export class FileProviderElement extends AbstractFileProvider {
         const value = await this.registry.service.loadFile(this.thermal, this.visible)
             .then( async (result) => {
                 
+                
+
                 // Success
                 if (result instanceof ThermalFileReader) {
 
                     // Create the instance
                     return await result.createInstance(this.group).then(instance => {
+
+                        this.onLoad.call( instance );
 
                         // Assign the instance
                         this.file = instance;
@@ -65,12 +71,16 @@ export class FileProviderElement extends AbstractFileProvider {
                     this.failure = result as ThermalFileFailure;
                     // Call all callbacks
 
+                    this.onLoad.call( this.failure );
+
                     this.onFailure.call( this.failure );
                     // Clear the callbacks to free the memory
                     this.clearCallbacks();
 
                     return result;
                 }
+
+                
             })
             .then( result => {
 
