@@ -1,0 +1,67 @@
+import { css, html, LitElement } from "lit";
+import { customElement, property } from "lit/decorators.js";
+
+@customElement("thermal-field")
+export class ThermalField extends LitElement {
+
+    @property({type: String})
+    public label!: string;
+
+    @property({type: String})
+    public hint?: string;
+
+    public static styles = css`
+    
+        :host {
+
+            display: table-row;
+            width: 100%;
+            font-size: var( --thermal-fs );
+
+        }
+
+        .cell {
+
+            display: table-cell;
+            padding: calc( var( --thermal-gap ) * .5 );
+        
+        }
+
+        .label {
+
+        }
+
+        .content {
+
+        }
+
+        .hint {
+            font-size: calc( var( --thermal-fs-sm ) * .8 );
+            padding-top: .2em;
+            opacity: .8;
+        }
+
+    `;
+
+    protected render(): unknown {
+        return html`
+
+            <div class="cell">${this.label}</div>
+
+            <div class="cell">
+
+                <div class="content">
+                    <slot></slot>
+                </div>
+
+                ${this.hint && html`
+                <div class="hint">
+                    ${this.hint}
+                </div>`}
+
+            </div>
+        
+        `;
+    }
+
+}

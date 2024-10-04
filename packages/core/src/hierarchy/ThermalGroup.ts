@@ -2,7 +2,7 @@
 
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { AbstractFile } from "../file/AbstractFile";
+import { Instance } from "../file/instance";
 import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
@@ -43,7 +43,7 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     public readonly cursorPosition: CursorPositionDrive = new CursorPositionDrive(this, undefined);
 
     /** Iteration */
-    public forEveryInstance = ( fn: ( (instance: AbstractFile) => void ) ) => {
+    public forEveryInstance = ( fn: ( (instance: Instance) => void ) ) => {
         this.files.value.forEach( instance => fn( instance ) );
 
     }

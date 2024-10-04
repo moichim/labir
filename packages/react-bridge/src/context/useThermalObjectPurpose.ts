@@ -1,10 +1,10 @@
-import { ThermalRegistry, ThermalGroup, ThermalManager, AbstractFile } from "@labir/core";
+import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labir/core";
 import { useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 
 /** Creates and stores a thermal object!s ID for the purpose of listeners */
 export const useThermalObjectPurpose = (
-    object: ThermalRegistry | ThermalGroup | AbstractFile | ThermalManager,
+    object: ThermalRegistry | ThermalGroup | Instance | ThermalManager,
     purpose: string,
     individual: boolean | undefined = false
 ) => {
@@ -19,7 +19,7 @@ export const useThermalObjectPurpose = (
             objectType = "registry";
         else if (object instanceof ThermalGroup)
             objectType = "group";
-        else if (object instanceof AbstractFile)
+        else if (object instanceof Instance)
             objectType = "instance";
         else if (object instanceof ThermalManager)
             objectType = "manager";

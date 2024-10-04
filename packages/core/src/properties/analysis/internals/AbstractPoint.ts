@@ -7,6 +7,7 @@ export abstract class AbstractPoint {
         return this.analysis.file;
     }
 
+    protected pxX: number;
     protected _x: number;
     public get x() {
         return this._x;
@@ -23,9 +24,12 @@ export abstract class AbstractPoint {
     }
     public onX = new CallbacksManager<(x: number, prev: number) => void>
     public abstract mayMoveToX(value: number): boolean;
+    protected abstract getPercentXTranslationFromValue(value: number): number;
 
 
 
+
+    protected pxY: number;
     protected _y: number;
     public get y() {
         return this._y;
@@ -42,16 +46,25 @@ export abstract class AbstractPoint {
     }
     public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
+    protected abstract getPercentYTranslationFromValue(value: number): number;
 
 
     protected _color: string;
     protected get color() { return this._color; }
     public setColor(value: string) {
         this._color = value;
-        if (this.innerElement) {
-            this.innerElement.style.backgroundColor = this._color;
-        }
+        this.onSetColor(value);
     }
+    protected abstract onSetColor(value: string): void;
+    public get initialColor(): string {
+        return this.analysis.initialColor;
+    }
+    public get activeColor() {
+        return this.analysis.activeColor;
+    };
+    public get inactiveColor() {
+        return this.analysis.inactiveColor;
+    };
 
 
     protected _active: boolean = false;
@@ -64,14 +77,22 @@ export abstract class AbstractPoint {
         return this._isHover;
     }
 
+    protected _isDragging: boolean = false;
+    public get isDragging() {
+        return this._isDragging;
+    }
+
     public get root() {
         return this.analysis.layerRoot;
     }
 
+    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
     public abstract getRadius(): number;
 
+    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
     container: HTMLDivElement;
 
+    /** The display element. */
     innerElement: HTMLDivElement;
 
     public constructor(
@@ -81,8 +102,13 @@ export abstract class AbstractPoint {
         public readonly analysis: AbstractAnalysis,
         color: string
     ) {
+
+        this.pxX = 100 / this.analysis.file.width;
+        this.pxY = 100 / this.analysis.file.height;
+
         this._x = left;
         this._y = top;
+
 
         this._color = color;
 
@@ -91,11 +117,12 @@ export abstract class AbstractPoint {
         this.container.style.position = "absolute";
         this.container.id = `analysis_${this.analysis.key}_${this.key}_${this.file.id}`;
 
+
         // Create the inner element
         this.innerElement = this.createInnerElement();
         this.container.appendChild(this.innerElement);
 
-        // Set initial position
+        // Set initial position (affects the container)
         this.projectInnerPositionToDom();
 
         // Set the color again once the inner element is created
@@ -138,7 +165,7 @@ export abstract class AbstractPoint {
         return this.y / this.analysis.file.height * 100;
     }
 
-    public getPercentageCoordinates() {
+    protected getPercentageCoordinates() {
         const x = this.getPercentageX();
         const y = this.getPercentageY();
         return {
@@ -152,7 +179,7 @@ export abstract class AbstractPoint {
 
 
     /** Take the internal position value and project it to the DOM element */
-    projectInnerPositionToDom(): void {
+    public projectInnerPositionToDom(): void {
 
         if (this.container) {
             const position = this.getPercentageCoordinates();
@@ -163,36 +190,44 @@ export abstract class AbstractPoint {
         }
     }
 
-    public abstract onPointerDown(): void;
-
     public mouseEnter() {
-        this.onMouseEnter();
+        if (this.isHover === false) {
+            this._isHover = true;
+            this.actionOnMouseEnter();
+            this.onMouseEnter.call(this);
+        }
     }
 
     public mouseLeave() {
-        this.onMouseLeave();
+        if (this.isHover === true) {
+            this._isHover = false;
+            this.actionOnMouseLeave();
+            this.onMouseLeave.call(this);
+        }
     }
 
-    protected abstract onMouseEnter(): void;
+    public readonly onMouseEnter = new CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    public readonly onMouseLeave = new CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
 
-    protected abstract onMouseLeave(): void;
+    public readonly onActivate = new CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    public readonly onDeactivate = new CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
 
-    public abstract onPointerUp(): void;
+    protected abstract actionOnMouseEnter(): void;
 
-    public abstract onMove(): void;
+    protected abstract actionOnMouseLeave(): void;
 
-    protected abstract onActivate(): void;
+    protected abstract actionOnActivate(): void;
 
-    protected abstract onDeactivate(): void;
+    protected abstract actionOnDeactivate(): void;
 
     public activate() {
         this._active = true;
-        this.onActivate();
+        this.actionOnActivate();
     }
 
     public deactivate() {
         this._active = false;
-        this.onDeactivate();
+        this.actionOnDeactivate();
     }
 
 }

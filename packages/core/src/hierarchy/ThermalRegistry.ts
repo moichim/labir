@@ -1,8 +1,8 @@
 "use client";
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { AbstractFile } from "../file/AbstractFile";
-import { ThermalFileRequest } from "../loading/mainThread/batch/ThermalRequest";
+import { Instance } from "../file/instance";
+import { ThermalFileRequest } from "../loading/ThermalRequest";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
 import { RangeDriver } from "../properties/drives/RangeDriver";
@@ -62,7 +62,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.groups.value.forEach(fn);
     }
 
-    public forEveryInstance(fn: (instance: AbstractFile) => void) {
+    public forEveryInstance(fn: (instance: Instance) => void) {
         this.forEveryGroup(group => group.files.forEveryInstance(fn));
     }
 

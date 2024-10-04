@@ -1,6 +1,6 @@
 "use client";
 
-import { AbstractFile } from "@labir/core";
+import { Instance } from "@labir/core";
 import classNames from "classnames";
 import React, {
   MouseEvent,
@@ -13,11 +13,11 @@ import { useInstanceListener } from "./useInstanceListener";
 
 export type ThermalInstanceEventHandler = (
   listenerLayerEvent: MouseEvent<HTMLDivElement>,
-  instance: AbstractFile
+  instance: Instance
 ) => void;
 
 type ThermalInstanceProps = React.PropsWithChildren & {
-  instance: AbstractFile;
+  instance: Instance;
 
   onMouseEnter?: ThermalInstanceEventHandler;
   onClick?: ThermalInstanceEventHandler;

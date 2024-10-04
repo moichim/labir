@@ -100,7 +100,8 @@ export class SingleFileApp extends FileConsumer {
             
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
-            <file-analysis-list slot="post"></file-analysis-list>
+            <file-analysis-table slot="post"></file-analysis-table>
+            <file-analysis-graph slot="post"></file-analysis-graph>
         </thermal-app>
     `;
   }

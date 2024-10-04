@@ -2,12 +2,12 @@
 
 import { MouseEventHandler, useMemo } from "react"
 import { ThermalInstanceEventHandler } from "./thermalInstance";
-import { AbstractFile } from "@labir/core";
+import { Instance } from "@labir/core";
 
 /** Memoise the thermal instance callback. */
 export const useInstanceListener = (
     listener: ThermalInstanceEventHandler | undefined,
-    instance: AbstractFile
+    instance: Instance
 ): MouseEventHandler<HTMLDivElement> | undefined  => {
 
     return useMemo( () => {

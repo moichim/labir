@@ -21,7 +21,7 @@ describe( "ToolDrive", () => {
         } );
 
 
-        tools.selectTool( "addRectangle");
+        tools.selectTool( "add-rect");
 
         expect(counter).toEqual(1);
         expect( tools.value.key ).toEqual( "add-rect" );

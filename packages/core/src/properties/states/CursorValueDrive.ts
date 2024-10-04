@@ -1,4 +1,4 @@
-import { AbstractFile } from "../../file/AbstractFile";
+import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { ThermalCursorPositionOrUndefined } from "../drives/CursorPositionDrive";
 
@@ -6,7 +6,7 @@ export interface IWithCursorValue extends IBaseProperty {
     cursorValue: CursorValueDrive;
 }
 
-export class CursorValueDrive extends AbstractProperty<number|undefined, AbstractFile>{
+export class CursorValueDrive extends AbstractProperty<number|undefined, Instance>{
 
 
 

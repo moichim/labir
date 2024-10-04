@@ -6,7 +6,7 @@ import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
+import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
 import { FileMarker } from "./markers/ImageMarker";
 
 @customElement("file-timeline")
@@ -27,6 +27,12 @@ export class TimelineElement extends FileConsumer {
     @consume({context: mayStopContext, subscribe: true})
     @state()
     protected mayStop: boolean = true;
+
+    @consume({context: fileCursorContext, subscribe: true})
+    protected cursor: FileCursorContext;
+
+    @consume({context: fileCursorSetterContext, subscribe: true})
+    protected cursorSetter?: FileCursorSetterContext;
     
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
@@ -130,6 +136,20 @@ export class TimelineElement extends FileConsumer {
         }
     }
 
+    handleBarHover(event: MouseEvent) {
+        if ( this.cursorSetter && this.timelineRef.value && this.barRef.value && this.file) {
+            const x = event.clientX - this.timelineRef.value.offsetLeft;
+            const percent = x / this.timelineRef.value.clientWidth * 100;
+            this.cursorSetter(percent);
+        }
+    }
+
+    handleBarMouseLeave() {
+        if ( this.cursorSetter ) {
+            this.cursorSetter(undefined)
+        }
+    }
+
     static styles = css`
     
         .container {
@@ -142,6 +162,8 @@ export class TimelineElement extends FileConsumer {
             justify-content: space-between;
             align-items: center;
             gap: calc( var( --thermal-gap ) * .5 );
+
+            color: var( --thermal-foreground );
 
         }
 
@@ -170,11 +192,12 @@ export class TimelineElement extends FileConsumer {
 
         .small {
             font-size: var( --thermal-fs-small );
+            color: var( --thermal-foreground );
         }
 
         .real {
             display: flex;
-            gap: 1rem;
+            gap: var( --thermal-fs-small );
             align-items: center;
             padding-top: 5px;
             justify-content: space-between;
@@ -201,6 +224,7 @@ export class TimelineElement extends FileConsumer {
             height: var( --thermal-gap );
             background: var( --thermal-slate );
             transition: background-color .2s ease-in-out;
+            position: relative;
 
             &:hover {
                 /** background: var( --thermal-slate-light ); */
@@ -246,6 +270,14 @@ export class TimelineElement extends FileConsumer {
         .mayNot {
             opacity: .5;
             cursor: not-allowed;
+        }
+
+        .pointer {
+            position: absolute;
+            width: 1px;
+            background: var( --thermal-background );
+            height: 100%;
+            top: 0;
         }
     
     `;
@@ -323,9 +355,11 @@ export class TimelineElement extends FileConsumer {
                                 ${this.currentFrame?.time}
                             </div>
 
+
                             <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
-                                <div class="timeline-bar" @click=${this.handleBarClick.bind(this)}>
+                                <div class="timeline-bar" @click=${this.handleBarClick.bind(this)} @mousemove=${this.handleBarHover.bind(this)} @mouseleave=${this.handleBarMouseLeave.bind(this)}>
                                     <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
+                                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : "" }
                                 </div>
 
                                 <div>

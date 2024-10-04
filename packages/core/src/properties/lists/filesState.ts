@@ -1,6 +1,5 @@
-import { AbstractFile } from "../../file/AbstractFile";
-import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { Instance } from "../../file/instance";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 
@@ -9,7 +8,7 @@ export interface IWithFiles extends IBaseProperty {
 }
 
 export type InstanceFetchCallback = (
-    instance?: AbstractFile,
+    instance?: Instance,
     errors?: string
 ) => void;
 
@@ -60,7 +59,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     /** 
      * Iteration through all instances
      */
-    public forEveryInstance(fn: ((instance: AbstractFile) => void
+    public forEveryInstance(fn: ((instance: Instance) => void
     )) {
         this.value.forEach(instance => fn(instance));
     }

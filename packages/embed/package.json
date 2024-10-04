@@ -1,6 +1,6 @@
 {
   "name": "@labir/embed",
-  "version": "1.2.33",
+  "version": "1.2.41",
   "description": "Embedded display of thermograms",
   "main": "dist/embed.js",
   "type": "module",
@@ -20,12 +20,15 @@
   "license": "ISC",
   "dependencies": {
     "@floating-ui/dom": "^1.6.6",
+    "@google-web-components/google-chart": "^5.1.0",
     "@labir/core": "workspace:*",
     "@labir/react-bridge": "workspace:*",
     "@lit/context": "^1.1.2",
     "@types/uuid": "^9.0.8",
+    "chartjs-web-components": "^2.8.0",
     "date-fns": "^3.6.0",
     "lit": "^3.1.4",
+    "safevalues": "^0.5.2",
     "toolcool-range-slider": "^4.0.28",
     "uuid": "^9.0.1",
     "web-dialog": "^0.0.11",

@@ -47,7 +47,7 @@ export class FileInfoButton extends FileConsumer {
         }
 
         h2 {
-            font-size: 1.4rem;
+            font-size: calc( var( --thermal-fs ) * 1.4 );
         }
 
         h3 {
@@ -60,7 +60,7 @@ export class FileInfoButton extends FileConsumer {
         ul {
             margin: 0;
             padding: 0;
-            padding-left: 1rem;
+            padding-left: var( --thermal-fs-small );
         }
 
         a {

@@ -1,5 +1,7 @@
 import {author, version } from "../package.json"
 
+import "./styles/styles.css";
+
 /**!
  * ===========
  * LabIR Embed
@@ -9,12 +11,17 @@ import {author, version } from "../package.json"
  * 
  */
 
+appendStyles();
+
 
 // Log the start info
 console.info( `@labir/embed ${version}
     Author: ${author}
     ` );
 
+// 0. External components
+import '@google-web-components/google-chart';
+import "./controls/file/analysis/chart/chart";
 
 // 1. UI components
 import "./ui/Dialog";
@@ -22,6 +29,7 @@ import "./ui/Button";
 import "./ui/Dropdown";
 import "./ui/Bar";
 import "./ui/App";
+import "./ui/Field";
 
 import "./controls/AppInfoButton";
 
@@ -66,8 +74,16 @@ import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
-import "./controls/file/FileAnalysis";
-import "./controls/file/FileAnalysisTableRow";
+
+import "./controls/file/analysis/edit/analysisName";
+import "./controls/file/analysis/edit/analysisColor";
+import "./controls/file/analysis/edit/editArea";
+import "./controls/file/analysis/edit/editPoint";
+import "./controls/file/analysis/FileAnalysisEdit";
+import "./controls/file/analysis/FileAnalysisGraph";
+import "./controls/file/analysis/FileAnalysisRow";
+import "./controls/file/analysis/FileAnalysisTable";
+
 
 
 // 7. Complex apps go last
@@ -85,7 +101,7 @@ import {initialiseMode} from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import {addDefaultStyles} from "./styles/defaultStyles";
+import {addDefaultStyles, appendStyles} from "./styles/defaultStyles";
 
 addDefaultStyles();
 

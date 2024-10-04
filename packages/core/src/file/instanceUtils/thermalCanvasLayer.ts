@@ -1,4 +1,4 @@
-import { AbstractFile } from "../AbstractFile";
+import { Instance } from "../instance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "./domFactories";
 
@@ -41,7 +41,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: AbstractFile
+        instance: Instance
     ) {
 
         super(instance);
@@ -55,6 +55,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
         // this.offscreen = this.canvas.transferControlToOffscreen();
 
         this.context = this.canvas.getContext("2d")!;
+
+        this.context.imageSmoothingEnabled = false;
 
         this.container.appendChild(this.canvas);
 

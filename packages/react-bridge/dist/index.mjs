@@ -146,7 +146,7 @@ var useThermalGroupInstancesState = (group, purpose) => {
 };
 
 // src/context/useThermalObjectPurpose.ts
-import { ThermalRegistry, ThermalGroup, ThermalManager, AbstractFile } from "@labir/core";
+import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labir/core";
 import { useMemo as useMemo3 } from "react";
 import { v4 as uuidv4 } from "uuid";
 var useThermalObjectPurpose = (object, purpose, individual = false) => {
@@ -157,7 +157,7 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
       objectType = "registry";
     else if (object instanceof ThermalGroup)
       objectType = "group";
-    else if (object instanceof AbstractFile)
+    else if (object instanceof Instance)
       objectType = "instance";
     else if (object instanceof ThermalManager)
       objectType = "manager";

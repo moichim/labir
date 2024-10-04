@@ -1,11 +1,9 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { ILrcFrame } from "../loading/mainThread/parsers/lrc/LrcTrame";
 import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { ITimelineDrive } from "../properties/time/playback/ITimeline";
+import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { IFileInstance } from "./IFileInstance";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
@@ -13,8 +11,8 @@ import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
 import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 
-/** Define methods for all files */
-
+/** Define methods for all files. 
+ * @deprecated Replace by Instance! This class is not needed anymore since it comes from the time of `ThermalFileInstance` */
 export abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
 
 
@@ -33,7 +31,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public readonly fileName: string;
     public readonly frameCount: number;
 
-    frames: ILrcFrame[] = [];
     signature: string = "unknown";
     version: number = -1;
     streamCount: number = -1;
@@ -65,9 +62,10 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public listenerLayer!: ThermalListenerLayer;
 
     // Drives
-    public timeline!: ITimelineDrive;
+    public timeline!: TimelineDrive;
     public cursorValue!: CursorValueDrive;
-    public analysis: AnalysisDrive = new AnalysisDrive(this, []);
+    public analysis!: AnalysisDrive;
+    
 
     // Recording is lazyloaded
 
@@ -85,7 +83,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public set pixels(value: number[]) {
         this._pixels = value;
         this.onSetPixels(value);
-        this.analysis.value.forEach( analysis => analysis.recalculateValues() );
+        
     }
 
     public abstract getPixelsForHistogram(): number[];
@@ -207,65 +205,11 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
-    public mountListener() {
 
-        if (this.root === undefined) {
-            console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-            return;
-        }
+    protected abstract mountListener(): void;
+    protected abstract unmountListener(): void;
 
-        this.listenerLayer.mount();
-        this.analysis.activateListeners();
-
-        this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
-
-            // Show the cursor
-            this.cursorLayer.show = true;
-
-            // Store the local hover state
-            this.isHover = true;
-
-            const client = this.width;
-            const parent = this.root!.clientWidth;
-
-            const aspect = client / parent;
-
-            const x = Math.round(event.offsetX * aspect);
-            const y = Math.round(event.offsetY * aspect);
-
-            this.group.cursorPosition.recieveCursorPosition({ x, y });
-
-            if (this._onHover)
-                this._onHover(event, this);
-
-        };
-
-        this.listenerLayer.getLayerRoot().onmouseleave = () => {
-
-            this.cursorLayer!.show = false;
-
-            this.isHover = false;
-
-            // Clear the synchronised cursor in any case
-            this.group.cursorPosition.recieveCursorPosition(undefined);
-
-        };
-
-        this.listenerLayer.getLayerRoot().onclick = (event) => {
-
-            if (this._onClick)
-                this._onClick(event, this);
-
-        };
-
-    }
-
-    protected unmountListener() {
-
-        this.listenerLayer.unmount();
-        this.analysis.deactivateListeners();
-
-    }
+    
 
     public mountToDom(container: HTMLDivElement): void {
         this.attachToDom(container);
@@ -293,39 +237,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this.detachFromDom();
     };
 
-    public recieveCursorPosition(
-        position: ThermalCursorPositionOrUndefined
-    ) {
-
-        // If position
-        if ( position !== undefined ) {
-
-            // Get label value from the current tool
-            const label = this.group.tool.value.getLabelValue( position.x, position.y, this );
-            this.cursorLayer.setLabel( position.x, position.y, label );
-
-            this.cursorLayer.show = true;
-
-        } else {
-            this.cursorLayer.show = false;
-            this.cursorLayer.resetCursor();
-        }
-
-        
-        // The cursor value needs to be calculated anyways, no matter the tool
-        this.cursorValue.recalculateFromCursor(position);
-
-        /*
-        if (position !== undefined && this.cursorValue.value !== undefined) {
-            this.cursorLayer.setCursor(position.x, position.y, this.cursorValue.value);
-            this.cursorLayer.show = true;
-        } else {
-            this.cursorLayer.show = false;
-            this.cursorLayer.resetCursor();
-        }
-        */
-
-    }
+    
 
     public getTemperatureAtPoint(
         x: number,
@@ -335,6 +247,26 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         const index = (y * this.width) + x;
         return this.pixels[index];
 
+    }
+
+    public getColorAtPoint(
+        x: number,
+        y: number
+    ): string | undefined {
+
+        const temperature = this.getTemperatureAtPoint( x, y );
+
+        const min = this.group.registry.range.value?.from;
+        const max = this.group.registry.range.value?.to;
+
+        if ( min !== undefined && max !== undefined ) {
+            const temperatureRelative = temperature - min;
+            const temperatureAspect = temperatureRelative / ( max - min );
+            const colorIndex = Math.round( 255 * temperatureAspect );
+            return this.group.registry.palette.currentPalette.pixels[ colorIndex ]
+        }
+
+        return undefined;
     }
 
     public recieveRange(
@@ -357,28 +289,5 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public abstract exportAsPng(): void;
 
     public abstract exportThermalDataAsSvg(): void;
-
-    /** @deprecated */
-    protected _onHover?: ((event: MouseEvent, target: AbstractFile) => void) = undefined;
-
-    /** @deprecated */
-    public setHoverHandler(handler?: ((event: MouseEvent, target: AbstractFile) => void)) {
-        this._onHover = handler;
-    }
-
-    /** @deprecated */
-    public setHoverCursor(
-        value: CSSStyleDeclaration["cursor"]
-    ) {
-        if (this.root)
-            if (this.root.style.cursor !== value)
-                this.root.style.cursor = value;
-    }
-
-    protected _onClick?: ((event: MouseEvent, target: AbstractFile) => void) = undefined;
-
-    public setClickHandler(handler: ((event: MouseEvent, target: AbstractFile) => void) | undefined = undefined) {
-        this._onClick = handler;
-    }
 
 }

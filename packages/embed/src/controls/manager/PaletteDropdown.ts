@@ -37,7 +37,7 @@ export class PaletteDropdownElement extends RegistryConsumer {
         width: calc( var( --thermal-gap ) * 2 );
         height: calc( var( --thermal-fs ) * .8 );
         // height: .9em;
-        border-radius: 1rem;
+        border-radius: var( --thermal-fs-small );
     }
 
     `;

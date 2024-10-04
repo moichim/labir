@@ -42,7 +42,7 @@ export class PaletteButtonsElement extends RegistryConsumer {
     .palette {
         width: calc( var( --thermal-gap ) * 2 );
         height: calc( var( --thermal-fs ) * .8 );
-        border-radius: 1rem;
+        border-radius: var( --thermal-fs-small );
     }
 
     `;

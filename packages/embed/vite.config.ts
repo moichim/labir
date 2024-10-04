@@ -11,10 +11,10 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 embed: path.resolve( "./src/index.ts" ),
-                //index: path.resolve( "./public/index.html" )
             },
             output: {
-                entryFileNames: '[name].js'
+                entryFileNames: '[name].js',
+                assetFileNames: '[name].[ext]',
             },
         },
         outDir: path.resolve( "./dist" ),

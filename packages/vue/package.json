@@ -1,6 +1,6 @@
 {
   "name": "@labir/vue",
-  "version": "1.2.33",
+  "version": "1.2.41",
   "private": true,
   "type": "module",
   "scripts": {
