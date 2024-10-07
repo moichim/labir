@@ -3909,7 +3909,7 @@ var AbstractAddTool = class extends AbstractTool {
 var AddEllipsisTool = class extends AbstractAddTool {
   key = "add-ellipsis";
   name = "Add an elyptical analysis";
-  description = "Click and drag to add an elyptical analysis.";
+  description = "Click and drag on the thermogram to add an elyptical analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
@@ -3960,7 +3960,7 @@ var AddEllipsisTool = class extends AbstractAddTool {
 var AddPointTool = class extends AbstractAddTool {
   key = "add-point";
   name = "Add a point analysis";
-  description = "Click to add a point analysis.";
+  description = "Click on the thermogram to add a point analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
@@ -4004,7 +4004,7 @@ var AddPointTool = class extends AbstractAddTool {
 var AddRectangleTool = class extends AbstractAddTool {
   key = "add-rect";
   name = "Add a rectangular analysis";
-  description = "Click and drag to add a rectangular analysis.";
+  description = "Click and drag on the thermogram to add a rectangular analysis.";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
@@ -4097,9 +4097,9 @@ var EditTool = class extends AbstractTool {
     const temperature = file.getTemperatureAtPoint(x, y);
     const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
       if (analysis2.selected) {
-        return `<span style="color:${analysis2.initialColor}">${analysis2.key}</span>`;
+        return `<span style="color:${analysis2.initialColor}">${analysis2.name}</span>`;
       } else {
-        return `<s style="color:${analysis2.initialColor}">${analysis2.key}</s>`;
+        return `<s style="color:${analysis2.initialColor}">${analysis2.name}</s>`;
       }
     });
     const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
@@ -5486,6 +5486,33 @@ var ThermalRegistry = class extends BaseStructureObject {
   palette;
 };
 
+// src/properties/drives/SmoothDrive.ts
+var SmoothDrive = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    this.parent.forEveryRegistry((registry) => registry.forEveryInstance((instance) => {
+      instance.canvasLayer.canvas.style.imageRendering = value === true ? "auto" : "pixelated";
+    }));
+  }
+  setSmooth(value) {
+    this.value = value;
+  }
+};
+
+// src/properties/drives/GraphSmoothDrive.ts
+var GraphSmoothDrive = class extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  setGraphSmooth(value) {
+    this.value = value;
+  }
+};
+
 // src/hierarchy/ThermalManager.ts
 var ThermalManager = class extends BaseStructureObject {
   id;
@@ -5495,6 +5522,8 @@ var ThermalManager = class extends BaseStructureObject {
   registries = {};
   /** A palette is common to all registries within the manager */
   palette = new PaletteDrive(this, "jet");
+  smooth = new SmoothDrive(this, false);
+  graphSmooth = new GraphSmoothDrive(this, false);
   pool;
   constructor(pool4, options) {
     super();

@@ -49,7 +49,7 @@ const mountInstance = (instance: Instance) => {
 
     const container = document.createElement("div");
     root?.appendChild(container);
-    container.style.width = "500px";
+    // container.style.width = "500px";
 
     // Canvas container
     const canvasContainer = document.createElement( "div" );
@@ -158,8 +158,8 @@ const batchLoading = async (
 }
 
 batchLoading([
-    "/soustruh.lrc",
-    "/tucnaci_04.lrc",
+    // "/soustruh.lrc",
+    // "/tucnaci_04.lrc",
     // "/image-thermal 2021-11-24 11-18-20.lrc",
     // "/image-thermal 2024-01-12 14-09-37.lrc",
     // "/image-thermal 2024-02-12 10-15-07.lrc",

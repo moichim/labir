@@ -1,18 +1,24 @@
 import { AnalysisDataStateValue, Instance } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext } from "../../../hierarchy/providers/context/FileContexts";
+import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, currentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
+import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
 import { ThermalChart } from "./chart/chart";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
 
-
     @state()
+    protected hydrated: boolean = false;
+
+    @property({reflect: true})
     protected graphWidth: number = 0;
+
+    @property({reflect: true})
+    protected graphHeight: number = 0;
 
     container: Ref<HTMLDivElement> = createRef();
 
@@ -24,6 +30,9 @@ export class FileAnalysisGraph extends FileConsumer {
         colors: []
     }
 
+    @consume({context: currentFrameContext, subscribe: true})
+    protected currentFrame?: CurrentFrameContext;
+
     @consume({ context: fileCursorContext, subscribe: true })
     protected cursor: FileCursorContext;
 
@@ -31,16 +40,19 @@ export class FileAnalysisGraph extends FileConsumer {
     protected cursorSetter?: FileCursorSetterContext;
 
     @state()
-    left: number = 0;
+    protected shadowLeft: number = 0;
 
     @state()
-    top: number = 0;
+    protected shadowTop: number = 0;
 
     @state()
-    width: number = 0;
+    protected shadowWidth: number = 0;
 
     @state()
-    height: number = 0;
+    protected shadowHeight: number = 0;
+
+    @consume( {context: managerGraphFunctionContext, subscribe: true} )
+    protected graphSmooth: boolean = false;
 
     public onInstanceCreated(instance: Instance): void {
 
@@ -59,13 +71,14 @@ export class FileAnalysisGraph extends FileConsumer {
 
             const observer = new ResizeObserver(entries => {
                 this.graphWidth = entries[0].contentRect.width;
+                this.graphHeight = entries[0].contentRect.height;
 
                 if (this.graphRef.value) {
 
-                    this.left = this.graphRef.value.left;
-                    this.top = this.graphRef.value.top;
-                    this.width = this.graphRef.value.w;
-                    this.height = this.graphRef.value.h;
+                    this.shadowLeft = this.graphRef.value.left;
+                    this.shadowTop = this.graphRef.value.top;
+                    this.shadowWidth = this.graphRef.value.w;
+                    this.shadowHeight = this.graphRef.value.h;
                 }
             });
 
@@ -73,7 +86,20 @@ export class FileAnalysisGraph extends FileConsumer {
 
         }
 
+        this.hydrated = true;
 
+
+    }
+
+    public connectedCallback(): void {
+        super.connectedCallback();
+
+        if ( this.file ) {
+            this.file.analysisData.addListener( this.UUID, value => {
+                this.graphs = value;
+            } );
+            this.hydrated = true;
+        }
     }
 
 
@@ -82,12 +108,10 @@ export class FileAnalysisGraph extends FileConsumer {
     public update(changedProperties: PropertyValues): void {
         super.update(changedProperties);
         if (this.graphRef.value) {
-
-            this.left = this.graphRef.value.left;
-            this.top = this.graphRef.value.top;
-            this.width = this.graphRef.value.w;
-            this.height = this.graphRef.value.h;
-            console.log( this.graphRef.value.chartWrapper );
+            this.shadowLeft = this.graphRef.value.left;
+            this.shadowTop = this.graphRef.value.top;
+            this.shadowWidth = this.graphRef.value.w;
+            this.shadowHeight = this.graphRef.value.h;
         }
     }
 
@@ -99,22 +123,26 @@ export class FileAnalysisGraph extends FileConsumer {
     
         google-chart {
             width: 100%;
-            height: 500px;
+            height: 100%;
         }
     `;
 
     protected render(): unknown {
         return html`
 
-            <div style="position: relative; background-color: white;">
+            <div style="position: relative; background-color: white; height: 100%;">
 
-            <div style="position: absolute; top:${this.top}px; left: ${this.left}px; width: ${this.width}px; height: ${this.height}px;">
+            <div style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
+            ${this.currentFrame && html`
+                <div style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
+            `}
+
                 ${this.cursor && html`
                     <div style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
                 `}
             </div>
         
-            <div ${ref(this.container)}>
+            <div ${ref(this.container)} style="height: 100%">
                 ${this.graphs.colors.length > 0
                 ? html`<thermal-chart 
                         ${ref(this.graphRef)}
@@ -122,10 +150,12 @@ export class FileAnalysisGraph extends FileConsumer {
                         .data=${this.graphs.values} 
                         .options=${{
                             colors: this.graphs.colors,
+                            curveType: this.graphSmooth ? 'function' : "default",
                             legend: { position: 'bottom' },
                             hAxis: { title: 'Time', format: `m:ss:SSS` },
                             vAxis: { title: 'Temperature °C' },
                             width: this.graphWidth,
+                            height: this.graphHeight,
                             chartArea: { 
                                 width: '80%', 
                             },

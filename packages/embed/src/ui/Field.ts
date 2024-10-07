@@ -36,9 +36,10 @@ export class ThermalField extends LitElement {
         }
 
         .hint {
-            font-size: calc( var( --thermal-fs-sm ) * .8 );
-            padding-top: .2em;
-            opacity: .8;
+            font-size: calc( var( --thermal-fs-sm ) * .75 );
+            padding-top: .5em;
+            opacity: .5;
+            max-width: 300px;
         }
 
     `;

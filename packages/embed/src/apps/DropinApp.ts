@@ -75,7 +75,8 @@ export class DropinAppElement extends BaseElement {
 
     public static styles = css`
     
-        file-app {
+        file-app,
+        desktop-app {
 
             --thermal-slate-light: #e8e8e8;
 
@@ -106,7 +107,7 @@ export class DropinAppElement extends BaseElement {
 
                             <file-dropin ${ref(this.dropinRef)}>
 
-                                <file-app showembed="false" showabout="false"></file-app>
+                                <desktop-app showembed="false" showabout="false"></desktop-app>
 
                             </file-dropin>
 

@@ -3,7 +3,7 @@ import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
-import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext } from "./context/ManagerContext";
+import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "./context/ManagerContext";
 import { defaultManager } from "./getters";
 
 @customElement("manager-provider")
@@ -39,6 +39,14 @@ export class ManagerProviderElement extends BaseElement {
         data: ThermalPalettes["jet"]
     }
 
+    @provide( {context: managerSmoothContext} )
+    @property( {type: String, reflect: true, attribute: true} )
+    smooth: boolean = false;
+
+    @provide({context: managerGraphFunctionContext})
+    @property( {type: String, reflect: true, attribute: true} )
+    graphSmooth: ManagerGraphFunctionContext = false;
+
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -62,6 +70,13 @@ export class ManagerProviderElement extends BaseElement {
             this.setPalette( value as AvailableThermalPalettes );
         } );
 
+        this.manager.smooth.addListener( this.UUIDManagerListeners, value => {
+            this.smooth = value;
+        } );
+
+        this.manager.graphSmooth.addListener( this.UUIDManagerListeners, value => {
+            this.graphSmooth = value;
+        } );
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {

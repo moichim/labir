@@ -48,6 +48,41 @@ export class FileAnalysisTable extends FileConsumer {
 
     }
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        if ( this.file ) {
+            this.hydrate( this.file );
+        }
+    }
+
+
+    protected hydrate( file: Instance ) {
+        // Mirror all analysis to local state
+        file.analysis.addListener( this.UUID, analysis => {
+            this.analysis = analysis;
+        } );
+
+        // Mirror all selected
+        file.analysis.layers.onSelectionChange.add( this.UUID, () => {
+            this.allSelected = file.analysis.layers.all.length === file.analysis.layers.selectedOnly.length;
+        } );
+
+
+        // Mirror hasSelectedData
+        file.analysisData.onGraphsPresence.set( this.UUID, value => {
+            this.hasHighlightedData = value;
+        })
+
+        // Set initial allSelected
+        this.allSelected = file.analysis.layers.all.length === file.analysis.layers.selectedOnly.length;
+
+        // Set initial allSelected
+        this.analysis = file.analysis.value;
+
+        // Set initial hasHighlightedData
+        this.hasHighlightedData = file.analysisData.hasActiveGraphs;
+    }
+
     public static styles = css`
     
         .overflow {

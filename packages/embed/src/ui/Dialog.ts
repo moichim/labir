@@ -69,7 +69,7 @@ export class ThermalDialog extends LitElement {
             font-size: var( --thermal-fs-small );
 
             &::backdrop {
-                backdrop-filter: blur(10px);
+                backdrop-filter: blur(3px);
             }
 
             min-width: 150px;

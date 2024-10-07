@@ -134,6 +134,20 @@ declare class FilesService {
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
 }
 
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
+}
+
+/** Controls image smoothing */
+declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    setGraphSmooth(value: boolean): void;
+}
+
 type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes;
 };
@@ -147,6 +161,8 @@ declare class ThermalManager extends BaseStructureObject {
     };
     /** A palette is common to all registries within the manager */
     readonly palette: PaletteDrive;
+    readonly smooth: SmoothDrive;
+    readonly graphSmooth: GraphSmoothDrive;
     readonly pool: Pool__default;
     constructor(pool?: Pool__default, options?: ThermalManagerOptions);
     forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;

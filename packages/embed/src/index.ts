@@ -46,6 +46,8 @@ import "./controls/group/GroupDropin";
 // 3. Manager controls
 import "./controls/manager/PaletteDropdown";
 import "./controls/manager/PaletteButtons";
+import "./controls/manager/SmoothSwitch";
+import "./controls/manager/GraphSmoothSwitch";
 
 
 // 4. Registry controls
@@ -61,6 +63,7 @@ import "./controls/registry/Histogram";
 
 // 5. Group controls
 import "./controls/group/GroupToolButtons";
+import "./controls/group/GroupToolsBar";
 
 
 // 5. File controls
@@ -87,8 +90,10 @@ import "./controls/file/analysis/FileAnalysisTable";
 
 
 // 7. Complex apps go last
-import "./apps/SingleFileApp";
-import "./apps/SingleFileAppIsolated";
+import "./apps/single/SingleFileApp";
+import "./apps/single/SingleFileAppIsolated";
+import "./apps/desktop/DesktopApp";
+import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
 
 

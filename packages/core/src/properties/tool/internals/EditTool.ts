@@ -85,9 +85,9 @@ export class EditTool extends AbstractTool implements ITool {
             .filter(analysis => analysis.isWithin(x, y))
             .map(analysis => {
                 if (analysis.selected) {
-                    return `<span style="color:${analysis.initialColor}">${analysis.key}</span>`
+                    return `<span style="color:${analysis.initialColor}">${analysis.name}</span>`
                 }
-                else { return `<s style="color:${analysis.initialColor}">${analysis.key}</s>` }
+                else { return `<s style="color:${analysis.initialColor}">${analysis.name}</s>` }
             });
 
         const analysis = hoveredAnalysis.length > 0

@@ -1,6 +1,6 @@
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { FileConsumer } from "../hierarchy/consumers/FileConsumer";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
@@ -75,7 +75,7 @@ export class SingleFileApp extends FileConsumer {
     return html`
         <thermal-app>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.file.fileName : "Načítám..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.file.fileName : "Loading..."}</thermal-button>
 
           
   
@@ -83,12 +83,60 @@ export class SingleFileApp extends FileConsumer {
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>
-              <registry-range-auto-button ></registry-range-auto-button>
-              <registry-range-full-button ></registry-range-full-button>
+
+
+                <thermal-dialog label="Display settings">
+                <thermal-button slot="invoker">Display settings</thermal-button>
+                <div slot="content">
+                  
+                  <thermal-field 
+                    label="Image rendering" 
+                    hint="Pixelated mode disables antialising of the thermogram and enables you to see its pixels as they are."
+                  >
+                    <manager-smooth-switch></manager-smooth-switch>
+                  </thermal-field>
+
+                  <thermal-field 
+                    label="Adjust time scale"
+                    hint="Adjust the time scale automatically (based on histogram) or set its values to the full range (min and max)."
+                  "
+                  >
+                    <registry-range-auto-button ></registry-range-auto-button>
+                    <registry-range-full-button ></registry-range-full-button>
+                  </thermal-field>
+
+                  <thermal-field 
+                    label="Palette"
+                    hint="Select colour palette of thermal display."
+                  "
+                  >
+                    <registry-palette-buttons></registry-palette-buttons>
+                  </thermal-field>
+
+                  ${ ( this.file && this.file.timeline.isSequence ) ? html` <thermal-field 
+                    label="Playback speed"
+                  >
+                    <file-playback-speed-dropdown></file-playback-speed-dropdown>
+                  </thermal-field>
+                  `
+                  : nothing
+                  }
+
+
+                </div>
+              </thermal-dialog>
+            
               <file-info-button></file-info-button>
+            
               <file-download-dropdown ></file-download-dropdown>
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
+            
               ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+
+
+            
+
+
             </thermal-bar>
           </div>
             <group-tool-buttons slot="pre"></group-tool-buttons>
@@ -97,7 +145,6 @@ export class SingleFileApp extends FileConsumer {
             <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
             
 
-            
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
             <file-analysis-table slot="post"></file-analysis-table>

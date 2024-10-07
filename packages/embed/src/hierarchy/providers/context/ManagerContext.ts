@@ -9,3 +9,9 @@ export type ManagerPaletteContext = {
     data: ThermalPaletteType
 }
 export const managerPaletteContext = createContext<ManagerPaletteContext>( "manager-palette-context" );
+
+export type ManagerSmoothContext = boolean;
+export const managerSmoothContext = createContext<ManagerSmoothContext>( "manager-smooth-context" );
+
+export type ManagerGraphFunctionContext = boolean;
+export const managerGraphFunctionContext = createContext<ManagerGraphFunctionContext>("manager-graph-function-context");
