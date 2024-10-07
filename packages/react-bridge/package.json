@@ -1,6 +1,6 @@
 {
   "name": "@labir/react-bridge",
-  "version": "1.2.41",
+  "version": "1.2.42",
   "description": "A react bridge for @labir/core. Contains hooks and context, but not the components.",
   "main": "index.js",
   "module": "dist/index.mjs",
