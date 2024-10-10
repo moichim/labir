@@ -1,7 +1,9 @@
-import { Instance, ThermalTool } from "@labir/core";
+import { Instance, ThermalTool, TimeFormat } from "@labir/core";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import {ifDefined} from 'lit/directives/if-defined.js';
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -33,32 +35,76 @@ export class DesktopFileApp extends FileConsumer {
   @state()
   tool?: ThermalTool;
 
+  @state()
+  isSequence: boolean = true;
+
+  @property()
+  author?: string;
+
+  @property()
+  recorded?: string;
+
+  @property()
+  license?: string;
+
+  @property()
+  label?: string;
+
+  contentContainerRef: Ref<HTMLDivElement> = createRef();
+
+  @state()
+  protected contentContainerWidth: number = 1000;
+
 
   public onInstanceCreated(
     instance: Instance
   ): void {
-    // throw new Error("Method not implemented.");
+
+    this.recorded = TimeFormat.human( instance.timestamp );
+
     this.hasAnalysis = instance.analysis.layers.all.length > 0;
     this.hasGraph = instance.analysisData.value.values.length > 1;
+    this.isSequence = instance.timeline.isSequence;
 
-    instance.analysis.addListener( this.UUID, values => {
+    instance.timeline.addListener(this.UUID, () => {
+      this.isSequence = instance.timeline.isSequence;
+    });
+
+
+    instance.analysis.addListener(this.UUID, values => {
       this.hasAnalysis = values.length > 0;
-    } )
+    })
 
-    instance.analysisData.addListener( this.UUID, values => {
+    instance.analysisData.addListener(this.UUID, values => {
       this.hasGraph = values.values.length > 1;
-    } );
+    });
 
     this.tool = this.group.tool.value;
-    this.group.tool.addListener( this.UUID, tool => {
+    this.group.tool.addListener(this.UUID, tool => {
       this.tool = tool;
-    } );
+    });
 
   }
   public onFailure(
     // error: ThermalFileFailure
   ): void {
     // throw new Error("Method not implemented.");
+  }
+
+  protected firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties);
+
+    if ( this.contentContainerRef.value ) {
+
+      this.contentContainerWidth = this.contentContainerRef.value.clientWidth;
+
+            const observer = new ResizeObserver(entries => {
+                this.contentContainerWidth = entries[0].contentRect.width;
+            });
+
+            observer.observe(this.contentContainerRef.value);
+
+    }
   }
 
   static styles = css`
@@ -77,23 +123,37 @@ export class DesktopFileApp extends FileConsumer {
     .content-container {
 
       width: 100%;
-      display: flex;
-      gap: calc( var( --thermal-gap ) * .5 );
+      font-size: var(--thermal-fs-sm );
     
     }
 
-    .content-container__part {
+    .content-container__expanded {
+      display: flex;
+      gap: calc( var( --thermal-gap ) * .5 );
+    }
+
+    .content-container__expanded .content-container__part {
 
       flex-grow: 1;
       width: 50%;
     
     }
 
-    .content-container__tools {
+    .content-container:not(.content-container__expanded) .graph {
+      height: 300px;
+    }
+
+    .content-container__expanded .content-container__tools {
       flex-basis: 1rem;
     }
 
     .part {
+
+      height: 100%;
+    
+    }
+
+    .content-container__right__sequence .part {
 
       height: 50%;
       position: relative;
@@ -101,7 +161,7 @@ export class DesktopFileApp extends FileConsumer {
     
     }
 
-    .analysis {
+    .content-container__right__sequence .analysis {
       height: calc( 50% - var( --thermal-gap ) );
       margin-bottom: var( --thermal-gap );
     }
@@ -125,11 +185,13 @@ export class DesktopFileApp extends FileConsumer {
       height: 100%;
 
       color: var( --thermal-slate-dark );
+      font-size: var(--thermal-fs-sm );
     
     }
 
     .placeholder-title {
       font-weight: bold;
+      font-size: var(--thermal-fs-sm );
     }
 
     file-analysis-graph {
@@ -141,6 +203,7 @@ export class DesktopFileApp extends FileConsumer {
       left: 0;
 
       position: absolute;
+      overflow: hidden;
 
     }
   
@@ -157,7 +220,7 @@ export class DesktopFileApp extends FileConsumer {
       }
       // Project the range
       if (this.from !== undefined && this.to !== undefined) {
-        this.registry.range.setFixedRange({
+        this.registry.range.imposeRange({
           from: this.from,
           to: this.to
         });
@@ -169,9 +232,12 @@ export class DesktopFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app>
+        <thermal-app author=${ifDefined(this.author )} recorded=${ifDefined(this.recorded )} license=${ifDefined(this.license )}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.file.fileName : "Loading..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? 
+            this.label ??this.file.fileName 
+            : "Loading..."
+          }</thermal-button>
 
           
   
@@ -209,24 +275,24 @@ export class DesktopFileApp extends FileConsumer {
                     <registry-palette-buttons></registry-palette-buttons>
                   </thermal-field>
 
-                  ${ ( this.file && this.file.timeline.isSequence ) ? html` <thermal-field 
+                  ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
                     label="Playback speed"
                   >
                     <file-playback-speed-dropdown></file-playback-speed-dropdown>
                   </thermal-field>
                   `
-                  : nothing
-                  }
+        : nothing
+      }
 
-                  ${ ( this.file && this.file.timeline.isSequence ) ? html` <thermal-field 
+                  ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
                     label="Graph lines"
                     hint="'Smooth lines' can illustrate trends better, but are less precise. If you need to see exactly what is in the thermogram, use 'Straight lines'."
                   >
                     <manager-graph-smooth-switch></manager-graph-smooth-switch>
                   </thermal-field>
                   `
-                  : nothing
-                  }
+        : nothing
+      }
 
 
                 </div>
@@ -246,10 +312,11 @@ export class DesktopFileApp extends FileConsumer {
             </thermal-bar>
           </div>
             
-            <div class="content-container">
+            <div class="content-container ${this.contentContainerWidth > 700 ? "content-container__expanded":""}" ${ref(this.contentContainerRef)}>
 
                 <div class="content-container-part content-container__tools">
-                  <group-tool-bar></group-tool-bar>
+                  ${this.contentContainerWidth > 700 ? html`<group-tool-bar></group-tool-bar>`
+                    : html`<group-tool-buttons></group-tool-buttons>`}
                 </div>
 
                 <div class="content-container__part content-container__left">
@@ -260,49 +327,51 @@ export class DesktopFileApp extends FileConsumer {
                   <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
 
                   <file-canvas></file-canvas>
-                  <file-timeline slot="post"></file-timeline>
+                  <file-timeline></file-timeline>
                 </div>
 
-                <div class="content-container__part content-container__right">
+                <div class="content-container__part content-container__right ${this.isSequence ? "content-container__right__sequence" : ""}">
 
-                <div class="part analysis">
-                  ${this.hasAnalysis
-                    ? html`<file-analysis-table></file-analysis-table>`
-                    : html`<div class="placeholder">
-                      <div class="placeholder-title">Analysis</div>
-                      <div>You may select areas or points on the thermogram to see statistics here!</div>
-                  ${ ["add-point", "add-rect", "add-ellipsis"].includes( this.tool?.key ?? "" ) ? html`
-                    <div>${this.tool?.description}</div>
-                  ` : html`
-                    <div>
-                      <thermal-button @click=${()=>this.group.tool.selectTool( "add-point" )}>Add a point analysis</thermal-button>
-                      <thermal-button @click=${()=>this.group.tool.selectTool( "add-rect" )}>Add a rectangle analysis</thermal-button>
-                      <thermal-button @click=${()=>this.group.tool.selectTool( "add-ellipsis" )}>Add a ellipsis analysis</thermal-button>
-                    </div>
-                  ` }
-        
-                    </div>`
-                  }
+                  <div class="part analysis">
+                    ${this.hasAnalysis
+        ? html`<file-analysis-table></file-analysis-table>`
+        : html`<div class="placeholder">
+                        <div class="placeholder-title">Analysis</div>
+                        <div>You may select areas or points on the thermogram to see statistics here!</div>
+                    ${["add-point", "add-rect", "add-ellipsis"].includes(this.tool?.key ?? "") ? html`
+                      <div>${this.tool?.description}</div>
+                    ` : html`
+                      <div>
+                        <thermal-button @click=${() => this.group.tool.selectTool("add-point")}>Add a point analysis</thermal-button>
+                        <thermal-button @click=${() => this.group.tool.selectTool("add-rect")}>Add a rectangle analysis</thermal-button>
+                        <thermal-button @click=${() => this.group.tool.selectTool("add-ellipsis")}>Add a ellipsis analysis</thermal-button>
+                      </div>
+                    ` }
+          
+                      </div>`
+      }
                   </div>
 
-                  <div class="part graph">
+                  ${this.isSequence ? html`
+                    <div class="part graph">
                     <file-analysis-graph style="opacity: ${this.hasGraph ? 1 : 0}"></file-analysis-graph>
                   ${this.hasGraph === false
-                    ? html`<div class="placeholder">
+          ? html`<div class="placeholder">
                       <div class="placeholder-title">Graph</div>
                       <div>${this.hasAnalysis === false ? "Add analysis first to see the graph!" : html`Click on an analysis <span style="display: inline-block;padding: 1px 4px; border-radius: var(--thermal-gap); border: 1px solid var(--thermal-slate);">value</span> to see its graph here!`}</div>
                     </div>`
-                    : nothing
-                  }
+          : nothing
+        }
                   
                   </div>
+                  ` : nothing}
                   
                   
                 </div>
               
             </div>
             
-            
+            <slot name="content" slot="content"></slot>
             
         </thermal-app>
     `;

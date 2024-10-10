@@ -41,7 +41,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
         _top: number,
         _left: number,
         _right: number,
-        _bottom: number
+        _bottom: number,
     ): EllipsisAnalysis {
 
         const { top, left, width, height } = EllipsisAnalysis.calculateDimensionsFromCorners(_top, _left, _right, _bottom);
@@ -55,6 +55,8 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
             width,
             height
         );
+
+        item.recalculateValues();
 
         return item;
 

@@ -2957,6 +2957,7 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
       width,
       height
     );
+    item.recalculateValues();
     return item;
   }
   buildArea(x, y, width, height) {
@@ -3058,6 +3059,7 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
       width,
       height
     );
+    item.recalculateValues();
     return item;
   }
   buildArea(x, y, width, height) {
@@ -3174,16 +3176,17 @@ var AnalysisLayersStorage = class extends Map {
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
-  placeRectAt(key, top, left, right, bottom) {
+  placeRectAt(name, top, left, right, bottom, color) {
     const newAnalysis = RectangleAnalysis.build(
-      key,
-      this.getNextColor(),
+      name,
+      color ?? this.getNextColor(),
       this.drive.parent,
       top,
       left,
       right,
       bottom
     );
+    newAnalysis.ready = true;
     this.addAnalysis(newAnalysis);
     return newAnalysis;
   }
@@ -3200,16 +3203,17 @@ var AnalysisLayersStorage = class extends Map {
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
-  placeEllipsisAt(key, top, left, right, bottom) {
+  placeEllipsisAt(name, top, left, right, bottom, color) {
     const newAnalysis = EllipsisAnalysis.build(
-      key,
-      this.getNextColor(),
+      name,
+      color ?? this.getNextColor(),
       this.drive.parent,
       top,
       left,
       right,
       bottom
     );
+    newAnalysis.ready = true;
     this.addAnalysis(newAnalysis);
     return newAnalysis;
   }
@@ -3221,6 +3225,18 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
+    this.addAnalysis(newAnalysis);
+    return newAnalysis;
+  }
+  placePointAt(name, top, left, color) {
+    const newAnalysis = PointAnalysis.addAtPoint(
+      name,
+      color ?? this.getNextColor(),
+      this.drive.parent,
+      top,
+      left
+    );
+    newAnalysis.ready = true;
     this.addAnalysis(newAnalysis);
     return newAnalysis;
   }

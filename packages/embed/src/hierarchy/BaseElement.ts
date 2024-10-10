@@ -10,11 +10,9 @@ export abstract class BaseElement extends LitElement {
         console.log( this.tagName, this.UUID.substring(0,5), ...args );
     }
 
-    /*
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
         mode: "open"
     }
-    */
 
 }

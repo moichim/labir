@@ -834,12 +834,13 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeRectAt(key: string, top: number, left: number, right: number, bottom: number): RectangleAnalysis;
+    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string): RectangleAnalysis;
     /** Add an ellyptical analysis in the given position and start editing it */
     createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeEllipsisAt(key: string, top: number, left: number, right: number, bottom: number): EllipsisAnalysis;
+    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string): EllipsisAnalysis;
     createPointAt(top: number, left: number): PointAnalysis;
+    placePointAt(name: string, top: number, left: number, color?: string): PointAnalysis;
     selectAll(): void;
     deselectAll(): void;
     /** Accessors */
@@ -1490,12 +1491,16 @@ declare class Instance extends AbstractFile {
     readonly timestamp: number;
     readonly frameCount: number;
     readonly duration: number;
+    /** @deprecated */
     readonly frameInterval: number;
+    /** @deprecated */
     readonly fps: number;
     readonly min: number;
     readonly max: number;
     readonly bytesize: number;
+    /** @deprecated not used anymore */
     readonly averageEmissivity: number;
+    /** @deprecated not used anymore */
     readonly averageReflectedKelvins: number;
     readonly firstFrame: ParsedFileFrame;
     readonly timelineData: ParsedFileBaseInfo["timeline"];
@@ -1510,7 +1515,15 @@ declare class Instance extends AbstractFile {
     protected _export?: ThermalFileExport;
     /** Lazy-loaded `ThermalFileExport` object */
     get export(): ThermalFileExport;
-    protected constructor(group: ThermalGroup, service: ThermalFileReader, width: number, height: number, timestamp: number, frameCount: number, duration: number, frameInterval: number, initialPixels: number[], fps: number, min: number, max: number, bytesize: number, averageEmissivity: number, averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
+    protected constructor(group: ThermalGroup, service: ThermalFileReader, width: number, height: number, timestamp: number, frameCount: number, duration: number, 
+    /** @deprecated */
+    frameInterval: number, initialPixels: number[], 
+    /** @deprecated */
+    fps: number, min: number, max: number, bytesize: number, 
+    /** @deprecated not used anymore */
+    averageEmissivity: number, 
+    /** @deprecated not used anymore */
+    averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
     postInit(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;

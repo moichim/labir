@@ -16,8 +16,7 @@ appendStyles();
 
 // Log the start info
 console.info( `@labir/embed ${version}
-    Author: ${author}
-    ` );
+Author: ${author}` );
 
 // 0. External components
 import '@google-web-components/google-chart';
@@ -86,7 +85,6 @@ import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
-
 
 
 // 7. Complex apps go last

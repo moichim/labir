@@ -1,6 +1,8 @@
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { Instance, TimeFormat } from "@labir/core";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
@@ -23,11 +25,23 @@ export class SingleFileApp extends FileConsumer {
   @property({ type: String, reflect: true, attribute: true })
   showfullscreen: boolean = true;
 
+  @property()
+  author?: string;
+
+  @property()
+  recorded?: string;
+
+  @property()
+  license?: string;
+
+  @property()
+  label?: string;
+
 
   public onInstanceCreated(
-    // instance: Instance
+    instance: Instance
   ): void {
-    // throw new Error("Method not implemented.");
+    this.recorded = TimeFormat.human( instance.timestamp );
   }
   public onFailure(
     // error: ThermalFileFailure
@@ -61,7 +75,7 @@ export class SingleFileApp extends FileConsumer {
       }
       // Project the range
       if (this.from !== undefined && this.to !== undefined) {
-        this.registry.range.setFixedRange({
+        this.registry.range.imposeRange({
           from: this.from,
           to: this.to
         });
@@ -73,9 +87,12 @@ export class SingleFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app>
+        <thermal-app author=${ifDefined(this.author )} recorded=${ifDefined(this.recorded )} license=${ifDefined(this.license )}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.file.fileName : "Loading..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? 
+            this.label ??this.file.fileName 
+            : "Loading..."
+          }</thermal-button>
 
           
   
@@ -113,14 +130,14 @@ export class SingleFileApp extends FileConsumer {
                     <registry-palette-buttons></registry-palette-buttons>
                   </thermal-field>
 
-                  ${ ( this.file && this.file.timeline.isSequence ) ? html` <thermal-field 
+                  ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
                     label="Playback speed"
                   >
                     <file-playback-speed-dropdown></file-playback-speed-dropdown>
                   </thermal-field>
                   `
-                  : nothing
-                  }
+        : nothing
+      }
 
 
                 </div>
@@ -133,10 +150,6 @@ export class SingleFileApp extends FileConsumer {
             
               ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
 
-
-            
-
-
             </thermal-bar>
           </div>
             <group-tool-buttons slot="pre"></group-tool-buttons>
@@ -148,7 +161,15 @@ export class SingleFileApp extends FileConsumer {
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
             <file-analysis-table slot="post"></file-analysis-table>
-            <file-analysis-graph slot="post"></file-analysis-graph>
+            ${( this.file && this.file.timeline.isSequence ) 
+              ? html`<file-analysis-graph slot="post"></file-analysis-graph>`
+              : nothing
+            }
+
+
+
+          <slot name="content" slot="content"></slot>
+
         </thermal-app>
     `;
   }

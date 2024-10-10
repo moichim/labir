@@ -56,6 +56,8 @@ export class RectangleAnalysis extends AbstractAreaAnalysis {
             height
         );
 
+        item.recalculateValues();
+
         return item;
 
     }

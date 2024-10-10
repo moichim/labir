@@ -4,17 +4,16 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
 @customElement("thermal-app")
-export class FileContextElement extends LitElement {
-
-
-    @queryAssignedElements({ slot: "bar", flatten: true })
-    protected barItems?: Array<HTMLElement>;
+export class ThermalAppUiElement extends LitElement {
 
     @queryAssignedElements({ slot: "bar", flatten: true })
     barElements!: Array<HTMLElement>;
 
     @queryAssignedElements({ slot: "pre", flatten: true })
-    pre!: Array<HTMLElement>;
+    preElements!: Array<HTMLElement>;
+
+    @queryAssignedElements({ slot: "content", flatten: true })
+    contentElements!: Array<HTMLElement>;
 
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
@@ -24,6 +23,17 @@ export class FileContextElement extends LitElement {
 
     @property( {type: String, reflect: true, attribute: true} )
     dark: boolean = false;
+
+    @property()
+    author?: string;
+
+    @property()
+    recorded?: string;
+
+    @property()
+    license?: string;
+
+
 
     protected appRef: Ref<HTMLDivElement> = createRef();
 
@@ -144,10 +154,7 @@ export class FileContextElement extends LitElement {
             padding: calc( var( --thermal-gap ) / 3 );
             background-color: var( --thermal-slate-light );
             border: 1px solid var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-            // box-shadow: var( --thermal-shadow );
-
-            
+            border-radius: var( --thermal-radius );            
 
         }
 
@@ -172,6 +179,46 @@ export class FileContextElement extends LitElement {
 
             .content {
                 background: red;
+            }
+        }
+
+        .credits {
+
+            display: flex;
+            width: 100%;
+            flex-wrap: wrap;
+            font-size: calc( var(--thermal-fs-sm) * 0.8 );
+
+            & > div {
+                padding-top: calc( var(--thermal-gap) * .5 );
+                padding-right: var( --thermal-gap );
+            }
+        
+        }
+
+        .credits-field {
+            display: inline;
+            opacity: .5;
+        }
+
+        .credit-value {
+            display: inline;
+        }
+
+        .content {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .has-content {
+            margin-top: calc( var(--thermal-gap) * .5);
+            color: var( --thermal-foreground );
+            &::before {
+                content: "Description:";
+                opacity: .5;
+                font-size: calc( var(--thermal-fs-sm) * 0.8 );
+                display: block;
+                padding-bottom: calc( var(--thermal-gap) * .5);
             }
         }
     
@@ -215,7 +262,7 @@ export class FileContextElement extends LitElement {
             </div> 
         ` : ""}
 
-        ${this.pre.length >= 0 ? html`
+        ${this.preElements.length >= 0 ? html`
             <div class="pre" class="pre">
                 <slot name="pre"></slot>
             </div> 
@@ -230,6 +277,41 @@ export class FileContextElement extends LitElement {
 
             <div class="post">
                 <slot name="post"></slot>
+            </div>
+
+            ${this.author || this.license || this.recorded 
+                ? html`<div class="credits">
+
+                    ${this.recorded 
+                        ? html`<div>
+                            <div class="credits-field">Recorded at:</div>
+                            <div class="credit-value">${this.recorded}</div>
+                        </div>`
+                        : nothing
+                    }
+
+                    ${this.author 
+                        ? html`<div>
+                            <div class="credits-field">Author:</div>
+                            <div class="credit-value">${this.author}</div>
+                        </div>`
+                        : nothing
+                    }
+
+                    ${this.license 
+                        ? html`<div>
+                            <div class="credits-field">License:</div>
+                            <div class="credit-value">${this.license}</div>
+                        </div>`
+                        : nothing
+                    }
+
+                </div>`
+                : nothing
+            }
+
+            <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
+                <slot name="content"></slot>
             </div>
 
         </div>

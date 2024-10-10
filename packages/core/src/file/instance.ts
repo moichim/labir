@@ -49,13 +49,17 @@ export class Instance extends AbstractFile {
         public readonly timestamp: number,
         public readonly frameCount: number,
         public readonly duration: number,
+        /** @deprecated */
         public readonly frameInterval: number,
         initialPixels: number[],
+        /** @deprecated */
         public readonly fps: number,
         public readonly min: number,
         public readonly max: number,
         public readonly bytesize: number,
+        /** @deprecated not used anymore */
         public readonly averageEmissivity: number,
+        /** @deprecated not used anymore */
         public readonly averageReflectedKelvins: number,
         public readonly firstFrame: ParsedFileFrame,
         public readonly timelineData: ParsedFileBaseInfo["timeline"]

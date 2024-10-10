@@ -110,21 +110,24 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     /** Build an ellyptical analysis at the given position. */
     public placeRectAt(
-        key: string,
+        name: string,
         top: number,
         left: number,
         right: number,
-        bottom: number
+        bottom: number,
+        color?: string
     ) {
         const newAnalysis = RectangleAnalysis.build(
-            key,
-            this.getNextColor(),
+            name,
+            color ?? this.getNextColor(),
             this.drive.parent,
             top,
             left,
             right,
             bottom
         );
+
+        newAnalysis.ready = true;
 
         this.addAnalysis( newAnalysis );
 
@@ -133,7 +136,10 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     /** Add an ellyptical analysis in the given position and start editing it */
-    public createEllipsisFrom( top: number, left: number ) {
+    public createEllipsisFrom( 
+        top: number, 
+        left: number 
+    ) {
 
         const newAnalysis = EllipsisAnalysis.startAddingAtPoint(
             this.getNextName( "Ellipsis" ),
@@ -152,21 +158,24 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     /** Build an ellyptical analysis at the given position. */
     public placeEllipsisAt(
-        key: string,
+        name: string,
         top: number,
         left: number,
         right: number,
-        bottom: number
+        bottom: number,
+        color?: string
     ) {
         const newAnalysis = EllipsisAnalysis.build(
-            key,
-            this.getNextColor(),
+            name,
+            color ?? this.getNextColor(),
             this.drive.parent,
             top,
             left,
             right,
             bottom
         );
+
+        newAnalysis.ready = true;
 
         this.addAnalysis( newAnalysis );
 
@@ -191,6 +200,27 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         return newAnalysis;
 
+    }
+
+    public placePointAt(
+        name: string,
+        top: number,
+        left: number,
+        color?: string
+    ) {
+        const newAnalysis = PointAnalysis.addAtPoint(
+            name,
+            color ?? this.getNextColor(),
+            this.drive.parent,
+            top,
+            left
+        );
+
+        newAnalysis.ready = true;
+
+        this.addAnalysis( newAnalysis );
+
+        return newAnalysis;
     }
 
 

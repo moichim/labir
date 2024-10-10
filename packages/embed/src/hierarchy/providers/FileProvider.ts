@@ -1,7 +1,8 @@
-import { Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { AbstractAnalysis, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { fromAttribute, ParsedAnalysis, ParsedAreaAnalysis, ParsedPointAnalysis, toAttribute } from "../../controls/file/analysis/presets/analysis";
 import { AbstractFileProvider } from "./AbstractFileProvider";
 import { fileProviderContext } from "./context/FileContexts";
 
@@ -24,6 +25,84 @@ export class FileProviderElement extends AbstractFileProvider {
         reflect: true,
     })
     public visible!: string;
+
+    
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis1?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis2?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis3?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis4?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis5?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis6?: ParsedAnalysis;
+
+    @property( {
+        type: String, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute: fromAttribute.bind( this ),
+            toAttribute: toAttribute.bind(this)
+        }
+    } )
+    public analysis7?: ParsedAnalysis;
 
     /** Load the file and call all necessary callbacks */
     protected async load() {
@@ -51,6 +130,8 @@ export class FileProviderElement extends AbstractFileProvider {
 
                         // Clear the callbacks to free the memory
                         this.clearCallbacks();
+
+                        this.handleLoaded( instance );
 
                         instance.group.registry.postLoadedProcessing();
 
@@ -80,6 +161,76 @@ export class FileProviderElement extends AbstractFileProvider {
             } );
 
         return value;
+
+    }
+
+    protected handleLoaded(
+        instance: Instance
+    ) {
+
+        this.handleAnalysis( instance, this.analysis1 );
+        this.handleAnalysis( instance, this.analysis2 );
+        this.handleAnalysis( instance, this.analysis3 );
+        this.handleAnalysis( instance, this.analysis4 );
+        this.handleAnalysis( instance, this.analysis5 );
+        this.handleAnalysis( instance, this.analysis6 );
+        this.handleAnalysis( instance, this.analysis7 );
+
+    }
+
+    protected handleAnalysis(
+        instance: Instance,
+        analysis?: ParsedAnalysis
+    ): void {
+
+        if ( analysis === undefined ) {
+            return;
+        }
+
+        let obj: AbstractAnalysis|undefined = undefined;
+
+        if ( analysis.type === "point" ) {
+            const point = analysis as ParsedPointAnalysis
+            obj = instance.analysis.layers.placePointAt( point.name,point.top, point.left, point.color );
+
+            if ( point.avg ) {
+                obj.graph.setAvgActivation(true);
+            }
+
+        } else  {
+
+            const area = analysis as ParsedAreaAnalysis;
+
+            if ( area.type === "rectangle" ) {
+                obj = instance.analysis.layers.placeRectAt(
+                    area.name,
+                    area.top,
+                    area.left,
+                    area.width,
+                    area.height,
+                    area.color
+                );
+            } else if ( area.type === "ellipsis" ) {
+                obj = instance.analysis.layers.placeEllipsisAt(
+                    area.name,
+                    area.top,
+                    area.left,
+                    area.width,
+                    area.height,
+                    area.color
+                );
+            }
+
+            obj?.graph.setAvgActivation( area.avg );
+            obj?.graph.setMinActivation( area.min );
+            obj?.graph.setMaxActivation( area.max );
+
+
+        }
+
+        obj?.setSelected();
+
+        this.log( obj );
 
     }
 
@@ -113,6 +264,7 @@ export class FileProviderElement extends AbstractFileProvider {
         return html`
             <slot></slot>
             <slot name="mark"></slot>
+            <slot name="analysis"></slot>
         `;
     }
 

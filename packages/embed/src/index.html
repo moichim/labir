@@ -45,7 +45,17 @@
   <div>
 
     <div>
-      <thermal-desktop-app url="/sequence.lrc" speed="10" palette="iron"></thermal-desktop-app>
+      <thermal-desktop-app url="/sequence.lrc" from="21" to="30" speed="10" palette="iron"
+        author="Já" license="CC BY-SA 4.0" label="Soustruh">
+        <div slot="content">Jsem obsah aplikace</div>
+      </thermal-desktop-app>
+
+      <thermal-file-app url="/tucnaci_04.lrc" speed="10" palette="iron"
+        analysis1="Bod A; ellipsis; color: red; top:10;left:20;width:30;height:40;max"
+        analysis2="První jméno obdélníku; rectangle; color: lightblue; top:0;left:0;width:100;height:100;max;avg"
+        analysis3="Bod B;point;top:50;left:80;avg;color:green" label="Tučňáci">
+        <div slot="content_">Jsem obsah aplikace</div>
+      </thermal-file-app>
     </div>
 
 
@@ -74,11 +84,11 @@
   </div>
 
 
-  
 
-  
 
-<!--
+
+
+  <!--
   <manager-provider palette="iron" slug="nějaký manager">
 
 
