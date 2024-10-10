@@ -1,4 +1,4 @@
-var Oc=Object.defineProperty;var Dc=(t,e,r)=>e in t?Oc(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var c=(t,e,r)=>(Dc(t,typeof e!="symbol"?e+"":e,r),r);const Kn="1.2.42",Ec="Jan Jáchim <jachim5@gmail.com>";/**
+var Oc=Object.defineProperty;var Dc=(t,e,r)=>e in t?Oc(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var c=(t,e,r)=>(Dc(t,typeof e!="symbol"?e+"":e,r),r);const Kn="1.2.43",Ec="Jan Jáchim <jachim5@gmail.com>";/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -2762,7 +2762,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
  */const Se=t=>t??W;var eg=Object.defineProperty,tg=Object.getOwnPropertyDescriptor,Gt=(t,e,r,i)=>{for(var s=i>1?void 0:i?tg(e,r):e,n=t.length-1,a;n>=0;n--)(a=t[n])&&(s=(i?a(e,r,s):a(s))||s);return i&&s&&eg(e,r,s),s};let At=class extends Ke{constructor(){super(...arguments),this.showembed=!0,this.showabout=!0,this.showfullscreen=!0}onInstanceCreated(t){this.recorded=ta.human(t.timestamp)}onFailure(){}willUpdate(t){super.willUpdate(t),this.file&&(this.speed!==void 0&&(this.file.timeline.playbackSpeed=this.speed),this.from!==void 0&&this.to!==void 0&&this.registry.range.imposeRange({from:this.from,to:this.to}))}render(){return y`
         <thermal-app author=${Se(this.author)} recorded=${Se(this.recorded)} license=${Se(this.license)}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file?this.label??this.file.fileName:"Loading..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file?this.label&&this.label.trim().length>0?this.label.trim():this.file.fileName:"Loading..."}</thermal-button>
 
           
   
@@ -2893,7 +2893,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     `}};ot([g({type:String,reflect:!0})],Je.prototype,"palette",2);ot([g({type:Number})],Je.prototype,"from",2);ot([g({type:Number})],Je.prototype,"to",2);ot([g({type:Number,reflect:!0})],Je.prototype,"speed",2);ot([g({type:String,reflect:!0})],Je.prototype,"url",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis1",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis2",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis3",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis4",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis5",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis6",2);ot([g({type:String,reflect:!0})],Je.prototype,"analysis7",2);ot([g()],Je.prototype,"author",2);ot([g()],Je.prototype,"recorded",2);ot([g()],Je.prototype,"license",2);ot([g()],Je.prototype,"label",2);Je=ot([Z("thermal-file-app")],Je);var sg=Object.defineProperty,ng=Object.getOwnPropertyDescriptor,ut=(t,e,r,i)=>{for(var s=i>1?void 0:i?ng(e,r):e,n=t.length-1,a;n>=0;n--)(a=t[n])&&(s=(i?a(e,r,s):a(s))||s);return i&&s&&sg(e,r,s),s};let et=class extends Ke{constructor(){super(...arguments),this.showembed=!0,this.showabout=!0,this.showfullscreen=!0,this.hasAnalysis=!1,this.hasGraph=!1,this.isSequence=!0,this.contentContainerRef=Me(),this.contentContainerWidth=1e3}onInstanceCreated(t){this.recorded=ta.human(t.timestamp),this.hasAnalysis=t.analysis.layers.all.length>0,this.hasGraph=t.analysisData.value.values.length>1,this.isSequence=t.timeline.isSequence,t.timeline.addListener(this.UUID,()=>{this.isSequence=t.timeline.isSequence}),t.analysis.addListener(this.UUID,e=>{this.hasAnalysis=e.length>0}),t.analysisData.addListener(this.UUID,e=>{this.hasGraph=e.values.length>1}),this.tool=this.group.tool.value,this.group.tool.addListener(this.UUID,e=>{this.tool=e})}onFailure(){}firstUpdated(t){super.firstUpdated(t),this.contentContainerRef.value&&(this.contentContainerWidth=this.contentContainerRef.value.clientWidth,new ResizeObserver(r=>{this.contentContainerWidth=r[0].contentRect.width}).observe(this.contentContainerRef.value))}willUpdate(t){super.willUpdate(t),this.file&&(this.speed!==void 0&&(this.file.timeline.playbackSpeed=this.speed),this.from!==void 0&&this.to!==void 0&&this.registry.range.imposeRange({from:this.from,to:this.to}))}render(){var t,e;return y`
         <thermal-app author=${Se(this.author)} recorded=${Se(this.recorded)} license=${Se(this.license)}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file?this.label??this.file.fileName:"Loading..."}</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file?this.label&&this.label.trim().length>0?this.label.trim():this.file.fileName:"Loading..."}</thermal-button>
 
           
   

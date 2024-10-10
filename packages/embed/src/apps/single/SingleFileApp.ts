@@ -90,7 +90,7 @@ export class SingleFileApp extends FileConsumer {
         <thermal-app author=${ifDefined(this.author )} recorded=${ifDefined(this.recorded )} license=${ifDefined(this.license )}>
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? 
-            this.label ??this.file.fileName 
+            this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName 
             : "Loading..."
           }</thermal-button>
 
