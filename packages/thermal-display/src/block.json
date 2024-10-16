@@ -1,0 +1,51 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "thermal-display/file",
+	"version": "0.1.0",
+	"title": "Thermal display",
+	"category": "thermal",
+	"icon": "image",
+	"description": "An interactive thermal image application.",
+	"example": {},
+	"supports": {
+		"html": false
+	},
+	"textdomain": "thermal-display",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js",
+	"attributes": {
+		"thermal": {
+			"type": "string"
+		},
+		"palette": {
+			"type": "string",
+			"default": "iron"
+		},
+		"from": {
+			"type": "number"
+		},
+		"to": {
+			"type": "number"
+		},
+		"speed": {
+			"type": "number"
+		},
+		
+		"author": {
+			"type": "string"
+		},
+
+		"license": {
+			"type": "string",
+			"default": "CC BY-SA 4.0"
+		},
+
+		"description": {
+			"type": "string"
+		}
+	}
+}
