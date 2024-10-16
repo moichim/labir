@@ -17,6 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
+function labir_assets() {
+	wp_register_style( "labir_styles", plugin_dir_url( __FILE__ ) . '/assets/embed.css' );
+	wp_enqueue_style( "labir_styles" );
+	
+	wp_register_script( 'labir_webcomponents', plugin_dir_url( __FILE__ ) . '/assets/embed.js' , array(), time() );
+	wp_enqueue_script( "labir_webcomponents" );
+}
+
 /**
  * Register assets on the frontpage
  * Uses @labir/embed package
@@ -24,14 +32,24 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function thermal_assets($hook) {
 	
-	wp_register_style( "labir_styles", "https://cdn.jsdelivr.net/npm/@labir/embed@1.2/dist/embed.min.css" );
-	wp_enqueue_style( "labir_styles" );
-	
-	wp_register_script( 'labir_webcomponents', "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.45/dist/embed.min.js", array(), time() );
-	wp_enqueue_script( "labir_webcomponents" );
+	labir_assets();
 
 }
 add_action('wp_enqueue_scripts', 'thermal_assets');
+
+/**
+ * Enqueue Editor assets.
+ */
+function example_enqueue_editor_assets( $param ) {
+	if ( is_admin() ) {
+
+    	wp_enqueue_style( "labir_styles__", plugin_dir_url( __FILE__ ) . '/assets/embed.css' );
+	
+		// wp_enqueue_script( 'labir_webcomponents___', "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",array(), time(), );
+		// wp_enqueue_script( 'testimonial',  plugin_dir_url( __FILE__ ) . 'assets/embed.js', array(), time(), true );
+	}
+}
+add_action( 'enqueue_block_assets', 'example_enqueue_editor_assets', 40 );
 
 
 /**

@@ -27,7 +27,7 @@ import metadata from './block.json';
 const loadExternalLibrary = () => {
 	const script = document.createElement("script");
 	script.type = "module";
-	script.innerHTML = "import labirembed from 'https://cdn.jsdelivr.net/npm/@labir/embed@1.2.45/+esm'";
+	script.innerHTML = "import labirembed from 'https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/+esm'";
 	document.head.appendChild(script);
 	document.addEventListener( "loaded", () => {
 		// document.head.appendChild(script);

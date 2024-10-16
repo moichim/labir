@@ -16,7 +16,7 @@
  */
 
 import {html, css, LitElement} from 'lit';
-import {property} from 'lit/decorators.js';
+import {customElement, property} from 'lit/decorators.js';
 
 import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
 import { CallbacksManager } from '@labir/core';
@@ -119,6 +119,7 @@ const CHART_TYPES: Record<string, string|undefined> = {
  *
  * @demo demo/index.html
  */
+@customElement("thermal-chart")
 export class ThermalChart extends LitElement {
   /** @nocollapse */
   static override styles = css`
@@ -582,7 +583,7 @@ export class ThermalChart extends LitElement {
   }
 }
 
-customElements.define('thermal-chart', ThermalChart);
+// customElements.define('thermal-chart', ThermalChart);
 
 declare global {
   interface HTMLElementTagNameMap {

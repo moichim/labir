@@ -193,3 +193,5 @@ export default function Edit({ attributes, setAttributes }) {
 		</>
 	);
 }
+
+console.log( window.CustomElementRegistry );

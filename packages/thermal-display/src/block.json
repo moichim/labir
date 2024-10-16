@@ -9,7 +9,14 @@
 	"description": "An interactive thermal image application.",
 	"example": {},
 	"supports": {
-		"html": false
+		"html": false,
+		"anchor": true,
+		"lock": true,
+		"align": ["wide", "full"],
+		"spacing": {
+			"padding": true,
+			"margin": true
+		}
 	},
 	"textdomain": "thermal-display",
 	"editorScript": "file:./index.js",
@@ -17,7 +24,15 @@
 	"style": "file:./style-index.css",
 	"render": "file:./render.php",
 	"viewScript": "file:./view.js",
+	"__experimental": {
+	},
 	"attributes": {
+		"layout": {
+			"type": "object",
+			"default": {
+				"type": "constrained"
+			}
+		},
 		"thermal": {
 			"type": "string"
 		},
@@ -34,16 +49,13 @@
 		"speed": {
 			"type": "number"
 		},
-		
 		"author": {
 			"type": "string"
 		},
-
 		"license": {
 			"type": "string",
 			"default": "CC BY-SA 4.0"
 		},
-
 		"description": {
 			"type": "string"
 		}
