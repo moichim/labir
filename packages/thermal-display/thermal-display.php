@@ -27,7 +27,7 @@ function thermal_assets($hook) {
 	wp_register_style( "labir_styles", "https://cdn.jsdelivr.net/npm/@labir/embed@1.2/dist/embed.min.css" );
 	wp_enqueue_style( "labir_styles" );
 	
-	wp_register_script( 'labir_webcomponents', "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.44/dist/embed.min.js", array(), time() );
+	wp_register_script( 'labir_webcomponents', "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.45/dist/embed.min.js", array(), time() );
 	wp_enqueue_script( "labir_webcomponents" );
 
 }

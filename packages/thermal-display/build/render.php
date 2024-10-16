@@ -9,5 +9,5 @@
 </p>
 
 <div style="width: 100%;">
-	<thermal-file-app url="<?= $attributes["thermal"]?>" palette=<?= $attributes["palette"]; ?>></thermal-file-app>
+	<thermal-file-app url="<?= $attributes["thermal"]?>" palette=<?= $attributes["palette"]; ?> author="<?= $attributes["author"] ?>" license="<?= $attributes["license"] ?>"></thermal-file-app>
 </div>
