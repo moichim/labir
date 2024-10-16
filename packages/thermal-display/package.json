@@ -16,9 +16,5 @@
 	},
 	"devDependencies": {
 		"@wordpress/scripts": "^30.1.0"
-	},
-	"dependencies": {
-		"@labir/core": "^1.2.43",
-		"@labir/embed": "^1.2.44"
 	}
 }
