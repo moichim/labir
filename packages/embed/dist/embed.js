@@ -1,4 +1,4 @@
-var Oc=Object.defineProperty;var Dc=(t,e,r)=>e in t?Oc(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var c=(t,e,r)=>(Dc(t,typeof e!="symbol"?e+"":e,r),r);const Kn="1.2.44",Ec="Jan Jáchim <jachim5@gmail.com>";/**
+var Oc=Object.defineProperty;var Dc=(t,e,r)=>e in t?Oc(t,e,{enumerable:!0,configurable:!0,writable:!0,value:r}):t[e]=r;var c=(t,e,r)=>(Dc(t,typeof e!="symbol"?e+"":e,r),r);const Kn="1.2.45",Ec="Jan Jáchim <jachim5@gmail.com>";/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
