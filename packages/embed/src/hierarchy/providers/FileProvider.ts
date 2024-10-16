@@ -1,6 +1,6 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { fromAttribute, ParsedAnalysis, ParsedAreaAnalysis, ParsedPointAnalysis, toAttribute } from "../../controls/file/analysis/presets/analysis";
 import { AbstractFileProvider } from "./AbstractFileProvider";
@@ -135,6 +135,8 @@ export class FileProviderElement extends AbstractFileProvider {
 
                         instance.group.registry.postLoadedProcessing();
 
+                        this.loading = false;
+
                         return instance;
 
                     });
@@ -150,15 +152,20 @@ export class FileProviderElement extends AbstractFileProvider {
                     // Clear the callbacks to free the memory
                     this.clearCallbacks();
 
+                    this.loading = false;
+
                     return result;
                 }
-            })
-            .then( result => {
-
-                this.loading = false;
-                return result;
-
-            } );
+            }).then( result => {
+                if ( result instanceof Instance ) {
+    
+                    this.recieveInstance( result );
+    
+    
+                } else {
+                    this.failure = result as ThermalFileFailure;
+                }
+            } );;
 
         return value;
 
@@ -240,21 +247,26 @@ export class FileProviderElement extends AbstractFileProvider {
 
         super.connectedCallback();
 
-        this.load().then( result => {
-            if ( result instanceof Instance ) {
-
-                this.recieveInstance( result );
-
-
-            } else {
-                this.failure = result as ThermalFileFailure;
-            }
-        } );
+        this.load();
 
     }
 
 
-    
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
+        if ( _changedProperties.has( "thermal" ) ) {
+            const oldUrl = _changedProperties.get( "thermal" );
+
+            if ( oldUrl ) {
+                this.group.files.removeFile( oldUrl );
+                this.file = undefined;
+            }
+
+            this.load();
+            
+        }
+    }
 
 
 

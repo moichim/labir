@@ -346,6 +346,7 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
      */
     protected afterSetEffect(value: Instance[]): void;
     addFile(file: Instance): Instance;
+    removeFile(file: string | Instance): void;
     /**
      * Removal
      */

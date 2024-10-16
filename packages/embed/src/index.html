@@ -42,7 +42,36 @@
 
 -->
 
+<h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
+
+<script>
+ const reload = () => {
+  const provider = document.getElementById( "wtf" );
+  provider.thermal = "soustruh.lrc";
+}
+setTimeout( reload, 10000 );
+</script>
+
+    <manager-provider palette="jet" slug="some-example">
+      <registry-provider>
+        <registry-range-display></registry-range-display>
+        <registry-range-slider></registry-range-slider>
+        <registry-ticks-bar></registry-ticks-bar>
+
+        <group-provider slug="grup">
+
+          <file-provider thermal="sequence.lrc" id="wtf">
+            <file-canvas></file-canvas>
+            <file-info-button></file-info-button>
+          </file-provider>
+          <group-tool-buttons></group-tool-buttons>
+
+        </group-provider>
+      </registry-provider>
+    </manager-provider>
+
   <div>
+
 
     <div>
       <thermal-desktop-app url="/sequence.lrc" from="21" to="30" speed="10" palette="iron"
@@ -61,25 +90,10 @@
 
     <thermal-dropin-app></thermal-dropin-app>
 
+  -->
 
-    <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
-    <manager-provider palette="jet" slug="some-example">
-      <registry-provider from="28" to="85">
-        <registry-range-display></registry-range-display>
-        <registry-range-slider></registry-range-slider>
-        <registry-ticks-bar></registry-ticks-bar>
-
-        <group-provider slug="grup">
-
-          <file-dropin>
-            <file-app></file-app>
-          </file-dropin>
-          <group-tool-buttons></group-tool-buttons>
-
-        </group-provider>
-      </registry-provider>
-    </manager-provider>
+    
 
   </div>
 

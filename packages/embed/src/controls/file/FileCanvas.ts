@@ -1,5 +1,5 @@
 import { Instance } from "@labir/core";
-import { css, html, nothing } from "lit";
+import { css, html, nothing, PropertyValues } from "lit";
 import { customElement } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
@@ -22,6 +22,27 @@ export class FileCanvas extends FileConsumer {
 
     public onFailure(): void {
         // throw new Error("Method not implemented.");
+    }
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+        if ( _changedProperties.has("file") ) {
+
+            const oldFile = _changedProperties.get( "file" ) as Instance;
+            const newFile = this.file;
+
+            if (
+                oldFile === undefined
+                && newFile !== undefined
+                && this.container.value
+                && this.file
+                && this.file.mountedBaseLayers === false
+            ) {
+                this.file.mountToDom( this.container.value );
+                this.file.draw();
+            }
+
+        }
     }
 
     static styles = css`

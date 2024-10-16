@@ -3757,6 +3757,13 @@ var FilesState = class extends AbstractProperty {
       return this._map.get(file.url);
     }
   }
+  removeFile(file) {
+    const entry = file instanceof Instance ? file : this.map.get(file);
+    if (entry) {
+      entry.unmountFromDom();
+      this.value = this.value.filter((e) => e.thermalUrl !== entry.url);
+    }
+  }
   /**
    * Removal
    */

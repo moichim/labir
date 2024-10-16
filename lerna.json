@@ -5,5 +5,5 @@
   "packages": [
     "packages/*"
   ],
-  "ignore": "@labir/{emotion,docs,vue}"
+  "ignore": "@labir/{emotion,docs,vue,thermal-display}"
 }

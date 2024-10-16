@@ -44,6 +44,16 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         }
     }
 
+    public removeFile( file: string|Instance ) {
+        const entry = file instanceof Instance
+            ? file
+            : this.map.get( file );
+        if ( entry ) {
+            entry.unmountFromDom();
+            this.value = this.value.filter( e => e.thermalUrl !== entry.url );
+        }
+    }
+
 
 
 
