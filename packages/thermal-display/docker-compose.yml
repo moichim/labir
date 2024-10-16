@@ -1,0 +1,49 @@
+version: '3.1'
+
+services:
+
+  webserver:
+    container_name: thermal-webserver
+    image: wordpress
+    # restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+    volumes:
+      - wordpress:/var/www/html
+      - .:/var/www/html/wp-content/plugins/thermal-display
+
+  db:
+    container_name: thermal-database
+    image: mysql:8.0
+    # restart: always
+    environment:
+      MYSQL_DATABASE: exampledb
+      MYSQL_USER: exampleuser
+      MYSQL_PASSWORD: examplepass
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db:/var/lib/mysql
+
+  wpcli:
+    container_name: thermal-wp-cli
+    depends_on:
+      - webserver
+    image: wordpress:cli
+    # user: 1000:1000
+    command: tail -f /dev/null
+    volumes:
+      - wordpress:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: exampleuser
+      WORDPRESS_DB_PASSWORD: examplepass
+      WORDPRESS_DB_NAME: exampledb
+
+volumes:
+  wordpress:
+  db:
