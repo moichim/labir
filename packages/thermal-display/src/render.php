@@ -3,15 +3,27 @@
  * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
  */
 ?>
-<div <?php echo get_block_wrapper_attributes(); ?>>
+
+<?php if ( $attributes["thermal"] ): ?>
+
+<div <?= get_block_wrapper_attributes(); ?>>
 	
-	<?php esc_html_e( 'Copyright Date Block – hello from a dynamic block!', 'copyright-date-block' ); ?>
-	
-	<?php var_dump($attributes); ?>
-	
-	<div style="width: 100%;">
-		<thermal-file-app url="<?= $attributes["thermal"]?>" palette=<?= $attributes["palette"]; ?> author="<?= $attributes["author"] ?>" license="<?= $attributes["license"] ?>"></thermal-file-app>
-	</div>
+
+		<thermal-desktop-app 
+			url="<?= $attributes["thermal"]?>" 
+			palette=<?= $attributes["palette"]; ?> 
+			author="<?= $attributes["author"] ?>" 
+			license="<?= $attributes["license"] ?>"
+			label="<?= $attributes["label"] ?>"
+			description="<?= $attributes["description"] ?>"
+			<?php if ( $attributes["from"] && $attributes["to"] ): ?>
+				from="<?= $attributes["from"] ?>"
+				to="<?= $attributes["to"]; ?>"
+			<?php endif; ?>
+		></thermal-desktop-app>
+
 </div>
+
+<?php endif; ?>
 
 

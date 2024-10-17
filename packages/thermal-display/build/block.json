@@ -5,10 +5,11 @@
   "version": "0.1.0",
   "title": "Thermal display",
   "category": "thermal",
-  "icon": "image",
+  "icon": "file:./assets/icon.svg",
   "description": "An interactive thermal image application.",
   "example": {},
   "supports": {
+    "interactivity": false,
     "html": false,
     "anchor": true,
     "lock": true,
@@ -27,6 +28,12 @@
   "style": "file:./style-index.css",
   "render": "file:./render.php",
   "viewScript": "file:./view.js",
+  "keywords": [
+    "webcomponent",
+    "IR Camera",
+    "embed",
+    "LRC"
+  ],
   "attributes": {
     "layout": {
       "type": "object",
@@ -49,6 +56,9 @@
     },
     "speed": {
       "type": "number"
+    },
+    "label": {
+      "type": "string"
     },
     "author": {
       "type": "string"
