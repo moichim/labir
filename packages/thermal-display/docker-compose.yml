@@ -29,21 +29,6 @@ services:
     volumes:
       - db:/var/lib/mysql
 
-  wpcli:
-    container_name: thermal-wp-cli
-    depends_on:
-      - webserver
-    image: wordpress:cli
-    # user: 1000:1000
-    command: tail -f /dev/null
-    volumes:
-      - wordpress:/var/www/html
-    environment:
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: exampleuser
-      WORDPRESS_DB_PASSWORD: examplepass
-      WORDPRESS_DB_NAME: exampledb
-
 volumes:
   wordpress:
   db:
