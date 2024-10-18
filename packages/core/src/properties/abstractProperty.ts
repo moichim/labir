@@ -2,7 +2,7 @@ import { Instance } from "../file/instance";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
 import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
-import { AnalysisDataStateValue } from "./analysis/AnalysisDataState";
+import { AnalysisDataStateValue } from "./analysisData/AnalysisDataState";
 import { AbstractAnalysis } from "./analysis/internals/AbstractAnalysis";
 import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./drives/RangeDriver";

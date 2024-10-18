@@ -1,7 +1,7 @@
 import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
 import { CallbacksManager } from "../../callbacksManager";
-import { AbstractAnalysis } from "../internals/AbstractAnalysis";
-import { PointAnalysis } from "../internals/point/PointAnalysis";
+import { AbstractAnalysis } from "../../analysis/internals/AbstractAnalysis";
+import { PointAnalysis } from "../../analysis/internals/point/PointAnalysis";
 
 type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
 
@@ -41,6 +41,7 @@ export class AnalysisGraph {
     setMinActivation( active: boolean ) {
         if ( this._min !== active ) {
             this._min = active;
+            this.analysis.serialize();
             this.emitGraphActivation();
         }
     }
@@ -48,6 +49,7 @@ export class AnalysisGraph {
     setMaxActivation( active: boolean ) {
         if ( this._max !== active ) {
             this._max = active;
+            this.analysis.serialize();
             this.emitGraphActivation();
         }
     }
@@ -55,6 +57,7 @@ export class AnalysisGraph {
     setAvgActivation( active: boolean ) {
         if ( this._avg !== active ) {
             this._avg = active;
+            this.analysis.serialize();
             this.emitGraphActivation();
         }
     }

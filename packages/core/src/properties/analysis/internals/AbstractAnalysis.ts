@@ -1,13 +1,29 @@
 import { Instance } from "../../../file/instance";
 import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
 import { CallbacksManager } from "../../callbacksManager";
-import { AnalysisGraph } from "../graphs/AnalysisGraph";
+import { AnalysisGraph } from "../../analysisData/graphs/AnalysisGraph";
 import { AbstractPoint } from "./AbstractPoint";
 
 
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 
 export abstract class AbstractAnalysis {
+
+    protected _serialized?: string;
+
+    public get serialized() {
+        return this._serialized;
+    }
+
+    public abstract recievedSerialized( input: string ): void;
+    protected abstract toSerialized(): string;
+
+    public serialize() {
+        this._serialized = this.toSerialized();
+        return this._serialized;
+    }
+
+
 
     public abstract get graph(): AnalysisGraph;
 
@@ -33,10 +49,51 @@ export abstract class AbstractAnalysis {
 
     public readonly points: Map<string, AbstractPoint> = new Map;
 
-    public left!: number;
-    public top!: number;
-    public width!: number;
-    public height!: number;
+    protected _top!: number;
+    protected _left!: number;
+    protected _width!: number;
+    protected _height!: number;
+
+    public get left() { return this._left; }
+    public get top() { return this._top; }
+    public get width() { return this._width; }
+    public get height() { return this._height; }
+
+    protected abstract onSetTop( validatedValue: number ): void;
+    protected abstract onSetLeft( validatedValue: number ): void;
+    protected abstract onSetWidth( validatedValue: number ): void;
+    protected abstract onSetHeight( validatedValue: number ): void;
+
+    protected abstract validateLeft( value: number ): number;
+    protected abstract validateTop( value: number ): number;
+    protected abstract validateWidth( value: number ): number;
+    protected abstract validateHeight( value: number ): number;
+
+
+    public setWidth( value: number ) {
+        const val = this.validateWidth( value );
+        this._width = val;
+        this.onSetWidth( val );
+    }
+
+    public setHeight( value: number ) {
+        const val = this.validateHeight( value );
+        this._height = val;
+        this.onSetHeight( val );
+    }
+
+    public setTop( value: number ) {
+        const val = this.validateTop( value );
+        this._top = val;
+        this.onSetTop( val );
+    }
+
+    public setLeft( value: number ) {
+        const val = this.validateLeft( value );
+        this._left = val;
+        this.onSetLeft( val );
+    }
+
 
 
     /** Access all the file's analysis layers. */
@@ -87,6 +144,7 @@ export abstract class AbstractAnalysis {
     public setInitialColor( value: string ) {
         this._initialColor = value;
         this.onSetInitialColor.call( value );
+        this.serialize();
         if ( this.selected === true ) {
             this.setColor( value );
         }
@@ -100,34 +158,11 @@ export abstract class AbstractAnalysis {
     public readonly activeColor = "yellow";
     public readonly inactiveColor = "black";
 
-    protected _graphMinActive: boolean = false;
-    public get graphMinActive(): boolean {
-        return this._graphMinActive;
+    /** @deprecated is moved to GraphObject instead */
+    public get onGraphActivation() {
+        return this.graph.onGraphActivation;
     }
 
-    protected _graphMaxActive: boolean = false;
-    public get graphMaxActive(): boolean {
-        return this._graphMaxActive;
-    }
-
-    protected _graphAvgActive: boolean = false;
-    public get graphAvgActive(): boolean {
-        return this._graphAvgActive;
-    }
-
-    public readonly onGraphActivation = new CallbacksManager<(
-        min: boolean,
-        max: boolean,
-        avg: boolean
-    ) => void>()
-
-    protected emitGraphActivation() {
-        this.onGraphActivation.call(
-            this._graphMinActive,
-            this._graphMaxActive,
-            this._graphAvgActive
-        );
-    }
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     public ready: boolean = false;
 
@@ -136,6 +171,7 @@ export abstract class AbstractAnalysis {
     public get name() { return this._name; }
     public setName( value: string ) {
         this._name = value;
+        this.serialize();
         this.onSetName.call( value );
     }
     public readonly onSetName = new CallbacksManager<(value: string) => void>;
@@ -172,6 +208,7 @@ export abstract class AbstractAnalysis {
         /** @todo what happend if the callback key is set rendomly? I do not want this callback to be overriden anyhow! */
         this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
             this.recalculateValues();
+            this.serialize();
         });
 
     }
@@ -247,6 +284,9 @@ export abstract class AbstractAnalysis {
         this._max = max;
         this._avg = avg;
         this.onValues.call(this.min, this.max, this.avg);
+
+        console.log( "Přepočítal jsem hodnoty", min, max, avg );
+
     }
 
     /** Obtain the current values of the analysis using current position and dimensions */
@@ -254,6 +294,46 @@ export abstract class AbstractAnalysis {
 
     /** Override this method to get proper analysis data. */
     public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+
+
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    protected serializedSegmentsHasExact(
+        segments: string[],
+        lookup: string
+    ): boolean {
+        return segments.find( segment => segment === lookup ) ? true : false;
+    }
+
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    protected serializedGetStringValueByKey(
+        segments: string[],
+        key: string
+    ): string|undefined {
+        const regexp = new RegExp(`${key}:*`);
+        const item = segments.find( s => {
+            if ( s.match( regexp ) ) {
+                return isNaN( parseInt( s.split( ":" )[1] ) );
+            }
+        } );
+        return item?.split( ":" )[1].trim();
+    }
+
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    protected serializedGetNumericalValueByKey(
+        segments: string[],
+        key: string
+    ): number|undefined {
+        const regexp = new RegExp(`${key}:\\d+`);
+        const item = segments.find( s => s.match( regexp ) );
+        if ( item === undefined ) {
+            return undefined;
+        }
+        return parseInt( item.split( ":" )[1] );
+    }
+
+    
+
+
 
 
 

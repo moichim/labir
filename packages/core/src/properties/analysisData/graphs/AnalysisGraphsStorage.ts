@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisDataState, AnalysisDataStateValue, ValueRow } from "../AnalysisDataState";
-import { AnalysisLayersStorage } from "../internals/storage/AnalysisLayersStorage";
+import { AnalysisLayersStorage } from "../../analysis/internals/storage/AnalysisLayersStorage";
 import { AnalysisGraph } from "./AnalysisGraph";
 
 export class AnalysisGraphsStorage {

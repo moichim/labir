@@ -12,7 +12,7 @@ import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { AnalysisDataState } from "../properties/analysis/AnalysisDataState";
+import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
 
 export class Instance extends AbstractFile {
 

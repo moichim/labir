@@ -1,6 +1,7 @@
+import { should } from "vitest";
 import { Instance } from "../../../../file/instance";
 import { PointAnalysisData } from "../../../../loading/workers/parsers/structure";
-import { AnalysisGraph } from "../../graphs/AnalysisGraph";
+import { AnalysisGraph } from "../../../analysisData/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
 
@@ -48,20 +49,20 @@ export class PointAnalysis extends AbstractAnalysis {
     ) {
         super( key, file, color );
 
-        this.top = top;
-        this.left = left;
-        this.width = 1;
-        this.height = 1;
+        this._top = top;
+        this._left = left;
+        this._width = 1;
+        this._height = 1;
         this.center = new PointPoint( "center", top, left, this, color );
         this.points.set( "center", this.center );
         this.center.projectInnerPositionToDom();
 
         this.center.onX.set( "update point", ( x ) => {
-            this.left = x;
+            this._left = x;
         });
 
         this.center.onY.set( "update point", ( y ) => {
-            this.top = y;
+            this._top = y;
         });
 
         this.recalculateValues();
@@ -91,14 +92,113 @@ export class PointAnalysis extends AbstractAnalysis {
 
     }
 
-    public setLeft( value: number ) {
-        const validatedValue = Math.max( 0, Math.min( this.file.width, Math.round( value ) ) );
-        this.center.x = validatedValue;
+
+
+
+
+    protected validateLeft(value: number): number {
+        return Math.max( 0, Math.min( this.file.width, Math.round( value ) ) );
+    }
+    protected onSetLeft(value: number): void {
+        this.center.x = value;
     }
 
-    public setTop( value: number ) {
-        const validatedValue = Math.max( 0, Math.min( this.file.height, Math.round( value ) ) );
+
+
+
+    protected validateTop(value: number): number {
+        return Math.max( 0, Math.min( this.file.height, Math.round( value ) ) );
+    }
+    protected onSetTop(validatedValue: number): void {
         this.center.y = validatedValue;
     }
+
+
+
+    protected validateWidth(): number {
+        return 0;
+    }
+    public onSetWidth(): void {}
+
+
+
+
+    protected validateHeight(): number {
+        return 0;
+    }
+    public onSetHeight(): void {}
+
+
+
+    public recievedSerialized( input: string ): void {
+
+        this._serialized = input;
+
+        const splitted = input
+            .split( ";" )
+            .map( segment => segment.trim() );
+
+        let shouldRecalculate: boolean = false;
+
+        const name = splitted[0];
+
+        if ( name !== this.name ) {
+            this.setName( name );
+        }
+
+        const graphOn = this.serializedSegmentsHasExact( splitted, "avg" );
+
+        if ( graphOn !== this.graph.state.AVG ) {
+            this.graph.setAvgActivation( graphOn );
+            shouldRecalculate = true;
+        }
+
+        const color = this.serializedGetStringValueByKey( splitted, "color" );
+
+        if ( color === undefined ) {
+            //
+        } else if ( color !== this.initialColor ) {
+            this.setInitialColor( color );
+        }
+
+        const top = this.serializedGetNumericalValueByKey( splitted, "top" );
+        const left = this.serializedGetNumericalValueByKey( splitted, "left" );
+
+        if ( top !== undefined ) {
+            this.setTop( top );
+            shouldRecalculate = true;
+        }
+
+        if ( left !== undefined ) {
+            this.setLeft( left );
+            shouldRecalculate = true;
+        }
+
+        if ( shouldRecalculate ) {
+            this.recalculateValues();
+        }
+
+        console.log( "parsed", this.serialized );
+
+        
+    }
+
+    protected toSerialized(): string {
+        
+        const output: string[] = [];
+
+        output.push( this.name );
+        output.push( "point" );
+        output.push( `top:${this.top}` );
+        output.push( `left:${this.left}` );
+        output.push( `color:${this.color}` );
+        if ( this.graph.state.AVG ) {
+            output.push("avg");
+        }
+
+        return output.join( ";" );
+
+    }
+
 
 }

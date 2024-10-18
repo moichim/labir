@@ -1,5 +1,5 @@
 import { Instance } from "../../../../file/instance";
-import { AnalysisGraph } from "../../graphs/AnalysisGraph";
+import { AnalysisGraph } from "../../../analysisData/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./CornerPoint";
@@ -7,8 +7,8 @@ import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
-    protected readonly wPx = ( 100 / this.file.width / 2 ).toString() + "%";
-    protected readonly hPx = ( 100 / this.file.height / 2 ).toString() + "%";
+    protected readonly wPx = (100 / this.file.width / 2).toString() + "%";
+    protected readonly hPx = (100 / this.file.height / 2).toString() + "%";
 
 
     public readonly tl: CornerPoint;
@@ -18,7 +18,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     public readonly area: RectangleArea;
 
-    protected _graph: AnalysisGraph|undefined;
+    protected _graph: AnalysisGraph | undefined;
 
     public get graph(): AnalysisGraph {
         if (!this._graph) {
@@ -26,7 +26,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         }
         return this._graph;
     }
-    
+
 
     public isWithin(x: number, y: number): boolean {
         return x >= this.left
@@ -115,9 +115,9 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         });
         */
 
-        this.onMoveOrResize.set( "sync the area", () => {
+        this.onMoveOrResize.set("sync the area", () => {
             this.calculateBounds();
-        } );
+        });
 
         /** @todo Look if this is really necessary */
         this.points.forEach(point => point.projectInnerPositionToDom());
@@ -151,10 +151,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             }
         });
 
-        this.left = leftMost;
-        this.top = topMost;
-        this.width = rightMost - leftMost;
-        this.height = bottomMost - topMost;
+        this._left = leftMost;
+        this._top = topMost;
+        this._width = rightMost - leftMost;
+        this._height = bottomMost - topMost;
 
         this.area.left = this.left;
         this.area.top = this.top;
@@ -173,28 +173,62 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         return point;
     }
 
-    public setLeft(
-        value: number
-    ) {
-        this.leftmostPoint.x = value;
+
+    protected validateLeft(value: number): number {
+        return Math.max( 0, value );
     }
+    protected onSetLeft( validatedValue: number ): void {
+        this.area.left = validatedValue;
+        this.leftmostPoint.x = validatedValue;
+    }
+
+    protected validateTop(value: number): number {
+        return Math.max( 0, value );
+    }
+    protected onSetTop(validatedValue: number): void {
+        this.area.top = validatedValue;
+        this.topmostPoint.y = validatedValue;
+    }
+
+    protected validateWidth(value: number): number {
+        const max = this.file.width - this.left;
+        return Math.min( max, value );
+    }
+    protected onSetWidth(validatedValue: number): void {
+        this.area.width = validatedValue;
+        this.rightmostPoint.x = this.left + validatedValue;
+    }
+
+    protected validateHeight(value: number): number {
+        const max = this.file.height - this.top;
+        return Math.min( max, value );
+    }
+    protected onSetHeight(validatedValue: number): void {
+        this.area.height = validatedValue;
+        this.bottommostPoint.y = this.top + validatedValue;
+    }
+
 
     public setRight(
         value: number
     ) {
-        this.rightmostPoint.x = value;
-    }
 
-    public setTop(
-        value: number
-    ) {
-        this.topmostPoint.y = value;
+        const validatedValue = Math.min( this.file.width, value );
+
+        const width = this.left - validatedValue;
+        this.setWidth( width );
+
     }
 
     public setBottom(
         value: number
     ) {
-        this.bottommostPoint.y = value;
+
+        const validatedValue = Math.min( this.file.height, value );
+
+        const height = this.top - validatedValue;
+        this.setHeight( height );
+        
     }
 
 
@@ -202,59 +236,145 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
 
     public get leftmostPoint(): CornerPoint {
-    
+
         let point = this.tl;
 
-        this.points.forEach( p => {
-            if ( p.x < point.x ) {
+        this.points.forEach(p => {
+            if (p.x < point.x) {
                 point = p as CornerPoint;
             }
-        } );
+        });
 
         return point;
-    
+
     }
 
     public get rightmostPoint(): CornerPoint {
-    
+
         let point = this.tr;
 
-        this.points.forEach( p => {
-            if ( p.x > point.x ) {
+        this.points.forEach(p => {
+            if (p.x > point.x) {
                 point = p as CornerPoint;
             }
-        } );
+        });
 
         return point;
-    
+
     }
 
     public get topmostPoint(): CornerPoint {
-    
+
         let point = this.tl;
 
-        this.points.forEach( p => {
-            if ( p.y < point.y ) {
+        this.points.forEach(p => {
+            if (p.y < point.y) {
                 point = p as CornerPoint;
             }
-        } );
+        });
 
         return point;
-    
+
     }
 
     public get bottommostPoint(): CornerPoint {
-    
+
         let point = this.br;
 
-        this.points.forEach( p => {
-            if ( p.y > point.y ) {
+        this.points.forEach(p => {
+            if (p.y > point.y) {
                 point = p as CornerPoint;
             }
 
         });
 
         return point;
+
+    }
+
+    public recievedSerialized(input: string): void {
+
+        this._serialized = input;
+
+        const splitted = input
+            .split(";")
+            .map(segment => segment.trim());
+
+        let shouldRecalculate: boolean = false;
+
+        const name = splitted[0];
+
+        if (name !== this.name) {
+            this.setName(name);
+        }
+
+        const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
+
+        if (graphOn !== this.graph.state.AVG) {
+            this.graph.setAvgActivation(graphOn);
+            shouldRecalculate = true;
+        }
+
+        const color = this.serializedGetStringValueByKey(splitted, "color");
+
+        if (color === undefined) {
+            //
+        } else if (color !== this.initialColor) {
+            this.setInitialColor(color);
+        }
+
+        const top = this.serializedGetNumericalValueByKey(splitted, "top");
+        const left = this.serializedGetNumericalValueByKey(splitted, "left");
+        const width = this.serializedGetNumericalValueByKey(splitted, "width");
+        const height = this.serializedGetNumericalValueByKey(splitted, "height");
+
+        if (top !== undefined && top !== this.top) {
+            
+            this.setTop(top);
+            shouldRecalculate = true;
+        }
+
+        if (left !== undefined && left !== this.left) {
+            this.setLeft(left);
+            shouldRecalculate = true;
+        }
+
+        if (width !== undefined && width !== this.width) {
+            this.setWidth( width );
+            shouldRecalculate = true;
+        }
+
+        if (height !== undefined && height !== this.height) {
+            this.setHeight( height );
+            shouldRecalculate = true;
+        }
+
+        if ( shouldRecalculate ) {
+            this.recalculateValues();
+        }
+
+        console.log( "parsed", this.serialized );
+        
+
+    }
+
+    protected toSerialized(): string {
+
+        const output: string[] = [];
+
+        output.push(this.name);
+        output.push(this.getType());
+        output.push(`color:${this.color}`);
+        output.push(`top:${this.top}`);
+        output.push(`left:${this.left}`);
+        output.push(`width:${this.width}`);
+        output.push(`height:${this.height}`);
+
+        if (this.graph.state.AVG) output.push("avg");
+        if (this.graph.state.MIN) output.push("min");
+        if (this.graph.state.MAX) output.push("max");
+
+        return output.join(";");
 
     }
 

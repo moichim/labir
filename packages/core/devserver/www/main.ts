@@ -140,6 +140,37 @@ const batchLoading = async (
     console.log( "INSTANCES CREATED", instances );
 
     instances.map( mountInstance );
+    instances.forEach( instance => {
+        instance.analysis.layers.onAdd.set( "listen", value => {
+            console.log( value.serialized );
+
+            value.onMoveOrResize.set( "spy on values", val => {
+                console.log( val.serialized );
+            } );
+
+            setInterval( () => {
+
+                let original = value.serialized;
+
+                const originalTop = value.top;
+                const originalLeft = value.left;
+
+                if ( original ) {
+
+                    original = original.replaceAll( `top:${originalTop}`, `top:${Math.round( Math.random() * value.height )}` );
+
+                    original = original.replaceAll( `left:${originalLeft}`, `left:${Math.round( Math.random() * value.width )}` );
+
+                }
+
+                console.log( ">>>>", original );
+
+                if (original) {
+                    value.recievedSerialized( original );
+                }
+            }, 5000 );
+        } );
+    } );
 
     /*
     instances.forEach( instance => {
@@ -168,6 +199,7 @@ batchLoading([
 ]);
 
 const buildControls = () => {
+
     Object.entries( group_2.tool.tools ).forEach( ( [key, instance] ) => {
         const btn = document.createElement( "button" );
         btn.innerHTML = key;
