@@ -44,7 +44,9 @@ export class Instance extends AbstractFile {
     protected constructor(
         public readonly group: ThermalGroup,
         public readonly service: ThermalFileReader,
+        /**  @todo This dimension should be 1 pixel smaller */
         public readonly width: number,
+        /** @todo This dimension should be 1 pixel smaller */
         public readonly height: number,
         public readonly timestamp: number,
         public readonly frameCount: number,

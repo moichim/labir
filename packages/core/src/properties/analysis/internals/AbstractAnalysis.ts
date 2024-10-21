@@ -15,7 +15,7 @@ export abstract class AbstractAnalysis {
         return this._serialized;
     }
 
-    public abstract recievedSerialized( input: string ): void;
+    public abstract recievedSerialized(input: string): void;
     protected abstract toSerialized(): string;
 
     public serialize() {
@@ -56,42 +56,145 @@ export abstract class AbstractAnalysis {
 
     public get left() { return this._left; }
     public get top() { return this._top; }
+    /** This dimension does not count the last pixel. */
     public get width() { return this._width; }
+    /** This dimension does not count the last pixel. */
     public get height() { return this._height; }
+    public get right() { return this._left + this._width; }
+    public get bottom() { return this._top + this._height; }
 
-    protected abstract onSetTop( validatedValue: number ): void;
-    protected abstract onSetLeft( validatedValue: number ): void;
-    protected abstract onSetWidth( validatedValue: number ): void;
-    protected abstract onSetHeight( validatedValue: number ): void;
+    protected abstract onSetTop(validatedValue: number): void;
+    protected abstract onSetLeft(validatedValue: number): void;
+    protected abstract onSetWidth(validatedValue: number): void;
+    protected abstract onSetHeight(validatedValue: number): void;
+    protected abstract onSetBottom(validatedValue: number): void; // Dynamic
+    protected abstract onSetRight(validatedValue: number): void; // Dynamic
 
-    protected abstract validateLeft( value: number ): number;
-    protected abstract validateTop( value: number ): number;
-    protected abstract validateWidth( value: number ): number;
-    protected abstract validateHeight( value: number ): number;
+    protected abstract validateWidth(value: number): number;
+    protected abstract validateHeight(value: number): number;
 
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top"|"bottom"): { top: number, bottom: number, height: number };
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left"|"right"): { left: number, right: number, width: number }
 
-    public setWidth( value: number ) {
-        const val = this.validateWidth( value );
-        this._width = val;
-        this.onSetWidth( val );
+    public setTop(value: number) {
+
+        if ( isNaN( value ) ) {
+            return;
+        }
+
+        const { top, bottom, height } = this.getVerticalDimensionFromNewValue( value, "top" );
+
+        if ( top !== this.top ) {
+            this._top = top;
+            this.onSetTop( top );
+        }
+
+        if ( height !== this.height ) {
+            this._height = height;
+            this.onSetHeight( height );
+        }
+
+        if ( bottom !== this.bottom ) {
+            this.onSetBottom( bottom );
+        };
+
     }
 
-    public setHeight( value: number ) {
-        const val = this.validateHeight( value );
+    public setLeft(value: number) {
+
+        if ( isNaN( value ) ) {
+            return;
+        }
+
+        const { left, right, width } = this.getHorizontalDimensionsFromNewValue( value, "left" );
+
+        if ( left !== this.left ) {
+            this._left = left;
+            this.onSetLeft( left );
+        }
+
+        if ( width !== this.width ) {
+            this._width = width;
+            this.onSetWidth( width );
+        }
+
+        if ( right !== this.right ) {
+            this.onSetRight( right );
+        }
+
+        /*
+        const val = this.validateLeft(value);
+        if ( ! isNaN( val ) && this._left !== val ) {
+            this._left = val;
+            this.onSetLeft(val);
+        }
+        */
+    }
+
+
+    public setWidth(value: number) {
+        const val = this.validateWidth(value);
+        if (!isNaN(val) && val !== this.width) {
+            this._width = val;
+            this.onSetWidth(val);
+        }
+    }
+
+    public setHeight(value: number) {
+        const val = this.validateHeight(value);
         this._height = val;
-        this.onSetHeight( val );
+        this.onSetHeight(val);
     }
 
-    public setTop( value: number ) {
-        const val = this.validateTop( value );
-        this._top = val;
-        this.onSetTop( val );
+
+    public setBottom(value: number) {
+
+        if ( isNaN( value ) ) {
+            return;
+        }
+
+        // Calculate the height from the bottom value
+        const { top, height, bottom } = this.getVerticalDimensionFromNewValue(value, "bottom");
+
+        // Use existing setters to set vertical properties
+        if (top !== this.top) {
+            this._top = top;
+            this.onSetTop( top );
+        };
+
+        if ( height !== this.height ) {
+            this._height = height;
+            this.onSetHeight( height );
+        }
+
+        if ( bottom !== this.bottom ) {
+            this.onSetBottom( bottom );
+        }
+
     }
 
-    public setLeft( value: number ) {
-        const val = this.validateLeft( value );
-        this._left = val;
-        this.onSetLeft( val );
+    public setRight(value: number) {
+
+        if ( isNaN( value ) ) {
+            return;
+        }
+
+        // Calculate the width from the right value
+        const { left, width, right } = this.getHorizontalDimensionsFromNewValue(value, "right");
+
+        // Use existing setters to set horizontal properties
+        if (left !== this.left) {
+            this._left = left;
+            this.onSetLeft( left );
+        }
+        if (width !== this.width) {
+            this._width = width;
+            this.onSetWidth( width );
+        }
+        if ( right !== this.right ) {
+            this.onSetRight( right );
+        }
+
     }
 
 
@@ -137,16 +240,16 @@ export abstract class AbstractAnalysis {
 
 
     protected _initialColor: string;
-    public get initialColor(){
+    public get initialColor() {
         return this._initialColor;
     }
 
-    public setInitialColor( value: string ) {
+    public setInitialColor(value: string) {
         this._initialColor = value;
-        this.onSetInitialColor.call( value );
+        this.onSetInitialColor.call(value);
         this.serialize();
-        if ( this.selected === true ) {
-            this.setColor( value );
+        if (this.selected === true) {
+            this.setColor(value);
         }
 
     }
@@ -169,10 +272,10 @@ export abstract class AbstractAnalysis {
     public readonly nameInitial: string;
     protected _name: string;
     public get name() { return this._name; }
-    public setName( value: string ) {
+    public setName(value: string) {
         this._name = value;
         this.serialize();
-        this.onSetName.call( value );
+        this.onSetName.call(value);
     }
     public readonly onSetName = new CallbacksManager<(value: string) => void>;
 
@@ -285,7 +388,7 @@ export abstract class AbstractAnalysis {
         this._avg = avg;
         this.onValues.call(this.min, this.max, this.avg);
 
-        console.log( "Přepočítal jsem hodnoty", min, max, avg );
+        console.log("Přepočítal jsem hodnoty", min, max, avg);
 
     }
 
@@ -301,37 +404,37 @@ export abstract class AbstractAnalysis {
         segments: string[],
         lookup: string
     ): boolean {
-        return segments.find( segment => segment === lookup ) ? true : false;
+        return segments.find(segment => segment === lookup) ? true : false;
     }
 
     /** When parsing incooming serialized attribute, try to extract it by its key as string */
     protected serializedGetStringValueByKey(
         segments: string[],
         key: string
-    ): string|undefined {
+    ): string | undefined {
         const regexp = new RegExp(`${key}:*`);
-        const item = segments.find( s => {
-            if ( s.match( regexp ) ) {
-                return isNaN( parseInt( s.split( ":" )[1] ) );
+        const item = segments.find(s => {
+            if (s.match(regexp)) {
+                return isNaN(parseInt(s.split(":")[1]));
             }
-        } );
-        return item?.split( ":" )[1].trim();
+        });
+        return item?.split(":")[1].trim();
     }
 
     /** When parsing incooming serialized attribute, try to extract it by its key as number */
     protected serializedGetNumericalValueByKey(
         segments: string[],
         key: string
-    ): number|undefined {
+    ): number | undefined {
         const regexp = new RegExp(`${key}:\\d+`);
-        const item = segments.find( s => s.match( regexp ) );
-        if ( item === undefined ) {
+        const item = segments.find(s => s.match(regexp));
+        if (item === undefined) {
             return undefined;
         }
-        return parseInt( item.split( ":" )[1] );
+        return parseInt(item.split(":")[1]);
     }
 
-    
+
 
 
 

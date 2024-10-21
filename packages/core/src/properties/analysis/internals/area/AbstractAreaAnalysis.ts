@@ -175,7 +175,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
 
     protected validateLeft(value: number): number {
-        return Math.max( 0, value );
+        return Math.min( Math.max( 0, value ), this.left );
     }
     protected onSetLeft( validatedValue: number ): void {
         this.area.left = validatedValue;
@@ -208,31 +208,142 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.bottommostPoint.y = this.top + validatedValue;
     }
 
-
-    public setRight(
-        value: number
-    ) {
-
-        const validatedValue = Math.min( this.file.width, value );
-
-        const width = this.left - validatedValue;
-        this.setWidth( width );
+    protected onSetRight( validatedValue: number ): void {
 
     }
 
-    public setBottom(
-        value: number
-    ) {
+    protected getVerticalDimensionFromNewValue(
+        value: number,
+        preferredSide: "top"|"bottom"
+    ): {top: number,bottom: number, height: number} {
 
-        const validatedValue = Math.min( this.file.height, value );
+        const val = Math.round( value );
 
-        const height = this.top - validatedValue;
-        this.setHeight( height );
-        
+        const maxW = this.file.height - 1;
+
+        const theOtherSide = preferredSide === "top"
+                ? this.bottom
+                : this.top
+
+        // Negative value is allways 0
+        if ( val <= 0 ) {
+            return {
+                top: 0,
+                bottom: theOtherSide,
+                height: theOtherSide
+            }
+        } 
+        // Too large value is allways width - 1
+        else if ( val > maxW ) {
+            return {
+                top: theOtherSide,
+                bottom: maxW,
+                height: maxW - theOtherSide
+            }
+        } 
+        // If prefers moving the right point...
+        else if ( preferredSide === "bottom" ) {
+
+            if ( val <= this.top ) {
+                return {
+                    top: val,
+                    bottom: this.top,
+                    height: this.top - val
+                }
+            } else {
+                return {
+                    top: this.top,
+                    bottom: val,
+                    height: val - this.top
+                }
+            }
+
+        } 
+        // If prefers moving the left point
+        else {
+            if ( val >= this.bottom ) {
+                return {
+                    top: this.bottom,
+                    bottom: val,
+                    height: val - this.bottom
+                }
+            } else {
+                return {
+                    top: val,
+                    bottom: this.bottom,
+                    height: this.bottom - val
+                }
+            }
+        }
+
     }
 
 
+    protected getHorizontalDimensionsFromNewValue(
+        value: number,
+        preferredSide: "left"|"right"
+    ): {left: number,right: number, width: number} {
 
+        const val = Math.round( value );
+
+        const maxW = this.file.width - 1;
+
+        const theOtherSide = preferredSide === "left"
+                ? this.right
+                : this.left
+
+        // Negative value is allways 0
+        if ( val <= 0 ) {
+            return {
+                left: 0,
+                right: theOtherSide,
+                width: theOtherSide
+            }
+        } 
+        // Too large value is allways width - 1
+        else if ( val > maxW ) {
+            return {
+                left: theOtherSide,
+                right: maxW,
+                width: maxW - theOtherSide
+            }
+        } 
+        // If prefers moving the right point...
+        else if ( preferredSide === "right" ) {
+
+            if ( val <= this.left ) {
+                return {
+                    left: val,
+                    right: this.left,
+                    width: this.left - val
+                }
+            } else {
+                return {
+                    left: this.left,
+                    right: val,
+                    width: val - this.left
+                }
+            }
+
+        } 
+        // If prefers moving the left point
+        else {
+            if ( val >= this.right ) {
+                return {
+                    left: this.right,
+                    right: val,
+                    width: val - this.right
+                }
+            } else {
+                return {
+                    left: val,
+                    right: this.right,
+                    width: this.right - val
+                }
+            }
+        }
+
+    }
 
 
     public get leftmostPoint(): CornerPoint {

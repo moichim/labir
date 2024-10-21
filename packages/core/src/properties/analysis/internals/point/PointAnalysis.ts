@@ -11,7 +11,7 @@ export class PointAnalysis extends AbstractAnalysis {
         return "point";
     }
 
-    protected center!: PointPoint;
+    public readonly center!: PointPoint;
 
     protected _graph: AnalysisGraph|undefined;
 
@@ -51,8 +51,8 @@ export class PointAnalysis extends AbstractAnalysis {
 
         this._top = top;
         this._left = left;
-        this._width = 1;
-        this._height = 1;
+        this._width = 0;
+        this._height = 0;
         this.center = new PointPoint( "center", top, left, this, color );
         this.points.set( "center", this.center );
         this.center.projectInnerPositionToDom();
@@ -97,7 +97,7 @@ export class PointAnalysis extends AbstractAnalysis {
 
 
     protected validateLeft(value: number): number {
-        return Math.max( 0, Math.min( this.file.width, Math.round( value ) ) );
+        return Math.max( 0, Math.min( this.file.width - 1, Math.round( value ) ) );
     }
     protected onSetLeft(value: number): void {
         this.center.x = value;
@@ -107,7 +107,7 @@ export class PointAnalysis extends AbstractAnalysis {
 
 
     protected validateTop(value: number): number {
-        return Math.max( 0, Math.min( this.file.height, Math.round( value ) ) );
+        return Math.max( 0, Math.min( this.file.height - 1, Math.round( value ) ) );
     }
     protected onSetTop(validatedValue: number): void {
         this.center.y = validatedValue;
@@ -121,12 +121,52 @@ export class PointAnalysis extends AbstractAnalysis {
     public onSetWidth(): void {}
 
 
-
-
     protected validateHeight(): number {
         return 0;
     }
     public onSetHeight(): void {}
+
+    protected getVerticalDimensionsFromTop( top: number ) {
+        return { top: top, bottom: top, height: 0 }
+    }
+
+    protected getVerticalDimensionsFromLeft( left: number ) {
+
+        const value = Math.min( this.file.width - 1, Math.max( Math.round( left ), 0 ) );
+
+        return { left: value, right: value, width: 0 }
+    }
+
+
+    protected getVerticalDimensionFromNewValue(value: number): { top: number; height: number; bottom: number } {
+        const val = Math.min(
+            this.file.height - 1,
+            Math.max(
+                0,
+                Math.round( value )
+            )
+        );
+
+        return { top: val, bottom: val, height: 0};
+    }
+
+
+    protected getHorizontalDimensionsFromNewValue(value: number): { left: number; right: number, width: number; } {
+
+        const val = Math.min(
+            this.file.width - 1,
+            Math.max(
+                0,
+                Math.round( value )
+            )
+        );
+
+        return { left: val, right: val, width: 0 };
+    }
+
+    protected onSetRight(): void {}
+
+    protected onSetBottom(): void {}
 
 
 
