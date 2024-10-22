@@ -95,47 +95,27 @@ export class PointAnalysis extends AbstractAnalysis {
 
 
 
-
-    protected validateLeft(value: number): number {
-        return Math.max( 0, Math.min( this.file.width - 1, Math.round( value ) ) );
-    }
-    protected onSetLeft(value: number): void {
-        this.center.x = value;
-    }
-
-
-
-
-    protected validateTop(value: number): number {
-        return Math.max( 0, Math.min( this.file.height - 1, Math.round( value ) ) );
-    }
-    protected onSetTop(validatedValue: number): void {
-        this.center.y = validatedValue;
-    }
-
-
-
     protected validateWidth(): number {
         return 0;
     }
-    public onSetWidth(): void {}
-
 
     protected validateHeight(): number {
         return 0;
     }
+
+
+
+    protected onSetLeft(value: number): void {
+        this.center.x = value;
+    }
+
+    protected onSetTop(validatedValue: number): void {
+        this.center.y = validatedValue;
+    }
+
+    public onSetWidth(): void {}
+
     public onSetHeight(): void {}
-
-    protected getVerticalDimensionsFromTop( top: number ) {
-        return { top: top, bottom: top, height: 0 }
-    }
-
-    protected getVerticalDimensionsFromLeft( left: number ) {
-
-        const value = Math.min( this.file.width - 1, Math.max( Math.round( left ), 0 ) );
-
-        return { left: value, right: value, width: 0 }
-    }
 
 
     protected getVerticalDimensionFromNewValue(value: number): { top: number; height: number; bottom: number } {
@@ -163,10 +143,6 @@ export class PointAnalysis extends AbstractAnalysis {
 
         return { left: val, right: val, width: 0 };
     }
-
-    protected onSetRight(): void {}
-
-    protected onSetBottom(): void {}
 
 
 

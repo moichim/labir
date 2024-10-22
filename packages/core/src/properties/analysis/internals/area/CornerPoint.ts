@@ -37,7 +37,9 @@ export class CornerPoint extends AbstractHandlePoint {
             this.innerElement.style.backgroundColor = value;
     }
 
+    /** @deprecated */
     syncXWith( point: CornerPoint ) {
+
         this.onX.add( `sync X with ${point.key} `, value => {
             if ( point.x !== value ) {
                 point.x = value;
@@ -45,6 +47,7 @@ export class CornerPoint extends AbstractHandlePoint {
         } )
     }
 
+    /** @deprecated */
     syncYWith( point: CornerPoint ) {
         this.onY.add( `sync Y with ${point.key} `, value => {
             if ( point.y !== value ) {

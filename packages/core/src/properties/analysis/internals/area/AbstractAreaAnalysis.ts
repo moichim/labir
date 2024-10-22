@@ -174,77 +174,81 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     }
 
 
-    protected validateLeft(value: number): number {
-        return Math.min( Math.max( 0, value ), this.left );
-    }
-    protected onSetLeft( validatedValue: number ): void {
-        this.area.left = validatedValue;
-        this.leftmostPoint.x = validatedValue;
-    }
-
-    protected validateTop(value: number): number {
-        return Math.max( 0, value );
-    }
-    protected onSetTop(validatedValue: number): void {
-        this.area.top = validatedValue;
-        this.topmostPoint.y = validatedValue;
-    }
 
     protected validateWidth(value: number): number {
-        const max = this.file.width - this.left;
-        return Math.min( max, value );
-    }
-    protected onSetWidth(validatedValue: number): void {
-        this.area.width = validatedValue;
-        this.rightmostPoint.x = this.left + validatedValue;
+        const max = this.file.width - 1 - this.left;
+        return Math.max(0, Math.min(max, Math.round(value)));
     }
 
     protected validateHeight(value: number): number {
-        const max = this.file.height - this.top;
-        return Math.min( max, value );
+        const max = this.file.height - 1 - this.top;
+        return Math.max(0, Math.min(max, Math.round(value)));
     }
+
+
+
+
+    protected onSetLeft(validatedValue: number): void {
+        this.area.left = validatedValue;
+        this.forPoints(this.leftSidePoints, point => {
+            point.x = validatedValue;
+        })
+    }
+
+    protected onSetTop(validatedValue: number): void {
+        this.area.top = validatedValue;
+        this.forPoints(this.topSidePoints, point => {
+            point.y = validatedValue;
+        });
+    }
+
+    protected onSetWidth(validatedValue: number): void {
+        this.area.width = validatedValue;
+        this.forPoints(this.rightSidePoints, point => {
+            point.x = this.left + validatedValue;
+        });
+    }
+   
     protected onSetHeight(validatedValue: number): void {
         this.area.height = validatedValue;
-        this.bottommostPoint.y = this.top + validatedValue;
-    }
-
-    protected onSetRight( validatedValue: number ): void {
-
+        this.forPoints( this.bottomSidePoints, point => {
+            point.y = this.top + validatedValue;
+        } );
     }
 
     protected getVerticalDimensionFromNewValue(
         value: number,
-        preferredSide: "top"|"bottom"
-    ): {top: number,bottom: number, height: number} {
+        preferredSide: "top" | "bottom"
+    ): { top: number, bottom: number, height: number } {
 
-        const val = Math.round( value );
+        const val = Math.round(value);
 
         const maxW = this.file.height - 1;
 
         const theOtherSide = preferredSide === "top"
-                ? this.bottom
-                : this.top
+            ? this.bottom
+            : this.top
 
         // Negative value is allways 0
-        if ( val <= 0 ) {
+        if (val <= 0) {
             return {
                 top: 0,
                 bottom: theOtherSide,
                 height: theOtherSide
             }
-        } 
+        }
         // Too large value is allways width - 1
-        else if ( val > maxW ) {
+        else if (val > maxW) {
             return {
                 top: theOtherSide,
                 bottom: maxW,
                 height: maxW - theOtherSide
             }
-        } 
+        }
         // If prefers moving the right point...
-        else if ( preferredSide === "bottom" ) {
+        else if (preferredSide === "bottom") {
 
-            if ( val <= this.top ) {
+            if (val <= this.top) {
                 return {
                     top: val,
                     bottom: this.top,
@@ -258,10 +262,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
                 }
             }
 
-        } 
+        }
         // If prefers moving the left point
         else {
-            if ( val >= this.bottom ) {
+            if (val >= this.bottom) {
                 return {
                     top: this.bottom,
                     bottom: val,
@@ -281,37 +285,37 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     protected getHorizontalDimensionsFromNewValue(
         value: number,
-        preferredSide: "left"|"right"
-    ): {left: number,right: number, width: number} {
+        preferredSide: "left" | "right"
+    ): { left: number, right: number, width: number } {
 
-        const val = Math.round( value );
+        const val = Math.round(value);
 
         const maxW = this.file.width - 1;
 
         const theOtherSide = preferredSide === "left"
-                ? this.right
-                : this.left
+            ? this.right
+            : this.left
 
         // Negative value is allways 0
-        if ( val <= 0 ) {
+        if (val <= 0) {
             return {
                 left: 0,
                 right: theOtherSide,
                 width: theOtherSide
             }
-        } 
+        }
         // Too large value is allways width - 1
-        else if ( val > maxW ) {
+        else if (val > maxW) {
             return {
                 left: theOtherSide,
                 right: maxW,
                 width: maxW - theOtherSide
             }
-        } 
+        }
         // If prefers moving the right point...
-        else if ( preferredSide === "right" ) {
+        else if (preferredSide === "right") {
 
-            if ( val <= this.left ) {
+            if (val <= this.left) {
                 return {
                     left: val,
                     right: this.left,
@@ -325,10 +329,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
                 }
             }
 
-        } 
+        }
         // If prefers moving the left point
         else {
-            if ( val >= this.right ) {
+            if (val >= this.right) {
                 return {
                     left: this.right,
                     right: val,
@@ -345,7 +349,28 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
+    public get leftSidePoints(): CornerPoint[] {
+        return this.arrayOfPoints.filter(point => point.x === this.left) as CornerPoint[];
+    }
 
+    public get rightSidePoints(): CornerPoint[] {
+        return this.arrayOfPoints.filter(point => point.x === this.right) as CornerPoint[];
+    }
+
+    public get topSidePoints(): CornerPoint[] {
+        return this.arrayOfPoints.filter(point => point.y === this.top) as CornerPoint[];
+    }
+
+    public get bottomSidePoints(): CornerPoint[] {
+        return this.arrayOfPoints.filter(point => point.y === this.bottom) as CornerPoint[];
+    }
+
+    protected forPoints(points: CornerPoint[], fn: (point: CornerPoint) => void): void {
+        points.forEach(point => fn(point));
+    }
+
+
+    /** @deprecated */
     public get leftmostPoint(): CornerPoint {
 
         let point = this.tl;
@@ -360,6 +385,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
+    /** @deprecated */
     public get rightmostPoint(): CornerPoint {
 
         let point = this.tr;
@@ -374,6 +400,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
+    /** @deprecated */
     public get topmostPoint(): CornerPoint {
 
         let point = this.tl;
@@ -388,6 +415,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
+    /** @deprecated */
     public get bottommostPoint(): CornerPoint {
 
         let point = this.br;
@@ -440,7 +468,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         const height = this.serializedGetNumericalValueByKey(splitted, "height");
 
         if (top !== undefined && top !== this.top) {
-            
+
             this.setTop(top);
             shouldRecalculate = true;
         }
@@ -451,21 +479,21 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         }
 
         if (width !== undefined && width !== this.width) {
-            this.setWidth( width );
+            this.setWidth(width);
             shouldRecalculate = true;
         }
 
         if (height !== undefined && height !== this.height) {
-            this.setHeight( height );
+            this.setHeight(height);
             shouldRecalculate = true;
         }
 
-        if ( shouldRecalculate ) {
+        if (shouldRecalculate) {
             this.recalculateValues();
         }
 
-        console.log( "parsed", this.serialized );
-        
+        console.log("parsed", this.serialized);
+
 
     }
 

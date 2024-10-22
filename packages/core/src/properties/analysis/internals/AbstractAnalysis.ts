@@ -67,68 +67,51 @@ export abstract class AbstractAnalysis {
     protected abstract onSetLeft(validatedValue: number): void;
     protected abstract onSetWidth(validatedValue: number): void;
     protected abstract onSetHeight(validatedValue: number): void;
-    protected abstract onSetBottom(validatedValue: number): void; // Dynamic
-    protected abstract onSetRight(validatedValue: number): void; // Dynamic
 
     protected abstract validateWidth(value: number): number;
     protected abstract validateHeight(value: number): number;
 
-    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top"|"bottom"): { top: number, bottom: number, height: number };
-    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left"|"right"): { left: number, right: number, width: number }
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): { top: number, bottom: number, height: number };
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): { left: number, right: number, width: number }
 
     public setTop(value: number) {
 
-        if ( isNaN( value ) ) {
+        if (isNaN(value)) {
             return;
         }
 
-        const { top, bottom, height } = this.getVerticalDimensionFromNewValue( value, "top" );
+        const { top, height } = this.getVerticalDimensionFromNewValue(value, "top");
 
-        if ( top !== this.top ) {
+        if (top !== this.top) {
             this._top = top;
-            this.onSetTop( top );
+            this.onSetTop(top);
         }
 
-        if ( height !== this.height ) {
+        if (height !== this.height) {
             this._height = height;
-            this.onSetHeight( height );
+            this.onSetHeight(height);
         }
-
-        if ( bottom !== this.bottom ) {
-            this.onSetBottom( bottom );
-        };
 
     }
 
     public setLeft(value: number) {
 
-        if ( isNaN( value ) ) {
+        if (isNaN(value)) {
             return;
         }
 
-        const { left, right, width } = this.getHorizontalDimensionsFromNewValue( value, "left" );
+        const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "left");
 
-        if ( left !== this.left ) {
+        if (left !== this.left) {
             this._left = left;
-            this.onSetLeft( left );
+            this.onSetLeft(left);
         }
 
-        if ( width !== this.width ) {
+        if (width !== this.width) {
             this._width = width;
-            this.onSetWidth( width );
+            this.onSetWidth(width);
         }
 
-        if ( right !== this.right ) {
-            this.onSetRight( right );
-        }
-
-        /*
-        const val = this.validateLeft(value);
-        if ( ! isNaN( val ) && this._left !== val ) {
-            this._left = val;
-            this.onSetLeft(val);
-        }
-        */
     }
 
 
@@ -142,14 +125,16 @@ export abstract class AbstractAnalysis {
 
     public setHeight(value: number) {
         const val = this.validateHeight(value);
-        this._height = val;
-        this.onSetHeight(val);
+        if (!isNaN(val) && val !== this.height) {
+            this._height = val;
+            this.onSetHeight(val);
+        }
     }
 
 
     public setBottom(value: number) {
 
-        if ( isNaN( value ) ) {
+        if (isNaN(value)) {
             return;
         }
 
@@ -159,23 +144,19 @@ export abstract class AbstractAnalysis {
         // Use existing setters to set vertical properties
         if (top !== this.top) {
             this._top = top;
-            this.onSetTop( top );
+            this.onSetTop(top);
         };
 
-        if ( height !== this.height ) {
+        if (height !== this.height) {
             this._height = height;
-            this.onSetHeight( height );
-        }
-
-        if ( bottom !== this.bottom ) {
-            this.onSetBottom( bottom );
+            this.onSetHeight(height);
         }
 
     }
 
     public setRight(value: number) {
 
-        if ( isNaN( value ) ) {
+        if (isNaN(value)) {
             return;
         }
 
@@ -185,14 +166,11 @@ export abstract class AbstractAnalysis {
         // Use existing setters to set horizontal properties
         if (left !== this.left) {
             this._left = left;
-            this.onSetLeft( left );
+            this.onSetLeft(left);
         }
         if (width !== this.width) {
             this._width = width;
-            this.onSetWidth( width );
-        }
-        if ( right !== this.right ) {
-            this.onSetRight( right );
+            this.onSetWidth(width);
         }
 
     }
