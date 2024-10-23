@@ -7,7 +7,8 @@
  */
 
 $styles_name = "thermal_display_styles";
-$scripts_name ="thermal_display_embed_library";
+$scripts_name_cjs ="thermal_display_embed_library_cjs";
+$scripts_name_es ="thermal_display_embed_library_es";
 
 
 
@@ -24,20 +25,29 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
     function thermal_display_register_assets() {
 
         global $styles_name;
-        global $scripts_name;
+        global $scripts_name_cjs;
+        global $scripts_name_es;
 
         wp_register_style( 
             $styles_name, 
-            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.css",
-            //plugin_dir_url( __DIR__  ) . 'assets/embed.css', 
+            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.css",
+            plugin_dir_url( __DIR__  ) . 'assets/style.css', 
             array(), 
             time() 
         );
 
         wp_register_script( 
-            $scripts_name, 
-            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",
-            //plugin_dir_url( __DIR__ ) . 'assets/embed.js' , 
+            $scripts_name_cjs, 
+            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",
+            plugin_dir_url( __DIR__ ) . 'assets/embed.cjs.js' , 
+            array(), 
+            time() 
+        );
+
+        wp_register_script( 
+            $scripts_name_es, 
+            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",
+            plugin_dir_url( __DIR__ ) . 'assets/embed.es.js' , 
             array(), 
             time() 
         );
@@ -61,11 +71,11 @@ if ( ! function_exists( "thermal_display_enqueue_frontend_assets") ) {
     function thermal_display_enqueue_frontend_assets() {
 
         global $styles_name;
-        global $scripts_name;
+        global $scripts_name_cjs;
 
         wp_enqueue_style( $styles_name );
 
-        wp_enqueue_script( $scripts_name );
+        wp_enqueue_script( $scripts_name_cjs );
 
     }
 
@@ -86,7 +96,7 @@ if ( ! function_exists( "thermal_display_enqueue_editor_assets" ) ) {
     function thermal_display_enqueue_editor_assets() {
 
         global $styles_name;
-        global $scripts_name;
+        global $scripts_name_es;
 
         if ( is_admin() ) {
 
@@ -106,7 +116,7 @@ function thermal_display_head() {
     ?>
 
     <script>
-        window.thermal_display_script_url = "<?= plugin_dir_url( __DIR__ ) . 'assets/embed.js'; ?>";
+        window.thermal_display_script_url = "<?= plugin_dir_url( __DIR__ ) . 'assets/embed.es.js'; ?>";
     </script>
 
     <?php
