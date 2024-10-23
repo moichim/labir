@@ -2202,7 +2202,6 @@ var AbstractAnalysis = class {
     this._max = max;
     this._avg = avg;
     this.onValues.call(this.min, this.max, this.avg);
-    console.log("P\u0159epo\u010D\xEDtal jsem hodnoty", min, max, avg);
   }
   /** When parsing incoming serialized attribute, look if segments have an exact value */
   serializedSegmentsHasExact(segments, lookup) {
