@@ -1,11 +1,14 @@
 import { Instance } from "../../../../file/instance";
 import { AnalysisGraph } from "../../../analysisData/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
+import { PointPlacement } from "../AbstractPoint";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./CornerPoint";
 import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+
+    declare points: Map<string, CornerPoint>;
 
     protected readonly wPx = (100 / this.file.width / 2).toString() + "%";
     protected readonly hPx = (100 / this.file.height / 2).toString() + "%";
@@ -89,22 +92,46 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
 
         // Create points
-        this.tl = this.addPoint("tl", top, left);
-        this.tr = this.addPoint("tr", top, right);
-        this.bl = this.addPoint("bl", bottom, left);
-        this.br = this.addPoint("br", bottom, right);
+        this.tl = this.addPoint(
+            "tl", 
+            top, 
+            left, 
+            PointPlacement.START, 
+            PointPlacement.START
+        );
+        this.tr = this.addPoint(
+            "tr", 
+            top, 
+            right,
+            PointPlacement.END,
+            PointPlacement.START
+        );
+        this.bl = this.addPoint(
+            "bl", 
+            bottom, 
+            left,
+            PointPlacement.START,
+            PointPlacement.END
+        );
+        this.br = this.addPoint(
+            "br", 
+            bottom, 
+            right,
+            PointPlacement.END,
+            PointPlacement.END
+        );
 
-        this.tl.syncXWith(this.bl);
-        this.tl.syncYWith(this.tr);
+        this.tl.setPairX(this.bl);
+        this.tl.setPairY(this.tr);
 
-        this.tr.syncXWith(this.br);
-        this.tr.syncYWith(this.tl);
+        this.tr.setPairX(this.br);
+        this.tr.setPairY(this.tl);
 
-        this.bl.syncXWith(this.tl);
-        this.bl.syncYWith(this.br);
+        this.bl.setPairX(this.tl);
+        this.bl.setPairY(this.br);
 
-        this.br.syncXWith(this.tr);
-        this.br.syncYWith(this.bl);
+        this.br.setPairX(this.tr);
+        this.br.setPairY(this.bl);
 
         this.calculateBounds();
 
@@ -118,9 +145,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         this.onMoveOrResize.set("sync the area", () => {
             this.calculateBounds();
         });
-
-        /** @todo Look if this is really necessary */
-        this.points.forEach(point => point.projectInnerPositionToDom());
 
     }
 
@@ -166,9 +190,11 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected addPoint(
         role: string,
         top: number,
-        left: number
+        left: number,
+        placementX: PointPlacement,
+        placementY: PointPlacement
     ) {
-        const point = new CornerPoint(role, top, left, this, this.color);
+        const point = new CornerPoint(role, top, left, this, this.color, placementX, placementY);
         this.points.set(role, point);
         return point;
     }
@@ -189,31 +215,62 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
 
     protected onSetLeft(validatedValue: number): void {
+        
         this.area.left = validatedValue;
+
+        // Place left points
         this.forPoints(this.leftSidePoints, point => {
-            point.x = validatedValue;
-        })
+            point.setXDirectly( validatedValue, PointPlacement.START );
+        });
+
+        // Update right points
+        this.forPoints( this.rightSidePoints, point => {
+            point.setXDirectly( this.right, PointPlacement.END );
+        } )
+
     }
 
     protected onSetTop(validatedValue: number): void {
+        
         this.area.top = validatedValue;
+
         this.forPoints(this.topSidePoints, point => {
-            point.y = validatedValue;
+            point.setYDirectly( validatedValue, PointPlacement.START );
         });
+
+        this.forPoints( this.bottomSidePoints, point => {
+            point.setYDirectly( this.bottom, PointPlacement.END );
+        } );
     }
 
     protected onSetWidth(validatedValue: number): void {
+
         this.area.width = validatedValue;
-        this.forPoints(this.rightSidePoints, point => {
-            point.x = this.left + validatedValue;
+        
+        this.forPoints(this.leftSidePoints, point => {
+            point.setXDirectly( this.left, PointPlacement.START );
         });
-    }
-   
-    protected onSetHeight(validatedValue: number): void {
-        this.area.height = validatedValue;
-        this.forPoints( this.bottomSidePoints, point => {
-            point.y = this.top + validatedValue;
+
+        this.forPoints( this.rightSidePoints, point => {
+            point.setXDirectly( this.right, PointPlacement.END );
         } );
+
+
+    }
+
+    protected onSetHeight(validatedValue: number): void {
+
+        this.area.height = validatedValue;
+        
+        this.forPoints( this.topSidePoints, point => {
+            point.setYDirectly( this.top, PointPlacement.START );
+        } );
+
+        this.forPoints( this.bottomSidePoints, point => {
+            point.setYDirectly( this.bottom, PointPlacement.END );
+        } );
+
+
     }
 
     protected getVerticalDimensionFromNewValue(
@@ -350,86 +407,25 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     }
 
     public get leftSidePoints(): CornerPoint[] {
-        return this.arrayOfPoints.filter(point => point.x === this.left) as CornerPoint[];
+        return Array.from( this.points.values() ).filter( point => point.isLeftSide );
     }
 
     public get rightSidePoints(): CornerPoint[] {
-        return this.arrayOfPoints.filter(point => point.x === this.right) as CornerPoint[];
+        return Array.from( this.points.values() ).filter( point => point.isRightSide );
     }
 
     public get topSidePoints(): CornerPoint[] {
-        return this.arrayOfPoints.filter(point => point.y === this.top) as CornerPoint[];
+        return Array.from( this.points.values() ).filter( point => point.isTopSide );
     }
 
     public get bottomSidePoints(): CornerPoint[] {
-        return this.arrayOfPoints.filter(point => point.y === this.bottom) as CornerPoint[];
+        return Array.from( this.points.values() ).filter( point => point.isBottomSide );
     }
 
     protected forPoints(points: CornerPoint[], fn: (point: CornerPoint) => void): void {
         points.forEach(point => fn(point));
     }
 
-
-    /** @deprecated */
-    public get leftmostPoint(): CornerPoint {
-
-        let point = this.tl;
-
-        this.points.forEach(p => {
-            if (p.x < point.x) {
-                point = p as CornerPoint;
-            }
-        });
-
-        return point;
-
-    }
-
-    /** @deprecated */
-    public get rightmostPoint(): CornerPoint {
-
-        let point = this.tr;
-
-        this.points.forEach(p => {
-            if (p.x > point.x) {
-                point = p as CornerPoint;
-            }
-        });
-
-        return point;
-
-    }
-
-    /** @deprecated */
-    public get topmostPoint(): CornerPoint {
-
-        let point = this.tl;
-
-        this.points.forEach(p => {
-            if (p.y < point.y) {
-                point = p as CornerPoint;
-            }
-        });
-
-        return point;
-
-    }
-
-    /** @deprecated */
-    public get bottommostPoint(): CornerPoint {
-
-        let point = this.br;
-
-        this.points.forEach(p => {
-            if (p.y > point.y) {
-                point = p as CornerPoint;
-            }
-
-        });
-
-        return point;
-
-    }
 
     public recievedSerialized(input: string): void {
 

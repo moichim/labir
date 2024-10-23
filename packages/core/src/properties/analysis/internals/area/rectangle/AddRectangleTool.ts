@@ -53,8 +53,8 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
 
     public onPointMove(point: AbstractPoint, top: number, left: number): void {
         if (point.isInSelectedLayer() && point.active) {
-            point.x = left;
-            point.y = top;
+            point.setXFromTool( left );
+            point.setYFromTool( top );
             point.analysis.onMoveOrResize.call( point.analysis );
         }
     }

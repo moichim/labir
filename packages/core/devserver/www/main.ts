@@ -148,6 +148,8 @@ const batchLoading = async (
                 console.log( val.serialized );
             } );
 
+            /*
+
             setInterval( () => {
 
                 let original = value.serialized;
@@ -169,6 +171,8 @@ const batchLoading = async (
                     value.recievedSerialized( original );
                 }
             }, 5000 );
+
+            */
         } );
     } );
 

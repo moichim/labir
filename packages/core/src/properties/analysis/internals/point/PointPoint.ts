@@ -1,5 +1,5 @@
 import { AbstractAnalysis } from "../AbstractAnalysis";
-import { AbstractPoint } from "../AbstractPoint";
+import { AbstractPoint, PointPlacement } from "../AbstractPoint";
 
 export class PointPoint extends AbstractPoint {
     
@@ -13,13 +13,23 @@ export class PointPoint extends AbstractPoint {
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
 
-    protected getPercentXTranslationFromValue(): number {
-        return this.pxX / 2;
+    protected analyzeXFromTool(value: number): { x: number; placement: PointPlacement; } {
+        return {
+            x: value,
+            placement: PointPlacement.MIDDLE
+        }
     }
 
-    protected getPercentYTranslationFromValue(): number {
-        return this.pxY / 2;
+    protected analyzeYFromTool(value: number): { y: number; placement: PointPlacement; } {
+        return {
+            y: value,
+            placement: PointPlacement.MIDDLE
+        }
     }
+
+    protected sideEffectOnXFromTool(): void {}
+
+    protected sideEffectOnYFromTool(): void {}
 
 
     public constructor(
@@ -34,7 +44,9 @@ export class PointPoint extends AbstractPoint {
             top,
             left,
             analysis,
-            color
+            color,
+            PointPlacement.MIDDLE,
+            PointPlacement.MIDDLE
         )
 
         this.axisX = this.buildAxisX();

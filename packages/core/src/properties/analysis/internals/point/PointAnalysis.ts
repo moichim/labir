@@ -1,9 +1,9 @@
-import { should } from "vitest";
 import { Instance } from "../../../../file/instance";
 import { PointAnalysisData } from "../../../../loading/workers/parsers/structure";
 import { AnalysisGraph } from "../../../analysisData/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
 import { PointPoint } from "./PointPoint";
+import { PointPlacement } from "../AbstractPoint";
 
 export class PointAnalysis extends AbstractAnalysis {
 
@@ -53,17 +53,10 @@ export class PointAnalysis extends AbstractAnalysis {
         this._left = left;
         this._width = 0;
         this._height = 0;
+
         this.center = new PointPoint( "center", top, left, this, color );
+
         this.points.set( "center", this.center );
-        this.center.projectInnerPositionToDom();
-
-        this.center.onX.set( "update point", ( x ) => {
-            this._left = x;
-        });
-
-        this.center.onY.set( "update point", ( y ) => {
-            this._top = y;
-        });
 
         this.recalculateValues();
 
@@ -105,12 +98,12 @@ export class PointAnalysis extends AbstractAnalysis {
 
 
 
-    protected onSetLeft(value: number): void {
-        this.center.x = value;
+    protected onSetLeft(validatedValue: number): void {
+        this.center.setXDirectly( validatedValue, PointPlacement.MIDDLE );
     }
 
     protected onSetTop(validatedValue: number): void {
-        this.center.y = validatedValue;
+        this.center.setYDirectly( validatedValue, PointPlacement.MIDDLE );
     }
 
     public onSetWidth(): void {}

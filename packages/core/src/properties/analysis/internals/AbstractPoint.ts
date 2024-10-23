@@ -1,52 +1,171 @@
 import { CallbacksManager } from "../../callbacksManager";
 import { AbstractAnalysis } from "./AbstractAnalysis";
 
+
+export enum PointPlacement {
+    START = 1,
+    MIDDLE = 2,
+    END = 3
+}
+
 export abstract class AbstractPoint {
 
     public get file() {
         return this.analysis.file;
     }
 
-    protected pxX: number;
-    protected _x: number;
+    private pxX: number;
+    private _x: number;
     public get x() {
         return this._x;
     }
-    public set x(value: number) {
-        if (this.mayMoveToX(value)) {
-            const prev = this._x;
-            this._x = value;
-            this.onX.call(this._x, prev);
-            if (this.container) {
-                this.container.style.left = this.getPercentageX() + "%";
-            }
-        }
-    }
     public onX = new CallbacksManager<(x: number, prev: number) => void>
     public abstract mayMoveToX(value: number): boolean;
-    protected abstract getPercentXTranslationFromValue(value: number): number;
 
 
 
 
-    protected pxY: number;
-    protected _y: number;
+    private pxY: number;
+    private _y: number;
     public get y() {
         return this._y;
     }
-    public set y(value: number) {
-        if (this.mayMoveToY(value)) {
-            const prev = this._y;
-            this._y = value;
-            this.onY.call(this._y, prev);
-            if (this.container) {
-                this.container.style.top = this.getPercentageY() + "%";
-            }
-        }
-    }
     public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
-    protected abstract getPercentYTranslationFromValue(value: number): number;
+
+    /** 
+     * Recieves X from the tool. 
+     * 
+     * Needs to determine the placement using `analyzeXFromTool`. 
+     * Calls `sideEffectOnXFromTool`.
+     */
+    public setXFromTool( value: number ): void {
+
+        const { x, placement } = this.analyzeXFromTool( value );
+
+
+        if ( this.mayMoveToX( x ) ) {
+
+            const prev = this.x;
+            this._x = x;
+
+            const style = this.getXStyle( x, placement );
+            this.container.style.left = style;
+
+            this.sideEffectOnXFromTool( x, placement );
+
+            this.onX.call( this.x, prev );
+
+        }
+
+    }
+
+    /** Recieves the X directly, along with the placement, with no side effects. */
+    public setXDirectly( value: number, placement: PointPlacement ): void {
+
+        if ( this.mayMoveToX( value ) ) {
+
+            const prev = this.x;
+            this._x = value;
+
+            const style = this.getXStyle(value, placement);
+
+            this.container.style.left = style;
+
+            this.onX.call( this.x, prev );
+
+        }
+    }
+
+
+    /** 
+     * Recieves Y from the tool. 
+     * 
+     * Needs to determine the placement using `analyzeYFromTool`. 
+     * Calls `sideEffectOnYFromTool`.
+     */
+    public setYFromTool( value: number ): void {
+
+        const { y, placement } = this.analyzeYFromTool( value );
+
+        if ( this.mayMoveToY( y ) ) {
+
+            const prev = this.y;
+            this._y = y;
+
+            const style = this.getYStyle( y, placement );
+            this.container.style.top = style;
+
+            this.sideEffectOnYFromTool( y, placement );
+
+            this.onY.call( this.y, prev );
+
+        }
+
+    }
+
+    /** Recieves the Y directly, along with the placement, with no side effects. */
+    public setYDirectly( value: number, placement: PointPlacement ): void {
+        if ( this.mayMoveToY( value ) ) {
+
+            const prev = this.y;
+            this._y = value;
+
+            const style = this.getYStyle(value, placement);
+            this.container.style.top = style;
+
+            this.onY.call( this.y, prev );
+
+        }
+    }
+
+    /** Format the `left` style from given position and placement */
+    private getXStyle( value: number, placement: PointPlacement ): string {
+
+        const percent = this.calculatePercentageX( value );
+        const offset = placement === PointPlacement.START
+            ? 0
+            : placement === PointPlacement.END
+                ? this.pxX
+                : this.pxX / 2;
+
+        return this.formatPositionStyle( percent, offset );
+
+    }
+
+    private getYStyle( value: number, placement: PointPlacement): string {
+
+        const percent = this.calculatePercentageY( value );
+        const offset = placement === PointPlacement.START
+            ? 0
+            : placement === PointPlacement.END
+                ? this.pxY
+                : this.pxY / 2;
+
+        return this.formatPositionStyle( percent, offset );
+
+    }
+
+    /** Convert a percentage and a offset in pixels into a CSS style string */
+    private formatPositionStyle(
+        percent: number,
+        offsetInPx: number
+    ): string {
+
+        if ( offsetInPx === 0 || isNaN( offsetInPx ) ) {
+            return `${percent}%`;
+        }
+
+        return `calc( ${percent}% + ${offsetInPx}% )`;
+
+    }
+
+    protected abstract analyzeXFromTool(value: number): { x: number, placement: PointPlacement };
+    protected abstract sideEffectOnXFromTool( value: number, placement: PointPlacement ): void;
+
+    protected abstract analyzeYFromTool( value: number ): { y: number, placement: PointPlacement };
+    protected abstract sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
+
 
 
     protected _color: string;
@@ -100,16 +219,17 @@ export abstract class AbstractPoint {
         top: number,
         left: number,
         public readonly analysis: AbstractAnalysis,
-        color: string
+        color: string,
+        placementX: PointPlacement,
+        placementY: PointPlacement
     ) {
 
         this.pxX = 100 / this.analysis.file.width;
         this.pxY = 100 / this.analysis.file.height;
 
+        // Set values internally first
         this._x = left;
         this._y = top;
-
-
         this._color = color;
 
         // Create the container
@@ -122,11 +242,12 @@ export abstract class AbstractPoint {
         this.innerElement = this.createInnerElement();
         this.container.appendChild(this.innerElement);
 
-        // Set initial position (affects the container)
-        this.projectInnerPositionToDom();
-
         // Set the color again once the inner element is created
         this.setColor(color);
+
+        // Call the position setter initially
+        this.setXDirectly(left, placementX);
+        this.setYDirectly(top, placementY);
 
         // Display the point
         this.root.appendChild(this.container);
@@ -156,11 +277,22 @@ export abstract class AbstractPoint {
 
 
 
+    private calculatePercentageX(value: number) {
+        return value / this.analysis.file.width * 100;
+    }
 
+    private calculatePercentageY(value: number) {
+        return value / this.analysis.file.height * 100;
+    }
+
+
+
+    /** @deprecated */
     protected getPercentageX() {
         return this.x / this.analysis.file.width * 100;
     }
 
+    /** @deprecated */
     protected getPercentageY() {
         return this.y / this.analysis.file.height * 100;
     }
@@ -176,19 +308,6 @@ export abstract class AbstractPoint {
 
     /** Create the display element */
     abstract createInnerElement(): HTMLDivElement;
-
-
-    /** Take the internal position value and project it to the DOM element */
-    public projectInnerPositionToDom(): void {
-
-        if (this.container) {
-            const position = this.getPercentageCoordinates();
-
-            this.container.style.left = `${position.x}%`;
-            this.container.style.top = `${position.y}%`;
-
-        }
-    }
 
     public mouseEnter() {
         if (this.isHover === false) {

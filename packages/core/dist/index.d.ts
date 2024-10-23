@@ -627,6 +627,8 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
 declare abstract class AbstractArea {
     readonly analysis: AbstractAnalysis;
+    private pxX;
+    private pxY;
     get fileWidth(): number;
     get fileHeight(): number;
     get root(): HTMLDivElement;
@@ -686,22 +688,40 @@ declare class AnalysisGraph {
 
 declare abstract class AbstractHandlePoint extends AbstractPoint {
     analysis: AbstractAreaAnalysis;
-    constructor(key: string, top: number, left: number, analysis: AbstractAreaAnalysis, color: string);
+    constructor(key: string, top: number, left: number, analysis: AbstractAreaAnalysis, color: string, placementX: PointPlacement, placementY: PointPlacement);
     createInnerElement(): HTMLDivElement;
     actionOnMouseEnter(): void;
     actionOnMouseLeave(): void;
 }
 
 declare class CornerPoint extends AbstractHandlePoint {
+    protected _pairX: CornerPoint;
+    protected _pairY: CornerPoint;
+    get pairX(): CornerPoint;
+    get pairY(): CornerPoint;
+    setPairX(point: CornerPoint): void;
+    setPairY(point: CornerPoint): void;
     getRadius(): number;
-    protected getPercentXTranslationFromValue(value: number): number;
-    protected getPercentYTranslationFromValue(value: number): number;
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;
+    private getCenterX;
+    private getCenterY;
+    get isLeftSide(): boolean;
+    get isTopSide(): boolean;
+    get isRightSide(): boolean;
+    get isBottomSide(): boolean;
+    protected analyzeXFromTool(value: number): {
+        x: number;
+        placement: PointPlacement;
+    };
+    protected analyzeYFromTool(value: number): {
+        y: number;
+        placement: PointPlacement;
+    };
+    protected sideEffectOnXFromTool(value: number, placement: PointPlacement): void;
+    protected sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
     isMoving: boolean;
     protected onSetColor(value: string): void;
-    syncXWith(point: CornerPoint): void;
-    syncYWith(point: CornerPoint): void;
     protected actionOnActivate(): void;
     protected actionOnDeactivate(): void;
 }
@@ -712,6 +732,7 @@ declare class RectangleArea extends AbstractArea {
 }
 
 declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
+    points: Map<string, CornerPoint>;
     protected readonly wPx: string;
     protected readonly hPx: string;
     readonly tl: CornerPoint;
@@ -732,15 +753,30 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected constructor(key: string, color: string, file: Instance, top: number, left: number, width?: number, height?: number);
     setColorCallback(value: string): void;
     protected calculateBounds(): void;
-    protected addPoint(role: string, top: number, left: number): CornerPoint;
-    setLeft(value: number): void;
-    setRight(value: number): void;
-    setTop(value: number): void;
-    setBottom(value: number): void;
-    get leftmostPoint(): CornerPoint;
-    get rightmostPoint(): CornerPoint;
-    get topmostPoint(): CornerPoint;
-    get bottommostPoint(): CornerPoint;
+    protected addPoint(role: string, top: number, left: number, placementX: PointPlacement, placementY: PointPlacement): CornerPoint;
+    protected validateWidth(value: number): number;
+    protected validateHeight(value: number): number;
+    protected onSetLeft(validatedValue: number): void;
+    protected onSetTop(validatedValue: number): void;
+    protected onSetWidth(validatedValue: number): void;
+    protected onSetHeight(validatedValue: number): void;
+    protected getVerticalDimensionFromNewValue(value: number, preferredSide: "top" | "bottom"): {
+        top: number;
+        bottom: number;
+        height: number;
+    };
+    protected getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
+        left: number;
+        right: number;
+        width: number;
+    };
+    get leftSidePoints(): CornerPoint[];
+    get rightSidePoints(): CornerPoint[];
+    get topSidePoints(): CornerPoint[];
+    get bottomSidePoints(): CornerPoint[];
+    protected forPoints(points: CornerPoint[], fn: (point: CornerPoint) => void): void;
+    recievedSerialized(input: string): void;
+    protected toSerialized(): string;
 }
 
 declare class EllipsisAnalysis extends AbstractAreaAnalysis {
@@ -763,8 +799,16 @@ declare class PointPoint extends AbstractPoint {
     protected axisX?: HTMLDivElement;
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
-    protected getPercentXTranslationFromValue(): number;
-    protected getPercentYTranslationFromValue(): number;
+    protected analyzeXFromTool(value: number): {
+        x: number;
+        placement: PointPlacement;
+    };
+    protected analyzeYFromTool(value: number): {
+        y: number;
+        placement: PointPlacement;
+    };
+    protected sideEffectOnXFromTool(): void;
+    protected sideEffectOnYFromTool(): void;
     constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
     mayMoveToX(value: number): boolean;
     mayMoveToY(value: number): boolean;
@@ -783,7 +827,7 @@ declare class PointPoint extends AbstractPoint {
 
 declare class PointAnalysis extends AbstractAnalysis {
     getType(): string;
-    protected center: PointPoint;
+    readonly center: PointPoint;
     protected _graph: AnalysisGraph | undefined;
     get graph(): AnalysisGraph;
     static addAtPoint(key: string, color: string, file: Instance, top: number, left: number): PointAnalysis;
@@ -796,8 +840,24 @@ declare class PointAnalysis extends AbstractAnalysis {
         avg?: number;
     };
     getAnalysisData(): Promise<PointAnalysisData>;
-    setLeft(value: number): void;
-    setTop(value: number): void;
+    protected validateWidth(): number;
+    protected validateHeight(): number;
+    protected onSetLeft(validatedValue: number): void;
+    protected onSetTop(validatedValue: number): void;
+    onSetWidth(): void;
+    onSetHeight(): void;
+    protected getVerticalDimensionFromNewValue(value: number): {
+        top: number;
+        height: number;
+        bottom: number;
+    };
+    protected getHorizontalDimensionsFromNewValue(value: number): {
+        left: number;
+        right: number;
+        width: number;
+    };
+    recievedSerialized(input: string): void;
+    protected toSerialized(): string;
 }
 
 declare class RectangleAnalysis extends AbstractAreaAnalysis {
@@ -859,6 +919,11 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
     readonly file: Instance;
+    protected _serialized?: string;
+    get serialized(): string | undefined;
+    abstract recievedSerialized(input: string): void;
+    protected abstract toSerialized(): string;
+    serialize(): string;
     abstract get graph(): AnalysisGraph;
     /** Selection status */
     protected _selected: boolean;
@@ -874,10 +939,40 @@ declare abstract class AbstractAnalysis {
     /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
     get renderRoot(): HTMLElement;
     readonly points: Map<string, AbstractPoint>;
-    left: number;
-    top: number;
-    width: number;
-    height: number;
+    protected _top: number;
+    protected _left: number;
+    protected _width: number;
+    protected _height: number;
+    get left(): number;
+    get top(): number;
+    /** This dimension does not count the last pixel. */
+    get width(): number;
+    /** This dimension does not count the last pixel. */
+    get height(): number;
+    get right(): number;
+    get bottom(): number;
+    protected abstract onSetTop(validatedValue: number): void;
+    protected abstract onSetLeft(validatedValue: number): void;
+    protected abstract onSetWidth(validatedValue: number): void;
+    protected abstract onSetHeight(validatedValue: number): void;
+    protected abstract validateWidth(value: number): number;
+    protected abstract validateHeight(value: number): number;
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
+        top: number;
+        bottom: number;
+        height: number;
+    };
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
+        left: number;
+        right: number;
+        width: number;
+    };
+    setTop(value: number): void;
+    setLeft(value: number): void;
+    setWidth(value: number): void;
+    setHeight(value: number): void;
+    setBottom(value: number): void;
+    setRight(value: number): void;
     /** Access all the file's analysis layers. */
     get layers(): AnalysisLayersStorage;
     protected _min?: number;
@@ -899,14 +994,8 @@ declare abstract class AbstractAnalysis {
     readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
     readonly activeColor = "yellow";
     readonly inactiveColor = "black";
-    protected _graphMinActive: boolean;
-    get graphMinActive(): boolean;
-    protected _graphMaxActive: boolean;
-    get graphMaxActive(): boolean;
-    protected _graphAvgActive: boolean;
-    get graphAvgActive(): boolean;
-    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    protected emitGraphActivation(): void;
+    /** @deprecated is moved to GraphObject instead */
+    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     ready: boolean;
     readonly nameInitial: string;
@@ -932,26 +1021,66 @@ declare abstract class AbstractAnalysis {
     };
     /** Override this method to get proper analysis data. */
     abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    protected serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    protected serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    protected serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
 }
 
+declare enum PointPlacement {
+    START = 1,
+    MIDDLE = 2,
+    END = 3
+}
 declare abstract class AbstractPoint {
     readonly key: string;
     readonly analysis: AbstractAnalysis;
     get file(): Instance;
-    protected pxX: number;
-    protected _x: number;
+    private pxX;
+    private _x;
     get x(): number;
-    set x(value: number);
     onX: CallbacksManager<(x: number, prev: number) => void>;
     abstract mayMoveToX(value: number): boolean;
-    protected abstract getPercentXTranslationFromValue(value: number): number;
-    protected pxY: number;
-    protected _y: number;
+    private pxY;
+    private _y;
     get y(): number;
-    set y(value: number);
     onY: CallbacksManager<(y: number, prev: number) => void>;
     abstract mayMoveToY(value: number): boolean;
-    protected abstract getPercentYTranslationFromValue(value: number): number;
+    /**
+     * Recieves X from the tool.
+     *
+     * Needs to determine the placement using `analyzeXFromTool`.
+     * Calls `sideEffectOnXFromTool`.
+     */
+    setXFromTool(value: number): void;
+    /** Recieves the X directly, along with the placement, with no side effects. */
+    setXDirectly(value: number, placement: PointPlacement): void;
+    /**
+     * Recieves Y from the tool.
+     *
+     * Needs to determine the placement using `analyzeYFromTool`.
+     * Calls `sideEffectOnYFromTool`.
+     */
+    setYFromTool(value: number): void;
+    /** Recieves the Y directly, along with the placement, with no side effects. */
+    setYDirectly(value: number, placement: PointPlacement): void;
+    /** Format the `left` style from given position and placement */
+    private getXStyle;
+    private getYStyle;
+    /** Convert a percentage and a offset in pixels into a CSS style string */
+    private formatPositionStyle;
+    protected abstract analyzeXFromTool(value: number): {
+        x: number;
+        placement: PointPlacement;
+    };
+    protected abstract sideEffectOnXFromTool(value: number, placement: PointPlacement): void;
+    protected abstract analyzeYFromTool(value: number): {
+        y: number;
+        placement: PointPlacement;
+    };
+    protected abstract sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
     protected _color: string;
     protected get color(): string;
     setColor(value: string): void;
@@ -972,10 +1101,14 @@ declare abstract class AbstractPoint {
     container: HTMLDivElement;
     /** The display element. */
     innerElement: HTMLDivElement;
-    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string);
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string, placementX: PointPlacement, placementY: PointPlacement);
     isWithin(top: number, left: number): boolean;
     isInSelectedLayer(): boolean;
+    private calculatePercentageX;
+    private calculatePercentageY;
+    /** @deprecated */
     protected getPercentageX(): number;
+    /** @deprecated */
     protected getPercentageY(): number;
     protected getPercentageCoordinates(): {
         x: number;
@@ -983,8 +1116,6 @@ declare abstract class AbstractPoint {
     };
     /** Create the display element */
     abstract createInnerElement(): HTMLDivElement;
-    /** Take the internal position value and project it to the DOM element */
-    projectInnerPositionToDom(): void;
     mouseEnter(): void;
     mouseLeave(): void;
     readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
@@ -1487,7 +1618,9 @@ declare class ThermalFileExport {
 declare class Instance extends AbstractFile {
     readonly group: ThermalGroup;
     readonly service: ThermalFileReader;
+    /**  @todo This dimension should be 1 pixel smaller */
     readonly width: number;
+    /** @todo This dimension should be 1 pixel smaller */
     readonly height: number;
     readonly timestamp: number;
     readonly frameCount: number;
@@ -1516,7 +1649,11 @@ declare class Instance extends AbstractFile {
     protected _export?: ThermalFileExport;
     /** Lazy-loaded `ThermalFileExport` object */
     get export(): ThermalFileExport;
-    protected constructor(group: ThermalGroup, service: ThermalFileReader, width: number, height: number, timestamp: number, frameCount: number, duration: number, 
+    protected constructor(group: ThermalGroup, service: ThermalFileReader, 
+    /**  @todo This dimension should be 1 pixel smaller */
+    width: number, 
+    /** @todo This dimension should be 1 pixel smaller */
+    height: number, timestamp: number, frameCount: number, duration: number, 
     /** @deprecated */
     frameInterval: number, initialPixels: number[], 
     /** @deprecated */

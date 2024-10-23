@@ -1,7 +1,7 @@
 import { Instance } from "../../../file/instance";
 import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
-import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisGraph } from "../../analysisData/graphs/AnalysisGraph";
+import { CallbacksManager } from "../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
 
 
@@ -139,7 +139,7 @@ export abstract class AbstractAnalysis {
         }
 
         // Calculate the height from the bottom value
-        const { top, height, bottom } = this.getVerticalDimensionFromNewValue(value, "bottom");
+        const { top, height } = this.getVerticalDimensionFromNewValue(value, "bottom");
 
         // Use existing setters to set vertical properties
         if (top !== this.top) {
@@ -161,7 +161,7 @@ export abstract class AbstractAnalysis {
         }
 
         // Calculate the width from the right value
-        const { left, width, right } = this.getHorizontalDimensionsFromNewValue(value, "right");
+        const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "right");
 
         // Use existing setters to set horizontal properties
         if (left !== this.left) {

@@ -2039,7 +2039,16 @@ var AbstractAnalysis = class {
     this.renderRoot.appendChild(this.layerRoot);
     this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
       this.recalculateValues();
+      this.serialize();
     });
+  }
+  _serialized;
+  get serialized() {
+    return this._serialized;
+  }
+  serialize() {
+    this._serialized = this.toSerialized();
+    return this._serialized;
   }
   /** Selection status */
   _selected = false;
@@ -2059,10 +2068,101 @@ var AbstractAnalysis = class {
     return this.file.canvasLayer.getLayerRoot();
   }
   points = /* @__PURE__ */ new Map();
-  left;
-  top;
-  width;
-  height;
+  _top;
+  _left;
+  _width;
+  _height;
+  get left() {
+    return this._left;
+  }
+  get top() {
+    return this._top;
+  }
+  /** This dimension does not count the last pixel. */
+  get width() {
+    return this._width;
+  }
+  /** This dimension does not count the last pixel. */
+  get height() {
+    return this._height;
+  }
+  get right() {
+    return this._left + this._width;
+  }
+  get bottom() {
+    return this._top + this._height;
+  }
+  setTop(value) {
+    if (isNaN(value)) {
+      return;
+    }
+    const { top, height } = this.getVerticalDimensionFromNewValue(value, "top");
+    if (top !== this.top) {
+      this._top = top;
+      this.onSetTop(top);
+    }
+    if (height !== this.height) {
+      this._height = height;
+      this.onSetHeight(height);
+    }
+  }
+  setLeft(value) {
+    if (isNaN(value)) {
+      return;
+    }
+    const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "left");
+    if (left !== this.left) {
+      this._left = left;
+      this.onSetLeft(left);
+    }
+    if (width !== this.width) {
+      this._width = width;
+      this.onSetWidth(width);
+    }
+  }
+  setWidth(value) {
+    const val = this.validateWidth(value);
+    if (!isNaN(val) && val !== this.width) {
+      this._width = val;
+      this.onSetWidth(val);
+    }
+  }
+  setHeight(value) {
+    const val = this.validateHeight(value);
+    if (!isNaN(val) && val !== this.height) {
+      this._height = val;
+      this.onSetHeight(val);
+    }
+  }
+  setBottom(value) {
+    if (isNaN(value)) {
+      return;
+    }
+    const { top, height } = this.getVerticalDimensionFromNewValue(value, "bottom");
+    if (top !== this.top) {
+      this._top = top;
+      this.onSetTop(top);
+    }
+    ;
+    if (height !== this.height) {
+      this._height = height;
+      this.onSetHeight(height);
+    }
+  }
+  setRight(value) {
+    if (isNaN(value)) {
+      return;
+    }
+    const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "right");
+    if (left !== this.left) {
+      this._left = left;
+      this.onSetLeft(left);
+    }
+    if (width !== this.width) {
+      this._width = width;
+      this.onSetWidth(width);
+    }
+  }
   /** Access all the file's analysis layers. */
   get layers() {
     return this.file.analysis.layers;
@@ -2102,6 +2202,7 @@ var AbstractAnalysis = class {
   setInitialColor(value) {
     this._initialColor = value;
     this.onSetInitialColor.call(value);
+    this.serialize();
     if (this.selected === true) {
       this.setColor(value);
     }
@@ -2110,25 +2211,9 @@ var AbstractAnalysis = class {
   // public readonly initialColor: string;
   activeColor = "yellow";
   inactiveColor = "black";
-  _graphMinActive = false;
-  get graphMinActive() {
-    return this._graphMinActive;
-  }
-  _graphMaxActive = false;
-  get graphMaxActive() {
-    return this._graphMaxActive;
-  }
-  _graphAvgActive = false;
-  get graphAvgActive() {
-    return this._graphAvgActive;
-  }
-  onGraphActivation = new CallbacksManager();
-  emitGraphActivation() {
-    this.onGraphActivation.call(
-      this._graphMinActive,
-      this._graphMaxActive,
-      this._graphAvgActive
-    );
+  /** @deprecated is moved to GraphObject instead */
+  get onGraphActivation() {
+    return this.graph.onGraphActivation;
   }
   /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
   ready = false;
@@ -2139,6 +2224,7 @@ var AbstractAnalysis = class {
   }
   setName(value) {
     this._name = value;
+    this.serialize();
     this.onSetName.call(value);
   }
   onSetName = new CallbacksManager();
@@ -2184,12 +2270,36 @@ var AbstractAnalysis = class {
     this._max = max;
     this._avg = avg;
     this.onValues.call(this.min, this.max, this.avg);
+    console.log("P\u0159epo\u010D\xEDtal jsem hodnoty", min, max, avg);
+  }
+  /** When parsing incoming serialized attribute, look if segments have an exact value */
+  serializedSegmentsHasExact(segments, lookup) {
+    return segments.find((segment) => segment === lookup) ? true : false;
+  }
+  /** When parsing incooming serialized attribute, try to extract it by its key as string */
+  serializedGetStringValueByKey(segments, key) {
+    const regexp = new RegExp(`${key}:*`);
+    const item = segments.find((s) => {
+      if (s.match(regexp)) {
+        return isNaN(parseInt(s.split(":")[1]));
+      }
+    });
+    return item?.split(":")[1].trim();
+  }
+  /** When parsing incooming serialized attribute, try to extract it by its key as number */
+  serializedGetNumericalValueByKey(segments, key) {
+    const regexp = new RegExp(`${key}:\\d+`);
+    const item = segments.find((s) => s.match(regexp));
+    if (item === void 0) {
+      return void 0;
+    }
+    return parseInt(item.split(":")[1]);
   }
 };
 
 // src/properties/analysis/internals/AbstractPoint.ts
 var AbstractPoint = class {
-  constructor(key, top, left, analysis, color) {
+  constructor(key, top, left, analysis, color, placementX, placementY) {
     this.key = key;
     this.analysis = analysis;
     this.pxX = 100 / this.analysis.file.width;
@@ -2202,8 +2312,9 @@ var AbstractPoint = class {
     this.container.id = `analysis_${this.analysis.key}_${this.key}_${this.file.id}`;
     this.innerElement = this.createInnerElement();
     this.container.appendChild(this.innerElement);
-    this.projectInnerPositionToDom();
     this.setColor(color);
+    this.setXDirectly(left, placementX);
+    this.setYDirectly(top, placementY);
     this.root.appendChild(this.container);
   }
   get file() {
@@ -2214,33 +2325,85 @@ var AbstractPoint = class {
   get x() {
     return this._x;
   }
-  set x(value) {
-    if (this.mayMoveToX(value)) {
-      const prev = this._x;
-      this._x = value;
-      this.onX.call(this._x, prev);
-      if (this.container) {
-        this.container.style.left = this.getPercentageX() + "%";
-      }
-    }
-  }
   onX = new CallbacksManager();
   pxY;
   _y;
   get y() {
     return this._y;
   }
-  set y(value) {
-    if (this.mayMoveToY(value)) {
-      const prev = this._y;
-      this._y = value;
-      this.onY.call(this._y, prev);
-      if (this.container) {
-        this.container.style.top = this.getPercentageY() + "%";
-      }
+  onY = new CallbacksManager();
+  /** 
+   * Recieves X from the tool. 
+   * 
+   * Needs to determine the placement using `analyzeXFromTool`. 
+   * Calls `sideEffectOnXFromTool`.
+   */
+  setXFromTool(value) {
+    const { x, placement } = this.analyzeXFromTool(value);
+    if (this.mayMoveToX(x)) {
+      const prev = this.x;
+      this._x = x;
+      const style = this.getXStyle(x, placement);
+      this.container.style.left = style;
+      this.sideEffectOnXFromTool(x, placement);
+      this.onX.call(this.x, prev);
     }
   }
-  onY = new CallbacksManager();
+  /** Recieves the X directly, along with the placement, with no side effects. */
+  setXDirectly(value, placement) {
+    if (this.mayMoveToX(value)) {
+      const prev = this.x;
+      this._x = value;
+      const style = this.getXStyle(value, placement);
+      this.container.style.left = style;
+      this.onX.call(this.x, prev);
+    }
+  }
+  /** 
+   * Recieves Y from the tool. 
+   * 
+   * Needs to determine the placement using `analyzeYFromTool`. 
+   * Calls `sideEffectOnYFromTool`.
+   */
+  setYFromTool(value) {
+    const { y, placement } = this.analyzeYFromTool(value);
+    if (this.mayMoveToY(y)) {
+      const prev = this.y;
+      this._y = y;
+      const style = this.getYStyle(y, placement);
+      this.container.style.top = style;
+      this.sideEffectOnYFromTool(y, placement);
+      this.onY.call(this.y, prev);
+    }
+  }
+  /** Recieves the Y directly, along with the placement, with no side effects. */
+  setYDirectly(value, placement) {
+    if (this.mayMoveToY(value)) {
+      const prev = this.y;
+      this._y = value;
+      const style = this.getYStyle(value, placement);
+      this.container.style.top = style;
+      this.onY.call(this.y, prev);
+    }
+  }
+  /** Format the `left` style from given position and placement */
+  getXStyle(value, placement) {
+    const percent = this.calculatePercentageX(value);
+    const offset = placement === 1 /* START */ ? 0 : placement === 3 /* END */ ? this.pxX : this.pxX / 2;
+    return this.formatPositionStyle(percent, offset);
+  }
+  getYStyle(value, placement) {
+    const percent = this.calculatePercentageY(value);
+    const offset = placement === 1 /* START */ ? 0 : placement === 3 /* END */ ? this.pxY : this.pxY / 2;
+    return this.formatPositionStyle(percent, offset);
+  }
+  /** Convert a percentage and a offset in pixels into a CSS style string */
+  formatPositionStyle(percent, offsetInPx) {
+    if (offsetInPx === 0 || isNaN(offsetInPx)) {
+      return `${percent}%`;
+    }
+    return `calc( ${percent}% + ${offsetInPx}% )`;
+  }
   _color;
   get color() {
     return this._color;
@@ -2288,9 +2451,17 @@ var AbstractPoint = class {
   isInSelectedLayer() {
     return this.analysis.selected;
   }
+  calculatePercentageX(value) {
+    return value / this.analysis.file.width * 100;
+  }
+  calculatePercentageY(value) {
+    return value / this.analysis.file.height * 100;
+  }
+  /** @deprecated */
   getPercentageX() {
     return this.x / this.analysis.file.width * 100;
   }
+  /** @deprecated */
   getPercentageY() {
     return this.y / this.analysis.file.height * 100;
   }
@@ -2301,14 +2472,6 @@ var AbstractPoint = class {
       x,
       y
     };
-  }
-  /** Take the internal position value and project it to the DOM element */
-  projectInnerPositionToDom() {
-    if (this.container) {
-      const position = this.getPercentageCoordinates();
-      this.container.style.left = `${position.x}%`;
-      this.container.style.top = `${position.y}%`;
-    }
   }
   mouseEnter() {
     if (this.isHover === false) {
@@ -2347,11 +2510,21 @@ var PointPoint = class _PointPoint extends AbstractPoint {
   axisX;
   axisY;
   center;
-  getPercentXTranslationFromValue() {
-    return this.pxX / 2;
+  analyzeXFromTool(value) {
+    return {
+      x: value,
+      placement: 2 /* MIDDLE */
+    };
   }
-  getPercentYTranslationFromValue() {
-    return this.pxY / 2;
+  analyzeYFromTool(value) {
+    return {
+      y: value,
+      placement: 2 /* MIDDLE */
+    };
+  }
+  sideEffectOnXFromTool() {
+  }
+  sideEffectOnYFromTool() {
   }
   constructor(key, top, left, analysis, color) {
     super(
@@ -2359,7 +2532,9 @@ var PointPoint = class _PointPoint extends AbstractPoint {
       top,
       left,
       analysis,
-      color
+      color,
+      2 /* MIDDLE */,
+      2 /* MIDDLE */
     );
     this.axisX = this.buildAxisX();
     this.axisY = this.buildAxisY();
@@ -2500,19 +2675,12 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   }
   constructor(key, color, file, top, left) {
     super(key, file, color);
-    this.top = top;
-    this.left = left;
-    this.width = 1;
-    this.height = 1;
+    this._top = top;
+    this._left = left;
+    this._width = 0;
+    this._height = 0;
     this.center = new PointPoint("center", top, left, this, color);
     this.points.set("center", this.center);
-    this.center.projectInnerPositionToDom();
-    this.center.onX.set("update point", (x) => {
-      this.left = x;
-    });
-    this.center.onY.set("update point", (y) => {
-      this.top = y;
-    });
     this.recalculateValues();
   }
   setColorCallback(value) {
@@ -2532,17 +2700,90 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   async getAnalysisData() {
     return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
   }
-  setLeft(value) {
-    const validatedValue = Math.max(0, Math.min(this.file.width, Math.round(value)));
-    this.center.x = validatedValue;
+  validateWidth() {
+    return 0;
   }
-  setTop(value) {
-    const validatedValue = Math.max(0, Math.min(this.file.height, Math.round(value)));
-    this.center.y = validatedValue;
+  validateHeight() {
+    return 0;
+  }
+  onSetLeft(validatedValue) {
+    this.center.setXDirectly(validatedValue, 2 /* MIDDLE */);
+  }
+  onSetTop(validatedValue) {
+    this.center.setYDirectly(validatedValue, 2 /* MIDDLE */);
+  }
+  onSetWidth() {
+  }
+  onSetHeight() {
+  }
+  getVerticalDimensionFromNewValue(value) {
+    const val = Math.min(
+      this.file.height - 1,
+      Math.max(
+        0,
+        Math.round(value)
+      )
+    );
+    return { top: val, bottom: val, height: 0 };
+  }
+  getHorizontalDimensionsFromNewValue(value) {
+    const val = Math.min(
+      this.file.width - 1,
+      Math.max(
+        0,
+        Math.round(value)
+      )
+    );
+    return { left: val, right: val, width: 0 };
+  }
+  recievedSerialized(input) {
+    this._serialized = input;
+    const splitted = input.split(";").map((segment) => segment.trim());
+    let shouldRecalculate = false;
+    const name = splitted[0];
+    if (name !== this.name) {
+      this.setName(name);
+    }
+    const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
+    if (graphOn !== this.graph.state.AVG) {
+      this.graph.setAvgActivation(graphOn);
+      shouldRecalculate = true;
+    }
+    const color = this.serializedGetStringValueByKey(splitted, "color");
+    if (color === void 0) {
+    } else if (color !== this.initialColor) {
+      this.setInitialColor(color);
+    }
+    const top = this.serializedGetNumericalValueByKey(splitted, "top");
+    const left = this.serializedGetNumericalValueByKey(splitted, "left");
+    if (top !== void 0) {
+      this.setTop(top);
+      shouldRecalculate = true;
+    }
+    if (left !== void 0) {
+      this.setLeft(left);
+      shouldRecalculate = true;
+    }
+    if (shouldRecalculate) {
+      this.recalculateValues();
+    }
+    console.log("parsed", this.serialized);
+  }
+  toSerialized() {
+    const output = [];
+    output.push(this.name);
+    output.push("point");
+    output.push(`top:${this.top}`);
+    output.push(`left:${this.left}`);
+    output.push(`color:${this.color}`);
+    if (this.graph.state.AVG) {
+      output.push("avg");
+    }
+    return output.join(";");
   }
 };
 
-// src/properties/analysis/graphs/AnalysisGraph.ts
+// src/properties/analysisData/graphs/AnalysisGraph.ts
 var AnalysisGraph = class {
   constructor(analysis) {
     this.analysis = analysis;
@@ -2569,18 +2810,21 @@ var AnalysisGraph = class {
   setMinActivation(active) {
     if (this._min !== active) {
       this._min = active;
+      this.analysis.serialize();
       this.emitGraphActivation();
     }
   }
   setMaxActivation(active) {
     if (this._max !== active) {
       this._max = active;
+      this.analysis.serialize();
       this.emitGraphActivation();
     }
   }
   setAvgActivation(active) {
     if (this._avg !== active) {
       this._avg = active;
+      this.analysis.serialize();
       this.emitGraphActivation();
     }
   }
@@ -2671,10 +2915,8 @@ var AnalysisGraph = class {
 
 // src/properties/analysis/internals/area/AbstractHandlePoint.ts
 var AbstractHandlePoint = class extends AbstractPoint {
-  constructor(key, top, left, analysis, color) {
-    super(key, top, left, analysis, color);
-    this._color = color;
-    this.setColor(color);
+  constructor(key, top, left, analysis, color, placementX, placementY) {
+    super(key, top, left, analysis, color, placementX, placementY);
   }
   createInnerElement() {
     const inner = document.createElement("div");
@@ -2707,20 +2949,22 @@ var AbstractHandlePoint = class extends AbstractPoint {
 
 // src/properties/analysis/internals/area/CornerPoint.ts
 var CornerPoint = class extends AbstractHandlePoint {
+  _pairX;
+  _pairY;
+  get pairX() {
+    return this._pairX;
+  }
+  get pairY() {
+    return this._pairY;
+  }
+  setPairX(point) {
+    this._pairX = point;
+  }
+  setPairY(point) {
+    this._pairY = point;
+  }
   getRadius() {
     return 10;
-  }
-  getPercentXTranslationFromValue(value) {
-    if (this.analysis.width + this.analysis.left === value) {
-      return this.pxX;
-    }
-    return 0;
-  }
-  getPercentYTranslationFromValue(value) {
-    if (this.analysis.height + this.analysis.top === value) {
-      return this.pxY;
-    }
-    return 0;
   }
   mayMoveToX(value) {
     return value <= this.file.width && value >= 0;
@@ -2728,24 +2972,66 @@ var CornerPoint = class extends AbstractHandlePoint {
   mayMoveToY(value) {
     return value <= this.file.height && value >= 0;
   }
+  getCenterX() {
+    return this.analysis.left + this.analysis.width / 2;
+  }
+  getCenterY() {
+    return this.analysis.top + this.analysis.height / 2;
+  }
+  get isLeftSide() {
+    return this.x <= this.getCenterX();
+  }
+  get isTopSide() {
+    return this.y <= this.getCenterY();
+  }
+  get isRightSide() {
+    return this.x > this.getCenterX();
+  }
+  get isBottomSide() {
+    return this.y > this.getCenterY();
+  }
+  analyzeXFromTool(value) {
+    const placement = this.isLeftSide ? 1 /* START */ : 3 /* END */;
+    return {
+      x: value,
+      placement
+    };
+  }
+  analyzeYFromTool(value) {
+    const placement = this.isTopSide ? 1 /* START */ : 3 /* END */;
+    return {
+      y: value,
+      placement
+    };
+  }
+  sideEffectOnXFromTool(value, placement) {
+    this.pairX.setXDirectly(value, placement);
+    if (value > this.pairY.x) {
+      this.analysis.leftSidePoints.forEach((p) => {
+        p.setXDirectly(p.x, 1 /* START */);
+      });
+    } else {
+      this.analysis.rightSidePoints.forEach((p) => {
+        p.setXDirectly(p.x, 3 /* END */);
+      });
+    }
+  }
+  sideEffectOnYFromTool(value, placement) {
+    this.pairY.setYDirectly(value, placement);
+    if (value > this.pairX.y) {
+      this.analysis.topSidePoints.forEach((p) => {
+        p.setYDirectly(p.y, 1 /* START */);
+      });
+    } else {
+      this.analysis.bottomSidePoints.forEach((p) => {
+        p.setYDirectly(p.y, 3 /* END */);
+      });
+    }
+  }
   isMoving = false;
   onSetColor(value) {
     if (this.innerElement)
       this.innerElement.style.backgroundColor = value;
-  }
-  syncXWith(point) {
-    this.onX.add(`sync X with ${point.key} `, (value) => {
-      if (point.x !== value) {
-        point.x = value;
-      }
-    });
-  }
-  syncYWith(point) {
-    this.onY.add(`sync Y with ${point.key} `, (value) => {
-      if (point.y !== value) {
-        point.y = value;
-      }
-    });
   }
   actionOnActivate() {
     if (this.innerElement) {
@@ -2803,23 +3089,46 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
       bottom = top + height;
     }
     this.area = this.buildArea(top, left, width, height);
-    this.tl = this.addPoint("tl", top, left);
-    this.tr = this.addPoint("tr", top, right);
-    this.bl = this.addPoint("bl", bottom, left);
-    this.br = this.addPoint("br", bottom, right);
-    this.tl.syncXWith(this.bl);
-    this.tl.syncYWith(this.tr);
-    this.tr.syncXWith(this.br);
-    this.tr.syncYWith(this.tl);
-    this.bl.syncXWith(this.tl);
-    this.bl.syncYWith(this.br);
-    this.br.syncXWith(this.tr);
-    this.br.syncYWith(this.bl);
+    this.tl = this.addPoint(
+      "tl",
+      top,
+      left,
+      1 /* START */,
+      1 /* START */
+    );
+    this.tr = this.addPoint(
+      "tr",
+      top,
+      right,
+      3 /* END */,
+      1 /* START */
+    );
+    this.bl = this.addPoint(
+      "bl",
+      bottom,
+      left,
+      1 /* START */,
+      3 /* END */
+    );
+    this.br = this.addPoint(
+      "br",
+      bottom,
+      right,
+      3 /* END */,
+      3 /* END */
+    );
+    this.tl.setPairX(this.bl);
+    this.tl.setPairY(this.tr);
+    this.tr.setPairX(this.br);
+    this.tr.setPairY(this.tl);
+    this.bl.setPairX(this.tl);
+    this.bl.setPairY(this.br);
+    this.br.setPairX(this.tr);
+    this.br.setPairY(this.bl);
     this.calculateBounds();
     this.onMoveOrResize.set("sync the area", () => {
       this.calculateBounds();
     });
-    this.points.forEach((point) => point.projectInnerPositionToDom());
   }
   setColorCallback(value) {
     this.points.forEach((point) => point.setColor(value));
@@ -2844,67 +3153,227 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
         bottomMost = point.y;
       }
     });
-    this.left = leftMost;
-    this.top = topMost;
-    this.width = rightMost - leftMost;
-    this.height = bottomMost - topMost;
+    this._left = leftMost;
+    this._top = topMost;
+    this._width = rightMost - leftMost;
+    this._height = bottomMost - topMost;
     this.area.left = this.left;
     this.area.top = this.top;
     this.area.height = this.height;
     this.area.width = this.width;
   }
-  addPoint(role, top, left) {
-    const point = new CornerPoint(role, top, left, this, this.color);
+  addPoint(role, top, left, placementX, placementY) {
+    const point = new CornerPoint(role, top, left, this, this.color, placementX, placementY);
     this.points.set(role, point);
     return point;
   }
-  setLeft(value) {
-    this.leftmostPoint.x = value;
+  validateWidth(value) {
+    const max = this.file.width - 1 - this.left;
+    return Math.max(0, Math.min(max, Math.round(value)));
   }
-  setRight(value) {
-    this.rightmostPoint.x = value;
+  validateHeight(value) {
+    const max = this.file.height - 1 - this.top;
+    return Math.max(0, Math.min(max, Math.round(value)));
   }
-  setTop(value) {
-    this.topmostPoint.y = value;
-  }
-  setBottom(value) {
-    this.bottommostPoint.y = value;
-  }
-  get leftmostPoint() {
-    let point = this.tl;
-    this.points.forEach((p) => {
-      if (p.x < point.x) {
-        point = p;
-      }
+  onSetLeft(validatedValue) {
+    this.area.left = validatedValue;
+    this.forPoints(this.leftSidePoints, (point) => {
+      point.setXDirectly(validatedValue, 1 /* START */);
     });
-    return point;
-  }
-  get rightmostPoint() {
-    let point = this.tr;
-    this.points.forEach((p) => {
-      if (p.x > point.x) {
-        point = p;
-      }
+    this.forPoints(this.rightSidePoints, (point) => {
+      point.setXDirectly(this.right, 3 /* END */);
     });
-    return point;
   }
-  get topmostPoint() {
-    let point = this.tl;
-    this.points.forEach((p) => {
-      if (p.y < point.y) {
-        point = p;
-      }
+  onSetTop(validatedValue) {
+    this.area.top = validatedValue;
+    this.forPoints(this.topSidePoints, (point) => {
+      point.setYDirectly(validatedValue, 1 /* START */);
     });
-    return point;
+    this.forPoints(this.bottomSidePoints, (point) => {
+      point.setYDirectly(this.bottom, 3 /* END */);
+    });
   }
-  get bottommostPoint() {
-    let point = this.br;
-    this.points.forEach((p) => {
-      if (p.y > point.y) {
-        point = p;
-      }
+  onSetWidth(validatedValue) {
+    this.area.width = validatedValue;
+    this.forPoints(this.leftSidePoints, (point) => {
+      point.setXDirectly(this.left, 1 /* START */);
     });
-    return point;
+    this.forPoints(this.rightSidePoints, (point) => {
+      point.setXDirectly(this.right, 3 /* END */);
+    });
+  }
+  onSetHeight(validatedValue) {
+    this.area.height = validatedValue;
+    this.forPoints(this.topSidePoints, (point) => {
+      point.setYDirectly(this.top, 1 /* START */);
+    });
+    this.forPoints(this.bottomSidePoints, (point) => {
+      point.setYDirectly(this.bottom, 3 /* END */);
+    });
+  }
+  getVerticalDimensionFromNewValue(value, preferredSide) {
+    const val = Math.round(value);
+    const maxW = this.file.height - 1;
+    const theOtherSide = preferredSide === "top" ? this.bottom : this.top;
+    if (val <= 0) {
+      return {
+        top: 0,
+        bottom: theOtherSide,
+        height: theOtherSide
+      };
+    } else if (val > maxW) {
+      return {
+        top: theOtherSide,
+        bottom: maxW,
+        height: maxW - theOtherSide
+      };
+    } else if (preferredSide === "bottom") {
+      if (val <= this.top) {
+        return {
+          top: val,
+          bottom: this.top,
+          height: this.top - val
+        };
+      } else {
+        return {
+          top: this.top,
+          bottom: val,
+          height: val - this.top
+        };
+      }
+    } else {
+      if (val >= this.bottom) {
+        return {
+          top: this.bottom,
+          bottom: val,
+          height: val - this.bottom
+        };
+      } else {
+        return {
+          top: val,
+          bottom: this.bottom,
+          height: this.bottom - val
+        };
+      }
+    }
+  }
+  getHorizontalDimensionsFromNewValue(value, preferredSide) {
+    const val = Math.round(value);
+    const maxW = this.file.width - 1;
+    const theOtherSide = preferredSide === "left" ? this.right : this.left;
+    if (val <= 0) {
+      return {
+        left: 0,
+        right: theOtherSide,
+        width: theOtherSide
+      };
+    } else if (val > maxW) {
+      return {
+        left: theOtherSide,
+        right: maxW,
+        width: maxW - theOtherSide
+      };
+    } else if (preferredSide === "right") {
+      if (val <= this.left) {
+        return {
+          left: val,
+          right: this.left,
+          width: this.left - val
+        };
+      } else {
+        return {
+          left: this.left,
+          right: val,
+          width: val - this.left
+        };
+      }
+    } else {
+      if (val >= this.right) {
+        return {
+          left: this.right,
+          right: val,
+          width: val - this.right
+        };
+      } else {
+        return {
+          left: val,
+          right: this.right,
+          width: this.right - val
+        };
+      }
+    }
+  }
+  get leftSidePoints() {
+    return Array.from(this.points.values()).filter((point) => point.isLeftSide);
+  }
+  get rightSidePoints() {
+    return Array.from(this.points.values()).filter((point) => point.isRightSide);
+  }
+  get topSidePoints() {
+    return Array.from(this.points.values()).filter((point) => point.isTopSide);
+  }
+  get bottomSidePoints() {
+    return Array.from(this.points.values()).filter((point) => point.isBottomSide);
+  }
+  forPoints(points, fn) {
+    points.forEach((point) => fn(point));
+  }
+  recievedSerialized(input) {
+    this._serialized = input;
+    const splitted = input.split(";").map((segment) => segment.trim());
+    let shouldRecalculate = false;
+    const name = splitted[0];
+    if (name !== this.name) {
+      this.setName(name);
+    }
+    const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
+    if (graphOn !== this.graph.state.AVG) {
+      this.graph.setAvgActivation(graphOn);
+      shouldRecalculate = true;
+    }
+    const color = this.serializedGetStringValueByKey(splitted, "color");
+    if (color === void 0) {
+    } else if (color !== this.initialColor) {
+      this.setInitialColor(color);
+    }
+    const top = this.serializedGetNumericalValueByKey(splitted, "top");
+    const left = this.serializedGetNumericalValueByKey(splitted, "left");
+    const width = this.serializedGetNumericalValueByKey(splitted, "width");
+    const height = this.serializedGetNumericalValueByKey(splitted, "height");
+    if (top !== void 0 && top !== this.top) {
+      this.setTop(top);
+      shouldRecalculate = true;
+    }
+    if (left !== void 0 && left !== this.left) {
+      this.setLeft(left);
+      shouldRecalculate = true;
+    }
+    if (width !== void 0 && width !== this.width) {
+      this.setWidth(width);
+      shouldRecalculate = true;
+    }
+    if (height !== void 0 && height !== this.height) {
+      this.setHeight(height);
+      shouldRecalculate = true;
+    }
+    if (shouldRecalculate) {
+      this.recalculateValues();
+    }
+    console.log("parsed", this.serialized);
+  }
+  toSerialized() {
+    const output = [];
+    output.push(this.name);
+    output.push(this.getType());
+    output.push(`color:${this.color}`);
+    output.push(`top:${this.top}`);
+    output.push(`left:${this.left}`);
+    output.push(`width:${this.width}`);
+    output.push(`height:${this.height}`);
+    if (this.graph.state.AVG) output.push("avg");
+    if (this.graph.state.MIN) output.push("min");
+    if (this.graph.state.MAX) output.push("max");
+    return output.join(";");
   }
 };
 
@@ -2912,12 +3381,16 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
 var AbstractArea = class {
   constructor(analysis, top, right, left, bottom) {
     this.analysis = analysis;
+    this.pxX = 100 / this.analysis.file.width;
+    this.pxY = 100 / this.analysis.file.height;
     this.build();
     this.top = top;
     this.left = left;
     this.width = right;
     this.height = bottom;
   }
+  pxX;
+  pxY;
   get fileWidth() {
     return this.analysis.file.width;
   }
@@ -2956,7 +3429,7 @@ var AbstractArea = class {
   set height(value) {
     this._height = value;
     if (this.element) {
-      this.element.style.height = `${this.height / this.fileHeight * 100}%`;
+      this.element.style.height = `calc( ${this.height / this.fileHeight * 100}% + ${this.pxY}% )`;
     }
   }
   get width() {
@@ -2965,7 +3438,7 @@ var AbstractArea = class {
   set width(value) {
     this._width = value;
     if (this.element) {
-      this.element.style.width = `${this.width / this.fileWidth * 100}%`;
+      this.element.style.width = `calc( ${this.width / this.fileWidth * 100}% + ${this.pxX}% )`;
     }
   }
   get center() {
@@ -3468,7 +3941,7 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
-// src/properties/analysis/graphs/AnalysisGraphsStorage.ts
+// src/properties/analysisData/graphs/AnalysisGraphsStorage.ts
 var import_date_fns4 = require("date-fns");
 var AnalysisGraphsStorage = class {
   constructor(drive) {
@@ -3610,7 +4083,7 @@ var AnalysisGraphsStorage = class {
   }
 };
 
-// src/properties/analysis/AnalysisDataState.ts
+// src/properties/analysisData/AnalysisDataState.ts
 var import_export_to_csv = require("export-to-csv");
 var AnalysisDataState = class extends AbstractProperty {
   _hasActiveGraphs = false;
@@ -3964,8 +4437,8 @@ var AddEllipsisTool = class extends AbstractAddTool {
   }
   onPointMove(point, top, left) {
     if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
+      point.setXFromTool(left);
+      point.setYFromTool(top);
       point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
@@ -4059,8 +4532,8 @@ var AddRectangleTool = class extends AbstractAddTool {
   }
   onPointMove(point, top, left) {
     if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
+      point.setXFromTool(left);
+      point.setYFromTool(top);
       point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
@@ -4101,8 +4574,8 @@ var EditTool = class extends AbstractTool {
   }
   onPointMove(point, top, left) {
     if (point.isInSelectedLayer() && point.active) {
-      point.x = left;
-      point.y = top;
+      point.setXFromTool(left);
+      point.setYFromTool(top);
       point.analysis.onMoveOrResize.call(point.analysis);
     }
   }
@@ -4119,14 +4592,16 @@ var EditTool = class extends AbstractTool {
   getLabelValue(x, y, file) {
     const temperature = file.getTemperatureAtPoint(x, y);
     const hoveredAnalysis = file.analysis.layers.all.filter((analysis2) => analysis2.isWithin(x, y)).map((analysis2) => {
-      if (analysis2.selected) {
-        return `<span style="color:${analysis2.initialColor}">${analysis2.name}</span>`;
-      } else {
-        return `<s style="color:${analysis2.initialColor}">${analysis2.name}</s>`;
-      }
+      const element = analysis2.selected ? "span" : "s";
+      return `<${element} style="color: ${analysis2.initialColor};">
+                    ${analysis2.name}
+                </${element}>`;
     });
+    const hoveredPoints = file.analysis.points.all.filter((point) => point.isHover).map((point) => `<span style="color: ${point.analysis.initialColor}">${point.analysis.name} - HANDLE: ${point.key}: X: ${point.x} Y: ${point.y}</span>`);
     const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
-    return `${analysis}${temperature && temperature.toFixed(2) + " \xB0C<br />"}X: ${x}<br />Y: ${y}`;
+    const points = hoveredPoints.length > 0 ? hoveredPoints.join("<br />") + "<br />" : "";
+    const result = points.length > 0 ? points : analysis;
+    return `${result}${temperature && temperature.toFixed(2) + " \xB0C<br />"}X: ${x}<br />Y: ${y}`;
   }
 };
 

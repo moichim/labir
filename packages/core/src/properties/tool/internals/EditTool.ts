@@ -35,7 +35,7 @@ export class EditTool extends AbstractTool implements ITool {
 
     public onPointLeave(point: AbstractPoint): void {
 
-        if ( point.active === false ) {
+        if (point.active === false) {
             point.mouseLeave();
         }
 
@@ -46,20 +46,20 @@ export class EditTool extends AbstractTool implements ITool {
 
 
         if (
-            point.isInSelectedLayer() 
-            && point.active 
+            point.isInSelectedLayer()
+            && point.active
             // && point.isWithin(top, left)
         ) {
 
             // Set new position
-            point.x = left;
-            point.y = top;
+            point.setXFromTool(left);
+            point.setYFromTool(top);
 
             // This is very very important:
             // - update the value
             // - and call other eventual callbacks
             // (Update value event is )
-            point.analysis.onMoveOrResize.call( point.analysis );
+            point.analysis.onMoveOrResize.call(point.analysis);
 
         }
     }
@@ -79,23 +79,36 @@ export class EditTool extends AbstractTool implements ITool {
 
     public getLabelValue(x: number, y: number, file: Instance): string {
 
-        const temperature = file.getTemperatureAtPoint(x,y);
+        const temperature = file.getTemperatureAtPoint(x, y);
 
         const hoveredAnalysis = file.analysis.layers.all
             .filter(analysis => analysis.isWithin(x, y))
             .map(analysis => {
-                if (analysis.selected) {
-                    return `<span style="color:${analysis.initialColor}">${analysis.name}</span>`
-                }
-                else { return `<s style="color:${analysis.initialColor}">${analysis.name}</s>` }
+
+                const element = analysis.selected ? "span" : "s";
+
+                return `<${element} style="color: ${analysis.initialColor};">
+                    ${analysis.name}
+                </${element}>`;
+
             });
+
+        const hoveredPoints = file.analysis.points.all
+            .filter(point => point.isHover)
+            .map(point => `<span style="color: ${point.analysis.initialColor}">${point.analysis.name} - HANDLE: ${point.key}: X: ${point.x} Y: ${point.y}</span>`);
 
         const analysis = hoveredAnalysis.length > 0
             ? hoveredAnalysis.join("<br />") + "<br />"
             : "";
 
+        const points = hoveredPoints.length > 0
+            ? hoveredPoints.join("<br />") + "<br />"
+            : "";
 
-        return `${analysis}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
+        const result = points.length > 0 ? points : analysis;
+
+
+        return `${result}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
 
     }
 
