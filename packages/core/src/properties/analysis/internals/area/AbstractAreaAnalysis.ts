@@ -431,6 +431,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     public recievedSerialized(input: string): void {
 
+        if ( ! this.serializedIsValid( input ) ) {
+            return;
+        }
+
         this._serialized = input;
 
         const splitted = input
@@ -438,6 +442,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             .map(segment => segment.trim());
 
         let shouldRecalculate: boolean = false;
+        let shouldSerialize: boolean = false;
 
         const name = splitted[0];
 
@@ -445,17 +450,28 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.setName(name);
         }
 
-        const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
+        const avgOn = this.serializedSegmentsHasExact(splitted, "avg");
 
-        if (graphOn !== this.graph.state.AVG) {
-            this.graph.setAvgActivation(graphOn);
-            shouldRecalculate = true;
+        if (avgOn !== this.graph.state.AVG) {
+            this.graph.setAvgActivation(avgOn);
+        }
+
+        const minOn = this.serializedSegmentsHasExact(splitted, "min");
+
+        if (minOn !== this.graph.state.MIN) {
+            this.graph.setMinActivation(minOn);
+        }
+
+        const maxOn = this.serializedSegmentsHasExact(splitted, "max");
+
+        if (maxOn !== this.graph.state.MAX) {
+            this.graph.setMaxActivation(maxOn);
         }
 
         const color = this.serializedGetStringValueByKey(splitted, "color");
 
         if (color === undefined) {
-            //
+            shouldSerialize = true;
         } else if (color !== this.initialColor) {
             this.setInitialColor(color);
         }
@@ -488,6 +504,20 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
         if (shouldRecalculate) {
             this.recalculateValues();
+        }
+
+        if ( !shouldSerialize ) {
+            shouldSerialize = left !== undefined
+                && top !== undefined
+                && width !== undefined
+                && height !== undefined
+                && ! this.graph.state.AVG === this.serializedSegmentsHasExact( splitted, "avg" )
+                && ! this.graph.state.MIN ===this.serializedSegmentsHasExact( splitted, "min" )
+                && ! this.graph.state.MAX === this.serializedSegmentsHasExact( splitted, "max" );
+        }
+
+        if ( shouldSerialize ) {
+            this.serialize();
         }
 
 

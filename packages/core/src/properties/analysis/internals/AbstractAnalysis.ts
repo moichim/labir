@@ -17,6 +17,25 @@ export abstract class AbstractAnalysis {
 
     public abstract recievedSerialized(input: string): void;
     protected abstract toSerialized(): string;
+    protected serializedIsValid( input: string ): boolean {
+        const splitted = input
+            .split( ";" )
+            .map( segment => segment.trim() );
+
+        if ( splitted.length < 2 ) {
+            return false;
+        }
+
+        if ( ! ["point","ellipsis","rectangle"].includes( splitted[1]) ) {
+            return false;
+        }
+
+        if ( splitted[1] !== this.getType() ) {
+            return false;
+        }
+
+        return true;
+    }
 
     public serialize() {
         this._serialized = this.toSerialized();
@@ -410,13 +429,5 @@ export abstract class AbstractAnalysis {
         }
         return parseInt(item.split(":")[1]);
     }
-
-
-
-
-
-
-
-
 
 }

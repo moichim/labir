@@ -143,6 +143,10 @@ export class PointAnalysis extends AbstractAnalysis {
 
     public recievedSerialized( input: string ): void {
 
+        if ( ! this.serializedIsValid( input ) ) {
+            return;
+        }
+
         this._serialized = input;
 
         const splitted = input
