@@ -902,6 +902,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string): EllipsisAnalysis;
     createPointAt(top: number, left: number): PointAnalysis;
     placePointAt(name: string, top: number, left: number, color?: string): PointAnalysis;
+    createFromSerialized(serialized: string): AbstractAnalysis | undefined;
     selectAll(): void;
     deselectAll(): void;
     /** Accessors */
@@ -921,8 +922,10 @@ declare abstract class AbstractAnalysis {
     readonly file: Instance;
     protected _serialized?: string;
     get serialized(): string | undefined;
+    readonly onSerialize: CallbacksManager<(input: string) => void>;
     abstract recievedSerialized(input: string): void;
     protected abstract toSerialized(): string;
+    protected serializedIsValid(input: string): boolean;
     serialize(): string;
     abstract get graph(): AnalysisGraph;
     /** Selection status */
@@ -1022,11 +1025,11 @@ declare abstract class AbstractAnalysis {
     /** Override this method to get proper analysis data. */
     abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
     /** When parsing incoming serialized attribute, look if segments have an exact value */
-    protected serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
+    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
     /** When parsing incooming serialized attribute, try to extract it by its key as string */
-    protected serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
+    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
     /** When parsing incooming serialized attribute, try to extract it by its key as number */
-    protected serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
+    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
 }
 
 declare enum PointPlacement {

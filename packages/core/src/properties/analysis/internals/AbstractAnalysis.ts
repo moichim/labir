@@ -15,6 +15,8 @@ export abstract class AbstractAnalysis {
         return this._serialized;
     }
 
+    public readonly onSerialize = new CallbacksManager<(input: string) => void>;
+
     public abstract recievedSerialized(input: string): void;
     protected abstract toSerialized(): string;
     protected serializedIsValid( input: string ): boolean {
@@ -38,7 +40,11 @@ export abstract class AbstractAnalysis {
     }
 
     public serialize() {
-        this._serialized = this.toSerialized();
+        const newValue = this.toSerialized();
+        if ( this._serialized !== newValue ) {
+            this._serialized = newValue;
+            this.onSerialize.call( newValue );
+        }
         return this._serialized;
     }
 

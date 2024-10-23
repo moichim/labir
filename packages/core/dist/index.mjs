@@ -1978,8 +1978,26 @@ var AbstractAnalysis = class {
   get serialized() {
     return this._serialized;
   }
+  onSerialize = new CallbacksManager();
+  serializedIsValid(input) {
+    const splitted = input.split(";").map((segment) => segment.trim());
+    if (splitted.length < 2) {
+      return false;
+    }
+    if (!["point", "ellipsis", "rectangle"].includes(splitted[1])) {
+      return false;
+    }
+    if (splitted[1] !== this.getType()) {
+      return false;
+    }
+    return true;
+  }
   serialize() {
-    this._serialized = this.toSerialized();
+    const newValue = this.toSerialized();
+    if (this._serialized !== newValue) {
+      this._serialized = newValue;
+      this.onSerialize.call(newValue);
+    }
     return this._serialized;
   }
   /** Selection status */
@@ -2204,11 +2222,11 @@ var AbstractAnalysis = class {
     this.onValues.call(this.min, this.max, this.avg);
   }
   /** When parsing incoming serialized attribute, look if segments have an exact value */
-  serializedSegmentsHasExact(segments, lookup) {
+  static serializedSegmentsHasExact(segments, lookup) {
     return segments.find((segment) => segment === lookup) ? true : false;
   }
   /** When parsing incooming serialized attribute, try to extract it by its key as string */
-  serializedGetStringValueByKey(segments, key) {
+  static serializedGetStringValueByKey(segments, key) {
     const regexp = new RegExp(`${key}:*`);
     const item = segments.find((s) => {
       if (s.match(regexp)) {
@@ -2218,7 +2236,7 @@ var AbstractAnalysis = class {
     return item?.split(":")[1].trim();
   }
   /** When parsing incooming serialized attribute, try to extract it by its key as number */
-  serializedGetNumericalValueByKey(segments, key) {
+  static serializedGetNumericalValueByKey(segments, key) {
     const regexp = new RegExp(`${key}:\\d+`);
     const item = segments.find((s) => s.match(regexp));
     if (item === void 0) {
@@ -2669,6 +2687,9 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     return { left: val, right: val, width: 0 };
   }
   recievedSerialized(input) {
+    if (!this.serializedIsValid(input)) {
+      return;
+    }
     this._serialized = input;
     const splitted = input.split(";").map((segment) => segment.trim());
     let shouldRecalculate = false;
@@ -2676,18 +2697,18 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     if (name !== this.name) {
       this.setName(name);
     }
-    const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
+    const graphOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
     if (graphOn !== this.graph.state.AVG) {
       this.graph.setAvgActivation(graphOn);
       shouldRecalculate = true;
     }
-    const color = this.serializedGetStringValueByKey(splitted, "color");
+    const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
     if (color === void 0) {
     } else if (color !== this.initialColor) {
       this.setInitialColor(color);
     }
-    const top = this.serializedGetNumericalValueByKey(splitted, "top");
-    const left = this.serializedGetNumericalValueByKey(splitted, "left");
+    const top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+    const left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
     if (top !== void 0) {
       this.setTop(top);
       shouldRecalculate = true;
@@ -3252,27 +3273,39 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     points.forEach((point) => fn(point));
   }
   recievedSerialized(input) {
+    if (!this.serializedIsValid(input)) {
+      return;
+    }
     this._serialized = input;
     const splitted = input.split(";").map((segment) => segment.trim());
     let shouldRecalculate = false;
+    let shouldSerialize = false;
     const name = splitted[0];
     if (name !== this.name) {
       this.setName(name);
     }
-    const graphOn = this.serializedSegmentsHasExact(splitted, "avg");
-    if (graphOn !== this.graph.state.AVG) {
-      this.graph.setAvgActivation(graphOn);
-      shouldRecalculate = true;
+    const avgOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
+    if (avgOn !== this.graph.state.AVG) {
+      this.graph.setAvgActivation(avgOn);
     }
-    const color = this.serializedGetStringValueByKey(splitted, "color");
+    const minOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
+    if (minOn !== this.graph.state.MIN) {
+      this.graph.setMinActivation(minOn);
+    }
+    const maxOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
+    if (maxOn !== this.graph.state.MAX) {
+      this.graph.setMaxActivation(maxOn);
+    }
+    const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
     if (color === void 0) {
+      shouldSerialize = true;
     } else if (color !== this.initialColor) {
       this.setInitialColor(color);
     }
-    const top = this.serializedGetNumericalValueByKey(splitted, "top");
-    const left = this.serializedGetNumericalValueByKey(splitted, "left");
-    const width = this.serializedGetNumericalValueByKey(splitted, "width");
-    const height = this.serializedGetNumericalValueByKey(splitted, "height");
+    const top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+    const left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
+    const width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
+    const height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
     if (top !== void 0 && top !== this.top) {
       this.setTop(top);
       shouldRecalculate = true;
@@ -3291,6 +3324,12 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     }
     if (shouldRecalculate) {
       this.recalculateValues();
+    }
+    if (!shouldSerialize) {
+      shouldSerialize = left !== void 0 && top !== void 0 && width !== void 0 && height !== void 0 && !this.graph.state.AVG === AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg") && !this.graph.state.MIN === AbstractAnalysis.serializedSegmentsHasExact(splitted, "min") && !this.graph.state.MAX === AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
+    }
+    if (shouldSerialize) {
+      this.serialize();
     }
   }
   toSerialized() {
@@ -3712,6 +3751,59 @@ var AnalysisLayersStorage = class extends Map {
     newAnalysis.ready = true;
     this.addAnalysis(newAnalysis);
     return newAnalysis;
+  }
+  createFromSerialized(serialized) {
+    const splitted = serialized.split(";").map((segment) => segment.trim());
+    if (splitted.length < 2) {
+      return;
+    }
+    const name = splitted[0] !== void 0 && splitted[0].length > 0 ? splitted[0] : void 0;
+    if (name === void 0) {
+      return;
+    }
+    const type = splitted[1];
+    if (!["rectangle", "ellipsis", "point"].includes(type)) {
+      return;
+    }
+    let top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+    let left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
+    const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
+    let width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
+    let height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
+    const avg = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
+    const min = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
+    const max = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
+    if (top !== void 0) {
+      if (top < 0) top = 0;
+      if (top > this.drive.parent.height - 1) top = this.drive.parent.height - 1;
+    }
+    if (left !== void 0) {
+      if (left < 0) left = 0;
+      if (left > this.drive.parent.width - 1) left = this.drive.parent.width - 1;
+    }
+    if (type === "point") {
+      if (top === void 0 || left === void 0) {
+        return;
+      }
+      const analysis = this.placePointAt(name, top, left, color);
+      if (avg) {
+        analysis.graph.setAvgActivation(true);
+      }
+      return analysis;
+    } else {
+      if (top === void 0 || left === void 0 || width === void 0 || height === void 0) {
+        return;
+      }
+      if (width < 0) width = 0;
+      if (width + left > this.drive.parent.width - 1) width = this.drive.parent.width - left - 1;
+      if (height < 0) height = 0;
+      if (height + top > this.drive.parent.height - 1) height = this.drive.parent.height - top - 1;
+      const analysis = type === "rectangle" ? this.placeRectAt(name, top, left, width + left, height + top, color) : this.placeEllipsisAt(name, top, left, width + left, height + top, color);
+      if (avg) analysis.graph.setAvgActivation(true);
+      if (min) analysis.graph.setMinActivation(true);
+      if (max) analysis.graph.setMaxActivation(true);
+      return analysis;
+    }
   }
   selectAll() {
     this.all.filter((analysis) => {
