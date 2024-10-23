@@ -161,14 +161,14 @@ export class PointAnalysis extends AbstractAnalysis {
             this.setName( name );
         }
 
-        const graphOn = this.serializedSegmentsHasExact( splitted, "avg" );
+        const graphOn = AbstractAnalysis.serializedSegmentsHasExact( splitted, "avg" );
 
         if ( graphOn !== this.graph.state.AVG ) {
             this.graph.setAvgActivation( graphOn );
             shouldRecalculate = true;
         }
 
-        const color = this.serializedGetStringValueByKey( splitted, "color" );
+        const color = AbstractAnalysis.serializedGetStringValueByKey( splitted, "color" );
 
         if ( color === undefined ) {
             //
@@ -176,8 +176,8 @@ export class PointAnalysis extends AbstractAnalysis {
             this.setInitialColor( color );
         }
 
-        const top = this.serializedGetNumericalValueByKey( splitted, "top" );
-        const left = this.serializedGetNumericalValueByKey( splitted, "left" );
+        const top = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "top" );
+        const left = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "left" );
 
         if ( top !== undefined ) {
             this.setTop( top );

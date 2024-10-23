@@ -223,6 +223,96 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         return newAnalysis;
     }
 
+    public createFromSerialized(
+        serialized: string
+    ): AbstractAnalysis|undefined {
+
+        const splitted = serialized
+            .split( ";" )
+            .map( segment => segment.trim() );
+
+        if ( splitted.length < 2 ) {
+            return;
+        }
+
+        const name = splitted[0] !== undefined && splitted[0].length > 0 ? splitted[0] : undefined;
+
+        if ( name === undefined ) {
+            return;
+        }
+
+        const type = splitted[1];
+
+        if ( ! ["rectangle","ellipsis","point"].includes( type ) ) {
+            return;
+        }
+
+        let top = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "top" );
+        let left = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "left" );
+        const color = AbstractAnalysis.serializedGetStringValueByKey( splitted, "color" );
+
+        let width = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "width" );
+        let height = AbstractAnalysis.serializedGetNumericalValueByKey( splitted, "height" );
+
+
+        const avg = AbstractAnalysis.serializedSegmentsHasExact( splitted, "avg" );
+        const min = AbstractAnalysis.serializedSegmentsHasExact( splitted, "min" );
+        const max = AbstractAnalysis.serializedSegmentsHasExact( splitted, "max" );
+
+        // Clamp top
+        if ( top !== undefined ) {
+            if ( top < 0 ) top = 0;
+            if ( top > this.drive.parent.height - 1 ) top = this.drive.parent.height - 1;
+        }
+
+        // Clamp left
+        if ( left !== undefined ) {
+            if ( left < 0 ) left = 0;
+            if ( left > this.drive.parent.width - 1 ) left = this.drive.parent.width - 1; 
+        }
+
+        if ( type === "point" ) {
+
+            if ( top === undefined || left === undefined ) {
+                return;
+            }
+
+            const analysis = this.placePointAt( name, top, left, color );
+            if ( avg ) {
+                analysis.graph.setAvgActivation( true );
+            }
+            return analysis;
+
+        } else {
+
+            if ( top === undefined || left === undefined || width === undefined || height === undefined) {
+                return;
+            }
+
+            // Clamp width
+            if ( width < 0 ) width = 0;
+            if ( width + left > this.drive.parent.width - 1 ) width = this.drive.parent.width - left - 1;
+
+            // Clamp height
+            if ( height < 0 ) height = 0;
+            if ( height + top > this.drive.parent.height - 1 ) height = this.drive.parent.height - top - 1;
+
+
+            const analysis = type === "rectangle"
+                ? this.placeRectAt( name, top, left, width + left, height + top, color )
+                : this.placeEllipsisAt( name, top, left, width + left, height + top, color);
+            if ( avg ) analysis.graph.setAvgActivation( true );
+            if ( min ) analysis.graph.setMinActivation( true );
+            if ( max ) analysis.graph.setMaxActivation( true );
+
+            return analysis;
+
+
+        }
+
+
+    }
+
 
     selectAll() {
         // Select unselected analysis without any emission

@@ -396,7 +396,7 @@ export abstract class AbstractAnalysis {
 
 
     /** When parsing incoming serialized attribute, look if segments have an exact value */
-    protected serializedSegmentsHasExact(
+    public static serializedSegmentsHasExact(
         segments: string[],
         lookup: string
     ): boolean {
@@ -404,7 +404,7 @@ export abstract class AbstractAnalysis {
     }
 
     /** When parsing incooming serialized attribute, try to extract it by its key as string */
-    protected serializedGetStringValueByKey(
+    public static serializedGetStringValueByKey(
         segments: string[],
         key: string
     ): string | undefined {
@@ -418,7 +418,7 @@ export abstract class AbstractAnalysis {
     }
 
     /** When parsing incooming serialized attribute, try to extract it by its key as number */
-    protected serializedGetNumericalValueByKey(
+    public static serializedGetNumericalValueByKey(
         segments: string[],
         key: string
     ): number | undefined {

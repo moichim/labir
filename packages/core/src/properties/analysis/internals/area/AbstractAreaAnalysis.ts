@@ -450,25 +450,25 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.setName(name);
         }
 
-        const avgOn = this.serializedSegmentsHasExact(splitted, "avg");
+        const avgOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
 
         if (avgOn !== this.graph.state.AVG) {
             this.graph.setAvgActivation(avgOn);
         }
 
-        const minOn = this.serializedSegmentsHasExact(splitted, "min");
+        const minOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
 
         if (minOn !== this.graph.state.MIN) {
             this.graph.setMinActivation(minOn);
         }
 
-        const maxOn = this.serializedSegmentsHasExact(splitted, "max");
+        const maxOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
 
         if (maxOn !== this.graph.state.MAX) {
             this.graph.setMaxActivation(maxOn);
         }
 
-        const color = this.serializedGetStringValueByKey(splitted, "color");
+        const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
 
         if (color === undefined) {
             shouldSerialize = true;
@@ -476,10 +476,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.setInitialColor(color);
         }
 
-        const top = this.serializedGetNumericalValueByKey(splitted, "top");
-        const left = this.serializedGetNumericalValueByKey(splitted, "left");
-        const width = this.serializedGetNumericalValueByKey(splitted, "width");
-        const height = this.serializedGetNumericalValueByKey(splitted, "height");
+        const top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+        const left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
+        const width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
+        const height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
 
         if (top !== undefined && top !== this.top) {
 
@@ -511,9 +511,9 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
                 && top !== undefined
                 && width !== undefined
                 && height !== undefined
-                && ! this.graph.state.AVG === this.serializedSegmentsHasExact( splitted, "avg" )
-                && ! this.graph.state.MIN ===this.serializedSegmentsHasExact( splitted, "min" )
-                && ! this.graph.state.MAX === this.serializedSegmentsHasExact( splitted, "max" );
+                && ! this.graph.state.AVG === AbstractAnalysis.serializedSegmentsHasExact( splitted, "avg" )
+                && ! this.graph.state.MIN ===AbstractAnalysis.serializedSegmentsHasExact( splitted, "min" )
+                && ! this.graph.state.MAX === AbstractAnalysis.serializedSegmentsHasExact( splitted, "max" );
         }
 
         if ( shouldSerialize ) {
