@@ -366,8 +366,6 @@ export abstract class AbstractAnalysis {
         this._avg = avg;
         this.onValues.call(this.min, this.max, this.avg);
 
-        console.log("Přepočítal jsem hodnoty", min, max, avg);
-
     }
 
     /** Obtain the current values of the analysis using current position and dimensions */

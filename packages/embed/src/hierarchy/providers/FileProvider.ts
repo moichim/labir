@@ -261,9 +261,10 @@ export class FileProviderElement extends AbstractFileProvider {
             if ( oldUrl ) {
                 this.group.files.removeFile( oldUrl );
                 this.file = undefined;
-            }
 
-            this.load();
+                this.load();
+
+            }
             
         }
     }

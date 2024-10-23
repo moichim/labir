@@ -1,5 +1,5 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labir/core";
-import { css, html, nothing } from "lit";
+import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
@@ -20,31 +20,8 @@ export class FileAnalysisTable extends FileConsumer {
     protected hasHighlightedData: boolean = false;
 
     public onInstanceCreated(instance: Instance): void {
-        
-        // Mirror all analysis to local state
-        instance.analysis.addListener( this.UUID, analysis => {
-            this.analysis = analysis;
-        } );
 
-        // Mirror all selected
-        instance.analysis.layers.onSelectionChange.add( this.UUID, () => {
-            this.allSelected = instance.analysis.layers.all.length === instance.analysis.layers.selectedOnly.length;
-        } );
-
-
-        // Mirror hasSelectedData
-        instance.analysisData.onGraphsPresence.set( this.UUID, value => {
-            this.hasHighlightedData = value;
-        })
-
-        // Set initial allSelected
-        this.allSelected = instance.analysis.layers.all.length === instance.analysis.layers.selectedOnly.length;
-
-        // Set initial allSelected
-        this.analysis = instance.analysis.value;
-
-        // Set initial hasHighlightedData
-        this.hasHighlightedData = instance.analysisData.hasActiveGraphs;
+        this.hydrate( instance );
 
     }
 
@@ -55,10 +32,22 @@ export class FileAnalysisTable extends FileConsumer {
         }
     }
 
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated( _changedProperties );
+
+        if ( _changedProperties.has( "file" ) ) {
+            if ( this.file ) {
+                this.hydrate( this.file );
+            }
+        }
+    }
+
 
     protected hydrate( file: Instance ) {
+
         // Mirror all analysis to local state
         file.analysis.addListener( this.UUID, analysis => {
+            console.log( "analysis list changed", analysis );
             this.analysis = analysis;
         } );
 
@@ -158,6 +147,8 @@ export class FileAnalysisTable extends FileConsumer {
 
 
     `;
+
+    
 
     protected render(): unknown {
 
