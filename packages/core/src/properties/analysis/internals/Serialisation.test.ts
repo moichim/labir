@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../devserver/node/scaffold';
 import { Instance } from '../../../file/instance';
-import { format } from 'date-fns';
 import { AbstractAreaAnalysis } from './area/AbstractAreaAnalysis';
 
 const left = 10;
@@ -41,18 +40,6 @@ const resetVertical = (analysis: AbstractAreaAnalysis) => {
     expect(analysis.bottom).toEqual(bottom);
     expect(analysis.height).toEqual(height);
     analysis.serialize();
-}
-
-const makeSureHorizontalAreUntouched = (analysis: AbstractAreaAnalysis) => {
-    expect(analysis.left).toEqual(left);
-    expect(analysis.right).toEqual(right);
-    expect(analysis.width).toEqual(width);
-}
-
-const makeSureVerticalAreUntouched = (analysis: AbstractAreaAnalysis) => {
-    expect(analysis.top).toEqual(top);
-    expect(analysis.bottom).toEqual(bottom);
-    expect(analysis.height).toEqual(height);
 }
 
 
