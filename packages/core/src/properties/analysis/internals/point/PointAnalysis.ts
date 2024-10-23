@@ -60,6 +60,8 @@ export class PointAnalysis extends AbstractAnalysis {
 
         this.recalculateValues();
 
+        this.serialize();
+
     }
 
 
@@ -200,7 +202,7 @@ export class PointAnalysis extends AbstractAnalysis {
         output.push( "point" );
         output.push( `top:${this.top}` );
         output.push( `left:${this.left}` );
-        output.push( `color:${this.color}` );
+        output.push( `color:${this.initialColor}` );
         if ( this.graph.state.AVG ) {
             output.push("avg");
         }

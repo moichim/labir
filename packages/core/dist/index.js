@@ -2681,6 +2681,7 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.center = new PointPoint("center", top, left, this, color);
     this.points.set("center", this.center);
     this.recalculateValues();
+    this.serialize();
   }
   setColorCallback(value) {
     this.center.setColor(value);
@@ -2774,7 +2775,7 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     output.push("point");
     output.push(`top:${this.top}`);
     output.push(`left:${this.left}`);
-    output.push(`color:${this.color}`);
+    output.push(`color:${this.initialColor}`);
     if (this.graph.state.AVG) {
       output.push("avg");
     }
@@ -3128,6 +3129,7 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.onMoveOrResize.set("sync the area", () => {
       this.calculateBounds();
     });
+    this.serialize();
   }
   setColorCallback(value) {
     this.points.forEach((point) => point.setColor(value));
@@ -3358,13 +3360,12 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     if (shouldRecalculate) {
       this.recalculateValues();
     }
-    console.log("parsed", this.serialized);
   }
   toSerialized() {
     const output = [];
     output.push(this.name);
     output.push(this.getType());
-    output.push(`color:${this.color}`);
+    output.push(`color:${this.initialColor}`);
     output.push(`top:${this.top}`);
     output.push(`left:${this.left}`);
     output.push(`width:${this.width}`);

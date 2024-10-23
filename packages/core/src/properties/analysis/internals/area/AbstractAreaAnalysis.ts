@@ -146,6 +146,8 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.calculateBounds();
         });
 
+        this.serialize();
+
     }
 
     public setColorCallback(value: string): void {
@@ -488,8 +490,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             this.recalculateValues();
         }
 
-        console.log("parsed", this.serialized);
-
 
     }
 
@@ -499,7 +499,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
         output.push(this.name);
         output.push(this.getType());
-        output.push(`color:${this.color}`);
+        output.push(`color:${this.initialColor}`);
         output.push(`top:${this.top}`);
         output.push(`left:${this.left}`);
         output.push(`width:${this.width}`);

@@ -112,6 +112,7 @@ export abstract class AbstractAnalysis {
             this.onSetWidth(width);
         }
 
+
     }
 
 
