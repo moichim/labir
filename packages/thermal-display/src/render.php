@@ -9,7 +9,7 @@
 <div <?= get_block_wrapper_attributes(); ?>>
 	
 
-		<thermal-desktop-app 
+		<<?= $attributes["webcomponent"]?>
 			url="<?= $attributes["thermal"]?>" 
 			palette=<?= $attributes["palette"]; ?> 
 			author="<?= $attributes["author"] ?>" 
@@ -20,7 +20,7 @@
 				from="<?= $attributes["from"] ?>"
 				to="<?= $attributes["to"]; ?>"
 			<?php endif; ?>
-		></thermal-desktop-app>
+		></<?= $attributes["webcomponent"]?>>
 
 </div>
 

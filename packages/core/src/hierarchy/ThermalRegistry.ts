@@ -137,56 +137,6 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     }
 
 
-    /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
-    public async processDroppedFiles(
-        files: File[],
-        groupId: string
-    ) {
-
-        files;
-        groupId;
-
-        throw new Error( "Method not implemented" );
-
-        /*
-
-        this.reset();
-
-        this.loading.markAsLoading();
-
-        // Remove all groups
-        this.removeAllChildren();
-
-        // Process all incoming files at once and filter the failures
-        const parsedFiles = await Promise.all(
-            files.map(file => ThermalLoader.fromFile(file))
-        ).then(results => {
-            return results.filter(file => {
-                return file !== null;
-            }) as ThermalFileSource[]
-        });
-
-        groupId;
-        parsedFiles;
-
-        // Register the sources
-        // parsedFiles.forEach(source => this.manager.registerSource(source));
-
-        // Create the group for the request
-        // const group = this.groups.addOrGetGroup(groupId);
-
-        // Instantiate everything
-        // group.instances.instantiateSources(parsedFiles);
-
-        // Cecalculate everything
-        this.postLoadedProcessing();
-
-        */
-
-    }
-
-
-
 
     /** 
      * Actions to take after the registry is loaded 
@@ -204,9 +154,27 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         // Recalculate the minmax
         this.minmax.recalculateFromGroups();
 
-        // If there is minmax, impose it down
+        // If there is minmax, impose it down as range
         if (this.minmax.value)
-            this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+
+            // Impose only when the range is not set already
+            if ( this.range.value === undefined ) {
+                this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+            } 
+            // If the range is set already, clamp it to the new minmax
+            else {
+
+                const newFrom = Math.max( this.range.value.from, this.minmax.value.min );
+                const newTo = Math.min( this.range.value.to, this.minmax.value.max );
+
+
+                if ( newFrom !== this.range.value.from || newTo !== this.range.value.to ) {
+                    this.range.imposeRange({
+                        from: Math.max( this.range.value.from, this.minmax.value.min ),
+                        to: Math.min( this.range.value.to, this.minmax.value.max )
+                    });
+                }
+            }
 
         // Recalculate the histogram
         this.histogram.recalculateHistogramBufferInWorker();

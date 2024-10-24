@@ -1,4 +1,4 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { AbstractAnalysis, CallbacksManager, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";

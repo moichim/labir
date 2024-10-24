@@ -6012,12 +6012,6 @@ var ThermalRegistry = class extends BaseStructureObject {
     this.loading.markAsLoading();
     this.postLoadedProcessing();
   }
-  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
-  async processDroppedFiles(files, groupId) {
-    files;
-    groupId;
-    throw new Error("Method not implemented");
-  }
   /** 
    * Actions to take after the registry is loaded 
    * - recalculate the minmax of groups
@@ -6029,7 +6023,18 @@ var ThermalRegistry = class extends BaseStructureObject {
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();
     if (this.minmax.value)
-      this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+      if (this.range.value === void 0) {
+        this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+      } else {
+        const newFrom = Math.max(this.range.value.from, this.minmax.value.min);
+        const newTo = Math.min(this.range.value.to, this.minmax.value.max);
+        if (newFrom !== this.range.value.from || newTo !== this.range.value.to) {
+          this.range.imposeRange({
+            from: Math.max(this.range.value.from, this.minmax.value.min),
+            to: Math.min(this.range.value.to, this.minmax.value.max)
+          });
+        }
+      }
     this.histogram.recalculateHistogramBufferInWorker();
     this.loading.markAsLoaded();
   }

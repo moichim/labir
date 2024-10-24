@@ -153,6 +153,8 @@ export class AbstractFileProvider extends GroupConsumer {
 
     }
 
+    public readonly onInstanceCreated = new CallbacksManager< ( instance: Instance ) => void >();
+
 
     /** Register instance callback listeners */
     protected recieveInstance(
@@ -222,6 +224,8 @@ export class AbstractFileProvider extends GroupConsumer {
         instance.recording.addListener(this.UUID, this.recordingCallback);
         instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
         instance.analysis.addListener(this.UUID, this.analysisCallback);
+
+        this.onInstanceCreated.call(instance);
 
     }
 

@@ -1238,8 +1238,6 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     }): Promise<void>;
     /** Load the registry with only one file. @deprecated */
     loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
-    /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
-    processDroppedFiles(files: File[], groupId: string): Promise<void>;
     /**
      * Actions to take after the registry is loaded
      * - recalculate the minmax of groups

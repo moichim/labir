@@ -4,10 +4,6 @@
  * Replace them with your own styles or remove the file completely.
  */
 
-.wp-block-create-block-copyright-date-block {
-
-}
-
 .thermal__content-editor__container {
     position: relative;
     cursor: pointer;
@@ -31,7 +27,7 @@
     transition: opacity .2s ease-in-out;
     pointer-events: none;
     background-color: rgba(4, 65, 83, 0.801);
-    border-radius: var( --thermal-radius );
+    border-radius: var(--thermal-radius);
     z-index: 100000;
     cursor: pointer;
 
@@ -40,7 +36,7 @@
     justify-content: center;
 
 
-    & > div {
+    &>div {
         color: white;
     }
 }
@@ -50,6 +46,38 @@
 }
 
 .wp-block-thermal-display-file.is-selected {
-    outline: 2px solid var( --wp--preset--color--vivid-cyan-blue );
-    border-radius: var( --thermal-radius );
+    outline: 2px solid var(--wp--preset--color--vivid-cyan-blue);
+    border-radius: var(--thermal-radius);
+}
+
+$modal-color: rgb(226, 226, 226);
+
+.modal-editor__container {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    // gap: 5px;
+}
+
+.modal-editor__tools {
+    width: 100%;
+    box-sizing: border-box;
+    // border: 1px solid var( --wp--preset--color--contrast-3 );
+    border-radius: var(--thermal-radius);
+    background-color: $modal-color;
+}
+
+.modal-editor__canvas,
+.modal-editor__details {
+    box-sizing: border-box;
+}
+
+
+@media(min-width: 900px) {
+
+    .modal-editor__canvas,
+    .modal-editor__details {
+        // flex-grow: 1;
+        width: 50%;
+    }
 }

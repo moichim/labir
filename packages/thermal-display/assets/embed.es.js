@@ -4078,7 +4078,7 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
   onDestroy() {
     this.image && this.image.remove(), this.container.remove();
   }
-}, fe = class extends Map {
+}, pe = class extends Map {
   /** @deprecated use set method instead */
   add(t, e) {
     this.set(t, e);
@@ -4185,12 +4185,12 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "timer");
     h(this, "buffer");
     // Callbacks & Listeners
-    h(this, "callbackdPlaybackSpeed", new fe());
-    h(this, "callbacksPlay", new fe());
-    h(this, "callbacksPause", new fe());
-    h(this, "callbacksStop", new fe());
-    h(this, "callbacksEnd", new fe());
-    h(this, "callbacksChangeFrame", new fe());
+    h(this, "callbackdPlaybackSpeed", new pe());
+    h(this, "callbacksPlay", new pe());
+    h(this, "callbacksPause", new pe());
+    h(this, "callbacksStop", new pe());
+    h(this, "callbacksEnd", new pe());
+    h(this, "callbacksChangeFrame", new pe());
     this.steps = i, this._currentStep = this.steps[this._initial], this.startTimestampRelative = 0, this.endTimestampRelative = this.steps[this.steps.length - 1].relative, this.isSequence = this.parent.timelineData.length > 1, this.steps.forEach((n) => {
       this.stepsByIndex.set(n.index, n), this.stepsByAbsolute.set(n.absolute, n), this.stepsByRelative.set(n.relative, n), this.relativeSteps.push(n.relative);
     }), this.buffer = new eu(this, s);
@@ -4333,7 +4333,7 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "_isRecording", !1);
     h(this, "_mayStop", !0);
     h(this, "recordedChunks", []);
-    h(this, "callbackMayStop", new fe());
+    h(this, "callbackMayStop", new pe());
   }
   get mayStop() {
     return this._mayStop;
@@ -4416,15 +4416,15 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
 }, Ie = class {
   constructor(t, e, r) {
     h(this, "_serialized");
-    h(this, "onSerialize", new fe());
+    h(this, "onSerialize", new pe());
     /** Selection status */
     h(this, "_selected", !1);
-    h(this, "onSelected", new fe());
-    h(this, "onDeselected", new fe());
+    h(this, "onSelected", new pe());
+    h(this, "onDeselected", new pe());
     /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-    h(this, "onValues", new fe());
+    h(this, "onValues", new pe());
     /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
-    h(this, "onMoveOrResize", new fe());
+    h(this, "onMoveOrResize", new pe());
     /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
     h(this, "layerRoot");
     h(this, "points", /* @__PURE__ */ new Map());
@@ -4436,9 +4436,9 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "_max");
     h(this, "_avg");
     h(this, "_color", "black");
-    h(this, "onSetColor", new fe());
+    h(this, "onSetColor", new pe());
     h(this, "_initialColor");
-    h(this, "onSetInitialColor", new fe());
+    h(this, "onSetInitialColor", new pe());
     // public readonly initialColor: string;
     h(this, "activeColor", "yellow");
     h(this, "inactiveColor", "black");
@@ -4446,7 +4446,7 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "ready", !1);
     h(this, "nameInitial");
     h(this, "_name");
-    h(this, "onSetName", new fe());
+    h(this, "onSetName", new pe());
     this.key = t, this.file = e, this._initialColor = r, this.nameInitial = t, this._name = t, this.layerRoot = document.createElement("div"), this.layerRoot.style.position = "absolute", this.layerRoot.style.top = "0px", this.layerRoot.style.left = "0px", this.layerRoot.style.width = "100%", this.layerRoot.style.height = "100%", this.layerRoot.style.overflow = "hidden", this.layerRoot.id = `analysis_${this.key}`, this.renderRoot.appendChild(this.layerRoot), this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
       this.recalculateValues(), this.serialize();
     });
@@ -4601,10 +4601,10 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
   constructor(t, e, r, i, s, n, a) {
     h(this, "pxX");
     h(this, "_x");
-    h(this, "onX", new fe());
+    h(this, "onX", new pe());
     h(this, "pxY");
     h(this, "_y");
-    h(this, "onY", new fe());
+    h(this, "onY", new pe());
     h(this, "_color");
     h(this, "_active", !1);
     h(this, "_isHover", !1);
@@ -4613,10 +4613,10 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "container");
     /** The display element. */
     h(this, "innerElement");
-    h(this, "onMouseEnter", new fe());
-    h(this, "onMouseLeave", new fe());
-    h(this, "onActivate", new fe());
-    h(this, "onDeactivate", new fe());
+    h(this, "onMouseEnter", new pe());
+    h(this, "onMouseLeave", new pe());
+    h(this, "onActivate", new pe());
+    h(this, "onDeactivate", new pe());
     this.key = t, this.analysis = i, this.pxX = 100 / this.analysis.file.width, this.pxY = 100 / this.analysis.file.height, this._x = r, this._y = e, this._color = s, this.container = document.createElement("div"), this.container.style.position = "absolute", this.container.id = `analysis_${this.analysis.key}_${this.key}_${this.file.id}`, this.innerElement = this.createInnerElement(), this.container.appendChild(this.innerElement), this.setColor(s), this.setXDirectly(r, n), this.setYDirectly(e, a), this.root.appendChild(this.container);
   }
   get file() {
@@ -4956,9 +4956,9 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     h(this, "_max", !1);
     h(this, "_avg", !1);
     h(this, "_value");
-    h(this, "onGraphActivation", new fe());
-    h(this, "onGraphData", new fe());
-    h(this, "onAnalysisSelection", new fe());
+    h(this, "onGraphActivation", new pe());
+    h(this, "onGraphData", new pe());
+    h(this, "onAnalysisSelection", new pe());
     this.analysis = t, this.hydrate();
   }
   get state() {
@@ -5590,11 +5590,11 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     /** Array of all layers ordered from oldest to the newest */
     h(this, "layers", []);
     /** Fired whenever an analysis is added */
-    h(this, "onAdd", new fe());
+    h(this, "onAdd", new pe());
     /** Fired whenever an analysis is removed */
-    h(this, "onRemove", new fe());
+    h(this, "onRemove", new pe());
     /** Fired whenever the selection list changes */
-    h(this, "onSelectionChange", new fe());
+    h(this, "onSelectionChange", new pe());
     /** Array of available colors */
     h(this, "colors", ms);
     this.drive = e;
@@ -5825,9 +5825,9 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
       values: [[]],
       colors: []
     });
-    h(this, "onOutput", new fe());
-    h(this, "onAddGraph", new fe());
-    h(this, "onRemoveGraph", new fe());
+    h(this, "onOutput", new pe());
+    h(this, "onAddGraph", new pe());
+    h(this, "onRemoveGraph", new pe());
     this.drive = t, this.layers.onAdd.set(this.listenerKey, async (e) => {
       const r = e.graph;
       this.addGraph(r), r.onAnalysisSelection.set(this.listenerKey, async () => {
@@ -5933,7 +5933,7 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
   constructor(e) {
     super(e, { values: [[]], colors: [] });
     h(this, "_hasActiveGraphs", !1);
-    h(this, "onGraphsPresence", new fe());
+    h(this, "onGraphsPresence", new pe());
     h(this, "listeners", new du(this));
     this.listeners.onOutput.set("__mirror_output_to_local_state", async (r) => {
       this.value = r, r.colors.length > 0 ? this.hasActiveGraphs || (this._hasActiveGraphs = !0, this.onGraphsPresence.call(!0)) : this.hasActiveGraphs && (this._hasActiveGraphs = !1, this.onGraphsPresence.call(!1));
@@ -6808,10 +6808,10 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
 }, Uu = class gl {
   constructor(e, r) {
     h(this, "_hover", !1);
-    h(this, "onMouseEnter", new fe());
-    h(this, "onMouseLeave", new fe());
-    h(this, "onDrop", new fe());
-    h(this, "onProcessingEnd", new fe());
+    h(this, "onMouseEnter", new pe());
+    h(this, "onMouseLeave", new pe());
+    h(this, "onDrop", new pe());
+    h(this, "onProcessingEnd", new pe());
     /** An invissible input element */
     h(this, "input");
     h(this, "hydrated", !1);
@@ -7163,10 +7163,6 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
     const i = this.groups.addOrGetGroup(r), s = await this.service.loadFile(e.thermalUrl, e.visibleUrl);
     s instanceof qr && await s.createInstance(i), this.loading.markAsLoading(), this.postLoadedProcessing();
   }
-  /** Completely flush the entire registry and process evyrything from the files that are being dropped here. @deprecated */
-  async processDroppedFiles(e, r) {
-    throw new Error("Method not implemented");
-  }
   /** 
    * Actions to take after the registry is loaded 
    * - recalculate the minmax of groups
@@ -7175,7 +7171,17 @@ h(Ye, "humanDate", (e, r = !1) => (e = Ye.inputToDate(e), kr(e, r ? "d. M." : "d
    * - recalculate the histogram
   */
   async postLoadedProcessing() {
-    this.forEveryGroup((e) => e.minmax.recalculateFromInstances()), this.minmax.recalculateFromGroups(), this.minmax.value && this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max }), this.histogram.recalculateHistogramBufferInWorker(), this.loading.markAsLoaded();
+    if (this.forEveryGroup((e) => e.minmax.recalculateFromInstances()), this.minmax.recalculateFromGroups(), this.minmax.value)
+      if (this.range.value === void 0)
+        this.range.imposeRange({ from: this.minmax.value.min, to: this.minmax.value.max });
+      else {
+        const e = Math.max(this.range.value.from, this.minmax.value.min), r = Math.min(this.range.value.to, this.minmax.value.max);
+        (e !== this.range.value.from || r !== this.range.value.to) && this.range.imposeRange({
+          from: Math.max(this.range.value.from, this.minmax.value.min),
+          to: Math.min(this.range.value.to, this.minmax.value.max)
+        });
+      }
+    this.histogram.recalculateHistogramBufferInWorker(), this.loading.markAsLoaded();
   }
   reset() {
     this.forEveryGroup((e) => e.reset()), this.opacity.reset(), this.minmax.reset();
@@ -7268,7 +7274,7 @@ const _o = ["ready", "select"], Xu = {
 };
 let dt = class extends at {
   constructor() {
-    super(...arguments), this.type = "column", this.events = [], this.options = void 0, this.cols = void 0, this.rows = void 0, this.data = void 0, this.view = void 0, this.selection = void 0, this.drawn = !1, this._data = void 0, this.chartWrapper = null, this.redrawTimeoutId = void 0, this.onWrapper = new fe(), this.left = 0, this.top = 0, this.w = 0, this.h = 0;
+    super(...arguments), this.type = "column", this.events = [], this.options = void 0, this.cols = void 0, this.rows = void 0, this.data = void 0, this.view = void 0, this.selection = void 0, this.drawn = !1, this._data = void 0, this.chartWrapper = null, this.redrawTimeoutId = void 0, this.onWrapper = new pe(), this.left = 0, this.top = 0, this.w = 0, this.h = 0;
   }
   render() {
     return y`
@@ -9965,7 +9971,7 @@ class rt extends hi {
           percentage: e
         };
       }
-    }, this.ms = 0, this.playbackSpeed = 1, this.recording = !1, this.mayStop = !0, this.marksProvidedBelow = [], this.analysis = [], this.onLoadingStart = new fe(), this.onSuccess = new fe(), this.onFailure = new fe();
+    }, this.ms = 0, this.playbackSpeed = 1, this.recording = !1, this.mayStop = !0, this.marksProvidedBelow = [], this.analysis = [], this.onLoadingStart = new pe(), this.onSuccess = new pe(), this.onFailure = new pe(), this.onInstanceCreated = new pe();
   }
   firstUpdated(e) {
     super.firstUpdated(e), this.marksProvidedBelow = this.marksQueriedInternally, this.marksProvidedBelow.forEach((r) => console.log(r.innerHTML));
@@ -10009,7 +10015,7 @@ class rt extends hi {
       this.mayStop = r;
     }, this.analysisCallback = (r) => {
       this.analysis = r;
-    }, e.timeline.callbacksPlay.add(this.UUID, this.playCallback), e.timeline.callbacksPause.add(this.UUID, this.stopCallback), e.timeline.callbacksStop.add(this.UUID, this.stopCallback), e.timeline.callbacksEnd.add(this.UUID, this.stopCallback), e.timeline.callbacksChangeFrame.add(this.UUID, this.currentFrameChangeCallback), e.timeline.callbackdPlaybackSpeed.add(this.UUID, this.playbackSpeedCallback), e.recording.addListener(this.UUID, this.recordingCallback), e.recording.callbackMayStop.add(this.UUID, this.mayStopCallback), e.analysis.addListener(this.UUID, this.analysisCallback);
+    }, e.timeline.callbacksPlay.add(this.UUID, this.playCallback), e.timeline.callbacksPause.add(this.UUID, this.stopCallback), e.timeline.callbacksStop.add(this.UUID, this.stopCallback), e.timeline.callbacksEnd.add(this.UUID, this.stopCallback), e.timeline.callbacksChangeFrame.add(this.UUID, this.currentFrameChangeCallback), e.timeline.callbackdPlaybackSpeed.add(this.UUID, this.playbackSpeedCallback), e.recording.addListener(this.UUID, this.recordingCallback), e.recording.callbackMayStop.add(this.UUID, this.mayStopCallback), e.analysis.addListener(this.UUID, this.analysisCallback), this.onInstanceCreated.call(e);
   }
   removeInstance(e) {
     e.unmountFromDom(), this.file = void 0, this.loading = !1, this.ready = !1, this.duration = void 0, this.currentFrame = void 0, this.analysis = [], e.timeline.callbacksPlay.delete(this.UUID), e.timeline.callbacksPause.delete(this.UUID), e.timeline.callbacksStop.delete(this.UUID), e.timeline.callbacksEnd.delete(this.UUID), e.timeline.callbacksChangeFrame.delete(this.UUID), e.timeline.callbackdPlaybackSpeed.delete(this.UUID), e.recording.removeListener(this.UUID), e.analysis.removeListener(this.UUID);
@@ -10940,13 +10946,13 @@ ti = Yi([
       g[`value${M + 1}`] = x[M];
     l.dispatchEvent(new CustomEvent("change", { detail: g }));
   }, P = (l, u, x) => {
-    let g = 0, M, ee, pe, F, N = !1, ge = (re, Re, Qe, Ke, He, Be) => {
+    let g = 0, M, ee, fe, F, N = !1, ge = (re, Re, Qe, Ke, He, Be) => {
       let vt = g;
       Qe !== void 0 && re > Qe && (re = Qe), Re !== void 0 && re < Re && (re = Re), g = re;
       let yt = g;
       return (Ke === Fe && Be || Ke === it && He) && (yt = 100 - yt), Ke === Fe ? u.style.top = `${yt}%` : u.style.left = `${yt}%`, vt !== g;
     }, we = (re) => re === u || u.contains(re), q = (re, Re, Qe, Ke) => {
-      M = re, ee = Re, pe = Qe, F = Ke;
+      M = re, ee = Re, fe = Qe, F = Ke;
     }, De = (re) => {
       N = re, u.classList.toggle("disabled", N), N ? u.setAttribute("aria-disabled", "true") : u.hasAttribute("aria-disabled") && u.removeAttribute("aria-disabled");
     }, Rt = (re, Re) => {
@@ -10963,7 +10969,7 @@ ti = Yi([
             break;
           }
           case "ArrowUp": {
-            re.preventDefault(), typeof pe == "function" && pe(x);
+            re.preventDefault(), typeof fe == "function" && fe(x);
             break;
           }
           case "ArrowDown": {
@@ -11001,15 +11007,15 @@ ti = Yi([
   }, L = (l, u) => u ? u.findIndex((x) => x === l || x.toString().trim() === l.toString().trim()) : -1, R = (l) => ({ updatePosition: (u, x, g, M) => {
     if (x.length <= 0)
       return;
-    let ee = x.length === 1, pe = x[0], F = x[x.length - 1];
-    u === Fe ? (l.style.removeProperty("width"), l.style.removeProperty("right"), l.style.removeProperty("left"), ee ? l.style.height = `${pe}%` : l.style.height = `${Math.abs(pe - F)}%`, M ? (l.style.bottom = "0%", ee ? l.style.top = "auto" : l.style.top = `${Math.min(100 - F, 100 - pe)}%`) : (l.style.bottom = "auto", ee ? l.style.top = "0%" : l.style.top = `${Math.min(pe, F)}%`)) : (l.style.removeProperty("height"), l.style.removeProperty("top"), l.style.removeProperty("bottom"), ee ? l.style.width = `${pe}%` : l.style.width = `${Math.abs(pe - F)}%`, g ? (l.style.right = "0%", ee ? l.style.left = "auto" : l.style.left = `${Math.min(100 - F, 100 - pe)}%`) : (l.style.right = "auto", ee ? l.style.left = "0%" : l.style.left = `${Math.min(pe, F)}%`));
+    let ee = x.length === 1, fe = x[0], F = x[x.length - 1];
+    u === Fe ? (l.style.removeProperty("width"), l.style.removeProperty("right"), l.style.removeProperty("left"), ee ? l.style.height = `${fe}%` : l.style.height = `${Math.abs(fe - F)}%`, M ? (l.style.bottom = "0%", ee ? l.style.top = "auto" : l.style.top = `${Math.min(100 - F, 100 - fe)}%`) : (l.style.bottom = "auto", ee ? l.style.top = "0%" : l.style.top = `${Math.min(fe, F)}%`)) : (l.style.removeProperty("height"), l.style.removeProperty("top"), l.style.removeProperty("bottom"), ee ? l.style.width = `${fe}%` : l.style.width = `${Math.abs(fe - F)}%`, g ? (l.style.right = "0%", ee ? l.style.left = "auto" : l.style.left = `${Math.min(100 - F, 100 - fe)}%`) : (l.style.right = "auto", ee ? l.style.left = "0%" : l.style.left = `${Math.min(fe, F)}%`));
   } }), J = "--animate-onclick", Ce = "--width", ae = "--height", Le = "--panel-bg-border-radius", _e = "--panel-bg", H = "--panel-bg-hover", Se = "--panel-bg-fill", $ = "--pointer-width", A = "--pointer-height", ce = "--pointer-border-radius", ye = "--pointer-bg", Ge = "--pointer-bg-hover", st = "--pointer-bg-focus", Zt = "--pointer-shadow", kt = "--pointer-shadow-hover", Lt = "--pointer-shadow-focus", yr = "--pointer-border", Q = "--pointer-border-hover", ue = "--pointer-border-focus", O = (l, u, x) => {
     let g = /* @__PURE__ */ new Map();
     for (let M of l.attributes) {
       let ee = M.nodeName.trim().toLowerCase();
       if (!u.test(ee))
         continue;
-      let pe = ee.replace(/\D/g, "").trim(), F = pe === "" || pe === "0" || pe === "1" ? 0 : Ne(pe, 0) - 1, N = x && typeof x == "function" ? x(M.value) : M.value;
+      let fe = ee.replace(/\D/g, "").trim(), F = fe === "" || fe === "0" || fe === "1" ? 0 : Ne(fe, 0) - 1, N = x && typeof x == "function" ? x(M.value) : M.value;
       g.set(F, N);
     }
     return g;
@@ -11024,17 +11030,17 @@ ti = Yi([
       M.trim() !== "" && g.push(M.trim());
     return g;
   }, Pe = [[Ce, le, "sliderWidth", null], [ae, E, "sliderHeight", null], [Le, Y, "sliderRadius", null], [_e, G, "sliderBg", null], [H, Z, "sliderBgHover", null], [Se, he, "sliderBgFill", null], [$, X, "pointer#Width", /^pointer([0-9]*)-width$/], [A, ie, "pointer#Height", /^pointer([0-9]*)-height$/], [ce, se, "pointer#Radius", /^pointer([0-9]*)-radius$/], [ye, de, "pointer#Bg", /^pointer([0-9]*)-bg$/], [Ge, Te, "pointer#BgHover", /^pointer([0-9]*)-bg-hover$/], [st, ze, "pointer#BgFocus", /^pointer([0-9]*)-bg-focus$/], [Zt, Ue, "pointer#Shadow", /^pointer([0-9]*)-shadow$/], [kt, St, "pointer#ShadowHover", /^pointer([0-9]*)-shadow-hover$/], [Lt, $t, "pointer#ShadowFocus", /^pointer([0-9]*)-shadow-focus$/], [yr, lr, "pointer#Border", /^pointer([0-9]*)-border$/], [Q, Xt, "pointer#BorderHover", /^pointer([0-9]*)-border-hover$/], [ue, qt, "pointer#BorderFocus", /^pointer([0-9]*)-border-focus$/]], ke = (l, u, x) => {
-    let g = null, M = [], ee = /* @__PURE__ */ new Map(), pe = (te, ve = u) => {
+    let g = null, M = [], ee = /* @__PURE__ */ new Map(), fe = (te, ve = u) => {
       let re = [...ve.classList];
       for (let Re of re)
         Re.startsWith(te) && u.classList.remove(Re);
     }, F = () => {
-      pe("shape");
+      fe("shape");
       let te = u.querySelectorAll(".pointer");
       for (let ve of te)
-        pe("shape", ve);
+        fe("shape", ve);
     }, N = (te) => {
-      g = te, pe("theme-"), typeof te == "string" && u.classList.add(`theme-${te}`);
+      g = te, fe("theme-"), typeof te == "string" && u.classList.add(`theme-${te}`);
     }, ge = () => {
       if (F(), !(M.length <= 0)) {
         u.classList.add("shape", `shape-${M[0]}`);
@@ -11114,7 +11120,7 @@ ti = Yi([
     let M = [], ee = (we) => {
       for (let q of M)
         q.update && typeof q.update == "function" && q.update(we);
-    }, pe = () => {
+    }, fe = () => {
       for (let we of M)
         we.destroy && typeof we.destroy == "function" && we.destroy();
     }, F = (we, q) => {
@@ -11143,7 +11149,7 @@ ti = Yi([
           let q = we();
           M.push(q), q.init && typeof q.init == "function" && (q.init(l, u, x, g), N(q), ge(q));
         }
-    }, update: ee, onAttrChange: F, destroy: pe };
+    }, update: ee, onAttrChange: F, destroy: fe };
   }, Xe = 10, Ki = 20, eh = (l, u) => {
     let x = /* @__PURE__ */ new Map(), g = /^value([0-9]*)$/;
     for (let F of l.attributes) {
@@ -11155,13 +11161,13 @@ ti = Yi([
     }
     let M = Math.max(...Array.from(x.keys())), ee = [];
     ee.push([P(l, u, 0), x.get(0)]);
-    let pe = u;
+    let fe = u;
     for (let F = 1; F <= M; F++) {
       let N = u.cloneNode(!0);
-      pe.after(N), pe = N, ee.push([P(l, N, F), x.get(F)]);
+      fe.after(N), fe = N, ee.push([P(l, N, F), x.get(F)]);
     }
     return ee;
-  }, Da = (l, u, x, g, M, ee, pe) => {
+  }, Da = (l, u, x, g, M, ee, fe) => {
     try {
       Object.defineProperty(l, g, { configurable: !0, get() {
         if (!u)
@@ -11183,7 +11189,7 @@ ti = Yi([
         return (N = (F = u == null ? void 0 : u.styles) == null ? void 0 : F.pointerShapes[x]) != null ? N : null;
       }, set: (F) => {
         !u || !u.styles || u.styles.setPointerShape(x, F);
-      } }), Object.defineProperty(l, pe, { configurable: !0, get() {
+      } }), Object.defineProperty(l, fe, { configurable: !0, get() {
         var F;
         return (F = u == null ? void 0 : u.pointers[x].disabled) != null ? F : !1;
       }, set: (F) => {
@@ -11214,7 +11220,7 @@ ti = Yi([
       u.$pointer.style.zIndex = (Ki * 2).toString();
     }
   }, tn = 0, ui = 100, Wr = 2, Ta = "0.3s", ih = (l, u, x) => {
-    let g = x.map((d) => d[0]), M = null, ee = null, pe = null, F = null, N = tn, ge = ui, we, q, De = it, Rt = Wr, ct = !1, te = !1, ve = !1, re = 0, Re = 1 / 0, Qe = !1, Ke, He, Be = !1, vt = !1, yt = !1, br = Ta, La = [], Ra = (d) => {
+    let g = x.map((d) => d[0]), M = null, ee = null, fe = null, F = null, N = tn, ge = ui, we, q, De = it, Rt = Wr, ct = !1, te = !1, ve = !1, re = 0, Re = 1 / 0, Qe = !1, Ke, He, Be = !1, vt = !1, yt = !1, br = Ta, La = [], Ra = (d) => {
       Be || (d.preventDefault && d.preventDefault(), Tr(d), window.addEventListener("mousemove", Tr), window.addEventListener("mouseup", Zi), Zs(l, d));
     }, Zi = (d) => {
       Be || (Ke = void 0, He = void 0, window.removeEventListener("mousemove", Tr), window.removeEventListener("mouseup", Zi), br && u.classList.add(We), Qs(l, d));
@@ -11465,11 +11471,11 @@ ti = Yi([
       for (let Ee of g)
         Ee.setCallbacks(Ua, Ia, Fa, Na);
       let V = (d = l.shadowRoot) == null ? void 0 : d.querySelector(".panel-fill");
-      V && (ee = R(V)), _n(l.getAttribute(D)), Sn(qe(l.getAttribute(I))), $n(qe(l.getAttribute(U))), mh(l.getAttribute(m), l.getAttribute(b)), ns(l.getAttribute(w)), xn(l.getAttribute(f)), Va(x.map((Ee) => Ee[1])), vn(qe(l.getAttribute(a))), yn(Ne(l.getAttribute(o), 0)), bn(Ne(l.getAttribute(c), 1 / 0)), as(qe(l.getAttribute(p))), kn(Ne(l.getAttribute(k), Wr)), vh(), yh(), pe = ke(l, u, g), Xa((S = l.getAttribute(Kt)) != null ? S : Ta), u.addEventListener("mousedown", Ra), u.addEventListener("mouseup", Zi), u.addEventListener("touchmove", Tr), u.addEventListener("touchstart", Tr), yt || document.addEventListener("wheel", Qi, { passive: !1 }), F = gt(l, hh, { setValues: Va, setMin: rs, setMax: is, setStep: ns, setPointersOverlap: vn, setPointersMinDistance: yn, setPointersMaxDistance: bn, setDisabled: wn, setType: _n, setRightToLeft: Sn, setBottomToTop: $n, setRound: kn, setKeyboardDisabled: Ya, setMousewheelDisabled: Ga, setRangeDragging: as, setData: xn }, { getPercents: ja, getValues: Wa, getPointerElements: za, getMin: Ha, getMax: Ba, getStep: sn, getData: nn, getType: an, getRound: on, getTextMin: es, getTextMax: ts, isRightToLeft: cn, isBottomToTop: dn, isDisabled: un, isKeyboardDisabled: pn, isMousewheelDisabled: fn, isPointersOverlap: mn, isRangeDraggingEnabled: gn, getPointersMinDistance: ln, getPointersMaxDistance: hn }), F.init();
+      V && (ee = R(V)), _n(l.getAttribute(D)), Sn(qe(l.getAttribute(I))), $n(qe(l.getAttribute(U))), mh(l.getAttribute(m), l.getAttribute(b)), ns(l.getAttribute(w)), xn(l.getAttribute(f)), Va(x.map((Ee) => Ee[1])), vn(qe(l.getAttribute(a))), yn(Ne(l.getAttribute(o), 0)), bn(Ne(l.getAttribute(c), 1 / 0)), as(qe(l.getAttribute(p))), kn(Ne(l.getAttribute(k), Wr)), vh(), yh(), fe = ke(l, u, g), Xa((S = l.getAttribute(Kt)) != null ? S : Ta), u.addEventListener("mousedown", Ra), u.addEventListener("mouseup", Zi), u.addEventListener("touchmove", Tr), u.addEventListener("touchstart", Tr), yt || document.addEventListener("wheel", Qi, { passive: !1 }), F = gt(l, hh, { setValues: Va, setMin: rs, setMax: is, setStep: ns, setPointersOverlap: vn, setPointersMinDistance: yn, setPointersMaxDistance: bn, setDisabled: wn, setType: _n, setRightToLeft: Sn, setBottomToTop: $n, setRound: kn, setKeyboardDisabled: Ya, setMousewheelDisabled: Ga, setRangeDragging: as, setData: xn }, { getPercents: ja, getValues: Wa, getPointerElements: za, getMin: Ha, getMax: Ba, getStep: sn, getData: nn, getType: an, getRound: on, getTextMin: es, getTextMax: ts, isRightToLeft: cn, isBottomToTop: dn, isDisabled: un, isKeyboardDisabled: pn, isMousewheelDisabled: fn, isPointersOverlap: mn, isRangeDraggingEnabled: gn, getPointersMinDistance: ln, getPointersMaxDistance: hn }), F.init();
     })(), { get pointers() {
       return g;
     }, get styles() {
-      return pe;
+      return fe;
     }, get pluginsManager() {
       return F;
     }, get min() {
@@ -11614,25 +11620,25 @@ ti = Yi([
     let M = null;
     if (/^value([0-9]*)$/.test(u) && (M = "value"), /^pointer([0-9]*)-disabled$/.test(u) && (M = "pointer-disabled"), /^aria-label([0-9]*)$/.test(u) && (M = "aria-label"), /^pointer([0-9]*)-shape$/.test(u) && (M = "pointer-shape"), !M)
       return;
-    let ee = u.replace(/\D/g, "").trim(), pe = ee === "" || ee === "0" || ee === "1" ? 0 : Ne(ee, 0) - 1;
+    let ee = u.replace(/\D/g, "").trim(), fe = ee === "" || ee === "0" || ee === "1" ? 0 : Ne(ee, 0) - 1;
     switch (M) {
       case "value": {
-        l.setValue(x, pe);
+        l.setValue(x, fe);
         break;
       }
       case "pointer-disabled": {
-        let F = l == null ? void 0 : l.pointers[pe];
+        let F = l == null ? void 0 : l.pointers[fe];
         if (!F)
           return;
         F.disabled = qe(x);
         break;
       }
       case "aria-label": {
-        l.setAriaLabel(pe, x);
+        l.setAriaLabel(fe, x);
         break;
       }
       case "pointer-shape": {
-        l.styles && l.styles.setPointerShape(pe, x);
+        l.styles && l.styles.setPointerShape(fe, x);
         break;
       }
     }
@@ -11795,11 +11801,11 @@ ti = Yi([
         return;
       let M = eh(this, x);
       this.slider = ih(this, g, M), th(this, this.slider), this._observer = new MutationObserver((ee) => {
-        ee.forEach((pe) => {
+        ee.forEach((fe) => {
           var F;
-          if (!this.slider || pe.type !== "attributes")
+          if (!this.slider || fe.type !== "attributes")
             return;
-          let N = pe.attributeName;
+          let N = fe.attributeName;
           !N || sh(this.slider, N, (F = this.getAttribute(N)) != null ? F : "");
         });
       }), this._observer.observe(this, { attributes: !0 });
