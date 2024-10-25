@@ -3654,10 +3654,106 @@ var AnalysisLayersStorage = class extends Map {
   onSelectionChange = new CallbacksManager();
   /** Array of available colors */
   colors = availableAnalysisColors;
+  analysis1;
+  analysis2;
+  analysis3;
+  analysis4;
+  analysis5;
+  analysis6;
+  analysis7;
+  get slot1() {
+    return this.analysis1;
+  }
+  get slot2() {
+    return this.analysis2;
+  }
+  get slot3() {
+    return this.analysis3;
+  }
+  get slot4() {
+    return this.analysis4;
+  }
+  get slot5() {
+    return this.analysis5;
+  }
+  get slot6() {
+    return this.analysis6;
+  }
+  get slot7() {
+    return this.analysis7;
+  }
+  onSlot1 = new CallbacksManager();
+  onSlot2 = new CallbacksManager();
+  onSlot3 = new CallbacksManager();
+  onSlot4 = new CallbacksManager();
+  onSlot5 = new CallbacksManager();
+  onSlot6 = new CallbacksManager();
+  onSlot7 = new CallbacksManager();
+  hasFreeSlots() {
+    return this.analysis1 === void 0 || this.analysis2 === void 0 || this.analysis3 === void 0 || this.analysis4 === void 0 || this.analysis5 === void 0 || this.analysis6 === void 0 || this.analysis7 === void 0;
+  }
+  getFreeSlotIndex() {
+    if (!this.hasFreeSlots()) {
+      return void 0;
+    }
+    if (this.analysis1 === void 0) return 1;
+    if (this.analysis2 === void 0) return 2;
+    if (this.analysis3 === void 0) return 3;
+    if (this.analysis4 === void 0) return 4;
+    if (this.analysis5 === void 0) return 5;
+    if (this.analysis6 === void 0) return 6;
+    if (this.analysis7 === void 0) return 7;
+    return void 0;
+  }
+  getFreeSlot() {
+    if (!this.hasFreeSlots()) {
+      return void 0;
+    }
+    const index = this.getFreeSlotIndex();
+    if (index !== void 0) {
+      return `analysis${index}`;
+    }
+    return void 0;
+  }
+  getAnalysisSlotIndex(analysis) {
+    if (this.analysis1 && this.analysis1.key === analysis.key)
+      return 1;
+    else if (this.analysis2 && this.analysis2.key === analysis.key)
+      return 2;
+    else if (this.analysis3 && this.analysis3.key === analysis.key)
+      return 3;
+    else if (this.analysis4 && this.analysis4.key === analysis.key)
+      return 4;
+    else if (this.analysis5 && this.analysis5.key === analysis.key)
+      return 5;
+    else if (this.analysis6 && this.analysis6.key === analysis.key)
+      return 6;
+    else if (this.analysis7 && this.analysis7.key === analysis.key)
+      return 7;
+    else
+      return void 0;
+  }
   // Adding analysis
-  addAnalysis(analysis) {
+  addAnalysis(analysis, slotNumber) {
+    if (!this.hasFreeSlots()) {
+      console.log("does not have free slots");
+      return;
+    }
     if (this.has(analysis.key)) {
+      const existingIndex = this.getAnalysisSlotIndex(analysis);
+      if (existingIndex !== void 0) {
+        const manager = this[`onSlot${existingIndex}`];
+        manager.call(void 0);
+      }
       this.removeAnalysis(analysis.key);
+    }
+    let slot = slotNumber !== void 0 ? slotNumber : this.getFreeSlotIndex();
+    const slotName = `analysis${slot}`;
+    const slotCallbackName = `onSlot${slot}`;
+    if (slot !== void 0) {
+      this[slotName] = analysis;
+      const manager = this[slotCallbackName];
+      manager.call(analysis);
     }
     analysis.setColor(analysis.initialColor);
     this.set(analysis.key, analysis);
@@ -3668,6 +3764,12 @@ var AnalysisLayersStorage = class extends Map {
   }
   removeAnalysis(key) {
     if (this.has(key)) {
+      const slot = this.getAnalysisSlotIndex(this.get(key));
+      if (slot) {
+        this[`analysis${1}`] = void 0;
+        const manager = this[`onSlot${slot}`];
+        manager.call(void 0);
+      }
       this.get(key)?.remove();
       this.delete(key);
       this.layers = this.layers.filter((analysis) => analysis.key !== key);
@@ -3688,7 +3790,7 @@ var AnalysisLayersStorage = class extends Map {
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
-  placeRectAt(name, top, left, right, bottom, color) {
+  placeRectAt(name, top, left, right, bottom, color, slotNumber) {
     const newAnalysis = RectangleAnalysis.build(
       name,
       color ?? this.getNextColor(),
@@ -3699,7 +3801,7 @@ var AnalysisLayersStorage = class extends Map {
       bottom
     );
     newAnalysis.ready = true;
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
   /** Add an ellyptical analysis in the given position and start editing it */
@@ -3715,7 +3817,7 @@ var AnalysisLayersStorage = class extends Map {
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
-  placeEllipsisAt(name, top, left, right, bottom, color) {
+  placeEllipsisAt(name, top, left, right, bottom, color, slotNumber) {
     const newAnalysis = EllipsisAnalysis.build(
       name,
       color ?? this.getNextColor(),
@@ -3726,7 +3828,7 @@ var AnalysisLayersStorage = class extends Map {
       bottom
     );
     newAnalysis.ready = true;
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
   createPointAt(top, left) {
@@ -3740,7 +3842,7 @@ var AnalysisLayersStorage = class extends Map {
     this.addAnalysis(newAnalysis);
     return newAnalysis;
   }
-  placePointAt(name, top, left, color) {
+  placePointAt(name, top, left, color, slotNumber) {
     const newAnalysis = PointAnalysis.addAtPoint(
       name,
       color ?? this.getNextColor(),
@@ -3749,10 +3851,10 @@ var AnalysisLayersStorage = class extends Map {
       left
     );
     newAnalysis.ready = true;
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
-  createFromSerialized(serialized) {
+  createFromSerialized(serialized, slotNumber) {
     const splitted = serialized.split(";").map((segment) => segment.trim());
     if (splitted.length < 2) {
       return;
@@ -3785,7 +3887,7 @@ var AnalysisLayersStorage = class extends Map {
       if (top === void 0 || left === void 0) {
         return;
       }
-      const analysis = this.placePointAt(name, top, left, color);
+      const analysis = this.placePointAt(name, top, left, color, slotNumber);
       if (avg) {
         analysis.graph.setAvgActivation(true);
       }
@@ -3798,7 +3900,7 @@ var AnalysisLayersStorage = class extends Map {
       if (width + left > this.drive.parent.width - 1) width = this.drive.parent.width - left - 1;
       if (height < 0) height = 0;
       if (height + top > this.drive.parent.height - 1) height = this.drive.parent.height - top - 1;
-      const analysis = type === "rectangle" ? this.placeRectAt(name, top, left, width + left, height + top, color) : this.placeEllipsisAt(name, top, left, width + left, height + top, color);
+      const analysis = type === "rectangle" ? this.placeRectAt(name, top, left, width + left, height + top, color, slotNumber) : this.placeEllipsisAt(name, top, left, width + left, height + top, color, slotNumber);
       if (avg) analysis.graph.setAvgActivation(true);
       if (min) analysis.graph.setMinActivation(true);
       if (max) analysis.graph.setMaxActivation(true);

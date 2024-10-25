@@ -1,4 +1,4 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { AbstractAnalysis, CallbacksManager, Instance, ThermalFileFailure, ThermalFileReader, SlotNumber } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -29,30 +29,36 @@ export class FileProviderElement extends AbstractFileProvider {
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis1?: string;
+    protected analysis1Key?: string;
     protected analysis1Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis2?: string;
-    protected analysis2Object?: AbstractAnalysis;
+    protected analysis2Key?: string;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis3?: string;
+    protected analysis3Key?: string;
     protected analysis3Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis4?: string;
+    protected analysis4Key?: string;
     protected analysis4Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis5?: string;
+    protected analysis5Key?: string;
     protected analysis5Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis6?: string;
+    protected analysis6Key?: string;
     protected analysis6Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis7?: string;
+    protected analysis7Key?: string;
     protected analysis7Object?: AbstractAnalysis;
 
     /** Load the file and call all necessary callbacks */
@@ -126,15 +132,71 @@ export class FileProviderElement extends AbstractFileProvider {
         instance: Instance
     ) {
 
-        this.handleAnalysisNew(instance, "analysis1", this.analysis1);
-        this.handleAnalysisNew(instance, "analysis2", this.analysis2);
-        this.handleAnalysisNew(instance, "analysis3", this.analysis3);
-        this.handleAnalysisNew(instance, "analysis4", this.analysis4);
-        this.handleAnalysisNew(instance, "analysis5", this.analysis5);
-        this.handleAnalysisNew(instance, "analysis6", this.analysis6);
-        this.handleAnalysisNew(instance, "analysis7", this.analysis7);
+        this.handleAnalysisField(instance, 1);
+        this.handleAnalysisField(instance, 2);
+        this.handleAnalysisField(instance, 3);
+        this.handleAnalysisField(instance, 4);
+        this.handleAnalysisField(instance, 5);
+        this.handleAnalysisField(instance, 6);
+        this.handleAnalysisField(instance, 7);
 
     }
+
+
+    protected handleAnalysisField(
+        instance: Instance,
+        number: SlotNumber
+    ) {
+
+        const serializedField = `analysis${number}` as keyof FileProviderElement;
+        const keyField = `analysis${number}Key` as keyof FileProviderElement;
+
+
+        instance.analysis.layers[`onSlot${number}`].set(this.UUID, analysis => {
+            console.log("on slot 7");
+            this[serializedField] = analysis?.serialized;
+            this[keyField] = analysis?.key;
+
+            if (analysis) {
+                // Update the value to the component
+                analysis.onSerialize.set(this.UUID, value => {
+                    this[serializedField] = value;
+                });
+
+                // Remove self once delted
+                analysis.layers.onRemove.set(this.UUID + analysis.key, (key) => {
+
+                    console.log(key);
+
+                    if (key === this.analysis7Key) {
+                        this[keyField] = analysis?.key;
+                        this[serializedField] = undefined;
+                    }
+                });
+            }
+
+        });
+
+
+
+        // Initial serialized value
+
+        const initialSerializedValue = this[serializedField] as string | null | undefined;
+
+        if (initialSerializedValue) {
+            const analysis = instance.analysis.layers.createFromSerialized(
+                initialSerializedValue,
+                number
+            );
+            if (analysis) {
+
+                const field = this[keyField];
+                this[keyField] = analysis.key as string;
+            }
+        }
+
+    }
+
 
     protected handleAnalysis(
         instance: Instance,
@@ -192,40 +254,6 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
-    protected handleAnalysisNew(
-        instance: Instance,
-        key: "analysis1"|"analysis2"|"analysis3"|"analysis4"|"analysis5"|"analysis6"|"analysis7",
-        value?: string,
-    ): AbstractAnalysis | undefined {
-
-        if (value === undefined) {
-            return;
-        }
-
-        const objectKey = key + "Object" as keyof ThisType<FileProviderElement>;
-
-        let analysis = this[objectKey] as AbstractAnalysis | undefined;
-
-        if (!analysis) {
-            analysis = instance.analysis.layers.createFromSerialized(value);
-            if (analysis) {
-                analysis.setSelected()
-            }
-        }
-
-        if (analysis === undefined) {
-            return;
-        }
-
-        analysis.onSerialize.set(this.UUID, value => {
-            this[key] = value;
-        });
-
-
-        return analysis;
-
-    }
-
 
     /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
     connectedCallback(): void {
@@ -237,7 +265,7 @@ export class FileProviderElement extends AbstractFileProvider {
     }
 
 
-    protected updated(_changedProperties: PropertyValues): void {
+    protected updated(_changedProperties: PropertyValues<FileProviderElement>): void {
         super.updated(_changedProperties);
 
         if (_changedProperties.has("thermal")) {
@@ -252,7 +280,98 @@ export class FileProviderElement extends AbstractFileProvider {
             }
 
         }
+
+        /*
+        if (_changedProperties.has("analysis1")) {
+
+            const oldValue = _changedProperties.get("analysis1");
+            const newValue = this.analysis1;
+
+            if (this.file) {
+
+                // Create new one if not existed yet
+                if (!oldValue && newValue) {
+                    this.file.analysis.layers.createFromSerialized(newValue, 1);
+                }
+
+                // Delete the existing
+                else if (
+                    oldValue
+                    && (newValue === undefined || newValue === null || newValue.trim().length === 0)
+                    && this.analysis1Key
+                ) {
+                    this.file.analysis.layers.removeAnalysis(this.analysis1Key);
+                } else if ( this.analysis1Key ) {
+                    
+                    const oldAnalysis = this.file.analysis.layers.get( this.analysis1Key );
+
+                    if ( newValue && oldAnalysis && newValue !== oldAnalysis.serialized ) {
+                        oldAnalysis.recievedSerialized( newValue );
+                    }
+
+                }
+
+            }
+
+        }
+        */
+
+        this.handleAnalysisUpdate( 1, _changedProperties );
+        this.handleAnalysisUpdate( 2, _changedProperties );
+        this.handleAnalysisUpdate( 3, _changedProperties );
+        this.handleAnalysisUpdate( 4, _changedProperties );
+        this.handleAnalysisUpdate( 5, _changedProperties );
+        this.handleAnalysisUpdate( 6, _changedProperties );
+        this.handleAnalysisUpdate( 7, _changedProperties );
+
     }
+
+    protected handleAnalysisUpdate(
+        index: SlotNumber,
+        _changedProperties: PropertyValues<FileProviderElement>
+    ) {
+
+        const field = `analysis${index}` as keyof FileProviderElement;
+        const keyValue = this[ `analysis${index}Key` as keyof FileProviderElement ] as string|undefined;
+
+
+        if (_changedProperties.has(field)) {
+
+            const oldValue = _changedProperties.get(field);
+            const newValue = this[field] as string|undefined|null;
+
+            if (this.file) {
+
+                // Create new one if not existed yet
+                if (!oldValue && newValue) {
+                    this.file.analysis.layers.createFromSerialized(newValue, index);
+                }
+
+                // Delete the existing
+                else if (
+                    oldValue
+                    && (newValue === undefined || newValue === null || newValue.trim().length === 0)
+                    && keyValue
+                ) {
+                    this.file.analysis.layers.removeAnalysis(keyValue);
+                } else if ( keyValue ) {
+                    
+                    const oldAnalysis = this.file.analysis.layers.get( keyValue );
+
+                    if ( newValue && oldAnalysis && newValue !== oldAnalysis.serialized ) {
+                        oldAnalysis.recievedSerialized( newValue );
+                    }
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+
 
 
 

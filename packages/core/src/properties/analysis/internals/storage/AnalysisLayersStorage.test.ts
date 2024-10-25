@@ -4,6 +4,9 @@ import { loadFileForTests } from '../../../../../devserver/node/scaffold';
 import { PointAnalysis } from '../point/PointAnalysis';
 import { RectangleAnalysis } from '../area/rectangle/RectangleAnalysis';
 import { EllipsisAnalysis } from '../area/ellipsis/EllipsisAnalysis';
+import { AbstractAnalysis } from '../AbstractAnalysis';
+
+import {SlotNumber} from "./AnalysisLayersStorage";
 
 
 describe("AnalysisStorage", () => {
@@ -206,9 +209,9 @@ describe("AnalysisStorage", () => {
 
     });
 
-    test( "do not create area analysis from invalid serialized", async () => {
+    test("do not create area analysis from invalid serialized", async () => {
 
-        const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
+        const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const missingLeft = "Pokusný bod;rectangle;top:100; width:100; height:300; color:red;avg";
 
@@ -235,39 +238,127 @@ describe("AnalysisStorage", () => {
         expect(analysisD).toBeUndefined();
 
 
-    } );
+    });
 
-    test( "extreme cases of creating analysis from serialized", async () => {
+    test("extreme cases of creating analysis from serialized", async () => {
 
-        const instance = await loadFileForTests( THERMOGRAM_PATHS.SOUSTRUH );
+        const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const pointOff = instance.analysis.layers.createFromSerialized(
             "První test;point;left:1000;top:10000;color: violet"
         );
 
-        expect( pointOff ).not.toBeUndefined();
+        expect(pointOff).not.toBeUndefined();
 
-        if ( pointOff === undefined ) {
+        if (pointOff === undefined) {
             return;
         }
 
-        expect( pointOff.top ).toEqual( pointOff.file.height - 1 );
-        expect( pointOff.left ).toEqual( pointOff.file.width - 1 );
+        expect(pointOff.top).toEqual(pointOff.file.height - 1);
+        expect(pointOff.left).toEqual(pointOff.file.width - 1);
 
         const areaTooBig = instance.analysis.layers.createFromSerialized(
             "testovací oblast;rectangle;top:10;left:10;width:10000;height:10000;color:violet"
         );
 
-        expect( areaTooBig ).not.toBeUndefined();
+        expect(areaTooBig).not.toBeUndefined();
 
-        if ( areaTooBig === undefined ) {
+        if (areaTooBig === undefined) {
             return;
         }
 
-        expect( areaTooBig.top ).toEqual( 10 );
-        expect( areaTooBig.left ).toEqual( 10 );
-        expect( areaTooBig.width ).toEqual( areaTooBig.file.width - 11 );
-        expect( areaTooBig.height ).toEqual( areaTooBig.file.height - 11 );
+        expect(areaTooBig.top).toEqual(10);
+        expect(areaTooBig.left).toEqual(10);
+        expect(areaTooBig.width).toEqual(areaTooBig.file.width - 11);
+        expect(areaTooBig.height).toEqual(areaTooBig.file.height - 11);
     })
+
+    test("slots", async () => {
+
+        const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
+        const storage = instance.analysis.layers;
+
+        let analysis1: AbstractAnalysis | undefined;
+        let analysis2: AbstractAnalysis | undefined;
+        let analysis3: AbstractAnalysis | undefined;
+        let analysis4: AbstractAnalysis | undefined;
+        let analysis5: AbstractAnalysis | undefined;
+        let analysis6: AbstractAnalysis | undefined;
+        let analysis7: AbstractAnalysis | undefined;
+
+        storage.onSlot1.add("test", analysis => analysis1 = analysis);
+        storage.onSlot2.add("test", analysis => analysis2 = analysis);
+        storage.onSlot3.add("test", analysis => analysis3 = analysis);
+        storage.onSlot4.add("test", analysis => analysis4 = analysis);
+        storage.onSlot5.add("test", analysis => analysis5 = analysis);
+        storage.onSlot6.add("test", analysis => analysis6 = analysis);
+        storage.onSlot7.add("test", analysis => analysis7 = analysis);
+
+        for (let i = 1; i <= 7; i++) {
+
+            const analysis = storage.placeEllipsisAt(`Test analysis ${i}`, 10, 10, 100, 100, undefined, i as SlotNumber);
+
+            expect(analysis.key).toEqual(`Test analysis ${i}`);
+
+        }
+
+        expect(analysis1).not.toBeUndefined();
+        expect(analysis2).not.toBeUndefined();
+        expect(analysis3).not.toBeUndefined();
+        expect(analysis4).not.toBeUndefined();
+        expect(analysis5).not.toBeUndefined();
+        expect(analysis6).not.toBeUndefined();
+        expect(analysis7).not.toBeUndefined();
+
+        expect(analysis1!.key).toEqual("Test analysis 1");
+        expect(analysis2!.key).toEqual("Test analysis 2");
+        expect(analysis3!.key).toEqual("Test analysis 3");
+        expect(analysis4!.key).toEqual("Test analysis 4");
+        expect(analysis5!.key).toEqual("Test analysis 5");
+        expect(analysis6!.key).toEqual("Test analysis 6");
+        expect(analysis7!.key).toEqual("Test analysis 7");
+
+        expect(analysis1?.serialized).toEqual("Test analysis 1;ellipsis;color:Orange;top:10;left:10;width:90;height:90");
+        expect(analysis2?.serialized).toEqual("Test analysis 2;ellipsis;color:Lightblue;top:10;left:10;width:90;height:90");
+        expect(analysis3?.serialized).toEqual("Test analysis 3;ellipsis;color:Green;top:10;left:10;width:90;height:90");
+        expect(analysis4?.serialized).toEqual("Test analysis 4;ellipsis;color:Brown;top:10;left:10;width:90;height:90");
+        expect(analysis5?.serialized).toEqual("Test analysis 5;ellipsis;color:Yellow;top:10;left:10;width:90;height:90");
+        expect(analysis6?.serialized).toEqual("Test analysis 6;ellipsis;color:Blue;top:10;left:10;width:90;height:90");
+        expect(analysis7?.serialized).toEqual("Test analysis 7;ellipsis;color:Pink;top:10;left:10;width:90;height:90");
+
+        let serialized: string = analysis1!.serialized!;
+
+        analysis1?.onSerialize.set("test", value => {
+            serialized = value;
+        });
+
+        const newSerialized = "Zkušení analýza 3;ellipsis;color:DarkGoldenRod;top:10;left:10;width:40;height:40";
+        analysis1?.recievedSerialized(newSerialized);
+        analysis1?.serialize();
+
+        expect(serialized).toEqual(newSerialized);
+
+        // Removing analysis
+        storage.removeAnalysis(analysis1!.key);
+
+        expect( storage.slot1 ).toBeUndefined();
+
+        storage.onSlot1.set( "analýza 1 test", value => {
+            analysis1 = value;
+        } );
+
+        expect(analysis1).toBeUndefined();
+
+        storage.onSlot1.add("test2", analysis => analysis1 = analysis);
+
+        const analysis = storage.placeEllipsisAt(`Test analysis STH`, 10, 10, 100, 100, undefined, 1 );
+
+        
+
+        expect( analysis ).not.toBeUndefined();
+        expect( analysis1 ).not.toBeUndefined();
+
+
+    });
 
 });

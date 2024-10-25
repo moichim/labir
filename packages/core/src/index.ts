@@ -47,6 +47,7 @@ import { AnalysisDataStateValue } from "./properties/analysisData/AnalysisDataSt
 import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
 import { AnalysisGraph } from "./properties/analysisData/graphs/AnalysisGraph";
 import { availableAnalysisColors } from "./properties/analysis/internals/storage/AnalysisLayersStorage";
+import {SlotUnion, SlotNumber} from "./properties/analysis/internals/storage/AnalysisLayersStorage";
 
 export {
 
@@ -81,7 +82,9 @@ export {
     AbstractAreaAnalysis,
     AnalysisGraph,
     supportedFileTypesInputProperty,
-    availableAnalysisColors
+    availableAnalysisColors,
+    SlotUnion,
+    SlotNumber
     
 };
 

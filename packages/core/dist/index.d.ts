@@ -876,6 +876,8 @@ declare class RectangleAnalysis extends AbstractAreaAnalysis {
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
 type AnalysisRemovedCallback = (key: string) => void;
 type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | "analysis5" | "analysis6" | "analysis7";
+type SlotNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 declare const availableAnalysisColors: string[];
 declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly drive: AnalysisDrive;
@@ -889,20 +891,45 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
     /** Array of available colors */
     readonly colors: string[];
+    protected analysis1?: AbstractAnalysis;
+    protected analysis2?: AbstractAnalysis;
+    protected analysis3?: AbstractAnalysis;
+    protected analysis4?: AbstractAnalysis;
+    protected analysis5?: AbstractAnalysis;
+    protected analysis6?: AbstractAnalysis;
+    protected analysis7?: AbstractAnalysis;
+    get slot1(): AbstractAnalysis | undefined;
+    get slot2(): AbstractAnalysis | undefined;
+    get slot3(): AbstractAnalysis | undefined;
+    get slot4(): AbstractAnalysis | undefined;
+    get slot5(): AbstractAnalysis | undefined;
+    get slot6(): AbstractAnalysis | undefined;
+    get slot7(): AbstractAnalysis | undefined;
+    readonly onSlot1: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot2: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot3: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot4: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot5: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot6: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    readonly onSlot7: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
+    protected hasFreeSlots(): boolean;
+    protected getFreeSlotIndex(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | undefined;
+    protected getFreeSlot(): SlotUnion | undefined;
+    protected getAnalysisSlotIndex(analysis: AbstractAnalysis): 1 | 2 | 3 | 4 | 5 | 6 | 7 | undefined;
     constructor(drive: AnalysisDrive);
-    protected addAnalysis(analysis: AbstractAnalysis): this;
+    protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotNumber): this | undefined;
     removeAnalysis(key: string): void;
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string): RectangleAnalysis;
+    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotNumber): RectangleAnalysis;
     /** Add an ellyptical analysis in the given position and start editing it */
     createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string): EllipsisAnalysis;
+    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotNumber): EllipsisAnalysis;
     createPointAt(top: number, left: number): PointAnalysis;
-    placePointAt(name: string, top: number, left: number, color?: string): PointAnalysis;
-    createFromSerialized(serialized: string): AbstractAnalysis | undefined;
+    placePointAt(name: string, top: number, left: number, color?: string, slotNumber?: SlotNumber): PointAnalysis;
+    createFromSerialized(serialized: string, slotNumber?: SlotNumber): AbstractAnalysis | undefined;
     selectAll(): void;
     deselectAll(): void;
     /** Accessors */
@@ -1859,4 +1886,4 @@ declare class InspectTool extends AbstractTool implements ITool {
 
 declare const getPool: () => Promise<Pool__default>;
 
-export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
