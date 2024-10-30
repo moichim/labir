@@ -523,7 +523,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     }
 
-    protected toSerialized(): string {
+    public toSerialized(): string {
 
         const output: string[] = [];
 

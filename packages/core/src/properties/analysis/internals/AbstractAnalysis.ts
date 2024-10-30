@@ -17,8 +17,10 @@ export abstract class AbstractAnalysis {
 
     public readonly onSerialize = new CallbacksManager<(input: string) => void>;
 
+    public readonly onSerializableChange = new CallbacksManager<( analysis: AbstractAnalysis ) => void>
+
     public abstract recievedSerialized(input: string): void;
-    protected abstract toSerialized(): string;
+    public abstract toSerialized(): string;
     protected serializedIsValid( input: string ): boolean {
         const splitted = input
             .split( ";" )
@@ -39,6 +41,7 @@ export abstract class AbstractAnalysis {
         return true;
     }
 
+    /** @deprecated */
     public serialize() {
         const newValue = this.toSerialized();
         if ( this._serialized !== newValue ) {
@@ -117,6 +120,8 @@ export abstract class AbstractAnalysis {
             this.onSetHeight(height);
         }
 
+        this.onSerializableChange.call( this );
+
     }
 
     public setLeft(value: number) {
@@ -137,6 +142,8 @@ export abstract class AbstractAnalysis {
             this.onSetWidth(width);
         }
 
+        this.onSerializableChange.call( this );
+
 
     }
 
@@ -146,6 +153,7 @@ export abstract class AbstractAnalysis {
         if (!isNaN(val) && val !== this.width) {
             this._width = val;
             this.onSetWidth(val);
+            this.onSerializableChange.call( this );
         }
     }
 
@@ -154,6 +162,7 @@ export abstract class AbstractAnalysis {
         if (!isNaN(val) && val !== this.height) {
             this._height = val;
             this.onSetHeight(val);
+            this.onSerializableChange.call( this );
         }
     }
 
@@ -178,6 +187,8 @@ export abstract class AbstractAnalysis {
             this.onSetHeight(height);
         }
 
+        this.onSerializableChange.call( this );
+
     }
 
     public setRight(value: number) {
@@ -198,6 +209,8 @@ export abstract class AbstractAnalysis {
             this._width = width;
             this.onSetWidth(width);
         }
+
+        this.onSerializableChange.call( this );
 
     }
 
@@ -252,6 +265,7 @@ export abstract class AbstractAnalysis {
         this._initialColor = value;
         this.onSetInitialColor.call(value);
         this.serialize();
+        this.onSerializableChange.call( this );
         if (this.selected === true) {
             this.setColor(value);
         }
@@ -279,6 +293,7 @@ export abstract class AbstractAnalysis {
     public setName(value: string) {
         this._name = value;
         this.serialize();
+        this.onSerializableChange.call( this );
         this.onSetName.call(value);
     }
     public readonly onSetName = new CallbacksManager<(value: string) => void>;

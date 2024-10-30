@@ -198,7 +198,7 @@ export class PointAnalysis extends AbstractAnalysis {
         
     }
 
-    protected toSerialized(): string {
+    public toSerialized(): string {
         
         const output: string[] = [];
 
