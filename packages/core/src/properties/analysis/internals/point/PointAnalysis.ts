@@ -60,8 +60,6 @@ export class PointAnalysis extends AbstractAnalysis {
 
         this.recalculateValues();
 
-        this.serialize();
-
     }
 
 
@@ -147,8 +145,6 @@ export class PointAnalysis extends AbstractAnalysis {
             return;
         }
 
-        this._serialized = input;
-
         const splitted = input
             .split( ";" )
             .map( segment => segment.trim() );
@@ -192,8 +188,6 @@ export class PointAnalysis extends AbstractAnalysis {
         if ( shouldRecalculate ) {
             this.recalculateValues();
         }
-
-        console.log( "parsed", this.serialized );
 
         
     }

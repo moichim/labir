@@ -135,18 +135,9 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
         this.calculateBounds();
 
-        /*
-        this.onResize.add("sync the area", () => {
-            this.calculateBounds();
-            this.recalculateValues();
-        });
-        */
-
         this.onMoveOrResize.set("sync the area", () => {
             this.calculateBounds();
         });
-
-        this.serialize();
 
     }
 
@@ -435,14 +426,11 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             return;
         }
 
-        this._serialized = input;
-
         const splitted = input
             .split(";")
             .map(segment => segment.trim());
 
         let shouldRecalculate: boolean = false;
-        let shouldSerialize: boolean = false;
 
         const name = splitted[0];
 
@@ -471,7 +459,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
 
         if (color === undefined) {
-            shouldSerialize = true;
+            
         } else if (color !== this.initialColor) {
             this.setInitialColor(color);
         }
@@ -504,20 +492,6 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
         if (shouldRecalculate) {
             this.recalculateValues();
-        }
-
-        if ( !shouldSerialize ) {
-            shouldSerialize = left !== undefined
-                && top !== undefined
-                && width !== undefined
-                && height !== undefined
-                && ! this.graph.state.AVG === AbstractAnalysis.serializedSegmentsHasExact( splitted, "avg" )
-                && ! this.graph.state.MIN ===AbstractAnalysis.serializedSegmentsHasExact( splitted, "min" )
-                && ! this.graph.state.MAX === AbstractAnalysis.serializedSegmentsHasExact( splitted, "max" );
-        }
-
-        if ( shouldSerialize ) {
-            this.serialize();
         }
 
 

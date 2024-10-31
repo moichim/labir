@@ -10,7 +10,7 @@ export class AnalysisSlot {
     public get serialized() { return this._serialized; }
     public readonly onSerialize = new CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
 
-    protected enqueuedSerialisation?: NodeJS.Timeout;
+    protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
 
     public constructor(
         public readonly slot: number,
@@ -25,6 +25,8 @@ export class AnalysisSlot {
         analysis: AbstractAnalysis
     ) {
         this.dehydrate(this._analysis);
+        // Remove the existing analysis completely
+        this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key );
         this._analysis = analysis;
         this.hydrate(this._analysis);
     }
@@ -33,7 +35,7 @@ export class AnalysisSlot {
         return `slot ${this.slot} ${operation}`;
     }
 
-    private dehydrate(analysis: AbstractAnalysis) {
+    public dehydrate(analysis: AbstractAnalysis) {
 
         analysis.onSerializableChange.delete(this.listenerKey("serializable change"));
 
@@ -42,19 +44,26 @@ export class AnalysisSlot {
     private hydrate(analysis: AbstractAnalysis) {
 
         // Serialize whenever name changes
-        analysis.onSerializableChange.set(this.listenerKey("serializable change"), () => { this.serialize(); });
+        analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis, change) => { 
+            console.log( "recieved", change );
+            this.enqueueSerialisation();
+        });
 
     }
 
     protected enqueueSerialisation() {
         if (!this.enqueuedSerialisation) {
-            this.enqueuedSerialisation = setTimeout(() => this.serialize(), 0);
+            this.enqueuedSerialisation = setTimeout(() => {
+                this.serialize();
+                this.enqueuedSerialisation = undefined;
+            }, 0);
         }
     }
 
     protected serialize() {
         this._serialized = this.analysis.toSerialized();
         this.onSerialize.call(this._serialized, this.analysis);
+        console.log( "serializing" );
     }
 
     public recieveSerialized(
@@ -64,6 +73,7 @@ export class AnalysisSlot {
         this.analysis.recievedSerialized(serialized);
 
         const newSerialized = this.analysis.toSerialized();
+        console.log( newSerialized, serialized );
 
         if (newSerialized !== serialized) {
             this._serialized = newSerialized;

@@ -1971,14 +1971,9 @@ var AbstractAnalysis = class {
     this.renderRoot.appendChild(this.layerRoot);
     this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
       this.recalculateValues();
-      this.serialize();
     });
   }
-  _serialized;
-  get serialized() {
-    return this._serialized;
-  }
-  onSerialize = new CallbacksManager();
+  onSerializableChange = new CallbacksManager();
   serializedIsValid(input) {
     const splitted = input.split(";").map((segment) => segment.trim());
     if (splitted.length < 2) {
@@ -1991,14 +1986,6 @@ var AbstractAnalysis = class {
       return false;
     }
     return true;
-  }
-  serialize() {
-    const newValue = this.toSerialized();
-    if (this._serialized !== newValue) {
-      this._serialized = newValue;
-      this.onSerialize.call(newValue);
-    }
-    return this._serialized;
   }
   /** Selection status */
   _selected = false;
@@ -2046,71 +2033,115 @@ var AbstractAnalysis = class {
     if (isNaN(value)) {
       return;
     }
+    if (value === this.top) {
+      return;
+    }
     const { top, height } = this.getVerticalDimensionFromNewValue(value, "top");
+    let shouldEmit = false;
     if (top !== this.top) {
       this._top = top;
       this.onSetTop(top);
+      shouldEmit = true;
     }
     if (height !== this.height) {
       this._height = height;
       this.onSetHeight(height);
+      shouldEmit = true;
+    }
+    if (shouldEmit) {
+      this.onSerializableChange.call(this, "top");
     }
   }
   setLeft(value) {
     if (isNaN(value)) {
       return;
     }
+    if (value === this.left) {
+      return;
+    }
     const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "left");
+    let shouldEmit = false;
     if (left !== this.left) {
       this._left = left;
       this.onSetLeft(left);
+      shouldEmit = true;
     }
     if (width !== this.width) {
       this._width = width;
       this.onSetWidth(width);
+      shouldEmit = true;
+    }
+    if (shouldEmit) {
+      this.onSerializableChange.call(this, "left");
     }
   }
   setWidth(value) {
+    if (value === this.height) {
+      return;
+    }
     const val = this.validateWidth(value);
     if (!isNaN(val) && val !== this.width) {
       this._width = val;
       this.onSetWidth(val);
+      this.onSerializableChange.call(this, "width");
     }
   }
   setHeight(value) {
+    if (value === this.height) {
+      return;
+    }
     const val = this.validateHeight(value);
     if (!isNaN(val) && val !== this.height) {
       this._height = val;
       this.onSetHeight(val);
+      this.onSerializableChange.call(this, "height");
     }
   }
   setBottom(value) {
     if (isNaN(value)) {
       return;
     }
+    if (value === this.bottom) {
+      return;
+    }
     const { top, height } = this.getVerticalDimensionFromNewValue(value, "bottom");
+    let shouldEmit = false;
     if (top !== this.top) {
       this._top = top;
       this.onSetTop(top);
+      shouldEmit = true;
     }
     ;
     if (height !== this.height) {
       this._height = height;
       this.onSetHeight(height);
+      shouldEmit = true;
+    }
+    if (shouldEmit) {
+      this.onSerializableChange.call(this, "bottom");
     }
   }
   setRight(value) {
     if (isNaN(value)) {
       return;
     }
+    if (value === this.right) {
+      return;
+    }
     const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "right");
+    let shouldEmit = false;
     if (left !== this.left) {
       this._left = left;
       this.onSetLeft(left);
+      shouldEmit = true;
     }
     if (width !== this.width) {
       this._width = width;
       this.onSetWidth(width);
+      shouldEmit = true;
+    }
+    if (shouldEmit) {
+      this.onSerializableChange.call(this, "right");
     }
   }
   /** Access all the file's analysis layers. */
@@ -2150,9 +2181,12 @@ var AbstractAnalysis = class {
     return this._initialColor;
   }
   setInitialColor(value) {
+    if (value === this.initialColor) {
+      return;
+    }
     this._initialColor = value;
     this.onSetInitialColor.call(value);
-    this.serialize();
+    this.onSerializableChange.call(this, "color");
     if (this.selected === true) {
       this.setColor(value);
     }
@@ -2173,8 +2207,11 @@ var AbstractAnalysis = class {
     return this._name;
   }
   setName(value) {
+    if (value === this.name) {
+      return;
+    }
     this._name = value;
-    this.serialize();
+    this.onSerializableChange.call(this, "name");
     this.onSetName.call(value);
   }
   onSetName = new CallbacksManager();
@@ -2631,7 +2668,6 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     this.center = new PointPoint("center", top, left, this, color);
     this.points.set("center", this.center);
     this.recalculateValues();
-    this.serialize();
   }
   setColorCallback(value) {
     this.center.setColor(value);
@@ -2690,7 +2726,6 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     if (!this.serializedIsValid(input)) {
       return;
     }
-    this._serialized = input;
     const splitted = input.split(";").map((segment) => segment.trim());
     let shouldRecalculate = false;
     const name = splitted[0];
@@ -2720,7 +2755,6 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     if (shouldRecalculate) {
       this.recalculateValues();
     }
-    console.log("parsed", this.serialized);
   }
   toSerialized() {
     const output = [];
@@ -2763,22 +2797,22 @@ var AnalysisGraph = class {
   setMinActivation(active) {
     if (this._min !== active) {
       this._min = active;
-      this.analysis.serialize();
       this.emitGraphActivation();
+      this.analysis.onSerializableChange.call(this.analysis, "min");
     }
   }
   setMaxActivation(active) {
     if (this._max !== active) {
       this._max = active;
-      this.analysis.serialize();
       this.emitGraphActivation();
+      this.analysis.onSerializableChange.call(this.analysis, "max");
     }
   }
   setAvgActivation(active) {
     if (this._avg !== active) {
       this._avg = active;
-      this.analysis.serialize();
       this.emitGraphActivation();
+      this.analysis.onSerializableChange.call(this.analysis, "avg");
     }
   }
   onGraphActivation = new CallbacksManager();
@@ -3082,7 +3116,6 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     this.onMoveOrResize.set("sync the area", () => {
       this.calculateBounds();
     });
-    this.serialize();
   }
   setColorCallback(value) {
     this.points.forEach((point) => point.setColor(value));
@@ -3276,10 +3309,8 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     if (!this.serializedIsValid(input)) {
       return;
     }
-    this._serialized = input;
     const splitted = input.split(";").map((segment) => segment.trim());
     let shouldRecalculate = false;
-    let shouldSerialize = false;
     const name = splitted[0];
     if (name !== this.name) {
       this.setName(name);
@@ -3298,7 +3329,6 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     }
     const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
     if (color === void 0) {
-      shouldSerialize = true;
     } else if (color !== this.initialColor) {
       this.setInitialColor(color);
     }
@@ -3324,12 +3354,6 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
     }
     if (shouldRecalculate) {
       this.recalculateValues();
-    }
-    if (!shouldSerialize) {
-      shouldSerialize = left !== void 0 && top !== void 0 && width !== void 0 && height !== void 0 && !this.graph.state.AVG === AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg") && !this.graph.state.MIN === AbstractAnalysis.serializedSegmentsHasExact(splitted, "min") && !this.graph.state.MAX === AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
-    }
-    if (shouldSerialize) {
-      this.serialize();
     }
   }
   toSerialized() {
@@ -3646,6 +3670,9 @@ var AnalysisLayersStorage = class extends Map {
   }
   /** Array of all layers ordered from oldest to the newest */
   layers = [];
+  get slots() {
+    return this.drive.parent.slots;
+  }
   /** Fired whenever an analysis is added */
   onAdd = new CallbacksManager();
   /** Fired whenever an analysis is removed */
@@ -3654,127 +3681,35 @@ var AnalysisLayersStorage = class extends Map {
   onSelectionChange = new CallbacksManager();
   /** Array of available colors */
   colors = availableAnalysisColors;
-  analysis1;
-  analysis2;
-  analysis3;
-  analysis4;
-  analysis5;
-  analysis6;
-  analysis7;
-  get slot1() {
-    return this.analysis1;
-  }
-  get slot2() {
-    return this.analysis2;
-  }
-  get slot3() {
-    return this.analysis3;
-  }
-  get slot4() {
-    return this.analysis4;
-  }
-  get slot5() {
-    return this.analysis5;
-  }
-  get slot6() {
-    return this.analysis6;
-  }
-  get slot7() {
-    return this.analysis7;
-  }
-  onSlot1 = new CallbacksManager();
-  onSlot2 = new CallbacksManager();
-  onSlot3 = new CallbacksManager();
-  onSlot4 = new CallbacksManager();
-  onSlot5 = new CallbacksManager();
-  onSlot6 = new CallbacksManager();
-  onSlot7 = new CallbacksManager();
-  hasFreeSlots() {
-    return this.analysis1 === void 0 || this.analysis2 === void 0 || this.analysis3 === void 0 || this.analysis4 === void 0 || this.analysis5 === void 0 || this.analysis6 === void 0 || this.analysis7 === void 0;
-  }
-  getFreeSlotIndex() {
-    if (!this.hasFreeSlots()) {
-      return void 0;
-    }
-    if (this.analysis1 === void 0) return 1;
-    if (this.analysis2 === void 0) return 2;
-    if (this.analysis3 === void 0) return 3;
-    if (this.analysis4 === void 0) return 4;
-    if (this.analysis5 === void 0) return 5;
-    if (this.analysis6 === void 0) return 6;
-    if (this.analysis7 === void 0) return 7;
-    return void 0;
-  }
-  getFreeSlot() {
-    if (!this.hasFreeSlots()) {
-      return void 0;
-    }
-    const index = this.getFreeSlotIndex();
-    if (index !== void 0) {
-      return `analysis${index}`;
-    }
-    return void 0;
-  }
-  getAnalysisSlotIndex(analysis) {
-    if (this.analysis1 && this.analysis1.key === analysis.key)
-      return 1;
-    else if (this.analysis2 && this.analysis2.key === analysis.key)
-      return 2;
-    else if (this.analysis3 && this.analysis3.key === analysis.key)
-      return 3;
-    else if (this.analysis4 && this.analysis4.key === analysis.key)
-      return 4;
-    else if (this.analysis5 && this.analysis5.key === analysis.key)
-      return 5;
-    else if (this.analysis6 && this.analysis6.key === analysis.key)
-      return 6;
-    else if (this.analysis7 && this.analysis7.key === analysis.key)
-      return 7;
-    else
-      return void 0;
-  }
   // Adding analysis
   addAnalysis(analysis, slotNumber) {
-    if (!this.hasFreeSlots()) {
-      console.log("does not have free slots");
-      return;
-    }
     if (this.has(analysis.key)) {
-      const existingIndex = this.getAnalysisSlotIndex(analysis);
-      if (existingIndex !== void 0) {
-        const manager = this[`onSlot${existingIndex}`];
-        manager.call(void 0);
-      }
       this.removeAnalysis(analysis.key);
-    }
-    let slot = slotNumber !== void 0 ? slotNumber : this.getFreeSlotIndex();
-    const slotName = `analysis${slot}`;
-    const slotCallbackName = `onSlot${slot}`;
-    if (slot !== void 0) {
-      this[slotName] = analysis;
-      const manager = this[slotCallbackName];
-      manager.call(analysis);
     }
     analysis.setColor(analysis.initialColor);
     this.set(analysis.key, analysis);
     this.layers = [...this.layers, analysis];
+    let slotNum = slotNumber === true ? this.slots.getNextFreeSlotNumber() : slotNumber === false ? void 0 : slotNumber;
+    if (slotNum !== void 0) {
+      this.slots.hasSlot(slotNum) ? this.slots.replaceSlot(slotNum, analysis) : this.slots.initSlot(slotNum, analysis);
+    }
     this.onAdd.call(analysis, this.all);
     this.drive.dangerouslySetValueFromStorage(this.all);
     return this;
   }
-  removeAnalysis(key) {
+  removeAnalysis(key, alsoRemoveSlot = true) {
     if (this.has(key)) {
-      const slot = this.getAnalysisSlotIndex(this.get(key));
-      if (slot) {
-        this[`analysis${1}`] = void 0;
-        const manager = this[`onSlot${slot}`];
-        manager.call(void 0);
+      const analysis = this.get(key);
+      if (analysis) {
+        if (alsoRemoveSlot) {
+          this.slots.removeSlotButNotAnalysis(analysis);
+        }
+        analysis.remove();
+        this.delete(key);
+        this.layers = this.layers.filter((analysis2) => analysis2.key !== key);
+        this.drive.dangerouslySetValueFromStorage(this.all);
+        this.onRemove.call(key);
       }
-      this.get(key)?.remove();
-      this.delete(key);
-      this.layers = this.layers.filter((analysis) => analysis.key !== key);
-      this.onRemove.call(key);
-      this.drive.dangerouslySetValueFromStorage(this.all);
     }
   }
   /** Add a rectangular analysis in the given position and start editing it. */
@@ -3786,7 +3721,7 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, true);
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
@@ -3813,7 +3748,7 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, true);
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
@@ -3839,7 +3774,7 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    this.addAnalysis(newAnalysis);
+    this.addAnalysis(newAnalysis, true);
     return newAnalysis;
   }
   placePointAt(name, top, left, color, slotNumber) {
@@ -3853,59 +3788,6 @@ var AnalysisLayersStorage = class extends Map {
     newAnalysis.ready = true;
     this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
-  }
-  createFromSerialized(serialized, slotNumber) {
-    const splitted = serialized.split(";").map((segment) => segment.trim());
-    if (splitted.length < 2) {
-      return;
-    }
-    const name = splitted[0] !== void 0 && splitted[0].length > 0 ? splitted[0] : void 0;
-    if (name === void 0) {
-      return;
-    }
-    const type = splitted[1];
-    if (!["rectangle", "ellipsis", "point"].includes(type)) {
-      return;
-    }
-    let top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
-    let left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
-    const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
-    let width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
-    let height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
-    const avg = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
-    const min = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
-    const max = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
-    if (top !== void 0) {
-      if (top < 0) top = 0;
-      if (top > this.drive.parent.height - 1) top = this.drive.parent.height - 1;
-    }
-    if (left !== void 0) {
-      if (left < 0) left = 0;
-      if (left > this.drive.parent.width - 1) left = this.drive.parent.width - 1;
-    }
-    if (type === "point") {
-      if (top === void 0 || left === void 0) {
-        return;
-      }
-      const analysis = this.placePointAt(name, top, left, color, slotNumber);
-      if (avg) {
-        analysis.graph.setAvgActivation(true);
-      }
-      return analysis;
-    } else {
-      if (top === void 0 || left === void 0 || width === void 0 || height === void 0) {
-        return;
-      }
-      if (width < 0) width = 0;
-      if (width + left > this.drive.parent.width - 1) width = this.drive.parent.width - left - 1;
-      if (height < 0) height = 0;
-      if (height + top > this.drive.parent.height - 1) height = this.drive.parent.height - top - 1;
-      const analysis = type === "rectangle" ? this.placeRectAt(name, top, left, width + left, height + top, color, slotNumber) : this.placeEllipsisAt(name, top, left, width + left, height + top, color, slotNumber);
-      if (avg) analysis.graph.setAvgActivation(true);
-      if (min) analysis.graph.setMinActivation(true);
-      if (max) analysis.graph.setMaxActivation(true);
-      return analysis;
-    }
   }
   selectAll() {
     this.all.filter((analysis) => {
@@ -4255,6 +4137,194 @@ var AnalysisDataState = class extends AbstractProperty {
   }
 };
 
+// src/properties/analysisSlots/AnalysisSlot.ts
+var AnalysisSlot = class {
+  constructor(slot, analysis) {
+    this.slot = slot;
+    this._analysis = analysis;
+    this.hydrate(analysis);
+    this._serialized = this.analysis.toSerialized();
+  }
+  _analysis;
+  get analysis() {
+    return this._analysis;
+  }
+  _serialized;
+  get serialized() {
+    return this._serialized;
+  }
+  onSerialize = new CallbacksManager();
+  enqueuedSerialisation;
+  setAnalysis(analysis) {
+    this.dehydrate(this._analysis);
+    this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key);
+    this._analysis = analysis;
+    this.hydrate(this._analysis);
+  }
+  listenerKey(operation) {
+    return `slot ${this.slot} ${operation}`;
+  }
+  dehydrate(analysis) {
+    analysis.onSerializableChange.delete(this.listenerKey("serializable change"));
+  }
+  hydrate(analysis) {
+    analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis2, change) => {
+      console.log("recieved", change);
+      this.enqueueSerialisation();
+    });
+  }
+  enqueueSerialisation() {
+    if (!this.enqueuedSerialisation) {
+      this.enqueuedSerialisation = setTimeout(() => {
+        this.serialize();
+        this.enqueuedSerialisation = void 0;
+      }, 0);
+    }
+  }
+  serialize() {
+    this._serialized = this.analysis.toSerialized();
+    this.onSerialize.call(this._serialized, this.analysis);
+    console.log("serializing");
+  }
+  recieveSerialized(serialized) {
+    this.analysis.recievedSerialized(serialized);
+    const newSerialized = this.analysis.toSerialized();
+    console.log(newSerialized, serialized);
+    if (newSerialized !== serialized) {
+      this._serialized = newSerialized;
+      this.onSerialize.call(this._serialized, this.analysis);
+    }
+  }
+};
+
+// src/properties/analysisSlots/AnalysisSlotsDrive.ts
+var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
+  static MAX_SLOTS = 7;
+  onSlotInit = new CallbacksManager();
+  onSlotRemove = new CallbacksManager();
+  getNextFreeSlotNumber() {
+    for (let i = 1; i <= _AnalysisSlotsState.MAX_SLOTS; i++) {
+      if (!this.hasSlot(i)) return i;
+    }
+  }
+  initSlot(slot, analysis) {
+    if (this.hasSlot(slot)) {
+      throw new Error(`Slot ${slot} already taken! Clear it first or use 'replaceSlot' instead.`);
+    }
+    const value = new AnalysisSlot(slot, analysis);
+    this.value.set(slot, value);
+    this.onSlotInit.call(slot, value);
+    this.callEffectsAndListeners();
+    return value;
+  }
+  hasSlot(slot) {
+    return this.value.has(slot);
+  }
+  getSlot(slot) {
+    return this.value.get(slot);
+  }
+  replaceSlot(slot, analysis) {
+    const value = this.getSlot(slot);
+    if (value && value.analysis.key !== analysis.key) {
+      this.parent.analysis.layers.removeAnalysis(value.analysis.key, false);
+      value.setAnalysis(analysis);
+      this.onSlotInit.call(slot, value);
+      this.callEffectsAndListeners();
+      return value;
+    } else {
+      return this.initSlot(slot, analysis);
+    }
+  }
+  removeSlotAndAnalysis(slot) {
+    const value = this.value.get(slot);
+    if (value) {
+      const analysis = value.analysis;
+      this.onSlotRemove.call(slot, value);
+      this.value.delete(slot);
+      this.parent.analysis.layers.removeAnalysis(analysis.key, false);
+      this.callEffectsAndListeners();
+    }
+  }
+  getAnalysisSlot(analysis) {
+    for (let a of this.value.values()) {
+      if (a.analysis.key === analysis.key) {
+        return a.slot;
+      }
+    }
+  }
+  removeSlotButNotAnalysis(analysis) {
+    for (let a of this.value.values()) {
+      if (a.analysis.key === analysis.key) {
+        this.onSlotRemove.call(a.slot, a);
+        this.value.delete(a.slot);
+        this.callEffectsAndListeners();
+      }
+    }
+  }
+  createFromSerialized(serialized, slotNumber) {
+    const splitted = serialized.split(";").map((segment) => segment.trim());
+    if (splitted.length < 2) {
+      return;
+    }
+    const name = splitted[0] !== void 0 && splitted[0].length > 0 ? splitted[0] : void 0;
+    if (name === void 0) {
+      return;
+    }
+    const type = splitted[1];
+    if (!["rectangle", "ellipsis", "point"].includes(type)) {
+      return;
+    }
+    let top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+    let left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
+    const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
+    let width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
+    let height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
+    const avg = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
+    const min = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
+    const max = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
+    if (top !== void 0) {
+      if (top < 0) top = 0;
+      if (top > this.parent.height - 1) top = this.parent.height - 1;
+    }
+    if (left !== void 0) {
+      if (left < 0) left = 0;
+      if (left > this.parent.width - 1) left = this.parent.width - 1;
+    }
+    if (type === "point") {
+      if (top === void 0 || left === void 0) {
+        return;
+      }
+      const analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, slotNumber);
+      if (avg) {
+        analysis.graph.setAvgActivation(true);
+      }
+      return analysis;
+    } else {
+      if (top === void 0 || left === void 0 || width === void 0 || height === void 0) {
+        return;
+      }
+      if (width < 0) width = 0;
+      if (width + left > this.parent.width - 1) width = this.parent.width - left - 1;
+      if (height < 0) height = 0;
+      if (height + top > this.parent.height - 1) height = this.parent.height - top - 1;
+      const analysis = type === "rectangle" ? this.parent.analysis.layers.placeRectAt(name, top, left, width + left, height + top, color, slotNumber) : this.parent.analysis.layers.placeEllipsisAt(name, top, left, width + left, height + top, color, slotNumber);
+      if (avg) analysis.graph.setAvgActivation(true);
+      if (min) analysis.graph.setMinActivation(true);
+      if (max) analysis.graph.setMaxActivation(true);
+      return analysis;
+    }
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+  }
+  callEffectsAndListeners() {
+    this.afterSetEffect(this.value);
+    Object.values(this._listeners).forEach((listener) => listener(this.value));
+  }
+};
+
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
@@ -4289,6 +4359,7 @@ var Instance = class _Instance extends AbstractFile {
     this.timelineData = timelineData;
     this.pixels = firstFrame.pixels;
   }
+  slots;
   exportAsPng() {
     this.export.canvasAsPng();
   }
@@ -4318,6 +4389,7 @@ var Instance = class _Instance extends AbstractFile {
     this.recording = new RecordingDrive(this, false);
     this.analysis = new AnalysisDrive(this, []);
     this.analysisData = new AnalysisDataState(this);
+    this.slots = new AnalysisSlotsState(this, /* @__PURE__ */ new Map());
     return this;
   }
   formatId(thermalUrl) {

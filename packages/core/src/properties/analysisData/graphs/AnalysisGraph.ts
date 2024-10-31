@@ -41,24 +41,24 @@ export class AnalysisGraph {
     setMinActivation( active: boolean ) {
         if ( this._min !== active ) {
             this._min = active;
-            this.analysis.serialize();
             this.emitGraphActivation();
+            this.analysis.onSerializableChange.call( this.analysis, "min" );
         }
     }
 
     setMaxActivation( active: boolean ) {
         if ( this._max !== active ) {
             this._max = active;
-            this.analysis.serialize();
             this.emitGraphActivation();
+            this.analysis.onSerializableChange.call( this.analysis, "max" );
         }
     }
 
     setAvgActivation( active: boolean ) {
         if ( this._avg !== active ) {
             this._avg = active;
-            this.analysis.serialize();
             this.emitGraphActivation();
+            this.analysis.onSerializableChange.call( this.analysis, "avg" );
         }
     }
 

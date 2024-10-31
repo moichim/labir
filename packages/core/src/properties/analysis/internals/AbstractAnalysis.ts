@@ -9,15 +9,7 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 
 export abstract class AbstractAnalysis {
 
-    protected _serialized?: string;
-
-    public get serialized() {
-        return this._serialized;
-    }
-
-    public readonly onSerialize = new CallbacksManager<(input: string) => void>;
-
-    public readonly onSerializableChange = new CallbacksManager<( analysis: AbstractAnalysis ) => void>
+    public readonly onSerializableChange = new CallbacksManager<( analysis: AbstractAnalysis, change: string ) => void>
 
     public abstract recievedSerialized(input: string): void;
     public abstract toSerialized(): string;
@@ -39,16 +31,6 @@ export abstract class AbstractAnalysis {
         }
 
         return true;
-    }
-
-    /** @deprecated */
-    public serialize() {
-        const newValue = this.toSerialized();
-        if ( this._serialized !== newValue ) {
-            this._serialized = newValue;
-            this.onSerialize.call( newValue );
-        }
-        return this._serialized;
     }
 
 
@@ -108,19 +90,29 @@ export abstract class AbstractAnalysis {
             return;
         }
 
+        if ( value === this.top ) {
+            return;
+        }
+
         const { top, height } = this.getVerticalDimensionFromNewValue(value, "top");
+
+        let shouldEmit = false;
 
         if (top !== this.top) {
             this._top = top;
             this.onSetTop(top);
+            shouldEmit = true;
         }
 
         if (height !== this.height) {
             this._height = height;
             this.onSetHeight(height);
+            shouldEmit = true;
         }
 
-        this.onSerializableChange.call( this );
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "top" );
+        }
 
     }
 
@@ -130,39 +122,54 @@ export abstract class AbstractAnalysis {
             return;
         }
 
+        if ( value === this.left ) {
+            return;
+        }
+
         const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "left");
+
+        let shouldEmit = false;
 
         if (left !== this.left) {
             this._left = left;
             this.onSetLeft(left);
+            shouldEmit = true;
         }
 
         if (width !== this.width) {
             this._width = width;
             this.onSetWidth(width);
+            shouldEmit = true;
         }
 
-        this.onSerializableChange.call( this );
-
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "left" );
+        }
 
     }
 
 
     public setWidth(value: number) {
+        if ( value === this.height ) {
+            return;
+        }
         const val = this.validateWidth(value);
         if (!isNaN(val) && val !== this.width) {
             this._width = val;
             this.onSetWidth(val);
-            this.onSerializableChange.call( this );
+            this.onSerializableChange.call( this, "width" );
         }
     }
 
     public setHeight(value: number) {
+        if ( value === this.height ) {
+            return;
+        }
         const val = this.validateHeight(value);
         if (!isNaN(val) && val !== this.height) {
             this._height = val;
             this.onSetHeight(val);
-            this.onSerializableChange.call( this );
+            this.onSerializableChange.call( this, "height" );
         }
     }
 
@@ -173,21 +180,31 @@ export abstract class AbstractAnalysis {
             return;
         }
 
+        if ( value === this.bottom ) {
+            return;
+        }
+
         // Calculate the height from the bottom value
         const { top, height } = this.getVerticalDimensionFromNewValue(value, "bottom");
+
+        let shouldEmit = false;
 
         // Use existing setters to set vertical properties
         if (top !== this.top) {
             this._top = top;
             this.onSetTop(top);
+            shouldEmit = true;
         };
 
         if (height !== this.height) {
             this._height = height;
             this.onSetHeight(height);
+            shouldEmit = true;
         }
 
-        this.onSerializableChange.call( this );
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "bottom" );
+        }
 
     }
 
@@ -197,20 +214,30 @@ export abstract class AbstractAnalysis {
             return;
         }
 
+        if ( value === this.right ) {
+            return;
+        }
+
         // Calculate the width from the right value
         const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "right");
+
+        let shouldEmit = false;
 
         // Use existing setters to set horizontal properties
         if (left !== this.left) {
             this._left = left;
             this.onSetLeft(left);
+            shouldEmit = true;
         }
         if (width !== this.width) {
             this._width = width;
             this.onSetWidth(width);
+            shouldEmit = true;
         }
 
-        this.onSerializableChange.call( this );
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "right" );
+        }
 
     }
 
@@ -262,10 +289,12 @@ export abstract class AbstractAnalysis {
     }
 
     public setInitialColor(value: string) {
+        if ( value === this.initialColor ) {
+            return;
+        }
         this._initialColor = value;
         this.onSetInitialColor.call(value);
-        this.serialize();
-        this.onSerializableChange.call( this );
+        this.onSerializableChange.call( this, "color" );
         if (this.selected === true) {
             this.setColor(value);
         }
@@ -291,9 +320,13 @@ export abstract class AbstractAnalysis {
     protected _name: string;
     public get name() { return this._name; }
     public setName(value: string) {
+
+        if ( value === this.name ) {
+            return;
+        }
+
         this._name = value;
-        this.serialize();
-        this.onSerializableChange.call( this );
+        this.onSerializableChange.call( this, "name" );
         this.onSetName.call(value);
     }
     public readonly onSetName = new CallbacksManager<(value: string) => void>;
@@ -330,7 +363,8 @@ export abstract class AbstractAnalysis {
         /** @todo what happend if the callback key is set rendomly? I do not want this callback to be overriden anyhow! */
         this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
             this.recalculateValues();
-            this.serialize();
+            /** @todo */
+            // ... probably here should be serialisation
         });
 
     }

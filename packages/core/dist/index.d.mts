@@ -625,6 +625,45 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
     protected clearRecording(): void;
 }
 
+declare class AnalysisSlot {
+    readonly slot: number;
+    private _analysis;
+    get analysis(): AbstractAnalysis;
+    private _serialized;
+    get serialized(): string;
+    readonly onSerialize: CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
+    protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
+    constructor(slot: number, analysis: AbstractAnalysis);
+    setAnalysis(analysis: AbstractAnalysis): void;
+    private listenerKey;
+    dehydrate(analysis: AbstractAnalysis): void;
+    private hydrate;
+    protected enqueueSerialisation(): void;
+    protected serialize(): void;
+    recieveSerialized(serialized: string): void;
+}
+
+type AnalysisSlotsMap = Map<number, AnalysisSlot>;
+/** Say the slot number. True = next free. False = no slot at all */
+type SlotInitialisationValue = number | true | false;
+declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
+    static MAX_SLOTS: number;
+    readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
+    readonly onSlotRemove: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
+    getNextFreeSlotNumber(): number | undefined;
+    initSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    hasSlot(slot: number): boolean;
+    getSlot(slot: number): AnalysisSlot | undefined;
+    replaceSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    removeSlotAndAnalysis(slot: number): void;
+    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
+    removeSlotButNotAnalysis(analysis: AbstractAnalysis): void;
+    createFromSerialized(serialized: string, slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
+    protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
+    protected afterSetEffect(value: AnalysisSlotsMap): void;
+    protected callEffectsAndListeners(): void;
+}
+
 declare abstract class AbstractArea {
     readonly analysis: AbstractAnalysis;
     private pxX;
@@ -776,7 +815,7 @@ declare abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     get bottomSidePoints(): CornerPoint[];
     protected forPoints(points: CornerPoint[], fn: (point: CornerPoint) => void): void;
     recievedSerialized(input: string): void;
-    protected toSerialized(): string;
+    toSerialized(): string;
 }
 
 declare class EllipsisAnalysis extends AbstractAreaAnalysis {
@@ -857,7 +896,7 @@ declare class PointAnalysis extends AbstractAnalysis {
         width: number;
     };
     recievedSerialized(input: string): void;
-    protected toSerialized(): string;
+    toSerialized(): string;
 }
 
 declare class RectangleAnalysis extends AbstractAreaAnalysis {
@@ -883,6 +922,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly drive: AnalysisDrive;
     /** Array of all layers ordered from oldest to the newest */
     protected layers: Array<AbstractAnalysis>;
+    protected get slots(): AnalysisSlotsState;
     /** Fired whenever an analysis is added */
     readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
     /** Fired whenever an analysis is removed */
@@ -891,45 +931,19 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
     /** Array of available colors */
     readonly colors: string[];
-    protected analysis1?: AbstractAnalysis;
-    protected analysis2?: AbstractAnalysis;
-    protected analysis3?: AbstractAnalysis;
-    protected analysis4?: AbstractAnalysis;
-    protected analysis5?: AbstractAnalysis;
-    protected analysis6?: AbstractAnalysis;
-    protected analysis7?: AbstractAnalysis;
-    get slot1(): AbstractAnalysis | undefined;
-    get slot2(): AbstractAnalysis | undefined;
-    get slot3(): AbstractAnalysis | undefined;
-    get slot4(): AbstractAnalysis | undefined;
-    get slot5(): AbstractAnalysis | undefined;
-    get slot6(): AbstractAnalysis | undefined;
-    get slot7(): AbstractAnalysis | undefined;
-    readonly onSlot1: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot2: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot3: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot4: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot5: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot6: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    readonly onSlot7: CallbacksManager<(analysis: AbstractAnalysis | undefined) => void>;
-    protected hasFreeSlots(): boolean;
-    protected getFreeSlotIndex(): 1 | 2 | 3 | 4 | 5 | 6 | 7 | undefined;
-    protected getFreeSlot(): SlotUnion | undefined;
-    protected getAnalysisSlotIndex(analysis: AbstractAnalysis): 1 | 2 | 3 | 4 | 5 | 6 | 7 | undefined;
     constructor(drive: AnalysisDrive);
-    protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotNumber): this | undefined;
-    removeAnalysis(key: string): void;
+    protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
+    removeAnalysis(key: string, alsoRemoveSlot?: boolean): void;
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotNumber): RectangleAnalysis;
+    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): RectangleAnalysis;
     /** Add an ellyptical analysis in the given position and start editing it */
     createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
     /** Build an ellyptical analysis at the given position. */
-    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotNumber): EllipsisAnalysis;
+    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): EllipsisAnalysis;
     createPointAt(top: number, left: number): PointAnalysis;
-    placePointAt(name: string, top: number, left: number, color?: string, slotNumber?: SlotNumber): PointAnalysis;
-    createFromSerialized(serialized: string, slotNumber?: SlotNumber): AbstractAnalysis | undefined;
+    placePointAt(name: string, top: number, left: number, color?: string, slotNumber?: SlotInitialisationValue): PointAnalysis;
     selectAll(): void;
     deselectAll(): void;
     /** Accessors */
@@ -947,13 +961,10 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
     readonly file: Instance;
-    protected _serialized?: string;
-    get serialized(): string | undefined;
-    readonly onSerialize: CallbacksManager<(input: string) => void>;
+    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
     abstract recievedSerialized(input: string): void;
-    protected abstract toSerialized(): string;
+    abstract toSerialized(): string;
     protected serializedIsValid(input: string): boolean;
-    serialize(): string;
     abstract get graph(): AnalysisGraph;
     /** Selection status */
     protected _selected: boolean;
@@ -1360,7 +1371,7 @@ declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue,
     downloadData(): void;
 }
 
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue;
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap;
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
 interface IBaseProperty {
 }
@@ -1669,6 +1680,7 @@ declare class Instance extends AbstractFile {
     timeline: TimelineDrive;
     analysis: AnalysisDrive;
     analysisData: AnalysisDataState;
+    slots: AnalysisSlotsState;
     exportAsPng(): void;
     exportThermalDataAsSvg(): void;
     /**

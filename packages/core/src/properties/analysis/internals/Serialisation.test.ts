@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../devserver/node/scaffold';
 import { Instance } from '../../../file/instance';
@@ -30,7 +30,7 @@ const resetHorizontal = (analysis: AbstractAreaAnalysis) => {
     expect(analysis.left).toEqual(left);
     expect(analysis.right).toEqual(right);
     expect(analysis.width).toEqual(width);
-    analysis.serialize();
+    vi.advanceTimersByTime(1);
 }
 
 const resetVertical = (analysis: AbstractAreaAnalysis) => {
@@ -39,7 +39,7 @@ const resetVertical = (analysis: AbstractAreaAnalysis) => {
     expect(analysis.top).toEqual(top);
     expect(analysis.bottom).toEqual(bottom);
     expect(analysis.height).toEqual(height);
-    analysis.serialize();
+    vi.advanceTimersByTime(1);
 }
 
 
@@ -47,48 +47,67 @@ describe("Serialisation of analysis", () => {
 
     test("serializes name", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getEllipsisAnalysis("ABCDEFG", instance);
 
+        const slot = instance.slots.initSlot( 1, analysis );
+
         // Contain the initial name
-        expect(analysis.serialized).toContain("ABCDEFG");
+        expect(slot.serialized).toContain("ABCDEFG");
 
         // Set the name
         analysis.setName("XYZ");
+        vi.advanceTimersByTime( 1 );
 
         // Contains the new name
-        expect(analysis.serialized).toContain("XYZ");
+        expect(slot.serialized).toContain("XYZ");
 
     });
 
     test("serializes color", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
+        const slot = instance.slots.initSlot( 1, analysis );
+
         // Contain the initial color
-        expect(analysis.serialized).toContain("Orange");
+        expect(slot.serialized).toContain("Orange");
 
         // Set the color
         analysis.setInitialColor("Pink");
 
+        vi.advanceTimersByTime( 1 );
+
         // Contains the new name
-        expect(analysis.serialized).toContain("Pink");
+        expect(slot.serialized).toContain("Pink");
 
     });
 
     test("serialisation dimensions", async () => {
 
+        
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
-        expect(analysis.serialized).toContain(`top:${top}`);
-        expect(analysis.serialized).toContain(`left:${left}`);
-        expect(analysis.serialized).toContain(`width:${width}`);
-        expect(analysis.serialized).toContain(`height:${height}`);
+        const slot = instance.slots.initSlot( 1, analysis );
+
+        expect(slot.serialized).toContain(`top:${top}`);
+        expect(slot.serialized).toContain(`left:${left}`);
+        expect(slot.serialized).toContain(`width:${width}`);
+        expect(slot.serialized).toContain(`height:${height}`);
 
         const newTop = 14;
         const newLeft = 17;
@@ -100,13 +119,13 @@ describe("Serialisation of analysis", () => {
         analysis.setWidth(newWidth);
         analysis.setHeight(newHeight);
 
-        analysis.serialize();
+        vi.advanceTimersByTime( 1 );
         analysis.recalculateValues();
 
-        expect(analysis.serialized).toContain(`top:${newTop}`);
-        expect(analysis.serialized).toContain(`left:${newLeft}`);
-        expect(analysis.serialized).toContain(`width:${newWidth}`);
-        expect(analysis.serialized).toContain(`height:${newHeight}`);
+        expect(slot.serialized).toContain(`top:${newTop}`);
+        expect(slot.serialized).toContain(`left:${newLeft}`);
+        expect(slot.serialized).toContain(`width:${newWidth}`);
+        expect(slot.serialized).toContain(`height:${newHeight}`);
 
         expect(analysis.top).toEqual(newTop);
         expect(analysis.left).toEqual(newLeft);
@@ -117,48 +136,64 @@ describe("Serialisation of analysis", () => {
 
     test("serialisation of analysis", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
+        const slot = instance.slots.initSlot( 1, analysis );
+
         // Initial state
-        expect(analysis.serialized).not.toContain("avg");
-        expect(analysis.serialized).not.toContain("min");
-        expect(analysis.serialized).not.toContain("max");
+        expect(slot.serialized).not.toContain("avg");
+        expect(slot.serialized).not.toContain("min");
+        expect(slot.serialized).not.toContain("max");
 
         // AVG
 
         analysis.graph.setAvgActivation(true);
-        expect(analysis.serialized).toContain("avg");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).toContain("avg");
 
         analysis.graph.setAvgActivation(false);
-        expect(analysis.serialized).not.toContain("avg");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).not.toContain("avg");
 
 
         // MIN
 
         analysis.graph.setMinActivation(true);
-        expect(analysis.serialized).toContain("min");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).toContain("min");
 
         analysis.graph.setMinActivation(false);
-        expect(analysis.serialized).not.toContain("min");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).not.toContain("min");
 
 
         // MAX
 
         analysis.graph.setMaxActivation(true);
-        expect(analysis.serialized).toContain("max");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).toContain("max");
 
         analysis.graph.setMaxActivation(false);
-        expect(analysis.serialized).not.toContain("max");
+        vi.advanceTimersByTime( 1 );
+        expect(slot.serialized).not.toContain("max");
 
     });
 
     test("parsing of serialized color", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
+
+        const slot = instance.slots.initSlot( 1, analysis );
 
         const name = "fňukálek";
         const left = 37;
@@ -213,9 +248,9 @@ describe("Serialisation of analysis", () => {
 
         const version_1 = formatSerialized(false, name, "rectangle", left, top, width, height, color, false, false, false, ";");
 
-        analysis.recievedSerialized(`${name};rectangle;top:${top};left:${left};width:${width};height:${height};color:${color};`);
-
         analysis.recievedSerialized(version_1);
+
+        vi.advanceTimersByTime(1);
 
         expect(analysis.name).toEqual(name);
         expect(analysis.initialColor).toEqual(color);
@@ -224,13 +259,15 @@ describe("Serialisation of analysis", () => {
         expect(analysis.width).toEqual(width);
         expect(analysis.height).toEqual(height);
 
-        expect(analysis.serialized).not.toContain("avg");
-        expect(analysis.serialized).not.toContain("min");
-        expect(analysis.serialized).not.toContain("max");
+        expect(slot.serialized).not.toContain("avg");
+        expect(slot.serialized).not.toContain("min");
+        expect(slot.serialized).not.toContain("max");
 
         const version_2 = formatSerialized(false, name, "rectangle", left, top, width, height, color, true, true, true, ";");
 
         analysis.recievedSerialized(version_2);
+
+        vi.advanceTimersByTime(1);
 
         expect(analysis.graph.state.AVG).toEqual(true);
         expect(analysis.graph.state.MIN).toEqual(true);
@@ -240,18 +277,23 @@ describe("Serialisation of analysis", () => {
 
     test("point analysis", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getPointAnalysis("ABCDEFG", instance);
 
+        const slot = instance.slots.initSlot( 1, analysis );
+
         expect(analysis.top).toEqual(top);
 
-        expect(analysis.serialized).toContain(`top:${top}`);
-        expect(analysis.serialized).toContain(`left:${left}`);
-        expect(analysis.serialized).toContain(`color:${analysis.initialColor}`);
-        expect(analysis.serialized).not.toContain("avg");
-        expect(analysis.serialized).not.toContain("max");
-        expect(analysis.serialized).not.toContain("min");
+        expect(slot.serialized).toContain(`top:${top}`);
+        expect(slot.serialized).toContain(`left:${left}`);
+        expect(slot.serialized).toContain(`color:${analysis.initialColor}`);
+        expect(slot.serialized).not.toContain("avg");
+        expect(slot.serialized).not.toContain("max");
+        expect(slot.serialized).not.toContain("min");
 
         analysis.setWidth(14);
         expect(analysis.width).toEqual(0);
@@ -265,91 +307,102 @@ describe("Serialisation of analysis", () => {
         analysis.setTop(23);
         expect(analysis.top).toEqual(23);
 
-        analysis.serialize();
+        vi.advanceTimersByTime(1);
 
-        expect(analysis.serialized).toContain(`top:${23}`);
-        expect(analysis.serialized).toContain(`left:${19}`);
+        expect(slot.serialized).toContain(`top:${23}`);
+        expect(slot.serialized).toContain(`left:${19}`);
 
     });
 
     test("Invalid input", async () => {
 
+        // Init fake timer in this test
+        vi.useFakeTimers();
+
         const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
 
         const analysis = getRectAnalysis("AbCdEfGhIjKlMnOpQrStUvWxYz", instance);
+
+        const slot = instance.slots.initSlot( 1, analysis );
 
         const newName = "Pepíček";
 
         // Set invalid name
 
         analysis.recievedSerialized(newName);
+        vi.advanceTimersByTime(1);
         expect(analysis.name).toEqual("AbCdEfGhIjKlMnOpQrStUvWxYz");
-        expect(analysis.serialized).not.toContain(newName);
+        expect(slot.serialized).not.toContain(newName);
 
         // Set invalid type
 
         analysis.recievedSerialized(`${newName};something`);
-        expect(analysis.serialized).not.toContain(newName);
+        vi.advanceTimersByTime(1);
+        expect(slot.serialized).not.toContain(newName);
 
         // Set valid type
 
         analysis.recievedSerialized(`${newName};rectangle`);
-        expect(analysis.serialized).toContain(newName);
+        vi.advanceTimersByTime(1);
+        expect(slot.serialized).toContain(newName);
 
         // Try to retype
 
         analysis.recievedSerialized(`${newName};ellipsis`);
-        expect(analysis.serialized).not.toContain("ellipsis");
-        expect(analysis.serialized).toContain("rectangle");
+        vi.advanceTimersByTime(1);
+        expect(slot.serialized).not.toContain("ellipsis");
+        expect(slot.serialized).toContain("rectangle");
 
         // There should be dimensions even though they were not set
 
-        expect(analysis.serialized).toContain(`top:${top}`);
-        expect(analysis.serialized).toContain(`left:${left}`);
-        expect(analysis.serialized).toContain(`width:${width}`);
-        expect(analysis.serialized).toContain(`height:${height}`);
-        expect(analysis.serialized).toContain(`color:Orange`);
+        expect(slot.serialized).toContain(`top:${top}`);
+        expect(slot.serialized).toContain(`left:${left}`);
+        expect(slot.serialized).toContain(`width:${width}`);
+        expect(slot.serialized).toContain(`height:${height}`);
+        expect(slot.serialized).toContain(`color:Orange`);
 
-        expect(analysis.serialized).not.toContain("max");
-        expect(analysis.serialized).not.toContain("min");
-        expect(analysis.serialized).not.toContain("avg");
+        expect(slot.serialized).not.toContain("max");
+        expect(slot.serialized).not.toContain("min");
+        expect(slot.serialized).not.toContain("avg");
 
         // Try to set a graph state
 
         analysis.recievedSerialized(`${newName};rectangle;avg`);
-        console.log( analysis.serialized );
-        expect(analysis.serialized).toContain("avg");
+        vi.advanceTimersByTime(1);
+        expect(slot.serialized).toContain("avg");
         expect( analysis.graph.state.AVG ).toEqual( true );
 
         analysis.recievedSerialized(`${newName};rectangle;min;max;avg`);
+        vi.advanceTimersByTime(1);
         expect( analysis.graph.state.AVG ).toEqual( true );
         expect( analysis.graph.state.MAX ).toEqual( true );
         expect( analysis.graph.state.MIN ).toEqual( true );
 
-        expect(analysis.serialized).toContain("avg");
-        expect(analysis.serialized).toContain("min");
-        expect(analysis.serialized).toContain("max");
+        expect(slot.serialized).toContain("avg");
+        expect(slot.serialized).toContain("min");
+        expect(slot.serialized).toContain("max");
 
         analysis.recievedSerialized(`${newName};rectangle;avg`);
-
+        vi.advanceTimersByTime(1);
         expect( analysis.graph.state.AVG ).toEqual( true );
         expect( analysis.graph.state.MAX ).toEqual( false );
         expect( analysis.graph.state.MIN ).toEqual( false );
 
         // Try to set dimensions out of bounds
         analysis.recievedSerialized( "Something;rectangle;top:1000000" );
+        vi.advanceTimersByTime(1);
         expect( analysis.top ).toEqual( bottom );
         expect( analysis.bottom ).toEqual( analysis.file.height - 1 );
-        expect( analysis.serialized ).toContain( `top:${bottom}` );
-        expect( analysis.serialized ).toContain( `height:${analysis.file.height - 1 - bottom}` );
+        expect( slot.serialized ).toContain( `top:${bottom}` );
+        expect( slot.serialized ).toContain( `height:${analysis.file.height - 1 - bottom}` );
 
         resetHorizontal( analysis );
         resetVertical( analysis );
 
-        expect(analysis.serialized).toContain(`top:${top}`);
-        expect(analysis.serialized).toContain(`left:${left}`);
-        expect(analysis.serialized).toContain(`width:${width}`);
-        expect(analysis.serialized).toContain(`height:${height}`);
+        expect(slot.serialized).toContain(`top:${top}`);
+        expect(slot.serialized).toContain(`left:${left}`);
+        expect(slot.serialized).toContain(`width:${width}`);
+        expect(slot.serialized).toContain(`height:${height}`);
         
 
 
