@@ -16,6 +16,14 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     public readonly onSlotInit = new CallbacksManager<(number: number, slot: AnalysisSlot) =>void>
     public readonly onSlotRemove = new CallbacksManager<(number: number, slot: AnalysisSlot) =>void>
 
+    public readonly onSlot1 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot2 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot3 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot4 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot5 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot6 = new CallbacksManager<( value: string|undefined ) => void>;
+    public readonly onSlot7 = new CallbacksManager<( value: string|undefined ) => void>;
+    
     getNextFreeSlotNumber(): number|undefined {
 
         for ( let i=1;i<= AnalysisSlotsState.MAX_SLOTS;i++ ) {
@@ -32,6 +40,8 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         if ( this.hasSlot(slot) ) {
             throw new Error( `Slot ${slot} already taken! Clear it first or use 'replaceSlot' instead.` );
         }
+
+        console.log( "initialising slot", 1, analysis );
         const value = new AnalysisSlot( slot, analysis );
         this.value.set( slot, value );
         this.onSlotInit.call( slot, value );
@@ -81,6 +91,15 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
             const analysis = value.analysis;
 
             this.onSlotRemove.call( slot, value );
+
+            if ( slot === 1 ) this.onSlot1.call( undefined );
+            else if ( slot === 2 ) this.onSlot2.call( undefined );
+            else if ( slot === 3 ) this.onSlot3.call( undefined );
+            else if ( slot === 4 ) this.onSlot4.call( undefined );
+            else if ( slot === 5 ) this.onSlot5.call( undefined );
+            else if ( slot === 6 ) this.onSlot6.call( undefined );
+            else if ( slot === 7 ) this.onSlot7.call( undefined );
+
             this.value.delete( slot );
             this.parent.analysis.layers.removeAnalysis( analysis.key, false );
             this.callEffectsAndListeners();
@@ -106,8 +125,19 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         for ( let a of this.value.values() ) {
             if ( a.analysis.key === analysis.key ) {
                 this.onSlotRemove.call( a.slot, a );
+                
+
+                if ( a.slot === 1 ) this.onSlot1.call( undefined );
+                else if ( a.slot === 2 ) this.onSlot2.call( undefined );
+                else if ( a.slot === 3 ) this.onSlot3.call( undefined );
+                else if ( a.slot === 4 ) this.onSlot4.call( undefined );
+                else if ( a.slot === 5 ) this.onSlot5.call( undefined );
+                else if ( a.slot === 6 ) this.onSlot6.call( undefined );
+                else if ( a.slot === 7 ) this.onSlot7.call( undefined );
+
                 this.value.delete( a.slot );
                 this.callEffectsAndListeners();
+
             }
         }
 

@@ -19,6 +19,7 @@ export class AnalysisSlot {
         this._analysis = analysis;
         this.hydrate(analysis);
         this._serialized = this.analysis.toSerialized();
+        this.callAppropriateSlotEvent( this._serialized );
     }
 
     public setAnalysis(
@@ -45,7 +46,6 @@ export class AnalysisSlot {
 
         // Serialize whenever name changes
         analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis, change) => { 
-            console.log( "recieved", change );
             this.enqueueSerialisation();
         });
 
@@ -63,7 +63,9 @@ export class AnalysisSlot {
     protected serialize() {
         this._serialized = this.analysis.toSerialized();
         this.onSerialize.call(this._serialized, this.analysis);
-        console.log( "serializing" );
+
+        this.callAppropriateSlotEvent( this._serialized );
+        
     }
 
     public recieveSerialized(
@@ -80,6 +82,34 @@ export class AnalysisSlot {
             this.onSerialize.call(this._serialized, this.analysis);
         }
 
+    }
+
+    protected callAppropriateSlotEvent( value: string|undefined ) {
+
+        console.log( "calling", this.slot, value );
+
+        if ( this.slot === 1 ) {
+            this.analysis.file.slots.onSlot1.call( value );
+            return;
+        } else if ( this.slot === 2 ) {
+            this.analysis.file.slots.onSlot2.call( value );
+            return;
+        } else if ( this.slot === 3 ) {
+            this.analysis.file.slots.onSlot3.call( value );
+            return;
+        } else if ( this.slot === 4 ) {
+            this.analysis.file.slots.onSlot4.call( value );
+            return;
+        } else if ( this.slot === 5 ) {
+            this.analysis.file.slots.onSlot5.call( value );
+            return;
+        } else if ( this.slot === 6 ) {
+            this.analysis.file.slots.onSlot6.call( value );
+            return;
+        } else if ( this.slot === 7 ) {
+            this.analysis.file.slots.onSlot7.call( value );
+            return;
+        }
     }
 
 }

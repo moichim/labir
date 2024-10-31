@@ -365,6 +365,7 @@ export abstract class AbstractAnalysis {
             this.recalculateValues();
             /** @todo */
             // ... probably here should be serialisation
+            this.onSerializableChange.call( this, "moveOrResize" );
         });
 
     }

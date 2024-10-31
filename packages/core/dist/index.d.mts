@@ -641,6 +641,7 @@ declare class AnalysisSlot {
     protected enqueueSerialisation(): void;
     protected serialize(): void;
     recieveSerialized(serialized: string): void;
+    protected callAppropriateSlotEvent(value: string | undefined): void;
 }
 
 type AnalysisSlotsMap = Map<number, AnalysisSlot>;
@@ -650,6 +651,13 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
     static MAX_SLOTS: number;
     readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
     readonly onSlotRemove: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
+    readonly onSlot1: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot2: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot3: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot4: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot5: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot6: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot7: CallbacksManager<(value: string | undefined) => void>;
     getNextFreeSlotNumber(): number | undefined;
     initSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
     hasSlot(slot: number): boolean;

@@ -29,37 +29,24 @@ export class FileProviderElement extends AbstractFileProvider {
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis1?: string;
-    protected analysis1Key?: string;
-    protected analysis1Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis2?: string;
-    protected analysis2Key?: string;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis3?: string;
-    protected analysis3Key?: string;
-    protected analysis3Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis4?: string;
-    protected analysis4Key?: string;
-    protected analysis4Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis5?: string;
-    protected analysis5Key?: string;
-    protected analysis5Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis6?: string;
-    protected analysis6Key?: string;
-    protected analysis6Object?: AbstractAnalysis;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis7?: string;
-    protected analysis7Key?: string;
-    protected analysis7Object?: AbstractAnalysis;
 
     /** Load the file and call all necessary callbacks */
     protected async load() {
@@ -128,130 +115,70 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+    protected createInitialAnalysis(
+        instance: Instance,
+        index: number,
+        value?: string
+    ) {
+
+        if ( value !== undefined && value.trim().length > 0 ) {
+            instance.slots.createFromSerialized( value, index );
+        }
+
+    }
+
     protected handleLoaded(
         instance: Instance
     ) {
 
-        this.handleAnalysisField(instance, 1);
-        this.handleAnalysisField(instance, 2);
-        this.handleAnalysisField(instance, 3);
-        this.handleAnalysisField(instance, 4);
-        this.handleAnalysisField(instance, 5);
-        this.handleAnalysisField(instance, 6);
-        this.handleAnalysisField(instance, 7);
+        this.createInitialAnalysis( instance, 1, this.analysis1 );
+        this.createInitialAnalysis( instance, 2, this.analysis2 );
+        this.createInitialAnalysis( instance, 3, this.analysis3 );
+        this.createInitialAnalysis( instance, 4, this.analysis4 );
+        this.createInitialAnalysis( instance, 5, this.analysis5 );
+        this.createInitialAnalysis( instance, 6, this.analysis6 );
+        this.createInitialAnalysis( instance, 7, this.analysis7 );
+
+        // listen to changes
+        instance.slots.onSlot1.set( this.UUID, value => this.analysis1 = value );
+        instance.slots.onSlot2.set( this.UUID, value => this.analysis2 = value );
+        instance.slots.onSlot3.set( this.UUID, value => this.analysis3 = value );
+        instance.slots.onSlot4.set( this.UUID, value => this.analysis4 = value );
+        instance.slots.onSlot5.set( this.UUID, value => this.analysis5 = value );
+        instance.slots.onSlot6.set( this.UUID, value => this.analysis6 = value );
+        instance.slots.onSlot7.set( this.UUID, value => this.analysis7 = value );
+
+        
+
+        
+
+        instance.slots.onSlotInit.set( this.UUID, (number, slot) => {
+            
+            this.assignAppropriateField(number, slot.serialized);
+            
+            console.log( slot );
+
+            slot.onSerialize.set( this.UUID, value => {
+                console.log( value );
+                // this.assignAppropriateField( number, value )
+            } );
+
+        } );
+
+        
+
 
     }
 
 
-    protected handleAnalysisField(
-        instance: Instance,
-        number: SlotNumber
-    ) {
-
-        const serializedField = `analysis${number}` as keyof FileProviderElement;
-        const keyField = `analysis${number}Key` as keyof FileProviderElement;
-
-
-        instance.analysis.layers[`onSlot${number}`].set(this.UUID, analysis => {
-            console.log("on slot 7");
-            this[serializedField] = analysis?.serialized;
-            this[keyField] = analysis?.key;
-
-            if (analysis) {
-                // Update the value to the component
-                analysis.onSerialize.set(this.UUID, value => {
-                    this[serializedField] = value;
-                });
-
-                // Remove self once delted
-                analysis.layers.onRemove.set(this.UUID + analysis.key, (key) => {
-
-                    console.log(key);
-
-                    if (key === this.analysis7Key) {
-                        this[keyField] = analysis?.key;
-                        this[serializedField] = undefined;
-                    }
-                });
-            }
-
-        });
-
-
-
-        // Initial serialized value
-
-        const initialSerializedValue = this[serializedField] as string | null | undefined;
-
-        if (initialSerializedValue) {
-            const analysis = instance.analysis.layers.createFromSerialized(
-                initialSerializedValue,
-                number
-            );
-            if (analysis) {
-
-                const field = this[keyField];
-                this[keyField] = analysis.key as string;
-            }
-        }
-
-    }
-
-
-    protected handleAnalysis(
-        instance: Instance,
-        analysis?: ParsedAnalysis
-    ): void {
-
-        if (analysis === undefined) {
-            return;
-        }
-
-        let obj: AbstractAnalysis | undefined = undefined;
-
-        if (analysis.type === "point") {
-            const point = analysis as ParsedPointAnalysis
-            obj = instance.analysis.layers.placePointAt(point.name, point.top, point.left, point.color);
-
-            if (point.avg) {
-                obj.graph.setAvgActivation(true);
-            }
-
-        } else {
-
-            const area = analysis as ParsedAreaAnalysis;
-
-            if (area.type === "rectangle") {
-                obj = instance.analysis.layers.placeRectAt(
-                    area.name,
-                    area.top,
-                    area.left,
-                    area.width,
-                    area.height,
-                    area.color
-                );
-            } else if (area.type === "ellipsis") {
-                obj = instance.analysis.layers.placeEllipsisAt(
-                    area.name,
-                    area.top,
-                    area.left,
-                    area.width,
-                    area.height,
-                    area.color
-                );
-            }
-
-            obj?.graph.setAvgActivation(area.avg);
-            obj?.graph.setMinActivation(area.min);
-            obj?.graph.setMaxActivation(area.max);
-
-
-        }
-
-        obj?.setSelected();
-
-        this.log(obj);
-
+    protected assignAppropriateField( field: number, value?: string ) {
+        if ( field === 1 ) this.analysis1 = value;
+        else if ( field === 2 ) this.analysis2 = value;
+        else if ( field === 3 ) this.analysis3 = value;
+        else if ( field === 4 ) this.analysis4 = value;
+        else if ( field === 5 ) this.analysis5 = value;
+        else if ( field === 6 ) this.analysis6 = value;
+        else if ( field === 7 ) this.analysis7 = value;
     }
 
 
@@ -281,41 +208,8 @@ export class FileProviderElement extends AbstractFileProvider {
 
         }
 
+
         /*
-        if (_changedProperties.has("analysis1")) {
-
-            const oldValue = _changedProperties.get("analysis1");
-            const newValue = this.analysis1;
-
-            if (this.file) {
-
-                // Create new one if not existed yet
-                if (!oldValue && newValue) {
-                    this.file.analysis.layers.createFromSerialized(newValue, 1);
-                }
-
-                // Delete the existing
-                else if (
-                    oldValue
-                    && (newValue === undefined || newValue === null || newValue.trim().length === 0)
-                    && this.analysis1Key
-                ) {
-                    this.file.analysis.layers.removeAnalysis(this.analysis1Key);
-                } else if ( this.analysis1Key ) {
-                    
-                    const oldAnalysis = this.file.analysis.layers.get( this.analysis1Key );
-
-                    if ( newValue && oldAnalysis && newValue !== oldAnalysis.serialized ) {
-                        oldAnalysis.recievedSerialized( newValue );
-                    }
-
-                }
-
-            }
-
-        }
-        */
-
         this.handleAnalysisUpdate( 1, _changedProperties );
         this.handleAnalysisUpdate( 2, _changedProperties );
         this.handleAnalysisUpdate( 3, _changedProperties );
@@ -323,6 +217,7 @@ export class FileProviderElement extends AbstractFileProvider {
         this.handleAnalysisUpdate( 5, _changedProperties );
         this.handleAnalysisUpdate( 6, _changedProperties );
         this.handleAnalysisUpdate( 7, _changedProperties );
+        */
 
     }
 
@@ -337,14 +232,48 @@ export class FileProviderElement extends AbstractFileProvider {
 
         if (_changedProperties.has(field)) {
 
-            const oldValue = _changedProperties.get(field);
+            const oldValue = _changedProperties.get(field) as string|undefined|null;
             const newValue = this[field] as string|undefined|null;
+
+
+            if ( this.file ) {
+
+                const slot = this.file.slots.getSlot( index );
+
+                // If slot had not exist before and sould create, do so
+                if ( 
+                    slot === undefined 
+                    && newValue 
+                    && newValue.trim().length > 0
+                    && (
+                        ! oldValue
+                        || oldValue?.trim().length > 0
+                    )
+                ) {
+                    this.file.slots.createFromSerialized( newValue, index );
+                }
+
+                else if (
+                    slot !== undefined
+                    && oldValue
+                    && ! newValue
+                    && newValue?.trim().length === 0
+                ) {
+                    this.file.slots.removeSlotAndAnalysis( index );
+                } else if ( slot && newValue ) {
+                    slot?.recieveSerialized( newValue );
+                }
+
+            }
+
+
+            /*
 
             if (this.file) {
 
                 // Create new one if not existed yet
                 if (!oldValue && newValue) {
-                    this.file.analysis.layers.createFromSerialized(newValue, index);
+                    this.file.slots.createFromSerialized(newValue, index);
                 }
 
                 // Delete the existing
@@ -353,18 +282,22 @@ export class FileProviderElement extends AbstractFileProvider {
                     && (newValue === undefined || newValue === null || newValue.trim().length === 0)
                     && keyValue
                 ) {
-                    this.file.analysis.layers.removeAnalysis(keyValue);
-                } else if ( keyValue ) {
+                    this.file.slots.removeSlotAndAnalysis(index);
+                } 
+                // Update the existing
+                else if ( keyValue ) {
                     
-                    const oldAnalysis = this.file.analysis.layers.get( keyValue );
+                    const slot = this.file.slots.getSlot( index );
 
-                    if ( newValue && oldAnalysis && newValue !== oldAnalysis.serialized ) {
-                        oldAnalysis.recievedSerialized( newValue );
+                    if ( newValue && slot && newValue !== slot.serialized ) {
+                        slot.analysis.recievedSerialized( newValue );
                     }
 
                 }
 
             }
+
+            */
 
         }
 

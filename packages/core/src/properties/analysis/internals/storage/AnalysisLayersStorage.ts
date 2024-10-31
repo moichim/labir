@@ -152,7 +152,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             left
         );
 
-        this.addAnalysis(newAnalysis, true);
+        this.addAnalysis(newAnalysis, false);
 
         return newAnalysis;
 
@@ -202,7 +202,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             left
         );
 
-        this.addAnalysis(newAnalysis, true);
+        this.addAnalysis(newAnalysis, false);
 
         return newAnalysis;
 

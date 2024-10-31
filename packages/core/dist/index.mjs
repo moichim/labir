@@ -1971,6 +1971,7 @@ var AbstractAnalysis = class {
     this.renderRoot.appendChild(this.layerRoot);
     this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
       this.recalculateValues();
+      this.onSerializableChange.call(this, "moveOrResize");
     });
   }
   onSerializableChange = new CallbacksManager();
@@ -3721,7 +3722,7 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    this.addAnalysis(newAnalysis, true);
+    this.addAnalysis(newAnalysis, false);
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
@@ -3748,7 +3749,7 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    this.addAnalysis(newAnalysis, true);
+    this.addAnalysis(newAnalysis, false);
     return newAnalysis;
   }
   /** Build an ellyptical analysis at the given position. */
@@ -4144,6 +4145,7 @@ var AnalysisSlot = class {
     this._analysis = analysis;
     this.hydrate(analysis);
     this._serialized = this.analysis.toSerialized();
+    this.callAppropriateSlotEvent(this._serialized);
   }
   _analysis;
   get analysis() {
@@ -4169,7 +4171,6 @@ var AnalysisSlot = class {
   }
   hydrate(analysis) {
     analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis2, change) => {
-      console.log("recieved", change);
       this.enqueueSerialisation();
     });
   }
@@ -4184,7 +4185,7 @@ var AnalysisSlot = class {
   serialize() {
     this._serialized = this.analysis.toSerialized();
     this.onSerialize.call(this._serialized, this.analysis);
-    console.log("serializing");
+    this.callAppropriateSlotEvent(this._serialized);
   }
   recieveSerialized(serialized) {
     this.analysis.recievedSerialized(serialized);
@@ -4195,6 +4196,31 @@ var AnalysisSlot = class {
       this.onSerialize.call(this._serialized, this.analysis);
     }
   }
+  callAppropriateSlotEvent(value) {
+    console.log("calling", this.slot, value);
+    if (this.slot === 1) {
+      this.analysis.file.slots.onSlot1.call(value);
+      return;
+    } else if (this.slot === 2) {
+      this.analysis.file.slots.onSlot2.call(value);
+      return;
+    } else if (this.slot === 3) {
+      this.analysis.file.slots.onSlot3.call(value);
+      return;
+    } else if (this.slot === 4) {
+      this.analysis.file.slots.onSlot4.call(value);
+      return;
+    } else if (this.slot === 5) {
+      this.analysis.file.slots.onSlot5.call(value);
+      return;
+    } else if (this.slot === 6) {
+      this.analysis.file.slots.onSlot6.call(value);
+      return;
+    } else if (this.slot === 7) {
+      this.analysis.file.slots.onSlot7.call(value);
+      return;
+    }
+  }
 };
 
 // src/properties/analysisSlots/AnalysisSlotsDrive.ts
@@ -4202,6 +4228,13 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   static MAX_SLOTS = 7;
   onSlotInit = new CallbacksManager();
   onSlotRemove = new CallbacksManager();
+  onSlot1 = new CallbacksManager();
+  onSlot2 = new CallbacksManager();
+  onSlot3 = new CallbacksManager();
+  onSlot4 = new CallbacksManager();
+  onSlot5 = new CallbacksManager();
+  onSlot6 = new CallbacksManager();
+  onSlot7 = new CallbacksManager();
   getNextFreeSlotNumber() {
     for (let i = 1; i <= _AnalysisSlotsState.MAX_SLOTS; i++) {
       if (!this.hasSlot(i)) return i;
@@ -4211,6 +4244,7 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     if (this.hasSlot(slot)) {
       throw new Error(`Slot ${slot} already taken! Clear it first or use 'replaceSlot' instead.`);
     }
+    console.log("initialising slot", 1, analysis);
     const value = new AnalysisSlot(slot, analysis);
     this.value.set(slot, value);
     this.onSlotInit.call(slot, value);
@@ -4240,6 +4274,13 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     if (value) {
       const analysis = value.analysis;
       this.onSlotRemove.call(slot, value);
+      if (slot === 1) this.onSlot1.call(void 0);
+      else if (slot === 2) this.onSlot2.call(void 0);
+      else if (slot === 3) this.onSlot3.call(void 0);
+      else if (slot === 4) this.onSlot4.call(void 0);
+      else if (slot === 5) this.onSlot5.call(void 0);
+      else if (slot === 6) this.onSlot6.call(void 0);
+      else if (slot === 7) this.onSlot7.call(void 0);
       this.value.delete(slot);
       this.parent.analysis.layers.removeAnalysis(analysis.key, false);
       this.callEffectsAndListeners();
@@ -4256,6 +4297,13 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     for (let a of this.value.values()) {
       if (a.analysis.key === analysis.key) {
         this.onSlotRemove.call(a.slot, a);
+        if (a.slot === 1) this.onSlot1.call(void 0);
+        else if (a.slot === 2) this.onSlot2.call(void 0);
+        else if (a.slot === 3) this.onSlot3.call(void 0);
+        else if (a.slot === 4) this.onSlot4.call(void 0);
+        else if (a.slot === 5) this.onSlot5.call(void 0);
+        else if (a.slot === 6) this.onSlot6.call(void 0);
+        else if (a.slot === 7) this.onSlot7.call(void 0);
         this.value.delete(a.slot);
         this.callEffectsAndListeners();
       }
@@ -4631,6 +4679,14 @@ var AddEllipsisTool = class extends AbstractAddTool {
     point.analysis.ready = true;
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
+    } else {
+      if (point.analysis.file.slots.value.size <= AnalysisSlotsState.MAX_SLOTS) {
+        const slot = point.analysis.file.slots.getNextFreeSlotNumber();
+        console.log(slot);
+        if (slot !== void 0) {
+          point.file.slots.initSlot(slot, point.analysis);
+        }
+      }
     }
   }
   onPointMove(point, top, left) {
