@@ -1,10 +1,10 @@
-import { CallbacksManager } from "../../../callbacksManager";
-import { AnalysisDrive } from "../../AnalysisDrive";
-import { AbstractAnalysis } from "../AbstractAnalysis";
-import { EllipsisAnalysis } from "../area/ellipsis/EllipsisAnalysis";
-import { PointAnalysis } from "../point/PointAnalysis";
-import { RectangleAnalysis } from "../area/rectangle/RectangleAnalysis";
-import { SlotInitialisationValue } from "../../../analysisSlots/AnalysisSlotsDrive";
+import { CallbacksManager } from "../../callbacksManager";
+import { AnalysisDrive } from "../AnalysisDrive";
+import { AbstractAnalysis } from "../internals/AbstractAnalysis";
+import { EllipsisAnalysis } from "../internals/area/ellipsis/EllipsisAnalysis";
+import { PointAnalysis } from "../internals/point/PointAnalysis";
+import { RectangleAnalysis } from "../internals/area/rectangle/RectangleAnalysis";
+import { SlotInitialisationValue } from "../../analysisSlots/AnalysisSlotsDrive";
 
 
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
@@ -88,9 +88,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         if ( slotNum !== undefined ) {
 
-            this.slots.hasSlot( slotNum )
-                ? this.slots.replaceSlot( slotNum, analysis )
-                : this.slots.initSlot( slotNum, analysis );
+            this.slots.assignSlot( slotNum, analysis );
 
         }
 
@@ -104,7 +102,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    removeAnalysis(key: string, alsoRemoveSlot: boolean = true) {
+    removeAnalysis(key: string) {
         if (this.has(key)) {
 
             const analysis = this.get( key );
@@ -112,9 +110,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             if ( analysis ) {
 
                 // Remove from slots
-                if ( alsoRemoveSlot ) {
-                    this.slots.removeSlotButNotAnalysis( analysis );
-                }
+                this.slots.unassignAnalysisFromItsSlot( analysis );
                 
 
                 // Call the analysis's remove fn

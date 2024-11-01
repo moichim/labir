@@ -54,7 +54,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getEllipsisAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         // Contain the initial name
         expect(slot.serialized).toContain("ABCDEFG");
@@ -77,7 +77,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         // Contain the initial color
         expect(slot.serialized).toContain("Orange");
@@ -102,7 +102,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         expect(slot.serialized).toContain(`top:${top}`);
         expect(slot.serialized).toContain(`left:${left}`);
@@ -143,7 +143,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         // Initial state
         expect(slot.serialized).not.toContain("avg");
@@ -193,7 +193,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getRectAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         const name = "fňukálek";
         const left = 37;
@@ -284,7 +284,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getPointAnalysis("ABCDEFG", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         expect(analysis.top).toEqual(top);
 
@@ -323,7 +323,7 @@ describe("Serialisation of analysis", () => {
 
         const analysis = getRectAnalysis("AbCdEfGhIjKlMnOpQrStUvWxYz", instance);
 
-        const slot = instance.slots.initSlot( 1, analysis );
+        const slot = instance.slots.assignSlot( 1, analysis );
 
         const newName = "Pepíček";
 

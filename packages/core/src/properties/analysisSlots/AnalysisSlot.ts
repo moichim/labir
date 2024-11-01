@@ -1,6 +1,15 @@
 import { AbstractAnalysis } from "../analysis/internals/AbstractAnalysis";
 import { CallbacksManager } from "../callbacksManager";
 
+/** 
+ * Analysis slot takes care of serialisation
+ * 
+ * Slot is an independent object that applies on the first 7 analysis.
+ * All the serialisation is perfoemed here. An analysis does not know
+ * about its slots at all.
+ * 
+ * One analysis may be in one slot only. Never in two slots.
+ */
 export class AnalysisSlot {
 
     private _analysis: AbstractAnalysis;
@@ -8,8 +17,11 @@ export class AnalysisSlot {
 
     private _serialized: string;
     public get serialized() { return this._serialized; }
+
+    /** @deprecated Serialisation is emitted by the driver. This emitter is used mainly in tests, but not elsewhere. */
     public readonly onSerialize = new CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
 
+    /** Serialisation is done in the next tick */
     protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
 
     public constructor(
@@ -19,29 +31,23 @@ export class AnalysisSlot {
         this._analysis = analysis;
         this.hydrate(analysis);
         this._serialized = this.analysis.toSerialized();
-        this.callAppropriateSlotEvent( this._serialized );
+        this.propagateSerialisationUp( this._serialized );
     }
 
-    public setAnalysis(
-        analysis: AbstractAnalysis
-    ) {
-        this.dehydrate(this._analysis);
-        // Remove the existing analysis completely
-        this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key );
-        this._analysis = analysis;
-        this.hydrate(this._analysis);
-    }
-
+    /** Generate the listener key for this slot */
     private listenerKey(operation: string): string {
         return `slot ${this.slot} ${operation}`;
     }
 
-    public dehydrate(analysis: AbstractAnalysis) {
+    /** Remove all listeners created by this slot */
+    private dehydrate(analysis: AbstractAnalysis) {
 
         analysis.onSerializableChange.delete(this.listenerKey("serializable change"));
 
     }
 
+
+    /** Add all listeners to the analysis object */
     private hydrate(analysis: AbstractAnalysis) {
 
         // Serialize whenever name changes
@@ -64,7 +70,7 @@ export class AnalysisSlot {
         this._serialized = this.analysis.toSerialized();
         this.onSerialize.call(this._serialized, this.analysis);
 
-        this.callAppropriateSlotEvent( this._serialized );
+        this.propagateSerialisationUp( this._serialized );
         
     }
 
@@ -74,42 +80,29 @@ export class AnalysisSlot {
 
         this.analysis.recievedSerialized(serialized);
 
+        /** Serialize again for control */
         const newSerialized = this.analysis.toSerialized();
-        console.log( newSerialized, serialized );
 
         if (newSerialized !== serialized) {
+
             this._serialized = newSerialized;
+
             this.onSerialize.call(this._serialized, this.analysis);
+
         }
 
     }
 
-    protected callAppropriateSlotEvent( value: string|undefined ) {
 
-        console.log( "calling", this.slot, value );
+    /** Call global and particular callbacks */
+    protected propagateSerialisationUp( value: string|undefined ) {
 
-        if ( this.slot === 1 ) {
-            this.analysis.file.slots.onSlot1.call( value );
-            return;
-        } else if ( this.slot === 2 ) {
-            this.analysis.file.slots.onSlot2.call( value );
-            return;
-        } else if ( this.slot === 3 ) {
-            this.analysis.file.slots.onSlot3.call( value );
-            return;
-        } else if ( this.slot === 4 ) {
-            this.analysis.file.slots.onSlot4.call( value );
-            return;
-        } else if ( this.slot === 5 ) {
-            this.analysis.file.slots.onSlot5.call( value );
-            return;
-        } else if ( this.slot === 6 ) {
-            this.analysis.file.slots.onSlot6.call( value );
-            return;
-        } else if ( this.slot === 7 ) {
-            this.analysis.file.slots.onSlot7.call( value );
-            return;
+        const manager = this.analysis.file.slots.getOnSerializeManager( this.slot );
+
+        if ( manager ) {
+            manager.call( value );
         }
+
     }
 
 }

@@ -55,7 +55,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
                 const slot = point.analysis.file.slots.getNextFreeSlotNumber();
                 console.log( slot );
                 if ( slot !== undefined ) {
-                    point.file.slots.initSlot( slot, point.analysis );
+                    point.file.slots.assignSlot( slot, point.analysis );
                 }
             }
         }

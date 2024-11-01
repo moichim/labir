@@ -1,6 +1,9 @@
 import { describe, expect, test, vi } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../devserver/node/scaffold';
+import { AnalysisSlot } from './AnalysisSlot';
+import { CallbacksManager } from '../callbacksManager';
+import { AnalysisSlotsState } from './AnalysisSlotsDrive';
 
 describe("AnalysisSlotsDrive", () => {
 
@@ -18,7 +21,7 @@ describe("AnalysisSlotsDrive", () => {
         expect(analysis).not.toBeUndefined();
 
         // Assign it to an empty slot
-        instance.slots.initSlot(1, analysis);
+        instance.slots.assignSlot(1, analysis);
         expect(instance.slots.hasSlot(1)).toEqual(true);
 
         // Clear an occupied slot
@@ -31,12 +34,12 @@ describe("AnalysisSlotsDrive", () => {
         const analysis3 = instance.analysis.layers.placeRectAt("sth test", 15, 13, 100, 100);
 
         // Assign a slot
-        instance.slots.initSlot(2, analysis2);
+        instance.slots.assignSlot(2, analysis2);
         expect(instance.slots.hasSlot(2)).toEqual(true);
         expect(instance.slots.getSlot(2)?.analysis.name).toEqual(analysis2.name);
 
         // Replace that slot
-        instance.slots.replaceSlot(2, analysis3);
+        instance.slots.assignSlot(2, analysis3);
         // The name should correspond
         expect(instance.slots.getSlot(2)?.analysis.name).toEqual(analysis3.name);
         // The old analysis should be removed
@@ -55,7 +58,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placeRectAt("Testovací analýza", 10, 10, 100, 100);
 
-        const slot = instance.slots.initSlot(1, analysis);
+        const slot = instance.slots.assignSlot(1, analysis);
 
         // Check if the analysis is assigned properly
         expect(instance.analysis.value.length).toEqual(1);
@@ -307,7 +310,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placePointAt("something", 10, 10, "olive");
 
-        const slot = instance.slots.initSlot(1, analysis);
+        const slot = instance.slots.assignSlot(1, analysis);
 
         // Check initial properties
         expect(slot.analysis.left).toEqual(10);
@@ -383,7 +386,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placeEllipsisAt("something", 10, 10, 100, 100, "olive");
 
-        const slot = instance.slots.initSlot(1, analysis);
+        const slot = instance.slots.assignSlot(1, analysis);
 
         // Check initial properties
         expect(analysis.left).toEqual(10);
@@ -435,7 +438,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placePointAt("something", 10, 10, "olive");
 
-        const slot = instance.slots.initSlot(1, analysis);
+        const slot = instance.slots.assignSlot(1, analysis);
 
         // Check initial properties
         expect(analysis.left).toEqual(10);
@@ -508,55 +511,236 @@ describe("AnalysisSlotsDrive", () => {
         expect(instance.slots.hasSlot(2)).toEqual(false);
 
         // Remove the analysis
-        instance.analysis.layers.removeAnalysis( "something" );
-        expect( instance.slots.hasSlot(1) ).toEqual(false);
-        expect( instance.slots.hasSlot(2) ).toEqual(false);
-        expect( instance.analysis.value.length ).toEqual(0);
-        expect( instance.slots.value.size ).toEqual(0);
+        instance.analysis.layers.removeAnalysis("something");
+        expect(instance.slots.hasSlot(1)).toEqual(false);
+        expect(instance.slots.hasSlot(2)).toEqual(false);
+        expect(instance.analysis.value.length).toEqual(0);
+        expect(instance.slots.value.size).toEqual(0);
 
         // Add two new analysis
-        instance.analysis.layers.placeEllipsisAt( "elipsa", 10, 10, 100, 100, "red", true );
-        instance.analysis.layers.placeEllipsisAt( "elipsa druhá", 10, 10, 100, 100, "red", true );
+        instance.analysis.layers.placeEllipsisAt("elipsa", 10, 10, 100, 100, "red", true);
+        instance.analysis.layers.placeEllipsisAt("elipsa druhá", 10, 10, 100, 100, "red", true);
 
-        expect( instance.analysis.layers.size ).toEqual(2);
-        expect( instance.analysis.value.length ).toEqual(2);
-        expect( instance.slots.value.size ).toEqual(2);
-        expect( instance.slots.hasSlot(1) ).toEqual(true);
-        expect( instance.slots.hasSlot(2) ).toEqual(true);
-        expect( instance.slots.hasSlot(3) ).toEqual(false);
+        expect(instance.analysis.layers.size).toEqual(2);
+        expect(instance.analysis.value.length).toEqual(2);
+        expect(instance.slots.value.size).toEqual(2);
+        expect(instance.slots.hasSlot(1)).toEqual(true);
+        expect(instance.slots.hasSlot(2)).toEqual(true);
+        expect(instance.slots.hasSlot(3)).toEqual(false);
 
         // Add one more analysis
-        const analysis4 = instance.analysis.layers.placePointAt( "nějaký bodík", 10, 10, "pink", true );
-        expect( instance.slots.hasSlot(3) ).toEqual(true);
-        
+        const analysis4 = instance.analysis.layers.placePointAt("nějaký bodík", 10, 10, "pink", true);
+        expect(instance.slots.hasSlot(3)).toEqual(true);
+
         // Remove the first slot
-        instance.slots.removeSlotAndAnalysis( 1 );
-        expect( instance.slots.hasSlot(1) ).toEqual( false );
-        expect( instance.analysis.value.length ).toEqual( 2 );
+        instance.slots.removeSlotAndAnalysis(1);
+        expect(instance.slots.hasSlot(1)).toEqual(false);
+        expect(instance.analysis.value.length).toEqual(2);
 
         // Add again an analysis to the first slot
-        instance.analysis.layers.placeEllipsisAt( "buchty", 10, 10, 100,100, "red", true );
-        expect( instance.slots.hasSlot(1) ).toEqual(true);
-        expect( instance.analysis.value.length ).toEqual(3);
+        instance.analysis.layers.placeEllipsisAt("buchty", 10, 10, 100, 100, "red", true);
+        expect(instance.slots.hasSlot(1)).toEqual(true);
+        expect(instance.analysis.value.length).toEqual(3);
 
         // Remove the second slot
-        instance.slots.removeSlotAndAnalysis( 2 );
-        expect( instance.slots.hasSlot(2) ).toEqual( false );
-        expect( instance.analysis.value.length ).toEqual(2);
-        expect( instance.slots.value.size ).toEqual(2);
+        instance.slots.removeSlotAndAnalysis(2);
+        expect(instance.slots.hasSlot(2)).toEqual(false);
+        expect(instance.analysis.value.length).toEqual(2);
+        expect(instance.slots.value.size).toEqual(2);
 
         // Remove a slot without the analysis
-        instance.slots.removeSlotButNotAnalysis( analysis4 );
-        expect( instance.slots.value.size ).toEqual(1);
-        expect( instance.analysis.value.length ).toEqual(2);
+        instance.slots.unassignAnalysisFromItsSlot(analysis4);
+        expect(instance.slots.value.size).toEqual(1);
+        expect(instance.analysis.value.length).toEqual(2);
 
-        for ( let i = 1; i < 10; i++ ) {
-            instance.analysis.layers.placeRectAt( `A__ ${i}`, 10, 10, 100, 100, undefined, true );
+        for (let i = 1; i < 10; i++) {
+            instance.analysis.layers.placeRectAt(`A__ ${i}`, 10, 10, 100, 100, undefined, true);
         }
 
-        expect( instance.slots.value.size ).toEqual(7);
-        expect( instance.analysis.value.length ).toEqual(11);
-        
-    })
+        expect(instance.slots.value.size).toEqual(7);
+        expect(instance.analysis.value.length).toEqual(11);
+
+    });
+
+
+    test("individual assignement listeners", async () => {
+
+        const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
+
+        const layers = instance.analysis.layers;
+        const slots = instance.slots;
+
+
+        const testSlot = (
+            number: number,
+            assignementManager: AnalysisSlotsState["onSlot1Assignement"],
+            serialisationManager: AnalysisSlotsState["onSlot1Serialize"]
+        ) => {
+
+            let assignedSlot: AnalysisSlot | undefined = undefined;
+            let assignedSerialized: string | undefined = undefined;
+
+            // Add assignement listener
+            assignementManager.set("testing", value => assignedSlot = value);
+
+            // Add serialisation listener
+            serialisationManager.set("testing assignemenr", value => assignedSerialized = value);
+
+
+            // The slot shall be empty
+            expect(slots.hasSlot(number)).toEqual(false);
+
+            // Declare names
+            const firstName = `Test analysis ${number} original`;
+            const secondName = `Test analysis ${number} replacement`;
+            const thirdName = `Test analysis ${number} out of range`;
+
+            // Create the first analysis
+            layers.placeEllipsisAt(firstName, 10, 10, 100, 100, "orange", number);
+
+            // Now all values shall be assigned
+            expect(assignedSlot).not.toBeUndefined();
+            expect(assignedSerialized).not.toBeUndefined();
+
+            // Now the analysis should be stored everywhere
+            expect(slots.hasSlot(number)).toEqual(true);
+            expect(layers.has(firstName)).toEqual(true);
+
+            // Check identity
+            expect(slots.getSlot(number)?.analysis.key).toEqual(firstName);
+            expect(layers.get(firstName)?.key).toEqual(firstName);
+            expect(assignedSerialized).toContain(firstName);
+
+
+            // Reassign with the second analysis
+            layers.placeRectAt(secondName, 10, 10, 100, 100, "green", number);
+
+            // The slot shall be defined
+            expect(assignedSerialized).not.toBeUndefined();
+            expect(assignedSlot).not.toBeUndefined();
+
+            // The first analysis should be no more
+            expect(layers.has(firstName)).toEqual(false);
+
+            // Check identity
+            expect(layers.get(secondName)).toEqual(slots.getSlot(number)?.analysis);
+            expect(assignedSerialized).toContain(secondName);
+
+            // Assign the third analysis to another slot
+            layers.placePointAt(thirdName, 10, 10, "red", number + 1);
+
+            // The actual slot shall still be the same
+            expect(layers.get(secondName)?.key).toEqual(slots.getSlot(number)?.analysis.key);
+            expect(assignedSerialized).toContain(secondName);
+
+            // The slot shall be occupied
+            expect(slots.hasSlot(number + 1)).toEqual(true);
+            expect(slots.getSlot(number + 1)?.analysis.key).toEqual(thirdName);
+
+            // The third analysis will be removed along with its slot
+            layers.removeAnalysis(thirdName);
+            expect(slots.hasSlot(number + 1)).toEqual(false);
+
+            // The second analysis will be removed without the slot
+            layers.removeAnalysis(secondName);
+
+            expect(layers.has(secondName)).toEqual(false);
+            expect(slots.hasSlot(number)).toEqual(false);
+
+            expect(layers.all.length).toEqual(0);
+            expect(slots.value.size).toEqual(0);
+
+        }
+
+        testSlot(1, slots.onSlot1Assignement, slots.onSlot1Serialize);
+        testSlot(2, slots.onSlot2Assignement, slots.onSlot2Serialize);
+        testSlot(3, slots.onSlot3Assignement, slots.onSlot3Serialize);
+        testSlot(4, slots.onSlot4Assignement, slots.onSlot4Serialize);
+        testSlot(5, slots.onSlot5Assignement, slots.onSlot5Serialize);
+        testSlot(6, slots.onSlot6Assignement, slots.onSlot6Serialize);
+        testSlot(7, slots.onSlot7Assignement, slots.onSlot7Serialize);
+
+        expect(layers.all.length).toEqual(0);
+        expect(slots.value.size).toEqual(0);
+
+    });
+
+    test("reassignement of analysis", async () => {
+
+        const instance = await loadFileForTests(THERMOGRAM_PATHS.SOUSTRUH);
+
+        const slots = instance.slots;
+        const layers = instance.analysis.layers;
+
+        expect(layers.all.length).toEqual(0);
+        expect(slots.value.size).toEqual(0);
+
+
+        let slot1: AnalysisSlot | undefined;
+        let serialized1: string | undefined = undefined;
+
+        let slot2: AnalysisSlot | undefined;
+        let serialized2: string | undefined = undefined;
+
+        slots.onSlot1Assignement.set("test", value => slot1 = value);
+        slots.onSlot1Serialize.set("test", value => serialized1 = value);
+
+        slots.onSlot2Assignement.set("test", value => slot2 = value);
+        slots.onSlot2Serialize.set("test", value => serialized2 = value);
+
+
+
+        // Create the first analysis
+        const analysis = layers.placeEllipsisAt("Test", 10, 10, 100, 100, "green", 1);
+
+        // Check count
+        expect(layers.all.length).toEqual(1);
+        expect(slots.value.size).toEqual(1);
+
+        // Check identity
+        expect(slots.getSlot(1)?.analysis.key).toEqual(analysis.key);
+        expect(serialized1).toContain(analysis.key);
+        expect(serialized2).toBeUndefined();
+        expect(slot1?.analysis).toEqual(analysis);
+
+        // Reassign analysis
+        slots.assignSlot(2, analysis);
+
+        expect(layers.all.length).toEqual(1);
+        expect(slots.value.size).toEqual(1);
+
+        expect(slot1).toBeUndefined();
+        expect(serialized1).toBeUndefined();
+
+        expect(slot2?.analysis.key).toEqual(analysis.key);
+        expect(serialized2).toContain(analysis.key);
+
+        // Assign back
+        slots.assignSlot(1, analysis);
+
+        expect(layers.all.length).toEqual(1);
+        expect(slots.value.size).toEqual(1);
+
+        expect(slot1?.analysis.key).toEqual(analysis.key);
+        expect(serialized1).toContain(analysis.key);
+
+        expect(slot2).toBeUndefined();
+        expect(serialized2).toBeUndefined();
+
+        // unregister the slot
+        slots.unassignAnalysisFromItsSlot(analysis);
+
+        expect(slots.value.size).toEqual(0); // The slot is destroyed
+        expect(layers.all.length).toEqual(1); // The analysis should remain
+
+        expect(slot1).toBeUndefined();
+        expect(serialized1).toBeUndefined();
+
+        expect(slot2).toBeUndefined();
+        expect(serialized2).toBeUndefined();
+
+
+    });
+
 
 });
