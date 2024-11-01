@@ -43,6 +43,10 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
 
     public onPointUp(point: AbstractPoint): void {
 
+        if ( ! point.isInSelectedLayer() ) {
+            return;
+        }
+
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
         point.analysis.ready = true;

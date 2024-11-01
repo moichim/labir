@@ -40,12 +40,21 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
 
     public onPointUp(point: AbstractPoint): void {
 
+        if ( ! point.isInSelectedLayer() ) {
+            return;
+        }
+
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
         point.analysis.ready = true;
 
         if (point.analysis.width <= 0 || point.analysis.height <= 0) {
             point.analysis.layers.removeAnalysis(point.analysis.key);
+        } else {
+            const slot = point.analysis.file.slots.getNextFreeSlotNumber();
+            if ( slot !== undefined ) {
+                point.file.slots.assignSlot( slot, point.analysis );
+            }
         }
 
     }

@@ -33,6 +33,7 @@ export abstract class AbstractPoint {
     public onY = new CallbacksManager<(y: number, prev: number) => void>
     public abstract mayMoveToY(value: number): boolean;
 
+
     /** 
      * Recieves X from the tool. 
      * 
@@ -59,6 +60,7 @@ export abstract class AbstractPoint {
         }
 
     }
+
 
     /** Recieves the X directly, along with the placement, with no side effects. */
     public setXDirectly( value: number, placement: PointPlacement ): void {

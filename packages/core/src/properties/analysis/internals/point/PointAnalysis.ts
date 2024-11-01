@@ -100,10 +100,12 @@ export class PointAnalysis extends AbstractAnalysis {
 
     protected onSetLeft(validatedValue: number): void {
         this.center.setXDirectly( validatedValue, PointPlacement.MIDDLE );
+        this.onSerializableChange.call( this, "left" );
     }
 
     protected onSetTop(validatedValue: number): void {
         this.center.setYDirectly( validatedValue, PointPlacement.MIDDLE );
+        this.onSerializableChange.call( this, "top" );
     }
 
     public onSetWidth(): void {}

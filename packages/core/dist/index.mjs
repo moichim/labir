@@ -2510,8 +2510,10 @@ var PointPoint = class _PointPoint extends AbstractPoint {
     };
   }
   sideEffectOnXFromTool() {
+    this.analysis.setLeft(this.x);
   }
   sideEffectOnYFromTool() {
+    this.analysis.setTop(this.y);
   }
   constructor(key, top, left, analysis, color) {
     super(
@@ -2695,9 +2697,11 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   }
   onSetLeft(validatedValue) {
     this.center.setXDirectly(validatedValue, 2 /* MIDDLE */);
+    this.onSerializableChange.call(this, "left");
   }
   onSetTop(validatedValue) {
     this.center.setYDirectly(validatedValue, 2 /* MIDDLE */);
+    this.onSerializableChange.call(this, "top");
   }
   onSetWidth() {
   }
@@ -4710,6 +4714,9 @@ var AddEllipsisTool = class extends AbstractAddTool {
   onPointDown() {
   }
   onPointUp(point) {
+    if (!point.isInSelectedLayer()) {
+      return;
+    }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
@@ -4769,6 +4776,9 @@ var AddPointTool = class extends AbstractAddTool {
   onPointDown() {
   }
   onPointUp(point) {
+    if (!point.isInSelectedLayer()) {
+      return;
+    }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
@@ -4813,11 +4823,19 @@ var AddRectangleTool = class extends AbstractAddTool {
   onPointDown() {
   }
   onPointUp(point) {
+    if (!point.isInSelectedLayer()) {
+      return;
+    }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
     point.analysis.ready = true;
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
+    } else {
+      const slot = point.analysis.file.slots.getNextFreeSlotNumber();
+      if (slot !== void 0) {
+        point.file.slots.assignSlot(slot, point.analysis);
+      }
     }
   }
   onPointMove(point, top, left) {

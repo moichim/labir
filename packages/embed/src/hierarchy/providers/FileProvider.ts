@@ -1,8 +1,7 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ThermalFileFailure, ThermalFileReader, SlotNumber } from "@labir/core";
+import { Instance, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ParsedAnalysis, ParsedAreaAnalysis, ParsedPointAnalysis } from "../../controls/file/analysis/presets/analysis";
 import { AbstractFileProvider } from "./AbstractFileProvider";
 import { fileProviderContext } from "./context/FileContexts";
 
@@ -122,7 +121,8 @@ export class FileProviderElement extends AbstractFileProvider {
     ) {
 
         if ( value !== undefined && value.trim().length > 0 ) {
-            instance.slots.createFromSerialized( value, index );
+            const analysis = instance.slots.createFromSerialized( value, index );
+            analysis?.setSelected( false, true );
         }
 
     }
@@ -131,6 +131,7 @@ export class FileProviderElement extends AbstractFileProvider {
         instance: Instance
     ) {
 
+        // Create the initial analysis
         this.createInitialAnalysis( instance, 1, this.analysis1 );
         this.createInitialAnalysis( instance, 2, this.analysis2 );
         this.createInitialAnalysis( instance, 3, this.analysis3 );
@@ -140,38 +141,18 @@ export class FileProviderElement extends AbstractFileProvider {
         this.createInitialAnalysis( instance, 7, this.analysis7 );
 
         // listen to changes
-        instance.slots.onSlot1.set( this.UUID, value => this.analysis1 = value );
-        instance.slots.onSlot2.set( this.UUID, value => this.analysis2 = value );
-        instance.slots.onSlot3.set( this.UUID, value => this.analysis3 = value );
-        instance.slots.onSlot4.set( this.UUID, value => this.analysis4 = value );
-        instance.slots.onSlot5.set( this.UUID, value => this.analysis5 = value );
-        instance.slots.onSlot6.set( this.UUID, value => this.analysis6 = value );
-        instance.slots.onSlot7.set( this.UUID, value => this.analysis7 = value );
-
-        
-
-        
-
-        instance.slots.onSlotInit.set( this.UUID, (number, slot) => {
-            
-            this.assignAppropriateField(number, slot.serialized);
-            
-            console.log( slot );
-
-            slot.onSerialize.set( this.UUID, value => {
-                console.log( value );
-                // this.assignAppropriateField( number, value )
-            } );
-
-        } );
-
-        
-
+        instance.slots.onSlot1Serialize.set( this.UUID, value => this.analysis1 = value );
+        instance.slots.onSlot2Serialize.set( this.UUID, value => this.analysis2 = value );
+        instance.slots.onSlot3Serialize.set( this.UUID, value => this.analysis3 = value );
+        instance.slots.onSlot4Serialize.set( this.UUID, value => this.analysis4 = value );
+        instance.slots.onSlot5Serialize.set( this.UUID, value => this.analysis5 = value );
+        instance.slots.onSlot6Serialize.set( this.UUID, value => this.analysis6 = value );
+        instance.slots.onSlot7Serialize.set( this.UUID, value => this.analysis7 = value );
 
     }
 
 
-    protected assignAppropriateField( field: number, value?: string ) {
+    private assignAppropriateField( field: number, value?: string ) {
         if ( field === 1 ) this.analysis1 = value;
         else if ( field === 2 ) this.analysis2 = value;
         else if ( field === 3 ) this.analysis3 = value;
@@ -209,7 +190,6 @@ export class FileProviderElement extends AbstractFileProvider {
         }
 
 
-        /*
         this.handleAnalysisUpdate( 1, _changedProperties );
         this.handleAnalysisUpdate( 2, _changedProperties );
         this.handleAnalysisUpdate( 3, _changedProperties );
@@ -217,7 +197,6 @@ export class FileProviderElement extends AbstractFileProvider {
         this.handleAnalysisUpdate( 5, _changedProperties );
         this.handleAnalysisUpdate( 6, _changedProperties );
         this.handleAnalysisUpdate( 7, _changedProperties );
-        */
 
     }
 
@@ -227,7 +206,6 @@ export class FileProviderElement extends AbstractFileProvider {
     ) {
 
         const field = `analysis${index}` as keyof FileProviderElement;
-        const keyValue = this[ `analysis${index}Key` as keyof FileProviderElement ] as string|undefined;
 
 
         if (_changedProperties.has(field)) {
@@ -250,7 +228,8 @@ export class FileProviderElement extends AbstractFileProvider {
                         || oldValue?.trim().length > 0
                     )
                 ) {
-                    this.file.slots.createFromSerialized( newValue, index );
+                    const analysis = this.file.slots.createFromSerialized( newValue, index );
+                    analysis?.setSelected( false, true );
                 }
 
                 else if (
@@ -265,39 +244,6 @@ export class FileProviderElement extends AbstractFileProvider {
                 }
 
             }
-
-
-            /*
-
-            if (this.file) {
-
-                // Create new one if not existed yet
-                if (!oldValue && newValue) {
-                    this.file.slots.createFromSerialized(newValue, index);
-                }
-
-                // Delete the existing
-                else if (
-                    oldValue
-                    && (newValue === undefined || newValue === null || newValue.trim().length === 0)
-                    && keyValue
-                ) {
-                    this.file.slots.removeSlotAndAnalysis(index);
-                } 
-                // Update the existing
-                else if ( keyValue ) {
-                    
-                    const slot = this.file.slots.getSlot( index );
-
-                    if ( newValue && slot && newValue !== slot.serialized ) {
-                        slot.analysis.recievedSerialized( newValue );
-                    }
-
-                }
-
-            }
-
-            */
 
         }
 

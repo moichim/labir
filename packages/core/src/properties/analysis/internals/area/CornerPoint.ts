@@ -85,6 +85,7 @@ export class CornerPoint extends AbstractHandlePoint {
     }
 
     protected sideEffectOnXFromTool(value: number, placement: PointPlacement): void {
+        
         this.pairX.setXDirectly(value, placement);
 
         if (value > this.pairY.x) {
@@ -102,6 +103,7 @@ export class CornerPoint extends AbstractHandlePoint {
     }
 
     protected sideEffectOnYFromTool(value: number, placement: PointPlacement): void {
+
         this.pairY.setYDirectly(value, placement);
 
         if ( value > this.pairX.y ) {
