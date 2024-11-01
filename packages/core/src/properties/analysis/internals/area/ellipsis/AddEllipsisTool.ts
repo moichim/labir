@@ -1,5 +1,4 @@
 import { Instance } from "../../../../../file/instance";
-import { AnalysisDataState } from "../../../../analysisData/AnalysisDataState";
 import { AnalysisSlotsState } from "../../../../analysisSlots/AnalysisSlotsDrive";
 import { ITool } from "../../../../tool/internals/AbstractTool";
 import { AbstractAddTool } from "../../AbstractAddTool";

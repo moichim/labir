@@ -80,7 +80,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         // Assign to slots
 
         // Get slot number
-        let slotNum = slotNumber === true
+        const slotNum = slotNumber === true
             ? this.slots.getNextFreeSlotNumber()
             : slotNumber === false
                 ? undefined

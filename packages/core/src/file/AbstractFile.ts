@@ -1,7 +1,6 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";

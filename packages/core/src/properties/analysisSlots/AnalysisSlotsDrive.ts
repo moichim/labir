@@ -103,7 +103,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         analysis: AbstractAnalysis
     ): number | undefined {
 
-        for (let a of this.value.values()) {
+        for (const a of this.value.values()) {
             if (a.analysis.key === analysis.key) {
                 return a.slot;
             }
@@ -144,7 +144,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         analysis: AbstractAnalysis
     ) {
 
-        for (let a of this.value.values()) {
+        for (const a of this.value.values()) {
 
             if (a.analysis.key === analysis.key) {
 
@@ -259,15 +259,12 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap {
         return value;
     }
-    protected afterSetEffect(value: AnalysisSlotsMap): void {
-        // throw new Error("Method not implemented.");
-    }
+    protected afterSetEffect(): void {}
 
     /** 
      * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
      */
     private callEffectsAndListeners() {
-        this.afterSetEffect(this.value);
         Object.values(this._listeners).forEach(listener => listener(this.value));
     }
 

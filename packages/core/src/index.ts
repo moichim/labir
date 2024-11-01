@@ -46,8 +46,8 @@ import { getPool } from "./utils/pool";
 import { AnalysisDataStateValue } from "./properties/analysisData/AnalysisDataState";
 import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
 import { AnalysisGraph } from "./properties/analysisData/graphs/AnalysisGraph";
-import { availableAnalysisColors } from "./properties/analysis/internals/storage/AnalysisLayersStorage";
-import {SlotUnion, SlotNumber} from "./properties/analysis/internals/storage/AnalysisLayersStorage";
+import { availableAnalysisColors } from "./properties/analysis/storage/AnalysisLayersStorage";
+import {SlotUnion, SlotNumber} from "./properties/analysis/storage/AnalysisLayersStorage";
 
 export {
 

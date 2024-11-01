@@ -2,7 +2,6 @@ import { describe, expect, test, vi } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../devserver/node/scaffold';
 import { AnalysisSlot } from './AnalysisSlot';
-import { CallbacksManager } from '../callbacksManager';
 import { AnalysisSlotsState } from './AnalysisSlotsDrive';
 
 describe("AnalysisSlotsDrive", () => {
@@ -493,7 +492,7 @@ describe("AnalysisSlotsDrive", () => {
 
         // Listen to slot driver values
         let slotValueCounter = 0;
-        instance.slots.addListener("test - listening to global changes", value => {
+        instance.slots.addListener("test - listening to global changes", () => {
             slotValueCounter++;
         });
 

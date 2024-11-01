@@ -51,7 +51,7 @@ export class AnalysisSlot {
     private hydrate(analysis: AbstractAnalysis) {
 
         // Serialize whenever name changes
-        analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis, change) => { 
+        analysis.onSerializableChange.set(this.listenerKey("serializable change"), () => { 
             this.enqueueSerialisation();
         });
 

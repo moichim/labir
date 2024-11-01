@@ -3650,7 +3650,7 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   }
 };
 
-// src/properties/analysis/internals/storage/AnalysisLayersStorage.ts
+// src/properties/analysis/storage/AnalysisLayersStorage.ts
 var availableAnalysisColors = [
   "Orange",
   "Lightblue",
@@ -3690,21 +3690,19 @@ var AnalysisLayersStorage = class extends Map {
     analysis.setColor(analysis.initialColor);
     this.set(analysis.key, analysis);
     this.layers = [...this.layers, analysis];
-    let slotNum = slotNumber === true ? this.slots.getNextFreeSlotNumber() : slotNumber === false ? void 0 : slotNumber;
+    const slotNum = slotNumber === true ? this.slots.getNextFreeSlotNumber() : slotNumber === false ? void 0 : slotNumber;
     if (slotNum !== void 0) {
-      this.slots.hasSlot(slotNum) ? this.slots.replaceSlot(slotNum, analysis) : this.slots.initSlot(slotNum, analysis);
+      this.slots.assignSlot(slotNum, analysis);
     }
     this.onAdd.call(analysis, this.all);
     this.drive.dangerouslySetValueFromStorage(this.all);
     return this;
   }
-  removeAnalysis(key, alsoRemoveSlot = true) {
+  removeAnalysis(key) {
     if (this.has(key)) {
       const analysis = this.get(key);
       if (analysis) {
-        if (alsoRemoveSlot) {
-          this.slots.removeSlotButNotAnalysis(analysis);
-        }
+        this.slots.unassignAnalysisFromItsSlot(analysis);
         analysis.remove();
         this.delete(key);
         this.layers = this.layers.filter((analysis2) => analysis2.key !== key);
@@ -3829,7 +3827,7 @@ var AnalysisLayersStorage = class extends Map {
   }
 };
 
-// src/properties/analysis/internals/storage/AnalysisPointsAccessor.ts
+// src/properties/analysis/storage/AnalysisPointsAccessor.ts
 var AnalysisPointsAccessor = class {
   constructor(drive) {
     this.drive = drive;
@@ -4145,7 +4143,7 @@ var AnalysisSlot = class {
     this._analysis = analysis;
     this.hydrate(analysis);
     this._serialized = this.analysis.toSerialized();
-    this.callAppropriateSlotEvent(this._serialized);
+    this.propagateSerialisationUp(this._serialized);
   }
   _analysis;
   get analysis() {
@@ -4155,22 +4153,21 @@ var AnalysisSlot = class {
   get serialized() {
     return this._serialized;
   }
+  /** @deprecated Serialisation is emitted by the driver. This emitter is used mainly in tests, but not elsewhere. */
   onSerialize = new CallbacksManager();
+  /** Serialisation is done in the next tick */
   enqueuedSerialisation;
-  setAnalysis(analysis) {
-    this.dehydrate(this._analysis);
-    this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key);
-    this._analysis = analysis;
-    this.hydrate(this._analysis);
-  }
+  /** Generate the listener key for this slot */
   listenerKey(operation) {
     return `slot ${this.slot} ${operation}`;
   }
+  /** Remove all listeners created by this slot */
   dehydrate(analysis) {
     analysis.onSerializableChange.delete(this.listenerKey("serializable change"));
   }
+  /** Add all listeners to the analysis object */
   hydrate(analysis) {
-    analysis.onSerializableChange.set(this.listenerKey("serializable change"), (analysis2, change) => {
+    analysis.onSerializableChange.set(this.listenerKey("serializable change"), () => {
       this.enqueueSerialisation();
     });
   }
@@ -4185,40 +4182,21 @@ var AnalysisSlot = class {
   serialize() {
     this._serialized = this.analysis.toSerialized();
     this.onSerialize.call(this._serialized, this.analysis);
-    this.callAppropriateSlotEvent(this._serialized);
+    this.propagateSerialisationUp(this._serialized);
   }
   recieveSerialized(serialized) {
     this.analysis.recievedSerialized(serialized);
     const newSerialized = this.analysis.toSerialized();
-    console.log(newSerialized, serialized);
     if (newSerialized !== serialized) {
       this._serialized = newSerialized;
       this.onSerialize.call(this._serialized, this.analysis);
     }
   }
-  callAppropriateSlotEvent(value) {
-    console.log("calling", this.slot, value);
-    if (this.slot === 1) {
-      this.analysis.file.slots.onSlot1.call(value);
-      return;
-    } else if (this.slot === 2) {
-      this.analysis.file.slots.onSlot2.call(value);
-      return;
-    } else if (this.slot === 3) {
-      this.analysis.file.slots.onSlot3.call(value);
-      return;
-    } else if (this.slot === 4) {
-      this.analysis.file.slots.onSlot4.call(value);
-      return;
-    } else if (this.slot === 5) {
-      this.analysis.file.slots.onSlot5.call(value);
-      return;
-    } else if (this.slot === 6) {
-      this.analysis.file.slots.onSlot6.call(value);
-      return;
-    } else if (this.slot === 7) {
-      this.analysis.file.slots.onSlot7.call(value);
-      return;
+  /** Call global and particular callbacks */
+  propagateSerialisationUp(value) {
+    const manager = this.analysis.file.slots.getOnSerializeManager(this.slot);
+    if (manager) {
+      manager.call(value);
     }
   }
 };
@@ -4226,27 +4204,45 @@ var AnalysisSlot = class {
 // src/properties/analysisSlots/AnalysisSlotsDrive.ts
 var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   static MAX_SLOTS = 7;
+  /** @deprecated Use particular assignement slot instead */
   onSlotInit = new CallbacksManager();
+  /** @deprecated Use particular assignement slot instead */
   onSlotRemove = new CallbacksManager();
-  onSlot1 = new CallbacksManager();
-  onSlot2 = new CallbacksManager();
-  onSlot3 = new CallbacksManager();
-  onSlot4 = new CallbacksManager();
-  onSlot5 = new CallbacksManager();
-  onSlot6 = new CallbacksManager();
-  onSlot7 = new CallbacksManager();
+  onSlot1Assignement = new CallbacksManager();
+  onSlot2Assignement = new CallbacksManager();
+  onSlot3Assignement = new CallbacksManager();
+  onSlot4Assignement = new CallbacksManager();
+  onSlot5Assignement = new CallbacksManager();
+  onSlot6Assignement = new CallbacksManager();
+  onSlot7Assignement = new CallbacksManager();
+  onSlot1Serialize = new CallbacksManager();
+  onSlot2Serialize = new CallbacksManager();
+  onSlot3Serialize = new CallbacksManager();
+  onSlot4Serialize = new CallbacksManager();
+  onSlot5Serialize = new CallbacksManager();
+  onSlot6Serialize = new CallbacksManager();
+  onSlot7Serialize = new CallbacksManager();
+  /** Calculate the next free slot */
   getNextFreeSlotNumber() {
     for (let i = 1; i <= _AnalysisSlotsState.MAX_SLOTS; i++) {
       if (!this.hasSlot(i)) return i;
     }
   }
-  initSlot(slot, analysis) {
-    if (this.hasSlot(slot)) {
-      throw new Error(`Slot ${slot} already taken! Clear it first or use 'replaceSlot' instead.`);
+  assignSlot(slot, analysis) {
+    const existingSlot = this.getSlot(slot);
+    if (existingSlot !== void 0) {
+      this.removeSlotAndAnalysis(slot);
     }
-    console.log("initialising slot", 1, analysis);
+    const analysisSlot = this.getAnalysisSlot(analysis);
+    if (analysisSlot !== void 0) {
+      this.unassignAnalysisFromItsSlot(this.getSlot(analysisSlot).analysis);
+    }
     const value = new AnalysisSlot(slot, analysis);
     this.value.set(slot, value);
+    const assignementManager = this.getOnAssignementManager(slot);
+    const serialisationManager = this.getOnSerializeManager(slot);
+    if (assignementManager) assignementManager.call(value);
+    if (serialisationManager) serialisationManager.call(value.serialized);
     this.onSlotInit.call(slot, value);
     this.callEffectsAndListeners();
     return value;
@@ -4257,58 +4253,41 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   getSlot(slot) {
     return this.value.get(slot);
   }
-  replaceSlot(slot, analysis) {
-    const value = this.getSlot(slot);
-    if (value && value.analysis.key !== analysis.key) {
-      this.parent.analysis.layers.removeAnalysis(value.analysis.key, false);
-      value.setAnalysis(analysis);
-      this.onSlotInit.call(slot, value);
-      this.callEffectsAndListeners();
-      return value;
-    } else {
-      return this.initSlot(slot, analysis);
-    }
-  }
-  removeSlotAndAnalysis(slot) {
-    const value = this.value.get(slot);
-    if (value) {
-      const analysis = value.analysis;
-      this.onSlotRemove.call(slot, value);
-      if (slot === 1) this.onSlot1.call(void 0);
-      else if (slot === 2) this.onSlot2.call(void 0);
-      else if (slot === 3) this.onSlot3.call(void 0);
-      else if (slot === 4) this.onSlot4.call(void 0);
-      else if (slot === 5) this.onSlot5.call(void 0);
-      else if (slot === 6) this.onSlot6.call(void 0);
-      else if (slot === 7) this.onSlot7.call(void 0);
-      this.value.delete(slot);
-      this.parent.analysis.layers.removeAnalysis(analysis.key, false);
-      this.callEffectsAndListeners();
-    }
-  }
   getAnalysisSlot(analysis) {
-    for (let a of this.value.values()) {
+    for (const a of this.value.values()) {
       if (a.analysis.key === analysis.key) {
         return a.slot;
       }
     }
   }
-  removeSlotButNotAnalysis(analysis) {
-    for (let a of this.value.values()) {
+  /**
+   * Completely remove the slot and also the corresponding analysis
+   */
+  removeSlotAndAnalysis(slot) {
+    const value = this.value.get(slot);
+    if (value) {
+      const analysis = value.analysis;
+      this.emitOnAssignement(slot, void 0);
+      this.value.delete(slot);
+      this.parent.analysis.layers.removeAnalysis(analysis.key);
+      this.callEffectsAndListeners();
+    }
+  }
+  /**
+   * Remove a slot that is assigned to a given analysis, but keep the analysis 
+   */
+  unassignAnalysisFromItsSlot(analysis) {
+    for (const a of this.value.values()) {
       if (a.analysis.key === analysis.key) {
-        this.onSlotRemove.call(a.slot, a);
-        if (a.slot === 1) this.onSlot1.call(void 0);
-        else if (a.slot === 2) this.onSlot2.call(void 0);
-        else if (a.slot === 3) this.onSlot3.call(void 0);
-        else if (a.slot === 4) this.onSlot4.call(void 0);
-        else if (a.slot === 5) this.onSlot5.call(void 0);
-        else if (a.slot === 6) this.onSlot6.call(void 0);
-        else if (a.slot === 7) this.onSlot7.call(void 0);
+        this.emitOnAssignement(a.slot, void 0);
         this.value.delete(a.slot);
         this.callEffectsAndListeners();
       }
     }
   }
+  /** 
+   * Create an analysis from a serialized state 
+   */
   createFromSerialized(serialized, slotNumber) {
     const splitted = serialized.split(";").map((segment) => segment.trim());
     if (splitted.length < 2) {
@@ -4365,11 +4344,68 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   validate(value) {
     return value;
   }
-  afterSetEffect(value) {
+  afterSetEffect() {
   }
+  /** 
+   * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
+   */
   callEffectsAndListeners() {
-    this.afterSetEffect(this.value);
     Object.values(this._listeners).forEach((listener) => listener(this.value));
+  }
+  /** 
+   * Whenever a slot is assigned, call both particular and general listeners 
+   */
+  emitOnAssignement(slot, value) {
+    const assignement = this.getOnAssignementManager(slot);
+    if (assignement) assignement.call(value);
+    const serialization = this.getOnSerializeManager(slot);
+    if (serialization) serialization.call(value?.serialized);
+    if (value) {
+      this.onSlotInit.call(slot, value);
+    } else {
+      this.onSlotRemove.call(slot);
+    }
+  }
+  /** 
+   * Whenever a slit serializes call the particular manager 
+   */
+  emitSerializedValue(slot, value) {
+    const manager = this.getOnSerializeManager(slot);
+    if (manager) {
+      manager.call(value);
+    }
+  }
+  /**
+   * Get a callback manager that is triggered upon a slot serialisation
+   */
+  getOnSerializeManager(slot) {
+    if (slot === 1) return this.onSlot1Serialize;
+    else if (slot === 2) return this.onSlot2Serialize;
+    else if (slot === 3) return this.onSlot3Serialize;
+    else if (slot === 4) return this.onSlot4Serialize;
+    else if (slot === 5) return this.onSlot5Serialize;
+    else if (slot === 6) return this.onSlot6Serialize;
+    else if (slot === 7) return this.onSlot7Serialize;
+  }
+  /**
+   * Get a callback manager that is triggered whenever a slot is assigned
+   */
+  getOnAssignementManager(slot) {
+    if (slot === 1) return this.onSlot1Assignement;
+    else if (slot === 2) return this.onSlot2Assignement;
+    else if (slot === 3) return this.onSlot3Assignement;
+    else if (slot === 4) return this.onSlot4Assignement;
+    else if (slot === 5) return this.onSlot5Assignement;
+    else if (slot === 6) return this.onSlot6Assignement;
+    else if (slot === 7) return this.onSlot7Assignement;
+  }
+  /**
+   * Get value of a given slot
+   */
+  getSlotValue(slot) {
+    if (this.hasSlot(slot)) {
+      return this.getSlot(slot)?.serialized;
+    }
   }
 };
 
@@ -4684,7 +4720,7 @@ var AddEllipsisTool = class extends AbstractAddTool {
         const slot = point.analysis.file.slots.getNextFreeSlotNumber();
         console.log(slot);
         if (slot !== void 0) {
-          point.file.slots.initSlot(slot, point.analysis);
+          point.file.slots.assignSlot(slot, point.analysis);
         }
       }
     }

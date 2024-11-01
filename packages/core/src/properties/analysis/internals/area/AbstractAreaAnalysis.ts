@@ -459,7 +459,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
 
         if (color === undefined) {
-            
+            //
         } else if (color !== this.initialColor) {
             this.setInitialColor(color);
         }

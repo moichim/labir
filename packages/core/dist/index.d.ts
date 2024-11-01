@@ -625,51 +625,111 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
     protected clearRecording(): void;
 }
 
+/**
+ * Analysis slot takes care of serialisation
+ *
+ * Slot is an independent object that applies on the first 7 analysis.
+ * All the serialisation is perfoemed here. An analysis does not know
+ * about its slots at all.
+ *
+ * One analysis may be in one slot only. Never in two slots.
+ */
 declare class AnalysisSlot {
     readonly slot: number;
     private _analysis;
     get analysis(): AbstractAnalysis;
     private _serialized;
     get serialized(): string;
+    /** @deprecated Serialisation is emitted by the driver. This emitter is used mainly in tests, but not elsewhere. */
     readonly onSerialize: CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
+    /** Serialisation is done in the next tick */
     protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
     constructor(slot: number, analysis: AbstractAnalysis);
-    setAnalysis(analysis: AbstractAnalysis): void;
+    /** Generate the listener key for this slot */
     private listenerKey;
-    dehydrate(analysis: AbstractAnalysis): void;
+    /** Remove all listeners created by this slot */
+    private dehydrate;
+    /** Add all listeners to the analysis object */
     private hydrate;
     protected enqueueSerialisation(): void;
     protected serialize(): void;
     recieveSerialized(serialized: string): void;
-    protected callAppropriateSlotEvent(value: string | undefined): void;
+    /** Call global and particular callbacks */
+    protected propagateSerialisationUp(value: string | undefined): void;
 }
 
 type AnalysisSlotsMap = Map<number, AnalysisSlot>;
 /** Say the slot number. True = next free. False = no slot at all */
 type SlotInitialisationValue = number | true | false;
+/**
+ * Create up to 7 slots for analysis of the image.
+ *
+ * Value of this property is a map.
+ */
 declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
     static MAX_SLOTS: number;
+    /** @deprecated Use particular assignement slot instead */
     readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
-    readonly onSlotRemove: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
-    readonly onSlot1: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot2: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot3: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot4: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot5: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot6: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot7: CallbacksManager<(value: string | undefined) => void>;
+    /** @deprecated Use particular assignement slot instead */
+    readonly onSlotRemove: CallbacksManager<(number: number) => void>;
+    readonly onSlot1Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot2Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot3Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot4Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot5Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot6Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot7Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot1Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot2Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot3Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot4Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot5Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot6Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot7Serialize: CallbacksManager<(value: string | undefined) => void>;
+    /** Calculate the next free slot */
     getNextFreeSlotNumber(): number | undefined;
-    initSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
     hasSlot(slot: number): boolean;
     getSlot(slot: number): AnalysisSlot | undefined;
-    replaceSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    private getAnalysisSlot;
+    /**
+     * Completely remove the slot and also the corresponding analysis
+     */
     removeSlotAndAnalysis(slot: number): void;
-    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
-    removeSlotButNotAnalysis(analysis: AbstractAnalysis): void;
+    /**
+     * Remove a slot that is assigned to a given analysis, but keep the analysis
+     */
+    unassignAnalysisFromItsSlot(analysis: AbstractAnalysis): void;
+    /**
+     * Create an analysis from a serialized state
+     */
     createFromSerialized(serialized: string, slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
     protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
-    protected afterSetEffect(value: AnalysisSlotsMap): void;
-    protected callEffectsAndListeners(): void;
+    protected afterSetEffect(): void;
+    /**
+     * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place.
+     */
+    private callEffectsAndListeners;
+    /**
+     * Whenever a slot is assigned, call both particular and general listeners
+     */
+    private emitOnAssignement;
+    /**
+     * Whenever a slit serializes call the particular manager
+     */
+    private emitSerializedValue;
+    /**
+     * Get a callback manager that is triggered upon a slot serialisation
+     */
+    getOnSerializeManager(slot: number): CallbacksManager<(value: string | undefined) => void> | undefined;
+    /**
+     * Get a callback manager that is triggered whenever a slot is assigned
+     */
+    getOnAssignementManager(slot: number): CallbacksManager<(slot: AnalysisSlot | undefined) => void> | undefined;
+    /**
+     * Get value of a given slot
+     */
+    getSlotValue(slot: number): string | undefined;
 }
 
 declare abstract class AbstractArea {
@@ -941,7 +1001,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly colors: string[];
     constructor(drive: AnalysisDrive);
     protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
-    removeAnalysis(key: string, alsoRemoveSlot?: boolean): void;
+    removeAnalysis(key: string): void;
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;
     /** Build an ellyptical analysis at the given position. */

@@ -1,12 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { THERMOGRAM_PATHS } from '../../../../devserver/node/mocks';
 import { loadFileForTests } from '../../../../devserver/node/scaffold';
-import { PointAnalysis } from '../internals/point/PointAnalysis';
-import { RectangleAnalysis } from '../internals/area/rectangle/RectangleAnalysis';
 import { EllipsisAnalysis } from '../internals/area/ellipsis/EllipsisAnalysis';
-import { AbstractAnalysis } from '../internals/AbstractAnalysis';
+import { RectangleAnalysis } from '../internals/area/rectangle/RectangleAnalysis';
+import { PointAnalysis } from '../internals/point/PointAnalysis';
 
-import {SlotNumber} from "./AnalysisLayersStorage";
 
 
 describe("AnalysisStorage", () => {
@@ -271,7 +269,7 @@ describe("AnalysisStorage", () => {
         expect(areaTooBig.left).toEqual(10);
         expect(areaTooBig.width).toEqual(areaTooBig.file.width - 11);
         expect(areaTooBig.height).toEqual(areaTooBig.file.height - 11);
-        
+
     })
 
 });
