@@ -47,7 +47,6 @@ export class FileAnalysisTable extends FileConsumer {
 
         // Mirror all analysis to local state
         file.analysis.addListener( this.UUID, analysis => {
-            console.log( "analysis list changed", analysis );
             this.analysis = analysis;
         } );
 

@@ -37,11 +37,33 @@ group.files.addListener("boot", value => {
 })
 
 
+
+
+const reg = manager.addOrGetRegistry( "reg" );
+const grp = reg.groups.addOrGetGroup( "grp" );
+
+reg.range.imposeRange( {from: 30, to: 40} );
+
+reg.service.loadFile( "/soustruh.lrc" ).then( result => {
+    const container = document.createElement( "div" );
+    document.body.appendChild( container );
+
+    if ( result instanceof ThermalFileReader ) {
+        result.createInstance( grp ).then( instance => {
+            instance.mountToDom( container );
+            instance.draw();
+        } );
+    }
+} );
+
+
+
+
 // registry.loadOneFile( { thermalUrl: "/tucnaci_04.lrc" }, group.id );
 
 
 
-
+/*
 
 const group_2 = registry.groups.addOrGetGroup("group_2");
 
@@ -111,7 +133,6 @@ const mountInstance = (instance: Instance) => {
         }
         
     });
-    */
 
 }
 
@@ -172,15 +193,12 @@ const batchLoading = async (
                 }
             }, 5000 );
 
-            */
         } );
     } );
 
-    /*
     instances.forEach( instance => {
         instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
     } );
-     */
 
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 
@@ -318,14 +336,11 @@ const buildControls = () => {
     dropin.style.width = "300px";
     dropin.style.height = "100px";
 
-    /*
-
     dropin.ondrop = event => {
         event.preventDefault();
         console.log( event.dataTransfer );
     }
 
-    */
 
     const indicator = document.createElement( "div" );
 
@@ -395,8 +410,6 @@ const buildControls = () => {
 
 
     document.body.appendChild( dropin );
-
-    /** Dropzone */
     const dropzone = document.createElement( "div" );
 
     dropzone.style.backgroundColor = "red";
@@ -427,3 +440,7 @@ const buildControls = () => {
 }
 
 buildControls();
+
+*/
+
+

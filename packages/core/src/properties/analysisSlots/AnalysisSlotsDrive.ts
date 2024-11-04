@@ -218,12 +218,13 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         let analysis: AbstractAnalysis | undefined;
 
 
+        // 1. Create the analysis
+
         if (type === "point") {
 
             if (top === undefined || left === undefined) {
                 return;
             }
-
 
             analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, false);
 
@@ -248,9 +249,12 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
         }
 
+        // 2. Setup the analysis once it is created
+
         if (analysis !== undefined) {
 
             // Initialise graphs
+
             if (analysis instanceof PointAnalysis) {
                 if (avg) analysis.graph.setAvgActivation(true);
             } else if (analysis instanceof AbstractAreaAnalysis) {
@@ -259,7 +263,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
                 if (max) analysis.graph.setMaxActivation(true);
             }
 
-            // Initialise slot & emit
+            // Initialise slot & emit serialised
 
             if ( slotNumber === false ) {
                 // do nothing

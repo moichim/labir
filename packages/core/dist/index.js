@@ -4389,15 +4389,12 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       if (left < 0) left = 0;
       if (left > this.parent.width - 1) left = this.parent.width - 1;
     }
+    let analysis;
     if (type === "point") {
       if (top === void 0 || left === void 0) {
         return;
       }
-      const analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, slotNumber);
-      if (avg) {
-        analysis.graph.setAvgActivation(true);
-      }
-      return analysis;
+      analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, false);
     } else {
       if (top === void 0 || left === void 0 || width === void 0 || height === void 0) {
         return;
@@ -4406,10 +4403,24 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       if (width + left > this.parent.width - 1) width = this.parent.width - left - 1;
       if (height < 0) height = 0;
       if (height + top > this.parent.height - 1) height = this.parent.height - top - 1;
-      const analysis = type === "rectangle" ? this.parent.analysis.layers.placeRectAt(name, top, left, width + left, height + top, color, slotNumber) : this.parent.analysis.layers.placeEllipsisAt(name, top, left, width + left, height + top, color, slotNumber);
-      if (avg) analysis.graph.setAvgActivation(true);
-      if (min) analysis.graph.setMinActivation(true);
-      if (max) analysis.graph.setMaxActivation(true);
+      analysis = type === "rectangle" ? this.parent.analysis.layers.placeRectAt(name, top, left, width + left, height + top, color, false) : this.parent.analysis.layers.placeEllipsisAt(name, top, left, width + left, height + top, color, false);
+    }
+    if (analysis !== void 0) {
+      if (analysis instanceof PointAnalysis) {
+        if (avg) analysis.graph.setAvgActivation(true);
+      } else if (analysis instanceof AbstractAreaAnalysis) {
+        if (avg) analysis.graph.setAvgActivation(true);
+        if (min) analysis.graph.setMinActivation(true);
+        if (max) analysis.graph.setMaxActivation(true);
+      }
+      if (slotNumber === false) {
+      } else if (slotNumber === true) {
+        const nextFreeSlot = this.getNextFreeSlotNumber();
+        if (nextFreeSlot !== void 0)
+          this.assignSlot(nextFreeSlot, analysis);
+      } else if (slotNumber !== void 0) {
+        this.assignSlot(slotNumber, analysis);
+      }
       return analysis;
     }
   }

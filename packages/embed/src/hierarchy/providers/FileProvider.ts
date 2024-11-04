@@ -1,4 +1,4 @@
-import { Instance, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -24,7 +24,6 @@ export class FileProviderElement extends AbstractFileProvider {
         reflect: true,
     })
     public visible!: string;
-
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis1?: string;
@@ -71,9 +70,6 @@ export class FileProviderElement extends AbstractFileProvider {
                         // Call all callbacks
                         this.onSuccess.call(instance);
 
-                        // Clear the callbacks to free the memory
-                        this.clearCallbacks();
-
                         this.handleLoaded(instance);
 
                         instance.group.registry.postLoadedProcessing();
@@ -92,8 +88,6 @@ export class FileProviderElement extends AbstractFileProvider {
                     // Call all callbacks
 
                     this.onFailure.call(this.failure);
-                    // Clear the callbacks to free the memory
-                    this.clearCallbacks();
 
                     this.loading = false;
 
@@ -122,6 +116,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
         if ( value !== undefined && value.trim().length > 0 ) {
             const analysis = instance.slots.createFromSerialized( value, index );
+            console.log( analysis );
             analysis?.setSelected( false, true );
         }
 
@@ -131,14 +126,7 @@ export class FileProviderElement extends AbstractFileProvider {
         instance: Instance
     ) {
 
-        // Create the initial analysis
-        this.createInitialAnalysis( instance, 1, this.analysis1 );
-        this.createInitialAnalysis( instance, 2, this.analysis2 );
-        this.createInitialAnalysis( instance, 3, this.analysis3 );
-        this.createInitialAnalysis( instance, 4, this.analysis4 );
-        this.createInitialAnalysis( instance, 5, this.analysis5 );
-        this.createInitialAnalysis( instance, 6, this.analysis6 );
-        this.createInitialAnalysis( instance, 7, this.analysis7 );
+        
 
         // listen to changes
         instance.slots.onSlot1Serialize.set( this.UUID, value => this.analysis1 = value );
@@ -148,6 +136,15 @@ export class FileProviderElement extends AbstractFileProvider {
         instance.slots.onSlot5Serialize.set( this.UUID, value => this.analysis5 = value );
         instance.slots.onSlot6Serialize.set( this.UUID, value => this.analysis6 = value );
         instance.slots.onSlot7Serialize.set( this.UUID, value => this.analysis7 = value );
+
+        // Create the initial analysis
+        this.createInitialAnalysis( instance, 1, this.analysis1 );
+        this.createInitialAnalysis( instance, 2, this.analysis2 );
+        this.createInitialAnalysis( instance, 3, this.analysis3 );
+        this.createInitialAnalysis( instance, 4, this.analysis4 );
+        this.createInitialAnalysis( instance, 5, this.analysis5 );
+        this.createInitialAnalysis( instance, 6, this.analysis6 );
+        this.createInitialAnalysis( instance, 7, this.analysis7 );
 
     }
 
@@ -173,7 +170,7 @@ export class FileProviderElement extends AbstractFileProvider {
     }
 
 
-    protected updated(_changedProperties: PropertyValues<FileProviderElement>): void {
+    public updated(_changedProperties: PropertyValues<FileProviderElement>): void {
         super.updated(_changedProperties);
 
         if (_changedProperties.has("thermal")) {

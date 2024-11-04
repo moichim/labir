@@ -42,6 +42,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
 
     declare public readonly parent: Instance;
 
+
     protected _playbackSpeed: PlaybackSpeeds = 1;
     public get playbackSpeed() {
         return this._playbackSpeed;
@@ -132,9 +133,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
         this.buffer.init();
     }
 
-    protected afterSetEffect(value: number): void {
-
-        value;
+    protected afterSetEffect(): void {
 
         // Do nothing if no sequence
         if ( this.steps.length === 1 ) {
