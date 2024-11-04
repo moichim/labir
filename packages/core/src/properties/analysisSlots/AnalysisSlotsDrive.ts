@@ -1,6 +1,8 @@
 import { Instance } from "../../file/instance";
 import { AbstractProperty } from "../abstractProperty";
 import { AbstractAnalysis } from "../analysis/internals/AbstractAnalysis";
+import { AbstractAreaAnalysis } from "../analysis/internals/area/AbstractAreaAnalysis";
+import { PointAnalysis } from "../analysis/internals/point/PointAnalysis";
 import { CallbacksManager } from "../callbacksManager";
 import { AnalysisSlot } from "./AnalysisSlot";
 
@@ -66,7 +68,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         // Remove the existing slot with the identical analysis
         const analysisSlot = this.getAnalysisSlot(analysis);
         if (analysisSlot !== undefined) {
-            this.unassignAnalysisFromItsSlot(this.getSlot( analysisSlot )!.analysis);
+            this.unassignAnalysisFromItsSlot(this.getSlot(analysisSlot)!.analysis);
         }
 
         const value = new AnalysisSlot(slot, analysis);
@@ -213,17 +215,18 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
             if (left > this.parent.width - 1) left = this.parent.width - 1;
         }
 
+        let analysis: AbstractAnalysis | undefined;
+
+
         if (type === "point") {
 
             if (top === undefined || left === undefined) {
                 return;
             }
 
-            const analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, slotNumber);
-            if (avg) {
-                analysis.graph.setAvgActivation(true);
-            }
-            return analysis;
+
+            analysis = this.parent.analysis.layers.placePointAt(name, top, left, color, false);
+
 
         } else {
 
@@ -239,12 +242,37 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
             if (height < 0) height = 0;
             if (height + top > this.parent.height - 1) height = this.parent.height - top - 1;
 
-            const analysis = type === "rectangle"
-                ? this.parent.analysis.layers.placeRectAt(name, top, left, width + left, height + top, color, slotNumber)
-                : this.parent.analysis.layers.placeEllipsisAt(name, top, left, width + left, height + top, color, slotNumber);
-            if (avg) analysis.graph.setAvgActivation(true);
-            if (min) analysis.graph.setMinActivation(true);
-            if (max) analysis.graph.setMaxActivation(true);
+            analysis = type === "rectangle"
+                ? this.parent.analysis.layers.placeRectAt(name, top, left, width + left, height + top, color, false)
+                : this.parent.analysis.layers.placeEllipsisAt(name, top, left, width + left, height + top, color, false);
+
+        }
+
+        if (analysis !== undefined) {
+
+            // Initialise graphs
+            if (analysis instanceof PointAnalysis) {
+                if (avg) analysis.graph.setAvgActivation(true);
+            } else if (analysis instanceof AbstractAreaAnalysis) {
+                if (avg) analysis.graph.setAvgActivation(true);
+                if (min) analysis.graph.setMinActivation(true);
+                if (max) analysis.graph.setMaxActivation(true);
+            }
+
+            // Initialise slot & emit
+
+            if ( slotNumber === false ) {
+                // do nothing
+            } else if ( slotNumber === true ) {
+
+                const nextFreeSlot = this.getNextFreeSlotNumber();
+
+                if (nextFreeSlot !== undefined ) 
+                    this.assignSlot( nextFreeSlot, analysis );
+
+            } else if ( slotNumber !== undefined ) {
+                this.assignSlot( slotNumber, analysis );
+            }
 
             return analysis;
 
@@ -259,7 +287,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap {
         return value;
     }
-    protected afterSetEffect(): void {}
+    protected afterSetEffect(): void { }
 
     /** 
      * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
