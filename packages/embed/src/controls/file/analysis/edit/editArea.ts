@@ -49,7 +49,7 @@ export class AreaEdit extends BaseElement {
             const oldAnalysis = _changedProperties.get( "analysis" ) as AbstractAnalysis;
 
             if ( oldAnalysis ) {
-                oldAnalysis.onMoveOrResize.delete( this.UUID );
+                oldAnalysis.onSerializableChange.delete( this.UUID );
             }
 
             const newAnalysis = this.analysis;
@@ -65,7 +65,7 @@ export class AreaEdit extends BaseElement {
 
 
 
-            newAnalysis.onMoveOrResize.set(this.UUID, (analysis) => {
+            newAnalysis.onSerializableChange.set(this.UUID, (analysis) => {
                 this.top = analysis.top;
                 this.left = analysis.left;
                 this.width = analysis.width;

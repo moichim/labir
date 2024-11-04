@@ -195,7 +195,6 @@ export class AbstractFileProvider extends GroupConsumer {
 
         // Project properties to cthe core
         if ( this.speed ) {
-            console.log( this.speed );
             instance.timeline.playbackSpeed = this.speed;
         }
 

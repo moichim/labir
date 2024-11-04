@@ -272,6 +272,7 @@ export class DesktopFileApp extends FileConsumer {
               <file-info-button></file-info-button>
             
               <file-download-dropdown ></file-download-dropdown>
+
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
               ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
@@ -292,6 +293,7 @@ export class DesktopFileApp extends FileConsumer {
                   <registry-histogram slot="pre"></registry-histogram>
                   <registry-range-slider slot="pre"></registry-range-slider>
                   <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
+                  <!--<registry-range-display></registry-range-display>-->
 
                   <file-canvas></file-canvas>
                   <file-timeline></file-timeline>

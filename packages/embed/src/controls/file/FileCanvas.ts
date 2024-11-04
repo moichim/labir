@@ -14,6 +14,7 @@ export class FileCanvas extends FileConsumer {
 
         if ( this.container.value !== undefined ) {
             instance.mountToDom( this.container.value );
+            instance.draw();
         } else {
             this.log( this.container.value );
             throw new Error( "Error mounting the instance to the canvas!" );

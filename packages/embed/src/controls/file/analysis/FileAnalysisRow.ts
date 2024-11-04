@@ -114,7 +114,7 @@ export class FileAnalysisRow extends BaseElement {
             }
 
             // Listen to resize or move
-            newAnalysis.onMoveOrResize.set(this.UUID, (analysis) => {
+            newAnalysis.onSerializableChange.set(this.UUID, (analysis) => {
                 this.dimension = analysis.width + "x" + analysis.height;
             });
 
