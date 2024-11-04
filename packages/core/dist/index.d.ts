@@ -220,8 +220,6 @@ interface IWithRange extends IBaseProperty {
 }
 /** Handles the thermal range display. */
 declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
-    protected fixedRange: ThermalRangeOrUndefined;
-    setFixedRange(value: ThermalRangeOrUndefined): void;
     get currentRange(): ThermalRangeOrUndefined;
     /**
      * Make sure the range is allways within the minmax values.
@@ -577,7 +575,7 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
     get currentTime(): string;
     constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
     init(): void;
-    protected afterSetEffect(value: number): void;
+    protected afterSetEffect(): void;
     protected validate(value: number): number;
     _validateRelativeTime(value: number): number;
     _validateIndex(value: number): number;

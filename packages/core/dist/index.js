@@ -136,25 +136,8 @@ var CursorPositionDrive = class extends AbstractProperty {
 
 // src/properties/drives/RangeDriver.ts
 var RangeDriver = class extends AbstractProperty {
-  fixedRange;
-  setFixedRange(value) {
-    if (value) {
-      if (value.from > value.to) {
-        const fromTmp = value.from;
-        value.from = value.to;
-        value.to = fromTmp;
-      }
-    }
-    this.fixedRange = value;
-    if (value) {
-      this.imposeRange(this.fixedRange);
-    }
-  }
   get currentRange() {
-    if (this.fixedRange === void 0) {
-      return this.value;
-    }
-    return this.fixedRange;
+    return this.value;
   }
   /** 
    * Make sure the range is allways within the minmax values.
@@ -162,9 +145,6 @@ var RangeDriver = class extends AbstractProperty {
    * If this method should work, the value needs to be set before the minmax is calculated.
    */
   validate(value) {
-    if (this.fixedRange !== void 0) {
-      return this.fixedRange;
-    }
     if (value === void 0) {
       return void 0;
     }
@@ -191,9 +171,7 @@ var RangeDriver = class extends AbstractProperty {
    * - needs to be called before the minmax is calculated!
    */
   imposeRange(value) {
-    if (this.fixedRange) {
-      this.value = this.fixedRange;
-    } else if (value === void 0 && this.value === void 0) {
+    if (value === void 0 && this.value === void 0) {
     } else if (value === void 0 && this.value !== void 0) {
       this.value = value;
     }
@@ -210,11 +188,7 @@ var RangeDriver = class extends AbstractProperty {
   applyMinmax() {
     if (this.parent.minmax.value) {
       const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
-      if (this.fixedRange) {
-        this.setFixedRange(newRange);
-      } else {
-        this.imposeRange(newRange);
-      }
+      this.imposeRange(newRange);
     }
   }
   /** Sets the range automatically based on the current histogram */
@@ -227,11 +201,7 @@ var RangeDriver = class extends AbstractProperty {
         from: histogramBarsOverPercentage[0].from,
         to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
       };
-      if (this.fixedRange) {
-        this.setFixedRange(newRange);
-      } else {
-        this.imposeRange(newRange);
-      }
+      this.imposeRange(newRange);
     }
   }
 };
@@ -1730,8 +1700,7 @@ var TimelineDrive = class extends AbstractProperty {
   init() {
     this.buffer.init();
   }
-  afterSetEffect(value) {
-    value;
+  afterSetEffect() {
     if (this.steps.length === 1) {
       return;
     }
