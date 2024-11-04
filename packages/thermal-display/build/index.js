@@ -158,12 +158,11 @@ function Edit({
     map,
     registerAnalysis
   } = (0,_hooks_useAnalysis__WEBPACK_IMPORTED_MODULE_6__.useAnalysis)(attributes, setAttributes, analysisFile);
-  console.log(map);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useEffect)(() => {
     if (analysisFile) {
       analysisFile.analysis.layers.onAdd.set("registerOnAdd", analysis => {
         console.log("registering analysis");
-        registerAnalysis(analysis);
+        // registerAnalysis( analysis );
       });
     }
     return () => {
@@ -174,6 +173,27 @@ function Edit({
     if (node) {
       node.onInstanceCreated.set(ID + "___sth", instance => {
         setAnalysisFile(instance);
+        instance.slots.onSlot1Serialize.set("wtf", value => setAttributes({
+          analysis1: value
+        }));
+        instance.slots.onSlot2Serialize.set("wtf", value => setAttributes({
+          analysis2: value
+        }));
+        instance.slots.onSlot3Serialize.set("wtf", value => setAttributes({
+          analysis3: value
+        }));
+        instance.slots.onSlot4Serialize.set("wtf", value => setAttributes({
+          analysis4: value
+        }));
+        instance.slots.onSlot5Serialize.set("wtf", value => setAttributes({
+          analysis5: value
+        }));
+        instance.slots.onSlot6Serialize.set("wtf", value => setAttributes({
+          analysis6: value
+        }));
+        instance.slots.onSlot7Serialize.set("wtf", value => setAttributes({
+          analysis7: value
+        }));
       });
       node.registry.range.addListener(ID, value => {
         if (value instanceof Object) {
@@ -325,6 +345,13 @@ function Edit({
               children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("file-provider", {
                 thermal: thermal,
                 ref: analysisSettingsCallbacks,
+                analysis1: analysis1,
+                analysis2: analysis2,
+                analysis3: analysis3,
+                analysis4: analysis4,
+                analysis5: analysis5,
+                analysis6: analysis6,
+                analysis7: analysis7,
                 children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("div", {
                   className: "modal-editor__container",
                   children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
@@ -367,7 +394,14 @@ function Edit({
                 label: label,
                 description: description,
                 from: from,
-                to: to
+                to: to,
+                analysis1: analysis1,
+                analysis2: analysis2,
+                analysis3: analysis3,
+                analysis4: analysis4,
+                analysis5: analysis5,
+                analysis6: analysis6,
+                analysis7: analysis7
               }), webcomponent === "thermal-desktop-app" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("thermal-desktop-app", {
                 url: thermal,
                 palette: palette,
@@ -376,7 +410,14 @@ function Edit({
                 label: label,
                 description: description,
                 from: from,
-                to: to
+                to: to,
+                analysis1: analysis1,
+                analysis2: analysis2,
+                analysis3: analysis3,
+                analysis4: analysis4,
+                analysis5: analysis5,
+                analysis6: analysis6,
+                analysis7: analysis7
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
               className: "thermal__content-editor__wrapper",

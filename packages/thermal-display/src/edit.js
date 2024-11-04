@@ -156,15 +156,13 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const {map, registerAnalysis} = useAnalysis( attributes, setAttributes, analysisFile );
 
-	console.log( map );
-
 	useEffect(() => {
 
 		if ( analysisFile ) {
 
 			analysisFile.analysis.layers.onAdd.set( "registerOnAdd", analysis => {
 				console.log( "registering analysis" );
-				registerAnalysis( analysis );
+				// registerAnalysis( analysis );
 			} );
 
 		}
@@ -194,6 +192,14 @@ export default function Edit({ attributes, setAttributes }) {
 			node.onInstanceCreated.set(ID + "___sth", instance => {
 
 				setAnalysisFile(instance);
+
+				instance.slots.onSlot1Serialize.set( "wtf", value => setAttributes({ analysis1: value }) );
+				instance.slots.onSlot2Serialize.set( "wtf", value => setAttributes({ analysis2: value }) );
+				instance.slots.onSlot3Serialize.set( "wtf", value => setAttributes({ analysis3: value }) );
+				instance.slots.onSlot4Serialize.set( "wtf", value => setAttributes({ analysis4: value }) );
+				instance.slots.onSlot5Serialize.set( "wtf", value => setAttributes({ analysis5: value }) );
+				instance.slots.onSlot6Serialize.set( "wtf", value => setAttributes({ analysis6: value }) );
+				instance.slots.onSlot7Serialize.set( "wtf", value => setAttributes({ analysis7: value }) );
 
 			});
 
@@ -405,8 +411,16 @@ export default function Edit({ attributes, setAttributes }) {
 								to={to}
 							>
 								<group-provider>
-									<file-provider thermal={thermal}
+									<file-provider 
+										thermal={thermal}
 										ref={analysisSettingsCallbacks}
+										analysis1={analysis1}
+										analysis2={analysis2}
+										analysis3={analysis3}
+										analysis4={analysis4}
+										analysis5={analysis5}
+										analysis6={analysis6}
+										analysis7={analysis7}
 									>
 										<div className="modal-editor__container">
 
@@ -467,6 +481,13 @@ export default function Edit({ attributes, setAttributes }) {
 										description={description}
 										from={from}
 										to={to}
+										analysis1={analysis1}
+										analysis2={analysis2}
+										analysis3={analysis3}
+										analysis4={analysis4}
+										analysis5={analysis5}
+										analysis6={analysis6}
+										analysis7={analysis7}
 									></thermal-file-app>}
 
 									{webcomponent === "thermal-desktop-app" && <thermal-desktop-app
@@ -478,6 +499,13 @@ export default function Edit({ attributes, setAttributes }) {
 										description={description}
 										from={from}
 										to={to}
+										analysis1={analysis1}
+										analysis2={analysis2}
+										analysis3={analysis3}
+										analysis4={analysis4}
+										analysis5={analysis5}
+										analysis6={analysis6}
+										analysis7={analysis7}
 									></thermal-desktop-app>}
 								</div>
 
