@@ -2,6 +2,9 @@ import { AbstractAnalysis } from "../AbstractAnalysis";
 
 export abstract class AbstractArea {
 
+    private pxX: number;
+    private pxY: number;
+
     public get fileWidth() {
         return this.analysis.file.width;
     }
@@ -45,7 +48,7 @@ export abstract class AbstractArea {
     public set height( value ) {
         this._height = value;
         if ( this.element ) {
-            this.element.style.height = `${( this.height ) / this.fileHeight * 100 }%`;
+            this.element.style.height = `calc( ${( this.height ) / this.fileHeight * 100 }% + ${this.pxY}% )`;
         }
     }
 
@@ -55,7 +58,7 @@ export abstract class AbstractArea {
     public set width( value: number ) {
         this._width = value;
         if ( this.element ) {
-            this.element.style.width = `${(this.width) / this.fileWidth * 100}%`;
+            this.element.style.width = `calc( ${(this.width) / this.fileWidth * 100}% + ${this.pxX}% )`;
         }
     }
 
@@ -74,6 +77,9 @@ export abstract class AbstractArea {
         left: number,
         bottom: number
     ) {
+
+        this.pxX = 100 / this.analysis.file.width;
+        this.pxY = 100 / this.analysis.file.height;
 
         this.build();
 

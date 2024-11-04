@@ -1,13 +1,39 @@
 import { Instance } from "../../../file/instance";
 import { AreaAnalysisData, PointAnalysisData } from "../../../loading/workers/parsers/structure";
+import { AnalysisGraph } from "../../analysisData/graphs/AnalysisGraph";
 import { CallbacksManager } from "../../callbacksManager";
-import { AnalysisGraph } from "../graphs/AnalysisGraph";
 import { AbstractPoint } from "./AbstractPoint";
 
 
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 
 export abstract class AbstractAnalysis {
+
+    public readonly onSerializableChange = new CallbacksManager<( analysis: AbstractAnalysis, change: string ) => void>
+
+    public abstract recievedSerialized(input: string): void;
+    public abstract toSerialized(): string;
+    protected serializedIsValid( input: string ): boolean {
+        const splitted = input
+            .split( ";" )
+            .map( segment => segment.trim() );
+
+        if ( splitted.length < 2 ) {
+            return false;
+        }
+
+        if ( ! ["point","ellipsis","rectangle"].includes( splitted[1]) ) {
+            return false;
+        }
+
+        if ( splitted[1] !== this.getType() ) {
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     public abstract get graph(): AnalysisGraph;
 
@@ -33,10 +59,188 @@ export abstract class AbstractAnalysis {
 
     public readonly points: Map<string, AbstractPoint> = new Map;
 
-    public left!: number;
-    public top!: number;
-    public width!: number;
-    public height!: number;
+    protected _top!: number;
+    protected _left!: number;
+    protected _width!: number;
+    protected _height!: number;
+
+    public get left() { return this._left; }
+    public get top() { return this._top; }
+    /** This dimension does not count the last pixel. */
+    public get width() { return this._width; }
+    /** This dimension does not count the last pixel. */
+    public get height() { return this._height; }
+    public get right() { return this._left + this._width; }
+    public get bottom() { return this._top + this._height; }
+
+    protected abstract onSetTop(validatedValue: number): void;
+    protected abstract onSetLeft(validatedValue: number): void;
+    protected abstract onSetWidth(validatedValue: number): void;
+    protected abstract onSetHeight(validatedValue: number): void;
+
+    protected abstract validateWidth(value: number): number;
+    protected abstract validateHeight(value: number): number;
+
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): { top: number, bottom: number, height: number };
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): { left: number, right: number, width: number }
+
+    public setTop(value: number) {
+
+        if (isNaN(value)) {
+            return;
+        }
+
+        if ( value === this.top ) {
+            return;
+        }
+
+        const { top, height } = this.getVerticalDimensionFromNewValue(value, "top");
+
+        let shouldEmit = false;
+
+        if (top !== this.top) {
+            this._top = top;
+            this.onSetTop(top);
+            shouldEmit = true;
+        }
+
+        if (height !== this.height) {
+            this._height = height;
+            this.onSetHeight(height);
+            shouldEmit = true;
+        }
+
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "top" );
+        }
+
+    }
+
+    public setLeft(value: number) {
+
+        if (isNaN(value)) {
+            return;
+        }
+
+        if ( value === this.left ) {
+            return;
+        }
+
+        const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "left");
+
+        let shouldEmit = false;
+
+        if (left !== this.left) {
+            this._left = left;
+            this.onSetLeft(left);
+            shouldEmit = true;
+        }
+
+        if (width !== this.width) {
+            this._width = width;
+            this.onSetWidth(width);
+            shouldEmit = true;
+        }
+
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "left" );
+        }
+
+    }
+
+
+    public setWidth(value: number) {
+        if ( value === this.height ) {
+            return;
+        }
+        const val = this.validateWidth(value);
+        if (!isNaN(val) && val !== this.width) {
+            this._width = val;
+            this.onSetWidth(val);
+            this.onSerializableChange.call( this, "width" );
+        }
+    }
+
+    public setHeight(value: number) {
+        if ( value === this.height ) {
+            return;
+        }
+        const val = this.validateHeight(value);
+        if (!isNaN(val) && val !== this.height) {
+            this._height = val;
+            this.onSetHeight(val);
+            this.onSerializableChange.call( this, "height" );
+        }
+    }
+
+
+    public setBottom(value: number) {
+
+        if (isNaN(value)) {
+            return;
+        }
+
+        if ( value === this.bottom ) {
+            return;
+        }
+
+        // Calculate the height from the bottom value
+        const { top, height } = this.getVerticalDimensionFromNewValue(value, "bottom");
+
+        let shouldEmit = false;
+
+        // Use existing setters to set vertical properties
+        if (top !== this.top) {
+            this._top = top;
+            this.onSetTop(top);
+            shouldEmit = true;
+        };
+
+        if (height !== this.height) {
+            this._height = height;
+            this.onSetHeight(height);
+            shouldEmit = true;
+        }
+
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "bottom" );
+        }
+
+    }
+
+    public setRight(value: number) {
+
+        if (isNaN(value)) {
+            return;
+        }
+
+        if ( value === this.right ) {
+            return;
+        }
+
+        // Calculate the width from the right value
+        const { left, width } = this.getHorizontalDimensionsFromNewValue(value, "right");
+
+        let shouldEmit = false;
+
+        // Use existing setters to set horizontal properties
+        if (left !== this.left) {
+            this._left = left;
+            this.onSetLeft(left);
+            shouldEmit = true;
+        }
+        if (width !== this.width) {
+            this._width = width;
+            this.onSetWidth(width);
+            shouldEmit = true;
+        }
+
+        if ( shouldEmit ) {
+            this.onSerializableChange.call( this, "right" );
+        }
+
+    }
+
 
 
     /** Access all the file's analysis layers. */
@@ -80,15 +284,19 @@ export abstract class AbstractAnalysis {
 
 
     protected _initialColor: string;
-    public get initialColor(){
+    public get initialColor() {
         return this._initialColor;
     }
 
-    public setInitialColor( value: string ) {
+    public setInitialColor(value: string) {
+        if ( value === this.initialColor ) {
+            return;
+        }
         this._initialColor = value;
-        this.onSetInitialColor.call( value );
-        if ( this.selected === true ) {
-            this.setColor( value );
+        this.onSetInitialColor.call(value);
+        this.onSerializableChange.call( this, "color" );
+        if (this.selected === true) {
+            this.setColor(value);
         }
 
     }
@@ -100,43 +308,26 @@ export abstract class AbstractAnalysis {
     public readonly activeColor = "yellow";
     public readonly inactiveColor = "black";
 
-    protected _graphMinActive: boolean = false;
-    public get graphMinActive(): boolean {
-        return this._graphMinActive;
+    /** @deprecated is moved to GraphObject instead */
+    public get onGraphActivation() {
+        return this.graph.onGraphActivation;
     }
 
-    protected _graphMaxActive: boolean = false;
-    public get graphMaxActive(): boolean {
-        return this._graphMaxActive;
-    }
-
-    protected _graphAvgActive: boolean = false;
-    public get graphAvgActive(): boolean {
-        return this._graphAvgActive;
-    }
-
-    public readonly onGraphActivation = new CallbacksManager<(
-        min: boolean,
-        max: boolean,
-        avg: boolean
-    ) => void>()
-
-    protected emitGraphActivation() {
-        this.onGraphActivation.call(
-            this._graphMinActive,
-            this._graphMaxActive,
-            this._graphAvgActive
-        );
-    }
     /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
     public ready: boolean = false;
 
     public readonly nameInitial: string;
     protected _name: string;
     public get name() { return this._name; }
-    public setName( value: string ) {
+    public setName(value: string) {
+
+        if ( value === this.name ) {
+            return;
+        }
+
         this._name = value;
-        this.onSetName.call( value );
+        this.onSerializableChange.call( this, "name" );
+        this.onSetName.call(value);
     }
     public readonly onSetName = new CallbacksManager<(value: string) => void>;
 
@@ -172,6 +363,9 @@ export abstract class AbstractAnalysis {
         /** @todo what happend if the callback key is set rendomly? I do not want this callback to be overriden anyhow! */
         this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
             this.recalculateValues();
+            /** @todo */
+            // ... probably here should be serialisation
+            this.onSerializableChange.call( this, "moveOrResize" );
         });
 
     }
@@ -247,6 +441,7 @@ export abstract class AbstractAnalysis {
         this._max = max;
         this._avg = avg;
         this.onValues.call(this.min, this.max, this.avg);
+
     }
 
     /** Obtain the current values of the analysis using current position and dimensions */
@@ -256,7 +451,39 @@ export abstract class AbstractAnalysis {
     public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
 
 
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    public static serializedSegmentsHasExact(
+        segments: string[],
+        lookup: string
+    ): boolean {
+        return segments.find(segment => segment === lookup) ? true : false;
+    }
 
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    public static serializedGetStringValueByKey(
+        segments: string[],
+        key: string
+    ): string | undefined {
+        const regexp = new RegExp(`${key}:*`);
+        const item = segments.find(s => {
+            if (s.match(regexp)) {
+                return isNaN(parseInt(s.split(":")[1]));
+            }
+        });
+        return item?.split(":")[1].trim();
+    }
 
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    public static serializedGetNumericalValueByKey(
+        segments: string[],
+        key: string
+    ): number | undefined {
+        const regexp = new RegExp(`${key}:\\d+`);
+        const item = segments.find(s => s.match(regexp));
+        if (item === undefined) {
+            return undefined;
+        }
+        return parseInt(item.split(":")[1]);
+    }
 
 }

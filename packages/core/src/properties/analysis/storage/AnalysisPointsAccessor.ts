@@ -1,6 +1,6 @@
-import { AnalysisDrive } from "../../AnalysisDrive";
-import { AbstractAnalysis } from "../AbstractAnalysis";
-import { AbstractPoint } from "../AbstractPoint";
+import { AnalysisDrive } from "../AnalysisDrive";
+import { AbstractAnalysis } from "../internals/AbstractAnalysis";
+import { AbstractPoint } from "../internals/AbstractPoint";
 
 
 /** Access list of points from analysis layers */

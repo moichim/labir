@@ -1,4 +1,5 @@
 import { Instance } from "../../../../../file/instance";
+import { AnalysisSlotsState } from "../../../../analysisSlots/AnalysisSlotsDrive";
 import { ITool } from "../../../../tool/internals/AbstractTool";
 import { AbstractAddTool } from "../../AbstractAddTool";
 import { AbstractPoint } from "../../AbstractPoint";
@@ -42,12 +43,24 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
 
     public onPointUp(point: AbstractPoint): void {
 
+        if ( ! point.isInSelectedLayer() ) {
+            return;
+        }
+
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
         point.analysis.ready = true;
 
         if (point.analysis.width <= 0 || point.analysis.height <= 0) {
             point.analysis.layers.removeAnalysis(point.analysis.key);
+        } else {
+            if ( point.analysis.file.slots.value.size <= AnalysisSlotsState.MAX_SLOTS ) {
+                const slot = point.analysis.file.slots.getNextFreeSlotNumber();
+                console.log( slot );
+                if ( slot !== undefined ) {
+                    point.file.slots.assignSlot( slot, point.analysis );
+                }
+            }
         }
 
     }
@@ -55,8 +68,8 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
 
     public onPointMove(point: AbstractPoint, top: number, left: number): void {
         if (point.isInSelectedLayer() && point.active) {
-            point.x = left;
-            point.y = top;
+            point.setXFromTool( left );
+            point.setYFromTool( top );
             point.analysis.onMoveOrResize.call( point.analysis );
         }
     }

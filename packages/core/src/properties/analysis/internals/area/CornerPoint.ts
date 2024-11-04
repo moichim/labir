@@ -1,24 +1,27 @@
+import { PointPlacement } from "../AbstractPoint";
 import { AbstractHandlePoint } from "./AbstractHandlePoint";
 
 export class CornerPoint extends AbstractHandlePoint {
+
+
+    protected _pairX!: CornerPoint;
+    protected _pairY!: CornerPoint;
+
+    public get pairX(): CornerPoint { return this._pairX; };
+    public get pairY(): CornerPoint { return this._pairY; };
+
+    public setPairX(point: CornerPoint): void {
+        this._pairX = point;
+    }
+
+    public setPairY(point: CornerPoint): void {
+        this._pairY = point;
+    }
+
+
+
     public getRadius(): number {
         return 10;
-    }
-
-    protected getPercentXTranslationFromValue(value: number): number {
-
-        if ( this.analysis.width + this.analysis.left === value) {
-            return this.pxX;
-        }
-
-        return 0;
-    }
-
-    protected getPercentYTranslationFromValue(value: number): number {
-        if ( this.analysis.height + this.analysis.top === value ) {
-            return this.pxY;
-        }
-        return 0;
     }
 
     public mayMoveToX(value: number): boolean {
@@ -29,46 +32,123 @@ export class CornerPoint extends AbstractHandlePoint {
         return value <= this.file.height && value >= 0;
     }
 
-    
-
-    public isMoving: boolean = false;
-    protected onSetColor(value: string): void {
-        if ( this.innerElement )
-            this.innerElement.style.backgroundColor = value;
+    private getCenterX() {
+        return this.analysis.left + (this.analysis.width / 2);
     }
 
-    syncXWith( point: CornerPoint ) {
-        this.onX.add( `sync X with ${point.key} `, value => {
-            if ( point.x !== value ) {
-                point.x = value;
-            }
-        } )
+    private getCenterY() {
+        return this.analysis.top + (this.analysis.height / 2);
     }
 
-    syncYWith( point: CornerPoint ) {
-        this.onY.add( `sync Y with ${point.key} `, value => {
-            if ( point.y !== value ) {
-                point.y = value;
-            }
-        } )
+
+
+
+
+    public get isLeftSide() {
+        return this.x <= this.getCenterX();
     }
 
-    protected actionOnActivate(): void {
-        if ( this.innerElement ) {
-            this.setColor( this.activeColor );
+    public get isTopSide() {
+        return this.y <= this.getCenterY();
+    }
+
+    public get isRightSide() {
+        return this.x > this.getCenterX();
+    }
+
+    public get isBottomSide() {
+        return this.y > this.getCenterY();
+    }
+
+
+    protected analyzeXFromTool(value: number): { x: number; placement: PointPlacement; } {
+
+        const placement = this.isLeftSide
+            ? PointPlacement.START
+            : PointPlacement.END;
+
+        return {
+            x: value,
+            placement
         }
     }
 
-    
+    protected analyzeYFromTool(value: number): { y: number; placement: PointPlacement; } {
+
+        const placement = this.isTopSide
+            ? PointPlacement.START
+            : PointPlacement.END
+        return {
+            y: value,
+            placement
+        }
+    }
+
+    protected sideEffectOnXFromTool(value: number, placement: PointPlacement): void {
+        
+        this.pairX.setXDirectly(value, placement);
+
+        if (value > this.pairY.x) {
+
+            this.analysis.leftSidePoints.forEach( p => {
+                p.setXDirectly( p.x, PointPlacement.START );
+            } );
+
+        } else {
+            this.analysis.rightSidePoints.forEach( p => {
+                p.setXDirectly( p.x, PointPlacement.END );
+            } );
+        }
+
+    }
+
+    protected sideEffectOnYFromTool(value: number, placement: PointPlacement): void {
+
+        this.pairY.setYDirectly(value, placement);
+
+        if ( value > this.pairX.y ) {
+
+            this.analysis.topSidePoints.forEach( p => {
+                p.setYDirectly( p.y, PointPlacement.START );
+            } );
+
+        } else {
+
+            this.analysis.bottomSidePoints.forEach( p => {
+                p.setYDirectly( p.y, PointPlacement.END );
+            } );
+
+        }
+    }
+
+
+
+
+
+
+
+    public isMoving: boolean = false;
+    protected onSetColor(value: string): void {
+        if (this.innerElement)
+            this.innerElement.style.backgroundColor = value;
+    }
+
+    protected actionOnActivate(): void {
+        if (this.innerElement) {
+            this.setColor(this.activeColor);
+        }
+    }
+
+
     protected actionOnDeactivate(): void {
-        if ( this.innerElement ) {
-            this.setColor( this.isInSelectedLayer() 
-                ? this.initialColor 
+        if (this.innerElement) {
+            this.setColor(this.isInSelectedLayer()
+                ? this.initialColor
                 : this.inactiveColor
             );
         }
     }
 
 
-    
+
 }

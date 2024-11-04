@@ -19,35 +19,14 @@ export type ThermalRangeDataType = ThermalRangeOrUndefined & {
 
 
 /** An object with range should implement it in a unified way */
-export interface IWithRange extends IBaseProperty {}
+export interface IWithRange extends IBaseProperty { }
 
 /** Handles the thermal range display. */
-export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, ThermalRegistry> {
+export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
 
-    protected fixedRange: ThermalRangeOrUndefined;
-
-    public setFixedRange( value: ThermalRangeOrUndefined ) {
-
-        // Make sure the fixed range is valid
-        if ( value ) {
-            if ( value.from > value.to ) {
-                const fromTmp = value.from;
-                value.from = value.to;
-                value.to = fromTmp;
-            }
-        }
-
-        this.fixedRange = value;
-        if ( value ) {
-            this.imposeRange( this.fixedRange );
-        }
-    }
 
     public get currentRange() {
-        if ( this.fixedRange === undefined ) {
-            return this.value;
-        }
-        return this.fixedRange;
+        return this.value;
     }
 
 
@@ -58,26 +37,22 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      */
     protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined {
 
-        if ( this.fixedRange !== undefined ) {
-            return this.fixedRange;
+        if (value === undefined) {
+            return undefined;
         }
 
-        if ( value === undefined ) {
-            return undefined;
-        } 
-        
         const minmax = this.parent.minmax.value;
 
-        if ( minmax === undefined ) {
+        if (minmax === undefined) {
             return value;
         }
 
-        const result = {...value};
+        const result = { ...value };
 
-        if ( value.from < minmax.min )
+        if (value.from < minmax.min)
             result.from = minmax.min;
 
-        if ( value.to > minmax.max )
+        if (value.to > minmax.max)
             result.to = minmax.max;
 
         return result;
@@ -88,9 +63,9 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * Whenever the range changes, propagate the value to all instances
      */
     protected afterSetEffect(value: ThermalRangeOrUndefined) {
-    
-        if ( value )
-            this.parent.forEveryInstance( instance => instance.recieveRange( value ) );
+
+        if (value)
+            this.parent.forEveryInstance(instance => instance.recieveRange(value));
 
     }
 
@@ -99,30 +74,25 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
      * Imposes a range to itself and below
      * - needs to be called before the minmax is calculated!
      */
-    public imposeRange( value: ThermalRangeOrUndefined ) {
+    public imposeRange(value: ThermalRangeOrUndefined) {
 
-        // If the value is fixed, do nothing
-        if ( this.fixedRange ) {
-            this.value = this.fixedRange;
-        }
-        
         // If new and old are undefined, do nothing
-        else if ( value === undefined && this.value === undefined ) {
+        if (value === undefined && this.value === undefined) {
             // ..do nothing
         }
         // If the new one is undefined and old one exists, set undefined
-        else if ( value === undefined && this.value !== undefined ) {
+        else if (value === undefined && this.value !== undefined) {
             this.value = value;
-        } 
+        }
         // If there is no value and the new one exists
-        if ( value !== undefined && this.value === undefined ) {
+        if (value !== undefined && this.value === undefined) {
             this.value = value;
         }
         // If the value changes...
-        else if ( value !== undefined && this.value !== undefined ) {
+        else if (value !== undefined && this.value !== undefined) {
 
             // ... set it only if it is different
-            if ( this.value.from !== value.from || this.value.to !== value.to ) {
+            if (this.value.from !== value.from || this.value.to !== value.to) {
                 this.value = value;
             }
 
@@ -134,26 +104,21 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
 
     /** Sets the range to the current minmax values */
     public applyMinmax() {
-        if ( this.parent.minmax.value ) {
+        if (this.parent.minmax.value) {
             const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
-            if (this.fixedRange) {
-                this.setFixedRange( newRange );
-            } else {
-                this.imposeRange( newRange );
-            }
-            
+            this.imposeRange(newRange);
         }
     }
 
     /** Sets the range automatically based on the current histogram */
     public applyAuto() {
-        
-        if ( this.parent.histogram.value ) {
+
+        if (this.parent.histogram.value) {
 
             const length = this.parent.histogram.value.length;
             const percentage = 100 / length;
 
-            const histogramBarsOverPercentage = this.parent.histogram.value.filter( bar => bar.height >= percentage );
+            const histogramBarsOverPercentage = this.parent.histogram.value.filter(bar => bar.height >= percentage);
 
             const newRange: ThermalRangeOrUndefined = {
                 from: histogramBarsOverPercentage[0].from,
@@ -161,20 +126,13 @@ export class RangeDriver extends AbstractProperty< ThermalRangeOrUndefined, Ther
                     histogramBarsOverPercentage.length - 1
                 ].to
             };
-
-            if ( this.fixedRange ) {
-                this.setFixedRange( newRange );
-            } else {
-                this.imposeRange( newRange );
-            }
-
-            
+            this.imposeRange(newRange);
 
         }
 
 
     }
 
-    
+
 
 }

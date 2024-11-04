@@ -1,14 +1,17 @@
 import { Instance } from "../../../../file/instance";
-import { AnalysisGraph } from "../../graphs/AnalysisGraph";
+import { AnalysisGraph } from "../../../analysisData/graphs/AnalysisGraph";
 import { AbstractAnalysis } from "../AbstractAnalysis";
+import { PointPlacement } from "../AbstractPoint";
 import { AbstractArea } from "./AbstractArea";
 import { CornerPoint } from "./CornerPoint";
 import { RectangleArea } from "./rectangle/RectangleArea";
 
 export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
-    protected readonly wPx = ( 100 / this.file.width / 2 ).toString() + "%";
-    protected readonly hPx = ( 100 / this.file.height / 2 ).toString() + "%";
+    declare points: Map<string, CornerPoint>;
+
+    protected readonly wPx = (100 / this.file.width / 2).toString() + "%";
+    protected readonly hPx = (100 / this.file.height / 2).toString() + "%";
 
 
     public readonly tl: CornerPoint;
@@ -18,7 +21,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
     public readonly area: RectangleArea;
 
-    protected _graph: AnalysisGraph|undefined;
+    protected _graph: AnalysisGraph | undefined;
 
     public get graph(): AnalysisGraph {
         if (!this._graph) {
@@ -26,7 +29,7 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
         }
         return this._graph;
     }
-    
+
 
     public isWithin(x: number, y: number): boolean {
         return x >= this.left
@@ -89,38 +92,52 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
 
 
         // Create points
-        this.tl = this.addPoint("tl", top, left);
-        this.tr = this.addPoint("tr", top, right);
-        this.bl = this.addPoint("bl", bottom, left);
-        this.br = this.addPoint("br", bottom, right);
+        this.tl = this.addPoint(
+            "tl", 
+            top, 
+            left, 
+            PointPlacement.START, 
+            PointPlacement.START
+        );
+        this.tr = this.addPoint(
+            "tr", 
+            top, 
+            right,
+            PointPlacement.END,
+            PointPlacement.START
+        );
+        this.bl = this.addPoint(
+            "bl", 
+            bottom, 
+            left,
+            PointPlacement.START,
+            PointPlacement.END
+        );
+        this.br = this.addPoint(
+            "br", 
+            bottom, 
+            right,
+            PointPlacement.END,
+            PointPlacement.END
+        );
 
-        this.tl.syncXWith(this.bl);
-        this.tl.syncYWith(this.tr);
+        this.tl.setPairX(this.bl);
+        this.tl.setPairY(this.tr);
 
-        this.tr.syncXWith(this.br);
-        this.tr.syncYWith(this.tl);
+        this.tr.setPairX(this.br);
+        this.tr.setPairY(this.tl);
 
-        this.bl.syncXWith(this.tl);
-        this.bl.syncYWith(this.br);
+        this.bl.setPairX(this.tl);
+        this.bl.setPairY(this.br);
 
-        this.br.syncXWith(this.tr);
-        this.br.syncYWith(this.bl);
+        this.br.setPairX(this.tr);
+        this.br.setPairY(this.bl);
 
         this.calculateBounds();
 
-        /*
-        this.onResize.add("sync the area", () => {
+        this.onMoveOrResize.set("sync the area", () => {
             this.calculateBounds();
-            this.recalculateValues();
         });
-        */
-
-        this.onMoveOrResize.set( "sync the area", () => {
-            this.calculateBounds();
-        } );
-
-        /** @todo Look if this is really necessary */
-        this.points.forEach(point => point.projectInnerPositionToDom());
 
     }
 
@@ -151,10 +168,10 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
             }
         });
 
-        this.left = leftMost;
-        this.top = topMost;
-        this.width = rightMost - leftMost;
-        this.height = bottomMost - topMost;
+        this._left = leftMost;
+        this._top = topMost;
+        this._width = rightMost - leftMost;
+        this._height = bottomMost - topMost;
 
         this.area.left = this.left;
         this.area.top = this.top;
@@ -166,95 +183,337 @@ export abstract class AbstractAreaAnalysis extends AbstractAnalysis {
     protected addPoint(
         role: string,
         top: number,
-        left: number
+        left: number,
+        placementX: PointPlacement,
+        placementY: PointPlacement
     ) {
-        const point = new CornerPoint(role, top, left, this, this.color);
+        const point = new CornerPoint(role, top, left, this, this.color, placementX, placementY);
         this.points.set(role, point);
         return point;
     }
 
-    public setLeft(
-        value: number
-    ) {
-        this.leftmostPoint.x = value;
+
+
+    protected validateWidth(value: number): number {
+        const max = this.file.width - 1 - this.left;
+        return Math.max(0, Math.min(max, Math.round(value)));
     }
 
-    public setRight(
-        value: number
-    ) {
-        this.rightmostPoint.x = value;
-    }
-
-    public setTop(
-        value: number
-    ) {
-        this.topmostPoint.y = value;
-    }
-
-    public setBottom(
-        value: number
-    ) {
-        this.bottommostPoint.y = value;
+    protected validateHeight(value: number): number {
+        const max = this.file.height - 1 - this.top;
+        return Math.max(0, Math.min(max, Math.round(value)));
     }
 
 
 
 
+    protected onSetLeft(validatedValue: number): void {
+        
+        this.area.left = validatedValue;
 
-    public get leftmostPoint(): CornerPoint {
-    
-        let point = this.tl;
-
-        this.points.forEach( p => {
-            if ( p.x < point.x ) {
-                point = p as CornerPoint;
-            }
-        } );
-
-        return point;
-    
-    }
-
-    public get rightmostPoint(): CornerPoint {
-    
-        let point = this.tr;
-
-        this.points.forEach( p => {
-            if ( p.x > point.x ) {
-                point = p as CornerPoint;
-            }
-        } );
-
-        return point;
-    
-    }
-
-    public get topmostPoint(): CornerPoint {
-    
-        let point = this.tl;
-
-        this.points.forEach( p => {
-            if ( p.y < point.y ) {
-                point = p as CornerPoint;
-            }
-        } );
-
-        return point;
-    
-    }
-
-    public get bottommostPoint(): CornerPoint {
-    
-        let point = this.br;
-
-        this.points.forEach( p => {
-            if ( p.y > point.y ) {
-                point = p as CornerPoint;
-            }
-
+        // Place left points
+        this.forPoints(this.leftSidePoints, point => {
+            point.setXDirectly( validatedValue, PointPlacement.START );
         });
 
-        return point;
+        // Update right points
+        this.forPoints( this.rightSidePoints, point => {
+            point.setXDirectly( this.right, PointPlacement.END );
+        } )
+
+    }
+
+    protected onSetTop(validatedValue: number): void {
+        
+        this.area.top = validatedValue;
+
+        this.forPoints(this.topSidePoints, point => {
+            point.setYDirectly( validatedValue, PointPlacement.START );
+        });
+
+        this.forPoints( this.bottomSidePoints, point => {
+            point.setYDirectly( this.bottom, PointPlacement.END );
+        } );
+    }
+
+    protected onSetWidth(validatedValue: number): void {
+
+        this.area.width = validatedValue;
+        
+        this.forPoints(this.leftSidePoints, point => {
+            point.setXDirectly( this.left, PointPlacement.START );
+        });
+
+        this.forPoints( this.rightSidePoints, point => {
+            point.setXDirectly( this.right, PointPlacement.END );
+        } );
+
+
+    }
+
+    protected onSetHeight(validatedValue: number): void {
+
+        this.area.height = validatedValue;
+        
+        this.forPoints( this.topSidePoints, point => {
+            point.setYDirectly( this.top, PointPlacement.START );
+        } );
+
+        this.forPoints( this.bottomSidePoints, point => {
+            point.setYDirectly( this.bottom, PointPlacement.END );
+        } );
+
+
+    }
+
+    protected getVerticalDimensionFromNewValue(
+        value: number,
+        preferredSide: "top" | "bottom"
+    ): { top: number, bottom: number, height: number } {
+
+        const val = Math.round(value);
+
+        const maxW = this.file.height - 1;
+
+        const theOtherSide = preferredSide === "top"
+            ? this.bottom
+            : this.top
+
+        // Negative value is allways 0
+        if (val <= 0) {
+            return {
+                top: 0,
+                bottom: theOtherSide,
+                height: theOtherSide
+            }
+        }
+        // Too large value is allways width - 1
+        else if (val > maxW) {
+            return {
+                top: theOtherSide,
+                bottom: maxW,
+                height: maxW - theOtherSide
+            }
+        }
+        // If prefers moving the right point...
+        else if (preferredSide === "bottom") {
+
+            if (val <= this.top) {
+                return {
+                    top: val,
+                    bottom: this.top,
+                    height: this.top - val
+                }
+            } else {
+                return {
+                    top: this.top,
+                    bottom: val,
+                    height: val - this.top
+                }
+            }
+
+        }
+        // If prefers moving the left point
+        else {
+            if (val >= this.bottom) {
+                return {
+                    top: this.bottom,
+                    bottom: val,
+                    height: val - this.bottom
+                }
+            } else {
+                return {
+                    top: val,
+                    bottom: this.bottom,
+                    height: this.bottom - val
+                }
+            }
+        }
+
+    }
+
+
+    protected getHorizontalDimensionsFromNewValue(
+        value: number,
+        preferredSide: "left" | "right"
+    ): { left: number, right: number, width: number } {
+
+        const val = Math.round(value);
+
+        const maxW = this.file.width - 1;
+
+        const theOtherSide = preferredSide === "left"
+            ? this.right
+            : this.left
+
+        // Negative value is allways 0
+        if (val <= 0) {
+            return {
+                left: 0,
+                right: theOtherSide,
+                width: theOtherSide
+            }
+        }
+        // Too large value is allways width - 1
+        else if (val > maxW) {
+            return {
+                left: theOtherSide,
+                right: maxW,
+                width: maxW - theOtherSide
+            }
+        }
+        // If prefers moving the right point...
+        else if (preferredSide === "right") {
+
+            if (val <= this.left) {
+                return {
+                    left: val,
+                    right: this.left,
+                    width: this.left - val
+                }
+            } else {
+                return {
+                    left: this.left,
+                    right: val,
+                    width: val - this.left
+                }
+            }
+
+        }
+        // If prefers moving the left point
+        else {
+            if (val >= this.right) {
+                return {
+                    left: this.right,
+                    right: val,
+                    width: val - this.right
+                }
+            } else {
+                return {
+                    left: val,
+                    right: this.right,
+                    width: this.right - val
+                }
+            }
+        }
+
+    }
+
+    public get leftSidePoints(): CornerPoint[] {
+        return Array.from( this.points.values() ).filter( point => point.isLeftSide );
+    }
+
+    public get rightSidePoints(): CornerPoint[] {
+        return Array.from( this.points.values() ).filter( point => point.isRightSide );
+    }
+
+    public get topSidePoints(): CornerPoint[] {
+        return Array.from( this.points.values() ).filter( point => point.isTopSide );
+    }
+
+    public get bottomSidePoints(): CornerPoint[] {
+        return Array.from( this.points.values() ).filter( point => point.isBottomSide );
+    }
+
+    protected forPoints(points: CornerPoint[], fn: (point: CornerPoint) => void): void {
+        points.forEach(point => fn(point));
+    }
+
+
+    public recievedSerialized(input: string): void {
+
+        if ( ! this.serializedIsValid( input ) ) {
+            return;
+        }
+
+        const splitted = input
+            .split(";")
+            .map(segment => segment.trim());
+
+        let shouldRecalculate: boolean = false;
+
+        const name = splitted[0];
+
+        if (name !== this.name) {
+            this.setName(name);
+        }
+
+        const avgOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "avg");
+
+        if (avgOn !== this.graph.state.AVG) {
+            this.graph.setAvgActivation(avgOn);
+        }
+
+        const minOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "min");
+
+        if (minOn !== this.graph.state.MIN) {
+            this.graph.setMinActivation(minOn);
+        }
+
+        const maxOn = AbstractAnalysis.serializedSegmentsHasExact(splitted, "max");
+
+        if (maxOn !== this.graph.state.MAX) {
+            this.graph.setMaxActivation(maxOn);
+        }
+
+        const color = AbstractAnalysis.serializedGetStringValueByKey(splitted, "color");
+
+        if (color === undefined) {
+            //
+        } else if (color !== this.initialColor) {
+            this.setInitialColor(color);
+        }
+
+        const top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
+        const left = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "left");
+        const width = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "width");
+        const height = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "height");
+
+        if (top !== undefined && top !== this.top) {
+
+            this.setTop(top);
+            shouldRecalculate = true;
+        }
+
+        if (left !== undefined && left !== this.left) {
+            this.setLeft(left);
+            shouldRecalculate = true;
+        }
+
+        if (width !== undefined && width !== this.width) {
+            this.setWidth(width);
+            shouldRecalculate = true;
+        }
+
+        if (height !== undefined && height !== this.height) {
+            this.setHeight(height);
+            shouldRecalculate = true;
+        }
+
+        if (shouldRecalculate) {
+            this.recalculateValues();
+        }
+
+
+    }
+
+    public toSerialized(): string {
+
+        const output: string[] = [];
+
+        output.push(this.name);
+        output.push(this.getType());
+        output.push(`color:${this.initialColor}`);
+        output.push(`top:${this.top}`);
+        output.push(`left:${this.left}`);
+        output.push(`width:${this.width}`);
+        output.push(`height:${this.height}`);
+
+        if (this.graph.state.AVG) output.push("avg");
+        if (this.graph.state.MIN) output.push("min");
+        if (this.graph.state.MAX) output.push("max");
+
+        return output.join(";");
 
     }
 

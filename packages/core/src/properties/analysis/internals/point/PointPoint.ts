@@ -1,5 +1,5 @@
 import { AbstractAnalysis } from "../AbstractAnalysis";
-import { AbstractPoint } from "../AbstractPoint";
+import { AbstractPoint, PointPlacement } from "../AbstractPoint";
 
 export class PointPoint extends AbstractPoint {
     
@@ -13,12 +13,26 @@ export class PointPoint extends AbstractPoint {
     protected axisY?: HTMLDivElement;
     protected center?: HTMLDivElement;
 
-    protected getPercentXTranslationFromValue(): number {
-        return this.pxX / 2;
+    protected analyzeXFromTool(value: number): { x: number; placement: PointPlacement; } {
+        return {
+            x: value,
+            placement: PointPlacement.MIDDLE
+        }
     }
 
-    protected getPercentYTranslationFromValue(): number {
-        return this.pxY / 2;
+    protected analyzeYFromTool(value: number): { y: number; placement: PointPlacement; } {
+        return {
+            y: value,
+            placement: PointPlacement.MIDDLE
+        }
+    }
+
+    protected sideEffectOnXFromTool(): void {
+        this.analysis.setLeft( this.x );
+    }
+
+    protected sideEffectOnYFromTool(): void {
+        this.analysis.setTop( this.y );
     }
 
 
@@ -34,7 +48,9 @@ export class PointPoint extends AbstractPoint {
             top,
             left,
             analysis,
-            color
+            color,
+            PointPlacement.MIDDLE,
+            PointPlacement.MIDDLE
         )
 
         this.axisX = this.buildAxisX();
@@ -58,13 +74,17 @@ export class PointPoint extends AbstractPoint {
 
     }
 
+
     public mayMoveToX(value: number): boolean {
         return value <= this.file.width && value >= 0;
     }
 
+
     public mayMoveToY(value: number): boolean {
         return value <= this.file.height && value >= 0;
     }
+
+
     createInnerElement(): HTMLDivElement {
         const element = document.createElement( "div" );
 
@@ -79,6 +99,7 @@ export class PointPoint extends AbstractPoint {
         return element;
     }
 
+
     protected buildAxisX(): HTMLDivElement {
         const axis = document.createElement( "div" );
         axis.style.position = "absolute";
@@ -89,6 +110,7 @@ export class PointPoint extends AbstractPoint {
         return axis;
     }
 
+
     protected buildAxisY(): HTMLDivElement {
         const axis = document.createElement( "div" );
         axis.style.position = "absolute";
@@ -98,6 +120,7 @@ export class PointPoint extends AbstractPoint {
         axis.style.top = "0px";
         return axis;
     }
+
 
     protected buildCenter(): HTMLDivElement {
         
@@ -116,6 +139,7 @@ export class PointPoint extends AbstractPoint {
 
         return center;
     }
+
 
     protected onSetColor(value: string): void {
         if ( this.axisX ) {
@@ -137,6 +161,8 @@ export class PointPoint extends AbstractPoint {
         }
         
     }
+
+
     protected actionOnMouseLeave(): void {
         if (this.isInSelectedLayer()) {
             this.setColor( this.analysis.initialColor );
@@ -146,20 +172,25 @@ export class PointPoint extends AbstractPoint {
         this.setBoxShadow( undefined)
     }
 
+
     protected actionOnActivate(): void {
         if ( this.innerElement ) {
             this.setColor( this.activeColor );
         }
     }
+
+
     protected actionOnDeactivate(): void {
         if ( this.innerElement ) {
             this.setColor( this.inactiveColor );
         }
     }
     
+
     public getRadius(): number {
         return 10;
     }
+
 
     protected setBoxShadow(
         color: string | undefined = undefined
@@ -176,6 +207,5 @@ export class PointPoint extends AbstractPoint {
         }
     }
 
-    
 
 }

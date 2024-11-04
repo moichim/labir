@@ -12,13 +12,15 @@ import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
 import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { AnalysisDataState } from "../properties/analysis/AnalysisDataState";
+import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
+import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
 
 export class Instance extends AbstractFile {
 
     declare public timeline: TimelineDrive;
     declare public analysis: AnalysisDrive;
     declare public analysisData: AnalysisDataState;
+    public slots!: AnalysisSlotsState;
 
     public exportAsPng(): void {
         this.export.canvasAsPng();
@@ -44,7 +46,9 @@ export class Instance extends AbstractFile {
     protected constructor(
         public readonly group: ThermalGroup,
         public readonly service: ThermalFileReader,
+        /**  @todo This dimension should be 1 pixel smaller */
         public readonly width: number,
+        /** @todo This dimension should be 1 pixel smaller */
         public readonly height: number,
         public readonly timestamp: number,
         public readonly frameCount: number,
@@ -91,6 +95,7 @@ export class Instance extends AbstractFile {
         this.recording = new RecordingDrive( this, false );
         this.analysis = new AnalysisDrive(this, []);
         this.analysisData = new AnalysisDataState(this);
+        this.slots = new AnalysisSlotsState(this, new Map);
         return this;
     }
 

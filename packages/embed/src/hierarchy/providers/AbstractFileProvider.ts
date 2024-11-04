@@ -64,7 +64,7 @@ export class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: playbackSpeedContext })
     @property({ type: Number, reflect: true, attribute: true })
-    public playbackSpeed: keyof typeof playbackSpeed = 1;
+    public speed?: PlaybackSpeeds;
 
     @provide({ context: recordingContext })
     @property({ type: String, reflect: true, attribute: true })
@@ -103,41 +103,48 @@ export class AbstractFileProvider extends GroupConsumer {
         this.marksProvidedBelow.forEach(mark => console.log(mark.innerHTML));
     }
 
+    public updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
+        if ( _changedProperties.has("ms") ) {
+            if ( this.file && this.duration && this.currentFrame ) {
+                const newMs = Math.min( this.duration.ms, Math.max( 0,  this.ms ) );
+                if ( newMs !== this.currentFrame.ms ) {
+                    this.file.timeline.setRelativeTime( newMs );
+                }
+            }
+        }
+
+        if ( _changedProperties.has( "playbackspeed" ) ) {
+            if ( this.file && this.speed ) {
+                if ( this.speed !== this.file.timeline.playbackSpeed ) {
+                    this.file.timeline.playbackSpeed = this.speed;
+                }
+            }
+        }
+
+        if ( _changedProperties.has( "playing" ) ) {
+            if ( this.file ) {
+                if ( 
+                    this.playing 
+                    && !this.file.timeline.isPlaying 
+                ) {
+                    this.file.timeline.play();
+                } else if ( 
+                    !this.playing 
+                    && this.file.timeline.isPlaying 
+                ) {
+                    this.file.timeline.pause();
+                }
+            }
+        }
+
+    }
+
 
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback(name, _old, value);
-
-        if (name === "ms") {
-            if (value && this.duration && this.currentFrame) {
-                const newMs = Math.min(this.duration!.ms, Math.max(0, parseInt(value)));
-                if (newMs !== this.currentFrame.ms) {
-                    this.file?.timeline.setRelativeTime(newMs);
-                }
-            }
-        }
-
-        // Playing state
-        if (name === "playing") {
-
-            if (value === "true") {
-                this.file?.timeline.play();
-            }
-
-            else if (value === "false") {
-                this.file?.timeline.pause();
-            }
-        }
-
-        // Playback speed state
-        if (name === "playbackspeed") {
-            if (this.file) {
-                if (value && Object.keys(playbackSpeed).includes(value)) {
-                    this.file.timeline.playbackSpeed = parseFloat(value) as keyof typeof playbackSpeed;
-                }
-            }
-
-        }
 
         // Recording
         if (name === "recording") {
@@ -152,6 +159,8 @@ export class AbstractFileProvider extends GroupConsumer {
         }
 
     }
+
+    public readonly onInstanceCreated = new CallbacksManager< ( instance: Instance ) => void >();
 
 
     /** Register instance callback listeners */
@@ -184,6 +193,12 @@ export class AbstractFileProvider extends GroupConsumer {
         this.analysis = instance.analysis.layers.all;
 
 
+        // Project properties to cthe core
+        if ( this.speed ) {
+            instance.timeline.playbackSpeed = this.speed;
+        }
+
+
 
         // Create listeners
 
@@ -202,7 +217,7 @@ export class AbstractFileProvider extends GroupConsumer {
             this.ms = frame.relative;
         }
 
-        this.playbackSpeedCallback = value => { this.playbackSpeed = value };
+        this.playbackSpeedCallback = value => { this.speed = value };
 
         this.recordingCallback = value => { this.recording = value; }
 
@@ -222,6 +237,8 @@ export class AbstractFileProvider extends GroupConsumer {
         instance.recording.addListener(this.UUID, this.recordingCallback);
         instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
         instance.analysis.addListener(this.UUID, this.analysisCallback);
+
+        this.onInstanceCreated.call(instance);
 
     }
 
@@ -269,17 +286,6 @@ export class AbstractFileProvider extends GroupConsumer {
         if ( this.file ) {
             this.removeInstance( this.file );
         }
-    }
-
-
-
-    /** @deprecated */
-    protected clearCallbacks() {
-
-        this.onFailure.clear();
-        this.onSuccess.clear();
-        this.onLoadingStart.clear();
-
     }
 
 }

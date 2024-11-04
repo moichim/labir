@@ -42,60 +42,73 @@
 
 -->
 
-<h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
+  <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
-<script>
- const reload = () => {
-  const provider = document.getElementById( "wtf" );
-  provider.thermal = "soustruh.lrc";
-}
-setTimeout( reload, 10000 );
-</script>
+  <script>
+    const reload = () => {
+      // const provider = document.getElementById("wtf");
+      // provider.thermal = "soustruh.lrc";
+    }
+    setTimeout(reload, 10000);
+  </script>
 
-    <manager-provider palette="jet" slug="some-example">
-      <registry-provider>
-        <registry-range-display></registry-range-display>
-        <registry-range-slider></registry-range-slider>
-        <registry-ticks-bar></registry-ticks-bar>
+  <thermal-desktop-app 
+    url="/sequence.lrc"  
+    author="Já"
+    license="CC BY-SA 4.0" 
+    label=" "
+    from="20"
+    to="50"
+    speed="10"
+    palette="iron"
+    analysis1="Bod A; ellipsis; color:yellow; top:10;left:20;width:30;height:40;max"
+    analysis7="První jméno obdélníku; rectangle; color:lightblue; top:0;left:0;width:100;height:100;max;avg"
+  >
+    <div slot="content">Jsem obsah aplikace</div>
+  </thermal-desktop-app>
 
-        <group-provider slug="grup">
 
-          <file-provider thermal="sequence.lrc" id="wtf">
-            <file-canvas></file-canvas>
-            <file-info-button></file-info-button>
-          </file-provider>
-          <group-tool-buttons></group-tool-buttons>
+  <thermal-file-app url="/sequence.lrc" speed="10" palette="iron"
+    analysis1="Bod A; ellipsis; color: red; top:10;left:20;width:30;height:40;max"
+    analysis2="První jméno obdélníku; rectangle; color: lightblue; top:0;left:0;width:100;height:100;max;avg"
+    analysis3="Bod B;point;top:50;left:80;avg;color:green" label="Tučňáci">
+    <div slot="content_">Jsem obsah aplikace</div>
+  </thermal-file-app>
 
-        </group-provider>
-      </registry-provider>
-    </manager-provider>
+  <manager-provider palette="jet" slug="some-example">
+    <registry-provider>
+      <registry-range-display></registry-range-display>
+      <registry-range-slider></registry-range-slider>
+      <registry-ticks-bar></registry-ticks-bar>
+
+      <group-provider slug="grup">
+
+        <file-provider thermal="sequence.lrc" id="wtf">
+          <file-canvas></file-canvas>
+          <file-info-button></file-info-button>
+        </file-provider>
+        <group-tool-buttons></group-tool-buttons>
+
+      </group-provider>
+    </registry-provider>
+  </manager-provider>
 
   <div>
 
 
     <div>
-      <thermal-desktop-app url="/sequence.lrc" from="21" to="30" speed="10" palette="iron"
-        author="Já" license="CC BY-SA 4.0" label=" ">
-        <div slot="content">Jsem obsah aplikace</div>
-      </thermal-desktop-app>
 
-      <thermal-file-app url="/tucnaci_04.lrc" speed="10" palette="iron"
-        analysis1="Bod A; ellipsis; color: red; top:10;left:20;width:30;height:40;max"
-        analysis2="První jméno obdélníku; rectangle; color: lightblue; top:0;left:0;width:100;height:100;max;avg"
-        analysis3="Bod B;point;top:50;left:80;avg;color:green" label="Tučňáci">
-        <div slot="content_">Jsem obsah aplikace</div>
-      </thermal-file-app>
+
+
     </div>
 
 
     <thermal-dropin-app></thermal-dropin-app>
 
-  -->
-
-
-    
 
   </div>
+
+-->
 
 
 

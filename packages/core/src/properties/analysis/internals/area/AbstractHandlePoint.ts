@@ -1,4 +1,4 @@
-import { AbstractPoint } from "../AbstractPoint";
+import { AbstractPoint, PointPlacement } from "../AbstractPoint";
 import { AbstractAreaAnalysis } from "./AbstractAreaAnalysis";
 
 export abstract class AbstractHandlePoint extends AbstractPoint {
@@ -10,11 +10,13 @@ export abstract class AbstractHandlePoint extends AbstractPoint {
         top: number,
         left: number,
         analysis: AbstractAreaAnalysis,
-        color: string
+        color: string,
+        placementX: PointPlacement,
+        placementY: PointPlacement
     ) {
-        super(key, top, left, analysis, color);
-        this._color = color;
-        this.setColor(color);
+        super(key, top, left, analysis, color, placementX, placementY);
+        // this._color = color;
+        // this.setColor(color);
     }
 
 

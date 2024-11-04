@@ -8,15 +8,6 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
 
-  @property({ type: Number })
-  from?: number;
-
-  @property({ type: Number })
-  to?: number;
-
-  @property({ type: Number })
-  speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
-
   @property({ type: String, reflect: true, attribute: true })
   showembed: boolean = true;
 
@@ -209,26 +200,6 @@ export class DesktopFileApp extends FileConsumer {
   
   `;
 
-  protected willUpdate(_changedProperties: PropertyValues): void {
-    super.willUpdate(_changedProperties);
-
-    // Project eventual changes into the file
-    if (this.file) {
-      // Project the speed
-      if (this.speed !== undefined) {
-        this.file.timeline.playbackSpeed = this.speed;
-      }
-      // Project the range
-      if (this.from !== undefined && this.to !== undefined) {
-        this.registry.range.imposeRange({
-          from: this.from,
-          to: this.to
-        });
-      }
-    }
-
-  }
-
   protected render(): unknown {
 
     return html`
@@ -301,13 +272,10 @@ export class DesktopFileApp extends FileConsumer {
               <file-info-button></file-info-button>
             
               <file-download-dropdown ></file-download-dropdown>
+
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
               ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
-
-
-            
-
 
             </thermal-bar>
           </div>
@@ -325,6 +293,7 @@ export class DesktopFileApp extends FileConsumer {
                   <registry-histogram slot="pre"></registry-histogram>
                   <registry-range-slider slot="pre"></registry-range-slider>
                   <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
+                  <!--<registry-range-display></registry-range-display>-->
 
                   <file-canvas></file-canvas>
                   <file-timeline></file-timeline>

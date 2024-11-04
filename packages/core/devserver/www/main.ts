@@ -37,11 +37,33 @@ group.files.addListener("boot", value => {
 })
 
 
+
+
+const reg = manager.addOrGetRegistry( "reg" );
+const grp = reg.groups.addOrGetGroup( "grp" );
+
+reg.range.imposeRange( {from: 30, to: 40} );
+
+reg.service.loadFile( "/soustruh.lrc" ).then( result => {
+    const container = document.createElement( "div" );
+    document.body.appendChild( container );
+
+    if ( result instanceof ThermalFileReader ) {
+        result.createInstance( grp ).then( instance => {
+            instance.mountToDom( container );
+            instance.draw();
+        } );
+    }
+} );
+
+
+
+
 // registry.loadOneFile( { thermalUrl: "/tucnaci_04.lrc" }, group.id );
 
 
 
-
+/*
 
 const group_2 = registry.groups.addOrGetGroup("group_2");
 
@@ -111,7 +133,6 @@ const mountInstance = (instance: Instance) => {
         }
         
     });
-    */
 
 }
 
@@ -140,12 +161,44 @@ const batchLoading = async (
     console.log( "INSTANCES CREATED", instances );
 
     instances.map( mountInstance );
+    instances.forEach( instance => {
+        instance.analysis.layers.onAdd.set( "listen", value => {
+            console.log( value.serialized );
 
-    /*
+            value.onMoveOrResize.set( "spy on values", val => {
+                console.log( val.serialized );
+            } );
+
+            /*
+
+            setInterval( () => {
+
+                let original = value.serialized;
+
+                const originalTop = value.top;
+                const originalLeft = value.left;
+
+                if ( original ) {
+
+                    original = original.replaceAll( `top:${originalTop}`, `top:${Math.round( Math.random() * value.height )}` );
+
+                    original = original.replaceAll( `left:${originalLeft}`, `left:${Math.round( Math.random() * value.width )}` );
+
+                }
+
+                console.log( ">>>>", original );
+
+                if (original) {
+                    value.recievedSerialized( original );
+                }
+            }, 5000 );
+
+        } );
+    } );
+
     instances.forEach( instance => {
         instance.analysis.storage.addAnalysis( new RectangleAnalysis( "sth", instance ) );
     } );
-     */
 
     console.log( "INSTANCES MOUNTED - SHOULD POSTPROCESS" );
 
@@ -158,16 +211,17 @@ const batchLoading = async (
 }
 
 batchLoading([
-    // "/soustruh.lrc",
+    "/soustruh.lrc",
     // "/tucnaci_04.lrc",
     // "/image-thermal 2021-11-24 11-18-20.lrc",
     // "/image-thermal 2024-01-12 14-09-37.lrc",
     // "/image-thermal 2024-02-12 10-15-07.lrc",
     // "/image-thermal 2024-02-12 10-15-08.lrc",
-    "/sequence.lrc"
+    // "/sequence.lrc"
 ]);
 
 const buildControls = () => {
+
     Object.entries( group_2.tool.tools ).forEach( ( [key, instance] ) => {
         const btn = document.createElement( "button" );
         btn.innerHTML = key;
@@ -282,14 +336,11 @@ const buildControls = () => {
     dropin.style.width = "300px";
     dropin.style.height = "100px";
 
-    /*
-
     dropin.ondrop = event => {
         event.preventDefault();
         console.log( event.dataTransfer );
     }
 
-    */
 
     const indicator = document.createElement( "div" );
 
@@ -359,8 +410,6 @@ const buildControls = () => {
 
 
     document.body.appendChild( dropin );
-
-    /** Dropzone */
     const dropzone = document.createElement( "div" );
 
     dropzone.style.backgroundColor = "red";
@@ -391,3 +440,7 @@ const buildControls = () => {
 }
 
 buildControls();
+
+*/
+
+

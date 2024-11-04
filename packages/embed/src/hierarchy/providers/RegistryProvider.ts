@@ -1,5 +1,5 @@
 import { provide } from "@lit/context";
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
 import { RegistryContext, registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
@@ -97,12 +97,31 @@ export class RegistryProviderElement extends ManagerConsumer {
         
     }
 
+    protected updated(_changedProperties: PropertyValues): void {
+        
+        super.updated( _changedProperties );
+
+        if ( _changedProperties.has( "from" ) || _changedProperties.has( "to" ) ) {
+
+            if ( this.from !== undefined && this.to !== undefined ) {
+
+                this.registry.range.imposeRange({
+                    from: this.from,
+                    to: this.to
+                })
+
+            }
+
+        }
+
+    }
+
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback( name, _old, value );
 
 
         // Project the range to internals
-
+/*
         if ( ( name === "from" || name === "to" ) && value && this.registry ) {
 
             const range = this.registry.range;
@@ -130,6 +149,8 @@ export class RegistryProviderElement extends ManagerConsumer {
             }
 
         }
+
+        */
 
         // Project the opacity to internals
         if ( name=== "opacity" ) {

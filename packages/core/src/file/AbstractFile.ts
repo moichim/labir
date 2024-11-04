@@ -126,6 +126,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this.verticalLimit = (this.height / 4) * 3;
 
         this._pixels = initialPixels;
+        
     }
 
     public abstract postInit(): AbstractFile;

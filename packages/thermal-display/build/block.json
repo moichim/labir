@@ -41,6 +41,10 @@
         "type": "constrained"
       }
     },
+    "webcomponent": {
+      "type": "string",
+      "default": "thermal-file-app"
+    },
     "thermal": {
       "type": "string"
     },
@@ -68,6 +72,27 @@
       "default": "CC BY-SA 4.0"
     },
     "description": {
+      "type": "string"
+    },
+    "analysis1": {
+      "type": "string"
+    },
+    "analysis2": {
+      "type": "string"
+    },
+    "analysis3": {
+      "type": "string"
+    },
+    "analysis4": {
+      "type": "string"
+    },
+    "analysis5": {
+      "type": "string"
+    },
+    "analysis6": {
+      "type": "string"
+    },
+    "analysis7": {
       "type": "string"
     }
   }

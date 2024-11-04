@@ -1,15 +1,14 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { fromAttribute, ParsedAnalysis, ParsedAreaAnalysis, ParsedPointAnalysis, toAttribute } from "../../controls/file/analysis/presets/analysis";
 import { AbstractFileProvider } from "./AbstractFileProvider";
 import { fileProviderContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
 
-    @provide({context: fileProviderContext})
+    @provide({ context: fileProviderContext })
     protected providedSelf: FileProviderElement = this;
 
     @property({
@@ -26,83 +25,26 @@ export class FileProviderElement extends AbstractFileProvider {
     })
     public visible!: string;
 
-    
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis1?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis1?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis2?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis2?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis3?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis3?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis4?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis4?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis5?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis5?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis6?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis6?: string;
 
-    @property( {
-        type: String, 
-        reflect: true, 
-        attribute: true,
-        converter: {
-            fromAttribute: fromAttribute.bind( this ),
-            toAttribute: toAttribute.bind(this)
-        }
-    } )
-    public analysis7?: ParsedAnalysis;
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis7?: string;
 
     /** Load the file and call all necessary callbacks */
     protected async load() {
@@ -110,12 +52,12 @@ export class FileProviderElement extends AbstractFileProvider {
         this.loading = true;
 
         // Trigger all callbacks
-        this.onLoadingStart.call();      
+        this.onLoadingStart.call();
 
         // Load the file and create the instance
         const value = await this.registry.service.loadFile(this.thermal, this.visible)
-            .then( async (result) => {
-                
+            .then(async (result) => {
+
                 // Success
                 if (result instanceof ThermalFileReader) {
 
@@ -126,12 +68,9 @@ export class FileProviderElement extends AbstractFileProvider {
                         this.file = instance;
 
                         // Call all callbacks
-                        this.onSuccess.call( instance );
+                        this.onSuccess.call(instance);
 
-                        // Clear the callbacks to free the memory
-                        this.clearCallbacks();
-
-                        this.handleLoaded( instance );
+                        this.handleLoaded(instance);
 
                         instance.group.registry.postLoadedProcessing();
 
@@ -141,33 +80,45 @@ export class FileProviderElement extends AbstractFileProvider {
 
                     });
 
-                } 
+                }
                 // Failure
                 else {
                     // Assign failure
                     this.failure = result as ThermalFileFailure;
                     // Call all callbacks
 
-                    this.onFailure.call( this.failure );
-                    // Clear the callbacks to free the memory
-                    this.clearCallbacks();
+                    this.onFailure.call(this.failure);
 
                     this.loading = false;
 
                     return result;
                 }
-            }).then( result => {
-                if ( result instanceof Instance ) {
-    
-                    this.recieveInstance( result );
-    
-    
+            }).then(result => {
+                if (result instanceof Instance) {
+
+                    this.recieveInstance(result);
+
+
                 } else {
                     this.failure = result as ThermalFileFailure;
                 }
-            } );;
+            });;
 
         return value;
+
+    }
+
+    protected createInitialAnalysis(
+        instance: Instance,
+        index: number,
+        value?: string
+    ) {
+
+        if ( value !== undefined && value.trim().length > 0 ) {
+            const analysis = instance.slots.createFromSerialized( value, index );
+            console.log( analysis );
+            analysis?.setSelected( false, true );
+        }
 
     }
 
@@ -175,70 +126,37 @@ export class FileProviderElement extends AbstractFileProvider {
         instance: Instance
     ) {
 
-        this.handleAnalysis( instance, this.analysis1 );
-        this.handleAnalysis( instance, this.analysis2 );
-        this.handleAnalysis( instance, this.analysis3 );
-        this.handleAnalysis( instance, this.analysis4 );
-        this.handleAnalysis( instance, this.analysis5 );
-        this.handleAnalysis( instance, this.analysis6 );
-        this.handleAnalysis( instance, this.analysis7 );
+        
+
+        // listen to changes
+        instance.slots.onSlot1Serialize.set( this.UUID, value => this.analysis1 = value );
+        instance.slots.onSlot2Serialize.set( this.UUID, value => this.analysis2 = value );
+        instance.slots.onSlot3Serialize.set( this.UUID, value => this.analysis3 = value );
+        instance.slots.onSlot4Serialize.set( this.UUID, value => this.analysis4 = value );
+        instance.slots.onSlot5Serialize.set( this.UUID, value => this.analysis5 = value );
+        instance.slots.onSlot6Serialize.set( this.UUID, value => this.analysis6 = value );
+        instance.slots.onSlot7Serialize.set( this.UUID, value => this.analysis7 = value );
+
+        // Create the initial analysis
+        this.createInitialAnalysis( instance, 1, this.analysis1 );
+        this.createInitialAnalysis( instance, 2, this.analysis2 );
+        this.createInitialAnalysis( instance, 3, this.analysis3 );
+        this.createInitialAnalysis( instance, 4, this.analysis4 );
+        this.createInitialAnalysis( instance, 5, this.analysis5 );
+        this.createInitialAnalysis( instance, 6, this.analysis6 );
+        this.createInitialAnalysis( instance, 7, this.analysis7 );
 
     }
 
-    protected handleAnalysis(
-        instance: Instance,
-        analysis?: ParsedAnalysis
-    ): void {
 
-        if ( analysis === undefined ) {
-            return;
-        }
-
-        let obj: AbstractAnalysis|undefined = undefined;
-
-        if ( analysis.type === "point" ) {
-            const point = analysis as ParsedPointAnalysis
-            obj = instance.analysis.layers.placePointAt( point.name,point.top, point.left, point.color );
-
-            if ( point.avg ) {
-                obj.graph.setAvgActivation(true);
-            }
-
-        } else  {
-
-            const area = analysis as ParsedAreaAnalysis;
-
-            if ( area.type === "rectangle" ) {
-                obj = instance.analysis.layers.placeRectAt(
-                    area.name,
-                    area.top,
-                    area.left,
-                    area.width,
-                    area.height,
-                    area.color
-                );
-            } else if ( area.type === "ellipsis" ) {
-                obj = instance.analysis.layers.placeEllipsisAt(
-                    area.name,
-                    area.top,
-                    area.left,
-                    area.width,
-                    area.height,
-                    area.color
-                );
-            }
-
-            obj?.graph.setAvgActivation( area.avg );
-            obj?.graph.setMinActivation( area.min );
-            obj?.graph.setMaxActivation( area.max );
-
-
-        }
-
-        obj?.setSelected();
-
-        this.log( obj );
-
+    private assignAppropriateField( field: number, value?: string ) {
+        if ( field === 1 ) this.analysis1 = value;
+        else if ( field === 2 ) this.analysis2 = value;
+        else if ( field === 3 ) this.analysis3 = value;
+        else if ( field === 4 ) this.analysis4 = value;
+        else if ( field === 5 ) this.analysis5 = value;
+        else if ( field === 6 ) this.analysis6 = value;
+        else if ( field === 7 ) this.analysis7 = value;
     }
 
 
@@ -252,21 +170,84 @@ export class FileProviderElement extends AbstractFileProvider {
     }
 
 
-    protected updated(_changedProperties: PropertyValues): void {
+    public updated(_changedProperties: PropertyValues<FileProviderElement>): void {
         super.updated(_changedProperties);
 
-        if ( _changedProperties.has( "thermal" ) ) {
-            const oldUrl = _changedProperties.get( "thermal" );
+        if (_changedProperties.has("thermal")) {
+            const oldUrl = _changedProperties.get("thermal");
 
-            if ( oldUrl ) {
-                this.group.files.removeFile( oldUrl );
+            if (oldUrl) {
+                this.group.files.removeFile(oldUrl);
                 this.file = undefined;
+
+                this.load();
+
             }
 
-            this.load();
-            
         }
+
+
+        this.handleAnalysisUpdate( 1, _changedProperties );
+        this.handleAnalysisUpdate( 2, _changedProperties );
+        this.handleAnalysisUpdate( 3, _changedProperties );
+        this.handleAnalysisUpdate( 4, _changedProperties );
+        this.handleAnalysisUpdate( 5, _changedProperties );
+        this.handleAnalysisUpdate( 6, _changedProperties );
+        this.handleAnalysisUpdate( 7, _changedProperties );
+
     }
+
+    protected handleAnalysisUpdate(
+        index: SlotNumber,
+        _changedProperties: PropertyValues<FileProviderElement>
+    ) {
+
+        const field = `analysis${index}` as keyof FileProviderElement;
+
+
+        if (_changedProperties.has(field)) {
+
+            const oldValue = _changedProperties.get(field) as string|undefined|null;
+            const newValue = this[field] as string|undefined|null;
+
+
+            if ( this.file ) {
+
+                const slot = this.file.slots.getSlot( index );
+
+                // If slot had not exist before and sould create, do so
+                if ( 
+                    slot === undefined 
+                    && newValue 
+                    && newValue.trim().length > 0
+                    && (
+                        ! oldValue
+                        || oldValue?.trim().length > 0
+                    )
+                ) {
+                    const analysis = this.file.slots.createFromSerialized( newValue, index );
+                    analysis?.setSelected( false, true );
+                }
+
+                else if (
+                    slot !== undefined
+                    && oldValue
+                    && ! newValue
+                    && newValue?.trim().length === 0
+                ) {
+                    this.file.slots.removeSlotAndAnalysis( index );
+                } else if ( slot && newValue ) {
+                    slot?.recieveSerialized( newValue );
+                }
+
+            }
+
+        }
+
+    }
+
+
+
 
 
 

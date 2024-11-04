@@ -1,14 +1,18 @@
-import { CallbacksManager } from "../../../callbacksManager";
-import { AnalysisDrive } from "../../AnalysisDrive";
-import { AbstractAnalysis } from "../AbstractAnalysis";
-import { EllipsisAnalysis } from "../area/ellipsis/EllipsisAnalysis";
-import { PointAnalysis } from "../point/PointAnalysis";
-import { RectangleAnalysis } from "../area/rectangle/RectangleAnalysis";
+import { CallbacksManager } from "../../callbacksManager";
+import { AnalysisDrive } from "../AnalysisDrive";
+import { AbstractAnalysis } from "../internals/AbstractAnalysis";
+import { EllipsisAnalysis } from "../internals/area/ellipsis/EllipsisAnalysis";
+import { PointAnalysis } from "../internals/point/PointAnalysis";
+import { RectangleAnalysis } from "../internals/area/rectangle/RectangleAnalysis";
+import { SlotInitialisationValue } from "../../analysisSlots/AnalysisSlotsDrive";
 
 
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
 type AnalysisRemovedCallback = (key: string) => void;
-type SelectionChangeEvent = ( selectedAnalysis: AbstractAnalysis[] ) => void;
+type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+
+export type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | "analysis5" | "analysis6" | "analysis7";
+export type SlotNumber = 1|2|3|4|5|6|7;
 
 export const availableAnalysisColors = [
     "Orange",
@@ -28,6 +32,8 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     /** Array of all layers ordered from oldest to the newest */
     protected layers: Array<AbstractAnalysis> = [];
+
+    protected get slots() {return this.drive.parent.slots;}
 
 
     /** Fired whenever an analysis is added */
@@ -51,39 +57,80 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     // Adding analysis
-    
+
     protected addAnalysis(
-        analysis: AbstractAnalysis
+        analysis: AbstractAnalysis,
+        slotNumber?: SlotInitialisationValue
     ) {
 
-        if ( this.has( analysis.key ) ) {
-            this.removeAnalysis( analysis.key );
+        // Remove the existing analysis with the same key if exists
+        if (this.has(analysis.key)) {
+            this.removeAnalysis(analysis.key);
         }
 
         // Add the color to the analysis
-        analysis.setColor( analysis.initialColor );
+        analysis.setColor(analysis.initialColor);
 
+        // Store the analysis
         this.set(analysis.key, analysis);
 
         // Add analysis to layer
-        this.layers = [ ...this.layers, analysis ];
+        this.layers = [...this.layers, analysis];
 
+        // Assign to slots
+
+        // Get slot number
+        const slotNum = slotNumber === true
+            ? this.slots.getNextFreeSlotNumber()
+            : slotNumber === false
+                ? undefined
+                : slotNumber;
+
+        if ( slotNum !== undefined ) {
+
+            this.slots.assignSlot( slotNum, analysis );
+
+        }
+
+        // Call callbacks
         this.onAdd.call(analysis, this.all);
-        this.drive.dangerouslySetValueFromStorage( this.all );
+        this.drive.dangerouslySetValueFromStorage(this.all);
+
 
         return this;
 
     }
 
-    
+
     removeAnalysis(key: string) {
         if (this.has(key)) {
-            this.get( key )?.remove();
-            this.delete(key);
-            // remove the analysis from layer
-            this.layers = this.layers.filter( analysis => analysis.key !== key );
-            this.onRemove.call(key);
-            this.drive.dangerouslySetValueFromStorage( this.all );
+
+            const analysis = this.get( key );
+
+            if ( analysis ) {
+
+                // Remove from slots
+                this.slots.unassignAnalysisFromItsSlot( analysis );
+                
+
+                // Call the analysis's remove fn
+                analysis.remove();
+
+                // Delete here
+                this.delete( key );
+
+                // Update layers here
+                this.layers = this.layers.filter(analysis => analysis.key !== key);
+
+                // Update the parent value
+                this.drive.dangerouslySetValueFromStorage(this.all);
+
+                // Call the callback
+                this.onRemove.call(key);
+
+            }
+
+            
         }
     }
 
@@ -91,17 +138,17 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     /** Add a rectangular analysis in the given position and start editing it. */
-    public createRectFrom( top: number, left: number ) {
+    public createRectFrom(top: number, left: number) {
 
         const newAnalysis = RectangleAnalysis.startAddingAtPoint(
-            this.getNextName( "Rectangle" ),
+            this.getNextName("Rectangle"),
             this.getNextColor(),
             this.drive.parent,
             top,
             left
         );
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis, false);
 
         return newAnalysis;
 
@@ -115,8 +162,10 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         left: number,
         right: number,
         bottom: number,
-        color?: string
+        color?: string,
+        slotNumber?: SlotInitialisationValue
     ) {
+
         const newAnalysis = RectangleAnalysis.build(
             name,
             color ?? this.getNextColor(),
@@ -129,27 +178,27 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         newAnalysis.ready = true;
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis, slotNumber);
 
         return newAnalysis;
     }
 
 
     /** Add an ellyptical analysis in the given position and start editing it */
-    public createEllipsisFrom( 
-        top: number, 
-        left: number 
+    public createEllipsisFrom(
+        top: number,
+        left: number
     ) {
 
         const newAnalysis = EllipsisAnalysis.startAddingAtPoint(
-            this.getNextName( "Ellipsis" ),
+            this.getNextName("Ellipsis"),
             this.getNextColor(),
             this.drive.parent,
-            top, 
+            top,
             left
         );
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis, false);
 
         return newAnalysis;
 
@@ -163,7 +212,8 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         left: number,
         right: number,
         bottom: number,
-        color?: string
+        color?: string,
+        slotNumber?: SlotInitialisationValue
     ) {
         const newAnalysis = EllipsisAnalysis.build(
             name,
@@ -177,7 +227,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         newAnalysis.ready = true;
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis, slotNumber);
 
         return newAnalysis;
     }
@@ -189,14 +239,14 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     ) {
 
         const newAnalysis = PointAnalysis.addAtPoint(
-            this.getNextName( "Point" ),
+            this.getNextName("Point"),
             this.getNextColor(),
             this.drive.parent,
             top,
             left
         );
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis, true);
 
         return newAnalysis;
 
@@ -206,7 +256,8 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         name: string,
         top: number,
         left: number,
-        color?: string
+        color?: string,
+        slotNumber?: SlotInitialisationValue
     ) {
         const newAnalysis = PointAnalysis.addAtPoint(
             name,
@@ -218,32 +269,33 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         newAnalysis.ready = true;
 
-        this.addAnalysis( newAnalysis );
+        this.addAnalysis(newAnalysis,slotNumber);
 
         return newAnalysis;
     }
 
 
+
     selectAll() {
         // Select unselected analysis without any emission
-        this.all.filter( analysis =>  {
-            if ( analysis.selected === false) {
-                analysis.setSelected( false, false );
+        this.all.filter(analysis => {
+            if (analysis.selected === false) {
+                analysis.setSelected(false, false);
             }
-        } );
+        });
         // Call the selection change event
-        this.onSelectionChange.call( this.selectedOnly );
+        this.onSelectionChange.call(this.selectedOnly);
     }
 
     deselectAll() {
 
         // Deselect all selected
-        this.selectedOnly.forEach( analysis => {
-            analysis.setDeselected( false );
-        } );
+        this.selectedOnly.forEach(analysis => {
+            analysis.setDeselected(false);
+        });
 
         // Call the selection change event
-        this.onSelectionChange.call( this.selectedOnly );
+        this.onSelectionChange.call(this.selectedOnly);
 
     }
 
@@ -267,11 +319,11 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     /** Get color for the next analysis */
     protected getNextColor() {
 
-        const usedColors = this.all.map( analysis => analysis.initialColor );
+        const usedColors = this.all.map(analysis => analysis.initialColor);
 
-        const availableColors = availableAnalysisColors.filter( color => !usedColors.includes( color ) );
+        const availableColors = availableAnalysisColors.filter(color => !usedColors.includes(color));
 
-        if ( availableColors.length > 0 ) {
+        if (availableColors.length > 0) {
             return availableColors[0];
         } else {
             return availableAnalysisColors[0];
@@ -281,7 +333,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     /** Get name for the next analysis */
-    protected getNextName( type: string ) {
+    protected getNextName(type: string) {
         return `${type} ${this.all.length}`;
     }
 

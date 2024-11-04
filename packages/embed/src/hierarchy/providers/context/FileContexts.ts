@@ -1,4 +1,4 @@
-import { AbstractAnalysis, Instance, playbackSpeed, ThermalFileFailure } from "@labir/core";
+import { AbstractAnalysis, Instance, playbackSpeed, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
 import { createContext } from "@lit/context";
 import { FileMarker } from "../../../controls/file/markers/ImageMarker";
 import { AbstractFileProvider } from "../AbstractFileProvider";
@@ -74,7 +74,7 @@ export const playingContext = createContext<PlayingContext>( "playing" );
 
 
 
-type PlaybackSpeedContext = keyof typeof playbackSpeed;
+type PlaybackSpeedContext = PlaybackSpeeds | undefined;
 export const playbackSpeedContext = createContext<PlaybackSpeedContext>( "playbackSpeed" );
 
 
