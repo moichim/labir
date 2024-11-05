@@ -51,6 +51,10 @@
     "visible": {
       "type": "string"
     },
+    "opacity": {
+      "type": "number",
+      "default": 1
+    },
     "palette": {
       "type": "string",
       "default": "iron"

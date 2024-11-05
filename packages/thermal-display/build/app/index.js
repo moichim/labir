@@ -58,6 +58,7 @@ function Edit({
     webcomponent,
     palette,
     thermal,
+    opacity,
     visible,
     label,
     description,
@@ -308,6 +309,16 @@ function Edit({
                     onChange: value => setAttributes({
                       speed: value
                     })
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.RangeControl, {
+                    __nextHasNoMarginBottom: true,
+                    label: "Opacity",
+                    value: opacity,
+                    onChange: value => setAttributes({
+                      opacity: value
+                    }),
+                    min: 0,
+                    max: 1,
+                    step: 0.01
                   })]
                 })
               })
@@ -327,6 +338,7 @@ function Edit({
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsxs)("div", {
               children: [webcomponent === "thermal-file-app" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("thermal-file-app", {
                 url: thermal,
+                visible: visible,
                 palette: palette,
                 author: author,
                 license: license,
@@ -344,9 +356,11 @@ function Edit({
                 style: {
                   pointerEvents: "none"
                 },
-                speed: speed
+                speed: speed,
+                opacity: opacity
               }), webcomponent === "thermal-desktop-app" && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("thermal-desktop-app", {
                 url: thermal,
+                visible: visible,
                 palette: palette,
                 author: author,
                 license: license,
@@ -364,7 +378,8 @@ function Edit({
                 style: {
                   pointerEvents: "none"
                 },
-                speed: speed
+                speed: speed,
+                opacity: opacity
               })]
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("div", {
               className: "thermal__content-editor__wrapper",
@@ -866,7 +881,7 @@ module.exports = window["wp"]["i18n"];
   \****************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/file","version":"0.1.0","title":"Thermal display","category":"thermal","icon":"file:./assets/icon.svg","description":"An interactive thermal image application.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"webcomponent":{"type":"string","default":"thermal-file-app"},"thermal":{"type":"string"},"visible":{"type":"string"},"palette":{"type":"string","default":"iron"},"from":{"type":"number"},"to":{"type":"number"},"speed":{"type":"number","default":1},"label":{"type":"string"},"author":{"type":"string"},"license":{"type":"string","default":"CC BY-SA 4.0"},"description":{"type":"string"},"analysis1":{"type":"string"},"analysis2":{"type":"string"},"analysis3":{"type":"string"},"analysis4":{"type":"string"},"analysis5":{"type":"string"},"analysis6":{"type":"string"},"analysis7":{"type":"string"}}}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/file","version":"0.1.0","title":"Thermal display","category":"thermal","icon":"file:./assets/icon.svg","description":"An interactive thermal image application.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"webcomponent":{"type":"string","default":"thermal-file-app"},"thermal":{"type":"string"},"visible":{"type":"string"},"opacity":{"type":"number","default":1},"palette":{"type":"string","default":"iron"},"from":{"type":"number"},"to":{"type":"number"},"speed":{"type":"number","default":1},"label":{"type":"string"},"author":{"type":"string"},"license":{"type":"string","default":"CC BY-SA 4.0"},"description":{"type":"string"},"analysis1":{"type":"string"},"analysis2":{"type":"string"},"analysis3":{"type":"string"},"analysis4":{"type":"string"},"analysis5":{"type":"string"},"analysis6":{"type":"string"},"analysis7":{"type":"string"}}}');
 
 /***/ })
 

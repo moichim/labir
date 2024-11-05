@@ -18,6 +18,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 
 		<<?= $attributes["webcomponent"]?>
 			url="<?= $attributes["thermal"]?>" 
+			<?php if (analysis_is_set( $attributes["visible"] ) ) { echo 'visible="'.$attributes["visible"].'"'; } ?>
 			palette=<?= $attributes["palette"]; ?> 
 			author="<?= $attributes["author"] ?>" 
 			license="<?= $attributes["license"] ?>"
@@ -28,6 +29,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 				to="<?= $attributes["to"]; ?>"
 			<?php endif; ?>
 			<?php if (analysis_is_set( $attributes["speed"] ) ) { echo 'speed="'.$attributes["speed"].'"'; } ?>
+			<?php if (analysis_is_set( $attributes["opacity"] ) ) { echo 'opacity="'.$attributes["opacity"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis1"] ) ) { echo 'analysis1="'.$attributes["analysis1"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis2"] ) ) { echo 'analysis2="'.$attributes["analysis2"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis3"] ) ) { echo 'analysis3="'.$attributes["analysis3"].'"'; } ?>

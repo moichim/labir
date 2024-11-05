@@ -12,7 +12,8 @@ import {
 	Placeholder,
 	SelectControl,
 	TextControl,
-	Tooltip
+	Tooltip,
+	RangeControl
 } from '@wordpress/components';
 
 import './editor.scss';
@@ -40,6 +41,7 @@ export default function Edit({ attributes, setAttributes }) {
 		webcomponent,
 		palette,
 		thermal,
+		opacity,
 		visible,
 		label,
 		description,
@@ -364,6 +366,16 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => setAttributes({ speed: value })}
 										/>}
 
+										<RangeControl
+											__nextHasNoMarginBottom
+											label="Opacity"
+											value={opacity}
+											onChange={(value) => setAttributes({opacity: value})}
+											min={0}
+											max={1}
+											step={0.01}
+										/>
+
 									</file-provider>
 								</group-provider>
 							</registry-provider>
@@ -395,6 +407,7 @@ export default function Edit({ attributes, setAttributes }) {
 
 									{webcomponent === "thermal-file-app" && <thermal-file-app
 										url={thermal}
+										visible={visible}
 										palette={palette}
 										author={author}
 										license={license}
@@ -413,10 +426,12 @@ export default function Edit({ attributes, setAttributes }) {
 											pointerEvents: "none"
 										}}
 										speed={speed}
+										opacity={opacity}
 									></thermal-file-app>}
 
 									{webcomponent === "thermal-desktop-app" && <thermal-desktop-app
 										url={thermal}
+										visible={visible}
 										palette={palette}
 										author={author}
 										license={license}
@@ -435,6 +450,7 @@ export default function Edit({ attributes, setAttributes }) {
 											pointerEvents: "none"
 										}}
 										speed={speed}
+										opacity={opacity}
 									></thermal-desktop-app>}
 								</div>
 
