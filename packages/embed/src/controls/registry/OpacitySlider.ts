@@ -42,8 +42,23 @@ export class OpacityRangeElement extends RegistryConsumer {
 
     static styles = css`
 
+        :host {
+        }
+
         .thermal-opacity-handler {
             accent-color: var( --thermal-primary );
+            display: block;
+            width: 100%;
+            cursor: pointer;
+        }
+        
+        .thermal-opacity-container {
+            display: flex;
+            width: 100%;
+            align-items: space-between;
+            justify-content: space-between;
+            color: var( --thermal-slate-dark );
+            font-size: calc( var( --thermal-fs-sm ) * .7 );
         }
     
     `;
@@ -60,6 +75,11 @@ export class OpacityRangeElement extends RegistryConsumer {
                 value="${this.value}"
                 @input="${this.handleUserChangeEvent}"
             />
+            <div class="thermal-opacity-container">
+                <div>VIS</div>
+                <div>${this.value}</div>
+                <div>IR</div>
+            </div>
             <slot></slot>
         `;
     }

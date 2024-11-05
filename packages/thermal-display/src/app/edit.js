@@ -40,6 +40,7 @@ export default function Edit({ attributes, setAttributes }) {
 		webcomponent,
 		palette,
 		thermal,
+		visible,
 		label,
 		description,
 		author,
@@ -62,19 +63,27 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const { open, setOpen } = useAnalysisEditor();
 
-	const startUploadingFile = () => {
+	const startUploadingThermalFile = () => {
 		const backup = thermal;
 		setThermalBackup(backup);
 		setAttributes({ thermal: thermal });
 	}
 
-	const cancalUploadingFile = () => {
+	const calcelUploadingThermalFile = () => {
 		setAttributes({ thermal: thermalBackup });
 	}
 
-	const successfullyUploadedFile = (file) => {
+	const successfullyUploadedThermalFile = (file) => {
 		setAttributes({ thermal: file });
 		setThermalBackup(undefined);
+	}
+
+	const startUploadingVisibleFile = () => {
+
+	}
+
+	const successfullyUploadedVisibleFile = (file) => {
+		setAttributes({ visible: file });
 	}
 
 	const filePreviewCallback = useCallback(node => {
@@ -172,14 +181,14 @@ export default function Edit({ attributes, setAttributes }) {
 							<MediaUpload
 								allowedTypes={['application/octet-stream']}
 								onSelect={result => {
-									successfullyUploadedFile(result.url);
+									successfullyUploadedThermalFile(result.url);
 								}}
-								onClose={cancalUploadingFile}
+								onClose={calcelUploadingThermalFile}
 								render={({ open }) => (
 									<>
 										<Button
 											onClick={() => {
-												startUploadingFile();
+												startUploadingThermalFile();
 												open();
 											}}
 											variant="primary"
@@ -198,6 +207,28 @@ export default function Edit({ attributes, setAttributes }) {
 						</div>
 
 
+					</PanelBody>
+
+					<PanelBody title="Visible file" initialOpen={false}>
+						{visible && <img src={visible} />}
+
+						<MediaUpload
+							allowedTypes="image"
+							onSelect={result => {
+								successfullyUploadedVisibleFile(result.url);
+							}}
+							render={({ open }) => (
+								<Button
+									onClick={() => {
+										startUploadingVisibleFile();
+										open();
+									}}
+									variant="primary"
+								>
+									{visible ? "Change file" : "Upload or select a visible image"}
+								</Button>
+							)}
+						/>
 					</PanelBody>
 
 					<PanelBody title="Information" initialOpen={false}>
@@ -238,7 +269,7 @@ export default function Edit({ attributes, setAttributes }) {
 
 					</PanelBody>
 
-					<PanelBody title="Display settings" initialOpen={true}>
+					<PanelBody title="Display settings" initialOpen={false}>
 
 						<manager-provider
 							slug={ID + "___display"}
@@ -291,7 +322,7 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => setAttributes({ palette: value })}
 										/>
 
-										<div style={{paddingBottom: "1rem"}}>
+										<div style={{ paddingBottom: "1rem" }}>
 
 											<registry-range-slider></registry-range-slider>
 											<registry-ticks-bar></registry-ticks-bar>
@@ -428,12 +459,12 @@ export default function Edit({ attributes, setAttributes }) {
 						<MediaUpload
 							allowedTypes={['application/octet-stream']}
 							onSelect={result => {
-								successfullyUploadedFile(result.url);
+								successfullyUploadedThermalFile(result.url);
 							}}
 							render={({ open }) => (
 								<Button
 									onClick={() => {
-										startUploadingFile();
+										startUploadingThermalFile();
 										open();
 									}}
 									variant="primary"

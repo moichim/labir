@@ -22,6 +22,7 @@ export class DesktopAppIsolated extends BaseApp {
         slug="registry_${this.UUID}" 
         from=${ifDefined( this.from )}
         to=${ifDefined( this.to )}
+        opacity=${ifDefined(this.opacity)}
       >
 
         <group-provider slug="group_${this.UUID}">
@@ -29,6 +30,7 @@ export class DesktopAppIsolated extends BaseApp {
           <file-provider 
             ${ref(this.fileProviderRef)}
             thermal="${this.url}"
+            visible=${ifDefined(this.visible)}
             analysis1=${ifDefined(this.analysis1)}
             analysis2=${ifDefined(this.analysis2)}
             analysis3=${ifDefined(this.analysis3)}

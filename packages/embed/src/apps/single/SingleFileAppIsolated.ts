@@ -21,6 +21,7 @@ export class SingleFileAppIsolated extends BaseApp {
         slug="registry_${this.UUID}"
         from=${ifDefined( this.from )}
         to=${ifDefined( this.to )}
+        opacity=${ifDefined(this.opacity)}
       >
 
         <group-provider slug="group_${this.UUID}">

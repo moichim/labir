@@ -1207,9 +1207,9 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   set opacity(value) {
     this._opacity = Math.max(Math.min(value, 1), 0);
     if (this._opacity !== 1)
-      this.getLayerRoot().style.opacity = this._opacity.toString();
+      this.canvas.style.opacity = this._opacity.toString();
     else {
-      this.getLayerRoot().style.removeProperty("opacity");
+      this.canvas.style.removeProperty("opacity");
     }
   }
   constructor(instance) {
@@ -1221,6 +1221,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.context = this.canvas.getContext("2d");
     this.context.imageSmoothingEnabled = false;
     this.container.appendChild(this.canvas);
+    this.opacity = this.instance.group.registry.opacity.value;
   }
   getLayerRoot() {
     return this.container;

@@ -40,6 +40,9 @@
 		"thermal": {
 			"type": "string"
 		},
+		"visible": {
+			"type": "string"
+		},
 		"palette": {
 			"type": "string",
 			"default": "iron"

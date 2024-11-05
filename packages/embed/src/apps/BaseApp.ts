@@ -11,8 +11,14 @@ export abstract class BaseApp extends BaseElement {
     @property({type: String, reflect: true})
     url?: string;
 
+    @property({type: String, reflect: true})
+    visible?: string;
+
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
+
+    @property({type: Number, reflect: true, attribute: true})
+    opacity: number = 1;
 
     @property({ type: Number, reflect: true })
     from?: number;
@@ -137,6 +143,13 @@ export abstract class BaseApp extends BaseElement {
 
                     }
                 });
+
+                // Listen to opacity changes
+                instance.group.registry.opacity.addListener( this.UUID + "mirror_changes", value => {
+                    if ( value !== this.opacity ) {
+                        this.opacity = value;
+                    }
+                } );
 
 
                 // Listen to internal palette changes

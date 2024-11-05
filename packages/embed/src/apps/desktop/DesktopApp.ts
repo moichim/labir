@@ -213,6 +213,8 @@ export class DesktopFileApp extends FileConsumer {
           
   
           <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
+
+          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>
@@ -288,7 +290,6 @@ export class DesktopFileApp extends FileConsumer {
                 </div>
 
                 <div class="content-container__part content-container__left">
-
 
                   <registry-histogram slot="pre"></registry-histogram>
                   <registry-range-slider slot="pre"></registry-range-slider>

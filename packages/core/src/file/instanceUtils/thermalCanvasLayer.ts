@@ -34,9 +34,9 @@ export class ThermalCanvasLayer extends AbstractLayer {
     public set opacity(value: number) {
         this._opacity = Math.max(Math.min(value, 1), 0);
         if (this._opacity !== 1)
-            this.getLayerRoot().style.opacity = this._opacity.toString();
+            this.canvas.style.opacity = this._opacity.toString();
         else {
-            this.getLayerRoot().style.removeProperty("opacity");
+            this.canvas.style.removeProperty("opacity");
         }
     }
 
@@ -59,6 +59,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.context.imageSmoothingEnabled = false;
 
         this.container.appendChild(this.canvas);
+
+        this.opacity = this.instance.group.registry.opacity.value;
 
 
 

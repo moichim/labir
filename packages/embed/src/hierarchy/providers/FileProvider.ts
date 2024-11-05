@@ -23,7 +23,7 @@ export class FileProviderElement extends AbstractFileProvider {
         attribute: true,
         reflect: true,
     })
-    public visible!: string;
+    public visible?: string;
 
     @property({ type: String, reflect: true, attribute: true })
     public analysis1?: string;

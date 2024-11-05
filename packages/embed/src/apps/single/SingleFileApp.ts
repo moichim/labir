@@ -64,10 +64,10 @@ export class SingleFileApp extends FileConsumer {
         this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName
         : "Loading..."
       }</thermal-button>
-
-          
   
           <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
+
+          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>
