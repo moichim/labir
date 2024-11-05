@@ -314,7 +314,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
         // Call particular serialized manager
         const serialization = this.getOnSerializeManager(slot);
-        if (serialization) serialization.call(value?.serialized);
+        if (serialization) serialization.call(value ? value.serialized : undefined);
 
         // Call general callback
         if (value) {

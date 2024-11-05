@@ -51,7 +51,8 @@
 			"type": "number"
 		},
 		"speed": {
-			"type": "number"
+			"type": "number",
+			"default": 1
 		},
 		"label": {
 			"type": "string"

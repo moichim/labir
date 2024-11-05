@@ -4411,7 +4411,7 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     const assignement = this.getOnAssignementManager(slot);
     if (assignement) assignement.call(value);
     const serialization = this.getOnSerializeManager(slot);
-    if (serialization) serialization.call(value?.serialized);
+    if (serialization) serialization.call(value ? value.serialized : void 0);
     if (value) {
       this.onSlotInit.call(slot, value);
     } else {
@@ -5386,7 +5386,6 @@ var pointAnalysisData = async (entireFileBuffer, x, y) => {
     if (dataType === 1) {
       temperature = frameView.getFloat32(pointIndex, true);
     } else if (dataType === 0) {
-      console.log("jsem uvnit\u0159 varia");
       const rawtemperature = frameView.getInt16(pointIndex, true);
       const UINT16_MAX = 65535;
       const mappedValue = rawtemperature / UINT16_MAX;

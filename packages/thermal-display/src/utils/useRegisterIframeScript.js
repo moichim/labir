@@ -1,5 +1,5 @@
 import { useEffect } from '@wordpress/element';
-import { createLibScriptElement, documentHasLibScriptElement } from '../utils/libScriptElement';
+import { createLibScriptElement, documentHasLibScriptElement } from './libScriptElement';
 
 
 /**

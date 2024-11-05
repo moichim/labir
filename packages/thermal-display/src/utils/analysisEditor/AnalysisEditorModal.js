@@ -1,7 +1,7 @@
 import { React, useCallback, useMemo } from '@wordpress/element';
 
 import {
-    Modal
+    Modal, Button
 } from '@wordpress/components';
 
 export const AnalysisEditorModal = ({
@@ -51,7 +51,7 @@ export const AnalysisEditorModal = ({
 
             }
 
-            node.onInstanceCreated.set(getId("instance_created__2"), closure );
+            node.onInstanceCreated.set(getId("instance_created__2"), closure);
 
         }
 
@@ -104,10 +104,22 @@ export const AnalysisEditorModal = ({
                                 </div>
                             </div>
 
-                            <div className="modal-editor__details" >
-                                <file-analysis-table></file-analysis-table>
-                                <file-analysis-graph></file-analysis-graph>
+                            <div className="modal-editor__details">
+                                <div style={{ minHeight: "50%" }}>
+                                    <file-analysis-table></file-analysis-table>
+                                </div>
+                                <div style={{ height: 300 }}>
+                                    <file-analysis-graph style={{ height: "300px" }}></file-analysis-graph>
+                                </div>
                             </div>
+
+                        </div>
+
+                        <div style={{ width: "100%" }}>
+
+                            <Button size="compact" variant="primary" style={{float: "right"}} onClick={() => setOpen(false)}>
+                                Close
+                            </Button>
 
                         </div>
 

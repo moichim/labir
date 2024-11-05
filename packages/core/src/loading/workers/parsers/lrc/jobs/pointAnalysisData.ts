@@ -100,8 +100,6 @@ export const pointAnalysisData: IParserObject["pointAnalysisData"] = async (enti
             temperature = frameView.getFloat32(pointIndex, true);
         } else if ( dataType === 0 ) {
 
-            console.log( "jsem uvnitř varia" );
-
             const rawtemperature = frameView.getInt16(pointIndex, true);
             const UINT16_MAX = 65535;
             const mappedValue = rawtemperature / UINT16_MAX;

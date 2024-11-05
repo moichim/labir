@@ -227,12 +227,13 @@ export class FileProviderElement extends AbstractFileProvider {
                     const analysis = this.file.slots.createFromSerialized( newValue, index );
                     analysis?.setSelected( false, true );
                 }
-
+                // If the slot ceased to exist
                 else if (
                     slot !== undefined
                     && oldValue
-                    && ! newValue
-                    && newValue?.trim().length === 0
+                    && ( ! newValue
+                        || newValue?.trim().length === 0
+                    )
                 ) {
                     this.file.slots.removeSlotAndAnalysis( index );
                 } else if ( slot && newValue ) {

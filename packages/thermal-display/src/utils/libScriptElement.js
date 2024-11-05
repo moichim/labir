@@ -16,7 +16,7 @@ export const createLibScriptElement = ( document ) => {
     element.type = "module";
     element.id = scriptId;
     // element.innerHTML = `import '${homeUrl}/wp-content/plugins/thermal-display/assets/embed.es.js'`;
-    element.innerHTML = `import 'https://cdn.jsdelivr.net/npm/@labir/embed@1.2.47/+esm'`;
+    element.innerHTML = `import 'https://cdn.jsdelivr.net/npm/@labir/embed@1.2.49/+esm'`;
 
     return element;
 

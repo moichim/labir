@@ -1,20 +1,10 @@
-/**
- * Retrieves the translation of text.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-i18n/
- */
+
 import { __ } from '@wordpress/i18n';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 
 import { useAnalysisEditor } from '../utils/analysisEditor/useAnalysisEditor';
 
-/**
- * React hook that is used to mark the block wrapper element.
- * It provides all the necessary props like the class name.
- *
- * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
- */
 import { InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps } from '@wordpress/block-editor';
 import {
 	Button,
@@ -25,18 +15,11 @@ import {
 	Tooltip
 } from '@wordpress/components';
 
-/**
- * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
- * Those files can contain any CSS code that gets applied to the editor.
- *
- * @see https://www.npmjs.com/package/@wordpress/scripts#using-css
- */
 import './editor.scss';
-import { useRegisterIframeScript } from './hooks/useRegisterIframeScript';
+import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 
 import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
-import { useAnalysis } from "./hooks/useAnalysis";
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -69,7 +52,8 @@ export default function Edit({ attributes, setAttributes }) {
 		analysis4,
 		analysis5,
 		analysis6,
-		analysis7
+		analysis7,
+		speed
 	} = attributes;
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
@@ -307,10 +291,47 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => setAttributes({ palette: value })}
 										/>
 
-										<registry-range-slider></registry-range-slider>
-										<registry-ticks-bar></registry-ticks-bar>
+										<div style={{paddingBottom: "1rem"}}>
 
-										<registry-range-display></registry-range-display>
+											<registry-range-slider></registry-range-slider>
+											<registry-ticks-bar></registry-ticks-bar>
+
+											<registry-range-display></registry-range-display>
+
+										</div>
+
+										{(previewFile && previewFile.timeline.isSequence) && <SelectControl
+											label="Playback Speed"
+											value={speed}
+											options={[
+												{
+													label: "0.5x",
+													value: 0.5
+												},
+												{
+													label: "1x",
+													value: 1
+												},
+												{
+													label: "2x",
+													value: 2
+												},
+												{
+													label: "3x",
+													value: 3
+												},
+												{
+													label: "5x",
+													value: 5
+												},
+												{
+													label: "10x",
+													value: 10
+												},
+											]}
+
+											onChange={(value) => setAttributes({ speed: value })}
+										/>}
 
 									</file-provider>
 								</group-provider>
@@ -357,6 +378,10 @@ export default function Edit({ attributes, setAttributes }) {
 										analysis5={analysis5}
 										analysis6={analysis6}
 										analysis7={analysis7}
+										style={{
+											pointerEvents: "none"
+										}}
+										speed={speed}
 									></thermal-file-app>}
 
 									{webcomponent === "thermal-desktop-app" && <thermal-desktop-app
@@ -375,6 +400,10 @@ export default function Edit({ attributes, setAttributes }) {
 										analysis5={analysis5}
 										analysis6={analysis6}
 										analysis7={analysis7}
+										style={{
+											pointerEvents: "none"
+										}}
+										speed={speed}
 									></thermal-desktop-app>}
 								</div>
 
