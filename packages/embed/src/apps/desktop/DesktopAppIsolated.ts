@@ -43,8 +43,6 @@ export class DesktopAppIsolated extends BaseApp {
             <slot name="analysis"></slot>
 
             <desktop-app 
-              
-              speed=${ifDefined(this.speed)} 
               author=${ifDefined(this.author )} 
               recorded=${ifDefined(this.recorded )} 
               license=${ifDefined(this.license )}

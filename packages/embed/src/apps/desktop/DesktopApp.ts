@@ -2,7 +2,7 @@ import { Instance, ThermalTool, TimeFormat } from "@labir/core";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import {ifDefined} from 'lit/directives/if-defined.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 @customElement("desktop-app")
@@ -51,7 +51,7 @@ export class DesktopFileApp extends FileConsumer {
     instance: Instance
   ): void {
 
-    this.recorded = TimeFormat.human( instance.timestamp );
+    this.recorded = TimeFormat.human(instance.timestamp);
 
     this.hasAnalysis = instance.analysis.layers.all.length > 0;
     this.hasGraph = instance.analysisData.value.values.length > 1;
@@ -85,15 +85,15 @@ export class DesktopFileApp extends FileConsumer {
   protected firstUpdated(_changedProperties: PropertyValues): void {
     super.firstUpdated(_changedProperties);
 
-    if ( this.contentContainerRef.value ) {
+    if (this.contentContainerRef.value) {
 
       this.contentContainerWidth = this.contentContainerRef.value.clientWidth;
 
-            const observer = new ResizeObserver(entries => {
-                this.contentContainerWidth = entries[0].contentRect.width;
-            });
+      const observer = new ResizeObserver(entries => {
+        this.contentContainerWidth = entries[0].contentRect.width;
+      });
 
-            observer.observe(this.contentContainerRef.value);
+      observer.observe(this.contentContainerRef.value);
 
     }
   }
@@ -203,12 +203,12 @@ export class DesktopFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app author=${ifDefined(this.author )} recorded=${ifDefined(this.recorded )} license=${ifDefined(this.license )}>
+        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? 
-            this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName 
-            : "Loading..."
-          }</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ?
+        this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName
+        : "Loading..."
+      }</thermal-button>
 
           
   
@@ -280,11 +280,11 @@ export class DesktopFileApp extends FileConsumer {
             </thermal-bar>
           </div>
             
-            <div class="content-container ${this.contentContainerWidth > 700 ? "content-container__expanded":""}" ${ref(this.contentContainerRef)}>
+            <div class="content-container ${this.contentContainerWidth > 700 ? "content-container__expanded" : ""}" ${ref(this.contentContainerRef)}>
 
                 <div class="content-container-part content-container__tools">
                   ${this.contentContainerWidth > 700 ? html`<group-tool-bar></group-tool-bar>`
-                    : html`<group-tool-buttons></group-tool-buttons>`}
+        : html`<group-tool-buttons></group-tool-buttons>`}
                 </div>
 
                 <div class="content-container__part content-container__left">

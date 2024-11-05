@@ -34,12 +34,10 @@ export class SingleFileAppIsolated extends BaseApp {
             analysis5=${ifDefined(this.analysis5)}
             analysis6=${ifDefined(this.analysis6)}
             analysis7=${ifDefined(this.analysis7)}
+            speed=${ifDefined(this.speed)}
           >
 
               <file-app 
-                from=${ifDefined( this.from )} 
-                to=${ifDefined(this.to)} 
-                speed=${ifDefined(this.speed)} 
                 author=${ifDefined(this.author )} 
                 recorded=${ifDefined(this.recorded )} 
                 license=${ifDefined(this.license )}

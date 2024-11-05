@@ -32,7 +32,7 @@ export class SingleFileApp extends FileConsumer {
   public onInstanceCreated(
     instance: Instance
   ): void {
-    this.recorded = TimeFormat.human( instance.timestamp );
+    this.recorded = TimeFormat.human(instance.timestamp);
   }
   public onFailure(
     // error: ThermalFileFailure
@@ -58,12 +58,12 @@ export class SingleFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app author=${ifDefined(this.author )} recorded=${ifDefined(this.recorded )} license=${ifDefined(this.license )}>
+        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)}>
 
-          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? 
-            this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName 
-            : "Loading..."
-          }</thermal-button>
+          <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ?
+        this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName
+        : "Loading..."
+      }</thermal-button>
 
           
   
@@ -132,12 +132,11 @@ export class SingleFileApp extends FileConsumer {
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
             <file-analysis-table slot="post"></file-analysis-table>
-            ${( this.file && this.file.timeline.isSequence ) 
-              ? html`<file-analysis-graph slot="post"></file-analysis-graph>`
-              : nothing
-            }
-
-
+            
+            ${(this.file && this.file.timeline.isSequence)
+        ? html`<file-analysis-graph slot="post"></file-analysis-graph>`
+        : nothing
+      }
 
           <slot name="content" slot="content"></slot>
 

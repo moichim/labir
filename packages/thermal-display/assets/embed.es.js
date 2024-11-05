@@ -1400,7 +1400,7 @@ function Jc(t, e) {
   const r = Ut(t), i = +$i(r, e) - +Qc(r, e);
   return Math.round(i / Xo) + 1;
 }
-function Se(t, e) {
+function xe(t, e) {
   const r = t < 0 ? "-" : "", i = Math.abs(t).toString().padStart(e, "0");
   return r + i;
 }
@@ -1408,16 +1408,16 @@ const yr = {
   // Year
   y(t, e) {
     const r = t.getFullYear(), i = r > 0 ? r : 1 - r;
-    return Se(e === "yy" ? i % 100 : i, e.length);
+    return xe(e === "yy" ? i % 100 : i, e.length);
   },
   // Month
   M(t, e) {
     const r = t.getMonth();
-    return e === "M" ? String(r + 1) : Se(r + 1, 2);
+    return e === "M" ? String(r + 1) : xe(r + 1, 2);
   },
   // Day of the month
   d(t, e) {
-    return Se(t.getDate(), e.length);
+    return xe(t.getDate(), e.length);
   },
   // AM or PM
   a(t, e) {
@@ -1437,26 +1437,26 @@ const yr = {
   },
   // Hour [1-12]
   h(t, e) {
-    return Se(t.getHours() % 12 || 12, e.length);
+    return xe(t.getHours() % 12 || 12, e.length);
   },
   // Hour [0-23]
   H(t, e) {
-    return Se(t.getHours(), e.length);
+    return xe(t.getHours(), e.length);
   },
   // Minute
   m(t, e) {
-    return Se(t.getMinutes(), e.length);
+    return xe(t.getMinutes(), e.length);
   },
   // Second
   s(t, e) {
-    return Se(t.getSeconds(), e.length);
+    return xe(t.getSeconds(), e.length);
   },
   // Fraction of second
   S(t, e) {
     const r = e.length, i = t.getMilliseconds(), s = Math.trunc(
       i * Math.pow(10, r - 3)
     );
-    return Se(s, e.length);
+    return xe(s, e.length);
   }
 }, jr = {
   am: "am",
@@ -1496,14 +1496,14 @@ const yr = {
     const s = Zo(t, i), n = s > 0 ? s : 1 - s;
     if (e === "YY") {
       const a = n % 100;
-      return Se(a, 2);
+      return xe(a, 2);
     }
-    return e === "Yo" ? r.ordinalNumber(n, { unit: "year" }) : Se(n, e.length);
+    return e === "Yo" ? r.ordinalNumber(n, { unit: "year" }) : xe(n, e.length);
   },
   // ISO week-numbering year
   R: function(t, e) {
     const r = qo(t);
-    return Se(r, e.length);
+    return xe(r, e.length);
   },
   // Extended year. This is a single number designating the year of this calendar system.
   // The main difference between `y` and `u` localizers are B.C. years:
@@ -1516,7 +1516,7 @@ const yr = {
   // while `uu` pads single digit years to 2 characters and returns other years unchanged.
   u: function(t, e) {
     const r = t.getFullYear();
-    return Se(r, e.length);
+    return xe(r, e.length);
   },
   // Quarter
   Q: function(t, e, r) {
@@ -1525,7 +1525,7 @@ const yr = {
       case "Q":
         return String(i);
       case "QQ":
-        return Se(i, 2);
+        return xe(i, 2);
       case "Qo":
         return r.ordinalNumber(i, { unit: "quarter" });
       case "QQQ":
@@ -1553,7 +1553,7 @@ const yr = {
       case "q":
         return String(i);
       case "qq":
-        return Se(i, 2);
+        return xe(i, 2);
       case "qo":
         return r.ordinalNumber(i, { unit: "quarter" });
       case "qqq":
@@ -1605,7 +1605,7 @@ const yr = {
       case "L":
         return String(i + 1);
       case "LL":
-        return Se(i + 1, 2);
+        return xe(i + 1, 2);
       case "Lo":
         return r.ordinalNumber(i + 1, { unit: "month" });
       case "LLL":
@@ -1626,12 +1626,12 @@ const yr = {
   // Local week of year
   w: function(t, e, r, i) {
     const s = Jc(t, i);
-    return e === "wo" ? r.ordinalNumber(s, { unit: "week" }) : Se(s, e.length);
+    return e === "wo" ? r.ordinalNumber(s, { unit: "week" }) : xe(s, e.length);
   },
   // ISO week of year
   I: function(t, e, r) {
     const i = Zc(t);
-    return e === "Io" ? r.ordinalNumber(i, { unit: "week" }) : Se(i, e.length);
+    return e === "Io" ? r.ordinalNumber(i, { unit: "week" }) : xe(i, e.length);
   },
   // Day of the month
   d: function(t, e, r) {
@@ -1640,7 +1640,7 @@ const yr = {
   // Day of year
   D: function(t, e, r) {
     const i = Kc(t);
-    return e === "Do" ? r.ordinalNumber(i, { unit: "dayOfYear" }) : Se(i, e.length);
+    return e === "Do" ? r.ordinalNumber(i, { unit: "dayOfYear" }) : xe(i, e.length);
   },
   // Day of week
   E: function(t, e, r) {
@@ -1678,7 +1678,7 @@ const yr = {
       case "e":
         return String(n);
       case "ee":
-        return Se(n, 2);
+        return xe(n, 2);
       case "eo":
         return r.ordinalNumber(n, { unit: "day" });
       case "eee":
@@ -1711,7 +1711,7 @@ const yr = {
       case "c":
         return String(n);
       case "cc":
-        return Se(n, e.length);
+        return xe(n, e.length);
       case "co":
         return r.ordinalNumber(n, { unit: "day" });
       case "ccc":
@@ -1744,7 +1744,7 @@ const yr = {
       case "i":
         return String(s);
       case "ii":
-        return Se(s, e.length);
+        return xe(s, e.length);
       case "io":
         return r.ordinalNumber(s, { unit: "day" });
       case "iii":
@@ -1867,12 +1867,12 @@ const yr = {
   // Hour [0-11]
   K: function(t, e, r) {
     const i = t.getHours() % 12;
-    return e === "Ko" ? r.ordinalNumber(i, { unit: "hour" }) : Se(i, e.length);
+    return e === "Ko" ? r.ordinalNumber(i, { unit: "hour" }) : xe(i, e.length);
   },
   // Hour [1-24]
   k: function(t, e, r) {
     let i = t.getHours();
-    return i === 0 && (i = 24), e === "ko" ? r.ordinalNumber(i, { unit: "hour" }) : Se(i, e.length);
+    return i === 0 && (i = 24), e === "ko" ? r.ordinalNumber(i, { unit: "hour" }) : xe(i, e.length);
   },
   // Minute
   m: function(t, e, r) {
@@ -1947,23 +1947,23 @@ const yr = {
   // Seconds timestamp
   t: function(t, e, r) {
     const i = Math.trunc(t.getTime() / 1e3);
-    return Se(i, e.length);
+    return xe(i, e.length);
   },
   // Milliseconds timestamp
   T: function(t, e, r) {
     const i = t.getTime();
-    return Se(i, e.length);
+    return xe(i, e.length);
   }
 };
 function uo(t, e = "") {
   const r = t > 0 ? "-" : "+", i = Math.abs(t), s = Math.trunc(i / 60), n = i % 60;
-  return n === 0 ? r + String(s) : r + String(s) + e + Se(n, 2);
+  return n === 0 ? r + String(s) : r + String(s) + e + xe(n, 2);
 }
 function po(t, e) {
-  return t % 60 === 0 ? (t > 0 ? "-" : "+") + Se(Math.abs(t) / 60, 2) : Lr(t, e);
+  return t % 60 === 0 ? (t > 0 ? "-" : "+") + xe(Math.abs(t) / 60, 2) : Lr(t, e);
 }
 function Lr(t, e = "") {
-  const r = t > 0 ? "-" : "+", i = Math.abs(t), s = Se(Math.trunc(i / 60), 2), n = Se(i % 60, 2);
+  const r = t > 0 ? "-" : "+", i = Math.abs(t), s = xe(Math.trunc(i / 60), 2), n = xe(i % 60, 2);
   return r + s + e + n;
 }
 const fo = (t, e) => {
@@ -2084,11 +2084,11 @@ function Dn(t, e) {
   let n = "";
   const a = i === "extended" ? "-" : "", l = i === "extended" ? ":" : "";
   if (s !== "time") {
-    const c = Se(r.getDate(), 2), p = Se(r.getMonth() + 1, 2);
-    n = `${Se(r.getFullYear(), 4)}${a}${p}${a}${c}`;
+    const c = xe(r.getDate(), 2), p = xe(r.getMonth() + 1, 2);
+    n = `${xe(r.getFullYear(), 4)}${a}${p}${a}${c}`;
   }
   if (s !== "date") {
-    const c = Se(r.getHours(), 2), p = Se(r.getMinutes(), 2), f = Se(r.getSeconds(), 2);
+    const c = xe(r.getHours(), 2), p = xe(r.getMinutes(), 2), f = xe(r.getSeconds(), 2);
     n = `${n}${n === "" ? "" : " "}${c}${l}${p}${l}${f}`;
   }
   return n;
@@ -2256,30 +2256,30 @@ const zd = {}, jd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
           throw new SyntaxError("Constructor must be called with the new operator");
         if (typeof ee != "function")
           throw new SyntaxError("Function parameter handler(resolve, reject) missing");
-        var Re = [], _e = [];
+        var Re = [], Se = [];
         this.resolved = !1, this.rejected = !1, this.pending = !0;
-        var H = function(de, be) {
-          Re.push(de), _e.push(be);
+        var H = function(de, ye) {
+          Re.push(de), Se.push(ye);
         };
         this.then = function(O, de) {
-          return new A(function(be, qe) {
-            var st = O ? T(O, be, qe) : be, Gt = de ? T(de, be, qe) : qe;
+          return new A(function(ye, qe) {
+            var st = O ? T(O, ye, qe) : ye, Gt = de ? T(de, ye, qe) : qe;
             H(st, Gt);
           }, oe);
         };
-        var $e = function(de) {
-          return oe.resolved = !0, oe.rejected = !1, oe.pending = !1, Re.forEach(function(be) {
-            be(de);
+        var _e = function(de) {
+          return oe.resolved = !0, oe.rejected = !1, oe.pending = !1, Re.forEach(function(ye) {
+            ye(de);
           }), H = function(qe, st) {
             qe(de);
-          }, $e = $ = function() {
+          }, _e = $ = function() {
           }, oe;
         }, $ = function(de) {
-          return oe.resolved = !1, oe.rejected = !0, oe.pending = !1, _e.forEach(function(be) {
-            be(de);
+          return oe.resolved = !1, oe.rejected = !0, oe.pending = !1, Se.forEach(function(ye) {
+            ye(de);
           }), H = function(qe, st) {
             st(de);
-          }, $e = $ = function() {
+          }, _e = $ = function() {
           }, oe;
         };
         this.cancel = function() {
@@ -2297,7 +2297,7 @@ const zd = {}, jd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
           }
           return oe;
         }, ee(function(O) {
-          $e(O);
+          _e(O);
         }, function(O) {
           $(O);
         });
@@ -2305,8 +2305,8 @@ const zd = {}, jd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
       function T(ee, ke, oe) {
         return function(Re) {
           try {
-            var _e = ee(Re);
-            _e && typeof _e.then == "function" && typeof _e.catch == "function" ? _e.then(ke, oe) : ke(_e);
+            var Se = ee(Re);
+            Se && typeof Se.then == "function" && typeof Se.catch == "function" ? Se.then(ke, oe) : ke(Se);
           } catch (H) {
             oe(H);
           }
@@ -2318,14 +2318,14 @@ const zd = {}, jd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
         return this.then(ee, ee);
       }, A.all = function(ee) {
         return new A(function(ke, oe) {
-          var Re = ee.length, _e = [];
-          Re ? ee.forEach(function(H, $e) {
+          var Re = ee.length, Se = [];
+          Re ? ee.forEach(function(H, _e) {
             H.then(function($) {
-              _e[$e] = $, Re--, Re == 0 && ke(_e);
+              Se[_e] = $, Re--, Re == 0 && ke(Se);
             }, function($) {
               Re = 0, oe($);
             });
-          }) : ke(_e);
+          }) : ke(Se);
         });
       }, A.defer = function() {
         var ee = {};
@@ -2365,8 +2365,8 @@ const zd = {}, jd = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
                 value: A[R++]
               };
             },
-            e: function(_e) {
-              throw _e;
+            e: function(Se) {
+              throw Se;
             },
             f: ee
           };
@@ -2380,11 +2380,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           L = L.call(A);
         },
         n: function() {
-          var _e = L.next();
-          return oe = _e.done, _e;
+          var Se = L.next();
+          return oe = Se.done, Se;
         },
-        e: function(_e) {
-          Re = !0, ke = _e;
+        e: function(Se) {
+          Re = !0, ke = Se;
         },
         f: function() {
           try {
@@ -2486,14 +2486,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       if (X)
         return U.exports;
       X = 1;
-      var A = c(), T = A.Promise, L = n, R = W(), ee = R.validateOptions, ke = R.forkOptsNames, oe = R.workerThreadOptsNames, Re = R.workerOptsNames, _e = "__workerpool-terminate__";
+      var A = c(), T = A.Promise, L = n, R = W(), ee = R.validateOptions, ke = R.forkOptsNames, oe = R.workerThreadOptsNames, Re = R.workerOptsNames, Se = "__workerpool-terminate__";
       function H() {
         var J = $();
         if (!J)
           throw new Error("WorkerPool: workerType = 'thread' is not supported, Node >= 11.7.0 required");
         return J;
       }
-      function $e() {
+      function _e() {
         if (typeof Worker != "function" && ((typeof Worker > "u" ? "undefined" : k(Worker)) !== "object" || typeof Worker.prototype.constructor != "function"))
           throw new Error("WorkerPool: Web Workers not supported");
       }
@@ -2521,17 +2521,17 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       }
       function de(J, pe) {
         if (pe.workerType === "web")
-          return $e(), be(J, pe.workerOpts, Worker);
+          return _e(), ye(J, pe.workerOpts, Worker);
         if (pe.workerType === "thread")
           return D = H(), qe(J, D, pe);
         if (pe.workerType === "process" || !pe.workerType)
           return st(J, Gt(pe), Wr);
         if (L.platform === "browser")
-          return $e(), be(J, pe.workerOpts, Worker);
+          return _e(), ye(J, pe.workerOpts, Worker);
         var D = $();
         return D ? qe(J, D, pe) : st(J, Gt(pe), Wr);
       }
-      function be(J, pe, D) {
+      function ye(J, pe, D) {
         ee(pe, Re, "workerOpts");
         var ae = new D(J, pe);
         return ae.isBrowserWorker = !0, ae.on = function(Pe, Ce) {
@@ -2550,8 +2550,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           // pipe worker.STDOUT to process.STDOUT if not requested
           stderr: (Pe = D == null ? void 0 : D.emitStdStreams) !== null && Pe !== void 0 ? Pe : !1
         }, D == null ? void 0 : D.workerThreadOpts));
-        return Ce.isWorkerThread = !0, Ce.send = function(je, we) {
-          this.postMessage(je, we);
+        return Ce.isWorkerThread = !0, Ce.send = function(je, be) {
+          this.postMessage(je, be);
         }, Ce.kill = function() {
           return this.terminate(), !0;
         }, Ce.disconnect = function() {
@@ -2599,47 +2599,47 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
       }
       function gr(J, pe) {
         var D = this, ae = pe || {};
-        this.script = J || O(), this.worker = de(this.script, ae), this.debugPort = ae.debugPort, this.forkOpts = ae.forkOpts, this.forkArgs = ae.forkArgs, this.workerOpts = ae.workerOpts, this.workerThreadOpts = ae.workerThreadOpts, this.workerTerminateTimeout = ae.workerTerminateTimeout, J || (this.worker.ready = !0), this.requestQueue = [], this.worker.on("stdout", function(we) {
+        this.script = J || O(), this.worker = de(this.script, ae), this.debugPort = ae.debugPort, this.forkOpts = ae.forkOpts, this.forkArgs = ae.forkArgs, this.workerOpts = ae.workerOpts, this.workerThreadOpts = ae.workerThreadOpts, this.workerTerminateTimeout = ae.workerTerminateTimeout, J || (this.worker.ready = !0), this.requestQueue = [], this.worker.on("stdout", function(be) {
           Ot(D, {
-            stdout: we.toString()
+            stdout: be.toString()
           });
-        }), this.worker.on("stderr", function(we) {
+        }), this.worker.on("stderr", function(be) {
           Ot(D, {
-            stderr: we.toString()
+            stderr: be.toString()
           });
-        }), this.worker.on("message", function(we) {
+        }), this.worker.on("message", function(be) {
           if (!D.terminated)
-            if (typeof we == "string" && we === "ready")
+            if (typeof be == "string" && be === "ready")
               D.worker.ready = !0, Ce();
             else {
-              var pt = we.id, Ke = D.processing[pt];
-              Ke !== void 0 && (we.isEvent ? Ke.options && typeof Ke.options.on == "function" && Ke.options.on(we.payload) : (delete D.processing[pt], D.terminating === !0 && D.terminate(), we.error ? Ke.resolver.reject(St(we.error)) : Ke.resolver.resolve(we.result)));
+              var pt = be.id, Ke = D.processing[pt];
+              Ke !== void 0 && (be.isEvent ? Ke.options && typeof Ke.options.on == "function" && Ke.options.on(be.payload) : (delete D.processing[pt], D.terminating === !0 && D.terminate(), be.error ? Ke.resolver.reject(St(be.error)) : Ke.resolver.resolve(be.result)));
             }
         });
-        function Pe(we) {
+        function Pe(be) {
           D.terminated = !0;
           for (var pt in D.processing)
-            D.processing[pt] !== void 0 && D.processing[pt].resolver.reject(we);
+            D.processing[pt] !== void 0 && D.processing[pt].resolver.reject(be);
           D.processing = /* @__PURE__ */ Object.create(null);
         }
         function Ce() {
-          var we = f(D.requestQueue.splice(0)), pt;
+          var be = f(D.requestQueue.splice(0)), pt;
           try {
-            for (we.s(); !(pt = we.n()).done; ) {
+            for (be.s(); !(pt = be.n()).done; ) {
               var Ke = pt.value;
               D.worker.send(Ke.message, Ke.transfer);
             }
           } catch (qi) {
-            we.e(qi);
+            be.e(qi);
           } finally {
-            we.f();
+            be.f();
           }
         }
         var je = this.worker;
-        this.worker.on("error", Pe), this.worker.on("exit", function(we, pt) {
+        this.worker.on("error", Pe), this.worker.on("exit", function(be, pt) {
           var Ke = `Workerpool Worker terminated Unexpectedly
 `;
-          Ke += "    exitCode: `" + we + "`\n", Ke += "    signalCode: `" + pt + "`\n", Ke += "    workerpool.script: `" + D.script + "`\n", Ke += "    spawnArgs: `" + je.spawnargs + "`\n", Ke += "    spawnfile: `" + je.spawnfile + "`\n", Ke += "    stdout: `" + je.stdout + "`\n", Ke += "    stderr: `" + je.stderr + "`\n", Pe(new Error(Ke));
+          Ke += "    exitCode: `" + be + "`\n", Ke += "    signalCode: `" + pt + "`\n", Ke += "    workerpool.script: `" + D.script + "`\n", Ke += "    spawnArgs: `" + je.spawnargs + "`\n", Ke += "    spawnfile: `" + je.spawnfile + "`\n", Ke += "    stdout: `" + je.stdout + "`\n", Ke += "    stderr: `" + je.stderr + "`\n", Pe(new Error(Ke));
         }), this.processing = /* @__PURE__ */ Object.create(null), this.terminating = !1, this.terminated = !1, this.cleaning = !1, this.terminationHandler = null, this.lastId = 0;
       }
       return gr.prototype.methods = function() {
@@ -2662,14 +2662,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         };
         this.terminated ? D.reject(new Error("Worker is terminated")) : this.worker.ready ? this.worker.send(Ce.message, Ce.transfer) : this.requestQueue.push(Ce);
         var je = this;
-        return D.promise.catch(function(we) {
-          if (we instanceof T.CancellationError || we instanceof T.TimeoutError)
+        return D.promise.catch(function(be) {
+          if (be instanceof T.CancellationError || be instanceof T.TimeoutError)
             return delete je.processing[Pe], je.terminateAndNotify(!0).then(function() {
-              throw we;
+              throw be;
             }, function(pt) {
               throw pt;
             });
-          throw we;
+          throw be;
         });
       }, gr.prototype.busy = function() {
         return this.cleaning || Object.keys(this.processing).length > 0;
@@ -2683,11 +2683,11 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         if (typeof pe == "function" && (this.terminationHandler = pe), this.busy())
           this.terminating = !0;
         else {
-          var Pe = function(we) {
+          var Pe = function(be) {
             if (D.terminated = !0, D.cleaning = !1, D.worker != null && D.worker.removeAllListeners && D.worker.removeAllListeners("message"), D.worker = null, D.terminating = !1, D.terminationHandler)
-              D.terminationHandler(we, D);
-            else if (we)
-              throw we;
+              D.terminationHandler(be, D);
+            else if (be)
+              throw be;
           };
           if (this.worker)
             if (typeof this.worker.kill == "function") {
@@ -2700,8 +2700,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               }, this.workerTerminateTimeout);
               this.worker.once("exit", function() {
                 clearTimeout(Ce), D.worker && (D.worker.killed = !0), Pe();
-              }), this.worker.ready ? this.worker.send(_e) : this.requestQueue.push({
-                message: _e
+              }), this.worker.ready ? this.worker.send(Se) : this.requestQueue.push({
+                message: Se
               }), this.cleaning = !0;
               return;
             } else if (typeof this.worker.terminate == "function")
@@ -2715,7 +2715,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         return pe && D.promise.timeout(pe), this.terminate(J, function(ae, Pe) {
           ae ? D.reject(ae) : D.resolve(Pe);
         }), D.promise;
-      }, U.exports = gr, U.exports._tryRequireWorkerThreads = $, U.exports._setupProcessWorker = st, U.exports._setupBrowserWorker = be, U.exports._setupWorkerThreadWorker = qe, U.exports.ensureWorkerThreads = H, U.exports;
+      }, U.exports = gr, U.exports._tryRequireWorkerThreads = $, U.exports._setupProcessWorker = st, U.exports._setupBrowserWorker = ye, U.exports._setupWorkerThreadWorker = qe, U.exports.ensureWorkerThreads = H, U.exports;
     }
     var ce, q;
     function se() {
@@ -2748,27 +2748,27 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           return null;
         }, this.onTerminateWorker = O.onTerminateWorker || function() {
           return null;
-        }, this.emitStdStreams = O.emitStdStreams || !1, O && "maxWorkers" in O ? (Re(O.maxWorkers), this.maxWorkers = O.maxWorkers) : this.maxWorkers = Math.max((R.cpus || 4) - 1, 1), O && "minWorkers" in O && (O.minWorkers === "max" ? this.minWorkers = this.maxWorkers : (_e(O.minWorkers), this.minWorkers = O.minWorkers, this.maxWorkers = Math.max(this.minWorkers, this.maxWorkers)), this._ensureMinWorkers()), this._boundNext = this._next.bind(this), this.workerType === "thread" && L.ensureWorkerThreads();
+        }, this.emitStdStreams = O.emitStdStreams || !1, O && "maxWorkers" in O ? (Re(O.maxWorkers), this.maxWorkers = O.maxWorkers) : this.maxWorkers = Math.max((R.cpus || 4) - 1, 1), O && "minWorkers" in O && (O.minWorkers === "max" ? this.minWorkers = this.maxWorkers : (Se(O.minWorkers), this.minWorkers = O.minWorkers, this.maxWorkers = Math.max(this.minWorkers, this.maxWorkers)), this._ensureMinWorkers()), this._boundNext = this._next.bind(this), this.workerType === "thread" && L.ensureWorkerThreads();
       }
       oe.prototype.exec = function($, O, de) {
         if (O && !Array.isArray(O))
           throw new TypeError('Array expected as argument "params"');
         if (typeof $ == "string") {
-          var be = T.defer();
+          var ye = T.defer();
           if (this.tasks.length >= this.maxQueueSize)
             throw new Error("Max queue size of " + this.maxQueueSize + " reached");
           var qe = this.tasks, st = {
             method: $,
             params: O,
-            resolver: be,
+            resolver: ye,
             timeout: null,
             options: de
           };
           qe.push(st);
-          var Gt = be.promise.timeout;
-          return be.promise.timeout = function(Ot) {
-            return qe.indexOf(st) !== -1 ? (st.timeout = Ot, be.promise) : Gt.call(be.promise, Ot);
-          }, this._next(), be.promise;
+          var Gt = ye.promise.timeout;
+          return ye.promise.timeout = function(Ot) {
+            return qe.indexOf(st) !== -1 ? (st.timeout = Ot, ye.promise) : Gt.call(ye.promise, Ot);
+          }, this._next(), ye.promise;
         } else {
           if (typeof $ == "function")
             return this.exec("run", [String($), O], de);
@@ -2780,9 +2780,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         var $ = this;
         return this.exec("methods").then(function(O) {
           var de = {};
-          return O.forEach(function(be) {
-            de[be] = function() {
-              return $.exec(be, Array.prototype.slice.call(arguments));
+          return O.forEach(function(ye) {
+            de[ye] = function() {
+              return $.exec(ye, Array.prototype.slice.call(arguments));
             };
           }), de;
         });
@@ -2792,13 +2792,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           if ($) {
             var O = this, de = this.tasks.shift();
             if (de.resolver.promise.pending) {
-              var be = $.exec(de.method, de.params, de.resolver, de.options).then(O._boundNext).catch(function() {
+              var ye = $.exec(de.method, de.params, de.resolver, de.options).then(O._boundNext).catch(function() {
                 if ($.terminated)
                   return O._removeWorker($);
               }).then(function() {
                 O._next();
               });
-              typeof de.timeout == "number" && be.timeout(de.timeout);
+              typeof de.timeout == "number" && ye.timeout(de.timeout);
             } else
               O._next();
           }
@@ -2812,14 +2812,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         return $.length < this.maxWorkers ? (de = this._createWorkerHandler(), $.push(de), de) : null;
       }, oe.prototype._removeWorker = function($) {
         var O = this;
-        return ke.releasePort($.debugPort), this._removeWorkerFromList($), this._ensureMinWorkers(), new T(function(de, be) {
+        return ke.releasePort($.debugPort), this._removeWorkerFromList($), this._ensureMinWorkers(), new T(function(de, ye) {
           $.terminate(!1, function(qe) {
             O.onTerminateWorker({
               forkArgs: $.forkArgs,
               forkOpts: $.forkOpts,
               workerThreadOpts: $.workerThreadOpts,
               script: $.script
-            }), qe ? be(qe) : de($);
+            }), qe ? ye(qe) : de($);
           });
         });
       }, oe.prototype._removeWorkerFromList = function($) {
@@ -2830,9 +2830,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         this.tasks.forEach(function(St) {
           St.resolver.reject(new Error("Pool terminated"));
         }), this.tasks.length = 0;
-        var be = function(Ot) {
+        var ye = function(Ot) {
           ke.releasePort(Ot.debugPort), this._removeWorkerFromList(Ot);
-        }, qe = be.bind(this), st = [], Gt = this.workers.slice();
+        }, qe = ye.bind(this), st = [], Gt = this.workers.slice();
         return Gt.forEach(function(St) {
           var Ot = St.terminateAndNotify($, O).then(qe).always(function() {
             de.onTerminateWorker({
@@ -2879,17 +2879,17 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         });
       };
       function Re($) {
-        if (!H($) || !$e($) || $ < 1)
+        if (!H($) || !_e($) || $ < 1)
           throw new TypeError("Option maxWorkers must be an integer number >= 1");
       }
-      function _e($) {
-        if (!H($) || !$e($) || $ < 0)
+      function Se($) {
+        if (!H($) || !_e($) || $ < 0)
           throw new TypeError("Option minWorkers must be an integer number >= 0");
       }
       function H($) {
         return typeof $ == "number";
       }
-      function $e($) {
+      function _e($) {
         return Math.round($) == $;
       }
       return ne = oe, ne;
@@ -2912,12 +2912,12 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
           }
         };
         if (typeof self < "u" && typeof postMessage == "function" && typeof addEventListener == "function")
-          R.on = function(H, $e) {
+          R.on = function(H, _e) {
             addEventListener(H, function($) {
-              $e($.data);
+              _e($.data);
             });
-          }, R.send = function(H, $e) {
-            $e ? postMessage(H, $e) : postMessage(H);
+          }, R.send = function(H, _e) {
+            _e ? postMessage(H, _e) : postMessage(H);
           };
         else if (typeof process < "u") {
           var ee;
@@ -2940,8 +2940,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         } else
           throw new Error("Script must be executed as a worker");
         function oe(H) {
-          return Object.getOwnPropertyNames(H).reduce(function($e, $) {
-            return Object.defineProperty($e, $, {
+          return Object.getOwnPropertyNames(H).reduce(function(_e, $) {
+            return Object.defineProperty(_e, $, {
               value: H[$],
               enumerable: !0
             });
@@ -2950,29 +2950,29 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         function Re(H) {
           return H && typeof H.then == "function" && typeof H.catch == "function";
         }
-        R.methods = {}, R.methods.run = function($e, $) {
-          var O = new Function("return (" + $e + ").apply(null, arguments);");
+        R.methods = {}, R.methods.run = function(_e, $) {
+          var O = new Function("return (" + _e + ").apply(null, arguments);");
           return O.apply(O, $);
         }, R.methods.methods = function() {
           return Object.keys(R.methods);
         }, R.terminationHandler = void 0, R.cleanupAndExit = function(H) {
-          var $e = function() {
+          var _e = function() {
             R.exit(H);
           };
           if (!R.terminationHandler)
-            return $e();
+            return _e();
           var $ = R.terminationHandler(H);
-          Re($) ? $.then($e, $e) : $e();
+          Re($) ? $.then(_e, _e) : _e();
         };
-        var _e = null;
+        var Se = null;
         R.on("message", function(H) {
           if (H === L)
             return R.cleanupAndExit(0);
           try {
-            var $e = R.methods[H.method];
-            if ($e) {
-              _e = H.id;
-              var $ = $e.apply($e, H.params);
+            var _e = R.methods[H.method];
+            if (_e) {
+              Se = H.id;
+              var $ = _e.apply(_e, H.params);
               Re($) ? $.then(function(O) {
                 O instanceof T ? R.send({
                   id: H.id,
@@ -2982,13 +2982,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                   id: H.id,
                   result: O,
                   error: null
-                }), _e = null;
+                }), Se = null;
               }).catch(function(O) {
                 R.send({
                   id: H.id,
                   result: null,
                   error: oe(O)
-                }), _e = null;
+                }), Se = null;
               }) : ($ instanceof T ? R.send({
                 id: H.id,
                 result: $.message,
@@ -2997,7 +2997,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 id: H.id,
                 result: $,
                 error: null
-              }), _e = null);
+              }), Se = null);
             } else
               throw new Error('Unknown method "' + H.method + '"');
           } catch (O) {
@@ -3007,23 +3007,23 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
               error: oe(O)
             });
           }
-        }), R.register = function(H, $e) {
+        }), R.register = function(H, _e) {
           if (H)
             for (var $ in H)
               H.hasOwnProperty($) && (R.methods[$] = H[$]);
-          $e && (R.terminationHandler = $e.onTerminate), R.send("ready");
+          _e && (R.terminationHandler = _e.onTerminate), R.send("ready");
         }, R.emit = function(H) {
-          if (_e) {
+          if (Se) {
             if (H instanceof T) {
               R.send({
-                id: _e,
+                id: Se,
                 isEvent: !0,
                 payload: H.message
               }, H.transfer);
               return;
             }
             R.send({
-              id: _e,
+              id: Se,
               isEvent: !0,
               payload: H
             });
@@ -11136,7 +11136,7 @@ ei = Vi([
       et !== void 0 && ie > et && (ie = et), Me !== void 0 && ie < Me && (ie = Me), g = ie;
       let mt = g;
       return (Qe === Ne && Ye || Qe === it && Ve) && (mt = 100 - mt), Qe === Ne ? u.style.top = `${mt}%` : u.style.left = `${mt}%`, ft !== g;
-    }, xe = (ie) => ie === u || u.contains(ie), K = (ie, Me, et, Qe) => {
+    }, we = (ie) => ie === u || u.contains(ie), K = (ie, Me, et, Qe) => {
       M = ie, te = Me, fe = et, F = Qe;
     }, De = (ie) => {
       N = ie, u.classList.toggle("disabled", N), N ? u.setAttribute("aria-disabled", "true") : u.hasAttribute("aria-disabled") && u.removeAttribute("aria-disabled");
@@ -11164,17 +11164,17 @@ ei = Vi([
         }
         Qs(h, ie);
       }
-    }, ye = () => {
+    }, ve = () => {
       N || qs(h, u);
     };
-    return u.className = `pointer pointer-${w}`, u.addEventListener("keydown", re), u.addEventListener("click", ye), { $pointer: u, get percent() {
+    return u.className = `pointer pointer-${w}`, u.addEventListener("keydown", re), u.addEventListener("click", ve), { $pointer: u, get percent() {
       return g;
     }, get disabled() {
       return N;
     }, set disabled(ie) {
       De(ie);
-    }, updatePosition: ge, isClicked: xe, setCallbacks: K, setAttr: Dt, getAttr: ot, destroy: () => {
-      u.removeEventListener("keydown", re), u.removeEventListener("click", ye), u.remove();
+    }, updatePosition: ge, isClicked: we, setCallbacks: K, setAttr: Dt, getAttr: ot, destroy: () => {
+      u.removeEventListener("keydown", re), u.removeEventListener("click", ve), u.remove();
     } };
   }, T = (h) => {
     if (h == null)
@@ -11194,7 +11194,7 @@ ei = Vi([
       return;
     let te = w.length === 1, fe = w[0], F = w[w.length - 1];
     u === Ne ? (h.style.removeProperty("width"), h.style.removeProperty("right"), h.style.removeProperty("left"), te ? h.style.height = `${fe}%` : h.style.height = `${Math.abs(fe - F)}%`, M ? (h.style.bottom = "0%", te ? h.style.top = "auto" : h.style.top = `${Math.min(100 - F, 100 - fe)}%`) : (h.style.bottom = "auto", te ? h.style.top = "0%" : h.style.top = `${Math.min(fe, F)}%`)) : (h.style.removeProperty("height"), h.style.removeProperty("top"), h.style.removeProperty("bottom"), te ? h.style.width = `${fe}%` : h.style.width = `${Math.abs(fe - F)}%`, g ? (h.style.right = "0%", te ? h.style.left = "auto" : h.style.left = `${Math.min(100 - F, 100 - fe)}%`) : (h.style.right = "auto", te ? h.style.left = "0%" : h.style.left = `${Math.min(fe, F)}%`));
-  } }), ee = "--animate-onclick", ke = "--width", oe = "--height", Re = "--panel-bg-border-radius", _e = "--panel-bg", H = "--panel-bg-hover", $e = "--panel-bg-fill", $ = "--pointer-width", O = "--pointer-height", de = "--pointer-border-radius", be = "--pointer-bg", qe = "--pointer-bg-hover", st = "--pointer-bg-focus", Gt = "--pointer-shadow", St = "--pointer-shadow-hover", Ot = "--pointer-shadow-focus", gr = "--pointer-border", J = "--pointer-border-hover", pe = "--pointer-border-focus", D = (h, u, w) => {
+  } }), ee = "--animate-onclick", ke = "--width", oe = "--height", Re = "--panel-bg-border-radius", Se = "--panel-bg", H = "--panel-bg-hover", _e = "--panel-bg-fill", $ = "--pointer-width", O = "--pointer-height", de = "--pointer-border-radius", ye = "--pointer-bg", qe = "--pointer-bg-hover", st = "--pointer-bg-focus", Gt = "--pointer-shadow", St = "--pointer-shadow-hover", Ot = "--pointer-shadow-focus", gr = "--pointer-border", J = "--pointer-border-hover", pe = "--pointer-border-focus", D = (h, u, w) => {
     let g = /* @__PURE__ */ new Map();
     for (let M of h.attributes) {
       let te = M.nodeName.trim().toLowerCase();
@@ -11214,64 +11214,64 @@ ei = Vi([
     for (let M of w)
       M.trim() !== "" && g.push(M.trim());
     return g;
-  }, Pe = [[ke, he, "sliderWidth", null], [oe, E, "sliderHeight", null], [Re, G, "sliderRadius", null], [_e, X, "sliderBg", null], [H, Q, "sliderBgHover", null], [$e, ce, "sliderBgFill", null], [$, q, "pointer#Width", /^pointer([0-9]*)-width$/], [O, se, "pointer#Height", /^pointer([0-9]*)-height$/], [de, ne, "pointer#Radius", /^pointer([0-9]*)-radius$/], [be, ue, "pointer#Bg", /^pointer([0-9]*)-bg$/], [qe, Le, "pointer#BgHover", /^pointer([0-9]*)-bg-hover$/], [st, He, "pointer#BgFocus", /^pointer([0-9]*)-bg-focus$/], [Gt, Ue, "pointer#Shadow", /^pointer([0-9]*)-shadow$/], [St, wt, "pointer#ShadowHover", /^pointer([0-9]*)-shadow-hover$/], [Ot, xt, "pointer#ShadowFocus", /^pointer([0-9]*)-shadow-focus$/], [gr, nr, "pointer#Border", /^pointer([0-9]*)-border$/], [J, Bt, "pointer#BorderHover", /^pointer([0-9]*)-border-hover$/], [pe, Vt, "pointer#BorderFocus", /^pointer([0-9]*)-border-focus$/]], Ce = (h, u, w) => {
-    let g = null, M = [], te = /* @__PURE__ */ new Map(), fe = (re, ye = u) => {
-      let ie = [...ye.classList];
+  }, Pe = [[ke, he, "sliderWidth", null], [oe, E, "sliderHeight", null], [Re, G, "sliderRadius", null], [Se, X, "sliderBg", null], [H, Q, "sliderBgHover", null], [_e, ce, "sliderBgFill", null], [$, q, "pointer#Width", /^pointer([0-9]*)-width$/], [O, se, "pointer#Height", /^pointer([0-9]*)-height$/], [de, ne, "pointer#Radius", /^pointer([0-9]*)-radius$/], [ye, ue, "pointer#Bg", /^pointer([0-9]*)-bg$/], [qe, Le, "pointer#BgHover", /^pointer([0-9]*)-bg-hover$/], [st, He, "pointer#BgFocus", /^pointer([0-9]*)-bg-focus$/], [Gt, Ue, "pointer#Shadow", /^pointer([0-9]*)-shadow$/], [St, wt, "pointer#ShadowHover", /^pointer([0-9]*)-shadow-hover$/], [Ot, xt, "pointer#ShadowFocus", /^pointer([0-9]*)-shadow-focus$/], [gr, nr, "pointer#Border", /^pointer([0-9]*)-border$/], [J, Bt, "pointer#BorderHover", /^pointer([0-9]*)-border-hover$/], [pe, Vt, "pointer#BorderFocus", /^pointer([0-9]*)-border-focus$/]], Ce = (h, u, w) => {
+    let g = null, M = [], te = /* @__PURE__ */ new Map(), fe = (re, ve = u) => {
+      let ie = [...ve.classList];
       for (let Me of ie)
         Me.startsWith(re) && u.classList.remove(Me);
     }, F = () => {
       fe("shape");
       let re = u.querySelectorAll(".pointer");
-      for (let ye of re)
-        fe("shape", ye);
+      for (let ve of re)
+        fe("shape", ve);
     }, N = (re) => {
       g = re, fe("theme-"), typeof re == "string" && u.classList.add(`theme-${re}`);
     }, ge = () => {
       if (F(), !(M.length <= 0)) {
         u.classList.add("shape", `shape-${M[0]}`);
         for (let re = 1; re < M.length; re++) {
-          let ye = M[re];
-          if (!ye)
+          let ve = M[re];
+          if (!ve)
             continue;
           let ie = u.querySelector(`.pointer-${re}`);
-          !ie || ie.classList.add("shape", `shape-${ye}`);
+          !ie || ie.classList.add("shape", `shape-${ve}`);
         }
       }
-    }, xe = (re, ye) => {
-      M[re] = ye, ge();
+    }, we = (re, ve) => {
+      M[re] = ve, ge();
     }, K = () => {
       F();
       let re = D(h, /^pointer([0-9]*)-shape$/);
       if (!(re.size <= 0)) {
-        for (let ye of re) {
-          let ie = ye[0];
-          M[ie] = ye[1];
+        for (let ve of re) {
+          let ie = ve[0];
+          M[ie] = ve[1];
         }
         ge();
       }
-    }, De = (re, ye) => `${re}-${ye}`, Dt = (re, ye, ie) => {
+    }, De = (re, ve) => `${re}-${ve}`, Dt = (re, ve, ie) => {
       let Me = w[ie];
       if (!Me)
         return;
       let et = ie === 0 ? u : Me.$pointer;
-      if (ye == null) {
+      if (ve == null) {
         te.has(De(re, ie)) && te.delete(De(re, ie)), et.style.removeProperty(re);
         return;
       }
-      te.set(De(re, ie), ye), et.style.setProperty(re, ye);
-    }, ot = (re, ye) => te.get(De(re, ye));
+      te.set(De(re, ie), ve), et.style.setProperty(re, ve);
+    }, ot = (re, ve) => te.get(De(re, ve));
     return (() => {
       for (let re of Pe) {
-        let [ye, ie, Me, et] = re;
+        let [ve, ie, Me, et] = re;
         if (et) {
           let Ve = D(h, et);
           for (let Ye of Ve) {
             let ft = Ye[0], mt = Ye[1];
-            Dt(ye, mt, ft);
+            Dt(ve, mt, ft);
           }
         } else {
           let Ve = h.getAttribute(ie);
-          Dt(ye, Ve, 0);
+          Dt(ve, Ve, 0);
         }
         let Qe = [];
         if (Me.indexOf("#") === -1)
@@ -11285,9 +11285,9 @@ ei = Vi([
           try {
             let Ye = Ve[0], ft = Ve[1];
             Object.prototype.hasOwnProperty.call(h, Ye) || Object.defineProperty(h, Ye, { get() {
-              return ot(ye, ft);
+              return ot(ve, ft);
             }, set: (mt) => {
-              Dt(ye, mt, ft);
+              Dt(ve, mt, ft);
             } });
           } catch (Ye) {
             console.error(Ye);
@@ -11300,20 +11300,20 @@ ei = Vi([
       N(re);
     }, get pointerShapes() {
       return M;
-    }, setPointerShape: xe };
-  }, je = "animate-on-click", we = "range-dragging", pt = (h, u, w, g) => {
-    let M = [], te = (xe) => {
+    }, setPointerShape: we };
+  }, je = "animate-on-click", be = "range-dragging", pt = (h, u, w, g) => {
+    let M = [], te = (we) => {
       for (let K of M)
-        K.update && typeof K.update == "function" && K.update(xe);
+        K.update && typeof K.update == "function" && K.update(we);
     }, fe = () => {
-      for (let xe of M)
-        xe.destroy && typeof xe.destroy == "function" && xe.destroy();
-    }, F = (xe, K) => {
+      for (let we of M)
+        we.destroy && typeof we.destroy == "function" && we.destroy();
+    }, F = (we, K) => {
       for (let De of M)
-        De.onAttrChange && typeof De.onAttrChange == "function" && De.onAttrChange(xe, K);
-    }, N = (xe) => {
-      if (xe.gettersAndSetters) {
-        for (let K of xe.gettersAndSetters)
+        De.onAttrChange && typeof De.onAttrChange == "function" && De.onAttrChange(we, K);
+    }, N = (we) => {
+      if (we.gettersAndSetters) {
+        for (let K of we.gettersAndSetters)
           if (!(!K.name || !K.attributes))
             try {
               Object.prototype.hasOwnProperty.call(h, K.name) || Object.defineProperty(h, K.name, K.attributes);
@@ -11321,17 +11321,17 @@ ei = Vi([
               console.error("defineSettersGetters error:", De);
             }
       }
-    }, ge = (xe) => {
+    }, ge = (we) => {
       var K;
-      if (!xe.css)
+      if (!we.css)
         return;
       let De = (K = h.shadowRoot) == null ? void 0 : K.querySelector("style");
-      !De || (De.innerHTML += xe.css);
+      !De || (De.innerHTML += we.css);
     };
     return { init: () => {
       if (window.tcRangeSliderPlugins)
-        for (let xe of window.tcRangeSliderPlugins) {
-          let K = xe();
+        for (let we of window.tcRangeSliderPlugins) {
+          let K = we();
           M.push(K), K.init && typeof K.init == "function" && (K.init(h, u, w, g), N(K), ge(K));
         }
     }, update: te, onAttrChange: F, destroy: fe };
@@ -11341,8 +11341,8 @@ ei = Vi([
       let N = F.nodeName.trim().toLowerCase();
       if (!g.test(N))
         continue;
-      let ge = N.replace("value", "").trim(), xe = ge === "" || ge === "0" || ge === "1" ? 0 : ze(ge, 0) - 1, K = ut(F.value) ? ze(F.value, 0) : F.value;
-      w.set(xe, K);
+      let ge = N.replace("value", "").trim(), we = ge === "" || ge === "0" || ge === "1" ? 0 : ze(ge, 0) - 1, K = ut(F.value) ? ze(F.value, 0) : F.value;
+      w.set(we, K);
     }
     let M = Math.max(...Array.from(w.keys())), te = [];
     te.push([A(h, u, 0), w.get(0)]);
@@ -11405,7 +11405,7 @@ ei = Vi([
       u.$pointer.style.zIndex = (qi * 2).toString();
     }
   }, en = 0, di = 100, Nr = 2, Ea = "0.3s", nh = (h, u, w) => {
-    let g = w.map((d) => d[0]), M = null, te = null, fe = null, F = null, N = en, ge = di, xe, K, De = it, Dt = Nr, ot = !1, re = !1, ye = !1, ie = 0, Me = 1 / 0, et = !1, Qe, Ve, Ye = !1, ft = !1, mt = !1, vr = Ea, Ta = [], La = (d) => {
+    let g = w.map((d) => d[0]), M = null, te = null, fe = null, F = null, N = en, ge = di, we, K, De = it, Dt = Nr, ot = !1, re = !1, ve = !1, ie = 0, Me = 1 / 0, et = !1, Qe, Ve, Ye = !1, ft = !1, mt = !1, vr = Ea, Ta = [], La = (d) => {
       Ye || (d.preventDefault && d.preventDefault(), Dr(d), window.addEventListener("mousemove", Dr), window.addEventListener("mouseup", Ki), Ks(h, d));
     }, Ki = (d) => {
       Ye || (Qe = void 0, Ve = void 0, window.removeEventListener("mousemove", Dr), window.removeEventListener("mouseup", Ki), vr && u.classList.add(je), Zs(h, d));
@@ -11483,7 +11483,7 @@ ei = Vi([
     }, dh = () => {
       Er();
     }, uh = (d) => {
-      if (!(ye || g.length <= 1 || ge === N))
+      if (!(ve || g.length <= 1 || ge === N))
         if (d === 0) {
           let _ = Me * 100 / (ge - N);
           return Math.max(0, g[d + 1].percent - _);
@@ -11492,7 +11492,7 @@ ei = Vi([
           return Math.min(g[d - 1].percent + _, 100);
         }
     }, ph = (d) => {
-      if (!(ye || g.length <= 1 || ge === N))
+      if (!(ve || g.length <= 1 || ge === N))
         if (d === g.length - 1) {
           let _ = Me * 100 / (ge - N);
           return Math.min(g[d - 1].percent + _, 100);
@@ -11502,11 +11502,11 @@ ei = Vi([
         }
     }, Qi = (d) => {
       let _;
-      if (typeof xe == "function") {
+      if (typeof we == "function") {
         let V = Or(0, 100, N, ge, d);
-        _ = xe(V, d);
+        _ = we(V, d);
       } else
-        _ = xe;
+        _ = we;
       if (ut(_)) {
         let V = ge - N;
         return _ = V === 0 ? 0 : _ * 100 / V, _;
@@ -11516,13 +11516,13 @@ ei = Vi([
         return;
       let _ = Or(0, 100, N, ge, d);
       return K !== void 0 ? K[Math.round(_)] : Xs(_, Dt);
-    }, Ji = () => K !== void 0 ? K[N] : N, es = () => K !== void 0 ? K[ge] : ge, rn = () => xe, fh = (d) => {
+    }, Ji = () => K !== void 0 ? K[N] : N, es = () => K !== void 0 ? K[ge] : ge, rn = () => we, fh = (d) => {
       var _;
-      return d <= 0 || ye ? Ji() : (_ = zr(g[d - 1].percent)) != null ? _ : "";
+      return d <= 0 || ve ? Ji() : (_ = zr(g[d - 1].percent)) != null ? _ : "";
     }, mh = (d) => {
       var _;
-      return g.length <= 1 || d >= g.length - 1 || ye ? es() : (_ = zr(g[d + 1].percent)) != null ? _ : "";
-    }, Na = () => g.map((d) => d.percent), za = () => g.map((d) => zr(d.percent)), ja = () => g.map((d) => d.$pointer), Wa = () => N, Ha = () => ge, sn = () => K, nn = () => De, an = () => Dt, on = () => ie, ln = () => Me, gh = (d) => Ta[d], hn = () => ot, cn = () => re, dn = () => Ye, un = () => ft, pn = () => mt, fn = () => ye, mn = () => et, gt = (d, _) => {
+      return g.length <= 1 || d >= g.length - 1 || ve ? es() : (_ = zr(g[d + 1].percent)) != null ? _ : "";
+    }, Na = () => g.map((d) => d.percent), za = () => g.map((d) => zr(d.percent)), ja = () => g.map((d) => d.$pointer), Wa = () => N, Ha = () => ge, sn = () => K, nn = () => De, an = () => Dt, on = () => ie, ln = () => Me, gh = (d) => Ta[d], hn = () => ot, cn = () => re, dn = () => Ye, un = () => ft, pn = () => mt, fn = () => ve, mn = () => et, gt = (d, _) => {
       if (_ === void 0)
         return;
       let V = Qi(_);
@@ -11553,10 +11553,10 @@ ei = Vi([
     }, rs = (d) => {
       ge = ze(d, di), ge < N && (ge = N + di), Xt();
     }, Ba = (d) => {
-      ye = !0;
+      ve = !0;
       for (let _ = 0; _ < d.length; _++)
         is(d[_], _);
-      ye = !1;
+      ve = !1;
       for (let _ = 0; _ < d.length; _++)
         is(d[_], _);
     }, is = (d, _) => {
@@ -11566,22 +11566,22 @@ ei = Vi([
       gt(_, Ee);
     }, ss = (d) => {
       if (d == null) {
-        xe = void 0;
+        we = void 0;
         return;
       }
       if (typeof d == "function") {
-        xe = d, Xt();
+        we = d, Xt();
         return;
       }
       if (ut(d)) {
-        xe = ze(d, 1);
+        we = ze(d, 1);
         let _ = Math.abs(ge - N);
-        xe > _ && (xe = void 0), Xt();
+        we > _ && (we = void 0), Xt();
         return;
       }
-      xe = void 0;
+      we = void 0;
     }, gn = (d) => {
-      ye = d, Xt();
+      ve = d, Xt();
     }, vn = (d) => {
       (!ut(d) || d < 0) && (d = 0), ie = d;
     }, yn = (d) => {
@@ -11601,7 +11601,7 @@ ei = Vi([
         K = void 0;
         return;
       }
-      ts(0), rs(K.length - 1), xe === void 0 && ss(1);
+      ts(0), rs(K.length - 1), we === void 0 && ss(1);
     }, xn = (d) => {
       var _;
       typeof d == "string" ? De = d.trim().toLowerCase() === Ne ? Ne : it : De = it;
@@ -11625,10 +11625,10 @@ ei = Vi([
       !V || (V.setAttr("aria-label", _), Ta[d] = _);
     }, ns = (d) => {
       if (Qe = void 0, g.length <= 1) {
-        et = !1, u.classList.remove(we);
+        et = !1, u.classList.remove(be);
         return;
       }
-      et = d, u.classList.toggle(we, et);
+      et = d, u.classList.toggle(be, et);
     }, bh = () => {
       bn(Ze(h.getAttribute(j))), ft = Ze(h.getAttribute(B)), mt = Ze(h.getAttribute(W));
       let d = D(h, /^pointer([0-9]*)-disabled$/, (_) => Ze(_));
@@ -11726,9 +11726,9 @@ ei = Vi([
       F == null || F.destroy();
     } };
   }, ah = (h, u, w) => {
-    let g = Pe.find(([F, N, ge, xe]) => N.replace("#", "") === u.replace(/\d+/g, ""));
+    let g = Pe.find(([F, N, ge, we]) => N.replace("#", "") === u.replace(/\d+/g, ""));
     if (g && h.styles) {
-      let [F, N, ge, xe] = g, K = u.replace(/\D/g, "").trim(), De = K === "" || K === "0" || K === "1" ? 0 : ze(K, 0) - 1;
+      let [F, N, ge, we] = g, K = u.replace(/\D/g, "").trim(), De = K === "" || K === "0" || K === "1" ? 0 : ze(K, 0) - 1;
       h.styles.setStyle(F, w, De);
       return;
     }
@@ -14881,7 +14881,7 @@ si = Gs([
  * Copyright 2018 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const ve = (t) => t ?? z;
+const $e = (t) => t ?? z;
 var tg = Object.defineProperty, rg = Object.getOwnPropertyDescriptor, Ar = (t, e, r, i) => {
   for (var s = i > 1 ? void 0 : i ? rg(e, r) : e, n = t.length - 1, a; n >= 0; n--)
     (a = t[n]) && (s = (i ? a(e, r, s) : a(s)) || s);
@@ -14898,7 +14898,7 @@ let tr = class extends Je {
   }
   render() {
     return v`
-        <thermal-app author=${ve(this.author)} recorded=${ve(this.recorded)} license=${ve(this.license)}>
+        <thermal-app author=${$e(this.author)} recorded=${$e(this.recorded)} license=${$e(this.license)}>
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName : "Loading..."}</thermal-button>
 
@@ -14967,9 +14967,8 @@ let tr = class extends Je {
             <file-canvas></file-canvas>
             <file-timeline slot="post"></file-timeline>
             <file-analysis-table slot="post"></file-analysis-table>
+            
             ${this.file && this.file.timeline.isSequence ? v`<file-analysis-graph slot="post"></file-analysis-graph>` : z}
-
-
 
           <slot name="content" slot="content"></slot>
 
@@ -15145,31 +15144,29 @@ let To = class extends Fe {
 
       <registry-provider 
         slug="registry_${this.UUID}"
-        from=${ve(this.from)}
-        to=${ve(this.to)}
+        from=${$e(this.from)}
+        to=${$e(this.to)}
       >
 
         <group-provider slug="group_${this.UUID}">
 
           <file-provider 
             thermal="${this.url}" 
-            analysis1=${ve(this.analysis1)}
-            analysis2=${ve(this.analysis2)}
-            analysis3=${ve(this.analysis3)}
-            analysis4=${ve(this.analysis4)}
-            analysis5=${ve(this.analysis5)}
-            analysis6=${ve(this.analysis6)}
-            analysis7=${ve(this.analysis7)}
+            analysis1=${$e(this.analysis1)}
+            analysis2=${$e(this.analysis2)}
+            analysis3=${$e(this.analysis3)}
+            analysis4=${$e(this.analysis4)}
+            analysis5=${$e(this.analysis5)}
+            analysis6=${$e(this.analysis6)}
+            analysis7=${$e(this.analysis7)}
+            speed=${$e(this.speed)}
           >
 
               <file-app 
-                from=${ve(this.from)} 
-                to=${ve(this.to)} 
-                speed=${ve(this.speed)} 
-                author=${ve(this.author)} 
-                recorded=${ve(this.recorded)} 
-                license=${ve(this.license)}
-                label=${ve(this.label)}  
+                author=${$e(this.author)} 
+                recorded=${$e(this.recorded)} 
+                license=${$e(this.license)}
+                label=${$e(this.label)}  
               >
                 <slot name="content" slot="content"></slot>  
               </file-app>
@@ -15220,7 +15217,7 @@ let dt = class extends Je {
   render() {
     var t, e;
     return v`
-        <thermal-app author=${ve(this.author)} recorded=${ve(this.recorded)} license=${ve(this.license)}>
+        <thermal-app author=${$e(this.author)} recorded=${$e(this.recorded)} license=${$e(this.license)}>
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ? this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName : "Loading..."}</thermal-button>
 
@@ -15502,8 +15499,8 @@ let Lo = class extends Fe {
 
       <registry-provider 
         slug="registry_${this.UUID}" 
-        from=${ve(this.from)}
-        to=${ve(this.to)}
+        from=${$e(this.from)}
+        to=${$e(this.to)}
       >
 
         <group-provider slug="group_${this.UUID}">
@@ -15511,26 +15508,24 @@ let Lo = class extends Fe {
           <file-provider 
             ${Ie(this.fileProviderRef)}
             thermal="${this.url}"
-            analysis1=${ve(this.analysis1)}
-            analysis2=${ve(this.analysis2)}
-            analysis3=${ve(this.analysis3)}
-            analysis4=${ve(this.analysis4)}
-            analysis5=${ve(this.analysis5)}
-            analysis6=${ve(this.analysis6)}
-            analysis7=${ve(this.analysis7)}
-            speed=${ve(this.speed)}
+            analysis1=${$e(this.analysis1)}
+            analysis2=${$e(this.analysis2)}
+            analysis3=${$e(this.analysis3)}
+            analysis4=${$e(this.analysis4)}
+            analysis5=${$e(this.analysis5)}
+            analysis6=${$e(this.analysis6)}
+            analysis7=${$e(this.analysis7)}
+            speed=${$e(this.speed)}
           >
 
             <slot name="mark" slot="mark"></slot>
             <slot name="analysis"></slot>
 
             <desktop-app 
-              
-              speed=${ve(this.speed)} 
-              author=${ve(this.author)} 
-              recorded=${ve(this.recorded)} 
-              license=${ve(this.license)}
-              label=${ve(this.label)}
+              author=${$e(this.author)} 
+              recorded=${$e(this.recorded)} 
+              license=${$e(this.license)}
+              label=${$e(this.label)}
             >
               <slot name="content" slot="content"></slot>
             </desktop-app>
