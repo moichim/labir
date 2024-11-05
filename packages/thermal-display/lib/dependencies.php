@@ -30,24 +30,24 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
 
         wp_register_style( 
             $styles_name, 
-            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.css",
-            plugin_dir_url( __DIR__  ) . 'assets/style.css', 
+            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.47/dist/embed.min.css",
+            // plugin_dir_url( __DIR__  ) . 'assets/style.css', 
             array(), 
             time() 
         );
 
         wp_register_script( 
             $scripts_name_cjs, 
-            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",
-            plugin_dir_url( __DIR__ ) . 'assets/embed.cjs.js' , 
+            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.47/dist/embed.min.js",
+            // plugin_dir_url( __DIR__ ) . 'assets/embed.cjs.js' , 
             array(), 
             time() 
         );
 
         wp_register_script( 
             $scripts_name_es, 
-            // "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.46/dist/embed.min.js",
-            plugin_dir_url( __DIR__ ) . 'assets/embed.es.js' , 
+            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.47/+esm",
+            // plugin_dir_url( __DIR__ ) . 'assets/embed.es.js' , 
             array(), 
             time() 
         );
