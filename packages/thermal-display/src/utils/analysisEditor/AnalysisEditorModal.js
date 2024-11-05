@@ -1,7 +1,7 @@
 import { React, useCallback, useMemo } from '@wordpress/element';
 
 import {
-    Modal, Button
+    Modal, Button, Notice
 } from '@wordpress/components';
 
 export const AnalysisEditorModal = ({
@@ -91,12 +91,6 @@ export const AnalysisEditorModal = ({
 
                         <div className="modal-editor__container">
 
-                            <div className="modal-editor__tools">
-
-                                <group-tool-buttons></group-tool-buttons>
-
-                            </div>
-
                             <div className="modal-editor__canvas" >
                                 <file-canvas></file-canvas>
                                 <div>
@@ -105,7 +99,12 @@ export const AnalysisEditorModal = ({
                             </div>
 
                             <div className="modal-editor__details">
-                                <div style={{ minHeight: "50%" }}>
+
+                                <p>Use the tools to draw analyses on the image!</p>
+
+                                <group-tool-buttons style={{paddingBottom: "1rem"}}></group-tool-buttons>
+
+                                <div style={{  }}>
                                     <file-analysis-table></file-analysis-table>
                                 </div>
                                 <div style={{ height: 300 }}>
@@ -115,9 +114,9 @@ export const AnalysisEditorModal = ({
 
                         </div>
 
-                        <div style={{ width: "100%" }}>
+                        <div style={{ width: "100%", paddingTop: "1rem" }}>
 
-                            <Button size="compact" variant="primary" style={{float: "right"}} onClick={() => setOpen(false)}>
+                            <Button size="compact" variant="primary" style={{  }} onClick={() => setOpen(false)}>
                                 Close
                             </Button>
 

@@ -13,7 +13,8 @@ import {
 	SelectControl,
 	TextControl,
 	Tooltip,
-	RangeControl
+	RangeControl,
+	PanelHeader
 } from '@wordpress/components';
 
 import './editor.scss';
@@ -212,25 +213,53 @@ export default function Edit({ attributes, setAttributes }) {
 					</PanelBody>
 
 					<PanelBody title="Visible file" initialOpen={false}>
-						{visible && <img src={visible} />}
 
-						<MediaUpload
-							allowedTypes="image"
-							onSelect={result => {
-								successfullyUploadedVisibleFile(result.url);
-							}}
-							render={({ open }) => (
-								<Button
-									onClick={() => {
-										startUploadingVisibleFile();
-										open();
-									}}
-									variant="primary"
-								>
-									{visible ? "Change file" : "Upload or select a visible image"}
-								</Button>
-							)}
-						/>
+						<div>
+							{visible && <img src={visible} />}
+
+							<MediaUpload
+								allowedTypes="image"
+								onSelect={result => {
+									successfullyUploadedVisibleFile(result.url);
+								}}
+								render={({ open }) => (
+									<>
+									<Button
+										onClick={() => {
+											startUploadingVisibleFile();
+											open();
+										}}
+										variant="primary"
+									>
+										{visible ? "Change file" : "Upload or select a visible image"}
+									</Button>
+									{visible && <Button
+										variant="secondary"
+										onClick={() => {
+											setAttributes( {visible: undefined, opacity: 1} );
+										}}
+									>Remove the file</Button>}
+									</>
+								)}
+							/>
+						</div>
+
+						{visible && <div
+							style={{ paddingTop: "1rem" }}
+						>
+							<RangeControl
+								__nextHasNoMarginBottom
+								label="IR image opacity"
+								help="If a visible file is provided, you can set the initial transparency of the thermal file."
+								value={opacity}
+								onChange={(value) => setAttributes({ opacity: value })}
+								min={0}
+								max={1}
+								step={0.01}
+							/>
+						</div>}
+
+
 					</PanelBody>
 
 					<PanelBody title="Information" initialOpen={false}>
@@ -366,15 +395,6 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => setAttributes({ speed: value })}
 										/>}
 
-										<RangeControl
-											__nextHasNoMarginBottom
-											label="Opacity"
-											value={opacity}
-											onChange={(value) => setAttributes({opacity: value})}
-											min={0}
-											max={1}
-											step={0.01}
-										/>
 
 									</file-provider>
 								</group-provider>

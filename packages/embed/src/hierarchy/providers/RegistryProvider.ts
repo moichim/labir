@@ -114,46 +114,7 @@ export class RegistryProviderElement extends ManagerConsumer {
 
         }
 
-    }
-
-    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-        super.attributeChangedCallback( name, _old, value );
-
-
-        // Project the range to internals
-/*
-        if ( ( name === "from" || name === "to" ) && value && this.registry ) {
-
-            const range = this.registry.range;
-
-            if ( this.from !== undefined && this.to !== undefined ) {
-
-                const newValue = {
-                    from: name === "from" ? parseFloat(value) : this.from,
-                    to: name === "to" ? parseFloat( value ) : this.to
-                }
-
-                if ( range.value !== undefined ) {
-
-                    const valueDiffers = this.from !== range.value?.from || this.to !== range.value.to;
-
-                    if ( valueDiffers ) {
-                        range.imposeRange( newValue );
-                    }
-
-                } else {
-                    range.imposeRange( newValue );
-                }
-
-
-            }
-
-        }
-
-        */
-
-        // Project the opacity to internals
-        if ( name=== "opacity" ) {
+        if ( _changedProperties.has( "opacity" ) ) {
             const sanitisedOpacity = Math.min( 1, Math.max( 0, this.opacity ) );
             if ( sanitisedOpacity !== this.registry.opacity.value ) {
                 this.registry.opacity.imposeOpacity( sanitisedOpacity );
@@ -161,6 +122,7 @@ export class RegistryProviderElement extends ManagerConsumer {
         }
 
     }
+
 
     protected render(): unknown {
         return html`<slot></slot>`;
