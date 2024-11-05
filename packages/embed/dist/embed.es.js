@@ -1,7 +1,7 @@
 var $h = Object.defineProperty;
 var Ch = (t, e, r) => e in t ? $h(t, e, { enumerable: !0, configurable: !0, writable: !0, value: r }) : t[e] = r;
 var o = (t, e, r) => (Ch(t, typeof e != "symbol" ? e + "" : e, r), r);
-const Xn = "1.2.46", kh = "Jan Jáchim <jachim5@gmail.com>";
+const Xn = "1.2.47", kh = "Jan Jáchim <jachim5@gmail.com>";
 /**
  * @license
  * Copyright 2019 Google LLC
@@ -10303,7 +10303,7 @@ let It = class extends it {
   createInitialAnalysis(t, e, r) {
     if (r !== void 0 && r.trim().length > 0) {
       const i = t.slots.createFromSerialized(r, e);
-      console.log(i), i == null || i.setSelected(!1, !0);
+      i == null || i.setSelected(!1, !0);
     }
   }
   handleLoaded(t) {

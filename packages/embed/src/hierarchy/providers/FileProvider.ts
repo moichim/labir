@@ -116,7 +116,6 @@ export class FileProviderElement extends AbstractFileProvider {
 
         if ( value !== undefined && value.trim().length > 0 ) {
             const analysis = instance.slots.createFromSerialized( value, index );
-            console.log( analysis );
             analysis?.setSelected( false, true );
         }
 

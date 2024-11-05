@@ -29,7 +29,7 @@ require( __DIR__ . '/lib/uploads.php' );
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
 function thermal_display_init_blocks() {
-	register_block_type( __DIR__ . '/build' );
+	register_block_type( __DIR__ . '/build/app' );
 }
 add_action( 'init', 'thermal_display_init_blocks' );
 

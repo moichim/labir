@@ -1,0 +1,124 @@
+import { React, useCallback, useMemo } from '@wordpress/element';
+
+import {
+    Modal
+} from '@wordpress/components';
+
+export const AnalysisEditorModal = ({
+    thermal,
+    open,
+    setOpen,
+    attributes,
+    setAttributes
+}) => {
+
+    const ID = useMemo(() => (Math.random() * 1000000).toFixed(0), []);
+    const getId = useCallback((input) => `${ID}__${input}`, [ID]);
+
+    const {
+        palette,
+        from,
+        to,
+        analysis1,
+        analysis2,
+        analysis3,
+        analysis4,
+        analysis5,
+        analysis6,
+        analysis7
+    } = attributes;
+
+    const fileProviderRef = useCallback(node => {
+
+        if (node) {
+
+            /** Mirror internal changes of analysis to the global state */
+            const closure = instance => {
+
+                instance.slots.onSlot1Serialize.set(ID, value => setAttributes({ analysis1: value }));
+
+                instance.slots.onSlot2Serialize.set(ID, value => setAttributes({ analysis2: value }));
+
+                instance.slots.onSlot3Serialize.set(ID, value => setAttributes({ analysis3: value }));
+
+                instance.slots.onSlot4Serialize.set(ID, value => setAttributes({ analysis4: value }));
+
+                instance.slots.onSlot5Serialize.set(ID, value => setAttributes({ analysis5: value }));
+
+                instance.slots.onSlot6Serialize.set(ID, value => setAttributes({ analysis6: value }));
+
+                instance.slots.onSlot7Serialize.set(ID, value => setAttributes({ analysis7: value }));
+
+            }
+
+            node.onInstanceCreated.set(getId("instance_created__2"), closure );
+
+        }
+
+    }, [thermal]);
+
+    // Return nothing when closed
+    if (!open) return <></>
+
+    return <Modal
+        title="Analysis editor"
+        isFullScreen
+        onRequestClose={() => setOpen(false)}
+    >
+        <manager-provider
+            slug={getId("manager")}
+            palette={palette}
+        >
+
+            <registry-provider
+                from={from}
+                to={to}
+            >
+
+                <group-provider>
+
+                    <file-provider
+                        thermal={thermal}
+                        ref={fileProviderRef}
+                        analysis1={analysis1}
+                        analysis2={analysis2}
+                        analysis3={analysis3}
+                        analysis4={analysis4}
+                        analysis5={analysis5}
+                        analysis6={analysis6}
+                        analysis7={analysis7}
+                    >
+
+                        <div className="modal-editor__container">
+
+                            <div className="modal-editor__tools">
+
+                                <group-tool-buttons></group-tool-buttons>
+
+                            </div>
+
+                            <div className="modal-editor__canvas" >
+                                <file-canvas></file-canvas>
+                                <div>
+                                    <file-timeline></file-timeline>
+                                </div>
+                            </div>
+
+                            <div className="modal-editor__details" >
+                                <file-analysis-table></file-analysis-table>
+                                <file-analysis-graph></file-analysis-graph>
+                            </div>
+
+                        </div>
+
+                    </file-provider>
+
+                </group-provider>
+
+            </registry-provider>
+
+        </manager-provider>
+
+    </Modal>
+
+}

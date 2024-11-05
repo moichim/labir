@@ -5,7 +5,9 @@
  */
 import { __ } from '@wordpress/i18n';
 
-import { useState, useMemo, createPortal, useRef, useEffect, useCallback, createElement } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+
+import { useAnalysisEditor } from '../utils/analysisEditor/useAnalysisEditor';
 
 /**
  * React hook that is used to mark the block wrapper element.
@@ -13,17 +15,13 @@ import { useState, useMemo, createPortal, useRef, useEffect, useCallback, create
  *
  * @see https://developer.wordpress.org/block-editor/reference-guides/packages/packages-block-editor/#useblockprops
  */
-import { InspectorControls, useBlockProps, MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
+import { InspectorControls, MediaUpload, MediaUploadCheck, useBlockProps } from '@wordpress/block-editor';
 import {
-	PanelBody, TextControl, SelectControl, DropZone, Button, FormFileUpload, Card,
-	CardBody,
-	CardDivider,
-	CardFooter,
-	CardHeader,
-	CardMedia,
+	Button,
+	PanelBody,
 	Placeholder,
-	BaseControl, useBaseControlProps,
-	Modal,
+	SelectControl,
+	TextControl,
 	Tooltip
 } from '@wordpress/components';
 
@@ -36,7 +34,9 @@ import {
 import './editor.scss';
 import { useRegisterIframeScript } from './hooks/useRegisterIframeScript';
 
-import {useAnalysis} from "./hooks/useAnalysis";
+import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
+import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
+import { useAnalysis } from "./hooks/useAnalysis";
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -50,15 +50,8 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const ID = useMemo(() => Math.random().toString());
 
+	/** Register the webcomponents if not already */
 	useRegisterIframeScript();
-
-	const registryElement = useRef(null);
-	const managerElement = useRef(null);
-
-	const [isModalOpen, setModalOpen] = useState(false);
-	const openModal = () => setModalOpen(true);
-	const closeModal = () => setModalOpen(false);
-
 
 	const {
 		webcomponent,
@@ -81,6 +74,10 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
 
+	const [previewFile, setPreviewFile] = useState();
+
+	const { open, setOpen } = useAnalysisEditor();
+
 	const startUploadingFile = () => {
 		const backup = thermal;
 		setThermalBackup(backup);
@@ -101,6 +98,8 @@ export default function Edit({ attributes, setAttributes }) {
 		if (node) {
 
 			node.onInstanceCreated.set(ID + "___sth", instance => {
+
+				setPreviewFile(instance);
 
 				if (instance.moutedBaseLayers) {
 					instance.unmountFromDom();
@@ -140,81 +139,7 @@ export default function Edit({ attributes, setAttributes }) {
 
 	}, []);
 
-	const getFreeField = () => {
-		for (let i = 1; i <= 7; i++) {
-			const key = `analysis${i}`;
-			const currentValue = attributes[key];
-			if (currentValue !== undefined || currentValue !== "") {
-				return key;
-			}
-		}
 
-		return undefined;
-	}
-
-	const [analysisFile, setAnalysisFile] = useState();
-
-	const {map, registerAnalysis} = useAnalysis( attributes, setAttributes, analysisFile );
-
-	useEffect(() => {
-
-		if ( analysisFile ) {
-
-			analysisFile.analysis.layers.onAdd.set( "registerOnAdd", analysis => {
-				console.log( "registering analysis" );
-				// registerAnalysis( analysis );
-			} );
-
-		}
-
-		return () => {
-			// analysisFile.analysis.layers.onAdd.delete( "registerOnAdd" );
-		}
-
-	}, [
-		analysisFile,
-		analysis1,
-		analysis2,
-		analysis3,
-		analysis3,
-		analysis4,
-		analysis5,
-		analysis6,
-		analysis7,
-		setAttributes, registerAnalysis
-	]);
-
-
-	const analysisSettingsCallbacks = useCallback(node => {
-
-		if (node) {
-
-			node.onInstanceCreated.set(ID + "___sth", instance => {
-
-				setAnalysisFile(instance);
-
-				instance.slots.onSlot1Serialize.set( "wtf", value => setAttributes({ analysis1: value }) );
-				instance.slots.onSlot2Serialize.set( "wtf", value => setAttributes({ analysis2: value }) );
-				instance.slots.onSlot3Serialize.set( "wtf", value => setAttributes({ analysis3: value }) );
-				instance.slots.onSlot4Serialize.set( "wtf", value => setAttributes({ analysis4: value }) );
-				instance.slots.onSlot5Serialize.set( "wtf", value => setAttributes({ analysis5: value }) );
-				instance.slots.onSlot6Serialize.set( "wtf", value => setAttributes({ analysis6: value }) );
-				instance.slots.onSlot7Serialize.set( "wtf", value => setAttributes({ analysis7: value }) );
-
-			});
-
-			node.registry.range.addListener(ID, value => {
-
-				if (value instanceof Object) {
-					setAttributes(value);
-				} else {
-					setAttributes({ from: undefined, to: undefined });
-				}
-			});
-
-		}
-
-	}, []);
 
 
 	return (
@@ -224,6 +149,14 @@ export default function Edit({ attributes, setAttributes }) {
 				<InspectorControls >
 
 					<PanelBody title="Thermal file">
+
+						<AnalysisEditorModal
+							thermal={thermal}
+							open={open}
+							setOpen={setOpen}
+							attributes={attributes}
+							setAttributes={setAttributes}
+						/>
 
 
 						{thermal &&
@@ -257,6 +190,7 @@ export default function Edit({ attributes, setAttributes }) {
 								onSelect={result => {
 									successfullyUploadedFile(result.url);
 								}}
+								onClose={cancalUploadingFile}
 								render={({ open }) => (
 									<>
 										<Button
@@ -269,14 +203,11 @@ export default function Edit({ attributes, setAttributes }) {
 										>
 											{thermal ? "Change file" : "Upload or select a LRC file"}
 										</Button>
-										{thermal && <Button
-											variant="secondary"
-											size="compact"
-											onClick={() => {
-												isModalOpen ? closeModal() : openModal();
-											}}
-										>Edit analysis</Button>
-										}
+
+										{thermal && <AnalysisEditorTrigger
+											setOpen={setOpen}
+										/>}
+
 									</>
 								)}
 							/>
@@ -393,69 +324,7 @@ export default function Edit({ attributes, setAttributes }) {
 
 				</InspectorControls>
 
-				{isModalOpen && (
-					<Modal
-						title="Analysis editor"
-						onRequestClose={closeModal}
-						isFullScreen
-					>
 
-						<manager-provider
-							slug={ID + "___editor"}
-							palette={palette}
-							ref={managerElement}
-						>
-							<registry-provider
-								ref={registryElement}
-								from={from}
-								to={to}
-							>
-								<group-provider>
-									<file-provider 
-										thermal={thermal}
-										ref={analysisSettingsCallbacks}
-										analysis1={analysis1}
-										analysis2={analysis2}
-										analysis3={analysis3}
-										analysis4={analysis4}
-										analysis5={analysis5}
-										analysis6={analysis6}
-										analysis7={analysis7}
-									>
-										<div className="modal-editor__container">
-
-											<div className="modal-editor__tools">
-
-												<group-tool-buttons></group-tool-buttons>
-
-											</div>
-
-											<div className="modal-editor__canvas" >
-												<file-canvas></file-canvas>
-												<div>
-													<file-timeline></file-timeline>
-												</div>
-											</div>
-
-											<div className="modal-editor__details" >
-												<file-analysis-table></file-analysis-table>
-												<file-analysis-graph></file-analysis-graph>
-											</div>
-
-										</div>
-
-									</file-provider>
-								</group-provider>
-							</registry-provider>
-						</manager-provider>
-
-
-
-						<Button variant="secondary" onClick={closeModal}>
-							Close
-						</Button>
-					</Modal>
-				)}
 			</MediaUploadCheck>
 
 
