@@ -9,7 +9,7 @@ export default defineConfig({
     root: path.resolve( "./src" ),
     publicDir: path.resolve( "../../public" ),
     build: {
-        /*
+        
         rollupOptions: {
             input: {
                 embed: path.resolve( "./src/index.ts" ),
@@ -18,9 +18,7 @@ export default defineConfig({
                 entryFileNames: '[name].js',
                 assetFileNames: '[name].[ext]',
             },
-        },
-        */
-       rollupOptions: {
+            /*
         plugins: [{
             name: "closeBundle",
             closeBundle() {
@@ -40,19 +38,22 @@ export default defineConfig({
                 console.log( "@labir/embed build copied into @labir/wordpress" );
             }
         }]
-       },
+        */
+        },
         outDir: path.resolve( "./dist" ),
         emptyOutDir: true,
         copyPublicDir: false,
         minify: true,
     
         // Export as library
+        /*
         lib: {
             entry: path.resolve( "./src/index.ts" ),
             formats: [ "cjs", "es" ],
             fileName: (format) => `embed.${format}.js`,
             name: "labir_embed"
         }
+        */
     },
 
     plugins: [
