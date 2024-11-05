@@ -125,6 +125,7 @@ var ThermalInstance = (_a) => {
 };
 
 // src/components/dropin/useThermalDropin.ts
+import { ThermalFileReader } from "@labir/core";
 import { useDropzone } from "react-dropzone";
 
 // src/properties/lists/useThermalGroupInstancesState.ts
@@ -177,15 +178,23 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
 // src/components/dropin/useThermalDropin.ts
 var useThermalDropin = (registry, groupId) => {
   const ID = useThermalObjectPurpose(registry, "useThermalDropin", true);
+  const group = registry.groups.addOrGetGroup(groupId);
   const dropzone = useDropzone({
     onDrop: (acceptedFiles) => __async(void 0, null, function* () {
-      registry.processDroppedFiles(acceptedFiles, groupId);
+      const instances2 = yield Promise.all(
+        acceptedFiles.map((file) => __async(void 0, null, function* () {
+          const result = yield registry.service.loadUploadedFile(file);
+          if (result instanceof ThermalFileReader) {
+            return yield result.createInstance(group);
+          }
+        }))
+      );
+      registry.postLoadedProcessing();
     }),
     accept: {
       "application/x-binary": [".lrc"]
     }
   });
-  const group = registry.groups.addOrGetGroup(groupId);
   const instances = useThermalGroupInstancesState(group, ID);
   return {
     group,

@@ -180,6 +180,7 @@ var ThermalInstance = (_a) => {
 };
 
 // src/components/dropin/useThermalDropin.ts
+var import_core2 = require("@labir/core");
 var import_react_dropzone = require("react-dropzone");
 
 // src/properties/lists/useThermalGroupInstancesState.ts
@@ -232,15 +233,23 @@ var useThermalObjectPurpose = (object, purpose, individual = false) => {
 // src/components/dropin/useThermalDropin.ts
 var useThermalDropin = (registry, groupId) => {
   const ID = useThermalObjectPurpose(registry, "useThermalDropin", true);
+  const group = registry.groups.addOrGetGroup(groupId);
   const dropzone = (0, import_react_dropzone.useDropzone)({
     onDrop: (acceptedFiles) => __async(void 0, null, function* () {
-      registry.processDroppedFiles(acceptedFiles, groupId);
+      const instances2 = yield Promise.all(
+        acceptedFiles.map((file) => __async(void 0, null, function* () {
+          const result = yield registry.service.loadUploadedFile(file);
+          if (result instanceof import_core2.ThermalFileReader) {
+            return yield result.createInstance(group);
+          }
+        }))
+      );
+      registry.postLoadedProcessing();
     }),
     accept: {
       "application/x-binary": [".lrc"]
     }
   });
-  const group = registry.groups.addOrGetGroup(groupId);
   const instances = useThermalGroupInstancesState(group, ID);
   return {
     group,
@@ -601,20 +610,20 @@ var import_react_ranger = require("@tanstack/react-ranger");
 var import_react27 = __toESM(require("react"));
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
-var import_core3 = require("@labir/core");
+var import_core4 = require("@labir/core");
 var import_react18 = require("react");
 
 // src/context/thermalManagerContext.tsx
 var import_react17 = __toESM(require("react"));
 
 // src/context/useThermalManagerInternal.ts
-var import_core2 = require("@labir/core");
+var import_core3 = require("@labir/core");
 var import_react16 = require("react");
 var useThermalManagerInternal = (pool, options, externalInstance) => {
   return (0, import_react16.useMemo)(() => {
     if (externalInstance)
       return externalInstance;
-    return new import_core2.ThermalManager(pool, options);
+    return new import_core3.ThermalManager(pool, options);
   }, []);
 };
 
@@ -645,7 +654,7 @@ var useThermalManagerPaletteDrive = (purpose) => {
     return () => manager.palette.removeListener(purpose);
   }, []);
   const availablePalettes = (0, import_react18.useMemo)(() => {
-    return import_core3.ThermalPalettes;
+    return import_core4.ThermalPalettes;
   }, []);
   return {
     value,
