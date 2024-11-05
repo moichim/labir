@@ -2,58 +2,10 @@ import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import {ifDefined} from 'lit/directives/if-defined.js';
+import { BaseApp } from "../BaseApp";
 
 @customElement("thermal-file-app")
-export class SingleFileAppIsolated extends BaseElement {
-
-  @property({type: String, reflect: true})
-  palette: "jet"|"iron"|"grayscle" = "jet";
-
-  @property({type: Number})
-  from?: number;
-
-  @property({type: Number})
-  to?: number;
-
-  @property({type: Number, reflect: true})
-  speed?: number;
-
-  // Declare reactive properties
-  @property({ type: String, reflect: true })
-  url?: string = "";
-
-  @property({type: String, reflect: true})
-  analysis1?: string;
-
-  @property({type: String, reflect: true})
-  analysis2?: string;
-
-  @property({type: String, reflect: true})
-  analysis3?: string;
-
-  @property({type: String, reflect: true})
-  analysis4?: string;
-
-  @property({type: String, reflect: true})
-  analysis5?: string;
-
-  @property({type: String, reflect: true})
-  analysis6?: string;
-
-  @property({type: String, reflect: true})
-  analysis7?: string;
-
-  @property()
-  author?: string;
-
-  @property()
-  recorded?: string;
-
-  @property()
-  license?: string;
-
-  @property()
-  label?: string;
+export class SingleFileAppIsolated extends BaseApp {
 
   protected render(): unknown {
 
@@ -65,7 +17,11 @@ export class SingleFileAppIsolated extends BaseElement {
 
     <manager-provider slug="manager_${this.UUID}" palette=${this.palette}>
 
-      <registry-provider slug="registry_${this.UUID}">
+      <registry-provider 
+        slug="registry_${this.UUID}"
+        from=${ifDefined( this.from )}
+        to=${ifDefined( this.to )}
+      >
 
         <group-provider slug="group_${this.UUID}">
 

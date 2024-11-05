@@ -7,15 +7,6 @@ import { Instance, TimeFormat } from "@labir/core";
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
 
-  @property({ type: Number })
-  from?: number;
-
-  @property({ type: Number })
-  to?: number;
-
-  @property({ type: Number })
-  speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
-
   @property({ type: String, reflect: true, attribute: true })
   showembed: boolean = true;
 
@@ -63,26 +54,6 @@ export class SingleFileApp extends FileConsumer {
     }
   
   `;
-
-  protected willUpdate(_changedProperties: PropertyValues): void {
-    super.willUpdate(_changedProperties);
-
-    // Project eventual changes into the file
-    if (this.file) {
-      // Project the speed
-      if (this.speed !== undefined) {
-        this.file.timeline.playbackSpeed = this.speed;
-      }
-      // Project the range
-      if (this.from !== undefined && this.to !== undefined) {
-        this.registry.range.imposeRange({
-          from: this.from,
-          to: this.to
-        });
-      }
-    }
-
-  }
 
   protected render(): unknown {
 
