@@ -1,6 +1,6 @@
 {
   "name": "@labir/tailwind",
-  "version": "1.2.47",
+  "version": "1.2.48",
   "description": "TailwindCSS UI for @labir/core and @labir/react-bridge",
   "private": true,
   "main": "index.js",
