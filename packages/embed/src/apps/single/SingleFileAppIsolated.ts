@@ -28,6 +28,7 @@ export class SingleFileAppIsolated extends BaseApp {
 
           <file-provider 
             thermal="${this.url}" 
+            visible=${ifDefined(this.visible)}
             analysis1=${ifDefined(this.analysis1)}
             analysis2=${ifDefined(this.analysis2)}
             analysis3=${ifDefined(this.analysis3)}
