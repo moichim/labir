@@ -129,6 +129,11 @@ export class ThermalFileReader extends AbstractFileResult {
         return await this.parser.ellipsisAnalysisData( this.buffer, x, y, width, height );
     }
 
+    /** 
+     * Recalculates the core array buffer using all available filters. 
+     * 
+     * This method does not emit anything - it only changes the array buffer.
+     */
     async applyFilters(
         filters: AbstractFilter[]
     ): Promise<ThermalFileReader> {

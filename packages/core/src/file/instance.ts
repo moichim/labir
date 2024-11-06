@@ -25,13 +25,6 @@ export class Instance extends AbstractFile {
     declare public analysisData: AnalysisDataState;
     public slots!: AnalysisSlotsState;
 
-    public exportAsPng(): void {
-        this.export.canvasAsPng();
-    }
-    public exportThermalDataAsSvg(): void {
-        throw new Error("Method not implemented.");
-    }
-
     /**
      * Exports
      */
@@ -46,7 +39,7 @@ export class Instance extends AbstractFile {
     }
 
 
-    protected constructor(
+    private constructor(
         public readonly group: ThermalGroup,
         public readonly reader: ThermalFileReader,
         baseInfo: ParsedFileBaseInfo,
@@ -60,52 +53,52 @@ export class Instance extends AbstractFile {
             reader.thermalUrl,
             reader.visibleUrl
         );
-/*
-        super( 
-            group,
-            reader.thermalUrl, 
-            width, 
-            height,
-            initialPixels,
-            timestamp,
-            duration,
-            min,
-            max,
-            frameCount,
-            reader.visibleUrl 
-        );
-        */
-        this.setPixels( firstFrame.pixels );
+
+        this.setPixels(firstFrame.pixels);
 
     }
 
-    public postInit() {
+    protected doBuildInnerDom() {
         this.canvasLayer = new ThermalCanvasLayer(this);
         this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
         this.cursorLayer = new ThermalCursorLayer(this);
         this.listenerLayer = new ThermalListenerLayer(this);
+    }
+
+    protected doDestroyInnerDom() {
+        this.canvasLayer.destroy();
+        this.visibleLayer.destroy();
+        this.cursorLayer.destroy();
+        this.listenerLayer.destroy();
+    }
+
+    public postInit() {
+
+        this.buildInnerDom();
+        
         this.cursorValue = new CursorValueDrive(this, undefined);
-        this.timeline = new TimelineDrive( this, 0, this.timelineData, this.firstFrame );
+        this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
         this.timeline.init();
-        this.recording = new RecordingDrive( this, false );
+        this.recording = new RecordingDrive(this, false);
         this.analysis = new AnalysisDrive(this, []);
         this.analysisData = new AnalysisDataState(this);
         this.slots = new AnalysisSlotsState(this, new Map);
+
         return this;
     }
 
-    protected formatId( thermalUrl: string ) {
+    protected formatId(thermalUrl: string) {
         return `instance_${this.group.id}_${thermalUrl}`;
     }
 
     protected onSetPixels(value: number[]): void {
-        
+
         value;
-       
+
 
         // If this file is loaded, recalculate all side effects
-        if (this.mountedBaseLayers) {
-            
+        if (this.mounted) {
+
             // Redraw
             this.draw();
 
@@ -116,22 +109,22 @@ export class Instance extends AbstractFile {
             if (this.group.cursorPosition.value) {
 
                 // Get the new value
-                const label = this.group.tool.value.getLabelValue( this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this );
+                const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
 
                 // Set the value
                 this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
             }
 
             // Recalculate all analysis
-            this.analysis.value.forEach( analysis => analysis.recalculateValues() );
+            this.analysis.value.forEach(analysis => analysis.recalculateValues());
         }
-        
+
     }
 
     public getPixelsForHistogram(): number[] {
         return [];
     }
-    
+
 
     public static fromService(
         group: ThermalGroup,
@@ -208,11 +201,11 @@ export class Instance extends AbstractFile {
     ) {
 
         // If position
-        if ( position !== undefined ) {
+        if (position !== undefined) {
 
             // Get label value from the current tool
-            const label = this.group.tool.value.getLabelValue( position.x, position.y, this );
-            this.cursorLayer.setLabel( position.x, position.y, label );
+            const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
+            this.cursorLayer.setLabel(position.x, position.y, label);
 
             this.cursorLayer.show = true;
 
@@ -221,14 +214,14 @@ export class Instance extends AbstractFile {
             this.cursorLayer.resetCursor();
         }
 
-        
+
         // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
 
     }
 
 
-    public readonly filters = new FilterContainer( this );
+    public readonly filters = new FilterContainer(this);
 
     public getInstances() {
         return [this];
@@ -250,21 +243,30 @@ export class Instance extends AbstractFile {
 
     }
 
-    public applyAllAvailableFilters() {
+    public async applyAllAvailableFilters() {
 
         const filters = this.getAllApplicableFilters();
 
-        this.reader.applyFilters( filters );
+        this.reader.applyFilters(filters);
 
-        const root = this.root;
-        const reader = this.reader;
-        const group = this.group;
+        // Get new info
+        const baseInfo = await this.reader.baseInfo();
+        const frameData = await this.reader.frameData(this.timeline.currentStep.index);
 
-        // this.unmountFromDom();
+        // If the dimensions change, unmount from DOM and mount again to create new canvas
+        if (this.root) {
 
-        // this.group.files.removeFile( this );
+            const container = this.root;
+            this.unmountFromDom();
+            this.mountToDom(container);
 
-        // const newFile = Instance.fromService( group, reader );
+        }
+
+        // Update the base info of the file
+        this.meta.set(baseInfo);
+
+        this.setPixels(frameData.pixels);
+
 
     }
 

@@ -17,6 +17,6 @@ export interface IFileInstance extends IThermalInstance, BaseStructureObject {
     verticalLimit: number,
     duration: number,
     isHover: boolean,
-    mountedBaseLayers: boolean,
+    mounted: boolean,
 }
 

@@ -867,7 +867,6 @@ var AbstractFile = class extends BaseStructureObject {
   get pool() {
     return this.group.registry.manager.pool;
   }
-  /** @deprecated */
   thermalUrl;
   visibleUrl;
   fileName;
@@ -935,11 +934,18 @@ var AbstractFile = class extends BaseStructureObject {
   // Recording is lazyloaded
   recording;
   _mounted = false;
-  get mountedBaseLayers() {
+  get mounted() {
     return this._mounted;
   }
-  set mountedBaseLayers(value) {
+  set mounted(value) {
     this._mounted = value;
+  }
+  _built = false;
+  get built() {
+    return this._built;
+  }
+  set built(value) {
+    this._built = value;
   }
   _pixels;
   get pixels() {
@@ -961,19 +967,46 @@ var AbstractFile = class extends BaseStructureObject {
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
   }
+  buildInnerDom(force = true) {
+    if (this.built === true && force === true) {
+      this.destroyInnerDom();
+    }
+    if (this.built === false) {
+      this.doBuildInnerDom();
+      if (this.root) {
+        this.root.classList.add("thermalImageRoot");
+        this.root.style.transition = "border-color .1s ease-in-out";
+        this.root.style.zIndex = "10";
+        this.root.style.position = "relative";
+        this.root.style.lineHeight = "0";
+        this.root.dataset.thermalFile = this.id;
+        this.root.dataset.built = "true";
+      }
+      this.built = true;
+    }
+  }
+  destroyInnerDom() {
+    this.unmountListener();
+    if (this.root) {
+      this.root.classList.remove("thermalImageRoot");
+      this.root.style.removeProperty("transition");
+      this.root.style.removeProperty("zIndex");
+      this.root.style.removeProperty("position");
+      this.root.style.removeProperty("lineHeight");
+      this.root.dataset.thermalFile = void 0;
+      this.root.dataset.built = "false";
+    }
+    this.doDestroyInnerDom();
+    this.built = false;
+  }
   /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
   attachToDom(container) {
-    if (this.root !== null || this.mountedBaseLayers === true) {
+    if (this.root !== null || this.mounted === true) {
       console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
-      this.detachFromDom();
-      this.unmountListener();
+      this.destroyInnerDom();
     }
     this.root = container;
-    this.root.classList.add("thermalImageRoot");
-    this.root.style.transition = "border-color .1s ease-in-out";
-    this.root.style.zIndex = "10";
-    this.root.style.position = "relative";
-    this.root.style.lineHeight = "0";
+    this.buildInnerDom();
     if (this.visibleLayer.exists)
       this.visibleLayer.mount();
     this.canvasLayer.mount();
@@ -981,7 +1014,7 @@ var AbstractFile = class extends BaseStructureObject {
     this.root.dataset.thermalFile = this.id;
     this.root.dataset.mounted = "true";
     this.mountListener();
-    this.mountedBaseLayers = true;
+    this.mounted = true;
   }
   /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
   detachFromDom() {
@@ -992,11 +1025,9 @@ var AbstractFile = class extends BaseStructureObject {
       this.root.dataset.mounted = "false";
       this.root.dataset.thermalFile = void 0;
     }
-    this.visibleLayer.unmount();
-    this.canvasLayer.unmount();
-    this.cursorLayer.unmount();
     this.unmountListener();
-    this.mountedBaseLayers = false;
+    this.destroyInnerDom();
+    this.mounted = false;
   }
   mountToDom(container) {
     this.attachToDom(container);
@@ -1005,7 +1036,7 @@ var AbstractFile = class extends BaseStructureObject {
     this.detachFromDom();
   }
   draw() {
-    if (this.mountedBaseLayers === true)
+    if (this.mounted === true)
       this.canvasLayer.draw();
   }
   recievePalette(palette) {
@@ -4492,12 +4523,6 @@ var Instance = class _Instance extends AbstractFile {
     this.setPixels(firstFrame.pixels);
   }
   slots;
-  exportAsPng() {
-    this.export.canvasAsPng();
-  }
-  exportThermalDataAsSvg() {
-    throw new Error("Method not implemented.");
-  }
   /**
    * Exports
    */
@@ -4510,11 +4535,20 @@ var Instance = class _Instance extends AbstractFile {
     }
     return this._export;
   }
-  postInit() {
+  doBuildInnerDom() {
     this.canvasLayer = new ThermalCanvasLayer(this);
     this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
     this.cursorLayer = new ThermalCursorLayer(this);
     this.listenerLayer = new ThermalListenerLayer(this);
+  }
+  doDestroyInnerDom() {
+    this.canvasLayer.destroy();
+    this.visibleLayer.destroy();
+    this.cursorLayer.destroy();
+    this.listenerLayer.destroy();
+  }
+  postInit() {
+    this.buildInnerDom();
     this.cursorValue = new CursorValueDrive(this, void 0);
     this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
     this.timeline.init();
@@ -4529,7 +4563,7 @@ var Instance = class _Instance extends AbstractFile {
   }
   onSetPixels(value) {
     value;
-    if (this.mountedBaseLayers) {
+    if (this.mounted) {
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
@@ -4605,12 +4639,18 @@ var Instance = class _Instance extends AbstractFile {
       ...file
     ];
   }
-  applyAllAvailableFilters() {
+  async applyAllAvailableFilters() {
     const filters = this.getAllApplicableFilters();
     this.reader.applyFilters(filters);
-    const root = this.root;
-    const reader = this.reader;
-    const group = this.group;
+    const baseInfo2 = await this.reader.baseInfo();
+    const frameData2 = await this.reader.frameData(this.timeline.currentStep.index);
+    if (this.root) {
+      const container = this.root;
+      this.unmountFromDom();
+      this.mountToDom(container);
+    }
+    this.meta.set(baseInfo2);
+    this.setPixels(frameData2.pixels);
   }
 };
 
@@ -5179,6 +5219,11 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   async ellipsisAnalysisData(x, y, width, height) {
     return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
   }
+  /** 
+   * Recalculates the core array buffer using all available filters. 
+   * 
+   * This method does not emit anything - it only changes the array buffer.
+   */
   async applyFilters(filters) {
     if (this.originalBuffer === void 0) {
       console.error("trying to apply filters on a filereader template");

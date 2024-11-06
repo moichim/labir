@@ -1645,11 +1645,15 @@ interface IFileInstance extends IThermalInstance, BaseStructureObject {
     verticalLimit: number;
     duration: number;
     isHover: boolean;
-    mountedBaseLayers: boolean;
+    mounted: boolean;
 }
 
-/** Define methods for all files.
- * @deprecated Replace by Instance! This class is not needed anymore since it comes from the time of `ThermalFileInstance` */
+/** Displayable object for every file type.
+ *
+ * This class takes care of the display fundamentals.
+ *
+ * Most drivers are set in individual implementations, not here.
+ */
 declare abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
     readonly id: string;
     /** Internal limit for cursor label position */
@@ -1658,7 +1662,6 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     readonly verticalLimit: number;
     readonly group: ThermalGroup;
     get pool(): Pool;
-    /** @deprecated */
     readonly thermalUrl: string;
     readonly visibleUrl?: string;
     readonly fileName: string;
@@ -1694,16 +1697,23 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     analysis: AnalysisDrive;
     recording: RecordingDrive;
     private _mounted;
-    get mountedBaseLayers(): boolean;
-    protected set mountedBaseLayers(value: boolean);
+    get mounted(): boolean;
+    protected set mounted(value: boolean);
+    private _built;
+    get built(): boolean;
+    protected set built(value: boolean);
     private _pixels;
     get pixels(): number[];
     setPixels(value: number[]): void;
     abstract getPixelsForHistogram(): number[];
     constructor(group: ThermalGroup, baseInfo: ParsedFileBaseInfo, initialPixels: number[], thermalUrl: string, visibleUrl?: string);
-    abstract postInit(): AbstractFile;
+    abstract postInit(): ThisType<AbstractFile>;
     protected abstract onSetPixels(value: number[]): void;
     protected abstract formatId(thermalUrl: string): string;
+    protected abstract doBuildInnerDom(): void;
+    protected abstract doDestroyInnerDom(): void;
+    buildInnerDom(force?: boolean): void;
+    destroyInnerDom(): void;
     /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
     protected attachToDom(container: HTMLDivElement): void;
     /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
@@ -1721,8 +1731,6 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     recieveRange(value: ThermalRangeOrUndefined): void;
     reset(): void;
     recieveOpacity(value: number): void;
-    abstract exportAsPng(): void;
-    abstract exportThermalDataAsSvg(): void;
 }
 
 /**
@@ -1763,6 +1771,11 @@ declare class ThermalFileReader extends AbstractFileResult {
     pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
     rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
     ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
+    /**
+     * Recalculates the core array buffer using all available filters.
+     *
+     * This method does not emit anything - it only changes the array buffer.
+     */
     applyFilters(filters: AbstractFilter[]): Promise<ThermalFileReader>;
     createInstance(group: ThermalGroup): Promise<Instance>;
 }
@@ -1783,15 +1796,15 @@ declare class Instance extends AbstractFile {
     analysis: AnalysisDrive;
     analysisData: AnalysisDataState;
     slots: AnalysisSlotsState;
-    exportAsPng(): void;
-    exportThermalDataAsSvg(): void;
     /**
      * Exports
      */
     protected _export?: ThermalFileExport;
     /** Lazy-loaded `ThermalFileExport` object */
     get export(): ThermalFileExport;
-    protected constructor(group: ThermalGroup, reader: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame);
+    private constructor();
+    protected doBuildInnerDom(): void;
+    protected doDestroyInnerDom(): void;
     postInit(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;
@@ -1803,7 +1816,7 @@ declare class Instance extends AbstractFile {
     readonly filters: FilterContainer;
     getInstances(): this[];
     getAllApplicableFilters(): AbstractFilter[];
-    applyAllAvailableFilters(): void;
+    applyAllAvailableFilters(): Promise<void>;
 }
 
 declare abstract class BaseStructureObject {
