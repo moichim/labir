@@ -14,6 +14,9 @@ import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
 import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
 import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
+import { AbstractFilter } from "../filters/AbstractFilter";
+import { FilterContainer } from "../filters/FilterContainer";
+import { FileMeta } from "./FileMeta";
 
 export class Instance extends AbstractFile {
 
@@ -45,32 +48,22 @@ export class Instance extends AbstractFile {
 
     protected constructor(
         public readonly group: ThermalGroup,
-        public readonly service: ThermalFileReader,
-        /**  @todo This dimension should be 1 pixel smaller */
-        public readonly width: number,
-        /** @todo This dimension should be 1 pixel smaller */
-        public readonly height: number,
-        public readonly timestamp: number,
-        public readonly frameCount: number,
-        public readonly duration: number,
-        /** @deprecated */
-        public readonly frameInterval: number,
-        initialPixels: number[],
-        /** @deprecated */
-        public readonly fps: number,
-        public readonly min: number,
-        public readonly max: number,
-        public readonly bytesize: number,
-        /** @deprecated not used anymore */
-        public readonly averageEmissivity: number,
-        /** @deprecated not used anymore */
-        public readonly averageReflectedKelvins: number,
+        public readonly reader: ThermalFileReader,
+        baseInfo: ParsedFileBaseInfo,
         public readonly firstFrame: ParsedFileFrame,
-        public readonly timelineData: ParsedFileBaseInfo["timeline"]
     ) {
+
+        super(
+            group,
+            baseInfo,
+            firstFrame.pixels,
+            reader.thermalUrl,
+            reader.visibleUrl
+        );
+/*
         super( 
             group,
-            service.thermalUrl, 
+            reader.thermalUrl, 
             width, 
             height,
             initialPixels,
@@ -79,9 +72,11 @@ export class Instance extends AbstractFile {
             min,
             max,
             frameCount,
-            service.visibleUrl 
+            reader.visibleUrl 
         );
-        this.pixels = firstFrame.pixels;
+        */
+        this.setPixels( firstFrame.pixels );
+
     }
 
     public postInit() {
@@ -145,24 +140,12 @@ export class Instance extends AbstractFile {
         firstFrame: ParsedFileFrame,
     ): Instance {
 
+
         const instance = new Instance(
             group,
             service,
-            baseInfo.width,
-            baseInfo.height,
-            baseInfo.timestamp,
-            baseInfo.frameCount,
-            baseInfo.duration,
-            baseInfo.frameInterval,
-            firstFrame.pixels,
-            baseInfo.fps,
-            baseInfo.min,
-            baseInfo.max,
-            baseInfo.bytesize,
-            baseInfo.averageEmissivity,
-            baseInfo.averageReflectedKelvins,
-            firstFrame,
-            baseInfo.timeline
+            baseInfo,
+            firstFrame
         );
 
         return instance.postInit();
@@ -241,6 +224,47 @@ export class Instance extends AbstractFile {
         
         // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
+
+    }
+
+
+    public readonly filters = new FilterContainer( this );
+
+    public getInstances() {
+        return [this];
+    }
+
+    public getAllApplicableFilters(): AbstractFilter[] {
+
+        const manager = this.group.registry.manager.filters.getActiveFilters();
+        const registry = this.group.registry.filters.getActiveFilters();
+        const group = this.group.filters.getActiveFilters();
+        const file = this.filters.getActiveFilters();
+
+        return [
+            ...manager,
+            ...registry,
+            ...group,
+            ...file
+        ];
+
+    }
+
+    public applyAllAvailableFilters() {
+
+        const filters = this.getAllApplicableFilters();
+
+        this.reader.applyFilters( filters );
+
+        const root = this.root;
+        const reader = this.reader;
+        const group = this.group;
+
+        // this.unmountFromDom();
+
+        // this.group.files.removeFile( this );
+
+        // const newFile = Instance.fromService( group, reader );
 
     }
 

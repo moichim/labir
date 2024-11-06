@@ -2,6 +2,7 @@
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
+import { FilterContainer } from "../filters/FilterContainer";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
@@ -251,6 +252,22 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
      * Palette
      */
     public readonly palette;
+
+
+    public readonly filters = new FilterContainer( this );
+
+    public getInstances() {
+        let instances: Instance[] = [];
+
+        this.groups.value.forEach( group => {
+            instances = [ 
+                ...instances, 
+                ...group.getInstances() 
+            ];
+        } );
+
+        return instances;
+    }
 
 
 

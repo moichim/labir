@@ -1,10 +1,14 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
+import { AbstractFilter } from "../filters/AbstractFilter";
+import { FilterContainer } from "../filters/FilterContainer";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { ParsedFileBaseInfo } from "../loading/workers/parsers/structure";
 import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
 import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
+import { FileMeta } from "./FileMeta";
 import { IFileInstance } from "./IFileInstance";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
@@ -17,19 +21,23 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
 
     public readonly id: string;
+
+    /** Internal limit for cursor label position */
     public readonly horizontalLimit: number;
+    
+    /** Internal limit for cursor label position */
     public readonly verticalLimit: number;
 
     public readonly group: ThermalGroup;
+
     public get pool() {
         return this.group.registry.manager.pool;
     }
 
-    public readonly url: string;
+    /** @deprecated */
     public readonly thermalUrl: string;
     public readonly visibleUrl?: string;
     public readonly fileName: string;
-    public readonly frameCount: number;
 
     signature: string = "unknown";
     version: number = -1;
@@ -37,13 +45,25 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     fileDataType: number = -1;
     unit: number = -1;
 
+    /** Stored core information. They may change in time because of filters. */
+    public readonly meta: FileMeta;
 
-    public width: number;
-    public height: number;
-    public timestamp: number;
-    public duration: number;
-    public min: number;
-    public max: number;
+
+    public get width(): number {return this.meta.current.width;}
+    public get height(): number {return this.meta.current.height;}
+    public get timestamp(): number {return this.meta.current.timestamp;}
+    public get duration(): number {return this.meta.current.duration;}
+    public get min(): number { return this.meta.current.min; }
+    public get max(): number {return this.meta.current.max; }
+    public get bytesize(): number {return this.meta.current.bytesize; }
+    public get averageEmissivity(): number {return this.meta.current.averageEmissivity; }
+    public get averageReflectedKelvins(): number {return this.meta.current.averageReflectedKelvins;}
+    public get timelineData() {return this.meta.current.timeline;}
+    public get fps(): number {return this.meta.current.fps;}
+    public get frameCount(): number { return this.meta.current.frameCount; }
+
+
+
 
     private _isHover: boolean = false;
     public get isHover() { return this._isHover; }
@@ -73,14 +93,14 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     private _mounted: boolean = false;
     public get mountedBaseLayers() { return this._mounted; }
-    public set mountedBaseLayers(value: boolean) {
+    protected set mountedBaseLayers(value: boolean) {
         this._mounted = value;
     }
 
 
     private _pixels: number[];
     public get pixels() { return this._pixels; }
-    public set pixels(value: number[]) {
+    public setPixels(value: number[]) {
         this._pixels = value;
         this.onSetPixels(value);
         
@@ -91,36 +111,20 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     constructor(
         group: ThermalGroup,
-
-        thermalUrl: string,
-
-        width: number,
-        height: number,
+        baseInfo: ParsedFileBaseInfo,
         initialPixels: number[],
-        timestamp: number,
-        duration: number,
-        min: number,
-        max: number,
-        frameCount: number,
-
+        thermalUrl: string,
         visibleUrl?: string
     ) {
         super();
         this.group = group;
         this.id = this.formatId(thermalUrl);
 
-        this.url = thermalUrl;
+        this.meta = new FileMeta( baseInfo );
+
         this.thermalUrl = thermalUrl;
         this.visibleUrl = visibleUrl;
         this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-
-        this.width = width;
-        this.height = height;
-        this.timestamp = timestamp;
-        this.duration = duration;
-        this.min = min;
-        this.max = max;
-        this.frameCount = frameCount;
 
         this.horizontalLimit = (this.width / 4) * 3;
         this.verticalLimit = (this.height / 4) * 3;
@@ -290,5 +294,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public abstract exportAsPng(): void;
 
     public abstract exportThermalDataAsSvg(): void;
+
+    
 
 }

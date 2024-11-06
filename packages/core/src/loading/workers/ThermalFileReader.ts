@@ -4,6 +4,7 @@ import { AbstractFileResult } from "./AbstractFileResult";
 import { IParserObject, ParsedFileBaseInfo } from "./parsers/structure";
 
 import { FilesService } from "./FilesService";
+import { AbstractFilter } from "../../filters/AbstractFilter";
 
 /**
  * Stores the file's `ArrayBuffer` and provides all the data for instance
@@ -24,20 +25,55 @@ export class ThermalFileReader extends AbstractFileResult {
         return this.service.pool;
     }
 
+    protected originalBuffer?: ArrayBuffer;
+
+    protected _buffer: ArrayBuffer;
+    public get buffer(): ArrayBuffer { return this._buffer; }
+    protected set buffer( value: ArrayBuffer ) {
+        this._buffer = value;
+    }
+
     public constructor(
         public readonly service: FilesService,
-        public readonly buffer: ArrayBuffer,
+        buffer: ArrayBuffer,
         public readonly parser: IParserObject,
         thermalUrl: string,
-        visibleUrl?: string
+        visibleUrl?: string,
+        preserveOriginalBuffer?: boolean
     ) {
         super( thermalUrl, visibleUrl );
 
+        this._buffer = buffer;
+
         this.fileName = this.thermalUrl.substring( this.thermalUrl.lastIndexOf( "/" ) + 1 );
+
+        if ( preserveOriginalBuffer === true ) {
+            this.originalBuffer = this.copyBuffer( this.buffer );
+        }
     }
 
     public isSuccess(): boolean {
         return true;    
+    }
+
+    protected copyBuffer( buffer: ArrayBuffer ): ArrayBuffer {
+        const copiedBuffer = new ArrayBuffer( buffer.byteLength );
+        const copiedArray = new Uint8Array( copiedBuffer );
+        copiedArray.set( new Uint8Array( buffer ) );
+        return copiedArray.buffer;
+    }
+
+    /** Create copy of the self so that the */
+    protected cloneForInstance(): ThermalFileReader {
+
+        return new ThermalFileReader( 
+            this.service,
+            this.buffer,
+            this.parser,
+            this.thermalUrl,
+            this.visibleUrl,
+            true
+        );
     }
 
 
@@ -93,15 +129,63 @@ export class ThermalFileReader extends AbstractFileResult {
         return await this.parser.ellipsisAnalysisData( this.buffer, x, y, width, height );
     }
 
+    async applyFilters(
+        filters: AbstractFilter[]
+    ): Promise<ThermalFileReader> {
+
+        // Do nothing if there is no original buffer
+        if ( this.originalBuffer === undefined ) {
+            console.error( "trying to apply filters on a filereader template" );
+            return this;
+        }
+
+        // Copy original buffer to the working buffer
+        this.buffer = this.copyBuffer(this.originalBuffer);
+
+        // Apply all filters one by one
+        for ( let filter of filters ) {
+            this.buffer = await filter.apply( this.buffer );
+        }
+
+        // Reset the base info cache
+        this.baseInfoCache = undefined;
+
+        // Create new base info cache
+        await this.baseInfo();
+
+        return this;
+
+    }
+
 
     public async createInstance(
         group: ThermalGroup
     ): Promise<Instance> {
-        const baseInfo = await this.baseInfo();
-        const firstFrame = await this.frameData( 0 );
-        const instance = Instance.fromService( group, this, baseInfo, firstFrame );
 
+        // Create a new instance with copied buffer
+        const reader = this.cloneForInstance();
+
+        // Collect all filters above the instance
+        const filters = [
+            ...group.registry.manager.filters.getActiveFilters(),
+            ...group.registry.filters.getActiveFilters(),
+            ...group.filters.getActiveFilters()
+        ];
+
+        // Apply the filters
+        await reader.applyFilters( filters );
+
+        // Collect the necessary information
+        const baseInfo = await reader.baseInfo();
+        const firstFrame = await reader.frameData( 0 );
+
+        // Create the instance with the necessary information
+        const instance = Instance.fromService( group, reader, baseInfo, firstFrame );
+
+        // Register the instance to the group
         group.files.addFile( instance );
+
+
         return instance;
     }
 

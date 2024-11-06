@@ -12,7 +12,7 @@ export class FrameBuffer {
     /** Upon every update of current frame, propagate current pixels to the instance */
     protected set currentFrame( frame: ParsedFileFrame ) {
         this._currentFrame = frame;
-        this.drive.parent.pixels = this.currentFrame.pixels;
+        this.drive.parent.setPixels( this.currentFrame.pixels );
     }
 
     /** Get the current step value calculated from _currentFrame */
@@ -67,7 +67,7 @@ export class FrameBuffer {
 
         // If the frame is not buffered, fetch it)
         if ( frame === undefined ) {
-            frame = await this.drive.parent.service.frameData( step.index );
+            frame = await this.drive.parent.reader.frameData( step.index );
         }
 
 
@@ -133,7 +133,7 @@ export class FrameBuffer {
 
         // Asynchronously read the frames
         const newFrames = await Promise.all( newSteps.map( step => {
-            return this.drive.parent.service.frameData( step.index )
+            return this.drive.parent.reader.frameData( step.index )
         } ) );
 
         // Add new steps to the registry

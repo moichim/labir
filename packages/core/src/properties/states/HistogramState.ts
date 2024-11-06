@@ -143,7 +143,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
         }, [] as Instance[] );
 
-        const allBuffers = allFiles.map( reader => reader.service.buffer );
+        const allBuffers = allFiles.map( reader => reader.reader.buffer );
 
         const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
 

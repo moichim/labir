@@ -81,7 +81,7 @@ export class PointAnalysis extends AbstractAnalysis {
 
     public async getAnalysisData(): Promise<PointAnalysisData> {
         
-        return await this.file.service.pointAnalysisData( this.center.x, this.center.y );
+        return await this.file.reader.pointAnalysisData( this.center.x, this.center.y );
 
     }
 

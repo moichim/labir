@@ -120,7 +120,7 @@ export class RectangleAnalysis extends AbstractAreaAnalysis {
     }
 
     public async getAnalysisData(): Promise<AreaAnalysisData> {
-        return await this.file.service.rectAnalysisData(
+        return await this.file.reader.rectAnalysisData(
             this.left,
             this.top,
             this.width,
