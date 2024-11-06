@@ -1,9 +1,6 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
 
-declare abstract class BaseStructureObject {
-}
-
 declare const JET: string[];
 declare const IRON: string[];
 declare const GRAYSCALE: string[];
@@ -134,493 +131,248 @@ declare class FilesService {
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
 }
 
-/** Controls image smoothing */
-declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    setSmooth(value: boolean): void;
-}
-
-/** Controls image smoothing */
-declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    setGraphSmooth(value: boolean): void;
-}
-
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
-};
-declare class ThermalManager extends BaseStructureObject {
-    readonly id: number;
-    /** Service for creation of loading and caching the files. */
-    readonly service: FilesService;
-    /** Index of existing registries */
-    readonly registries: {
-        [index: string]: ThermalRegistry;
+type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
+declare class AnalysisGraph {
+    readonly analysis: AbstractAnalysis;
+    constructor(analysis: AbstractAnalysis);
+    protected _min: boolean;
+    protected _max: boolean;
+    protected _avg: boolean;
+    get state(): {
+        MIN: boolean;
+        MAX: boolean;
+        AVG: boolean;
     };
-    /** A palette is common to all registries within the manager */
-    readonly palette: PaletteDrive;
-    readonly smooth: SmoothDrive;
-    readonly graphSmooth: GraphSmoothDrive;
-    readonly pool: Pool__default;
-    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
+    protected _value?: GraphDataTypes;
+    get value(): GraphDataTypes | undefined;
+    protected set value(value: GraphDataTypes | undefined);
+    setMinActivation(active: boolean): void;
+    setMaxActivation(active: boolean): void;
+    setAvgActivation(active: boolean): void;
+    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    readonly onGraphData: CallbacksManager<(data: GraphDataTypes | undefined, analysis: AbstractAnalysis) => void>;
+    readonly onAnalysisSelection: CallbacksManager<(activated: boolean, analysis: AbstractAnalysis) => void>;
+    protected emitGraphActivation(): void;
+    protected hydrate(): Promise<void>;
+    protected getGraphData(): Promise<GraphDataTypes>;
+    getGraphColors(): string[];
+    getGraphLabels(): string[];
+    hasDataToPrint(): boolean;
+    getDtaAtTime(timestamp: number): number[];
 }
 
-type PaletteId = keyof typeof ThermalPalettes;
-interface IWithPalette extends IBaseProperty {
-    palette: PaletteDrive;
+declare enum PointPlacement {
+    START = 1,
+    MIDDLE = 2,
+    END = 3
 }
-declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
-    get availablePalettes(): {
-        [index: string]: ThermalPaletteType;
-    };
-    /** All the current palette properties should be accessed through this property. */
-    get currentPalette(): ThermalPaletteType;
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    get currentPixels(): string[];
-    protected validate(value: PaletteId): PaletteId;
-    /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId): void;
-    setPalette(key: PaletteId): void;
-}
-
-/** A stupid object containing only requested URLS. Does not perform any further logic. */
-type ThermalFileRequest = {
-    thermalUrl: string;
-    visibleUrl?: string;
-};
-
-interface IWithOpacity extends IBaseProperty {
-    opacity: OpacityDrive;
-}
-declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
-    /** Make sure the value is allways between 0 and 1 */
-    protected validate(value: number): number;
+declare abstract class AbstractPoint {
+    readonly key: string;
+    readonly analysis: AbstractAnalysis;
+    get file(): Instance;
+    private pxX;
+    private _x;
+    get x(): number;
+    onX: CallbacksManager<(x: number, prev: number) => void>;
+    abstract mayMoveToX(value: number): boolean;
+    private pxY;
+    private _y;
+    get y(): number;
+    onY: CallbacksManager<(y: number, prev: number) => void>;
+    abstract mayMoveToY(value: number): boolean;
     /**
-     * Whenever the opacity changes, propagate the value to all instances
-     */
-    protected afterSetEffect(value: number): void;
-    /** Impose an opacity to all instances */
-    imposeOpacity(value: number): number;
-}
-
-/** The range should allways contain both properties. */
-type ThermalRangeType = {
-    from: number;
-    to: number;
-};
-/** The range or undefined */
-type ThermalRangeOrUndefined = ThermalRangeType | undefined;
-/** An object with range should implement it in a unified way */
-interface IWithRange extends IBaseProperty {
-}
-/** Handles the thermal range display. */
-declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
-    get currentRange(): ThermalRangeOrUndefined;
-    /**
-     * Make sure the range is allways within the minmax values.
+     * Recieves X from the tool.
      *
-     * If this method should work, the value needs to be set before the minmax is calculated.
+     * Needs to determine the placement using `analyzeXFromTool`.
+     * Calls `sideEffectOnXFromTool`.
      */
-    protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
+    setXFromTool(value: number): void;
+    /** Recieves the X directly, along with the placement, with no side effects. */
+    setXDirectly(value: number, placement: PointPlacement): void;
     /**
-     * Whenever the range changes, propagate the value to all instances
+     * Recieves Y from the tool.
+     *
+     * Needs to determine the placement using `analyzeYFromTool`.
+     * Calls `sideEffectOnYFromTool`.
      */
-    protected afterSetEffect(value: ThermalRangeOrUndefined): void;
-    /**
-     * Imposes a range to itself and below
-     * - needs to be called before the minmax is calculated!
-     */
-    imposeRange(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
-    /** Sets the range to the current minmax values */
-    applyMinmax(): void;
-    /** Sets the range automatically based on the current histogram */
-    applyAuto(): void;
-}
-
-interface IWithGroups extends IBaseProperty {
-    groups: GroupsState;
-}
-/** Handles group creation and removal */
-declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
-    protected _map: Map<string, ThermalGroup>;
-    get map(): Map<string, ThermalGroup>;
-    protected validate(value: ThermalGroup[]): ThermalGroup[];
-    protected afterSetEffect(value: ThermalGroup[]): void;
-    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
-    removeGroup(groupId: string): void;
-    removeAllGroups(): void;
-}
-
-/** Handles the histogram creation and subscription.
- * - should be used only in registries
- */
-declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
-    protected _resolution: number;
-    get resolution(): number;
-    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
-    protected buffer: Map<number, number>;
-    /** Total countOfPixels in every image @deprecated */
-    protected bufferPixelsCount: number;
+    setYFromTool(value: number): void;
+    /** Recieves the Y directly, along with the placement, with no side effects. */
+    setYDirectly(value: number, placement: PointPlacement): void;
+    /** Format the `left` style from given position and placement */
+    private getXStyle;
+    private getYStyle;
+    /** Convert a percentage and a offset in pixels into a CSS style string */
+    private formatPositionStyle;
+    protected abstract analyzeXFromTool(value: number): {
+        x: number;
+        placement: PointPlacement;
+    };
+    protected abstract sideEffectOnXFromTool(value: number, placement: PointPlacement): void;
+    protected abstract analyzeYFromTool(value: number): {
+        y: number;
+        placement: PointPlacement;
+    };
+    protected abstract sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
+    protected _color: string;
+    protected get color(): string;
+    setColor(value: string): void;
+    protected abstract onSetColor(value: string): void;
+    get initialColor(): string;
+    get activeColor(): string;
+    get inactiveColor(): string;
+    protected _active: boolean;
+    get active(): boolean;
+    protected _isHover: boolean;
+    get isHover(): boolean;
+    protected _isDragging: boolean;
+    get isDragging(): boolean;
+    get root(): HTMLDivElement;
+    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
+    abstract getRadius(): number;
+    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
+    container: HTMLDivElement;
+    /** The display element. */
+    innerElement: HTMLDivElement;
+    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string, placementX: PointPlacement, placementY: PointPlacement);
+    isWithin(top: number, left: number): boolean;
+    isInSelectedLayer(): boolean;
+    private calculatePercentageX;
+    private calculatePercentageY;
     /** @deprecated */
-    protected _bufferResolution: number;
-    set bufferResolution(value: number);
-    get bufferResolution(): number;
-    /** Set the historgam resolution
-     * - does not recalculate the value!
-     * - to recalculate value, call `recalculateWithCurrentSetting`
-     *
-     * @notice Higher the number, lower the resolution.
-     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
-    */
-    setResolution(value: number): void;
-    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
-    protected afterSetEffect(): void;
-    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
-    recalculateWithCurrentSetting(): ThermalStatistics[];
-    /**
-     * Recalculate the histogram buffer using web workers.
-     * This is an async operation using `workerpool`
-     */
-    recalculateHistogramBufferInWorker(): void;
-    protected recalculateHistogram(): Promise<void>;
-}
-
-interface IWithLoading extends IBaseProperty {
-    /** Stores the loading state and executes all the listeners. */
-    loading: LoadingState;
-}
-declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    markAsLoading(): void;
-    markAsLoaded(): void;
-}
-
-interface IWithMinmaxRegistry extends IBaseProperty {
-    minmax: MinmaxRegistryProperty;
-}
-declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
-    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
-    protected afterSetEffect(): void;
-    recalculateFromGroups(): ThermalMinmaxOrUndefined;
-    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
-}
-
-/** The cursor position coordinates */
-type ThermalCursorPosition = {
-    x: number;
-    y: number;
-};
-/** The cursor position coordinates or undefined */
-type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
-/** An object that has CursorPositionDrive should implement it in one particular way. */
-interface IWithCursorPosition extends IBaseProperty {
-    cursorPosition: CursorPositionDrive;
-}
-/** Handles cursor position */
-declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
-    protected _hover: boolean;
-    get hover(): boolean;
-    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
-    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
-    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
-}
-
-interface IWithFiles extends IBaseProperty {
-    files: FilesState;
-}
-declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
-    protected _map: Map<string, Instance>;
-    get map(): Map<string, Instance>;
-    protected validate(value: Instance[]): Instance[];
-    /**
-     * Whenever the instances change, recreate the index
-     */
-    protected afterSetEffect(value: Instance[]): void;
-    addFile(file: Instance): Instance;
-    removeFile(file: string | Instance): void;
-    /**
-     * Removal
-     */
-    removeAllInstances(): void;
-    /**
-     * Iteration through all instances
-     */
-    forEveryInstance(fn: ((instance: Instance) => void)): void;
-}
-
-interface IWithCursorValue extends IBaseProperty {
-    cursorValue: CursorValueDrive;
-}
-declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
-    protected validate(value: number | undefined): number | undefined;
-    protected afterSetEffect(): void;
-    recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
-    protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
-}
-
-interface IWithMinmaxGroup extends IBaseProperty {
-    minmax: MinmaxGroupProperty;
-}
-declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
-    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
-    protected afterSetEffect(): void;
-    /** Call this method once all instances are created */
-    recalculateFromInstances(): ThermalMinmaxOrUndefined;
-    protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
-}
-
-type ParsedTimelineFrame = {
-    index: number;
-    absolute: number;
-    relative: number;
-    offset: number;
-};
-/**
- * Every file needs to have this information
- */
-type ParsedFileBaseInfo = {
-    width: number;
-    height: number;
-    timestamp: number;
-    frameCount: number;
-    duration: number;
-    frameInterval: number;
-    fps: number;
-    min: number;
-    max: number;
-    timeline: ParsedTimelineFrame[];
-    averageEmissivity: number;
-    averageReflectedKelvins: number;
-    bytesize: number;
-};
-type ParsedFileFrame = {
-    timestamp: number;
-    min: number;
-    max: number;
-    emissivity: number;
-    reflectedKelvins: number;
-    pixels: number[];
-};
-/**
- * Definition of a supported file type
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-*/
-type ParserFileType = {
-    /** File extension, lowercase and without starting dots */
-    extension: string;
-    /** Mime type of the file */
-    minme: string;
-};
-/** A supported device dedfinition */
-type SupportedDeviceType = {
-    deviceName: string;
-    deviceDescription: string;
-    deviceUrl: string;
-    manufacturer: string;
-    manufacturerUrl: string;
-};
-type PointAnalysisData = {
-    [time: number]: number;
-};
-type AreaAnalysisData = {
-    [time: number]: {
-        min: number;
-        max: number;
-        avg: number;
+    protected getPercentageX(): number;
+    /** @deprecated */
+    protected getPercentageY(): number;
+    protected getPercentageCoordinates(): {
+        x: number;
+        y: number;
     };
-};
-/**
- * Interface for a parser object
- * - all methods must be completely and totally static
- * - data needs to be transferred as ArrayBuffer, since it is serialisable
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
- */
-interface IParserObject {
-    /** Name of the file format */
-    name: string;
-    /** Description of the file format */
-    description: string;
-    /** List of supported devices */
-    devices: SupportedDeviceType[];
-    /** Define the supported file type for the purpose of display */
-    extensions: ParserFileType[];
-    /** Determine whether the file corresponds to the given parser */
-    is(buffer: ArrayBuffer, url: string): boolean;
-    /**
-     * Get the basic information necessary for every file
-     * - without any pixels!
-     * - this sould be called once only
-     */
-    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
-    /**
-     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
-     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
-     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
-     *
-     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
-     */
-    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
-        array: ArrayBuffer;
-        dataType: number;
+    /** Create the display element */
+    abstract createInnerElement(): HTMLDivElement;
+    mouseEnter(): void;
+    mouseLeave(): void;
+    readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onMouseLeave: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onActivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    readonly onDeactivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
+    protected abstract actionOnMouseEnter(): void;
+    protected abstract actionOnMouseLeave(): void;
+    protected abstract actionOnActivate(): void;
+    protected abstract actionOnDeactivate(): void;
+    activate(): void;
+    deactivate(): void;
+}
+
+type AnalysisEvent = (analysis: AbstractAnalysis) => void;
+declare abstract class AbstractAnalysis {
+    readonly key: string;
+    readonly file: Instance;
+    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
+    abstract recievedSerialized(input: string): void;
+    abstract toSerialized(): string;
+    protected serializedIsValid(input: string): boolean;
+    abstract get graph(): AnalysisGraph;
+    /** Selection status */
+    protected _selected: boolean;
+    get selected(): boolean;
+    readonly onSelected: CallbacksManager<AnalysisEvent>;
+    readonly onDeselected: CallbacksManager<AnalysisEvent>;
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
+    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
+    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+    readonly onMoveOrResize: CallbacksManager<(analysis: AbstractAnalysis) => void>;
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
+    readonly layerRoot: HTMLDivElement;
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    get renderRoot(): HTMLElement;
+    readonly points: Map<string, AbstractPoint>;
+    protected _top: number;
+    protected _left: number;
+    protected _width: number;
+    protected _height: number;
+    get left(): number;
+    get top(): number;
+    /** This dimension does not count the last pixel. */
+    get width(): number;
+    /** This dimension does not count the last pixel. */
+    get height(): number;
+    get right(): number;
+    get bottom(): number;
+    protected abstract onSetTop(validatedValue: number): void;
+    protected abstract onSetLeft(validatedValue: number): void;
+    protected abstract onSetWidth(validatedValue: number): void;
+    protected abstract onSetHeight(validatedValue: number): void;
+    protected abstract validateWidth(value: number): number;
+    protected abstract validateHeight(value: number): number;
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
+        top: number;
+        bottom: number;
+        height: number;
     };
-    /**
-     * Calculate the pixels and other parameters of one frame
-     * @param frameSubset ArrayBuffer of data related to the frame.
-     * @param dataType
-     */
-    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
-    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
-    pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
-    rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
-    ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
-}
-
-declare class FrameBuffer {
-    protected readonly drive: TimelineDrive;
-    /** @internal use accessors to get and set with side effects */
-    protected _currentFrame: ParsedFileFrame;
-    /** The current frame data @readonly */
-    get currentFrame(): ParsedFileFrame;
-    /** Upon every update of current frame, propagate current pixels to the instance */
-    protected set currentFrame(frame: ParsedFileFrame);
-    /** Get the current step value calculated from _currentFrame */
-    get currentStep(): ParsedTimelineFrame;
-    /** Number of images to preload at once */
-    readonly bufferSize: number;
-    /** The actual buffer holding pair of step & frame */
-    protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
-    /** Accessor to array of steps preloaded in the given moment */
-    get preloadedSteps(): ParsedTimelineFrame[];
-    /** Accessor to array of relative timestamps preloaded in the given moment */
-    get preloadedTimestampsRelative(): number[];
-    constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
-    init(): Promise<TimelineChangedStatusType>;
-    /**
-     * Activate a step
-     * - look for the buffer for the corresponding frame
-     * - if there is a corresponding frame, apply it
-     * - if there is none, fetch it
-     * - if sequence, fetch buffer
-     *
-     * **THIS IS THE MAIN SETTER**
-     */
-    recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-    /** Preload frame data to the buffer based on the provided step */
-    protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
-}
-
-interface IWithTimeline extends IBaseProperty {
-    timeline: TimelineDrive;
-}
-type FramesMap = Map<number, ParsedTimelineFrame>;
-type TimelineChangedStatusType = {
-    absoluteTime: number;
-    relativeTime: number;
-    currentFrame: ParsedFileFrame;
-    currentStep: ParsedTimelineFrame;
-    buffer: ParsedTimelineFrame[];
-    preloaded: boolean;
-    hasChanged: boolean;
-};
-declare const playbackSpeed: {
-    1: number;
-    0.5: number;
-    2: number;
-    3: number;
-    5: number;
-    10: number;
-};
-type PlaybackSpeeds = keyof typeof playbackSpeed;
-/** Stores the frames and the time pointer which is in the miliseconds */
-declare class TimelineDrive extends AbstractProperty<number, Instance> {
-    readonly steps: ParsedFileBaseInfo["timeline"];
-    readonly parent: Instance;
-    protected _playbackSpeed: PlaybackSpeeds;
-    get playbackSpeed(): PlaybackSpeeds;
-    set playbackSpeed(value: PlaybackSpeeds);
-    get playbackSpeedAspect(): number;
-    get duration(): number;
-    get frameCount(): number;
-    readonly startTimestampRelative: number;
-    /** @deprecated not in use? */
-    readonly endTimestampRelative: number;
-    readonly stepsByAbsolute: FramesMap;
-    readonly stepsByRelative: FramesMap;
-    readonly stepsByIndex: FramesMap;
-    readonly relativeSteps: number[];
-    protected _currentStep: ParsedTimelineFrame;
-    get currentStep(): ParsedTimelineFrame;
-    readonly isSequence: boolean;
-    protected _isPlaying: boolean;
-    get isPlaying(): boolean;
-    protected timer?: ReturnType<typeof setTimeout>;
-    readonly buffer: FrameBuffer;
-    readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
-    readonly callbacksPlay: CallbacksManager<() => void>;
-    readonly callbacksPause: CallbacksManager<() => void>;
-    readonly callbacksStop: CallbacksManager<() => void>;
-    readonly callbacksEnd: CallbacksManager<() => void>;
-    readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
-    get currentMs(): number;
-    get currentPercentage(): number;
-    get currentFrameIndex(): number;
-    get currentTime(): string;
-    constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
-    init(): void;
-    protected afterSetEffect(): void;
-    protected validate(value: number): number;
-    _validateRelativeTime(value: number): number;
-    _validateIndex(value: number): number;
-    _convertRelativeToAspect(relativeTimeInMs: number): number;
-    _convertRelativeToPercent(relativeTimeInMs: number): number;
-    _convertPercenttRelative(percent: number): number;
-    formatDuration(ms: number): string;
-    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
-    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
-    setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
-    setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
-    /** This is the main play method */
-    protected createNextStepTimer(): void;
-    play(): void;
-    pause(): void;
-    stop(): void;
-}
-
-interface IWithRedording extends IBaseProperty {
-    recording: RecordingDrive;
-}
-declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
-    parent: Instance;
-    protected stream?: MediaStream;
-    protected recorder?: MediaRecorder;
-    protected mimeType?: string;
-    protected _isRecording: boolean;
-    protected _mayStop: boolean;
-    get mayStop(): boolean;
-    protected set mayStop(value: boolean);
-    protected recordedChunks: Blob[];
-    readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    start(): void;
-    end(): void;
-    /** Records the entire file from start to the end. */
-    recordEntireFile(): Promise<void>;
-    protected initRecording(): {
-        stream: MediaStream;
-        recorder: MediaRecorder;
-        options: MediaRecorderOptions;
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
+        left: number;
+        right: number;
+        width: number;
     };
-    protected download(): void;
-    protected clearRecording(): void;
+    setTop(value: number): void;
+    setLeft(value: number): void;
+    setWidth(value: number): void;
+    setHeight(value: number): void;
+    setBottom(value: number): void;
+    setRight(value: number): void;
+    /** Access all the file's analysis layers. */
+    get layers(): AnalysisLayersStorage;
+    protected _min?: number;
+    get min(): number | undefined;
+    protected _max?: number;
+    get max(): number | undefined;
+    protected _avg?: number;
+    get avg(): number | undefined;
+    get arrayOfPoints(): AbstractPoint[];
+    get arrayOfActivePoints(): AbstractPoint[];
+    protected _color: string;
+    get color(): string;
+    setColor(value: string): void;
+    protected abstract setColorCallback(value: string): void;
+    readonly onSetColor: CallbacksManager<(value: string) => void>;
+    protected _initialColor: string;
+    get initialColor(): string;
+    setInitialColor(value: string): void;
+    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
+    readonly activeColor = "yellow";
+    readonly inactiveColor = "black";
+    /** @deprecated is moved to GraphObject instead */
+    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
+    ready: boolean;
+    readonly nameInitial: string;
+    protected _name: string;
+    get name(): string;
+    setName(value: string): void;
+    readonly onSetName: CallbacksManager<(value: string) => void>;
+    abstract getType(): string;
+    constructor(key: string, file: Instance, initialColor: string);
+    remove(): void;
+    /** Selection / Deselection */
+    setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
+    setDeselected(emitGlobalEvent?: boolean): void;
+    /** Detect whether a coordinate is withing the analysis. */
+    abstract isWithin(x: number, y: number): boolean;
+    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
+    recalculateValues(): void;
+    /** Obtain the current values of the analysis using current position and dimensions */
+    protected abstract getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+    /** Override this method to get proper analysis data. */
+    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
 }
 
 /**
@@ -730,6 +482,54 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
     getSlotValue(slot: number): string | undefined;
 }
 
+/** Access list of points from analysis layers */
+declare class AnalysisPointsAccessor {
+    readonly drive: AnalysisDrive;
+    constructor(drive: AnalysisDrive);
+    /** Get all points from all layers */
+    get all(): AbstractPoint[];
+    /** Get all points from selected layers */
+    get allInSelectedLayers(): AbstractPoint[];
+    /** Get only active points from selected layers */
+    get activeInSelectedLayers(): AbstractPoint[];
+    /** Extract points from all provided layers */
+    protected extractPointsFromLayers(layers: AbstractAnalysis[], activeOnly?: boolean): AbstractPoint[];
+}
+
+interface IWithAnalysis extends IBaseProperty {
+    analysis: AnalysisDrive;
+}
+declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
+    readonly layers: AnalysisLayersStorage;
+    readonly points: AnalysisPointsAccessor;
+    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
+    get listenerLayerContainer(): HTMLElement;
+    /** Alias of the current `ToolDrive` value. */
+    protected get currentTool(): ThermalTool;
+    /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
+    protected bindedPointerMoveListener?: (event: PointerEvent) => void;
+    /** Cached listener on `this.listenerLayerContainer` - pointerdown event. */
+    protected bindedPointerDownListener?: (event: PointerEvent) => void;
+    /** Cached listener on `this.listenerLayerContainer` - pointerup event. */
+    protected bindedPointerUpListener?: (event: PointerEvent) => void;
+    /**
+     * Value of this drive is stored in `AnalysisLayersStorage` and from there, it is mirrored to the drive.
+     * It is better to add listeners to the storage, not to the drive.
+     */
+    dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
+    protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
+    protected afterSetEffect(): void;
+    /** Calculate the top/left position from a `MouseEvent` */
+    protected getRelativePosition(event: MouseEvent): {
+        top: number;
+        left: number;
+    };
+    /** Activate listeners for the current drive on the file's listener layer. */
+    activateListeners(): void;
+    /** Remove all listeners from the file's listener layer */
+    deactivateListeners(): void;
+}
+
 declare abstract class AbstractArea {
     readonly analysis: AbstractAnalysis;
     private pxX;
@@ -759,36 +559,6 @@ declare abstract class AbstractArea {
     abstract onBuild(): void;
     setColor(value: string): void;
     abstract onSetColor(value: string): void;
-}
-
-type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
-declare class AnalysisGraph {
-    readonly analysis: AbstractAnalysis;
-    constructor(analysis: AbstractAnalysis);
-    protected _min: boolean;
-    protected _max: boolean;
-    protected _avg: boolean;
-    get state(): {
-        MIN: boolean;
-        MAX: boolean;
-        AVG: boolean;
-    };
-    protected _value?: GraphDataTypes;
-    get value(): GraphDataTypes | undefined;
-    protected set value(value: GraphDataTypes | undefined);
-    setMinActivation(active: boolean): void;
-    setMaxActivation(active: boolean): void;
-    setAvgActivation(active: boolean): void;
-    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    readonly onGraphData: CallbacksManager<(data: GraphDataTypes | undefined, analysis: AbstractAnalysis) => void>;
-    readonly onAnalysisSelection: CallbacksManager<(activated: boolean, analysis: AbstractAnalysis) => void>;
-    protected emitGraphActivation(): void;
-    protected hydrate(): Promise<void>;
-    protected getGraphData(): Promise<GraphDataTypes>;
-    getGraphColors(): string[];
-    getGraphLabels(): string[];
-    hasDataToPrint(): boolean;
-    getDtaAtTime(timestamp: number): number[];
 }
 
 declare abstract class AbstractHandlePoint extends AbstractPoint {
@@ -1023,218 +793,105 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     protected getNextName(type: string): string;
 }
 
-type AnalysisEvent = (analysis: AbstractAnalysis) => void;
-declare abstract class AbstractAnalysis {
-    readonly key: string;
-    readonly file: Instance;
-    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
-    abstract recievedSerialized(input: string): void;
-    abstract toSerialized(): string;
-    protected serializedIsValid(input: string): boolean;
-    abstract get graph(): AnalysisGraph;
-    /** Selection status */
-    protected _selected: boolean;
-    get selected(): boolean;
-    readonly onSelected: CallbacksManager<AnalysisEvent>;
-    readonly onDeselected: CallbacksManager<AnalysisEvent>;
-    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
-    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
-    readonly onMoveOrResize: CallbacksManager<(analysis: AbstractAnalysis) => void>;
-    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
-    readonly layerRoot: HTMLDivElement;
-    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
-    get renderRoot(): HTMLElement;
-    readonly points: Map<string, AbstractPoint>;
-    protected _top: number;
-    protected _left: number;
-    protected _width: number;
-    protected _height: number;
-    get left(): number;
-    get top(): number;
-    /** This dimension does not count the last pixel. */
-    get width(): number;
-    /** This dimension does not count the last pixel. */
-    get height(): number;
-    get right(): number;
-    get bottom(): number;
-    protected abstract onSetTop(validatedValue: number): void;
-    protected abstract onSetLeft(validatedValue: number): void;
-    protected abstract onSetWidth(validatedValue: number): void;
-    protected abstract onSetHeight(validatedValue: number): void;
-    protected abstract validateWidth(value: number): number;
-    protected abstract validateHeight(value: number): number;
-    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
-        top: number;
-        bottom: number;
-        height: number;
-    };
-    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
-        left: number;
-        right: number;
-        width: number;
-    };
-    setTop(value: number): void;
-    setLeft(value: number): void;
-    setWidth(value: number): void;
-    setHeight(value: number): void;
-    setBottom(value: number): void;
-    setRight(value: number): void;
-    /** Access all the file's analysis layers. */
+declare class AnalysisGraphsStorage {
+    readonly drive: AnalysisDataState;
+    readonly listenerKey = "___listen-to-graphs___";
     get layers(): AnalysisLayersStorage;
-    protected _min?: number;
-    get min(): number | undefined;
-    protected _max?: number;
-    get max(): number | undefined;
-    protected _avg?: number;
-    get avg(): number | undefined;
-    get arrayOfPoints(): AbstractPoint[];
-    get arrayOfActivePoints(): AbstractPoint[];
-    protected _color: string;
-    get color(): string;
-    setColor(value: string): void;
-    protected abstract setColorCallback(value: string): void;
-    readonly onSetColor: CallbacksManager<(value: string) => void>;
-    protected _initialColor: string;
-    get initialColor(): string;
-    setInitialColor(value: string): void;
-    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
-    readonly activeColor = "yellow";
-    readonly inactiveColor = "black";
-    /** @deprecated is moved to GraphObject instead */
-    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
-    ready: boolean;
-    readonly nameInitial: string;
-    protected _name: string;
-    get name(): string;
-    setName(value: string): void;
-    readonly onSetName: CallbacksManager<(value: string) => void>;
-    abstract getType(): string;
-    constructor(key: string, file: Instance, initialColor: string);
-    remove(): void;
-    /** Selection / Deselection */
-    setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
-    setDeselected(emitGlobalEvent?: boolean): void;
-    /** Detect whether a coordinate is withing the analysis. */
-    abstract isWithin(x: number, y: number): boolean;
-    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
-    recalculateValues(): void;
-    /** Obtain the current values of the analysis using current position and dimensions */
-    protected abstract getValues(): {
-        min?: number;
-        max?: number;
-        avg?: number;
+    protected readonly _graphs: Map<string, AnalysisGraph>;
+    get graphs(): Map<string, AnalysisGraph>;
+    protected addGraph(graph: AnalysisGraph): void;
+    protected removeGraph(graph: string): void;
+    protected _output: AnalysisDataStateValue;
+    get output(): AnalysisDataStateValue;
+    protected set output(output: AnalysisDataStateValue);
+    onOutput: CallbacksManager<(output: AnalysisDataStateValue) => void>;
+    onAddGraph: CallbacksManager<(graph: AnalysisGraph) => void>;
+    onRemoveGraph: CallbacksManager<(graph: string) => void>;
+    constructor(drive: AnalysisDataState);
+    refreshOutput(): AnalysisDataStateValue;
+    hasGraph(): boolean;
+    generateExportData(): {
+        header: {
+            key: string;
+            displayLabel: string;
+        }[];
+        data: {
+            [index: string]: string | number;
+        }[];
     };
-    /** Override this method to get proper analysis data. */
-    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
-    /** When parsing incoming serialized attribute, look if segments have an exact value */
-    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
-    /** When parsing incooming serialized attribute, try to extract it by its key as string */
-    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
-    /** When parsing incooming serialized attribute, try to extract it by its key as number */
-    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
 }
 
-declare enum PointPlacement {
-    START = 1,
-    MIDDLE = 2,
-    END = 3
+type HeaderRow = string[];
+type ValueRow = [Date, ...number[]];
+type DataType = [HeaderRow, ...ValueRow[]];
+type AnalysisDataStateValue = {
+    values: DataType;
+    colors: string[];
+};
+declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+    protected _hasActiveGraphs: boolean;
+    get hasActiveGraphs(): boolean;
+    readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
+    readonly listeners: AnalysisGraphsStorage;
+    constructor(parent: Instance);
+    protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
+    protected afterSetEffect(): void;
+    dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
+    downloadData(): void;
 }
-declare abstract class AbstractPoint {
-    readonly key: string;
-    readonly analysis: AbstractAnalysis;
-    get file(): Instance;
-    private pxX;
-    private _x;
-    get x(): number;
-    onX: CallbacksManager<(x: number, prev: number) => void>;
-    abstract mayMoveToX(value: number): boolean;
-    private pxY;
-    private _y;
-    get y(): number;
-    onY: CallbacksManager<(y: number, prev: number) => void>;
-    abstract mayMoveToY(value: number): boolean;
+
+/** The cursor position coordinates */
+type ThermalCursorPosition = {
+    x: number;
+    y: number;
+};
+/** The cursor position coordinates or undefined */
+type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
+/** An object that has CursorPositionDrive should implement it in one particular way. */
+interface IWithCursorPosition extends IBaseProperty {
+    cursorPosition: CursorPositionDrive;
+}
+/** Handles cursor position */
+declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
+    protected _hover: boolean;
+    get hover(): boolean;
+    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
+    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
+    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
+}
+
+/** The range should allways contain both properties. */
+type ThermalRangeType = {
+    from: number;
+    to: number;
+};
+/** The range or undefined */
+type ThermalRangeOrUndefined = ThermalRangeType | undefined;
+/** An object with range should implement it in a unified way */
+interface IWithRange extends IBaseProperty {
+}
+/** Handles the thermal range display. */
+declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
+    get currentRange(): ThermalRangeOrUndefined;
     /**
-     * Recieves X from the tool.
+     * Make sure the range is allways within the minmax values.
      *
-     * Needs to determine the placement using `analyzeXFromTool`.
-     * Calls `sideEffectOnXFromTool`.
+     * If this method should work, the value needs to be set before the minmax is calculated.
      */
-    setXFromTool(value: number): void;
-    /** Recieves the X directly, along with the placement, with no side effects. */
-    setXDirectly(value: number, placement: PointPlacement): void;
+    protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
     /**
-     * Recieves Y from the tool.
-     *
-     * Needs to determine the placement using `analyzeYFromTool`.
-     * Calls `sideEffectOnYFromTool`.
+     * Whenever the range changes, propagate the value to all instances
      */
-    setYFromTool(value: number): void;
-    /** Recieves the Y directly, along with the placement, with no side effects. */
-    setYDirectly(value: number, placement: PointPlacement): void;
-    /** Format the `left` style from given position and placement */
-    private getXStyle;
-    private getYStyle;
-    /** Convert a percentage and a offset in pixels into a CSS style string */
-    private formatPositionStyle;
-    protected abstract analyzeXFromTool(value: number): {
-        x: number;
-        placement: PointPlacement;
-    };
-    protected abstract sideEffectOnXFromTool(value: number, placement: PointPlacement): void;
-    protected abstract analyzeYFromTool(value: number): {
-        y: number;
-        placement: PointPlacement;
-    };
-    protected abstract sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
-    protected _color: string;
-    protected get color(): string;
-    setColor(value: string): void;
-    protected abstract onSetColor(value: string): void;
-    get initialColor(): string;
-    get activeColor(): string;
-    get inactiveColor(): string;
-    protected _active: boolean;
-    get active(): boolean;
-    protected _isHover: boolean;
-    get isHover(): boolean;
-    protected _isDragging: boolean;
-    get isDragging(): boolean;
-    get root(): HTMLDivElement;
-    /** Get the size of the point's area in the file's listener layer. The active area serves for emulation of PointerEvents of this point. */
-    abstract getRadius(): number;
-    /** The container is allways positioned by percents. The container dimension is allways 1x1. The container contains the inner element which handles the display. */
-    container: HTMLDivElement;
-    /** The display element. */
-    innerElement: HTMLDivElement;
-    constructor(key: string, top: number, left: number, analysis: AbstractAnalysis, color: string, placementX: PointPlacement, placementY: PointPlacement);
-    isWithin(top: number, left: number): boolean;
-    isInSelectedLayer(): boolean;
-    private calculatePercentageX;
-    private calculatePercentageY;
-    /** @deprecated */
-    protected getPercentageX(): number;
-    /** @deprecated */
-    protected getPercentageY(): number;
-    protected getPercentageCoordinates(): {
-        x: number;
-        y: number;
-    };
-    /** Create the display element */
-    abstract createInnerElement(): HTMLDivElement;
-    mouseEnter(): void;
-    mouseLeave(): void;
-    readonly onMouseEnter: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onMouseLeave: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onActivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    readonly onDeactivate: CallbacksManager<(point: ThisType<AbstractPoint>) => void>;
-    protected abstract actionOnMouseEnter(): void;
-    protected abstract actionOnMouseLeave(): void;
-    protected abstract actionOnActivate(): void;
-    protected abstract actionOnDeactivate(): void;
-    activate(): void;
-    deactivate(): void;
+    protected afterSetEffect(value: ThermalRangeOrUndefined): void;
+    /**
+     * Imposes a range to itself and below
+     * - needs to be called before the minmax is calculated!
+     */
+    imposeRange(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
+    /** Sets the range to the current minmax values */
+    applyMinmax(): void;
+    /** Sets the range automatically based on the current histogram */
+    applyAuto(): void;
 }
 
 interface ITool {
@@ -1268,6 +925,394 @@ declare abstract class AbstractTool {
     abstract onPointUp(point: AbstractPoint): void;
     /** Assamble the cursor label at the given point */
     abstract getLabelValue(x: number, y: number, file: Instance): string;
+}
+
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap;
+type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
+interface IBaseProperty {
+}
+/**
+ * A common basis for all observable properties
+ * @internal
+ */
+declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
+    readonly parent: ParentType;
+    readonly _initial: ValueType;
+    protected _value: ValueType;
+    constructor(parent: ParentType, _initial: ValueType);
+    reset(): void;
+    protected abstract validate(value: ValueType): ValueType;
+    protected abstract afterSetEffect(value: ValueType): void;
+    /** Get the current value @readonly */
+    get value(): ValueType;
+    /** Set the value and call all listeners */
+    protected set value(value: ValueType);
+    protected _listeners: {
+        [index: string]: PropertyListenerFn<ValueType>;
+    };
+    addListener(id: string, listener: PropertyListenerFn<ValueType>): void;
+    removeListener(id: string): void;
+    clearAllListeners(): void;
+}
+
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
+}
+
+/** Controls image smoothing */
+declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    setGraphSmooth(value: boolean): void;
+}
+
+type AbstractFilterParameters = {
+    key: number;
+    text: string;
+};
+declare abstract class AbstractFilter<T extends AbstractFilterParameters = AbstractFilterParameters> {
+    protected _bypass: boolean;
+    get bypass(): boolean;
+    setBypass(value: boolean): void;
+    readonly onBypass: CallbacksManager<(value: boolean) => void>;
+    readonly onParameterChanged: CallbacksManager<(parameters: T) => void>;
+    protected parameterChanged(): void;
+    protected abstract getParameters(): T;
+    abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
+}
+
+type FilterParent = ThermalManager | ThermalRegistry | ThermalGroup | AbstractFile;
+declare class FilterContainer {
+    readonly parent: FilterParent;
+    private _layers;
+    get layers(): AbstractFilter<AbstractFilterParameters>[];
+    onLayers: CallbacksManager<(layers: AbstractFilter[]) => void>;
+    protected setLayers(layers: AbstractFilter[]): void;
+    constructor(parent: FilterParent);
+    getActiveFilters(): AbstractFilter[];
+    addFilter(filter: AbstractFilter): void;
+    removeFilter(filter: AbstractFilter): void;
+    applyFilters(): void;
+    getFiltersArray(): void;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalettes;
+};
+declare class ThermalManager extends BaseStructureObject {
+    readonly id: number;
+    /** Service for creation of loading and caching the files. */
+    readonly service: FilesService;
+    /** Index of existing registries */
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    /** A palette is common to all registries within the manager */
+    readonly palette: PaletteDrive;
+    readonly smooth: SmoothDrive;
+    readonly graphSmooth: GraphSmoothDrive;
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+}
+
+type PaletteId = keyof typeof ThermalPalettes;
+interface IWithPalette extends IBaseProperty {
+    palette: PaletteDrive;
+}
+declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
+    get availablePalettes(): {
+        [index: string]: ThermalPaletteType;
+    };
+    /** All the current palette properties should be accessed through this property. */
+    get currentPalette(): ThermalPaletteType;
+    /** @deprecated Should not be used at all. Use `currentPalette` instead */
+    get currentPixels(): string[];
+    protected validate(value: PaletteId): PaletteId;
+    /** Any changes to the value should propagate directly to every instance. */
+    protected afterSetEffect(value: PaletteId): void;
+    setPalette(key: PaletteId): void;
+}
+
+/** A stupid object containing only requested URLS. Does not perform any further logic. */
+type ThermalFileRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+};
+
+interface IWithOpacity extends IBaseProperty {
+    opacity: OpacityDrive;
+}
+declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
+    /** Make sure the value is allways between 0 and 1 */
+    protected validate(value: number): number;
+    /**
+     * Whenever the opacity changes, propagate the value to all instances
+     */
+    protected afterSetEffect(value: number): void;
+    /** Impose an opacity to all instances */
+    imposeOpacity(value: number): number;
+}
+
+interface IWithGroups extends IBaseProperty {
+    groups: GroupsState;
+}
+/** Handles group creation and removal */
+declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
+    protected _map: Map<string, ThermalGroup>;
+    get map(): Map<string, ThermalGroup>;
+    protected validate(value: ThermalGroup[]): ThermalGroup[];
+    protected afterSetEffect(value: ThermalGroup[]): void;
+    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
+    removeGroup(groupId: string): void;
+    removeAllGroups(): void;
+}
+
+/** Handles the histogram creation and subscription.
+ * - should be used only in registries
+ */
+declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
+    protected _resolution: number;
+    get resolution(): number;
+    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
+    protected buffer: Map<number, number>;
+    /** Total countOfPixels in every image @deprecated */
+    protected bufferPixelsCount: number;
+    /** @deprecated */
+    protected _bufferResolution: number;
+    set bufferResolution(value: number);
+    get bufferResolution(): number;
+    /** Set the historgam resolution
+     * - does not recalculate the value!
+     * - to recalculate value, call `recalculateWithCurrentSetting`
+     *
+     * @notice Higher the number, lower the resolution.
+     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
+    */
+    setResolution(value: number): void;
+    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
+    protected afterSetEffect(): void;
+    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
+    recalculateWithCurrentSetting(): ThermalStatistics[];
+    /**
+     * Recalculate the histogram buffer using web workers.
+     * This is an async operation using `workerpool`
+     */
+    recalculateHistogramBufferInWorker(): void;
+    protected recalculateHistogram(): Promise<void>;
+}
+
+interface IWithLoading extends IBaseProperty {
+    /** Stores the loading state and executes all the listeners. */
+    loading: LoadingState;
+}
+declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    markAsLoading(): void;
+    markAsLoaded(): void;
+}
+
+interface IWithMinmaxRegistry extends IBaseProperty {
+    minmax: MinmaxRegistryProperty;
+}
+declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
+    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
+    protected afterSetEffect(): void;
+    recalculateFromGroups(): ThermalMinmaxOrUndefined;
+    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+}
+
+interface IWithFiles extends IBaseProperty {
+    files: FilesState;
+}
+declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
+    protected _map: Map<string, Instance>;
+    get map(): Map<string, Instance>;
+    protected validate(value: Instance[]): Instance[];
+    /**
+     * Whenever the instances change, recreate the index
+     */
+    protected afterSetEffect(value: Instance[]): void;
+    addFile(file: Instance): Instance;
+    removeFile(file: string | Instance): void;
+    /**
+     * Removal
+     */
+    removeAllInstances(): void;
+    /**
+     * Iteration through all instances
+     */
+    forEveryInstance(fn: ((instance: Instance) => void)): void;
+}
+
+interface IWithCursorValue extends IBaseProperty {
+    cursorValue: CursorValueDrive;
+}
+declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
+    protected validate(value: number | undefined): number | undefined;
+    protected afterSetEffect(): void;
+    recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
+    protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
+}
+
+interface IWithMinmaxGroup extends IBaseProperty {
+    minmax: MinmaxGroupProperty;
+}
+declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
+    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
+    protected afterSetEffect(): void;
+    /** Call this method once all instances are created */
+    recalculateFromInstances(): ThermalMinmaxOrUndefined;
+    protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
+}
+
+declare class FrameBuffer {
+    protected readonly drive: TimelineDrive;
+    /** @internal use accessors to get and set with side effects */
+    protected _currentFrame: ParsedFileFrame;
+    /** The current frame data @readonly */
+    get currentFrame(): ParsedFileFrame;
+    /** Upon every update of current frame, propagate current pixels to the instance */
+    protected set currentFrame(frame: ParsedFileFrame);
+    /** Get the current step value calculated from _currentFrame */
+    get currentStep(): ParsedTimelineFrame;
+    /** Number of images to preload at once */
+    readonly bufferSize: number;
+    /** The actual buffer holding pair of step & frame */
+    protected buffer: Map<ParsedTimelineFrame, ParsedFileFrame>;
+    /** Accessor to array of steps preloaded in the given moment */
+    get preloadedSteps(): ParsedTimelineFrame[];
+    /** Accessor to array of relative timestamps preloaded in the given moment */
+    get preloadedTimestampsRelative(): number[];
+    constructor(drive: TimelineDrive, firstFrame: ParsedFileFrame);
+    init(): Promise<TimelineChangedStatusType>;
+    /**
+     * Activate a step
+     * - look for the buffer for the corresponding frame
+     * - if there is a corresponding frame, apply it
+     * - if there is none, fetch it
+     * - if sequence, fetch buffer
+     *
+     * **THIS IS THE MAIN SETTER**
+     */
+    recieveStep(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+    /** Preload frame data to the buffer based on the provided step */
+    protected preloadAfterFrameSet(step: ParsedTimelineFrame): Promise<TimelineChangedStatusType>;
+}
+
+interface IWithTimeline extends IBaseProperty {
+    timeline: TimelineDrive;
+}
+type FramesMap = Map<number, ParsedTimelineFrame>;
+type TimelineChangedStatusType = {
+    absoluteTime: number;
+    relativeTime: number;
+    currentFrame: ParsedFileFrame;
+    currentStep: ParsedTimelineFrame;
+    buffer: ParsedTimelineFrame[];
+    preloaded: boolean;
+    hasChanged: boolean;
+};
+declare const playbackSpeed: {
+    1: number;
+    0.5: number;
+    2: number;
+    3: number;
+    5: number;
+    10: number;
+};
+type PlaybackSpeeds = keyof typeof playbackSpeed;
+/** Stores the frames and the time pointer which is in the miliseconds */
+declare class TimelineDrive extends AbstractProperty<number, Instance> {
+    readonly steps: ParsedFileBaseInfo["timeline"];
+    readonly parent: Instance;
+    protected _playbackSpeed: PlaybackSpeeds;
+    get playbackSpeed(): PlaybackSpeeds;
+    set playbackSpeed(value: PlaybackSpeeds);
+    get playbackSpeedAspect(): number;
+    get duration(): number;
+    get frameCount(): number;
+    readonly startTimestampRelative: number;
+    /** @deprecated not in use? */
+    readonly endTimestampRelative: number;
+    readonly stepsByAbsolute: FramesMap;
+    readonly stepsByRelative: FramesMap;
+    readonly stepsByIndex: FramesMap;
+    readonly relativeSteps: number[];
+    protected _currentStep: ParsedTimelineFrame;
+    get currentStep(): ParsedTimelineFrame;
+    readonly isSequence: boolean;
+    protected _isPlaying: boolean;
+    get isPlaying(): boolean;
+    protected timer?: ReturnType<typeof setTimeout>;
+    readonly buffer: FrameBuffer;
+    readonly callbackdPlaybackSpeed: CallbacksManager<(value: PlaybackSpeeds) => void>;
+    readonly callbacksPlay: CallbacksManager<() => void>;
+    readonly callbacksPause: CallbacksManager<() => void>;
+    readonly callbacksStop: CallbacksManager<() => void>;
+    readonly callbacksEnd: CallbacksManager<() => void>;
+    readonly callbacksChangeFrame: CallbacksManager<(frame: ParsedTimelineFrame) => void>;
+    get currentMs(): number;
+    get currentPercentage(): number;
+    get currentFrameIndex(): number;
+    get currentTime(): string;
+    constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
+    init(): void;
+    protected afterSetEffect(): void;
+    protected validate(value: number): number;
+    _validateRelativeTime(value: number): number;
+    _validateIndex(value: number): number;
+    _convertRelativeToAspect(relativeTimeInMs: number): number;
+    _convertRelativeToPercent(relativeTimeInMs: number): number;
+    _convertPercenttRelative(percent: number): number;
+    formatDuration(ms: number): string;
+    findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
+    findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
+    setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
+    setValueByPercent(percent: number): Promise<TimelineChangedStatusType>;
+    /** This is the main play method */
+    protected createNextStepTimer(): void;
+    play(): void;
+    pause(): void;
+    stop(): void;
+}
+
+interface IWithRedording extends IBaseProperty {
+    recording: RecordingDrive;
+}
+declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
+    parent: Instance;
+    protected stream?: MediaStream;
+    protected recorder?: MediaRecorder;
+    protected mimeType?: string;
+    protected _isRecording: boolean;
+    protected _mayStop: boolean;
+    get mayStop(): boolean;
+    protected set mayStop(value: boolean);
+    protected recordedChunks: Blob[];
+    readonly callbackMayStop: CallbacksManager<(value: boolean) => void>;
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    start(): void;
+    end(): void;
+    /** Records the entire file from start to the end. */
+    recordEntireFile(): Promise<void>;
+    protected initRecording(): {
+        stream: MediaStream;
+        recorder: MediaRecorder;
+        options: MediaRecorderOptions;
+    };
+    protected download(): void;
+    protected clearRecording(): void;
 }
 
 interface IWithTool extends IBaseProperty {
@@ -1381,6 +1426,8 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
      * Palette
      */
     readonly palette: PaletteDrive;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
 }
 type ThermalStatistics = {
     from: number;
@@ -1390,127 +1437,119 @@ type ThermalStatistics = {
     height: number;
 };
 
-declare class AnalysisGraphsStorage {
-    readonly drive: AnalysisDataState;
-    readonly listenerKey = "___listen-to-graphs___";
-    get layers(): AnalysisLayersStorage;
-    protected readonly _graphs: Map<string, AnalysisGraph>;
-    get graphs(): Map<string, AnalysisGraph>;
-    protected addGraph(graph: AnalysisGraph): void;
-    protected removeGraph(graph: string): void;
-    protected _output: AnalysisDataStateValue;
-    get output(): AnalysisDataStateValue;
-    protected set output(output: AnalysisDataStateValue);
-    onOutput: CallbacksManager<(output: AnalysisDataStateValue) => void>;
-    onAddGraph: CallbacksManager<(graph: AnalysisGraph) => void>;
-    onRemoveGraph: CallbacksManager<(graph: string) => void>;
-    constructor(drive: AnalysisDataState);
-    refreshOutput(): AnalysisDataStateValue;
-    hasGraph(): boolean;
-    generateExportData(): {
-        header: {
-            key: string;
-            displayLabel: string;
-        }[];
-        data: {
-            [index: string]: string | number;
-        }[];
-    };
-}
-
-type HeaderRow = string[];
-type ValueRow = [Date, ...number[]];
-type DataType = [HeaderRow, ...ValueRow[]];
-type AnalysisDataStateValue = {
-    values: DataType;
-    colors: string[];
+type ParsedTimelineFrame = {
+    index: number;
+    absolute: number;
+    relative: number;
+    offset: number;
 };
-declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
-    protected _hasActiveGraphs: boolean;
-    get hasActiveGraphs(): boolean;
-    readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
-    readonly listeners: AnalysisGraphsStorage;
-    constructor(parent: Instance);
-    protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
-    protected afterSetEffect(): void;
-    dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
-    downloadData(): void;
-}
-
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap;
-type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
-interface IBaseProperty {
-}
 /**
- * A common basis for all observable properties
- * @internal
+ * Every file needs to have this information
  */
-declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
-    readonly parent: ParentType;
-    readonly _initial: ValueType;
-    protected _value: ValueType;
-    constructor(parent: ParentType, _initial: ValueType);
-    reset(): void;
-    protected abstract validate(value: ValueType): ValueType;
-    protected abstract afterSetEffect(value: ValueType): void;
-    /** Get the current value @readonly */
-    get value(): ValueType;
-    /** Set the value and call all listeners */
-    protected set value(value: ValueType);
-    protected _listeners: {
-        [index: string]: PropertyListenerFn<ValueType>;
+type ParsedFileBaseInfo = {
+    width: number;
+    height: number;
+    timestamp: number;
+    frameCount: number;
+    duration: number;
+    frameInterval: number;
+    fps: number;
+    min: number;
+    max: number;
+    timeline: ParsedTimelineFrame[];
+    averageEmissivity: number;
+    averageReflectedKelvins: number;
+    bytesize: number;
+};
+type ParsedFileFrame = {
+    timestamp: number;
+    min: number;
+    max: number;
+    emissivity: number;
+    reflectedKelvins: number;
+    pixels: number[];
+};
+/**
+ * Definition of a supported file type
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+*/
+type ParserFileType = {
+    /** File extension, lowercase and without starting dots */
+    extension: string;
+    /** Mime type of the file */
+    minme: string;
+};
+/** A supported device dedfinition */
+type SupportedDeviceType = {
+    deviceName: string;
+    deviceDescription: string;
+    deviceUrl: string;
+    manufacturer: string;
+    manufacturerUrl: string;
+};
+type PointAnalysisData = {
+    [time: number]: number;
+};
+type AreaAnalysisData = {
+    [time: number]: {
+        min: number;
+        max: number;
+        avg: number;
     };
-    addListener(id: string, listener: PropertyListenerFn<ValueType>): void;
-    removeListener(id: string): void;
-    clearAllListeners(): void;
-}
-
-/** Access list of points from analysis layers */
-declare class AnalysisPointsAccessor {
-    readonly drive: AnalysisDrive;
-    constructor(drive: AnalysisDrive);
-    /** Get all points from all layers */
-    get all(): AbstractPoint[];
-    /** Get all points from selected layers */
-    get allInSelectedLayers(): AbstractPoint[];
-    /** Get only active points from selected layers */
-    get activeInSelectedLayers(): AbstractPoint[];
-    /** Extract points from all provided layers */
-    protected extractPointsFromLayers(layers: AbstractAnalysis[], activeOnly?: boolean): AbstractPoint[];
-}
-
-interface IWithAnalysis extends IBaseProperty {
-    analysis: AnalysisDrive;
-}
-declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
-    readonly layers: AnalysisLayersStorage;
-    readonly points: AnalysisPointsAccessor;
-    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
-    get listenerLayerContainer(): HTMLElement;
-    /** Alias of the current `ToolDrive` value. */
-    protected get currentTool(): ThermalTool;
-    /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
-    protected bindedPointerMoveListener?: (event: PointerEvent) => void;
-    /** Cached listener on `this.listenerLayerContainer` - pointerdown event. */
-    protected bindedPointerDownListener?: (event: PointerEvent) => void;
-    /** Cached listener on `this.listenerLayerContainer` - pointerup event. */
-    protected bindedPointerUpListener?: (event: PointerEvent) => void;
+};
+/**
+ * Interface for a parser object
+ * - all methods must be completely and totally static
+ * - data needs to be transferred as ArrayBuffer, since it is serialisable
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
+ */
+interface IParserObject {
+    /** Name of the file format */
+    name: string;
+    /** Description of the file format */
+    description: string;
+    /** List of supported devices */
+    devices: SupportedDeviceType[];
+    /** Define the supported file type for the purpose of display */
+    extensions: ParserFileType[];
+    /** Determine whether the file corresponds to the given parser */
+    is(buffer: ArrayBuffer, url: string): boolean;
     /**
-     * Value of this drive is stored in `AnalysisLayersStorage` and from there, it is mirrored to the drive.
-     * It is better to add listeners to the storage, not to the drive.
+     * Get the basic information necessary for every file
+     * - without any pixels!
+     * - this sould be called once only
      */
-    dangerouslySetValueFromStorage(value: AbstractAnalysis[]): void;
-    protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
-    protected afterSetEffect(): void;
-    /** Calculate the top/left position from a `MouseEvent` */
-    protected getRelativePosition(event: MouseEvent): {
-        top: number;
-        left: number;
+    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
+    /**
+     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
+     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
+     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
+     *
+     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
+     */
+    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
+        array: ArrayBuffer;
+        dataType: number;
     };
-    /** Activate listeners for the current drive on the file's listener layer. */
-    activateListeners(): void;
-    /** Remove all listeners from the file's listener layer */
-    deactivateListeners(): void;
+    /**
+     * Calculate the pixels and other parameters of one frame
+     * @param frameSubset ArrayBuffer of data related to the frame.
+     * @param dataType
+     */
+    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
+    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
+    pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
+    rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
+    ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
+}
+
+declare class FileMeta {
+    private _current;
+    get current(): ParsedFileBaseInfo;
+    onChange: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    constructor(baseInfo: ParsedFileBaseInfo);
+    set(value: ParsedFileBaseInfo): void;
 }
 
 declare abstract class AbstractLayer {
@@ -1613,26 +1652,35 @@ interface IFileInstance extends IThermalInstance, BaseStructureObject {
  * @deprecated Replace by Instance! This class is not needed anymore since it comes from the time of `ThermalFileInstance` */
 declare abstract class AbstractFile extends BaseStructureObject implements IFileInstance {
     readonly id: string;
+    /** Internal limit for cursor label position */
     readonly horizontalLimit: number;
+    /** Internal limit for cursor label position */
     readonly verticalLimit: number;
     readonly group: ThermalGroup;
     get pool(): Pool;
-    readonly url: string;
+    /** @deprecated */
     readonly thermalUrl: string;
     readonly visibleUrl?: string;
     readonly fileName: string;
-    readonly frameCount: number;
     signature: string;
     version: number;
     streamCount: number;
     fileDataType: number;
     unit: number;
-    width: number;
-    height: number;
-    timestamp: number;
-    duration: number;
-    min: number;
-    max: number;
+    /** Stored core information. They may change in time because of filters. */
+    readonly meta: FileMeta;
+    get width(): number;
+    get height(): number;
+    get timestamp(): number;
+    get duration(): number;
+    get min(): number;
+    get max(): number;
+    get bytesize(): number;
+    get averageEmissivity(): number;
+    get averageReflectedKelvins(): number;
+    get timelineData(): ParsedTimelineFrame[];
+    get fps(): number;
+    get frameCount(): number;
     private _isHover;
     get isHover(): boolean;
     protected set isHover(value: boolean);
@@ -1647,12 +1695,12 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     recording: RecordingDrive;
     private _mounted;
     get mountedBaseLayers(): boolean;
-    set mountedBaseLayers(value: boolean);
+    protected set mountedBaseLayers(value: boolean);
     private _pixels;
     get pixels(): number[];
-    set pixels(value: number[]);
+    setPixels(value: number[]): void;
     abstract getPixelsForHistogram(): number[];
-    constructor(group: ThermalGroup, thermalUrl: string, width: number, height: number, initialPixels: number[], timestamp: number, duration: number, min: number, max: number, frameCount: number, visibleUrl?: string);
+    constructor(group: ThermalGroup, baseInfo: ParsedFileBaseInfo, initialPixels: number[], thermalUrl: string, visibleUrl?: string);
     abstract postInit(): AbstractFile;
     protected abstract onSetPixels(value: number[]): void;
     protected abstract formatId(thermalUrl: string): string;
@@ -1684,7 +1732,6 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
  */
 declare class ThermalFileReader extends AbstractFileResult {
     readonly service: FilesService;
-    readonly buffer: ArrayBuffer;
     readonly parser: IParserObject;
     /** For the purpose of testing we have a unique ID */
     readonly id: number;
@@ -1692,8 +1739,15 @@ declare class ThermalFileReader extends AbstractFileResult {
     protected baseInfoCache?: ParsedFileBaseInfo;
     readonly fileName: string;
     private get pool();
-    constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string);
+    protected originalBuffer?: ArrayBuffer;
+    protected _buffer: ArrayBuffer;
+    get buffer(): ArrayBuffer;
+    protected set buffer(value: ArrayBuffer);
+    constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string, preserveOriginalBuffer?: boolean);
     isSuccess(): boolean;
+    protected copyBuffer(buffer: ArrayBuffer): ArrayBuffer;
+    /** Create copy of the self so that the */
+    protected cloneForInstance(): ThermalFileReader;
     /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
     baseInfo(): ReturnType<IParserObject["baseInfo"]>;
     /**
@@ -1709,6 +1763,7 @@ declare class ThermalFileReader extends AbstractFileResult {
     pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
     rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
     ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
+    applyFilters(filters: AbstractFilter[]): Promise<ThermalFileReader>;
     createInstance(group: ThermalGroup): Promise<Instance>;
 }
 
@@ -1722,27 +1777,8 @@ declare class ThermalFileExport {
 
 declare class Instance extends AbstractFile {
     readonly group: ThermalGroup;
-    readonly service: ThermalFileReader;
-    /**  @todo This dimension should be 1 pixel smaller */
-    readonly width: number;
-    /** @todo This dimension should be 1 pixel smaller */
-    readonly height: number;
-    readonly timestamp: number;
-    readonly frameCount: number;
-    readonly duration: number;
-    /** @deprecated */
-    readonly frameInterval: number;
-    /** @deprecated */
-    readonly fps: number;
-    readonly min: number;
-    readonly max: number;
-    readonly bytesize: number;
-    /** @deprecated not used anymore */
-    readonly averageEmissivity: number;
-    /** @deprecated not used anymore */
-    readonly averageReflectedKelvins: number;
+    readonly reader: ThermalFileReader;
     readonly firstFrame: ParsedFileFrame;
-    readonly timelineData: ParsedFileBaseInfo["timeline"];
     timeline: TimelineDrive;
     analysis: AnalysisDrive;
     analysisData: AnalysisDataState;
@@ -1755,19 +1791,7 @@ declare class Instance extends AbstractFile {
     protected _export?: ThermalFileExport;
     /** Lazy-loaded `ThermalFileExport` object */
     get export(): ThermalFileExport;
-    protected constructor(group: ThermalGroup, service: ThermalFileReader, 
-    /**  @todo This dimension should be 1 pixel smaller */
-    width: number, 
-    /** @todo This dimension should be 1 pixel smaller */
-    height: number, timestamp: number, frameCount: number, duration: number, 
-    /** @deprecated */
-    frameInterval: number, initialPixels: number[], 
-    /** @deprecated */
-    fps: number, min: number, max: number, bytesize: number, 
-    /** @deprecated not used anymore */
-    averageEmissivity: number, 
-    /** @deprecated not used anymore */
-    averageReflectedKelvins: number, firstFrame: ParsedFileFrame, timelineData: ParsedFileBaseInfo["timeline"]);
+    protected constructor(group: ThermalGroup, reader: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame);
     postInit(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;
@@ -1776,6 +1800,14 @@ declare class Instance extends AbstractFile {
     mountListener(): void;
     protected unmountListener(): void;
     recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
+    readonly filters: FilterContainer;
+    getInstances(): this[];
+    getAllApplicableFilters(): AbstractFilter[];
+    applyAllAvailableFilters(): void;
+}
+
+declare abstract class BaseStructureObject {
+    abstract getInstances(): Instance[];
 }
 
 /**
@@ -1803,6 +1835,8 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     destroySelfAndBelow(): void;
     removeAllChildren(): void;
     reset(): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
 }
 
 interface ThermalMinmaxType {

@@ -191,16 +191,16 @@ export class FileInfoButton extends FileConsumer {
                     <table>
                     ${ unsafeHTML( this.renderRow(
                         "Type",
-                        this.file.service.parser.name
+                        this.file.reader.parser.name
                     ) ) }
                     ${ unsafeHTML( this.renderRow(
                         "Description",
-                        this.file.service.parser.description
+                        this.file.reader.parser.description
                     ) ) }
 
                     <tr>
                         <td>Supported devices</td>
-                        <td><ul>${this.file.service.parser.devices.map( device => html`<li>
+                        <td><ul>${this.file.reader.parser.devices.map( device => html`<li>
                             <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
                             <div class="small">${device.deviceDescription}</div>
                             <div class="small">Manufactured by <a href="${device.manufacturerUrl}" target="_blank">${device.manufacturer}</a></div>

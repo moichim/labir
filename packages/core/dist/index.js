@@ -895,34 +895,93 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
 
 // src/base/BaseStructureObject.ts
 var BaseStructureObject = class {
-  // public readonly pool: Pool;
+};
+
+// src/properties/callbacksManager.ts
+var CallbacksManager = class extends Map {
+  /** @deprecated use set method instead */
+  add(key, callback) {
+    this.set(key, callback);
+  }
+  call(...args) {
+    this.forEach((fn) => fn(...args));
+  }
+};
+
+// src/file/FileMeta.ts
+var FileMeta = class {
+  _current;
+  get current() {
+    return this._current;
+  }
+  onChange = new CallbacksManager();
+  constructor(baseInfo2) {
+    this._current = baseInfo2;
+  }
+  set(value) {
+    this._current = value;
+    this.onChange.call(this.current);
+  }
 };
 
 // src/file/AbstractFile.ts
 var AbstractFile = class extends BaseStructureObject {
   id;
+  /** Internal limit for cursor label position */
   horizontalLimit;
+  /** Internal limit for cursor label position */
   verticalLimit;
   group;
   get pool() {
     return this.group.registry.manager.pool;
   }
-  url;
+  /** @deprecated */
   thermalUrl;
   visibleUrl;
   fileName;
-  frameCount;
   signature = "unknown";
   version = -1;
   streamCount = -1;
   fileDataType = -1;
   unit = -1;
-  width;
-  height;
-  timestamp;
-  duration;
-  min;
-  max;
+  /** Stored core information. They may change in time because of filters. */
+  meta;
+  get width() {
+    return this.meta.current.width;
+  }
+  get height() {
+    return this.meta.current.height;
+  }
+  get timestamp() {
+    return this.meta.current.timestamp;
+  }
+  get duration() {
+    return this.meta.current.duration;
+  }
+  get min() {
+    return this.meta.current.min;
+  }
+  get max() {
+    return this.meta.current.max;
+  }
+  get bytesize() {
+    return this.meta.current.bytesize;
+  }
+  get averageEmissivity() {
+    return this.meta.current.averageEmissivity;
+  }
+  get averageReflectedKelvins() {
+    return this.meta.current.averageReflectedKelvins;
+  }
+  get timelineData() {
+    return this.meta.current.timeline;
+  }
+  get fps() {
+    return this.meta.current.fps;
+  }
+  get frameCount() {
+    return this.meta.current.frameCount;
+  }
   _isHover = false;
   get isHover() {
     return this._isHover;
@@ -954,25 +1013,18 @@ var AbstractFile = class extends BaseStructureObject {
   get pixels() {
     return this._pixels;
   }
-  set pixels(value) {
+  setPixels(value) {
     this._pixels = value;
     this.onSetPixels(value);
   }
-  constructor(group, thermalUrl, width, height, initialPixels, timestamp, duration, min, max, frameCount, visibleUrl) {
+  constructor(group, baseInfo2, initialPixels, thermalUrl, visibleUrl) {
     super();
     this.group = group;
     this.id = this.formatId(thermalUrl);
-    this.url = thermalUrl;
+    this.meta = new FileMeta(baseInfo2);
     this.thermalUrl = thermalUrl;
     this.visibleUrl = visibleUrl;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.duration = duration;
-    this.min = min;
-    this.max = max;
-    this.frameCount = frameCount;
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
@@ -1508,17 +1560,6 @@ var VisibleLayer = class extends AbstractLayer {
 // src/properties/time/playback/TimelineDrive.ts
 var import_date_fns3 = require("date-fns");
 
-// src/properties/callbacksManager.ts
-var CallbacksManager = class extends Map {
-  /** @deprecated use set method instead */
-  add(key, callback) {
-    this.set(key, callback);
-  }
-  call(...args) {
-    this.forEach((fn) => fn(...args));
-  }
-};
-
 // src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
   constructor(drive, firstFrame) {
@@ -1534,7 +1575,7 @@ var FrameBuffer = class {
   /** Upon every update of current frame, propagate current pixels to the instance */
   set currentFrame(frame) {
     this._currentFrame = frame;
-    this.drive.parent.pixels = this.currentFrame.pixels;
+    this.drive.parent.setPixels(this.currentFrame.pixels);
   }
   /** Get the current step value calculated from _currentFrame */
   get currentStep() {
@@ -1567,7 +1608,7 @@ var FrameBuffer = class {
   async recieveStep(step) {
     let frame = this.buffer.get(step);
     if (frame === void 0) {
-      frame = await this.drive.parent.service.frameData(step.index);
+      frame = await this.drive.parent.reader.frameData(step.index);
     }
     this.currentFrame = frame;
     const status = await this.preloadAfterFrameSet(step);
@@ -1596,7 +1637,7 @@ var FrameBuffer = class {
     });
     const newSteps = stepsThatShouldBe.filter((step2) => !this.preloadedSteps.includes(step2));
     const newFrames = await Promise.all(newSteps.map((step2) => {
-      return this.drive.parent.service.frameData(step2.index);
+      return this.drive.parent.reader.frameData(step2.index);
     }));
     newFrames.forEach((frame, index) => {
       const step2 = newSteps[index];
@@ -2725,7 +2766,7 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
     };
   }
   async getAnalysisData() {
-    return await this.file.service.pointAnalysisData(this.center.x, this.center.y);
+    return await this.file.reader.pointAnalysisData(this.center.x, this.center.y);
   }
   validateWidth() {
     return 0;
@@ -3590,7 +3631,7 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
     return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
   }
   async getAnalysisData() {
-    return await this.file.service.ellipsisAnalysisData(
+    return await this.file.reader.ellipsisAnalysisData(
       this.left,
       this.top,
       this.width,
@@ -3683,7 +3724,7 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
     };
   }
   async getAnalysisData() {
-    return await this.file.service.rectAnalysisData(
+    return await this.file.reader.rectAnalysisData(
       this.left,
       this.top,
       this.width,
@@ -4462,39 +4503,61 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   }
 };
 
+// src/filters/FilterContainer.ts
+var FilterContainer = class {
+  constructor(parent) {
+    this.parent = parent;
+  }
+  _layers = [];
+  get layers() {
+    return this._layers;
+  }
+  onLayers = new CallbacksManager();
+  setLayers(layers) {
+    if (layers.length !== this._layers.length) {
+      this._layers = layers;
+      this.onLayers.call(this.layers);
+    }
+  }
+  getActiveFilters() {
+    return this.layers.filter((layer) => layer.bypass === false);
+  }
+  addFilter(filter) {
+    if (this.layers.includes(filter)) {
+      console.error(`filter ${filter} is already in ${this.parent}`);
+    }
+    this._layers.push(filter);
+    this.onLayers.call(this.layers);
+  }
+  removeFilter(filter) {
+    if (this.layers.includes(filter)) {
+      this._layers = this.layers.filter((layer) => layer !== filter);
+      this.onLayers.call(this.layers);
+    }
+  }
+  applyFilters() {
+    this.parent.getInstances().forEach((instance) => {
+      instance.applyAllAvailableFilters();
+    });
+  }
+  getFiltersArray() {
+  }
+};
+
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
-  constructor(group, service, width, height, timestamp, frameCount, duration, frameInterval, initialPixels, fps, min, max, bytesize, averageEmissivity, averageReflectedKelvins, firstFrame, timelineData) {
+  constructor(group, reader, baseInfo2, firstFrame) {
     super(
       group,
-      service.thermalUrl,
-      width,
-      height,
-      initialPixels,
-      timestamp,
-      duration,
-      min,
-      max,
-      frameCount,
-      service.visibleUrl
+      baseInfo2,
+      firstFrame.pixels,
+      reader.thermalUrl,
+      reader.visibleUrl
     );
     this.group = group;
-    this.service = service;
-    this.width = width;
-    this.height = height;
-    this.timestamp = timestamp;
-    this.frameCount = frameCount;
-    this.duration = duration;
-    this.frameInterval = frameInterval;
-    this.fps = fps;
-    this.min = min;
-    this.max = max;
-    this.bytesize = bytesize;
-    this.averageEmissivity = averageEmissivity;
-    this.averageReflectedKelvins = averageReflectedKelvins;
+    this.reader = reader;
     this.firstFrame = firstFrame;
-    this.timelineData = timelineData;
-    this.pixels = firstFrame.pixels;
+    this.setPixels(firstFrame.pixels);
   }
   slots;
   exportAsPng() {
@@ -4551,21 +4614,8 @@ var Instance = class _Instance extends AbstractFile {
     const instance = new _Instance(
       group,
       service,
-      baseInfo2.width,
-      baseInfo2.height,
-      baseInfo2.timestamp,
-      baseInfo2.frameCount,
-      baseInfo2.duration,
-      baseInfo2.frameInterval,
-      firstFrame.pixels,
-      baseInfo2.fps,
-      baseInfo2.min,
-      baseInfo2.max,
-      baseInfo2.bytesize,
-      baseInfo2.averageEmissivity,
-      baseInfo2.averageReflectedKelvins,
-      firstFrame,
-      baseInfo2.timeline
+      baseInfo2,
+      firstFrame
     );
     return instance.postInit();
   }
@@ -4607,6 +4657,29 @@ var Instance = class _Instance extends AbstractFile {
     }
     this.cursorValue.recalculateFromCursor(position);
   }
+  filters = new FilterContainer(this);
+  getInstances() {
+    return [this];
+  }
+  getAllApplicableFilters() {
+    const manager = this.group.registry.manager.filters.getActiveFilters();
+    const registry = this.group.registry.filters.getActiveFilters();
+    const group = this.group.filters.getActiveFilters();
+    const file = this.filters.getActiveFilters();
+    return [
+      ...manager,
+      ...registry,
+      ...group,
+      ...file
+    ];
+  }
+  applyAllAvailableFilters() {
+    const filters = this.getAllApplicableFilters();
+    this.reader.applyFilters(filters);
+    const root = this.root;
+    const reader = this.reader;
+    const group = this.group;
+  }
 };
 
 // src/properties/lists/filesState.ts
@@ -4623,21 +4696,21 @@ var FilesState = class extends AbstractProperty {
    */
   afterSetEffect(value) {
     this.map.clear();
-    value.forEach((instance) => this._map.set(instance.url, instance));
+    value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
   }
   addFile(file) {
-    if (!this._map.has(file.url)) {
+    if (!this._map.has(file.thermalUrl)) {
       this.value = [...this.value, file];
       return file;
     } else {
-      return this._map.get(file.url);
+      return this._map.get(file.thermalUrl);
     }
   }
   removeFile(file) {
     const entry = file instanceof Instance ? file : this.map.get(file);
     if (entry) {
       entry.unmountFromDom();
-      this.value = this.value.filter((e) => e.thermalUrl !== entry.url);
+      this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
     }
   }
   /**
@@ -5051,6 +5124,10 @@ var ThermalGroup = class extends BaseStructureObject {
     this.minmax.reset();
     this.cursorPosition.reset();
   }
+  filters = new FilterContainer(this);
+  getInstances() {
+    return this.files.value;
+  }
 };
 
 // src/hierarchy/ThermalManager.ts
@@ -5089,13 +5166,16 @@ var FileLoadingError = class extends Error {
 };
 
 // src/loading/workers/ThermalFileReader.ts
-var ThermalFileReader = class extends AbstractFileResult {
-  constructor(service, buffer, parser2, thermalUrl, visibleUrl) {
+var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
+  constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
     super(thermalUrl, visibleUrl);
     this.service = service;
-    this.buffer = buffer;
     this.parser = parser2;
+    this._buffer = buffer;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+    if (preserveOriginalBuffer === true) {
+      this.originalBuffer = this.copyBuffer(this.buffer);
+    }
   }
   /** For the purpose of testing we have a unique ID */
   id = Math.random();
@@ -5105,8 +5185,33 @@ var ThermalFileReader = class extends AbstractFileResult {
   get pool() {
     return this.service.pool;
   }
+  originalBuffer;
+  _buffer;
+  get buffer() {
+    return this._buffer;
+  }
+  set buffer(value) {
+    this._buffer = value;
+  }
   isSuccess() {
     return true;
+  }
+  copyBuffer(buffer) {
+    const copiedBuffer = new ArrayBuffer(buffer.byteLength);
+    const copiedArray = new Uint8Array(copiedBuffer);
+    copiedArray.set(new Uint8Array(buffer));
+    return copiedArray.buffer;
+  }
+  /** Create copy of the self so that the */
+  cloneForInstance() {
+    return new _ThermalFileReader(
+      this.service,
+      this.buffer,
+      this.parser,
+      this.thermalUrl,
+      this.visibleUrl,
+      true
+    );
   }
   /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
   async baseInfo() {
@@ -5142,10 +5247,30 @@ var ThermalFileReader = class extends AbstractFileResult {
   async ellipsisAnalysisData(x, y, width, height) {
     return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
   }
+  async applyFilters(filters) {
+    if (this.originalBuffer === void 0) {
+      console.error("trying to apply filters on a filereader template");
+      return this;
+    }
+    this.buffer = this.copyBuffer(this.originalBuffer);
+    for (let filter of filters) {
+      this.buffer = await filter.apply(this.buffer);
+    }
+    this.baseInfoCache = void 0;
+    await this.baseInfo();
+    return this;
+  }
   async createInstance(group) {
-    const baseInfo2 = await this.baseInfo();
-    const firstFrame = await this.frameData(0);
-    const instance = Instance.fromService(group, this, baseInfo2, firstFrame);
+    const reader = this.cloneForInstance();
+    const filters = [
+      ...group.registry.manager.filters.getActiveFilters(),
+      ...group.registry.filters.getActiveFilters(),
+      ...group.filters.getActiveFilters()
+    ];
+    await reader.applyFilters(filters);
+    const baseInfo2 = await reader.baseInfo();
+    const firstFrame = await reader.frameData(0);
+    const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
     group.files.addFile(instance);
     return instance;
   }
@@ -6158,7 +6283,7 @@ var HistogramState = class extends AbstractProperty {
       state = state.concat(current);
       return state;
     }, []);
-    const allBuffers = allFiles.map((reader) => reader.service.buffer);
+    const allBuffers = allFiles.map((reader) => reader.reader.buffer);
     const result = await this.parent.pool.exec(LrcParser.registryHistogram, [allBuffers]);
     this.value = result;
   }
@@ -6343,6 +6468,17 @@ var ThermalRegistry = class extends BaseStructureObject {
    * Palette
    */
   palette;
+  filters = new FilterContainer(this);
+  getInstances() {
+    let instances = [];
+    this.groups.value.forEach((group) => {
+      instances = [
+        ...instances,
+        ...group.getInstances()
+      ];
+    });
+    return instances;
+  }
 };
 
 // src/properties/drives/SmoothDrive.ts
@@ -6410,6 +6546,17 @@ var ThermalManager = class extends BaseStructureObject {
       registry.destroySelfAndBelow();
       delete this.registries[id];
     }
+  }
+  filters = new FilterContainer(this);
+  getInstances() {
+    let instances = [];
+    this.forEveryRegistry((registry) => {
+      instances = [
+        ...instances,
+        ...registry.getInstances()
+      ];
+    });
+    return instances;
   }
 };
 
