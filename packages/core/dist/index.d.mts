@@ -502,8 +502,7 @@ interface IWithAnalysis extends IBaseProperty {
 declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance> {
     readonly layers: AnalysisLayersStorage;
     readonly points: AnalysisPointsAccessor;
-    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
-    get listenerLayerContainer(): HTMLElement;
+    protected listener?: HTMLElement;
     /** Alias of the current `ToolDrive` value. */
     protected get currentTool(): ThermalTool;
     /** Cached listener on `this.listenerLayerContainer` - pointermove event. */
@@ -525,7 +524,7 @@ declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instanc
         left: number;
     };
     /** Activate listeners for the current drive on the file's listener layer. */
-    activateListeners(): void;
+    activateListeners(container: HTMLDivElement): void;
     /** Remove all listeners from the file's listener layer */
     deactivateListeners(): void;
 }
@@ -1544,16 +1543,8 @@ interface IParserObject {
     ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
 }
 
-declare class FileMeta {
-    private _current;
-    get current(): ParsedFileBaseInfo;
-    onChange: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
-    constructor(baseInfo: ParsedFileBaseInfo);
-    set(value: ParsedFileBaseInfo): void;
-}
-
 declare abstract class AbstractLayer {
-    protected readonly instance: Instance;
+    readonly instance: Instance;
     constructor(instance: Instance);
     abstract getLayerRoot(): HTMLElement;
     protected _mounted: boolean;
@@ -1597,7 +1588,7 @@ declare class ThermalCursorLayer extends AbstractLayer {
     constructor(instance: Instance);
     protected _show: boolean;
     get show(): boolean;
-    set show(value: boolean);
+    setShow(value: boolean): void;
     protected _hover: boolean;
     get hover(): boolean;
     set hover(value: boolean);
@@ -1633,19 +1624,64 @@ declare class VisibleLayer extends AbstractLayer {
     protected onDestroy(): void;
 }
 
+declare class InstanceDOM {
+    readonly parent: AbstractFile;
+    readonly root: HTMLDivElement;
+    static CLASS_BASE: string;
+    static CLASS_BUILT: string;
+    static CLASS_HYDRATED: string;
+    static CLASS_HOVER: string;
+    protected _built: boolean;
+    get built(): boolean;
+    protected setBuilt(value: boolean): void;
+    protected _hydrated: boolean;
+    get hydrated(): boolean;
+    protected setHydrated(value: boolean): void;
+    private _hover;
+    get hover(): boolean;
+    setHover(value: boolean): void;
+    /** The layer holding the canvas element and also analysis DOM */
+    protected _canvasLayer?: ThermalCanvasLayer;
+    get canvasLayer(): ThermalCanvasLayer | undefined;
+    /** Visible layer holding an eventual visible object */
+    protected _visibleLayer?: VisibleLayer;
+    get visibleLayer(): VisibleLayer | undefined;
+    /** Cursor layer will draw the cursor and its label on top of everything */
+    protected _cursorLayer?: ThermalCursorLayer;
+    get cursorLayer(): ThermalCursorLayer | undefined;
+    /** Listener layer is on top of everything and it handles all mouse events */
+    protected _listenerLayer?: ThermalListenerLayer;
+    get listenerLayer(): ThermalListenerLayer | undefined;
+    constructor(parent: AbstractFile, root: HTMLDivElement);
+    /**
+     * Use the parent's create inner method to build and assign all inner DOM
+     */
+    build(): void;
+    /** Destroy the entire DOM and remove all listeners */
+    destroy(): void;
+    /** Activate all listeners */
+    hydrate(): void;
+    /** Deactivate all listeners */
+    dehydrate(): void;
+}
+
+declare class FileMeta {
+    private _current;
+    get current(): ParsedFileBaseInfo;
+    onChange: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    get width(): number;
+    get height(): number;
+    constructor(baseInfo: ParsedFileBaseInfo);
+    set(value: ParsedFileBaseInfo): void;
+}
+
 /** Define properties for a file */
 interface IFileInstance extends IThermalInstance, BaseStructureObject {
     root: HTMLDivElement | null;
-    canvasLayer: ThermalCanvasLayer;
-    visibleLayer: VisibleLayer;
-    cursorLayer: ThermalCursorLayer;
-    listenerLayer: ThermalListenerLayer;
     horizontalLimit: number;
     id: string;
     verticalLimit: number;
     duration: number;
-    isHover: boolean;
-    mounted: boolean;
 }
 
 /** Displayable object for every file type.
@@ -1672,59 +1708,82 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     unit: number;
     /** Stored core information. They may change in time because of filters. */
     readonly meta: FileMeta;
+    /** @deprecated Use meta instead */
     get width(): number;
+    /** @deprecated Use meta instead */
     get height(): number;
+    /** @deprecated Use meta instead */
     get timestamp(): number;
+    /** @deprecated Use meta instead */
     get duration(): number;
+    /** @deprecated Use meta instead */
     get min(): number;
+    /** @deprecated Use meta instead */
     get max(): number;
+    /** @deprecated Use meta instead */
     get bytesize(): number;
+    /** @deprecated Use meta instead */
     get averageEmissivity(): number;
+    /** @deprecated Use meta instead */
     get averageReflectedKelvins(): number;
+    /** @deprecated Use meta instead */
     get timelineData(): ParsedTimelineFrame[];
+    /** @deprecated Use meta instead */
     get fps(): number;
+    /** @deprecated Use meta instead */
     get frameCount(): number;
-    private _isHover;
-    get isHover(): boolean;
-    protected set isHover(value: boolean);
-    root: HTMLDivElement | null;
-    canvasLayer: ThermalCanvasLayer;
-    visibleLayer: VisibleLayer;
-    cursorLayer: ThermalCursorLayer;
-    listenerLayer: ThermalListenerLayer;
+    protected _dom?: InstanceDOM;
+    get dom(): InstanceDOM | undefined;
+    get hover(): boolean;
+    /** @deprecated use DOM object instead */
+    get root(): HTMLDivElement | null;
+    /** @deprecated use DOM object instead */
+    get canvasLayer(): ThermalCanvasLayer;
+    /** @deprecated use DOM object instead */
+    get visibleLayer(): VisibleLayer;
+    /** @deprecated use DOM object instead */
+    get cursorLayer(): ThermalCursorLayer;
+    /** @deprecated use DOM object instead */
+    get listenerLayer(): ThermalListenerLayer;
     timeline: TimelineDrive;
     cursorValue: CursorValueDrive;
     analysis: AnalysisDrive;
     recording: RecordingDrive;
+    /** @deprecated use DOM object instead */
     private _mounted;
+    /** @deprecated use DOM object instead */
     get mounted(): boolean;
+    /** @deprecated use DOM object instead */
     protected set mounted(value: boolean);
+    /** @deprecated use DOM object instead */
     private _built;
+    /** @deprecated use DOM object instead */
     get built(): boolean;
+    /** @deprecated use DOM object instead */
     protected set built(value: boolean);
     private _pixels;
     get pixels(): number[];
     setPixels(value: number[]): void;
     abstract getPixelsForHistogram(): number[];
     constructor(group: ThermalGroup, baseInfo: ParsedFileBaseInfo, initialPixels: number[], thermalUrl: string, visibleUrl?: string);
-    abstract postInit(): ThisType<AbstractFile>;
+    abstract buildServices(): ThisType<AbstractFile>;
     protected abstract onSetPixels(value: number[]): void;
     protected abstract formatId(thermalUrl: string): string;
-    protected abstract doBuildInnerDom(): void;
-    protected abstract doDestroyInnerDom(): void;
-    buildInnerDom(force?: boolean): void;
-    destroyInnerDom(): void;
-    /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-    protected attachToDom(container: HTMLDivElement): void;
-    /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-    protected detachFromDom(): void;
-    protected abstract mountListener(): void;
-    protected abstract unmountListener(): void;
+    abstract createInnerDom(): {
+        canvasLayer: ThermalCanvasLayer;
+        visibleLayer: VisibleLayer;
+        cursorLayer: ThermalCursorLayer;
+        listenerLayer: ThermalListenerLayer;
+    };
+    abstract hydrateListener(dom: InstanceDOM): void;
+    abstract dehydrateListener(dom: InstanceDOM): void;
     mountToDom(container: HTMLDivElement): void;
     unmountFromDom(): void;
     draw(): void;
     recievePalette(palette: string | number): void;
+    /** @deprecated use DOM object instead */
     destroySelfAndBelow(): void;
+    /** @deprecated use DOM object instead */
     removeAllChildren(): void;
     getTemperatureAtPoint(x: number, y: number): number;
     getColorAtPoint(x: number, y: number): string | undefined;
@@ -1784,7 +1843,7 @@ declare class ThermalFileReader extends AbstractFileResult {
 declare class ThermalFileExport {
     readonly file: Instance;
     constructor(file: Instance);
-    canvasAsPng(): void;
+    canvasAsPng(): void | undefined;
     thermalDataAsCsv(): void;
 }
 
@@ -1803,15 +1862,19 @@ declare class Instance extends AbstractFile {
     /** Lazy-loaded `ThermalFileExport` object */
     get export(): ThermalFileExport;
     private constructor();
-    protected doBuildInnerDom(): void;
-    protected doDestroyInnerDom(): void;
-    postInit(): this;
+    createInnerDom(): {
+        canvasLayer: ThermalCanvasLayer;
+        visibleLayer: VisibleLayer;
+        cursorLayer: ThermalCursorLayer;
+        listenerLayer: ThermalListenerLayer;
+    };
+    hydrateListener(dom: InstanceDOM): void;
+    dehydrateListener(dom: InstanceDOM): void;
+    buildServices(): this;
     protected formatId(thermalUrl: string): string;
     protected onSetPixels(value: number[]): void;
     getPixelsForHistogram(): number[];
     static fromService(group: ThermalGroup, service: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
-    mountListener(): void;
-    protected unmountListener(): void;
     recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
     readonly filters: FilterContainer;
     getInstances(): this[];

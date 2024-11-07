@@ -6,6 +6,7 @@ import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
 import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
+import { InstanceDOM } from "./dom/InstanceDom";
 import { FileMeta } from "./FileMeta";
 import { IFileInstance } from "./IFileInstance";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
@@ -49,35 +50,60 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     /** Stored core information. They may change in time because of filters. */
     public readonly meta: FileMeta;
 
-
+    /** @deprecated Use meta instead */
     public get width(): number { return this.meta.current.width; }
+    /** @deprecated Use meta instead */
     public get height(): number { return this.meta.current.height; }
+    /** @deprecated Use meta instead */
     public get timestamp(): number { return this.meta.current.timestamp; }
+    /** @deprecated Use meta instead */
     public get duration(): number { return this.meta.current.duration; }
+    /** @deprecated Use meta instead */
     public get min(): number { return this.meta.current.min; }
+    /** @deprecated Use meta instead */
     public get max(): number { return this.meta.current.max; }
+    /** @deprecated Use meta instead */
     public get bytesize(): number { return this.meta.current.bytesize; }
+    /** @deprecated Use meta instead */
     public get averageEmissivity(): number { return this.meta.current.averageEmissivity; }
+    /** @deprecated Use meta instead */
     public get averageReflectedKelvins(): number { return this.meta.current.averageReflectedKelvins; }
+    /** @deprecated Use meta instead */
     public get timelineData() { return this.meta.current.timeline; }
+    /** @deprecated Use meta instead */
     public get fps(): number { return this.meta.current.fps; }
+    /** @deprecated Use meta instead */
     public get frameCount(): number { return this.meta.current.frameCount; }
 
-    private _isHover: boolean = false;
-    public get isHover() { return this._isHover; }
-    protected set isHover(value: boolean) {
-        this._isHover = value;
+    protected _dom?: InstanceDOM;
+    public get dom() { return this._dom; }
+
+
+    public get hover() { 
+        if ( this.dom )
+            return this.dom.hover;
+        return false;
     }
 
 
     // DOM root
-    public root: HTMLDivElement | null = null;
+    /** @deprecated use DOM object instead */
+    public get root(): HTMLDivElement | null {
+        if ( this.dom ) {
+            return this.dom.root;
+        }
+        return null;
+    };
 
     // DOM layers
-    public canvasLayer!: ThermalCanvasLayer;
-    public visibleLayer!: VisibleLayer;
-    public cursorLayer!: ThermalCursorLayer;
-    public listenerLayer!: ThermalListenerLayer;
+    /** @deprecated use DOM object instead */
+    public get canvasLayer() { return this.dom!.canvasLayer!;}
+    /** @deprecated use DOM object instead */
+    public get visibleLayer() {return this.dom!.visibleLayer!}
+    /** @deprecated use DOM object instead */
+    public get cursorLayer() { return this.dom!.cursorLayer! };
+    /** @deprecated use DOM object instead */
+    public get listenerLayer() { return this.dom!.listenerLayer! };
 
     // Drives
     public timeline!: TimelineDrive;
@@ -89,12 +115,18 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     public recording!: RecordingDrive;
 
+    /** @deprecated use DOM object instead */
     private _mounted: boolean = false;
+    /** @deprecated use DOM object instead */
     public get mounted() { return this._mounted; }
+    /** @deprecated use DOM object instead */
     protected set mounted(value: boolean) { this._mounted = value; }
 
+    /** @deprecated use DOM object instead */
     private _built: boolean = false;
+    /** @deprecated use DOM object instead */
     public get built() { return this._built; }
+    /** @deprecated use DOM object instead */
     protected set built(value: boolean) { this._built = value; }
 
 
@@ -133,149 +165,63 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
-    public abstract postInit(): ThisType<AbstractFile>;
+    public abstract buildServices(): ThisType<AbstractFile>;
 
 
     protected abstract onSetPixels(value: number[]): void;
 
     protected abstract formatId(thermalUrl: string): string;
 
-    protected abstract doBuildInnerDom(): void;
-    protected abstract doDestroyInnerDom(): void;
-
-    public buildInnerDom(force: boolean = true): void {
-
-        // If forced, clear the existing DOM
-        if (this.built === true && force === true ) {
-            this.destroyInnerDom();
-        }
-
-        // If there is no DOM, create it and mark the root
-        if (this.built === false) {
-
-            this.doBuildInnerDom();
-
-            if (this.root) {
-                this.root.classList.add("thermalImageRoot");
-                this.root.style.transition = "border-color .1s ease-in-out";
-                this.root.style.zIndex = "10";
-                this.root.style.position = "relative";
-                this.root.style.lineHeight = "0";
-
-                this.root.dataset.thermalFile = this.id;
-                this.root.dataset.built = "true";
-
-            }
-
-            this.built = true;
-
-        }
-
-    }
-
-    public destroyInnerDom() {
-
-        this.unmountListener();
-
-        // Unmark the root
-        if (this.root) {
-            this.root.classList.remove("thermalImageRoot");
-            this.root.style.removeProperty("transition");
-            this.root.style.removeProperty("zIndex");
-            this.root.style.removeProperty("position");
-            this.root.style.removeProperty("lineHeight");
-            this.root.dataset.thermalFile = undefined;
-            this.root.dataset.built = "false";
-        }
-
-        // Destroy anything that exists
-        this.doDestroyInnerDom();
-        
-        this.built = false;
-    }
-
-    /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-    protected attachToDom(
-        container: HTMLDivElement
-    ) {
-
-        if (this.root !== null || this.mounted === true) {
-            console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
-
-            this.destroyInnerDom();
-
-            // this.detachFromDom();
-            // this.unmountListener();
-        }
-
-        this.root = container;
-
-        this.buildInnerDom();
-
-        // Visible layer is mounted on the bottom 
-        // and only if the URL exists
-        if (this.visibleLayer.exists)
-            this.visibleLayer.mount();
-
-        // The rest is mounted in the given order
-        this.canvasLayer.mount();
-        this.cursorLayer.mount();
-
-
-        // Container dataset
-        this.root.dataset.thermalFile = this.id;
-        this.root.dataset.mounted = "true";
-
-        // Mount the interactions
-        this.mountListener();
-
-        // Global state
-        this.mounted = true;
-
-
-    }
-
-    /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-    protected detachFromDom() {
-
-        if (this.root === undefined) {
-            console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
-        }
-
-        if (this.root) {
-            this.root.dataset.mounted = "false";
-            this.root.dataset.thermalFile = undefined;
-        }
-
-        this.unmountListener();
-
-        this.destroyInnerDom();
-
-        // this.visibleLayer.unmount();
-        // this.canvasLayer.unmount();
-        // this.cursorLayer.unmount();
-
-        this.mounted = false;
-
+    public abstract createInnerDom(): {
+        canvasLayer: ThermalCanvasLayer,
+        visibleLayer: VisibleLayer,
+        cursorLayer: ThermalCursorLayer,
+        listenerLayer: ThermalListenerLayer,
     }
 
 
-    protected abstract mountListener(): void;
-    protected abstract unmountListener(): void;
+    public abstract hydrateListener(
+        dom: InstanceDOM
+    ): void;
+
+    public abstract dehydrateListener(
+        dom: InstanceDOM
+    ): void;
 
 
 
     public mountToDom(container: HTMLDivElement): void {
-        this.attachToDom(container);
+
+        // Delete any existing DOM binding
+        if ( this._dom !== undefined ) {
+            this._dom.destroy();
+            this._dom = undefined;
+        }
+
+        // Append a new DOM binding
+        this._dom = new InstanceDOM(this, container);
+        
+        this._dom.build();
+        this._dom.hydrate();
+
     }
 
     public unmountFromDom(): void {
-        this.detachFromDom();
+
+        if ( this.dom ) {
+            this.dom.destroy();
+        }
+
+        delete this._dom;
+        this._dom = undefined;
+
     }
 
     public draw() {
-        if (this.mounted === true)
-            this.canvasLayer.draw();
+    
+        if ( this.dom && this.dom.canvasLayer) {
+            this.dom.canvasLayer.draw();
+        }
     }
 
     public recievePalette(palette: string | number): void {
@@ -283,12 +229,20 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this.draw();
     }
 
+    /** @deprecated use DOM object instead */
     public destroySelfAndBelow() {
-        this.detachFromDom();
+        // this.detachFromDom();
+        if ( this.dom ) {
+            this.dom.destroy();
+        }
     };
 
+    /** @deprecated use DOM object instead */
     public removeAllChildren() {
-        this.detachFromDom();
+        // this.detachFromDom();
+        if ( this.dom ) {
+            this.dom.destroy();
+        }
     };
 
 
@@ -335,8 +289,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     public recieveOpacity(value: number) {
 
-        if (this.visibleLayer && this.canvasLayer) {
-            this.canvasLayer.opacity = value;
+        if ( this.dom && this.dom.visibleLayer && this.dom.canvasLayer) {
+            this.dom.canvasLayer.opacity = value;
         }
     }
 

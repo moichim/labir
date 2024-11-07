@@ -17,6 +17,7 @@ import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDri
 import { AbstractFilter } from "../filters/AbstractFilter";
 import { FilterContainer } from "../filters/FilterContainer";
 import { FileMeta } from "./FileMeta";
+import { InstanceDOM } from "./dom/InstanceDom";
 
 export class Instance extends AbstractFile {
 
@@ -58,24 +59,73 @@ export class Instance extends AbstractFile {
 
     }
 
-    protected doBuildInnerDom() {
-        this.canvasLayer = new ThermalCanvasLayer(this);
-        this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
-        this.cursorLayer = new ThermalCursorLayer(this);
-        this.listenerLayer = new ThermalListenerLayer(this);
+    public createInnerDom(): { canvasLayer: ThermalCanvasLayer; visibleLayer: VisibleLayer; cursorLayer: ThermalCursorLayer; listenerLayer: ThermalListenerLayer; } {
+        return {
+            canvasLayer: new ThermalCanvasLayer(this),
+            visibleLayer: new VisibleLayer(this, this.visibleUrl),
+            cursorLayer: new ThermalCursorLayer(this),
+            listenerLayer: new ThermalListenerLayer(this),
+        }
     }
 
-    protected doDestroyInnerDom() {
-        this.canvasLayer.destroy();
-        this.visibleLayer.destroy();
-        this.cursorLayer.destroy();
-        this.listenerLayer.destroy();
+    public hydrateListener(dom: InstanceDOM): void {
+
+        if (!dom.listenerLayer || !dom.cursorLayer) {
+            return;
+        }
+
+        const listenerLayerRoot = dom.listenerLayer.getLayerRoot();
+
+        if (!listenerLayerRoot) {
+            return;
+        }
+
+        dom.parent.analysis.activateListeners(listenerLayerRoot as HTMLDivElement);
+
+        dom.listenerLayer.getLayerRoot().onmousemove = (
+            event: MouseEvent
+        ) => {
+
+            if (dom.cursorLayer)
+                dom.cursorLayer.setShow(true);
+
+            dom.setHover(true);
+
+            const client = dom.parent.meta.width;
+            const parent = dom.root.clientWidth;
+
+            const aspect = client / parent;
+
+            const x = Math.round(event.offsetX * aspect);
+            const y = Math.round(event.offsetY * aspect);
+
+            dom.parent.group.cursorPosition.recieveCursorPosition({ x, y });
+
+        }
+
+        dom.listenerLayer.getLayerRoot().onmouseleave = () => {
+
+            if (dom.cursorLayer)
+                dom.cursorLayer.setShow( false );
+
+            dom.setHover(false);
+
+            dom.parent.group.cursorPosition.recieveCursorPosition(undefined);
+
+        }
+
     }
 
-    public postInit() {
+    public dehydrateListener(dom: InstanceDOM): void {
 
-        this.buildInnerDom();
-        
+        dom.parent.analysis.deactivateListeners();
+
+    }
+
+
+
+    public buildServices() {
+
         this.cursorValue = new CursorValueDrive(this, undefined);
         this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
         this.timeline.init();
@@ -85,6 +135,7 @@ export class Instance extends AbstractFile {
         this.slots = new AnalysisSlotsState(this, new Map);
 
         return this;
+
     }
 
     protected formatId(thermalUrl: string) {
@@ -97,7 +148,7 @@ export class Instance extends AbstractFile {
 
 
         // If this file is loaded, recalculate all side effects
-        if (this.mounted) {
+        if (this.dom && this.dom.built) {
 
             // Redraw
             this.draw();
@@ -112,7 +163,7 @@ export class Instance extends AbstractFile {
                 const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
 
                 // Set the value
-                this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
+                this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
             }
 
             // Recalculate all analysis
@@ -141,9 +192,11 @@ export class Instance extends AbstractFile {
             firstFrame
         );
 
-        return instance.postInit();
+        return instance.buildServices();
 
     }
+
+    /*
 
 
     public mountListener() {
@@ -196,6 +249,8 @@ export class Instance extends AbstractFile {
 
     }
 
+    */
+
     public recieveCursorPosition(
         position: ThermalCursorPositionOrUndefined
     ) {
@@ -205,13 +260,24 @@ export class Instance extends AbstractFile {
 
             // Get label value from the current tool
             const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
-            this.cursorLayer.setLabel(position.x, position.y, label);
 
-            this.cursorLayer.show = true;
+            if (this.dom) {
+
+                this.dom.cursorLayer?.setLabel(position.x, position.y, label);
+                if (this.dom.cursorLayer)
+                    this.dom.cursorLayer.setShow( true );
+            }
+
 
         } else {
-            this.cursorLayer.show = false;
-            this.cursorLayer.resetCursor();
+
+            if ( this.dom ) {
+
+                this.dom.cursorLayer?.resetCursor();
+                this.dom.cursorLayer?.setShow( false );
+
+            }
+
         }
 
 

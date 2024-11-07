@@ -322,7 +322,6 @@ describe("AnalysisSlotsDrive", () => {
         // Serialisation counter
         let counter = 0;
         slot.onSerialize.set("test", () => {
-            console.log("counter");
             counter = counter + 1;
         });
         expect(counter).toEqual(0);

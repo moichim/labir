@@ -9,6 +9,9 @@ export class FileMeta {
 
     public onChange = new CallbacksManager<(value: ParsedFileBaseInfo) => void>;
 
+    public get width() { return this.current.width; }
+    public get height() { return this.current.height; }
+
     constructor(
         baseInfo: ParsedFileBaseInfo
     ) {

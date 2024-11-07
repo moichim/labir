@@ -897,6 +897,170 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
 var BaseStructureObject = class {
 };
 
+// src/file/dom/InstanceDom.ts
+var InstanceDOM = class _InstanceDOM {
+  constructor(parent, root) {
+    this.parent = parent;
+    this.root = root;
+    this.root.classList.add(_InstanceDOM.CLASS_BASE);
+    this.root.dataset.thermalInstanceId = this.parent.id;
+    this.root.dataset.thermalInstanceUrl = this.parent.thermalUrl;
+  }
+  static CLASS_BASE = "thermalImageRoot";
+  static CLASS_BUILT = _InstanceDOM.CLASS_BASE + "__built";
+  static CLASS_HYDRATED = _InstanceDOM.CLASS_BASE + "__mounted";
+  static CLASS_HOVER = _InstanceDOM.CLASS_BASE + "__hover";
+  _built = false;
+  get built() {
+    return this._built;
+  }
+  setBuilt(value) {
+    this._built = value;
+    if (value === true) {
+      this.root.classList.add(_InstanceDOM.CLASS_BUILT);
+      this.root.dataset.built = "true";
+      this.root.style.transition = "border-color .1s ease-in-out";
+      this.root.style.zIndex = "10";
+      this.root.style.position = "relative";
+      this.root.style.lineHeight = "0";
+    } else {
+      this.root.classList.remove(_InstanceDOM.CLASS_BUILT);
+      delete this.root.dataset.built;
+      this.root.style.removeProperty("transition");
+      this.root.style.removeProperty("zIndex");
+      this.root.style.removeProperty("position");
+      this.root.style.removeProperty("lineHeight");
+    }
+  }
+  _hydrated = false;
+  get hydrated() {
+    return this._hydrated;
+  }
+  setHydrated(value) {
+    this._hydrated = value;
+    if (value === true) {
+      this.root.classList.add(_InstanceDOM.CLASS_HYDRATED);
+      this.root.dataset.hydrated = "true";
+    } else {
+      this.root.classList.remove(_InstanceDOM.CLASS_HYDRATED);
+      delete this.root.dataset.hydrated;
+    }
+  }
+  _hover = false;
+  get hover() {
+    return this._hover;
+  }
+  setHover(value) {
+    this._hover = value;
+    if (value === true) {
+      this.root.classList.add(_InstanceDOM.CLASS_HOVER);
+      this.root.dataset.hover = "true";
+    } else {
+      this.root.classList.remove(_InstanceDOM.CLASS_HOVER);
+      delete this.root.dataset.hover;
+    }
+  }
+  // Layers
+  /** The layer holding the canvas element and also analysis DOM */
+  _canvasLayer;
+  get canvasLayer() {
+    return this._canvasLayer;
+  }
+  /** Visible layer holding an eventual visible object */
+  _visibleLayer;
+  get visibleLayer() {
+    return this._visibleLayer;
+  }
+  /** Cursor layer will draw the cursor and its label on top of everything */
+  _cursorLayer;
+  get cursorLayer() {
+    return this._cursorLayer;
+  }
+  /** Listener layer is on top of everything and it handles all mouse events */
+  _listenerLayer;
+  get listenerLayer() {
+    return this._listenerLayer;
+  }
+  /**
+   * Use the parent's create inner method to build and assign all inner DOM
+   */
+  build() {
+    if (this.root !== null && this.built === true) {
+      console.info(`Building instance ${this.parent.id} which is already built. Destroying any previous DOM and creating a new one in a new container ${this.root.nodeName}`);
+      this.destroy();
+    }
+    const dom = this.parent.createInnerDom();
+    this._canvasLayer = dom.canvasLayer;
+    this._visibleLayer = dom.visibleLayer;
+    this._cursorLayer = dom.cursorLayer;
+    this._listenerLayer = dom.listenerLayer;
+    this._canvasLayer.mount();
+    this._visibleLayer.mount();
+    this._cursorLayer.mount();
+    this._listenerLayer.mount();
+    this.root.appendChild(this._visibleLayer.getLayerRoot());
+    this.root.appendChild(this._canvasLayer.getLayerRoot());
+    this.root.appendChild(this._cursorLayer.getLayerRoot());
+    this.root.appendChild(this._listenerLayer.getLayerRoot());
+    this.setBuilt(true);
+  }
+  /** Destroy the entire DOM and remove all listeners */
+  destroy() {
+    if (this.built === true) {
+      if (this._canvasLayer) {
+        this._canvasLayer.unmount();
+        this.root.removeChild(this._canvasLayer.getLayerRoot());
+        this._canvasLayer = void 0;
+      }
+      if (this._visibleLayer) {
+        this._visibleLayer.unmount();
+        this.root.removeChild(this._visibleLayer.getLayerRoot());
+        this._visibleLayer = void 0;
+      }
+      if (this._cursorLayer) {
+        this._cursorLayer.unmount();
+        this.root.removeChild(this._cursorLayer.getLayerRoot());
+        this._cursorLayer = void 0;
+      }
+      if (this._listenerLayer) {
+        this.dehydrate();
+        this._listenerLayer.unmount();
+        this.root.removeChild(this._listenerLayer.getLayerRoot());
+        this._listenerLayer = void 0;
+      }
+      this.setBuilt(false);
+      this.root.classList.remove(_InstanceDOM.CLASS_BASE);
+      delete this.root.dataset.thermalInstanceId;
+      delete this.root.dataset.thermalInstanceUrl;
+    }
+  }
+  /** Activate all listeners */
+  hydrate() {
+    if (this.listenerLayer === void 0) {
+      console.error(`Instance ${this.parent.thermalUrl} does not have a listener layer yet when trying to hydrate! Stopping hydration.`);
+      return;
+    }
+    if (this.hydrated === true) {
+      this.dehydrate();
+    }
+    this.parent.hydrateListener(this);
+    this.setHydrated(true);
+  }
+  /** Deactivate all listeners */
+  dehydrate() {
+    if (this.hydrated === false) {
+      console.error(`Trying to dehydrate the instance ${this.parent.thermalUrl} which is not yet hydrated!}`);
+      return;
+    }
+    if (this.listenerLayer === void 0) {
+      console.error(`Trying to dehydrate the instance ${this.parent.thermalUrl} which does not have a listener layer yet!`);
+      return;
+    }
+    this.parent.dehydrateListener(this);
+    this.setHydrated(false);
+  }
+};
+
 // src/properties/callbacksManager.ts
 var CallbacksManager = class extends Map {
   /** @deprecated use set method instead */
@@ -915,6 +1079,12 @@ var FileMeta = class {
     return this._current;
   }
   onChange = new CallbacksManager();
+  get width() {
+    return this.current.width;
+  }
+  get height() {
+    return this.current.height;
+  }
   constructor(baseInfo2) {
     this._current = baseInfo2;
   }
@@ -945,73 +1115,111 @@ var AbstractFile = class extends BaseStructureObject {
   unit = -1;
   /** Stored core information. They may change in time because of filters. */
   meta;
+  /** @deprecated Use meta instead */
   get width() {
     return this.meta.current.width;
   }
+  /** @deprecated Use meta instead */
   get height() {
     return this.meta.current.height;
   }
+  /** @deprecated Use meta instead */
   get timestamp() {
     return this.meta.current.timestamp;
   }
+  /** @deprecated Use meta instead */
   get duration() {
     return this.meta.current.duration;
   }
+  /** @deprecated Use meta instead */
   get min() {
     return this.meta.current.min;
   }
+  /** @deprecated Use meta instead */
   get max() {
     return this.meta.current.max;
   }
+  /** @deprecated Use meta instead */
   get bytesize() {
     return this.meta.current.bytesize;
   }
+  /** @deprecated Use meta instead */
   get averageEmissivity() {
     return this.meta.current.averageEmissivity;
   }
+  /** @deprecated Use meta instead */
   get averageReflectedKelvins() {
     return this.meta.current.averageReflectedKelvins;
   }
+  /** @deprecated Use meta instead */
   get timelineData() {
     return this.meta.current.timeline;
   }
+  /** @deprecated Use meta instead */
   get fps() {
     return this.meta.current.fps;
   }
+  /** @deprecated Use meta instead */
   get frameCount() {
     return this.meta.current.frameCount;
   }
-  _isHover = false;
-  get isHover() {
-    return this._isHover;
+  _dom;
+  get dom() {
+    return this._dom;
   }
-  set isHover(value) {
-    this._isHover = value;
+  get hover() {
+    if (this.dom)
+      return this.dom.hover;
+    return false;
   }
   // DOM root
-  root = null;
+  /** @deprecated use DOM object instead */
+  get root() {
+    if (this.dom) {
+      return this.dom.root;
+    }
+    return null;
+  }
   // DOM layers
-  canvasLayer;
-  visibleLayer;
-  cursorLayer;
-  listenerLayer;
+  /** @deprecated use DOM object instead */
+  get canvasLayer() {
+    return this.dom.canvasLayer;
+  }
+  /** @deprecated use DOM object instead */
+  get visibleLayer() {
+    return this.dom.visibleLayer;
+  }
+  /** @deprecated use DOM object instead */
+  get cursorLayer() {
+    return this.dom.cursorLayer;
+  }
+  /** @deprecated use DOM object instead */
+  get listenerLayer() {
+    return this.dom.listenerLayer;
+  }
   // Drives
   timeline;
   cursorValue;
   analysis;
   // Recording is lazyloaded
   recording;
+  /** @deprecated use DOM object instead */
   _mounted = false;
+  /** @deprecated use DOM object instead */
   get mounted() {
     return this._mounted;
   }
+  /** @deprecated use DOM object instead */
   set mounted(value) {
     this._mounted = value;
   }
+  /** @deprecated use DOM object instead */
   _built = false;
+  /** @deprecated use DOM object instead */
   get built() {
     return this._built;
   }
+  /** @deprecated use DOM object instead */
   set built(value) {
     this._built = value;
   }
@@ -1035,87 +1243,42 @@ var AbstractFile = class extends BaseStructureObject {
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
   }
-  buildInnerDom(force = true) {
-    if (this.built === true && force === true) {
-      this.destroyInnerDom();
-    }
-    if (this.built === false) {
-      this.doBuildInnerDom();
-      if (this.root) {
-        this.root.classList.add("thermalImageRoot");
-        this.root.style.transition = "border-color .1s ease-in-out";
-        this.root.style.zIndex = "10";
-        this.root.style.position = "relative";
-        this.root.style.lineHeight = "0";
-        this.root.dataset.thermalFile = this.id;
-        this.root.dataset.built = "true";
-      }
-      this.built = true;
-    }
-  }
-  destroyInnerDom() {
-    this.unmountListener();
-    if (this.root) {
-      this.root.classList.remove("thermalImageRoot");
-      this.root.style.removeProperty("transition");
-      this.root.style.removeProperty("zIndex");
-      this.root.style.removeProperty("position");
-      this.root.style.removeProperty("lineHeight");
-      this.root.dataset.thermalFile = void 0;
-      this.root.dataset.built = "false";
-    }
-    this.doDestroyInnerDom();
-    this.built = false;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  attachToDom(container) {
-    if (this.root !== null || this.mounted === true) {
-      console.warn(`The instance ${this.id} has already mounted base layers therefore the inner DOM tree is deleted and built from the scratch.`);
-      this.destroyInnerDom();
-    }
-    this.root = container;
-    this.buildInnerDom();
-    if (this.visibleLayer.exists)
-      this.visibleLayer.mount();
-    this.canvasLayer.mount();
-    this.cursorLayer.mount();
-    this.root.dataset.thermalFile = this.id;
-    this.root.dataset.mounted = "true";
-    this.mountListener();
-    this.mounted = true;
-  }
-  /** @todo what if the instance remounts back to another element? The layers should be mounted as well! */
-  detachFromDom() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the base layers can not be unmounted.`);
-    }
-    if (this.root) {
-      this.root.dataset.mounted = "false";
-      this.root.dataset.thermalFile = void 0;
-    }
-    this.unmountListener();
-    this.destroyInnerDom();
-    this.mounted = false;
-  }
   mountToDom(container) {
-    this.attachToDom(container);
+    if (this._dom !== void 0) {
+      this._dom.destroy();
+      this._dom = void 0;
+    }
+    this._dom = new InstanceDOM(this, container);
+    this._dom.build();
+    this._dom.hydrate();
   }
   unmountFromDom() {
-    this.detachFromDom();
+    if (this.dom) {
+      this.dom.destroy();
+    }
+    delete this._dom;
+    this._dom = void 0;
   }
   draw() {
-    if (this.mounted === true)
-      this.canvasLayer.draw();
+    if (this.dom && this.dom.canvasLayer) {
+      this.dom.canvasLayer.draw();
+    }
   }
   recievePalette(palette) {
     palette;
     this.draw();
   }
+  /** @deprecated use DOM object instead */
   destroySelfAndBelow() {
-    this.detachFromDom();
+    if (this.dom) {
+      this.dom.destroy();
+    }
   }
+  /** @deprecated use DOM object instead */
   removeAllChildren() {
-    this.detachFromDom();
+    if (this.dom) {
+      this.dom.destroy();
+    }
   }
   getTemperatureAtPoint(x, y) {
     const index = y * this.width + x;
@@ -1141,8 +1304,8 @@ var AbstractFile = class extends BaseStructureObject {
   reset() {
   }
   recieveOpacity(value) {
-    if (this.visibleLayer && this.canvasLayer) {
-      this.canvasLayer.opacity = value;
+    if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer) {
+      this.dom.canvasLayer.opacity = value;
     }
   }
 };
@@ -1453,7 +1616,7 @@ var ThermalCursorLayer = class extends AbstractLayer {
   get show() {
     return this._show;
   }
-  set show(value) {
+  setShow(value) {
     this._show = value;
     this.layerRoot.style.opacity = this._show ? "1" : "0";
   }
@@ -2055,7 +2218,7 @@ var ThermalFileExport = class {
     this.file = file;
   }
   canvasAsPng() {
-    return this.file.canvasLayer.exportAsPng();
+    return this.file.dom?.canvasLayer?.exportAsPng();
   }
   thermalDataAsCsv() {
     throw new Error("Not implemented");
@@ -3971,10 +4134,7 @@ var AnalysisPointsAccessor = class {
 var AnalysisDrive = class extends AbstractProperty {
   layers = new AnalysisLayersStorage(this);
   points = new AnalysisPointsAccessor(this);
-  /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
-  get listenerLayerContainer() {
-    return this.parent.listenerLayer.getLayerRoot();
-  }
+  listener;
   /** Alias of the current `ToolDrive` value. */
   get currentTool() {
     return this.parent.group.tool.value;
@@ -3999,12 +4159,18 @@ var AnalysisDrive = class extends AbstractProperty {
   }
   /** Calculate the top/left position from a `MouseEvent` */
   getRelativePosition(event) {
-    const absoluteWidth = this.listenerLayerContainer.clientWidth;
+    if (!this.listener) {
+      return {
+        top: 0,
+        left: 0
+      };
+    }
+    const absoluteWidth = this.listener.clientWidth;
     const fileWidth = this.parent.width;
     const layerX = event.layerX;
     const xAspect = layerX / absoluteWidth;
     const x = Math.round(fileWidth * xAspect);
-    const absoluteHeight = this.listenerLayerContainer.clientHeight;
+    const absoluteHeight = this.listener.clientHeight;
     const fileHeight = this.parent.height;
     const layerY = event.layerY;
     const yAspect = layerY / absoluteHeight;
@@ -4015,7 +4181,8 @@ var AnalysisDrive = class extends AbstractProperty {
     };
   }
   /** Activate listeners for the current drive on the file's listener layer. */
-  activateListeners() {
+  activateListeners(container) {
+    this.listener = container;
     this.bindedPointerMoveListener = (event) => {
       const position = this.getRelativePosition(event);
       this.points.all.forEach((point) => {
@@ -4044,20 +4211,20 @@ var AnalysisDrive = class extends AbstractProperty {
         this.currentTool.onPointUp(point);
       });
     };
-    this.listenerLayerContainer.addEventListener("pointermove", this.bindedPointerMoveListener);
-    this.listenerLayerContainer.addEventListener("pointerdown", this.bindedPointerDownListener);
-    this.listenerLayerContainer.addEventListener("pointerup", this.bindedPointerUpListener);
+    this.listener.addEventListener("pointermove", this.bindedPointerMoveListener);
+    this.listener.addEventListener("pointerdown", this.bindedPointerDownListener);
+    this.listener.addEventListener("pointerup", this.bindedPointerUpListener);
   }
   /** Remove all listeners from the file's listener layer */
   deactivateListeners() {
-    if (this.bindedPointerMoveListener) {
-      this.listenerLayerContainer.removeEventListener("pointermove", this.bindedPointerMoveListener);
+    if (this.bindedPointerMoveListener && this.listener) {
+      this.listener.removeEventListener("pointermove", this.bindedPointerMoveListener);
     }
-    if (this.bindedPointerDownListener) {
-      this.listenerLayerContainer.removeEventListener("pointerdown", this.bindedPointerDownListener);
+    if (this.bindedPointerDownListener && this.listener) {
+      this.listener.removeEventListener("pointerdown", this.bindedPointerDownListener);
     }
-    if (this.bindedPointerUpListener) {
-      this.listenerLayerContainer.removeEventListener("pointerup", this.bindedPointerUpListener);
+    if (this.bindedPointerUpListener && this.listener) {
+      this.listener.removeEventListener("pointerup", this.bindedPointerUpListener);
     }
   }
 };
@@ -4603,20 +4770,45 @@ var Instance = class _Instance extends AbstractFile {
     }
     return this._export;
   }
-  doBuildInnerDom() {
-    this.canvasLayer = new ThermalCanvasLayer(this);
-    this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
-    this.cursorLayer = new ThermalCursorLayer(this);
-    this.listenerLayer = new ThermalListenerLayer(this);
+  createInnerDom() {
+    return {
+      canvasLayer: new ThermalCanvasLayer(this),
+      visibleLayer: new VisibleLayer(this, this.visibleUrl),
+      cursorLayer: new ThermalCursorLayer(this),
+      listenerLayer: new ThermalListenerLayer(this)
+    };
   }
-  doDestroyInnerDom() {
-    this.canvasLayer.destroy();
-    this.visibleLayer.destroy();
-    this.cursorLayer.destroy();
-    this.listenerLayer.destroy();
+  hydrateListener(dom) {
+    if (!dom.listenerLayer || !dom.cursorLayer) {
+      return;
+    }
+    const listenerLayerRoot = dom.listenerLayer.getLayerRoot();
+    if (!listenerLayerRoot) {
+      return;
+    }
+    dom.parent.analysis.activateListeners(listenerLayerRoot);
+    dom.listenerLayer.getLayerRoot().onmousemove = (event) => {
+      if (dom.cursorLayer)
+        dom.cursorLayer.setShow(true);
+      dom.setHover(true);
+      const client = dom.parent.meta.width;
+      const parent = dom.root.clientWidth;
+      const aspect = client / parent;
+      const x = Math.round(event.offsetX * aspect);
+      const y = Math.round(event.offsetY * aspect);
+      dom.parent.group.cursorPosition.recieveCursorPosition({ x, y });
+    };
+    dom.listenerLayer.getLayerRoot().onmouseleave = () => {
+      if (dom.cursorLayer)
+        dom.cursorLayer.setShow(false);
+      dom.setHover(false);
+      dom.parent.group.cursorPosition.recieveCursorPosition(void 0);
+    };
   }
-  postInit() {
-    this.buildInnerDom();
+  dehydrateListener(dom) {
+    dom.parent.analysis.deactivateListeners();
+  }
+  buildServices() {
     this.cursorValue = new CursorValueDrive(this, void 0);
     this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
     this.timeline.init();
@@ -4631,12 +4823,12 @@ var Instance = class _Instance extends AbstractFile {
   }
   onSetPixels(value) {
     value;
-    if (this.mounted) {
+    if (this.dom && this.dom.built) {
       this.draw();
       this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
       if (this.group.cursorPosition.value) {
         const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
-        this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
+        this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
       this.analysis.value.forEach((analysis) => analysis.recalculateValues());
     }
@@ -4651,43 +4843,75 @@ var Instance = class _Instance extends AbstractFile {
       baseInfo2,
       firstFrame
     );
-    return instance.postInit();
+    return instance.buildServices();
   }
-  mountListener() {
-    if (this.root === void 0) {
-      console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-      return;
-    }
-    this.listenerLayer.mount();
-    this.analysis.activateListeners();
-    this.listenerLayer.getLayerRoot().onmousemove = (event) => {
-      this.cursorLayer.show = true;
-      this.isHover = true;
-      const client = this.width;
-      const parent = this.root.clientWidth;
-      const aspect = client / parent;
-      const x = Math.round(event.offsetX * aspect);
-      const y = Math.round(event.offsetY * aspect);
-      this.group.cursorPosition.recieveCursorPosition({ x, y });
-    };
-    this.listenerLayer.getLayerRoot().onmouseleave = () => {
-      this.cursorLayer.show = false;
-      this.isHover = false;
-      this.group.cursorPosition.recieveCursorPosition(void 0);
-    };
-  }
-  unmountListener() {
-    this.listenerLayer.unmount();
-    this.analysis.deactivateListeners();
-  }
+  /*
+  
+  
+      public mountListener() {
+  
+          if (this.root === undefined) {
+              console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
+              return;
+          }
+  
+          this.listenerLayer.mount();
+          this.analysis.activateListeners();
+  
+          this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
+  
+              // Show the cursor
+              this.cursorLayer.show = true;
+  
+              // Store the local hover state
+              this.isHover = true;
+  
+              const client = this.width;
+              const parent = this.root!.clientWidth;
+  
+              const aspect = client / parent;
+  
+              const x = Math.round(event.offsetX * aspect);
+              const y = Math.round(event.offsetY * aspect);
+  
+              this.group.cursorPosition.recieveCursorPosition({ x, y });
+  
+          };
+  
+          this.listenerLayer.getLayerRoot().onmouseleave = () => {
+  
+              this.cursorLayer!.show = false;
+  
+              this.isHover = false;
+  
+              // Clear the synchronised cursor in any case
+              this.group.cursorPosition.recieveCursorPosition(undefined);
+  
+          };
+  
+      }
+  
+      protected unmountListener() {
+  
+          this.listenerLayer.unmount();
+          this.analysis.deactivateListeners();
+  
+      }
+  
+      */
   recieveCursorPosition(position) {
     if (position !== void 0) {
       const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
-      this.cursorLayer.setLabel(position.x, position.y, label);
-      this.cursorLayer.show = true;
+      if (this.dom) {
+        this.dom.cursorLayer?.setLabel(position.x, position.y, label);
+        if (this.dom.cursorLayer)
+          this.dom.cursorLayer.setShow(true);
+      }
     } else {
-      this.cursorLayer.show = false;
-      this.cursorLayer.resetCursor();
+      if (this.dom) {
+        this.dom.cursorLayer?.resetCursor();
+        this.dom.cursorLayer?.setShow(false);
+      }
     }
     this.cursorValue.recalculateFromCursor(position);
   }
