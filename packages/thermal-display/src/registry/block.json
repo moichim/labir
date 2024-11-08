@@ -1,0 +1,54 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "thermal-display/registry",
+	"version": "0.1.0",
+	"title": "Thermal registry",
+	"category": "thermal",
+	"icon": "file:./assets/icon.svg",
+	"description": "Registry of thermal files need to be inside Thermal manager and it needs to contain Thermal group",
+	"example": {},
+	"supports": {
+		"color": {
+			"background": true,
+			"button": true,
+			"gradients": true,
+			"text": true,
+			"heading": true,
+			"link": true
+		},
+		"interactivity": false,
+		"html": false,
+		"anchor": true,
+		"lock": true,
+		"align": ["wide", "full"],
+		"spacing": {
+			"padding": true,
+			"margin": true,
+			"blockGap": true
+		}
+	},
+	"textdomain": "thermal-display",
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php",
+	"viewScript": "file:./view.js",
+	"keywords": [ "webcomponent", "IR Camera", "embed", "LRC" ],
+	"attributes": {
+		"layout": {
+			"type": "object",
+			"default": {
+				"type": "constrained"
+			}
+		},
+		"slug": {
+			"type": "string",
+			"default": "default_slug"
+		},
+		"opacity": {
+			"type": "number",
+			"default": 1
+		}
+	}
+}
