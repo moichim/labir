@@ -10,13 +10,24 @@ export class FileCanvas extends FileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 
+    getContainer(): HTMLDivElement|undefined {
+        return this.container.value;
+    }
+
     public onInstanceCreated(instance: Instance): void {
 
-        if ( this.container.value !== undefined ) {
-            instance.mountToDom( this.container.value );
+        const container = this.getContainer();
+
+        this.log( {
+            dom: container, 
+            class: this
+        } );
+
+        if ( container !== undefined ) {
+            instance.mountToDom( container );
             instance.draw();
         } else {
-            this.log( this.container.value );
+            this.log( container );
             throw new Error( "Error mounting the instance to the canvas!" );
         }
     }
@@ -37,7 +48,7 @@ export class FileCanvas extends FileConsumer {
                 && newFile !== undefined
                 && this.container.value
                 && this.file
-                && this.file.mountedBaseLayers === false
+                && this.file.dom?.built === false
             ) {
                 this.file.mountToDom( this.container.value );
                 this.file.draw();
@@ -47,6 +58,7 @@ export class FileCanvas extends FileConsumer {
     }
 
     static styles = css`
+
         .canvas-container {
 
             max-width: 100vw;
@@ -59,8 +71,6 @@ export class FileCanvas extends FileConsumer {
             color: var( --thermal-background );
 
             transition: color .3s ease-in-out, background-color .3s ease-in-out;
-
-            
 
         }
 
@@ -81,9 +91,7 @@ export class FileCanvas extends FileConsumer {
             display: flex;
             align-items: center;
             justify-content: center;
-
             padding: var( --thermal-gap );
-
         }
 
         .error-wrapper {

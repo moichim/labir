@@ -19,7 +19,8 @@
 
 <body>
 
-  <!--
+
+
 
   <div>
 
@@ -31,7 +32,13 @@
         <registry-opacity-slider></registry-opacity-slider>
         <registry-opacity-slider></registry-opacity-slider>
         <group-provider>
-            <file-provider thermal="/tucnaci_04.lrc">
+            <file-provider thermal="/tucnaci_04.lrc" batch="true">
+              <file-canvas></file-canvas>
+            </file-provider>
+            <file-provider thermal="/soustruh.lrc" batch="true">
+              <file-canvas></file-canvas>
+            </file-provider>
+            <file-provider thermal="/sequence.lrc" batch="true">
               <file-canvas></file-canvas>
             </file-provider>
         </group-provider>
@@ -40,7 +47,7 @@
 
   </div>
 
--->
+  <!--
 
   <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
@@ -52,6 +59,9 @@
     setTimeout(reload, 10000);
   </script>
 
+-->
+
+<!--
   <thermal-desktop-app 
     url="/sequence.lrc"  
     visible="/kitten.jpg"
@@ -76,6 +86,10 @@
     analysis3="Bod B;point;top:50;left:80;avg;color:green" label="Tučňáci">
     <div slot="content_">Jsem obsah aplikace</div>
   </thermal-file-app>
+
+-->
+
+<!--
 
   <manager-provider palette="jet" slug="some-example">
     <registry-provider>

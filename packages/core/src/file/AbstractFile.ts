@@ -218,13 +218,15 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public draw() {
+
+        // console.log( "drawing", this.dom, this.dom?.canvasLayer );
     
         if ( this.dom && this.dom.canvasLayer) {
             this.dom.canvasLayer.draw();
         }
     }
 
-    public recievePalette(palette: string | number): void {
+    public recievePalette( palette: string|number ): void {
         palette;
         this.draw();
     }
@@ -239,7 +241,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     /** @deprecated use DOM object instead */
     public removeAllChildren() {
-        // this.detachFromDom();
         if ( this.dom ) {
             this.dom.destroy();
         }

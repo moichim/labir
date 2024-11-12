@@ -1046,6 +1046,29 @@ type ThermalFileRequest = {
     visibleUrl?: string;
 };
 
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class ThermalFileFailure extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): ThermalFileFailure;
+}
+
 interface IWithOpacity extends IBaseProperty {
     opacity: OpacityDrive;
 }
@@ -1363,6 +1386,7 @@ interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity,
 type ThermalRegistryOptions = {
     histogramResolution?: number;
 };
+type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
 /**
  * The global thermal registry
  * @todo implementing EventTarget
@@ -1386,6 +1410,15 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     }): Promise<void>;
     /** Load the registry with only one file. @deprecated */
     loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
+    protected triggeredCallback?: ReturnType<typeof setTimeout>;
+    registeresRequests: Map<ThermalFileRequest, BatchLoadingCallback>;
+    protected set: Array<{
+        thermalUrl: string;
+        visibleUrl?: string;
+        group: ThermalGroup;
+        callback: BatchLoadingCallback;
+    }>;
+    registerRequest(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
     /**
      * Actions to take after the registry is loaded
      * - recalculate the minmax of groups
@@ -1966,29 +1999,6 @@ declare class TimeRound extends TimeUtilsBase {
     static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
     static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
     static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
-}
-
-/** Codes of errors */
-declare enum FileErrors {
-    NOT_SPECIFIED = 0,
-    FILE_NOT_FOUND = 1,
-    MIME_UNSUPPORTED = 2,
-    PARSING_ERROR = 3,
-    OUT_OF_MEMORY = 4
-}
-/** The error that is thrown anytime something happens during the loading */
-declare class FileLoadingError extends Error {
-    readonly code: FileErrors;
-    readonly url: string;
-    constructor(code: FileErrors, url: string, message?: string);
-}
-
-declare class ThermalFileFailure extends AbstractFileResult {
-    readonly code: FileErrors;
-    readonly message: string;
-    constructor(thermalUrl: string, code: FileErrors, message: string);
-    isSuccess(): boolean;
-    static fromError(error: FileLoadingError): ThermalFileFailure;
 }
 
 /**

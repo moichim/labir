@@ -4,7 +4,9 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
+import { AbstractFileResult } from "../loading/workers/AbstractFileResult";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
+import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
 import { RangeDriver } from "../properties/drives/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
@@ -18,6 +20,10 @@ import { ThermalManager } from "./ThermalManager";
 export type ThermalRegistryOptions = {
     histogramResolution?: number,
 }
+
+export type BatchLoadingCallback = ( 
+    result: ThermalFileFailure|Instance 
+) => Promise< void >;
 
 /**
  * The global thermal registry
@@ -79,7 +85,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.loading.markAsLoading();
 
         // Load services for every group
-        const servicesByGroup = await Promise.all( Object.entries( files ).map( async ([groupId, fs]) => {
+        const servicesByGroup = await Promise
+            .all( Object.entries( files ).map( async ([groupId, fs]) => {
 
             const group = this.groups.addOrGetGroup( groupId );
 
@@ -134,6 +141,210 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.loading.markAsLoading();
 
         this.postLoadedProcessing();
+
+    }
+
+    protected triggeredCallback?: ReturnType<typeof setTimeout> = undefined;
+
+    public registeresRequests: Map<ThermalFileRequest, BatchLoadingCallback> = new Map;
+
+    protected set: Array<{
+        thermalUrl: string,
+        visibleUrl?: string,
+        group: ThermalGroup,
+        callback: BatchLoadingCallback
+    }> = new Array;
+
+    public registerRequest(
+        thermalUrl: string,
+        visibleUrl: undefined|string = undefined,
+        group: ThermalGroup,
+        callback: BatchLoadingCallback
+    ) {
+
+        this.loading.markAsLoading();
+
+
+        this.set.push( {
+            thermalUrl, visibleUrl, group, callback
+        } );
+
+
+        // Clear any callback if necessary
+        if ( this.triggeredCallback !== undefined ) {
+            clearTimeout( this.triggeredCallback );
+        }
+
+        // Create a callback
+        this.triggeredCallback = setTimeout( async () => {
+
+            console.log( "triggering", this.set );
+
+            this.loading.markAsLoading();
+
+
+            // Request the files at first
+            const firstResults = await Promise.all( Array.from( this.set ).map( async item => {
+                return {
+                    result: await this.service.loadFile( item.thermalUrl, item.visibleUrl ),
+                    callback,
+                    group
+                };
+            } ) );
+
+            // Create the instances eventually
+            const secondResults = await Promise.all( firstResults.map( async result => {
+
+                let res: ThermalFileFailure|Instance = result.result as ThermalFileFailure;
+
+                if ( result.result instanceof ThermalFileReader ) {
+                    res = await result.result.createInstance( result.group );
+                }
+
+                return {
+                    result: res,
+                    callback
+                }
+
+            } ) );
+
+            // Call internal sanitisation
+            this.postLoadedProcessing();
+
+            // Finally, run all callbacks
+            const thirdResults = await Promise.all( secondResults.map( async result => {
+                await result.callback( result.result );
+                console.log( result, result.callback.arguments );
+                return result.result;
+            } ) );
+
+            console.log( thirdResults );
+
+            this.set = [];
+
+            this.loading.markAsLoaded();
+
+
+
+            // const iot = Array.from( this.registeresRequests.entries() );
+
+
+            /*
+            const results = await Promise.all( iot.map( async item => {
+
+                const [ request, callback ] = item;
+
+                const response = await this.service.loadFile( request.thermalUrl, request.visibleUrl );
+
+                if ( response instanceof ThermalFileReader ) {
+                    const instance = response.createInstance( group );
+                }
+
+                return {
+                    response, callback
+                }
+
+            } ) );
+
+            */
+
+
+
+            // const urls = Array.from( this.registeresRequests.keys() );
+
+
+
+
+
+
+            /*
+            const requestMap = new Map< BatchLoadingCallback, Promise<AbstractFileResult> >();
+
+            const requests: Promise<{
+                result: Promise<AbstractFileResult>,
+                callback: BatchLoadingCallback
+            }>[] = [];
+            */
+
+            /*
+
+            const r = urls.map( async ( request ) => {
+                
+                const callback = this.registeresRequests.get( request )!;
+
+                const result = this.service.loadFile( request.thermalUrl, request.visibleUrl );
+
+                console.log( result );
+
+                return {
+                    promise: result,
+                    callback
+                }
+
+            } );
+
+            const all = await Promise.all( r )
+            .then( x => {
+                return x;
+            } );
+
+            this.postLoadedProcessing();
+
+            all.forEach( res => {
+                console.log( res.promise );
+                res.callback( await res.promise );
+            } );
+
+            */
+
+            // Create the promises
+
+            /*
+
+            const promises = urls.map( async ( request ) => {
+
+                const callback = this.registeresRequests.get( request )!;
+
+                requestMap.set( callback, this.service.loadFile( request.thermalUrl, request.visibleUrl ) );
+                
+
+                const res = this.service
+                    .loadFile( request.thermalUrl, request.visibleUrl )
+                    .then( async (result) => {
+
+                        if ( result instanceof ThermalFileReader ) {
+                            const info = await result.baseInfo();
+                            console.log( info );
+                        }
+
+                        if (callback) 
+                            callback( result );
+                        return result;
+                    });
+
+                return res;
+
+            } );
+
+            const requestArray = requestMap
+
+
+            // Wait for all promises to run
+            const totalResults = await Promise.all( promises );
+
+            */
+
+            // this.registeresRequests.clear();
+
+            // this.loading.markAsLoaded();
+
+            // this.postLoadedProcessing();
+
+            console.log( "načítání skončilo" );
+
+        }, 0 );
+
+        
 
     }
 

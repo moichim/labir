@@ -93,6 +93,7 @@ export class ThermalFileReader extends AbstractFileResult {
 
         // Return the promise
         return baseInfo;
+        
     }
 
     /** 

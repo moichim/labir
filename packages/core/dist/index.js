@@ -1023,7 +1023,9 @@ var InstanceDOM = class _InstanceDOM {
         this._cursorLayer = void 0;
       }
       if (this._listenerLayer) {
-        this.dehydrate();
+        if (this.hydrated === true) {
+          this.dehydrate();
+        }
         this._listenerLayer.unmount();
         this.root.removeChild(this._listenerLayer.getLayerRoot());
         this._listenerLayer = void 0;
@@ -1550,38 +1552,47 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   }
   async draw() {
     const paletteColors = this.getPalette();
-    const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
-      const canvas = new OffscreenCanvas(width, height);
-      const context = canvas.getContext("2d");
-      const displayRange = to - from;
-      for (let x = 0; x <= width; x++) {
-        for (let y = 0; y <= height; y++) {
-          const index = x + y * width;
-          let temperature = pixels[index];
-          if (temperature < from)
-            temperature = from;
-          if (temperature > to)
-            temperature = to;
-          const temperatureRelative = temperature - from;
-          const temperatureAspect = temperatureRelative / displayRange;
-          const colorIndex = Math.round(255 * temperatureAspect);
-          const color = palette[colorIndex];
-          context.fillStyle = color;
-          context.fillRect(x, y, 1, 1);
+    try {
+      const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+        const canvas = new OffscreenCanvas(width, height);
+        const context = canvas.getContext("2d");
+        const displayRange = to - from;
+        for (let x = 0; x <= width; x++) {
+          for (let y = 0; y <= height; y++) {
+            const index = x + y * width;
+            let temperature = pixels[index];
+            if (temperature < from)
+              temperature = from;
+            if (temperature > to)
+              temperature = to;
+            const temperatureRelative = temperature - from;
+            const temperatureAspect = temperatureRelative / displayRange;
+            const colorIndex = Math.round(255 * temperatureAspect);
+            const color = palette[colorIndex];
+            context.fillStyle = color;
+            context.fillRect(x, y, 1, 1);
+          }
         }
+        const imageData = context.getImageData(0, 0, width, height);
+        const result = await createImageBitmap(imageData);
+        return result;
+      }, [
+        this.from,
+        this.to,
+        this.width,
+        this.height,
+        this.pixels,
+        paletteColors
+      ], {});
+      this.context.drawImage(image, 0, 0);
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "OffscreenCanvas is not defined") {
+          return;
+        }
+        console.error(error);
       }
-      const imageData = context.getImageData(0, 0, width, height);
-      const result = await createImageBitmap(imageData);
-      return result;
-    }, [
-      this.from,
-      this.to,
-      this.width,
-      this.height,
-      this.pixels,
-      paletteColors
-    ], {});
-    this.context.drawImage(image, 0, 0);
+    }
   }
   exportAsPng() {
     const image = this.canvas.toDataURL();
@@ -6669,6 +6680,51 @@ var ThermalRegistry = class extends BaseStructureObject {
     }
     this.loading.markAsLoading();
     this.postLoadedProcessing();
+  }
+  triggeredCallback = void 0;
+  registeresRequests = /* @__PURE__ */ new Map();
+  set = new Array();
+  registerRequest(thermalUrl, visibleUrl = void 0, group, callback) {
+    this.loading.markAsLoading();
+    this.set.push({
+      thermalUrl,
+      visibleUrl,
+      group,
+      callback
+    });
+    if (this.triggeredCallback !== void 0) {
+      clearTimeout(this.triggeredCallback);
+    }
+    this.triggeredCallback = setTimeout(async () => {
+      console.log("triggering", this.set);
+      this.loading.markAsLoading();
+      const firstResults = await Promise.all(Array.from(this.set).map(async (item) => {
+        return {
+          result: await this.service.loadFile(item.thermalUrl, item.visibleUrl),
+          callback,
+          group
+        };
+      }));
+      const secondResults = await Promise.all(firstResults.map(async (result) => {
+        let res = result.result;
+        if (result.result instanceof ThermalFileReader) {
+          res = await result.result.createInstance(result.group);
+        }
+        return {
+          result: res,
+          callback
+        };
+      }));
+      this.postLoadedProcessing();
+      const thirdResults = await Promise.all(secondResults.map(async (result) => {
+        await result.callback(result.result);
+        return result.result;
+      }));
+      console.log(thirdResults);
+      this.set = [];
+      this.loading.markAsLoaded();
+      console.log("na\u010D\xEDt\xE1n\xED skon\u010Dilo");
+    }, 0);
   }
   /** 
    * Actions to take after the registry is loaded 

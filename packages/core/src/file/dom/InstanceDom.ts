@@ -167,7 +167,9 @@ export class InstanceDOM {
             if (this._listenerLayer) {
 
                 // Dehydrate first
-                this.dehydrate();
+                if (this.hydrated === true) {
+                    this.dehydrate();
+                }
 
                 // Then remove the DOM and attribute
                 this._listenerLayer.unmount();
