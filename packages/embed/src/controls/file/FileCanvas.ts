@@ -18,10 +18,12 @@ export class FileCanvas extends FileConsumer {
 
         const container = this.getContainer();
 
+        /*
         this.log( {
             dom: container, 
             class: this
         } );
+         */
 
         if ( container !== undefined ) {
             instance.mountToDom( container );

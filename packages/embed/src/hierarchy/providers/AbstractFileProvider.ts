@@ -239,7 +239,7 @@ export class AbstractFileProvider extends GroupConsumer {
         instance.analysis.addListener(this.UUID, this.analysisCallback);
 
         this.onInstanceCreated.set( "spyioning", async (value) => {
-            console.log( value, this );
+            this.log( value.thermalUrl, this );
         } );
 
         this.onInstanceCreated.call(instance);

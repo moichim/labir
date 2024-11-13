@@ -1,0 +1,131 @@
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { BatchLoadingCallback } from "../../hierarchy/ThermalRegistry";
+import { ThermalFileFailure } from "../workers/ThermalFileFailure";
+import { ThermalFileReader } from "../workers/ThermalFileReader";
+import { BatchLoader } from "./BatchLoader";
+
+/**
+ * A single batch object
+ * 
+ * A batch is created from all requests registered in a single tick. 
+ * The Batch creation and requests registration is handled completely 
+ * by `BatchLoader.request` method.
+ * 
+ * Internally, this object stores an array of file requests along 
+ * with all the necessary additional information: the target group 
+ * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
+ * 
+ */
+export class Batch {
+
+    private _loading = false;
+    public get loading() { return this._loading; }
+
+
+    /** The current timeout fn that is being overriden by every call of the `request` method */
+    private timeout?: ReturnType<typeof setTimeout> = undefined;
+
+    /** Array of currently queued requests */
+    private queue: Array<{
+        thermalUrl: string,
+        visibleUrl?: string,
+        group: ThermalGroup,
+        /** This callback will be fired AFTER */
+        callback: BatchLoadingCallback
+    }> = [];
+
+    public get size() { return this.queue.length; }
+
+    protected constructor(
+        protected readonly loader: BatchLoader
+    ) { }
+
+    public static init(
+        loader: BatchLoader
+    ) {
+        return new Batch(loader);
+    }
+
+    public static initWithRequest(
+        loader: BatchLoader,
+        thermalUrl: string,
+        visibleUrl: undefined | string = undefined,
+        group: ThermalGroup,
+        callback: BatchLoadingCallback
+    ) {
+
+        const item = new Batch(loader);
+
+        item.request(thermalUrl, visibleUrl, group, callback);
+
+        return item;
+
+    }
+
+
+    /**
+     * Request a thermal file
+     * 
+     * Requesting adds new record to the queue and creates a new
+     * timeout closure.
+     */
+    request(
+        thermalUrl: string,
+        visibleUrl: string | undefined,
+        group: ThermalGroup,
+        callback: BatchLoadingCallback
+    ) {
+
+        this.queue.push({
+            thermalUrl,
+            visibleUrl,
+            group,
+            callback
+        });
+
+        if (this.timeout !== undefined) {
+            clearTimeout(this.timeout);
+        }
+
+        this.timeout = setTimeout(async () => {
+
+            this._loading = true;
+
+            const loadedReaders = await Promise.all(this.queue.map(async item => {
+                return {
+                    result: await this.loader.registry.service.loadFile(item.thermalUrl, item.visibleUrl),
+                    callback: callback,
+                    group
+                };
+            }));
+
+            // Create the instances eventually
+            const createdInstances = await Promise.all(loadedReaders
+                .map(async result => {
+
+                    const item = result.result instanceof ThermalFileReader
+                        ? await result.result.createInstance( result.group )
+                        : await result.result as ThermalFileFailure
+
+                    return {
+                        result: item,
+                        callback: callback
+                    }
+
+                }));
+
+            this.loader.registry.postLoadedProcessing();
+
+            await Promise.all(createdInstances.map(async result => {
+                await result.callback(result.result);
+                return result.result;
+            }));
+
+            // Mark this queue as loaded
+            this.loader.batchFinished(this);
+
+        }, 0);
+
+    }
+
+}

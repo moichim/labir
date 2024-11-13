@@ -3,15 +3,14 @@
 import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
-import { AvailableThermalPalettes } from "../file/palettes";
-import { FilesService } from "../loading/workers/FilesService";
-import { PaletteDrive } from "../properties/drives/PaletteDrive";
-import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
-import { SmoothDrive } from "../properties/drives/SmoothDrive";
-import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";
-import { FilterContainer } from "../filters/FilterContainer";
-import { AbstractFilter } from "../filters/AbstractFilter";
 import { Instance } from "../file/instance";
+import { AvailableThermalPalettes } from "../file/palettes";
+import { FilterContainer } from "../filters/FilterContainer";
+import { FilesService } from "../loading/workers/FilesService";
+import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";
+import { PaletteDrive } from "../properties/drives/PaletteDrive";
+import { SmoothDrive } from "../properties/drives/SmoothDrive";
+import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes

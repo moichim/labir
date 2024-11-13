@@ -1,23 +1,22 @@
+import { AbstractFilter } from "../filters/AbstractFilter";
+import { FilterContainer } from "../filters/FilterContainer";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
+import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
+import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
+import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
+import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
+import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
+import { CursorValueDrive } from "../properties/states/CursorValueDrive";
+import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
+import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { AbstractFile } from "./AbstractFile";
+import { InstanceDOM } from "./dom/InstanceDom";
+import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
+import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "./instanceUtils/VisibleLayer";
-import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
-import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
-import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
-import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
-import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
-import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
-import { AbstractFilter } from "../filters/AbstractFilter";
-import { FilterContainer } from "../filters/FilterContainer";
-import { FileMeta } from "./FileMeta";
-import { InstanceDOM } from "./dom/InstanceDom";
 
 export class Instance extends AbstractFile {
 
@@ -196,60 +195,6 @@ export class Instance extends AbstractFile {
 
     }
 
-    /*
-
-
-    public mountListener() {
-
-        if (this.root === undefined) {
-            console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-            return;
-        }
-
-        this.listenerLayer.mount();
-        this.analysis.activateListeners();
-
-        this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
-
-            // Show the cursor
-            this.cursorLayer.show = true;
-
-            // Store the local hover state
-            this.isHover = true;
-
-            const client = this.width;
-            const parent = this.root!.clientWidth;
-
-            const aspect = client / parent;
-
-            const x = Math.round(event.offsetX * aspect);
-            const y = Math.round(event.offsetY * aspect);
-
-            this.group.cursorPosition.recieveCursorPosition({ x, y });
-
-        };
-
-        this.listenerLayer.getLayerRoot().onmouseleave = () => {
-
-            this.cursorLayer!.show = false;
-
-            this.isHover = false;
-
-            // Clear the synchronised cursor in any case
-            this.group.cursorPosition.recieveCursorPosition(undefined);
-
-        };
-
-    }
-
-    protected unmountListener() {
-
-        this.listenerLayer.unmount();
-        this.analysis.deactivateListeners();
-
-    }
-
-    */
 
     public recieveCursorPosition(
         position: ThermalCursorPositionOrUndefined
@@ -258,12 +203,15 @@ export class Instance extends AbstractFile {
         // If position
         if (position !== undefined) {
 
+            const x = Math.min( this.meta.width, Math.max( 0, position.x ) );
+            const y = Math.min( this.meta.height, Math.max( 0, position.y ) );
+
             // Get label value from the current tool
-            const label = this.group.tool.value.getLabelValue(position.x, position.y, this);
+            const label = this.group.tool.value.getLabelValue(x, y, this);
 
             if (this.dom) {
 
-                this.dom.cursorLayer?.setLabel(position.x, position.y, label);
+                this.dom.cursorLayer?.setLabel(x, y, label);
                 if (this.dom.cursorLayer)
                     this.dom.cursorLayer.setShow( true );
             }

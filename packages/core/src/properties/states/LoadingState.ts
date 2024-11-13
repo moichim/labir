@@ -18,11 +18,15 @@ export class LoadingState extends AbstractProperty<boolean, IWithLoading> {
     }
 
     public markAsLoading() {
-        this.value = true;
+        if ( this.value === false ) {
+            this.value = true;
+        }
     }
 
     public markAsLoaded() {
-        this.value = false;
+        if ( this.value === true ) {
+            this.value = false;
+        }
     }
 
 }

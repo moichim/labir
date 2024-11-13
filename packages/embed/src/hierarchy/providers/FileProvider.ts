@@ -68,8 +68,6 @@ export class FileProviderElement extends AbstractFileProvider {
     /** Load the file and call all necessary callbacks */
     protected async load() {
 
-        console.log( this.batch );
-
         const result = this.batch === true
             ? this.loadAsync()
             : this.loadSync();
@@ -137,18 +135,23 @@ export class FileProviderElement extends AbstractFileProvider {
 
     protected loadAsync() {
 
-        this.log( "loading async" );
+        this.log( "loading async", this.thermal );
 
         this.loading = true;
 
         // Trigger all callbacks
         this.onLoadingStart.call();
 
-        const result = this.registry.registerRequest(
+        const result = this.registry.batch.request(
             this.thermal,
             this.visible,
             this.group,
+            this.asyncLoadCallback.bind(this)
+            /*
             async result => {
+
+                this.log( this, this.thermal, result );
+
                 if ( result instanceof Instance ) {
 
                     this.file = result;
@@ -160,6 +163,8 @@ export class FileProviderElement extends AbstractFileProvider {
                     this.loading = false;
         
                     this.recieveInstance(result);
+
+                    this.log( "recieved async", result.thermalUrl );
         
                 } else if ( result instanceof ThermalFileFailure ) {
         
@@ -171,6 +176,8 @@ export class FileProviderElement extends AbstractFileProvider {
         
                 }
             }
+            */
+            
         )
 
         return result;
@@ -180,6 +187,10 @@ export class FileProviderElement extends AbstractFileProvider {
     public async asyncLoadCallback(
         result: Instance|ThermalFileFailure
     ) {
+
+
+        this.log( this.thermal, this );
+
         if ( result instanceof Instance ) {
 
             this.file = result;

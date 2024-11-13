@@ -24,7 +24,7 @@ const array = [
 ];
 
 array.map( file => {
-    registry.registerRequest( file, undefined, group, async ( result ) => {
+    registry.batch.request( file, undefined, group, async ( result ) => {
         console.log( "testovací resultát", result );
         if ( result instanceof Instance ) {
             const container = document.createElement( "div" );

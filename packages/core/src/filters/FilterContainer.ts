@@ -1,5 +1,4 @@
 import { AbstractFile } from "../file/AbstractFile";
-import { Instance } from "../file/instance";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalManager } from "../hierarchy/ThermalManager";
 import { ThermalRegistry } from "../hierarchy/ThermalRegistry";

@@ -32,15 +32,24 @@
         <registry-opacity-slider></registry-opacity-slider>
         <registry-opacity-slider></registry-opacity-slider>
         <group-provider>
-            <file-provider thermal="/tucnaci_04.lrc" batch="true">
-              <file-canvas></file-canvas>
-            </file-provider>
-            <file-provider thermal="/soustruh.lrc" batch="true">
-              <file-canvas></file-canvas>
-            </file-provider>
+          <div>
             <file-provider thermal="/sequence.lrc" batch="true">
               <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
             </file-provider>
+          </div>
+          <div>
+            <file-provider thermal="/soustruh.lrc" batch="true">
+              <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
+            </file-provider>
+          </div>
+          <div>
+            <file-provider thermal="/tucnaci_04.lrc" batch="true">
+              <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
+            </file-provider>
+          </div>
         </group-provider>
       </registry-provider>
     </manager-provider>
@@ -61,7 +70,7 @@
 
 -->
 
-<!--
+  <!--
   <thermal-desktop-app 
     url="/sequence.lrc"  
     visible="/kitten.jpg"
@@ -89,7 +98,7 @@
 
 -->
 
-<!--
+  <!--
 
   <manager-provider palette="jet" slug="some-example">
     <registry-provider>

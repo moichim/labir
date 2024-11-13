@@ -51,8 +51,6 @@ export abstract class FileConsumer extends GroupConsumer {
 
         if (this.parentFileProviderElement) {
 
-            console.log( this.getUUID() );
-
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
             this.parentFileProviderElement.onSuccess.set(

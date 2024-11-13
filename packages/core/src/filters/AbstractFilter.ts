@@ -1,4 +1,3 @@
-import { Instance } from "../file/instance";
 import { CallbacksManager } from "../properties/callbacksManager";
 
 export type AbstractFilterParameters = {

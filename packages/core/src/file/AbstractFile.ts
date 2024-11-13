@@ -253,7 +253,11 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         y: number
     ): number {
 
-        const index = (y * this.width) + x;
+        const xx = Math.min( this.meta.width - 1, Math.max( 0, x ) );
+        const yy = Math.min( this.meta.height - 1, Math.max( 0, y ) )
+
+
+        const index = (yy * this.width) + xx;
         return this.pixels[index];
 
     }

@@ -1,6 +1,30 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
 
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
+    /** @deprecated use set method instead */
+    add(key: string, callback: CallbackType): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
+type AbstractFilterParameters = {
+    key: number;
+    text: string;
+};
+declare abstract class AbstractFilter<T extends AbstractFilterParameters = AbstractFilterParameters> {
+    protected _bypass: boolean;
+    get bypass(): boolean;
+    setBypass(value: boolean): void;
+    readonly onBypass: CallbacksManager<(value: boolean) => void>;
+    readonly onParameterChanged: CallbacksManager<(parameters: T) => void>;
+    protected parameterChanged(): void;
+    protected abstract getParameters(): T;
+    abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
+}
+
 declare const JET: string[];
 declare const IRON: string[];
 declare const GRAYSCALE: string[];
@@ -56,15 +80,6 @@ declare class FileRequest {
      * @todo because there are no side effects, this method might appear redundant
      */
     protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
-}
-
-/**
- * Manage callbacks on optional property values
- */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
-    /** @deprecated use set method instead */
-    add(key: string, callback: CallbackType): void;
-    call(...args: Parameters<CallbackType>): void;
 }
 
 /** Turn any element into a dropzone! */
@@ -955,47 +970,17 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
 }
 
 /** Controls image smoothing */
-declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    setSmooth(value: boolean): void;
-}
-
-/** Controls image smoothing */
 declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
     protected validate(value: boolean): boolean;
     protected afterSetEffect(): void;
     setGraphSmooth(value: boolean): void;
 }
 
-type AbstractFilterParameters = {
-    key: number;
-    text: string;
-};
-declare abstract class AbstractFilter<T extends AbstractFilterParameters = AbstractFilterParameters> {
-    protected _bypass: boolean;
-    get bypass(): boolean;
-    setBypass(value: boolean): void;
-    readonly onBypass: CallbacksManager<(value: boolean) => void>;
-    readonly onParameterChanged: CallbacksManager<(parameters: T) => void>;
-    protected parameterChanged(): void;
-    protected abstract getParameters(): T;
-    abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
-}
-
-type FilterParent = ThermalManager | ThermalRegistry | ThermalGroup | AbstractFile;
-declare class FilterContainer {
-    readonly parent: FilterParent;
-    private _layers;
-    get layers(): AbstractFilter<AbstractFilterParameters>[];
-    onLayers: CallbacksManager<(layers: AbstractFilter[]) => void>;
-    protected setLayers(layers: AbstractFilter[]): void;
-    constructor(parent: FilterParent);
-    getActiveFilters(): AbstractFilter[];
-    addFilter(filter: AbstractFilter): void;
-    removeFilter(filter: AbstractFilter): void;
-    applyFilters(): void;
-    getFiltersArray(): void;
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
 }
 
 type ThermalManagerOptions = {
@@ -1038,6 +1023,71 @@ declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     /** Any changes to the value should propagate directly to every instance. */
     protected afterSetEffect(value: PaletteId): void;
     setPalette(key: PaletteId): void;
+}
+
+/**
+ * A single batch object
+ *
+ * A batch is created from all requests registered in a single tick.
+ * The Batch creation and requests registration is handled completely
+ * by `BatchLoader.request` method.
+ *
+ * Internally, this object stores an array of file requests along
+ * with all the necessary additional information: the target group
+ * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
+ *
+ */
+declare class Batch {
+    protected readonly loader: BatchLoader;
+    private _loading;
+    get loading(): boolean;
+    /** The current timeout fn that is being overriden by every call of the `request` method */
+    private timeout?;
+    /** Array of currently queued requests */
+    private queue;
+    get size(): number;
+    protected constructor(loader: BatchLoader);
+    static init(loader: BatchLoader): Batch;
+    static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
+    /**
+     * Request a thermal file
+     *
+     * Requesting adds new record to the queue and creates a new
+     * timeout closure.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+}
+
+/**
+ * Handle batch loading of thermal files.
+ *
+ * This class should be used as a lazy-loaded member of a thermal registry.
+ */
+declare class BatchLoader {
+    readonly registry: ThermalRegistry;
+    private set;
+    get size(): number;
+    get currentOpenBatch(): Batch | undefined;
+    get hasLoadingBatches(): boolean;
+    get numLoadingBatches(): number;
+    constructor(registry: ThermalRegistry);
+    /**
+     * Request a file through a batch
+     *
+     * If there is an open batch, register the request in it.
+     * Else open a new batch.
+     *
+     * The batch will execute automatically in the next tick.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    /**
+     * This method is called from the inside of a batch object
+     * to indicate its completion.
+     *
+     * Upon completion, the batch object is deleted and if there
+     * are no other batches, mark the registry as loaded.
+     */
+    batchFinished(batch: Batch): void;
 }
 
 /** A stupid object containing only requested URLS. Does not perform any further logic. */
@@ -1410,14 +1460,9 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     }): Promise<void>;
     /** Load the registry with only one file. @deprecated */
     loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
-    protected triggeredCallback?: ReturnType<typeof setTimeout>;
-    registeresRequests: Map<ThermalFileRequest, BatchLoadingCallback>;
-    protected set: Array<{
-        thermalUrl: string;
-        visibleUrl?: string;
-        group: ThermalGroup;
-        callback: BatchLoadingCallback;
-    }>;
+    private _batch?;
+    get batch(): BatchLoader;
+    /** @deprecated use batch member class instead */
     registerRequest(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
     /**
      * Actions to take after the registry is loaded
@@ -1823,6 +1868,21 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     recieveRange(value: ThermalRangeOrUndefined): void;
     reset(): void;
     recieveOpacity(value: number): void;
+}
+
+type FilterParent = ThermalManager | ThermalRegistry | ThermalGroup | AbstractFile;
+declare class FilterContainer {
+    readonly parent: FilterParent;
+    private _layers;
+    get layers(): AbstractFilter<AbstractFilterParameters>[];
+    onLayers: CallbacksManager<(layers: AbstractFilter[]) => void>;
+    protected setLayers(layers: AbstractFilter[]): void;
+    constructor(parent: FilterParent);
+    getActiveFilters(): AbstractFilter[];
+    addFilter(filter: AbstractFilter): void;
+    removeFilter(filter: AbstractFilter): void;
+    applyFilters(): void;
+    getFiltersArray(): void;
 }
 
 /**
