@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "path";
 
 
-const delay = ( time: number ) => {
+export const delay = ( time: number ) => {
     return new Promise( resolve => setTimeout( resolve, time ) );
 }
 

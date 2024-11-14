@@ -7,6 +7,7 @@ import { BatchLoader } from "../loading/batch/BatchLoader";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
 import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
+import { CallbacksManager } from "../properties/callbacksManager";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
 import { RangeDriver } from "../properties/drives/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
@@ -163,6 +164,10 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
     }
 
 
+    public readonly onProcessingStart = new CallbacksManager< () => void >;
+    public readonly onProcessingEnd = new CallbacksManager< () => void >;
+
+
 
     /** 
      * Actions to take after the registry is loaded 
@@ -172,6 +177,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
      * - recalculate the histogram
     */
     public async postLoadedProcessing() {
+
+        this.onProcessingStart.call();
 
 
         // Recalculate individual minmaxes
@@ -207,6 +214,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         // this.histogram.recalculateWithCurrentSetting();
 
         this.loading.markAsLoaded();
+
+        this.onProcessingEnd.call();
 
     }
 
