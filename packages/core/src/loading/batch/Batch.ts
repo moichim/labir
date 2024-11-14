@@ -122,16 +122,22 @@ export class Batch {
 
             this.loader.registry.postLoadedProcessing();
 
-            await Promise.all(createdInstances.map(async result => {
+            const results = await Promise.all(createdInstances.map(async result => {
                 await result.callback(result.result);
                 return result.result;
             }));
+
+            this.loader.onBatchComplete.call( results );
 
             // Mark this queue as loaded
             this.loader.batchFinished(this);
 
         }, 0);
 
+    }
+
+    close() {
+        this._loading = true;
     }
 
 }

@@ -32,6 +32,8 @@ import "./ui/Field";
 import "./controls/AppInfoButton";
 
 
+
+
 // 2. Providers
 import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
@@ -92,7 +94,8 @@ import "./apps/single/SingleFileAppIsolated";
 import "./apps/desktop/DesktopApp";
 import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
-
+import "./apps/time/parts/TimeEntryElement";
+import "./apps/time/parts/TimeGroupElement";
 
 
 

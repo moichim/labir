@@ -135,7 +135,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
     protected loadAsync() {
 
-        this.log( "loading async", this.thermal );
+        this.log( "loading async", this.thermal, this );
 
         this.loading = true;
 
@@ -187,7 +187,6 @@ export class FileProviderElement extends AbstractFileProvider {
     public async asyncLoadCallback(
         result: Instance|ThermalFileFailure
     ) {
-
 
         this.log( this.thermal, this );
 

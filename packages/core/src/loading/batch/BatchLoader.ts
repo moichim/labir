@@ -1,5 +1,8 @@
+import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { BatchLoadingCallback, ThermalRegistry } from "../../hierarchy/ThermalRegistry";
+import { CallbacksManager } from "../../properties/callbacksManager";
+import { ThermalFileFailure } from "../workers/ThermalFileFailure";
 import { Batch } from "./Batch";
 
 
@@ -9,6 +12,8 @@ import { Batch } from "./Batch";
  * This class should be used as a lazy-loaded member of a thermal registry.
  */
 export class BatchLoader {
+
+    public readonly onBatchComplete = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
 
     private set: Set<Batch> = new Set;
 
@@ -67,6 +72,12 @@ export class BatchLoader {
             callback 
         );
 
+    }
+
+    closeBatch() {
+        if ( this.currentOpenBatch !== undefined ) {
+            this.currentOpenBatch.close();
+        }
     }
 
 

@@ -47,17 +47,6 @@ export class GroupProviderElement extends RegistryConsumer {
         
     }
 
-    public registerRequest(
-        thermalUrl: string,
-        visibleUrl: undefined|string = undefined
-    ) {
-
-        if ( this.registry ) {
-
-        }
-
-    }
-
     protected render(): unknown {
         return html`<slot></slot>`;
     }

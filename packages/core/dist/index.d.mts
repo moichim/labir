@@ -1025,6 +1025,29 @@ declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     setPalette(key: PaletteId): void;
 }
 
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class ThermalFileFailure extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): ThermalFileFailure;
+}
+
 /**
  * A single batch object
  *
@@ -1056,6 +1079,7 @@ declare class Batch {
      * timeout closure.
      */
     request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    close(): void;
 }
 
 /**
@@ -1065,6 +1089,7 @@ declare class Batch {
  */
 declare class BatchLoader {
     readonly registry: ThermalRegistry;
+    readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
     private set;
     get size(): number;
     get currentOpenBatch(): Batch | undefined;
@@ -1080,6 +1105,7 @@ declare class BatchLoader {
      * The batch will execute automatically in the next tick.
      */
     request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    closeBatch(): void;
     /**
      * This method is called from the inside of a batch object
      * to indicate its completion.
@@ -1095,29 +1121,6 @@ type ThermalFileRequest = {
     thermalUrl: string;
     visibleUrl?: string;
 };
-
-/** Codes of errors */
-declare enum FileErrors {
-    NOT_SPECIFIED = 0,
-    FILE_NOT_FOUND = 1,
-    MIME_UNSUPPORTED = 2,
-    PARSING_ERROR = 3,
-    OUT_OF_MEMORY = 4
-}
-/** The error that is thrown anytime something happens during the loading */
-declare class FileLoadingError extends Error {
-    readonly code: FileErrors;
-    readonly url: string;
-    constructor(code: FileErrors, url: string, message?: string);
-}
-
-declare class ThermalFileFailure extends AbstractFileResult {
-    readonly code: FileErrors;
-    readonly message: string;
-    constructor(thermalUrl: string, code: FileErrors, message: string);
-    isSuccess(): boolean;
-    static fromError(error: FileLoadingError): ThermalFileFailure;
-}
 
 interface IWithOpacity extends IBaseProperty {
     opacity: OpacityDrive;
@@ -1464,6 +1467,8 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     get batch(): BatchLoader;
     /** @deprecated use batch member class instead */
     registerRequest(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    readonly onProcessingStart: CallbacksManager<() => void>;
+    readonly onProcessingEnd: CallbacksManager<() => void>;
     /**
      * Actions to take after the registry is loaded
      * - recalculate the minmax of groups

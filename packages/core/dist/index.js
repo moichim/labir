@@ -6442,24 +6442,28 @@ var Batch = class _Batch {
       const loadedReaders = await Promise.all(this.queue.map(async (item) => {
         return {
           result: await this.loader.registry.service.loadFile(item.thermalUrl, item.visibleUrl),
-          callback,
-          group
+          callback: item.callback,
+          group: item.group
         };
       }));
       const createdInstances = await Promise.all(loadedReaders.map(async (result) => {
         const item = result.result instanceof ThermalFileReader ? await result.result.createInstance(result.group) : await result.result;
         return {
           result: item,
-          callback
+          callback: result.callback
         };
       }));
       this.loader.registry.postLoadedProcessing();
-      await Promise.all(createdInstances.map(async (result) => {
+      const results = await Promise.all(createdInstances.map(async (result) => {
         await result.callback(result.result);
         return result.result;
       }));
+      this.loader.onBatchComplete.call(results);
       this.loader.batchFinished(this);
     }, 0);
+  }
+  close() {
+    this._loading = true;
   }
 };
 
@@ -6468,6 +6472,7 @@ var BatchLoader = class {
   constructor(registry) {
     this.registry = registry;
   }
+  onBatchComplete = new CallbacksManager();
   set = /* @__PURE__ */ new Set();
   get size() {
     return this.set.size;
@@ -6502,6 +6507,11 @@ var BatchLoader = class {
       group,
       callback
     );
+  }
+  closeBatch() {
+    if (this.currentOpenBatch !== void 0) {
+      this.currentOpenBatch.close();
+    }
   }
   /**
    * This method is called from the inside of a batch object
@@ -6796,6 +6806,8 @@ var ThermalRegistry = class extends BaseStructureObject {
   registerRequest(thermalUrl, visibleUrl = void 0, group, callback) {
     this.batch.request(thermalUrl, visibleUrl, group, callback);
   }
+  onProcessingStart = new CallbacksManager();
+  onProcessingEnd = new CallbacksManager();
   /** 
    * Actions to take after the registry is loaded 
    * - recalculate the minmax of groups
@@ -6804,6 +6816,7 @@ var ThermalRegistry = class extends BaseStructureObject {
    * - recalculate the histogram
   */
   async postLoadedProcessing() {
+    this.onProcessingStart.call();
     this.forEveryGroup((group) => group.minmax.recalculateFromInstances());
     this.minmax.recalculateFromGroups();
     if (this.minmax.value)
@@ -6821,6 +6834,7 @@ var ThermalRegistry = class extends BaseStructureObject {
       }
     this.histogram.recalculateHistogramBufferInWorker();
     this.loading.markAsLoaded();
+    this.onProcessingEnd.call();
   }
   reset() {
     this.forEveryGroup((group) => group.reset());
