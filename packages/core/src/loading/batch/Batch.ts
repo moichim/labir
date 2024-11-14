@@ -31,7 +31,7 @@ export class Batch {
         visibleUrl?: string,
         group: ThermalGroup,
         /** This callback will be fired AFTER */
-        callback: BatchLoadingCallback
+        callback: BatchLoadingCallback,
     }> = [];
 
     public get size() { return this.queue.length; }
@@ -73,15 +73,21 @@ export class Batch {
         thermalUrl: string,
         visibleUrl: string | undefined,
         group: ThermalGroup,
-        callback: BatchLoadingCallback
+        callback: BatchLoadingCallback,
     ) {
 
         this.queue.push({
             thermalUrl,
             visibleUrl,
             group,
-            callback
+            callback,
         });
+
+        // From here, no function arguments shall ever be used!
+        // in the timeout, I need to call the inner properties of already
+        // registered request. Using fn parameters below caused plenty of
+        // bugs. BEWARE OF THAT.
+
 
         if (this.timeout !== undefined) {
             clearTimeout(this.timeout);
@@ -94,8 +100,8 @@ export class Batch {
             const loadedReaders = await Promise.all(this.queue.map(async item => {
                 return {
                     result: await this.loader.registry.service.loadFile(item.thermalUrl, item.visibleUrl),
-                    callback: callback,
-                    group
+                    callback: item.callback,
+                    group: item.group,
                 };
             }));
 
@@ -109,7 +115,7 @@ export class Batch {
 
                     return {
                         result: item,
-                        callback: callback
+                        callback: result.callback
                     }
 
                 }));
