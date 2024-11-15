@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
 
+/** @deprecated */
 @customElement("registry-log")
 export class RegistryLog extends RegistryConsumer {
 
