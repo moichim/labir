@@ -5,7 +5,7 @@ import {ifDefined} from 'lit/directives/if-defined.js';
 import { BaseApp } from "../BaseApp";
 import { ref } from "lit/directives/ref.js";
 
-@customElement("thermal-desktop-app")
+@customElement("thermal-file-analyser")
 export class DesktopAppIsolated extends BaseApp {
 
   protected render(): unknown {
