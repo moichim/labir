@@ -6,9 +6,9 @@ A library of webcomponents for thermal imaging in the browser.
 
 ## Overview
 
-The purpose of this library is to enable in-browser display and furher work with LRC files produced by [IR cameras TIMI Edu](https://edu.labir.cz/en/ir-camera/properties-of-our-ir-cameras/). Main usage is currently in STEM education. There is a work-in-progress [Wordpress plugin](./packages/thermal-display) that uses `@labir/embed` for its easy-to-use user interface.
+The purpose of this library is to enable in-browser display and furher work with LRC files produced by [IR cameras TIMI Edu](https://edu.labir.cz/en/ir-camera/properties-of-our-ir-cameras/). Main usage is currently in STEM education. There is a work-in-progress [Wordpress plugin](/packages/thermal-display) that uses `@labir/embed` for its easy-to-use user interface.
 
-This frontend library is a webcomponents implementation of [@labir/core](./packages/core) which handles all the underlying functionality. The UI is implemented here using [Lit.js](https://lit.dev/).
+This frontend library is a webcomponents implementation of [@labir/core](/packages/core) which handles all the underlying functionality. The UI is implemented here using [Lit.js](https://lit.dev/).
 
 ### Main functions
 
@@ -166,7 +166,7 @@ The second parameter "ellipsis/rectangle/point" is applied only upon analysis cr
 
 ### Provider components
 
-The underlying hierarchy from [@labir/core](./packages/core) is mirrored to webcomponents using 4 provider elements. Providers do not display anything on their own - you will need to insert controls inside. But providers are necessary since they:
+The underlying hierarchy from [@labir/core](/packages/core) is mirrored to webcomponents using 4 provider elements. Providers do not display anything on their own - you will need to insert controls inside. But providers are necessary since they:
 
 1. build internal structure of @labir/core
 2. expose it as Lit.js context that will be used by nested controls
