@@ -6,9 +6,9 @@ A library of webcomponents for thermal imaging in the browser.
 
 ## Overview
 
-The purpose of this library is to enable in-browser display and furher work with LRC files produced by [IR cameras TIMI Edu](https://edu.labir.cz/en/ir-camera/properties-of-our-ir-cameras/). Main usage is currently in STEM education. There is a work-im-progress [Wordpress plugin](../packages/thermal-display) that uses `@labir/embed` for its easy-to-use user interface.
+The purpose of this library is to enable in-browser display and furher work with LRC files produced by [IR cameras TIMI Edu](https://edu.labir.cz/en/ir-camera/properties-of-our-ir-cameras/). Main usage is currently in STEM education. There is a work-in-progress [Wordpress plugin](./packages/thermal-display) that uses `@labir/embed` for its easy-to-use user interface.
 
-This frontend library is a webcomponents implementation of [@labir/core](../packages/core) which handles all the underlying functionality. The UI is implemented here using [Lit.js](https://lit.dev/).
+This frontend library is a webcomponents implementation of [@labir/core](./packages/core) which handles all the underlying functionality. The UI is implemented here using [Lit.js](https://lit.dev/).
 
 ### Main functions
 
@@ -69,7 +69,7 @@ On mobile, the following functionality may be slower:
 
 There are 3 types of available webcomponents:
 
-1. **top-level applications** which includes the entire functionality in a single element
+1. **top-level applications** which bundle the entire functionality into a single HTML element
 2. **provider elements** mirrors core hierarchy from @labir/core
 3. **control elememts** displays the visible UI
 
@@ -80,21 +80,28 @@ There are 3 types of available webcomponents:
 
 These components are internally built from providers and controls. But you do not need to worry about that.Using the threee components above ensures correct implementation.
 
-In case you want to create a custom layout, styling or if you want to combine thermal imaging with other HTML content, you can use providers and controls. But you need to do it correctly. See the example below or the `/src` folder for more information.
+In case you want to create a custom layout, styling or if you want to combine our components with other HTML content, you can use providers and controls. But you need to do it correctly. See the examples below or the `/src` folder for more information.
 
 
-### Single file display
+### Single file applications and their parameters
 
 There are two components for displaying a single LRC file: `<thermal-file-app>` and `<thermal-file-analyser>`. They differ in layout, but all their parameters and functionality is the same. All the parameters are listed below. Source: `src/apps/BaseApp.ts`.
 
 
 ```html
-<!-- The simpliest usage -->
+<!-- 
+    The simpliest usage.
+    URL parameter is required.
+    All other parameters below are optional.
+-->
 <thermal-file-app
     url="https://________.lrc"
 ></thermal-file-app>
 
-<!-- All the parameters are shared both for <thermal-file-app> and <thermal-file-analyser> -->
+<!-- 
+    All the parameters below apply to both 
+    thermal-file-app and thermal-file-analyser.
+-->
 <thermal-file-analyser
     url="https://________.lrc"
     visible="optional URL of the corresponding visible image"
@@ -129,7 +136,7 @@ There are two components for displaying a single LRC file: `<thermal-file-app>` 
 
 ### Analysis syntax
 
-To set analysis as a HTML parameter, you can use the following syntax:
+To set an analysis as a HTML parameter, you can use the following syntax:
 
 Area analysis:
 
@@ -139,7 +146,7 @@ Point analysis:
 
 `[name];point;color:[string]top:[int];left:[int];[avg?]`
 
-Examples:
+**Examples:**
 
 A point analysis at X:10 Y:35 with AVG graph on:
 
@@ -151,15 +158,16 @@ A yellow elliptical analysis with MIN graph on:
 
 Color may be any CSS color notation. If missing, the color will be assigned automatically.
 
-Dimensions will be clamped to the image size.
+Dimensions might be modified if they are larger than the actual size of the LRC image.
 
 The second parameter "ellipsis/rectangle/point" is applied only upon analysis creation and its change will be ignored. But all other parameters change will modify the analysis - i.e. you can use JS to change the analysis name in the parameter and the application will do that.
 
 ### Provider components
 
-The underlying hierarchy from [@labir/core](../packages/core) is mirrored to webcomponents. Providers do not display anything on their own - you will need to insert controls inside to see any content. But providers are necessary since they:
+The underlying hierarchy from [@labir/core](./packages/core) is mirrored to webcomponents using 4 provider elements. Providers do not display anything on their own - you will need to insert controls inside. But providers are necessary since they:
+
 1. build internal structure of @labir/core
-2. expose it as Lit.js context that will be used by controls
+2. expose it as Lit.js context that will be used by nested controls
 
 The providers need to be used in the following tree - otherwise the app will crash.
 
@@ -184,6 +192,7 @@ The providers need to be used in the following tree - otherwise the app will cra
     >
 
         <!-- Registry controls may be here -->
+        <!-- Manager controls may be here -->
 
         <!-- Any HTML may be here -->
 
@@ -192,6 +201,8 @@ The providers need to be used in the following tree - otherwise the app will cra
         >
 
             <!-- Group controls may be here -->
+            <!-- Registry controls may be here -->
+            <!-- Manager controls may be here -->
 
             <!-- Any HTML may be here -->
 
@@ -200,7 +211,7 @@ The providers need to be used in the following tree - otherwise the app will cra
             -->
 
 
-            <!-- A preloaded file -->
+            <!-- A preloaded file provider-->
             <file-provider
                 thermal="https:// required URL ot the LRC file"
                 visible="optional URL of the corresponding visible image"
@@ -216,13 +227,19 @@ The providers need to be used in the following tree - otherwise the app will cra
             >
             
                 <!-- File controls may be here -->
+                <!-- Group controls may be here -->
+                <!-- Registry controls may be here -->
+                <!-- Manager controls may be here -->
             
             </file-provider>
 
-            <!-- A dropped-in file -->
+            <!-- A dropped-in file provider -->
             <file-dropin>
 
                 <!-- File controls may be here -->
+                <!-- Group controls may be here -->
+                <!-- Registry controls may be here -->
+                <!-- Manager controls may be here -->
 
             </file-dropin>
 
@@ -238,7 +255,7 @@ The providers need to be used in the following tree - otherwise the app will cra
 
 Control elements need to be nested properly inside providers.
 
-**Controls do not have any parameters on their own!** Thir current state is projected up to the corresponsing provider. Example:
+**Controls do not have any parameters on their own!** Their current state is projected up to the corresponsing provider. Example:
 
 ```html
 
