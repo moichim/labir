@@ -4,6 +4,11 @@ A library of webcomponents for thermal imaging in the browser.
 
 [![A showcase of the simple application](docs/images/thermal-file-analyser.png)](https://edu.labir.cz/experiment/sul-jedla-soda-a-voda/)
 
+## Demos
+
+- [An advanced view with predefined analyses](https://edu.labir.cz/experiment/sul-jedla-soda-a-voda/)
+- [A custom implementation integrated into other HTML content](https://edu.labir.cz/obsah/navody/nastaveni-a-funkce/teplotni-rozsah/)
+
 ## Overview
 
 The purpose of this library is to enable in-browser display and furher work with LRC files produced by [IR cameras TIMI Edu](https://edu.labir.cz/en/ir-camera/properties-of-our-ir-cameras/). Main usage is currently in STEM education. There is a work-in-progress [Wordpress plugin](/packages/thermal-display) that uses `@labir/embed` for its easy-to-use user interface.
