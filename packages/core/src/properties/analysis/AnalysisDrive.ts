@@ -13,10 +13,7 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
     public readonly layers = new AnalysisLayersStorage(this);
     public readonly points = new AnalysisPointsAccessor(this);
 
-    /** Listeners shall be binded to the file's listener layer. Alias of the file's listener layer root. */
-    public get listenerLayerContainer() {
-        return this.parent.listenerLayer.getLayerRoot();
-    }
+    protected listener?: HTMLElement;
 
     /** Alias of the current `ToolDrive` value. */
     protected get currentTool() {
@@ -55,13 +52,20 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
     /** Calculate the top/left position from a `MouseEvent` */
     protected getRelativePosition(event: MouseEvent) {
 
-        const absoluteWidth = this.listenerLayerContainer.clientWidth;
+        if ( ! this.listener ) {
+            return {
+                top: 0,
+                left: 0
+            }
+        }
+
+        const absoluteWidth = this.listener.clientWidth;
         const fileWidth = this.parent.width;
         const layerX = event.layerX;
         const xAspect = layerX / absoluteWidth;
         const x = Math.round(fileWidth * xAspect);
 
-        const absoluteHeight = this.listenerLayerContainer.clientHeight;
+        const absoluteHeight = this.listener.clientHeight;
         const fileHeight = this.parent.height;
         const layerY = event.layerY;
         const yAspect = layerY / absoluteHeight;
@@ -75,7 +79,9 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
     }
 
     /** Activate listeners for the current drive on the file's listener layer. */
-    activateListeners() {
+    activateListeners( container: HTMLDivElement ) {
+
+        this.listener = container;
 
         // Create pointermove listener
         this.bindedPointerMoveListener = (event: PointerEvent): void => {
@@ -136,27 +142,27 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
 
         // Bind listeners
 
-        this.listenerLayerContainer.addEventListener("pointermove", this.bindedPointerMoveListener );
+        this.listener.addEventListener("pointermove", this.bindedPointerMoveListener );
 
-        this.listenerLayerContainer.addEventListener("pointerdown", this.bindedPointerDownListener )
+        this.listener.addEventListener("pointerdown", this.bindedPointerDownListener )
 
-        this.listenerLayerContainer.addEventListener("pointerup", this.bindedPointerUpListener );
+        this.listener.addEventListener("pointerup", this.bindedPointerUpListener );
 
     }
 
     /** Remove all listeners from the file's listener layer */
     deactivateListeners() {
 
-        if ( this.bindedPointerMoveListener ) {
-            this.listenerLayerContainer.removeEventListener("pointermove", this.bindedPointerMoveListener );
+        if ( this.bindedPointerMoveListener && this.listener ) {
+            this.listener.removeEventListener("pointermove", this.bindedPointerMoveListener );
         }
 
-        if ( this.bindedPointerDownListener ) {
-            this.listenerLayerContainer.removeEventListener("pointerdown", this.bindedPointerDownListener );
+        if ( this.bindedPointerDownListener && this.listener ) {
+            this.listener.removeEventListener("pointerdown", this.bindedPointerDownListener );
         }
 
-        if ( this.bindedPointerUpListener ) {
-            this.listenerLayerContainer.removeEventListener("pointerup", this.bindedPointerUpListener );
+        if ( this.bindedPointerUpListener && this.listener ) {
+            this.listener.removeEventListener("pointerup", this.bindedPointerUpListener );
         }
 
     }

@@ -2,8 +2,12 @@
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
+import { FilterContainer } from "../filters/FilterContainer";
+import { BatchLoader } from "../loading/batch/BatchLoader";
 import { ThermalFileRequest } from "../loading/ThermalRequest";
+import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
+import { CallbacksManager } from "../properties/callbacksManager";
 import { OpacityDrive } from "../properties/drives/OpacityDrive";
 import { RangeDriver } from "../properties/drives/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
@@ -17,6 +21,10 @@ import { ThermalManager } from "./ThermalManager";
 export type ThermalRegistryOptions = {
     histogramResolution?: number,
 }
+
+export type BatchLoadingCallback = ( 
+    result: ThermalFileFailure|Instance 
+) => Promise< void >;
 
 /**
  * The global thermal registry
@@ -78,7 +86,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         this.loading.markAsLoading();
 
         // Load services for every group
-        const servicesByGroup = await Promise.all( Object.entries( files ).map( async ([groupId, fs]) => {
+        const servicesByGroup = await Promise
+            .all( Object.entries( files ).map( async ([groupId, fs]) => {
 
             const group = this.groups.addOrGetGroup( groupId );
 
@@ -136,6 +145,28 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
     }
 
+    private _batch?: BatchLoader;
+    public get batch(): BatchLoader {
+        if ( ! this._batch ) this._batch = new BatchLoader( this );
+        return this._batch;
+    }
+
+    /** @deprecated use batch member class instead */
+    public registerRequest(
+        thermalUrl: string,
+        visibleUrl: undefined|string = undefined,
+        group: ThermalGroup,
+        callback: BatchLoadingCallback,
+    ) {
+
+        this.batch.request(thermalUrl, visibleUrl, group, callback);        
+
+    }
+
+
+    public readonly onProcessingStart = new CallbacksManager< () => void >;
+    public readonly onProcessingEnd = new CallbacksManager< () => void >;
+
 
 
     /** 
@@ -146,6 +177,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
      * - recalculate the histogram
     */
     public async postLoadedProcessing() {
+
+        this.onProcessingStart.call();
 
 
         // Recalculate individual minmaxes
@@ -181,6 +214,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         // this.histogram.recalculateWithCurrentSetting();
 
         this.loading.markAsLoaded();
+
+        this.onProcessingEnd.call();
 
     }
 
@@ -251,6 +286,22 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
      * Palette
      */
     public readonly palette;
+
+
+    public readonly filters = new FilterContainer( this );
+
+    public getInstances() {
+        let instances: Instance[] = [];
+
+        this.groups.value.forEach( group => {
+            instances = [ 
+                ...instances, 
+                ...group.getInstances() 
+            ];
+        } );
+
+        return instances;
+    }
 
 
 

@@ -3,6 +3,7 @@
 
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
+import { FilterContainer } from "../filters/FilterContainer";
 import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
@@ -74,6 +75,12 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
         this.minmax.reset();
         this.cursorPosition.reset();
 
+    }
+
+    public readonly filters = new FilterContainer( this );
+
+    public getInstances() {
+        return this.files.value;
     }
 
 

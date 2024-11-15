@@ -11,7 +11,13 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected parentFileProviderElement?: AbstractFileProvider;
 
-    protected internalCallbackUUID = `${this.UUID}__internal_callback`;
+    public getUUID() {
+        return `${this.UUID}__internal_callback`;
+    }
+
+    protected get internalCallbackUUID() {
+        return `${this.UUID}__internal_callback`;
+    }
 
     @consume({context: loadingContext, subscribe: true})
     @state()
@@ -47,15 +53,15 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
-            this.parentFileProviderElement.onSuccess.add(
-                this.internalCallbackUUID,
-                () => {
+            this.parentFileProviderElement.onSuccess.set(
+                this.getUUID(),
+                (instance) => {
                     this.loading = false;
                 }
             );
 
-            this.parentFileProviderElement.onFailure.add(
-                this.internalCallbackUUID,
+            this.parentFileProviderElement.onFailure.set(
+                this.getUUID(),
                 () => {
                     this.loading = false;
                 }
@@ -64,15 +70,16 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // IMPLEMENTED CALLBACKS
 
-            this.parentFileProviderElement.onSuccess.add(
+            this.parentFileProviderElement.onSuccess.set(
                 this.UUID,
                 this.onInstanceCreated.bind(this)
             );
 
-            this.parentFileProviderElement.onFailure.add(
+            this.parentFileProviderElement.onFailure.set(
                 this.UUID,
                 this.onFailure.bind(this)
             );
+
         } else {
             throw new Error("Tento komponent není v souboru!");
         }

@@ -1,5 +1,6 @@
 import { Instance } from "../../src/file/instance";
 import { ThermalManager } from "../../src/hierarchy/ThermalManager";
+import { AbstractFileResult } from "../../src/loading/workers/AbstractFileResult";
 import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
 import { getPool } from "../../src/utils/pool";
@@ -14,6 +15,27 @@ const registry = manager.addOrGetRegistry(REGISTRY_ID);
 const group = registry.groups.addOrGetGroup(GROUP_ID);
 
 const root = document.getElementById("root");
+
+
+
+const array = [
+    "/soustruh.lrc",
+    "/tucnaci_04.lrc",
+];
+
+array.map( file => {
+    registry.batch.request( file, undefined, group, async ( result ) => {
+        console.log( "testovací resultát", result );
+        if ( result instanceof Instance ) {
+            const container = document.createElement( "div" );
+            document.body.appendChild( container );
+            result.mountToDom( container );
+            result.draw();
+        }
+    } )
+} );
+
+/*
 
 group.files.addListener("boot", value => {
 
@@ -55,6 +77,8 @@ reg.service.loadFile( "/soustruh.lrc" ).then( result => {
         } );
     }
 } );
+
+*/
 
 
 

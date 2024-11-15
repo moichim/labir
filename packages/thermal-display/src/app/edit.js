@@ -320,7 +320,7 @@ export default function Edit({ attributes, setAttributes }) {
 											options={[
 												{
 													label: "Advanced analyser",
-													value: "thermal-desktop-app"
+													value: "thermal-file-analyser"
 												},
 												{
 													label: "Simplified display",

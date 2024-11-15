@@ -35,7 +35,7 @@ export default class ThermalCursorLayer extends AbstractLayer {
     // Set visible / invisible
     protected _show: boolean = false;
     public get show() {return this._show};
-    public set show( value: boolean ) {
+    public setShow( value: boolean ) {
         this._show = value;
         this.layerRoot.style.opacity = this._show ? "1" : "0";
     }
@@ -168,6 +168,7 @@ export default class ThermalCursorLayer extends AbstractLayer {
         y: number,
         value: string
     ) {
+
         if ( this.instance.root === null ) {
             // Do nothing
         } else {

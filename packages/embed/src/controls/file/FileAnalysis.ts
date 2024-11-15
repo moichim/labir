@@ -7,6 +7,7 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { AnalysisList, analysisList } from "../../hierarchy/providers/context/FileContexts";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 
+/** @deprecated */
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
 

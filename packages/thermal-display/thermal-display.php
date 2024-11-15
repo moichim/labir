@@ -30,6 +30,10 @@ require( __DIR__ . '/lib/uploads.php' );
  */
 function thermal_display_init_blocks() {
 	register_block_type( __DIR__ . '/build/app' );
+	register_block_type( __DIR__ . '/build/group' );
+	register_block_type( __DIR__ . '/build/registry' );
+	register_block_type( __DIR__ . '/build/manager' );
+	
 }
 add_action( 'init', 'thermal_display_init_blocks' );
 

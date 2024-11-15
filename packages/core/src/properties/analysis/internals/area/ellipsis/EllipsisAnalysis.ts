@@ -132,7 +132,7 @@ export class EllipsisAnalysis extends AbstractAreaAnalysis {
     }
 
     public async getAnalysisData(): Promise<AreaAnalysisData> {
-        return await this.file.service.ellipsisAnalysisData(
+        return await this.file.reader.ellipsisAnalysisData(
             this.left,
             this.top,
             this.width,

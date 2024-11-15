@@ -31,11 +31,16 @@ export class CursorValueDrive extends AbstractProperty<number|undefined, Instanc
         y: number | undefined
     ) {
 
-        if (x === undefined || y === undefined) {
+        if (
+            x === undefined 
+            || y === undefined 
+            || x === this.parent.meta.width 
+            || y === this.parent.meta.height 
+        ) {
             return undefined;
         }
 
-        const index = x + (y * this.parent.width);
+        const index = x + (y * this.parent.meta.width);
         const value = this.parent.pixels[index];
         return value;
 

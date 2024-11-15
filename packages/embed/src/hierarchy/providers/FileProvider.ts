@@ -12,6 +12,25 @@ export class FileProviderElement extends AbstractFileProvider {
     protected providedSelf: FileProviderElement = this;
 
     @property({
+        type: Boolean, 
+        reflect: true, 
+        attribute: true,
+        converter: {
+            fromAttribute( value: string ) {
+                return value === "true";
+            },
+            toAttribute( value: boolean|undefined ) {
+                if ( value === true ) {
+                    return "true";
+                }
+                return "false";
+            }
+        }
+
+    })
+    public batch?: boolean;
+
+    @property({
         type: String,
         attribute: true,
         reflect: true,
@@ -49,6 +68,18 @@ export class FileProviderElement extends AbstractFileProvider {
     /** Load the file and call all necessary callbacks */
     protected async load() {
 
+        const result = this.batch === true
+            ? this.loadAsync()
+            : this.loadSync();
+
+        return result;
+
+    }
+
+    protected async loadSync() {
+
+        this.log( "loading sync" );
+
         this.loading = true;
 
         // Trigger all callbacks
@@ -76,6 +107,8 @@ export class FileProviderElement extends AbstractFileProvider {
 
                         this.loading = false;
 
+                        this.recieveInstance(instance);
+
                         return instance;
 
                     });
@@ -83,29 +116,101 @@ export class FileProviderElement extends AbstractFileProvider {
                 }
                 // Failure
                 else {
+
                     // Assign failure
                     this.failure = result as ThermalFileFailure;
-                    // Call all callbacks
 
+                    // Call all callbacks
                     this.onFailure.call(this.failure);
 
                     this.loading = false;
 
                     return result;
                 }
-            }).then(result => {
-                if (result instanceof Instance) {
-
-                    this.recieveInstance(result);
-
-
-                } else {
-                    this.failure = result as ThermalFileFailure;
-                }
-            });;
+            });
 
         return value;
 
+    }
+
+    protected loadAsync() {
+
+        this.log( "loading async", this.thermal, this );
+
+        this.loading = true;
+
+        // Trigger all callbacks
+        this.onLoadingStart.call();
+
+        const result = this.registry.batch.request(
+            this.thermal,
+            this.visible,
+            this.group,
+            this.asyncLoadCallback.bind(this)
+            /*
+            async result => {
+
+                this.log( this, this.thermal, result );
+
+                if ( result instanceof Instance ) {
+
+                    this.file = result;
+        
+                    this.onSuccess.call(result);
+        
+                    this.handleLoaded(result);
+        
+                    this.loading = false;
+        
+                    this.recieveInstance(result);
+
+                    this.log( "recieved async", result.thermalUrl );
+        
+                } else if ( result instanceof ThermalFileFailure ) {
+        
+                    this.failure = result as ThermalFileFailure;
+        
+                    this.onFailure.call(this.failure);
+        
+                    this.loading = false;
+        
+                }
+            }
+            */
+            
+        )
+
+        return result;
+
+    }
+
+    public async asyncLoadCallback(
+        result: Instance|ThermalFileFailure
+    ) {
+
+        this.log( this.thermal, this );
+
+        if ( result instanceof Instance ) {
+
+            this.file = result;
+
+            this.onSuccess.call(result);
+
+            this.handleLoaded(result);
+
+            this.loading = false;
+
+            this.recieveInstance(result);
+
+        } else if ( result instanceof ThermalFileFailure ) {
+
+            this.failure = result as ThermalFileFailure;
+
+            this.onFailure.call(this.failure);
+
+            this.loading = false;
+
+        }
     }
 
     protected createInitialAnalysis(
@@ -114,48 +219,52 @@ export class FileProviderElement extends AbstractFileProvider {
         value?: string
     ) {
 
-        if ( value !== undefined && value.trim().length > 0 ) {
-            const analysis = instance.slots.createFromSerialized( value, index );
-            analysis?.setSelected( false, true );
+        if (value !== undefined && value.trim().length > 0) {
+            const analysis = instance.slots.createFromSerialized(value, index);
+            analysis?.setSelected(false, true);
         }
 
     }
 
+
+    /**
+     * Initialise slots & their listeners
+     */
     protected handleLoaded(
         instance: Instance
     ) {
 
-        
+
 
         // listen to changes
-        instance.slots.onSlot1Serialize.set( this.UUID, value => this.analysis1 = value );
-        instance.slots.onSlot2Serialize.set( this.UUID, value => this.analysis2 = value );
-        instance.slots.onSlot3Serialize.set( this.UUID, value => this.analysis3 = value );
-        instance.slots.onSlot4Serialize.set( this.UUID, value => this.analysis4 = value );
-        instance.slots.onSlot5Serialize.set( this.UUID, value => this.analysis5 = value );
-        instance.slots.onSlot6Serialize.set( this.UUID, value => this.analysis6 = value );
-        instance.slots.onSlot7Serialize.set( this.UUID, value => this.analysis7 = value );
+        instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
+        instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);
+        instance.slots.onSlot3Serialize.set(this.UUID, value => this.analysis3 = value);
+        instance.slots.onSlot4Serialize.set(this.UUID, value => this.analysis4 = value);
+        instance.slots.onSlot5Serialize.set(this.UUID, value => this.analysis5 = value);
+        instance.slots.onSlot6Serialize.set(this.UUID, value => this.analysis6 = value);
+        instance.slots.onSlot7Serialize.set(this.UUID, value => this.analysis7 = value);
 
         // Create the initial analysis
-        this.createInitialAnalysis( instance, 1, this.analysis1 );
-        this.createInitialAnalysis( instance, 2, this.analysis2 );
-        this.createInitialAnalysis( instance, 3, this.analysis3 );
-        this.createInitialAnalysis( instance, 4, this.analysis4 );
-        this.createInitialAnalysis( instance, 5, this.analysis5 );
-        this.createInitialAnalysis( instance, 6, this.analysis6 );
-        this.createInitialAnalysis( instance, 7, this.analysis7 );
+        this.createInitialAnalysis(instance, 1, this.analysis1);
+        this.createInitialAnalysis(instance, 2, this.analysis2);
+        this.createInitialAnalysis(instance, 3, this.analysis3);
+        this.createInitialAnalysis(instance, 4, this.analysis4);
+        this.createInitialAnalysis(instance, 5, this.analysis5);
+        this.createInitialAnalysis(instance, 6, this.analysis6);
+        this.createInitialAnalysis(instance, 7, this.analysis7);
 
     }
 
 
-    private assignAppropriateField( field: number, value?: string ) {
-        if ( field === 1 ) this.analysis1 = value;
-        else if ( field === 2 ) this.analysis2 = value;
-        else if ( field === 3 ) this.analysis3 = value;
-        else if ( field === 4 ) this.analysis4 = value;
-        else if ( field === 5 ) this.analysis5 = value;
-        else if ( field === 6 ) this.analysis6 = value;
-        else if ( field === 7 ) this.analysis7 = value;
+    private assignAppropriateField(field: number, value?: string) {
+        if (field === 1) this.analysis1 = value;
+        else if (field === 2) this.analysis2 = value;
+        else if (field === 3) this.analysis3 = value;
+        else if (field === 4) this.analysis4 = value;
+        else if (field === 5) this.analysis5 = value;
+        else if (field === 6) this.analysis6 = value;
+        else if (field === 7) this.analysis7 = value;
     }
 
 
@@ -186,15 +295,16 @@ export class FileProviderElement extends AbstractFileProvider {
         }
 
 
-        this.handleAnalysisUpdate( 1, _changedProperties );
-        this.handleAnalysisUpdate( 2, _changedProperties );
-        this.handleAnalysisUpdate( 3, _changedProperties );
-        this.handleAnalysisUpdate( 4, _changedProperties );
-        this.handleAnalysisUpdate( 5, _changedProperties );
-        this.handleAnalysisUpdate( 6, _changedProperties );
-        this.handleAnalysisUpdate( 7, _changedProperties );
+        this.handleAnalysisUpdate(1, _changedProperties);
+        this.handleAnalysisUpdate(2, _changedProperties);
+        this.handleAnalysisUpdate(3, _changedProperties);
+        this.handleAnalysisUpdate(4, _changedProperties);
+        this.handleAnalysisUpdate(5, _changedProperties);
+        this.handleAnalysisUpdate(6, _changedProperties);
+        this.handleAnalysisUpdate(7, _changedProperties);
 
     }
+
 
     protected handleAnalysisUpdate(
         index: SlotNumber,
@@ -206,38 +316,38 @@ export class FileProviderElement extends AbstractFileProvider {
 
         if (_changedProperties.has(field)) {
 
-            const oldValue = _changedProperties.get(field) as string|undefined|null;
-            const newValue = this[field] as string|undefined|null;
+            const oldValue = _changedProperties.get(field) as string | undefined | null;
+            const newValue = this[field] as string | undefined | null;
 
 
-            if ( this.file ) {
+            if (this.file) {
 
-                const slot = this.file.slots.getSlot( index );
+                const slot = this.file.slots.getSlot(index);
 
                 // If slot had not exist before and sould create, do so
-                if ( 
-                    slot === undefined 
-                    && newValue 
+                if (
+                    slot === undefined
+                    && newValue
                     && newValue.trim().length > 0
                     && (
-                        ! oldValue
+                        !oldValue
                         || oldValue?.trim().length > 0
                     )
                 ) {
-                    const analysis = this.file.slots.createFromSerialized( newValue, index );
-                    analysis?.setSelected( false, true );
+                    const analysis = this.file.slots.createFromSerialized(newValue, index);
+                    analysis?.setSelected(false, true);
                 }
                 // If the slot ceased to exist
                 else if (
                     slot !== undefined
                     && oldValue
-                    && ( ! newValue
+                    && (!newValue
                         || newValue?.trim().length === 0
                     )
                 ) {
-                    this.file.slots.removeSlotAndAnalysis( index );
-                } else if ( slot && newValue ) {
-                    slot?.recieveSerialized( newValue );
+                    this.file.slots.removeSlotAndAnalysis(index);
+                } else if (slot && newValue) {
+                    slot?.recieveSerialized(newValue);
                 }
 
             }

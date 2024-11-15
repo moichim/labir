@@ -11,7 +11,7 @@ export abstract class RegistryConsumer extends ManagerConsumer {
     connectedCallback(): void {
         super.connectedCallback();
         if ( this.registry === undefined ) {
-            throw new Error( `RegistryConsumer ${this.tagName} (${this.UUID}) does not have a parent RegistryProvider. You need to nest this element inside a <registry-provider>` );
+            // throw new Error( `RegistryConsumer ${this.tagName} (${this.UUID}) does not have a parent RegistryProvider. You need to nest this element inside a <registry-provider>` );
         }
     }
 

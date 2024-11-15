@@ -1,8 +1,10 @@
 "use client";
 
+import { Instance } from "../file/instance";
+
 
 export abstract class BaseStructureObject {
 
-    // public readonly pool: Pool;
+    public abstract getInstances(): Instance[];
 
 }

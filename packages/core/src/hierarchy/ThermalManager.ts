@@ -3,18 +3,21 @@
 import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
+import { Instance } from "../file/instance";
 import { AvailableThermalPalettes } from "../file/palettes";
+import { FilterContainer } from "../filters/FilterContainer";
 import { FilesService } from "../loading/workers/FilesService";
-import { PaletteDrive } from "../properties/drives/PaletteDrive";
-import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
-import { SmoothDrive } from "../properties/drives/SmoothDrive";
 import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";
+import { PaletteDrive } from "../properties/drives/PaletteDrive";
+import { SmoothDrive } from "../properties/drives/SmoothDrive";
+import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
 }
 
 export class ThermalManager extends BaseStructureObject {
+    
 
     public readonly id: number;
 
@@ -82,6 +85,22 @@ export class ThermalManager extends BaseStructureObject {
             registry.destroySelfAndBelow();
             delete this.registries[id];
         }
+    }
+
+    public readonly filters = new FilterContainer( this );
+
+    public getInstances() {
+
+        let instances: Instance[] = [];
+
+        this.forEveryRegistry( registry => {
+            instances = [
+                ...instances,
+                ...registry.getInstances()
+            ];
+        } );
+
+        return instances;
     }
 
 

@@ -9,7 +9,7 @@ export class ThermalFileExport {
 
 
     public canvasAsPng() {
-        return this.file.canvasLayer.exportAsPng();
+        return this.file.dom?.canvasLayer?.exportAsPng();
     }
 
     public thermalDataAsCsv(

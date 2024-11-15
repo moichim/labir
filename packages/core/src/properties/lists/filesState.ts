@@ -31,16 +31,16 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         this.map.clear();
 
         // Create the new values in the index
-        value.forEach(instance => this._map.set(instance.url, instance));
+        value.forEach(instance => this._map.set(instance.thermalUrl, instance));
     }
 
     public addFile( file: Instance ) {
 
-        if (!this._map.has(file.url)) {
+        if (!this._map.has(file.thermalUrl)) {
             this.value = [...this.value, file];
             return file;
         } else {
-            return this._map.get(file.url)!;
+            return this._map.get(file.thermalUrl)!;
         }
     }
 
@@ -50,7 +50,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
             : this.map.get( file );
         if ( entry ) {
             entry.unmountFromDom();
-            this.value = this.value.filter( e => e.thermalUrl !== entry.url );
+            this.value = this.value.filter( e => e.thermalUrl !== entry.thermalUrl );
         }
     }
 

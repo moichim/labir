@@ -19,7 +19,8 @@
 
 <body>
 
-  <!--
+
+
 
   <div>
 
@@ -30,17 +31,46 @@
         <registry-palette-buttons></registry-palette-buttons>
         <registry-opacity-slider></registry-opacity-slider>
         <registry-opacity-slider></registry-opacity-slider>
+
         <group-provider>
-            <file-provider thermal="/tucnaci_04.lrc">
+          <time-group>
+            <time-entry slot="entry" thermal="/soustruh.lrc"></time-entry>
+            <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
+          </time-group>
+        </group-provider>
+
+
+        <group-provider>
+          <article style="display: flex; gap: 4px">
+          <div>
+            <h3>A opět něco jiného</h3>
+            <file-provider thermal="/sequence.lrc" batch="true">
               <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
             </file-provider>
+          </div>
+          <div>
+            <h2>Něco co s tím máme</h2>
+            <file-provider thermal="/soustruh.lrc" batch="true">
+              <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
+            </file-provider>
+          </div>
+          <div>
+            <h1>Nadpíseček</h1>
+            <file-provider thermal="/tucnaci_04.lrc" batch="true">
+              <file-canvas></file-canvas>
+              <file-info-button></file-info-button>
+            </file-provider>
+          </div>
+        </article>
         </group-provider>
       </registry-provider>
     </manager-provider>
 
   </div>
 
--->
+  <!--
 
   <h2 onClick="() => console.log('evt')">Příklad ukazující teplotní rozsah</h2>
 
@@ -52,6 +82,9 @@
     setTimeout(reload, 10000);
   </script>
 
+-->
+
+  <!--
   <thermal-desktop-app 
     url="/sequence.lrc"  
     visible="/kitten.jpg"
@@ -76,6 +109,10 @@
     analysis3="Bod B;point;top:50;left:80;avg;color:green" label="Tučňáci">
     <div slot="content_">Jsem obsah aplikace</div>
   </thermal-file-app>
+
+-->
+
+  <!--
 
   <manager-provider palette="jet" slug="some-example">
     <registry-provider>

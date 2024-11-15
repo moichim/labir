@@ -33,7 +33,11 @@ export class InspectTool extends AbstractTool implements ITool {
 
     getLabelValue = (x: number, y: number, file: Instance): string => {
         if (file === undefined) return "";
-        return file.getTemperatureAtPoint(x, y).toFixed(2) + " °C"
+        try {
+            return file.getTemperatureAtPoint(x, y).toFixed(2) + " °C"
+        } catch(err){
+            return "";
+        }
     };
 
 

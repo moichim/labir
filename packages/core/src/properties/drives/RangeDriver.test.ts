@@ -1,5 +1,4 @@
-import { vi, describe, test, expect } from "vitest";
-import { loadFileForTests } from "../../../devserver/node/scaffold";
+import { describe, expect, test } from "vitest";
 import { THERMOGRAM_PATHS } from "../../../devserver/node/mocks";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
@@ -15,7 +14,7 @@ describe("RangeDriverTest", () => {
 
         let imposingCounter = 0;
 
-        range.addListener("test", value => {
+        range.addListener("test", () => {
             imposingCounter++;
         });
 
@@ -25,7 +24,7 @@ describe("RangeDriverTest", () => {
 
         const reader = await registry.service.loadFile(THERMOGRAM_PATHS.SOUSTRUH) as ThermalFileReader;
 
-        const instance = await reader.createInstance(group);
+        await reader.createInstance(group);
 
         registry.postLoadedProcessing();
 
@@ -44,7 +43,7 @@ describe("RangeDriverTest", () => {
 
         let imposingCounter = 0;
 
-        range.addListener("test", value => {
+        range.addListener("test", () => {
             imposingCounter++;
         });
 

@@ -1,19 +1,22 @@
+import { AbstractFilter } from "../filters/AbstractFilter";
+import { FilterContainer } from "../filters/FilterContainer";
+import { ThermalGroup } from "../hierarchy/ThermalGroup";
+import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
+import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
+import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
+import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
+import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
+import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
+import { CursorValueDrive } from "../properties/states/CursorValueDrive";
+import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
+import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { AbstractFile } from "./AbstractFile";
+import { InstanceDOM } from "./dom/InstanceDom";
+import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
+import { VisibleLayer } from "./instanceUtils/VisibleLayer";
 import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
 import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
 import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "./instanceUtils/VisibleLayer";
-import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
-import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
-import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
-import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
-import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
-import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
-import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
 
 export class Instance extends AbstractFile {
 
@@ -21,13 +24,6 @@ export class Instance extends AbstractFile {
     declare public analysis: AnalysisDrive;
     declare public analysisData: AnalysisDataState;
     public slots!: AnalysisSlotsState;
-
-    public exportAsPng(): void {
-        this.export.canvasAsPng();
-    }
-    public exportThermalDataAsSvg(): void {
-        throw new Error("Method not implemented.");
-    }
 
     /**
      * Exports
@@ -43,74 +39,116 @@ export class Instance extends AbstractFile {
     }
 
 
-    protected constructor(
+    private constructor(
         public readonly group: ThermalGroup,
-        public readonly service: ThermalFileReader,
-        /**  @todo This dimension should be 1 pixel smaller */
-        public readonly width: number,
-        /** @todo This dimension should be 1 pixel smaller */
-        public readonly height: number,
-        public readonly timestamp: number,
-        public readonly frameCount: number,
-        public readonly duration: number,
-        /** @deprecated */
-        public readonly frameInterval: number,
-        initialPixels: number[],
-        /** @deprecated */
-        public readonly fps: number,
-        public readonly min: number,
-        public readonly max: number,
-        public readonly bytesize: number,
-        /** @deprecated not used anymore */
-        public readonly averageEmissivity: number,
-        /** @deprecated not used anymore */
-        public readonly averageReflectedKelvins: number,
+        public readonly reader: ThermalFileReader,
+        baseInfo: ParsedFileBaseInfo,
         public readonly firstFrame: ParsedFileFrame,
-        public readonly timelineData: ParsedFileBaseInfo["timeline"]
     ) {
-        super( 
+
+        super(
             group,
-            service.thermalUrl, 
-            width, 
-            height,
-            initialPixels,
-            timestamp,
-            duration,
-            min,
-            max,
-            frameCount,
-            service.visibleUrl 
+            baseInfo,
+            firstFrame.pixels,
+            reader.thermalUrl,
+            reader.visibleUrl
         );
-        this.pixels = firstFrame.pixels;
+
+        this.setPixels(firstFrame.pixels);
+
     }
 
-    public postInit() {
-        this.canvasLayer = new ThermalCanvasLayer(this);
-        this.visibleLayer = new VisibleLayer(this, this.visibleUrl);
-        this.cursorLayer = new ThermalCursorLayer(this);
-        this.listenerLayer = new ThermalListenerLayer(this);
+    public createInnerDom(): { canvasLayer: ThermalCanvasLayer; visibleLayer: VisibleLayer; cursorLayer: ThermalCursorLayer; listenerLayer: ThermalListenerLayer; } {
+        return {
+            canvasLayer: new ThermalCanvasLayer(this),
+            visibleLayer: new VisibleLayer(this, this.visibleUrl),
+            cursorLayer: new ThermalCursorLayer(this),
+            listenerLayer: new ThermalListenerLayer(this),
+        }
+    }
+
+    public hydrateListener(dom: InstanceDOM): void {
+
+        if (!dom.listenerLayer || !dom.cursorLayer) {
+            return;
+        }
+
+        const listenerLayerRoot = dom.listenerLayer.getLayerRoot();
+
+        if (!listenerLayerRoot) {
+            return;
+        }
+
+        dom.parent.analysis.activateListeners(listenerLayerRoot as HTMLDivElement);
+
+        dom.listenerLayer.getLayerRoot().onmousemove = (
+            event: MouseEvent
+        ) => {
+
+            if (dom.cursorLayer)
+                dom.cursorLayer.setShow(true);
+
+            dom.setHover(true);
+
+            const client = dom.parent.meta.width;
+            const parent = dom.root.clientWidth;
+
+            const aspect = client / parent;
+
+            const x = Math.round(event.offsetX * aspect);
+            const y = Math.round(event.offsetY * aspect);
+
+            dom.parent.group.cursorPosition.recieveCursorPosition({ x, y });
+
+        }
+
+        dom.listenerLayer.getLayerRoot().onmouseleave = () => {
+
+            if (dom.cursorLayer)
+                dom.cursorLayer.setShow( false );
+
+            dom.setHover(false);
+
+            dom.parent.group.cursorPosition.recieveCursorPosition(undefined);
+
+        }
+
+    }
+
+    public dehydrateListener(dom: InstanceDOM): void {
+
+        dom.parent.analysis.deactivateListeners();
+
+    }
+
+
+
+    public buildServices() {
+
         this.cursorValue = new CursorValueDrive(this, undefined);
-        this.timeline = new TimelineDrive( this, 0, this.timelineData, this.firstFrame );
+        this.timeline = new TimelineDrive(this, 0, this.timelineData, this.firstFrame);
         this.timeline.init();
-        this.recording = new RecordingDrive( this, false );
+        this.recording = new RecordingDrive(this, false);
         this.analysis = new AnalysisDrive(this, []);
         this.analysisData = new AnalysisDataState(this);
         this.slots = new AnalysisSlotsState(this, new Map);
+
         return this;
+
     }
 
-    protected formatId( thermalUrl: string ) {
+    protected formatId(thermalUrl: string) {
         return `instance_${this.group.id}_${thermalUrl}`;
     }
 
     protected onSetPixels(value: number[]): void {
-        
+
         value;
-       
+
 
         // If this file is loaded, recalculate all side effects
-        if (this.mountedBaseLayers) {
-            
+        if (this.dom && this.dom.built) {
+
             // Redraw
             this.draw();
 
@@ -121,22 +159,22 @@ export class Instance extends AbstractFile {
             if (this.group.cursorPosition.value) {
 
                 // Get the new value
-                const label = this.group.tool.value.getLabelValue( this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this );
+                const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
 
                 // Set the value
-                this.cursorLayer.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
+                this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
             }
 
             // Recalculate all analysis
-            this.analysis.value.forEach( analysis => analysis.recalculateValues() );
+            this.analysis.value.forEach(analysis => analysis.recalculateValues());
         }
-        
+
     }
 
     public getPixelsForHistogram(): number[] {
         return [];
     }
-    
+
 
     public static fromService(
         group: ThermalGroup,
@@ -145,102 +183,104 @@ export class Instance extends AbstractFile {
         firstFrame: ParsedFileFrame,
     ): Instance {
 
+
         const instance = new Instance(
             group,
             service,
-            baseInfo.width,
-            baseInfo.height,
-            baseInfo.timestamp,
-            baseInfo.frameCount,
-            baseInfo.duration,
-            baseInfo.frameInterval,
-            firstFrame.pixels,
-            baseInfo.fps,
-            baseInfo.min,
-            baseInfo.max,
-            baseInfo.bytesize,
-            baseInfo.averageEmissivity,
-            baseInfo.averageReflectedKelvins,
-            firstFrame,
-            baseInfo.timeline
+            baseInfo,
+            firstFrame
         );
 
-        return instance.postInit();
+        return instance.buildServices();
 
     }
 
-
-    public mountListener() {
-
-        if (this.root === undefined) {
-            console.warn(`The instance ${this.id} does not have a root, therefore the listener can not be mounted.`);
-            return;
-        }
-
-        this.listenerLayer.mount();
-        this.analysis.activateListeners();
-
-        this.listenerLayer.getLayerRoot().onmousemove = (event: MouseEvent) => {
-
-            // Show the cursor
-            this.cursorLayer.show = true;
-
-            // Store the local hover state
-            this.isHover = true;
-
-            const client = this.width;
-            const parent = this.root!.clientWidth;
-
-            const aspect = client / parent;
-
-            const x = Math.round(event.offsetX * aspect);
-            const y = Math.round(event.offsetY * aspect);
-
-            this.group.cursorPosition.recieveCursorPosition({ x, y });
-
-        };
-
-        this.listenerLayer.getLayerRoot().onmouseleave = () => {
-
-            this.cursorLayer!.show = false;
-
-            this.isHover = false;
-
-            // Clear the synchronised cursor in any case
-            this.group.cursorPosition.recieveCursorPosition(undefined);
-
-        };
-
-    }
-
-    protected unmountListener() {
-
-        this.listenerLayer.unmount();
-        this.analysis.deactivateListeners();
-
-    }
 
     public recieveCursorPosition(
         position: ThermalCursorPositionOrUndefined
     ) {
 
         // If position
-        if ( position !== undefined ) {
+        if (position !== undefined) {
+
+            const x = Math.min( this.meta.width, Math.max( 0, position.x ) );
+            const y = Math.min( this.meta.height, Math.max( 0, position.y ) );
 
             // Get label value from the current tool
-            const label = this.group.tool.value.getLabelValue( position.x, position.y, this );
-            this.cursorLayer.setLabel( position.x, position.y, label );
+            const label = this.group.tool.value.getLabelValue(x, y, this);
 
-            this.cursorLayer.show = true;
+            if (this.dom) {
+
+                this.dom.cursorLayer?.setLabel(x, y, label);
+                if (this.dom.cursorLayer)
+                    this.dom.cursorLayer.setShow( true );
+            }
+
 
         } else {
-            this.cursorLayer.show = false;
-            this.cursorLayer.resetCursor();
+
+            if ( this.dom ) {
+
+                this.dom.cursorLayer?.resetCursor();
+                this.dom.cursorLayer?.setShow( false );
+
+            }
+
         }
 
-        
+
         // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
+
+    }
+
+
+    public readonly filters = new FilterContainer(this);
+
+    public getInstances() {
+        return [this];
+    }
+
+    public getAllApplicableFilters(): AbstractFilter[] {
+
+        const manager = this.group.registry.manager.filters.getActiveFilters();
+        const registry = this.group.registry.filters.getActiveFilters();
+        const group = this.group.filters.getActiveFilters();
+        const file = this.filters.getActiveFilters();
+
+        return [
+            ...manager,
+            ...registry,
+            ...group,
+            ...file
+        ];
+
+    }
+
+    public async applyAllAvailableFilters() {
+
+        const filters = this.getAllApplicableFilters();
+
+        this.reader.applyFilters(filters);
+
+        // Get new info
+        const baseInfo = await this.reader.baseInfo();
+        const frameData = await this.reader.frameData(this.timeline.currentStep.index);
+
+        // If the dimensions change, unmount from DOM and mount again to create new canvas
+        if (this.root) {
+
+            const container = this.root;
+            this.unmountFromDom();
+            this.mountToDom(container);
+
+        }
+
+        // Update the base info of the file
+        this.meta.set(baseInfo);
+
+        this.setPixels(frameData.pixels);
+
 
     }
 

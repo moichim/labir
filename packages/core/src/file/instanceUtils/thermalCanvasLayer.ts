@@ -84,66 +84,87 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
         const paletteColors = this.getPalette();
 
-        // Transfer it to thread
-        const image = await this.pool.exec( async (
-            from: number,
-            to: number,
-            width: number,
-            height: number,
-            pixels: number[],
-            palette: string[]
-        ) => {
-
-            const canvas = new OffscreenCanvas( width, height );
-
-            const context = canvas.getContext( "2d" )!;
-
-            const displayRange = to - from;
+        try {
 
 
-            for (let x = 0; x <= width; x++) {
+            // Transfer it to thread
+            const image = await this.pool.exec(async (
+                from: number,
+                to: number,
+                width: number,
+                height: number,
+                pixels: number[],
+                palette: string[]
+            ) => {
 
-                for (let y = 0; y <= height; y++) {
+                const canvas = new OffscreenCanvas(width, height);
 
-                    const index = x + (y * width);
+                const context = canvas.getContext("2d")!;
 
-                    // Clamp temperature to the displayedRange
-                    let temperature = pixels[index];
-                    if (temperature < from)
-                        temperature = from;
-                    if (temperature > to)
-                        temperature = to;
+                const displayRange = to - from;
 
-                    const temperatureRelative = temperature - from;
-                    const temperatureAspect = temperatureRelative / displayRange;
-                    const colorIndex = Math.round(255 * temperatureAspect);
+                for (let x = 0; x <= width; x++) {
 
-                    const color = palette[colorIndex];
+                    for (let y = 0; y <= height; y++) {
 
-                    context!.fillStyle = color;
-                    context!.fillRect(x, y, 1, 1);
+                        const index = x + (y * width);
+
+                        // Clamp temperature to the displayedRange
+                        let temperature = pixels[index];
+                        if (temperature < from)
+                            temperature = from;
+                        if (temperature > to)
+                            temperature = to;
+
+                        const temperatureRelative = temperature - from;
+                        const temperatureAspect = temperatureRelative / displayRange;
+                        const colorIndex = Math.round(255 * temperatureAspect);
+
+                        const color = palette[colorIndex];
+
+                        context!.fillStyle = color;
+                        context!.fillRect(x, y, 1, 1);
+
+
+                    }
 
                 }
 
+                const imageData = context.getImageData(0, 0, width, height);
+
+                const result = await createImageBitmap(imageData);
+
+                return result;
+
+            }, [
+                this.from,
+                this.to,
+                this.width,
+                this.height,
+                this.pixels,
+                paletteColors
+            ], {});
+
+            // Place it in context
+            this.context.drawImage(image, 0, 0);
+
+
+
+        } catch (error) {
+
+            if ( error instanceof Error ) {
+
+                if ( error.message === "OffscreenCanvas is not defined" ) {
+                    // do nothing
+                    return;
+                }
+
+                console.error( error );
             }
 
-            const imageData = context.getImageData(0,0,width,height);
+        }
 
-            const result = await createImageBitmap( imageData );
 
-            return result;
-
-        }, [
-            this.from,
-            this.to,
-            this.width,
-            this.height,
-            this.pixels,
-            paletteColors
-        ], {});
-
-        // Place it in context
-        this.context.drawImage( image, 0, 0 );
 
     }
 

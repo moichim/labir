@@ -12,7 +12,7 @@ export abstract class ManagerConsumer extends BaseElement {
         super.connectedCallback();
 
         if (this.manager === undefined) {
-            throw new Error(`ManagerConsumer ${this.tagName} (${this.UUID}) does not have a parent ManagerProvider. You need to nest this element inside a <manager-provider> element!`);
+            // throw new Error(`ManagerConsumer ${this.tagName} (${this.UUID}) does not have a parent ManagerProvider. You need to nest this element inside a <manager-provider> element!`);
         }
 
     }

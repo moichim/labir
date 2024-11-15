@@ -54,6 +54,7 @@ export abstract class AbstractAnalysis {
 
     /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
     public get renderRoot(): HTMLElement {
+        // return this.file.dom.canvasLayer.getLayerRoot();
         return this.file.canvasLayer.getLayerRoot()
     }
 
