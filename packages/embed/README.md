@@ -2,7 +2,7 @@
 
 A library of webcomponents for thermal imaging in the browser.
 
-![A showcase of the simple application](docs/images/thermal-file-analyser.png)
+[![A showcase of the simple application](docs/images/thermal-file-analyser.png)](https://edu.labir.cz/experiment/sul-jedla-soda-a-voda/)
 
 ## Overview
 
@@ -54,9 +54,11 @@ See the list of available components and their parameters below. For a simple di
 
 ## Compatibility
 
-All major browsers are supporting custom web components. See [the compatibility overview](https://developer.mozilla.org/en-US/docs/Web/API/Window/customElements).
+All major browsers are supporting custom web components, so this library may be used anywhere. See [the compatibility overview](https://developer.mozilla.org/en-US/docs/Web/API/Window/customElements).
 
-All the components are fully responsive and they work on mobile devices.
+All the included components are fully responsive and they work on mobile devices.
+
+Support of SSR is unknown.
 
 ## Performance
 
