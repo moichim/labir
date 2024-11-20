@@ -3674,7 +3674,6 @@ var TimelineDrive = class extends AbstractProperty {
     }, this._currentStep.offset * this.playbackSpeedAspect);
   }
   play() {
-    console.log("pokou\u0161\xEDm se hr\xE1t");
     if (this.steps.length > 1) {
       this._isPlaying = true;
       this.createNextStepTimer();
@@ -3752,7 +3751,6 @@ var RecordingDrive = class extends AbstractProperty {
     this.mayStop = false;
     const cllbackId = "recording entire file";
     this.parent.timeline.callbacksEnd.add(cllbackId, () => {
-      console.log("playback ended");
       this.end();
       this.parent.timeline.callbacksEnd.delete(cllbackId);
     });
@@ -5008,7 +5006,6 @@ var AddEllipsisTool = class extends AbstractAddTool {
     } else {
       if (point.analysis.file.slots.value.size <= AnalysisSlotsState.MAX_SLOTS) {
         const slot = point.analysis.file.slots.getNextFreeSlotNumber();
-        console.log(slot);
         if (slot !== void 0) {
           point.file.slots.assignSlot(slot, point.analysis);
         }
@@ -6331,13 +6328,15 @@ var SmoothDrive = class extends AbstractProperty {
 
 // src/loading/batch/Batch.ts
 var Batch = class _Batch {
-  constructor(loader) {
+  constructor(loader, id) {
     this.loader = loader;
+    this.id = id;
   }
   _loading = false;
   get loading() {
     return this._loading;
   }
+  onResolve = new CallbacksManager();
   /** The current timeout fn that is being overriden by every call of the `request` method */
   timeout = void 0;
   /** Array of currently queued requests */
@@ -6345,8 +6344,8 @@ var Batch = class _Batch {
   get size() {
     return this.queue.length;
   }
-  static init(loader) {
-    return new _Batch(loader);
+  static init(loader, id) {
+    return new _Batch(loader, id);
   }
   static initWithRequest(loader, thermalUrl, visibleUrl = void 0, group, callback) {
     const item = new _Batch(loader);
@@ -6392,6 +6391,7 @@ var Batch = class _Batch {
       }));
       this.loader.onBatchComplete.call(results);
       this.loader.batchFinished(this);
+      this.onResolve.call(results);
     }, 0);
   }
   close() {
@@ -6418,6 +6418,15 @@ var BatchLoader = class {
   get numLoadingBatches() {
     return Array.from(this.set).filter((batch) => batch.loading === true).length;
   }
+  getBatchById(id) {
+    const found = Array.from(this.set).find((batch) => batch.id === id);
+    if (found) {
+      return found;
+    }
+    const item = Batch.init(this, id);
+    this.set.add(item);
+    return item;
+  }
   /**
    * Request a file through a batch
    * 
@@ -6426,8 +6435,8 @@ var BatchLoader = class {
    * 
    * The batch will execute automatically in the next tick.
    */
-  request(thermalUrl, visibleUrl, group, callback) {
-    let openBatch = this.currentOpenBatch;
+  request(thermalUrl, visibleUrl, group, callback, id) {
+    let openBatch = id ? this.getBatchById(id) : this.currentOpenBatch;
     if (openBatch === void 0) {
       openBatch = Batch.init(this);
       this.set.add(openBatch);
@@ -6439,6 +6448,7 @@ var BatchLoader = class {
       group,
       callback
     );
+    return openBatch;
   }
   closeBatch() {
     if (this.currentOpenBatch !== void 0) {

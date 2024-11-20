@@ -26,6 +26,8 @@ export class OpacityRangeElement extends RegistryConsumer {
         // Register incoming changes
         this.registry.opacity.addListener( this.UUID, handleIncomingChange.bind( this ) );
 
+        this.log( "manager ID", this.registry.manager.id );
+
     }
 
     disconnectedCallback(): void {

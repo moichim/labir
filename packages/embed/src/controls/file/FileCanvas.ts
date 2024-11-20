@@ -16,6 +16,8 @@ export class FileCanvas extends FileConsumer {
 
     public onInstanceCreated(instance: Instance): void {
 
+        this.log( "calling on instance created" );
+
         const container = this.getContainer();
 
         /*
@@ -29,7 +31,7 @@ export class FileCanvas extends FileConsumer {
             instance.mountToDom( container );
             instance.draw();
         } else {
-            this.log( container );
+            this.log( "kontejner!", container );
             throw new Error( "Error mounting the instance to the canvas!" );
         }
     }

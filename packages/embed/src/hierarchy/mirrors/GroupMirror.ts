@@ -3,19 +3,14 @@ import { provide } from "@lit/context";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
-import { groupContext, toolContext, toolsContext } from "./context/GroupContext";
-import { getDefaultGroup } from "./getters";
+import { groupContext, toolContext, toolsContext } from "../providers/context/GroupContext";
 
-@customElement("group-provider")
+@customElement("group-mirror")
 export class GroupProviderElement extends RegistryConsumer {
 
     protected UUIDGroupListeners = this.UUID + "__group-listener";
 
-    @property({
-        type: String,
-        attribute: true,
-        reflect: true,
-    })
+    @property({ type: String })
     public slug!: string;
 
     @provide( {context: groupContext})
@@ -30,15 +25,7 @@ export class GroupProviderElement extends RegistryConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        console.log( this.registry );
-
         this.group = this.registry.groups.addOrGetGroup( this.slug );
-
-        if ( this.slug ) {
-            // this.group = this.registry.groups.addOrGetGroup( this.slug );
-        } else {
-            // this.group = getDefaultGroup( this.registry );
-        }
 
         // Assign tool
         this.tool = this.group.tool.value;

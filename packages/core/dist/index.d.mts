@@ -1062,15 +1062,17 @@ declare class ThermalFileFailure extends AbstractFileResult {
  */
 declare class Batch {
     protected readonly loader: BatchLoader;
+    readonly id?: string | undefined;
     private _loading;
     get loading(): boolean;
+    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
     /** The current timeout fn that is being overriden by every call of the `request` method */
     private timeout?;
     /** Array of currently queued requests */
     private queue;
     get size(): number;
-    protected constructor(loader: BatchLoader);
-    static init(loader: BatchLoader): Batch;
+    protected constructor(loader: BatchLoader, id?: string | undefined);
+    static init(loader: BatchLoader, id?: string): Batch;
     static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
     /**
      * Request a thermal file
@@ -1096,6 +1098,7 @@ declare class BatchLoader {
     get hasLoadingBatches(): boolean;
     get numLoadingBatches(): number;
     constructor(registry: ThermalRegistry);
+    getBatchById(id: string): Batch;
     /**
      * Request a file through a batch
      *
@@ -1104,7 +1107,7 @@ declare class BatchLoader {
      *
      * The batch will execute automatically in the next tick.
      */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
     closeBatch(): void;
     /**
      * This method is called from the inside of a batch object
