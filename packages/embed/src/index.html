@@ -24,19 +24,32 @@
 
   <div>
 
-    <time-app slug="zkušební věci" id="top">
-        <time-group slug="zkouším" id="group 1" name="Jméno první skupiny">
-          <time-entry slot="entry" thermal="/soustruh.lrc"></time-entry>
+    <time-app slug="zkušební věci" id="top" grouping="month" columns="10">
+      <div style="padding: 1rem; background: yellow">
+        <time-group slug="zkouším"  name="Jméno první skupiny">
+          Popska skupinky se nachází zdevá.
+          <time-entry slot="entry" thermal="/soustruh.lrc">
+            Popiska <a href="https://seznam.cz" target="_blank">Odkaz</a>
+          </time-entry>
           <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/tucnaci_04.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/image-thermal 2024-01-26 10-12-52.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-08.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-07.lrc"></time-entry>
+          <time-entry slot="entry" thermal="/image-thermal 2024-01-12 14-09-37.lrc"></time-entry>
         </time-group>
-        <time-group slug="zkouším 2" id="group 1" name="Jméno druhé skupiny">
+      </div>
+        <time-group slug="zkouším 2" name="Jméno druhé skupiny">
           <h1>Toto je popiska skupiny.</h1>
+          Libovolná věci
+          <p>Něco</p>
           <time-entry slot="entry" thermal="/soustruh.lrc"></time-entry>
           <time-entry slot="entry" thermal="/tucnaci_04.lrc"></time-entry>
         </time-group>
     </time-app>
 
-<!--
+
     <h2>Příklad ukazující barevnou paletu</h2>
 
     <manager-provider slug="palette-example" palette="iron">
@@ -44,15 +57,6 @@
         <registry-palette-buttons></registry-palette-buttons>
         <registry-opacity-slider></registry-opacity-slider>
         <registry-opacity-slider></registry-opacity-slider>
-
-        <group-provider>
-          <time-group>
-            <time-entry slot="entry" thermal="/soustruh.lrc"></time-entry>
-            <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
-          </time-group>
-        </group-provider>
-
-
         <group-provider>
           <article style="display: flex; gap: 4px">
           <div>
@@ -93,9 +97,7 @@
     setTimeout(reload, 10000);
   </script>
 
--->
 
-    <!--
   <thermal-desktop-app 
     url="/sequence.lrc"  
     visible="/kitten.jpg"

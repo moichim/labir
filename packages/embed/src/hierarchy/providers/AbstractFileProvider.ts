@@ -238,10 +238,6 @@ export class AbstractFileProvider extends GroupConsumer {
         instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
         instance.analysis.addListener(this.UUID, this.analysisCallback);
 
-        this.onInstanceCreated.set( "spyioning", async (value) => {
-            this.log( value.thermalUrl, this );
-        } );
-
         this.onInstanceCreated.call(instance);
 
         // Draw the instance in the end

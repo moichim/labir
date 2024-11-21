@@ -18,14 +18,7 @@ export class TimeEntryElement extends BaseElement {
     note?: string;
 
     protected render(): unknown {
-
         return nothing;
-
-        return html`
-            <div>Entry</div>
-            <slot></slot>
-            ${this.thermal}
-        `;
     }
 
 }

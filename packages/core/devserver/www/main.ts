@@ -16,7 +16,26 @@ const group = registry.groups.addOrGetGroup(GROUP_ID);
 
 const root = document.getElementById("root");
 
+const buildTools = () => {
+    const container = document.createElement( "div" );
+    document.body.appendChild( container );
 
+    const tools = Object.values( group.tool.tools );
+
+    tools.forEach( tool => {
+        const btn = document.createElement( "button" );
+        container.appendChild( btn );
+        btn.innerHTML = tool.name;
+        btn.onclick = () => {
+            group.tool.selectTool( tool );
+        }
+    } );
+
+    console.log( tools );
+
+}
+
+buildTools();
 
 const array = [
     "/soustruh.lrc",
@@ -34,6 +53,8 @@ array.map( file => {
         }
     } )
 } );
+
+
 
 /*
 

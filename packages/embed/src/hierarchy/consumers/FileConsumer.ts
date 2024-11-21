@@ -70,8 +70,6 @@ export abstract class FileConsumer extends GroupConsumer {
 
             // IMPLEMENTED CALLBACKS
 
-            this.log("parent provider", this.parentFileProviderElement);
-
             this.parentFileProviderElement.onSuccess.set(
                 this.UUID,
                 this.onInstanceCreated.bind(this)

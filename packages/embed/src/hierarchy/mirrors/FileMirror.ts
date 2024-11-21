@@ -149,11 +149,7 @@ export class FileMirrorElement extends AbstractFileProvider {
         this.handleAnalysisUpdate(6, _changedProperties);
         this.handleAnalysisUpdate(7, _changedProperties);
 
-
-        this.log( Array.from( _changedProperties.keys() ) );
-
         if ( _changedProperties.has( "file" ) ) {
-            this.log( _changedProperties.get( "file" ), this.file );
             if ( this.file ) {
                 this.loading = false;
                 this.recieveInstance( this.file );

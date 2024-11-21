@@ -57,8 +57,6 @@ export class ManagerProviderElement extends BaseElement {
 
         let manager = createOrGetManager(this.slug, options);
 
-        this.log("načítám instanci manažera", this.slug, "našel jsem toto:", manager.id);
-
         this.manager = manager;
         
     }
@@ -78,8 +76,6 @@ export class ManagerProviderElement extends BaseElement {
     protected firstUpdated(_changedProperties: PropertyValues): void {
 
         super.firstUpdated( _changedProperties );
-
-        this.log( "first updated manager provider" );
 
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
             this.setPalette(value as AvailableThermalPalettes);

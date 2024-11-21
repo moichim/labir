@@ -147,36 +147,6 @@ export class FileProviderElement extends AbstractFileProvider {
             this.visible,
             this.group,
             this.asyncLoadCallback.bind(this)
-            /*
-            async result => {
-
-                this.log( this, this.thermal, result );
-
-                if ( result instanceof Instance ) {
-
-                    this.file = result;
-        
-                    this.onSuccess.call(result);
-        
-                    this.handleLoaded(result);
-        
-                    this.loading = false;
-        
-                    this.recieveInstance(result);
-
-                    this.log( "recieved async", result.thermalUrl );
-        
-                } else if ( result instanceof ThermalFileFailure ) {
-        
-                    this.failure = result as ThermalFileFailure;
-        
-                    this.onFailure.call(this.failure);
-        
-                    this.loading = false;
-        
-                }
-            }
-            */
             
         )
 
@@ -187,8 +157,6 @@ export class FileProviderElement extends AbstractFileProvider {
     public async asyncLoadCallback(
         result: Instance|ThermalFileFailure
     ) {
-
-        this.log( this.thermal, this );
 
         if ( result instanceof Instance ) {
 

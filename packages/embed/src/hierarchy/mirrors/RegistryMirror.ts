@@ -66,8 +66,6 @@ export class RegistryProviderElement extends ManagerConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated( _changedProperties );
 
-        this.log( "first updated" );
-
         // Bind opacity to the element property
         this.registry.opacity.addListener( this.UUIDRegistryListeners, value => {
             this.opacity = value;

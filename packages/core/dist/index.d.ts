@@ -456,7 +456,8 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
     assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
     hasSlot(slot: number): boolean;
     getSlot(slot: number): AnalysisSlot | undefined;
-    private getAnalysisSlot;
+    getSlotMap(): Map<number, AnalysisSlot | undefined>;
+    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
     /**
      * Completely remove the slot and also the corresponding analysis
      */
@@ -1209,6 +1210,40 @@ declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegis
     protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
 }
 
+interface IWithAnalysisSync extends IBaseProperty {
+    analysisSync: AnalysisSyncDrive;
+}
+declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    turnOn(instance: Instance): void;
+    turnOff(): void;
+    protected _currentPointer?: Instance;
+    protected setCurrentPointer(instance?: Instance): void;
+    protected getSlotListeners(instance: Instance, slotNumber: number): {
+        slot: AnalysisSlot | undefined;
+        serialise: CallbacksManager<(value: string | undefined) => void>;
+        assign: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    } | undefined;
+    static LISTENER_KEY: string;
+    /** @deprecated */
+    syncSlotSerialised(instance: Instance, slotNumber: number): void;
+    startSyncingSlot(instance: Instance, slotNumber: number): void;
+    endSyncingSlot(instance: Instance, slotNumber: number): void;
+    deleteSlot(instance: Instance, slotNumber: number): void;
+    setSlotSelected(instance: Instance, slotNumber: number): void;
+    setSlotDeselected(instance: Instance, slotNumber: number): void;
+    /**
+     * Get array of files excludint the one provided
+     */
+    protected allExceptOne(instance: Instance): Instance[];
+    /**
+     * Execute a given function on all files slot
+     */
+    protected forEveryOtherSlot(instance: Instance, slotNumber: number, fn: (slot: AnalysisSlot | undefined, file: Instance) => void): void;
+    syncSlots(instance: Instance): void;
+}
+
 interface IWithFiles extends IBaseProperty {
     files: FilesState;
 }
@@ -1433,7 +1468,7 @@ interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRe
     group: ThermalGroup;
 }
 /** Thermal group definition with all its properties */
-interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool {
+interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool, IWithAnalysisSync {
 }
 /** Thermal registry definition with all its properties */
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
@@ -2003,6 +2038,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly tool: ToolDrive;
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
+    readonly analysisSync: AnalysisSyncDrive;
     /** Iteration */
     forEveryInstance: (fn: ((instance: Instance) => void)) => void;
     /**

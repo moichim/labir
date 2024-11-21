@@ -16,8 +16,6 @@ export class FileCanvas extends FileConsumer {
 
     public onInstanceCreated(instance: Instance): void {
 
-        this.log( "calling on instance created" );
-
         const container = this.getContainer();
 
         /*

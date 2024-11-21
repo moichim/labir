@@ -898,6 +898,10 @@ var AbstractAnalysis = class {
       this.recalculateValues();
       this.onSerializableChange.call(this, "moveOrResize");
     });
+    this.onSerializableChange.set("sync slots", () => {
+      console.log("Serializovateln\xE1 zm\u011Bna");
+      this.file.group.analysisSync.syncSlots(this.file);
+    });
   }
   onSerializableChange = new CallbacksManager();
   serializedIsValid(input) {
@@ -1163,6 +1167,10 @@ var AbstractAnalysis = class {
     if (emitGlobalEvent === true) {
       this.layers.onSelectionChange.call(this.layers.selectedOnly);
     }
+    const slot = this.file.slots.getAnalysisSlot(this);
+    if (slot) {
+      this.file.group.analysisSync.setSlotSelected(this.file, slot);
+    }
   }
   setDeselected(emitGlobalEvent = true) {
     if (this.selected === false) {
@@ -1174,6 +1182,10 @@ var AbstractAnalysis = class {
     this.arrayOfActivePoints.forEach((point) => point.deactivate());
     if (emitGlobalEvent === true) {
       this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+    }
+    const slot = this.file.slots.getAnalysisSlot(this);
+    if (slot) {
+      this.file.group.analysisSync.setSlotDeselected(this.file, slot);
     }
   }
   /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
@@ -3186,6 +3198,17 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   getSlot(slot) {
     return this.value.get(slot);
   }
+  getSlotMap() {
+    const map = /* @__PURE__ */ new Map();
+    [1, 2, 3, 4, 5, 6, 7].forEach((number) => {
+      if (this.hasSlot(number)) {
+        map.set(number, this.getSlot(number));
+      } else {
+        map.set(number, void 0);
+      }
+    });
+    return map;
+  }
   getAnalysisSlot(analysis) {
     for (const a of this.value.values()) {
       if (a.analysis.key === analysis.key) {
@@ -3214,6 +3237,7 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       if (a.analysis.key === analysis.key) {
         this.emitOnAssignement(a.slot, void 0);
         this.value.delete(a.slot);
+        this.parent.group.analysisSync.deleteSlot(this.parent, a.slot);
         this.callEffectsAndListeners();
       }
     }
@@ -4837,6 +4861,191 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
+// src/properties/analysisSync/analysisSync.ts
+var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+    if (this._currentPointer) {
+      this._currentPointer.analysis;
+    }
+  }
+  turnOn(instance) {
+    this.value = true;
+    this.setCurrentPointer(instance);
+    this.syncSlots(instance);
+  }
+  turnOff() {
+    this.value = false;
+    this.setCurrentPointer(void 0);
+  }
+  _currentPointer;
+  setCurrentPointer(instance) {
+    const eventKey = "__analysis__sync";
+    if (instance !== this._currentPointer) {
+      if (this._currentPointer !== void 0) {
+        this.endSyncingSlot(this._currentPointer, 1);
+        this.endSyncingSlot(this._currentPointer, 2);
+        this.endSyncingSlot(this._currentPointer, 3);
+        this.endSyncingSlot(this._currentPointer, 4);
+        this.endSyncingSlot(this._currentPointer, 5);
+        this.endSyncingSlot(this._currentPointer, 6);
+        this.endSyncingSlot(this._currentPointer, 7);
+      }
+      this._currentPointer = instance;
+      if (this._currentPointer !== void 0) {
+        this.startSyncingSlot(this._currentPointer, 1);
+        this.startSyncingSlot(this._currentPointer, 2);
+        this.startSyncingSlot(this._currentPointer, 3);
+        this.startSyncingSlot(this._currentPointer, 4);
+        this.startSyncingSlot(this._currentPointer, 5);
+        this.startSyncingSlot(this._currentPointer, 6);
+        this.startSyncingSlot(this._currentPointer, 7);
+      }
+    }
+  }
+  getSlotListeners(instance, slotNumber) {
+    if (slotNumber === 1) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot1Serialize,
+        assign: instance.slots.onSlot1Assignement
+      };
+    } else if (slotNumber === 2) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot2Serialize,
+        assign: instance.slots.onSlot2Assignement
+      };
+    } else if (slotNumber === 3) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot3Serialize,
+        assign: instance.slots.onSlot3Assignement
+      };
+    } else if (slotNumber === 4) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot4Serialize,
+        assign: instance.slots.onSlot4Assignement
+      };
+    } else if (slotNumber === 5) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot5Serialize,
+        assign: instance.slots.onSlot5Assignement
+      };
+    } else if (slotNumber === 6) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot6Serialize,
+        assign: instance.slots.onSlot6Assignement
+      };
+    } else if (slotNumber === 7) {
+      return {
+        slot: instance.slots.getSlot(slotNumber),
+        serialise: instance.slots.onSlot7Serialize,
+        assign: instance.slots.onSlot7Assignement
+      };
+    }
+  }
+  static LISTENER_KEY = "__analysis__sync";
+  /** @deprecated */
+  syncSlotSerialised(instance, slotNumber) {
+    const currentSerialized = instance.slots.getSlot(slotNumber)?.serialized;
+    this.forEveryOtherSlot(instance, slotNumber, (slot, file) => {
+      if (slot === void 0 && currentSerialized) {
+        file.slots.createFromSerialized(currentSerialized, slotNumber);
+      } else if (slot !== void 0 && currentSerialized) {
+        slot.recieveSerialized(currentSerialized);
+      } else if (slot !== void 0 && currentSerialized === void 0) {
+        file.slots.removeSlotAndAnalysis(slotNumber);
+      }
+    });
+  }
+  startSyncingSlot(instance, slotNumber) {
+    const { slot, assign, serialise } = this.getSlotListeners(instance, slotNumber);
+    serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
+      this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+        if (sl === void 0 && value) {
+          const analysis = f.slots.createFromSerialized(value, slotNumber);
+          analysis?.setSelected();
+        } else if (sl !== void 0 && value) {
+          sl.recieveSerialized(value);
+        } else if (sl !== void 0 && value === void 0) {
+          sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+        }
+      });
+    });
+    if (slot !== void 0) {
+    }
+  }
+  endSyncingSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
+      assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
+      serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
+    });
+  }
+  deleteSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+    });
+  }
+  setSlotSelected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setSelected(true);
+    });
+  }
+  setSlotDeselected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setDeselected(true);
+    });
+  }
+  /**
+   * Get array of files excludint the one provided
+   */
+  allExceptOne(instance) {
+    return this.parent.files.value.filter((file) => file !== instance);
+  }
+  /** 
+   * Execute a given function on all files slot 
+   */
+  forEveryOtherSlot(instance, slotNumber, fn) {
+    this.allExceptOne(instance).forEach((file) => {
+      const item = file.slots.getSlot(slotNumber);
+      fn(item, file);
+    });
+  }
+  syncSlots(instance) {
+    if (this.value === false) {
+      return;
+    }
+    this.setCurrentPointer(instance);
+    const allOtherFiles = this.parent.files.value.filter((file) => file !== instance);
+    const map = instance.slots.getSlotMap();
+    allOtherFiles.forEach((file) => {
+      for (let [slt, value] of map) {
+        if (value === void 0) {
+          file.slots.removeSlotAndAnalysis(slt);
+        } else {
+          const existingSerialized = file.slots.getSlot(slt)?.serialized;
+          const newSerialized = value.serialized;
+          if (existingSerialized !== newSerialized) {
+            if (file.slots.hasSlot(slt)) {
+              file.slots.getSlot(slt)?.recieveSerialized(newSerialized);
+            } else {
+              const slot = file.slots.createFromSerialized(newSerialized, slt);
+              slot?.setSelected(false);
+            }
+          }
+        }
+      }
+    });
+  }
+};
+
 // src/properties/lists/filesState.ts
 var FilesState = class extends AbstractProperty {
   _map = /* @__PURE__ */ new Map();
@@ -5262,6 +5471,7 @@ var ThermalGroup = class extends BaseStructureObject {
   tool = new ToolDrive(this, new InspectTool(this));
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
+  analysisSync = new AnalysisSyncDrive(this, true);
   /** Iteration */
   forEveryInstance = (fn) => {
     this.files.value.forEach((instance) => fn(instance));
