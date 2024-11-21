@@ -2,6 +2,7 @@
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { IWithAnalysis } from "./analysis/AnalysisDrive";
+import { IWithAnalysisSync } from "./analysisSync/analysisSync";
 import { IWithCursorPosition } from "./drives/CursorPositionDrive";
 import { IWithOpacity } from "./drives/OpacityDrive";
 import { IWithPalette } from "./drives/PaletteDrive";
@@ -47,7 +48,8 @@ export interface IThermalGroup
     IWithMinmaxGroup,
     IWithFiles,
     IWithCursorPosition,
-    IWithTool { }
+    IWithTool,
+    IWithAnalysisSync { }
 
 /** Thermal registry definition with all its properties */
 export interface IThermalRegistry

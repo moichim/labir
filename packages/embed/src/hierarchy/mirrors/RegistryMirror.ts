@@ -2,10 +2,9 @@ import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
-import { RegistryContext, registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
-import { getDefaultRegistry } from "./getters";
+import { RegistryContext, registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "../providers/context/RegistryContext";
 
-@customElement("registry-provider")
+@customElement("registry-mirror")
 export class RegistryProviderElement extends ManagerConsumer {
 
 
@@ -31,15 +30,15 @@ export class RegistryProviderElement extends ManagerConsumer {
     protected max?: number;
 
     @provide({context: registryRangeFromContext})
-    @property({type: Number, reflect: true, attribute: true})
+    @property({type: Number})
     public from?: number;
 
     @provide({context: registryRangeToContext})
-    @property({type: Number, reflect: true, attribute: true})
+    @property({type: Number})
     public to?: number;
 
     @provide({context: registryLoadingContext})
-    @property({type: String, reflect: true, attribute: true})
+    @property({type: String})
     public loading: boolean = false;
 
 
@@ -66,8 +65,6 @@ export class RegistryProviderElement extends ManagerConsumer {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated( _changedProperties );
-
-        this.log( "first updated" );
 
         // Bind opacity to the element property
         this.registry.opacity.addListener( this.UUIDRegistryListeners, value => {

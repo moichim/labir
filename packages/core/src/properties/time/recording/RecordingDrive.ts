@@ -93,7 +93,7 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
         const cllbackId = "recording entire file";
 
         this.parent.timeline.callbacksEnd.add(cllbackId, () => {
-            console.log("playback ended");
+            // console.log("playback ended");
             this.end();
             this.parent.timeline.callbacksEnd.delete(cllbackId);
         });

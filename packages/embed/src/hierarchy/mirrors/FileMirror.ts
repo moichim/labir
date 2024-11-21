@@ -1,20 +1,22 @@
 import { Instance, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { AbstractFileProvider } from "./AbstractFileProvider";
-import { fileProviderContext } from "./context/FileContexts";
+import { customElement, property, state } from "lit/decorators.js";
+import { AbstractFileProvider } from "../providers/AbstractFileProvider";
+import { fileContext, fileProviderContext } from "../providers/context/FileContexts";
 
-@customElement("file-provider")
-export class FileProviderElement extends AbstractFileProvider {
+@customElement("file-mirror")
+export class FileMirrorElement extends AbstractFileProvider {
 
     @provide({ context: fileProviderContext })
-    protected providedSelf: FileProviderElement = this;
+    protected providedSelf: FileMirrorElement = this;
+
+    @provide({ context: fileContext })
+    @property()
+    public file?: Instance;
 
     @property({
         type: Boolean, 
-        reflect: true, 
-        attribute: true,
         converter: {
             fromAttribute( value: string ) {
                 return value === "true";
@@ -31,155 +33,35 @@ export class FileProviderElement extends AbstractFileProvider {
     public batch?: boolean;
 
     @property({
-        type: String,
-        attribute: true,
-        reflect: true,
+        type: String
     })
     public thermal!: string;
 
     @property({
-        type: String,
-        attribute: true,
-        reflect: true,
+        type: String
     })
     public visible?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis1?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis2?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis3?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis4?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis5?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis6?: string;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     public analysis7?: string;
-
-    /** Load the file and call all necessary callbacks */
-    public async load() {
-
-        const result = this.batch === true
-            ? this.loadAsync()
-            : this.loadSync();
-
-        return result;
-
-    }
-
-    public async loadSync() {
-
-        this.log( "loading sync" );
-
-        this.loading = true;
-
-        // Trigger all callbacks
-        this.onLoadingStart.call();
-
-        // Load the file and create the instance
-        const value = await this.registry.service.loadFile(this.thermal, this.visible)
-            .then(async (result) => {
-
-                // Success
-                if (result instanceof ThermalFileReader) {
-
-                    // Create the instance
-                    return await result.createInstance(this.group).then(instance => {
-
-                        // Assign the instance
-                        this.file = instance;
-
-                        // Call all callbacks
-                        this.onSuccess.call(instance);
-
-                        this.handleLoaded(instance);
-
-                        instance.group.registry.postLoadedProcessing();
-
-                        this.loading = false;
-
-                        this.recieveInstance(instance);
-
-                        return instance;
-
-                    });
-
-                }
-                // Failure
-                else {
-
-                    // Assign failure
-                    this.failure = result as ThermalFileFailure;
-
-                    // Call all callbacks
-                    this.onFailure.call(this.failure);
-
-                    this.loading = false;
-
-                    return result;
-                }
-            });
-
-        return value;
-
-    }
-
-    public loadAsync() {
-
-        this.log( "loading async", this.thermal, this );
-
-        this.loading = true;
-
-        // Trigger all callbacks
-        this.onLoadingStart.call();
-
-        const result = this.registry.batch.request(
-            this.thermal,
-            this.visible,
-            this.group,
-            this.asyncLoadCallback.bind(this)
-            
-        )
-
-        return result;
-
-    }
-
-    public async asyncLoadCallback(
-        result: Instance|ThermalFileFailure
-    ) {
-
-        if ( result instanceof Instance ) {
-
-            this.file = result;
-
-            this.onSuccess.call(result);
-
-            this.handleLoaded(result);
-
-            this.loading = false;
-
-            this.recieveInstance(result);
-
-        } else if ( result instanceof ThermalFileFailure ) {
-
-            this.failure = result as ThermalFileFailure;
-
-            this.onFailure.call(this.failure);
-
-            this.loading = false;
-
-        }
-    }
 
     protected createInitialAnalysis(
         instance: Instance,
@@ -241,12 +123,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
         super.connectedCallback();
 
-        this.load();
-
     }
 
 
-    public updated(_changedProperties: PropertyValues<FileProviderElement>): void {
+    public updated(_changedProperties: PropertyValues<FileMirrorElement>): void {
         super.updated(_changedProperties);
 
         if (_changedProperties.has("thermal")) {
@@ -255,8 +135,6 @@ export class FileProviderElement extends AbstractFileProvider {
             if (oldUrl) {
                 this.group.files.removeFile(oldUrl);
                 this.file = undefined;
-
-                this.load();
 
             }
 
@@ -271,15 +149,25 @@ export class FileProviderElement extends AbstractFileProvider {
         this.handleAnalysisUpdate(6, _changedProperties);
         this.handleAnalysisUpdate(7, _changedProperties);
 
+        if ( _changedProperties.has( "file" ) ) {
+            if ( this.file ) {
+                this.loading = false;
+                this.recieveInstance( this.file );
+
+                setTimeout( () => this.file && this.onSuccess.call( this.file ), 0 );
+            }
+        }
+
+
     }
 
 
     protected handleAnalysisUpdate(
         index: SlotNumber,
-        _changedProperties: PropertyValues<FileProviderElement>
+        _changedProperties: PropertyValues<FileMirrorElement>
     ) {
 
-        const field = `analysis${index}` as keyof FileProviderElement;
+        const field = `analysis${index}` as keyof FileMirrorElement;
 
 
         if (_changedProperties.has(field)) {

@@ -1,5 +1,7 @@
+import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { BatchLoadingCallback } from "../../hierarchy/ThermalRegistry";
+import { CallbacksManager } from "../../properties/callbacksManager";
 import { ThermalFileFailure } from "../workers/ThermalFileFailure";
 import { ThermalFileReader } from "../workers/ThermalFileReader";
 import { BatchLoader } from "./BatchLoader";
@@ -21,6 +23,9 @@ export class Batch {
     private _loading = false;
     public get loading() { return this._loading; }
 
+    public readonly onResolve = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
+    
+
 
     /** The current timeout fn that is being overriden by every call of the `request` method */
     private timeout?: ReturnType<typeof setTimeout> = undefined;
@@ -37,13 +42,15 @@ export class Batch {
     public get size() { return this.queue.length; }
 
     protected constructor(
-        protected readonly loader: BatchLoader
+        protected readonly loader: BatchLoader,
+        public readonly id?: string
     ) { }
 
     public static init(
-        loader: BatchLoader
+        loader: BatchLoader,
+        id?: string
     ) {
-        return new Batch(loader);
+        return new Batch(loader, id);
     }
 
     public static initWithRequest(
@@ -131,6 +138,8 @@ export class Batch {
 
             // Mark this queue as loaded
             this.loader.batchFinished(this);
+
+            this.onResolve.call( results );
 
         }, 0);
 

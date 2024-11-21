@@ -329,7 +329,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
 
     play() {
 
-        console.log( "pokouším se hrát" );
+        // console.log( "pokouším se hrát" );
 
         if ( this.steps.length > 1 ) {
             this._isPlaying = true;

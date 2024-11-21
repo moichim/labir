@@ -369,6 +369,12 @@ export abstract class AbstractAnalysis {
             this.onSerializableChange.call( this, "moveOrResize" );
         });
 
+        this.onSerializableChange.set( "sync slots", () => {
+            console.log( "Serializovatelná změna" );
+
+            this.file.group.analysisSync.syncSlots( this.file );
+        } );
+
     }
 
     public remove() {
@@ -408,6 +414,12 @@ export abstract class AbstractAnalysis {
             this.layers.onSelectionChange.call(this.layers.selectedOnly);
         }
 
+        const slot = this.file.slots.getAnalysisSlot( this );
+
+        if ( slot ) {
+            this.file.group.analysisSync.setSlotSelected( this.file, slot );
+        }
+
     }
 
     public setDeselected(emitGlobalEvent: boolean = true) {
@@ -427,6 +439,12 @@ export abstract class AbstractAnalysis {
         // Eventually call global mechanisms
         if (emitGlobalEvent === true) {
             this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+        }
+
+        const slot = this.file.slots.getAnalysisSlot( this );
+
+        if ( slot ) {
+            this.file.group.analysisSync.setSlotDeselected( this.file, slot );
         }
     }
 

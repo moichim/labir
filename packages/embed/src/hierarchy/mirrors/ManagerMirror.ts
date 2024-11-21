@@ -3,10 +3,10 @@ import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
-import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "./context/ManagerContext";
-import { createOrGetManager, defaultManager } from "./getters";
+import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "../providers/context/ManagerContext";
+import { createOrGetManager, defaultManager } from "../providers/getters";
 
-@customElement("manager-provider")
+@customElement("manager-mirror")
 export class ManagerProviderElement extends BaseElement {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
@@ -14,14 +14,12 @@ export class ManagerProviderElement extends BaseElement {
     @provide({ context: managerContext })
     public manager!: ManagerContext;
 
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     slug!: string;
 
     @provide({ context: managerPaletteContext })
     @property({
         type: String,
-        attribute: true,
-        reflect: true,
         converter: {
             fromAttribute: (value: AvailableThermalPalettes): ManagerPaletteContext => {
                 return {
@@ -40,11 +38,11 @@ export class ManagerProviderElement extends BaseElement {
     }
 
     @provide({ context: managerSmoothContext })
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     smooth: boolean = false;
 
     @provide({ context: managerGraphFunctionContext })
-    @property({ type: String, reflect: true, attribute: true })
+    @property({ type: String })
     graphSmooth: ManagerGraphFunctionContext = false;
 
     connectedCallback(): void {
@@ -58,8 +56,6 @@ export class ManagerProviderElement extends BaseElement {
         options.palette = palette;
 
         let manager = createOrGetManager(this.slug, options);
-
-        this.log("načítám instanci manažera", this.slug, "našel jsem toto:", manager.id);
 
         this.manager = manager;
         
@@ -80,8 +76,6 @@ export class ManagerProviderElement extends BaseElement {
     protected firstUpdated(_changedProperties: PropertyValues): void {
 
         super.firstUpdated( _changedProperties );
-
-        this.log( "first updated manager provider" );
 
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
             this.setPalette(value as AvailableThermalPalettes);

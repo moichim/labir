@@ -100,8 +100,24 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         return this.value.get(slot);
     }
 
+    public getSlotMap() {
+        const map = new Map<number,AnalysisSlot|undefined>();
 
-    private getAnalysisSlot(
+        [1,2,3,4,5,6,7].forEach( number => {
+
+            if ( this.hasSlot( number ) ) {
+                map.set( number, this.getSlot( number ) );
+            } else {
+                map.set( number, undefined );
+            }
+
+        } );
+
+        return map;
+    }
+
+
+    getAnalysisSlot(
         analysis: AbstractAnalysis
     ): number | undefined {
 
@@ -153,6 +169,8 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
                 this.emitOnAssignement(a.slot, undefined);
 
                 this.value.delete(a.slot);
+
+                this.parent.group.analysisSync.deleteSlot( this.parent, a.slot );
 
                 this.callEffectsAndListeners();
 
@@ -286,12 +304,13 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     }
 
 
-
-
     protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap {
         return value;
     }
+
+
     protected afterSetEffect(): void { }
+
 
     /** 
      * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
@@ -299,6 +318,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     private callEffectsAndListeners() {
         Object.values(this._listeners).forEach(listener => listener(this.value));
     }
+
 
     /** 
      * Whenever a slot is assigned, call both particular and general listeners 

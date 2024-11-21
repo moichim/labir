@@ -37,6 +37,20 @@ export class BatchLoader {
         public readonly registry: ThermalRegistry
     ) {}
 
+    public getBatchById(
+        id: string
+    ) {
+        const found = Array.from( this.set ).find( batch => batch.id === id );
+        if ( found ) {
+            return found;
+        }
+        const item = Batch.init( this, id );
+        this.set.add( item );
+        return item;
+    }
+
+
+
 
     /**
      * Request a file through a batch
@@ -50,10 +64,13 @@ export class BatchLoader {
         thermalUrl: string,
         visibleUrl: string|undefined,
         group: ThermalGroup,
-        callback: BatchLoadingCallback
+        callback: BatchLoadingCallback,
+        id?: string
     ) {
 
-        let openBatch = this.currentOpenBatch;
+        let openBatch = id 
+            ? this.getBatchById( id ) 
+            : this.currentOpenBatch;
 
         if ( openBatch === undefined ) {
 
@@ -71,6 +88,8 @@ export class BatchLoader {
             group, 
             callback 
         );
+
+        return openBatch;
 
     }
 

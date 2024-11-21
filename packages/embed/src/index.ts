@@ -42,6 +42,12 @@ import "./hierarchy/providers/FileProvider";
 import "./hierarchy/providers/FileDropin";
 import "./controls/group/GroupDropin";
 
+// 2.1. Mirrors
+import "./hierarchy/mirrors/ManagerMirror";
+import "./hierarchy/mirrors/RegistryMirror";
+import "./hierarchy/mirrors/GroupMirror";
+import "./hierarchy/mirrors/FileMirror";
+
 
 // 3. Manager controls
 import "./controls/manager/PaletteDropdown";
@@ -94,8 +100,10 @@ import "./apps/single/SingleFileAppIsolated";
 import "./apps/desktop/DesktopApp";
 import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
-import "./apps/time/parts/TimeEntryElement";
+
+import "./apps/time/TimeApp";
 import "./apps/time/parts/TimeGroupElement";
+import "./apps/time/parts/TimeEntryElement";
 
 
 
@@ -107,6 +115,7 @@ initialiseMode();
 
 // Append default styles
 import {addDefaultStyles, appendStyles} from "./styles/defaultStyles";
+import { ThermalManager } from "@labir/core";
 
 addDefaultStyles();
 

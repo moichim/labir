@@ -456,7 +456,8 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
     assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
     hasSlot(slot: number): boolean;
     getSlot(slot: number): AnalysisSlot | undefined;
-    private getAnalysisSlot;
+    getSlotMap(): Map<number, AnalysisSlot | undefined>;
+    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
     /**
      * Completely remove the slot and also the corresponding analysis
      */
@@ -1062,15 +1063,17 @@ declare class ThermalFileFailure extends AbstractFileResult {
  */
 declare class Batch {
     protected readonly loader: BatchLoader;
+    readonly id?: string | undefined;
     private _loading;
     get loading(): boolean;
+    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
     /** The current timeout fn that is being overriden by every call of the `request` method */
     private timeout?;
     /** Array of currently queued requests */
     private queue;
     get size(): number;
-    protected constructor(loader: BatchLoader);
-    static init(loader: BatchLoader): Batch;
+    protected constructor(loader: BatchLoader, id?: string | undefined);
+    static init(loader: BatchLoader, id?: string): Batch;
     static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
     /**
      * Request a thermal file
@@ -1096,6 +1099,7 @@ declare class BatchLoader {
     get hasLoadingBatches(): boolean;
     get numLoadingBatches(): number;
     constructor(registry: ThermalRegistry);
+    getBatchById(id: string): Batch;
     /**
      * Request a file through a batch
      *
@@ -1104,7 +1108,7 @@ declare class BatchLoader {
      *
      * The batch will execute automatically in the next tick.
      */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
     closeBatch(): void;
     /**
      * This method is called from the inside of a batch object
@@ -1204,6 +1208,40 @@ declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegis
     protected afterSetEffect(): void;
     recalculateFromGroups(): ThermalMinmaxOrUndefined;
     protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+}
+
+interface IWithAnalysisSync extends IBaseProperty {
+    analysisSync: AnalysisSyncDrive;
+}
+declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    turnOn(instance: Instance): void;
+    turnOff(): void;
+    protected _currentPointer?: Instance;
+    protected setCurrentPointer(instance?: Instance): void;
+    protected getSlotListeners(instance: Instance, slotNumber: number): {
+        slot: AnalysisSlot | undefined;
+        serialise: CallbacksManager<(value: string | undefined) => void>;
+        assign: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    } | undefined;
+    static LISTENER_KEY: string;
+    /** @deprecated */
+    syncSlotSerialised(instance: Instance, slotNumber: number): void;
+    startSyncingSlot(instance: Instance, slotNumber: number): void;
+    endSyncingSlot(instance: Instance, slotNumber: number): void;
+    deleteSlot(instance: Instance, slotNumber: number): void;
+    setSlotSelected(instance: Instance, slotNumber: number): void;
+    setSlotDeselected(instance: Instance, slotNumber: number): void;
+    /**
+     * Get array of files excludint the one provided
+     */
+    protected allExceptOne(instance: Instance): Instance[];
+    /**
+     * Execute a given function on all files slot
+     */
+    protected forEveryOtherSlot(instance: Instance, slotNumber: number, fn: (slot: AnalysisSlot | undefined, file: Instance) => void): void;
+    syncSlots(instance: Instance): void;
 }
 
 interface IWithFiles extends IBaseProperty {
@@ -1430,7 +1468,7 @@ interface IThermalInstance extends IThermalObjectBase, IWithCursorValue, IWithRe
     group: ThermalGroup;
 }
 /** Thermal group definition with all its properties */
-interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool {
+interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles, IWithCursorPosition, IWithTool, IWithAnalysisSync {
 }
 /** Thermal registry definition with all its properties */
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
@@ -2000,6 +2038,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly tool: ToolDrive;
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
+    readonly analysisSync: AnalysisSyncDrive;
     /** Iteration */
     forEveryInstance: (fn: ((instance: Instance) => void)) => void;
     /**
