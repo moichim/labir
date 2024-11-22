@@ -1,7 +1,9 @@
 import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labir/core";
-import { Grouping, TimeGroupElement } from "../parts/TimeGroupElement";
-import { TimeEntryElement } from "../parts/TimeEntryElement";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+import { TimeEntryElement } from "../../time/parts/TimeEntryElement";
+import { GroupElement } from "../GroupApp";
+
+export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
 export type FileEntry = {
     label?: string,
@@ -21,12 +23,23 @@ export class TimeGrouping {
 
     protected records: FileEntry[] = [];
 
+    public get numFiles(): number {
+        return this.records.length;
+    }
+
+    public forEveryInstance( fn: ( instance: Instance ) => void ) {
+        this.records.forEach( record => {
+            fn( record.instance );
+        });
+    }
+
+
     protected groups: Map<number, GroupEntry> = new Map;
 
     protected grouping: Grouping = "none";
 
     constructor(
-        public readonly element: TimeGroupElement,
+        public readonly element: GroupElement,
         public readonly group: ThermalGroup
     ) {
 
@@ -87,6 +100,7 @@ export class TimeGrouping {
                 batch.onResolve.set(
                     this.element.UUID + "___something",
                     () => {
+                        console.log( "hotovost...", this.records );
                         this.processGroups();
                     }
                 );
@@ -160,6 +174,8 @@ export class TimeGrouping {
         this.element.groups = Array.from(
             this.groups.values()
         );
+
+        this.element.log( "______________", this.element.groups );
 
     }
 

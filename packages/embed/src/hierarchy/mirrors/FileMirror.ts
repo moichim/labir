@@ -128,7 +128,7 @@ export class FileMirrorElement extends AbstractFileProvider {
     disconnectedCallback(): void {
         super.disconnectedCallback();
         if ( this.file ) {
-            this.file.unmountFromDom();
+            // this.file.unmountFromDom();
         }
     }
 

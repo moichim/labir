@@ -106,6 +106,8 @@ import "./apps/time/parts/TimeGroupElement";
 import "./apps/time/parts/TimeEntryElement";
 import "./apps/time/parts/TimeGroupFileElement";
 import "./apps/time/parts/TimeGroupRowElement";
+import "./apps/group/GroupApp";
+import "./apps/group/utils/GroupExport";
 
 
 
