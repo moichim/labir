@@ -104,6 +104,8 @@ import "./apps/DropinApp";
 import "./apps/time/TimeApp";
 import "./apps/time/parts/TimeGroupElement";
 import "./apps/time/parts/TimeEntryElement";
+import "./apps/time/parts/TimeGroupFileElement";
+import "./apps/time/parts/TimeGroupRowElement";
 
 
 

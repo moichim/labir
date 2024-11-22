@@ -125,6 +125,13 @@ export class FileMirrorElement extends AbstractFileProvider {
 
     }
 
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if ( this.file ) {
+            this.file.unmountFromDom();
+        }
+    }
+
 
     public updated(_changedProperties: PropertyValues<FileMirrorElement>): void {
         super.updated(_changedProperties);

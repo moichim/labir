@@ -1,6 +1,6 @@
 import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { html, PropertyValues } from "lit";
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
@@ -18,6 +18,15 @@ export class TimeApp extends BaseElement {
 
     @property({ type: String, reflect: true })
     columns: number = 3;
+
+    @property({ type: Number, reflect: true })
+    breakpoint: number = 700;
+
+    @property({type: String, reflect: true })
+    groups: number = 3;
+
+    @property({type: String, reflect: true})
+    autogroups: boolean = true;
 
 
     @queryAssignedElements({
@@ -46,11 +55,22 @@ export class TimeApp extends BaseElement {
             this.forEveryGroup( group => group.columns = this.columns );
         }
 
+        if ( _changedProperties.has( "breakpoint" ) && this.breakpoint ) {
+            this.forEveryGroup( group => group.breakpoint = this.breakpoint );
+        }
+
+        if ( _changedProperties.has( "groups" ) && this.autogroups ) {
+            this.forEveryGroup( group => group.width = this.groups );
+        }
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-        this.forEveryGroup( group => group.setManagerSlug( this.slug ) );
+        this.forEveryGroup( group => {
+            group.setManagerSlug( this.slug );
+            group.width = this.groups;
+        } );
     }
 
     protected forEveryGroup(
@@ -58,8 +78,6 @@ export class TimeApp extends BaseElement {
     ) {
 
         const forOneNode = ( node: Node, fn: ( group: TimeGroupElement ) => any ) => {
-
-            console.log( node );
 
             if ( node instanceof TimeGroupElement ) {
                 fn(node);
@@ -86,6 +104,17 @@ export class TimeApp extends BaseElement {
 
     }
 
+    public static styles?: CSSResultGroup | undefined = css`
+    
+        .app-content {
+
+            display: flex;
+            flex-wrap: wrap;
+        
+        }
+    
+    `;
+
     
 
 
@@ -106,6 +135,11 @@ export class TimeApp extends BaseElement {
                             <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
                                 console.log( event.target.value );
                                 this.columns = parseInt( event.target.value );
+                            }}></input>
+
+                            <input type="range" min="1" max="10" step="1" value=${this.groups} @input=${(event: InputEvent) => {
+                                console.log( event.target.value );
+                                this.groups = parseInt( event.target.value );
                             }}></input>
                         
 
@@ -132,6 +166,10 @@ export class TimeApp extends BaseElement {
                                     <thermal-button @click="${() => this.grouping = "month"}">Group by month</thermal-button>
                                 </div>
 
+                                <div slot="option">
+                                    <thermal-button @click="${() => this.grouping = "year"}">Group by year</thermal-button>
+                                </div>
+
                             </thermal-dropdown>
 
                         </thermal-bar>
@@ -142,7 +180,9 @@ export class TimeApp extends BaseElement {
                     <registry-range-slider></registry-range-slider>
                     <registry-ticks-bar></registry-ticks-bar>
             
-                    <slot></slot>
+                    <div class="app-content">
+                        <slot></slot>
+                    </div>
 
             </thermal-app>
             </registry-provider>

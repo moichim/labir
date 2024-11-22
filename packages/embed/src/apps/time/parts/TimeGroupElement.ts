@@ -7,11 +7,12 @@ import { GroupProviderElement } from "../../../hierarchy/providers/GroupProvider
 import { Instance, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRegistry, TimeFormat } from "@labir/core";
 import { createOrGetManager } from "../../../hierarchy/providers/getters";
 
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, startOfDay, startOfHour, startOfMonth, startOfWeek } from "date-fns";
 import { format } from "date-fns";
+import { GroupEntry, TimeGrouping } from "../utils/TimeGrouping";
 
-export type Grouping = "none"|"hour"|"day"|"week"|"month";
+export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
 @customElement("time-group")
 export class TimeGroupElement extends BaseElement {
@@ -21,13 +22,22 @@ export class TimeGroupElement extends BaseElement {
     entries!: Array<Element>;
 
     @state()
+    groups: GroupEntry[] = [];
+
+    @state()
     instances: Instance[] = [];
 
     @property()
     columns: number = 3;
 
+    @property()
+    breakpoint: number = 700;
+
+    @property({ type: Number, reflect: true})
+    width: number = 1;
+
     @property({ type: String, reflect: true })
-    public grouping: "none"|"hour"|"day"|"week"|"month" = "none";
+    public grouping: Grouping = "none";
 
 
     public connectedCallback(): void {
@@ -40,9 +50,7 @@ export class TimeGroupElement extends BaseElement {
     @property()
     public slug!: string;
 
-    protected manager?: ThermalManager;
-    protected registry?: ThermalRegistry;
-    protected group?: ThermalGroup;
+    protected grouper?: TimeGrouping;
 
 
     @state()
@@ -57,170 +65,35 @@ export class TimeGroupElement extends BaseElement {
         const registry = manager.addOrGetRegistry(slug);
         const group = registry.groups.addOrGetGroup(this.slug);
 
-        this.manager = manager;
-        this.registry = registry;
-        this.group = group;
+        // Create the grouper class
+        this.grouper = new TimeGrouping(this, group);
 
-        setTimeout(() => this.processChildren(this.entries), 0);
+        // Process all entries (valid only)
+        setTimeout(() => {
+            this.log("--------", this.grouper);
+            if (this.grouper) {
+                this.grouper.processEntries(
+                    this.entries.filter(el => el instanceof TimeEntryElement)
+                );
+            }
+        }, 0);
 
         this.scopeSlug = slug;
 
-    }
-
-    protected files: Map<Instance, string|undefined> = new Map();
-
-    @state()
-    protected groups: {
-        [index: string]: {
-            instance: Instance,
-            innerHtml?: string
-        }[]
-    } = {};
-
-    clearGroups() {
-        Object.values( this.groups ).forEach( item => item.forEach( i => i.instance.unmountFromDom() ) );
-        this.groups = {};
-    }
-
-
-    protected processChildren(
-        elements: Element[]
-    ) {
-
-        let batch: ReturnType<ThermalRegistry["batch"]["request"]> | undefined;
-
-        elements.forEach(element => {
-            if (element instanceof TimeEntryElement && this.registry && this.group) {
-
-                console.log(element.innerHTML, element.assignedSlot, element.shadowRoot?.slotAssignment);
-                // console.log(element.thermal, batch);
-
-                const callback = async (
-                    result: Instance|ThermalFileFailure
-                ) => {
-                    const innerHtml = element.innerHTML.trim();
-                    const storedContent = innerHtml.length > 0 ? innerHtml : undefined;
-                    if ( result instanceof Instance ) {
-                        this.files.set( result, storedContent );
-                        this.groupOneItem( result, storedContent );
-                    }
-                };
-
-                if (batch === undefined) {
-                    batch = this.registry.batch.request(
-                        element.thermal,
-                        undefined,
-                        this.group,
-                        callback,
-                        this.UUID
-                    );
-
-                    batch.onResolve.set(this.UUID, result => {
-
-                        const instances = result
-                            .filter(r => r instanceof Instance)
-                            .sort((a, b) => {
-                                return a.timestamp - b.timestamp;
-                            });
-
-                        this.instances = instances;
-
-                    });
-
-                } else {
-                    batch.request(
-                        element.thermal,
-                        undefined,
-                        this.group,
-                        callback
-                    );
-                }
-
-            }
-        });
-    }
-
-    protected groupResult( files: TimeGroupElement["files"] ) {
-
-        this.clearGroups();
-
-        Object.values( files ).forEach( item => {
-
-            this.groupOneItem( item.instance, item.innerHtml );
-
-        });
-
-
-    }
-
-    protected groupOneItem(
-        instance: Instance,
-        innerHtml?: string
-    ) {
-
-
-        const scope = this.getStartFn( instance.timestamp ).toString();
-
-        let array = this.groups[scope];
-
-        if ( array === undefined ) {
-            const newArray = [] as {instance: Instance, innerHtml?: string}[];
-            this.groups[scope] = newArray;
-            array = newArray;
-        }
-
-        array.push( {
-            instance,
-            innerHtml
-        } );
-
-
-
-    }
-
-    protected getStartFn( value: number ) {
-        if ( this.grouping === "day" ) return startOfDay(value).getTime();
-        else if ( this.grouping === "hour" ) return startOfHour(value).getTime();
-        else if ( this.grouping === "week" ) return startOfWeek(value).getTime();
-        else if ( this.grouping === "month" ) return startOfMonth(value).getTime();
-        else return 0;
-    }
-
-    protected getEndFn() {
-        if ( this.grouping === "day" ) return endOfDay;
-        else if ( this.grouping === "hour" ) return endOfHour;
-        else if ( this.grouping === "week" ) return endOfWeek;
-        else if ( this.grouping === "month" ) return endOfMonth;
-        else return endOfDay;
-    }
-
-    protected formatTimestamp( value: string ) {
-
-        const val = parseInt( value );
-
-        console.log( val );
-
-        if ( this.grouping === "day" ) 
-            return TimeFormat.humanDate( val );
-        else if ( this.grouping === "hour" ) 
-            return format( val, "H" ) + ":00" + " of " + TimeFormat.humanDate( val );
-        else if ( this.grouping === "week" )
-            return "Week " + format( val, "w" ) + " of " + format(val,  "yyyy" );
-        else if ( this.grouping === "month" )
-            return [format( val, "MMMM" ), format(val,  "yyyy" )].join( " ");
-        return "none"
     }
 
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        if ( _changedProperties.has( "groups" ) ) {
-            console.log( this.groups );
+        if (_changedProperties.has("groups")) {
+            // console.log(this.groups);
         }
 
-        if ( _changedProperties.has( "grouping" ) ) {
-            this.groupResult( this.files );
+        if (_changedProperties.has("grouping")) {
+            if (this.grouper) {
+                this.grouper.setGrouping(this.grouping);
+            }
         }
 
     }
@@ -228,6 +101,28 @@ export class TimeGroupElement extends BaseElement {
 
 
     public static styles?: CSSResultGroup | undefined = css`
+
+        :host([width="1"]) {
+            width: 100%;
+        }
+        :host([width="2"]) {
+            width: 50%;
+        }
+        :host([width="3"]) {
+            width: 33%;
+        }
+        :host([width="4"]) {
+            width: 25%;
+        }
+        :host([width="5"]) {
+            width: 20%;
+        }
+        :host([width="6"]) {
+            width: calc( 100% / 6  - 5px);
+        }
+        :host([width="7"]) {
+            width: calc( 100% / 7  - 5px);
+        }
 
         .files-list {
             display: flex;
@@ -262,7 +157,10 @@ export class TimeGroupElement extends BaseElement {
 
             .file-list-10 .file { width: calc( 100% / 10  - 5px); }
         
-        }        
+        }
+
+
+        .file-list-collapsed .file { width: 100% !important; }
 
         .file-title {
             background: var(--thermal-slate);
@@ -277,9 +175,7 @@ export class TimeGroupElement extends BaseElement {
         return html`
             <slot name="entry"></slot>
 
-            ${this.scopeSlug !== undefined && Object.values( this.groups ).length > 0
-                ? html`
-                <manager-mirror slug=${this.scopeSlug}>
+            <manager-mirror slug=${this.scopeSlug}>
 
                     <registry-mirror slug="${this.scopeSlug}">
 
@@ -287,86 +183,32 @@ export class TimeGroupElement extends BaseElement {
 
                             <group-tool-buttons></group-tool-buttons>
 
-                            ${this.name
-                        ? html`<h2>${this.name}</h2>`
-                        : nothing
-                    }
+                                <h2>${this.name ?? this.slug}</h2>
 
-                            <slot></slot>
+                                <slot></slot>
 
-                            ${Object.entries( this.groups )
-                            .sort( ([keyA],[keyB]) => {
-                                return parseInt( keyA ) - parseInt( keyB )
-                            } )
-                            .map( ([key, g]) => {
-                                return html`
-                                    ${key !== "0" ? html`<h3>${this.formatTimestamp(key)}</h3>`:nothing}
+
+                                ${this.groups.map(group => html`
+                                
+                                    <time-group-row
+                                        columns=${this.columns}
+                                        breakpoint=${this.breakpoint}
+                                        label=${group.label}
+                                        info=${group.info}
+                                        .files=${group.files}
+                                        from=${group.from}
+                                        to=${group.to}
+                                        grouping=${this.grouping}
+                                    ></time-group-row>
                                     
-                                    <div class="files-list file-list-${this.columns}">
-
-                                    ${ g
-                                    .sort( (a,b) => {
-                                        return a.instance.timestamp - b.instance.timestamp;
-                                    } ) 
-                                    .map( ( {instance, innerHtml}) => {
-                                     
-                                        return html`
-
-                                        <div class="file">
-                                        
-                                        <file-mirror .file=${instance}>
-
-                                            <div class="file-title">
-                                            
-                                                ${TimeFormat.human(instance.timestamp)}
-
-                                                ${ innerHtml !== undefined
-                                                ? html`
-                                                    <thermal-dialog label="File description">
-
-                                                        <thermal-button slot="invoker">Description</thermal-button>
-
-                                                        <div slot="content">${unsafeHTML( innerHtml )}</div>
-                                                    
-                                                    </thermal-dialog>
-                                                `
-                                                : nothing
-                                            }
-
-                                                <file-info-button></file-info-button>
+                                ` )}
 
 
-                                            </div>
-
-                                            <file-canvas></file-canvas>
-
-                                            <file-timeline></file-timeline>
-
-                                            <file-analysis-table></file-analysis-table>
-                                    
-                                        </file-mirror>
-
-                                        </div>
-                                        
-                                        `;
-                                    
-                                    } ) }
-
-                                        
-
-                                    </div>
-
-                                `
-                            } ) }
-                        
                         </group-mirror>
                     
                     </registry-mirror>
 
                 </manager-mirror>
-                `
-                : nothing
-            }
 
         `;
     }
