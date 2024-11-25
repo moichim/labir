@@ -12,7 +12,7 @@ const pool = await getPool();
 
 const manager = new ThermalManager( pool );
 const registry = manager.addOrGetRegistry(REGISTRY_ID);
-const group = registry.groups.addOrGetGroup(GROUP_ID);
+const group = registry.groups.addOrGetGroup(GROUP_ID, "Testovací skupina", "Popiska testovací skupiny");
 
 const root = document.getElementById("root");
 
@@ -37,6 +37,20 @@ const buildTools = () => {
 
 buildTools();
 
+const buildExportPngButton = () => {
+
+    const element = document.createElement( "button" );
+    element.innerHTML = "PNG of the group";
+    element.addEventListener("click", () => {
+        group.analysisSync.png.downloadPng();
+    } );
+
+    document.body.appendChild( element );
+
+}
+
+buildExportPngButton();
+
 const array = [
     "/soustruh.lrc",
     "/tucnaci_04.lrc",
@@ -53,6 +67,10 @@ array.map( file => {
         }
     } )
 } );
+
+
+
+
 
 
 

@@ -400,4 +400,23 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     }
 
 
+    /** 
+     * Call a function on every existing slot skipping empty slots. 
+     */
+    public forEveryExistingSlot( fn: (slot:AnalysisSlot, num: number)=>void ) {
+
+        const forSlot = ( num: number ) => {
+            const slot = this.getSlot( num );
+            if ( slot ) {
+                fn( slot, num );
+            }
+        }
+
+        for ( let i = 1; i <= 7; i++ ) {
+            forSlot( i );
+        }
+
+    }
+
+
 }

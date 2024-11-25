@@ -25,18 +25,31 @@ declare abstract class AbstractFilter<T extends AbstractFilterParameters = Abstr
     abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
 }
 
-declare const JET: string[];
-declare const IRON: string[];
-declare const GRAYSCALE: string[];
-declare const ThermalPalettes: {
-    [index: string]: ThermalPaletteType;
-};
-type AvailableThermalPalettes = "iron" | "jet" | "grayscale";
+/** Definition of a palette containing its name, gradient and pixels value. */
 type ThermalPaletteType = {
+    /** Actial pixels that shall be ised for drawings of thermograms. */
     pixels: string[];
+    /** Human-readable name of the palette. */
     name: string;
+    /** A CSS gradient representing the color scale in the UI. */
     gradient: string;
+    /** The CSS slug */
+    slug: AvailableThermalPalettes;
 };
+/** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
+declare const JET: string[];
+/** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
+declare const IRON: string[];
+/** Pixels of the GRAYSCALE palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
+declare const GRAYSCALE: string[];
+/** Object mapping all available palettes. Keys of this object are extracted to the type `AvailableThermalPalettes` */
+declare const ThermalPalettes: {
+    iron: ThermalPaletteType;
+    jet: ThermalPaletteType;
+    grayscale: ThermalPaletteType;
+};
+/** Keys of palettes available in `@labir/core`. */
+type AvailableThermalPalettes = "jet" | "iron" | "grayscale";
 
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 declare abstract class AbstractFileResult {
@@ -496,6 +509,10 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
      * Get value of a given slot
      */
     getSlotValue(slot: number): string | undefined;
+    /**
+     * Call a function on every existing slot skipping empty slots.
+     */
+    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
 }
 
 /** Access list of points from analysis layers */
@@ -843,6 +860,7 @@ type AnalysisDataStateValue = {
     values: DataType;
     colors: string[];
 };
+/** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
 declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
     protected _hasActiveGraphs: boolean;
     get hasActiveGraphs(): boolean;
@@ -852,6 +870,7 @@ declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue,
     protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
     protected afterSetEffect(): void;
     dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
+    /** Assamble the current analysis data and download them as CSV directly. */
     downloadData(): void;
 }
 
@@ -1008,13 +1027,16 @@ declare class ThermalManager extends BaseStructureObject {
     getInstances(): Instance[];
 }
 
+/** @deprecated Should use `AvailableThermalPalettes` instead. */
 type PaletteId = keyof typeof ThermalPalettes;
 interface IWithPalette extends IBaseProperty {
     palette: PaletteDrive;
 }
 declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     get availablePalettes(): {
-        [index: string]: ThermalPaletteType;
+        iron: ThermalPaletteType;
+        jet: ThermalPaletteType;
+        grayscale: ThermalPaletteType;
     };
     /** All the current palette properties should be accessed through this property. */
     get currentPalette(): ThermalPaletteType;
@@ -1210,15 +1232,110 @@ declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegis
     protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
 }
 
+type ExportHeaderEntryType = {
+    key: string;
+    displayLabel: string;
+};
+type ExportHeaderType = ExportHeaderEntryType[];
+declare class GroupExportCSV {
+    readonly drive: AnalysisSyncDrive;
+    constructor(drive: AnalysisSyncDrive);
+    protected formatAnalysisDisplayName(analysis: AbstractAnalysis, scope?: string): string;
+    protected formatAnalysisKey(analysis: AbstractAnalysis, scope?: string): string;
+    protected formatFrameSlotValue(slot: AnalysisSlot, scope?: "min" | "max" | "avg"): {
+        key: string;
+        value: string;
+    };
+    /** Assamble the export header and data */
+    protected getData(): {
+        header: ExportHeaderType;
+        data: {
+            [index: string]: string | number;
+        }[];
+    };
+    downloadAsCsv(): void;
+}
+
+type GroupExportPNGParams = {
+    columns?: number;
+    width?: number;
+    showAnalysis?: boolean;
+    fileName?: string;
+    backgroundColor?: string;
+};
+type GroupExportPNGParamsMandatory = {
+    columns: number;
+    width: number;
+    showAnalysis: boolean;
+    fileName: string;
+    backgroundColor: string;
+};
+declare class GroupExportPNG {
+    readonly drive: AnalysisSyncDrive;
+    static FONT_SIZE_NORMAL: string;
+    static FONT_SIZE_SMALL: string;
+    static COLOR_BASE: string;
+    static COLOR_GRAY: string;
+    static COLOR_LIGHT: string;
+    static WIDTH: string;
+    static FONT_FAMILY: string;
+    static GAP_BASE: string;
+    static GAP_SMALL: string;
+    static DEFAULT_PROPS: GroupExportPNGParams;
+    /** Alias to the group this exporter is attached to */
+    protected get group(): ThermalGroup;
+    /** Temporary local group is used to build a mirror of images. */
+    protected localGroup?: ThermalGroup;
+    protected _exporting: boolean;
+    get exporting(): boolean;
+    protected readonly onExportingStatusChange: CallbacksManager<(status: boolean) => void>;
+    /** The wrapper contains the entire layout, but is invisible to the user */
+    protected wrapper?: HTMLDivElement;
+    /** Main DOM element to which the entire layout is inserted */
+    protected container?: HTMLDivElement;
+    /** The header element with title, description and other stuff */
+    protected header?: HTMLDivElement;
+    /** Images are mounted to this DIV */
+    protected list?: HTMLDivElement;
+    constructor(drive: AnalysisSyncDrive);
+    /**
+     * Indicate the exporting status. Internal method only!
+     */
+    protected setExporting(value: boolean): void;
+    /**
+     * A helper function creating a DIV with default styles
+     */
+    protected createElementWithText<E extends HTMLElement>(element: string, text: string, fontSize?: string, fontWeight?: CSSStyleDeclaration["fontWeight"], color?: string): E;
+    protected buildWrapper(): HTMLDivElement;
+    protected buildContainer(width?: number, backgroundColor?: string): HTMLDivElement;
+    protected buildHeader(): HTMLDivElement;
+    protected buildList(): HTMLDivElement;
+    protected buildInstance(instance: Instance, width: number, showAnalysis: boolean): void;
+    /**
+     * Build the entire DOM structure WITHOUT images.
+     */
+    protected buildDom(params: GroupExportPNGParamsMandatory): void;
+    /**
+     * Clear everything and remove the DOM
+     */
+    protected clear(): void;
+    downloadPng(params?: GroupExportPNGParams): Promise<void>;
+    /**
+     * Take provided parameters and combine them with defaults and add filename.
+     */
+    protected getFinalParams(params?: GroupExportPNGParams): GroupExportPNGParamsMandatory;
+}
+
 interface IWithAnalysisSync extends IBaseProperty {
     analysisSync: AnalysisSyncDrive;
 }
 declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
+    protected afterSetEffect(): void;
     turnOn(instance: Instance): void;
     turnOff(): void;
     protected _currentPointer?: Instance;
+    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
     protected setCurrentPointer(instance?: Instance): void;
     protected getSlotListeners(instance: Instance, slotNumber: number): {
         slot: AnalysisSlot | undefined;
@@ -1226,8 +1343,6 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
         assign: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
     } | undefined;
     static LISTENER_KEY: string;
-    /** @deprecated */
-    syncSlotSerialised(instance: Instance, slotNumber: number): void;
     startSyncingSlot(instance: Instance, slotNumber: number): void;
     endSyncingSlot(instance: Instance, slotNumber: number): void;
     deleteSlot(instance: Instance, slotNumber: number): void;
@@ -1241,7 +1356,14 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
      * Execute a given function on all files slot
      */
     protected forEveryOtherSlot(instance: Instance, slotNumber: number, fn: (slot: AnalysisSlot | undefined, file: Instance) => void): void;
+    /** @deprecated Should sync individual slots only. This method synces all slots at once. */
     syncSlots(instance: Instance): void;
+    protected _csv?: GroupExportCSV;
+    /** Lazy loaded CSV export object. */
+    get csv(): GroupExportCSV;
+    protected _png?: GroupExportPNG;
+    /** Lazy loaded PNG export object. */
+    get png(): GroupExportPNG;
 }
 
 interface IWithFiles extends IBaseProperty {
@@ -1251,6 +1373,8 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     protected _map: Map<string, Instance>;
     get map(): Map<string, Instance>;
     protected validate(value: Instance[]): Instance[];
+    /** Array of all files sorted by timestamp from the earliest to the latest. */
+    get sortedFiles(): Instance[];
     /**
      * Whenever the instances change, recreate the index
      */
@@ -1786,10 +1910,19 @@ declare class InstanceDOM {
     dehydrate(): void;
 }
 
+/**
+ * The file metadata = Parsed file base info.
+ *
+ * Stored here as a separate class. Purpose: separation of concern & provide listener on change.
+ */
 declare class FileMeta {
     private _current;
     get current(): ParsedFileBaseInfo;
-    onChange: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    protected _onChange?: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    /**
+     * Lazyloaded callback manager that is triggered whenever the value changes
+     */
+    get onChange(): CallbacksManager<(value: ParsedFileBaseInfo) => void>;
     get width(): number;
     get height(): number;
     constructor(baseInfo: ParsedFileBaseInfo);
@@ -2031,6 +2164,8 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly name?: string | undefined;
     readonly description?: string | undefined;
     readonly hash: number;
+    /** Human readable label = name or id or hasn */
+    get label(): string;
     get pool(): Pool;
     constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
     readonly minmax: MinmaxGroupProperty;

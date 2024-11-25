@@ -6,24 +6,19 @@ import { ThermalCursorPositionOrUndefined } from "./properties/drives/CursorPosi
 import { ThermalRangeOrUndefined } from "./properties/drives/RangeDriver";
 
 // Palette
-import { GRAYSCALE, IRON, JET, ThermalPalettes, ThermalPaletteType } from "./file/palettes";
+import { GRAYSCALE, IRON, JET, ThermalPalettes, ThermalPaletteType, AvailableThermalPalettes } from "./file/utils/palettes";
 import { PaletteId } from "./properties/drives/PaletteDrive";
 
 // Utilities - time
 import { TimeFormat } from "./utils/time/formatting";
 import { TimePeriod } from "./utils/time/periods";
 import { TimeRound } from "./utils/time/rounding";
-
-import { AvailableThermalPalettes } from "./file/palettes";
-
 import { Instance } from "./file/instance";
 import { ThermalGroup } from "./hierarchy/ThermalGroup";
 import { ThermalManager, ThermalManagerOptions } from "./hierarchy/ThermalManager";
 import { ThermalRegistry, ThermalRegistryOptions } from "./hierarchy/ThermalRegistry";
 import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "./loading/workers/ThermalFileReader";
-
-
 import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
 import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
 import { supportedFileTypes, supportedFileTypesInputProperty } from "./loading/workers/parsers";

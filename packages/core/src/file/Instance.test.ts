@@ -3,10 +3,10 @@ import { THERMOGRAM_PATHS } from "../../devserver/node/mocks";
 import { ThermalManager } from "../hierarchy/ThermalManager";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "./instanceUtils/VisibleLayer";
+import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
+import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
+import { ThermalListenerLayer } from "./utils/thermalListenerLayer";
+import { VisibleLayer } from "./dom/layers/VisibleLayer";
 
 describe("InstanceDOM", () => {
 

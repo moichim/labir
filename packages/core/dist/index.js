@@ -206,7 +206,7 @@ var RangeDriver = class extends AbstractProperty {
   }
 };
 
-// src/file/palettes.ts
+// src/file/utils/palettes.ts
 var generateGrayscalePalette = () => {
   const result = [];
   for (let i = 0; i <= 255; i++) {
@@ -734,18 +734,21 @@ var GRAYSCALE = generateGrayscalePalette();
 var ThermalPalettes = {
   iron: {
     pixels: IRON,
-    name: "paleta IRON",
-    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(10,12,77,1) 30%, rgba(86,20,101,1) 49%, rgba(255,0,0,1) 64%, rgba(249,255,0,1) 84%, rgba(255,255,255,1) 100%)"
+    name: "IRON palette",
+    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(10,12,77,1) 30%, rgba(86,20,101,1) 49%, rgba(255,0,0,1) 64%, rgba(249,255,0,1) 84%, rgba(255,255,255,1) 100%)",
+    slug: "iron"
   },
   jet: {
     pixels: JET,
-    name: "paleta JET",
-    gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)"
+    name: "JET palette",
+    gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
+    slug: "jet"
   },
   grayscale: {
     pixels: GRAYSCALE,
-    name: "Stupn\u011B \u0161ed\xE9",
-    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)"
+    name: "Grayscale",
+    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)",
+    slug: "grayscale"
   }
 };
 
@@ -2961,6 +2964,9 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/analysisData/AnalysisDataState.ts
+var import_export_to_csv = require("export-to-csv");
+
 // src/properties/analysisData/graphs/AnalysisGraphsStorage.ts
 var import_date_fns3 = require("date-fns");
 var AnalysisGraphsStorage = class {
@@ -3104,7 +3110,6 @@ var AnalysisGraphsStorage = class {
 };
 
 // src/properties/analysisData/AnalysisDataState.ts
-var import_export_to_csv = require("export-to-csv");
 var AnalysisDataState = class extends AbstractProperty {
   _hasActiveGraphs = false;
   get hasActiveGraphs() {
@@ -3137,6 +3142,7 @@ var AnalysisDataState = class extends AbstractProperty {
   dangerouslyUpdateValue(value) {
     this.value = value;
   }
+  /** Assamble the current analysis data and download them as CSV directly. */
   downloadData() {
     const { data, header } = this.listeners.generateExportData();
     const csvConfig = (0, import_export_to_csv.mkConfig)({
@@ -3441,6 +3447,20 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   getSlotValue(slot) {
     if (this.hasSlot(slot)) {
       return this.getSlot(slot)?.serialized;
+    }
+  }
+  /** 
+   * Call a function on every existing slot skipping empty slots. 
+   */
+  forEveryExistingSlot(fn) {
+    const forSlot = (num) => {
+      const slot = this.getSlot(num);
+      if (slot) {
+        fn(slot, num);
+      }
+    };
+    for (let i = 1; i <= 7; i++) {
+      forSlot(i);
     }
   }
 };
@@ -4020,17 +4040,17 @@ var InstanceDOM = class _InstanceDOM {
     if (this.built === true) {
       if (this._canvasLayer) {
         this._canvasLayer.unmount();
-        this.root.removeChild(this._canvasLayer.getLayerRoot());
+        delete this._canvasLayer;
         this._canvasLayer = void 0;
       }
       if (this._visibleLayer) {
         this._visibleLayer.unmount();
-        this.root.removeChild(this._visibleLayer.getLayerRoot());
+        delete this._visibleLayer;
         this._visibleLayer = void 0;
       }
       if (this._cursorLayer) {
         this._cursorLayer.unmount();
-        this.root.removeChild(this._cursorLayer.getLayerRoot());
+        delete this._cursorLayer;
         this._cursorLayer = void 0;
       }
       if (this._listenerLayer) {
@@ -4038,7 +4058,7 @@ var InstanceDOM = class _InstanceDOM {
           this.dehydrate();
         }
         this._listenerLayer.unmount();
-        this.root.removeChild(this._listenerLayer.getLayerRoot());
+        delete this._listenerLayer;
         this._listenerLayer = void 0;
       }
       this.setBuilt(false);
@@ -4074,13 +4094,22 @@ var InstanceDOM = class _InstanceDOM {
   }
 };
 
-// src/file/FileMeta.ts
+// src/file/utils/FileMeta.ts
 var FileMeta = class {
   _current;
   get current() {
     return this._current;
   }
-  onChange = new CallbacksManager();
+  _onChange;
+  /** 
+   * Lazyloaded callback manager that is triggered whenever the value changes 
+   */
+  get onChange() {
+    if (!this._onChange) {
+      this._onChange = new CallbacksManager();
+    }
+    return this._onChange;
+  }
   get width() {
     return this.current.width;
   }
@@ -4314,7 +4343,7 @@ var AbstractFile = class extends BaseStructureObject {
   }
 };
 
-// src/file/instanceUtils/ThermalFileExports.ts
+// src/file/utils/ThermalFileExports.ts
 var ThermalFileExport = class {
   constructor(file) {
     this.file = file;
@@ -4327,7 +4356,7 @@ var ThermalFileExport = class {
   }
 };
 
-// src/file/instanceUtils/AbstractLayer.ts
+// src/file/dom/layers/AbstractLayer.ts
 var AbstractLayer = class {
   constructor(instance) {
     this.instance = instance;
@@ -4357,7 +4386,7 @@ var AbstractLayer = class {
   }
 };
 
-// src/file/instanceUtils/domFactories.ts
+// src/file/dom/domFactories.ts
 var ThermalDomFactory = class _ThermalDomFactory {
   static createCanvasContainer() {
     const container = document.createElement("div");
@@ -4507,7 +4536,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
   }
 };
 
-// src/file/instanceUtils/VisibleLayer.ts
+// src/file/dom/layers/VisibleLayer.ts
 var VisibleLayer = class extends AbstractLayer {
   constructor(instance, _url) {
     super(instance);
@@ -4542,7 +4571,7 @@ var VisibleLayer = class extends AbstractLayer {
   }
 };
 
-// src/file/instanceUtils/thermalCanvasLayer.ts
+// src/file/dom/layers/thermalCanvasLayer.ts
 var ThermalCanvasLayer = class extends AbstractLayer {
   get pool() {
     return this.instance.pool;
@@ -4653,7 +4682,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   }
 };
 
-// src/file/instanceUtils/thermalCursorLayer.ts
+// src/file/dom/layers/thermalCursorLayer.ts
 var ThermalCursorLayer = class extends AbstractLayer {
   layerRoot;
   center;
@@ -4762,7 +4791,7 @@ var ThermalCursorLayer = class extends AbstractLayer {
   }
 };
 
-// src/file/instanceUtils/thermalListenerLayer.ts
+// src/file/dom/layers/thermalListenerLayer.ts
 var ThermalListenerLayer = class extends AbstractLayer {
   container;
   constructor(instance) {
@@ -4929,15 +4958,426 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
+// src/properties/analysisSync/utils/GroupExportCSV.ts
+var import_export_to_csv2 = require("export-to-csv");
+var GroupExportCSV = class {
+  constructor(drive) {
+    this.drive = drive;
+  }
+  formatAnalysisDisplayName(analysis, scope) {
+    const nameBase = `${analysis.name} (${analysis.getType()}, ${analysis.initialColor}})`;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return nameBase + " " + scope.toUpperCase();
+    }
+    return nameBase;
+  }
+  formatAnalysisKey(analysis, scope) {
+    const keyBase = analysis.key;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return keyBase + "_" + scope;
+    }
+    return keyBase;
+  }
+  formatFrameSlotValue(slot, scope) {
+    if (slot.analysis instanceof AbstractAreaAnalysis && scope) {
+      let value = slot.analysis.avg;
+      if (scope === "min") value = slot.analysis.min;
+      if (scope === "max") value = slot.analysis.max;
+      return {
+        key: this.formatAnalysisKey(slot.analysis, scope),
+        value: value.toString()
+      };
+    }
+    return {
+      key: this.formatAnalysisKey(slot.analysis),
+      value: slot.analysis.avg.toString()
+    };
+  }
+  /** Assamble the export header and data */
+  getData() {
+    const header = [
+      { key: "file", displayLabel: "File name" },
+      { key: "timestamp", displayLabel: "Frame time" },
+      { key: "frame", displayLabel: "Frame ID" }
+    ];
+    this.drive.forEveryExistingSlot((slot) => {
+      if (slot.analysis instanceof AbstractAreaAnalysis) {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "min"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "min")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "max"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "max")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "avg"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "avg")
+        });
+      } else {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis)
+        });
+      }
+    });
+    const data = [];
+    this.drive.parent.files.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    }).forEach((file) => {
+      const row = {
+        file: file.fileName,
+        timestamp: TimeFormat.human(file.timeline.currentStep.absolute),
+        frame: file.timeline.currentStep.index
+      };
+      file.slots.forEveryExistingSlot((slot) => {
+        if (slot.analysis instanceof AbstractAreaAnalysis) {
+          const min = this.formatFrameSlotValue(slot, "min");
+          const max = this.formatFrameSlotValue(slot, "max");
+          const avg = this.formatFrameSlotValue(slot, "avg");
+          row[min.key] = min.value;
+          row[max.key] = max.value;
+          row[avg.key] = avg.value;
+        } else {
+          const avg = this.formatFrameSlotValue(slot);
+          row[avg.key] = avg.value;
+        }
+      });
+      data.push(row);
+    });
+    return {
+      header,
+      data
+    };
+  }
+  downloadAsCsv() {
+    const group = this.drive.parent;
+    const groupIdentificator = group.name ?? group.id ?? group.hash;
+    const { header, data } = this.getData();
+    const csvConfig = (0, import_export_to_csv2.mkConfig)({
+      fieldSeparator: ";",
+      filename: `group_${groupIdentificator}`,
+      columnHeaders: header
+    });
+    console.log(data);
+    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv2.download)(csvConfig)(csv);
+  }
+};
+
+// src/properties/analysisSync/utils/GroupExportPNG.ts
+var import_dom_to_image = __toESM(require("dom-to-image"));
+var GroupExportPNG = class _GroupExportPNG {
+  constructor(drive) {
+    this.drive = drive;
+  }
+  static FONT_SIZE_NORMAL = "16px";
+  static FONT_SIZE_SMALL = "12px";
+  static COLOR_BASE = "black";
+  static COLOR_GRAY = "gray";
+  static COLOR_LIGHT = "lightgray";
+  static WIDTH = "1600px";
+  static FONT_FAMILY = "sans-serif";
+  static GAP_BASE = "10px";
+  static GAP_SMALL = "5px";
+  static DEFAULT_PROPS = {
+    columns: 3,
+    width: 1600,
+    showAnalysis: true,
+    backgroundColor: "white"
+  };
+  /** Alias to the group this exporter is attached to */
+  get group() {
+    return this.drive.parent;
+  }
+  /** Temporary local group is used to build a mirror of images. */
+  localGroup;
+  _exporting = false;
+  get exporting() {
+    return this._exporting;
+  }
+  onExportingStatusChange = new CallbacksManager();
+  /** The wrapper contains the entire layout, but is invisible to the user */
+  wrapper;
+  /** Main DOM element to which the entire layout is inserted */
+  container;
+  /** The header element with title, description and other stuff */
+  header;
+  /** Images are mounted to this DIV */
+  list;
+  /** 
+   * Indicate the exporting status. Internal method only! 
+   */
+  setExporting(value) {
+    this._exporting = value;
+    this.onExportingStatusChange.call(this._exporting);
+  }
+  /** 
+   * A helper function creating a DIV with default styles 
+   */
+  createElementWithText(element, text, fontSize = _GroupExportPNG.FONT_SIZE_NORMAL, fontWeight = "normal", color = _GroupExportPNG.COLOR_BASE) {
+    const el = document.createElement(element);
+    el.innerHTML = text;
+    el.style.fontSize = fontSize;
+    el.style.lineHeight = "1em";
+    el.style.fontWeight = fontWeight;
+    el.style.color = color;
+    return el;
+  }
+  buildWrapper() {
+    const element = document.createElement("div");
+    element.style.position = "absolute";
+    element.style.width = "0px";
+    element.style.height = "0px";
+    element.style.overflow = "hidden";
+    return element;
+  }
+  buildContainer(width = _GroupExportPNG.DEFAULT_PROPS.width, backgroundColor = _GroupExportPNG.DEFAULT_PROPS.backgroundColor) {
+    const element = document.createElement("div");
+    element.style.width = width.toFixed(0) + "px";
+    element.style.fontSize = _GroupExportPNG.FONT_SIZE_NORMAL;
+    element.style.fontFamily = _GroupExportPNG.FONT_FAMILY;
+    element.style.color = _GroupExportPNG.COLOR_BASE;
+    element.style.backgroundColor = backgroundColor;
+    return element;
+  }
+  buildHeader() {
+    const element = document.createElement("div");
+    element.style.padding = _GroupExportPNG.GAP_BASE;
+    element.style.border = "1px lightgray solid";
+    const title = this.createElementWithText(
+      "div",
+      this.group.label,
+      void 0,
+      "bold"
+    );
+    element.appendChild(title);
+    if (this.group.description) {
+      const description = this.createElementWithText(
+        "div",
+        this.group.description,
+        _GroupExportPNG.FONT_SIZE_SMALL,
+        "normal",
+        _GroupExportPNG.COLOR_BASE
+      );
+      description.style.paddingTop = _GroupExportPNG.GAP_SMALL;
+      element.appendChild(description);
+    }
+    const orderedFiles = this.group.files.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
+    const dateFrom = TimeFormat.human(orderedFiles[0].timestamp);
+    const dateTo = TimeFormat.human(orderedFiles[orderedFiles.length - 1].timestamp);
+    const summary = this.createElementWithText(
+      "div",
+      `Contains ${this.group.files.value.length} files dated from ${dateFrom} to ${dateTo}. Minimal temperature: ${this.group.registry.minmax.value?.min.toFixed(3)} \xB0C. Maximal temperature: ${this.group.registry.minmax.value?.max.toFixed(3)} \xB0C.`,
+      _GroupExportPNG.FONT_SIZE_SMALL,
+      void 0,
+      _GroupExportPNG.COLOR_GRAY
+    );
+    summary.style.paddingTop = _GroupExportPNG.GAP_SMALL;
+    element.appendChild(summary);
+    const colophon = this.createElementWithText(
+      "div",
+      `Image exported at ${TimeFormat.human(/* @__PURE__ */ new Date())} at <i>${window.location.href}</i> using LabIR Edu web viewer. More information at <i>https://edu.labir.cz</i>.`,
+      _GroupExportPNG.FONT_SIZE_SMALL,
+      void 0,
+      _GroupExportPNG.COLOR_GRAY
+    );
+    colophon.style.paddingTop = _GroupExportPNG.GAP_SMALL;
+    element.appendChild(colophon);
+    return element;
+  }
+  buildList() {
+    const element = document.createElement("div");
+    element.style.boxSizing = "border-box";
+    element.style.width = "100%";
+    element.style.display = "flex";
+    element.style.flexWrap = "wrap";
+    return element;
+  }
+  buildInstance(instance, width, showAnalysis) {
+    const container = document.createElement("div");
+    container.style.width = width.toString() + "%";
+    container.style.padding = _GroupExportPNG.GAP_SMALL;
+    container.style.boxSizing = "border-box";
+    const wrapper = document.createElement("div");
+    container.appendChild(wrapper);
+    const title = this.createElementWithText(
+      "div",
+      `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
+      _GroupExportPNG.FONT_SIZE_SMALL,
+      "bold"
+    );
+    wrapper.appendChild(title);
+    if (this.list) {
+      this.list.appendChild(container);
+      instance.mountToDom(wrapper);
+      instance.draw();
+      if (showAnalysis) {
+        const referenceInstance = this.group.files.value[0];
+        if (referenceInstance && referenceInstance.analysis.value.length > 0) {
+          const table = document.createElement("table");
+          table.style.width = "100%";
+          table.style.borderCollapse = "collapse";
+          const header = document.createElement("tr");
+          ["Analysis", "AVG", "MIN", "MAX"].forEach((string) => {
+            const el = this.createElementWithText(
+              "th",
+              string,
+              _GroupExportPNG.FONT_SIZE_SMALL,
+              void 0,
+              _GroupExportPNG.COLOR_GRAY
+            );
+            el.style.padding = _GroupExportPNG.GAP_SMALL + "px";
+            el.style.textAlign = "left";
+            header.appendChild(el);
+          });
+          table.appendChild(header);
+          wrapper.appendChild(table);
+          referenceInstance.slots.forEveryExistingSlot((slot, number) => {
+            const localAnalysis = instance.slots.createFromSerialized(slot.serialized, number);
+            if (localAnalysis) {
+              const row = document.createElement("tr");
+              const name = this.createElementWithText(
+                "td",
+                slot.analysis.name,
+                _GroupExportPNG.FONT_SIZE_SMALL,
+                void 0,
+                slot.analysis.initialColor
+              );
+              name.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+              name.style.padding = `${_GroupExportPNG.GAP_SMALL}px 0px ${_GroupExportPNG.GAP_SMALL} 0px`;
+              row.appendChild(name);
+              const createAndAppendValue = (color, value) => {
+                const td = this.createElementWithText(
+                  "td",
+                  value ? value.toFixed(3) + " \xB0C" : "",
+                  _GroupExportPNG.FONT_SIZE_SMALL,
+                  void 0
+                );
+                td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+                td.style.paddingTop = `${_GroupExportPNG.GAP_SMALL}px`;
+                td.style.paddingBottom = `${_GroupExportPNG.GAP_SMALL}px`;
+                row.appendChild(td);
+              };
+              if (slot.analysis instanceof AbstractAreaAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+              } else if (slot.analysis instanceof PointAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor);
+                createAndAppendValue(slot.analysis.initialColor);
+              }
+              table.appendChild(row);
+            }
+          });
+        }
+      }
+    }
+  }
+  /** 
+   * Build the entire DOM structure WITHOUT images.
+   */
+  buildDom(params) {
+    this.wrapper = this.buildWrapper();
+    this.container = this.buildContainer(params.width);
+    this.header = this.buildHeader();
+    this.list = this.buildList();
+    this.container.appendChild(this.header);
+    this.container.appendChild(this.list);
+    this.wrapper.appendChild(this.container);
+    document.body.prepend(this.wrapper);
+  }
+  /**
+   * Clear everything and remove the DOM
+   */
+  clear() {
+    if (this.localGroup) {
+      this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
+      this.localGroup.files.removeAllInstances();
+    }
+    if (this.wrapper) {
+      document.body.removeChild(this.wrapper);
+    }
+    delete this.wrapper;
+    delete this.container;
+    delete this.header;
+    delete this.list;
+    delete this.localGroup;
+  }
+  async downloadPng(params) {
+    if (this._exporting === true) {
+      console.warn(`The group ${this.group.label} is already exporting a PNG image!`);
+      return;
+    }
+    const options = this.getFinalParams(params);
+    this.setExporting(true);
+    this.buildDom(options);
+    const registryId = Math.random().toFixed();
+    const manager = this.group.registry.manager;
+    const registry = manager.addOrGetRegistry(registryId);
+    const group = registry.groups.addOrGetGroup(this.group.id);
+    this.localGroup = group;
+    manager.palette.setPalette(this.group.registry.manager.palette.value);
+    registry.range.imposeRange(this.group.registry.range.value);
+    const imagesThermalUrls = this.group.files.sortedFiles.map((file) => file.thermalUrl);
+    let batch = void 0;
+    imagesThermalUrls.forEach((url) => {
+      batch = registry.batch.request(url, void 0, group, async () => {
+      });
+    });
+    batch.onResolve.set("temporary export listener", (results) => {
+      const width = 100 / options.columns;
+      results.forEach((result) => {
+        if (result instanceof Instance) {
+          this.buildInstance(result, width, options.showAnalysis);
+        }
+      });
+      setTimeout(() => {
+        import_dom_to_image.default.toPng(this.container).then((dataUrl) => {
+          const link = document.createElement("a");
+          link.download = options.fileName;
+          link.href = dataUrl;
+          link.click();
+          this.clear();
+          this.setExporting(false);
+        });
+      }, 2e3);
+    });
+  }
+  /**
+   * Take provided parameters and combine them with defaults and add filename.
+   */
+  getFinalParams(params) {
+    let fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
+    if (fileName.endsWith(".PNG")) {
+      fileName = fileName.replaceAll(".PNG", ".png");
+    }
+    if (!fileName.endsWith(".png")) {
+      fileName = fileName + ".png";
+    }
+    if (params === void 0) {
+      return {
+        ..._GroupExportPNG.DEFAULT_PROPS,
+        fileName
+      };
+    }
+    return {
+      ..._GroupExportPNG.DEFAULT_PROPS,
+      ...params,
+      fileName
+    };
+  }
+};
+
 // src/properties/analysisSync/analysisSync.ts
 var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   validate(value) {
     return value;
   }
-  afterSetEffect(value) {
-    if (this._currentPointer) {
-      this._currentPointer.analysis;
-    }
+  afterSetEffect() {
   }
   turnOn(instance) {
     this.value = true;
@@ -4949,8 +5389,13 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     this.setCurrentPointer(void 0);
   }
   _currentPointer;
+  forEveryExistingSlot(fn) {
+    if (this._currentPointer === void 0) {
+      return;
+    }
+    this._currentPointer.slots.forEveryExistingSlot(fn);
+  }
   setCurrentPointer(instance) {
-    const eventKey = "__analysis__sync";
     if (instance !== this._currentPointer) {
       if (this._currentPointer !== void 0) {
         this.endSyncingSlot(this._currentPointer, 1);
@@ -5019,21 +5464,8 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     }
   }
   static LISTENER_KEY = "__analysis__sync";
-  /** @deprecated */
-  syncSlotSerialised(instance, slotNumber) {
-    const currentSerialized = instance.slots.getSlot(slotNumber)?.serialized;
-    this.forEveryOtherSlot(instance, slotNumber, (slot, file) => {
-      if (slot === void 0 && currentSerialized) {
-        file.slots.createFromSerialized(currentSerialized, slotNumber);
-      } else if (slot !== void 0 && currentSerialized) {
-        slot.recieveSerialized(currentSerialized);
-      } else if (slot !== void 0 && currentSerialized === void 0) {
-        file.slots.removeSlotAndAnalysis(slotNumber);
-      }
-    });
-  }
   startSyncingSlot(instance, slotNumber) {
-    const { slot, assign, serialise } = this.getSlotListeners(instance, slotNumber);
+    const { serialise } = this.getSlotListeners(instance, slotNumber);
     serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
       this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
         if (sl === void 0 && value) {
@@ -5046,11 +5478,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
         }
       });
     });
-    if (slot !== void 0) {
-    }
   }
   endSyncingSlot(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+    this.forEveryOtherSlot(instance, slotNumber, () => {
       const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
       assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
       serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
@@ -5086,6 +5516,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       fn(item, file);
     });
   }
+  /** @deprecated Should sync individual slots only. This method synces all slots at once. */
   syncSlots(instance) {
     if (this.value === false) {
       return;
@@ -5094,7 +5525,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     const allOtherFiles = this.parent.files.value.filter((file) => file !== instance);
     const map = instance.slots.getSlotMap();
     allOtherFiles.forEach((file) => {
-      for (let [slt, value] of map) {
+      for (const [slt, value] of map) {
         if (value === void 0) {
           file.slots.removeSlotAndAnalysis(slt);
         } else {
@@ -5112,6 +5543,22 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       }
     });
   }
+  _csv;
+  /** Lazy loaded CSV export object. */
+  get csv() {
+    if (!this._csv) {
+      this._csv = new GroupExportCSV(this);
+    }
+    return this._csv;
+  }
+  _png;
+  /** Lazy loaded PNG export object. */
+  get png() {
+    if (!this._png) {
+      this._png = new GroupExportPNG(this);
+    }
+    return this._png;
+  }
 };
 
 // src/properties/lists/filesState.ts
@@ -5122,6 +5569,12 @@ var FilesState = class extends AbstractProperty {
   }
   validate(value) {
     return value;
+  }
+  /** Array of all files sorted by timestamp from the earliest to the latest. */
+  get sortedFiles() {
+    return this.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
   }
   /**
    * Whenever the instances change, recreate the index
@@ -5531,6 +5984,10 @@ var ThermalGroup = class extends BaseStructureObject {
     this.description = description;
   }
   hash = Math.random();
+  /** Human readable label = name or id or hasn */
+  get label() {
+    return this.name ?? this.id ?? this.hash;
+  }
   get pool() {
     return this.registry.manager.pool;
   }

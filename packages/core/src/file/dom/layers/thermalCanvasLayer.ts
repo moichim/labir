@@ -1,6 +1,6 @@
-import { Instance } from "../instance";
+import { Instance } from "../../instance";
 import { AbstractLayer } from "./AbstractLayer";
-import ThermalDomFactory from "./domFactories";
+import ThermalDomFactory from "../domFactories";
 
 /** Displays the canvas and renders it */
 export class ThermalCanvasLayer extends AbstractLayer {

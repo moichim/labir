@@ -12,11 +12,11 @@ import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { AbstractFile } from "./AbstractFile";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { ThermalFileExport } from "./instanceUtils/ThermalFileExports";
-import { VisibleLayer } from "./instanceUtils/VisibleLayer";
-import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
+import { ThermalFileExport } from "./utils/ThermalFileExports";
+import { VisibleLayer } from "./dom/layers/VisibleLayer";
+import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
+import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
+import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 
 export class Instance extends AbstractFile {
 

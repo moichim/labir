@@ -217,6 +217,18 @@ export class GroupElement extends BaseElement {
             background-color: var(--thermal-primary);
         }
 
+        .download {
+
+            small {
+                display: block;
+                font-size: calc( var( --thermal-fs ) * .8 );
+                opacity: .8;
+                padding-left: calc( var( --thermal-gap ) * .5 );
+                padding-bottom: calc( var( --thermal-gap ) * .5 );
+            }
+        
+        }
+
 
     
     `;
@@ -285,19 +297,33 @@ export class GroupElement extends BaseElement {
                                     </thermal-dropdown>
 
                                     ${this.grouper.numFiles > 0
-                                        ? html`<thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.canvasAsPng())}>Download individual images</thermal-button>`
+                                        ? html`
+                                            <thermal-dropdown class="download">
+
+                                                <span slot="invoker">Download</span>
+
+                                                <div slot="option">
+                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.canvasAsPng())}>PNG of individual images</thermal-button>
+                                                    <small>Download all images within this group as PNG</small>
+                                                </div>
+
+                                                <div slot="option">
+
+                                                    <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
+                                                        columns: this.columns
+                                                    })}>PNG of the entire group</thermal-button>
+                                                    <small>Download one image with all images and their analysis value</small>
+                                                </div>
+
+
+                                                <div slot="option">
+                                                    <thermal-button @click=${() => { this.group.analysisSync.export.downloadAsCsv() }}>CSV of analysis data</thermal-button>
+                                                    <small>Download one image with all images and their analysis value</small>
+                                                </div>
+
+                                            </thermal-dropdown>
+                                        `
                                         : nothing
-                                    }
-                                    
-                                    ${this.grouper.numFiles > 0 
-                                    ? html`<thermal-dialog label="export">
-                                        <thermal-button slot="invoker">Export group as image</thermal-button>
-                                        <div slot="content">
-                                            <group-export-layout .group=${this.group}></group-export-layout>
-                                        </div>
-                                    </thermal-dialog>
-                                    `
-                                    : nothing
                                     }
 
                                 </thermal-bar>

@@ -1,6 +1,6 @@
-import { Instance } from "../instance";
+import { Instance } from "../../instance";
 import { AbstractLayer } from "./AbstractLayer";
-import ThermalDomFactory from "./domFactories";
+import ThermalDomFactory from "../domFactories";
 
 /** Listens for the mouse events. Needs to be placed on top. */
 export class ThermalListenerLayer extends AbstractLayer {

@@ -7,12 +7,12 @@ import { CursorValueDrive } from "../properties/states/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { FileMeta } from "./FileMeta";
+import { FileMeta } from "./utils/FileMeta";
 import { IFileInstance } from "./IFileInstance";
-import { ThermalCanvasLayer } from "./instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "./instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "./instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "./instanceUtils/VisibleLayer";
+import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
+import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
+import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
+import { VisibleLayer } from "./dom/layers/VisibleLayer";
 
 /** Displayable object for every file type.
  * 

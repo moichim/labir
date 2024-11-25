@@ -22,6 +22,11 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         return value;
     }
 
+    /** Array of all files sorted by timestamp from the earliest to the latest. */
+    public get sortedFiles() {
+        return this.value.sort((a, b) => { return a.timestamp - b.timestamp });
+    }
+
     /**
      * Whenever the instances change, recreate the index
      */
@@ -34,7 +39,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         value.forEach(instance => this._map.set(instance.thermalUrl, instance));
     }
 
-    public addFile( file: Instance ) {
+    public addFile(file: Instance) {
 
         if (!this._map.has(file.thermalUrl)) {
             this.value = [...this.value, file];
@@ -44,13 +49,13 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         }
     }
 
-    public removeFile( file: string|Instance ) {
+    public removeFile(file: string | Instance) {
         const entry = file instanceof Instance
             ? file
-            : this.map.get( file );
-        if ( entry ) {
+            : this.map.get(file);
+        if (entry) {
             entry.unmountFromDom();
-            this.value = this.value.filter( e => e.thermalUrl !== entry.thermalUrl );
+            this.value = this.value.filter(e => e.thermalUrl !== entry.thermalUrl);
         }
     }
 
