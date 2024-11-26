@@ -64,6 +64,16 @@ array.map( file => {
             document.body.appendChild( container );
             result.mountToDom( container );
             result.draw();
+
+            const btn = document.createElement( "button" );
+
+            btn.addEventListener( "click", () => {
+                result.export.downloadPng();
+            } );
+
+            btn.innerHTML = result.fileName;
+
+            document.body.prepend( btn );
         }
     } )
 } );

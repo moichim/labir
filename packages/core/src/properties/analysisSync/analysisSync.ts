@@ -174,13 +174,13 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     setSlotSelected(instance: Instance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
-            slot?.analysis.setSelected(true);
+            slot?.analysis.setSelected(false);
         });
     }
 
     setSlotDeselected(instance: Instance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
-            slot?.analysis.setDeselected(true);
+            slot?.analysis.setDeselected();
         });
     }
 

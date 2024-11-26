@@ -1,13 +1,13 @@
-import { property, queryAssignedElements, state, customElement } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { ThermalGroup } from "@labir/core";
-import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { classMap } from 'lit/directives/class-map.js';
+import { ifDefined } from 'lit/directives/if-defined.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { BaseElement } from "../../hierarchy/BaseElement";
+import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { TimeEntryElement } from "../time/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
-import { ifDefined } from 'lit/directives/if-defined.js';
-import { classMap } from 'lit/directives/class-map.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 @customElement("thermal-group-app")
 export class GroupElement extends BaseElement {
@@ -19,6 +19,9 @@ export class GroupElement extends BaseElement {
 
     @property({ type: String, reflect: true })
     label: string = "Group of IR images";
+
+    @property({ type: String, reflect: false })
+    description?: string;
 
     @property({ type: String, reflect: true })
     license?: string;
@@ -54,12 +57,18 @@ export class GroupElement extends BaseElement {
     @state()
     groups: GroupEntry[] = [];
 
+    @state()
+    highlightFrom?: number;
+
+    @state()
+    highlightTo?: number;
+
     connectedCallback(): void {
         super.connectedCallback();
 
         const manager = createOrGetManager(this.slug)
         const registry = manager.addOrGetRegistry(this.slug);
-        const group = registry.groups.addOrGetGroup(this.slug);
+        const group = registry.groups.addOrGetGroup(this.slug, this.label, this.description);
 
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
@@ -264,7 +273,12 @@ export class GroupElement extends BaseElement {
                                     <registry-palette-dropdown></registry-palette-dropdown>
 
                                     <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
-                this.columns = parseInt(event.target.value);
+
+                const target = event.target as null | { value: string }
+                const value = target?.value;
+                if (value !== undefined) {
+                    this.columns = parseInt(value);
+                }
             }}></input>
 
                                     <thermal-dropdown>
@@ -297,47 +311,68 @@ export class GroupElement extends BaseElement {
                                     </thermal-dropdown>
 
                                     ${this.grouper.numFiles > 0
-                                        ? html`
+                ? html`
                                             <thermal-dropdown class="download">
 
                                                 <span slot="invoker">Download</span>
 
                                                 <div slot="option">
-                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.canvasAsPng())}>PNG of individual images</thermal-button>
+                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.downloadPng())}>PNG of individual images</thermal-button>
                                                     <small>Download all images within this group as PNG</small>
                                                 </div>
 
                                                 <div slot="option">
 
                                                     <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
-                                                        columns: this.columns
-                                                    })}>PNG of the entire group</thermal-button>
+                    columns: this.columns
+                })}>PNG of the entire group</thermal-button>
                                                     <small>Download one image with all images and their analysis value</small>
                                                 </div>
 
 
                                                 <div slot="option">
-                                                    <thermal-button @click=${() => { this.group.analysisSync.export.downloadAsCsv() }}>CSV of analysis data</thermal-button>
+                                                    <thermal-button @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>CSV of analysis data</thermal-button>
                                                     <small>Download one image with all images and their analysis value</small>
                                                 </div>
 
                                             </thermal-dropdown>
+
+                                            <registry-range-full-button
+                                                @mouseenter=${() => {
+                        this.highlightFrom = this.group.registry.minmax.value?.min;
+                        this.highlightTo = this.group.registry.minmax.value?.max;
+                    }}
+                                                @focus=${() => {
+                        this.highlightFrom = this.group.registry.minmax.value?.min;
+                        this.highlightTo = this.group.registry.minmax.value?.max;
+                    }}
+                                                @mouseleave=${() => {
+                        this.highlightFrom = undefined;
+                        this.highlightTo = undefined;
+                    }}
+                                                @blur=${() => {
+                        this.highlightFrom = undefined;
+                        this.highlightTo = undefined;
+                    }}
+                                            ></registry-range-full-button>
                                         `
-                                        : nothing
-                                    }
+                : nothing
+            }
 
                                 </thermal-bar>
 
                             </div>
 
 
-                            <registry-histogram></registry-histogram>
-                            <registry-range-slider></registry-range-slider>
-                            <registry-ticks-bar></registry-ticks-bar>
+                            <registry-histogram highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-histogram>
+                            <registry-range-slider highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-range-slider>
+                            <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
 
                             <group-tool-buttons></group-tool-buttons>
 
                             <div class="app-content">
+
+                                    <slot></slot>
 
                                 ${this.groups.map(group => {
 
@@ -384,7 +419,16 @@ export class GroupElement extends BaseElement {
                                                 
                                                     <div class="file">
 
-                                                        <article>
+                                                        <article 
+                                                            @mouseenter=${() => {
+                                this.highlightFrom = instance.min;
+                                this.highlightTo = instance.max;
+                            }}
+                                                            @mouseleave=${() => {
+                                this.highlightFrom = undefined;
+                                this.highlightTo = undefined;
+                            }}
+                                                            >
 
                                                             <file-mirror .file=${instance}>
 
@@ -395,19 +439,35 @@ export class GroupElement extends BaseElement {
                                                                             <button slot="invoker" class="file-info-button" role="button">note</button>
                                                                             <div slot="content">${unsafeHTML(innerHtml)}</div>
                                                                         </thermal-dialog>`
-                                    : nothing}
+                                : nothing}
                                                                         <button 
                                                                             class="file-info-button" 
                                                                             role="button"
-                                                                            @click=${() => instance.export.canvasAsPng()}
+                                                                            @click=${() => instance.export.downloadPng()}
                                                                         >png</button>
                                                                         <file-info-button>
                                                                             <button slot="invoker" class="file-info-button" role="button">info</button>
                                                                         </file-info-button>
+
+                                                                        <button 
+                                                                            class="file-info-button"    
+                                                                            role="button" 
+                                                                            @click=${() => instance.group.registry.range.imposeRange({ from: instance.meta.current.min, to: instance.meta.current.max })}
+                                                                            @focus=${() => {
+                                this.highlightFrom = instance.min;
+                                this.highlightTo = instance.max;
+                            }}
+                                                                            @blur=${() => {
+                                this.highlightFrom = undefined;
+                                this.highlightTo = undefined;
+                            }}
+                                                                        >range</button>
+                                                                        
                                                                     </div>
                                                                 </div>
 
                                                                 <file-canvas></file-canvas>
+                                                                <file-timeline></file-timeline>
                                                                 <file-analysis-table></file-analysis-table>
                                                             </file-mirror>
 

@@ -1,8 +1,10 @@
-import { css, html, PropertyValueMap } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
 import { ThermalMinmaxOrUndefined } from "@labir/core";
-import { Ref, createRef, ref } from "lit/directives/ref.js";
+import { consume } from "@lit/context";
+import { css, html, nothing, PropertyValueMap } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 
 type TickType = {
     percentage: number,
@@ -19,7 +21,7 @@ export class TicksElement extends RegistryConsumer {
 
     protected observer!: ResizeObserver;
 
-    @property( {type: String, reflect: true} )
+    @property({ type: String, reflect: true })
     public placement: string = "top";
 
     @state()
@@ -28,32 +30,42 @@ export class TicksElement extends RegistryConsumer {
     @state()
     protected ticks: TickType[] = [];
 
+    @property({ type: Number, reflect: true })
+    public highlightFrom?: number;
+
+    @property({ type: Number, reflect: true })
+    public highlightTo?: number;
+
+    @consume({ context: managerPaletteContext, subscribe: true })
+    @state()
+    protected palette!: ManagerPaletteContext;
+
     connectedCallback(): void {
         super.connectedCallback();
 
         // this.log( this.registry.minmax );
 
-        this.registry.minmax.addListener( this.UUID, value => {
+        this.registry.minmax.addListener(this.UUID, value => {
 
             // console.log( "minmax updated", value );
             this.minmax = value;
-            this.calculateTicks( value, this.ticksRef.value!.clientWidth );
-        } );
+            this.calculateTicks(value, this.ticksRef.value!.clientWidth);
+        });
 
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
 
-        super.firstUpdated( _changedProperties );
+        super.firstUpdated(_changedProperties);
 
-        this.observer = new ResizeObserver( entries => {
+        this.observer = new ResizeObserver(entries => {
 
             const entry = entries[0];
-            this.calculateTicks( this.minmax, entry.contentRect.width );
+            this.calculateTicks(this.minmax, entry.contentRect.width);
 
-        } );
+        });
 
-        this.observer.observe( this.ticksRef.value! );
+        this.observer.observe(this.ticksRef.value!);
 
     }
 
@@ -71,21 +83,21 @@ export class TicksElement extends RegistryConsumer {
             this.ticks = [];
         } else {
 
-            const ticksPercentageBuffer = [ 0 ];
+            const ticksPercentageBuffer = [0];
 
-            const numTicks = Math.floor( width / TicksElement.TICK_WIDTH ) - 2;
+            const numTicks = Math.floor(width / TicksElement.TICK_WIDTH) - 2;
 
             const step = 100 / numTicks;
 
-            for ( let i = 1; i<numTicks;i++ ) {
+            for (let i = 1; i < numTicks; i++) {
 
-                ticksPercentageBuffer.push( step * i );
+                ticksPercentageBuffer.push(step * i);
 
             }
 
-            ticksPercentageBuffer.push( 100 );
+            ticksPercentageBuffer.push(100);
 
-            this.ticks = ticksPercentageBuffer.map( percent => this.calculateOneTick( minmax, percent ) as TickType ).filter( value => value !== undefined );
+            this.ticks = ticksPercentageBuffer.map(percent => this.calculateOneTick(minmax, percent) as TickType).filter(value => value !== undefined);
 
         }
     }
@@ -191,23 +203,47 @@ export class TicksElement extends RegistryConsumer {
 
     protected render(): unknown {
 
+        const hasHighlight = this.highlightFrom !== undefined && this.highlightTo !== undefined;
+
+        let highlightFrom: number | undefined = undefined;
+        let highlightTo: number | undefined = undefined;
+
+        if (this.registry.minmax.value && hasHighlight && this.highlightFrom !== undefined && this.highlightTo !== undefined) {
+
+            const min = this.registry.minmax.value.min;
+            const minmax = this.registry.minmax.value.max - min;
+
+            highlightFrom = (this.highlightFrom - min) / minmax * 100;
+            highlightTo = ((this.highlightTo - min) / minmax * 100) - highlightFrom;
+
+        }
+
+
+
         return html`
 
             <div class="container ${this.minmax !== undefined ? "ready" : "loading"} placement-${this.placement} ">
 
                 <div class="skeleton"></div>
 
-                <div class="ticks" ${ref( this.ticksRef )}>
+                <div class="ticks" ${ref(this.ticksRef)}>
 
-                    ${this.ticks.map( tick => {
-                        return html`
+                    ${hasHighlight
+                ? html`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-slate)"></div>`
+                : nothing
+            }
+
+                    ${this.ticks.map(tick => {
+                return html`
                             <div class="tick" >
                                 <div class="tick-value">
-                                ${tick.value.toFixed( TicksElement.TICK_FIXED )}
+                                ${tick.value.toFixed(TicksElement.TICK_FIXED)}
                                 </div>
                             </div>
                         `;
-                    } )}
+            })}
+
+                    
 
                 </div>                
 

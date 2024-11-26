@@ -1256,22 +1256,19 @@ declare class GroupExportCSV {
     downloadAsCsv(): void;
 }
 
-type GroupExportPNGParams = {
-    columns?: number;
+type AbstractExportProps = {
     width?: number;
+    backgroundColor?: string;
     showAnalysis?: boolean;
     fileName?: string;
-    backgroundColor?: string;
 };
-type GroupExportPNGParamsMandatory = {
-    columns: number;
-    width: number;
-    showAnalysis: boolean;
+type AbstractExportTypeMandatory = {
     fileName: string;
+    width: number;
     backgroundColor: string;
+    showAnalysis: boolean;
 };
-declare class GroupExportPNG {
-    readonly drive: AnalysisSyncDrive;
+declare abstract class AbstractPngExport<O extends AbstractExportProps, M extends AbstractExportTypeMandatory> {
     static FONT_SIZE_NORMAL: string;
     static FONT_SIZE_SMALL: string;
     static COLOR_BASE: string;
@@ -1281,45 +1278,77 @@ declare class GroupExportPNG {
     static FONT_FAMILY: string;
     static GAP_BASE: string;
     static GAP_SMALL: string;
+    static DEBUG: boolean;
+    protected wrapper?: HTMLDivElement;
+    protected container?: HTMLDivElement;
+    private _exporting;
+    get exporting(): boolean;
+    readonly onExportingStatusChange: CallbacksManager<(status: boolean) => void>;
+    /**
+     * Indicate the exporting status. Internal method only!
+     */
+    private setExporting;
+    /**
+     * A helper function creating a DIV with default styles
+     */
+    protected createElementWithText<E extends HTMLElement>(element: string, text: string, fontSize?: string, fontWeight?: CSSStyleDeclaration["fontWeight"], color?: string): E;
+    private buildWrapper;
+    private buildContainer;
+    /** Actions taken before the wrapper element is removed */
+    protected abstract beforeDomRemoved(): void;
+    /** Actions taken before the wrapper element is removed */
+    protected abstract afterDomRemoved(): void;
+    private clear;
+    /** Action taken after the wrapper and container are built */
+    protected abstract onBuildDom(params: M): void;
+    /** Create the core DOM and append it to body */
+    private buildDom;
+    /**
+     * Get final parameters from optional provided parameters
+     */
+    protected abstract getFinalParams(params?: O): M;
+    /**
+     * Make sure the file name has a valid extension
+     */
+    private makeSureFileNameIsValid;
+    /**
+     * This is the main method that shall create all the logic, append it to DOM and trigger a download via setTimeout. The download itself needs to be done through `this.downloadImage`.
+     */
+    protected abstract onDownload(params: M): void;
+    downloadPng(params?: O): Promise<void>;
+    /** A unified way to download an image */
+    protected downloadImage(fileName: string, container: HTMLDivElement): void;
+    buildHorizontalScale(element: HTMLDivElement, min: number, max: number, from: number, to: number, gradient: string, bgColor: string, text: string, highlight?: {
+        from: number;
+        to: number;
+    }): HTMLDivElement;
+}
+
+type GroupExportPNGParams = AbstractExportProps & {
+    columns?: number;
+};
+type GroupExportPNGParamsMandatory = AbstractExportTypeMandatory & {
+    columns: number;
+};
+declare class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, GroupExportPNGParamsMandatory> {
+    readonly drive: AnalysisSyncDrive;
     static DEFAULT_PROPS: GroupExportPNGParams;
     /** Alias to the group this exporter is attached to */
     protected get group(): ThermalGroup;
     /** Temporary local group is used to build a mirror of images. */
     protected localGroup?: ThermalGroup;
-    protected _exporting: boolean;
-    get exporting(): boolean;
-    protected readonly onExportingStatusChange: CallbacksManager<(status: boolean) => void>;
-    /** The wrapper contains the entire layout, but is invisible to the user */
-    protected wrapper?: HTMLDivElement;
-    /** Main DOM element to which the entire layout is inserted */
-    protected container?: HTMLDivElement;
     /** The header element with title, description and other stuff */
     protected header?: HTMLDivElement;
     /** Images are mounted to this DIV */
     protected list?: HTMLDivElement;
     constructor(drive: AnalysisSyncDrive);
-    /**
-     * Indicate the exporting status. Internal method only!
-     */
-    protected setExporting(value: boolean): void;
-    /**
-     * A helper function creating a DIV with default styles
-     */
-    protected createElementWithText<E extends HTMLElement>(element: string, text: string, fontSize?: string, fontWeight?: CSSStyleDeclaration["fontWeight"], color?: string): E;
-    protected buildWrapper(): HTMLDivElement;
-    protected buildContainer(width?: number, backgroundColor?: string): HTMLDivElement;
     protected buildHeader(): HTMLDivElement;
     protected buildList(): HTMLDivElement;
     protected buildInstance(instance: Instance, width: number, showAnalysis: boolean): void;
-    /**
-     * Build the entire DOM structure WITHOUT images.
-     */
-    protected buildDom(params: GroupExportPNGParamsMandatory): void;
-    /**
-     * Clear everything and remove the DOM
-     */
-    protected clear(): void;
-    downloadPng(params?: GroupExportPNGParams): Promise<void>;
+    protected onBuildDom(): void;
+    protected beforeDomRemoved(): void;
+    protected afterDomRemoved(): void;
+    protected onDownload(params: GroupExportPNGParamsMandatory): void;
     /**
      * Take provided parameters and combine them with defaults and add filename.
      */
@@ -2108,12 +2137,19 @@ declare class ThermalFileReader extends AbstractFileResult {
     createInstance(group: ThermalGroup): Promise<Instance>;
 }
 
-/** Handle the entire exports of a file */
-declare class ThermalFileExport {
+type FileExportPngParams = AbstractExportProps;
+type FileExportPngParamsMandatory = AbstractExportTypeMandatory;
+declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileExportPngParamsMandatory> {
     readonly file: Instance;
+    static DEFAULT_PARAMS: FileExportPngParamsMandatory;
+    protected localInstance?: Instance;
+    get canvas(): HTMLCanvasElement;
     constructor(file: Instance);
-    canvasAsPng(): void | undefined;
-    thermalDataAsCsv(): void;
+    protected onBuildDom(): void;
+    protected beforeDomRemoved(): void;
+    protected afterDomRemoved(): void;
+    protected getFinalParams(params?: AbstractExportProps | undefined): AbstractExportTypeMandatory;
+    protected onDownload(params: AbstractExportTypeMandatory): void;
 }
 
 declare class Instance extends AbstractFile {
@@ -2127,9 +2163,9 @@ declare class Instance extends AbstractFile {
     /**
      * Exports
      */
-    protected _export?: ThermalFileExport;
+    protected _export?: FilePngExport;
     /** Lazy-loaded `ThermalFileExport` object */
-    get export(): ThermalFileExport;
+    get export(): FilePngExport;
     private constructor();
     createInnerDom(): {
         canvasLayer: ThermalCanvasLayer;

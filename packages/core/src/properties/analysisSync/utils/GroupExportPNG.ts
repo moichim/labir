@@ -1,40 +1,21 @@
-import domtoimage from 'dom-to-image';
 import { Instance } from "../../../file/instance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
 import { Batch } from "../../../loading/batch/Batch";
+import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from '../../../utils/AbstractPngExport';
 import { TimeFormat } from "../../../utils/time/formatting";
 import { AbstractAreaAnalysis } from "../../analysis/internals/area/AbstractAreaAnalysis";
 import { PointAnalysis } from "../../analysis/internals/point/PointAnalysis";
-import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisSyncDrive } from "../analysisSync";
 
-export type GroupExportPNGParams = {
-    columns?: number,
-    width?: number,
-    showAnalysis?: boolean,
-    fileName?: string,
-    backgroundColor?: string
+export type GroupExportPNGParams = AbstractExportProps & {
+    columns?: number
 }
 
-type GroupExportPNGParamsMandatory = {
+type GroupExportPNGParamsMandatory = AbstractExportTypeMandatory & {
     columns: number,
-    width: number,
-    showAnalysis: boolean,
-    fileName: string,
-    backgroundColor: string
 }
 
-export class GroupExportPNG {
-
-    public static FONT_SIZE_NORMAL = "16px";
-    public static FONT_SIZE_SMALL = "12px";
-    public static COLOR_BASE = "black";
-    public static COLOR_GRAY = "gray";
-    public static COLOR_LIGHT = "lightgray";
-    public static WIDTH = "1600px";
-    public static FONT_FAMILY = "sans-serif";
-    public static GAP_BASE = "10px";
-    public static GAP_SMALL = "5px";
+export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, GroupExportPNGParamsMandatory> {
 
     public static DEFAULT_PROPS: GroupExportPNGParams = {
         columns: 3,
@@ -51,16 +32,6 @@ export class GroupExportPNG {
     /** Temporary local group is used to build a mirror of images. */
     protected localGroup?: ThermalGroup;
 
-    protected _exporting: boolean = false;
-    public get exporting() { return this._exporting; }
-    protected readonly onExportingStatusChange = new CallbacksManager<(status: boolean) => void>();
-
-    /** The wrapper contains the entire layout, but is invisible to the user */
-    protected wrapper?: HTMLDivElement;
-
-    /** Main DOM element to which the entire layout is inserted */
-    protected container?: HTMLDivElement;
-
     /** The header element with title, description and other stuff */
     protected header?: HTMLDivElement;
 
@@ -71,70 +42,10 @@ export class GroupExportPNG {
 
     public constructor(
         public readonly drive: AnalysisSyncDrive
-    ) { }
-
-
-
-
-    /** 
-     * Indicate the exporting status. Internal method only! 
-     */
-    protected setExporting(
-        value: boolean
     ) {
-        this._exporting = value;
-        this.onExportingStatusChange.call(this._exporting);
+        super();
     }
 
-
-    /** 
-     * A helper function creating a DIV with default styles 
-     */
-    protected createElementWithText<E extends HTMLElement>(
-        element: string,
-        text: string,
-        fontSize: string = GroupExportPNG.FONT_SIZE_NORMAL,
-        fontWeight: CSSStyleDeclaration["fontWeight"] = "normal",
-        color: string = GroupExportPNG.COLOR_BASE
-    ): E {
-        const el = document.createElement(element) as E;
-        el.innerHTML = text;
-        el.style.fontSize = fontSize;
-        el.style.lineHeight = "1em";
-        el.style.fontWeight = fontWeight;
-        el.style.color = color;
-        return el;
-
-    }
-
-
-    protected buildWrapper(): HTMLDivElement {
-        const element = document.createElement("div");
-
-        element.style.position = "absolute";
-        element.style.width = "0px";
-        element.style.height = "0px";
-        element.style.overflow = "hidden";
-
-        return element;
-    }
-
-
-    protected buildContainer(
-        width: number = GroupExportPNG.DEFAULT_PROPS.width!,
-        backgroundColor: string = GroupExportPNG.DEFAULT_PROPS.backgroundColor!
-    ): HTMLDivElement {
-
-        const element = document.createElement("div");
-        element.style.width = width.toFixed(0) + "px";
-        element.style.fontSize = GroupExportPNG.FONT_SIZE_NORMAL;
-        element.style.fontFamily = GroupExportPNG.FONT_FAMILY;
-        element.style.color = GroupExportPNG.COLOR_BASE;
-        element.style.backgroundColor = backgroundColor;
-
-        return element;
-
-    }
 
 
     protected buildHeader(): HTMLDivElement {
@@ -164,13 +75,9 @@ export class GroupExportPNG {
 
         // Create the summary
 
-        const orderedFiles = this.group.files.value.sort((a, b) => { return a.timestamp - b.timestamp });
-        const dateFrom = TimeFormat.human(orderedFiles[0].timestamp);
-        const dateTo = TimeFormat.human(orderedFiles[orderedFiles.length - 1].timestamp)
-
         const summary = this.createElementWithText<HTMLDivElement>(
             "div",
-            `Contains ${this.group.files.value.length} files dated from ${dateFrom} to ${dateTo}. Minimal temperature: ${this.group.registry.minmax.value?.min.toFixed(3)} °C. Maximal temperature: ${this.group.registry.minmax.value?.max.toFixed(3)} °C.`,
+            `${this.group.files.value.length} files. MIN: ${this.group.registry.minmax.value?.min.toFixed(3)} °C. MAX: ${this.group.registry.minmax.value?.max.toFixed(3)} °C.`,
             GroupExportPNG.FONT_SIZE_SMALL,
             undefined,
             GroupExportPNG.COLOR_GRAY
@@ -188,7 +95,7 @@ export class GroupExportPNG {
         );
         colophon.style.paddingTop = GroupExportPNG.GAP_SMALL;
 
-        element.appendChild(colophon);
+        // element.appendChild(colophon);
 
         return element;
 
@@ -252,7 +159,7 @@ export class GroupExportPNG {
 
                     const header = document.createElement("tr");
 
-                    ["Analysis", "AVG", "MIN", "MAX"].forEach(string => {
+                    ["", "AVG", "MIN", "MAX"].forEach(string => {
                         const el = this.createElementWithText(
                             "th",
                             string,
@@ -350,33 +257,15 @@ export class GroupExportPNG {
     }
 
 
-    /** 
-     * Build the entire DOM structure WITHOUT images.
-     */
-    protected buildDom(
-        params: GroupExportPNGParamsMandatory
-    ) {
-
-        // Build individual elements
-        this.wrapper = this.buildWrapper();
-        this.container = this.buildContainer(params.width!);
+    protected onBuildDom(): void {
         this.header = this.buildHeader();
         this.list = this.buildList();
 
-        // Bind elements together
-        this.container.appendChild(this.header);
-        this.container.appendChild(this.list);
-        this.wrapper.appendChild(this.container);
-        document.body.prepend(this.wrapper);
-
-
+        this.container?.appendChild(this.header);
+        this.container?.appendChild(this.list);
     }
 
-
-    /**
-     * Clear everything and remove the DOM
-     */
-    protected clear() {
+    protected beforeDomRemoved(): void {
 
         if (this.localGroup) {
 
@@ -388,13 +277,10 @@ export class GroupExportPNG {
 
         }
 
-        if (this.wrapper) {
-            document.body.removeChild(this.wrapper)
-        }
+    }
 
-        // Delete all objects manually
-        delete this.wrapper;
-        delete this.container;
+    protected afterDomRemoved(): void {
+
         delete this.header;
         delete this.list;
 
@@ -403,22 +289,7 @@ export class GroupExportPNG {
 
     }
 
-
-    async downloadPng(
-        params?: GroupExportPNGParams
-    ) {
-
-        // Do nothing if already exporting
-        if (this._exporting === true) {
-            console.warn(`The group ${this.group.label} is already exporting a PNG image!`);
-            return;
-        }
-
-        const options = this.getFinalParams(params);
-
-        this.setExporting(true);
-
-        this.buildDom(options);
+    protected onDownload(params: GroupExportPNGParamsMandatory): void {
 
         const registryId = Math.random().toFixed();
 
@@ -427,15 +298,25 @@ export class GroupExportPNG {
         const registry = manager.addOrGetRegistry(registryId);
         const group = registry.groups.addOrGetGroup(this.group.id);
 
+        // Build the temperature scale
+
+        this.list?.appendChild(this.buildHorizontalScale(
+            this.list!,
+            this.group.registry.minmax.value!.min,
+            this.group.registry.minmax.value!.max,
+            this.group.registry.range.value!.from,
+            this.group.registry.range.value!.to,
+            this.group.registry.palette.currentPalette.gradient,
+            "gray",
+            "black"
+        ));
+
         // Assign the local group for further usage
         this.localGroup = group;
-
 
         // Mirror the group state to the local objects
         manager.palette.setPalette(this.group.registry.manager.palette.value);
         registry.range.imposeRange(this.group.registry.range.value!);
-
-
 
         // Extract URLS of affected images
         const imagesThermalUrls = this.group.files.sortedFiles.map(file => file.thermalUrl);
@@ -451,33 +332,25 @@ export class GroupExportPNG {
         // Set listener on the batch resolve event
         batch!.onResolve.set("temporary export listener", results => {
 
-            const width = 100 / options.columns!;
+            const width = 100 / params.columns!;
 
             // Build all recieved instances
             results.forEach(result => {
                 if (result instanceof Instance) {
-                    this.buildInstance(result, width, options.showAnalysis!);
+                    this.buildInstance(result, width, params.showAnalysis!);
                 }
             });
 
             // Wait for some time (instances need to render) and then export and cleanup
             setTimeout(() => {
 
-                domtoimage.toPng(this.container!).then((dataUrl: string) => {
+                if (this.container) {
+                    this.downloadImage(
+                        params.fileName,
+                        this.container
+                    );
+                }
 
-                    // Save the image
-                    const link = document.createElement("a");
-                    link.download = options.fileName!;
-                    link.href = dataUrl;
-                    link.click();
-
-                    // Clear everything
-                    this.clear();
-
-                    // Mark as free
-                    this.setExporting(false);
-
-                })
             }, 2000);
 
         });
@@ -492,17 +365,9 @@ export class GroupExportPNG {
         params?: GroupExportPNGParams
     ): GroupExportPNGParamsMandatory {
 
-        let fileName = params?.fileName
+        const fileName = params?.fileName
             ? params.fileName
             : `group__${this.group.label}__export`;
-
-        if (fileName.endsWith(".PNG")) {
-            fileName = fileName.replaceAll(".PNG", ".png");
-        }
-
-        if (!fileName.endsWith(".png")) {
-            fileName = fileName + ".png";
-        }
 
         if (params === undefined) {
             return {

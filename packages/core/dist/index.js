@@ -4343,19 +4343,6 @@ var AbstractFile = class extends BaseStructureObject {
   }
 };
 
-// src/file/utils/ThermalFileExports.ts
-var ThermalFileExport = class {
-  constructor(file) {
-    this.file = file;
-  }
-  canvasAsPng() {
-    return this.file.dom?.canvasLayer?.exportAsPng();
-  }
-  thermalDataAsCsv() {
-    throw new Error("Not implemented");
-  }
-};
-
 // src/file/dom/layers/AbstractLayer.ts
 var AbstractLayer = class {
   constructor(instance) {
@@ -4806,6 +4793,478 @@ var ThermalListenerLayer = class extends AbstractLayer {
   }
 };
 
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+  }
+};
+
+// src/loading/workers/ThermalFileReader.ts
+var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
+  constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
+    super(thermalUrl, visibleUrl);
+    this.service = service;
+    this.parser = parser2;
+    this._buffer = buffer;
+    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+    if (preserveOriginalBuffer === true) {
+      this.originalBuffer = this.copyBuffer(this.buffer);
+    }
+  }
+  /** For the purpose of testing we have a unique ID */
+  id = Math.random();
+  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+  baseInfoCache;
+  fileName;
+  get pool() {
+    return this.service.pool;
+  }
+  originalBuffer;
+  _buffer;
+  get buffer() {
+    return this._buffer;
+  }
+  set buffer(value) {
+    this._buffer = value;
+  }
+  isSuccess() {
+    return true;
+  }
+  copyBuffer(buffer) {
+    const copiedBuffer = new ArrayBuffer(buffer.byteLength);
+    const copiedArray = new Uint8Array(copiedBuffer);
+    copiedArray.set(new Uint8Array(buffer));
+    return copiedArray.buffer;
+  }
+  /** Create copy of the self so that the */
+  cloneForInstance() {
+    return new _ThermalFileReader(
+      this.service,
+      this.buffer,
+      this.parser,
+      this.thermalUrl,
+      this.visibleUrl,
+      true
+    );
+  }
+  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+  async baseInfo() {
+    if (this.baseInfoCache) {
+      return this.baseInfoCache;
+    }
+    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
+    this.baseInfoCache = baseInfo2;
+    return baseInfo2;
+  }
+  /** 
+   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
+   * 
+   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+   */
+  getFrameSubset(frameIndex) {
+    return this.parser.getFrameSubset(this.buffer, frameIndex);
+  }
+  /** Read a given frame
+   * @todo Implement index range check
+   */
+  async frameData(index) {
+    const data = this.getFrameSubset(index);
+    const result = await this.parser.frameData(data.array, data.dataType);
+    return result;
+  }
+  async pointAnalysisData(x, y) {
+    return await this.parser.pointAnalysisData(this.buffer, x, y);
+  }
+  async rectAnalysisData(x, y, width, height) {
+    return await this.parser.rectAnalysisData(this.buffer, x, y, width, height);
+  }
+  async ellipsisAnalysisData(x, y, width, height) {
+    return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
+  }
+  /** 
+   * Recalculates the core array buffer using all available filters. 
+   * 
+   * This method does not emit anything - it only changes the array buffer.
+   */
+  async applyFilters(filters) {
+    if (this.originalBuffer === void 0) {
+      console.error("trying to apply filters on a filereader template");
+      return this;
+    }
+    this.buffer = this.copyBuffer(this.originalBuffer);
+    for (const filter of filters) {
+      this.buffer = await filter.apply(this.buffer);
+    }
+    this.baseInfoCache = void 0;
+    await this.baseInfo();
+    return this;
+  }
+  async createInstance(group) {
+    const reader = this.cloneForInstance();
+    const filters = [
+      ...group.registry.manager.filters.getActiveFilters(),
+      ...group.registry.filters.getActiveFilters(),
+      ...group.filters.getActiveFilters()
+    ];
+    await reader.applyFilters(filters);
+    const baseInfo2 = await reader.baseInfo();
+    const firstFrame = await reader.frameData(0);
+    const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
+    group.files.addFile(instance);
+    return instance;
+  }
+};
+
+// src/utils/AbstractPngExport.ts
+var import_dom_to_image = __toESM(require("dom-to-image"));
+var AbstractPngExport = class _AbstractPngExport {
+  static FONT_SIZE_NORMAL = "16px";
+  static FONT_SIZE_SMALL = "12px";
+  static COLOR_BASE = "black";
+  static COLOR_GRAY = "gray";
+  static COLOR_LIGHT = "lightgray";
+  static WIDTH = "1600px";
+  static FONT_FAMILY = "sans-serif";
+  static GAP_BASE = "10px";
+  static GAP_SMALL = "5px";
+  static DEBUG = false;
+  wrapper;
+  container;
+  _exporting = false;
+  get exporting() {
+    return this._exporting;
+  }
+  onExportingStatusChange = new CallbacksManager();
+  /** 
+   * Indicate the exporting status. Internal method only! 
+   */
+  setExporting(value) {
+    this._exporting = value;
+    this.onExportingStatusChange.call(this._exporting);
+  }
+  /** 
+   * A helper function creating a DIV with default styles 
+   */
+  createElementWithText(element, text, fontSize = _AbstractPngExport.FONT_SIZE_NORMAL, fontWeight = "normal", color = _AbstractPngExport.COLOR_BASE) {
+    const el = document.createElement(element);
+    el.innerHTML = text;
+    el.style.fontSize = fontSize;
+    el.style.lineHeight = "1em";
+    el.style.fontWeight = fontWeight;
+    el.style.color = color;
+    return el;
+  }
+  buildWrapper() {
+    const element = document.createElement("div");
+    if (_AbstractPngExport.DEBUG === false) {
+      element.style.position = "absolute";
+      element.style.width = "0px";
+      element.style.height = "0px";
+      element.style.overflow = "hidden";
+    }
+    return element;
+  }
+  buildContainer(width, backgroundColor) {
+    const element = document.createElement("div");
+    element.style.width = width.toFixed(0) + "px";
+    element.style.fontSize = _AbstractPngExport.FONT_SIZE_NORMAL;
+    element.style.fontFamily = _AbstractPngExport.FONT_FAMILY;
+    element.style.color = _AbstractPngExport.COLOR_BASE;
+    element.style.backgroundColor = backgroundColor;
+    return element;
+  }
+  clear() {
+    this.beforeDomRemoved();
+    if (this.wrapper) {
+      document.body.removeChild(this.wrapper);
+    }
+    this.afterDomRemoved();
+    delete this.container;
+    delete this.wrapper;
+  }
+  /** Create the core DOM and append it to body */
+  buildDom(params) {
+    this.wrapper = this.buildWrapper();
+    this.container = this.buildContainer(params.width, params.backgroundColor);
+    this.wrapper.appendChild(this.container);
+    this.onBuildDom(params);
+    document.body.prepend(this.wrapper);
+  }
+  /**
+   * Make sure the file name has a valid extension
+   */
+  makeSureFileNameIsValid(fileName) {
+    if (fileName.endsWith(".PNG")) {
+      fileName = fileName.replaceAll(".PNG", ".png");
+    }
+    if (!fileName.endsWith(".png")) {
+      fileName = fileName + ".png";
+    }
+    return fileName;
+  }
+  async downloadPng(params) {
+    const options = this.getFinalParams(params);
+    options.fileName = this.makeSureFileNameIsValid(options.fileName);
+    if (this.exporting === true) {
+      console.warn(`PNG export of ${options.fileName} is already working. New requests are allowed after the export finishes.`);
+      return;
+    }
+    this.setExporting(true);
+    this.buildDom(options);
+    this.onDownload(options);
+  }
+  /** A unified way to download an image */
+  downloadImage(fileName, container) {
+    import_dom_to_image.default.toPng(container).then((dataUrl) => {
+      const link = document.createElement("a");
+      link.download = fileName;
+      link.href = dataUrl;
+      link.click();
+      if (_AbstractPngExport.DEBUG === false) {
+        this.clear();
+      }
+      this.setExporting(false);
+    });
+  }
+  buildHorizontalScale(element, min, max, from, to, gradient, bgColor, text, highlight) {
+    const elementWidth = element.clientWidth;
+    const singleItemWidth = 60;
+    const elementOffset = 40;
+    const numElements = elementWidth / (singleItemWidth + elementOffset);
+    const box = document.createElement("div");
+    box.style.width = "100%";
+    box.style.position = "relative";
+    box.style.paddingLeft = singleItemWidth / 2 + "px";
+    box.style.paddingRight = singleItemWidth / 2 + "px";
+    box.style.boxSizing = "border-box";
+    const scale = document.createElement("div");
+    scale.style.width = "100%";
+    scale.style.position = "relative";
+    scale.style.backgroundColor = bgColor;
+    scale.style.height = "30px";
+    const minmax = max - min;
+    const fromClamped = from - min;
+    const toClamped = to - min;
+    const rangeFromPercent = fromClamped / minmax * 100;
+    const rangeToErcent = toClamped / minmax * 100;
+    const range = document.createElement("div");
+    range.style.position = "absolute";
+    range.style.backgroundImage = gradient;
+    range.style.height = "100%";
+    range.style.top = "0px";
+    range.style.left = rangeFromPercent + "%";
+    range.style.width = rangeToErcent - rangeFromPercent + "%";
+    scale.appendChild(range);
+    box.appendChild(scale);
+    const ticks = document.createElement("div");
+    ticks.style.width = "100%";
+    ticks.style.height = "40px";
+    ticks.style.position = "relative";
+    const buildTick = (value, highlightTick = false, color, background) => {
+      const percent = value / minmax * 100;
+      const tick = document.createElement("div");
+      tick.style.position = "absolute";
+      tick.style.top = "0px";
+      tick.style.left = `calc( ${percent}% - ${singleItemWidth / 2}px )`;
+      tick.style.width = singleItemWidth + "px";
+      tick.style.textAlign = "center";
+      tick.style.lineHeight = "0px";
+      const val = document.createElement("div");
+      const pointer = document.createElement("div");
+      const pointerInner = document.createElement("div");
+      const pointerScale = 7;
+      const pointerScalePx = pointerScale + "px";
+      val.innerHTML = (min + value).toFixed(2) + " \xB0C";
+      val.style.display = "inline-block";
+      val.style.fontSize = _AbstractPngExport.FONT_SIZE_SMALL;
+      val.style.lineHeight = "1em";
+      val.style.padding = "3px";
+      val.style.position = "relative";
+      pointer.style.width = "100%";
+      pointer.style.height = pointerScalePx;
+      pointer.style.textAlign = "center";
+      pointer.style.position = "relative";
+      pointer.style.lineHeight = "0px";
+      pointerInner.style.content = "";
+      pointerInner.style.display = "inline-block";
+      if (highlightTick) {
+        pointerInner.style.width = pointerScale * 2 + "px";
+        pointerInner.style.height = pointerScale * 2 + "px";
+        pointerInner.style.rotate = "45deg";
+        pointerInner.style.backgroundColor = background;
+        val.style.backgroundColor = background;
+        val.style.zIndex = "99";
+        val.style.color = color;
+      } else {
+        pointerInner.style.width = "1px";
+        pointerInner.style.height = pointerScalePx;
+        pointerInner.style.backgroundColor = color;
+      }
+      pointer.appendChild(pointerInner);
+      tick.appendChild(pointer);
+      tick.appendChild(val);
+      ticks.appendChild(tick);
+    };
+    if (highlight) {
+      const area = document.createElement("div");
+      area.style.position = "absolute";
+      area.style.border = `2px solid ${text}`;
+      area.style.height = "100%";
+      area.style.boxSizing = "border-box";
+      const areaFromPercent = (highlight.from - min) / minmax * 100;
+      const areaToPercent = (highlight.to - min) / minmax * 100 - areaFromPercent;
+      area.style.left = areaFromPercent + "%";
+      area.style.width = areaToPercent + "%";
+      scale.appendChild(area);
+      buildTick(highlight.from - min, true, "white", bgColor);
+      buildTick(highlight.to - min, true, "white", bgColor);
+    }
+    const onePart = minmax / numElements;
+    let currentTickValue = 0;
+    while (currentTickValue <= minmax) {
+      buildTick(currentTickValue, false, text, "transparent");
+      currentTickValue = currentTickValue + onePart;
+    }
+    buildTick(fromClamped, true, "white", text);
+    buildTick(toClamped, true, "white", text);
+    box.appendChild(ticks);
+    return box;
+  }
+};
+
+// src/file/utils/FilePngExport.ts
+var FilePngExport = class _FilePngExport extends AbstractPngExport {
+  constructor(file) {
+    super();
+    this.file = file;
+  }
+  static DEFAULT_PARAMS = {
+    fileName: "sth",
+    width: 1200,
+    showAnalysis: true,
+    backgroundColor: "white"
+  };
+  localInstance;
+  get canvas() {
+    return this.file.canvasLayer.canvas;
+  }
+  onBuildDom() {
+  }
+  beforeDomRemoved() {
+  }
+  afterDomRemoved() {
+    this.localInstance?.group.registry.manager.removeRegistry(this.localInstance.group.registry.id);
+    delete this.localInstance;
+  }
+  getFinalParams(params) {
+    const fileName = params && params.fileName ? params.fileName : `${this.file.fileName}__export`;
+    return {
+      ..._FilePngExport.DEFAULT_PARAMS,
+      ...params,
+      fileName
+    };
+  }
+  onDownload(params) {
+    const registryId = Math.random().toString();
+    const manager = this.file.group.registry.manager;
+    const registry = manager.addOrGetRegistry(registryId);
+    const group = registry.groups.addOrGetGroup(registryId);
+    manager.palette.setPalette(this.file.group.registry.manager.palette.value);
+    registry.range.imposeRange(this.file.group.registry.range.value);
+    registry.service.loadFile(this.file.thermalUrl).then(async (result) => {
+      if (result instanceof ThermalFileReader) {
+        this.localInstance = await result.createInstance(group);
+        if (this.container) {
+          const registryMin = this.file.group.registry.minmax.value.min;
+          const registryMax = this.file.group.registry.minmax.value.max;
+          const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max ? { from: this.file.meta.current.min, to: this.file.meta.current.max } : void 0;
+          this.container.appendChild(this.buildHorizontalScale(
+            this.container,
+            registryMin,
+            registryMax,
+            this.file.group.registry.range.value.from,
+            this.file.group.registry.range.value.to,
+            this.file.group.registry.palette.currentPalette.gradient,
+            "gray",
+            "black",
+            highlight
+          ));
+          this.localInstance.mountToDom(this.container);
+          this.localInstance.draw();
+          if (params.showAnalysis && this.file.analysis.value.length > 0) {
+            const table = document.createElement("table");
+            table.style.width = "100%";
+            table.style.borderCollapse = "collapse";
+            const header = document.createElement("tr");
+            ["Analysis", "AVG", "MIN", "MAX"].forEach((string) => {
+              const el = this.createElementWithText(
+                "th",
+                string,
+                _FilePngExport.FONT_SIZE_SMALL,
+                void 0,
+                _FilePngExport.COLOR_GRAY
+              );
+              el.style.padding = _FilePngExport.GAP_SMALL + "px";
+              el.style.textAlign = "left";
+              header.appendChild(el);
+            });
+            table.appendChild(header);
+            this.container.appendChild(table);
+            this.file.slots.forEveryExistingSlot((slot, number) => {
+              const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
+              if (localAnalysis) {
+                const row = document.createElement("tr");
+                const name = this.createElementWithText(
+                  "td",
+                  slot.analysis.name,
+                  _FilePngExport.FONT_SIZE_SMALL,
+                  void 0,
+                  slot.analysis.initialColor
+                );
+                name.style.borderTop = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
+                name.style.padding = `${_FilePngExport.GAP_SMALL}px 0px ${_FilePngExport.GAP_SMALL} 0px`;
+                row.appendChild(name);
+                const createAndAppendValue = (color, value) => {
+                  const td = this.createElementWithText(
+                    "td",
+                    value ? value.toFixed(3) + " \xB0C" : "",
+                    _FilePngExport.FONT_SIZE_SMALL,
+                    void 0
+                  );
+                  td.style.borderTop = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
+                  td.style.paddingTop = `${_FilePngExport.GAP_SMALL}px`;
+                  td.style.paddingBottom = `${_FilePngExport.GAP_SMALL}px`;
+                  row.appendChild(td);
+                };
+                if (slot.analysis instanceof AbstractAreaAnalysis) {
+                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+                } else if (slot.analysis instanceof PointAnalysis) {
+                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                  createAndAppendValue(slot.analysis.initialColor);
+                  createAndAppendValue(slot.analysis.initialColor);
+                }
+                table.appendChild(row);
+              }
+            });
+          }
+          setTimeout(() => {
+            if (this.container) {
+              this.downloadImage(
+                params.fileName,
+                this.container
+              );
+            }
+          }, 1e3);
+        }
+      }
+    });
+  }
+};
+
 // src/file/instance.ts
 var Instance = class _Instance extends AbstractFile {
   constructor(group, reader, baseInfo2, firstFrame) {
@@ -4829,7 +5288,7 @@ var Instance = class _Instance extends AbstractFile {
   /** Lazy-loaded `ThermalFileExport` object */
   get export() {
     if (!this._export) {
-      const newExport = new ThermalFileExport(this);
+      const newExport = new FilePngExport(this);
       this._export = newExport;
     }
     return this._export;
@@ -5066,20 +5525,11 @@ var GroupExportCSV = class {
 };
 
 // src/properties/analysisSync/utils/GroupExportPNG.ts
-var import_dom_to_image = __toESM(require("dom-to-image"));
-var GroupExportPNG = class _GroupExportPNG {
+var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
   constructor(drive) {
+    super();
     this.drive = drive;
   }
-  static FONT_SIZE_NORMAL = "16px";
-  static FONT_SIZE_SMALL = "12px";
-  static COLOR_BASE = "black";
-  static COLOR_GRAY = "gray";
-  static COLOR_LIGHT = "lightgray";
-  static WIDTH = "1600px";
-  static FONT_FAMILY = "sans-serif";
-  static GAP_BASE = "10px";
-  static GAP_SMALL = "5px";
   static DEFAULT_PROPS = {
     columns: 3,
     width: 1600,
@@ -5092,55 +5542,10 @@ var GroupExportPNG = class _GroupExportPNG {
   }
   /** Temporary local group is used to build a mirror of images. */
   localGroup;
-  _exporting = false;
-  get exporting() {
-    return this._exporting;
-  }
-  onExportingStatusChange = new CallbacksManager();
-  /** The wrapper contains the entire layout, but is invisible to the user */
-  wrapper;
-  /** Main DOM element to which the entire layout is inserted */
-  container;
   /** The header element with title, description and other stuff */
   header;
   /** Images are mounted to this DIV */
   list;
-  /** 
-   * Indicate the exporting status. Internal method only! 
-   */
-  setExporting(value) {
-    this._exporting = value;
-    this.onExportingStatusChange.call(this._exporting);
-  }
-  /** 
-   * A helper function creating a DIV with default styles 
-   */
-  createElementWithText(element, text, fontSize = _GroupExportPNG.FONT_SIZE_NORMAL, fontWeight = "normal", color = _GroupExportPNG.COLOR_BASE) {
-    const el = document.createElement(element);
-    el.innerHTML = text;
-    el.style.fontSize = fontSize;
-    el.style.lineHeight = "1em";
-    el.style.fontWeight = fontWeight;
-    el.style.color = color;
-    return el;
-  }
-  buildWrapper() {
-    const element = document.createElement("div");
-    element.style.position = "absolute";
-    element.style.width = "0px";
-    element.style.height = "0px";
-    element.style.overflow = "hidden";
-    return element;
-  }
-  buildContainer(width = _GroupExportPNG.DEFAULT_PROPS.width, backgroundColor = _GroupExportPNG.DEFAULT_PROPS.backgroundColor) {
-    const element = document.createElement("div");
-    element.style.width = width.toFixed(0) + "px";
-    element.style.fontSize = _GroupExportPNG.FONT_SIZE_NORMAL;
-    element.style.fontFamily = _GroupExportPNG.FONT_FAMILY;
-    element.style.color = _GroupExportPNG.COLOR_BASE;
-    element.style.backgroundColor = backgroundColor;
-    return element;
-  }
   buildHeader() {
     const element = document.createElement("div");
     element.style.padding = _GroupExportPNG.GAP_BASE;
@@ -5163,14 +5568,9 @@ var GroupExportPNG = class _GroupExportPNG {
       description.style.paddingTop = _GroupExportPNG.GAP_SMALL;
       element.appendChild(description);
     }
-    const orderedFiles = this.group.files.value.sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    });
-    const dateFrom = TimeFormat.human(orderedFiles[0].timestamp);
-    const dateTo = TimeFormat.human(orderedFiles[orderedFiles.length - 1].timestamp);
     const summary = this.createElementWithText(
       "div",
-      `Contains ${this.group.files.value.length} files dated from ${dateFrom} to ${dateTo}. Minimal temperature: ${this.group.registry.minmax.value?.min.toFixed(3)} \xB0C. Maximal temperature: ${this.group.registry.minmax.value?.max.toFixed(3)} \xB0C.`,
+      `${this.group.files.value.length} files. MIN: ${this.group.registry.minmax.value?.min.toFixed(3)} \xB0C. MAX: ${this.group.registry.minmax.value?.max.toFixed(3)} \xB0C.`,
       _GroupExportPNG.FONT_SIZE_SMALL,
       void 0,
       _GroupExportPNG.COLOR_GRAY
@@ -5185,7 +5585,6 @@ var GroupExportPNG = class _GroupExportPNG {
       _GroupExportPNG.COLOR_GRAY
     );
     colophon.style.paddingTop = _GroupExportPNG.GAP_SMALL;
-    element.appendChild(colophon);
     return element;
   }
   buildList() {
@@ -5221,7 +5620,7 @@ var GroupExportPNG = class _GroupExportPNG {
           table.style.width = "100%";
           table.style.borderCollapse = "collapse";
           const header = document.createElement("tr");
-          ["Analysis", "AVG", "MIN", "MAX"].forEach((string) => {
+          ["", "AVG", "MIN", "MAX"].forEach((string) => {
             const el = this.createElementWithText(
               "th",
               string,
@@ -5277,48 +5676,38 @@ var GroupExportPNG = class _GroupExportPNG {
       }
     }
   }
-  /** 
-   * Build the entire DOM structure WITHOUT images.
-   */
-  buildDom(params) {
-    this.wrapper = this.buildWrapper();
-    this.container = this.buildContainer(params.width);
+  onBuildDom() {
     this.header = this.buildHeader();
     this.list = this.buildList();
-    this.container.appendChild(this.header);
-    this.container.appendChild(this.list);
-    this.wrapper.appendChild(this.container);
-    document.body.prepend(this.wrapper);
+    this.container?.appendChild(this.header);
+    this.container?.appendChild(this.list);
   }
-  /**
-   * Clear everything and remove the DOM
-   */
-  clear() {
+  beforeDomRemoved() {
     if (this.localGroup) {
       this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
       this.localGroup.files.removeAllInstances();
     }
-    if (this.wrapper) {
-      document.body.removeChild(this.wrapper);
-    }
-    delete this.wrapper;
-    delete this.container;
+  }
+  afterDomRemoved() {
     delete this.header;
     delete this.list;
     delete this.localGroup;
   }
-  async downloadPng(params) {
-    if (this._exporting === true) {
-      console.warn(`The group ${this.group.label} is already exporting a PNG image!`);
-      return;
-    }
-    const options = this.getFinalParams(params);
-    this.setExporting(true);
-    this.buildDom(options);
+  onDownload(params) {
     const registryId = Math.random().toFixed();
     const manager = this.group.registry.manager;
     const registry = manager.addOrGetRegistry(registryId);
     const group = registry.groups.addOrGetGroup(this.group.id);
+    this.list?.appendChild(this.buildHorizontalScale(
+      this.list,
+      this.group.registry.minmax.value.min,
+      this.group.registry.minmax.value.max,
+      this.group.registry.range.value.from,
+      this.group.registry.range.value.to,
+      this.group.registry.palette.currentPalette.gradient,
+      "gray",
+      "black"
+    ));
     this.localGroup = group;
     manager.palette.setPalette(this.group.registry.manager.palette.value);
     registry.range.imposeRange(this.group.registry.range.value);
@@ -5329,21 +5718,19 @@ var GroupExportPNG = class _GroupExportPNG {
       });
     });
     batch.onResolve.set("temporary export listener", (results) => {
-      const width = 100 / options.columns;
+      const width = 100 / params.columns;
       results.forEach((result) => {
         if (result instanceof Instance) {
-          this.buildInstance(result, width, options.showAnalysis);
+          this.buildInstance(result, width, params.showAnalysis);
         }
       });
       setTimeout(() => {
-        import_dom_to_image.default.toPng(this.container).then((dataUrl) => {
-          const link = document.createElement("a");
-          link.download = options.fileName;
-          link.href = dataUrl;
-          link.click();
-          this.clear();
-          this.setExporting(false);
-        });
+        if (this.container) {
+          this.downloadImage(
+            params.fileName,
+            this.container
+          );
+        }
       }, 2e3);
     });
   }
@@ -5351,13 +5738,7 @@ var GroupExportPNG = class _GroupExportPNG {
    * Take provided parameters and combine them with defaults and add filename.
    */
   getFinalParams(params) {
-    let fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
-    if (fileName.endsWith(".PNG")) {
-      fileName = fileName.replaceAll(".PNG", ".png");
-    }
-    if (!fileName.endsWith(".png")) {
-      fileName = fileName + ".png";
-    }
+    const fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
     if (params === void 0) {
       return {
         ..._GroupExportPNG.DEFAULT_PROPS,
@@ -5493,12 +5874,12 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   }
   setSlotSelected(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setSelected(true);
+      slot?.analysis.setSelected(false);
     });
   }
   setSlotDeselected(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setDeselected(true);
+      slot?.analysis.setDeselected();
     });
   }
   /**
@@ -5915,11 +6296,8 @@ var EditTool = class extends AbstractTool {
                     ${analysis2.name}
                 </${element}>`;
     });
-    const hoveredPoints = file.analysis.points.all.filter((point) => point.isHover).map((point) => `<span style="color: ${point.analysis.initialColor}">${point.analysis.name} - HANDLE: ${point.key}: X: ${point.x} Y: ${point.y}</span>`);
     const analysis = hoveredAnalysis.length > 0 ? hoveredAnalysis.join("<br />") + "<br />" : "";
-    const points = hoveredPoints.length > 0 ? hoveredPoints.join("<br />") + "<br />" : "";
-    const result = points.length > 0 ? points : analysis;
-    return `${result}${temperature && temperature.toFixed(2) + " \xB0C<br />"}X: ${x}<br />Y: ${y}`;
+    return `${analysis}${temperature && temperature.toFixed(2) + " \xB0C<br />"}X: ${x}<br />Y: ${y}`;
   }
 };
 
@@ -6026,14 +6404,6 @@ var ThermalGroup = class extends BaseStructureObject {
 // src/hierarchy/ThermalManager.ts
 var workerpool = __toESM(require("workerpool"));
 
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-  }
-};
-
 // src/loading/workers/ThermalFileFailure.ts
 var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
   constructor(thermalUrl, code, message) {
@@ -6055,122 +6425,6 @@ var FileLoadingError = class extends Error {
     super(message);
     this.code = code;
     this.url = url;
-  }
-};
-
-// src/loading/workers/ThermalFileReader.ts
-var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
-  constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
-    super(thermalUrl, visibleUrl);
-    this.service = service;
-    this.parser = parser2;
-    this._buffer = buffer;
-    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-    if (preserveOriginalBuffer === true) {
-      this.originalBuffer = this.copyBuffer(this.buffer);
-    }
-  }
-  /** For the purpose of testing we have a unique ID */
-  id = Math.random();
-  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-  baseInfoCache;
-  fileName;
-  get pool() {
-    return this.service.pool;
-  }
-  originalBuffer;
-  _buffer;
-  get buffer() {
-    return this._buffer;
-  }
-  set buffer(value) {
-    this._buffer = value;
-  }
-  isSuccess() {
-    return true;
-  }
-  copyBuffer(buffer) {
-    const copiedBuffer = new ArrayBuffer(buffer.byteLength);
-    const copiedArray = new Uint8Array(copiedBuffer);
-    copiedArray.set(new Uint8Array(buffer));
-    return copiedArray.buffer;
-  }
-  /** Create copy of the self so that the */
-  cloneForInstance() {
-    return new _ThermalFileReader(
-      this.service,
-      this.buffer,
-      this.parser,
-      this.thermalUrl,
-      this.visibleUrl,
-      true
-    );
-  }
-  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
-  async baseInfo() {
-    if (this.baseInfoCache) {
-      return this.baseInfoCache;
-    }
-    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
-    this.baseInfoCache = baseInfo2;
-    return baseInfo2;
-  }
-  /** 
-   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
-   * 
-   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
-   */
-  getFrameSubset(frameIndex) {
-    return this.parser.getFrameSubset(this.buffer, frameIndex);
-  }
-  /** Read a given frame
-   * @todo Implement index range check
-   */
-  async frameData(index) {
-    const data = this.getFrameSubset(index);
-    const result = await this.parser.frameData(data.array, data.dataType);
-    return result;
-  }
-  async pointAnalysisData(x, y) {
-    return await this.parser.pointAnalysisData(this.buffer, x, y);
-  }
-  async rectAnalysisData(x, y, width, height) {
-    return await this.parser.rectAnalysisData(this.buffer, x, y, width, height);
-  }
-  async ellipsisAnalysisData(x, y, width, height) {
-    return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
-  }
-  /** 
-   * Recalculates the core array buffer using all available filters. 
-   * 
-   * This method does not emit anything - it only changes the array buffer.
-   */
-  async applyFilters(filters) {
-    if (this.originalBuffer === void 0) {
-      console.error("trying to apply filters on a filereader template");
-      return this;
-    }
-    this.buffer = this.copyBuffer(this.originalBuffer);
-    for (const filter of filters) {
-      this.buffer = await filter.apply(this.buffer);
-    }
-    this.baseInfoCache = void 0;
-    await this.baseInfo();
-    return this;
-  }
-  async createInstance(group) {
-    const reader = this.cloneForInstance();
-    const filters = [
-      ...group.registry.manager.filters.getActiveFilters(),
-      ...group.registry.filters.getActiveFilters(),
-      ...group.filters.getActiveFilters()
-    ];
-    await reader.applyFilters(filters);
-    const baseInfo2 = await reader.baseInfo();
-    const firstFrame = await reader.frameData(0);
-    const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
-    group.files.addFile(instance);
-    return instance;
   }
 };
 

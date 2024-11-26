@@ -93,22 +93,12 @@ export class EditTool extends AbstractTool implements ITool {
 
             });
 
-        const hoveredPoints = file.analysis.points.all
-            .filter(point => point.isHover)
-            .map(point => `<span style="color: ${point.analysis.initialColor}">${point.analysis.name} - HANDLE: ${point.key}: X: ${point.x} Y: ${point.y}</span>`);
-
         const analysis = hoveredAnalysis.length > 0
             ? hoveredAnalysis.join("<br />") + "<br />"
             : "";
 
-        const points = hoveredPoints.length > 0
-            ? hoveredPoints.join("<br />") + "<br />"
-            : "";
 
-        const result = points.length > 0 ? points : analysis;
-
-
-        return `${result}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
+        return `${analysis}${temperature && temperature.toFixed(2) + " °C<br />"}X: ${x}<br />Y: ${y}`;
 
     }
 

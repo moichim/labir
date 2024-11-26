@@ -22,9 +22,11 @@
 
 
 
+
+
   <div>
 
-
+    <!--
     <div style="display: flex;">
 
       <thermal-group-app slug="zkušebné skupina 2" author="Jan Jáchim" label="Zkouška zobrazení" license="CC-BY-SA"
@@ -53,45 +55,97 @@
       </thermal-group-app>
 
     </div>
+  -->
 
-<!--
-    <thermal-group-app slug="zkušebné skupine" author="Jan Jáchim" label="Zkouška zobrazení" license="CC-BY-SA"
-      __grouping="week">
-      <time-entry slot="entry" thermal="/soustruh.lrc">
-        Popiska <a href="https://seznam.cz" target="_blank">Odkaz</a>
-      </time-entry>
-      <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
-      <time-entry slot="entry" thermal="/tucnaci_04.lrc"></time-entry>
-      <time-entry slot="entry" thermal="/image-thermal 2024-01-26 10-12-52.lrc"></time-entry>
-      <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-08.lrc"></time-entry>
-      <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-07.lrc"></time-entry>
-      <time-entry slot="entry" thermal="/image-thermal 2024-01-12 14-09-37.lrc"></time-entry>
+    <thermal-group-app slug="Měření desky" author="Jan Jáchim" label="Měření desky" author="Jan Jáchim" description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3">
+      <time-entry slot="entry" thermal="/duch/0-deska.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/10-deska.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/20-deska.lrc"></time-entry>
     </thermal-group-app>
 
-    <time-app slug="zkušební věci" id="top" columns="2" groups="2">
-      <time-group slug="zkouším si něco hezkého" name="Jméno první skupiny">
-        <time-entry slot="entry" thermal="/soustruh.lrc">
-          Popiska <a href="https://seznam.cz" target="_blank">Odkaz</a>
-        </time-entry>
-        <time-entry slot="entry" thermal="/sequence.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/tucnaci_04.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/image-thermal 2024-01-26 10-12-52.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-08.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/image-thermal 2024-02-12 10-15-07.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/image-thermal 2024-01-12 14-09-37.lrc"></time-entry>
+    <br />
+
+    <thermal-group-app slug="Měření ulice" author="Jan Jáchim" label="Měření ulice" author="Jan Jáchim" description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3">
+      <time-entry slot="entry" thermal="/duch/0-ulice.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/10-ulice.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/20-ulice.lrc"></time-entry>
+    </thermal-group-app>
+
+    <br />
+
+    <thermal-group-app slug="Měření osoby" author="Jan Jáchim" label="Měření osoby" author="Jan Jáchim" description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3">
+      <time-entry slot="entry" thermal="/duch/0-osoba.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/10-osoba.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/20-osoba.lrc"></time-entry>
+    </thermal-group-app>
+
+    <br />
+
+    <thermal-group-app slug="Měření nohou" author="Jan Jáchim" label="Měření nohou" author="Jan Jáchim" description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3">
+      <time-entry slot="entry" thermal="/duch/0-nohy.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/10-nohy.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/duch/20-nohy.lrc"></time-entry>
+    </thermal-group-app>
+
+<!--
+
+    <time-app slug="po časech" id="top" columns="4" groups="3">
+
+      <time-group slug="0min" name="0 minut">
+        <time-entry slot="entry" thermal="/duch/0-deska.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/0-ulice.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/0-osoba.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/0-nohy.lrc"></time-entry>
       </time-group>
-      <time-group slug="zkouším 2" name="Jméno druhé skupiny">
-        <h1>Toto je popiska skupiny.</h1>
-        Libovolná věci
-        <p>Něco</p>
-        <time-entry slot="entry" thermal="/soustruh.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/tucnaci_04.lrc"></time-entry>
+
+      <time-group slug="10min" name="10 minut">
+        <time-entry slot="entry" thermal="/duch/10-deska.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-ulice.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-osoba.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-nohy.lrc"></time-entry>
       </time-group>
+
+      <time-group slug="20min" name="20 minut">
+        <time-entry slot="entry" thermal="/duch/20-deska.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-ulice.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-osoba.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-nohy.lrc"></time-entry>
+      </time-group>
+
+    </time-app>
+
+    <br />
+
+    <time-app slug="po skupinách" id="top" columns="3" groups="4">
+
+      <time-group slug="Deska" name="Deska">
+        <time-entry slot="entry" thermal="/duch/0-deska.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-deska.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-deska.lrc"></time-entry>
+      </time-group>
+
+      <time-group slug="Ulice" name="Ulice">
+        <time-entry slot="entry" thermal="/duch/0-ulice.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-ulice.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-ulice.lrc"></time-entry>
+      </time-group>
+
+      <time-group slug="Osoba" name="Osoba">
+        <time-entry slot="entry" thermal="/duch/0-osoba.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-osoba.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-osoba.lrc"></time-entry>
+      </time-group>
+
+      <time-group slug="Nohy" name="Nohy">
+        <time-entry slot="entry" thermal="/duch/0-nohy.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/10-nohy.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/duch/20-nohy.lrc"></time-entry>
+      </time-group>
+
     </time-app>
 
 
     <h2>Příklad ukazující barevnou paletu</h2>
-
     <manager-provider slug="palette-example" palette="iron">
       <registry-provider slug="wtf!">
         <registry-palette-buttons></registry-palette-buttons>
