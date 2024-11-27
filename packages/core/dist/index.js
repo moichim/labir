@@ -5176,6 +5176,10 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
     registry.service.loadFile(this.file.thermalUrl).then(async (result) => {
       if (result instanceof ThermalFileReader) {
         this.localInstance = await result.createInstance(group);
+        const relativeTime = this.file.timeline.currentStep.relative;
+        if (relativeTime !== 0) {
+          this.localInstance.timeline.setRelativeTime(relativeTime);
+        }
         if (this.container) {
           const registryMin = this.file.group.registry.minmax.value.min;
           const registryMax = this.file.group.registry.minmax.value.max;

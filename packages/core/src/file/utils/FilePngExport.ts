@@ -74,6 +74,12 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
                 this.localInstance = await result.createInstance(group);
 
+                const relativeTime = this.file.timeline.currentStep.relative;
+
+                if ( relativeTime !== 0 ) {
+                    this.localInstance.timeline.setRelativeTime( relativeTime );
+                }
+
                 if (this.container) {
 
                     const registryMin = this.file.group.registry.minmax.value!.min;
