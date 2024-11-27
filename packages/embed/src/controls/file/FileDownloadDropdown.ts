@@ -70,7 +70,7 @@ export class FileDownloadButton extends FileConsumer {
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${() => this.file!.export.canvasAsPng()}>Export current frame as PNG image</thermal-button>
+                        <thermal-button @click=${() => this.file!.export.downloadPng()}>Export current frame as PNG image</thermal-button>
                     </div>
 
                     ${this.file.timeline.isSequence

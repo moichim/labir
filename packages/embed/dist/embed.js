@@ -1,4 +1,4 @@
-var dc=Object.defineProperty;var pc=(r,e,t)=>e in r?dc(r,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[e]=t;var l=(r,e,t)=>(pc(r,typeof e!="symbol"?e+"":e,t),t);const Ra="1.2.53",fc="Jan Jáchim <jachim5@gmail.com>";/**
+var dc=Object.defineProperty;var pc=(r,e,t)=>e in r?dc(r,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[e]=t;var l=(r,e,t)=>(pc(r,typeof e!="symbol"?e+"":e,t),t);const Ra="1.2.54",fc="Jan Jáchim <jachim5@gmail.com>";/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -1897,7 +1897,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${()=>this.file.export.canvasAsPng()}>Export current frame as PNG image</thermal-button>
+                        <thermal-button @click=${()=>this.file.export.downloadPng()}>Export current frame as PNG image</thermal-button>
                     </div>
 
                     ${this.file.timeline.isSequence?v`<div slot="option">
