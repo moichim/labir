@@ -121,9 +121,9 @@ export class RangeSliderElement extends RegistryConsumer {
 
             });
 
-            slider.addEventListener( "onMouseDown", event => {
-                this.log( event );
-            } );
+            slider.addEventListener("onMouseDown", event => {
+                this.log(event);
+            });
 
         }
 

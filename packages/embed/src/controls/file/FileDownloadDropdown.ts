@@ -56,19 +56,21 @@ export class FileDownloadButton extends FileConsumer {
 
             <thermal-dropdown variant="foreground">
 
-                <div slot="invoker" class="button">
-                ${this.file 
-                    ? "Download"
-                    : "Načítám..."
-                }
-                </div>
+                <slot name="invoker" slot="invoker">
+                    <div class="button">
+                        ${this.file 
+                            ? "Download"
+                            : "Načítám..."
+                        }
+                    </div>
+                </slot>
 
                     <div slot="option">
                         <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">Download original file (${this.file.reader.parser.extensions[0].extension.toUpperCase()})</thermal-button>
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${() => this.file!.export.canvasAsPng()}>Export current frame as PNG image</thermal-button>
+                        <thermal-button @click=${() => this.file!.export.downloadPng()}>Export current frame as PNG image</thermal-button>
                     </div>
 
                     ${this.file.timeline.isSequence

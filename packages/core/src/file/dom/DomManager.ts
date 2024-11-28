@@ -1,8 +1,8 @@
 import { AbstractFile } from "../AbstractFile";
-import { ThermalCanvasLayer } from "../instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "../instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "../instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "../instanceUtils/VisibleLayer";
+import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
+import ThermalCursorLayer from "./layers/thermalCursorLayer";
+import { ThermalListenerLayer } from "../utils/thermalListenerLayer";
+import { VisibleLayer } from "./layers/VisibleLayer";
 import { InstanceDOM } from "./InstanceDom";
 
 export class DomManager {

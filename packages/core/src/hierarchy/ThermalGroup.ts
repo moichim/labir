@@ -21,6 +21,11 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly hash = Math.random();
 
+    /** Human readable label = name or id or hasn */
+    public get label() {
+        return this.name ?? this.id ?? this.hash;
+    }
+
     public get pool() {
         return this.registry.manager.pool;
     }

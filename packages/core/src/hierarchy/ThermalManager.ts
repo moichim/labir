@@ -4,7 +4,7 @@ import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
-import { AvailableThermalPalettes } from "../file/palettes";
+import { AvailableThermalPalettes } from "../file/utils/palettes";
 import { FilterContainer } from "../filters/FilterContainer";
 import { FilesService } from "../loading/workers/FilesService";
 import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";

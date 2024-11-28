@@ -149,11 +149,13 @@ declare const useThermalRegistryOpacityDrive: (registry: ThermalRegistry, purpos
 };
 
 declare const useThermalManagerPaletteDrive: (purpose: string) => {
-    value: string | number;
+    value: "iron" | "jet" | "grayscale";
     palette: ThermalPaletteType;
-    set: (key: string | number) => void;
+    set: (key: "iron" | "jet" | "grayscale") => void;
     availablePalettes: {
-        [index: string]: ThermalPaletteType;
+        iron: ThermalPaletteType;
+        jet: ThermalPaletteType;
+        grayscale: ThermalPaletteType;
     };
 };
 

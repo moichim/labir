@@ -130,7 +130,9 @@ export class FileInfoButton extends FileConsumer {
 
         return html`
             <thermal-dialog label="File info">
-                <thermal-button slot="invoker">File info</thermal-button>
+                <slot name="invoker" slot="invoker">
+                    <thermal-button>File info</thermal-button>
+                </slot>
                 <div slot="content">
 
                     <table>

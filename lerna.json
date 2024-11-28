@@ -1,9 +1,9 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
-  "version": "1.2.53",
+  "version": "1.2.58",
   "npmClient": "pnpm",
   "packages": [
     "packages/*"
   ],
-  "ignore": "@labir/{emotion,docs,vue,wordpress,tailwind}"
+  "ignore": "@labir/{emotion,docs,vue,tailwind}"
 }

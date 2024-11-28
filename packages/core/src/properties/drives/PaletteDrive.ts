@@ -1,8 +1,9 @@
 
-import { ThermalPalettes } from "../../file/palettes";
+import { ThermalPalettes } from "../../file/utils/palettes";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
+/** @deprecated Should use `AvailableThermalPalettes` instead. */
 export type PaletteId = keyof typeof ThermalPalettes;
 
 export interface IWithPalette extends IBaseProperty {

@@ -1,8 +1,8 @@
 import { AbstractFile } from "../AbstractFile";
-import { ThermalCanvasLayer } from "../instanceUtils/thermalCanvasLayer";
-import ThermalCursorLayer from "../instanceUtils/thermalCursorLayer";
-import { ThermalListenerLayer } from "../instanceUtils/thermalListenerLayer";
-import { VisibleLayer } from "../instanceUtils/VisibleLayer";
+import { ThermalCanvasLayer } from "./layers/thermalCanvasLayer";
+import ThermalCursorLayer from "./layers/thermalCursorLayer";
+import { ThermalListenerLayer } from "./layers/thermalListenerLayer";
+import { VisibleLayer } from "./layers/VisibleLayer";
 
 export class InstanceDOM {
 
@@ -148,19 +148,19 @@ export class InstanceDOM {
 
             if (this._canvasLayer) {
                 this._canvasLayer.unmount();
-                this.root.removeChild(this._canvasLayer.getLayerRoot());
+                delete this._canvasLayer;
                 this._canvasLayer = undefined;
             }
 
             if (this._visibleLayer) {
                 this._visibleLayer.unmount();
-                this.root.removeChild(this._visibleLayer.getLayerRoot());
+                delete this._visibleLayer;
                 this._visibleLayer = undefined;
             }
 
             if (this._cursorLayer) {
                 this._cursorLayer.unmount();
-                this.root.removeChild(this._cursorLayer.getLayerRoot());
+                delete this._cursorLayer;
                 this._cursorLayer = undefined;
             }
 
@@ -173,7 +173,7 @@ export class InstanceDOM {
 
                 // Then remove the DOM and attribute
                 this._listenerLayer.unmount();
-                this.root.removeChild(this._listenerLayer.getLayerRoot());
+                delete this._listenerLayer;
                 this._listenerLayer = undefined;
             }
 
