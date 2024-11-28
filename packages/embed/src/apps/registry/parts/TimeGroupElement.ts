@@ -205,6 +205,18 @@ export class TimeGroupElement extends BaseElement {
                                                     @click=${() => this.grouper?.group.analysisSync.csv.downloadAsCsv()}
                                                 >csv</button>
 
+
+                                                <button
+                                                    class="file-info-button"
+                                                    @click=${() => {
+                                                    if (this.grouper)
+                                                        this.grouper.group.registry.range.imposeRange( {
+                                                            from: this.grouper.group.minmax.value!.min,
+                                                            to: this.grouper.group.minmax.value!.max
+                                                        } );
+                                                    }}
+                                                >range</button>
+
                                             </div>
                                         
                                         </div>
