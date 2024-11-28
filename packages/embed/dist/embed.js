@@ -1,4 +1,4 @@
-var bc=Object.defineProperty;var wc=(r,e,t)=>e in r?bc(r,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[e]=t;var l=(r,e,t)=>(wc(r,typeof e!="symbol"?e+"":e,t),t);const Ia="1.2.56",xc="Jan Jáchim <jachim5@gmail.com>";/**
+var bc=Object.defineProperty;var wc=(r,e,t)=>e in r?bc(r,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):r[e]=t;var l=(r,e,t)=>(wc(r,typeof e!="symbol"?e+"":e,t),t);const Ia="1.2.57",xc="Jan Jáchim <jachim5@gmail.com>";/**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
@@ -3521,88 +3521,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             line-height: 1em;
         }
     
-    `];Nt([S(),ti({slot:"entry",flatten:!0})],$t.prototype,"entries",2);Nt([S()],$t.prototype,"groups",2);Nt([S()],$t.prototype,"instances",2);Nt([g()],$t.prototype,"columns",2);Nt([g()],$t.prototype,"breakpoint",2);Nt([g({type:Number,reflect:!0})],$t.prototype,"width",2);Nt([g({type:String,reflect:!0})],$t.prototype,"grouping",2);Nt([g()],$t.prototype,"name",2);Nt([g()],$t.prototype,"slug",2);Nt([S()],$t.prototype,"scopeSlug",2);Nt([g({type:Object})],$t.prototype,"onInstanceEnter",2);Nt([g({type:Object})],$t.prototype,"onInstanceLeave",2);Nt([g({type:Object})],$t.prototype,"groupRenderer",2);$t=Nt([te("time-group")],$t);var yv=Object.defineProperty,Zh=(r,e,t,i)=>{for(var s=void 0,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=a(e,t,s)||s);return s&&yv(e,t,s),s};const $o=class $o extends bt{constructor(){super(...arguments),this.instanceRenderer=new Ii(this),this.groupRenderer=new ms(this)}};$o.styles=[Ii.styles,ms.styles,ue`
-    
-        `];let pi=$o;Zh([S()],pi.prototype,"highlightFrom");Zh([S()],pi.prototype,"highlightTo");var bv=Object.defineProperty,wv=Object.getOwnPropertyDescriptor,Nr=(r,e,t,i)=>{for(var s=i>1?void 0:i?wv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&bv(e,t,s),s};let dr=class extends pi{constructor(){super(...arguments),this.registryProviderRef=Ge(),this.grouping="none",this.columns=3,this.breakpoint=700,this.groups=3,this.autogroups=!0}connectedCallback(){super.connectedCallback();const r=$s(this.slug);this.registry=r.addOrGetRegistry(this.slug)}updated(r){super.updated(r),r.has("entries")&&console.log("Změnily se mi entrýz, budu je připínat.",this.entries),r.has("grouping")&&this.grouping&&this.forEveryGroup(e=>e.grouping=this.grouping),r.has("columns")&&this.columns&&this.forEveryGroup(e=>e.columns=this.columns),r.has("breakpoint")&&this.breakpoint&&this.forEveryGroup(e=>e.breakpoint=this.breakpoint),r.has("groups")&&this.autogroups&&this.forEveryGroup(e=>e.width=this.groups)}firstUpdated(r){super.firstUpdated(r),this.forEveryGroup(e=>{this.log("nastavuji slug",this.slug),e.setManagerSlug(this.slug),e.width=this.groups,e.onInstanceEnter=t=>{this.highlightFrom=t.min,this.highlightTo=t.max},e.onInstanceLeave=()=>{this.highlightFrom=void 0,this.highlightTo=void 0},e.groupRenderer=this.groupRenderer})}forEveryGroup(r){const e=(t,i)=>{if(t instanceof $t){i(t);return}else{t.hasChildNodes()&&Array.from(t.childNodes).forEach(n=>{if(n instanceof Element){e(n,i);return}});return}};this.entries.forEach(t=>e(t,r))}render(){return v`
-        <manager-provider slug="${this.slug}">
-
-            <registry-provider slug="${this.slug}">
-                <thermal-app>
-
-                    <thermal-button variant="foreground" interactive="false" slot="bar">Skupinové zobrazení</thermal-button>
-
-                    <div slot="bar" style="flex-grow: 4;">
-                        
-                        <thermal-bar slot="bar">
-                            <registry-palette-dropdown></registry-palette-dropdown>
-
-                            <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${r=>{console.log(r.target.value),this.columns=parseInt(r.target.value)}}></input>
-
-                            <input type="range" min="1" max="10" step="1" value=${this.groups} @input=${r=>{console.log(r.target.value),this.groups=parseInt(r.target.value)}}></input>
-                        
-
-                            <thermal-dropdown>
-                                <span slot="invoker">${this.grouping==="none"?"Do not grop":"Group by "+this.grouping}</span>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="none"}">Do not group</thermal-button>
-                                </div>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="hour"}">Group by hour</thermal-button>
-                                </div>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="day"}">Group by day</thermal-button>
-                                </div>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="week"}">Group by week</thermal-button>
-                                </div>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="month"}">Group by month</thermal-button>
-                                </div>
-
-                                <div slot="option">
-                                    <thermal-button @click="${()=>this.grouping="year"}">Group by year</thermal-button>
-                                </div>
-
-                            </thermal-dropdown>
-
-                            <registry-range-full-button
-                                                @mouseenter=${()=>{var r,e,t,i;this.highlightFrom=(e=(r=this.registry)==null?void 0:r.minmax.value)==null?void 0:e.min,this.highlightTo=(i=(t=this.registry)==null?void 0:t.minmax.value)==null?void 0:i.max}}
-                                                @focus=${()=>{var r,e,t,i;this.highlightFrom=(e=(r=this.registry)==null?void 0:r.minmax.value)==null?void 0:e.min,this.highlightTo=(i=(t=this.registry)==null?void 0:t.minmax.value)==null?void 0:i.max}}
-                                                @mouseleave=${()=>{this.highlightFrom=void 0,this.highlightTo=void 0}}
-                                                @blur=${()=>{this.highlightFrom=void 0,this.highlightTo=void 0}}
-                                            ></registry-range-full-button>
-
-                        </thermal-bar>
-                        
-                    </div>
-
-                    <registry-histogram></registry-histogram>
-                    <registry-range-slider></registry-range-slider>
-                    <registry-ticks-bar highlightFrom=${ge(this.highlightFrom)} highlightTo=${ge(this.highlightTo)}></registry-ticks-bar>
-            
-                    <div class="app-content">
-                        <slot></slot>
-                    </div>
-
-            </thermal-app>
-            </registry-provider>
-
-        </manager-provider>
-        `}};dr.styles=ue`
-    
-        .app-content {
-
-            display: flex;
-            flex-wrap: wrap;
-        
-        }
-    
-    `;Nr([g()],dr.prototype,"slug",2);Nr([g({type:String,reflect:!0})],dr.prototype,"grouping",2);Nr([g({type:String,reflect:!0})],dr.prototype,"columns",2);Nr([g({type:Number,reflect:!0})],dr.prototype,"breakpoint",2);Nr([g({type:String,reflect:!0})],dr.prototype,"groups",2);Nr([g({type:String,reflect:!0})],dr.prototype,"autogroups",2);Nr([ti({flatten:!0}),S()],dr.prototype,"entries",2);Nr([S()],dr.prototype,"registry",2);dr=Nr([te("thermal-registry-app")],dr);var xv=Object.defineProperty,Sv=Object.getOwnPropertyDescriptor,jn=(r,e,t,i)=>{for(var s=i>1?void 0:i?Sv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&xv(e,t,s),s};let Fi=class extends fi{connectedCallback(){super.connectedCallback(),this.renderRoot}render(){return v`
+    `];Nt([S(),ti({slot:"entry",flatten:!0})],$t.prototype,"entries",2);Nt([S()],$t.prototype,"groups",2);Nt([S()],$t.prototype,"instances",2);Nt([g()],$t.prototype,"columns",2);Nt([g()],$t.prototype,"breakpoint",2);Nt([g({type:Number,reflect:!0})],$t.prototype,"width",2);Nt([g({type:String,reflect:!0})],$t.prototype,"grouping",2);Nt([g()],$t.prototype,"name",2);Nt([g()],$t.prototype,"slug",2);Nt([S()],$t.prototype,"scopeSlug",2);Nt([g({type:Object})],$t.prototype,"onInstanceEnter",2);Nt([g({type:Object})],$t.prototype,"onInstanceLeave",2);Nt([g({type:Object})],$t.prototype,"groupRenderer",2);$t=Nt([te("time-group")],$t);var yv=Object.defineProperty,bv=Object.getOwnPropertyDescriptor,jn=(r,e,t,i)=>{for(var s=i>1?void 0:i?bv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&yv(e,t,s),s};let Fi=class extends fi{connectedCallback(){super.connectedCallback(),this.renderRoot}render(){return v`
             <file-mirror .file=${this.file}>
 
                 <div class="file-title">
@@ -3624,7 +3543,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             color: var(--thermal-foreground);
         }
 
-    `;jn([g({type:Object})],Fi.prototype,"file",2);jn([g({type:String})],Fi.prototype,"innerHtml",2);jn([g({type:String})],Fi.prototype,"label",2);Fi=jn([te("time-group-item")],Fi);var _v=Object.defineProperty,$v=Object.getOwnPropertyDescriptor,pr=(r,e,t,i)=>{for(var s=i>1?void 0:i?$v(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&_v(e,t,s),s};let Xt=class extends bt{constructor(){super(...arguments),this.columns=3,this.breakpoint=700,this.files=[]}connectedCallback(){super.connectedCallback(),this.observer=new ResizeObserver(r=>{const[e]=r,i=e.contentRect.width<this.breakpoint;this.collapsed!==i&&(this.collapsed=i)}),this.observer.observe(this)}disconnectedCallback(){var r;super.disconnectedCallback(),(r=this.observer)==null||r.disconnect()}render(){var s,n;this.files.length;const r=this.files.sort((a,o)=>a.instance.timestamp-o.instance.timestamp),e=((s=this.label)==null?void 0:s.trim())!==""?this.label:void 0,t=((n=this.info)==null?void 0:n.trim())!==""?this.info:void 0,i={"row-files":!0,"row-files__collapsed":this.collapsed,[`file-list-${this.columns}`]:!0};return v`
+    `;jn([g({type:Object})],Fi.prototype,"file",2);jn([g({type:String})],Fi.prototype,"innerHtml",2);jn([g({type:String})],Fi.prototype,"label",2);Fi=jn([te("time-group-item")],Fi);var wv=Object.defineProperty,xv=Object.getOwnPropertyDescriptor,pr=(r,e,t,i)=>{for(var s=i>1?void 0:i?xv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&wv(e,t,s),s};let Xt=class extends bt{constructor(){super(...arguments),this.columns=3,this.breakpoint=700,this.files=[]}connectedCallback(){super.connectedCallback(),this.observer=new ResizeObserver(r=>{const[e]=r,i=e.contentRect.width<this.breakpoint;this.collapsed!==i&&(this.collapsed=i)}),this.observer.observe(this)}disconnectedCallback(){var r;super.disconnectedCallback(),(r=this.observer)==null||r.disconnect()}render(){var s,n;this.files.length;const r=this.files.sort((a,o)=>a.instance.timestamp-o.instance.timestamp),e=((s=this.label)==null?void 0:s.trim())!==""?this.label:void 0,t=((n=this.info)==null?void 0:n.trim())!==""?this.info:void 0,i={"row-files":!0,"row-files__collapsed":this.collapsed,[`file-list-${this.columns}`]:!0};return v`
 
             ${e?v`<h3 class="row-title">${e}</h3>`:F}
 
@@ -3677,7 +3596,9 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
         .file-list-collapsed time-group-item { width: 100% !important; }
 
-    `;pr([g()],Xt.prototype,"columns",2);pr([g()],Xt.prototype,"breakpoint",2);pr([g({type:Object})],Xt.prototype,"files",2);pr([g({type:String})],Xt.prototype,"label",2);pr([g({type:String})],Xt.prototype,"info",2);pr([g({type:Number})],Xt.prototype,"from",2);pr([g({type:Number})],Xt.prototype,"to",2);pr([g({type:Number})],Xt.prototype,"cursor",2);pr([g({type:String})],Xt.prototype,"grouping",2);pr([S()],Xt.prototype,"collapsed",2);Xt=pr([te("time-group-row")],Xt);class Cv{constructor(e,t){this.element=e,this.group=t,this.records=[],this.groups=new Map,this.grouping="none"}get numFiles(){return this.records.length}forEveryInstance(e){this.records.forEach(t=>{e(t.instance)})}flush(){this.records.forEach(e=>{e.instance.unmountFromDom()}),this.records=[],this.groups.clear(),this.element.groups=[]}processEntries(e){this.flush();let t;e.forEach(i=>{const s=async n=>{if(n instanceof di)return;const a=i.innerHTML.trim(),o=a.length>0?a:void 0;this.records.push({instance:n,innerHtml:o})};t===void 0?(t=this.group.registry.batch.request(i.thermal,i.visible,this.group,s,this.element.UUID),t.onResolve.set(this.element.UUID+"___something",()=>{console.log("hotovost...",this.records),this.processGroups()})):t.request(i.thermal,i.visible,this.group,s)})}processGroups(){this.element.groups=[],this.groups.clear(),this.records.sort((e,t)=>e.instance.timestamp-t.instance.timestamp).forEach(e=>{const t=e.instance.timestamp,i=this.getGroupFromTimestamp(t);let s=this.groups.get(i);if(!s){const n=this.getGroupToTimestamp(t),{label:a,info:o}=this.getGroupLabels(t),h={label:a??"",info:o,from:i,to:n,files:[]};s=h,this.groups.set(i,h)}e.label=this.getItemLabel(e.instance.timestamp),s.files.push(e)}),this.groups.forEach(e=>{e.files=e.files.sort((t,i)=>t.instance.timestamp-i.instance.timestamp)}),this.element.groups=Array.from(this.groups.values()),this.element.log("______________",this.element.groups)}getGroupFromTimestamp(e){return this.grouping==="none"?-1/0:this.grouping==="hour"?Xl(e).getTime():this.grouping==="day"?rn(e).getTime():this.grouping==="week"?Or(e).getTime():this.grouping==="month"?nn(e).getTime():this.grouping==="year"?ja(e).getTime():NaN}getGroupToTimestamp(e){return this.grouping==="none"?1/0:this.grouping==="hour"?Vl(e).getTime():this.grouping==="day"?Hl(e).getTime():this.grouping==="week"?an(e).getTime():this.grouping==="month"?sn(e).getTime():this.grouping==="year"?Gl(e).getTime():NaN}getGroupLabels(e){return this.grouping==="none"?{}:this.grouping==="hour"?{label:Qe(e,"H:00 d. M. yyyy")}:this.grouping==="day"?{label:Qe(e,"d.M.yyyy")}:this.grouping==="week"?{label:"Week "+Qe(e,"w")+" of "+Qe(e,"yyyy"),info:[Ze.humanDate(Or(e).getTime()),Ze.humanDate(an(e).getTime())].join(" - ")}:this.grouping==="month"?{label:Qe(e,"MMMM yyyy"),info:[Ze.humanDate(nn(e).getTime()),Ze.humanDate(sn(e).getTime())].join(" - ")}:this.grouping==="year"?{label:Qe(e,"yyyy")}:{}}getItemLabel(e){return this.grouping==="none"?Ze.human(e):this.grouping==="hour"||this.grouping==="day"?Qe(e,"H:mm:ss"):(this.grouping==="week"||this.grouping==="month"||this.grouping==="year",Ze.human(e))}setGrouping(e){this.grouping=e,this.processGroups()}}var Av=Object.defineProperty,Pv=Object.getOwnPropertyDescriptor,fr=(r,e,t,i)=>{for(var s=i>1?void 0:i?Pv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&Av(e,t,s),s};let Kt=class extends pi{constructor(){super(...arguments),this.label="Group of IR images",this.slug=Math.random().toFixed(5),this.columns=3,this.breakpoint=700,this.grouping="none",this.groups=[]}connectedCallback(){super.connectedCallback();const t=$s(this.slug).addOrGetRegistry(this.slug).groups.addOrGetGroup(this.slug,this.label,this.description);this.group=t,this.grouper=new Cv(this,t)}firstUpdated(r){super.firstUpdated(r),this.grouper.processEntries(this.entries.filter(e=>e instanceof ei))}updated(r){super.updated(r),r.has("grouping")&&this.grouper&&this.grouper.setGrouping(this.grouping)}render(){return v`
+    `;pr([g()],Xt.prototype,"columns",2);pr([g()],Xt.prototype,"breakpoint",2);pr([g({type:Object})],Xt.prototype,"files",2);pr([g({type:String})],Xt.prototype,"label",2);pr([g({type:String})],Xt.prototype,"info",2);pr([g({type:Number})],Xt.prototype,"from",2);pr([g({type:Number})],Xt.prototype,"to",2);pr([g({type:Number})],Xt.prototype,"cursor",2);pr([g({type:String})],Xt.prototype,"grouping",2);pr([S()],Xt.prototype,"collapsed",2);Xt=pr([te("time-group-row")],Xt);class Sv{constructor(e,t){this.element=e,this.group=t,this.records=[],this.groups=new Map,this.grouping="none"}get numFiles(){return this.records.length}forEveryInstance(e){this.records.forEach(t=>{e(t.instance)})}flush(){this.records.forEach(e=>{e.instance.unmountFromDom()}),this.records=[],this.groups.clear(),this.element.groups=[]}processEntries(e){this.flush();let t;e.forEach(i=>{const s=async n=>{if(n instanceof di)return;const a=i.innerHTML.trim(),o=a.length>0?a:void 0;this.records.push({instance:n,innerHtml:o})};t===void 0?(t=this.group.registry.batch.request(i.thermal,i.visible,this.group,s,this.element.UUID),t.onResolve.set(this.element.UUID+"___something",()=>{console.log("hotovost...",this.records),this.processGroups()})):t.request(i.thermal,i.visible,this.group,s)})}processGroups(){this.element.groups=[],this.groups.clear(),this.records.sort((e,t)=>e.instance.timestamp-t.instance.timestamp).forEach(e=>{const t=e.instance.timestamp,i=this.getGroupFromTimestamp(t);let s=this.groups.get(i);if(!s){const n=this.getGroupToTimestamp(t),{label:a,info:o}=this.getGroupLabels(t),h={label:a??"",info:o,from:i,to:n,files:[]};s=h,this.groups.set(i,h)}e.label=this.getItemLabel(e.instance.timestamp),s.files.push(e)}),this.groups.forEach(e=>{e.files=e.files.sort((t,i)=>t.instance.timestamp-i.instance.timestamp)}),this.element.groups=Array.from(this.groups.values()),this.element.log("______________",this.element.groups)}getGroupFromTimestamp(e){return this.grouping==="none"?-1/0:this.grouping==="hour"?Xl(e).getTime():this.grouping==="day"?rn(e).getTime():this.grouping==="week"?Or(e).getTime():this.grouping==="month"?nn(e).getTime():this.grouping==="year"?ja(e).getTime():NaN}getGroupToTimestamp(e){return this.grouping==="none"?1/0:this.grouping==="hour"?Vl(e).getTime():this.grouping==="day"?Hl(e).getTime():this.grouping==="week"?an(e).getTime():this.grouping==="month"?sn(e).getTime():this.grouping==="year"?Gl(e).getTime():NaN}getGroupLabels(e){return this.grouping==="none"?{}:this.grouping==="hour"?{label:Qe(e,"H:00 d. M. yyyy")}:this.grouping==="day"?{label:Qe(e,"d.M.yyyy")}:this.grouping==="week"?{label:"Week "+Qe(e,"w")+" of "+Qe(e,"yyyy"),info:[Ze.humanDate(Or(e).getTime()),Ze.humanDate(an(e).getTime())].join(" - ")}:this.grouping==="month"?{label:Qe(e,"MMMM yyyy"),info:[Ze.humanDate(nn(e).getTime()),Ze.humanDate(sn(e).getTime())].join(" - ")}:this.grouping==="year"?{label:Qe(e,"yyyy")}:{}}getItemLabel(e){return this.grouping==="none"?Ze.human(e):this.grouping==="hour"||this.grouping==="day"?Qe(e,"H:mm:ss"):(this.grouping==="week"||this.grouping==="month"||this.grouping==="year",Ze.human(e))}setGrouping(e){this.grouping=e,this.processGroups()}}var _v=Object.defineProperty,Zh=(r,e,t,i)=>{for(var s=void 0,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=a(e,t,s)||s);return s&&_v(e,t,s),s};const $o=class $o extends bt{constructor(){super(...arguments),this.instanceRenderer=new Ii(this),this.groupRenderer=new ms(this)}};$o.styles=[Ii.styles,ms.styles,ue`
+    
+        `];let pi=$o;Zh([S()],pi.prototype,"highlightFrom");Zh([S()],pi.prototype,"highlightTo");var $v=Object.defineProperty,Cv=Object.getOwnPropertyDescriptor,fr=(r,e,t,i)=>{for(var s=i>1?void 0:i?Cv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&$v(e,t,s),s};let Kt=class extends pi{constructor(){super(...arguments),this.label="Group of IR images",this.slug=Math.random().toFixed(5),this.columns=3,this.breakpoint=700,this.grouping="none",this.groups=[]}connectedCallback(){super.connectedCallback();const t=$s(this.slug).addOrGetRegistry(this.slug).groups.addOrGetGroup(this.slug,this.label,this.description);this.group=t,this.grouper=new Sv(this,t)}firstUpdated(r){super.firstUpdated(r),this.grouper.processEntries(this.entries.filter(e=>e instanceof ei))}updated(r){super.updated(r),r.has("grouping")&&this.grouper&&this.grouper.setGrouping(this.grouping)}render(){return v`
 
             <slot name="entry"></slot>
 
@@ -3880,7 +3801,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
 
     
-    `];fr([g({type:String,reflect:!0})],Kt.prototype,"author",2);fr([g({type:String,reflect:!0})],Kt.prototype,"label",2);fr([g({type:String,reflect:!1})],Kt.prototype,"description",2);fr([g({type:String,reflect:!0})],Kt.prototype,"license",2);fr([S(),ti({slot:"entry",flatten:!0})],Kt.prototype,"entries",2);fr([g()],Kt.prototype,"slug",2);fr([g()],Kt.prototype,"columns",2);fr([g()],Kt.prototype,"breakpoint",2);fr([g({type:String,reflect:!0})],Kt.prototype,"grouping",2);fr([S()],Kt.prototype,"groups",2);Kt=fr([te("thermal-group-app")],Kt);var kv=Object.defineProperty,Ov=Object.getOwnPropertyDescriptor,bo=(r,e,t,i)=>{for(var s=i>1?void 0:i?Ov(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&kv(e,t,s),s};let vn=class extends bt{connectedCallback(){super.connectedCallback();const r=Math.random().toString(),t=this.group.registry.manager.addOrGetRegistry(r);this.localGroup=t.groups.addOrGetGroup(r)}render(){var e,t,i,s;const r=this.localGroup!==void 0;return v`
+    `];fr([g({type:String,reflect:!0})],Kt.prototype,"author",2);fr([g({type:String,reflect:!0})],Kt.prototype,"label",2);fr([g({type:String,reflect:!1})],Kt.prototype,"description",2);fr([g({type:String,reflect:!0})],Kt.prototype,"license",2);fr([S(),ti({slot:"entry",flatten:!0})],Kt.prototype,"entries",2);fr([g()],Kt.prototype,"slug",2);fr([g()],Kt.prototype,"columns",2);fr([g()],Kt.prototype,"breakpoint",2);fr([g({type:String,reflect:!0})],Kt.prototype,"grouping",2);fr([S()],Kt.prototype,"groups",2);Kt=fr([te("thermal-group-app")],Kt);var Av=Object.defineProperty,Pv=Object.getOwnPropertyDescriptor,bo=(r,e,t,i)=>{for(var s=i>1?void 0:i?Pv(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&Av(e,t,s),s};let vn=class extends bt{connectedCallback(){super.connectedCallback();const r=Math.random().toString(),t=this.group.registry.manager.addOrGetRegistry(r);this.localGroup=t.groups.addOrGetGroup(r)}render(){var e,t,i,s;const r=this.localGroup!==void 0;return v`
 
             ${r?v`
                     <manager-mirror 
@@ -3916,7 +3837,86 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 `:F}
             
         
-        `}};bo([g({type:Object})],vn.prototype,"group",2);bo([S()],vn.prototype,"localGroup",2);vn=bo([te("group-export-layout")],vn);const _a=window.matchMedia("(prefers-color-scheme: dark)"),wo="thermal-dark-mode",kl=()=>{document.body.classList.add(wo)},Ev=()=>{document.body.classList.remove(wo)},Dv=()=>{_a.matches&&kl();const r=e=>{e.matches?kl():Ev()};_a.addEventListener("change",r),_a.addListener(r)},Lv=()=>{const r=document.createElement("link");r.href="https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.css",document.head.appendChild(r)},Tv=Ia.toString().replaceAll(".","-"),Rv=r=>`thermal__${r}__${Tv}`,Ol=(r,e)=>{const t=document.createElement("style");t.setAttribute("id",Rv(r)),t.innerHTML=e,document.head.appendChild(t)},Mv=()=>{Ol("rootVariables",`
+        `}};bo([g({type:Object})],vn.prototype,"group",2);bo([S()],vn.prototype,"localGroup",2);vn=bo([te("group-export-layout")],vn);var kv=Object.defineProperty,Ov=Object.getOwnPropertyDescriptor,Nr=(r,e,t,i)=>{for(var s=i>1?void 0:i?Ov(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&kv(e,t,s),s};let dr=class extends pi{constructor(){super(...arguments),this.registryProviderRef=Ge(),this.grouping="none",this.columns=3,this.breakpoint=700,this.groups=3,this.autogroups=!0}connectedCallback(){super.connectedCallback();const r=$s(this.slug);this.registry=r.addOrGetRegistry(this.slug)}updated(r){super.updated(r),r.has("entries")&&console.log("Změnily se mi entrýz, budu je připínat.",this.entries),r.has("grouping")&&this.grouping&&this.forEveryGroup(e=>e.grouping=this.grouping),r.has("columns")&&this.columns&&this.forEveryGroup(e=>e.columns=this.columns),r.has("breakpoint")&&this.breakpoint&&this.forEveryGroup(e=>e.breakpoint=this.breakpoint),r.has("groups")&&this.autogroups&&this.forEveryGroup(e=>e.width=this.groups)}firstUpdated(r){super.firstUpdated(r),this.forEveryGroup(e=>{this.log("nastavuji slug",this.slug),e.setManagerSlug(this.slug),e.width=this.groups,e.onInstanceEnter=t=>{this.highlightFrom=t.min,this.highlightTo=t.max},e.onInstanceLeave=()=>{this.highlightFrom=void 0,this.highlightTo=void 0},e.groupRenderer=this.groupRenderer})}forEveryGroup(r){const e=(t,i)=>{if(t instanceof $t){i(t);return}else{t.hasChildNodes()&&Array.from(t.childNodes).forEach(n=>{if(n instanceof Element){e(n,i);return}});return}};this.entries.forEach(t=>e(t,r))}render(){return v`
+        <manager-provider slug="${this.slug}">
+
+            <registry-provider slug="${this.slug}">
+                <thermal-app>
+
+                    <thermal-button variant="foreground" interactive="false" slot="bar">Skupinové zobrazení</thermal-button>
+
+                    <div slot="bar" style="flex-grow: 4;">
+                        
+                        <thermal-bar slot="bar">
+                            <registry-palette-dropdown></registry-palette-dropdown>
+
+                            <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${r=>{console.log(r.target.value),this.columns=parseInt(r.target.value)}}></input>
+
+                            <input type="range" min="1" max="10" step="1" value=${this.groups} @input=${r=>{console.log(r.target.value),this.groups=parseInt(r.target.value)}}></input>
+                        
+
+                            <thermal-dropdown>
+                                <span slot="invoker">${this.grouping==="none"?"Do not grop":"Group by "+this.grouping}</span>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="none"}">Do not group</thermal-button>
+                                </div>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="hour"}">Group by hour</thermal-button>
+                                </div>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="day"}">Group by day</thermal-button>
+                                </div>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="week"}">Group by week</thermal-button>
+                                </div>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="month"}">Group by month</thermal-button>
+                                </div>
+
+                                <div slot="option">
+                                    <thermal-button @click="${()=>this.grouping="year"}">Group by year</thermal-button>
+                                </div>
+
+                            </thermal-dropdown>
+
+                            <registry-range-full-button
+                                                @mouseenter=${()=>{var r,e,t,i;this.highlightFrom=(e=(r=this.registry)==null?void 0:r.minmax.value)==null?void 0:e.min,this.highlightTo=(i=(t=this.registry)==null?void 0:t.minmax.value)==null?void 0:i.max}}
+                                                @focus=${()=>{var r,e,t,i;this.highlightFrom=(e=(r=this.registry)==null?void 0:r.minmax.value)==null?void 0:e.min,this.highlightTo=(i=(t=this.registry)==null?void 0:t.minmax.value)==null?void 0:i.max}}
+                                                @mouseleave=${()=>{this.highlightFrom=void 0,this.highlightTo=void 0}}
+                                                @blur=${()=>{this.highlightFrom=void 0,this.highlightTo=void 0}}
+                                            ></registry-range-full-button>
+
+                        </thermal-bar>
+                        
+                    </div>
+
+                    <registry-histogram></registry-histogram>
+                    <registry-range-slider></registry-range-slider>
+                    <registry-ticks-bar highlightFrom=${ge(this.highlightFrom)} highlightTo=${ge(this.highlightTo)}></registry-ticks-bar>
+            
+                    <div class="app-content">
+                        <slot></slot>
+                    </div>
+
+            </thermal-app>
+            </registry-provider>
+
+        </manager-provider>
+        `}};dr.styles=ue`
+    
+        .app-content {
+
+            display: flex;
+            flex-wrap: wrap;
+        
+        }
+    
+    `;Nr([g()],dr.prototype,"slug",2);Nr([g({type:String,reflect:!0})],dr.prototype,"grouping",2);Nr([g({type:String,reflect:!0})],dr.prototype,"columns",2);Nr([g({type:Number,reflect:!0})],dr.prototype,"breakpoint",2);Nr([g({type:String,reflect:!0})],dr.prototype,"groups",2);Nr([g({type:String,reflect:!0})],dr.prototype,"autogroups",2);Nr([ti({flatten:!0}),S()],dr.prototype,"entries",2);Nr([S()],dr.prototype,"registry",2);dr=Nr([te("thermal-registry-app")],dr);const _a=window.matchMedia("(prefers-color-scheme: dark)"),wo="thermal-dark-mode",kl=()=>{document.body.classList.add(wo)},Ev=()=>{document.body.classList.remove(wo)},Dv=()=>{_a.matches&&kl();const r=e=>{e.matches?kl():Ev()};_a.addEventListener("change",r),_a.addListener(r)},Lv=()=>{const r=document.createElement("link");r.href="https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.css",document.head.appendChild(r)},Tv=Ia.toString().replaceAll(".","-"),Rv=r=>`thermal__${r}__${Tv}`,Ol=(r,e)=>{const t=document.createElement("style");t.setAttribute("id",Rv(r)),t.innerHTML=e,document.head.appendChild(t)},Mv=()=>{Ol("rootVariables",`
 
         :root {
 
