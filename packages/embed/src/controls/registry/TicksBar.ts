@@ -229,7 +229,7 @@ export class TicksElement extends RegistryConsumer {
                 <div class="ticks" ${ref(this.ticksRef)}>
 
                     ${hasHighlight
-                ? html`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-slate)"></div>`
+                ? html`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-foreground)"></div>`
                 : nothing
             }
 

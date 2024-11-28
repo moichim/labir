@@ -1119,7 +1119,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
                 <div class="ticks" ${Xe(this.ticksRef)}>
 
-                    ${r?v`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${e}%; width: ${t}%; background-color: var(--thermal-slate)"></div>`:F}
+                    ${r?v`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${e}%; width: ${t}%; background-color: var(--thermal-foreground)"></div>`:F}
 
                     ${this.ticks.map(i=>v`
                             <div class="tick" >
