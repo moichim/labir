@@ -4,9 +4,13 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { ThermalRegistry } from "@labir/core";
+import { createOrGetManager } from "../../hierarchy/providers/getters";
 
-@customElement("time-app")
-export class TimeApp extends BaseElement {
+@customElement("thermal-registry-app")
+export class TimeApp extends AbstractMultipleApp {
 
     protected registryProviderRef: Ref<RegistryProviderElement> = createRef();
 
@@ -35,10 +39,17 @@ export class TimeApp extends BaseElement {
     @state()
     entries!: Array<Node>;
 
+    @state()
+    protected registry?: ThermalRegistry
+
+
     connectedCallback(): void {
         super.connectedCallback();
-        console.log("connected", this.entries);
+
+        const manager = createOrGetManager( this.slug );
+        this.registry = manager.addOrGetRegistry( this.slug );
     }
+
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
@@ -68,8 +79,21 @@ export class TimeApp extends BaseElement {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
         this.forEveryGroup( group => {
+
+            this.log( "nastavuji slug", this.slug );
+
             group.setManagerSlug( this.slug );
             group.width = this.groups;
+            group.onInstanceEnter = ( instance ) => {
+                this.highlightFrom = instance.min;
+                this.highlightTo = instance.max;
+            }
+            group.onInstanceLeave = ( ) => {
+                this.highlightFrom = undefined;
+                this.highlightTo = undefined;
+            }
+
+            group.groupRenderer = this.groupRenderer;
         } );
     }
 
@@ -172,13 +196,32 @@ export class TimeApp extends BaseElement {
 
                             </thermal-dropdown>
 
+                            <registry-range-full-button
+                                                @mouseenter=${() => {
+                        this.highlightFrom = this.registry?.minmax.value?.min;
+                        this.highlightTo = this.registry?.minmax.value?.max;
+                    }}
+                                                @focus=${() => {
+                        this.highlightFrom = this.registry?.minmax.value?.min;
+                        this.highlightTo = this.registry?.minmax.value?.max;
+                    }}
+                                                @mouseleave=${() => {
+                        this.highlightFrom = undefined;
+                        this.highlightTo = undefined;
+                    }}
+                                                @blur=${() => {
+                        this.highlightFrom = undefined;
+                        this.highlightTo = undefined;
+                    }}
+                                            ></registry-range-full-button>
+
                         </thermal-bar>
                         
                     </div>
 
                     <registry-histogram></registry-histogram>
                     <registry-range-slider></registry-range-slider>
-                    <registry-ticks-bar></registry-ticks-bar>
+                    <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
             
                     <div class="app-content">
                         <slot></slot>

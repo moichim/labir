@@ -101,11 +101,11 @@ import "./apps/desktop/DesktopApp";
 import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
 
-import "./apps/time/TimeApp";
-import "./apps/time/parts/TimeGroupElement";
-import "./apps/time/parts/TimeEntryElement";
-import "./apps/time/parts/TimeGroupFileElement";
-import "./apps/time/parts/TimeGroupRowElement";
+import "./apps/registry/RegistryApp";
+import "./apps/registry/parts/TimeGroupElement";
+import "./apps/registry/parts/TimeEntryElement";
+import "./apps/registry/parts/TimeGroupFileElement";
+import "./apps/registry/parts/TimeGroupRowElement";
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupExport";
 

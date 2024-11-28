@@ -1,6 +1,6 @@
 import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labir/core";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
-import { TimeEntryElement } from "../../time/parts/TimeEntryElement";
+import { TimeEntryElement } from "../../registry/parts/TimeEntryElement";
 import { GroupElement } from "../GroupApp";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";

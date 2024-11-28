@@ -11,6 +11,9 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, startOfDay, startOfHour, startOfMonth, startOfWeek } from "date-fns";
 import { format } from "date-fns";
 import { GroupEntry, TimeGrouping } from "../utils/TimeGrouping";
+import { AbstractMultipleApp } from "../../miltiple/AbstractMultipleApp";
+import { InstanceInteractionCallback, InstanceRenderer } from "../../miltiple/InstanceRenderer";
+import { GroupRenderer } from "../../miltiple/GroupRenderer";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
@@ -33,7 +36,7 @@ export class TimeGroupElement extends BaseElement {
     @property()
     breakpoint: number = 700;
 
-    @property({ type: Number, reflect: true})
+    @property({ type: Number, reflect: true })
     width: number = 1;
 
     @property({ type: String, reflect: true })
@@ -56,11 +59,20 @@ export class TimeGroupElement extends BaseElement {
     @state()
     protected scopeSlug?: string;
 
+    @property({ type: Object })
+    onInstanceEnter?: InstanceInteractionCallback
+
+    @property({ type: Object })
+    onInstanceLeave?: InstanceInteractionCallback
+
+    @property({ type: Object })
+    groupRenderer?: GroupRenderer;
+
     public setManagerSlug(
         slug: string
     ) {
 
-        // this.scopeSlug = slug;
+        this.scopeSlug = slug;
         const manager = createOrGetManager(slug);
         const registry = manager.addOrGetRegistry(slug);
         const group = registry.groups.addOrGetGroup(this.slug);
@@ -100,7 +112,10 @@ export class TimeGroupElement extends BaseElement {
 
 
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles = [
+        InstanceRenderer.styles,
+        GroupRenderer.styles,
+        css`
 
         :host([width="1"]) {
             width: 100%;
@@ -124,91 +139,106 @@ export class TimeGroupElement extends BaseElement {
             width: calc( 100% / 7  - 5px);
         }
 
-        .files-list {
+        .grp {
+
+            padding: calc( var( --thermal-gap ) * 0.3 );
+        
+        }
+
+        .grp-inner {
+
+            width: 100%;
+            box-sizing: border-box;
+            padding: calc( var( --thermal-gap ) * 0.3 );
+            border: 1px solid var( --thermal-slate );
+            border-radius: var( --thermal-radius );
+        
+        }
+
+        .grp-header {
+
             display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            gap: 5px;
-        }
-
-        .file {
-            width: 100%;
-        }
-
-        @media ( min-width: 700px ) {
-        
-            .file-list-1 .file { width: 100%; }
-        
-            .file-list-2 .file { width: calc( 50%  - 5px); }
-
-            .file-list-3 .file { width: calc( 33%  - 5px); }
-
-            .file-list-4 .file { width: calc( 25%  - 5px); }
-
-            .file-list-5 .file { width: calc( 20%  - 5px); }
-
-            .file-list-6 .file { width: calc( 100% / 6  - 5px); }
-
-            .file-list-7 .file { width: calc( 100% / 7  - 5px); }
-
-            .file-list-8 .file { width: calc( 100% / 8  - 5px); }
-
-            .file-list-9 .file { width: calc( 100% / 9  - 5px); }
-
-            .file-list-10 .file { width: calc( 100% / 10  - 5px); }
+            justify-content: space-between;
+            align-items: center;
         
         }
 
-
-        .file-list-collapsed .file { width: 100% !important; }
-
-        .file-title {
-            background: var(--thermal-slate);
-            color: var(--thermal-background);
-            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
-            padding: calc( var(--thermal-gap) * .5 );
+        .grp-header h2 {
+            margin: 0;
+            padding: 0;
+            padding-bottom: calc( var( --thermal-gap ) * .8 );
+            font-size: calc( var( --thermal-fs ) * 1.3);
+            line-height: 1em;
         }
     
-    `;
+    `
+    ];
 
     render() {
         return html`
             <slot name="entry"></slot>
 
-            <manager-mirror slug=${this.scopeSlug}>
+            ${this.scopeSlug 
+                ? html`<manager-mirror slug=${this.scopeSlug}>
 
                     <registry-mirror slug="${this.scopeSlug}">
 
                         <group-mirror slug="${this.slug}">
 
-                            <group-tool-buttons></group-tool-buttons>
+                                <div class="grp">
 
-                                <h2>${this.name ?? this.slug}</h2>
+                                    <div class="grp-inner">
 
-                                <slot></slot>
+                                        <div class="grp-header">
+
+                                            <h2>${this.name ?? this.slug}</h2>
+
+                                            <div>
+
+                                                <button
+                                                    class="file-info-button"
+                                                    @click=${() => this.grouper?.group.analysisSync.png.downloadPng()}
+                                                >png</button>
+
+                                                <button
+                                                    class="file-info-button"
+                                                    @click=${() => this.grouper?.group.analysisSync.csv.downloadAsCsv()}
+                                                >csv</button>
+
+                                            </div>
+                                        
+                                        </div>
 
 
-                                ${this.groups.map(group => html`
-                                
-                                    <time-group-row
-                                        columns=${this.columns}
-                                        breakpoint=${this.breakpoint}
-                                        label=${group.label}
-                                        info=${group.info}
-                                        .files=${group.files}
-                                        from=${group.from}
-                                        to=${group.to}
-                                        grouping=${this.grouping}
-                                    ></time-group-row>
-                                    
-                                ` )}
 
+                                        <slot></slot>
+
+                                        <group-tool-buttons></group-tool-buttons>
+
+                                        ${this.groups.map(group => this.groupRenderer?.renderGroup(
+                group,
+                this.columns,
+                this.grouping,
+                (instance) => {
+                    if (this.onInstanceEnter) this.onInstanceEnter(instance)
+                },
+                (instance) => {
+                    if (this.onInstanceLeave) this.onInstanceLeave(instance)
+                }
+            ))}
+
+                                    </div>
+
+                                </div>
 
                         </group-mirror>
                     
                     </registry-mirror>
 
                 </manager-mirror>
+
+                `
+                : nothing }
 
         `;
     }

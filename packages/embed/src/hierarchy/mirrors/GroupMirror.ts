@@ -35,6 +35,8 @@ export class GroupProviderElement extends RegistryConsumer {
         this.group.tool.addListener( this.UUIDGroupListeners, value => {
             this.tool = value;
         } );
+
+        console.log( "grp", this.group );
         
     }
 

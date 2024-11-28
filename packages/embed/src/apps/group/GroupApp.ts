@@ -6,11 +6,13 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { createOrGetManager } from "../../hierarchy/providers/getters";
-import { TimeEntryElement } from "../time/parts/TimeEntryElement";
+import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
+import { InstanceRenderer } from "../miltiple/InstanceRenderer";
+import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
 
 @customElement("thermal-group-app")
-export class GroupElement extends BaseElement {
+export class GroupElement extends AbstractMultipleApp {
 
 
     // Presentational attributes
@@ -57,11 +59,7 @@ export class GroupElement extends BaseElement {
     @state()
     groups: GroupEntry[] = [];
 
-    @state()
-    highlightFrom?: number;
-
-    @state()
-    highlightTo?: number;
+    
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -91,7 +89,9 @@ export class GroupElement extends BaseElement {
         }
     }
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles?: CSSResultGroup | undefined = [
+        AbstractMultipleApp.styles,
+        css`
 
 
         .group {
@@ -169,78 +169,8 @@ export class GroupElement extends BaseElement {
         }
 
 
-
-        .file {
-            box-sizing: border-box;
-            padding: 2.5px;
-        }
-
-        .file article {
-            border: 1px solid var(--thermal-slate);
-            border-bottom: 0;
-            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
-            background-color: var(--thermal-slate-light);
-        }
-
-        .file thermal-file-mirror {
-            display: block;
-        }
-
-        .file-title {
-            font-size: calc( var(--thermal-fs) * .8 );
-            color: var( --thermal-foreground );
-            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
-            padding: calc( var(--thermal-fs) * .5 );
-            display: flex;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .file-title > h3 {
-            font-size: calc( var(--thermal-fs) * .8 );
-            margin: 0;
-            padding: 0;
-            text-overflow: ellipsis;
-            overflow: hidden;
-        }
-
-        .file-title > h3 > span {
-            white-space: nowrap;
-        }
-
-        .file-title > div {
-            flex-grow: 1;
-            display: flex;
-            gap: 5px;
-            justify-content: flex-end;
-        }
-
-        .file-info-button {
-            cursor: pointer;
-            border: 1px solid var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-        }
-
-        .file-info-button:hover {
-            color: var(--thermal-background);
-            background-color: var(--thermal-primary);
-        }
-
-        .download {
-
-            small {
-                display: block;
-                font-size: calc( var( --thermal-fs ) * .8 );
-                opacity: .8;
-                padding-left: calc( var( --thermal-gap ) * .5 );
-                padding-bottom: calc( var( --thermal-gap ) * .5 );
-            }
-        
-        }
-
-
     
-    `;
+    `];
 
     protected render(): unknown {
         return html`
@@ -364,8 +294,8 @@ export class GroupElement extends BaseElement {
                             </div>
 
 
-                            <registry-histogram highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-histogram>
-                            <registry-range-slider highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-range-slider>
+                            <registry-histogram></registry-histogram>
+                            <registry-range-slider></registry-range-slider>
                             <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
 
                             <group-tool-buttons></group-tool-buttons>
@@ -374,116 +304,27 @@ export class GroupElement extends BaseElement {
 
                                     <slot></slot>
 
-                                ${this.groups.map(group => {
 
-                const title = group.label.trim().length > 0
-                    ? group.label.trim()
-                    : undefined;
+                                    ${ this.groups.map( group => {
 
-                const info = group.info?.trim() !== ""
-                    ? group.info?.trim()
-                    : undefined;
+                                        return this.groupRenderer.renderGroup(
+                                            group,
+                                            this.columns,
+                                            this.grouping,
+                                            ( instance ) => {
+                                                this.highlightFrom = instance.min;
+                                                this.highlightTo = instance.max;
+                                            },
+                                            () => {
+                                                this.highlightFrom = undefined;
+                                                this.highlightTo = undefined;
+                                            }
+                                        );
 
-                const listClasses = {
-                    "group-files": true,
-                    [`group-files-${this.columns}`]: true
-                }
+                                    } ) }
 
-                const groupClasses = {
-                    "group": true,
-                    "group__bordered": this.grouping !== "none"
-                }
 
-                return html`
-                                    <div class=${classMap(groupClasses)}>
-
-                                        ${title || info
-                        ? html`
-                                                <div class="group-header">
-
-                                                    ${title ? html`<h2 class="group-title">${title}</h2>` : nothing}
-
-                                                    ${info ? html`<p class="group-info">${info}</p>` : nothing}
-
-                                                </div>
-                                            `
-                        : nothing
-                    }
-
-                                        
-
-                                        <section class=${classMap(listClasses)}>
-
-                                            ${group.files.map(({ instance, innerHtml, label }) => {
-                        return html`
-                                                
-                                                    <div class="file">
-
-                                                        <article 
-                                                            @mouseenter=${() => {
-                                this.highlightFrom = instance.min;
-                                this.highlightTo = instance.max;
-                            }}
-                                                            @mouseleave=${() => {
-                                this.highlightFrom = undefined;
-                                this.highlightTo = undefined;
-                            }}
-                                                            >
-
-                                                            <file-mirror .file=${instance}>
-
-                                                                <div class="file-title">
-                                                                    <h3><span>${label}</span></h3>
-                                                                    <div>
-                                                                        ${innerHtml ? html`<thermal-dialog label="Note for ${label}">
-                                                                            <button slot="invoker" class="file-info-button" role="button">note</button>
-                                                                            <div slot="content">${unsafeHTML(innerHtml)}</div>
-                                                                        </thermal-dialog>`
-                                : nothing}
-                                                                        <button 
-                                                                            class="file-info-button" 
-                                                                            role="button"
-                                                                            @click=${() => instance.export.downloadPng()}
-                                                                        >png</button>
-                                                                        <file-info-button>
-                                                                            <button slot="invoker" class="file-info-button" role="button">info</button>
-                                                                        </file-info-button>
-
-                                                                        <button 
-                                                                            class="file-info-button"    
-                                                                            role="button" 
-                                                                            @click=${() => instance.group.registry.range.imposeRange({ from: instance.meta.current.min, to: instance.meta.current.max })}
-                                                                            @focus=${() => {
-                                this.highlightFrom = instance.min;
-                                this.highlightTo = instance.max;
-                            }}
-                                                                            @blur=${() => {
-                                this.highlightFrom = undefined;
-                                this.highlightTo = undefined;
-                            }}
-                                                                        >range</button>
-                                                                        
-                                                                    </div>
-                                                                </div>
-
-                                                                <file-canvas></file-canvas>
-                                                                <file-timeline></file-timeline>
-                                                                <file-analysis-table></file-analysis-table>
-                                                            </file-mirror>
-
-                                                        <article>
-                                                    
-                                                    </div>
-                                                
-                                                `;
-                    })}
-                                        
-                                        </section>
-
-                                    </div>
-                                    `;
-
-            })}
+                                
                             
                             </div>
 
