@@ -1,6 +1,6 @@
 import { LitElement } from "lit";
 
-import { v4 as uuid} from "uuid";
+import { v4 as uuid } from "uuid";
 
 export abstract class BaseElement extends LitElement {
 
@@ -21,5 +21,6 @@ export abstract class BaseElement extends LitElement {
         ...LitElement.shadowRootOptions,
         mode: "open"
     }
+
 
 }

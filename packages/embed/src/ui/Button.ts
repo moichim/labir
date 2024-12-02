@@ -1,8 +1,9 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { TourStepElement } from '../tour/TourStepElement';
 
 @customElement("thermal-button")
-export class ThermalButton extends LitElement {
+export class ThermalButton extends TourStepElement {
 
     public static VARIANTS = ["slate", "primary", "foreground", "background"]
 
@@ -94,6 +95,7 @@ export class ThermalButton extends LitElement {
             <button class="${this.variant}">
                 <slot></slot>
             </button>
+            ${this.renderTour()}
         `;
 
     }

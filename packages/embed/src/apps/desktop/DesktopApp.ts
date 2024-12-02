@@ -4,6 +4,9 @@ import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { Tour } from "../../tour/Tour";
+import { provide } from "@lit/context";
+import { tourContext } from "../../tour/tourContext";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -42,6 +45,20 @@ export class DesktopFileApp extends FileConsumer {
   label?: string;
 
   contentContainerRef: Ref<HTMLDivElement> = createRef();
+
+  @provide({context: tourContext})
+  tour: Tour
+
+
+  public constructor() {
+    super();
+    this.tour = Tour.create([
+      {ID: "sth1"},
+      {ID: "sth2"},
+      {ID: "sth3"},
+      {ID: "sth4"},
+    ]);
+  }
 
   @state()
   protected contentContainerWidth: number = 1000;
@@ -221,7 +238,7 @@ export class DesktopFileApp extends FileConsumer {
 
 
                 <thermal-dialog label="Display settings">
-                <thermal-button slot="invoker">Display settings</thermal-button>
+                <thermal-button slot="invoker" tourstepid="sth3">Display settings</thermal-button>
                 <div slot="content">
                   
                   <thermal-field 
@@ -277,7 +294,9 @@ export class DesktopFileApp extends FileConsumer {
 
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
-              ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+              ${this.showabout === true ? html`<app-info-button tourstepid="sth1"></app-info-button>` : nothing}
+
+              <thermal-button tourstepid="sth2" @click=${() => this.tour.activate(true)}>Tour</thermal-button>
 
             </thermal-bar>
           </div>
@@ -312,7 +331,7 @@ export class DesktopFileApp extends FileConsumer {
                       <div>${this.tool?.description}</div>
                     ` : html`
                       <div>
-                        <thermal-button @click=${() => this.group.tool.selectTool("add-point")}>Add a point analysis</thermal-button>
+                        <thermal-button tourstepid="sth4" @click=${() => this.group.tool.selectTool("add-point")}>Add a point analysis</thermal-button>
                         <thermal-button @click=${() => this.group.tool.selectTool("add-rect")}>Add a rectangle analysis</thermal-button>
                         <thermal-button @click=${() => this.group.tool.selectTool("add-ellipsis")}>Add a ellipsis analysis</thermal-button>
                       </div>

@@ -2,9 +2,10 @@ import { LitElement, css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 
 import {version} from "../../package.json";
+import { TourStepElement } from "../tour/TourStepElement";
 
 @customElement("app-info-button")
-export class AppInfoButton extends LitElement {
+export class AppInfoButton extends TourStepElement {
 
     static styles = css`
 
@@ -68,6 +69,7 @@ export class AppInfoButton extends LitElement {
 
     protected render(): unknown {
         return html`
+        ${this.renderTour()}
             <thermal-dialog label="Thermal images in the browser">
                 <thermal-button slot="invoker">About</thermal-button>
                 <div slot="content">
@@ -125,7 +127,7 @@ export class AppInfoButton extends LitElement {
                     </div>
                 </div>
                 </div>
-            </thermal-dialog-component>
+            </thermal-dialog>
         `
     }
 
