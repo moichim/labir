@@ -7,6 +7,7 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { computePosition, offset, Placement, arrow } from "@floating-ui/dom";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref } from "lit/directives/ref.js";
+import { t } from "i18next";
 
 @customElement("tour-step")
 export class TourStep extends BaseElement {
@@ -258,12 +259,12 @@ export class TourStep extends BaseElement {
             <div class="buttons">
 
             ${this.definition?.props?.hasPrev
-                ? html`<thermal-button @click=${() => this.tour?.previous()} variant="primary">Back</thermal-button>`
+                ? html`<thermal-button @click=${() => this.tour?.previous()} variant="primary">${t("back")}</thermal-button>`
                 : nothing
             } 
             
                 ${this.definition?.props?.hasNext
-                    ? html`<thermal-button @click=${() => this.tour?.next()} variant="background">Next</thermal-button>`
+                    ? html`<thermal-button @click=${() => this.tour?.next()} variant="background">${t("next")}</thermal-button>`
                     : nothing
                 }          
             

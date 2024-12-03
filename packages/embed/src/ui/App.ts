@@ -1,10 +1,15 @@
+import i18next, { t } from "i18next";
 import { LitElement, PropertyValues, css, html, nothing } from "lit";
-import { customElement, property, queryAssignedElements } from "lit/decorators.js";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { BaseElement } from "../hierarchy/BaseElement";
 
 
 @customElement("thermal-app")
-export class ThermalAppUiElement extends LitElement {
+export class ThermalAppUiElement extends BaseElement {
+
+    @state()
+    language: string = i18next.language;
 
     @queryAssignedElements({ slot: "bar", flatten: true })
     barElements!: Array<HTMLElement>;
@@ -242,6 +247,27 @@ export class ThermalAppUiElement extends LitElement {
 
                 <slot name="close"></slot>
 
+                <thermal-dropdown >
+
+                    <span slot="invoker">${this.language.toUpperCase()}</span>
+
+                    ${[
+                        "en",
+                        "cs",
+                        "fr",
+                        "cy"
+                    ].map( lang => html`
+                        <div slot="option">
+                            <thermal-button
+                                @click=${() => {
+                                    i18next.changeLanguage( lang );
+                                    this.language = lang;
+                                }}
+                            >${lang.toUpperCase()}</thermal-button>
+                        </div>
+                    ` )}
+                </thermal-dropdown>
+
                 <!--
                 ${ this.showfullscreen === true ? html`
                     <thermal-button @click=${this.toggleFullscreen.bind(this)}>
@@ -284,7 +310,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.recorded 
                         ? html`<div>
-                            <div class="credits-field">Recorded at:</div>
+                            <div class="credits-field">${t("recordedat")}:</div>
                             <div class="credit-value">${this.recorded}</div>
                         </div>`
                         : nothing
@@ -292,7 +318,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.author 
                         ? html`<div>
-                            <div class="credits-field">Author:</div>
+                            <div class="credits-field">${t("author")}:</div>
                             <div class="credit-value">${this.author}</div>
                         </div>`
                         : nothing
@@ -300,7 +326,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.license 
                         ? html`<div>
-                            <div class="credits-field">License:</div>
+                            <div class="credits-field">${t("license")}:</div>
                             <div class="credit-value">${this.license}</div>
                         </div>`
                         : nothing

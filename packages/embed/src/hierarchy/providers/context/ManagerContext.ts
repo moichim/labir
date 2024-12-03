@@ -15,3 +15,6 @@ export const managerSmoothContext = createContext<ManagerSmoothContext>( "manage
 
 export type ManagerGraphFunctionContext = boolean;
 export const managerGraphFunctionContext = createContext<ManagerGraphFunctionContext>("manager-graph-function-context");
+
+export type LanguageContextType = "string";
+export const languageContext = createContext<LanguageContextType>( "language" );

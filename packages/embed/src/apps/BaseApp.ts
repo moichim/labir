@@ -4,9 +4,12 @@ import { createRef, Ref } from "lit/directives/ref.js";
 import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 import { AvailableThermalPalettes, ThermalTool } from "@labir/core";
 import { PropertyValues } from "lit";
+import i18next from "i18next";
 
 /** All the parameters that shall be used by a single file app should be defined */
 export abstract class BaseApp extends BaseElement {
+
+    
 
     @property({type: String, reflect: true})
     url?: string;

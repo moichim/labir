@@ -7,6 +7,7 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { Tour } from "../../tour/Tour";
 import { provide } from "@lit/context";
 import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
+import i18next, { t } from "i18next";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -244,8 +245,8 @@ export class DesktopFileApp extends FileConsumer {
           
   
           <registry-palette-dropdown slot="bar" tour="palette">
-            <tour-step placement="right-start" label="Colour palette">
-              Use the dwopdown to change the palette.
+            <tour-step placement="right-start" label=${t("colourpalette")}>
+              ${t("palettehint")}
             </tour-step>
           </registry-palette-dropdown>
 
@@ -259,8 +260,8 @@ export class DesktopFileApp extends FileConsumer {
             <thermal-bar>
 
 
-                <thermal-dialog label="Display settings">
-                <thermal-button slot="invoker" tourstepid="sth3">Display settings</thermal-button>
+                <thermal-dialog label=${t("displaysettings")}>
+                <thermal-button slot="invoker" tourstepid="sth3">${t("displaysettings")}</thermal-button>
                 <div slot="content">
                   
                   <thermal-field 
@@ -321,7 +322,7 @@ export class DesktopFileApp extends FileConsumer {
               ${this.showabout === true ? html`<app-info-button></app-info-button>` : nothing}
 
               <thermal-button @click=${() => this.tourController.activate(false)}>
-                Tutorial
+                ${t("tutorial")}
               </thermal-button>
 
             </thermal-bar>

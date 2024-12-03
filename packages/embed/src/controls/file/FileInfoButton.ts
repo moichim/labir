@@ -3,9 +3,14 @@ import { css, html, nothing } from "lit";
 import { Instance, ThermalFileFailure, TimeFormat } from "@labir/core";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { t } from "i18next";
 
 @customElement("file-info-button")
 export class FileInfoButton extends FileConsumer {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     protected onFileLoaded(): void {
         // throw new Error("Method not implemented.");
@@ -129,29 +134,37 @@ export class FileInfoButton extends FileConsumer {
         }
 
         return html`
-            <thermal-dialog label="File info">
+            <thermal-dialog label=${t("fileinfo")}>
                 <slot name="invoker" slot="invoker">
-                    <thermal-button>File info</thermal-button>
+                    <thermal-button>${t("fileinfo")}</thermal-button>
                 </slot>
                 <div slot="content">
 
                     <table>
 
-                        ${ unsafeHTML( this.renderRow( "Thermal file name", this.file.fileName ) ) }
+                        ${ unsafeHTML( this.renderRow( t("thermalfilename"), this.file.fileName ) ) }
 
-                        ${ unsafeHTML( this.renderDownloadRow( "Thermal file URL", this.file.thermalUrl, this.file.thermalUrl, "Download thermal file" ) ) }
+                        ${ unsafeHTML( this.renderDownloadRow( 
+                            t("thermalfileurl"), 
+                            this.file.thermalUrl, 
+                            this.file.thermalUrl, 
+                            t("thermalfiledownload") 
+                        ) ) }
 
                         ${ this.file.visibleUrl 
                             ? unsafeHTML( this.renderDownloadRow( 
-                                "Visible file URL", 
+                                t("visiblefileurl"), 
                                 this.file.visibleUrl, 
                                 this.file.visibleUrl, 
-                                "Download visible file" 
+                                t("visiblefiledownload")
                             ) )
                             : nothing 
                         }
 
-                        ${ unsafeHTML( this.renderRow( "Time", TimeFormat.human( this.file.timestamp ) ) ) }
+                        ${ unsafeHTML( this.renderRow( 
+                            t("time"), 
+                            TimeFormat.human( this.file.timestamp ) 
+                        ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
                             "Duration",
