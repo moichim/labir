@@ -2,6 +2,7 @@ import { createContext } from "@lit/context";
 import { Tour } from "./Tour";
 import { TourStepDefinition } from "./TourStepDefinition";
 import { BaseElement } from "../hierarchy/BaseElement";
+import { TourableElement } from "./TourableElement";
 
 
 type TourContext = Tour;
@@ -12,7 +13,7 @@ export type TourStepContext = undefined|TourStepDefinition;
 
 export const tourStepContext = createContext<TourStepContext>( "tour-step" );
 
-type TourableElementWithProps<T extends BaseElement = BaseElement> = {
+type TourableElementWithProps<T extends BaseElement = TourableElement> = {
     element: T,
     step: string
 }

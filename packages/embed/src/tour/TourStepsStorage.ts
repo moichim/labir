@@ -139,11 +139,7 @@ export class TourStepsStorage {
             return false;
         }
 
-        if ( index < this.steps.length ) {
-            return true;
-        }
-
-        return false;
+        return index + 1 < this.steps.length;
 
     }
 

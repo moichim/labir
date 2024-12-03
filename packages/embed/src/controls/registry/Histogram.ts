@@ -3,6 +3,7 @@ import { PropertyValueMap, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ThermalRegistry } from "@labir/core";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 @customElement("registry-histogram")
 export class HistogramElement extends RegistryConsumer {
@@ -16,6 +17,12 @@ export class HistogramElement extends RegistryConsumer {
 
     @property( { type: String, reflect: true } )
     public height: string = "calc( var( --thermal-gap ) * 1.5 )";
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
     protected getClassName(): string {
         return "HistogramElement";
@@ -81,7 +88,7 @@ export class HistogramElement extends RegistryConsumer {
     protected renderHistogram(): unknown {
         return html`
 
-            <div class="container ${this.histogram.length > 0 ? "ready" : "loading"} ${this.interactive ? "interactive" : nothing}">
+            <div class="container ${this.histogram.length > 0 ? "ready" : "loading"} ${this.interactive ? "interactive" : nothing}" ${ref(this.tourableElementRef)}>
 
                 <div class="histogram" style="height: ${this.height}">
 

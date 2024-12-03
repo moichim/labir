@@ -4,6 +4,7 @@ import { css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
 
@@ -14,6 +15,12 @@ export class PaletteButtonsElement extends RegistryConsumer {
     @consume({context: managerPaletteContext, subscribe: true})
     @state()
     value!: ManagerPaletteContext;
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
 
 
@@ -63,7 +70,7 @@ export class PaletteButtonsElement extends RegistryConsumer {
 
     protected render(): unknown {
         return html`
-            <div class="container">
+            <div class="container" ${ref(this.tourableElementRef)}>
                 ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
                     
                     <thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
@@ -72,6 +79,8 @@ export class PaletteButtonsElement extends RegistryConsumer {
                     
                 `)}
             </div>
+
+            <slot name="tour"></slot>
         `;
     }
 

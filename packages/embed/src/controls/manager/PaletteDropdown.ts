@@ -4,11 +4,17 @@ import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
 
 @customElement("registry-palette-dropdown")
 export class PaletteDropdownElement extends RegistryConsumer {
+
+    protected tourableElemtnRef: Ref<HTMLElement> = createRef();
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElemtnRef.value;
+    }
 
     @consume({context: managerPaletteContext, subscribe: true})
     value!: ManagerPaletteContext;
@@ -59,7 +65,7 @@ export class PaletteDropdownElement extends RegistryConsumer {
     protected render(): unknown {
         return html`
 
-            <thermal-dropdown variant="foreground">
+            <thermal-dropdown variant="foreground" ${ref(this.tourableElemtnRef)}>
 
                 <div slot="invoker" class="button">
                     <span class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>

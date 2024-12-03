@@ -13,6 +13,10 @@ export class ThermalDropdown extends TourableElement {
         mode: "open"
     }
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.dropdownRef.value
+    }
+
     @queryAssignedElements({ slot: 'option' })
     _options!: Array<HTMLElement>;
 

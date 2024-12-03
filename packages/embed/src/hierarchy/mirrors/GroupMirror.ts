@@ -8,6 +8,10 @@ import { groupContext, toolContext, toolsContext } from "../providers/context/Gr
 @customElement("group-mirror")
 export class GroupProviderElement extends RegistryConsumer {
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
     protected UUIDGroupListeners = this.UUID + "__group-listener";
 
     @property({ type: String })

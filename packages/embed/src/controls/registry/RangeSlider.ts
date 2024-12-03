@@ -50,6 +50,10 @@ export class RangeSliderElement extends RegistryConsumer {
         return "RangeSliderElement";
     }
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.sliderRef.value;
+    }
+
     connectedCallback(): void {
         super.connectedCallback();
 

@@ -4,9 +4,9 @@ import { consume } from "@lit/context";
 import { tourableElementContext, TourableElementReference, tourContext, TourStepContext, tourStepContext } from "./tourContext";
 import { Tour } from "./Tour";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { computePosition, offset, Placement } from "@floating-ui/dom";
+import { computePosition, offset, Placement, arrow } from "@floating-ui/dom";
 import { classMap } from "lit/directives/class-map.js";
-import {arrow} from '@floating-ui/dom';
+import { createRef, Ref } from "lit/directives/ref.js";
 
 @customElement("tour-step")
 export class TourStep extends BaseElement {
@@ -32,6 +32,11 @@ export class TourStep extends BaseElement {
 
     @consume({ context: tourableElementContext, subscribe: true })
     protected elementContext: TourableElementReference;
+
+    @property({type: String})
+    public youtube?: string;
+
+    protected arrowRef: Ref<HTMLDivElement> = createRef();
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -81,19 +86,39 @@ export class TourStep extends BaseElement {
             this.active = true;
             this.displayed = true;
 
-            this.elementContext.element.style.outline = "2px var( --thermal-primary ) solid";
+            this.elementContext.element.style.outline = "4px var( --thermal-primary ) solid";
             this.elementContext.element.style.borderRadius = "var(--thermal-radius)";
             this.elementContext.element.style.boxShadow = "0 0 10px var(--thermal-primary)";
 
+            // console.log( ">>>", this.arrowRef.value );
+
             const size = await computePosition(
-                this.elementContext.element,
+                this.elementContext.element.getTourableRoot()!,
                 this,
                 {
-                    middleware: [offset(0)],
+                    middleware: [
+                        offset(20),
+                        arrow({
+                            element: this.arrowRef.value!,
+                            padding: 10
+                        })
+                    ],
                     placement: this.placement,
                     // strategy: "fixed"
                 }
-            );
+            ).then( result => {
+                console.log( "___>", result.middlewareData.arrow );
+                return result;
+            } );
+
+            const arr = size.middlewareData.arrow;
+
+            // console.log( "->>>", size );
+
+            if ( arr && this.arrowRef.value ) {
+                this.arrowRef.value.style.top = arr.y + "px";
+                this.arrowRef.value.style.left = arr.x + "px";
+            }
 
             this.style.position = "absolute";
             this.style.left = size.x + "px";
@@ -186,6 +211,16 @@ export class TourStep extends BaseElement {
                 color: var( --thermal-primary-light );
             }
         }
+
+        /*
+        .arrow {
+            width: 20px;
+            height: 20px;
+            content: "";
+            background: red;
+            position: absolute;
+        }
+        */
     
     `;
 
@@ -201,12 +236,23 @@ export class TourStep extends BaseElement {
 
         return html`<div class=${classMap(classes)}>
 
+            <div id="arrow" ${this.arrowRef} class="arrow" style="position:absolute;"></div>
+
             <div class="header">
                 <h1>${this.label}</h1>
                 <button class="close" @click=${() => this.tour?.deactivate()}>X</button> 
             </div>
             <div class="content">
+                
                 <slot></slot>
+
+                ${this.youtube
+                    ? html`
+                        <iframe width="560" height="315" src="https://www.youtube.com/embed/${this.youtube}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    `
+                    : nothing
+                }
+
             </div>
 
             <div class="buttons">
@@ -223,7 +269,10 @@ export class TourStep extends BaseElement {
             
             </div>
 
-        </div>`;
+            
+
+        </div>
+        `;
     }
 
 

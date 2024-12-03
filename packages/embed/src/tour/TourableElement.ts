@@ -5,7 +5,7 @@ import { tourableElementContext, TourableElementReference } from "./tourContext"
 
 export abstract class TourableElement extends BaseElement {
 
-    // public abstract getTourableRoot(): HTMLElement|undefined;
+    public abstract getTourableRoot(): HTMLElement|undefined;
 
     @property({type: String})
     tour?: string;

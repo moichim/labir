@@ -8,6 +8,10 @@ import { fileProviderContext } from "./context/FileContexts";
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
     @provide({ context: fileProviderContext })
     protected providedSelf: FileProviderElement = this;
 

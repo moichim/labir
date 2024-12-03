@@ -11,6 +11,10 @@ import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourCo
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
 
+  public getTourableRoot(): HTMLElement | undefined {
+    return undefined;
+  }
+
   @property({ type: String, reflect: true, attribute: true })
   showembed: boolean = true;
 
@@ -56,9 +60,11 @@ export class DesktopFileApp extends FileConsumer {
   public constructor() {
     super();
     this.tourController = Tour.create([
-      {ID: "sth1"},
-      {ID: "sth2"},
-      {ID: "sth3"}
+      {ID: "palette"},
+      {ID: "range"},
+      {ID: "opacity"},
+      {ID: "tools"},
+      {ID: "download"}
     ]);
 
     this.tourController.onStepActivation.set( "___tour_controller_mirror", (step) => {
@@ -237,13 +243,17 @@ export class DesktopFileApp extends FileConsumer {
 
           
   
-          <registry-palette-dropdown slot="bar" tour="sth1">
+          <registry-palette-dropdown slot="bar" tour="palette">
             <tour-step placement="right-start" label="Colour palette">
-              Use the dwopdown to change the palette. See something else and give a fuck
+              Use the dwopdown to change the palette.
             </tour-step>
           </registry-palette-dropdown>
 
-          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
+          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem" tour="opacity">
+            <tour-step slot="tour" label="Visible image">
+              Use the slider to show the visible image.
+            </tour-step>
+            </registry-opacity-slider>`: nothing}
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>
@@ -302,13 +312,13 @@ export class DesktopFileApp extends FileConsumer {
             
               <file-info-button></file-info-button>
             
-              <file-download-dropdown ></file-download-dropdown>
+              <file-download-dropdown tour="download">
+                <tour-step slot="tour" placement="left" label="Downloads">Zde si to stáhněte, vy volové</tour-step>
+              </file-download-dropdown>
 
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
-              ${this.showabout === true ? html`<app-info-button tour="sth2">
-                  <tour-step>Zvolte zde něco.</tour-step>
-                </app-info-button>` : nothing}
+              ${this.showabout === true ? html`<app-info-button></app-info-button>` : nothing}
 
               <thermal-button @click=${() => this.tourController.activate(false)}>
                 Tutorial
@@ -320,15 +330,23 @@ export class DesktopFileApp extends FileConsumer {
             <div class="content-container ${this.contentContainerWidth > 700 ? "content-container__expanded" : ""}" ${ref(this.contentContainerRef)}>
 
                 <div class="content-container-part content-container__tools">
-                  ${this.contentContainerWidth > 700 ? html`<group-tool-bar></group-tool-bar>`
-        : html`<group-tool-buttons></group-tool-buttons>`}
+                  ${this.contentContainerWidth > 700 ? html`<group-tool-bar tour="tools">
+                    <tour-step slot="tour" placement="right-top" label="Analysis tools">
+                        Select a tool and draw an analysis on the IR image.
+                    </tour-step>
+                  </group-tool-bar>`
+        : html`<group-tool-buttons tour="tools">
+                    <tour-step slot="tour" placement="right-top">
+                      Select a tool and draw an analysis on the IR image.
+                    </tour-step>
+        </group-tool-buttons>`}
                 </div>
 
                 <div class="content-container__part content-container__left">
 
                   <registry-histogram slot="pre"></registry-histogram>
-                  <registry-range-slider slot="pre" tour="sth3">
-                    <tour-step label="Thermal range" placement="bottom">
+                  <registry-range-slider slot="pre" tour="range">
+                    <tour-step label="Thermal range" placement="bottom" slot="tour">
                       <p>Move the left and right handle to adjust the thermal range.</p>
                       <p>Current temperature scale:</p>
                       <div style="border: 1px dotted var(--thermal-background);padding: 5px; border-radius: var(--thermal-radius)">

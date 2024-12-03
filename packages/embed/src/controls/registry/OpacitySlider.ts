@@ -3,12 +3,19 @@ import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { registryOpacityContext } from "../../hierarchy/providers/context/RegistryContext";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 
 @customElement("registry-opacity-slider")
 export class OpacityRangeElement extends RegistryConsumer {
 
     @consume({context: registryOpacityContext, subscribe: true})
     value!: number;
+
+    protected containerRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.containerRef.value;
+    }
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -65,22 +72,25 @@ export class OpacityRangeElement extends RegistryConsumer {
 
     protected render(): unknown {
         return html`
-            <input
-                id="handler"
-                class="thermal-opacity-handler"
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value="${this.value}"
-                @input="${this.handleUserChangeEvent}"
-            />
-            <div class="thermal-opacity-container">
-                <div>VIS</div>
-                <div>${this.value}</div>
-                <div>IR</div>
+            <div ${ref(this.containerRef)}>
+                <input
+                    id="handler"
+                    class="thermal-opacity-handler"
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="${this.value}"
+                    @input="${this.handleUserChangeEvent}"
+                />
+                <div class="thermal-opacity-container">
+                    <div>VIS</div>
+                    <div>${this.value}</div>
+                    <div>IR</div>
+                </div>
             </div>
             <slot></slot>
+            <slot name="tour"></slot>
         `;
     }
 

@@ -1,9 +1,16 @@
 import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
     
     public onInstanceCreated(): void {
         // throw new Error("Method not implemented.");
@@ -54,9 +61,9 @@ export class FileDownloadButton extends FileConsumer {
 
         return html`
 
-            <thermal-dropdown variant="foreground">
+            <thermal-dropdown variant="foreground" >
 
-                <slot name="invoker" slot="invoker">
+                <slot name="invoker" slot="invoker" ${ref(this.tourableElementRef)}>
                     <div class="button">
                         ${this.file 
                             ? "Download"
@@ -81,6 +88,8 @@ export class FileDownloadButton extends FileConsumer {
                     }
             
             </thermal-dropdown>
+
+            <slot name="tour"></slot>
 
         
         `

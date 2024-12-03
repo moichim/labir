@@ -7,7 +7,7 @@ import { toolContext, toolsContext } from "../../hierarchy/providers/context/Gro
 
 
 import { classMap } from 'lit/directives/class-map.js';
-
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
@@ -16,6 +16,12 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 
 @customElement("group-tool-bar")
 export class GroupToolButtons extends GroupConsumer {
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
 
     @consume({ context: toolContext, subscribe: true })
@@ -37,7 +43,7 @@ export class GroupToolButtons extends GroupConsumer {
 
     static styles = css`
 
-    :host {
+    aside {
         display: flex;
         flex-direction: column;
         gap: 5px;
@@ -103,6 +109,8 @@ export class GroupToolButtons extends GroupConsumer {
         }
 
         return html`
+
+            <aside ${ref(this.tourableElementRef)}>
                     ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
 
             const classes = {
@@ -118,12 +126,19 @@ export class GroupToolButtons extends GroupConsumer {
                             class=${classMap(classes)} 
                             @click=${() => { this.group.tool.selectTool(tool) }}
                             title=${tool.name}
+                            
                         >
                             ${unsafeSVG(tool.icon)}
                         </button>
                         
+                        
+
                     ` }
         )}
+
+            </aside>
+
+            <slot name="tour"></slot>
         `;
     }
 

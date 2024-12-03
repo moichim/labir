@@ -6,6 +6,10 @@ import { RegistryContext, registryContext, registryLoadingContext, registryMaxCo
 
 @customElement("registry-provider")
 export class RegistryProviderElement extends ManagerConsumer {
+    
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
 
     protected UUIDRegistryListeners = this.UUID + "__registry-listener";

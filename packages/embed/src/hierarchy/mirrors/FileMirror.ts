@@ -8,6 +8,10 @@ import { fileContext, fileProviderContext } from "../providers/context/FileConte
 @customElement("file-mirror")
 export class FileMirrorElement extends AbstractFileProvider {
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
     @provide({ context: fileProviderContext })
     protected providedSelf: FileMirrorElement = this;
 

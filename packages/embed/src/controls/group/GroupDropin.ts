@@ -14,6 +14,12 @@ export class GroupDropin extends GroupConsumer {
     @state()
     protected hover: boolean = false;
 
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
+
     public static styles = css`
 
         .container {
@@ -64,11 +70,13 @@ export class GroupDropin extends GroupConsumer {
 
         return html`
 
-            <div class="container">
+            <div class="container" ${ref(this.tourableElementRef)}>
             
                 <div ${ref(this.container)} class="${classMap(dropinClasses)}"></div>
 
             </div>
+
+            <slot name="tour"></slot>
         
         `;
 

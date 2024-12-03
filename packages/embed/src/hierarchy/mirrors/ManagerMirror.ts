@@ -10,6 +10,10 @@ import { TourableElement } from "../../tour/TourableElement";
 @customElement("manager-mirror")
 export class ManagerProviderElement extends TourableElement {
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
     @provide({ context: managerContext })

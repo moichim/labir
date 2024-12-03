@@ -8,6 +8,10 @@ import { getDefaultGroup } from "./getters";
 
 @customElement("group-provider")
 export class GroupProviderElement extends RegistryConsumer {
+    
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     protected UUIDGroupListeners = this.UUID + "__group-listener";
 
