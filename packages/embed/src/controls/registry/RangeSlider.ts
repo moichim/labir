@@ -212,6 +212,9 @@ export class RangeSliderElement extends RegistryConsumer {
 
         </div>
 
+        <slot name="tour"></slot>
+        <slot></slot>
+
         `;
     }
 

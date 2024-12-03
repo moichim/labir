@@ -42,10 +42,7 @@ export abstract class TourStepElement extends BaseElement {
                 step
             ) => {
 
-                this.log("setting new active step", step, this.tourController, step?.ID, this.tourStepId);
-
                 if (this.tourStepId === undefined) {
-                    this.log("ding nothing");
                     return;
                 }
 
@@ -70,8 +67,6 @@ export abstract class TourStepElement extends BaseElement {
     }
 
     protected renderTour() {
-
-        this.log("rendering tour", this.tourLocalDefinitionIfActive);
 
         if (this.tourLocalDefinitionIfActive === undefined) {
             return nothing;

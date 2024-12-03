@@ -1,11 +1,15 @@
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { TourStepElement } from '../tour/TourStepElement';
+import { TourableElement } from '../tour/TourableElement';
+import { createRef, Ref } from 'lit/directives/ref.js';
 
 @customElement("thermal-button")
-export class ThermalButton extends TourStepElement {
+export class ThermalButton extends TourableElement {
 
     public static VARIANTS = ["slate", "primary", "foreground", "background"]
+
+
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
@@ -95,7 +99,6 @@ export class ThermalButton extends TourStepElement {
             <button class="${this.variant}">
                 <slot></slot>
             </button>
-            ${this.renderTour()}
         `;
 
     }

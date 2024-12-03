@@ -74,6 +74,8 @@ export class PaletteDropdownElement extends RegistryConsumer {
             
             </thermal-dropdown>
 
+            <slot></slot>
+
         `;
     }
 

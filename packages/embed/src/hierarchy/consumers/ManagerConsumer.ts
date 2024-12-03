@@ -2,7 +2,8 @@ import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
 import { ManagerContext, managerContext } from "../providers/context/ManagerContext";
-export abstract class ManagerConsumer extends BaseElement {
+import { TourableElement } from "../../tour/TourableElement";
+export abstract class ManagerConsumer extends TourableElement {
 
     @consume({ context: managerContext, subscribe: true })
     @state()

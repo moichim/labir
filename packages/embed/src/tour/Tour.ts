@@ -42,6 +42,15 @@ export class Tour {
             if ( this._active === true ) {
                 if ( step?.ID !== this.current?.ID ) {
 
+                    if ( step ) {
+                        step.props = {
+                            hasNext: this.storage.hasNextStep( step ),
+                            hasPrev: this.storage.hasPrevStep( step ),
+                            num: this.storage.stepIndex( step ).index
+                        }
+                    }
+
+
                     this._current = step;
                     this.onStepActivation.call( step );
 
@@ -73,7 +82,7 @@ export class Tour {
         this.onTourActivationStatus.call( true );
 
         // Set the current step (listeners shall be called subsequently)
-        if ( fromStart || this.current === undefined) {
+        if ( fromStart === true || this.current === undefined) {
             this.storage.first();
         } else {
             this.storage.setStepByDefinition( this.current );

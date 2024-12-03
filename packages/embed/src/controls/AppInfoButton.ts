@@ -3,9 +3,10 @@ import { customElement } from "lit/decorators.js";
 
 import {version} from "../../package.json";
 import { TourStepElement } from "../tour/TourStepElement";
+import { TourableElement } from "../tour/TourableElement";
 
 @customElement("app-info-button")
-export class AppInfoButton extends TourStepElement {
+export class AppInfoButton extends TourableElement {
 
     static styles = css`
 
@@ -69,7 +70,7 @@ export class AppInfoButton extends TourStepElement {
 
     protected render(): unknown {
         return html`
-        ${this.renderTour()}
+            <slot></slot>
             <thermal-dialog label="Thermal images in the browser">
                 <thermal-button slot="invoker">About</thermal-button>
                 <div slot="content">

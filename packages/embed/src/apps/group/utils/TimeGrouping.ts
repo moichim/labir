@@ -175,8 +175,6 @@ export class TimeGrouping {
             this.groups.values()
         );
 
-        this.element.log( "______________", this.element.groups );
-
     }
 
     protected getGroupFromTimestamp(

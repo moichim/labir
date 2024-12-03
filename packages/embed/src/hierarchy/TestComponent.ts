@@ -38,7 +38,6 @@ export class TestComponent extends FileConsumer {
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback( name, _old, value );
-        this.log( name, _old, value );
     }
 
     protected willUpdate(_changedProperties: PropertyValues): void {

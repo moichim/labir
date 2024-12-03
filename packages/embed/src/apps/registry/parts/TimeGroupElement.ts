@@ -82,7 +82,7 @@ export class TimeGroupElement extends BaseElement {
 
         // Process all entries (valid only)
         setTimeout(() => {
-            this.log("--------", this.grouper);
+
             if (this.grouper) {
                 this.grouper.processEntries(
                     this.entries.filter(el => el instanceof TimeEntryElement)

@@ -80,8 +80,6 @@ export class TimeApp extends AbstractMultipleApp {
         super.firstUpdated(_changedProperties);
         this.forEveryGroup( group => {
 
-            this.log( "nastavuji slug", this.slug );
-
             group.setManagerSlug( this.slug );
             group.width = this.groups;
             group.onInstanceEnter = ( instance ) => {

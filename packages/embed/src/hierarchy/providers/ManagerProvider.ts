@@ -5,9 +5,10 @@ import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
 import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "./context/ManagerContext";
 import { createOrGetManager, defaultManager } from "./getters";
+import { TourableElement } from "../../tour/TourableElement";
 
 @customElement("manager-provider")
-export class ManagerProviderElement extends BaseElement {
+export class ManagerProviderElement extends TourableElement {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
@@ -59,8 +60,6 @@ export class ManagerProviderElement extends BaseElement {
 
         let manager = createOrGetManager(this.slug, options);
 
-        this.log("načítám instanci manažera", this.slug, "našel jsem toto:", manager.id);
-
         this.manager = manager;
         
     }
@@ -80,8 +79,6 @@ export class ManagerProviderElement extends BaseElement {
     protected firstUpdated(_changedProperties: PropertyValues): void {
 
         super.firstUpdated( _changedProperties );
-
-        this.log( "first updated manager provider" );
 
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
             this.setPalette(value as AvailableThermalPalettes);

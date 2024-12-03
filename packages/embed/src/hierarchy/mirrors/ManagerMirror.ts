@@ -5,9 +5,10 @@ import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../BaseElement";
 import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "../providers/context/ManagerContext";
 import { createOrGetManager, defaultManager } from "../providers/getters";
+import { TourableElement } from "../../tour/TourableElement";
 
 @customElement("manager-mirror")
-export class ManagerProviderElement extends BaseElement {
+export class ManagerProviderElement extends TourableElement {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 

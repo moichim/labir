@@ -6,7 +6,7 @@ import { ifDefined } from 'lit/directives/if-defined.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { Tour } from "../../tour/Tour";
 import { provide } from "@lit/context";
-import { tourContext } from "../../tour/tourContext";
+import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -47,17 +47,25 @@ export class DesktopFileApp extends FileConsumer {
   contentContainerRef: Ref<HTMLDivElement> = createRef();
 
   @provide({context: tourContext})
-  tour: Tour
+  tourController: Tour;
+
+  @provide({context: tourStepContext })
+  tourStep?: TourStepContext;
 
 
   public constructor() {
     super();
-    this.tour = Tour.create([
+    this.tourController = Tour.create([
       {ID: "sth1"},
       {ID: "sth2"},
-      {ID: "sth3"},
-      {ID: "sth4"},
+      {ID: "sth3"}
     ]);
+
+    this.tourController.onStepActivation.set( "___tour_controller_mirror", (step) => {
+      this.log( "změnil se krok", step );
+      this.tourStep = step;
+    } );
+    
   }
 
   @state()
@@ -229,7 +237,11 @@ export class DesktopFileApp extends FileConsumer {
 
           
   
-          <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
+          <registry-palette-dropdown slot="bar" tour="sth1">
+            <tour-step placement="right-start" label="Colour palette">
+              Use the dwopdown to change the palette. See something else and give a fuck
+            </tour-step>
+          </registry-palette-dropdown>
 
           ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
           
@@ -294,9 +306,13 @@ export class DesktopFileApp extends FileConsumer {
 
               ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
-              ${this.showabout === true ? html`<app-info-button tourstepid="sth1"></app-info-button>` : nothing}
+              ${this.showabout === true ? html`<app-info-button tour="sth2">
+                  <tour-step>Zvolte zde něco.</tour-step>
+                </app-info-button>` : nothing}
 
-              <thermal-button tourstepid="sth2" @click=${() => this.tour.activate(true)}>Tour</thermal-button>
+              <thermal-button @click=${() => this.tourController.activate(false)}>
+                Tutorial
+              </thermal-button>
 
             </thermal-bar>
           </div>
@@ -311,7 +327,15 @@ export class DesktopFileApp extends FileConsumer {
                 <div class="content-container__part content-container__left">
 
                   <registry-histogram slot="pre"></registry-histogram>
-                  <registry-range-slider slot="pre"></registry-range-slider>
+                  <registry-range-slider slot="pre" tour="sth3">
+                    <tour-step label="Thermal range" placement="bottom">
+                      <p>Move the left and right handle to adjust the thermal range.</p>
+                      <p>Current temperature scale:</p>
+                      <div style="border: 1px dotted var(--thermal-background);padding: 5px; border-radius: var(--thermal-radius)">
+                      <registry-range-display></registry-range-display>
+                      </div>
+                    </tour-step>
+                  </registry-range-slider>
                   <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
                   <!--<registry-range-display></registry-range-display>-->
 

@@ -29,6 +29,8 @@ import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
 
+
+
 import "./controls/AppInfoButton";
 
 
@@ -110,6 +112,8 @@ import "./apps/registry/parts/TimeGroupRowElement";
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupExport";
 import "./apps/registry/RegistryApp";
+
+import "./tour/TourStep";
 
 
 

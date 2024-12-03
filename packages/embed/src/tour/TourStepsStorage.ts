@@ -69,7 +69,7 @@ export class TourStepsStorage {
     /** The previous step definition if any */
     public get previousStep() {
         const previousIndex = this.previousStepIndex;
-        if ( previousIndex ) 
+        if ( previousIndex !== undefined ) 
             return this.steps[ previousIndex ];
     }
 
@@ -103,9 +103,10 @@ export class TourStepsStorage {
 
     /** Set current step internally */
     public setStepByDefinition( step?: TourStepDefinition ) {
+
         // Do nothing if same
         if ( step?.ID === this.currentStepId ) {
-            return;
+            // return;
         }
         // Assign value
         this._currentStepId = step?.ID;
@@ -116,7 +117,6 @@ export class TourStepsStorage {
 
     /** Advance to the next step */
     next() {
-        console.log( "setting next step", this.nextStep );
         this.setStepByDefinition( this.nextStep );
     }
 
@@ -127,6 +127,41 @@ export class TourStepsStorage {
 
     first() {
         this.setStepByDefinition( this.steps[0] );
+    }
+
+    hasNextStep(
+        step: TourStepDefinition
+    ): boolean {
+
+        const index = this.steps.indexOf( step );
+
+        if (index === -1) {
+            return false;
+        }
+
+        if ( index < this.steps.length ) {
+            return true;
+        }
+
+        return false;
+
+    }
+
+    hasPrevStep(
+        step: TourStepDefinition
+    ): boolean {
+        const index = this.steps.indexOf(step);
+        if ( index <= 0 ) {
+            return false;
+        }
+        return true;
+    }
+
+    stepIndex( step: TourStepDefinition ) {
+        return {
+            index: this.steps.indexOf( step ) + 1,
+            of: this.steps.length
+        }
     }
 
 }

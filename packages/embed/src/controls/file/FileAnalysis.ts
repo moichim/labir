@@ -11,7 +11,7 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
 
-    
+
 
     @consume({ context: analysisList, subscribe: true })
     analysis: AnalysisList = [];
@@ -45,21 +45,17 @@ export class FileAnalysisList extends FileConsumer {
 
             this.file.analysisData.addListener(this.UUID, (value) => {
                 this.graphs = value;
-                console.log(value.values[1]);
             });
 
-            this.log( this.graphParentElement.value )
 
-            if ( this.graphParentElement.value ) {
+            if (this.graphParentElement.value) {
                 this.graphWidth = this.graphParentElement.value.clientWidth;
-                console.log(this.graphWidth);
 
-                const observer = new ResizeObserver( entries => {
+                const observer = new ResizeObserver(entries => {
                     this.graphWidth = entries[0].contentRect.width;
-                    console.log(this.graphWidth);
-                } );
-                
-                observer.observe( this.graphParentElement.value );
+                });
+
+                observer.observe(this.graphParentElement.value);
 
             }
 
@@ -67,20 +63,16 @@ export class FileAnalysisList extends FileConsumer {
         }
 
 
-        this.log( "VELJÚUU", this.graphParentElement.value )
+        if (this.graphParentElement.value) {
+            this.graphWidth = this.graphParentElement.value.clientWidth;
 
-            if ( this.graphParentElement.value ) {
-                this.graphWidth = this.graphParentElement.value.clientWidth;
-                console.log(this.graphWidth);
+            const observer = new ResizeObserver(entries => {
+                this.graphWidth = entries[0].contentRect.width;
+            });
 
-                const observer = new ResizeObserver( entries => {
-                    this.graphWidth = entries[0].contentRect.width;
-                    console.log(this.graphWidth);
-                } );
-                
-                observer.observe( this.graphParentElement.value );
+            observer.observe(this.graphParentElement.value);
 
-            }
+        }
 
 
 
@@ -164,7 +156,7 @@ export class FileAnalysisList extends FileConsumer {
         return html`
             
 
-            ${ this.analysis.length === 0
+            ${this.analysis.length === 0
 
                 ? nothing
                 : html`
@@ -180,21 +172,21 @@ export class FileAnalysisList extends FileConsumer {
                         <th 
                             class="interactive" 
                             @click=${() => {
-                if (this.file) {
-                    if (this.allSelected) {
+                        if (this.file) {
+                            if (this.allSelected) {
 
-                        this.file.analysis.layers.deselectAll();
+                                this.file.analysis.layers.deselectAll();
 
-                        this.allSelected = false;
+                                this.allSelected = false;
 
-                    } else {
-                        this.allSelected = true;
+                            } else {
+                                this.allSelected = true;
 
-                        this.file.analysis.layers.selectAll();
+                                this.file.analysis.layers.selectAll();
 
-                    }
-                }
-            }}
+                            }
+                        }
+                    }}
                         >
                             <div 
                                 class="selected ${this.allSelected ? "all" : ""}"
@@ -219,7 +211,7 @@ export class FileAnalysisList extends FileConsumer {
             </table>
             </div>
                 `
-             }
+            }
             
             
             
@@ -229,12 +221,12 @@ export class FileAnalysisList extends FileConsumer {
                     type="line" 
                     .data=${this.graphs.values} 
                     .options=${{
-                        colors: this.graphs.colors,
-                        legend: { position: 'bottom' },
-                        hAxis: { title: 'Time' },
-                        vAxis: { title: 'Temperature °C' },
-                        width: this.graphWidth,
-                    }}
+                    colors: this.graphs.colors,
+                    legend: { position: 'bottom' },
+                    hAxis: { title: 'Time' },
+                    vAxis: { title: 'Temperature °C' },
+                    width: this.graphWidth,
+                }}
                     ></google-chart>`
                 : nothing}
             </div>
