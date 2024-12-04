@@ -355,6 +355,7 @@ declare abstract class AbstractAnalysis {
     get max(): number | undefined;
     protected _avg?: number;
     get avg(): number | undefined;
+    dangerouslySetValues(avg: number, min?: number | undefined, max?: number | undefined): void;
     get arrayOfPoints(): AbstractPoint[];
     get arrayOfActivePoints(): AbstractPoint[];
     protected _color: string;

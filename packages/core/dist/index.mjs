@@ -1093,6 +1093,12 @@ var AbstractAnalysis = class {
   get avg() {
     return this._avg;
   }
+  dangerouslySetValues(avg, min = void 0, max = void 0) {
+    this._avg = avg;
+    this._min = min;
+    this._max = max;
+    this.onValues.call(this.min, this.max, this.avg);
+  }
   get arrayOfPoints() {
     return Array.from(this.points.values());
   }
@@ -3444,7 +3450,7 @@ var FrameBuffer = class {
     return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
   }
   /** Number of images to preload at once */
-  bufferSize = 4;
+  bufferSize = 1;
   /** The actual buffer holding pair of step & frame */
   buffer = /* @__PURE__ */ new Map();
   /** Accessor to array of steps preloaded in the given moment */
@@ -4551,14 +4557,37 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   async draw() {
     const paletteColors = this.getPalette();
     try {
-      const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+      const analysis = this.instance.analysis.value.map((a) => {
+        if (a instanceof PointAnalysis) {
+          return [a.getType(), a.key, a.top, a.left, 1, 1];
+        }
+        return [a.getType(), a.key, a.top, a.left, a.width, a.height];
+      });
+      const image = await this.pool.exec(async (from, to, width, height, pixels, palette, analysis2) => {
         const canvas = new OffscreenCanvas(width, height);
         const context = canvas.getContext("2d");
         const displayRange = to - from;
-        for (let x = 0; x <= width; x++) {
-          for (let y = 0; y <= height; y++) {
+        const buffer = analysis2.map((a) => {
+          return {
+            id: a[1],
+            min: {
+              value: Infinity
+            },
+            max: {
+              value: -Infinity
+            },
+            avg: {
+              value: 0,
+              sum: 0,
+              count: 0
+            }
+          };
+        });
+        for (let x = 0; x < width; x++) {
+          for (let y = 0; y < height; y++) {
             const index = x + y * width;
-            let temperature = pixels[index];
+            const rawTemperature = pixels[index];
+            let temperature = rawTemperature;
             if (temperature < from)
               temperature = from;
             if (temperature > to)
@@ -4569,20 +4598,75 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             const color = palette[colorIndex];
             context.fillStyle = color;
             context.fillRect(x, y, 1, 1);
+            const isWithin = (x2, y2, la, ta, wa, ha) => {
+              const centerX = la + wa / 2;
+              const centerY = ta + ha / 2;
+              const normalizedX = (x2 - centerX) / (wa / 2);
+              const normalizedY = (y2 - centerY) / (ha / 2);
+              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+            };
+            analysis2.forEach((a, index2) => {
+              const bufferValue = buffer[index2];
+              const [type, id, top, left, w, h] = a;
+              if (type === "point") {
+                if (x === left && y === top) {
+                  bufferValue.avg.value = rawTemperature;
+                }
+              } else if (type === "rectangle") {
+                if (x >= left && x < left + w && y >= top && y < top + h) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              } else if (type === "ellipsis") {
+                if (isWithin(x, y, left, top, width, height)) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              }
+            });
           }
         }
+        const stats = buffer.map((a) => {
+          return {
+            id: a.id,
+            min: a.min.value,
+            max: a.max.value,
+            avg: a.avg.sum / a.avg.count
+          };
+        });
         const imageData = context.getImageData(0, 0, width, height);
         const result = await createImageBitmap(imageData);
-        return result;
+        return {
+          image: result,
+          stats
+        };
       }, [
         this.from,
         this.to,
         this.width,
         this.height,
         this.pixels,
-        paletteColors
+        paletteColors,
+        analysis
       ], {});
-      this.context.drawImage(image, 0, 0);
+      console.log(image.stats);
+      image.stats.forEach((a) => {
+        const analysis2 = this.instance.analysis.layers.get(a.id);
+        analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
+      });
+      this.context.drawImage(image.image, 0, 0);
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "OffscreenCanvas is not defined") {
@@ -5289,7 +5373,6 @@ var Instance = class _Instance extends AbstractFile {
         const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
         this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
-      this.analysis.value.forEach((analysis) => analysis.recalculateValues());
     }
   }
   getPixelsForHistogram() {

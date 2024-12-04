@@ -166,7 +166,7 @@ export class Instance extends AbstractFile {
             }
 
             // Recalculate all analysis
-            this.analysis.value.forEach(analysis => analysis.recalculateValues());
+            // this.analysis.value.forEach(analysis => analysis.recalculateValues());
         }
 
     }

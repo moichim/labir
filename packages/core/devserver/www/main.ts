@@ -52,8 +52,8 @@ const buildExportPngButton = () => {
 buildExportPngButton();
 
 const array = [
+    "/sequence.lrc",
     "/soustruh.lrc",
-    "/tucnaci_04.lrc",
 ];
 
 array.map( file => {
@@ -74,6 +74,16 @@ array.map( file => {
             btn.innerHTML = result.fileName;
 
             document.body.prepend( btn );
+
+            const play = document.createElement( "button" );
+            play.innerHTML = "Play " + result.thermalUrl;
+            play.addEventListener( "click", () => {
+                result.timeline.isPlaying
+                    ? result.timeline.stop()
+                    : result.timeline.play()
+            } );
+
+            document.body.appendChild( play );
         }
     } )
 } );

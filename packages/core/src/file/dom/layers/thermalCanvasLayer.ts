@@ -1,6 +1,22 @@
 import { Instance } from "../../instance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "../domFactories";
+import { PointAnalysis } from "../../../properties/analysis/internals/point/PointAnalysis";
+
+type AnalysisExtractDefinition = [
+    /** Type */
+    string,
+    /** ID */
+    string,
+    /** Top */
+    number,
+    /** Left */
+    number,
+    /** Width */
+    number,
+    /** Height */
+    number
+]
 
 /** Displays the canvas and renders it */
 export class ThermalCanvasLayer extends AbstractLayer {
@@ -86,6 +102,16 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
         try {
 
+            const analysis: AnalysisExtractDefinition[] = this.instance.analysis.value.map( a => {
+
+                if ( a instanceof PointAnalysis ) {
+                    return [ a.getType(), a.key, a.top, a.left, 1, 1 ]
+                }
+
+                return [ a.getType(), a.key, a.top, a.left, a.width, a.height ];
+
+            } );
+
 
             // Transfer it to thread
             const image = await this.pool.exec(async (
@@ -94,7 +120,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 width: number,
                 height: number,
                 pixels: number[],
-                palette: string[]
+                palette: string[],
+                analysis: AnalysisExtractDefinition[]
             ) => {
 
                 const canvas = new OffscreenCanvas(width, height);
@@ -103,14 +130,39 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
                 const displayRange = to - from;
 
-                for (let x = 0; x <= width; x++) {
 
-                    for (let y = 0; y <= height; y++) {
+                const buffer = analysis.map( a => {
+                    return {
+                        id: a[1],
+                        min: {
+                            value: Infinity,
+                        },
+                        max: {
+                            value: -Infinity
+                        },
+                        avg: {
+                            value: 0,
+                            sum: 0,
+                            count: 0
+                        }
+                    }
+                } );
+
+
+                for (let x = 0; x < width; x++) {
+
+                    for (let y = 0; y < height; y++) {
+
+
+                        /**
+                         * Render the HTML to the offcanvas
+                         */
 
                         const index = x + (y * width);
 
                         // Clamp temperature to the displayedRange
-                        let temperature = pixels[index];
+                        const rawTemperature = pixels[index];
+                        let temperature = rawTemperature;
                         if (temperature < from)
                             temperature = from;
                         if (temperature > to)
@@ -126,15 +178,94 @@ export class ThermalCanvasLayer extends AbstractLayer {
                         context!.fillRect(x, y, 1, 1);
 
 
+                        const isWithin = (x: number, y: number, la: number, ta: number, wa: number, ha: number): boolean => {
+                            const centerX = la + wa / 2;
+                            const centerY = ta + ha / 2;
+                            const normalizedX = (x - centerX) / (wa / 2);
+                            const normalizedY = (y - centerY) / (ha / 2);
+                            return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+                        }
+
+                        /**
+                         * Process the analysis
+                         */
+                        analysis.forEach( (a,index) => {
+
+                            const bufferValue = buffer[index];
+
+                            const [ type, id, top, left, w, h ] = a;
+
+                            // Point
+                            if ( type === "point" ) {
+                                if ( x === left && y === top ) {
+                                    bufferValue.avg.value = rawTemperature;
+                                }
+                            }
+
+                            // Rectangle
+                            else if ( type === "rectangle" ) {
+
+                                if ( 
+                                    x >= left 
+                                    && x < left + w 
+                                    && y >= top
+                                    && y < top + h
+                                ) {
+
+                                    if ( rawTemperature < bufferValue.min.value ) {
+                                        bufferValue.min.value = rawTemperature;
+                                    }
+                                    if ( rawTemperature > bufferValue.max.value ) {
+                                        bufferValue.max.value = rawTemperature;
+                                    }
+                                    bufferValue.avg.count = bufferValue.avg.count + 1;
+                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+
+                                }
+
+                            }
+
+                            // Ellipsis
+                            else if ( type === "ellipsis" ) {
+
+                                if ( isWithin(x,y,left,top, width, height ) ) {
+                                    if ( rawTemperature < bufferValue.min.value ) {
+                                        bufferValue.min.value = rawTemperature;
+                                    }
+                                    if ( rawTemperature > bufferValue.max.value ) {
+                                        bufferValue.max.value = rawTemperature;
+                                    }
+
+                                    bufferValue.avg.count = bufferValue.avg.count + 1;
+                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                                }
+
+                            }
+
+                        } );
+
+
                     }
 
                 }
+
+                const stats = buffer.map( a => {
+                    return {
+                        id: a.id,
+                        min: a.min.value,
+                        max: a.max.value,
+                        avg: a.avg.sum / a.avg.count
+                    }
+                } );
 
                 const imageData = context.getImageData(0, 0, width, height);
 
                 const result = await createImageBitmap(imageData);
 
-                return result;
+                return {
+                    image: result,
+                    stats
+                };
 
             }, [
                 this.from,
@@ -142,11 +273,19 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 this.width,
                 this.height,
                 this.pixels,
-                paletteColors
+                paletteColors,
+                analysis
             ], {});
 
+            console.log( image.stats );
+
+            image.stats.forEach( a => {
+                const analysis = this.instance.analysis.layers.get( a.id );
+                analysis?.dangerouslySetValues(a.avg, a.min, a.max);
+            } );
+
             // Place it in context
-            this.context.drawImage(image, 0, 0);
+            this.context.drawImage(image.image, 0, 0);
 
 
 
