@@ -103,7 +103,13 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
                     this.localInstance.mountToDom(this.container);
 
-                    this.localInstance.draw();
+                    const instance = this.localInstance;
+
+                    if ( instance.dom && instance.dom.visibleLayer ) {
+                        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+                    }
+
+                    await this.localInstance.draw();
 
                     if (params.showAnalysis && this.file.analysis.value.length > 0) {
 

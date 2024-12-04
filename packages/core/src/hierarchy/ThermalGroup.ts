@@ -9,6 +9,7 @@ import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
+import { GroupPlayback } from "../properties/time/group/GroupPlayback";
 import { InspectTool } from "../properties/tool/internals/InspectTool";
 import { ToolDrive } from "../properties/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
@@ -50,6 +51,14 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     public readonly cursorPosition: CursorPositionDrive = new CursorPositionDrive(this, undefined);
 
     public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, true);
+
+    protected _playback?: GroupPlayback;
+    public get playback() {
+        if ( ! this._playback ) {
+            this._playback = new GroupPlayback( this, 0 );
+        }
+        return this._playback;
+    }
 
 
 

@@ -1849,7 +1849,7 @@ declare class ThermalCanvasLayer extends AbstractLayer {
     protected onDestroy(): void;
     /** Returns an array of 255 RGB colors */
     protected getPalette(): string[];
-    draw(): Promise<void>;
+    draw(): Promise<boolean>;
     exportAsPng(): void;
 }
 
@@ -2063,7 +2063,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     abstract dehydrateListener(dom: InstanceDOM): void;
     mountToDom(container: HTMLDivElement): void;
     unmountFromDom(): void;
-    draw(): void;
+    draw(): Promise<boolean | undefined>;
     recievePalette(palette: string | number): void;
     /** @deprecated use DOM object instead */
     destroySelfAndBelow(): void;
@@ -2192,6 +2192,71 @@ declare abstract class BaseStructureObject {
     abstract getInstances(): Instance[];
 }
 
+declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
+    protected _hasAnyPlayback: boolean;
+    get hasAnyPlayback(): boolean;
+    protected setHasAnyPlayback(value: boolean): void;
+    readonly onHasAnyCallback: CallbacksManager<(value: boolean) => void>;
+    protected recalculateHasAnyPlayback(instances: Instance[]): void;
+    protected _playing: boolean;
+    get playing(): boolean;
+    protected set playing(value: boolean);
+    protected step: number;
+    readonly onPlaying: CallbacksManager<(value: boolean) => void>;
+    protected _interval: number;
+    get interval(): number;
+    setInterval(value: number): void;
+    readonly onFramerate: CallbacksManager<(value: number) => void>;
+    protected _duration: number;
+    get duration(): number;
+    protected set duration(value: number);
+    readonly onDuration: CallbacksManager<(value: number | undefined) => void>;
+    protected recalculateDuration(instances: Instance[]): void;
+    protected UUID: string;
+    constructor(parent: ThermalGroup, initial: number);
+    protected validate(value: number): number;
+    protected afterSetEffect(value: number): void;
+    setValueByPercent(percent: number): void;
+    setValueByRelativeMs(relativeMs: number): false | undefined;
+    protected timer?: ReturnType<typeof setTimeout>;
+    protected percentToMs(percent: number): number | undefined;
+    protected msToPercent(ms: number): number | undefined;
+    /**
+     * Get one step duration
+     */
+    protected getBaseStepInterval(duration: number): number;
+    /**
+     * Get number of steps within the duration
+     */
+    protected getNumberOfSteps(duration: number): number;
+    /**
+     * Get the MS value of the next step
+     */
+    protected getNextStepMs(duration: number, ms: number): number;
+    /**
+     * Get the next interval value for the next step
+     */
+    protected getNextStepInterval(duration: number, ms: number): number;
+    /**
+     * The main method that shall create a timer leading to the next step.
+     *
+     * It might be called recursively to ensure fluent playback.
+     */
+    protected createTimerStep(recursive?: boolean): void;
+    /**
+     * Play the entire group
+     */
+    play(): void;
+    /**
+     * Stop the entire group
+     */
+    stop(): void;
+    /**
+     * Set the MS value to 0
+     */
+    reset(): void;
+}
+
 /**
  * Group of thermal images
  */
@@ -2211,6 +2276,8 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
     readonly analysisSync: AnalysisSyncDrive;
+    protected _playback?: GroupPlayback;
+    get playback(): GroupPlayback;
     /** Iteration */
     forEveryInstance: (fn: ((instance: Instance) => void)) => void;
     /**

@@ -23,7 +23,6 @@ export class InstanceRenderer {
 
         .file article {
             border: 1px solid var(--thermal-slate);
-            border-bottom: 0;
             border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
             background-color: var(--thermal-slate-light);
         }
@@ -70,6 +69,12 @@ export class InstanceRenderer {
         .file-info-button:hover {
             color: var(--thermal-background);
             background-color: var(--thermal-primary);
+        }
+
+        .timeline {
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-bottom: 5px;
         }
 
     `;
@@ -161,7 +166,13 @@ export class InstanceRenderer {
                     </div>
 
                     <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
+                    ${instance.timeline.isSequence
+                        ? html`<div class="timeline">
+                            <file-timeline hasInfo="false" hasSpeedButton="false" hasPlayButton="false"></file-timeline>
+                        </div>`
+                        : nothing
+                    }
+                    
                     <file-analysis-table></file-analysis-table>
 
                 </file-mirror>

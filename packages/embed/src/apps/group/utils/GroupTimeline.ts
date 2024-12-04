@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { Instance, ThermalFileFailure } from "@labir/core";
@@ -14,7 +14,13 @@ export class GroupTimeline extends GroupConsumer {
     ms: number = 0;
 
     @state()
+    playing: boolean = false;
+
+    @state()
     instances: Instance[] = [];
+
+    @state()
+    has: boolean = false;
 
     protected timelineRef: Ref<HTMLDivElement> = createRef();
     protected indicatorRef: Ref<HTMLDivElement> = createRef();
@@ -25,17 +31,19 @@ export class GroupTimeline extends GroupConsumer {
 
 
     connectedCallback(): void {
+
         super.connectedCallback();
 
-        this.group.registry.batch.onBatchComplete.set(this.UUID, this.onRegistryBatchEnded.bind(this));
+        this.group.registry.batch.onBatchComplete.set(this.UUID, (results) => {
+            this.onRegistryBatchEnded(results);
+        });
 
-        
+        this.group.playback.addListener(this.UUID, value => this.ms = value);
 
-    }
+        this.group.playback.onPlaying.set(this.UUID, value => this.playing = value);
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-        
+        this.group.playback.onHasAnyCallback.set( this.UUID, value => this.has = value );
+
     }
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -45,18 +53,14 @@ export class GroupTimeline extends GroupConsumer {
         // Project the local status to the affected instances
         if (_changedProperties.has("ms")) {
             if (this.ms !== undefined) {
-                this.forEveryAffectedInstance(instance => {
-                    if (this.ms) {
-                        instance.timeline.setRelativeTime(this.ms);
 
-                        if ( this.indicatorRef.value ) {
-                            this.indicatorRef.value.style.width = this.msToPercent( this.ms ) + "%";
-                        }
+                if (this.ms !== this.group.playback.value)
+                    this.group.playback.setValueByRelativeMs(this.ms);
 
-                    }
-                        
+                if (this.indicatorRef.value) {
+                    this.indicatorRef.value.style.width = this.msToPercent(this.ms) + "%";
+                }
 
-                });
             }
         }
 
@@ -87,8 +91,8 @@ export class GroupTimeline extends GroupConsumer {
 
         this.longestDurationInMs = length;
 
-        if ( this.timelineRef.value ) {
-            this.timelineRef.value.addEventListener( "click", event => {
+        if (this.timelineRef.value) {
+            this.timelineRef.value.addEventListener("click", event => {
 
                 const layerX = event.layerX;
                 const target = event.target as HTMLDivElement;
@@ -96,14 +100,13 @@ export class GroupTimeline extends GroupConsumer {
 
                 const percent = layerX / layerWidth * 100;
 
-                const ms = this.percentToMs( percent );
+                const ms = this.percentToMs(percent);
 
-                this.log( this.ms, ms );
+                if (ms) {
+                    this.ms = ms;
+                }
 
-                this.ms = ms;
-
-                
-            } );
+            });
         }
 
     }
@@ -116,11 +119,11 @@ export class GroupTimeline extends GroupConsumer {
         percent: number
     ) {
 
-        if ( this.longestDurationInMs === undefined ) {
+        if (this.longestDurationInMs === undefined) {
             return undefined;
         }
 
-        return Math.floor( this.longestDurationInMs * (percent / 100) );
+        return Math.floor(this.longestDurationInMs * (percent / 100));
 
     }
 
@@ -128,12 +131,18 @@ export class GroupTimeline extends GroupConsumer {
         ms: number
     ) {
 
-        if ( this.longestDurationInMs === undefined ) {
+        if (this.longestDurationInMs === undefined) {
             return undefined;
         }
 
-        return ( ms / this.longestDurationInMs ) * 100;
+        return (ms / this.longestDurationInMs) * 100;
 
+    }
+
+    protected handlePlayButtonClick() {
+        this.group.playback.playing
+            ? this.group.playback.stop()
+            : this.group.playback.play();
     }
 
 
@@ -143,12 +152,14 @@ export class GroupTimeline extends GroupConsumer {
             width: 100%;
             height: var( --thermal-fs );
             position: relative;
+            cursor: pointer;
         }
 
         .background {
             width: 100%;
             height: 100%;
             background-color: var( --thermal-slate );
+            pointer-events: none;
         }
 
         .indicator {
@@ -158,6 +169,7 @@ export class GroupTimeline extends GroupConsumer {
             top: 0;
             left: 0;
             background-color: var( --thermal-primary );
+            pointer-events: none;
         }
 
     
@@ -165,16 +177,36 @@ export class GroupTimeline extends GroupConsumer {
 
 
     protected render(): unknown {
-        return html`<div>
-            Tajmlajna
-            ${this.longestDurationInMs}
 
-            <div class="timeline" ${ref(this.timelineRef)}>
+        if ( this.has === false ) {
+            return nothing;
+        }
+
+        return html`<div>
+
+            <div 
+                class="timeline" 
+                @click=${(event: MouseEvent) => {
+                const layerX = event.layerX;
+                const target = event.target as HTMLDivElement;
+                const layerWidth = target.clientWidth;
+
+                const percent = layerX / layerWidth * 100;
+
+                const ms = this.percentToMs(percent);
+
+                if (ms) {
+                    this.ms = ms;
+                }
+            }}
+            >
                 <div class="background"></div>
                 <div class="indicator" ${ref(this.indicatorRef)}></div>
             </div>
 
-            <thermal-button @click=${() => this.forEveryAffectedInstance( instance => instance.timeline.play() )}>Play</thermal-button>
+            <thermal-button @click=${() => this.handlePlayButtonClick()}>
+                ${this.playing === true ? "Stop" : "Play"}
+            </thermal-button>
         </div>`;
     }
 

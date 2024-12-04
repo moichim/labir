@@ -217,12 +217,12 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
-    public draw() {
+    public async draw() {
 
         // console.log( "drawing", this.dom, this.dom?.canvasLayer );
     
         if ( this.dom && this.dom.canvasLayer) {
-            this.dom.canvasLayer.draw();
+            return await this.dom.canvasLayer.draw();
         }
     }
 

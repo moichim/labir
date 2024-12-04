@@ -33,6 +33,23 @@ const buildTools = () => {
 
     console.log( tools );
 
+
+
+    const playback = document.createElement( "button" );
+    playback.innerHTML = "Group Callback";
+
+    playback.addEventListener( "click", () => {
+
+        group.playback.playing
+            ? group.playback.stop()
+            : group.playback.play();
+
+    } );
+
+    document.body.appendChild( playback );
+
+
+
 }
 
 buildTools();

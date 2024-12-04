@@ -96,7 +96,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
         return this.instance.group.registry.palette.currentPalette.pixels;
     }
 
-    public async draw(): Promise<void> {
+    public async draw(): Promise<boolean> {
 
         const paletteColors = this.getPalette();
 
@@ -277,8 +277,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 analysis
             ], {});
 
-            console.log( image.stats );
-
             image.stats.forEach( a => {
                 const analysis = this.instance.analysis.layers.get( a.id );
                 analysis?.dangerouslySetValues(a.avg, a.min, a.max);
@@ -286,6 +284,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
             // Place it in context
             this.context.drawImage(image.image, 0, 0);
+
+            return true;
 
 
 
@@ -295,13 +295,15 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
                 if ( error.message === "OffscreenCanvas is not defined" ) {
                     // do nothing
-                    return;
+                    return false;
                 }
 
                 console.error( error );
             }
 
         }
+
+        return false;
 
 
 

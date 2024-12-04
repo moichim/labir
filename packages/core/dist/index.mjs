@@ -4228,9 +4228,9 @@ var AbstractFile = class extends BaseStructureObject {
     delete this._dom;
     this._dom = void 0;
   }
-  draw() {
+  async draw() {
     if (this.dom && this.dom.canvasLayer) {
-      this.dom.canvasLayer.draw();
+      return await this.dom.canvasLayer.draw();
     }
   }
   recievePalette(palette) {
@@ -4661,20 +4661,21 @@ var ThermalCanvasLayer = class extends AbstractLayer {
         paletteColors,
         analysis
       ], {});
-      console.log(image.stats);
       image.stats.forEach((a) => {
         const analysis2 = this.instance.analysis.layers.get(a.id);
         analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
       });
       this.context.drawImage(image.image, 0, 0);
+      return true;
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "OffscreenCanvas is not defined") {
-          return;
+          return false;
         }
         console.error(error);
       }
     }
+    return false;
   }
   exportAsPng() {
     const image = this.canvas.toDataURL();
@@ -5212,7 +5213,11 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
             highlight
           ));
           this.localInstance.mountToDom(this.container);
-          this.localInstance.draw();
+          const instance = this.localInstance;
+          if (instance.dom && instance.dom.visibleLayer) {
+            instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+          }
+          await this.localInstance.draw();
           if (params.showAnalysis && this.file.analysis.value.length > 0) {
             const table = document.createElement("table");
             table.style.width = "100%";
@@ -5629,9 +5634,24 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
     );
     wrapper.appendChild(title);
     if (this.list) {
+      this.group.files.forEveryInstance((i) => {
+        if (this.localGroup) {
+          const localEquivalent = this.localGroup.files.value.find((value) => {
+            return value.fileName === i.fileName;
+          });
+          if (localEquivalent) {
+            localEquivalent.timeline.setRelativeTime(
+              i.timeline.value
+            );
+          }
+        }
+      });
       this.list.appendChild(container);
       instance.mountToDom(wrapper);
       instance.draw();
+      if (instance.dom && instance.dom.visibleLayer) {
+        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+      }
       if (showAnalysis) {
         const referenceInstance = this.group.files.value[0];
         if (referenceInstance && referenceInstance.analysis.value.length > 0) {
@@ -6041,6 +6061,204 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
   }
 };
 
+// src/properties/time/group/GroupPlayback.ts
+var GroupPlayback = class extends AbstractProperty {
+  _hasAnyPlayback = false;
+  get hasAnyPlayback() {
+    return this._hasAnyPlayback;
+  }
+  setHasAnyPlayback(value) {
+    if (this._hasAnyPlayback !== value) {
+      this._hasAnyPlayback = value;
+      this.onHasAnyCallback.call(value);
+    }
+  }
+  onHasAnyCallback = new CallbacksManager();
+  recalculateHasAnyPlayback(instances) {
+    let temporaryHas = false;
+    instances.forEach((i) => {
+      if (i.timeline.isSequence) {
+        temporaryHas = true;
+      }
+    });
+    this.setHasAnyPlayback(temporaryHas);
+  }
+  _playing = false;
+  get playing() {
+    return this._playing;
+  }
+  set playing(value) {
+    if (this._playing !== value) {
+      this._playing = value;
+      this.onPlaying.call(this._playing);
+    }
+  }
+  step = 0;
+  onPlaying = new CallbacksManager();
+  _interval = 20;
+  get interval() {
+    return this._interval;
+  }
+  setInterval(value) {
+    this._interval = Math.round(value);
+    this.onFramerate.call(this._interval);
+  }
+  onFramerate = new CallbacksManager();
+  _duration = 0;
+  get duration() {
+    return this._duration;
+  }
+  set duration(value) {
+    if (value !== this._duration) {
+      this._duration = value;
+      this.onDuration.call(this._duration);
+    }
+  }
+  onDuration = new CallbacksManager();
+  recalculateDuration(instances) {
+    let temporaryDuration = 0;
+    instances.forEach((instance) => {
+      if (instance.timeline.duration > temporaryDuration) {
+        temporaryDuration = instance.timeline.duration;
+      }
+    });
+    this.duration = temporaryDuration;
+  }
+  UUID = this.parent.id + "__listener";
+  constructor(parent, initial) {
+    super(parent, initial);
+    this.recalculateDuration(this.parent.files.value);
+    this.recalculateHasAnyPlayback(this.parent.files.value);
+    this.parent.registry.batch.onBatchComplete.set(
+      this.UUID,
+      (results) => {
+        const instances = results.filter((res) => res instanceof Instance);
+        this.recalculateDuration(instances);
+        this.recalculateHasAnyPlayback(instances);
+        this.value = this.value;
+      }
+    );
+    console.log(this.parent.registry.batch);
+    this.onDuration.set("test", console.log);
+  }
+  validate(value) {
+    if (this.duration === void 0) {
+      return 0;
+    }
+    return Math.min(Math.max(value, 0), this.duration);
+  }
+  afterSetEffect(value) {
+    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
+  }
+  setValueByPercent(percent) {
+    const ms = this.percentToMs(percent);
+    if (ms !== void 0) {
+      this.value = ms;
+    }
+  }
+  setValueByRelativeMs(relativeMs) {
+    if (this.duration === void 0) return false;
+    this.value = relativeMs;
+  }
+  timer;
+  percentToMs(percent) {
+    if (this.duration === void 0) {
+      return void 0;
+    }
+    return Math.floor(this.duration * (percent / 100));
+  }
+  msToPercent(ms) {
+    if (this.duration === void 0) {
+      return void 0;
+    }
+    return ms / this.duration * 100;
+  }
+  /**
+   * Get one step duration
+   */
+  getBaseStepInterval(duration) {
+    return duration / this.interval;
+  }
+  /**
+   * Get number of steps within the duration
+   */
+  getNumberOfSteps(duration) {
+    return duration / this.getBaseStepInterval(duration);
+  }
+  /**
+   * Get the MS value of the next step
+   */
+  getNextStepMs(duration, ms) {
+    const stepSize = this.getBaseStepInterval(duration);
+    const nextStepSize = Math.ceil(ms / stepSize) * stepSize;
+    if (nextStepSize === 0) {
+      return stepSize;
+    }
+    return Math.min(duration, nextStepSize);
+  }
+  /**
+   * Get the next interval value for the next step
+   */
+  getNextStepInterval(duration, ms) {
+    const nextStepMs = this.getNextStepMs(duration, ms);
+    return nextStepMs - ms;
+  }
+  /**
+   * The main method that shall create a timer leading to the next step.
+   * 
+   * It might be called recursively to ensure fluent playback.
+   */
+  createTimerStep(recursive = false) {
+    if (this.duration === void 0 || this.playing === false) {
+      return;
+    }
+    const nextStep = this.step + 1;
+    const nextValue = nextStep * this.interval;
+    this.step = nextStep;
+    if (nextValue <= this.duration) {
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      this.timer = setTimeout(() => {
+        this.createTimerStep(recursive);
+        this.value = nextValue;
+      }, this.interval);
+    } else {
+      this.playing = false;
+    }
+  }
+  /**
+   * Play the entire group
+   */
+  play() {
+    if (this.playing === false) {
+      this.playing = true;
+      this.createTimerStep(true);
+      console.log("START", this.duration, this.interval, this.getNextStepInterval(this.duration, this.value));
+    }
+  }
+  /**
+   * Stop the entire group
+   */
+  stop() {
+    if (this.playing === true) {
+      this.playing = false;
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+    }
+  }
+  /**
+   * Set the MS value to 0
+   */
+  reset() {
+    if (this.value !== 0) {
+      this.value = 0;
+      this.step = 0;
+    }
+  }
+};
+
 // src/properties/tool/internals/AbstractTool.ts
 var AbstractTool = class {
   constructor(group) {
@@ -6394,6 +6612,13 @@ var ThermalGroup = class extends BaseStructureObject {
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
   analysisSync = new AnalysisSyncDrive(this, true);
+  _playback;
+  get playback() {
+    if (!this._playback) {
+      this._playback = new GroupPlayback(this, 0);
+    }
+    return this._playback;
+  }
   /** Iteration */
   forEveryInstance = (fn) => {
     this.files.value.forEach((instance) => fn(instance));

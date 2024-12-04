@@ -2,7 +2,7 @@ import { Instance } from "@labir/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
@@ -11,6 +11,10 @@ import { FileMarker } from "./markers/ImageMarker";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.containerRef.value;
+    }
 
     @consume({context: playingContext, subscribe: true})
     @state()
@@ -40,6 +44,19 @@ export class TimelineElement extends FileConsumer {
     protected containerRef: Ref<HTMLDivElement> = createRef();
 
     protected observer!: ResizeObserver;
+
+    @property({type: String, reflect: true})
+    public hasPlayButton: boolean = true;
+
+    @property({type: String, reflect: true})
+    public hasInfo: boolean = true;
+
+    @property({type: String, reflect: true})
+    public interactive: boolean = true;
+
+    @property({type: String, reflect: true})
+    public hasSpeedButton: boolean = true;
+
 
 
     @consume( {context: fileMarkersContext, subscribe: true} )
@@ -332,23 +349,32 @@ export class TimelineElement extends FileConsumer {
                 ? html`
                         <div class="container">
 
-                            <div class="${classMap(playButtonClasses)}" @click=${this.handlePlayButtonClick.bind(this)}>
+                            ${this.hasPlayButton === true
+                                ? html`
+
+                                    <div class="${classMap(playButtonClasses)}" @click=${this.handlePlayButtonClick.bind(this)}>
 
 
-                                ${this.playing
-                        ? html`
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                        <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
-                                    </svg>
-                                    `
-                        : html`
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                        <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
-                                    </svg>
-                                    `
-                    }
+                                    ${this.playing
+                            ? html`
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                            <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
+                                        </svg>
+                                        `
+                            : html`
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                            <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                                        </svg>
+                                        `
+                        }
 
-                            </div>
+                                </div>
+
+                                `
+                                : nothing
+                            }
+
+                            
 
 
                             <div class="item cursor inline small">
@@ -372,7 +398,12 @@ export class TimelineElement extends FileConsumer {
 
                             <div class="item inline small">${this.duration?.time}</div>
 
-                            <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
+                            ${ this.hasSpeedButton === true
+                                ? html`<file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>`
+                                : nothing 
+                            }
+
+                            
                         </div>
                     `
                 : nothing
@@ -382,7 +413,7 @@ export class TimelineElement extends FileConsumer {
             
             </div>
 
-            ${ this.currentFrame !== undefined
+            ${ this.currentFrame !== undefined && this.hasInfo === true
                 ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
                         <div>
                             <span class="label">Date:</span> 
@@ -399,6 +430,8 @@ export class TimelineElement extends FileConsumer {
                     </div>`
                 : nothing
             }
+
+            <slot name="tour"></slot>
 
           `;
     }
