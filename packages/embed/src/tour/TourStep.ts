@@ -46,11 +46,6 @@ export class TourStep extends BaseElement {
             this.log("Expecting some ancestor tourable element but recieved none");
         } else {
 
-            this.log({
-                rootNode: this.getRootNode(),
-                renderRoot: this.renderRoot,
-                element: this.elementContext
-            });
 
         }
 
@@ -107,10 +102,7 @@ export class TourStep extends BaseElement {
                     placement: this.placement,
                     // strategy: "fixed"
                 }
-            ).then( result => {
-                console.log( "___>", result.middlewareData.arrow );
-                return result;
-            } );
+            );
 
             const arr = size.middlewareData.arrow;
 
@@ -124,8 +116,6 @@ export class TourStep extends BaseElement {
             this.style.position = "absolute";
             this.style.left = size.x + "px";
             this.style.top = size.y + "px";
-
-            this.log("aktivoval jsem se", this.elementContext);
 
         }
 

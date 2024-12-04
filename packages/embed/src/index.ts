@@ -257,7 +257,8 @@ import "./apps/registry/parts/TimeGroupFileElement";
 import "./apps/registry/parts/TimeGroupRowElement";
 
 import "./apps/group/GroupApp";
-import "./apps/group/utils/GroupExport";
+import "./apps/group/utils/GroupTimeline";
+
 import "./apps/registry/RegistryApp";
 
 import "./tour/TourStep";

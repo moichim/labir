@@ -328,6 +328,8 @@ export class GroupElement extends AbstractMultipleApp {
                             
                             </div>
 
+                            <group-timeline></group-timeline>
+
                         
                         </thermal-app>
 
