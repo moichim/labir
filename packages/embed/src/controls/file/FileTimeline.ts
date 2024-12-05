@@ -8,6 +8,8 @@ import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
 import { FileMarker } from "./markers/ImageMarker";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
@@ -416,15 +418,15 @@ export class TimelineElement extends FileConsumer {
             ${ this.currentFrame !== undefined && this.hasInfo === true
                 ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
                         <div>
-                            <span class="label">Date:</span> 
+                            <span class="label">${t(T.date)}:</span> 
                             <span class="inline">${format(this.currentFrame.absolute, "d. L. y")}</span>
                         </div>
                         <div>
-                            <span class="label">Time:</span> 
+                            <span class="label">${t(T.time)}:</span> 
                             <span class="inline">${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
                         </div>
                         <div>
-                            <span class="label">Frame:</span> 
+                            <span class="label">${t(T.frame)}:</span> 
                             <span class="inline">${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
                         </div>
                     </div>`

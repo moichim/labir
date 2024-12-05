@@ -8,6 +8,7 @@ import { Tour } from "../../tour/Tour";
 import { provide } from "@lit/context";
 import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
 import i18next, { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -245,8 +246,8 @@ export class DesktopFileApp extends FileConsumer {
           
   
           <registry-palette-dropdown slot="bar" tour="palette">
-            <tour-step placement="right-start" label=${t("colourpalette")}>
-              ${t("palettehint")}
+            <tour-step placement="right-start" label=${t(T.colourpalette)}>
+              ${t(T.palettehint)}
             </tour-step>
           </registry-palette-dropdown>
 
@@ -260,20 +261,20 @@ export class DesktopFileApp extends FileConsumer {
             <thermal-bar>
 
 
-                <thermal-dialog label=${t("displaysettings")}>
-                <thermal-button slot="invoker" tourstepid="sth3">${t("displaysettings")}</thermal-button>
+                <thermal-dialog label=${t(T.displaysettings)}>
+                <thermal-button slot="invoker" tourstepid="sth3">${t(T.displaysettings)}</thermal-button>
                 <div slot="content">
                   
                   <thermal-field 
-                    label="Image rendering" 
-                    hint="'Pixelated' mode disables antialising of the thermogram and enables you to see its pixels as they are."
+                    label=${t(T.filerendering)} 
+                    hint=${t(T.filerenderinghint)}
                   >
                     <manager-smooth-switch></manager-smooth-switch>
                   </thermal-field>
 
                   <thermal-field 
-                    label="Adjust time scale"
-                    hint="Adjust the time scale automatically (based on histogram) or set its values to the full range (min and max)."
+                    label=${t(T.adjusttimescale)}
+                    hint=${t(T.adjusttimescalehint)}
                   "
                   >
                     <registry-range-auto-button ></registry-range-auto-button>
@@ -281,15 +282,15 @@ export class DesktopFileApp extends FileConsumer {
                   </thermal-field>
 
                   <thermal-field 
-                    label="Palette"
-                    hint="Select colour palette of thermal display."
+                    label=${t(T.colourpalette)}
+                    hint=${t(T.colourpalettehint)}
                   "
                   >
                     <registry-palette-buttons></registry-palette-buttons>
                   </thermal-field>
 
                   ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
-                    label="Playback speed"
+                    label="${t(T.playbackspeed)}"
                   >
                     <file-playback-speed-dropdown></file-playback-speed-dropdown>
                   </thermal-field>
@@ -298,8 +299,8 @@ export class DesktopFileApp extends FileConsumer {
       }
 
                   ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
-                    label="Graph lines"
-                    hint="'Smooth lines' can illustrate trends better, but are less precise. If you need to see exactly what is in the thermogram, use 'Straight lines'."
+                    label="${t(T.graphlines)}"
+                    hint=${t(T.graphlineshint)}
                   >
                     <manager-graph-smooth-switch></manager-graph-smooth-switch>
                   </thermal-field>
@@ -322,7 +323,7 @@ export class DesktopFileApp extends FileConsumer {
               ${this.showabout === true ? html`<app-info-button></app-info-button>` : nothing}
 
               <thermal-button @click=${() => this.tourController.activate(false)}>
-                ${t("tutorial")}
+                ${t(T.tutorial)}
               </thermal-button>
 
             </thermal-bar>

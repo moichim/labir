@@ -2,7 +2,13 @@ import i18next from 'i18next';
 import { initLitI18n } from 'lit-i18n';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-const translationObject = i18next
+import { en } from './languages/en';
+import { fr } from './languages/fr';
+import { cs } from './languages/cs';
+import { cy } from './languages/cy';
+
+/** initialise the I18n object */
+i18next
     .use(initLitI18n)
     .use(LanguageDetector)
     .init(
@@ -11,23 +17,17 @@ const translationObject = i18next
         fallbackLng: "en",
         resources: {
             en: {
-                translation: {
-                    whatishow: '{{what}} is {{how}}',
-                    datamodel: '{{person.name}} is a {{person.age}} year old and is male: {{person.male}}',
-                },
+                translation: en,
             },
             fr: {
-                translation: {
-                    whatishow: '{{what}} est {{how}}',
-                    datamodel: '{{person.name}} a {{person.age}} ans et est un homme: {{person.male}}',
-                },
+                translation: fr,
             },
             cs: {
-                translation: {
-                    whatishow: '{{what}} je {{how}}',
-                    datamodel: '{{person.name}} a {{person.age}} ans et est un homme: {{person.male}}',
-                },
+                translation: cs,
             },
+            cy: {
+                translation: cy
+            }
         },
     }
 );

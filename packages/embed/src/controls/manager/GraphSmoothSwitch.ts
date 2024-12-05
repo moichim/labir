@@ -4,6 +4,8 @@ import { managerGraphFunctionContext } from "../../hierarchy/providers/context/M
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("manager-graph-smooth-switch")
 export class SmoothSwitch extends ManagerConsumer {
@@ -31,12 +33,12 @@ export class SmoothSwitch extends ManagerConsumer {
                 <thermal-button
                     variant=${this.smooth ? "default" : "foreground"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(false)}
-                >Straight lines</thermal-button>
+                >${t(T.straightlines)}</thermal-button>
 
                 <thermal-button
                     variant=${this.smooth ? "foreground" : "default"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(true)}
-                >Smooth lines</thermal-button>
+                >${t(T.smoothlines)}</thermal-button>
 
             </div>
 

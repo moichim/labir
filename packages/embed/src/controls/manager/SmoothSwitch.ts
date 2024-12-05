@@ -4,6 +4,8 @@ import { managerSmoothContext } from "../../hierarchy/providers/context/ManagerC
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("manager-smooth-switch")
 export class SmoothSwitch extends ManagerConsumer {
@@ -31,12 +33,12 @@ export class SmoothSwitch extends ManagerConsumer {
                 <thermal-button
                     variant=${this.smooth ? "default" : "foreground"}
                     @click=${() => this.manager.smooth.setSmooth(false)}
-                >Pixelated</thermal-button>
+                >${t(T.pixelated)}</thermal-button>
 
                 <thermal-button
                     variant=${this.smooth ? "foreground" : "default"}
                     @click=${() => this.manager.smooth.setSmooth(true)}
-                >Smooth</thermal-button>
+                >${t(T.smooth)}</thermal-button>
 
             </div>
 

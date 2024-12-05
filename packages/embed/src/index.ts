@@ -2,10 +2,13 @@ import { author, version } from "../package.json"
 
 import "./styles/styles.css";
 
+import "./translations/i18n";
+
 import i18next from 'i18next';
 import { initLitI18n } from 'lit-i18n';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
+/*
 const result = i18next
     .use(initLitI18n)
     .use(LanguageDetector)
@@ -148,6 +151,8 @@ const result = i18next
         },
     }
 );
+
+*/
 
 /**!
  * ===========

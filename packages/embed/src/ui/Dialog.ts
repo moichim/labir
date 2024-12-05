@@ -1,6 +1,8 @@
+import { t } from "i18next";
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
+import { T } from "../translations/Languages";
 
 @customElement( "thermal-dialog" )
 export class ThermalDialog extends LitElement {
@@ -157,7 +159,9 @@ export class ThermalDialog extends LitElement {
 
                 <div class="dialog-footer">
                     <slot name="button"></slot>
-                    <thermal-button variant="foreground" @click=${this.setClose}>Close</thermal-button>
+                    <thermal-button variant="foreground" @click=${this.setClose}>
+                        ${t(T.close)}
+                    </thermal-button>
                 </div>
                 
             

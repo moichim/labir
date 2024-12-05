@@ -734,13 +734,13 @@ var GRAYSCALE = generateGrayscalePalette();
 var ThermalPalettes = {
   iron: {
     pixels: IRON,
-    name: "IRON palette",
+    name: "IRON",
     gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(10,12,77,1) 30%, rgba(86,20,101,1) 49%, rgba(255,0,0,1) 64%, rgba(249,255,0,1) 84%, rgba(255,255,255,1) 100%)",
     slug: "iron"
   },
   jet: {
     pixels: JET,
-    name: "JET palette",
+    name: "JET",
     gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
     slug: "jet"
   },

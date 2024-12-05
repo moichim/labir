@@ -3,6 +3,7 @@ import { LitElement, PropertyValues, css, html, nothing } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
+import { T } from "../translations/Languages";
 
 
 @customElement("thermal-app")
@@ -310,7 +311,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                     ${this.recorded 
                         ? html`<div>
-                            <div class="credits-field">${t("recordedat")}:</div>
+                            <div class="credits-field">${t(T.recordedat)}:</div>
                             <div class="credit-value">${this.recorded}</div>
                         </div>`
                         : nothing
@@ -318,7 +319,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                     ${this.author 
                         ? html`<div>
-                            <div class="credits-field">${t("author")}:</div>
+                            <div class="credits-field">${t(T.author)}:</div>
                             <div class="credit-value">${this.author}</div>
                         </div>`
                         : nothing
@@ -326,7 +327,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                     ${this.license 
                         ? html`<div>
-                            <div class="credits-field">${t("license")}:</div>
+                            <div class="credits-field">${t(T.license)}:</div>
                             <div class="credit-value">${this.license}</div>
                         </div>`
                         : nothing

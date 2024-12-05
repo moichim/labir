@@ -3,6 +3,8 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { AbstractMultipleApp } from "./AbstractMultipleApp";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { HtmlResult } from "./HtmlResult";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 export type InstanceInteractionCallback = ( instance: Instance ) => void;
 
@@ -99,7 +101,7 @@ export class InstanceRenderer {
             <button 
                 slot="invoker"
                 class="file-info-button"
-            >note</button>
+            >${t(T.note).toLocaleLowerCase()}</button>
             <div slot="content">${unsafeHTML( innerHtml )}</div>
         </thermal-dialog>`
     }
@@ -141,7 +143,7 @@ export class InstanceRenderer {
                                 <button 
                                     slot="invoker"
                                     class="file-info-button"
-                                >info</button>
+                                >${t(T.info).toLocaleLowerCase()}</button>
                             </file-info-button>
 
                             <button
@@ -158,7 +160,7 @@ export class InstanceRenderer {
                                 }}
                                 @focus=${() => onInstanceEnter( instance )}
                                 @blur=${() => onInstanceLeave( instance )}
-                            >range</button>
+                            >${t(T.range).toLocaleLowerCase()}</button>
                         
                         
                         </div>

@@ -10,6 +10,9 @@ import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
 import { InstanceRenderer } from "../miltiple/InstanceRenderer";
 import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
+import { TimeGroupFileWrapper } from "../registry/parts/TimeGroupFileElement";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {
@@ -59,6 +62,9 @@ export class GroupElement extends AbstractMultipleApp {
     @state()
     groups: GroupEntry[] = [];
 
+    @property( {type: String} )
+    public files?: string;
+
     
 
     connectedCallback(): void {
@@ -71,13 +77,28 @@ export class GroupElement extends AbstractMultipleApp {
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
 
+        this.log( this.files );
+
+        if ( this.files ) {
+            this.log( this.parseFilesProperty( this.files ) );
+        }
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
+        const files = this.files ?
+            this.parseFilesProperty( this.files )
+            : [];
+
         // Fire the initial grouping
-        this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
+        if ( files.length > 0 ) {
+            this.grouper.processParsedFiles( files );
+        } else {
+            this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
+        }
+        
     }
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -212,30 +233,30 @@ export class GroupElement extends AbstractMultipleApp {
             }}></input>
 
                                     <thermal-dropdown>
-                                        <span slot="invoker">${this.grouping === "none" ? "Do not grop" : "Group by " + this.grouping}</span>
+                                        <span slot="invoker">${this.grouping === "none" ? t(T.donotgroup) : t(T["by"+this.grouping])}</span>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "none"}">Do not group</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "none"}">${t(T.donotgroup)}</thermal-button>
                                         </div>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "hour"}">Group by hour</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "hour"}">${t(T.byhour)}</thermal-button>
                                         </div>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "day"}">Group by day</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "day"}">${t(T.byday)}</thermal-button>
                                         </div>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "week"}">Group by week</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "week"}">${t(T.byweek)}</thermal-button>
                                         </div>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "month"}">Group by month</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "month"}">${t(T.bymonth)}</thermal-button>
                                         </div>
 
                                         <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "year"}">Group by year</thermal-button>
+                                            <thermal-button @click="${() => this.grouping = "year"}">${t(T.byyear)}</thermal-button>
                                         </div>
 
                                     </thermal-dropdown>
@@ -244,25 +265,25 @@ export class GroupElement extends AbstractMultipleApp {
                 ? html`
                                             <thermal-dropdown class="download">
 
-                                                <span slot="invoker">Download</span>
+                                                <span slot="invoker">${t(T.download)}</span>
 
                                                 <div slot="option">
-                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.downloadPng())}>PNG of individual images</thermal-button>
-                                                    <small>Download all images within this group as PNG</small>
+                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</thermal-button>
+                                                    <small>${t(T.pngofindividualimageshint)}</small>
                                                 </div>
 
                                                 <div slot="option">
 
                                                     <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
                     columns: this.columns
-                })}>PNG of the entire group</thermal-button>
-                                                    <small>Download one image with all images and their analysis value</small>
+                                    })}>${t(T.pngofentiregroup)}</thermal-button>
+                                                    <small>${t(T.pngofentiregrouphint)}</small>
                                                 </div>
 
 
                                                 <div slot="option">
-                                                    <thermal-button @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>CSV of analysis data</thermal-button>
-                                                    <small>Download one image with all images and their analysis value</small>
+                                                    <thermal-button @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</thermal-button>
+                                                    <small>${t(T.csvofanalysisdatahint)}</small>
                                                 </div>
 
                                             </thermal-dropdown>
