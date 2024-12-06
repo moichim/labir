@@ -2293,6 +2293,7 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     reset(): void;
     readonly filters: FilterContainer;
     getInstances(): Instance[];
+    startBatch(id: string): Batch;
 }
 
 interface ThermalMinmaxType {

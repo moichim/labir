@@ -37,10 +37,6 @@ export const RectAnalysisCorner: React.FC<RectAnalysisCorner> = props => {
         if ( dragging === true ) setDragging( false );
     }
 
-    useEffect( () => {
-        console.log( dragging );
-    }, [dragging] );
-
 
     useEffect( () => {
 

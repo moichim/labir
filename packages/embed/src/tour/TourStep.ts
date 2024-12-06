@@ -221,8 +221,6 @@ export class TourStep extends BaseElement {
             "tour-step__active": this.displayed === true
         }
 
-        console.log( this.definition?.props?.hasPrev );
-
         return html`<div class=${classMap(classes)}>
 
             <div id="arrow" ${this.arrowRef} class="arrow" style="position:absolute;"></div>

@@ -31,6 +31,9 @@ import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
 
+import "./apps/registry/parts/TimeEntryElement";
+import "./apps/registry/parts/TimeGroupElement";
+
 
 
 import "./controls/AppInfoButton";
@@ -105,14 +108,15 @@ import "./apps/desktop/DesktopApp";
 import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
 
-import "./apps/registry/parts/TimeEntryElement";
-import "./apps/registry/parts/TimeGroupElement";
 
-import "./apps/registry/parts/TimeGroupFileElement";
+
+// import "./apps/registry/parts/TimeGroupFileElement";
 import "./apps/registry/parts/TimeGroupRowElement";
 
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupTimeline";
+
+
 
 import "./apps/registry/RegistryApp";
 

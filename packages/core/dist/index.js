@@ -6683,6 +6683,9 @@ var ThermalGroup = class extends BaseStructureObject {
   getInstances() {
     return this.files.value;
   }
+  startBatch(id) {
+    return this.registry.batch.getBatchById(id);
+  }
 };
 
 // src/hierarchy/ThermalManager.ts

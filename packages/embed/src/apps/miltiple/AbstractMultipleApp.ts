@@ -33,7 +33,7 @@ export abstract class AbstractMultipleApp extends BaseElement {
 
     public static FILE_RECORD_SEPARATOR = ";";
     public static FILE_SEGMENT_SEPAROATOR = "|";
-    public static FILE_COMPONENT_SEPAROATOR = ":";
+    public static FILE_COMPONENT_SEPAROATOR = "~";
     public static FILE_THERMAL_KEY = "thermal";
     public static FILE_VISIBLE_KEY = "visible";
     public static FILE_LABEL_KEY = "label";

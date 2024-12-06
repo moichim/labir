@@ -4,6 +4,7 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
 import { FilterContainer } from "../filters/FilterContainer";
+import { Batch } from "../loading/batch/Batch";
 import { AnalysisSyncDrive } from "../properties/analysisSync/analysisSync";
 import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
@@ -100,6 +101,12 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public getInstances() {
         return this.files.value;
+    }
+
+    public startBatch(
+        id: string
+    ): Batch {
+        return this.registry.batch.getBatchById( id );
     }
 
 

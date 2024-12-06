@@ -84,7 +84,6 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
                         const target = event.target as HTMLElement;
 
                         if ( target ) {
-                            console.log( target.parentElement );
 
                             if ( target.parentElement instanceof ThermalDropdown ) {
                                 target.parentElement.setClose();

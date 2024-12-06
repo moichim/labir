@@ -33,8 +33,6 @@ export class GroupProviderElement extends RegistryConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        console.log(this.registry);
-
         this.group = this.registry.groups.addOrGetGroup(this.slug);
 
         if (this.slug) {

@@ -81,6 +81,8 @@ export class GroupElement extends AbstractMultipleApp {
             this.parseFilesProperty(this.files)
             : [];
 
+        this.log( files, this.entries );
+
         // Fire the initial grouping
         if (files.length > 0) {
             this.grouper.processParsedFiles(files);

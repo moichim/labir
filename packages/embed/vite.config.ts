@@ -18,27 +18,21 @@ export default defineConfig({
                 entryFileNames: '[name].js',
                 assetFileNames: '[name].[ext]',
             },
-            /*
         plugins: [{
             name: "closeBundle",
             closeBundle() {
                 fs.copyFileSync(
-                    path.resolve( "./dist/embed.cjs.js" ),
-                    path.resolve( "../thermal-display/assets/embed.cjs.js" )
+                    path.resolve( "./dist/embed.js" ),
+                    path.resolve( "../thermal-display/assets/embed.js" )
                 );
                 fs.copyFileSync(
-                    path.resolve( "./dist/embed.es.js" ),
-                    path.resolve( "../thermal-display/assets/embed.es.js" )
-                );
-                fs.copyFileSync(
-                    path.resolve( "./dist/style.css" ),
-                    path.resolve( "../thermal-display/assets/style.css" )
+                    path.resolve( "./dist/embed.css" ),
+                    path.resolve( "../thermal-display/assets/embed.css" )
                 );
 
                 console.log( "@labir/embed build copied into @labir/wordpress" );
             }
         }]
-        */
         },
         outDir: path.resolve( "./dist" ),
         emptyOutDir: true,

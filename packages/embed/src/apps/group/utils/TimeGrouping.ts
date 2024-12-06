@@ -115,6 +115,8 @@ export class TimeGrouping {
                 );
             }
 
+            console.log( "registering", entry );
+
         });
 
     }
@@ -175,6 +177,8 @@ export class TimeGrouping {
                     callback
                 );
             }
+
+            console.log( "registering", file );
 
         } );
 
