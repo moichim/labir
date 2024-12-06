@@ -264,6 +264,18 @@ export abstract class AbstractAnalysis {
         return this._avg;
     }
 
+    public dangerouslySetValues(
+        avg: number,
+        min: number|undefined = undefined,
+        max: number|undefined = undefined,
+    ) {
+        this._avg = avg;
+        this._min = min;
+        this._max = max;
+
+        this.onValues.call( this.min, this.max, this.avg );
+    }
+
 
     public get arrayOfPoints() {
         return Array.from(this.points.values());

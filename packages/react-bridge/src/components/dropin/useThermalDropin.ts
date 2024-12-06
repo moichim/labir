@@ -17,7 +17,7 @@ export const useThermalDropin = (
     const dropzone = useDropzone({
         onDrop: async ( acceptedFiles ) => {
 
-            const instances = await Promise.all(
+            await Promise.all(
                 acceptedFiles.map( async (file) => {
                     const result = await registry.service.loadUploadedFile( file );
                     if ( result instanceof ThermalFileReader ) {

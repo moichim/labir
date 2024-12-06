@@ -1,9 +1,18 @@
 import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
     
     public onInstanceCreated(): void {
         // throw new Error("Method not implemented.");
@@ -54,33 +63,35 @@ export class FileDownloadButton extends FileConsumer {
 
         return html`
 
-            <thermal-dropdown variant="foreground">
+            <thermal-dropdown variant="foreground" >
 
-                <slot name="invoker" slot="invoker">
+                <slot name="invoker" slot="invoker" ${ref(this.tourableElementRef)}>
                     <div class="button">
                         ${this.file 
-                            ? "Download"
-                            : "Načítám..."
+                            ? t(T.download)
+                            : "..."
                         }
                     </div>
                 </slot>
 
                     <div slot="option">
-                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">Download original file (${this.file.reader.parser.extensions[0].extension.toUpperCase()})</thermal-button>
+                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">${t(T.downloadoriginalfile, {type: this.file.reader.parser.extensions[0].extension.toUpperCase()})}</thermal-button>
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${() => this.file!.export.downloadPng()}>Export current frame as PNG image</thermal-button>
+                        <thermal-button @click=${() => this.file!.export.downloadPng()}>${t(T.exportcurrentframeaspng)}</thermal-button>
                     </div>
 
                     ${this.file.timeline.isSequence
                         ? html`<div slot="option">
-                            <thermal-button @click="${() => this.file?.recording.recordEntireFile()}">Convert entire sequence to video</thermal-button>
+                            <thermal-button @click="${() => this.file?.recording.recordEntireFile()}">${t(T.convertentiresequencetovideo)}</thermal-button>
                         </div>`
                         : nothing
                     }
             
             </thermal-dropdown>
+
+            <slot name="tour"></slot>
 
         
         `

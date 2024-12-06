@@ -5,7 +5,7 @@ import { RegistryConsumer } from "./RegistryConsumer";
 
 export abstract class GroupConsumer extends RegistryConsumer {
 
-    @consume({context: groupContext, subscribe: true})
+    @consume({ context: groupContext, subscribe: true })
     group!: ThermalGroup;
 
     public constructor() {
@@ -14,7 +14,7 @@ export abstract class GroupConsumer extends RegistryConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        
+
     }
 
 }

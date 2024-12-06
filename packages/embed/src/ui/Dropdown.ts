@@ -3,13 +3,18 @@ import { LitElement, PropertyValueMap, css, html } from "lit";
 import { customElement, property, queryAssignedElements, state } from 'lit/decorators.js';
 import { classMap } from "lit/directives/class-map.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
+import { TourableElement } from "../tour/TourableElement";
 
 @customElement("thermal-dropdown")
-export class ThermalDropdown extends LitElement {
+export class ThermalDropdown extends TourableElement {
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
         mode: "open"
+    }
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.dropdownRef.value
     }
 
     @queryAssignedElements({ slot: 'option' })
@@ -224,6 +229,8 @@ export class ThermalDropdown extends LitElement {
                 </div>
             
             </div>
+
+            <slot> name="tour"</slot>
         
         `;
 

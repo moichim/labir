@@ -3,6 +3,8 @@ import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
+import { t } from "i18next";
+import { T } from "../../../../translations/Languages";
 
 @customElement("edit-point")
 export class EditPoint extends BaseElement {
@@ -85,15 +87,15 @@ export class EditPoint extends BaseElement {
 
             <div class="table">
 
-                <thermal-field label="Name">
+                <thermal-field label=${t(T.name)}>
                     <analysis-name .analysis=${this.analysis}></analysis-name>
                 </thermal-field>
 
-                <thermal-field label="Color">
+                <thermal-field label=${t(T.color)}>
                     <analysis-color .analysis=${this.analysis}></analysis-color>
                 </thermal-field>
 
-                <thermal-field label="Top" hint="From 0 to ${this.maxY}">
+                <thermal-field label=${t(T.top)} hint=${t(T.fromto, {from: 0, to: this.maxX})}>
                     <input 
                         name="top" 
                         value=${this.top} 
@@ -105,7 +107,7 @@ export class EditPoint extends BaseElement {
                     />
                 </thermal-field>
 
-                <thermal-field label="Left" hint="From 0 to ${this.maxX}">
+                <thermal-field label=${t(T.left)} hint=${t(T.fromto, {from: 0, to: this.maxX})}>
                     <input
                         name="left" 
                         value=${this.left} 

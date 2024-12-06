@@ -1,11 +1,9 @@
-import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { Instance } from "@labir/core";
-import { CSSResultGroup, css, nothing, html } from "lit";
-import { Grouping } from "./TimeGroupElement";
-import {classMap} from 'lit/directives/class-map.js';
-import { FileEntry } from "../utils/TimeGrouping";
+import { CSSResultGroup, css, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { classMap } from 'lit/directives/class-map.js';
 import { BaseElement } from "../../../hierarchy/BaseElement";
+import { FileEntry } from "../utils/TimeGrouping";
+import { Grouping } from "./TimeGroupElement";
 
 @customElement("time-group-row")
 export class TimeGroupRowElement extends BaseElement {
@@ -16,25 +14,25 @@ export class TimeGroupRowElement extends BaseElement {
     @property()
     breakpoint: number = 700;
 
-    @property( {type: Object} )
+    @property({ type: Object })
     files: FileEntry[] = [];
 
-    @property({type: String})
+    @property({ type: String })
     label?: string;
 
-    @property({type: String})
+    @property({ type: String })
     info?: string;
 
-    @property({type: Number})
+    @property({ type: Number })
     from!: number;
 
-    @property({type: Number})
+    @property({ type: Number })
     to!: number;
 
-    @property({type: Number})
+    @property({ type: Number })
     cursor?: number;
 
-    @property({type: String})
+    @property({ type: String })
     grouping!: Grouping;
 
     protected observer?: ResizeObserver;
@@ -45,21 +43,21 @@ export class TimeGroupRowElement extends BaseElement {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.observer = new ResizeObserver( entries => {
+        this.observer = new ResizeObserver(entries => {
 
-            const [ entry ] = entries;
+            const [entry] = entries;
 
             const width = entry.contentRect.width;
 
             const shouldBeCollapsed = width < this.breakpoint;
 
-            if ( this.collapsed !== shouldBeCollapsed ) {
+            if (this.collapsed !== shouldBeCollapsed) {
                 this.collapsed = shouldBeCollapsed;
             }
 
         });
 
-        this.observer.observe( this );
+        this.observer.observe(this);
 
     }
 
@@ -114,13 +112,13 @@ export class TimeGroupRowElement extends BaseElement {
 
     protected render(): unknown {
 
-        if ( this.files.length === 0 ) {
+        if (this.files.length === 0) {
             // return nothing;
         }
 
-        const sortedImages = this.files.sort( (a,b) => {
+        const sortedImages = this.files.sort((a, b) => {
             return a.instance.timestamp - b.instance.timestamp;
-        } );
+        });
 
         const title = this.label?.trim() !== "" ? this.label : undefined;
 
@@ -134,13 +132,13 @@ export class TimeGroupRowElement extends BaseElement {
 
         return html`
 
-            ${ title ? html`<h3 class="row-title">${title}</h3>` : nothing }
+            ${title ? html`<h3 class="row-title">${title}</h3>` : nothing}
 
-            ${ info ? html`<p>${info}</p>` : nothing }
+            ${info ? html`<p>${info}</p>` : nothing}
 
             <section class=${classMap(listClasses)}>
             
-                ${sortedImages.map( ({instance, innerHtml, label}) => html`<time-group-item .file=${instance} .innerHtml=${innerHtml} .label=${label}></time-group-item>`)}
+                ${sortedImages.map(({ instance, innerHtml, label }) => html`<time-group-item .file=${instance} .innerHtml=${innerHtml} .label=${label}></time-group-item>`)}
             
             </section>
         

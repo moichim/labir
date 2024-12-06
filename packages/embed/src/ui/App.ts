@@ -1,10 +1,16 @@
-import { LitElement, PropertyValues, css, html, nothing } from "lit";
-import { customElement, property, queryAssignedElements } from "lit/decorators.js";
+import i18next, { t } from "i18next";
+import { css, html, nothing, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { BaseElement } from "../hierarchy/BaseElement";
+import { T } from "../translations/Languages";
 
 
 @customElement("thermal-app")
-export class ThermalAppUiElement extends LitElement {
+export class ThermalAppUiElement extends BaseElement {
+
+    @state()
+    language: string = i18next.language;
 
     @queryAssignedElements({ slot: "bar", flatten: true })
     barElements!: Array<HTMLElement>;
@@ -214,7 +220,6 @@ export class ThermalAppUiElement extends LitElement {
             margin-top: calc( var(--thermal-gap) * .5);
             color: var( --thermal-foreground );
             &::before {
-                content: "Description:";
                 opacity: .5;
                 font-size: calc( var(--thermal-fs-sm) * 0.8 );
                 display: block;
@@ -241,6 +246,27 @@ export class ThermalAppUiElement extends LitElement {
                 <slot name="bar"></slot>
 
                 <slot name="close"></slot>
+
+                <thermal-dropdown >
+
+                    <span slot="invoker">${this.language.toUpperCase()}</span>
+
+                    ${[
+                        "en",
+                        "cs",
+                        "fr",
+                        "cy"
+                    ].map( lang => html`
+                        <div slot="option">
+                            <thermal-button
+                                @click=${() => {
+                                    i18next.changeLanguage( lang );
+                                    this.language = lang;
+                                }}
+                            >${lang.toUpperCase()}</thermal-button>
+                        </div>
+                    ` )}
+                </thermal-dropdown>
 
                 <!--
                 ${ this.showfullscreen === true ? html`
@@ -284,7 +310,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.recorded 
                         ? html`<div>
-                            <div class="credits-field">Recorded at:</div>
+                            <div class="credits-field">${t(T.recordedat)}:</div>
                             <div class="credit-value">${this.recorded}</div>
                         </div>`
                         : nothing
@@ -292,7 +318,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.author 
                         ? html`<div>
-                            <div class="credits-field">Author:</div>
+                            <div class="credits-field">${t(T.author)}:</div>
                             <div class="credit-value">${this.author}</div>
                         </div>`
                         : nothing
@@ -300,7 +326,7 @@ export class ThermalAppUiElement extends LitElement {
 
                     ${this.license 
                         ? html`<div>
-                            <div class="credits-field">License:</div>
+                            <div class="credits-field">${t(T.license)}:</div>
                             <div class="credit-value">${this.license}</div>
                         </div>`
                         : nothing

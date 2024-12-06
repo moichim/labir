@@ -11,7 +11,11 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
 
-    
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
     @consume({ context: analysisList, subscribe: true })
     analysis: AnalysisList = [];
@@ -45,21 +49,17 @@ export class FileAnalysisList extends FileConsumer {
 
             this.file.analysisData.addListener(this.UUID, (value) => {
                 this.graphs = value;
-                console.log(value.values[1]);
             });
 
-            this.log( this.graphParentElement.value )
 
-            if ( this.graphParentElement.value ) {
+            if (this.graphParentElement.value) {
                 this.graphWidth = this.graphParentElement.value.clientWidth;
-                console.log(this.graphWidth);
 
-                const observer = new ResizeObserver( entries => {
+                const observer = new ResizeObserver(entries => {
                     this.graphWidth = entries[0].contentRect.width;
-                    console.log(this.graphWidth);
-                } );
-                
-                observer.observe( this.graphParentElement.value );
+                });
+
+                observer.observe(this.graphParentElement.value);
 
             }
 
@@ -67,20 +67,16 @@ export class FileAnalysisList extends FileConsumer {
         }
 
 
-        this.log( "VELJÚUU", this.graphParentElement.value )
+        if (this.graphParentElement.value) {
+            this.graphWidth = this.graphParentElement.value.clientWidth;
 
-            if ( this.graphParentElement.value ) {
-                this.graphWidth = this.graphParentElement.value.clientWidth;
-                console.log(this.graphWidth);
+            const observer = new ResizeObserver(entries => {
+                this.graphWidth = entries[0].contentRect.width;
+            });
 
-                const observer = new ResizeObserver( entries => {
-                    this.graphWidth = entries[0].contentRect.width;
-                    console.log(this.graphWidth);
-                } );
-                
-                observer.observe( this.graphParentElement.value );
+            observer.observe(this.graphParentElement.value);
 
-            }
+        }
 
 
 
@@ -162,83 +158,89 @@ export class FileAnalysisList extends FileConsumer {
 
 
         return html`
+
+            <div ${ref(this.tourableElementRef)}>
             
 
-            ${ this.analysis.length === 0
+                ${this.analysis.length === 0
 
-                ? nothing
-                : html`
-                <div class="container">
-                <table>
+                    ? nothing
+                    : html`
+                    <div class="container">
+                    <table>
 
-                <caption>
-                    Current analysis on the file ${this.file?.fileName}
-                </caption>
+                    <caption>
+                        Current analysis on the file ${this.file?.fileName}
+                    </caption>
 
-                <thead>
-                    <tr>
-                        <th 
-                            class="interactive" 
-                            @click=${() => {
-                if (this.file) {
-                    if (this.allSelected) {
+                    <thead>
+                        <tr>
+                            <th 
+                                class="interactive" 
+                                @click=${() => {
+                            if (this.file) {
+                                if (this.allSelected) {
 
-                        this.file.analysis.layers.deselectAll();
+                                    this.file.analysis.layers.deselectAll();
 
-                        this.allSelected = false;
+                                    this.allSelected = false;
 
-                    } else {
-                        this.allSelected = true;
+                                } else {
+                                    this.allSelected = true;
 
-                        this.file.analysis.layers.selectAll();
+                                    this.file.analysis.layers.selectAll();
 
-                    }
+                                }
+                            }
+                        }}
+                            >
+                                <div 
+                                    class="selected ${this.allSelected ? "all" : ""}"
+                                ></div>
+                                Analysis
+                            </th>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Avg</th>
+                            <th>Size</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        ${map(this.analysis, item => html`
+                            <file-analysis-row .analysis=${item}></file-analysis-row>
+                        ` )}
+
+                    </tbody>
+
+                </table>
+                </div>
+                    `
                 }
-            }}
-                        >
-                            <div 
-                                class="selected ${this.allSelected ? "all" : ""}"
-                            ></div>
-                            Analysis
-                        </th>
-                        <th>Min</th>
-                        <th>Max</th>
-                        <th>Avg</th>
-                        <th>Size</th>
-                    </tr>
-                </thead>
+                
+                
+                
 
-                <tbody>
-
-                    ${map(this.analysis, item => html`
-                        <file-analysis-row .analysis=${item}></file-analysis-row>
-                    ` )}
-
-                </tbody>
-
-            </table>
-            </div>
-                `
-             }
-            
-            
-            
-
-            <div style="width: 100%;" ${ref(this.graphParentElement)}>
-                ${this.graphs.colors.length > 0 ? html`<google-chart 
-                    type="line" 
-                    .data=${this.graphs.values} 
-                    .options=${{
+                <div style="width: 100%;" ${ref(this.graphParentElement)}>
+                    ${this.graphs.colors.length > 0 ? html`<google-chart 
+                        type="line" 
+                        .data=${this.graphs.values} 
+                        .options=${{
                         colors: this.graphs.colors,
                         legend: { position: 'bottom' },
                         hAxis: { title: 'Time' },
                         vAxis: { title: 'Temperature °C' },
                         width: this.graphWidth,
                     }}
-                    ></google-chart>`
-                : nothing}
+                        ></google-chart>`
+                    : nothing}
+                </div>
+
             </div>
         
+            <slot name="tour"></slot>
+
         `;
     }
 

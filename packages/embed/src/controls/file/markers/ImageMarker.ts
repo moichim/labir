@@ -101,8 +101,6 @@ export class FileMarker extends FileConsumer {
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
         super.attributeChangedCallback(name, _old, value);
 
-        this.log(name, _old, value);
-
         // Say if needed to
 
         if (name === "active" && value === "true" ) {

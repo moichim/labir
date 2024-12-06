@@ -56,6 +56,7 @@ export class ThermalFileReader extends AbstractFileResult {
         return true;    
     }
 
+    /** @todo This method relies on the functionality of filters. */
     protected copyBuffer( buffer: ArrayBuffer ): ArrayBuffer {
         const copiedBuffer = new ArrayBuffer( buffer.byteLength );
         const copiedArray = new Uint8Array( copiedBuffer );
@@ -65,6 +66,10 @@ export class ThermalFileReader extends AbstractFileResult {
 
     /** Create copy of the self so that the */
     protected cloneForInstance(): ThermalFileReader {
+
+        /** @todo Until the filters are implemented properly, there is no need of copying the buffer.*/
+        return this;
+
 
         return new ThermalFileReader( 
             this.service,
@@ -174,14 +179,14 @@ export class ThermalFileReader extends AbstractFileResult {
         const reader = this.cloneForInstance();
 
         // Collect all filters above the instance
-        const filters = [
-            ...group.registry.manager.filters.getActiveFilters(),
-            ...group.registry.filters.getActiveFilters(),
-            ...group.filters.getActiveFilters()
-        ];
+        // const filters = [
+        //    ...group.registry.manager.filters.getActiveFilters(),
+        //    ...group.registry.filters.getActiveFilters(),
+        //    ...group.filters.getActiveFilters()
+        //];
 
         // Apply the filters
-        await reader.applyFilters( filters );
+        // await reader.applyFilters( filters );
 
         // Collect the necessary information
         const baseInfo = await reader.baseInfo();

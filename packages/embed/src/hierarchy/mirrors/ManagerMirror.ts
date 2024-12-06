@@ -1,13 +1,17 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManagerOptions, ThermalPalettes } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../BaseElement";
-import { ManagerContext, managerContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, managerGraphFunctionContext, ManagerGraphFunctionContext } from "../providers/context/ManagerContext";
-import { createOrGetManager, defaultManager } from "../providers/getters";
+import { TourableElement } from "../../tour/TourableElement";
+import { ManagerContext, managerContext, managerGraphFunctionContext, ManagerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext } from "../providers/context/ManagerContext";
+import { createOrGetManager } from "../providers/getters";
 
 @customElement("manager-mirror")
-export class ManagerProviderElement extends BaseElement {
+export class ManagerProviderElement extends TourableElement {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
@@ -55,18 +59,18 @@ export class ManagerProviderElement extends BaseElement {
 
         options.palette = palette;
 
-        let manager = createOrGetManager(this.slug, options);
+        const manager = createOrGetManager(this.slug, options);
 
         this.manager = manager;
-        
+
     }
 
 
     protected updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
+        super.updated(_changedProperties);
 
-        if ( _changedProperties.has( "palette" ) ) {
-            if ( _changedProperties.get( "palette" ) !== this.palette ) {
+        if (_changedProperties.has("palette")) {
+            if (_changedProperties.get("palette") !== this.palette) {
                 // const palette = ManagerProviderElement.sanitizeStringPalette(this.palette);
                 // this.manager.palette.setPalette( this.palette.key );
             }
@@ -75,7 +79,7 @@ export class ManagerProviderElement extends BaseElement {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
 
-        super.firstUpdated( _changedProperties );
+        super.firstUpdated(_changedProperties);
 
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
             this.setPalette(value as AvailableThermalPalettes);

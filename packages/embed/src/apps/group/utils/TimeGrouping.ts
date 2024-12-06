@@ -2,6 +2,7 @@ import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { TimeEntryElement } from "../../registry/parts/TimeEntryElement";
 import { GroupElement } from "../GroupApp";
+import { ParsedFileType } from "../../miltiple/AbstractMultipleApp";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
@@ -118,6 +119,67 @@ export class TimeGrouping {
 
     }
 
+    processParsedFiles(
+        files: ParsedFileType[]
+    ) {
+
+        this.flush();
+
+        let batch: ReturnType<ThermalRegistry["batch"]["request"]> | undefined;
+
+        files.forEach( file => {
+
+            const callback = async (
+                result: Instance | ThermalFileFailure
+            ) => {
+
+                if (result instanceof ThermalFileFailure) {
+                    return;
+                }
+
+                const innerHtml = file.note ?? "";
+                const storedContent = innerHtml.length > 0
+                    ? innerHtml
+                    : undefined;
+
+                this.records.push({
+                    instance: result,
+                    innerHtml: storedContent
+                });
+
+            }
+
+            if (batch === undefined) {
+
+                batch = this.group.registry.batch.request(
+                    file.thermal,
+                    file.visible,
+                    this.group,
+                    callback,
+                    this.element.UUID
+                );
+
+                batch.onResolve.set(
+                    this.element.UUID + "___something",
+                    () => {
+                        console.log( "hotovost...", this.records );
+                        this.processGroups();
+                    }
+                );
+
+            } else {
+                batch.request(
+                    file.thermal,
+                    file.visible,
+                    this.group,
+                    callback
+                );
+            }
+
+        } );
+
+    }
+
     protected processGroups() {
 
         this.element.groups = [];
@@ -174,8 +236,6 @@ export class TimeGrouping {
         this.element.groups = Array.from(
             this.groups.values()
         );
-
-        this.element.log( "______________", this.element.groups );
 
     }
 

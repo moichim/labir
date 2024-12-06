@@ -2,6 +2,8 @@ import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { AbstractAnalysis, PointAnalysis } from "@labir/core";
 import { html, PropertyValues } from "lit";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-edit")
 export class FileAnalisisEdit extends BaseElement {
@@ -42,9 +44,9 @@ export class FileAnalisisEdit extends BaseElement {
     protected render() {
         return html`
 
-            <thermal-dialog label="Edit ${this.type} analysis">
+            <thermal-dialog label="${t(T.editsth, {what: t( T[this.type as keyof typeof T] )})}">
 
-                <thermal-button slot="invoker">Edit</thermal-button>
+                <thermal-button slot="invoker">${t(T.edit)}</thermal-button>
 
                 <div slot="content">
                     ${ this.analysis instanceof PointAnalysis

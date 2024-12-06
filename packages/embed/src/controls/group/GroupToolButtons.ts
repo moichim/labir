@@ -4,18 +4,20 @@ import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/GroupContext";
-
-
 import { classMap } from 'lit/directives/class-map.js';
-
-
-
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 
 
 
 @customElement("group-tool-buttons")
 export class GroupToolButtons extends GroupConsumer {
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
 
     @consume({ context: toolContext, subscribe: true })
@@ -123,7 +125,7 @@ export class GroupToolButtons extends GroupConsumer {
         }
 
         return html`
-                <div class="switchers">
+                <div class="switchers" ${ref(this.tourableElementRef)}>
                     ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
 
             const classes = {
@@ -155,6 +157,8 @@ export class GroupToolButtons extends GroupConsumer {
                 <div class="current">
                     <div class="tool-description">${this.hint}</div>
                 </div>
+
+                <slot name="tour"></slot>
         `;
     }
 

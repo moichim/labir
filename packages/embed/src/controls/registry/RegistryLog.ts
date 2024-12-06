@@ -6,6 +6,10 @@ import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
 /** @deprecated */
 @customElement("registry-log")
 export class RegistryLog extends RegistryConsumer {
+    
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     @state()
     protected minmax: ThermalMinmaxOrUndefined;

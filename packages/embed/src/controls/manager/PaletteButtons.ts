@@ -4,6 +4,9 @@ import { css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 
 
@@ -11,15 +14,21 @@ import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/pr
 export class PaletteButtonsElement extends RegistryConsumer {
 
 
-    @consume({context: managerPaletteContext, subscribe: true})
+    @consume({ context: managerPaletteContext, subscribe: true })
     @state()
     value!: ManagerPaletteContext;
+
+    protected tourableElementRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.tourableElementRef.value;
+    }
 
 
 
     /** Handle user input events */
-    onSelect( palette: AvailableThermalPalettes ) {
-        this.registry.palette.setPalette( palette );
+    onSelect(palette: AvailableThermalPalettes) {
+        this.registry.palette.setPalette(palette);
     }
 
     static styles = css`
@@ -55,7 +64,7 @@ export class PaletteButtonsElement extends RegistryConsumer {
 
             <div class="button ${className}">
                 <span class="palette" style="background:${palette.gradient}"></span>
-                <span>${palette.name}</span>
+                <span>${t(T.palettename, { name: palette.name })}</span>
             </div>
         
         `;
@@ -63,15 +72,17 @@ export class PaletteButtonsElement extends RegistryConsumer {
 
     protected render(): unknown {
         return html`
-            <div class="container">
-                ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
+            <div class="container" ${ref(this.tourableElementRef)}>
+                ${Object.entries(ThermalPalettes).map(([key, palette]) => html`
                     
-                    <thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
-                        ${this.paletteTemplate( palette )}
+                    <thermal-button @click=${() => this.onSelect(key as AvailableThermalPalettes)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
+                        ${this.paletteTemplate(palette)}
                     </thermal-button>
                     
                 `)}
             </div>
+
+            <slot name="tour"></slot>
         `;
     }
 

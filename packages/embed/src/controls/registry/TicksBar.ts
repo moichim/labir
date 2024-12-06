@@ -40,6 +40,12 @@ export class TicksElement extends RegistryConsumer {
     @state()
     protected palette!: ManagerPaletteContext;
 
+    protected containerRef: Ref<HTMLElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.containerRef.value;
+    }
+
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -222,7 +228,7 @@ export class TicksElement extends RegistryConsumer {
 
         return html`
 
-            <div class="container ${this.minmax !== undefined ? "ready" : "loading"} placement-${this.placement} ">
+            <div class="container ${this.minmax !== undefined ? "ready" : "loading"} placement-${this.placement}" ${ref(this.containerRef)}>
 
                 <div class="skeleton"></div>
 
@@ -248,6 +254,7 @@ export class TicksElement extends RegistryConsumer {
                 </div>                
 
             </div>
+            <slot name="tour"></slot>
         
         `;
     }

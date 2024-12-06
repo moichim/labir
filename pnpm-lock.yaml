@@ -151,9 +151,18 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      i18next:
+        specifier: ^24.0.5
+        version: 24.0.5(typescript@5.4.5)
+      i18next-browser-languagedetector:
+        specifier: ^8.0.0
+        version: 8.0.0
       lit:
         specifier: ^3.1.4
         version: 3.1.4
+      lit-i18n:
+        specifier: ^4.1.0
+        version: 4.1.0(i18next@24.0.5(typescript@5.4.5))(lit-html@3.1.4)
       safevalues:
         specifier: ^0.5.2
         version: 0.5.2
@@ -6987,6 +6996,17 @@ packages:
   humanize-ms@1.2.1:
     resolution: {integrity: sha512-Fl70vYtsAFb/C06PTS9dZBo7ihau+Tu/DNCk/OyHhea07S+aeMWpFFkUaXRa8fI+ScZbEI8dfSxwY7gxZ9SAVQ==}
 
+  i18next-browser-languagedetector@8.0.0:
+    resolution: {integrity: sha512-zhXdJXTTCoG39QsrOCiOabnWj2jecouOqbchu3EfhtSHxIB5Uugnm9JaizenOy39h7ne3+fLikIjeW88+rgszw==}
+
+  i18next@24.0.5:
+    resolution: {integrity: sha512-1jSdEzgFPGLZRsQwydoMFCBBaV+PmrVEO5WhANllZPX4y2JSGTxUjJ+xVklHIsiS95uR8gYc/y0hYZWevucNjg==}
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   iconv-lite@0.4.24:
     resolution: {integrity: sha512-v3MXnZAcvnywkTUEZomIActle7RXXeedOR31wwl7VlyoXO4Qi9arvSenNQWne1TcRwhCL1HwLI21bEqdpj8/rA==}
     engines: {node: '>=0.10.0'}
@@ -7882,6 +7902,12 @@ packages:
 
   lit-html@3.1.4:
     resolution: {integrity: sha512-yKKO2uVv7zYFHlWMfZmqc+4hkmSbFp8jgjdZY9vvR9jr4J8fH6FUMXhr+ljfELgmjpvlF7Z1SJ5n5/Jeqtc9YA==}
+
+  lit-i18n@4.1.0:
+    resolution: {integrity: sha512-7dnMm+a0dqMpLrKbHagbgF5rNpadi7G125nldNV19/j8Q1JeirwZgE7TxOR0ELqwpaIjQzCjUnmPRIk/JtOLwA==}
+    peerDependencies:
+      i18next: '>=21.3.3'
+      lit-html: '>=2.0.1'
 
   lit@3.1.4:
     resolution: {integrity: sha512-q6qKnKXHy2g1kjBaNfcoLlgbI3+aSOZ9Q4tiGa9bGYXq5RBXxkVTqTIVmP2VWMp29L4GyvCFm8ZQ2o56eUAMyA==}
@@ -16487,7 +16513,7 @@ snapshots:
       '@vitest/utils': 1.6.0
       magic-string: 0.30.10
       sirv: 2.0.4
-      vitest: 1.6.0(@types/node@22.7.5)(@vitest/browser@1.6.0)(jsdom@24.1.0)(sass@1.79.5)(terser@5.31.1)
+      vitest: 1.6.0(@types/node@20.14.2)(@vitest/browser@1.6.0)(jsdom@24.1.0)(sass@1.79.5)(terser@5.31.1)
     optionalDependencies:
       playwright: 1.48.1
     optional: true
@@ -20298,6 +20324,16 @@ snapshots:
     dependencies:
       ms: 2.1.3
 
+  i18next-browser-languagedetector@8.0.0:
+    dependencies:
+      '@babel/runtime': 7.24.7
+
+  i18next@24.0.5(typescript@5.4.5):
+    dependencies:
+      '@babel/runtime': 7.24.7
+    optionalDependencies:
+      typescript: 5.4.5
+
   iconv-lite@0.4.24:
     dependencies:
       safer-buffer: 2.1.2
@@ -21492,6 +21528,11 @@ snapshots:
   lit-html@3.1.4:
     dependencies:
       '@types/trusted-types': 2.0.7
+
+  lit-i18n@4.1.0(i18next@24.0.5(typescript@5.4.5))(lit-html@3.1.4):
+    dependencies:
+      i18next: 24.0.5(typescript@5.4.5)
+      lit-html: 3.1.4
 
   lit@3.1.4:
     dependencies:

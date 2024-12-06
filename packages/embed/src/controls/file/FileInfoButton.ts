@@ -3,9 +3,15 @@ import { css, html, nothing } from "lit";
 import { Instance, ThermalFileFailure, TimeFormat } from "@labir/core";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("file-info-button")
 export class FileInfoButton extends FileConsumer {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     protected onFileLoaded(): void {
         // throw new Error("Method not implemented.");
@@ -129,57 +135,65 @@ export class FileInfoButton extends FileConsumer {
         }
 
         return html`
-            <thermal-dialog label="File info">
+            <thermal-dialog label=${t(T.fileinfo)}>
                 <slot name="invoker" slot="invoker">
-                    <thermal-button>File info</thermal-button>
+                    <thermal-button>${t(T.fileinfo)}</thermal-button>
                 </slot>
                 <div slot="content">
 
                     <table>
 
-                        ${ unsafeHTML( this.renderRow( "Thermal file name", this.file.fileName ) ) }
+                        ${ unsafeHTML( this.renderRow( t(T.thermalfilename), this.file.fileName ) ) }
 
-                        ${ unsafeHTML( this.renderDownloadRow( "Thermal file URL", this.file.thermalUrl, this.file.thermalUrl, "Download thermal file" ) ) }
+                        ${ unsafeHTML( this.renderDownloadRow( 
+                            t(T.thermalfileurl), 
+                            this.file.thermalUrl, 
+                            this.file.thermalUrl, 
+                            t(T.thermalfiledownload) 
+                        ) ) }
 
                         ${ this.file.visibleUrl 
                             ? unsafeHTML( this.renderDownloadRow( 
-                                "Visible file URL", 
+                                t(T.visiblefileurl), 
                                 this.file.visibleUrl, 
                                 this.file.visibleUrl, 
-                                "Download visible file" 
+                                t(T.visiblefiledownload)
                             ) )
                             : nothing 
                         }
 
-                        ${ unsafeHTML( this.renderRow( "Time", TimeFormat.human( this.file.timestamp ) ) ) }
+                        ${ unsafeHTML( this.renderRow( 
+                            t(T.time), 
+                            TimeFormat.human( this.file.timestamp ) 
+                        ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
-                            "Duration",
+                            t(T.duration),
                             this.file.duration,
                             0,
                             "ms"
                         ) ) }
 
                         ${ unsafeHTML( this.renderRow( 
-                            "Resolution", 
-                            `${this.file.width} x ${this.file.height} px <small class="opaque">${this.file.pixels.length} pixels</small>` 
+                            t(T.resolution), 
+                            `${this.file.width} x ${this.file.height}<small class="opaque">${this.file.pixels.length} pixels</small>` 
                         ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
-                            "Bytesize",
+                            t(T.bytesize),
                             this.file.bytesize,
                             0
                         ) ) }
                         
                         ${ unsafeHTML( this.renderNumericalRow(
-                            "Maximal temperature",
+                            t(T.minimaltemperature),
                             this.file.max,
                             10,
                             "°C"
                         ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
-                            "Minimal temperature",
+                            t(T.maximaltemperature),
                             this.file.min,
                             10,
                             "°C"
@@ -189,19 +203,19 @@ export class FileInfoButton extends FileConsumer {
 
                     </table>
 
-                    <h2>File type</h2>
+                    <h2>${t(T.filetype)}</h2>
                     <table>
                     ${ unsafeHTML( this.renderRow(
-                        "Type",
+                        t(T.type),
                         this.file.reader.parser.name
                     ) ) }
                     ${ unsafeHTML( this.renderRow(
-                        "Description",
+                        t(T.description),
                         this.file.reader.parser.description
                     ) ) }
 
                     <tr>
-                        <td>Supported devices</td>
+                        <td>${t(T.supporteddevices)}</td>
                         <td><ul>${this.file.reader.parser.devices.map( device => html`<li>
                             <h3><a href="${device.deviceUrl}" target="_blank">${device.deviceName}</a></h3>
                             <div class="small">${device.deviceDescription}</div>

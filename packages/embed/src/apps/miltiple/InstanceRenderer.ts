@@ -1,16 +1,18 @@
 import { Instance } from "@labir/core";
+import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { AbstractMultipleApp } from "./AbstractMultipleApp";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { T } from "../../translations/Languages";
+import { AbstractMultipleApp } from "./AbstractMultipleApp";
 import { HtmlResult } from "./HtmlResult";
 
-export type InstanceInteractionCallback = ( instance: Instance ) => void;
+export type InstanceInteractionCallback = (instance: Instance) => void;
 
 export class InstanceRenderer {
 
     public constructor(
         protected readonly element: AbstractMultipleApp
-    ) {}
+    ) { }
 
 
     public static styles: CSSResultGroup | undefined = css`
@@ -23,7 +25,6 @@ export class InstanceRenderer {
 
         .file article {
             border: 1px solid var(--thermal-slate);
-            border-bottom: 0;
             border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
             background-color: var(--thermal-slate-light);
         }
@@ -72,6 +73,12 @@ export class InstanceRenderer {
             background-color: var(--thermal-primary);
         }
 
+        .timeline {
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-bottom: 5px;
+        }
+
     `;
 
 
@@ -80,22 +87,22 @@ export class InstanceRenderer {
         innerHtml?: string
     ): HtmlResult {
 
-        if ( ! innerHtml ) {
+        if (!innerHtml) {
             return nothing;
         }
 
         const trimmedInfo = innerHtml.trim();
 
-        if ( trimmedInfo.length === 0 ) {
+        if (trimmedInfo.length === 0) {
             return nothing;
         }
 
-        return html`<thermal-dialog label="Note for ${ label }">
+        return html`<thermal-dialog label="Note for ${label}">
             <button 
                 slot="invoker"
                 class="file-info-button"
-            >note</button>
-            <div slot="content">${unsafeHTML( innerHtml )}</div>
+            >${t(T.note).toLocaleLowerCase()}</button>
+            <div slot="content">${unsafeHTML(innerHtml)}</div>
         </thermal-dialog>`
     }
 
@@ -111,8 +118,8 @@ export class InstanceRenderer {
         return html`<div class="file">
 
             <article
-                @mouseenter=${ () => onInstanceEnter( instance ) }
-                @mouseleave=${ () => onInstanceLeave( instance ) }
+                @mouseenter=${() => onInstanceEnter(instance)}
+                @mouseleave=${() => onInstanceLeave(instance)}
             >
 
                 <file-mirror  .file=${instance}>
@@ -125,7 +132,7 @@ export class InstanceRenderer {
 
                         <div>
 
-                            ${this.renderInfo( label, innerHtml )}
+                            ${this.renderInfo(label, innerHtml)}
 
                             <button
                                 class="file-info-button"
@@ -136,24 +143,24 @@ export class InstanceRenderer {
                                 <button 
                                     slot="invoker"
                                     class="file-info-button"
-                                >info</button>
+                                >${t(T.info).toLocaleLowerCase()}</button>
                             </file-info-button>
 
                             <button
                                 class="file-info-button"
                                 @click=${() => {
-                                    
-                                    const range = instance.group.registry.range;
-                                    
-                                    range.imposeRange({
-                                        from: instance.min,
-                                        to: instance.max
-                                    })
 
-                                }}
-                                @focus=${() => onInstanceEnter( instance )}
-                                @blur=${() => onInstanceLeave( instance )}
-                            >range</button>
+                const range = instance.group.registry.range;
+
+                range.imposeRange({
+                    from: instance.min,
+                    to: instance.max
+                })
+
+            }}
+                                @focus=${() => onInstanceEnter(instance)}
+                                @blur=${() => onInstanceLeave(instance)}
+                            >${t(T.range).toLocaleLowerCase()}</button>
                         
                         
                         </div>
@@ -161,7 +168,13 @@ export class InstanceRenderer {
                     </div>
 
                     <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
+                    ${instance.timeline.isSequence
+                ? html`<div class="timeline">
+                            <file-timeline hasInfo="false" hasSpeedButton="false" hasPlayButton="false"></file-timeline>
+                        </div>`
+                : nothing
+            }
+                    
                     <file-analysis-table></file-analysis-table>
 
                 </file-mirror>
@@ -170,6 +183,6 @@ export class InstanceRenderer {
         
         </div>`;
 
-                        }
+    }
 
 }

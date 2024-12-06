@@ -14,6 +14,10 @@ export class FileCanvas extends FileConsumer {
         return this.container.value;
     }
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.container.value;
+    }
+
     public onInstanceCreated(instance: Instance): void {
 
         const container = this.getContainer();
@@ -29,7 +33,6 @@ export class FileCanvas extends FileConsumer {
             instance.mountToDom( container );
             instance.draw();
         } else {
-            this.log( "kontejner!", container );
             throw new Error( "Error mounting the instance to the canvas!" );
         }
     }
@@ -198,6 +201,8 @@ export class FileCanvas extends FileConsumer {
                 }
             
             </div>
+
+            <slot name="tour"></slot>
         
         `;
     }

@@ -1,11 +1,18 @@
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { ifDefined } from "lit/directives/if-defined.js";
 import { Instance, TimeFormat } from "@labir/core";
+import { t } from "i18next";
+import { css, html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { T } from "../../translations/Languages";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
+
+
+  public getTourableRoot(): HTMLElement | undefined {
+    return undefined;
+  }
 
   @property({ type: String, reflect: true, attribute: true })
   showembed: boolean = true;
@@ -67,26 +74,26 @@ export class SingleFileApp extends FileConsumer {
   
           <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
 
-          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
+          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>` : nothing}
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>
 
 
-                <thermal-dialog label="Display settings">
-                <thermal-button slot="invoker">Display settings</thermal-button>
+                <thermal-dialog label=${t(T.displaysettings)}>
+                <thermal-button slot="invoker" tourstepid="sth3">${t(T.displaysettings)}</thermal-button>
                 <div slot="content">
                   
                   <thermal-field 
-                    label="Image rendering" 
-                    hint="Pixelated mode disables antialising of the thermogram and enables you to see its pixels as they are."
+                    label=${t(T.filerendering)} 
+                    hint=${t(T.filerenderinghint)}
                   >
                     <manager-smooth-switch></manager-smooth-switch>
                   </thermal-field>
 
                   <thermal-field 
-                    label="Adjust time scale"
-                    hint="Adjust the time scale automatically (based on histogram) or set its values to the full range (min and max)."
+                    label=${t(T.adjusttimescale)}
+                    hint=${t(T.adjusttimescalehint)}
                   "
                   >
                     <registry-range-auto-button ></registry-range-auto-button>
@@ -94,17 +101,27 @@ export class SingleFileApp extends FileConsumer {
                   </thermal-field>
 
                   <thermal-field 
-                    label="Palette"
-                    hint="Select colour palette of thermal display."
+                    label=${t(T.colourpalette)}
+                    hint=${t(T.colourpalettehint)}
                   "
                   >
                     <registry-palette-buttons></registry-palette-buttons>
                   </thermal-field>
 
                   ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
-                    label="Playback speed"
+                    label="${t(T.playbackspeed)}"
                   >
                     <file-playback-speed-dropdown></file-playback-speed-dropdown>
+                  </thermal-field>
+                  `
+        : nothing
+      }
+
+                  ${(this.file && this.file.timeline.isSequence) ? html` <thermal-field 
+                    label="${t(T.graphlines)}"
+                    hint=${t(T.graphlineshint)}
+                  >
+                    <manager-graph-smooth-switch></manager-graph-smooth-switch>
                   </thermal-field>
                   `
         : nothing

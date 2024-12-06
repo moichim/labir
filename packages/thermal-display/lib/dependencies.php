@@ -10,6 +10,8 @@ $styles_name = "thermal_display_styles";
 $scripts_name_cjs ="thermal_display_embed_library_cjs";
 $scripts_name_es ="thermal_display_embed_library_es";
 
+$version = "1.2.59";
+
 
 
 
@@ -27,10 +29,11 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
         global $styles_name;
         global $scripts_name_cjs;
         global $scripts_name_es;
+        global $version;
 
         wp_register_style( 
             $styles_name, 
-            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.58/dist/embed.min.css",
+            "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/dist/embed.min.css",
             // plugin_dir_url( __DIR__  ) . 'assets/style.css', 
             array(), 
             time() 
@@ -38,7 +41,7 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
 
         wp_register_script( 
             $scripts_name_cjs, 
-            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.58/dist/embed.min.js",
+            "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/dist/embed.min.js",
             // plugin_dir_url( __DIR__ ) . 'assets/embed.cjs.js' , 
             array(), 
             time() 
@@ -46,7 +49,7 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
 
         wp_register_script( 
             $scripts_name_es, 
-            "https://cdn.jsdelivr.net/npm/@labir/embed@1.2.58/+esm",
+            "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/+esm",
             // plugin_dir_url( __DIR__ ) . 'assets/embed.es.js' , 
             array(), 
             time() 

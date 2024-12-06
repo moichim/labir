@@ -4,10 +4,13 @@ import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
 import { groupContext, toolContext, toolsContext } from "./context/GroupContext";
-import { getDefaultGroup } from "./getters";
 
 @customElement("group-provider")
 export class GroupProviderElement extends RegistryConsumer {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     protected UUIDGroupListeners = this.UUID + "__group-listener";
 
@@ -18,23 +21,23 @@ export class GroupProviderElement extends RegistryConsumer {
     })
     public slug!: string;
 
-    @provide( {context: groupContext})
+    @provide({ context: groupContext })
     group!: ThermalGroup;
 
-    @provide( {context: toolContext} )
+    @provide({ context: toolContext })
     tool!: ThermalTool;
 
-    @provide( {context: toolsContext} )
+    @provide({ context: toolsContext })
     tools!: ThermalGroup["tool"]["tools"]
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        console.log( this.registry );
+        console.log(this.registry);
 
-        this.group = this.registry.groups.addOrGetGroup( this.slug );
+        this.group = this.registry.groups.addOrGetGroup(this.slug);
 
-        if ( this.slug ) {
+        if (this.slug) {
             // this.group = this.registry.groups.addOrGetGroup( this.slug );
         } else {
             // this.group = getDefaultGroup( this.registry );
@@ -45,10 +48,10 @@ export class GroupProviderElement extends RegistryConsumer {
         this.tools = this.group.tool.tools;
 
         // Add tool listener
-        this.group.tool.addListener( this.UUIDGroupListeners, value => {
+        this.group.tool.addListener(this.UUIDGroupListeners, value => {
             this.tool = value;
-        } );
-        
+        });
+
     }
 
     protected render(): unknown {

@@ -1,12 +1,16 @@
-import { Instance, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, SlotNumber } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { AbstractFileProvider } from "../providers/AbstractFileProvider";
 import { fileContext, fileProviderContext } from "../providers/context/FileContexts";
 
 @customElement("file-mirror")
 export class FileMirrorElement extends AbstractFileProvider {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     @provide({ context: fileProviderContext })
     protected providedSelf: FileMirrorElement = this;
@@ -16,13 +20,13 @@ export class FileMirrorElement extends AbstractFileProvider {
     public file?: Instance;
 
     @property({
-        type: Boolean, 
+        type: Boolean,
         converter: {
-            fromAttribute( value: string ) {
+            fromAttribute(value: string) {
                 return value === "true";
             },
-            toAttribute( value: boolean|undefined ) {
-                if ( value === true ) {
+            toAttribute(value: boolean | undefined) {
+                if (value === true) {
                     return "true";
                 }
                 return "false";
@@ -127,7 +131,7 @@ export class FileMirrorElement extends AbstractFileProvider {
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        if ( this.file ) {
+        if (this.file) {
             // this.file.unmountFromDom();
         }
     }
@@ -156,12 +160,12 @@ export class FileMirrorElement extends AbstractFileProvider {
         this.handleAnalysisUpdate(6, _changedProperties);
         this.handleAnalysisUpdate(7, _changedProperties);
 
-        if ( _changedProperties.has( "file" ) ) {
-            if ( this.file ) {
+        if (_changedProperties.has("file")) {
+            if (this.file) {
                 this.loading = false;
-                this.recieveInstance( this.file );
+                this.recieveInstance(this.file);
 
-                setTimeout( () => this.file && this.onSuccess.call( this.file ), 0 );
+                setTimeout(() => this.file && this.onSuccess.call(this.file), 0);
             }
         }
 

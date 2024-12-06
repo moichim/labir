@@ -236,7 +236,7 @@ var useThermalDropin = (registry, groupId) => {
   const group = registry.groups.addOrGetGroup(groupId);
   const dropzone = (0, import_react_dropzone.useDropzone)({
     onDrop: (acceptedFiles) => __async(void 0, null, function* () {
-      const instances2 = yield Promise.all(
+      yield Promise.all(
         acceptedFiles.map((file) => __async(void 0, null, function* () {
           const result = yield registry.service.loadUploadedFile(file);
           if (result instanceof import_core2.ThermalFileReader) {

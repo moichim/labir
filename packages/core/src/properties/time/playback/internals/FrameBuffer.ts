@@ -21,7 +21,7 @@ export class FrameBuffer {
     }
 
     /** Number of images to preload at once */
-    readonly bufferSize:number =  4;
+    readonly bufferSize:number =  1;
     /** The actual buffer holding pair of step & frame */
     protected buffer: Map<ParsedTimelineFrame,ParsedFileFrame> = new Map;
     /** Accessor to array of steps preloaded in the given moment */

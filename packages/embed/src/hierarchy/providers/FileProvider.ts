@@ -1,4 +1,4 @@
-import { Instance, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, SlotNumber, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
@@ -7,6 +7,10 @@ import { fileProviderContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
 
     @provide({ context: fileProviderContext })
     protected providedSelf: FileProviderElement = this;

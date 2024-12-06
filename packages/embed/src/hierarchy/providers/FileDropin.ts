@@ -10,7 +10,9 @@ import { fileProviderContext } from "./context/FileContexts";
 @customElement("file-dropin")
 export class FileDropinElement extends AbstractFileProvider {
 
-
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.container.value;
+    }
 
     @provide({ context: fileProviderContext })
     public providedSelf: FileDropinElement = this;

@@ -7,6 +7,10 @@ import { RegistryContext, registryContext, registryLoadingContext, registryMaxCo
 @customElement("registry-provider")
 export class RegistryProviderElement extends ManagerConsumer {
 
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
 
     protected UUIDRegistryListeners = this.UUID + "__registry-listener";
 
@@ -45,13 +49,9 @@ export class RegistryProviderElement extends ManagerConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        let registry = this.manager.addOrGetRegistry(this.slug);
-
-        // this.hash = registry.hash.toString();
+        const registry = this.manager.addOrGetRegistry(this.slug);
 
         this.registry = registry;
-
-
 
         // Set the fixed range if necessary
         if (this.from !== undefined && this.to !== undefined) {
@@ -65,8 +65,6 @@ export class RegistryProviderElement extends ManagerConsumer {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-
-        this.log("first updated");
 
         // Bind opacity to the element property
         this.registry.opacity.addListener(this.UUIDRegistryListeners, value => {

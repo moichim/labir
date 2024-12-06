@@ -666,13 +666,13 @@ var GRAYSCALE = generateGrayscalePalette();
 var ThermalPalettes = {
   iron: {
     pixels: IRON,
-    name: "IRON palette",
+    name: "IRON",
     gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(10,12,77,1) 30%, rgba(86,20,101,1) 49%, rgba(255,0,0,1) 64%, rgba(249,255,0,1) 84%, rgba(255,255,255,1) 100%)",
     slug: "iron"
   },
   jet: {
     pixels: JET,
-    name: "JET palette",
+    name: "JET",
     gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
     slug: "jet"
   },
@@ -1092,6 +1092,12 @@ var AbstractAnalysis = class {
   _avg;
   get avg() {
     return this._avg;
+  }
+  dangerouslySetValues(avg, min = void 0, max = void 0) {
+    this._avg = avg;
+    this._min = min;
+    this._max = max;
+    this.onValues.call(this.min, this.max, this.avg);
   }
   get arrayOfPoints() {
     return Array.from(this.points.values());
@@ -3444,7 +3450,7 @@ var FrameBuffer = class {
     return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
   }
   /** Number of images to preload at once */
-  bufferSize = 4;
+  bufferSize = 1;
   /** The actual buffer holding pair of step & frame */
   buffer = /* @__PURE__ */ new Map();
   /** Accessor to array of steps preloaded in the given moment */
@@ -4222,9 +4228,9 @@ var AbstractFile = class extends BaseStructureObject {
     delete this._dom;
     this._dom = void 0;
   }
-  draw() {
+  async draw() {
     if (this.dom && this.dom.canvasLayer) {
-      this.dom.canvasLayer.draw();
+      return await this.dom.canvasLayer.draw();
     }
   }
   recievePalette(palette) {
@@ -4551,14 +4557,38 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   async draw() {
     const paletteColors = this.getPalette();
     try {
-      const image = await this.pool.exec(async (from, to, width, height, pixels, palette) => {
+      const analysis = this.instance.analysis.value.map((a) => {
+        if (a instanceof PointAnalysis) {
+          return [a.getType(), a.key, a.top, a.left, 1, 1];
+        }
+        return [a.getType(), a.key, a.top, a.left, a.width, a.height];
+      });
+      const image = await this.pool.exec(async (from, to, width, height, pixels, palette, analysis2) => {
         const canvas = new OffscreenCanvas(width, height);
         const context = canvas.getContext("2d");
         const displayRange = to - from;
-        for (let x = 0; x <= width; x++) {
-          for (let y = 0; y <= height; y++) {
+        const buffer = analysis2.map((a) => {
+          return {
+            id: a[1],
+            type: a[0],
+            min: {
+              value: Infinity
+            },
+            max: {
+              value: -Infinity
+            },
+            avg: {
+              value: 0,
+              sum: 0,
+              count: 0
+            }
+          };
+        });
+        for (let x = 0; x < width; x++) {
+          for (let y = 0; y < height; y++) {
             const index = x + y * width;
-            let temperature = pixels[index];
+            const rawTemperature = pixels[index];
+            let temperature = rawTemperature;
             if (temperature < from)
               temperature = from;
             if (temperature > to)
@@ -4569,28 +4599,85 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             const color = palette[colorIndex];
             context.fillStyle = color;
             context.fillRect(x, y, 1, 1);
+            const isWithin = (x2, y2, la, ta, wa, ha) => {
+              const centerX = la + wa / 2;
+              const centerY = ta + ha / 2;
+              const normalizedX = (x2 - centerX) / (wa / 2);
+              const normalizedY = (y2 - centerY) / (ha / 2);
+              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+            };
+            analysis2.forEach((a, index2) => {
+              const bufferValue = buffer[index2];
+              const [type, id, top, left, w, h] = a;
+              id;
+              if (type === "point") {
+                if (x === left && y === top) {
+                  bufferValue.avg.value = rawTemperature;
+                }
+              } else if (type === "rectangle") {
+                if (x >= left && x < left + w && y >= top && y < top + h) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              } else if (type === "ellipsis") {
+                if (isWithin(x, y, left, top, width, height)) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              }
+            });
           }
         }
+        const stats = buffer.map((a) => {
+          return {
+            id: a.id,
+            min: a.min.value !== Infinity ? a.min.value : void 0,
+            max: a.max.value !== -Infinity ? a.max.value : void 0,
+            avg: a.type === "point" ? a.avg.value : a.avg.sum / a.avg.count
+          };
+        });
         const imageData = context.getImageData(0, 0, width, height);
         const result = await createImageBitmap(imageData);
-        return result;
+        return {
+          image: result,
+          stats
+        };
       }, [
         this.from,
         this.to,
         this.width,
         this.height,
         this.pixels,
-        paletteColors
+        paletteColors,
+        analysis
       ], {});
-      this.context.drawImage(image, 0, 0);
+      image.stats.forEach((a) => {
+        const analysis2 = this.instance.analysis.layers.get(a.id);
+        analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
+      });
+      this.context.drawImage(image.image, 0, 0);
+      return true;
     } catch (error) {
       if (error instanceof Error) {
         if (error.message === "OffscreenCanvas is not defined") {
-          return;
+          return false;
         }
         console.error(error);
       }
     }
+    return false;
   }
   exportAsPng() {
     const image = this.canvas.toDataURL();
@@ -4764,6 +4851,7 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   isSuccess() {
     return true;
   }
+  /** @todo This method relies on the functionality of filters. */
   copyBuffer(buffer) {
     const copiedBuffer = new ArrayBuffer(buffer.byteLength);
     const copiedArray = new Uint8Array(copiedBuffer);
@@ -4772,6 +4860,7 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   /** Create copy of the self so that the */
   cloneForInstance() {
+    return this;
     return new _ThermalFileReader(
       this.service,
       this.buffer,
@@ -4835,12 +4924,6 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   async createInstance(group) {
     const reader = this.cloneForInstance();
-    const filters = [
-      ...group.registry.manager.filters.getActiveFilters(),
-      ...group.registry.filters.getActiveFilters(),
-      ...group.filters.getActiveFilters()
-    ];
-    await reader.applyFilters(filters);
     const baseInfo2 = await reader.baseInfo();
     const firstFrame = await reader.frameData(0);
     const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
@@ -5128,7 +5211,11 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
             highlight
           ));
           this.localInstance.mountToDom(this.container);
-          this.localInstance.draw();
+          const instance = this.localInstance;
+          if (instance.dom && instance.dom.visibleLayer) {
+            instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+          }
+          await this.localInstance.draw();
           if (params.showAnalysis && this.file.analysis.value.length > 0) {
             const table = document.createElement("table");
             table.style.width = "100%";
@@ -5289,7 +5376,6 @@ var Instance = class _Instance extends AbstractFile {
         const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
         this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
-      this.analysis.value.forEach((analysis) => analysis.recalculateValues());
     }
   }
   getPixelsForHistogram() {
@@ -5340,7 +5426,6 @@ var Instance = class _Instance extends AbstractFile {
   }
   async applyAllAvailableFilters() {
     const filters = this.getAllApplicableFilters();
-    this.reader.applyFilters(filters);
     const baseInfo2 = await this.reader.baseInfo();
     const frameData2 = await this.reader.frameData(this.timeline.currentStep.index);
     if (this.root) {
@@ -5454,7 +5539,6 @@ var GroupExportCSV = class {
       filename: `group_${groupIdentificator}`,
       columnHeaders: header
     });
-    console.log(data);
     const csv = generateCsv2(csvConfig)(data);
     download2(csvConfig)(csv);
   }
@@ -5546,9 +5630,24 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
     );
     wrapper.appendChild(title);
     if (this.list) {
+      this.group.files.forEveryInstance((i) => {
+        if (this.localGroup) {
+          const localEquivalent = this.localGroup.files.value.find((value) => {
+            return value.fileName === i.fileName;
+          });
+          if (localEquivalent) {
+            localEquivalent.timeline.setRelativeTime(
+              i.timeline.value
+            );
+          }
+        }
+      });
       this.list.appendChild(container);
       instance.mountToDom(wrapper);
       instance.draw();
+      if (instance.dom && instance.dom.visibleLayer) {
+        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+      }
       if (showAnalysis) {
         const referenceInstance = this.group.files.value[0];
         if (referenceInstance && referenceInstance.analysis.value.length > 0) {
@@ -5958,6 +6057,180 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
   }
 };
 
+// src/properties/time/group/GroupPlayback.ts
+var GroupPlayback = class extends AbstractProperty {
+  _hasAnyPlayback = false;
+  /** Does this group include any sequence? */
+  get hasAnyPlayback() {
+    return this._hasAnyPlayback;
+  }
+  set hasAnyPlayback(value) {
+    if (this._hasAnyPlayback !== value) {
+      this._hasAnyPlayback = value;
+      this.onHasAnyCallback.call(value);
+    }
+  }
+  onHasAnyCallback = new CallbacksManager();
+  recalculateHasAnyPlayback(instances) {
+    let temporaryHas = false;
+    instances.forEach((i) => {
+      if (i.timeline.isSequence) {
+        temporaryHas = true;
+      }
+    });
+    this.hasAnyPlayback = temporaryHas;
+  }
+  _playing = false;
+  get playing() {
+    return this._playing;
+  }
+  set playing(value) {
+    if (this._playing !== value) {
+      this._playing = value;
+      this.onPlayingStatusChange.call(this._playing);
+    }
+  }
+  onPlayingStatusChange = new CallbacksManager();
+  /** Internal pointer holding the current loop iteration*/
+  loopStep = 0;
+  /** Internal setTimeout for playback. */
+  loopTimer;
+  _loopInterval = 20;
+  /** Interval upon which the main loop triggers. In MS. */
+  get loopInterval() {
+    return this._loopInterval;
+  }
+  /** @deprecated The playback interval should not change during playback */
+  setLoopInterval(value) {
+    this._loopInterval = Math.round(value);
+    this.onLoopIntervalChanged.call(this._loopInterval);
+  }
+  /** @deprecated The loop playback should not change during playback */
+  onLoopIntervalChanged = new CallbacksManager();
+  _duration = 0;
+  get duration() {
+    return this._duration;
+  }
+  set duration(value) {
+    if (value !== this._duration) {
+      this._duration = value;
+      this.onDurationChanged.call(this._duration);
+    }
+  }
+  onDurationChanged = new CallbacksManager();
+  recalculateDuration(instances) {
+    let temporaryDuration = 0;
+    instances.forEach((instance) => {
+      if (instance.timeline.duration > temporaryDuration) {
+        temporaryDuration = instance.timeline.duration;
+      }
+    });
+    this.duration = temporaryDuration;
+  }
+  UUID = this.parent.id + "__listener";
+  constructor(parent, initial) {
+    super(parent, initial);
+    this.recalculateDuration(this.parent.files.value);
+    this.recalculateHasAnyPlayback(this.parent.files.value);
+    this.parent.registry.batch.onBatchComplete.set(
+      this.UUID,
+      (results) => {
+        const instances = results.filter((res) => res instanceof Instance);
+        this.recalculateDuration(instances);
+        this.recalculateHasAnyPlayback(instances);
+        const newVal = this.value;
+        this.value = newVal;
+      }
+    );
+  }
+  validate(value) {
+    return Math.min(Math.max(value, 0), this.duration);
+  }
+  afterSetEffect(value) {
+    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
+  }
+  /** Set time value by percent. The actual MS is calculated depending on the duration. */
+  setValueByPercent(percent) {
+    const ms = this.percentToMs(percent);
+    if (ms !== this.value) {
+      this.value = ms;
+      this.loopStep = Math.floor(this.duration / this.value);
+      if (this.playing) {
+        this.createTimerStep(true);
+      }
+    }
+  }
+  /** Set the time value by MS. */
+  setValueByRelativeMs(relativeMs) {
+    this.value = relativeMs;
+    this.loopStep = Math.floor(this.duration / this.value);
+    if (this.playing) {
+      this.createTimerStep(true);
+    }
+  }
+  /** Convert percent value to relative time in MS */
+  percentToMs(percent) {
+    return Math.floor(this.duration * (percent / 100));
+  }
+  /** Convert relative time in MS to percent value */
+  msToPercent(ms) {
+    return ms / this.duration * 100;
+  }
+  /**
+   * The main method that shall create a timer leading to the next step.
+   * 
+   * It might be called recursively to ensure fluent playback.
+   */
+  createTimerStep(recursive = false) {
+    if (this.duration === void 0 || this.playing === false) {
+      return;
+    }
+    const nextStep = this.loopStep + 1;
+    const nextValue = nextStep * this.loopInterval;
+    this.loopStep = nextStep;
+    if (nextValue <= this.duration) {
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+      this.loopTimer = setTimeout(() => {
+        this.createTimerStep(recursive);
+        this.value = nextValue;
+      }, this.loopInterval);
+    } else {
+      this.playing = false;
+    }
+  }
+  /**
+   * Play the entire group
+   */
+  play() {
+    if (this.playing === false) {
+      this.playing = true;
+      this.createTimerStep(true);
+    }
+  }
+  /**
+   * Stop the entire group
+   */
+  stop() {
+    if (this.playing === true) {
+      this.playing = false;
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+    }
+  }
+  /**
+   * Set the MS value to 0
+   */
+  reset() {
+    if (this.value !== 0) {
+      this.value = 0;
+      this.loopStep = 0;
+    }
+  }
+};
+
 // src/properties/tool/internals/AbstractTool.ts
 var AbstractTool = class {
   constructor(group) {
@@ -6311,6 +6584,13 @@ var ThermalGroup = class extends BaseStructureObject {
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
   analysisSync = new AnalysisSyncDrive(this, true);
+  _playback;
+  get playback() {
+    if (!this._playback) {
+      this._playback = new GroupPlayback(this, 0);
+    }
+    return this._playback;
+  }
   /** Iteration */
   forEveryInstance = (fn) => {
     this.files.value.forEach((instance) => fn(instance));

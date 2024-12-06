@@ -449,7 +449,7 @@ export default function Edit({ attributes, setAttributes }) {
 										opacity={opacity}
 									></thermal-file-app>}
 
-									{webcomponent === "thermal-desktop-app" && <thermal-desktop-app
+									{webcomponent === "thermal-file-analyser" && <thermal-file-analyser
 										url={thermal}
 										visible={visible}
 										palette={palette}
@@ -471,7 +471,7 @@ export default function Edit({ attributes, setAttributes }) {
 										}}
 										speed={speed}
 										opacity={opacity}
-									></thermal-desktop-app>}
+									></thermal-file-analyser>}
 								</div>
 
 								<div className="thermal__content-editor__wrapper">

@@ -1,23 +1,25 @@
-import { property, state } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { createRef, Ref } from "lit/directives/ref.js";
-import { FileProviderElement } from "../hierarchy/providers/FileProvider";
-import { AvailableThermalPalettes, ThermalTool } from "@labir/core";
+import { AvailableThermalPalettes } from "@labir/core";
 import { PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
+import { createRef, Ref } from "lit/directives/ref.js";
+import { BaseElement } from "../hierarchy/BaseElement";
+import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 
 /** All the parameters that shall be used by a single file app should be defined */
 export abstract class BaseApp extends BaseElement {
 
-    @property({type: String, reflect: true})
+
+
+    @property({ type: String, reflect: true })
     url?: string;
 
-    @property({type: String, reflect: true})
+    @property({ type: String, reflect: true })
     visible?: string;
 
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
 
-    @property({type: Number, reflect: true, attribute: true})
+    @property({ type: Number, reflect: true, attribute: true })
     opacity: number = 1;
 
     @property({ type: Number, reflect: true })
@@ -43,6 +45,9 @@ export abstract class BaseApp extends BaseElement {
 
     @property({ type: String, reflect: false, attribute: true })
     showabout: boolean = false;
+
+    @property({ type: String, reflect: false, attribute: true })
+    showtutorial: boolean = false;
 
     @property({ type: String, reflect: false })
     showfullscreen: boolean = false;
@@ -119,11 +124,11 @@ export abstract class BaseApp extends BaseElement {
 
                 // Assign minmax palette if different
 
-                instance.timeline.callbackdPlaybackSpeed.set( this.UUID, value => {
+                instance.timeline.callbackdPlaybackSpeed.set(this.UUID, value => {
                     if (this.speed !== value) {
                         this.speed = value;
                     }
-                } );
+                });
 
 
                 // Listen to internal range changes
@@ -145,11 +150,11 @@ export abstract class BaseApp extends BaseElement {
                 });
 
                 // Listen to opacity changes
-                instance.group.registry.opacity.addListener( this.UUID + "mirror_changes", value => {
-                    if ( value !== this.opacity ) {
+                instance.group.registry.opacity.addListener(this.UUID + "mirror_changes", value => {
+                    if (value !== this.opacity) {
                         this.opacity = value;
                     }
-                } );
+                });
 
 
                 // Listen to internal palette changes

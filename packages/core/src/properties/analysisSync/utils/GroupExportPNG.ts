@@ -141,9 +141,37 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
         // Build the image
         if (this.list) {
 
+
+            // Set MS of the file
+            this.group.files.forEveryInstance( i => {
+
+                if ( this.localGroup ) {
+                    
+                    const localEquivalent = this.localGroup.files.value.find( ( value ) => { 
+                        return value.fileName === i.fileName 
+                    } );
+
+                    if ( localEquivalent ) {
+                        localEquivalent.timeline.setRelativeTime(
+                            i.timeline.value
+                        );
+                    }
+
+
+                }
+
+            } );
+
+
+
             this.list.appendChild(container);
             instance.mountToDom(wrapper);
             instance.draw();
+
+            if ( instance.dom && instance.dom.visibleLayer ) {
+                instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+            }
+            
 
             // Transpose all analysis if necessary
             if (showAnalysis) {

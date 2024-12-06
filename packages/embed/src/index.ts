@@ -1,6 +1,8 @@
-import {author, version } from "../package.json"
+import { author, version } from "../package.json"
 
 import "./styles/styles.css";
+
+import "./translations/i18n";
 
 /**!
  * ===========
@@ -15,8 +17,8 @@ appendStyles();
 
 
 // Log the start info
-console.info( `@labir/embed ${version}
-Author: ${author}` );
+console.info(`@labir/embed ${version}
+Author: ${author}`);
 
 // 0. External components
 import "./controls/file/analysis/chart/chart";
@@ -28,6 +30,8 @@ import "./ui/Dropdown";
 import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
+
+
 
 import "./controls/AppInfoButton";
 
@@ -108,23 +112,21 @@ import "./apps/registry/parts/TimeGroupFileElement";
 import "./apps/registry/parts/TimeGroupRowElement";
 
 import "./apps/group/GroupApp";
-import "./apps/group/utils/GroupExport";
+import "./apps/group/utils/GroupTimeline";
+
 import "./apps/registry/RegistryApp";
+
+import "./tour/TourStep";
 
 
 
 
 
 // Initialise dark mode
-import {initialiseMode} from "./styles/mode";
+import { initialiseMode } from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import {addDefaultStyles, appendStyles} from "./styles/defaultStyles";
-import { ThermalManager } from "@labir/core";
+import { addDefaultStyles, appendStyles } from "./styles/defaultStyles";
 
 addDefaultStyles();
-
-document.addEventListener( "DOMContentLoaded", () => {
-    // addDefaultStyles();
-} )
