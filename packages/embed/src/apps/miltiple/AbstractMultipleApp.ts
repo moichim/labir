@@ -1,8 +1,8 @@
-import { css, CSSResultGroup } from "lit";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import { InstanceRenderer } from "./InstanceRenderer";
-import { GroupRenderer } from "./GroupRenderer";
+import { css } from "lit";
 import { state } from "lit/decorators.js";
+import { BaseElement } from "../../hierarchy/BaseElement";
+import { GroupRenderer } from "./GroupRenderer";
+import { InstanceRenderer } from "./InstanceRenderer";
 
 export type ParsedFileType = {
     thermal: string;

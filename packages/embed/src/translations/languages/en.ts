@@ -80,6 +80,28 @@ export const en: Translation = {
     smoothlines: "Smooth lines",
     graphlineshint: "'Smooth lines' can illustrate trends better, but are less precise. If you need to see exactly what is in the thermogram, use 'Straight lines'.",
 
+    analysis: "Analysis",
+    avg: "AVG",
+    min: "MIN",
+    max: "MAX",
+    size: "Size",
+    edit: "Edit",
+    editsth: "Edit {{what}}",
+    remove: "Remove",
+
+    rectangle: "rectangle",
+    ellipsis: "ellipsis",
+    point: "point",
+    name: "Name",
+    color: "Color",
+    top: "Top",
+    left: "Left",
+    right: "Right",
+    bottom: "Bottom",
+
+    fromto: "From {{from}} to {{to}}",
+    downloadgraphdataascsv: "Download graph data as CSV",
+
     
     tutorial: "Tutorial",
     colourpalette: "Colour palette",

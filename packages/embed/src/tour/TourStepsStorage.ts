@@ -1,5 +1,4 @@
 import { CallbacksManager } from "@labir/core";
-import { Tour } from "./Tour";
 import { TourStepDefinition } from "./TourStepDefinition";
 
 export class TourStepsStorage {

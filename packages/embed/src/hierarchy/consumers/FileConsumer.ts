@@ -7,7 +7,7 @@ import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
 
-    @consume({context: fileProviderContext, subscribe: true})
+    @consume({ context: fileProviderContext, subscribe: true })
     @state()
     protected parentFileProviderElement?: AbstractFileProvider;
 
@@ -19,23 +19,23 @@ export abstract class FileConsumer extends GroupConsumer {
         return `${this.UUID}__internal_callback`;
     }
 
-    @consume({context: loadingContext, subscribe: true})
+    @consume({ context: loadingContext, subscribe: true })
     @state()
     protected loading: boolean = true;
 
-    @consume( {context: fileContext, subscribe: true} )
+    @consume({ context: fileContext, subscribe: true })
     @state()
     protected file?: Instance;
 
-    @consume({context: FailureContext, subscribe: true})
+    @consume({ context: FailureContext, subscribe: true })
     @state()
     protected failure?: ThermalFileFailure;
 
-    @consume({context: recordingContext, subscribe: true})
+    @consume({ context: recordingContext, subscribe: true })
     @state()
     protected recording: boolean = false;
 
-    
+
 
     connectedCallback(): void {
 
@@ -55,7 +55,7 @@ export abstract class FileConsumer extends GroupConsumer {
 
             this.parentFileProviderElement.onSuccess.set(
                 this.getUUID(),
-                (instance) => {
+                () => {
                     this.loading = false;
                 }
             );

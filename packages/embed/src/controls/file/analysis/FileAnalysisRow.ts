@@ -2,6 +2,8 @@ import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { AbstractAnalysis, PointAnalysis } from "@labir/core";
 import { css, html, PropertyValues } from "lit";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-table-row")
 export class FileAnalysisRow extends BaseElement {
@@ -305,7 +307,7 @@ export class FileAnalysisRow extends BaseElement {
             <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
             <thermal-button @click=${() => {
                 this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key )
-            }}>Remove</thermal-button>
+            }}>${t(T.remove)}</thermal-button>
         </td>
         
         `;

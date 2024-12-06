@@ -1,5 +1,3 @@
-
-
 export type TourStepDefinition = {
     ID: string,
     props?: {

@@ -1,19 +1,13 @@
-import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
+import { Instance } from "@labir/core";
+import { css, html, nothing, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { TimeEntryElement } from "./TimeEntryElement";
-import { GroupProviderElement } from "../../../hierarchy/providers/GroupProvider";
-import { Instance, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalRegistry, TimeFormat } from "@labir/core";
 import { createOrGetManager } from "../../../hierarchy/providers/getters";
+import { TimeEntryElement } from "./TimeEntryElement";
 
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { endOfDay, endOfHour, endOfMonth, endOfWeek, startOfDay, startOfHour, startOfMonth, startOfWeek } from "date-fns";
-import { format } from "date-fns";
-import { GroupEntry, TimeGrouping } from "../utils/TimeGrouping";
-import { AbstractMultipleApp } from "../../miltiple/AbstractMultipleApp";
-import { InstanceInteractionCallback, InstanceRenderer } from "../../miltiple/InstanceRenderer";
 import { GroupRenderer } from "../../miltiple/GroupRenderer";
+import { InstanceInteractionCallback, InstanceRenderer } from "../../miltiple/InstanceRenderer";
+import { GroupEntry, TimeGrouping } from "../utils/TimeGrouping";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
@@ -178,7 +172,7 @@ export class TimeGroupElement extends BaseElement {
         return html`
             <slot name="entry"></slot>
 
-            ${this.scopeSlug 
+            ${this.scopeSlug
                 ? html`<manager-mirror slug=${this.scopeSlug}>
 
                     <registry-mirror slug="${this.scopeSlug}">
@@ -209,12 +203,12 @@ export class TimeGroupElement extends BaseElement {
                                                 <button
                                                     class="file-info-button"
                                                     @click=${() => {
-                                                    if (this.grouper)
-                                                        this.grouper.group.registry.range.imposeRange( {
-                                                            from: this.grouper.group.minmax.value!.min,
-                                                            to: this.grouper.group.minmax.value!.max
-                                                        } );
-                                                    }}
+                        if (this.grouper)
+                            this.grouper.group.registry.range.imposeRange({
+                                from: this.grouper.group.minmax.value!.min,
+                                to: this.grouper.group.minmax.value!.max
+                            });
+                    }}
                                                 >range</button>
 
                                             </div>
@@ -228,16 +222,16 @@ export class TimeGroupElement extends BaseElement {
                                         <group-tool-buttons></group-tool-buttons>
 
                                         ${this.groups.map(group => this.groupRenderer?.renderGroup(
-                group,
-                this.columns,
-                this.grouping,
-                (instance) => {
-                    if (this.onInstanceEnter) this.onInstanceEnter(instance)
-                },
-                (instance) => {
-                    if (this.onInstanceLeave) this.onInstanceLeave(instance)
-                }
-            ))}
+                        group,
+                        this.columns,
+                        this.grouping,
+                        (instance) => {
+                            if (this.onInstanceEnter) this.onInstanceEnter(instance)
+                        },
+                        (instance) => {
+                            if (this.onInstanceLeave) this.onInstanceLeave(instance)
+                        }
+                    ))}
 
                                     </div>
 
@@ -250,7 +244,7 @@ export class TimeGroupElement extends BaseElement {
                 </manager-mirror>
 
                 `
-                : nothing }
+                : nothing}
 
         `;
     }

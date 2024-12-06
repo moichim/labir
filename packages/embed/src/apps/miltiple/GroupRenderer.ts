@@ -1,19 +1,17 @@
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { classMap } from "lit/directives/class-map.js";
-import { ThermalAppUiElement } from "../../ui/App";
 import { GroupEntry, Grouping } from "../group/utils/TimeGrouping";
 import { AbstractMultipleApp } from "./AbstractMultipleApp";
 import { HtmlResult } from "./HtmlResult";
-import { css, CSSResultGroup, html, nothing } from "lit";
 import { InstanceInteractionCallback, InstanceRenderer } from "./InstanceRenderer";
-import { Instance } from "@labir/core";
 
 export class GroupRenderer {
 
-    protected readonly instanceRenderer = new InstanceRenderer( this.element );
+    protected readonly instanceRenderer = new InstanceRenderer(this.element);
 
     public constructor(
         protected readonly element: AbstractMultipleApp
-    ) {}
+    ) { }
 
 
     public static styles: CSSResultGroup | undefined = css`
@@ -95,9 +93,9 @@ export class GroupRenderer {
 
     `;
 
-    protected trimmedString( value?: string ) {
+    protected trimmedString(value?: string) {
 
-        if ( !value ) {
+        if (!value) {
             return undefined;
         }
 
@@ -112,14 +110,14 @@ export class GroupRenderer {
         title?: string,
         info?: string
     ): HtmlResult {
-        if ( title || info ) {
+        if (title || info) {
 
             return html`
                 <div class="group-header">
                 
-                    ${ title ? html`<h2 class="group-title">${title}</h2>`: nothing }
+                    ${title ? html`<h2 class="group-title">${title}</h2>` : nothing}
 
-                    ${ info ? html`<p class="group-info">${info}</p>`: nothing }
+                    ${info ? html`<p class="group-info">${info}</p>` : nothing}
 
                 </div>
             `;
@@ -139,13 +137,13 @@ export class GroupRenderer {
 
     ): HtmlResult {
 
-        const title = this.trimmedString( group.label );
+        const title = this.trimmedString(group.label);
 
-        const info = this.trimmedString( group.info );
+        const info = this.trimmedString(group.info);
 
         const listClasses = {
             "group-files": true,
-            [ `group-files-${columns}` ]: true
+            [`group-files-${columns}`]: true
         }
 
         const containerClasses = {
@@ -157,22 +155,22 @@ export class GroupRenderer {
 
             <section class="${classMap(containerClasses)}">
 
-                ${this.renderHeader( title, info )}
+                ${this.renderHeader(title, info)}
 
-                <div class=${classMap( listClasses )}>
+                <div class=${classMap(listClasses)}>
 
 
-                    ${ group.files.map( ({instance, innerHtml, label}) => {
+                    ${group.files.map(({ instance, innerHtml, label }) => {
 
-                        return this.instanceRenderer.renderInstance(
-                            instance,
-                            onInstanceEnter,
-                            onInstanceLeave,
-                            label,
-                            innerHtml
-                        );
+            return this.instanceRenderer.renderInstance(
+                instance,
+                onInstanceEnter,
+                onInstanceLeave,
+                label,
+                innerHtml
+            );
 
-                    } ) }
+        })}
 
 
                 </div>
@@ -191,13 +189,13 @@ export class GroupRenderer {
         grouping: Grouping
     ): HtmlResult {
 
-        const title = this.trimmedString( group.label );
+        const title = this.trimmedString(group.label);
 
-        const info = this.trimmedString( group.info );
+        const info = this.trimmedString(group.info);
 
         const listClasses = {
             "group-files": true,
-            [ `group-files-${columns}` ]: true
+            [`group-files-${columns}`]: true
         }
 
         const containerClasses = {
@@ -209,9 +207,9 @@ export class GroupRenderer {
 
             <section class="${classMap(containerClasses)}">
 
-                ${this.renderHeader( title, info )}
+                ${this.renderHeader(title, info)}
 
-                <div class=${classMap( listClasses )}>
+                <div class=${classMap(listClasses)}>
         
         `;
 

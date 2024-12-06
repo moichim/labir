@@ -71,13 +71,37 @@ export const cy: Translation = {
     play: "Chwarae",
     pause: "Oedwch",
     stop: "Stopio",
-    date: "Date",
-    frame: "Dyddiad",
+    date: "Dyddiad",
+    frame: "Ffrâm",
     playbackspeed: "Cyflymder chwarae",
     graphlines: "Llinellau graff",
     straightlines: "Llinellau syth",
     smoothlines: "Llinellau llyfn",
     graphlineshint: "Gall 'llinellau llyfn' ddangos tueddiadau'n well, ond maent yn llai manwl gywir. Os oes angen i chi weld yn union beth sydd yn y thermogram, defnyddiwch 'Llinellau syth'.",
+
+
+
+    analysis: "Dadansoddi",
+    avg: "Cyfartaledd",
+    min: "Lleiaf",
+    max: "Uchafswm",
+    size: "Maint",
+    edit: "Golygu",
+    editsth: "Golygu {{what}}",
+    remove: "Dileu",
+
+    rectangle: "petryal",
+    ellipsis: "elipsis",
+    point: "pwynt",
+    name: "Enw",
+    color: "Lliw",
+    top: "Ochr uchaf",
+    left: "Ochr chwith",
+    right: "Ochr dde",
+    bottom: "Ochr gwaelod",
+
+    fromto: "O {{from}} i {{to}}",
+    downloadgraphdataascsv: "Lawrlwythwch data graff fel CSV",
 
 
     tutorial: "Tiwtorial",

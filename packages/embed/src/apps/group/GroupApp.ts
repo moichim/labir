@@ -1,18 +1,13 @@
 import { ThermalGroup } from "@labir/core";
+import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { classMap } from 'lit/directives/class-map.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { createOrGetManager } from "../../hierarchy/providers/getters";
+import { T } from "../../translations/Languages";
+import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
-import { InstanceRenderer } from "../miltiple/InstanceRenderer";
-import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { TimeGroupFileWrapper } from "../registry/parts/TimeGroupFileElement";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {
@@ -62,10 +57,10 @@ export class GroupElement extends AbstractMultipleApp {
     @state()
     groups: GroupEntry[] = [];
 
-    @property( {type: String} )
+    @property({ type: String })
     public files?: string;
 
-    
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -77,28 +72,22 @@ export class GroupElement extends AbstractMultipleApp {
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
 
-        this.log( this.files );
-
-        if ( this.files ) {
-            this.log( this.parseFilesProperty( this.files ) );
-        }
-
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
         const files = this.files ?
-            this.parseFilesProperty( this.files )
+            this.parseFilesProperty(this.files)
             : [];
 
         // Fire the initial grouping
-        if ( files.length > 0 ) {
-            this.grouper.processParsedFiles( files );
+        if (files.length > 0) {
+            this.grouper.processParsedFiles(files);
         } else {
             this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
         }
-        
+
     }
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -233,7 +222,7 @@ export class GroupElement extends AbstractMultipleApp {
             }}></input>
 
                                     <thermal-dropdown>
-                                        <span slot="invoker">${this.grouping === "none" ? t(T.donotgroup) : t(T["by"+this.grouping])}</span>
+                                        <span slot="invoker">${this.grouping === "none" ? t(T.donotgroup) : t(T["by" + this.grouping])}</span>
 
                                         <div slot="option">
                                             <thermal-button @click="${() => this.grouping = "none"}">${t(T.donotgroup)}</thermal-button>
@@ -276,7 +265,7 @@ export class GroupElement extends AbstractMultipleApp {
 
                                                     <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
                     columns: this.columns
-                                    })}>${t(T.pngofentiregroup)}</thermal-button>
+                })}>${t(T.pngofentiregroup)}</thermal-button>
                                                     <small>${t(T.pngofentiregrouphint)}</small>
                                                 </div>
 
@@ -326,23 +315,23 @@ export class GroupElement extends AbstractMultipleApp {
                                     <slot></slot>
 
 
-                                    ${ this.groups.map( group => {
+                                    ${this.groups.map(group => {
 
-                                        return this.groupRenderer.renderGroup(
-                                            group,
-                                            this.columns,
-                                            this.grouping,
-                                            ( instance ) => {
-                                                this.highlightFrom = instance.min;
-                                                this.highlightTo = instance.max;
-                                            },
-                                            () => {
-                                                this.highlightFrom = undefined;
-                                                this.highlightTo = undefined;
-                                            }
-                                        );
+                return this.groupRenderer.renderGroup(
+                    group,
+                    this.columns,
+                    this.grouping,
+                    (instance) => {
+                        this.highlightFrom = instance.min;
+                        this.highlightTo = instance.max;
+                    },
+                    () => {
+                        this.highlightFrom = undefined;
+                        this.highlightTo = undefined;
+                    }
+                );
 
-                                    } ) }
+            })}
 
 
                                 

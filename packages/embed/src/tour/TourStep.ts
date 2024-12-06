@@ -45,9 +45,6 @@ export class TourStep extends BaseElement {
 
         if (!this.elementContext) {
             this.log("Expecting some ancestor tourable element but recieved none");
-        } else {
-
-
         }
 
         this.tour?.onStepActivation.set( "what", console.log );

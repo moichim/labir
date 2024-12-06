@@ -2111,6 +2111,7 @@ declare class ThermalFileReader extends AbstractFileResult {
     protected set buffer(value: ArrayBuffer);
     constructor(service: FilesService, buffer: ArrayBuffer, parser: IParserObject, thermalUrl: string, visibleUrl?: string, preserveOriginalBuffer?: boolean);
     isSuccess(): boolean;
+    /** @todo This method relies on the functionality of filters. */
     protected copyBuffer(buffer: ArrayBuffer): ArrayBuffer;
     /** Create copy of the self so that the */
     protected cloneForInstance(): ThermalFileReader;
@@ -2192,51 +2193,54 @@ declare abstract class BaseStructureObject {
     abstract getInstances(): Instance[];
 }
 
+/**
+ * Control coordinated playback of files within a group.
+ *
+ * The value is actual time in relative MS (from start, to the end of the latest sequence).
+ *
+ * This functionality depends on batch analysis of all group files.
+ *
+ * @todo Group should have its own loading method for batch processing. This method should provide its own callbacks.
+ */
 declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
     protected _hasAnyPlayback: boolean;
+    /** Does this group include any sequence? */
     get hasAnyPlayback(): boolean;
-    protected setHasAnyPlayback(value: boolean): void;
+    protected set hasAnyPlayback(value: boolean);
     readonly onHasAnyCallback: CallbacksManager<(value: boolean) => void>;
     protected recalculateHasAnyPlayback(instances: Instance[]): void;
     protected _playing: boolean;
     get playing(): boolean;
     protected set playing(value: boolean);
-    protected step: number;
-    readonly onPlaying: CallbacksManager<(value: boolean) => void>;
-    protected _interval: number;
-    get interval(): number;
-    setInterval(value: number): void;
-    readonly onFramerate: CallbacksManager<(value: number) => void>;
+    readonly onPlayingStatusChange: CallbacksManager<(value: boolean) => void>;
+    /** Internal pointer holding the current loop iteration*/
+    protected loopStep: number;
+    /** Internal setTimeout for playback. */
+    protected loopTimer?: ReturnType<typeof setTimeout>;
+    protected _loopInterval: number;
+    /** Interval upon which the main loop triggers. In MS. */
+    get loopInterval(): number;
+    /** @deprecated The playback interval should not change during playback */
+    setLoopInterval(value: number): void;
+    /** @deprecated The loop playback should not change during playback */
+    readonly onLoopIntervalChanged: CallbacksManager<(value: number) => void>;
     protected _duration: number;
     get duration(): number;
     protected set duration(value: number);
-    readonly onDuration: CallbacksManager<(value: number | undefined) => void>;
+    readonly onDurationChanged: CallbacksManager<(value: number | undefined) => void>;
     protected recalculateDuration(instances: Instance[]): void;
     protected UUID: string;
     constructor(parent: ThermalGroup, initial: number);
     protected validate(value: number): number;
     protected afterSetEffect(value: number): void;
+    /** Set time value by percent. The actual MS is calculated depending on the duration. */
     setValueByPercent(percent: number): void;
-    setValueByRelativeMs(relativeMs: number): false | undefined;
-    protected timer?: ReturnType<typeof setTimeout>;
-    protected percentToMs(percent: number): number | undefined;
-    protected msToPercent(ms: number): number | undefined;
-    /**
-     * Get one step duration
-     */
-    protected getBaseStepInterval(duration: number): number;
-    /**
-     * Get number of steps within the duration
-     */
-    protected getNumberOfSteps(duration: number): number;
-    /**
-     * Get the MS value of the next step
-     */
-    protected getNextStepMs(duration: number, ms: number): number;
-    /**
-     * Get the next interval value for the next step
-     */
-    protected getNextStepInterval(duration: number, ms: number): number;
+    /** Set the time value by MS. */
+    setValueByRelativeMs(relativeMs: number): void;
+    /** Convert percent value to relative time in MS */
+    protected percentToMs(percent: number): number;
+    /** Convert relative time in MS to percent value */
+    protected msToPercent(ms: number): number;
     /**
      * The main method that shall create a timer leading to the next step.
      *

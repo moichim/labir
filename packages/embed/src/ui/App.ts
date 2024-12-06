@@ -1,5 +1,5 @@
 import i18next, { t } from "i18next";
-import { LitElement, PropertyValues, css, html, nothing } from "lit";
+import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
@@ -220,7 +220,6 @@ export class ThermalAppUiElement extends BaseElement {
             margin-top: calc( var(--thermal-gap) * .5);
             color: var( --thermal-foreground );
             &::before {
-                content: "Description:";
                 opacity: .5;
                 font-size: calc( var(--thermal-fs-sm) * 0.8 );
                 display: block;

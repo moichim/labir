@@ -50,14 +50,14 @@ describe( "ThermalManager", async () => {
 
         // Checks before the change
         expect( manager.palette.value ).toEqual( "jet" );
-        expect( manager.palette.currentPalette.name ).toEqual( "paleta JET" );
+        expect( manager.palette.currentPalette.name ).toEqual( "JET" );
         expect( manager.palette.value ).toEqual( registry.palette.value );
 
         // Checks after the change
         manager.palette.setPalette( "iron" );
         
         expect( manager.palette.value ).toEqual( "iron" );
-        expect( manager.palette.currentPalette.name ).toEqual( "paleta IRON" );
+        expect( manager.palette.currentPalette.name ).toEqual( "IRON" );
         expect( manager.palette.value ).toEqual( registry.palette.value );
 
     } );

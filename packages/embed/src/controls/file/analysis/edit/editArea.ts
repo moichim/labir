@@ -2,6 +2,8 @@ import { AbstractAnalysis, AbstractAreaAnalysis } from "@labir/core";
 import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
+import { t } from "i18next";
+import { T } from "../../../../translations/Languages";
 
 @customElement("edit-area")
 export class AreaEdit extends BaseElement {
@@ -108,15 +110,15 @@ export class AreaEdit extends BaseElement {
 
             <div class="table">
 
-                <thermal-field label="Name">
+                <thermal-field label=${t(T.name)}>
                     <analysis-name .analysis=${this.analysis}></analysis-name>
                 </thermal-field>
 
-                <thermal-field label="Color">
+                <thermal-field label=${t(T.color)}>
                     <analysis-color .analysis=${this.analysis}></analysis-color>
                 </thermal-field>
 
-                <thermal-field label="Left">
+                <thermal-field label=${t(T.left)}>
                     <input 
                         name="left" 
                         value=${this.left} 
@@ -128,9 +130,9 @@ export class AreaEdit extends BaseElement {
                     />
                 </thermal-field>
 
-                <thermal-field label="Right">
+                <thermal-field label=${t(T.right)}>
                     <input 
-                        name="left" 
+                        name="right" 
                         value=${this.right} 
                         type="number" 
                         step="1" 
@@ -140,9 +142,9 @@ export class AreaEdit extends BaseElement {
                     />
                 </thermal-field>
 
-                <thermal-field label="Top">
+                <thermal-field label=${t(T.top)}>
                     <input 
-                        name="left" 
+                        name="top" 
                         value=${this.top} 
                         type="number" 
                         step="1" 
@@ -152,9 +154,9 @@ export class AreaEdit extends BaseElement {
                     />
                 </thermal-field>
 
-                <thermal-field label="Bottom">
+                <thermal-field label=${t(T.bottom)}>
                     <input 
-                        name="left" 
+                        name="bottom" 
                         value=${this.bottom} 
                         type="number" 
                         step="1" 

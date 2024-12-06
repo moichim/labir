@@ -1,16 +1,15 @@
 import { html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import {ifDefined} from 'lit/directives/if-defined.js';
-import { BaseApp } from "../BaseApp";
+import { customElement } from "lit/decorators.js";
+import { ifDefined } from 'lit/directives/if-defined.js';
 import { ref } from "lit/directives/ref.js";
+import { BaseApp } from "../BaseApp";
 
 @customElement("thermal-file-analyser")
 export class DesktopAppIsolated extends BaseApp {
 
   protected render(): unknown {
 
-    if ( this.url === "" ) {
+    if (this.url === "") {
       return nothing;
     }
 
@@ -20,8 +19,8 @@ export class DesktopAppIsolated extends BaseApp {
 
       <registry-provider 
         slug="registry_${this.UUID}" 
-        from=${ifDefined( this.from )}
-        to=${ifDefined( this.to )}
+        from=${ifDefined(this.from)}
+        to=${ifDefined(this.to)}
         opacity=${ifDefined(this.opacity)}
       >
 
@@ -45,10 +44,11 @@ export class DesktopAppIsolated extends BaseApp {
             <slot name="analysis"></slot>
 
             <desktop-app 
-              author=${ifDefined(this.author )} 
-              recorded=${ifDefined(this.recorded )} 
-              license=${ifDefined(this.license )}
+              author=${ifDefined(this.author)} 
+              recorded=${ifDefined(this.recorded)} 
+              license=${ifDefined(this.license)}
               label=${ifDefined(this.label)}
+              showtutorial=${this.showtutorial}
             >
               <slot name="content" slot="content"></slot>
             </desktop-app>

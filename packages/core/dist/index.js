@@ -4638,6 +4638,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
         const buffer = analysis2.map((a) => {
           return {
             id: a[1],
+            type: a[0],
             min: {
               value: Infinity
             },
@@ -4676,6 +4677,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             analysis2.forEach((a, index2) => {
               const bufferValue = buffer[index2];
               const [type, id, top, left, w, h] = a;
+              id;
               if (type === "point") {
                 if (x === left && y === top) {
                   bufferValue.avg.value = rawTemperature;
@@ -4709,9 +4711,9 @@ var ThermalCanvasLayer = class extends AbstractLayer {
         const stats = buffer.map((a) => {
           return {
             id: a.id,
-            min: a.min.value,
-            max: a.max.value,
-            avg: a.avg.sum / a.avg.count
+            min: a.min.value !== Infinity ? a.min.value : void 0,
+            max: a.max.value !== -Infinity ? a.max.value : void 0,
+            avg: a.type === "point" ? a.avg.value : a.avg.sum / a.avg.count
           };
         });
         const imageData = context.getImageData(0, 0, width, height);
@@ -4917,6 +4919,7 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   isSuccess() {
     return true;
   }
+  /** @todo This method relies on the functionality of filters. */
   copyBuffer(buffer) {
     const copiedBuffer = new ArrayBuffer(buffer.byteLength);
     const copiedArray = new Uint8Array(copiedBuffer);
@@ -4925,6 +4928,7 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   /** Create copy of the self so that the */
   cloneForInstance() {
+    return this;
     return new _ThermalFileReader(
       this.service,
       this.buffer,
@@ -4988,12 +4992,6 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   async createInstance(group) {
     const reader = this.cloneForInstance();
-    const filters = [
-      ...group.registry.manager.filters.getActiveFilters(),
-      ...group.registry.filters.getActiveFilters(),
-      ...group.filters.getActiveFilters()
-    ];
-    await reader.applyFilters(filters);
     const baseInfo2 = await reader.baseInfo();
     const firstFrame = await reader.frameData(0);
     const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
@@ -5496,7 +5494,6 @@ var Instance = class _Instance extends AbstractFile {
   }
   async applyAllAvailableFilters() {
     const filters = this.getAllApplicableFilters();
-    this.reader.applyFilters(filters);
     const baseInfo2 = await this.reader.baseInfo();
     const frameData2 = await this.reader.frameData(this.timeline.currentStep.index);
     if (this.root) {
@@ -5610,7 +5607,6 @@ var GroupExportCSV = class {
       filename: `group_${groupIdentificator}`,
       columnHeaders: header
     });
-    console.log(data);
     const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
     (0, import_export_to_csv2.download)(csvConfig)(csv);
   }
@@ -6132,10 +6128,11 @@ var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
 // src/properties/time/group/GroupPlayback.ts
 var GroupPlayback = class extends AbstractProperty {
   _hasAnyPlayback = false;
+  /** Does this group include any sequence? */
   get hasAnyPlayback() {
     return this._hasAnyPlayback;
   }
-  setHasAnyPlayback(value) {
+  set hasAnyPlayback(value) {
     if (this._hasAnyPlayback !== value) {
       this._hasAnyPlayback = value;
       this.onHasAnyCallback.call(value);
@@ -6149,7 +6146,7 @@ var GroupPlayback = class extends AbstractProperty {
         temporaryHas = true;
       }
     });
-    this.setHasAnyPlayback(temporaryHas);
+    this.hasAnyPlayback = temporaryHas;
   }
   _playing = false;
   get playing() {
@@ -6158,20 +6155,26 @@ var GroupPlayback = class extends AbstractProperty {
   set playing(value) {
     if (this._playing !== value) {
       this._playing = value;
-      this.onPlaying.call(this._playing);
+      this.onPlayingStatusChange.call(this._playing);
     }
   }
-  step = 0;
-  onPlaying = new CallbacksManager();
-  _interval = 20;
-  get interval() {
-    return this._interval;
+  onPlayingStatusChange = new CallbacksManager();
+  /** Internal pointer holding the current loop iteration*/
+  loopStep = 0;
+  /** Internal setTimeout for playback. */
+  loopTimer;
+  _loopInterval = 20;
+  /** Interval upon which the main loop triggers. In MS. */
+  get loopInterval() {
+    return this._loopInterval;
   }
-  setInterval(value) {
-    this._interval = Math.round(value);
-    this.onFramerate.call(this._interval);
+  /** @deprecated The playback interval should not change during playback */
+  setLoopInterval(value) {
+    this._loopInterval = Math.round(value);
+    this.onLoopIntervalChanged.call(this._loopInterval);
   }
-  onFramerate = new CallbacksManager();
+  /** @deprecated The loop playback should not change during playback */
+  onLoopIntervalChanged = new CallbacksManager();
   _duration = 0;
   get duration() {
     return this._duration;
@@ -6179,10 +6182,10 @@ var GroupPlayback = class extends AbstractProperty {
   set duration(value) {
     if (value !== this._duration) {
       this._duration = value;
-      this.onDuration.call(this._duration);
+      this.onDurationChanged.call(this._duration);
     }
   }
-  onDuration = new CallbacksManager();
+  onDurationChanged = new CallbacksManager();
   recalculateDuration(instances) {
     let temporaryDuration = 0;
     instances.forEach((instance) => {
@@ -6203,73 +6206,43 @@ var GroupPlayback = class extends AbstractProperty {
         const instances = results.filter((res) => res instanceof Instance);
         this.recalculateDuration(instances);
         this.recalculateHasAnyPlayback(instances);
-        this.value = this.value;
+        const newVal = this.value;
+        this.value = newVal;
       }
     );
-    console.log(this.parent.registry.batch);
-    this.onDuration.set("test", console.log);
   }
   validate(value) {
-    if (this.duration === void 0) {
-      return 0;
-    }
     return Math.min(Math.max(value, 0), this.duration);
   }
   afterSetEffect(value) {
     this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
   }
+  /** Set time value by percent. The actual MS is calculated depending on the duration. */
   setValueByPercent(percent) {
     const ms = this.percentToMs(percent);
-    if (ms !== void 0) {
+    if (ms !== this.value) {
       this.value = ms;
+      this.loopStep = Math.floor(this.duration / this.value);
+      if (this.playing) {
+        this.createTimerStep(true);
+      }
     }
   }
+  /** Set the time value by MS. */
   setValueByRelativeMs(relativeMs) {
-    if (this.duration === void 0) return false;
     this.value = relativeMs;
-  }
-  timer;
-  percentToMs(percent) {
-    if (this.duration === void 0) {
-      return void 0;
+    this.loopStep = Math.floor(this.duration / this.value);
+    if (this.playing) {
+      this.createTimerStep(true);
     }
+  }
+  /** Convert percent value to relative time in MS */
+  percentToMs(percent) {
     return Math.floor(this.duration * (percent / 100));
   }
+  /** Convert relative time in MS to percent value */
   msToPercent(ms) {
-    if (this.duration === void 0) {
-      return void 0;
-    }
     return ms / this.duration * 100;
-  }
-  /**
-   * Get one step duration
-   */
-  getBaseStepInterval(duration) {
-    return duration / this.interval;
-  }
-  /**
-   * Get number of steps within the duration
-   */
-  getNumberOfSteps(duration) {
-    return duration / this.getBaseStepInterval(duration);
-  }
-  /**
-   * Get the MS value of the next step
-   */
-  getNextStepMs(duration, ms) {
-    const stepSize = this.getBaseStepInterval(duration);
-    const nextStepSize = Math.ceil(ms / stepSize) * stepSize;
-    if (nextStepSize === 0) {
-      return stepSize;
-    }
-    return Math.min(duration, nextStepSize);
-  }
-  /**
-   * Get the next interval value for the next step
-   */
-  getNextStepInterval(duration, ms) {
-    const nextStepMs = this.getNextStepMs(duration, ms);
-    return nextStepMs - ms;
   }
   /**
    * The main method that shall create a timer leading to the next step.
@@ -6280,17 +6253,17 @@ var GroupPlayback = class extends AbstractProperty {
     if (this.duration === void 0 || this.playing === false) {
       return;
     }
-    const nextStep = this.step + 1;
-    const nextValue = nextStep * this.interval;
-    this.step = nextStep;
+    const nextStep = this.loopStep + 1;
+    const nextValue = nextStep * this.loopInterval;
+    this.loopStep = nextStep;
     if (nextValue <= this.duration) {
-      if (this.timer) {
-        clearTimeout(this.timer);
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
       }
-      this.timer = setTimeout(() => {
+      this.loopTimer = setTimeout(() => {
         this.createTimerStep(recursive);
         this.value = nextValue;
-      }, this.interval);
+      }, this.loopInterval);
     } else {
       this.playing = false;
     }
@@ -6302,7 +6275,6 @@ var GroupPlayback = class extends AbstractProperty {
     if (this.playing === false) {
       this.playing = true;
       this.createTimerStep(true);
-      console.log("START", this.duration, this.interval, this.getNextStepInterval(this.duration, this.value));
     }
   }
   /**
@@ -6311,8 +6283,8 @@ var GroupPlayback = class extends AbstractProperty {
   stop() {
     if (this.playing === true) {
       this.playing = false;
-      if (this.timer) {
-        clearTimeout(this.timer);
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
       }
     }
   }
@@ -6322,7 +6294,7 @@ var GroupPlayback = class extends AbstractProperty {
   reset() {
     if (this.value !== 0) {
       this.value = 0;
-      this.step = 0;
+      this.loopStep = 0;
     }
   }
 };

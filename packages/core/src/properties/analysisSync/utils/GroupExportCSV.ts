@@ -187,8 +187,6 @@ export class GroupExportCSV {
             columnHeaders: header
         });
 
-        console.log( data );
-
         const csv = generateCsv( csvConfig )( data );
 
         download( csvConfig )( csv );

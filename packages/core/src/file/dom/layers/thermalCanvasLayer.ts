@@ -134,6 +134,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 const buffer = analysis.map( a => {
                     return {
                         id: a[1],
+                        type: a[0],
                         min: {
                             value: Infinity,
                         },
@@ -195,6 +196,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
                             const [ type, id, top, left, w, h ] = a;
 
+                            id;
+
                             // Point
                             if ( type === "point" ) {
                                 if ( x === left && y === top ) {
@@ -252,9 +255,11 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 const stats = buffer.map( a => {
                     return {
                         id: a.id,
-                        min: a.min.value,
-                        max: a.max.value,
-                        avg: a.avg.sum / a.avg.count
+                        min: a.min.value !== Infinity ? a.min.value : undefined,
+                        max: a.max.value !== -Infinity ? a.max.value : undefined,
+                        avg: a.type === "point"
+                            ? a.avg.value
+                            : a.avg.sum / a.avg.count
                     }
                 } );
 

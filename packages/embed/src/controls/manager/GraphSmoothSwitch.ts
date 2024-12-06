@@ -28,7 +28,7 @@ export class SmoothSwitch extends ManagerConsumer {
     protected render(): unknown {
         return html`
 
-            <div>
+            <div ${ref(this.tourableElementRef)}>
 
                 <thermal-button
                     variant=${this.smooth ? "default" : "foreground"}

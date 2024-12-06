@@ -39,8 +39,8 @@ export const cs: Translation = {
     bytesize: "Bytů",
     minimaltemperature: "Minimální teplota",
     maximaltemperature: "Maximální teplota",
-    filetype: "File type",
-    type: "Type",
+    filetype: "Typ souboru",
+    type: "Typ",
     supporteddevices: "Kompatibilní zařízení",
 
 
@@ -79,6 +79,31 @@ export const cs: Translation = {
     straightlines: "Přímé linie",
     smoothlines: "Hladké linie",
     graphlineshint: "'Hladké linie' mohou lépe ilustrovat trendy, ale jsou méně přesné. Potřebujete-li vidět přesně to, co v termogramu je, zvolte 'Přímé linie'.",
+
+
+    analysis: "Analýza",
+    avg: "PRŮM",
+    min: "MIN",
+    max: "MAX",
+    size: "Velikost",
+    edit: "Upravit",
+    editsth: "Upravit {{what}}",
+    remove: "Odstranit",
+
+    rectangle: "obdélník",
+    ellipsis: "elipsu",
+    point: "bod",
+    name: "Název",
+    color: "Barva",
+    top: "Horní strana",
+    left: "Levá strana",
+    right: "Pravá strana",
+    bottom: "Spodní strana",
+
+    fromto: "Od {{from}} do {{to}}",
+    downloadgraphdataascsv: "Stáhnout data grafu jako CSV",
+
+
 
 
     tutorial: "Tutorial",

@@ -1,28 +1,23 @@
-import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
+import { Instance } from "@labir/core";
+import { css, CSSResultGroup, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { Instance, TimeFormat } from "@labir/core";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { Grouping } from "./TimeGroupElement";
 
 @customElement("time-group-item")
 export class TimeGroupFileWrapper extends GroupConsumer {
 
-    @property({type: Object})
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
+    }
+
+    @property({ type: Object })
     file!: Instance;
 
-    @property({type: String})
+    @property({ type: String })
     innerHtml?: string;
 
-    @property({type: String})
+    @property({ type: String })
     label?: string;
-
-
-
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        const root = this.renderRoot;
-    }
 
 
     public static styles?: CSSResultGroup | undefined = css`

@@ -1,13 +1,18 @@
-import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { ifDefined } from "lit/directives/if-defined.js";
 import { Instance, TimeFormat } from "@labir/core";
 import { t } from "i18next";
+import { css, html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
+
+
+  public getTourableRoot(): HTMLElement | undefined {
+    return undefined;
+  }
 
   @property({ type: String, reflect: true, attribute: true })
   showembed: boolean = true;
@@ -69,7 +74,7 @@ export class SingleFileApp extends FileConsumer {
   
           <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
 
-          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>`: nothing}
+          ${this.file && this.file.visibleUrl ? html`<registry-opacity-slider slot="bar" style="width:4rem"></registry-opacity-slider>` : nothing}
           
           <div slot="bar" style="flex-grow: 4;">
             <thermal-bar>

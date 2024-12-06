@@ -81,6 +81,30 @@ export const fr: Translation = {
 
 
 
+    analysis: "Analyse",
+    avg: "AVG",
+    min: "MIN",
+    max: "MAX",
+    size: "Taille",
+    edit: "Modifier",
+    editsth: "Modifier {{what}}",
+    remove: "Retirer",
+
+    rectangle: "rectangle",
+    ellipsis: "ellipse",
+    point: "point",
+    name: "Nom",
+    color: "Couleur",
+    top: "Côté supérieur",
+    left: "Côté gauche",
+    right: "Côté droite",
+    bottom: "Côté inférieur",
+
+    fromto: "De {{from}} à {{to}}",
+    downloadgraphdataascsv: "Télécharger les données graphiques au format csv",
+
+
+
     tutorial: "Tutoriel",
     colourpalette: "Palette",
     palettehint: "Utilisez le menu pour changer le palette.",

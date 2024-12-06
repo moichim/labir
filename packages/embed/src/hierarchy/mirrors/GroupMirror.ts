@@ -17,29 +17,29 @@ export class GroupProviderElement extends RegistryConsumer {
     @property({ type: String })
     public slug!: string;
 
-    @provide( {context: groupContext})
+    @provide({ context: groupContext })
     group!: ThermalGroup;
 
-    @provide( {context: toolContext} )
+    @provide({ context: toolContext })
     tool!: ThermalTool;
 
-    @provide( {context: toolsContext} )
+    @provide({ context: toolsContext })
     tools!: ThermalGroup["tool"]["tools"]
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.group = this.registry.groups.addOrGetGroup( this.slug );
+        this.group = this.registry.groups.addOrGetGroup(this.slug);
 
         // Assign tool
         this.tool = this.group.tool.value;
         this.tools = this.group.tool.tools;
 
         // Add tool listener
-        this.group.tool.addListener( this.UUIDGroupListeners, value => {
+        this.group.tool.addListener(this.UUIDGroupListeners, value => {
             this.tool = value;
-        } );
-        
+        });
+
     }
 
     protected render(): unknown {

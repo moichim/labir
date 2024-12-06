@@ -1,4 +1,4 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, playbackSpeed, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
+import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
 import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { property, queryAssignedElements, state } from "lit/decorators.js";
@@ -6,7 +6,7 @@ import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
 import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileCursorContext, fileCursorContext, fileCursorSetterContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
-export class AbstractFileProvider extends GroupConsumer {
+export abstract class AbstractFileProvider extends GroupConsumer {
 
 
     @provide({ context: fileContext })

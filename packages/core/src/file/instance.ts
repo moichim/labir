@@ -261,7 +261,7 @@ export class Instance extends AbstractFile {
 
         const filters = this.getAllApplicableFilters();
 
-        this.reader.applyFilters(filters);
+        // this.reader.applyFilters(filters);
 
         // Get new info
         const baseInfo = await this.reader.baseInfo();

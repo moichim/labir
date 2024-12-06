@@ -1,8 +1,8 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { Instance, ThermalFileFailure } from "@labir/core";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
 
 @customElement("group-timeline")
 export class GroupTimeline extends GroupConsumer {
@@ -40,9 +40,9 @@ export class GroupTimeline extends GroupConsumer {
 
         this.group.playback.addListener(this.UUID, value => this.ms = value);
 
-        this.group.playback.onPlaying.set(this.UUID, value => this.playing = value);
+        this.group.playback.onPlayingStatusChange.set(this.UUID, value => this.playing = value);
 
-        this.group.playback.onHasAnyCallback.set( this.UUID, value => this.has = value );
+        this.group.playback.onHasAnyCallback.set(this.UUID, value => this.has = value);
 
     }
 
@@ -178,7 +178,7 @@ export class GroupTimeline extends GroupConsumer {
 
     protected render(): unknown {
 
-        if ( this.has === false ) {
+        if (this.has === false) {
             return nothing;
         }
 

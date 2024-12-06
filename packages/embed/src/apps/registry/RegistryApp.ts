@@ -1,13 +1,12 @@
-import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { ThermalRegistry } from "@labir/core";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
-import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { createRef, Ref } from 'lit/directives/ref.js';
+import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { ThermalRegistry } from "@labir/core";
-import { createOrGetManager } from "../../hierarchy/providers/getters";
+import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
 
 @customElement("thermal-registry-app")
 export class TimeApp extends AbstractMultipleApp {
@@ -96,10 +95,10 @@ export class TimeApp extends AbstractMultipleApp {
     }
 
     protected forEveryGroup(
-        fn: ( group: TimeGroupElement ) => any
+        fn: ( group: TimeGroupElement ) => void
     ) {
 
-        const forOneNode = ( node: Node, fn: ( group: TimeGroupElement ) => any ) => {
+        const forOneNode = ( node: Node, fn: ( group: TimeGroupElement ) => void ) => {
 
             if ( node instanceof TimeGroupElement ) {
                 fn(node);
@@ -155,13 +154,15 @@ export class TimeApp extends AbstractMultipleApp {
                             <registry-palette-dropdown></registry-palette-dropdown>
 
                             <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
-                                console.log( event.target.value );
-                                this.columns = parseInt( event.target.value );
+                                const target = event.target as HTMLInputElement;
+                                const value = target.value;
+                                this.columns = parseInt( value );
                             }}></input>
 
                             <input type="range" min="1" max="10" step="1" value=${this.groups} @input=${(event: InputEvent) => {
-                                console.log( event.target.value );
-                                this.groups = parseInt( event.target.value );
+                                const target = event.target as HTMLInputElement;
+                                const value = target.value;
+                                this.groups = parseInt( value );
                             }}></input>
                         
 

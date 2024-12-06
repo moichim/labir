@@ -1,13 +1,13 @@
 import { Instance, ThermalTool, TimeFormat } from "@labir/core";
+import { provide } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { Tour } from "../../tour/Tour";
-import { provide } from "@lit/context";
 import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
-import i18next, { t } from "i18next";
 import { T } from "../../translations/Languages";
 
 @customElement("desktop-app")
@@ -25,6 +25,9 @@ export class DesktopFileApp extends FileConsumer {
 
   @property({ type: String, reflect: true, attribute: true })
   showfullscreen: boolean = true;
+
+  @property({ type: String, reflect: false, attribute: true })
+  showtutorial: boolean = false;
 
   @state()
   hasAnalysis: boolean = false;
@@ -317,14 +320,12 @@ export class DesktopFileApp extends FileConsumer {
               <file-download-dropdown tour="download">
                 <tour-step slot="tour" placement="left" label="Downloads">Zde si to stáhněte, vy volové</tour-step>
               </file-download-dropdown>
-
-              ${this.showembed === true ? html`<file-share-button ></file-share-button>` : nothing}
             
               ${this.showabout === true ? html`<app-info-button></app-info-button>` : nothing}
 
-              <thermal-button @click=${() => this.tourController.activate(false)}>
+              ${this.showtutorial === true ? html`<thermal-button @click=${() => this.tourController.activate(false)}>
                 ${t(T.tutorial)}
-              </thermal-button>
+              </thermal-button>` : nothing }
 
             </thermal-bar>
           </div>

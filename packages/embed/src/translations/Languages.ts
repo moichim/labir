@@ -127,6 +127,28 @@ export enum T {
     smoothlines = "smoothlines",
     graphlineshint = "graphlineshint",
 
+    analysis = "analysis",
+    avg = "avg",
+    min = "min",
+    max = "max",
+    size = "size",
+    edit = "edit",
+    editsth = "editsth",
+    remove = "remove",
+
+    rectangle = "rectangle",
+    ellipsis = "ellipsis",
+    point = "point",
+    name = "name",
+    color = "color",
+    top = "top",
+    left = "left",
+    right = "right",
+    bottom = "bottom",
+
+    fromto = "fromto",
+    downloadgraphdataascsv = "downloadgraphdataascsv",
+
 
 
     /** Tutorial */

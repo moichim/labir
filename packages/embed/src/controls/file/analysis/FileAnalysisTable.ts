@@ -3,8 +3,18 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
+
 @customElement("file-analysis-table")
 export class FileAnalysisTable extends FileConsumer {
+
+    protected container: Ref<HTMLDivElement> = createRef();
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return this.container.value;
+    }
 
     @state()
     protected analysis: AbstractAnalysis[] = [];
@@ -157,57 +167,59 @@ export class FileAnalysisTable extends FileConsumer {
 
         return html`
 
-        <div class="overflow">
+        <div class="overflow" ${ref(this.container)}>
 
-        <table>
+            <table>
 
 
-            <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
+                <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
-            <thead>
+                <thead>
 
-                <tr>
-                    <th
-                        class="all ${this.allSelected ? "yes" : "no"}"
-                        @click=${() => {
-                            if ( this.allSelected )
-                                this.file?.analysis.layers.deselectAll();
-                            else
-                                this.file?.analysis.layers.selectAll();
-                        }}
-                    >
-                        <u aria-hidden="true"></u>
-                        <span>Analysis</span>
-                    </th>
-                    <th>Avg</th>
-                    <th>Min</th>
-                    <th>Max</th>
-                    <th>Size</th>
-                    <th style="padding-top: 0; padding-bottom: 0;">
-                        ${this.hasHighlightedData 
-                            ? html`<thermal-button variant="foreground" @click=${() => {this.file?.analysisData.downloadData()}} title="Download graph data as CSV">CSV</thermal-button>`
-                            : nothing
-                        }
-                    </th>
-                </tr>
-            
-            </thead>
+                    <tr>
+                        <th
+                            class="all ${this.allSelected ? "yes" : "no"}"
+                            @click=${() => {
+                                if ( this.allSelected )
+                                    this.file?.analysis.layers.deselectAll();
+                                else
+                                    this.file?.analysis.layers.selectAll();
+                            }}
+                        >
+                            <u aria-hidden="true"></u>
+                            <span>${t(T.analysis)}</span>
+                        </th>
+                        <th>${t(T.avg)}</th>
+                        <th>${t(T.min)}</th>
+                        <th>${t(T.max)}</th>
+                        <th>${t(T.size)}</th>
+                        <th style="padding-top: 0; padding-bottom: 0;">
+                            ${this.hasHighlightedData 
+                                ? html`<thermal-button variant="foreground" @click=${() => {this.file?.analysisData.downloadData()}} title=${t(T.downloadgraphdataascsv)}>CSV</thermal-button>`
+                                : nothing
+                            }
+                        </th>
+                    </tr>
+                
+                </thead>
 
-            <tbody>
+                <tbody>
 
-                        ${this.analysis.map(
-                            analysis => html`
-                                <file-analysis-table-row
-                                    .analysis=${analysis}
-                                ></file-analysis-table-row>
-                            `
-                        )}
-            
-            </tbody>
+                    ${this.analysis.map(
+                        analysis => html`
+                            <file-analysis-table-row
+                                .analysis=${analysis}
+                            ></file-analysis-table-row>
+                        `
+                    )}
+                
+                </tbody>
 
-            </table>
+                </table>
 
             </div>
+
+        <slot name="tour"></slot>
         `;
     }
 
