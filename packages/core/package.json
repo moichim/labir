@@ -1,6 +1,6 @@
 {
   "name": "@labir/core",
-  "version": "1.2.56",
+  "version": "1.2.59",
   "description": "Core functionality for thermal image display.",
   "main": "index.ts",
   "module": "dist/index.mjs",
