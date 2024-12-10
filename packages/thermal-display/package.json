@@ -1,6 +1,6 @@
 {
 	"name": "@labir/wordpress",
-	"version": "1.2.61",
+	"version": "1.2.62",
 	"description": "A Wordpress integration of @labir/embed.",
 	"author": "Jan Jáchim",
 	"private": true,
