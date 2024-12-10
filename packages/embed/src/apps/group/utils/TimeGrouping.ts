@@ -7,9 +7,14 @@ import { ParsedFileType } from "../../miltiple/AbstractMultipleApp";
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
 export type FileEntry = {
+    /** Individual name of the file provided optionally by the user */
     label?: string,
+    /** The respective instance. */
     instance: Instance,
-    innerHtml?: string
+    /** Optional inner html from the webcomponent. */
+    innerHtml?: string,
+    /** Automatically generated time relative to the actual grouping */
+    time?: string
 }
 
 export type GroupEntry = {
@@ -83,7 +88,8 @@ export class TimeGrouping {
 
                 this.records.push({
                     instance: result,
-                    innerHtml: storedContent
+                    innerHtml: storedContent,
+                    label: entry.label
                 });
 
             }
@@ -146,7 +152,8 @@ export class TimeGrouping {
 
                 this.records.push({
                     instance: result,
-                    innerHtml: storedContent
+                    innerHtml: storedContent,
+                    label: file.label
                 });
 
             }
@@ -178,8 +185,6 @@ export class TimeGrouping {
                 );
             }
 
-            console.log( "registering", file );
-
         } );
 
     }
@@ -189,6 +194,8 @@ export class TimeGrouping {
         this.element.groups = [];
 
         this.groups.clear();
+
+        this.group.registry.palette.setPalette( this.element.palette );
 
         this.records
 
@@ -223,7 +230,7 @@ export class TimeGrouping {
 
                 }
 
-                record.label = this.getItemLabel( record.instance.timestamp )
+                record.time = this.getItemLabel( record.instance.timestamp )
 
                 existingGroup.files.push(record);
 

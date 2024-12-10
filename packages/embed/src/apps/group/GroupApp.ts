@@ -1,4 +1,4 @@
-import { ThermalGroup } from "@labir/core";
+import { AvailableThermalPalettes, ThermalGroup } from "@labir/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -11,6 +11,15 @@ import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {
+
+    @property({ type: String, reflect: true, attribute: true })
+    palette: AvailableThermalPalettes = "jet";
+
+    @property({ type: Number, reflect: true })
+    from?: number;
+
+    @property({ type: Number, reflect: true })
+    to?: number;
 
 
     // Presentational attributes
@@ -77,11 +86,24 @@ export class GroupElement extends AbstractMultipleApp {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
+        this.log( this.palette, this.group.registry.manager.id );
+
+        this.group.registry.palette.addListener( this.UUID + "paleta", console.log );
+
+        this.group.registry.manager.palette.setPalette(this.palette);
+
+        if ( this.from !== undefined && this.to !== undefined ) {
+            this.group.registry.range.imposeRange({
+                from: this.from,
+                to: this.to
+            });
+        }
+
+        
+
         const files = this.files ?
             this.parseFilesProperty(this.files)
             : [];
-
-        this.log( files, this.entries );
 
         // Fire the initial grouping
         if (files.length > 0) {

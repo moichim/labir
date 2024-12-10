@@ -181,10 +181,12 @@ export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
     const fps = 1000 / frameInterval;
 
+    const firstTimestamp = frames[0].timestamp;
+
     return {
         width,
         height,
-        timestamp,
+        timestamp: firstTimestamp,
         bytesize,
         frameCount,
         duration,

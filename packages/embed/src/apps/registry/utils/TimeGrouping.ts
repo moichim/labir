@@ -110,6 +110,8 @@ export class TimeGrouping {
 
         this.groups.clear();
 
+        this.group.registry.manager.palette.setPalette(this.element.parentElement.palette);
+
         this.records
 
             // Sort all records by the time

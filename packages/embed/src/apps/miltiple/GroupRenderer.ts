@@ -160,12 +160,13 @@ export class GroupRenderer {
                 <div class=${classMap(listClasses)}>
 
 
-                    ${group.files.map(({ instance, innerHtml, label }) => {
+                    ${group.files.map(({ instance, innerHtml, label, time }) => {
 
             return this.instanceRenderer.renderInstance(
                 instance,
                 onInstanceEnter,
                 onInstanceLeave,
+                time!,
                 label,
                 innerHtml
             );

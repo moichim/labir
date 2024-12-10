@@ -111,6 +111,7 @@ export class InstanceRenderer {
         instance: Instance,
         onInstanceEnter: InstanceInteractionCallback,
         onInstanceLeave: InstanceInteractionCallback,
+        time: string,
         label?: string,
         innerHtml?: string
     ): HtmlResult {
@@ -128,6 +129,7 @@ export class InstanceRenderer {
                     
                         <h3>
                             <span>${label}</span>
+                            <span>${time}</span>
                         </h3>
 
                         <div>

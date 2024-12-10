@@ -39,6 +39,9 @@ export class ThermalAppUiElement extends BaseElement {
     @property()
     license?: string;
 
+    @property()
+    label?: string;
+
 
 
     protected appRef: Ref<HTMLDivElement> = createRef();
@@ -243,6 +246,14 @@ export class ThermalAppUiElement extends BaseElement {
             
         ${this.barElements.length >= 0 ? html`
             <div class="bar">
+
+                <slot name="label">
+                    ${this.label
+                        ? html`<thermal-button variant="foreground" interactive="false">${this.label}</thermal-button>`
+                        : nothing
+                    }
+                </slot>
+
                 <slot name="bar"></slot>
 
                 <slot name="close"></slot>

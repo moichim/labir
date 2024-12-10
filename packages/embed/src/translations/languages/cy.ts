@@ -103,6 +103,16 @@ export const cy: Translation = {
     fromto: "O {{from}} i {{to}}",
     downloadgraphdataascsv: "Lawrlwythwch data graff fel CSV",
 
+    apparenttemperature: "Tymheredd tebygol",
+    apparenttemperaturehint: "Mae'r trawsnewidydd hwn yn defnyddio'r model tymheredd tebygol <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
+    airtemperature: "Tymheredd aer",
+    relativeairhumidity: "Lleithder cymharol aer",
+    windspeed: "Cyflymder gwynt",
+    inpercent: "mewn canran",
+
+    youfeelwarmer: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn gynhesach y tu allan.",
+    youfeelcolder: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn oerach y tu allan.",
+
 
     tutorial: "Tiwtorial",
 

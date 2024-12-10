@@ -150,6 +150,16 @@ export enum T {
     downloadgraphdataascsv = "downloadgraphdataascsv",
 
 
+    apparenttemperature = "apparenttemperature",
+    airtemperature = "airtemperature",
+    relativeairhumidity = "relativeairhumidity",
+    windspeed = "windspeed",
+    inpercent = "inpercent",
+    youfeelwarmer = "youfeelwarmer",
+    youfeelcolder = "youfeelcolder",
+    apparenttemperaturehint = "apparenttemperaturehint",
+
+
 
     /** Tutorial */
     tutorial = "tutorial",

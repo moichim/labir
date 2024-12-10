@@ -34,7 +34,7 @@ import "./ui/Field";
 import "./apps/registry/parts/TimeEntryElement";
 import "./apps/registry/parts/TimeGroupElement";
 
-
+import "./apps/apparent-temperature/AustralianApparentTemperature";
 
 import "./controls/AppInfoButton";
 

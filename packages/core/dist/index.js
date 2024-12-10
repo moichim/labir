@@ -6817,10 +6817,11 @@ var baseInfo = async (entireFileBuffer) => {
   const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
   const frameInterval = duration / frameCount;
   const fps = 1e3 / frameInterval;
+  const firstTimestamp = frames[0].timestamp;
   return {
     width,
     height,
-    timestamp,
+    timestamp: firstTimestamp,
     bytesize,
     frameCount,
     duration,

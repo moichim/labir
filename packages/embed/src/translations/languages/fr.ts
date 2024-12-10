@@ -103,6 +103,16 @@ export const fr: Translation = {
     fromto: "De {{from}} à {{to}}",
     downloadgraphdataascsv: "Télécharger les données graphiques au format csv",
 
+    apparenttemperature: "Température ressentie",
+    apparenttemperaturehint: "Ce convertisseur utilise le modèle de température ressentie <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
+    airtemperature: "Température de l'air",
+    relativeairhumidity: "Humidité relative de l'air",
+    windspeed: "Vitesse du vent",
+    inpercent: "en pourcentage",
+
+    youfeelwarmer: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus chaud dehors.",
+    youfeelcolder: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus froid dehors.",
+
 
 
     tutorial: "Tutoriel",

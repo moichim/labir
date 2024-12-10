@@ -191,7 +191,9 @@ export class TimeGroupElement extends BaseElement {
 
                                                 <button
                                                     class="file-info-button"
-                                                    @click=${() => this.grouper?.group.analysisSync.png.downloadPng()}
+                                                    @click=${() => this.grouper?.group.analysisSync.png.downloadPng({
+                                                        columns: this.columns
+                                                    })}
                                                 >png</button>
 
                                                 <button

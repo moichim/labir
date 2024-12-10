@@ -17,6 +17,9 @@ export class TimeEntryElement extends BaseElement {
     @property({ type: String, reflect: true, attribute: true })
     note?: string;
 
+    @property({type: String, reflect: true, attribute: true })
+    label?: string;
+
     protected render(): unknown {
         return nothing;
     }

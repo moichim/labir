@@ -33,7 +33,7 @@ export const en: Translation = {
     visiblefilename: "Visible file name",
     visiblefileurl: "Visible file URL",
     visiblefiledownload: "Visible file download",
-    
+
     time: "Time",
     duration: "Duration",
     resolution: "Resolution",
@@ -102,7 +102,16 @@ export const en: Translation = {
     fromto: "From {{from}} to {{to}}",
     downloadgraphdataascsv: "Download graph data as CSV",
 
-    
+    apparenttemperature: "Apparent temperature",
+    apparenttemperaturehint: "This converter uses the apparent temperature model <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
+    airtemperature: "Air temperature",
+    relativeairhumidity: "Relative air humidity",
+    windspeed: "Wind speed",
+    inpercent: "in percent",
+    youfeelwarmer: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C warmer outside.",
+    youfeelcolder: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C colder outside.",
+
+
     tutorial: "Tutorial",
     colourpalette: "Colour palette",
     palettehint: "Use the menu to change the colour palette."

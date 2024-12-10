@@ -1,4 +1,4 @@
-import { ThermalRegistry } from "@labir/core";
+import { AvailableThermalPalettes, ThermalRegistry } from "@labir/core";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -12,6 +12,15 @@ import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
 export class TimeApp extends AbstractMultipleApp {
 
     protected registryProviderRef: Ref<RegistryProviderElement> = createRef();
+
+    @property({ type: String, reflect: true, attribute: true })
+    palette: AvailableThermalPalettes = "jet";
+
+    @property({ type: Number, reflect: true })
+    from?: number;
+
+    @property({ type: Number, reflect: true })
+    to?: number;
 
     @property()
     slug!: string;
@@ -47,6 +56,15 @@ export class TimeApp extends AbstractMultipleApp {
 
         const manager = createOrGetManager( this.slug );
         this.registry = manager.addOrGetRegistry( this.slug );
+
+        this.registry.manager.palette.setPalette(this.palette);
+
+        if ( this.from !== undefined && this.to !== undefined ) {
+            this.registry.range.imposeRange({
+                from: this.from,
+                to: this.to
+            });
+        }
     }
 
 

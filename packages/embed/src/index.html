@@ -20,7 +20,7 @@
 <body>
 
 
-
+  <apparent-temperature-aat></apparent-temperature-aat>
 
 
 
@@ -82,12 +82,11 @@
     -->
 
 
-    <thermal-file-analyser url="/duch/0-ulice.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já" license="CC BY-SA 4.0"
-      label=" " speed="10" palette="iron"
+    <thermal-file-analyser url="/duch/0-ulice.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
+      license="CC BY-SA 4.0" label=" " speed="10" palette="iron"
       analysis1="Bod na budově;point;top:40;left:136;color:GreenYellow"
       analysis7="Nebe;rectangle;color:Green;top:3;left:66;width:51;height:16;avg;max"
-      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26"
-    >
+      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26">
       <div slot="content">Jsem obsah aplikace</div>
     </thermal-file-analyser>
 
@@ -118,13 +117,11 @@
     <br />
 
 
-    <thermal-file-analyser url="/sequence.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já" license="CC BY-SA 4.0"
-      label=" " speed="10" palette="iron"
+    <thermal-file-analyser url="/sequence.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
+      license="CC BY-SA 4.0" label=" " speed="10" palette="iron"
       analysis1="Bod na budově;point;top:40;left:136;color:GreenYellow"
       analysis7="Nebe;rectangle;color:Green;top:3;left:66;width:51;height:16;avg;max"
-      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26"
-      showtutorial="true"
-    >
+      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26" showtutorial="true">
       <div slot="content">Jsem obsah aplikace</div>
     </thermal-file-analyser>
 
@@ -155,19 +152,52 @@
     <br />
 
 
-    <thermal-group-app slug="Různé další materiály" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
-      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3">
-      <time-entry 
-        slot="entry" 
-        thermal="/materialy/ruka-na-materialy__stul__sequence__CUT__small.lrc"
-        visible="/materialy/ruka-na-materialy__stul.png"
-      ></time-entry>
-      <time-entry 
-        slot="entry" 
-        thermal="/materialy/ruka-na-materialy__katalog__sequence__CUT__small.lrc"
-        visible="/materialy/ruka-na-materialy__katalog.png"
-      ></time-entry>
+    <thermal-group-app slug="Různé materiály 2" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
+      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3" palette="iron" from="20.45" to="29">
+      <time-entry slot="entry" thermal="/materialy/materialy_drevo_RAW.lrc" label="Dřevo"></time-entry>
+      <time-entry slot="entry" thermal="/materialy/materialy_plechy_RAW__FIX.lrc" label="Plechy"></time-entry>
+      <!--<time-entry slot="entry" thermal="/materialy/materialy_polystyren_RAW.lrc" label="Polystyren"></time-entry>-->
+    </thermal-group-app>
 
+
+
+    <thermal-registry-app slug="rzné materiály - ruce" label="Různé materiály 2 - Ruce" columns="2" groups="2" palette="iron">
+
+      <!--
+      <time-group slug="polystyren" name="Polystyren">
+        <time-entry slot="entry" thermal="/materialy/materialy_polystyren_RUKA_PRED.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/materialy/materialy_polystyren_RUKA_PO.lrc"></time-entry>
+      </time-group>
+    -->
+
+      <time-group slug="drevo" name="Dřevo">
+        <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PRED.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PO.lrc"></time-entry>
+      </time-group>
+
+      <time-group slug="plechy" name="Plechy">
+        <time-entry slot="entry" thermal="/materialy/materialy_plechy_RUKA_PRED.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/materialy/materialy_plechy_RUKA_PO.lrc"></time-entry>
+      </time-group>
+
+    </thermal-registry-app>
+
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+
+    <thermal-group-app slug="fen" author="Jan Jáchim" label="Fén" author="Jan Jáchim" license="CC-BY-SA" columns="2" from="22.75" to="44.60" palette="iron">
+      <time-entry slot="entry" thermal="/fen-a-ruka/fen_PRED.lrc" label="Stůl"></time-entry>
+      <time-entry slot="entry" thermal="/fen-a-ruka/fen_10s.lrc" label="Stůl"></time-entry>
+      <!--<time-entry slot="entry" thermal="/fen-a-ruka/fen_40s.lrc" label="Stůl"></time-entry>-->
     </thermal-group-app>
 
 
@@ -182,12 +212,32 @@
     <br />
 
 
-    <thermal-group-app 
-      slug="Různé materiály" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
-      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3" grouping="day"
-      files="thermal:/soustruh.lrc|note:Nějaká poznámka|visible:/kotatko.png|label:Popiska souboru;thermal:/sequence.lrc|note:Nevém, něco tady je;visible:/kotatko.png"  
-    >
-      
+    <thermal-group-app slug="lampa" author="Jan Jáchim" label="Lampa" author="Jan Jáchim" license="CC-BY-SA" columns="2"
+    palette="iron" from="23" to="37.91">
+      <time-entry slot="entry" thermal="/fen-a-ruka/lampa_PRED.lrc" label="Stůl"></time-entry>
+      <time-entry slot="entry" thermal="/fen-a-ruka/lampa_10s.lrc" label="Stůl"></time-entry>
+      <!--<time-entry slot="entry" thermal="/fen-a-ruka/lampa_40s.lrc" label="Stůl"></time-entry>-->
+    </thermal-group-app>
+
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+
+    <thermal-group-app slug="Různé materiály" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
+      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="4"
+      grouping="day">
+      <time-entry slot="entry" thermal="/fen-a-ruka/sucha-teply.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/fen-a-ruka/sucha-studeny.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/fen-a-ruka/mokra-teply.lrc"></time-entry>
+      <time-entry slot="entry" thermal="/fen-a-ruka/mokra-studeny.lrc"></time-entry>
     </thermal-group-app>
 
 
@@ -276,7 +326,7 @@
         <time-entry slot="entry" thermal="/duch/20-deska.lrc"></time-entry>
       </time-group>
 
-      <time-group slug="Nohy" name="Nohy">  
+      <time-group slug="Nohy" name="Nohy">
         <time-entry slot="entry" thermal="/duch/10-nohy.lrc"></time-entry>
         <time-entry slot="entry" thermal="/duch/0-nohy.lrc"></time-entry>
         <time-entry slot="entry" thermal="/duch/20-nohy.lrc"></time-entry>
@@ -286,8 +336,8 @@
         <time-entry slot="entry" thermal="/duch/10-ulice.lrc"></time-entry>
         <time-entry slot="entry" thermal="/duch/0-ulice.lrc"></time-entry>
         <time-entry slot="entry" thermal="/duch/20-ulice.lrc"></time-entry>
-        
-        
+
+
       </time-group>
 
       <time-group slug="Osoba" name="Osoba">

@@ -104,6 +104,17 @@ export const cs: Translation = {
     downloadgraphdataascsv: "Stáhnout data grafu jako CSV",
 
 
+    apparenttemperature: "Pocitová teplota",
+    apparenttemperaturehint : "Tento převodník využívá model pocitové teploty <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
+    airtemperature: "Teplota vzduchu",
+    relativeairhumidity: "Relativní vlhkost vzduchu",
+    windspeed: "Rychlost větru",
+    inpercent: "v procentech",
+
+    youfeelwarmer: "Na teploměru vidíte {{t}} °C, ale venku se cítíte  o {{diff}} °C tepleji.",
+    youfeelcolder: "Na teploměru vidíte {{t}} °C, ale venku se cítíte  o {{diff}} °C chladněji.",
+
+
 
 
     tutorial: "Tutorial",
