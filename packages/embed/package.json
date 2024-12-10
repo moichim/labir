@@ -1,6 +1,6 @@
 {
   "name": "@labir/embed",
-  "version": "1.2.60",
+  "version": "1.2.61",
   "description": "Embedded display of thermograms",
   "main": "dist/embed.js",
   "type": "module",
