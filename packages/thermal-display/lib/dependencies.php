@@ -10,7 +10,7 @@ $styles_name = "thermal_display_styles";
 $scripts_name_cjs ="thermal_display_embed_library_cjs";
 $scripts_name_es ="thermal_display_embed_library_es";
 
-$version = "1.2.61";
+$version = "1.2.62";
 
 
 $dev = false;
@@ -40,7 +40,7 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
                 ? plugin_dir_url( __DIR__  ) . 'assets/embed.css'
                 : "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/dist/embed.min.css", 
             array(), 
-            $dev ? time() : null 
+            time()
         );
 
         
@@ -51,7 +51,7 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
                 ? plugin_dir_url( __DIR__ ) . 'assets/embed.js' 
                 : "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/dist/embed.min.js", 
             array(), 
-            $dev ? time() : null
+            time()
         );
 
 
@@ -59,7 +59,7 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
                 $scripts_name_es, 
                 "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/+esm", 
                 array(), 
-                $dev ? time() : null
+                time()
             );
 
     }

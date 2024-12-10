@@ -171,7 +171,7 @@ export class AustralianApparentTemperature extends BaseElement {
         input {
 
             font-size: var(--thermal-fs);
-            width: 150px;
+            width: 120px;
             text-align: right;
             border: 0;
             border-bottom: 1px solid var( --thermal-slate-light );
@@ -192,9 +192,9 @@ export class AustralianApparentTemperature extends BaseElement {
             padding: calc(var(--thermal-gap) * .7);
             border: 1px solid var( --thermal-slate );
             border-radius: var( --thermal-radius );
-
-
             text-align: center;
+
+            
 
             & > p {
                 margin: 0;
@@ -213,6 +213,13 @@ export class AustralianApparentTemperature extends BaseElement {
 
         .result_comment {
             font-size: calc( var(--thermal-fs) * .8 )
+        }
+
+        .tabindex {
+            border-radius: var( --thermal-radius );
+            &:focus {
+                outline: 3px solid var(--thermal-primary);
+            }
         }
 
 
@@ -252,7 +259,7 @@ export class AustralianApparentTemperature extends BaseElement {
                             step=${ifDefined( step )}
                             type="number"
                         ></input>
-                        <span>${unit}</span>
+                        <span>${unsafeHTML( unit )}</span>
                     </div>
 
                     ${hint
@@ -291,7 +298,7 @@ export class AustralianApparentTemperature extends BaseElement {
             ? "blue"
             : "red"
 
-        return html`<main class="result">
+        return html`<div class="result">
 
             <p class="result_label">${t(T.apparenttemperature)}</p>
 
@@ -301,7 +308,7 @@ export class AustralianApparentTemperature extends BaseElement {
 
             <p class="result_comment">${comment}</p>
         
-        </main>`;
+        </div>`;
 
 
     }
@@ -353,7 +360,7 @@ export class AustralianApparentTemperature extends BaseElement {
                     this.vRef,
                     this.UUID + "aat_wind_speed",
                     t( T.windspeed ),
-                    "m/s2",
+                    "m/s<sup>2</sup>",
                     this.v,
                     0,
                     undefined,
@@ -372,11 +379,12 @@ export class AustralianApparentTemperature extends BaseElement {
                 )}
 
                 </section>
-
+                <div  class="tabindex" tabindex="0">
                 ${this.ta !== undefined &&  this.t !== undefined
                     ? this.renderResult( this.ta, this.t )
                     : nothing
                 }
+                </div>
                 
 
             </thermal-app>
