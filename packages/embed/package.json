@@ -12,7 +12,9 @@
     "vite": "vite",
     "eslint": "eslint src",
     "test": "vitest src",
-    "build": "vite build",
+    "build": "pnpm run build:cjs && pnpm run build:esm",
+    "build:cjs": "vite build --config vite.config.cjs.ts",
+    "build:esm": "vite build --config vite.config.esm.ts",
     "serve": "serve dist/",
     "lint": "eslint src"
   },

@@ -13,7 +13,7 @@ $scripts_name_es ="thermal_display_embed_library_es";
 $version = "1.2.62";
 
 
-$dev = false;
+$dev = true;
 
 
 
@@ -57,7 +57,9 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
 
             wp_register_script( 
                 $scripts_name_es, 
-                "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/+esm", 
+                $dev
+                    ? plugin_dir_url( __DIR__ ) . 'assets/embed.esm.js' 
+                    : "https://cdn.jsdelivr.net/npm/@labir/embed@".$version."/+esm", 
                 array(), 
                 time()
             );

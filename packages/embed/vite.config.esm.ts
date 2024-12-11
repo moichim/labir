@@ -15,27 +15,28 @@ export default defineConfig({
                 embed: path.resolve( "./src/index.ts" ),
             },
             output: {
-                entryFileNames: '[name].js',
+                entryFileNames: '[name].esm.js',
                 assetFileNames: '[name].[ext]',
+                esModule: true
             },
         plugins: [{
             name: "closeBundle",
             closeBundle() {
                 fs.copyFileSync(
-                    path.resolve( "./dist/embed.js" ),
-                    path.resolve( "../thermal-display/assets/embed.js" )
+                    path.resolve( "./dist/embed.esm.js" ),
+                    path.resolve( "../thermal-display/assets/embed.esm.js" )
                 );
                 fs.copyFileSync(
                     path.resolve( "./dist/embed.css" ),
                     path.resolve( "../thermal-display/assets/embed.css" )
                 );
 
-                console.log( "@labir/embed build copied into @labir/wordpress" );
+                console.log( "@labir/embed build:esm copied into @labir/wordpress" );
             }
         }]
         },
         outDir: path.resolve( "./dist" ),
-        emptyOutDir: true,
+        // emptyOutDir: true,
         copyPublicDir: false,
         minify: true,
     
