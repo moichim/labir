@@ -9,11 +9,11 @@
     "url": "https://github.com/moichim/labir"
   },
   "scripts": {
-    "vite": "vite",
+    "vite": "vite --config vite.config.ts",
     "eslint": "eslint src",
     "test": "vitest src",
     "build": "pnpm run build:cjs && pnpm run build:esm",
-    "build:cjs": "vite build --config vite.config.cjs.ts",
+    "build:cjs": "vite build --config vite.config.ts",
     "build:esm": "vite build --config vite.config.esm.ts",
     "serve": "serve dist/",
     "lint": "eslint src"

@@ -2,6 +2,7 @@ import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AnalysisSlot } from "../analysisSlots/AnalysisSlot";
+import { CallbacksManager } from "../callbacksManager";
 import { GroupExportCSV } from "./utils/GroupExportCSV";
 import { GroupExportPNG } from "./utils/GroupExportPNG";
 
@@ -11,6 +12,10 @@ export interface IWithAnalysisSync extends IBaseProperty {
 
 
 export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
+
+
+    public readonly onSlotSync = new CallbacksManager<(serialized: string | undefined, slot: number) => void>
+
     protected validate(value: boolean): boolean {
         return value;
     }
@@ -132,10 +137,15 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
 
     public startSyncingSlot(instance: Instance, slotNumber: number) {
-        const { serialise } = this.getSlotListeners(instance, slotNumber)!;
+        const { serialise, assign } = this.getSlotListeners(instance, slotNumber)!;
+
+        assign.set(AnalysisSyncDrive.LISTENER_KEY, console.log);
 
         serialise.set(AnalysisSyncDrive.LISTENER_KEY, value => {
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+
+                this.onSlotSync.call(value, slotNumber);
+
                 // Create new slots if not yet existing
                 if (sl === undefined && value) {
                     const analysis = f.slots.createFromSerialized(value, slotNumber);
@@ -144,6 +154,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
                 // Update existing slots
                 else if (sl !== undefined && value) {
                     sl.recieveSerialized(value);
+                    this.onSlotSync.call(sl ? sl.serialized : undefined, slotNumber);
                 }
                 // Remove slots that are no more
                 else if (sl !== undefined && value === undefined) {
@@ -209,6 +220,32 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
             fn(item, file);
 
         });
+    }
+
+
+    public recieveSlotSerialized(
+        serialized: string | undefined,
+        slot: number
+    ): void {
+
+        console.log(serialized, slot);
+
+        this.parent.files.forEveryInstance(
+            instance => {
+
+                if (serialized) {
+                    const sl = instance.slots.getSlot(slot);
+                    if (sl) {
+                        sl.recieveSerialized(serialized);
+                    } else {
+                        instance.slots.createFromSerialized(serialized, slot);
+                    }
+                } else {
+                    instance.slots.removeSlotAndAnalysis(slot);
+                }
+
+            }
+        );
     }
 
     /** @deprecated Should sync individual slots only. This method synces all slots at once. */

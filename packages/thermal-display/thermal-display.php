@@ -20,6 +20,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 require( __DIR__ . '/lib/dependencies.php' );
 require( __DIR__ . '/lib/uploads.php' );
 
+add_filter( 'block_categories_all' , function( $categories ) {
+
+    // Adding a new category.
+	$categories[] = array(
+		'slug'  => 'thermal',
+		'title' => 'Thermal display'
+	);
+
+	return $categories;
+} );
+
 
 /**
  * Registers the block using the metadata loaded from the `block.json` file.
@@ -31,8 +42,6 @@ require( __DIR__ . '/lib/uploads.php' );
 function thermal_display_init_blocks() {
 	register_block_type( __DIR__ . '/build/app' );
 	register_block_type( __DIR__ . '/build/group' );
-	register_block_type( __DIR__ . '/build/registry' );
-	register_block_type( __DIR__ . '/build/manager' );
 	
 }
 add_action( 'init', 'thermal_display_init_blocks' );

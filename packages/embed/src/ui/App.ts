@@ -59,6 +59,10 @@ export class ThermalAppUiElement extends BaseElement {
             }
         });
 
+        i18next.on("languageChanged", () => {
+            this.language = i18next.language;
+        });
+
     }
 
     toggleFullscreen() {

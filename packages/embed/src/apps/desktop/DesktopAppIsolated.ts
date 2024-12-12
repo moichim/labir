@@ -15,13 +15,14 @@ export class DesktopAppIsolated extends BaseApp {
 
     return html`
 
-    <manager-provider slug="manager_${this.UUID}" palette=${this.palette}>
+    <manager-provider slug="manager_${this.UUID}" palette=${this.palette} autoclear=${this.autoclear} autoclear=${this.autoclear}>
 
       <registry-provider 
         slug="registry_${this.UUID}" 
         from=${ifDefined(this.from)}
         to=${ifDefined(this.to)}
         opacity=${ifDefined(this.opacity)}
+        autoclear=${this.autoclear}
       >
 
         <group-provider slug="group_${this.UUID}">
@@ -38,6 +39,7 @@ export class DesktopAppIsolated extends BaseApp {
             analysis6=${ifDefined(this.analysis6)}
             analysis7=${ifDefined(this.analysis7)}
             speed=${ifDefined(this.speed)}
+            autoclear=${this.autoclear}
           >
 
             <slot name="mark" slot="mark"></slot>

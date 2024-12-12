@@ -79,6 +79,9 @@ export abstract class BaseApp extends BaseElement {
     @property({ type: String, reflect: true })
     speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
 
+    @property({type: String, reflect: true })
+    autoclear: boolean = false;
+
 
     @state()
     protected hasGraph: boolean = false;
@@ -230,6 +233,17 @@ export abstract class BaseApp extends BaseElement {
 
             });
 
+        }
+
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        if ( this.fileProviderRef.value ) {
+            if ( this.fileProviderRef.value ) {
+
+            }
         }
 
     }

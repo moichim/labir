@@ -57,6 +57,8 @@ export class TimeGrouping {
             record.instance.unmountFromDom();
         });
 
+        this.group.removeAllChildren();
+
         this.records = [];
         this.groups.clear();
         this.element.groups = [];
@@ -121,8 +123,6 @@ export class TimeGrouping {
                 );
             }
 
-            console.log( "registering", entry );
-
         });
 
     }
@@ -171,8 +171,16 @@ export class TimeGrouping {
                 batch.onResolve.set(
                     this.element.UUID + "___something",
                     () => {
-                        console.log( "hotovost...", this.records );
                         this.processGroups();
+
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis1, 1 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis2, 2 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis3, 3 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis4, 4 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis5, 5 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis6, 6 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis7, 7 );
+
                     }
                 );
 

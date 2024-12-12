@@ -62,7 +62,7 @@ export class TimelineElement extends FileConsumer {
 
 
     @consume( {context: fileMarkersContext, subscribe: true} )
-    public markers!: FileMarker[];
+    public markers: FileMarker[] = [];
 
     @state()
     protected collapsed: boolean = false;

@@ -1,7 +1,7 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
-import { AbstractFileProvider } from "../providers/AbstractFileProvider";
+import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { FailureContext, fileContext, fileProviderContext, loadingContext, recordingContext } from "../providers/context/FileContexts";
 import { GroupConsumer } from "./GroupConsumer";
 

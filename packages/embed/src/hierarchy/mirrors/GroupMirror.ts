@@ -4,15 +4,15 @@ import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
 import { groupContext, toolContext, toolsContext } from "../providers/context/GroupContext";
+import { AbstractGroupProvider } from "../abstraction/AbstractGroupProvider";
 
 @customElement("group-mirror")
-export class GroupProviderElement extends RegistryConsumer {
+export class GroupProviderElement extends AbstractGroupProvider {
 
     public getTourableRoot(): HTMLElement | undefined {
         return undefined;
     }
 
-    protected UUIDGroupListeners = this.UUID + "__group-listener";
 
     @property({ type: String })
     public slug!: string;
@@ -26,24 +26,8 @@ export class GroupProviderElement extends RegistryConsumer {
     @provide({ context: toolsContext })
     tools!: ThermalGroup["tool"]["tools"]
 
-    connectedCallback(): void {
-        super.connectedCallback();
+    @property({ type: Boolean })
+    autoclear: boolean = false;
 
-        this.group = this.registry.groups.addOrGetGroup(this.slug);
-
-        // Assign tool
-        this.tool = this.group.tool.value;
-        this.tools = this.group.tool.tools;
-
-        // Add tool listener
-        this.group.tool.addListener(this.UUIDGroupListeners, value => {
-            this.tool = value;
-        });
-
-    }
-
-    protected render(): unknown {
-        return html`<slot></slot>`;
-    }
 
 }

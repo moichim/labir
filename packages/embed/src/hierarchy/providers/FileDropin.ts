@@ -4,7 +4,7 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { AbstractFileProvider } from "./AbstractFileProvider";
+import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileProviderContext } from "./context/FileContexts";
 
 @customElement("file-dropin")

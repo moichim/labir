@@ -1,13 +1,12 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
-import { provide } from "@lit/context";
-import { PropertyValues } from "lit";
-import { property, queryAssignedElements, state } from "lit/decorators.js";
+import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure } from "@labir/core";
+import { html, PropertyValues } from "lit";
 import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { AnalysisList, analysisList, CurrentFrameContext, currentFrameContext, DurationContext, durationContext, FailureContext, fileContext, FileCursorContext, fileCursorContext, fileCursorSetterContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { analysisList, AnalysisList, currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FailureContext, fileContext, fileCursorContext, FileCursorContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
+import { queryAssignedElements, state } from "lit/decorators.js";
+import { provide } from "@lit/context";
 
 export abstract class AbstractFileProvider extends GroupConsumer {
-
 
     @provide({ context: fileContext })
     @state()
@@ -22,31 +21,24 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     protected loading: boolean = false;
 
     @provide({ context: loadedContext })
-    @state()
     protected ready = false;
-
-    @provide({ context: playingContext })
-    @property({ type: String, reflect: true, attribute: true })
-    public playing: boolean = false;
 
     @provide({ context: durationContext })
     @state()
     protected duration?: DurationContext;
 
     @provide({ context: currentFrameContext })
-    @state()
     protected currentFrame?: CurrentFrameContext;
 
     @provide({context: fileCursorContext})
     protected cursor: FileCursorContext = undefined;
 
-    @provide({context: fileCursorSetterContext})
-    protected cursorSetter = (percent: number|undefined) => {
-        if ( percent === undefined ) {
-            if ( this.cursor !== undefined ) {
+    protected cursorSetter = (percent: number | undefined) => {
+        if (percent === undefined) {
+            if (this.cursor !== undefined) {
                 this.cursor = undefined;
             }
-        } else if ( this.file ) {
+        } else if (this.file) {
             const relativeTime = this.file.timeline._convertPercenttRelative(percent);
             const frame = this.file.timeline.findPreviousRelative(relativeTime);
             this.cursor = {
@@ -57,18 +49,17 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         }
     };
 
-
     @provide({ context: fileMsContext })
-    @property({ type: Number, reflect: true, attribute: true })
     public ms: number = 0;
 
     @provide({ context: playbackSpeedContext })
-    @property({ type: Number, reflect: true, attribute: true })
     public speed?: PlaybackSpeeds;
 
     @provide({ context: recordingContext })
-    @property({ type: String, reflect: true, attribute: true })
     public recording: boolean = false;
+
+    @provide({ context: playingContext })
+    public playing: boolean = false;
 
     @provide({ context: mayStopContext })
     @state()
@@ -82,6 +73,15 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: analysisList })
     analysis: AnalysisList = [];
+
+
+    public analysis1?: string;
+    public analysis2?: string;
+    public analysis3?: string;
+    public analysis4?: string;
+    public analysis5?: string;
+    public analysis6?: string;
+    public analysis7?: string;
 
 
     /** Actions taken when a file starts loading */
@@ -103,41 +103,50 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         this.marksProvidedBelow.forEach(mark => console.log(mark.innerHTML));
     }
 
-    public updated(_changedProperties: PropertyValues): void {
+    public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
         super.updated(_changedProperties);
 
-        if ( _changedProperties.has("ms") ) {
-            if ( this.file && this.duration && this.currentFrame ) {
-                const newMs = Math.min( this.duration.ms, Math.max( 0,  this.ms ) );
-                if ( newMs !== this.currentFrame.ms ) {
-                    this.file.timeline.setRelativeTime( newMs );
+        if (_changedProperties.has("ms")) {
+            if (this.file && this.duration && this.currentFrame) {
+                const newMs = Math.min(this.duration.ms, Math.max(0, this.ms));
+                if (newMs !== this.currentFrame.ms) {
+                    this.file.timeline.setRelativeTime(newMs);
                 }
             }
         }
 
-        if ( _changedProperties.has( "playbackspeed" ) ) {
-            if ( this.file && this.speed ) {
-                if ( this.speed !== this.file.timeline.playbackSpeed ) {
+        if (_changedProperties.has("speed")) {
+            if (this.file && this.speed) {
+                if (this.speed !== this.file.timeline.playbackSpeed) {
                     this.file.timeline.playbackSpeed = this.speed;
                 }
             }
         }
 
-        if ( _changedProperties.has( "playing" ) ) {
-            if ( this.file ) {
-                if ( 
-                    this.playing 
-                    && !this.file.timeline.isPlaying 
+        if (_changedProperties.has("playing")) {
+            if (this.file) {
+                if (
+                    this.playing
+                    && !this.file.timeline.isPlaying
                 ) {
                     this.file.timeline.play();
-                } else if ( 
-                    !this.playing 
-                    && this.file.timeline.isPlaying 
+                } else if (
+                    !this.playing
+                    && this.file.timeline.isPlaying
                 ) {
                     this.file.timeline.pause();
                 }
             }
         }
+
+
+        this.handleAnalysisUpdate(1, _changedProperties);
+        this.handleAnalysisUpdate(2, _changedProperties);
+        this.handleAnalysisUpdate(3, _changedProperties);
+        this.handleAnalysisUpdate(4, _changedProperties);
+        this.handleAnalysisUpdate(5, _changedProperties);
+        this.handleAnalysisUpdate(6, _changedProperties);
+        this.handleAnalysisUpdate(7, _changedProperties);
 
     }
 
@@ -160,7 +169,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     }
 
 
-    public readonly onInstanceCreated = new CallbacksManager< ( instance: Instance ) => void >();
+    public readonly onInstanceCreated = new CallbacksManager<(instance: Instance) => void>();
 
 
     /** Register instance callback listeners */
@@ -194,7 +203,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
 
         // Project properties to cthe core
-        if ( this.speed ) {
+        if (this.speed) {
             instance.timeline.playbackSpeed = this.speed;
         }
 
@@ -265,13 +274,13 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
         // Remove all listeners
         instance.timeline.callbacksPlay.delete(this.UUID);
-        instance.timeline.callbacksPause.delete( this.UUID );
-        instance.timeline.callbacksStop.delete( this.UUID );
-        instance.timeline.callbacksEnd.delete( this.UUID );
-        instance.timeline.callbacksChangeFrame.delete( this.UUID );
-        instance.timeline.callbackdPlaybackSpeed.delete( this.UUID );
-        instance.recording.removeListener( this.UUID );
-        instance.analysis.removeListener( this.UUID );
+        instance.timeline.callbacksPause.delete(this.UUID);
+        instance.timeline.callbacksStop.delete(this.UUID);
+        instance.timeline.callbacksEnd.delete(this.UUID);
+        instance.timeline.callbacksChangeFrame.delete(this.UUID);
+        instance.timeline.callbackdPlaybackSpeed.delete(this.UUID);
+        instance.recording.removeListener(this.UUID);
+        instance.analysis.removeListener(this.UUID);
 
     }
 
@@ -285,9 +294,124 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
 
     public deleteFile() {
-        if ( this.file ) {
-            this.removeInstance( this.file );
+        if (this.file) {
+            this.removeInstance(this.file);
         }
+    }
+
+
+
+    /**
+     * Initialise slots & their listeners
+     */
+    protected handleLoaded(
+        instance: Instance
+    ) {
+
+
+
+        // listen to changes
+        instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
+        instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);
+        instance.slots.onSlot3Serialize.set(this.UUID, value => this.analysis3 = value);
+        instance.slots.onSlot4Serialize.set(this.UUID, value => this.analysis4 = value);
+        instance.slots.onSlot5Serialize.set(this.UUID, value => this.analysis5 = value);
+        instance.slots.onSlot6Serialize.set(this.UUID, value => this.analysis6 = value);
+        instance.slots.onSlot7Serialize.set(this.UUID, value => this.analysis7 = value);
+
+        // Create the initial analysis
+        this.createInitialAnalysis(instance, 1, this.analysis1);
+        this.createInitialAnalysis(instance, 2, this.analysis2);
+        this.createInitialAnalysis(instance, 3, this.analysis3);
+        this.createInitialAnalysis(instance, 4, this.analysis4);
+        this.createInitialAnalysis(instance, 5, this.analysis5);
+        this.createInitialAnalysis(instance, 6, this.analysis6);
+        this.createInitialAnalysis(instance, 7, this.analysis7);
+
+    }
+
+
+    protected handleAnalysisUpdate(
+        index: SlotNumber,
+        _changedProperties: PropertyValues<AbstractFileProvider>
+    ) {
+
+        const field = `analysis${index}` as keyof AbstractFileProvider;
+
+
+        if (_changedProperties.has(field)) {
+
+            const oldValue = _changedProperties.get(field) as string | undefined | null;
+            const newValue = this[field] as string | undefined | null;
+
+
+            if (this.file) {
+
+                const slot = this.file.slots.getSlot(index);
+
+                // If slot had not exist before and sould create, do so
+                if (
+                    slot === undefined
+                    && newValue
+                    && newValue.trim().length > 0
+                    && (
+                        !oldValue
+                        || oldValue?.trim().length > 0
+                    )
+                ) {
+                    const analysis = this.file.slots.createFromSerialized(newValue, index);
+                    analysis?.setSelected(false, true);
+                }
+                // If the slot ceased to exist
+                else if (
+                    slot !== undefined
+                    && oldValue
+                    && (!newValue
+                        || newValue?.trim().length === 0
+                    )
+                ) {
+                    this.file.slots.removeSlotAndAnalysis(index);
+                } else if (slot && newValue) {
+                    slot?.recieveSerialized(newValue);
+                }
+
+            }
+
+        }
+
+    }
+
+
+
+    protected createInitialAnalysis(
+        instance: Instance,
+        index: number,
+        value?: string
+    ) {
+
+        if (value !== undefined && value.trim().length > 0) {
+            const analysis = instance.slots.createFromSerialized(value, index);
+            analysis?.setSelected(false, true);
+        }
+
+    }
+
+    private assignAppropriateField(field: number, value?: string) {
+        if (field === 1) this.analysis1 = value;
+        else if (field === 2) this.analysis2 = value;
+        else if (field === 3) this.analysis3 = value;
+        else if (field === 4) this.analysis4 = value;
+        else if (field === 5) this.analysis5 = value;
+        else if (field === 6) this.analysis6 = value;
+        else if (field === 7) this.analysis7 = value;
+    }
+
+    protected render(): unknown {
+        return html`
+            <slot></slot>
+            <slot name="mark"></slot>
+            <slot name="analysis"></slot>
+        `;
     }
 
 }

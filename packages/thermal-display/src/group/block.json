@@ -6,17 +6,9 @@
 	"title": "Thermal group",
 	"category": "thermal",
 	"icon": "file:./assets/icon.svg",
-	"description": "Thermal group needs to be inside a registry.",
+	"description": "An group of thermal recordings.",
 	"example": {},
 	"supports": {
-		"color": {
-			"background": true,
-			"button": true,
-			"gradients": true,
-			"text": true,
-			"heading": true,
-			"link": true
-		},
 		"interactivity": false,
 		"html": false,
 		"anchor": true,
@@ -24,8 +16,7 @@
 		"align": ["wide", "full"],
 		"spacing": {
 			"padding": true,
-			"margin": true,
-			"blockGap": true
+			"margin": true
 		}
 	},
 	"textdomain": "thermal-display",
@@ -42,13 +33,60 @@
 				"type": "constrained"
 			}
 		},
-		"slug": {
-			"type": "string",
-			"default": "default_slug"
+		"files": {
+			"type": "string"
 		},
-		"opacity": {
+		"columns": {
+			"type": "number",
+			"default": 3
+		},
+		"palette": {
+			"type": "string",
+			"default": "iron"
+		},
+		"from": {
+			"type": "number"
+		},
+		"to": {
+			"type": "number"
+		},
+		"speed": {
 			"type": "number",
 			"default": 1
+		},
+		"label": {
+			"type": "string"
+		},
+		"author": {
+			"type": "string"
+		},
+		"license": {
+			"type": "string",
+			"default": "CC BY-SA 4.0"
+		},
+		"description": {
+			"type": "string"
+		},
+		"analysis1": {
+			"type": "string"
+		},
+		"analysis2": {
+			"type": "string"
+		},
+		"analysis3": {
+			"type": "string"
+		},
+		"analysis4": {
+			"type": "string"
+		},
+		"analysis5": {
+			"type": "string"
+		},
+		"analysis6": {
+			"type": "string"
+		},
+		"analysis7": {
+			"type": "string"
 		}
 	}
 }

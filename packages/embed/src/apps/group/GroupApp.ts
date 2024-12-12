@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalGroup } from "@labir/core";
+import { AvailableThermalPalettes, CallbacksManager, ThermalGroup } from "@labir/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -41,7 +41,7 @@ export class GroupElement extends AbstractMultipleApp {
     entries!: Array<Element>;
 
     /** Internal key from which an isolated hierarchy of @labir/core components will be created. */
-    @property()
+    @property({ type: String, reflect: true })
     slug: string = Math.random().toFixed(5);
 
     /** Number of columns of files. */
@@ -57,7 +57,7 @@ export class GroupElement extends AbstractMultipleApp {
     public grouping: Grouping = "none";
 
     /** The internal grouping object. */
-    protected grouper!: TimeGrouping;
+    public grouper!: TimeGrouping;
 
     /** The group and all its parents are created from the slug and stored locally. */
     protected group!: ThermalGroup;
@@ -70,6 +70,31 @@ export class GroupElement extends AbstractMultipleApp {
     public files?: string;
 
 
+    public readonly onGroupInit = new CallbacksManager<(group: ThermalGroup) => void>
+
+    public readonly onColumns = new CallbacksManager<(columns: number) => void>
+
+    @property({ type: String, reflect: true })
+    public analysis1?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis2?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis3?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis4?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis5?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis6?: string;
+
+    @property({ type: String, reflect: true })
+    public analysis7?: string;
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -81,25 +106,27 @@ export class GroupElement extends AbstractMultipleApp {
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
 
+        this.onGroupInit.call(this.group);
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        this.log( this.palette, this.group.registry.manager.id );
+        this.log(this.palette, this.group.registry.manager.id);
 
-        this.group.registry.palette.addListener( this.UUID + "paleta", console.log );
+        this.group.registry.palette.addListener(this.UUID + "paleta", console.log);
 
         this.group.registry.manager.palette.setPalette(this.palette);
 
-        if ( this.from !== undefined && this.to !== undefined ) {
+        if (this.from !== undefined && this.to !== undefined) {
             this.group.registry.range.imposeRange({
                 from: this.from,
                 to: this.to
             });
         }
 
-        
+
 
         const files = this.files ?
             this.parseFilesProperty(this.files)
@@ -120,6 +147,36 @@ export class GroupElement extends AbstractMultipleApp {
         // Project grouping into the grouper...
         if (_changedProperties.has("grouping")) {
             if (this.grouper) this.grouper.setGrouping(this.grouping);
+        }
+
+        if (_changedProperties.has("palette") && this.palette) {
+            if (this.grouper) this.grouper.group.registry.palette.setPalette(this.palette);
+        }
+
+        if (_changedProperties.has("columns")) {
+            this.onColumns.call(this.columns);
+        }
+
+        if (_changedProperties.has("files")) {
+
+            if (this.files && _changedProperties.get("files") !== undefined) {
+                const parsedFiles = this.parseFilesProperty(this.files);
+
+                if (parsedFiles.length > 0) {
+                    this.grouper.processParsedFiles(parsedFiles);
+                }
+            }
+
+        }
+
+        if (_changedProperties.has("analysis1")) {
+            this.group.analysisSync.recieveSlotSerialized(this.analysis1, 1);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis2, 2);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis3, 3);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis4, 4);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis5, 5);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis6, 6);
+            this.group.analysisSync.recieveSlotSerialized(this.analysis7, 7);
         }
     }
 
@@ -244,35 +301,6 @@ export class GroupElement extends AbstractMultipleApp {
                     this.columns = parseInt(value);
                 }
             }}></input>
-
-                                    <thermal-dropdown>
-                                        <span slot="invoker">${this.grouping === "none" ? t(T.donotgroup) : t(T["by" + this.grouping])}</span>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "none"}">${t(T.donotgroup)}</thermal-button>
-                                        </div>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "hour"}">${t(T.byhour)}</thermal-button>
-                                        </div>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "day"}">${t(T.byday)}</thermal-button>
-                                        </div>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "week"}">${t(T.byweek)}</thermal-button>
-                                        </div>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "month"}">${t(T.bymonth)}</thermal-button>
-                                        </div>
-
-                                        <div slot="option">
-                                            <thermal-button @click="${() => this.grouping = "year"}">${t(T.byyear)}</thermal-button>
-                                        </div>
-
-                                    </thermal-dropdown>
 
                                     ${this.grouper.numFiles > 0
                 ? html`

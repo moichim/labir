@@ -1360,6 +1360,7 @@ interface IWithAnalysisSync extends IBaseProperty {
     analysisSync: AnalysisSyncDrive;
 }
 declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
+    readonly onSlotSync: CallbacksManager<(serialized: string | undefined, slot: number) => void>;
     protected validate(value: boolean): boolean;
     protected afterSetEffect(): void;
     turnOn(instance: Instance): void;
@@ -1386,6 +1387,7 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
      * Execute a given function on all files slot
      */
     protected forEveryOtherSlot(instance: Instance, slotNumber: number, fn: (slot: AnalysisSlot | undefined, file: Instance) => void): void;
+    recieveSlotSerialized(serialized: string | undefined, slot: number): void;
     /** @deprecated Should sync individual slots only. This method synces all slots at once. */
     syncSlots(instance: Instance): void;
     protected _csv?: GroupExportCSV;

@@ -154,6 +154,7 @@ function Edit({
           }), thermal && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("manager-provider", {
             slug: ID + "___preview",
             palette: palette,
+            autoclear: "true",
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("registry-provider", {
               from: from,
               to: to,
@@ -272,6 +273,7 @@ function Edit({
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("manager-provider", {
             slug: ID + "___display",
             palette: palette,
+            autoclear: "true",
             children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_9__.jsx)("registry-provider", {
               from: from,
               to: to,

@@ -14,16 +14,17 @@ export class SingleFileAppIsolated extends BaseApp {
 
     return html`
 
-    <manager-provider slug="manager_${this.UUID}" palette=${this.palette}>
+    <manager-provider slug="manager_${this.UUID}" palette=${this.palette} autoclear=${this.autoclear}>
 
       <registry-provider 
         slug="registry_${this.UUID}"
         from=${ifDefined( this.from )}
         to=${ifDefined( this.to )}
         opacity=${ifDefined(this.opacity)}
+        autoclear=${this.autoclear}
       >
 
-        <group-provider slug="group_${this.UUID}">
+        <group-provider slug="group_${this.UUID}" autoclear=${this.autoclear}>
 
           <file-provider 
             thermal="${this.url}" 
@@ -36,6 +37,7 @@ export class SingleFileAppIsolated extends BaseApp {
             analysis6=${ifDefined(this.analysis6)}
             analysis7=${ifDefined(this.analysis7)}
             speed=${ifDefined(this.speed)}
+            autoclear=${this.autoclear}
           >
 
               <file-app 

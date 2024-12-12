@@ -2,7 +2,7 @@ import { Instance, SlotNumber } from "@labir/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { AbstractFileProvider } from "../providers/AbstractFileProvider";
+import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileContext, fileProviderContext } from "../providers/context/FileContexts";
 
 @customElement("file-mirror")
@@ -67,74 +67,7 @@ export class FileMirrorElement extends AbstractFileProvider {
     @property({ type: String })
     public analysis7?: string;
 
-    protected createInitialAnalysis(
-        instance: Instance,
-        index: number,
-        value?: string
-    ) {
 
-        if (value !== undefined && value.trim().length > 0) {
-            const analysis = instance.slots.createFromSerialized(value, index);
-            analysis?.setSelected(false, true);
-        }
-
-    }
-
-
-    /**
-     * Initialise slots & their listeners
-     */
-    protected handleLoaded(
-        instance: Instance
-    ) {
-
-
-
-        // listen to changes
-        instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
-        instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);
-        instance.slots.onSlot3Serialize.set(this.UUID, value => this.analysis3 = value);
-        instance.slots.onSlot4Serialize.set(this.UUID, value => this.analysis4 = value);
-        instance.slots.onSlot5Serialize.set(this.UUID, value => this.analysis5 = value);
-        instance.slots.onSlot6Serialize.set(this.UUID, value => this.analysis6 = value);
-        instance.slots.onSlot7Serialize.set(this.UUID, value => this.analysis7 = value);
-
-        // Create the initial analysis
-        this.createInitialAnalysis(instance, 1, this.analysis1);
-        this.createInitialAnalysis(instance, 2, this.analysis2);
-        this.createInitialAnalysis(instance, 3, this.analysis3);
-        this.createInitialAnalysis(instance, 4, this.analysis4);
-        this.createInitialAnalysis(instance, 5, this.analysis5);
-        this.createInitialAnalysis(instance, 6, this.analysis6);
-        this.createInitialAnalysis(instance, 7, this.analysis7);
-
-    }
-
-
-    private assignAppropriateField(field: number, value?: string) {
-        if (field === 1) this.analysis1 = value;
-        else if (field === 2) this.analysis2 = value;
-        else if (field === 3) this.analysis3 = value;
-        else if (field === 4) this.analysis4 = value;
-        else if (field === 5) this.analysis5 = value;
-        else if (field === 6) this.analysis6 = value;
-        else if (field === 7) this.analysis7 = value;
-    }
-
-
-    /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
-    connectedCallback(): void {
-
-        super.connectedCallback();
-
-    }
-
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-        if (this.file) {
-            // this.file.unmountFromDom();
-        }
-    }
 
 
     public updated(_changedProperties: PropertyValues<FileMirrorElement>): void {
@@ -151,15 +84,6 @@ export class FileMirrorElement extends AbstractFileProvider {
 
         }
 
-
-        this.handleAnalysisUpdate(1, _changedProperties);
-        this.handleAnalysisUpdate(2, _changedProperties);
-        this.handleAnalysisUpdate(3, _changedProperties);
-        this.handleAnalysisUpdate(4, _changedProperties);
-        this.handleAnalysisUpdate(5, _changedProperties);
-        this.handleAnalysisUpdate(6, _changedProperties);
-        this.handleAnalysisUpdate(7, _changedProperties);
-
         if (_changedProperties.has("file")) {
             if (this.file) {
                 this.loading = false;
@@ -170,72 +94,6 @@ export class FileMirrorElement extends AbstractFileProvider {
         }
 
 
-    }
-
-
-    protected handleAnalysisUpdate(
-        index: SlotNumber,
-        _changedProperties: PropertyValues<FileMirrorElement>
-    ) {
-
-        const field = `analysis${index}` as keyof FileMirrorElement;
-
-
-        if (_changedProperties.has(field)) {
-
-            const oldValue = _changedProperties.get(field) as string | undefined | null;
-            const newValue = this[field] as string | undefined | null;
-
-
-            if (this.file) {
-
-                const slot = this.file.slots.getSlot(index);
-
-                // If slot had not exist before and sould create, do so
-                if (
-                    slot === undefined
-                    && newValue
-                    && newValue.trim().length > 0
-                    && (
-                        !oldValue
-                        || oldValue?.trim().length > 0
-                    )
-                ) {
-                    const analysis = this.file.slots.createFromSerialized(newValue, index);
-                    analysis?.setSelected(false, true);
-                }
-                // If the slot ceased to exist
-                else if (
-                    slot !== undefined
-                    && oldValue
-                    && (!newValue
-                        || newValue?.trim().length === 0
-                    )
-                ) {
-                    this.file.slots.removeSlotAndAnalysis(index);
-                } else if (slot && newValue) {
-                    slot?.recieveSerialized(newValue);
-                }
-
-            }
-
-        }
-
-    }
-
-
-
-
-
-
-    /** Rendering */
-
-    protected render(): unknown {
-        return html`
-            <slot></slot>
-            <slot name="mark"></slot>
-            <slot name="analysis"></slot>
-        `;
     }
 
 }

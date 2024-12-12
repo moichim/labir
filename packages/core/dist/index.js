@@ -5858,6 +5858,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
 
 // src/properties/analysisSync/analysisSync.ts
 var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
+  onSlotSync = new CallbacksManager();
   validate(value) {
     return value;
   }
@@ -5949,14 +5950,17 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   }
   static LISTENER_KEY = "__analysis__sync";
   startSyncingSlot(instance, slotNumber) {
-    const { serialise } = this.getSlotListeners(instance, slotNumber);
+    const { serialise, assign } = this.getSlotListeners(instance, slotNumber);
+    assign.set(_AnalysisSyncDrive.LISTENER_KEY, console.log);
     serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
       this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+        this.onSlotSync.call(value, slotNumber);
         if (sl === void 0 && value) {
           const analysis = f.slots.createFromSerialized(value, slotNumber);
           analysis?.setSelected();
         } else if (sl !== void 0 && value) {
           sl.recieveSerialized(value);
+          this.onSlotSync.call(sl ? sl.serialized : void 0, slotNumber);
         } else if (sl !== void 0 && value === void 0) {
           sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
         }
@@ -5999,6 +6003,23 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       const item = file.slots.getSlot(slotNumber);
       fn(item, file);
     });
+  }
+  recieveSlotSerialized(serialized, slot) {
+    console.log(serialized, slot);
+    this.parent.files.forEveryInstance(
+      (instance) => {
+        if (serialized) {
+          const sl = instance.slots.getSlot(slot);
+          if (sl) {
+            sl.recieveSerialized(serialized);
+          } else {
+            instance.slots.createFromSerialized(serialized, slot);
+          }
+        } else {
+          instance.slots.removeSlotAndAnalysis(slot);
+        }
+      }
+    );
   }
   /** @deprecated Should sync individual slots only. This method synces all slots at once. */
   syncSlots(instance) {

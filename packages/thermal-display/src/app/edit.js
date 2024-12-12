@@ -160,6 +160,7 @@ export default function Edit({ attributes, setAttributes }) {
 							<manager-provider
 								slug={ID + "___preview"}
 								palette={palette}
+								autoclear="true"
 							>
 								<registry-provider
 									from={from}
@@ -305,6 +306,7 @@ export default function Edit({ attributes, setAttributes }) {
 						<manager-provider
 							slug={ID + "___display"}
 							palette={palette}
+							autoclear="true"
 						>
 							<registry-provider
 								from={from}
