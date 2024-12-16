@@ -45,6 +45,8 @@ export const fr: Translation = {
 
 
     download: "Télécharger",
+    downloadoriginalfiles: "LRC - fichiers individuels",
+    downloadoriginalfileshint: "Téléchargez tous les fichiers IR sources",
     downloadoriginalfile: "{{type}} - Fichier thermique original",
     exportcurrentframeaspng: "PNG - Cadre actuel en tant qu'image",
     convertentiresequencetovideo: "WEBM - Convertir la séquence entière en vidéo",
