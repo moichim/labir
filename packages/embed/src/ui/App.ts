@@ -162,6 +162,7 @@ export class ThermalAppUiElement extends BaseElement {
             font-family: sans-serif;
             font-weight: normal;
             font-size: var( --thermal-fs );
+            line-height: 1em;
         }
 
         .dark {

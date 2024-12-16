@@ -103,8 +103,10 @@ export class RangeSliderElement extends RegistryConsumer {
         if (slider && this.initialised === false) {
             this.initialised = true;
             slider.addCSS(`
+                .tooltip {
+                    font-size: 12px;
+                }
                 .pointer-shape {
-                    
                     border-radius: 0;
                     width: 10px;
                 }
