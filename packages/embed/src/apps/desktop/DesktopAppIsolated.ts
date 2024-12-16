@@ -2,10 +2,10 @@ import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { ref } from "lit/directives/ref.js";
-import { BaseApp } from "../BaseApp";
+import { BaseSingleApp } from "../BaseSingleApp";
 
 @customElement("thermal-file-analyser")
-export class DesktopAppIsolated extends BaseApp {
+export class DesktopAppIsolated extends BaseSingleApp {
 
   protected render(): unknown {
 
@@ -15,7 +15,7 @@ export class DesktopAppIsolated extends BaseApp {
 
     return html`
 
-    <manager-provider slug="manager_${this.UUID}" palette=${this.palette} autoclear=${this.autoclear} autoclear=${this.autoclear}>
+    <manager-provider slug="manager_${this.UUID}" palette=${this.palette} autoclear=${this.autoclear}>
 
       <registry-provider 
         slug="registry_${this.UUID}" 
@@ -51,6 +51,10 @@ export class DesktopAppIsolated extends BaseApp {
               license=${ifDefined(this.license)}
               label=${ifDefined(this.label)}
               showtutorial=${this.showtutorial}
+              showembed=${this.showembed}
+              showabout=${this.showabout}
+              showfullscreen=${this.showfullscreen}
+              showhistogram=${this.showhistogram}
             >
               <slot name="content" slot="content"></slot>
             </desktop-app>

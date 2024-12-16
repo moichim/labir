@@ -89,6 +89,13 @@ export const fr: Translation = {
     edit: "Modifier",
     editsth: "Modifier {{what}}",
     remove: "Retirer",
+    addpoint: "Ajouter un point",
+    addellipsis: "Ajouter une ellipse",
+    addrectangle: "Ajouter un rectangle",
+    analysishint: "Vous pouvez sélectionner une zone dans l'image IR pour voir ses températures.",
+    graph: "Graphique",
+    graphhint1: "Ajoutez d'abord une analyse pour voir le graphique !",
+    graphhint2: "Cliquez sur une <span class='hintbtn'>valeur</span> d'analyse pour voir son graphique ici !",
 
     rectangle: "rectangle",
     ellipsis: "ellipse",
@@ -99,6 +106,7 @@ export const fr: Translation = {
     left: "Côté gauche",
     right: "Côté droite",
     bottom: "Côté inférieur",
+    columns: "{{num}} images par ligne",
 
     fromto: "De {{from}} à {{to}}",
     downloadgraphdataascsv: "Télécharger les données graphiques au format csv",

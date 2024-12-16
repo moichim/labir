@@ -46,6 +46,8 @@ export const cs: Translation = {
 
 
     download: "Stáhnout",
+    downloadoriginalfiles: "LRC - jednotlivé soubory",
+    downloadoriginalfileshint: "Stáhnout jednotlivé zdrojové termogramy",
     downloadoriginalfile: "{{type}} - Původní IR soubor",
     exportcurrentframeaspng: "PNG - Aktuální snímek jako PNG",
     convertentiresequencetovideo: "WEBM - Převést celou sekvenci do videa",
@@ -89,6 +91,13 @@ export const cs: Translation = {
     edit: "Upravit",
     editsth: "Upravit {{what}}",
     remove: "Odstranit",
+    addpoint: "Přidat bod",
+    addellipsis: "Přidat elipsu",
+    addrectangle: "Přidat obdélník",
+    analysishint: "Vyznačte oblast v termogramu a zde uvidíte přehled jejích teplot.",
+    graph: "Graf",
+    graphhint1: "Nejprve přidejte analýzu!",
+    graphhint2: "Pro zobrazení grafu klikněte na<span class='hintbtn'>hodnotu</span> některé analýzy!",
 
     rectangle: "obdélník",
     ellipsis: "elipsu",
@@ -99,13 +108,14 @@ export const cs: Translation = {
     left: "Levá strana",
     right: "Pravá strana",
     bottom: "Spodní strana",
+    columns: "{{num}} souborů na řádku",
 
     fromto: "Od {{from}} do {{to}}",
     downloadgraphdataascsv: "Stáhnout data grafu jako CSV",
 
 
     apparenttemperature: "Pocitová teplota",
-    apparenttemperaturehint : "Tento převodník využívá model pocitové teploty <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
+    apparenttemperaturehint: "Tento převodník využívá model pocitové teploty <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
     airtemperature: "Teplota vzduchu",
     relativeairhumidity: "Relativní vlhkost vzduchu",
     windspeed: "Rychlost větru",

@@ -64,6 +64,14 @@ const buildExportPngButton = () => {
 
     document.body.appendChild( element );
 
+    const dn = document.createElement( "button" );
+    dn.innerHTML = "All files individually";
+    dn.addEventListener("click", () => {
+        group.files.downloadAllFiles();
+    } );
+
+    document.body.appendChild( dn );
+
 }
 
 buildExportPngButton();

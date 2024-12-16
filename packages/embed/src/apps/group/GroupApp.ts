@@ -8,6 +8,7 @@ import { T } from "../../translations/Languages";
 import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
+import { booleanConverter } from "../../utils/booleanMapper";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {
@@ -94,6 +95,9 @@ export class GroupElement extends AbstractMultipleApp {
 
     @property({ type: String, reflect: true })
     public analysis7?: string;
+
+    @property({type: String, reflect: true, converter: booleanConverter(false)})
+    public preservetime: boolean = true;
 
 
     connectedCallback(): void {
@@ -292,21 +296,28 @@ export class GroupElement extends AbstractMultipleApp {
                                 <thermal-bar>
 
                                     <registry-palette-dropdown></registry-palette-dropdown>
-
-                                    <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
+                                    <div>
+                                        <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
 
                 const target = event.target as null | { value: string }
                 const value = target?.value;
                 if (value !== undefined) {
                     this.columns = parseInt(value);
                 }
-            }}></input>
+                                        }}></input>
+                                        <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, {num: this.columns})}</div>
+                                    </div>
 
                                     ${this.grouper.numFiles > 0
                 ? html`
                                             <thermal-dropdown class="download">
 
                                                 <span slot="invoker">${t(T.download)}</span>
+
+                                                <div slot="option">
+                                                    <thermal-button @click=${() => this.grouper.group.files.downloadAllFiles()}>${t(T.downloadoriginalfiles)}</thermal-button>
+                                                    <small>${t(T.downloadoriginalfileshint)}</small>
+                                                </div>
 
                                                 <div slot="option">
                                                     <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</thermal-button>
@@ -351,16 +362,19 @@ export class GroupElement extends AbstractMultipleApp {
                 : nothing
             }
 
+                                ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+
                                 </thermal-bar>
 
                             </div>
 
 
-                            <registry-histogram></registry-histogram>
+                            ${this.showhistogram === true ? html`<registry-histogram></registry-histogram>`: nothing}
+
                             <registry-range-slider></registry-range-slider>
                             <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
 
-                            <group-tool-buttons></group-tool-buttons>
+                            ${this.interactiveanalysis === true ? html`<group-tool-buttons></group-tool-buttons>` : nothing }
 
                             <div class="app-content">
 
@@ -380,7 +394,8 @@ export class GroupElement extends AbstractMultipleApp {
                     () => {
                         this.highlightFrom = undefined;
                         this.highlightTo = undefined;
-                    }
+                    },
+                    this.preservetime
                 );
 
             })}

@@ -49,6 +49,14 @@ export class InstanceRenderer {
             padding: 0;
             text-overflow: ellipsis;
             overflow: hidden;
+
+            strong {
+                font-weight: bold;
+            }
+            span {
+                opacity: .5;
+                padding-left: 10px;
+            }
         }
 
         .file-title > h3 > span {
@@ -106,14 +114,34 @@ export class InstanceRenderer {
         </thermal-dialog>`
     }
 
+    protected renderHeaderContent(
+        preservetimelabel: boolean,
+        time: string,
+        label?: string,
+    ): HtmlResult {
+
+        if ( label === undefined || label.trim().length === 0 ) {
+            return html`<strong>${time}</strong>`;
+        }
+
+        else if ( preservetimelabel === true ) {
+            return html`<strong>${label}</strong><span>${time}</span>`;
+        }
+
+        return html`<strong>${label}</strong>`;
+
+
+    }
+
 
     public renderInstance(
         instance: Instance,
         onInstanceEnter: InstanceInteractionCallback,
         onInstanceLeave: InstanceInteractionCallback,
         time: string,
+        preservetime: boolean,
         label?: string,
-        innerHtml?: string
+        innerHtml?: string,
     ): HtmlResult {
 
         return html`<div class="file">
@@ -128,8 +156,7 @@ export class InstanceRenderer {
                     <div class="file-title">
                     
                         <h3>
-                            <span>${label}</span>
-                            <span>${time}</span>
+                            ${this.renderHeaderContent(preservetime, time, label )}
                         </h3>
 
                         <div>
@@ -140,6 +167,16 @@ export class InstanceRenderer {
                                 class="file-info-button"
                                 @click=${() => instance.export.downloadPng()}
                             >png</button>
+
+                            <button
+                                class="file-info-button"
+                                @click=${() => {
+                                    const link = document.createElement( "a" );
+                                    link.href = instance.thermalUrl;
+                                    link.download = instance.fileName;
+                                    link.click();
+                                }}
+                            >lrc</button>
 
                             <file-info-button>
                                 <button 

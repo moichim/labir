@@ -46,6 +46,8 @@ export const en: Translation = {
 
 
     download: "Download",
+    downloadoriginalfiles: "LRC - individual files",
+    downloadoriginalfileshint: "Download all source IR files",
     downloadoriginalfile: "{{type}} - Original thermal file",
     exportcurrentframeaspng: "PNG - Current frame as PNG",
     convertentiresequencetovideo: "WEBM - Convert entire sequence to video",
@@ -88,6 +90,13 @@ export const en: Translation = {
     edit: "Edit",
     editsth: "Edit {{what}}",
     remove: "Remove",
+    addpoint: "Add point",
+    addellipsis: "Add ellipsis",
+    addrectangle: "Add rectangle",
+    analysishint: "You may select area in the IR image to see its temperatures.",
+    graph: "Graph",
+    graphhint1: "Add analysis first to see the graph!",
+    graphhint2: "Click on an analysis <span class='hintbtn'>value</span> to see its graph here!",
 
     rectangle: "rectangle",
     ellipsis: "ellipsis",
@@ -98,6 +107,7 @@ export const en: Translation = {
     left: "Left",
     right: "Right",
     bottom: "Bottom",
+    columns: "{{num}} images in a row",
 
     fromto: "From {{from}} to {{to}}",
     downloadgraphdataascsv: "Download graph data as CSV",

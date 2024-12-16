@@ -3,7 +3,7 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
-import { T } from "../translations/Languages";
+import { languages, languagesObject, T } from "../translations/Languages";
 
 
 @customElement("thermal-app")
@@ -158,6 +158,12 @@ export class ThermalAppUiElement extends BaseElement {
 
     static styles = css`
 
+        :host {
+            font-family: sans-serif;
+            font-weight: normal;
+            font-size: var( --thermal-fs );
+        }
+
         .dark {
             background-color: var( --thermal-slate ) !important;
         }
@@ -269,8 +275,9 @@ export class ThermalAppUiElement extends BaseElement {
                     ${[
                         "en",
                         "cs",
+                        "de",
                         "fr",
-                        "cy"
+                        "cy",
                     ].map( lang => html`
                         <div slot="option">
                             <thermal-button
@@ -278,7 +285,7 @@ export class ThermalAppUiElement extends BaseElement {
                                     i18next.changeLanguage( lang );
                                     this.language = lang;
                                 }}
-                            >${lang.toUpperCase()}</thermal-button>
+                            >${languagesObject[lang].flag} ${languagesObject[lang].name}</thermal-button>
                         </div>
                     ` )}
                 </thermal-dropdown>

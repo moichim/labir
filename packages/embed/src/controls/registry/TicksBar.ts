@@ -162,8 +162,8 @@ export class TicksElement extends RegistryConsumer {
                 display: block;
                 content: "";
                 width: 1px;
-                height: 7px;
-                //background: currentcolor;
+                height: 10px;
+                background: var(--thermal-slate);
             }
         
         }
@@ -173,7 +173,7 @@ export class TicksElement extends RegistryConsumer {
             margin-bottom: calc( var( --thermal-gap ) * .5 );
             .tick {
                 &::before {
-                    background: currentcolor;
+                    background: var(--thermal-slate);
                 }
             }
         }
@@ -235,7 +235,7 @@ export class TicksElement extends RegistryConsumer {
                 <div class="ticks" ${ref(this.ticksRef)}>
 
                     ${hasHighlight
-                ? html`<div class="highlight" style="position: absolute; top: 2px; height: 3px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-foreground)"></div>`
+                ? html`<div class="highlight" style="position: absolute; top: 0px; height: 5px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-foreground)"></div>`
                 : nothing
             }
 

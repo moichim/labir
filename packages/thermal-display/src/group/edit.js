@@ -15,7 +15,8 @@ import {
 	Tooltip,
 	RangeControl,
 	PanelHeader,
-	Panel
+	Panel,
+	CheckboxControl
 } from '@wordpress/components';
 
 import './editor.scss';
@@ -62,7 +63,11 @@ export default function EditGroup({ attributes, setAttributes }) {
 		analysis5,
 		analysis6,
 		analysis7,
-		speed
+		speed,
+		showabout,
+		showhistogram,
+		interactiveanalysis,
+		preservetime
 	} = attributes;
 
 	const fl = useFiles(files);
@@ -128,50 +133,50 @@ export default function EditGroup({ attributes, setAttributes }) {
 
 		console.log(">>>", previewRef.current);
 
-		if ( group === undefined ) {
+		if (group === undefined) {
 
-			setTimeout( () => {
+			setTimeout(() => {
 
-				if ( previewRef.current !== null) {
+				if (previewRef.current !== null) {
 
 
 					const gr = previewRef.current.group;
 
-					gr.registry.palette.addListener( ID, value => {
+					gr.registry.palette.addListener(ID, value => {
 						setAttributes({ palette: value });
-					} );
+					});
 
-					gr.registry.range.addListener( ID, value => {
+					gr.registry.range.addListener(ID, value => {
 
-						if ( value ) {
+						if (value) {
 							setAttributes(value);
 						}
 
-					} );
+					});
 
-					gr.analysisSync.onSlotSync.set( ID, (
+					gr.analysisSync.onSlotSync.set(ID, (
 						serialized,
 						slotNumber
 					) => {
-						
+
 						const key = `analysis${slotNumber}`;
 						console.log(key, serialized);
-						setAttributes( { [key]: serialized } );
+						setAttributes({ [key]: serialized });
 					});
 
-					previewRef.current.onColumns.set( ID, value => {
-						setAttributes( {columns: value} );
-					} );
+					previewRef.current.onColumns.set(ID, value => {
+						setAttributes({ columns: value });
+					});
 
-					setGroup( previewRef.current.group );
+					setGroup(previewRef.current.group);
 
 				}
 
-			}, 0 );
+			}, 0);
 
-			
 
-			console.log( "==========", previewRef.current );
+
+			console.log("==========", previewRef.current);
 
 		}
 
@@ -307,6 +312,45 @@ export default function EditGroup({ attributes, setAttributes }) {
 					</PanelBody>
 
 
+					<PanelBody
+						title="Display settings"
+					>
+
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={showhistogram}
+							label="Show histogram"
+							hint="Enable histogram display in the thermal scale?"
+							onChange={(value) => { setAttributes({ showhistogram: value }) }}
+						/>
+
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={showabout}
+							label="Show about button"
+							help="Display the button with application info?"
+							onChange={(value) => { setAttributes({ showabout: value }) }}
+						/>
+
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={interactiveanalysis}
+							label="Interactive analysis"
+							help="Should the visitor be able to edit analysis?"
+							onChange={(value) => { setAttributes({ interactiveanalysis: value }) }}
+						/>
+
+						<CheckboxControl
+							__nextHasNoMarginBottom
+							checked={preservetime}
+							label="Preserve time in file labels"
+							help="Should the file time be displayed even if the file has a custom label?"
+							onChange={(value) => { setAttributes({ preservetime: value }) }}
+						/>
+
+					</PanelBody>
+
+
 
 
 				</InspectorControls>
@@ -337,6 +381,10 @@ export default function EditGroup({ attributes, setAttributes }) {
 							analysis5={analysis5}
 							analysis6={analysis6}
 							analysis7={analysis7}
+							showabout={showabout}
+							showhistogram={showhistogram}
+							interactiveanalysis={interactiveanalysis}
+							preservetime={preservetime}
 						></thermal-group-app>
 					</Tooltip>
 					: <Placeholder

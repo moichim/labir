@@ -5,6 +5,9 @@ import { customElement, property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/booleanMapper";
+import { consume } from "@lit/context";
+import { interactiveAnalysisContext } from "../../utils/context";
 
 @customElement("file-app")
 export class SingleFileApp extends FileConsumer {
@@ -14,14 +17,20 @@ export class SingleFileApp extends FileConsumer {
     return undefined;
   }
 
-  @property({ type: String, reflect: true, attribute: true })
-  showembed: boolean = true;
+  @property({ type: String, reflect: true, attribute: true,converter: booleanConverter( false ) })
+  showembed: boolean = false;
 
-  @property({ type: String, reflect: true, attribute: true })
-  showabout: boolean = true;
+  @property({ type: String, reflect: true, attribute: true, converter: booleanConverter( false ) })
+  showabout: boolean = false;
 
-  @property({ type: String, reflect: true, attribute: true })
-  showfullscreen: boolean = true;
+  @property({ type: String, reflect: true, attribute: true, converter: booleanConverter( false ) })
+  showfullscreen: boolean = false;
+
+  @property({ type: String, reflect: true, converter: booleanConverter( true ) })
+  showhistogram: boolean = true;
+
+  @consume({context: interactiveAnalysisContext, subscribe: true})
+  interactiveanalysis: boolean = false;
 
   @property()
   author?: string;
@@ -140,8 +149,10 @@ export class SingleFileApp extends FileConsumer {
 
             </thermal-bar>
           </div>
-            <group-tool-buttons slot="pre"></group-tool-buttons>
-            <registry-histogram slot="pre"></registry-histogram>
+            ${this.interactiveanalysis === true ? html`<group-tool-buttons slot="pre"></group-tool-buttons>`:nothing}
+            
+            ${this.showhistogram === true ? html`<registry-histogram slot="pre"></registry-histogram>`: nothing}
+
             <registry-range-slider slot="pre"></registry-range-slider>
             <registry-ticks-bar slot="pre" placement="top"></registry-ticks-bar>
             

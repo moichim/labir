@@ -5,8 +5,12 @@ import { createRef, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 
+import {booleanConverter} from "../utils/booleanMapper";
+import { provide } from "@lit/context";
+import { interactiveAnalysisContext } from "../utils/context";
+
 /** All the parameters that shall be used by a single file app should be defined */
-export abstract class BaseApp extends BaseElement {
+export abstract class BaseSingleApp extends BaseElement {
 
 
 
@@ -40,17 +44,24 @@ export abstract class BaseApp extends BaseElement {
     @property()
     label?: string;
 
-    @property({ type: String, reflect: false, attribute: true })
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter( false ) })
     showembed: boolean = false;
 
-    @property({ type: String, reflect: false, attribute: true })
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter( false ) })
     showabout: boolean = false;
 
-    @property({ type: String, reflect: false, attribute: true })
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter( false ) })
     showtutorial: boolean = false;
 
-    @property({ type: String, reflect: false })
+    @property({ type: String, reflect: false, converter: booleanConverter( true ) })
     showfullscreen: boolean = false;
+
+    @property({type: String, reflect: true, converter: booleanConverter( true )})
+    showhistogram: boolean = true;
+
+    @provide({context: interactiveAnalysisContext})
+    @property({type: String, reflect: true, converter: booleanConverter( true )})
+    interactiveanalysis: boolean = true;
 
     @property({ type: String, reflect: true })
     analysis1?: string;
@@ -79,7 +90,7 @@ export abstract class BaseApp extends BaseElement {
     @property({ type: String, reflect: true })
     speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
 
-    @property({type: String, reflect: true })
+    @property({type: String, reflect: true,  })
     autoclear: boolean = false;
 
 

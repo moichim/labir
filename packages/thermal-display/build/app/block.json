@@ -45,6 +45,18 @@
       "type": "string",
       "default": "thermal-file-app"
     },
+    "showabout": {
+      "type": "boolean",
+      "default": "true"
+    },
+    "showhistogram": {
+      "type": "boolean",
+      "default": "true"
+    },
+    "interactiveanalysis": {
+      "type": "boolean",
+      "default": "true"
+    },
     "thermal": {
       "type": "string"
     },

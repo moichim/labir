@@ -38,6 +38,10 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			<?php if (analysis_is_set( $attributes["analysis5"] ) ) { echo 'analysis5="'.$attributes["analysis5"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis6"] ) ) { echo 'analysis6="'.$attributes["analysis6"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis7"] ) ) { echo 'analysis7="'.$attributes["analysis7"].'"'; } ?>
+			showhistogram="<?= $attributes["showhistogram"] ? "true": "false" ?>"
+			showabout="<?= $attributes["showabout"] ? "true": "false" ?>"
+			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
+			preservetime="<?= $attributes["preservetime"] ? "true" : "false" ?>"
 		></thermal-group-app>
 
 </div>

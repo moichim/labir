@@ -1,5 +1,5 @@
 import { Instance, ThermalTool, TimeFormat } from "@labir/core";
-import { provide } from "@lit/context";
+import { consume, provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -9,6 +9,9 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { Tour } from "../../tour/Tour";
 import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/booleanMapper";
+import { interactiveAnalysisContext } from "../../utils/context";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 @customElement("desktop-app")
 export class DesktopFileApp extends FileConsumer {
@@ -17,17 +20,23 @@ export class DesktopFileApp extends FileConsumer {
     return undefined;
   }
 
-  @property({ type: String, reflect: true, attribute: true })
-  showembed: boolean = true;
+  @property({ type: String, reflect: true, attribute: true, converter: booleanConverter( false ) })
+  showembed: boolean = false;
 
-  @property({ type: String, reflect: true, attribute: true })
-  showabout: boolean = true;
+  @property({ type: String, reflect: true, attribute: true, converter: booleanConverter( false ) })
+  showabout: boolean = false;
 
-  @property({ type: String, reflect: true, attribute: true })
-  showfullscreen: boolean = true;
+  @property({ type: String, reflect: true, attribute: true, converter: booleanConverter( false ) })
+  showfullscreen: boolean = false;
+
+  @property({ type: Boolean, reflect: true, converter: booleanConverter( true ) })
+  showhistogram: boolean = true;
 
   @property({ type: String, reflect: false, attribute: true })
   showtutorial: boolean = false;
+
+  @consume({context: interactiveAnalysisContext, subscribe: true})
+  interactiveanalysis: boolean = false;
 
   @state()
   hasAnalysis: boolean = false;
@@ -136,6 +145,7 @@ export class DesktopFileApp extends FileConsumer {
 
   static styles = css`
 
+
     thermal-app[fullscreen="on"]::part(app-content) {
       
       box-sizing: border-box;
@@ -232,6 +242,13 @@ export class DesktopFileApp extends FileConsumer {
       position: absolute;
       overflow: hidden;
 
+    }
+
+    .hintbtn {
+      display: inline-block;
+      padding: 1px 4px; 
+      border-radius: var(--thermal-gap); 
+      border: 1px solid var(--thermal-slate);
     }
   
   `;
@@ -332,7 +349,8 @@ export class DesktopFileApp extends FileConsumer {
             
             <div class="content-container ${this.contentContainerWidth > 700 ? "content-container__expanded" : ""}" ${ref(this.contentContainerRef)}>
 
-                <div class="content-container-part content-container__tools">
+                ${this.interactiveanalysis === true ? html`
+                  <div class="content-container-part content-container__tools">
                   ${this.contentContainerWidth > 700 ? html`<group-tool-bar tour="tools">
                     <tour-step slot="tour" placement="right-top" label="Analysis tools">
                         Select a tool and draw an analysis on the IR image.
@@ -344,10 +362,11 @@ export class DesktopFileApp extends FileConsumer {
                     </tour-step>
         </group-tool-buttons>`}
                 </div>
+                ` : nothing}
 
                 <div class="content-container__part content-container__left">
 
-                  <registry-histogram slot="pre"></registry-histogram>
+                ${this.showhistogram === true ? html`<registry-histogram slot="pre"></registry-histogram>`: nothing}
                   <registry-range-slider slot="pre" tour="range">
                     <tour-step label="Thermal range" placement="bottom" slot="tour">
                       <p>Move the left and right handle to adjust the thermal range.</p>
@@ -370,15 +389,15 @@ export class DesktopFileApp extends FileConsumer {
                     ${this.hasAnalysis
         ? html`<file-analysis-table></file-analysis-table>`
         : html`<div class="placeholder">
-                        <div class="placeholder-title">Analysis</div>
-                        <div>You may select areas or points on the thermogram to see statistics here!</div>
+                        <div class="placeholder-title">${t(T.analysis)}</div>
+                        <div>${t(T.analysishint)}</div>
                     ${["add-point", "add-rect", "add-ellipsis"].includes(this.tool?.key ?? "") ? html`
                       <div>${this.tool?.description}</div>
                     ` : html`
                       <div>
-                        <thermal-button tourstepid="sth4" @click=${() => this.group.tool.selectTool("add-point")}>Add a point analysis</thermal-button>
-                        <thermal-button @click=${() => this.group.tool.selectTool("add-rect")}>Add a rectangle analysis</thermal-button>
-                        <thermal-button @click=${() => this.group.tool.selectTool("add-ellipsis")}>Add a ellipsis analysis</thermal-button>
+                        <thermal-button tourstepid="sth4" @click=${() => this.group.tool.selectTool("add-point")}>${t(T.addpoint)}</thermal-button>
+                        <thermal-button @click=${() => this.group.tool.selectTool("add-rect")}>${t(T.addrectangle)}</thermal-button>
+                        <thermal-button @click=${() => this.group.tool.selectTool("add-ellipsis")}>${t(T.addellipsis)}</thermal-button>
                       </div>
                     ` }
           
@@ -391,8 +410,8 @@ export class DesktopFileApp extends FileConsumer {
                     <file-analysis-graph style="opacity: ${this.hasGraph ? 1 : 0}"></file-analysis-graph>
                   ${this.hasGraph === false
           ? html`<div class="placeholder">
-                      <div class="placeholder-title">Graph</div>
-                      <div>${this.hasAnalysis === false ? "Add analysis first to see the graph!" : html`Click on an analysis <span style="display: inline-block;padding: 1px 4px; border-radius: var(--thermal-gap); border: 1px solid var(--thermal-slate);">value</span> to see its graph here!`}</div>
+                      <div class="placeholder-title">${t(T.graph)}</div>
+                      <div>${this.hasAnalysis === false ? t(T.graphhint1) : unsafeHTML( t(T.graphhint2) )}</div>
                     </div>`
           : nothing
         }

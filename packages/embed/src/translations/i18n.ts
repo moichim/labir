@@ -6,6 +6,7 @@ import { en } from './languages/en';
 import { fr } from './languages/fr';
 import { cs } from './languages/cs';
 import { cy } from './languages/cy';
+import { de } from './languages/de';
 
 /** initialise the I18n object */
 i18next
@@ -16,18 +17,22 @@ i18next
         // lng: 'de',
         fallbackLng: "en",
         resources: {
+            
+            cs: {
+                translation: cs,
+            },
+            cy: {
+                translation: cy
+            },
+            de: {
+                translation: de
+            },
             en: {
                 translation: en,
             },
             fr: {
                 translation: fr,
             },
-            cs: {
-                translation: cs,
-            },
-            cy: {
-                translation: cy
-            }
         },
     }
 );

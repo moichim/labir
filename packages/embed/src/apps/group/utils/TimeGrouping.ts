@@ -91,7 +91,7 @@ export class TimeGrouping {
                 this.records.push({
                     instance: result,
                     innerHtml: storedContent,
-                    label: entry.label
+                    label: entry.label,
                 });
 
             }

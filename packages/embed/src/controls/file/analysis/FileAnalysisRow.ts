@@ -1,15 +1,20 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { AbstractAnalysis, PointAnalysis } from "@labir/core";
-import { css, html, PropertyValues } from "lit";
+import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis } from "@labir/core";
+import { css, html, nothing, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
+import { consume } from "@lit/context";
+import { interactiveAnalysisContext } from "../../../utils/context";
 
 @customElement("file-analysis-table-row")
 export class FileAnalysisRow extends BaseElement {
 
     @property()
     public analysis!: AbstractAnalysis;
+
+    @consume({ context: interactiveAnalysisContext, subscribe: true })
+    interactiveanalysis: boolean = false;
 
     @state()
     protected value: {
@@ -50,13 +55,13 @@ export class FileAnalysisRow extends BaseElement {
     @state()
     protected color?: string;
 
-    @property({type: Boolean, reflect: true, attribute: true})
+    @property({ type: Boolean, reflect: true, attribute: true })
     protected selected: boolean = false;
 
     @state()
     protected name?: string;
 
-    
+
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
@@ -74,7 +79,7 @@ export class FileAnalysisRow extends BaseElement {
                 oldAnalysis.onMoveOrResize.delete(this.UUID);
                 oldAnalysis.graph.onGraphActivation.delete(this.UUID);
                 oldAnalysis.onSetInitialColor.delete(this.UUID);
-                oldAnalysis.onSetName.delete( this.UUID );
+                oldAnalysis.onSetName.delete(this.UUID);
             }
 
             const newAnalysis = this.analysis;
@@ -88,8 +93,19 @@ export class FileAnalysisRow extends BaseElement {
             // Update the color
             this.color = newAnalysis.initialColor;
 
+            
+
+            const formatDimension = (analysis: AbstractAnalysis) => {
+
+                if ( analysis instanceof AbstractAreaAnalysis ) {
+                    return newAnalysis.width + "x" + newAnalysis.height;
+                }
+                return "1x1";
+
+            }
+
             // Update dimensions
-            this.dimension = newAnalysis.width + "x" + newAnalysis.height;
+            this.dimension = formatDimension( newAnalysis ); // newAnalysis.width + "x" + newAnalysis.height;
 
             // Update values
             this.value = {
@@ -99,14 +115,14 @@ export class FileAnalysisRow extends BaseElement {
             }
 
             // Update may
-            if ( newAnalysis.file.timeline.isSequence) {
+            if (newAnalysis.file.timeline.isSequence) {
                 this.may = newAnalysis instanceof PointAnalysis
-                ? { avg: true, min: false, max: false }
-                : { avg: true, min: true, max: true };
+                    ? { avg: true, min: false, max: false }
+                    : { avg: true, min: true, max: true };
             } else {
                 this.may = { avg: false, min: false, max: false };
             }
-            
+
 
             // Update graph
             this.graph = {
@@ -117,7 +133,7 @@ export class FileAnalysisRow extends BaseElement {
 
             // Listen to resize or move
             newAnalysis.onSerializableChange.set(this.UUID, (analysis) => {
-                this.dimension = analysis.width + "x" + analysis.height;
+                this.dimension = formatDimension(analysis);// analysis.width + "x" + analysis.height;
             });
 
             // Listen to values
@@ -163,9 +179,9 @@ export class FileAnalysisRow extends BaseElement {
 
 
     protected renderCell(
-        value: number|undefined, 
-        may: boolean, 
-        active: boolean, 
+        value: number | undefined,
+        may: boolean,
+        active: boolean,
         clickFn: () => void
     ): unknown {
 
@@ -173,7 +189,7 @@ export class FileAnalysisRow extends BaseElement {
             <td class="${may ? "may" : "mayNot"} ${active ? "active" : "inactive"}">
 
                 ${may
-                    ? html`
+                ? html`
                         <button
                             @click=${clickFn}
                             style="background-color: ${active ? this.color : "transparent"};"
@@ -182,8 +198,8 @@ export class FileAnalysisRow extends BaseElement {
                             ${this.valueOrNothing(value)}
                         </button>
                     `
-                    : this.valueOrNothing(value)
-                }
+                : this.valueOrNothing(value)
+            }
 
             </td>
         `;
@@ -230,9 +246,11 @@ export class FileAnalysisRow extends BaseElement {
 
         .name {
 
-            cursor: pointer;
+            &.interactive {
+                cursor: pointer;
+            }
 
-            &:hover {
+            &.interactive:hover {
                 color: var( --thermal-primary );
             }
 
@@ -267,48 +285,54 @@ export class FileAnalysisRow extends BaseElement {
         return html`
         
         <td 
-            class="name ${this.selected ? "selected" : "notSelected"}"
-            @click=${ () => {
-                if ( this.selected ) this.analysis.setDeselected( true );
-                else this.analysis.setSelected( false, true );
-            } }
+            class="name ${this.selected ? "selected" : "notSelected"} ${this.interactiveanalysis ? "interactive" : ""}"
+            @click=${() => {
+
+                if ( this.interactiveanalysis === false ) {
+                    return;
+                }
+
+                if (this.selected) this.analysis.setDeselected(true);
+                else this.analysis.setSelected(false, true);
+            }}
         >
-            <u aria-hidden="true"></u>
+            ${this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing }
             <b aria-hidden="true" style="background-color: ${this.color}"></b>
             <span>${this.analysis.name}</span>
         </td>
 
         ${this.renderCell(
-            this.value.avg, 
-            this.may.avg, 
-            this.graph.avg, 
-            () => {
-                    this.analysis.graph.setAvgActivation( ! this.graph.avg );
-            }
-        )}
+                this.value.avg,
+                this.may.avg,
+                this.graph.avg,
+                () => {
+                    this.analysis.graph.setAvgActivation(!this.graph.avg);
+                }
+            )}
         ${this.renderCell(
-            this.value.min, 
-            this.may.min, 
-            this.graph.min, 
-            () => {
-                    this.analysis.graph.setMinActivation( ! this.graph.min );
-            }
-        )}
+                this.value.min,
+                this.may.min,
+                this.graph.min,
+                () => {
+                    this.analysis.graph.setMinActivation(!this.graph.min);
+                }
+            )}
         ${this.renderCell(
-            this.value.max, 
-            this.may.max, 
-            this.graph.max, 
-            () => {
-                    this.analysis.graph.setMaxActivation( ! this.graph.max );
-            }
-        )}
+                this.value.max,
+                this.may.max,
+                this.graph.max,
+                () => {
+                    this.analysis.graph.setMaxActivation(!this.graph.max);
+                }
+            )}
         <td>${this.dimension}</td>
-        <td>
+        ${this.interactiveanalysis === true ? html`<td>
             <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
             <thermal-button @click=${() => {
-                this.analysis.file.analysis.layers.removeAnalysis( this.analysis.key )
+                this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)
             }}>${t(T.remove)}</thermal-button>
-        </td>
+        </td>`
+        : nothing }
         
         `;
     }

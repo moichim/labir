@@ -8,11 +8,14 @@
   <title>@labir/embed</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: serif;
+      font-size: 30px;
+      font-weight: bold;
     }
 
     button {
       color: red;
+      padding: 4rem !important;
     }
   </style>
 </head>
@@ -82,11 +85,12 @@
     -->
 
 
-    <thermal-file-analyser url="/duch/0-ulice.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
-      license="CC BY-SA 4.0" label=" " speed="10" palette="iron"
-      analysis1="Bod na budově;point;top:40;left:136;color:GreenYellow"
-      analysis7="Nebe;rectangle;color:Green;top:3;left:66;width:51;height:16;avg;max"
-      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26">
+    <thermal-file-analyser url="/16.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
+      license="CC BY-SA 4.0" label=" " palette="iron"
+      showabout="false"
+      showhistogram="true"
+      interactiveanalysis="true"
+    >
       <div slot="content">Jsem obsah aplikace</div>
     </thermal-file-analyser>
 
@@ -117,13 +121,11 @@
     <br />
 
 
-    <thermal-file-analyser url="/sequence.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
+    <thermal-file-app url="/sequence.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
       license="CC BY-SA 4.0" label=" " speed="10" palette="iron"
-      analysis1="Bod na budově;point;top:40;left:136;color:GreenYellow"
-      analysis7="Nebe;rectangle;color:Green;top:3;left:66;width:51;height:16;avg;max"
-      analysis2="Chodnílk;rectangle;color:Blue;top:78;left:74;width:27;height:26" showtutorial="true">
+      showtutorial="true" interactiveanalysis="false">
       <div slot="content">Jsem obsah aplikace</div>
-    </thermal-file-analyser>
+    </thermal-file-app>
 
 
     <br />
@@ -153,9 +155,9 @@
 
 
     <thermal-group-app slug="Různé materiály 2" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
-      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3" palette="iron" from="20.45" to="29">
+      description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3" palette="iron" from="20.45" to="29" showhistogram="false" interactiveanalysis="false" preservetime="false">
       <time-entry slot="entry" thermal="/materialy/materialy_drevo_RAW.lrc" label="Dřevo"></time-entry>
-      <time-entry slot="entry" thermal="/materialy/materialy_plechy_RAW__FIX.lrc" label="Plechy"></time-entry>
+      <time-entry slot="entry" thermal="/materialy/materialy_plechy_RAW__FIX.lrc"></time-entry>
       <!--<time-entry slot="entry" thermal="/materialy/materialy_polystyren_RAW.lrc" label="Polystyren"></time-entry>-->
     </thermal-group-app>
 
@@ -171,7 +173,7 @@
     -->
 
       <time-group slug="drevo" name="Dřevo">
-        <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PRED.lrc"></time-entry>
+        <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PRED.lrc" label="zde je popiska"></time-entry>
         <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PO.lrc"></time-entry>
       </time-group>
 

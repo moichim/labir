@@ -79,6 +79,17 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         this.value.forEach(instance => fn(instance));
     }
 
+    public downloadAllFiles() {
+        this.forEveryInstance( instance => {
+
+            const link = document.createElement( "a" );
+            link.download = instance.fileName;
+            link.href = instance.thermalUrl;
+            link.click();
+
+        } );
+    }
+
 
 
 

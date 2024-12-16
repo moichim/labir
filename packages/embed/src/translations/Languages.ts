@@ -92,6 +92,8 @@ export enum T {
 
 
     download = "download",
+    downloadoriginalfiles = "downloadoriginalfiles",
+    downloadoriginalfileshint = "downloadoriginalfileshint",
     downloadoriginalfile = "downloadoriginalfile",
     exportcurrentframeaspng = "exportcurrentframeaspng",
     convertentiresequencetovideo = "convertentiresequencetovideo",
@@ -135,6 +137,13 @@ export enum T {
     edit = "edit",
     editsth = "editsth",
     remove = "remove",
+    addpoint = "addpoint",
+    addrectangle = "addrectangle",
+    addellipsis = "addellipsis",
+    analysishint = "analysishint",
+    graph = "graph",
+    graphhint1 = "graphhint1",
+    graphhint2 = "graphhint2",
 
     rectangle = "rectangle",
     ellipsis = "ellipsis",
@@ -145,6 +154,7 @@ export enum T {
     left = "left",
     right = "right",
     bottom = "bottom",
+    columns = "columns",
 
     fromto = "fromto",
     downloadgraphdataascsv = "downloadgraphdataascsv",
@@ -186,25 +196,34 @@ type LangDefinition = {
 }
 
 export const languages: LangDefinition[] = [
-    {
-        code: "en",
-        name: "English",
-        flag: "🇬🇧"
-    },
+    
     {
         code: "cs",
         name: "Čeština",
         flag: "🇨🇿"
     },
     {
-        code: "fr",
-        name: "Français",
-        flag: "🇫🇷"
-    },
-    {
         code: "cy",
         name: "Cymraeg",
         flag: "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
         disabled: true
-    }
+    },
+    {
+        code: "de",
+        name: "Deutsch",
+        flag: "🇩🇪"
+    },
+    {
+        code: "en",
+        name: "English",
+        flag: "🇬🇧"
+    },
+    {
+        code: "fr",
+        name: "Français",
+        flag: "🇫🇷"
+    },
+    
 ];
+
+export const languagesObject = Object.fromEntries( languages.map( l => [l.code, l] ) );

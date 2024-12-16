@@ -1,8 +1,11 @@
 import { css } from "lit";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { GroupRenderer } from "./GroupRenderer";
 import { InstanceRenderer } from "./InstanceRenderer";
+import { booleanConverter } from "../../utils/booleanMapper";
+import { provide } from "@lit/context";
+import { interactiveAnalysisContext } from "../../utils/context";
 
 export type ParsedFileType = {
     thermal: string;
@@ -18,6 +21,25 @@ export abstract class AbstractMultipleApp extends BaseElement {
 
     @state()
     highlightTo?: number;
+
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+    showembed: boolean = false;
+
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+    showabout: boolean = false;
+
+    @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+    showtutorial: boolean = false;
+
+    @property({ type: String, reflect: false, converter: booleanConverter(true) })
+    showfullscreen: boolean = false;
+
+    @property({ type: String, reflect: true, converter: booleanConverter(true) })
+    showhistogram: boolean = true;
+
+    @provide({ context: interactiveAnalysisContext })
+    @property({ type: String, reflect: true, converter: booleanConverter(true) })
+    interactiveanalysis: boolean = true;
 
     static styles? = [
         InstanceRenderer.styles,

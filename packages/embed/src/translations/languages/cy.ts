@@ -45,6 +45,8 @@ export const cy: Translation = {
 
 
     download: "Lawrlwythwch",
+    downloadoriginalfiles: "LRC - einzelne Dateien",
+    downloadoriginalfileshint: "Alle ursprünglichen IR-Dateien herunterladen",
     downloadoriginalfile: "{{type}} - Ffeil thermol wreiddiol",
     exportcurrentframeaspng: "PNG - Ffrâm gyfredol fel delwedd",
     convertentiresequencetovideo: "WEBM - Trosi dilyniant cyfan i fideo",
@@ -89,6 +91,13 @@ export const cy: Translation = {
     edit: "Golygu",
     editsth: "Golygu {{what}}",
     remove: "Dileu",
+    addpoint: "Ychwanegu pwynt",
+    addellipsis: "Ychwanegu elips",
+    addrectangle: "Ychwanegu petryal",
+    analysishint: "Gallwch ddewis ardal yn y ddelwedd IR i weld ei thymhereddau.",
+    graph: "Graff",
+    graphhint1: "Ychwanegwch ddadansoddiad yn gyntaf i weld y graff!",
+    graphhint2: "Cliciwch ar <span class='hintbtn'>werth</span> dadansoddiad i weld ei graff yma!",
 
     rectangle: "petryal",
     ellipsis: "elipsis",
@@ -99,6 +108,7 @@ export const cy: Translation = {
     left: "Ochr chwith",
     right: "Ochr dde",
     bottom: "Ochr gwaelod",
+    columns: "{{num}} delwedd mewn rhes",
 
     fromto: "O {{from}} i {{to}}",
     downloadgraphdataascsv: "Lawrlwythwch data graff fel CSV",

@@ -6116,6 +6116,14 @@ var FilesState = class extends AbstractProperty {
   forEveryInstance(fn) {
     this.value.forEach((instance) => fn(instance));
   }
+  downloadAllFiles() {
+    this.forEveryInstance((instance) => {
+      const link = document.createElement("a");
+      link.download = instance.fileName;
+      link.href = instance.thermalUrl;
+      link.click();
+    });
+  }
 };
 
 // src/properties/states/MinmaxGroupProperty.ts
@@ -6684,9 +6692,6 @@ var ThermalGroup = class extends BaseStructureObject {
   forEveryInstance = (fn) => {
     this.files.value.forEach((instance) => fn(instance));
   };
-  /**
-   * Destruction
-   */
   /** Remove all instances, reset the minmax */
   destroySelfAndBelow() {
     this.removeAllChildren();

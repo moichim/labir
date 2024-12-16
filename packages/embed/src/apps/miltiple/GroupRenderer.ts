@@ -133,8 +133,8 @@ export class GroupRenderer {
         columns: number,
         grouping: Grouping,
         onInstanceEnter: InstanceInteractionCallback,
-        onInstanceLeave: InstanceInteractionCallback
-
+        onInstanceLeave: InstanceInteractionCallback,
+        preservedates: boolean
     ): HtmlResult {
 
         const title = this.trimmedString(group.label);
@@ -167,6 +167,7 @@ export class GroupRenderer {
                 onInstanceEnter,
                 onInstanceLeave,
                 time!,
+                preservedates,
                 label,
                 innerHtml
             );
@@ -182,45 +183,5 @@ export class GroupRenderer {
 
     }
 
-
-
-    public renderGroupStart(
-        group: GroupEntry,
-        columns: number,
-        grouping: Grouping
-    ): HtmlResult {
-
-        const title = this.trimmedString(group.label);
-
-        const info = this.trimmedString(group.info);
-
-        const listClasses = {
-            "group-files": true,
-            [`group-files-${columns}`]: true
-        }
-
-        const containerClasses = {
-            "group": true,
-            "group__bordered": grouping !== "none"
-        }
-
-        return html`
-
-            <section class="${classMap(containerClasses)}">
-
-                ${this.renderHeader(title, info)}
-
-                <div class=${classMap(listClasses)}>
-        
-        `;
-
-    }
-
-    public renderGroupEnd(): HtmlResult {
-        return html`
-            </div>
-        </section>
-        `
-    }
 
 }

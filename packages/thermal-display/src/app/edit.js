@@ -14,7 +14,8 @@ import {
 	TextControl,
 	Tooltip,
 	RangeControl,
-	PanelHeader
+	PanelHeader,
+	CheckboxControl
 } from '@wordpress/components';
 
 import './editor.scss';
@@ -57,7 +58,10 @@ export default function Edit({ attributes, setAttributes }) {
 		analysis5,
 		analysis6,
 		analysis7,
-		speed
+		speed,
+		showabout,
+		showhistogram,
+		interactiveanalysis
 	} = attributes;
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
@@ -225,21 +229,21 @@ export default function Edit({ attributes, setAttributes }) {
 								}}
 								render={({ open }) => (
 									<>
-									<Button
-										onClick={() => {
-											startUploadingVisibleFile();
-											open();
-										}}
-										variant="primary"
-									>
-										{visible ? "Change file" : "Upload or select a visible image"}
-									</Button>
-									{visible && <Button
-										variant="secondary"
-										onClick={() => {
-											setAttributes( {visible: undefined, opacity: 1} );
-										}}
-									>Remove the file</Button>}
+										<Button
+											onClick={() => {
+												startUploadingVisibleFile();
+												open();
+											}}
+											variant="primary"
+										>
+											{visible ? "Change file" : "Upload or select a visible image"}
+										</Button>
+										{visible && <Button
+											variant="secondary"
+											onClick={() => {
+												setAttributes({ visible: undefined, opacity: 1 });
+											}}
+										>Remove the file</Button>}
 									</>
 								)}
 							/>
@@ -397,6 +401,30 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => setAttributes({ speed: value })}
 										/>}
 
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											checked={showhistogram}
+											label="Show histogram"
+											hint="Enable histogram display in the thermal scale?"
+											onChange={(value) => { setAttributes({ showhistogram: value }) }}
+										/>
+
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											checked={showabout}
+											label="Show about button"
+											help="Display the button with application info?"
+											onChange={(value) => { setAttributes({ showabout: value }) }}
+										/>
+
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											checked={interactiveanalysis}
+											label="Interactive analysis"
+											help="Should the visitor be able to edit analysis?"
+											onChange={(value) => { setAttributes({ interactiveanalysis: value }) }}
+										/>
+
 
 									</file-provider>
 								</group-provider>
@@ -449,6 +477,9 @@ export default function Edit({ attributes, setAttributes }) {
 										}}
 										speed={speed}
 										opacity={opacity}
+										showabout={showabout}
+										showhistogram={showhistogram}
+										interactiveanalysis={interactiveanalysis}
 									></thermal-file-app>}
 
 									{webcomponent === "thermal-file-analyser" && <thermal-file-analyser
@@ -473,6 +504,9 @@ export default function Edit({ attributes, setAttributes }) {
 										}}
 										speed={speed}
 										opacity={opacity}
+										showabout={showabout}
+										showhistogram={showhistogram}
+										interactiveanalysis={interactiveanalysis}
 									></thermal-file-analyser>}
 								</div>
 

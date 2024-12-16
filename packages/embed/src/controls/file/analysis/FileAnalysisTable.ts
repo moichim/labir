@@ -6,11 +6,16 @@ import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
+import { consume } from "@lit/context";
+import { interactiveAnalysisContext } from "../../../utils/context";
 
 @customElement("file-analysis-table")
 export class FileAnalysisTable extends FileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
+
+    @consume({ context: interactiveAnalysisContext, subscribe: true })
+    interactiveanalysis: boolean = false;
 
     public getTourableRoot(): HTMLElement | undefined {
         return this.container.value;
@@ -31,43 +36,43 @@ export class FileAnalysisTable extends FileConsumer {
 
     public onInstanceCreated(instance: Instance): void {
 
-        this.hydrate( instance );
+        this.hydrate(instance);
 
     }
 
     connectedCallback(): void {
         super.connectedCallback();
-        if ( this.file ) {
-            this.hydrate( this.file );
+        if (this.file) {
+            this.hydrate(this.file);
         }
     }
 
     protected updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
+        super.updated(_changedProperties);
 
-        if ( _changedProperties.has( "file" ) ) {
-            if ( this.file ) {
-                this.hydrate( this.file );
+        if (_changedProperties.has("file")) {
+            if (this.file) {
+                this.hydrate(this.file);
             }
         }
     }
 
 
-    protected hydrate( file: Instance ) {
+    protected hydrate(file: Instance) {
 
         // Mirror all analysis to local state
-        file.analysis.addListener( this.UUID, analysis => {
+        file.analysis.addListener(this.UUID, analysis => {
             this.analysis = analysis;
-        } );
+        });
 
         // Mirror all selected
-        file.analysis.layers.onSelectionChange.add( this.UUID, () => {
+        file.analysis.layers.onSelectionChange.add(this.UUID, () => {
             this.allSelected = file.analysis.layers.all.length === file.analysis.layers.selectedOnly.length;
-        } );
+        });
 
 
         // Mirror hasSelectedData
-        file.analysisData.onGraphsPresence.set( this.UUID, value => {
+        file.analysisData.onGraphsPresence.set(this.UUID, value => {
             this.hasHighlightedData = value;
         })
 
@@ -128,9 +133,11 @@ export class FileAnalysisTable extends FileConsumer {
 
         .all {
 
-            cursor: pointer;
+            &.interactive {
+                cursor: pointer;
+            }
 
-            &:hover {
+            &.interactive:hover {
                 color: var( --thermal-primary );
             }
 
@@ -149,6 +156,21 @@ export class FileAnalysisTable extends FileConsumer {
                 background-color: var( --thermal-slate-dark );
             }
 
+            button {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                background: transparent;
+                color: var( --thermal-primary );
+                text-transform: lowercase;
+                cursor: pointer;
+
+                &:hover,
+                &:focus {
+                    color: var( --thermal-primary-dark );
+                }
+            }
+
         }
 
         
@@ -157,7 +179,7 @@ export class FileAnalysisTable extends FileConsumer {
 
     `;
 
-    
+
 
     protected render(): unknown {
 
@@ -178,27 +200,26 @@ export class FileAnalysisTable extends FileConsumer {
 
                     <tr>
                         <th
-                            class="all ${this.allSelected ? "yes" : "no"}"
+                            class="all ${this.allSelected ? "yes" : "no"} ${this.interactiveanalysis ? "interactive" : ""}"
                             @click=${() => {
-                                if ( this.allSelected )
-                                    this.file?.analysis.layers.deselectAll();
-                                else
-                                    this.file?.analysis.layers.selectAll();
-                            }}
+                if (this.allSelected)
+                    this.file?.analysis.layers.deselectAll();
+                else
+                    this.file?.analysis.layers.selectAll();
+            }}
                         >
-                            <u aria-hidden="true"></u>
+                            ${this.interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing }
                             <span>${t(T.analysis)}</span>
+                            ${this.hasHighlightedData
+                ? html`<button @click=${() => { this.file?.analysisData.downloadData() }} title=${t(T.downloadgraphdataascsv)}>CSV</button>`
+                : nothing
+            }
                         </th>
                         <th>${t(T.avg)}</th>
                         <th>${t(T.min)}</th>
                         <th>${t(T.max)}</th>
                         <th>${t(T.size)}</th>
-                        <th style="padding-top: 0; padding-bottom: 0;">
-                            ${this.hasHighlightedData 
-                                ? html`<thermal-button variant="foreground" @click=${() => {this.file?.analysisData.downloadData()}} title=${t(T.downloadgraphdataascsv)}>CSV</thermal-button>`
-                                : nothing
-                            }
-                        </th>
+                        ${this.interactiveanalysis === true ? html`<th></th>` : nothing}
                     </tr>
                 
                 </thead>
@@ -206,12 +227,12 @@ export class FileAnalysisTable extends FileConsumer {
                 <tbody>
 
                     ${this.analysis.map(
-                        analysis => html`
+                analysis => html`
                             <file-analysis-table-row
                                 .analysis=${analysis}
                             ></file-analysis-table-row>
                         `
-                    )}
+            )}
                 
                 </tbody>
 

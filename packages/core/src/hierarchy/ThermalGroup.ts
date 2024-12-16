@@ -70,11 +70,6 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     }
 
 
-    /**
-     * Destruction
-     */
-
-
     /** Remove all instances, reset the minmax */
     public destroySelfAndBelow() {
 

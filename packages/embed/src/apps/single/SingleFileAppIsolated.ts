@@ -1,10 +1,10 @@
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { BaseApp } from "../BaseApp";
+import { BaseSingleApp } from "../BaseSingleApp";
 
 @customElement("thermal-file-app")
-export class SingleFileAppIsolated extends BaseApp {
+export class SingleFileAppIsolated extends BaseSingleApp {
 
   protected render(): unknown {
 
@@ -45,6 +45,10 @@ export class SingleFileAppIsolated extends BaseApp {
                 recorded=${ifDefined(this.recorded )} 
                 license=${ifDefined(this.license )}
                 label=${ifDefined(this.label)}  
+                showabout=${this.showabout}
+                showembed=${this.showembed}
+                showfullscreen=${this.showfullscreen}
+                showhistogram=${this.showhistogram}
               >
                 <slot name="content" slot="content"></slot>  
               </file-app>

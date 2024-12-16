@@ -4,10 +4,13 @@ import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
+import "../../../node_modules/toolcool-range-slider/src/plugins/moving-tooltip-plugin";
 import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
+
+
 
 
 
@@ -101,9 +104,9 @@ export class RangeSliderElement extends RegistryConsumer {
             this.initialised = true;
             slider.addCSS(`
                 .pointer-shape {
-                    border-color: var( --thermal-foreground );
+                    
                     border-radius: 0;
-                    width: 7px;
+                    width: 10px;
                 }
         ` );
 
@@ -193,7 +196,7 @@ export class RangeSliderElement extends RegistryConsumer {
             <tc-range-slider 
                 ${ref(this.sliderRef)}
                 slider-width="100%"
-                slider-height="calc( var( --thermal-fs-sm ) * 0.9)"
+                slider-height="15px"
                 animate-onclick="false"
                 min="${this.min}"
                 max="${this.max}"
@@ -206,11 +209,28 @@ export class RangeSliderElement extends RegistryConsumer {
                 slider-bg="var( --thermal-slate )"
                 slider-bg-hover="var( --thermal-slate )"
                 slider-bg-fill="${this.palette.data.gradient}"
+                pointer-shadow="0 0 5px var(--thermal-primary)"
+                pointer-shadow-hover="0 0 10px var(--thermal-primary)"
+                pointer-shadow-hover="0 0 10px var(--thermal-primary)"
 
+                pointer-border="2px solid var(--thermal-primary)"
+                pointer-border-hover="2px solid var(--thermal-primary)"
+                pointer-border-focus="2px solid var(--thermal-primary)"
                 pointer-bg="${this.palette.data.pixels[0]}"
+                
+                pointer2-border="2px solid var(--thermal-primary)"
+                pointer2-border-hover="2px solid var(--thermal-primary)"
+                pointer2-border-focus="2px solid var(--thermal-primary)"
                 pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
                 
                 generate-labels="true"
+
+                moving-tooltip="true"
+                moving-tooltip-distance-to-pointer="-30"
+                moving-tooltip-width="40"
+                moving-tooltip-height="20"
+                moving-tooltip-bg="var(--thermal-slate-dark)"
+                moving-tooltip-text-color="var(--thermal-background)"
                 
             ></tc-range-slider>
 

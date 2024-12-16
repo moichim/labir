@@ -1421,6 +1421,7 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
      * Iteration through all instances
      */
     forEveryInstance(fn: ((instance: Instance) => void)): void;
+    downloadAllFiles(): void;
 }
 
 interface IWithCursorValue extends IBaseProperty {
@@ -2286,9 +2287,6 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     get playback(): GroupPlayback;
     /** Iteration */
     forEveryInstance: (fn: ((instance: Instance) => void)) => void;
-    /**
-     * Destruction
-     */
     /** Remove all instances, reset the minmax */
     destroySelfAndBelow(): void;
     removeAllChildren(): void;

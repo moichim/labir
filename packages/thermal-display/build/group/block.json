@@ -41,6 +41,22 @@
         "type": "constrained"
       }
     },
+    "showabout": {
+      "type": "boolean",
+      "default": "true"
+    },
+    "showhistogram": {
+      "type": "boolean",
+      "default": "true"
+    },
+    "interactiveanalysis": {
+      "type": "boolean",
+      "default": "true"
+    },
+    "preservetime": {
+      "type": "boolean",
+      "default": "true"
+    },
     "files": {
       "type": "string"
     },
