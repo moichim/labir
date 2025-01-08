@@ -6347,8 +6347,8 @@ var AbstractTool = class {
 // src/properties/tool/internals/InspectTool.ts
 var InspectTool = class extends AbstractTool {
   key = "inspect";
-  name = "Inspect temperatures";
-  description = "Use mouse to inspect temperature values.";
+  name = "inspecttemperatures";
+  description = "usemousetoinspecttemperaturevalues";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M17.58,42.03c-1.39,0-2.65-.34-3.79-1.01-1.14-.68-2.04-1.58-2.72-2.72-.68-1.14-1.01-2.4-1.01-3.78s.34-2.65,1.01-3.79c.67-1.14,1.58-2.04,2.72-2.72,1.14-.68,2.4-1.01,3.79-1.01s2.65.34,3.79,1.01c1.14.68,2.04,1.58,2.72,2.72s1.01,2.4,1.01,3.79-.34,2.64-1.01,3.78c-.68,1.14-1.58,2.05-2.72,2.72-1.14.68-2.4,1.01-3.79,1.01ZM17.58,37.04c.47,0,.9-.11,1.28-.34.38-.23.69-.53.91-.92.22-.39.34-.81.34-1.27s-.11-.9-.34-1.28c-.23-.38-.53-.69-.91-.91s-.81-.34-1.28-.34-.88.11-1.27.34c-.39.23-.69.53-.92.91-.23.38-.34.81-.34,1.28s.11.88.34,1.27c.22.39.53.69.92.92.39.23.81.34,1.27.34ZM56.24,38.45h-8.28c-.06-.69-.21-1.31-.46-1.87-.25-.56-.59-1.04-1.03-1.45-.44-.41-.96-.72-1.58-.94s-1.32-.33-2.1-.33c-1.37,0-2.53.33-3.47,1s-1.66,1.62-2.14,2.86-.73,2.74-.73,4.48c0,1.84.25,3.38.74,4.62s1.21,2.17,2.15,2.79c.94.62,2.07.93,3.39.93.75,0,1.43-.1,2.03-.29.6-.19,1.12-.47,1.56-.83.44-.36.8-.8,1.08-1.31.28-.51.47-1.09.57-1.74l8.28.06c-.1,1.27-.46,2.57-1.07,3.88-.62,1.32-1.49,2.53-2.62,3.64s-2.53,2-4.19,2.68c-1.67.68-3.6,1.01-5.8,1.01-2.76,0-5.24-.59-7.43-1.78-2.19-1.18-3.92-2.93-5.18-5.23-1.27-2.3-1.9-5.12-1.9-8.45s.65-6.17,1.94-8.47c1.29-2.3,3.04-4.03,5.23-5.21,2.19-1.18,4.64-1.77,7.34-1.77,1.9,0,3.65.26,5.24.78,1.6.52,3,1.28,4.2,2.27,1.2.99,2.17,2.22,2.91,3.66s1.18,3.11,1.34,4.98ZM30,0H0v30L30,0Z" fill="currentcolor"/>
@@ -6388,8 +6388,8 @@ var AbstractAddTool = class extends AbstractTool {
 // src/properties/analysis/internals/area/ellipsis/AddEllipsisTool.ts
 var AddEllipsisTool = class extends AbstractAddTool {
   key = "add-ellipsis";
-  name = "Add an elyptical analysis";
-  description = "Click and drag on the thermogram to add an elyptical analysis.";
+  name = "addellipsisanalysis";
+  description = "clickandaddellipsis";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M48.87,21.96C47.6,9.62,37.17,0,24.5,0,10.97,0,0,10.97,0,24.5h0c0,12.67,9.62,23.1,21.96,24.37,2.71,8.76,10.88,15.13,20.54,15.13,11.87,0,21.5-9.63,21.5-21.5,0-9.66-6.37-17.82-15.13-20.54ZM4,24.5C4,13.2,13.2,4,24.5,4c10.15,0,18.57,7.42,20.2,17.11-.72-.07-1.45-.11-2.2-.11-11.87,0-21.5,9.63-21.5,21.5,0,.74.04,1.47.11,2.2-9.69-1.62-17.11-10.05-17.11-20.2ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z"/>
@@ -6449,8 +6449,8 @@ var AddEllipsisTool = class extends AbstractAddTool {
 // src/properties/analysis/internals/point/AddPointTool.ts
 var AddPointTool = class extends AbstractAddTool {
   key = "add-point";
-  name = "Add a point analysis";
-  description = "Click on the thermogram to add a point analysis.";
+  name = "addpointanalysis";
+  description = "clickandaddpoint";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
@@ -6496,8 +6496,8 @@ var AddPointTool = class extends AbstractAddTool {
 // src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
 var AddRectangleTool = class extends AbstractAddTool {
   key = "add-rect";
-  name = "Add a rectangular analysis";
-  description = "Click and drag on the thermogram to add a rectangular analysis.";
+  name = "addrectangleanalysis";
+  description = "clickandaddrectangle";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <path d="M49,22.01V0H0v49h22.01c2.76,8.7,10.89,15,20.49,15,11.87,0,21.5-9.63,21.5-21.5,0-9.61-6.3-17.74-15-20.49ZM4,45V4h41v17.16c-.82-.1-1.65-.16-2.5-.16-11.87,0-21.5,9.63-21.5,21.5,0,.85.06,1.68.16,2.5H4ZM55.23,44.5h-10.65v10.65h-4v-10.65h-10.65v-4h10.65v-10.65h4v10.65h10.65v4Z" fill="currentcolor"/>
@@ -6555,8 +6555,8 @@ var AddRectangleTool = class extends AbstractAddTool {
 // src/properties/tool/internals/EditTool.ts
 var EditTool = class extends AbstractTool {
   key = "edit";
-  name = "Edit analysis";
-  description = "Drag corners of any selected analysis.";
+  name = "editanalysis";
+  description = "dragcornersofselectedanalysis";
   icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>
@@ -7303,7 +7303,7 @@ var parser = {
     {
       deviceName: "Custom measurement systems by IRT UWB in Pilsen (CZ)",
       deviceUrl: "https://irt.zcu.cz",
-      deviceDescription: "A thermal camera designed for school education.",
+      deviceDescription: "Specialised applications of IR diagnostics in the field of industry, research, medicine, security or education.",
       manufacturer: "IRT UWB in Pilsen (CZ)",
       manufacturerUrl: "https://irt.zcu.cz"
     }

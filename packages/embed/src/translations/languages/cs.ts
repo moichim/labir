@@ -125,6 +125,20 @@ export const cs: Translation = {
     youfeelcolder: "Na teploměru vidíte {{t}} °C, ale venku se cítíte  o {{diff}} °C chladněji.",
 
 
+    inspecttemperatures: "Prohlížet teploty",
+    usemousetoinspecttemperaturevalues: "S pomocí kurzoru prohlížejte teploty v termogramu.",
+
+    editanalysis: "Upravit analýzu",
+    dragcornersofselectedanalysis: "Klikněte a táhněte roh aktivní analýzy.",
+
+    addpointanalysis: "Přidat bodovou analýzu",
+    clickandaddpoint: "Klikněte na termogram a přidejte bodovou analýzu.",
+
+    addrectangleanalysis: "Přidat obdélníkovou analýzu",
+    clickandaddrectangle: "Klikněte a táhněte na termogramu pro přidání obdélníkové analýzy.",
+
+    addellipsisanalysis: "Přidat eliptickou analýzu",
+    clickandaddellipsis: "Klikněte a táhněte na termogramu pro přidání eliptické analýzy.",
 
 
     tutorial: "Tutorial",

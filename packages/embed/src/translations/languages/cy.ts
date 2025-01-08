@@ -3,7 +3,7 @@ import { Translation } from "../Languages";
 export const cy: Translation = {
     next: "Nesaf",
     prev: "Blaenorol",
-    back: "Yn ol",
+    back: "Yn ôl",
     close: "Cau",
 
     description: "Disgrifiad",
@@ -15,27 +15,27 @@ export const cy: Translation = {
     filerendering: "Rendro ffeil",
     pixelated: "Picselaidd",
     smooth: "Llyfn",
-    filerenderinghint: "Mae modd 'Picselaidd' yn analluogi gwrth-alwio'r thermogram ac yn eich galluogi i weld ei bicseli fel ag y maent.",
+    filerenderinghint: "Mae modd 'Picselaidd' yn analluogi gwrth-alwio'r llun isgoch ac yn eich galluogi i weld ei bicseli fel ag y maent.",
     adjusttimescale: "Graddfa tymheredd",
-    automaticrange: "Amrediad awtomatig",
-    fullrange: "Amrediad llawn",
-    adjusttimescalehint: "Adjust the time scale automatically (based on histogram) or set its values to the full range (min and max).",
+    automaticrange: "Band awtomatig",
+    fullrange: "Band llawn",
+    adjusttimescalehint: "Addaswch y wraddfa thermol yn awtomatig neu cyflewch y wraddfa i fand lawn.",
 
     palettename: "Palet {{name}}",
     colourpalettehint: "Dewiswch balet lliw o arddangosfa thermol.",
 
 
     fileinfo: "Gwybodaeth ffeil",
-    thermalfilename: "Enw ffeil IR",
-    thermalfileurl: "URL ffeil IR",
-    thermalfiledownload: "Lawrlwythwch y ffeil IR",
+    thermalfilename: "Enw ffeil isgoch",
+    thermalfileurl: "URL ffeil isgoch",
+    thermalfiledownload: "Lawrlwythwch y ffeil isgoch",
     visiblefilename: "Enw ffeil weladwy",
     visiblefileurl: "URL ffeil weladwy",
     visiblefiledownload: "Lawrlwythwch y ffeil weladwy",
     time: "Amser",
     duration: "Hyd",
     resolution: "Datrysiad",
-    bytesize: "Bytesize",
+    bytesize: "Maint",
     minimaltemperature: "Tymheredd lleiaf",
     maximaltemperature: "Tymheredd uchaf",
     filetype: "Math o ffeil",
@@ -45,8 +45,8 @@ export const cy: Translation = {
 
 
     download: "Lawrlwythwch",
-    downloadoriginalfiles: "LRC - einzelne Dateien",
-    downloadoriginalfileshint: "Alle ursprünglichen IR-Dateien herunterladen",
+    downloadoriginalfiles: "LRC - ffeiliau thermol wreiddiol unigol",
+    downloadoriginalfileshint: "Lawrlwythwch ffeiliau isgoch unigol.",
     downloadoriginalfile: "{{type}} - Ffeil thermol wreiddiol",
     exportcurrentframeaspng: "PNG - Ffrâm gyfredol fel delwedd",
     convertentiresequencetovideo: "WEBM - Trosi dilyniant cyfan i fideo",
@@ -57,7 +57,7 @@ export const cy: Translation = {
     csvofanalysisdata: "CSV - data dadansoddi",
     csvofanalysisdatahint: "Tabl tymheredd mewn dadansoddiadau",
 
-    range: "Amrediad",
+    range: "Band",
     info: "Gwybodaeth",
     note: "Nodyn",
     group: "Grwp",
@@ -79,7 +79,7 @@ export const cy: Translation = {
     graphlines: "Llinellau graff",
     straightlines: "Llinellau syth",
     smoothlines: "Llinellau llyfn",
-    graphlineshint: "Gall 'llinellau llyfn' ddangos tueddiadau'n well, ond maent yn llai manwl gywir. Os oes angen i chi weld yn union beth sydd yn y thermogram, defnyddiwch 'Llinellau syth'.",
+    graphlineshint: "Gall 'llinellau llyfn' ddangos tueddiadau'n well, ond maent yn llai manwl gywir. Os oes angen i chi weld yn union beth sydd yn y lliw thermol, defnyddiwch 'Llinellau syth'.",
 
 
 
@@ -91,12 +91,12 @@ export const cy: Translation = {
     edit: "Golygu",
     editsth: "Golygu {{what}}",
     remove: "Dileu",
-    addpoint: "Ychwanegu pwynt",
-    addellipsis: "Ychwanegu elips",
-    addrectangle: "Ychwanegu petryal",
+    addpoint: "Addio pwynt",
+    addellipsis: "Addio elips",
+    addrectangle: "Addio petryal",
     analysishint: "Gallwch ddewis ardal yn y ddelwedd IR i weld ei thymhereddau.",
     graph: "Graff",
-    graphhint1: "Ychwanegwch ddadansoddiad yn gyntaf i weld y graff!",
+    graphhint1: "Addio ddadansoddiad yn gyntaf i weld y graff!",
     graphhint2: "Cliciwch ar <span class='hintbtn'>werth</span> dadansoddiad i weld ei graff yma!",
 
     rectangle: "petryal",
@@ -122,6 +122,22 @@ export const cy: Translation = {
 
     youfeelwarmer: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn gynhesach y tu allan.",
     youfeelcolder: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn oerach y tu allan.",
+
+
+    inspecttemperatures: "Archwilio'r tymheredd",
+    usemousetoinspecttemperaturevalues: "Defnyddiwch y llygoden i archwilio gwerthoedd tymheredd.",
+
+    editanalysis: "Golygu dadansoddiad",
+    dragcornersofselectedanalysis: "Llusgwch gorneli'r dadansoddiad a ddewiswyd.",
+
+    addpointanalysis: "Adio dadansoddiad pwynt",
+    clickandaddpoint: "Cliciwch ar y llun isgoch i ychwanegu dadansoddiad pwynt.",
+
+    addrectangleanalysis: "Adio dadansoddiad petryal",
+    clickandaddrectangle: "Cliciwch a dragiwuch ar y llun isgoch i ychwanegu dadansoddiad petryal.",
+
+    addellipsisanalysis: "Adio dadansoddiad eliptig",
+    clickandaddellipsis: "Cliciwch a dragiwuch ar y llun isgoch i ychwanegu dadansoddiad eliptig.",
 
 
     tutorial: "Tiwtorial",

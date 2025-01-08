@@ -121,6 +121,21 @@ export const en: Translation = {
     youfeelwarmer: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C warmer outside.",
     youfeelcolder: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C colder outside.",
 
+    inspecttemperatures: "Inspect temperatures",
+    usemousetoinspecttemperaturevalues: "Use mouse to inspect temperature values.",
+
+    editanalysis: "Edit analysis",
+    dragcornersofselectedanalysis: "Drag corners of any selected analysis.",
+
+    addpointanalysis: "Add a point analysis",
+    clickandaddpoint: "Click on the IR image to add a point analysis",
+
+    addrectangleanalysis: "Add a rectangular analysis",
+    clickandaddrectangle: "Click and drag on the IR image to add a rectangular analysis.",
+
+    addellipsisanalysis: "Add an elyptical analysis",
+    clickandaddellipsis: "Click and drag on the thermogram to add an elyptical analysis.",
+
 
     tutorial: "Tutorial",
     colourpalette: "Colour palette",

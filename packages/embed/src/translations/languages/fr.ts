@@ -123,7 +123,20 @@ export const fr: Translation = {
     youfeelwarmer: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus chaud dehors.",
     youfeelcolder: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus froid dehors.",
 
+    inspecttemperatures: "Inspecter les températures",
+    usemousetoinspecttemperaturevalues: "Utilisez la souris pour inspecter les valeurs de température.",
 
+    editanalysis: "Modifier l'analyse",
+    dragcornersofselectedanalysis: "Faites glisser les coins de l'analyse sélectionnée.",
+
+    addpointanalysis: "Ajouter une analyse de point",
+    clickandaddpoint: "Cliquez sur le thermogramme pour ajouter une analyse de point.",
+
+    addrectangleanalysis: "Ajouter une analyse rectangulaire",
+    clickandaddrectangle: "Cliquez et faites glisser sur le thermogramme pour ajouter une analyse rectangulaire.",
+
+    addellipsisanalysis: "Ajouter une analyse elliptique",
+    clickandaddellipsis: "Cliquez et faites glisser sur le thermogramme pour ajouter une analyse elliptique.",
 
     tutorial: "Tutoriel",
     colourpalette: "Palette",

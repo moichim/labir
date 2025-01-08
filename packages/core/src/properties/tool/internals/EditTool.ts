@@ -6,8 +6,8 @@ export class EditTool extends AbstractTool implements ITool {
 
 
     public readonly key = "edit";
-    public readonly name = "Edit analysis";
-    public readonly description = "Drag corners of any selected analysis.";
+    public readonly name = "editanalysis";
+    public readonly description = "dragcornersofselectedanalysis";
     public readonly icon = `<?xml version="1.0" encoding="UTF-8"?>
 <svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <polygon points="34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03" fill="currentcolor"/>

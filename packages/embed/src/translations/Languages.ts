@@ -171,6 +171,28 @@ export enum T {
 
 
 
+    /** Inspect tool */
+    inspecttemperatures = "inspecttemperatures",
+    usemousetoinspecttemperaturevalues = "usemousetoinspecttemperaturevalues",
+
+    /**  Edit analysis tool */
+    editanalysis = "editanalysis",
+    dragcornersofselectedanalysis = "dragcornersofselectedanalysis",
+
+    /** Add point tool */
+    addpointanalysis = "addpointanalysis",
+    clickandaddpoint = "clickandaddpoint",
+
+    /** Add rectangle tool */
+    addrectangleanalysis = "addrectangleanalysis",
+    clickandaddrectangle = "clickandaddrectangle",
+
+    /** Add ellipsis tool */
+    addellipsisanalysis = "addellipsisanalysis",
+    clickandaddellipsis = "clickandaddellipsis",
+
+
+
     /** Tutorial */
     tutorial = "tutorial",
     /** Colour Palette */

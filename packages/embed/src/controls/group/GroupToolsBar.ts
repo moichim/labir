@@ -11,6 +11,8 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 
 
@@ -125,7 +127,7 @@ export class GroupToolButtons extends GroupConsumer {
                         <button 
                             class=${classMap(classes)} 
                             @click=${() => { this.group.tool.selectTool(tool) }}
-                            title=${tool.name}
+                            title=${t( T[tool.name as keyof typeof T] )}
                             
                         >
                             ${unsafeSVG(tool.icon)}

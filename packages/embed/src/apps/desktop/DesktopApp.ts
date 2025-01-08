@@ -392,7 +392,7 @@ export class DesktopFileApp extends FileConsumer {
                         <div class="placeholder-title">${t(T.analysis)}</div>
                         <div>${t(T.analysishint)}</div>
                     ${["add-point", "add-rect", "add-ellipsis"].includes(this.tool?.key ?? "") ? html`
-                      <div>${this.tool?.description}</div>
+                      <div>${t(T[this.tool?.description as keyof typeof T])}</div>
                     ` : html`
                       <div>
                         <thermal-button tourstepid="sth4" @click=${() => this.group.tool.selectTool("add-point")}>${t(T.addpoint)}</thermal-button>

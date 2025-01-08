@@ -2398,8 +2398,8 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
 
 declare class EditTool extends AbstractTool implements ITool {
     readonly key = "edit";
-    readonly name = "Edit analysis";
-    readonly description = "Drag corners of any selected analysis.";
+    readonly name = "editanalysis";
+    readonly description = "dragcornersofselectedanalysis";
     readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
     onActivate(): void;
     protected onDeactivate(): void;

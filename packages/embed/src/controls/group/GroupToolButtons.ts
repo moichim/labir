@@ -7,6 +7,8 @@ import { toolContext, toolsContext } from "../../hierarchy/providers/context/Gro
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 
 
@@ -29,13 +31,13 @@ export class GroupToolButtons extends GroupConsumer {
     tools!: ThermalGroup["tool"]["tools"];
 
     @state()
-    hint!: string;
+    hint!: keyof T;
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.hint = this.value.description;
+        this.hint = this.value.description as keyof T;
         this.group.tool.addListener(this.UUID + "spying on hints", value => {
-            this.hint = value.description;
+            this.hint = value.description as keyof T;
         });
     }
 
@@ -141,10 +143,10 @@ export class GroupToolButtons extends GroupConsumer {
                             class=${classMap(classes)} 
                             @click=${() => { this.group.tool.selectTool(tool) }}
                             @mouseenter=${() => {
-                    this.hint = tool.name;
+                    this.hint = tool.name as keyof T;
                 }}
                             @mouseleave=${() => {
-                    this.hint = this.value.description;
+                    this.hint = this.value.description as keyof T;
                 }}
                         >
                             ${unsafeSVG(tool.icon)}
@@ -155,7 +157,7 @@ export class GroupToolButtons extends GroupConsumer {
                 </div>
 
                 <div class="current">
-                    <div class="tool-description">${this.hint}</div>
+                    <div class="tool-description">${t( T[ this.hint as keyof typeof T ] )}</div>
                 </div>
 
                 <slot name="tour"></slot>

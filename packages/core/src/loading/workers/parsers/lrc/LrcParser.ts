@@ -31,7 +31,7 @@ const parser: IParserObject = {
     {
         deviceName: "Custom measurement systems by IRT UWB in Pilsen (CZ)",
         deviceUrl: "https://irt.zcu.cz",
-        deviceDescription: "A thermal camera designed for school education.",
+        deviceDescription: "Specialised applications of IR diagnostics in the field of industry, research, medicine, security or education.",
         manufacturer: "IRT UWB in Pilsen (CZ)",
         manufacturerUrl: "https://irt.zcu.cz"
     }],
