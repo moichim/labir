@@ -118,8 +118,11 @@ export const en: Translation = {
     relativeairhumidity: "Relative air humidity",
     windspeed: "Wind speed",
     inpercent: "in percent",
-    youfeelwarmer: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C warmer outside.",
-    youfeelcolder: "You see {{t}} °C on the thermometer, but you feel {{diff}} °C colder outside.",
+
+    apparenttemperatureverbose: "The thermometer shows {{t}} °C, but due to humidity and wind, it feels like {{app}} °C outside.",
+    youfeelwarmer: "The apparent temperature is {{diff}} °C higher than the air temperature.",
+    youfeelcolder: "The apparent temperature is {{diff}} °C lower than the air temperature.",
+
 
 
     tutorial: "Tutorial",

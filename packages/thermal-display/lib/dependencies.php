@@ -64,6 +64,17 @@ if ( ! function_exists( "thermal_display_register_assets" ) ) {
                 time()
             );
 
+
+
+            wp_register_style( 
+                "thermal_display_wp_styles", 
+                plugin_dir_url( __DIR__  ) . 'lib/styles.css',
+                array(), 
+                time()
+            );
+
+            wp_enqueue_style( "thermal_display_wp_styles" );
+
     }
 
     add_action( 'init', 'thermal_display_register_assets' );
@@ -88,6 +99,8 @@ if ( ! function_exists( "thermal_display_enqueue_frontend_assets") ) {
         wp_enqueue_style( $styles_name );
 
         wp_enqueue_script( $scripts_name_cjs );
+
+        wp_enqueue_style( "thermal_display_wp_styles" );
 
     }
 

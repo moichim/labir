@@ -3,36 +3,75 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
-import { createRef, Ref,ref } from "lit/directives/ref.js";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { HtmlResult } from "../miltiple/HtmlResult";
 
+enum VUNIT {
+    mps = "mps",
+    kph = "kph"
+}
+
+const convertor = {
+
+}
+
+const converters = {
+    fromAttribute(value: string | null) {
+
+        if (typeof value === "string") {
+            const trimmedValue = value.trim();
+            if (trimmedValue.length > 0) {
+                return parseFloat(trimmedValue);
+            } else {
+                return undefined;
+            }
+        } else {
+            return undefined;
+        }
+    },
+    toAttribute(value: number | undefined) {
+        if (value !== undefined) {
+            return value.toString();
+        } else {
+            return undefined;
+        }
+    },
+};
 @customElement("apparent-temperature-aat")
 export class AustralianApparentTemperature extends BaseElement {
 
     tRef: Ref<HTMLInputElement> = createRef();
     vRef: Ref<HTMLInputElement> = createRef();
+    vunitsRef: Ref<HTMLSelectElement> = createRef();
     haRef: Ref<HTMLInputElement> = createRef();
 
     /** Air temperature in degree celsius */
-    @property({ type: Number, reflect: true, attribute: true })
+    @property({ type: String, reflect: true, attribute: true, converter: converters })
     public t?: number;
 
     /** Wind speed in m/s */
-    @property({ type: Number, reflect: true, attribute: true })
+    @property({ type: String, reflect: true, attribute: true, converter: converters })
     public v?: number;
 
     /** Air humidity in percent */
-    @property({ type: Number, reflect: true, attribute: true })
+    @property({ type: String, reflect: true, attribute: true, converter: converters })
     public ha?: number;
 
     /** Result apparent temperature */
     @state()
     protected ta?: number;
 
+    @property({ type: String, reflect: true, attribute: true })
+    public vunits: VUNIT = VUNIT.mps;
 
 
-    
+
+    protected kphToMps(kph: number): number {
+        return kph * 0.2778;
+    }
+
 
 
     protected calculateE(
@@ -56,74 +95,141 @@ export class AustralianApparentTemperature extends BaseElement {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        if ( this.tRef.value ) {
-            this.tRef.value.addEventListener( "change", event => {
+        if (this.tRef.value) {
+            this.tRef.value.addEventListener("change", event => {
 
                 const target = event.target as HTMLInputElement;
-                const value = parseFloat( target.value );
+                const value = parseFloat(target.value);
 
-                if ( ! isNaN( value ) ) {
+                if (!isNaN(value)) {
 
-                    this.t = Math.min( 100, Math.max( -275.4, value ) );
+                    this.t = Math.min(100, Math.max(-275.4, value));
 
                 }
 
-            } )
+            })
         }
 
-        if ( this.haRef.value ) {
-            this.haRef.value.addEventListener( "change", event => {
+        if (this.haRef.value) {
+            this.haRef.value.addEventListener("change", event => {
 
                 const target = event.target as HTMLInputElement;
-                const value = parseFloat( target.value );
+                const value = parseFloat(target.value);
 
-                if ( ! isNaN( value ) ) {
+                if (!isNaN(value)) {
 
-                    this.ha = Math.min( 100, Math.max( 0, value ) );
+                    this.ha = Math.min(100, Math.max(0, value));
 
                 }
 
-            } )
+            })
         }
 
-        if ( this.vRef.value ) {
-            this.vRef.value.addEventListener( "change", event => {
+        if (this.vRef.value) {
+            this.vRef.value.addEventListener("change", event => {
 
                 const target = event.target as HTMLInputElement;
-                const value = parseFloat( target.value );
+                const value = parseFloat(target.value);
 
-                if ( ! isNaN( value ) ) {
+                if (!isNaN(value)) {
 
-                    this.v = Math.max( 0, value );
+                    this.v = Math.max(0, value);
 
                 }
 
-            } )
+            })
         }
     }
 
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated( _changedProperties );
 
-        if ( this.t !== undefined && this.ha !== undefined && this.v !== undefined ) {
+    protected processValueChange(
+        _changedProperties: PropertyValues<AustralianApparentTemperature>,
+        key: keyof AustralianApparentTemperature,
+    ) {
 
-            const e = this.calculateE( this.ha, this.t );
-            const ta = this.calculateTa(this.t, e, this.v);
+        if (_changedProperties.has(key)) {
+
+            let newValue: number | undefined = this[key] as number | undefined;
+
+            // Assign the new Value
+            const inputRef = this[`${key}Ref` as keyof this] as Ref<HTMLInputElement>;
+
+            // Propagate the value
+            if (inputRef.value) {
+
+                if (newValue !== undefined && newValue !== null) {
+                    inputRef.value.value = newValue.toString();
+                } else {
+                    inputRef.value.value = "";
+                }
+
+            }
+
+            this.recalculateVa();
+
+        }
+
+    }
+
+    protected recalculateVa() {
+        if (this.t !== undefined && this.ha !== undefined && this.v !== undefined) {
+
+            const v = this.vunits === VUNIT.mps
+                ? this.v
+                : this.kphToMps( this.v );
+
+            const e = this.calculateE(this.ha, this.t);
+            const ta = this.calculateTa(this.t, e, v);
 
             this.ta = ta;
 
-        } 
-        
-        if ( this.t === undefined && this.tRef.value) {
-            this.tRef.value.value = "";
+        } else {
+            this.ta = undefined;
+        }
+    }
+
+    protected shouldUpdate(_changedProperties: PropertyValues): boolean {
+
+        super.shouldUpdate(_changedProperties);
+
+
+        // Validate the HA
+        if (this.ha) {
+            if (this.ha < 0) {
+                this.ha = 0;
+                if (this.haRef.value) {
+                    this.haRef.value.value = "0";
+                }
+
+            }
+
+            if (this.ha > 100) {
+                this.ha = 100;
+                if (this.haRef.value) {
+                    this.haRef.value.value = "100";
+                }
+            }
         }
 
-        if ( this.ha === undefined && this.haRef.value) {
-            this.haRef.value.value = "";
-        }
+        return true;
+    }
 
-        if ( this.v === undefined && this.vRef.value) {
-            this.vRef.value.value = "";
+    protected updated(_changedProperties: PropertyValues<AustralianApparentTemperature>): void {
+        super.updated(_changedProperties);
+
+        // Listen to values change
+        this.processValueChange(_changedProperties, "t");
+        this.processValueChange(_changedProperties, "v");
+        this.processValueChange(_changedProperties, "ha");
+
+        // Propagate the VUNITS change to the DOM
+        if (_changedProperties.has("vunits")) {
+
+            if ( this.vunitsRef.value ) {
+                this.vunitsRef.value.value = this.vunits;
+                this.recalculateVa();
+            }
+
         }
 
     }
@@ -185,6 +291,10 @@ export class AustralianApparentTemperature extends BaseElement {
         
         }
 
+        select, option, input {
+            font-size: var(--thermal-fs);
+        }
+
 
 
         .result {
@@ -193,8 +303,6 @@ export class AustralianApparentTemperature extends BaseElement {
             border: 1px solid var( --thermal-slate );
             border-radius: var( --thermal-radius );
             text-align: center;
-
-            
 
             & > p {
                 margin: 0;
@@ -228,15 +336,19 @@ export class AustralianApparentTemperature extends BaseElement {
 
     protected renderNumberField(
         inputRef: Ref<HTMLInputElement>,
-        id: string,
+        id: "t" | "v" | "ha",
         label: string,
-        unit: string,
+        unit: string | HtmlResult,
         value?: number,
         min?: number,
         max?: number,
         step?: number,
         hint?: string
     ) {
+
+        const u = typeof unit === "string"
+            ? unsafeHTML(unit)
+            : unit;
 
         return html`
             <div class="field">
@@ -253,19 +365,32 @@ export class AustralianApparentTemperature extends BaseElement {
                             ${ref(inputRef)} 
                             id=${id}
                             name=${id}
-                            value=${ifDefined( value )}
-                            min=${ifDefined( min )}
-                            max=${ifDefined( max )}
-                            step=${ifDefined( step )}
+                            value=${ifDefined(value)}
+                            min=${ifDefined(min)}
+                            max=${ifDefined(max)}
+                            step=${ifDefined(step)}
                             type="number"
+                            @blur=${(event: InputEvent) => {
+
+                const target = event.target as HTMLInputElement;
+
+                const value = target.value.trim();
+
+                if (value === "" || value === undefined || value === null) {
+                    this[id] = undefined;
+                } else {
+                    this[id] = parseFloat(target.value);
+                }
+
+            }}
                         ></input>
-                        <span>${unsafeHTML( unit )}</span>
+                        <span>${u}</span>
                     </div>
 
                     ${hint
-                        ? html`<label for=${id}>${hint}</label>`
-                        : nothing
-                    }
+                ? html`<label for=${id}>${hint}</label>`
+                : nothing
+            }
 
                 </div>
 
@@ -284,15 +409,18 @@ export class AustralianApparentTemperature extends BaseElement {
         const diff = apparentTemperature - temperature;
 
         const prop = {
-            diff: Math.abs( diff ).toFixed(2),
+            diff: Math.abs(diff).toFixed(2),
+            app: apparentTemperature.toFixed(2),
             t: temperature
         };
 
-        const comment = diff < 0
-            ? t( T.youfeelcolder, prop )
-            : t( T.youfeelwarmer, prop );
+        const summary = t( T.apparenttemperatureverbose, prop );
 
-        const result = apparentTemperature.toFixed( 2 );
+        const comment = diff < 0
+            ? t(T.youfeelcolder, prop)
+            : t(T.youfeelwarmer, prop);
+
+        const result = apparentTemperature.toFixed(2);
 
         const color = diff < 0
             ? "blue"
@@ -305,6 +433,8 @@ export class AustralianApparentTemperature extends BaseElement {
             <p class="result_value">
                 ${result} °C
             </p>
+
+            <p class="result_comment">${summary}</p>
 
             <p class="result_comment">${comment}</p>
         
@@ -325,19 +455,19 @@ export class AustralianApparentTemperature extends BaseElement {
                 <thermal-dialog label=${t(T.info)}>
                     <thermal-button slot="invoker">${t(T.info)}</thermal-button>
                     <div slot="content">
-                        ${unsafeHTML( t(T.apparenttemperaturehint, {href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature"}))}
+                        ${unsafeHTML(t(T.apparenttemperaturehint, { href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature" }))}
                     </div>
                 </thermal-dialog>
 
-                ${this.t !== undefined || this.v !== undefined || this.ha !== undefined 
-                    ? html`<thermal-button @click=${() => {
-                        this.t = undefined;
-                        this.ha = undefined;
-                        this.ta = undefined;
-                        this.v = undefined;
-                    }}>Reset</thermal-button>`
-                    : nothing
-                }
+                ${this.t !== undefined || this.v !== undefined || this.ha !== undefined
+                ? html`<thermal-button @click=${() => {
+                    this.t = undefined;
+                    this.ha = undefined;
+                    this.ta = undefined;
+                    this.v = undefined;
+                }}>Reset</thermal-button>`
+                : nothing
+            }
 
                 </thermal-bar>
 
@@ -345,54 +475,61 @@ export class AustralianApparentTemperature extends BaseElement {
 
                 <section class="table">
 
-                ${ this.renderNumberField(
-                    this.tRef,
-                    this.UUID  + "aat_air_temperature",
-                    t( T.airtemperature ),
-                    "°C",
-                    this.t,
-                    -273.15,
-                    100,
-                    0.1
-                ) }
+                ${this.renderNumberField(
+                this.tRef,
+                "t",
+                t(T.airtemperature),
+                "°C",
+                this.t,
+                -273.15,
+                100,
+                0.1
+            )}
 
                 ${this.renderNumberField(
-                    this.vRef,
-                    this.UUID + "aat_wind_speed",
-                    t( T.windspeed ),
-                    "m/s<sup>2</sup>",
-                    this.v,
-                    0,
-                    undefined,
-                    0.1
-                )}
+                this.vRef,
+                "v",
+                t(T.windspeed),
+                html`<select 
+                    @change=${(event: InputEvent) => {
+                        const target = event.target as HTMLSelectElement;
+                        const value = target.value as VUNIT;
+                        this.vunits = value;
+                    }} 
+                    value=${this.vunits}
+                    ${ref(this.vunitsRef)}
+                >
+                    <option value="mps">m/s</option>
+                    <option value="kph">km/h</option>
+                </select>`,
+                this.v,
+                0,
+                undefined,
+                0.1
+            )}
 
                 ${this.renderNumberField(
-                    this.haRef,
-                    this.UUID + "aat_air_humidity",
-                    t( T.relativeairhumidity ),
-                    "%",
-                    this.ha,
-                    0,
-                    100,
-                    0.1
-                )}
+                this.haRef,
+                "ha",
+                t(T.relativeairhumidity),
+                "%",
+                this.ha,
+                0,
+                100,
+                0.1
+            )}
 
                 </section>
                 <div  class="tabindex" tabindex="0">
-                ${this.ta !== undefined &&  this.t !== undefined
-                    ? this.renderResult( this.ta, this.t )
-                    : nothing
-                }
+                ${this.ta !== undefined && this.t !== undefined
+                ? this.renderResult(this.ta, this.t)
+                : nothing
+            }
                 </div>
                 
 
             </thermal-app>
         `
     }
-
-
-
-
 
 }

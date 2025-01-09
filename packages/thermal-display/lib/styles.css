@@ -1,0 +1,9 @@
+apparent-temperature-aat,
+thermal-file-app,
+thermal-group-app,
+thermal-file-analyser
+{
+    &:focus {
+        outline: 0;
+    }
+}
