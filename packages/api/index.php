@@ -212,7 +212,7 @@ foreach ($folders as $folder => $info) {
 
         echo json_encode($response);
         die();
-        
+
     }
 }
 
@@ -382,11 +382,13 @@ if (isset($_GET["groups"])) {
 
     $hours = groupBy($folders, $url_host, "groupByHour", $grid);
     $days = groupBy($folders, $url_host, "groupByDay", $grid);
+    $weeks = groupBy( $folders, $url_host, "groupByWeek", $grid );
     $months = groupBy($folders, $url_host, "groupByMonth", $grid);
     $years = groupBy($folders, $url_host, "groupByYear", $grid);
 
     $response["hours"] = $hours;
     $response["days"] = $days;
+    $response["weeks"] = $weeks;
     $response["months"] = $months;
     $response["years"] = $years;
 

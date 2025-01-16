@@ -36,7 +36,7 @@ The API is currently used by `@labir/webcomponents` and `@labir/wordpress`.
 - `/?weeks` = all files by hours
 - `/?months` = all files by months
 - `/?years` = all files by years
-- `/?time` = all files by hours, days, weeks, months and years
+- `/?groups` = all files by hours, days, weeks, months and years
 
 ## Optional parameters
 
