@@ -115,8 +115,10 @@ export const de: Translation = {
     windspeed: "Windgeschwindigkeit",
     inpercent: "in Prozent",
 
-    youfeelwarmer: "Das Thermometer zeigt {{t}} °C, aber es fühlt sich draußen um {{diff}} °C wärmer an.",
-    youfeelcolder: "Das Thermometer zeigt {{t}} °C, aber es fühlt sich draußen um {{diff}} °C kälter an.",
+    apparenttemperatureverbose: "Das Thermometer zeigt {{t}} °C, aber durch Feuchtigkeit und Wind fühlt es sich wie {{app}} °C an.",
+    youfeelwarmer: "Die gefühlte Temperatur ist {{diff}} °C höher als die Lufttemperatur.",
+    youfeelcolder: "Die gefühlte Temperatur ist {{diff}} °C niedriger als die Lufttemperatur.",
+
 
 
     inspecttemperatures: "Temperaturen inspizieren",

@@ -121,8 +121,10 @@ export const cs: Translation = {
     windspeed: "Rychlost větru",
     inpercent: "v procentech",
 
-    youfeelwarmer: "Na teploměru vidíte {{t}} °C, ale venku se cítíte  o {{diff}} °C tepleji.",
-    youfeelcolder: "Na teploměru vidíte {{t}} °C, ale venku se cítíte  o {{diff}} °C chladněji.",
+    apparenttemperatureverbose: "Na teploměru vidíte {{t}} °C, ale vlivem vlhkosti a větru se venku cítíte jako by bylo {{app}} °C.",
+
+    youfeelwarmer: "Pocitová teplota je o {{diff}} °C vyšší než teplota vzduchu.",
+    youfeelcolder: "Pocitová teplota je o {{diff}} °C nižší než teplota vzduchu.",
 
 
     inspecttemperatures: "Prohlížet teploty",

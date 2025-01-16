@@ -120,8 +120,10 @@ export const fr: Translation = {
     windspeed: "Vitesse du vent",
     inpercent: "en pourcentage",
 
-    youfeelwarmer: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus chaud dehors.",
-    youfeelcolder: "Vous voyez {{t}} °C sur le thermomètre, mais vous vous sentez {{diff}} °C plus froid dehors.",
+    apparenttemperatureverbose: "Le thermomètre indique {{t}} °C, mais en raison de l'humidité et du vent, la température ressentie est de {{app}} °C.",
+    youfeelwarmer: "La température ressentie est de {{diff}} °C supérieure à la température de l'air.",
+    youfeelcolder: "La température ressentie est de {{diff}} °C inférieure à la température de l'air.",
+
 
     inspecttemperatures: "Inspecter les températures",
     usemousetoinspecttemperaturevalues: "Utilisez la souris pour inspecter les valeurs de température.",

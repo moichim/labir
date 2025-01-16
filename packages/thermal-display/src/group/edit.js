@@ -311,7 +311,6 @@ export default function EditGroup({ attributes, setAttributes }) {
 
 					</PanelBody>
 
-
 					<PanelBody
 						title="Display settings"
 					>
@@ -350,11 +349,7 @@ export default function EditGroup({ attributes, setAttributes }) {
 
 					</PanelBody>
 
-
-
-
 				</InspectorControls>
-
 
 			</MediaUploadCheck>
 

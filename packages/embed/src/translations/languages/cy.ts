@@ -120,8 +120,10 @@ export const cy: Translation = {
     windspeed: "Cyflymder gwynt",
     inpercent: "mewn canran",
 
-    youfeelwarmer: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn gynhesach y tu allan.",
-    youfeelcolder: "Rydych chi'n gweld {{t}} °C ar y thermomedr, ond rydych chi'n teimlo'n {{diff}} °C yn oerach y tu allan.",
+    apparenttemperatureverbose: "Mae'r thermomedr yn dangos {{t}} °C, ond oherwydd lleithder a gwynt, mae'n teimlo fel {{app}} °C y tu allan.",
+    youfeelwarmer: "Mae'r tymheredd teimladol yn {{diff}} °C yn uwch na thymheredd yr aer.",
+    youfeelcolder: "Mae'r tymheredd teimladol yn {{diff}} °C yn is na thymheredd yr aer.",
+
 
 
     inspecttemperatures: "Archwilio'r tymheredd",

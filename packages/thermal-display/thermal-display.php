@@ -40,9 +40,9 @@ add_filter( 'block_categories_all' , function( $categories ) {
  * @see https://developer.wordpress.org/reference/functions/register_block_type/
  */
 function thermal_display_init_blocks() {
+	register_block_type( __DIR__ . '/build/wind-chill' );
 	register_block_type( __DIR__ . '/build/app' );
 	register_block_type( __DIR__ . '/build/group' );
-	
 }
 add_action( 'init', 'thermal_display_init_blocks' );
 

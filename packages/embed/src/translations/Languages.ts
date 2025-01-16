@@ -165,6 +165,7 @@ export enum T {
     relativeairhumidity = "relativeairhumidity",
     windspeed = "windspeed",
     inpercent = "inpercent",
+    apparenttemperatureverbose = "apparenttemperatureverbose",
     youfeelwarmer = "youfeelwarmer",
     youfeelcolder = "youfeelcolder",
     apparenttemperaturehint = "apparenttemperaturehint",
