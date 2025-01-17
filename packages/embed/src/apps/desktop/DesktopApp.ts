@@ -82,7 +82,6 @@ export class DesktopFileApp extends FileConsumer {
     ]);
 
     this.tourController.onStepActivation.set( "___tour_controller_mirror", (step) => {
-      this.log( "změnil se krok", step );
       this.tourStep = step;
     } );
     

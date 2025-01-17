@@ -382,8 +382,6 @@ export abstract class AbstractAnalysis {
         });
 
         this.onSerializableChange.set( "sync slots", () => {
-            console.log( "Serializovatelná změna" );
-
             this.file.group.analysisSync.syncSlots( this.file );
         } );
 

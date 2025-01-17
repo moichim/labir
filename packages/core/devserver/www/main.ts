@@ -31,8 +31,6 @@ const buildTools = () => {
         }
     } );
 
-    console.log( tools );
-
 
 
     const playback = document.createElement( "button" );

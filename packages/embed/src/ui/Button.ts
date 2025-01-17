@@ -99,7 +99,7 @@ export class ThermalButton extends TourableElement {
     render() {
 
         return html`
-            <button class="${this.variant}" ${ref(this.tourableElementRef)}>
+            <button class="${this.variant}" ${ref(this.tourableElementRef)} part="btn">
                 <slot></slot>
             </button>
         `;

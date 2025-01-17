@@ -117,10 +117,6 @@ export class GroupElement extends AbstractMultipleApp {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        this.log(this.palette, this.group.registry.manager.id);
-
-        this.group.registry.palette.addListener(this.UUID + "paleta", console.log);
-
         this.group.registry.manager.palette.setPalette(this.palette);
 
         if (this.from !== undefined && this.to !== undefined) {

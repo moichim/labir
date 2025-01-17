@@ -116,11 +116,12 @@ import "./apps/registry/parts/TimeGroupRowElement";
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupTimeline";
 
-
-
 import "./apps/registry/RegistryApp";
 
 import "./tour/TourStep";
+
+
+import "./apps/folder/FolderApp";
 
 
 

@@ -1,0 +1,13 @@
+{
+    "name": "@labir/api",
+    "version": "1.0.0",
+    "description": "Balíček obsahující definice typů",
+    "main": "src/index.d.ts",
+    "types": "src/index.d.ts",
+    "keywords": [
+        "types",
+        "typescript"
+    ],
+    "author": "Tvé jméno",
+    "license": "MIT"
+}

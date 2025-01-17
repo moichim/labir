@@ -137,9 +137,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
 
     public startSyncingSlot(instance: Instance, slotNumber: number) {
-        const { serialise, assign } = this.getSlotListeners(instance, slotNumber)!;
-
-        assign.set(AnalysisSyncDrive.LISTENER_KEY, console.log);
+        const { serialise } = this.getSlotListeners(instance, slotNumber)!;
 
         serialise.set(AnalysisSyncDrive.LISTENER_KEY, value => {
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
@@ -227,8 +225,6 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         serialized: string | undefined,
         slot: number
     ): void {
-
-        console.log(serialized, slot);
 
         this.parent.files.forEveryInstance(
             instance => {

@@ -49,12 +49,10 @@ export class GroupDropin extends GroupConsumer {
 
             listener.onMouseEnter.add(this.UUID, () => {
                     this.hover = true;
-                    this.log( "enter" );
             });
 
             listener.onMouseLeave.add(this.UUID, () => {
                     this.hover = false;
-                    this.log( "leave" );
             });
 
         }

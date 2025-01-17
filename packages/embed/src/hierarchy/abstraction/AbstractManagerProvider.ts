@@ -44,8 +44,6 @@ export abstract class AbstractManagerProvider extends TourableElement {
     disconnectedCallback(): void {
         super.disconnectedCallback();
 
-        this.log( "autoclear manager", this.autoclear, typeof this.autoclear );
-
         if (this.autoclear === true && this.manager !== undefined) {
             removeManager(this.manager);
         }

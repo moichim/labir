@@ -98,8 +98,6 @@ export class FileProviderElement extends AbstractFileProvider {
 
     public async loadSync() {
 
-        this.log( "loading sync" );
-
         this.loading = true;
 
         // Trigger all callbacks
@@ -154,8 +152,6 @@ export class FileProviderElement extends AbstractFileProvider {
     }
 
     public loadAsync() {
-
-        this.log( "loading async", this.thermal, this );
 
         this.loading = true;
 
