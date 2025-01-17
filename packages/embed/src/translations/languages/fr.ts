@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const fr: Translation = {
+
+    loading: "Loading",
+
     next: "Avancer",
     prev: "Rétourner",
     back: "Au derriére",

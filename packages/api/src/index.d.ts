@@ -47,7 +47,7 @@ export type ApiInfoResponse = ApiResponseBase & {
 /** @route /{folder} */
 export type ApiFolderContentResponse = ApiResponseBase & {
     info: FolderInfoBase,
-    files: GroupOfFiles
+    files: FolderFileType[]
 }
 
 

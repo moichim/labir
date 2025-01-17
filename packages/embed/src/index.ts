@@ -121,7 +121,8 @@ import "./apps/registry/RegistryApp";
 import "./tour/TourStep";
 
 
-import "./apps/folder/FolderApp";
+import "./apps/remote/RemoteFolderApp";
+import "./apps/remote/RemoteBrowser";
 
 
 

@@ -12,11 +12,12 @@
 
 <body>
 
+  <remote-browser-app slug="something_folder" url="https://dev-edu.labir.cz/wp-content/casosber/"></remote-browser-app>
 
-  <folder-app 
-    slug="something_folder"
-    url="https://dev-edu.labir.cz/wp-content/casosber/"
-  ></folder-app>
+  <remote-folder-app url="https://dev-edu.labir.cz/wp-content/casosber/" folder="a_prvni"></remote-folder-app>
+
+
+
 
 
   <apparent-temperature-aat vunits="kph" t="10" v="1" ha="72"></apparent-temperature-aat>
@@ -80,6 +81,8 @@
 
     -->
 
+
+    <!--
 
     <thermal-file-analyser url="/tucnaci_04.lrc" visible="/duch/0-ulice.png" opacity="1" author="Já"
       license="CC BY-SA 4.0" label=" " palette="iron"
@@ -154,19 +157,11 @@
       description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3" palette="iron" from="20.45" to="29" showhistogram="false" interactiveanalysis="false" preservetime="false">
       <time-entry slot="entry" thermal="/materialy/materialy_drevo_RAW.lrc" label="Dřevo"></time-entry>
       <time-entry slot="entry" thermal="/materialy/materialy_plechy_RAW__FIX.lrc"></time-entry>
-      <!--<time-entry slot="entry" thermal="/materialy/materialy_polystyren_RAW.lrc" label="Polystyren"></time-entry>-->
     </thermal-group-app>
 
 
 
     <thermal-registry-app slug="rzné materiály - ruce" label="Různé materiály 2 - Ruce" columns="2" groups="2" palette="iron">
-
-      <!--
-      <time-group slug="polystyren" name="Polystyren">
-        <time-entry slot="entry" thermal="/materialy/materialy_polystyren_RUKA_PRED.lrc"></time-entry>
-        <time-entry slot="entry" thermal="/materialy/materialy_polystyren_RUKA_PO.lrc"></time-entry>
-      </time-group>
-    -->
 
       <time-group slug="drevo" name="Dřevo">
         <time-entry slot="entry" thermal="/materialy/materialy_drevo_RUKA_PRED.lrc" label="zde je popiska"></time-entry>
@@ -195,7 +190,6 @@
     <thermal-group-app slug="fen" author="Jan Jáchim" label="Fén" author="Jan Jáchim" license="CC-BY-SA" columns="2" from="22.75" to="44.60" palette="iron">
       <time-entry slot="entry" thermal="/fen-a-ruka/fen_PRED.lrc" label="Stůl"></time-entry>
       <time-entry slot="entry" thermal="/fen-a-ruka/fen_10s.lrc" label="Stůl"></time-entry>
-      <!--<time-entry slot="entry" thermal="/fen-a-ruka/fen_40s.lrc" label="Stůl"></time-entry>-->
     </thermal-group-app>
 
 
@@ -214,7 +208,6 @@
     palette="iron" from="23" to="37.91">
       <time-entry slot="entry" thermal="/fen-a-ruka/lampa_PRED.lrc" label="Stůl"></time-entry>
       <time-entry slot="entry" thermal="/fen-a-ruka/lampa_10s.lrc" label="Stůl"></time-entry>
-      <!--<time-entry slot="entry" thermal="/fen-a-ruka/lampa_40s.lrc" label="Stůl"></time-entry>-->
     </thermal-group-app>
 
 
@@ -315,7 +308,8 @@
     <br />
     <br />
 
-
+  -->
+    <!--
     <thermal-registry-app slug="Skupiny" id="top" columns="1" groups="4">
 
       <time-group slug="Deska" name="Deska">
@@ -346,6 +340,7 @@
 
     </thermal-registry-app>
 
+    -->
     <br />
     <br />
     <br />

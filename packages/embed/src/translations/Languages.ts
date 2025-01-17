@@ -5,6 +5,8 @@
  */
 export enum T {
 
+    loading = "loading",
+
     /** Next */
     next = "next",
     /** Previous */

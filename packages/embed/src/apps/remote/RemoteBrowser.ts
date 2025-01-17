@@ -1,17 +1,16 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { ManagerProviderElement } from "../../hierarchy/mirrors/ManagerMirror";
 
 import { ApiEverythingResponse, ApiInfoResponse, FolderFileType, FolderInfoBase } from "@labir/api";
-import { provide } from "@lit/context";
-import { ApiInfoContext, apiInfoContext, currentGroupingContext, currentGrouppingSetterContext, currentStateContext, currentStateSetterContext, DataGroup, FOLDER_GROUPING, FOLDER_MODE, OnlyGroups, onlysContext, OnlySettingsContext, onlySettingsContext } from "./folderContext";
-import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { AvailableThermalPalettes, ThermalManager, ThermalPalettes } from "@labir/core";
-import { createOrGetManager } from "../../hierarchy/providers/getters";
+import { provide } from "@lit/context";
 import { managerContext, managerGraphFunctionContext, ManagerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext } from "../../hierarchy/providers/context/ManagerContext";
+import { createOrGetManager } from "../../hierarchy/providers/getters";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { ApiInfoContext, apiInfoContext, currentGroupingContext, currentGrouppingSetterContext, currentStateContext, currentStateSetterContext, DataGroup, FOLDER_GROUPING, FOLDER_MODE, OnlyGroups, onlysContext, OnlySettingsContext, onlySettingsContext } from "./folderContext";
 
-@customElement("folder-app")
-export class FolderApp extends RegistryProviderElement {
+@customElement("remote-browser-app")
+export class RemoteBrowserApp extends RegistryProviderElement {
 
     @provide({ context: managerContext })
     manager!: ThermalManager;
@@ -87,7 +86,6 @@ export class FolderApp extends RegistryProviderElement {
     protected onlySet: OnlySettingsContext = {
         all: this.allGroups.bind(this),
         add: (folder: string) => {
-            this.log(folder);
             if (!this.only.includes(folder)) {
                 this.only = [...this.only, folder];
             }
@@ -127,7 +125,6 @@ export class FolderApp extends RegistryProviderElement {
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
-        this.log(_changedProperties, this.mode, this.only);
 
 
         // Zapnul jsem grupy a nebo jsem se přesunul do režimu grup

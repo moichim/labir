@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const en: Translation = {
+
+    loading: "Loading",
+
     next: "Next",
     prev: "Previous",
     back: "Back",

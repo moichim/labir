@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const cy: Translation = {
+
+    loading: "Loading",
+
     next: "Nesaf",
     prev: "Blaenorol",
     back: "Yn ôl",

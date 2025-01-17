@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const cs: Translation = {
+
+    loading: "Načítám",
+    
     next: "Další",
     prev: "Předchozí",
     back: "Zpět",
