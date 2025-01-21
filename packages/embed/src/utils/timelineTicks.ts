@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { html } from "lit";
+import { css, html, nothing } from "lit";
 
 export enum TICK {
     MINOR = "minor",
@@ -83,7 +83,7 @@ const minute = 60 * 1000;
 export const tickWidth = 50;
 export const tickPointerHeight = 3;
 
-export const calcilateTicks = (
+export const calculateTicks = (
     /** Width of the element */
     width: number,
     /** Overall duration of the timeline in miliseconds */
@@ -154,13 +154,35 @@ export const renderPointer = (
     </div>`;
 }
 
-export const renderTicks = ( ticks: Tick[] ) => {
+export const renderTicks = ( 
+    duration: number,
+    ticks: Tick[],
+    currentMs: number,
+    pointerMs?: number
+) => {
+
+    const currentPercent = currentMs / duration * 100;
+
+    const pointerPercent = pointerMs !== undefined
+        ? pointerMs / duration * 100
+        : undefined;
+
+
     return html`<div class="ticks">
+        
         ${ticks.map( renderTick )}
+
+        ${renderPointer( currentPercent, format(currentMs, "m:ss:SSS" ), "primary" )}
+
+        ${pointerMs !== undefined && pointerPercent !== undefined 
+            ? renderPointer( pointerPercent, format( pointerMs, "m:ss:SSS" ), "pointer" )
+            : nothing
+        }
+
     </div>`;
 }
 
-export const ticsCSS = `
+export const ticksCss = css`
 
     :host {
 
@@ -175,11 +197,12 @@ export const ticsCSS = `
     }
 
     .indicator-cursor {
-            position: absolute;
-            width: 0px;
-            right: 0;
-            font-size: var( --fs-sm );
-        }
+        position: absolute;
+        width: 0px;
+        right: 0;
+        font-size: var( --fs-sm );
+        z-index: 11;        
+    }
 
         .indicator-cursor__primary {
             --cursor-bg: var( --thermal-primary );
@@ -225,6 +248,14 @@ export const ticsCSS = `
             width: 100%;
             height: calc( var(--thermal-fs) + ${tickPointerHeight}px);
             position: relative;
+        }
+
+
+        .ticks-horizontal-indent {
+            padding-left: ${tickWidth / 2}px;
+            padding-right: ${tickWidth / 2}px;
+            box-sizing: border-box;
+            width: 100%;
         }
 
         .tick {
@@ -280,5 +311,7 @@ export const ticsCSS = `
             text-align: center;
             color: currentcolor;
     }
+
+    
 
 `;

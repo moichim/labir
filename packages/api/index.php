@@ -1,11 +1,16 @@
 <?php
 
 header('Content-Type: application/json');
+// header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Methods GET');
+// header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
 
 
 function sanitize($input) {
     return preg_replace('/[^a-zA-Z0-9_\- ,]/', '', $input);
 }
+
+$sub = isset( $_GET["scope"] ) ? "/".sanitize( $_GET["scope"] ) : "";
 
 
 
@@ -44,14 +49,14 @@ $response = [
 
 
 // Function to read _info.txt and return an associative array
-function read_info_file($folder)
+function read_info_file($folder, $host_url, $subfolder) 
 {
 
     $info = array(
         "folder" => $folder,
         "name" => $folder
     );
-    $file_path = __DIR__ . "/$folder/_info.txt";
+    $file_path = __DIR__ . $subfolder . "/$folder/_info.txt";
     if (file_exists($file_path)) {
         $lines = file($file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
@@ -60,7 +65,7 @@ function read_info_file($folder)
         }
     }
 
-    $lrc_files = glob(__DIR__ . "/$folder/*.lrc");
+    $lrc_files = glob(__DIR__ . $subfolder . "/$folder/*.lrc");
     $info['lrc_count'] = count($lrc_files);
 
 
@@ -121,14 +126,16 @@ function readTimestamp($filePath, $index)
 
 // Scan the current directory for folders
 $folders = array();
-$dir = __DIR__;
+$dir = __DIR__ . $sub;
+
 $items = scandir($dir);
 foreach ($items as $item) {
+
     if ($item !== '.' && $item !== '..' && is_dir("$dir/$item")) {
         $has_info_txt = file_exists("$dir/$item/_info.txt");
         $has_lrc_files = count(glob("$dir/$item/*.lrc")) > 0;
         if ($has_info_txt || $has_lrc_files) {
-            $folders[$item] = read_info_file($item, $url_host);
+            $folders[$item] = read_info_file($item, $url_host, $sub);
         }
     }
 }
@@ -176,6 +183,7 @@ if (isset($_GET["exclude"])) {
     $folders = $filtered_folders;
 }
 
+$isFolder = false;
 
 foreach ($folders as $folder => $info) {
 
@@ -184,12 +192,14 @@ foreach ($folders as $folder => $info) {
         $response["info"] = $info;
         $response["success"] = true;
 
-        $lrc_files = glob(__DIR__ . "/$folder/*.lrc");
+        $isFolder = true;
 
-        $response['files'] = array_map(function ($file) use ($url_host, $folder) {
+        $lrc_files = glob(__DIR__ . $sub . "/$folder/*.lrc");
+
+        $response['files'] = array_map(function ($file) use ($url_host, $folder,$sub) {
             $file_name = basename($file, '.lrc');
-            $lrc_url = "$url_host/$folder/$file_name.lrc";
-            $png_url = file_exists(__DIR__ . "/$folder/$file_name.png") ? "$url_host/$folder/$file_name.png" : null;
+            $lrc_url = $url_host ."$sub/$folder/$file_name.lrc";
+            $png_url = file_exists(__DIR__ . "/$folder/$file_name.png") ? $url_host . "$sub/$folder/$file_name.png" : null;
 
             $timestamp = round(readTimestamp($file, 5) / 1000);
 
@@ -248,13 +258,14 @@ function groupBy(
     $folders,
     string $url_host,
     $get_group_timestamp,
+    $subfolder,
     bool $grid = false
 ) {
     $groups = [];
 
     foreach ($folders as $folder => $info) {
 
-        $lrc_files = glob(__DIR__ . "/$folder/*.lrc");
+        $lrc_files = glob(__DIR__ . $subfolder . "/$folder/*.lrc");
 
         foreach ($lrc_files as $file) {
 
@@ -276,12 +287,12 @@ function groupBy(
 
             $png = basename($file) . ".png";
 
-            $png_url = file_exists(__DIR__ . "/$folder/$png") ? "$url_host/$folder/$png" : null;
+            $png_url = file_exists(__DIR__ . $subfolder . "/$folder/$png") ? $url_host."$subfolder/$folder/$png" : null;
 
             $result = [
                 "file_name" => basename($file),
                 "timestamp" => $timestamp,
-                "lrc" => "$url_host/$folder/" . basename($file)
+                "lrc" => $url_host."$subfolder/$folder/" . basename($file)
             ];
 
             if ($png_url) {
@@ -320,7 +331,7 @@ $grid = isset($_GET["grid"]);
 
 if (isset($_GET["hours"])) {
 
-    $grouped = groupBy($folders, $url_host, "groupByHour", $grid);
+    $grouped = groupBy($folders, $url_host, "groupByHour", $sub, $grid);
 
     $response["data"] = $grouped;
     $response["success"] = true;
@@ -332,7 +343,7 @@ if (isset($_GET["hours"])) {
 
 if (isset($_GET["days"])) {
 
-    $grouped = groupBy($folders, $url_host, "groupByDay", $grid);
+    $grouped = groupBy($folders, $url_host, "groupByDay", $sub, $grid);
 
     $response["data"] = $grouped;
     $response["success"] = true;
@@ -344,7 +355,7 @@ if (isset($_GET["days"])) {
 
 if (isset($_GET["weeks"])) {
 
-    $grouped = groupBy($folders, $url_host, "groupByWeek", $grid);
+    $grouped = groupBy($folders, $url_host, "groupByWeek", $sub, $grid);
 
     $response["data"] = $grouped;
     $response["success"] = true;
@@ -356,7 +367,7 @@ if (isset($_GET["weeks"])) {
 
 if (isset($_GET["months"])) {
 
-    $grouped = groupBy($folders, $url_host, "groupByMonth", $grid);
+    $grouped = groupBy($folders, $url_host, "groupByMonth", $sub, $grid);
 
     $response["data"] = $grouped;
     $response["success"] = true;
@@ -367,7 +378,7 @@ if (isset($_GET["months"])) {
 
 if (isset($_GET["years"])) {
 
-    $grouped = groupBy($folders, $url_host, "groupByYear", $grid);
+    $grouped = groupBy($folders, $url_host, "groupByYear", $sub, $grid);
 
     $response["data"] = $grouped;
     $response["success"] = true;
@@ -400,14 +411,17 @@ if (isset($_GET["groups"])) {
 
 if (isset($_GET["everything"])) {
     foreach ($folders as $item => $info) {
-        $folders[$item]["url"] = "$url_base?$item";
 
-        $lrc_files = glob(__DIR__ . "/$item/*.lrc");
+        $folders[$item]["url"] = $sub
+            ? "$url_base&$item"
+            : "$url_base?$item";
 
-        $folders[$item]['files'] = array_map(function ($file) use ($url_host, $folder) {
+        $lrc_files = glob(__DIR__ . $sub  . "/$item/*.lrc");
+
+        $folders[$item]['files'] = array_map(function ($file) use ($url_host, $sub, $item) {
             $file_name = basename($file, '.lrc');
-            $lrc_url = "$url_host/$folder/$file_name.lrc";
-            $png_url = file_exists(__DIR__ . "/$folder/$file_name.png") ? "$url_host/$folder/$file_name.png" : null;
+            $lrc_url = $url_host."$sub/$item/$file_name.lrc";
+            $png_url = file_exists(__DIR__ . $sub . "/$item/$file_name.png") ? $url_host."$sub/$item/$file_name.png" : null;
 
             $timestamp = round(readTimestamp($file, 5) / 1000);
 
@@ -447,9 +461,11 @@ function endsWith($haystack, $needle)
 }
 
 // Default route
-if (endsWith($_SERVER["REQUEST_URI"], "/")) {
+if ( endsWith($_SERVER["REQUEST_URI"], "/") || $isFolder) {
     foreach ($folders as $item => $info) {
-        $folders[$item]["url"] = "$url_base?$item";
+        $folders[$item]["url"] = $sub 
+            ? "$url_base&$item"
+            :"$url_base?$item";
     }
 
     $response["folders"] = $folders;

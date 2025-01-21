@@ -181,7 +181,23 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     }
 
 
+    public next() {
 
+        const next = this.findNextRelative( this.value );
+
+        if ( next ) {
+            this.setRelativeTime( next.relative );
+        }
+
+    }
+
+    public prev() {
+        const prev = this.findPreviousRelative( this.value );
+        console.log( prev );
+
+        this.setRelativeTime( prev.relative );
+
+    }
 
     public findPreviousRelative(relativeTimeInMs: number) {
 
@@ -204,7 +220,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
             .reverse();
 
         const frame = reversedSubarray.find(f => {
-            return f.relative <= relativeTimeInMs
+            return f.relative < relativeTimeInMs
         });
 
         return frame !== undefined

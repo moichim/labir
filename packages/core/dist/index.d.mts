@@ -1545,6 +1545,8 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
     _convertRelativeToPercent(relativeTimeInMs: number): number;
     _convertPercenttRelative(percent: number): number;
     formatDuration(ms: number): string;
+    next(): void;
+    prev(): void;
     findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
     findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
     setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;

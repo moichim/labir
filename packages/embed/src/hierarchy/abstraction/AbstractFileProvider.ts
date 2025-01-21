@@ -101,6 +101,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         this.marksProvidedBelow = this.marksQueriedInternally;
 
         this.marksProvidedBelow.forEach(mark => console.log(mark.innerHTML));
+        
     }
 
     public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
@@ -308,8 +309,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         instance: Instance
     ) {
 
-
-
         // listen to changes
         instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
         instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);
@@ -394,16 +393,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
             analysis?.setSelected(false, true);
         }
 
-    }
-
-    private assignAppropriateField(field: number, value?: string) {
-        if (field === 1) this.analysis1 = value;
-        else if (field === 2) this.analysis2 = value;
-        else if (field === 3) this.analysis3 = value;
-        else if (field === 4) this.analysis4 = value;
-        else if (field === 5) this.analysis5 = value;
-        else if (field === 6) this.analysis6 = value;
-        else if (field === 7) this.analysis7 = value;
     }
 
     protected render(): unknown {

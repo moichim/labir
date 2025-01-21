@@ -12,12 +12,17 @@ import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 import { provide } from "@lit/context";
 import { interactiveAnalysisContext } from "../../utils/context";
+import { booleanConverter } from "../../utils/booleanMapper";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 @customElement("remote-folder-app")
 export class RemoteFolderApp extends BaseElement {
 
     @property({ type: String, reflect: true })
     folder!: string;
+
+    @property({ type: String, reflect: true })
+    subfolder?: string;
 
     @property({ type: String, reflect: true })
     url!: string;
@@ -43,6 +48,9 @@ export class RemoteFolderApp extends BaseElement {
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
 
+    @property({ type: String, reflect: true, converter: booleanConverter(true) })
+    showhistogram: boolean = true;
+
     @state()
     highlightFrom?: number;
 
@@ -60,18 +68,15 @@ export class RemoteFolderApp extends BaseElement {
 
     protected resizeObserver: ResizeObserver | undefined;
 
-    @provide({context: interactiveAnalysisContext})
+    @provide({ context: interactiveAnalysisContext })
     protected interactiveAnalysis = true;
 
     connectedCallback(): void {
         super.connectedCallback();
 
         if (this.url !== undefined && this.folder !== undefined) {
-            this.loadData(this.url, this.folder);
+            this.loadData(this.url, this.folder, this.subfolder);
         }
-
-        this.log(this.groupRef.value);
-
 
     }
 
@@ -128,21 +133,41 @@ export class RemoteFolderApp extends BaseElement {
 
     }
 
-    protected async loadData(url: string, folder: string) {
+    protected async loadData(url: string, folder: string, subfolder?: string) {
 
-        this.loading = true;
+        try {
 
-        const data = await fetch(url + "?" + folder);
+            this.loading = true;
 
-        if (data.ok) {
+            const target = subfolder !== undefined
+                ? `${url}?scope=${subfolder}&${folder}`
+                : url + "?" + folder;
 
-            this.data = await data.json() as ApiFolderContentResponse;
-            this.loading = false;
 
-        } else {
+            const data = await fetch(target, {
+                // mode: "no-cors"
+            });
+
+            if (data.ok) {
+
+                this.data = await data.json() as ApiFolderContentResponse;
+                this.loading = false;
+
+                if ( this.data.success === false ) {
+                    this.error = `The remote folder <code>${target}</code> was not found!`;
+                }
+
+            } else {
+                this.error = `The remote folder <code>${target}</code> was not found!`;
+                this.loading = false;
+            }
+
+        } catch (err) {
             this.error = `The remote folder <code>${url}</code> was not found!`;
             this.loading = false;
         }
+
+
 
     }
 
@@ -171,46 +196,48 @@ export class RemoteFolderApp extends BaseElement {
     protected renderFile(file: FolderFileType) {
 
         return html`<div class="file">
-            <file-provider 
-                thermal="${file.lrc}" 
-                visible=${ifDefined(file.png)}
-                batch="true"
-            >
+            <div class="file-inner">
+                <file-provider 
+                    thermal="${file.lrc}" 
+                    visible=${ifDefined(file.png)}
+                    batch="true"
+                >
 
-                <div class="file-header">
-                    <h2><span>${TimeFormat.human(file.timestamp * 1000 )}</span></h2>
-                    <div>
-                        <file-download-lrc></file-download-lrc>
-                        <file-download-png></file-download-png>
-                        <file-button 
-                            label="${t(T.range).toLocaleLowerCase()}"
-                            .onEnter=${(instance: Instance) => {
+                    <div class="file-header">
+                        <h2><span>${TimeFormat.human(file.timestamp * 1000)}</span></h2>
+                        <div>
+                            <file-download-lrc></file-download-lrc>
+                            <file-download-png></file-download-png>
+                            <file-button 
+                                label="${t(T.range).toLocaleLowerCase()}"
+                                .onEnter=${(instance: Instance) => {
                 this.highlightFrom = instance.min;
                 this.highlightTo = instance.max;
             }}
-                            .onAction=${(instance: Instance) => {
+                                .onAction=${(instance: Instance) => {
                 instance.group.registry.range.imposeRange({
                     from: instance.min,
                     to: instance.max
                 });
             }}
-                            .onLeave=${() => {
+                                .onLeave=${() => {
                 this.highlightFrom = undefined;
                 this.highlightTo = undefined;
             }}
-                        ></file-button>
+                            ></file-button>
 
-                        <file-info-button>
-                            <file-button slot="invoker" label="${t(T.info).toLocaleLowerCase()}"></file-button>
-                        </file-info-button>
+                            <file-info-button>
+                                <file-button slot="invoker" label="${t(T.info).toLocaleLowerCase()}"></file-button>
+                            </file-info-button>
 
+                        </div>
                     </div>
-                </div>
-                
-                <file-canvas></file-canvas>
-                <file-timeline interactive="false" hasSpeedButton="false" hasPlayButton="false" hasInfo="false"></file-timeline>
-                <file-analysis-table interactiveanalysis="true"></file-analysis-table>
-            </file-provider>
+                    
+                    <file-canvas></file-canvas>
+                    <file-timeline hasPlayButton="false" hasInfo="false"></file-timeline>
+                    <file-analysis-table interactiveanalysis="true"></file-analysis-table>
+                </file-provider>
+            </div>
         </div>`;
 
     }
@@ -227,18 +254,18 @@ export class RemoteFolderApp extends BaseElement {
     protected clsToStr(
         cls: keyof RemoteFolderApp["clsx"]
     ): string {
-        return t( T.columns, {num: this.clsx[cls] } )
+        return t(T.columns, { num: this.clsx[cls] })
     }
 
     protected renderColumnsSwitch() {
 
         return html`<thermal-dropdown>
-            <span slot="invoker">${this.clsToStr( this.cls )}</span>
-            <thermal-button slot="option" @click=${()=>this.cls = "xs"}>${this.clsx["xs"]}</thermal-button>
-            <thermal-button slot="option" @click=${()=>this.cls = "sm"}>${this.clsx["sm"]}</thermal-button>
-            <thermal-button slot="option" @click=${()=>this.cls = "md"}>${this.clsx["md"]}</thermal-button>
-            <thermal-button slot="option" @click=${()=>this.cls = "lg"}>${this.clsx["lg"]}</thermal-button>
-            <thermal-button slot="option" @click=${()=>this.cls = "xl"}>${this.clsx["xl"]}</thermal-button>
+            <span slot="invoker">${this.clsToStr(this.cls)}</span>
+            <thermal-button slot="option" @click=${() => this.cls = "xs"}>${this.clsx["xs"]}</thermal-button>
+            <thermal-button slot="option" @click=${() => this.cls = "sm"}>${this.clsx["sm"]}</thermal-button>
+            <thermal-button slot="option" @click=${() => this.cls = "md"}>${this.clsx["md"]}</thermal-button>
+            <thermal-button slot="option" @click=${() => this.cls = "lg"}>${this.clsx["lg"]}</thermal-button>
+            <thermal-button slot="option" @click=${() => this.cls = "xl"}>${this.clsx["xl"]}</thermal-button>
         </thermal-dropdown>`;
     }
 
@@ -253,7 +280,7 @@ export class RemoteFolderApp extends BaseElement {
         .files {
             display: grid;
             grid-template-columns: auto auto auto;
-            margin: -10px 0;
+            margin: 0 -6px;
             padding-top: var(--thermal-fs);
         }
 
@@ -280,6 +307,11 @@ export class RemoteFolderApp extends BaseElement {
 
 
         .file {
+            box-sizing: border-box;
+            padding: 6px;
+        }
+
+        .file-inner {
             border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
         }
@@ -311,9 +343,17 @@ export class RemoteFolderApp extends BaseElement {
 
     protected render(): unknown {
 
-        const title = this.loading && this.data === undefined
-            ? t(T.loading) + "..."
-            : this.data?.info.name;
+        let title = t(T.loading) + "...";
+
+        if ( this.data?.info !== undefined ) {
+            title = this.data.info.name;
+        }
+
+        if ( this.error !== undefined ) {
+            title = "Error";
+        }
+
+        this.log( this.error, this.data );
 
         return html`
             <manager-provider slug="folders_app___uuid__${this.UUID}">
@@ -329,41 +369,45 @@ export class RemoteFolderApp extends BaseElement {
                                 ${title}
                             </thermal-button>
 
-                            <div slot="bar" style="flex-grow: 4;">
+                            ${this.error === undefined ? html`
 
-                                <thermal-bar>
-                                    <registry-palette-dropdown></registry-palette-dropdown>
-                                    <registry-range-full-button 
-                                        @mouseenter=${() => {
+                                <div slot="bar" style="flex-grow: 4;">
+
+                                    <thermal-bar>
+                                        <registry-palette-dropdown></registry-palette-dropdown>
+                                        <registry-range-full-button 
+                                            @mouseenter=${() => {
                     if (this.group) {
                         this.highlightFrom = this.group.registry.minmax.value?.min;
                         this.highlightTo = this.group.registry.minmax.value?.max;
                     }
                 }}
-                                        @mouseleave=${() => {
+                                            @mouseleave=${() => {
                     this.highlightFrom = undefined;
                     this.highlightTo = undefined;
                 }}
-                                    ></registry-range-full-button>
-                                    ${this.renderColumnsSwitch()}
+                                        ></registry-range-full-button>
+                                        ${this.renderColumnsSwitch()}
 
-                                    <group-download-dropdown></group-download-dropdown>
+                                        <group-download-dropdown></group-download-dropdown>
 
-                                    <registry-opacity-slider></registry-opacity-slider>
+                                        <registry-opacity-slider></registry-opacity-slider>
 
-                                </thermal-bar>
+                                    </thermal-bar>
 
-                            </div>
+                                </div>
 
-                        <registry-histogram></registry-histogram>
-                        <registry-range-slider></registry-range-slider>
-                        <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
+                            ${this.showhistogram ? html`<registry-histogram></registry-histogram>` : nothing}
+                            <registry-range-slider></registry-range-slider>
+                            <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
 
-                        <group-tool-buttons></group-tool-buttons>
+                            <group-tool-buttons></group-tool-buttons>`
+
+                        : nothing }
                             
-                        ${this.error ? this.error : nothing}
+                        ${this.error ? unsafeHTML( this.error ) : nothing}
 
-                        ${this.data ? this.renderData(this.data) : nothing}
+                        ${ this.error === undefined && this.data ? this.renderData(this.data) : nothing}
 
                         <group-timeline></group-timeline>
 

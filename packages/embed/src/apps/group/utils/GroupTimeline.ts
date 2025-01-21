@@ -3,8 +3,7 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { format } from "date-fns";
-import { TICK, Tick, MinuteDivision } from "../../../utils/timelineTicks";
+import { calculateTicks, renderTicks, Tick, ticksCss as tickCSS } from "../../../utils/timelineTicks";
 
 
 
@@ -136,108 +135,13 @@ export class GroupTimeline extends GroupConsumer {
 
     }
 
-    protected tick(
-        ms: number,
-        duration: number,
-        type: TICK
-    ): Tick {
-        return {
-            ms: ms,
-            percent: ms / duration * 100,
-            type,
-            label: format(ms, "m:ss")
-        }
-    }
-    
-
-    protected processTicksMinute(
-        from: number,
-        to: number,
-        count: MinuteDivision,
-        duration: number
-    ): Tick[] {
-
-        const ticks: Tick[] = [];
-
-
-        let c = 1;
-
-        let partial = (to - from) / count;
-
-        while (c < count) {
-
-            const value = from + (c * partial);
-            if (value < duration) {
-                ticks.push(
-                    this.tick(
-                        value,
-                        duration,
-                        TICK.MINOR
-                    )
-                );
-            }
-
-            c += 1;
-        }
-
-        // Append the minute end if necessary
-        if (to < duration) {
-            ticks.push(this.tick(to, duration, TICK.MAJOR));
-        }
-
-        return ticks;
-
-    }
 
 
     protected calculateTicks(
         width: number,
         duration: number
     ) {
-
-        const minute = 60 * 1000;
-
-        const numTicks = Math.floor(width / GroupTimeline.TICK_WIDTH);
-
-        const numMinutes = Math.floor(duration / (60 * 1000));
-
-        let ticksPerMinuteRaw = numTicks / numMinutes;
-
-        let ticksPerMinute: MinuteDivision = 2;
-
-        if (ticksPerMinuteRaw >= 2) ticksPerMinute = 4;
-        if (ticksPerMinuteRaw >= 6) ticksPerMinute = 6;
-        if (ticksPerMinuteRaw >= 12) ticksPerMinute = 12;
-        if (ticksPerMinuteRaw >= 30) ticksPerMinute = 30;
-
-        const ticks: Tick[] = [];
-
-        let from = 0;
-        let to = minute;
-
-        while (from < duration) {
-
-            this.processTicksMinute(
-                from, to,
-                ticksPerMinute,
-                duration
-            ).forEach(tick => ticks.push(tick));
-
-            // Add a minute
-            from += minute;
-            to += minute;
-
-        }
-
-
-        ticks.push(this.tick(0, duration, TICK.BOUND));
-        ticks.push(this.tick(duration, duration, TICK.BOUND));
-
-
-        this.ticks = ticks;
-
-
-
+        this.ticks = calculateTicks( width, duration );
     }
 
     protected forEveryAffectedInstance(fn: (instance: Instance) => void) {
@@ -337,9 +241,6 @@ export class GroupTimeline extends GroupConsumer {
 
         .container {
 
-            padding-left: ${GroupTimeline.TICK_WIDTH / 2}px;
-            padding-right: ${GroupTimeline.TICK_WIDTH / 2}px;
-
             padding-top: calc( var(--thermal-fs) + 6px);
 
         }
@@ -370,112 +271,7 @@ export class GroupTimeline extends GroupConsumer {
         }
 
 
-        .indicator-cursor {
-            position: absolute;
-            width: 0px;
-            right: 0;
-            font-size: var( --fs-sm );
-        }
-
-        .indicator-cursor__primary {
-            --cursor-bg: var( --thermal-primary );
-            --cursor-color: white;
-        }
-
-        .indicator-cursor__pointer {
-            --cursor-bg: var( --thermal-foreground );
-            --cursor-color: white;
-
-            .indicator-cursor-arrow {
-                position: absolute;
-                top: calc( var( --thermal-fs ) * -1 - 6px);
-            }
-
-            .indicator-cursor-label {
-                position: absolute;
-                top: calc( var( --thermal-fs ) * -2 - 3px );
-            }
-        }
-
-        .indicator-cursor-arrow {
-            position: relative;
-            width: 6px;
-            height: 6px;
-            content: "";
-            background: var( --cursor-bg );
-            left: -4px;
-            rotate: 45deg;
-        }
-
-        .indicator-cursor-label {
-            position: relative;
-            top: -3px;
-            width: ${GroupTimeline.TICK_WIDTH}px;
-            left: -${GroupTimeline.TICK_WIDTH / 2}px;
-            background: var( --cursor-bg );
-            color: var(--cursor-color);
-            text-align: center;
-        }
-
-        .ticks {
-            width: 100%;
-            height: calc( var(--thermal-fs) + ${GroupTimeline.TICK_POINTER_HEIGHT}px);
-            position: relative;
-        }
-
-        .tick {
-            position: absolute;
-            width: 0;
-            color: var( --tick-color );
-            opacity: var( --tick-opacity );
-            font-size: var( --fs-sm );
-        }
-
-        .tick-bound {
-
-            --tick-color: var( --thermal-foreground );
-
-            .tick-label {
-                background: var(--thermal-slate-dark);
-                color: var(--thermal-background);
-                position: relative;
-                top: -3px;
-            }
-
-            .tick-pointer {
-                width: 6px;
-                height: 6px;
-                background: var( --thermal-slate-dark );
-                position: relative;
-                left: -3px;
-                rotate: 45deg;
-            }
-            
-        }
-
-        .tick-major {
-            --tick-color: var( --thermal-slate-dark );
-        }
-
-        .tick-minor {
-            --tick-color: var( --thermal-slate );
-        }
-
-
-        .tick-pointer {
-            height: ${GroupTimeline.TICK_POINTER_HEIGHT}px;
-            width: 1px;
-            content: "";
-            background-color: currentcolor;
-        }
-
-        .tick-label {
-            width: ${GroupTimeline.TICK_WIDTH}px;
-            position: relative;
-            left: -${GroupTimeline.TICK_WIDTH / 2}px;
-            text-align: center;
-            color: currentcolor;
-        }
+        ${tickCSS}
     
     `;
 
@@ -490,7 +286,7 @@ export class GroupTimeline extends GroupConsumer {
             return nothing;
         }
 
-        return html`<div class="container">
+        return html`<div class="container ticks-horizontal-indent">
 
             <div 
                 class="timeline" 
@@ -504,29 +300,10 @@ export class GroupTimeline extends GroupConsumer {
                 <div class="indicator" ${ref(this.indicatorRef)}></div>
             </div>
 
-            <div class="ticks">
-                ${this.ticks.map(tick => html`<div 
-                    class="tick tick-${tick.type}"
-                    style="left:${tick.percent}%"
-                >
-                    <div class="tick-pointer"></div>
-                    <div class="tick-label">${tick.label}</div>
-                </div>`)}
-
-                <div class="indicator-cursor indicator-cursor__primary" style="left: ${this.msToPercent(this.ms)}%">
-                    <div class="indicator-cursor-arrow"></div>
-                    <div class="indicator-cursor-label">${format(this.ms, "m:ss:SSS")}</div>
-                </div>
-
-                ${this.pointerMs !== undefined
-                ? html`<div class="indicator-cursor indicator-cursor__pointer" style="left: ${this.msToPercent(this.pointerMs)}%">
-                        <div class="indicator-cursor-arrow"></div>
-                        <div class="indicator-cursor-label">${format(this.pointerMs, "m:ss:SSS")}</div>
-                    </div>`
+            ${this.longestDurationInMs !== undefined 
+                ? renderTicks( this.longestDurationInMs, this.ticks, this.ms, this.pointerMs )
                 : nothing
             }
-
-            </div>
 
         </div>`;
     }

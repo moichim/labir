@@ -3711,6 +3711,17 @@ var TimelineDrive = class extends AbstractProperty {
     date.setMilliseconds(ms);
     return (0, import_date_fns4.format)(date, "mm:ss:SSS");
   }
+  next() {
+    const next = this.findNextRelative(this.value);
+    if (next) {
+      this.setRelativeTime(next.relative);
+    }
+  }
+  prev() {
+    const prev = this.findPreviousRelative(this.value);
+    console.log(prev);
+    this.setRelativeTime(prev.relative);
+  }
   findPreviousRelative(relativeTimeInMs) {
     if (this.steps.length === 1) {
       return this.steps[0];
@@ -3722,7 +3733,7 @@ var TimelineDrive = class extends AbstractProperty {
     const sliceEnd = this._validateIndex(index);
     const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
     const frame = reversedSubarray.find((f) => {
-      return f.relative <= relativeTimeInMs;
+      return f.relative < relativeTimeInMs;
     });
     return frame !== void 0 ? frame : this.steps[0];
   }

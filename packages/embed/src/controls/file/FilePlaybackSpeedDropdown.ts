@@ -1,4 +1,4 @@
-import { playbackSpeed, ThermalFileFailure } from "@labir/core";
+import { playbackSpeed, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
@@ -9,18 +9,21 @@ import { playbackSpeedContext } from "../../hierarchy/providers/context/FileCont
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
 
+    
+
     @property({type: String, reflect: true})
     enabled: "on"|"off" = "on";
 
     @consume({context: playbackSpeedContext, subscribe: true})
     @state()
-    protected playbackSpeed?: ThermalFileFailure;
+    protected playbackSpeed?: PlaybackSpeeds;
     
-    public onInstanceCreated(): void {
-        // throw new Error("Method not implemented.");
-    }
-    public onFailure(): void {
-        // throw new Error("Method not implemented.");
+    public onInstanceCreated(): void {}
+
+    public onFailure(): void {}
+
+    public getTourableRoot(): HTMLElement | undefined {
+        return undefined;
     }
 
     
