@@ -902,7 +902,6 @@ var AbstractAnalysis = class {
       this.onSerializableChange.call(this, "moveOrResize");
     });
     this.onSerializableChange.set("sync slots", () => {
-      console.log("Serializovateln\xE1 zm\u011Bna");
       this.file.group.analysisSync.syncSlots(this.file);
     });
   }
@@ -4275,7 +4274,7 @@ var AbstractFile = class extends BaseStructureObject {
   reset() {
   }
   recieveOpacity(value) {
-    if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer) {
+    if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
       this.dom.canvasLayer.opacity = value;
     }
   }
@@ -5882,8 +5881,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   }
   static LISTENER_KEY = "__analysis__sync";
   startSyncingSlot(instance, slotNumber) {
-    const { serialise, assign } = this.getSlotListeners(instance, slotNumber);
-    assign.set(_AnalysisSyncDrive.LISTENER_KEY, console.log);
+    const { serialise } = this.getSlotListeners(instance, slotNumber);
     serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
       this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
         this.onSlotSync.call(value, slotNumber);
@@ -5937,7 +5935,6 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     });
   }
   recieveSlotSerialized(serialized, slot) {
-    console.log(serialized, slot);
     this.parent.files.forEveryInstance(
       (instance) => {
         if (serialized) {

@@ -1,6 +1,6 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labir/core";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
 import { createRef, Ref, ref } from 'lit/directives/ref.js';

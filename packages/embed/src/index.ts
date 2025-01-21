@@ -77,6 +77,7 @@ import "./controls/registry/Histogram";
 // 5. Group controls
 import "./controls/group/GroupToolButtons";
 import "./controls/group/GroupToolsBar";
+import "./controls/group/GroupDownloadDropdown";
 
 
 // 5. File controls
@@ -99,6 +100,10 @@ import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
+
+import "./controls/file/buttons/FileLrcButton";
+import "./controls/file/buttons/FilePngButton";
+import "./controls/file/buttons/FileButton";
 
 
 // 7. Complex apps go last
