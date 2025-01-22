@@ -55,7 +55,9 @@ export type ApiFolderContentResponse = ApiResponseBase & {
 /** @route /?{time} */
 export type ApiTimeGroupResponse = ApiResponseBase & {
     data: {
-        [index: string]: TimeRecordGroup
+        [index: string]: {
+            [index: string]: TimeRecordGroup
+        }
     }
 }
 

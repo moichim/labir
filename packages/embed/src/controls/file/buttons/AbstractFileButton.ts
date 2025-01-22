@@ -1,7 +1,6 @@
 import { css, CSSResultGroup, html } from "lit";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { Instance, ThermalFileFailure } from "@labir/core";
 import { createRef, ref } from "lit/directives/ref.js";
+import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
 export abstract class AbstractFileButton extends FileConsumer {
 

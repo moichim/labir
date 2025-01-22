@@ -1,18 +1,16 @@
 import { ApiFolderContentResponse, FolderFileType } from "@labir/api";
-import { AvailableThermalPalettes, Instance, ThermalGroup, TimeFormat } from "@labir/core";
+import { AvailableThermalPalettes, ThermalGroup, TimeFormat } from "@labir/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { T } from "../../translations/Languages";
-import { ifDefined } from "lit/directives/if-defined.js";
 
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
-import { provide } from "@lit/context";
-import { interactiveAnalysisContext } from "../../utils/context";
-import { booleanConverter } from "../../utils/booleanMapper";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
+import { booleanConverter } from "../../utils/booleanMapper";
 
 @customElement("remote-folder-app")
 export class RemoteFolderApp extends BaseElement {
@@ -452,8 +450,6 @@ export class RemoteFolderApp extends BaseElement {
                                         <group-download-dropdown></group-download-dropdown>
 
                                         ${this.renderInfo()}
-
-                                        
 
                                     </thermal-bar>
 

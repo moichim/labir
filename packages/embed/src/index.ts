@@ -78,6 +78,7 @@ import "./controls/registry/Histogram";
 import "./controls/group/GroupToolButtons";
 import "./controls/group/GroupToolsBar";
 import "./controls/group/GroupDownloadDropdown";
+import "./controls/group/GroupRangePropagator";
 
 
 // 5. File controls
@@ -129,6 +130,7 @@ import "./tour/TourStep";
 
 import "./apps/remote/RemoteFolderApp";
 import "./apps/remote/RemoteBrowser";
+import "./apps/remote/RemoteGridApp";
 
 
 

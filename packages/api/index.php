@@ -285,14 +285,14 @@ function groupBy(
                 ];
             }
 
-            $png = basename($file) . ".png";
+            $png = str_replace( ".lrc", ".png", basename($file) );
 
             $png_url = file_exists(__DIR__ . $subfolder . "/$folder/$png") ? $url_host."$subfolder/$folder/$png" : null;
 
             $result = [
                 "file_name" => basename($file),
                 "timestamp" => $timestamp,
-                "lrc" => $url_host."$subfolder/$folder/" . basename($file)
+                "lrc" => $url_host."$subfolder/$folder/" . basename($file),
             ];
 
             if ($png_url) {
