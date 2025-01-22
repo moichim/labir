@@ -136,8 +136,6 @@ export class InstanceRenderer {
 
     public renderInstance(
         instance: Instance,
-        onInstanceEnter: InstanceInteractionCallback,
-        onInstanceLeave: InstanceInteractionCallback,
         time: string,
         preservetime: boolean,
         label?: string,
@@ -146,10 +144,7 @@ export class InstanceRenderer {
 
         return html`<div class="file">
 
-            <article
-                @mouseenter=${() => onInstanceEnter(instance)}
-                @mouseleave=${() => onInstanceLeave(instance)}
-            >
+            <article>
 
                 <file-mirror  .file=${instance}>
                 
@@ -163,44 +158,12 @@ export class InstanceRenderer {
 
                             ${this.renderInfo(label, innerHtml)}
 
-                            <button
-                                class="file-info-button"
-                                @click=${() => instance.export.downloadPng()}
-                            >png</button>
-
-                            <button
-                                class="file-info-button"
-                                @click=${() => {
-                                    const link = document.createElement( "a" );
-                                    link.href = instance.thermalUrl;
-                                    link.download = instance.fileName;
-                                    link.click();
-                                }}
-                            >lrc</button>
-
+                            <file-download-lrc></file-download-lrc>
+                            <file-download-png></file-download-png>
+                            <file-range-propagator></file-range-propagator>
                             <file-info-button>
-                                <button 
-                                    slot="invoker"
-                                    class="file-info-button"
-                                >${t(T.info).toLocaleLowerCase()}</button>
+                                <file-button slot="invoker" label="${t(T.info).toLocaleLowerCase()}"></file-button>
                             </file-info-button>
-
-                            <button
-                                class="file-info-button"
-                                @click=${() => {
-
-                const range = instance.group.registry.range;
-
-                range.imposeRange({
-                    from: instance.min,
-                    to: instance.max
-                })
-
-            }}
-                                @focus=${() => onInstanceEnter(instance)}
-                                @blur=${() => onInstanceLeave(instance)}
-                            >${t(T.range).toLocaleLowerCase()}</button>
-                        
                         
                         </div>
 

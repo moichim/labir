@@ -104,6 +104,7 @@ import "./controls/file/analysis/FileAnalysisTable";
 import "./controls/file/buttons/FileLrcButton";
 import "./controls/file/buttons/FilePngButton";
 import "./controls/file/buttons/FileButton";
+import "./controls/file/buttons/FileRangePropagator";
 
 
 // 7. Complex apps go last

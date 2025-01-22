@@ -1,10 +1,10 @@
-import { ThermalMinmaxOrUndefined } from "@labir/core";
+import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValueMap } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { registryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 
 type TickType = {
     percentage: number,
@@ -21,6 +21,9 @@ export class TicksElement extends RegistryConsumer {
 
     protected observer!: ResizeObserver;
 
+    @consume({context: registryHighlightContext, subscribe: true})
+    protected highlight?: ThermalRangeOrUndefined;
+
     @property({ type: String, reflect: true })
     public placement: string = "top";
 
@@ -30,35 +33,27 @@ export class TicksElement extends RegistryConsumer {
     @state()
     protected ticks: TickType[] = [];
 
-    @property({ type: Number, reflect: true })
-    public highlightFrom?: number;
-
-    @property({ type: Number, reflect: true })
-    public highlightTo?: number;
-
-    @consume({ context: managerPaletteContext, subscribe: true })
-    @state()
-    protected palette!: ManagerPaletteContext;
-
     protected containerRef: Ref<HTMLElement> = createRef();
 
     public getTourableRoot(): HTMLElement | undefined {
         return this.containerRef.value;
     }
 
+
+
+
+
     connectedCallback(): void {
+
         super.connectedCallback();
 
-        // this.log( this.registry.minmax );
-
         this.registry.minmax.addListener(this.UUID, value => {
-
-            // console.log( "minmax updated", value );
             this.minmax = value;
             this.calculateTicks(value, this.ticksRef.value!.clientWidth);
         });
 
     }
+
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
 
@@ -75,14 +70,17 @@ export class TicksElement extends RegistryConsumer {
 
     }
 
+
     protected clamp(input: number, min: number, max: number): number {
         return input < min ? min : input > max ? max : input;
     }
+
 
     protected map(current: number, in_min: number, in_max: number, out_min: number, out_max: number): number {
         const mapped: number = ((current - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
         return this.clamp(mapped, out_min, out_max);
     }
+
 
     protected calculateTicks(minmax: ThermalMinmaxOrUndefined, width: number) {
         if (minmax === undefined) {
@@ -108,6 +106,7 @@ export class TicksElement extends RegistryConsumer {
         }
     }
 
+
     protected calculateOneTick(
         minmax: ThermalMinmaxOrUndefined,
         percent: number
@@ -124,6 +123,7 @@ export class TicksElement extends RegistryConsumer {
         }
 
     }
+
 
     static styles = css`
 
@@ -206,25 +206,20 @@ export class TicksElement extends RegistryConsumer {
     `;
 
 
-
     protected render(): unknown {
 
-        const hasHighlight = this.highlightFrom !== undefined && this.highlightTo !== undefined;
+        let highlightLeft: number | undefined = undefined;
+        let highlightWidth: number | undefined = undefined;
 
-        let highlightFrom: number | undefined = undefined;
-        let highlightTo: number | undefined = undefined;
-
-        if (this.registry.minmax.value && hasHighlight && this.highlightFrom !== undefined && this.highlightTo !== undefined) {
+        if ( this.registry.minmax.value && this.highlight ) {
 
             const min = this.registry.minmax.value.min;
             const minmax = this.registry.minmax.value.max - min;
 
-            highlightFrom = (this.highlightFrom - min) / minmax * 100;
-            highlightTo = ((this.highlightTo - min) / minmax * 100) - highlightFrom;
+            highlightLeft = (this.highlight.from - min) / minmax * 100;
+            highlightWidth = (this.highlight.to - min) / minmax * 100 - highlightLeft;
 
         }
-
-
 
         return html`
 
@@ -234,22 +229,20 @@ export class TicksElement extends RegistryConsumer {
 
                 <div class="ticks" ${ref(this.ticksRef)}>
 
-                    ${hasHighlight
-                ? html`<div class="highlight" style="position: absolute; top: 0px; height: 5px; left:${highlightFrom}%; width: ${highlightTo}%; background-color: var(--thermal-foreground)"></div>`
+                    ${highlightLeft !== undefined && highlightWidth !== undefined
+                ? html`<div class="highlight" style="position: absolute; top: 0px; height: 5px; left:${highlightLeft}%; width: ${highlightWidth}%; background-color: var(--thermal-foreground)"></div>`
                 : nothing
             }
 
                     ${this.ticks.map(tick => {
                 return html`
-                            <div class="tick" >
-                                <div class="tick-value">
-                                ${tick.value.toFixed(TicksElement.TICK_FIXED)}
-                                </div>
-                            </div>
+                    <div class="tick" >
+                        <div class="tick-value">
+                            ${tick.value.toFixed(TicksElement.TICK_FIXED)}
+                        </div>
+                    </div>
                         `;
             })}
-
-                    
 
                 </div>                
 

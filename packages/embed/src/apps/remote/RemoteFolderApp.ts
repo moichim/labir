@@ -7,7 +7,6 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { T } from "../../translations/Languages";
 import { ifDefined } from "lit/directives/if-defined.js";
 
-import { map, latLng, tileLayer, MapOptions } from "leaflet";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 import { provide } from "@lit/context";
@@ -18,15 +17,20 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 @customElement("remote-folder-app")
 export class RemoteFolderApp extends BaseElement {
 
+    /** The API endpoint main URL address */
     @property({ type: String, reflect: true })
-    folder!: string;
+    public url!: string;
 
+    /** An optional subfolder relative to the API endpoint in `this.url` */
     @property({ type: String, reflect: true })
-    subfolder?: string;
+    public subfolder?: string;
 
+    /** The remote folder name relative to `this.url` resp. to `this.subfolder` in case the subfolder is set. */
     @property({ type: String, reflect: true })
-    url!: string;
+    public folder!: string;
 
+
+    /** The error string */
     @state()
     protected error?: string;
 
@@ -39,6 +43,10 @@ export class RemoteFolderApp extends BaseElement {
     @state()
     protected label?: string;
 
+    @state()
+    protected cls: keyof RemoteFolderApp["clsx"] = "md";
+
+
     @property({ type: String, reflect: true })
     license?: string;
 
@@ -49,27 +57,17 @@ export class RemoteFolderApp extends BaseElement {
     palette: AvailableThermalPalettes = "jet";
 
     @property({ type: String, reflect: true, converter: booleanConverter(true) })
-    showhistogram: boolean = true;
+    showhistogram: boolean = false;
 
-    @state()
-    highlightFrom?: number;
-
-    @state()
-    highlightTo?: number;
-
-    groupRef: Ref<GroupProviderElement> = createRef();
+    protected groupRef: Ref<GroupProviderElement> = createRef();
 
     protected group?: ThermalGroup = undefined;
 
-    protected w?: number;
+    /** We need to store the last width of the component so that we are able to recognise when the width actually changes. Used by `this.resizeObserver`*/
+    protected lastWidth?: number;
 
-    @state()
-    protected cls: keyof RemoteFolderApp["clsx"] = "md";
-
+    /** We need to observe the actual element width in order to automatically adjust the columns width */
     protected resizeObserver: ResizeObserver | undefined;
-
-    @provide({ context: interactiveAnalysisContext })
-    protected interactiveAnalysis = true;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -99,8 +97,6 @@ export class RemoteFolderApp extends BaseElement {
 
         if (_changedProperties.has("data")) {
 
-            console.log("changed data", this.data);
-
             this.resizeObserver?.disconnect();
             delete this.resizeObserver;
 
@@ -109,7 +105,7 @@ export class RemoteFolderApp extends BaseElement {
                 const entry = entries[0];
                 const width = entry.contentRect.width;
 
-                if (this.w !== width) {
+                if (this.lastWidth !== width) {
 
                     let cls = "xs";
                     if (width > 500) cls = "sm";
@@ -118,7 +114,7 @@ export class RemoteFolderApp extends BaseElement {
                     if (width > 1600) cls = "xl";
 
                     this.cls = cls as keyof RemoteFolderApp["clsx"];
-                    this.w = width;
+                    this.lastWidth = width;
 
                 }
 
@@ -131,6 +127,12 @@ export class RemoteFolderApp extends BaseElement {
             }
         }
 
+    }
+
+    protected getUrl(url: string, folder: string, subfolder?: string): string {
+        return subfolder !== undefined
+            ? `${url}?scope=${subfolder}&${folder}`
+            : url + "?" + folder;
     }
 
     protected async loadData(url: string, folder: string, subfolder?: string) {
@@ -153,7 +155,7 @@ export class RemoteFolderApp extends BaseElement {
                 this.data = await data.json() as ApiFolderContentResponse;
                 this.loading = false;
 
-                if ( this.data.success === false ) {
+                if (this.data.success === false) {
                     this.error = `The remote folder <code>${target}</code> was not found!`;
                 }
 
@@ -208,24 +210,7 @@ export class RemoteFolderApp extends BaseElement {
                         <div>
                             <file-download-lrc></file-download-lrc>
                             <file-download-png></file-download-png>
-                            <file-button 
-                                label="${t(T.range).toLocaleLowerCase()}"
-                                .onEnter=${(instance: Instance) => {
-                this.highlightFrom = instance.min;
-                this.highlightTo = instance.max;
-            }}
-                                .onAction=${(instance: Instance) => {
-                instance.group.registry.range.imposeRange({
-                    from: instance.min,
-                    to: instance.max
-                });
-            }}
-                                .onLeave=${() => {
-                this.highlightFrom = undefined;
-                this.highlightTo = undefined;
-            }}
-                            ></file-button>
-
+                            <file-range-propagator></file-range-propagator>
                             <file-info-button>
                                 <file-button slot="invoker" label="${t(T.info).toLocaleLowerCase()}"></file-button>
                             </file-info-button>
@@ -267,6 +252,72 @@ export class RemoteFolderApp extends BaseElement {
             <thermal-button slot="option" @click=${() => this.cls = "lg"}>${this.clsx["lg"]}</thermal-button>
             <thermal-button slot="option" @click=${() => this.cls = "xl"}>${this.clsx["xl"]}</thermal-button>
         </thermal-dropdown>`;
+    }
+
+    protected renderInfo() {
+
+        if (this.data) {
+
+            const url = this.getUrl( this.url, this.folder, this.subfolder );
+            const request = "Request";
+
+            const req = {
+                "API Root": this.url,
+                "Subfolder": this.subfolder,
+                "Folder": this.folder,
+                [request]: url
+            }
+
+            const res = {
+                "time": TimeFormat.human( this.data.time )
+            }
+
+
+            return html`
+                <thermal-dialog label="Remote folder info">
+
+                    <slot name="invoker" slot="invoker">
+                        <thermal-button>Remote folder info</thermal-button>
+                    </slot>
+
+                    <div slot="content">
+
+                        ${this.data.info["description"] ? html`<p>${this.data.info["description"]}</p>` : nothing }
+
+                        <table>
+                            
+                            <caption>Request information</caption>
+
+                            <tbody>
+
+                                ${Object.entries( req ).map( ([key, value]) => {
+
+                                    const isLink = key === request;
+
+                                    const link = isLink
+                                        ? html`<a href="${value}" target="_blank">${value}</a>`
+                                        : value;
+
+                                    return html`<tr>
+                                        <td>${key}</td>
+                                        <td>${link}</td>
+                                    </tr>`;
+
+                                } )}
+                            
+                            </tbody>
+
+                        </table>
+                    
+                    </div>
+                
+                </thermal-dialog>
+            `;
+
+        }
+
+        return nothing;
+
     }
 
 
@@ -339,21 +390,37 @@ export class RemoteFolderApp extends BaseElement {
             }
         }
 
+        table {
+            border: 1px solid var(--thermal-slate);
+            border-collapse: collapse;
+        }
+
+        td, th {
+            border: 1px solid var( --thermal-slate );
+            padding: 5px;
+        }
+
+        caption {
+            text-align: left;
+            padding: 5px;
+            font-weight: bold;
+        }
+
     `;
 
     protected render(): unknown {
 
         let title = t(T.loading) + "...";
 
-        if ( this.data?.info !== undefined ) {
+        if (this.data?.info !== undefined) {
             title = this.data.info.name;
         }
 
-        if ( this.error !== undefined ) {
+        if (this.error !== undefined) {
             title = "Error";
         }
 
-        this.log( this.error, this.data );
+        this.log(this.error, this.data);
 
         return html`
             <manager-provider slug="folders_app___uuid__${this.UUID}">
@@ -375,23 +442,18 @@ export class RemoteFolderApp extends BaseElement {
 
                                     <thermal-bar>
                                         <registry-palette-dropdown></registry-palette-dropdown>
-                                        <registry-range-full-button 
-                                            @mouseenter=${() => {
-                    if (this.group) {
-                        this.highlightFrom = this.group.registry.minmax.value?.min;
-                        this.highlightTo = this.group.registry.minmax.value?.max;
-                    }
-                }}
-                                            @mouseleave=${() => {
-                    this.highlightFrom = undefined;
-                    this.highlightTo = undefined;
-                }}
-                                        ></registry-range-full-button>
+
+                                        <registry-opacity-slider></registry-opacity-slider>
+
+                                        <registry-range-full-button></registry-range-full-button>
+
                                         ${this.renderColumnsSwitch()}
 
                                         <group-download-dropdown></group-download-dropdown>
 
-                                        <registry-opacity-slider></registry-opacity-slider>
+                                        ${this.renderInfo()}
+
+                                        
 
                                     </thermal-bar>
 
@@ -399,15 +461,15 @@ export class RemoteFolderApp extends BaseElement {
 
                             ${this.showhistogram ? html`<registry-histogram></registry-histogram>` : nothing}
                             <registry-range-slider></registry-range-slider>
-                            <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
+                            <registry-ticks-bar></registry-ticks-bar>
 
                             <group-tool-buttons></group-tool-buttons>`
 
-                        : nothing }
+                : nothing}
                             
-                        ${this.error ? unsafeHTML( this.error ) : nothing}
+                        ${this.error ? unsafeHTML(this.error) : nothing}
 
-                        ${ this.error === undefined && this.data ? this.renderData(this.data) : nothing}
+                        ${this.error === undefined && this.data ? this.renderData(this.data) : nothing}
 
                         <group-timeline></group-timeline>
 

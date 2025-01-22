@@ -187,14 +187,14 @@ export class FileInfoButton extends FileConsumer {
                         
                         ${ unsafeHTML( this.renderNumericalRow(
                             t(T.minimaltemperature),
-                            this.file.max,
+                            this.file.min,
                             10,
                             "°C"
                         ) ) }
 
                         ${ unsafeHTML( this.renderNumericalRow(
                             t(T.maximaltemperature),
-                            this.file.min,
+                            this.file.max,
                             10,
                             "°C"
                         ) ) }

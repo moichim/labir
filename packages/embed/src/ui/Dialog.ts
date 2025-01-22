@@ -99,6 +99,7 @@ export class ThermalDialog extends LitElement {
 
         .dialog-content {
             padding: var( --thermal-gap ) 0;
+            white-space: normal;
         }
 
         .dialog-footer {

@@ -16,12 +16,6 @@ export type ParsedFileType = {
 
 export abstract class AbstractMultipleApp extends BaseElement {
 
-    @state()
-    highlightFrom?: number;
-
-    @state()
-    highlightTo?: number;
-
     @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
     showembed: boolean = false;
 
