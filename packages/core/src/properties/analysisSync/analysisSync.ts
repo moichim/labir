@@ -50,6 +50,17 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         instance?: Instance
     ) {
 
+        if ( instance === undefined && this._currentPointer) {
+            this.endSyncingSlot( this._currentPointer, 1 );
+            this.endSyncingSlot( this._currentPointer, 2 );
+            this.endSyncingSlot( this._currentPointer, 3 );
+            this.endSyncingSlot( this._currentPointer, 4 );
+            this.endSyncingSlot( this._currentPointer, 5 );
+            this.endSyncingSlot( this._currentPointer, 6 );
+            this.endSyncingSlot( this._currentPointer, 7 );
+        }
+
+
         if (instance !== this._currentPointer) {
 
             // Remove existing listeners

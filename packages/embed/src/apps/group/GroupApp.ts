@@ -107,6 +107,16 @@ export class GroupElement extends AbstractMultipleApp {
         const registry = manager.addOrGetRegistry(this.slug);
         const group = registry.groups.addOrGetGroup(this.slug, this.label, this.description);
 
+        group.files.addListener( this.UUID, (instances) => {
+            this.log( group, instances );
+            if ( group.analysisSync.value === false ) {
+                const instance = instances[0];
+                if ( instance ) {
+                    group.analysisSync.turnOn( instance );
+                }
+            }
+        } )
+
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
 

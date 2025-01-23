@@ -140,6 +140,8 @@ foreach ($items as $item) {
     }
 }
 
+$response["folders"] = $folders;
+
 if (isset($_GET["only"])) {
 
     $only_safe = sanitize( $_GET["only"] );
@@ -206,11 +208,11 @@ foreach ($folders as $folder => $info) {
             $result = [
                 "file_name" => $file_name . ".lrc",
                 "timestamp" => $timestamp,
-                "lrc" => $lrc_url
+                "lrc" => htmlspecialchars( $lrc_url )
             ];
 
             if ($png_url) {
-                $result["png"] = $png_url;
+                $result["png"] = htmlspecialchars( $png_url );
             }
 
             return $result;
@@ -292,11 +294,11 @@ function groupBy(
             $result = [
                 "file_name" => basename($file),
                 "timestamp" => $timestamp,
-                "lrc" => $url_host."$subfolder/$folder/" . basename($file),
+                "lrc" => htmlspecialchars( $url_host."$subfolder/$folder/" . basename($file) ),
             ];
 
             if ($png_url) {
-                $result["png"] = $png_url;
+                $result["png"] = htmlspecialchars( $png_url );
             }
 
             $groups[$group_start][$folder]["files"][$timestamp] = $result;
@@ -461,12 +463,11 @@ function endsWith($haystack, $needle)
 }
 
 // Default route
-if ( endsWith($_SERVER["REQUEST_URI"], "/") || $isFolder) {
+if ( endsWith($_SERVER["REQUEST_URI"], "/") || $isFolder===false) {
     foreach ($folders as $item => $info) {
-        $folders[$item]["url"] = $sub 
+        $folders[$item]["url"] = htmlentities($sub 
             ? "$url_base&$item"
-            :"$url_base?$item";
-    }
+            :"$url_base?$item"); }
 
     $response["folders"] = $folders;
     $response["success"] = true;

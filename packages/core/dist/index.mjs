@@ -5823,6 +5823,15 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     this._currentPointer.slots.forEveryExistingSlot(fn);
   }
   setCurrentPointer(instance) {
+    if (instance === void 0 && this._currentPointer) {
+      this.endSyncingSlot(this._currentPointer, 1);
+      this.endSyncingSlot(this._currentPointer, 2);
+      this.endSyncingSlot(this._currentPointer, 3);
+      this.endSyncingSlot(this._currentPointer, 4);
+      this.endSyncingSlot(this._currentPointer, 5);
+      this.endSyncingSlot(this._currentPointer, 6);
+      this.endSyncingSlot(this._currentPointer, 7);
+    }
     if (instance !== this._currentPointer) {
       if (this._currentPointer !== void 0) {
         this.endSyncingSlot(this._currentPointer, 1);
@@ -6620,7 +6629,7 @@ var ThermalGroup = class extends BaseStructureObject {
   tool = new ToolDrive(this, new InspectTool(this));
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
-  analysisSync = new AnalysisSyncDrive(this, true);
+  analysisSync = new AnalysisSyncDrive(this, false);
   _playback;
   get playback() {
     if (!this._playback) {

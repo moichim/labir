@@ -51,7 +51,7 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly cursorPosition: CursorPositionDrive = new CursorPositionDrive(this, undefined);
 
-    public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, true);
+    public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, false);
 
     protected _playback?: GroupPlayback;
     public get playback() {

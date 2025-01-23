@@ -71,7 +71,7 @@ export class RemoteFolderApp extends BaseElement {
         super.connectedCallback();
 
         if (this.url !== undefined && this.folder !== undefined) {
-            this.loadData(this.url, this.folder, this.subfolder);
+            // this.loadData(this.url, this.folder, this.subfolder);
         }
 
     }
@@ -92,6 +92,12 @@ export class RemoteFolderApp extends BaseElement {
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
+
+        if ( _changedProperties.has( "folder" ) || _changedProperties.has("url") || _changedProperties.has( "subfolder" ) ) {
+            if ( this.folder, this.url ) {
+                this.loadData( this.url, this.folder, this.subfolder );
+            }
+        }
 
         if (_changedProperties.has("data")) {
 
@@ -139,6 +145,11 @@ export class RemoteFolderApp extends BaseElement {
 
             this.loading = true;
 
+            if (this.group) {
+                this.group.files.clearAllListeners();
+            }
+
+
             const target = subfolder !== undefined
                 ? `${url}?scope=${subfolder}&${folder}`
                 : url + "?" + folder;
@@ -151,6 +162,7 @@ export class RemoteFolderApp extends BaseElement {
             if (data.ok) {
 
                 this.data = await data.json() as ApiFolderContentResponse;
+
                 this.loading = false;
 
                 if (this.data.success === false) {
@@ -418,10 +430,8 @@ export class RemoteFolderApp extends BaseElement {
             title = "Error";
         }
 
-        this.log(this.error, this.data);
-
         return html`
-            <manager-provider slug="folders_app___uuid__${this.UUID}">
+            <manager-provider slug="folders_app___uuid__${this.UUID}" palette=${this.palette}>
                 <registry-provider slug="folders_app_registry">
                     <group-provider slug="folders_app_group" ${ref(this.groupRef)}>
         

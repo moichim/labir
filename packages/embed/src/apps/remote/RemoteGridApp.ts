@@ -1,11 +1,14 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { ApiTimeGroupResponse, FolderFileType } from "@labir/api";
 import { format } from "date-fns";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { AvailableThermalPalettes } from "@labir/core";
 
 type GroupingType = "hours" | "days" | "weeks" | "months" | "years";
 
@@ -46,9 +49,22 @@ export class RemoteTimeGridApp extends BaseElement {
 
     protected observer?: ResizeObserver;
 
+    protected registryRef: Ref<RegistryProviderElement> = createRef();
+
+    @property({ type: String, reflect: true, attribute: true })
+    palette: AvailableThermalPalettes = "jet";
+
     connectedCallback(): void {
         super.connectedCallback();
-        this.loadData(this.by, this.url, this.subfolder);
+        
+    }
+
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+        if ( _changedProperties.has("by") || _changedProperties.has("url") || _changedProperties.has( "subfolder" ) ) {
+            this.loadData(this.by, this.url, this.subfolder);
+        }
     }
 
     protected getUrl(grouping: GroupingType, url: string, subfolder?: string) {
@@ -68,6 +84,10 @@ export class RemoteTimeGridApp extends BaseElement {
         this.loading = true;
         this.data = undefined;
 
+        if ( this.registryRef.value ) {
+            this.registryRef.value.registry.groups.removeAllGroups();
+        }
+
         try {
 
             const target = this.getUrl(grouping, url, subfolder);
@@ -76,7 +96,26 @@ export class RemoteTimeGridApp extends BaseElement {
 
             if (data.ok) {
 
-                this.data = await data.json() as ApiTimeGroupResponse;
+                const response = await data.json() as ApiTimeGroupResponse;
+
+                const sortedData = Object.entries( response.data ).map( ([time, folders]) => {
+
+                    const f = Object.entries( folders );
+
+                    f.sort( (a,b) => {
+                        return a[0] < b[0] ? -1 : 1;
+                    } );
+
+                    const content = Object.fromEntries(f);
+
+                    return [time, content];
+
+                } );
+
+                response.data = Object.fromEntries( sortedData );
+
+                this.data = response;
+
                 this.loading = false;
 
                 this.log( this.data );
@@ -164,6 +203,7 @@ export class RemoteTimeGridApp extends BaseElement {
             margin: 0;
             padding: 0;
             line-height: 1em;
+            font-size: var(--thermal-fs);
         }
 
 
@@ -333,6 +373,8 @@ export class RemoteTimeGridApp extends BaseElement {
 
                         <file-canvas></file-canvas>
 
+                        <file-analysis-table></file-analysis-table>
+
                     </main>
 
                 </article>
@@ -371,6 +413,8 @@ export class RemoteTimeGridApp extends BaseElement {
 
                 <tr id="range" class="sticky bg" style="top: 0px;">
                     <td colspan="${colspan}" style="padding-bottom: var(--thermal-gap); padding-top:var(--offset)">
+
+                        <registry-histogram></registry-histogram>
 
                         <registry-range-slider></registry-range-slider>
                         <registry-ticks-bar></registry-ticks-bar>
@@ -447,8 +491,8 @@ export class RemoteTimeGridApp extends BaseElement {
             : this.label ?? "Remote folder";
 
         return html`
-                <manager-provider slug="folders_app___uuid__${this.UUID}">
-                    <registry-provider slug="folders_app_registry">
+                <manager-provider slug="folders_app___uuid__${this.UUID}" palette=${this.palette}>
+                    <registry-provider slug="folders_app_registry" ${ref(this.registryRef)}>
             
                             <thermal-app
                                 author=${ifDefined(this.author)}
