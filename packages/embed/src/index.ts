@@ -61,7 +61,8 @@ import "./controls/manager/PaletteDropdown";
 import "./controls/manager/PaletteButtons";
 import "./controls/manager/SmoothSwitch";
 import "./controls/manager/GraphSmoothSwitch";
-
+import "./controls/manager/GroupToolButtons";
+import "./controls/manager/GroupToolsBar";
 
 // 4. Registry controls
 import "./controls/registry/OpacitySlider";
@@ -75,8 +76,6 @@ import "./controls/registry/Histogram";
 
 
 // 5. Group controls
-import "./controls/group/GroupToolButtons";
-import "./controls/group/GroupToolsBar";
 import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
 

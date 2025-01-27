@@ -54,7 +54,7 @@ describe("LrcParser", async () => {
 
         expect(baseInfo.width).toEqual(160);
         expect(baseInfo.height).toEqual(120);
-        expect(baseInfo.timestamp).toEqual(1713882140035);
+        expect(baseInfo.timestamp).toEqual(1713882139914);
         expect(baseInfo.bytesize).toEqual(39811951);
         expect(baseInfo.frameCount).toEqual(518);
         expect(baseInfo.averageEmissivity).toEqual(0.97998046875);

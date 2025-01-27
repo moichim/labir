@@ -1,8 +1,9 @@
-import { AvailableThermalPalettes, ThermalManagerOptions, ThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labir/core";
 import { html, PropertyValues } from "lit";
 import { TourableElement } from "../../tour/TourableElement";
-import { ManagerContext, ManagerGraphFunctionContext, ManagerPaletteContext } from "../providers/context/ManagerContext";
+import { ManagerContext, ManagerGraphFunctionContext, ManagerPaletteContext, toolContext, toolsContext } from "../providers/context/ManagerContext";
 import { createOrGetManager, removeManager } from "../providers/getters";
+import { provide } from "@lit/context";
 
 export abstract class AbstractManagerProvider extends TourableElement {
 
@@ -23,6 +24,12 @@ export abstract class AbstractManagerProvider extends TourableElement {
 
     public autoclear: boolean = false;
 
+    @provide({ context: toolContext })
+    tool!: ThermalTool;
+
+    @provide({ context: toolsContext })
+    tools!: ThermalManager["tool"]["tools"]
+
 
     connectedCallback(): void {
 
@@ -37,6 +44,10 @@ export abstract class AbstractManagerProvider extends TourableElement {
         const manager = createOrGetManager(this.slug, options);
 
         this.manager = manager;
+
+        // Assign tool
+        this.tool = this.manager.tool.value;
+        this.tools = this.manager.tool.tools;
 
     }
 
@@ -65,6 +76,11 @@ export abstract class AbstractManagerProvider extends TourableElement {
 
         this.manager.graphSmooth.addListener(this.UUIDManagerListeners, value => {
             this.graphSmooth = value;
+        });
+
+        // Add tool listener
+        this.manager.tool.addListener(this.UUIDManagerListeners, value => {
+            this.tool = value;
         });
     }
 

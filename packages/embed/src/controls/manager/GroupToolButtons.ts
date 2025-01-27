@@ -3,17 +3,18 @@ import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { toolContext, toolsContext } from "../../hierarchy/providers/context/GroupContext";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
+import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 
 
 
 @customElement("group-tool-buttons")
-export class GroupToolButtons extends GroupConsumer {
+export class GroupToolButtons extends ManagerConsumer {
 
     protected tourableElementRef: Ref<HTMLElement> = createRef();
 
@@ -36,14 +37,14 @@ export class GroupToolButtons extends GroupConsumer {
     connectedCallback(): void {
         super.connectedCallback();
         this.hint = this.value.description as keyof T;
-        this.group.tool.addListener(this.UUID + "spying on hints", value => {
+        this.manager.tool.addListener(this.UUID + "spying on hints", value => {
             this.hint = value.description as keyof T;
         });
     }
 
     /** Handle user input events */
     onSelect(tool: ThermalTool) {
-        this.group.tool.selectTool(tool);
+        this.manager.tool.selectTool(tool);
     }
 
     static styles = css`
@@ -122,26 +123,28 @@ export class GroupToolButtons extends GroupConsumer {
 
     protected render(): unknown {
 
-        if (this.group === undefined) {
+        if (this.manager === undefined) {
             return nothing;
         }
 
         return html`
                 <div class="switchers" ${ref(this.tourableElementRef)}>
-                    ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
+                    ${Object.entries(this.manager.tool.tools).map(([key, tool]) => {
 
             const classes = {
                 [key]: true,
                 button: true,
                 switch: true,
-                active: tool.key === this.value.key
+                active: this.value !== undefined 
+                    ? tool.key === this.value.key 
+                    : false
             }
 
             return html`
                         
                         <button 
                             class=${classMap(classes)} 
-                            @click=${() => { this.group.tool.selectTool(tool) }}
+                            @click=${() => { this.manager.tool.selectTool(tool) }}
                             @mouseenter=${() => {
                     this.hint = tool.name as keyof T;
                 }}

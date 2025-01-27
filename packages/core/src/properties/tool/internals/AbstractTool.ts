@@ -1,5 +1,5 @@
 import { Instance } from "../../../file/instance";
-import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
+import { ThermalManager } from "../../../hierarchy/ThermalManager";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
 
 export interface ITool {
@@ -15,7 +15,7 @@ export abstract class AbstractTool {
     public active: boolean = false;
 
     public constructor(
-        public readonly group: ThermalGroup
+        public readonly manager: ThermalManager
     ) { }
 
     /** Action taken upon tool activation */

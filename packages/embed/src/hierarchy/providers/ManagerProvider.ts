@@ -1,8 +1,8 @@
-import { AvailableThermalPalettes, ThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager, ThermalPalettes, ThermalTool } from "@labir/core";
 import { provide } from "@lit/context";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractManagerProvider } from "../abstraction/AbstractManagerProvider";
-import { ManagerContext, managerContext, managerGraphFunctionContext, ManagerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext } from "./context/ManagerContext";
+import { ManagerContext, managerContext, managerGraphFunctionContext, ManagerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, toolContext, toolsContext } from "./context/ManagerContext";
 
 @customElement("manager-provider")
 export class ManagerProviderElement extends AbstractManagerProvider {
@@ -51,5 +51,11 @@ export class ManagerProviderElement extends AbstractManagerProvider {
 
     @property({type: Boolean, reflect: true})
     autoclear: boolean = false;
+
+    @provide({ context: toolContext })
+    tool!: ThermalTool;
+
+    @provide({ context: toolsContext })
+    tools!: ThermalManager["tool"]["tools"]
 
 }

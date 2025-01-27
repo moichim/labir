@@ -5,8 +5,8 @@ import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { InstanceDOM } from "./dom/InstanceDom";
 import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
-import { ThermalListenerLayer } from "./utils/thermalListenerLayer";
 import { VisibleLayer } from "./dom/layers/VisibleLayer";
+import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 
 describe("InstanceDOM", () => {
 

@@ -937,9 +937,9 @@ interface ITool {
     active: boolean;
 }
 declare abstract class AbstractTool {
-    readonly group: ThermalGroup;
+    readonly manager: ThermalManager;
     active: boolean;
-    constructor(group: ThermalGroup);
+    constructor(manager: ThermalManager);
     /** Action taken upon tool activation */
     activate(): void;
     protected abstract onActivate(): void;
@@ -1004,6 +1004,29 @@ declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
     setSmooth(value: boolean): void;
 }
 
+interface IWithTool extends IBaseProperty {
+    tool: ToolDrive;
+}
+/** The tool type merging Abstract class and the interface */
+type ThermalTool = AbstractTool & ITool & {
+    key: string;
+};
+declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalManager> {
+    /** Create own set of tools from the registry of tools */
+    protected _tools: {
+        [x: string]: ThermalTool;
+    };
+    /** Readonly list of available tools */
+    get tools(): {
+        [x: string]: ThermalTool;
+    };
+    constructor(parent: ThermalManager, initial: ThermalTool);
+    protected validate(value: ThermalTool): ThermalTool;
+    protected afterSetEffect(value: ThermalTool): void;
+    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
+    selectTool(tool: ThermalTool | keyof ToolDrive["tools"]): void;
+}
+
 type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes;
 };
@@ -1019,6 +1042,7 @@ declare class ThermalManager extends BaseStructureObject {
     readonly palette: PaletteDrive;
     readonly smooth: SmoothDrive;
     readonly graphSmooth: GraphSmoothDrive;
+    readonly tool: ToolDrive;
     readonly pool: Pool__default;
     constructor(pool?: Pool__default, options?: ThermalManagerOptions);
     forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
@@ -1026,6 +1050,7 @@ declare class ThermalManager extends BaseStructureObject {
     removeRegistry(id: string): void;
     readonly filters: FilterContainer;
     getInstances(): Instance[];
+    forEveryInstance(callback: (instance: Instance) => void): void;
 }
 
 /** @deprecated Should use `AvailableThermalPalettes` instead. */
@@ -1535,6 +1560,7 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
     get currentPercentage(): number;
     get currentFrameIndex(): number;
     get currentTime(): string;
+    get frames(): ParsedTimelineFrame[];
     constructor(parent: Instance, initial: number, steps: ParsedFileBaseInfo["timeline"], initialFrameData: ParsedFileFrame);
     init(): void;
     protected afterSetEffect(): void;
@@ -1585,29 +1611,6 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
     };
     protected download(): void;
     protected clearRecording(): void;
-}
-
-interface IWithTool extends IBaseProperty {
-    tool: ToolDrive;
-}
-/** The tool type merging Abstract class and the interface */
-type ThermalTool = AbstractTool & ITool & {
-    key: string;
-};
-declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
-    /** Create own set of tools from the registry of tools */
-    protected _tools: {
-        [x: string]: ThermalTool;
-    };
-    /** Readonly list of available tools */
-    get tools(): {
-        [x: string]: ThermalTool;
-    };
-    constructor(parent: ThermalGroup, initial: ThermalTool);
-    protected validate(value: ThermalTool): ThermalTool;
-    protected afterSetEffect(value: ThermalTool): void;
-    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
-    selectTool(tool: ThermalTool | keyof ToolDrive["tools"]): void;
 }
 
 /**
@@ -2280,8 +2283,8 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     get pool(): Pool;
     constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
     readonly minmax: MinmaxGroupProperty;
-    /** Tool drive */
-    readonly tool: ToolDrive;
+    /** Tool drive from above */
+    get tool(): ToolDrive;
     readonly files: FilesState;
     readonly cursorPosition: CursorPositionDrive;
     readonly analysisSync: AnalysisSyncDrive;

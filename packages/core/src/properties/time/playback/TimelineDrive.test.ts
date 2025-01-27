@@ -38,6 +38,8 @@ describe("ReTimelineDrive", async () => {
         // Instance consistency
         expect( instance.frameCount ).toEqual( 518 );
 
+        console.log( "!!!!!!!!!!", timeline.frameCount, timeline.parent.meta.current.timeline );
+
         // Searching for the steps
         expect( timeline.findPreviousRelative(1).relative ).toEqual( 0 );
         expect( timeline.findPreviousRelative( 113 ).relative ).toEqual( 0 );

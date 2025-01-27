@@ -392,6 +392,8 @@ export class RemoteTimeGridApp extends BaseElement {
 
         const colspan = header.length;
 
+        const cellWidth = 100 / header.length + "%";
+
         return html`
 
 
@@ -418,6 +420,8 @@ export class RemoteTimeGridApp extends BaseElement {
 
                         <registry-range-slider></registry-range-slider>
                         <registry-ticks-bar></registry-ticks-bar>
+
+                        <group-tool-buttons></group-tool-buttons>
                     
                     </td>
                 </tr>
@@ -462,7 +466,7 @@ export class RemoteTimeGridApp extends BaseElement {
 
                         <group-provider class="group-files" slug=${ifDefined( groupKey )}>
                             ${Object.entries( record ).map( ( [folderKey, folder] ) => {
-                                return html`<td>
+                                return html`<td style="width: ${cellWidth};">
                                         <div class="cell-group">
 
                                         ${folder.count > 0

@@ -44,8 +44,10 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly minmax: MinmaxGroupProperty = new MinmaxGroupProperty(this, undefined);
 
-    /** Tool drive */
-    public readonly tool: ToolDrive = new ToolDrive(this, new InspectTool(this));
+    /** Tool drive from above */
+    public get tool(): ToolDrive {
+        return this.registry.manager.tool;
+    }
 
     public readonly files: FilesState = new FilesState( this, [] );
 

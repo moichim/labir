@@ -1,17 +1,17 @@
-import { ThermalGroup, ThermalTool } from "@labir/core";
+import { ThermalManager, ThermalTool } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { toolContext, toolsContext } from "../../hierarchy/providers/context/GroupContext";
 
 
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 
 
-import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { t } from "i18next";
+import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
 
 
@@ -32,7 +32,7 @@ export class GroupToolButtons extends GroupConsumer {
 
     @consume({ context: toolsContext, subscribe: true })
     @state()
-    tools!: ThermalGroup["tool"]["tools"];
+    tools!: ThermalManager["tool"]["tools"];
 
     connectedCallback(): void {
         super.connectedCallback();

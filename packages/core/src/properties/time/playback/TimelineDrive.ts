@@ -104,6 +104,10 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
         return this.formatDuration( this.currentStep.relative );
     }
 
+    public get frames() {
+        return this.parent.meta.current.timeline;
+    }
+
     public constructor(
         parent: Instance,
         initial: number,

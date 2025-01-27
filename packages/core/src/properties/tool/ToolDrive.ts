@@ -6,12 +6,13 @@ import { AddRectangleTool } from "../analysis/internals/area/rectangle/AddRectan
 import { AbstractTool, ITool } from "./internals/AbstractTool";
 import { EditTool } from "./internals/EditTool";
 import { InspectTool } from "./internals/InspectTool";
+import { ThermalManager } from "../../hierarchy/ThermalManager";
 
 export interface IWithTool extends IBaseProperty {
     tool: ToolDrive
 }
 
-type ToolClass = new (group: ThermalGroup) => AbstractTool & ITool & { key: string}
+type ToolClass = new (group: ThermalManager) => AbstractTool & ITool & { key: string}
 
 const toolsRegistry: ToolClass[] = [
     InspectTool,
@@ -22,7 +23,7 @@ const toolsRegistry: ToolClass[] = [
 ]
 
 /** Instantiates the tool for the given group. Uses `definedTools` as source. */
-const createDefinedTools = (group: ThermalGroup) => {
+const createDefinedTools = (group: ThermalManager) => {
     const arrayOfEntries = toolsRegistry.map((cls) => {
 
         const instance = new cls( group );
@@ -46,7 +47,7 @@ export type ThermalTool = AbstractTool & ITool & {
     key: string
 };
 
-export class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
+export class ToolDrive extends AbstractProperty<ThermalTool, ThermalManager> {
 
     /** Create own set of tools from the registry of tools */
     protected _tools = createDefinedTools( this.parent );
@@ -57,7 +58,7 @@ export class ToolDrive extends AbstractProperty<ThermalTool, ThermalGroup> {
     }
 
     public constructor(
-        parent: ThermalGroup,
+        parent: ThermalManager,
         initial: ThermalTool
     ) {
         super(parent, initial);

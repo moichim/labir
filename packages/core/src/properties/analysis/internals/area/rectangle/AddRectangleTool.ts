@@ -15,7 +15,7 @@ export class AddRectangleTool extends AbstractAddTool implements ITool {
 
 
     protected onActivate(): void {
-        this.group.forEveryInstance(instance => {
+        this.manager.forEveryInstance(instance => {
             instance.analysis.layers.selectedOnly.forEach(analysis => {
                 analysis.setDeselected();
             });
