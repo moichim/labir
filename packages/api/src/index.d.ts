@@ -71,3 +71,11 @@ export type ApiEverythingResponse = ApiResponseBase & {
     }
 
 }
+
+export enum ApiTimeGrouping {
+    HOURS = "hours",
+    DAYS = "days",
+    WEEKS = "weeks",
+    MONTHS = "months",
+    YEARS = "years"
+}

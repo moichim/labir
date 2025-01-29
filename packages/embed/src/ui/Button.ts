@@ -20,17 +20,19 @@ export class ThermalButton extends TourableElement {
     }
 
     @property({
-        type: String, converter: {
+        type: String, 
+        converter: {
             fromAttribute: (value: string) => {
                 if (ThermalButton.VARIANTS.includes(value)) {
                     return value;
                 }
-                return "slate"
+                // return "slate"
             },
             toAttribute: (value) => value
-        }
+        },
+        reflect: false,
     })
-    public variant: string = "slate";
+    public variant?: string;
 
     @property({
         type: Boolean,

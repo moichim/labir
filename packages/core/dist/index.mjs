@@ -6328,6 +6328,7 @@ var ThermalGroup = class extends BaseStructureObject {
     this.files.reset();
     this.minmax.reset();
     this.cursorPosition.reset();
+    this.analysisSync.reset();
   }
   filters = new FilterContainer(this);
   getInstances() {
@@ -7706,7 +7707,7 @@ var ThermalRegistry = class extends BaseStructureObject {
     this.onProcessingEnd.call();
   }
   reset() {
-    this.forEveryGroup((group) => group.reset());
+    this.groups.removeAllGroups();
     this.opacity.reset();
     this.minmax.reset();
   }

@@ -3,7 +3,7 @@ import { Translation } from "../Languages";
 export const de: Translation = {
 
     loading: "Loading",
-    
+
     next: "Weiter",
     prev: "Zurück",
     back: "Zurück",
@@ -63,12 +63,20 @@ export const de: Translation = {
     group: "Gruppe",
     donotgroup: "Nicht gruppieren",
     groupby: "Gruppieren nach {{era}}",
+    groupped: "grupiert",
 
-    byday: "nach Tagen",
-    byhour: "nach Stunden",
-    byweek: "nach Wochen",
-    bymonth: "nach Monaten",
-    byyear: "nach Jahren",
+    showingfolder: "Ordner anzeigen",
+    showingfolders: "Ordner anzeigen",
+    and: "und",
+    or: "oder",
+    doyouwanttoadd: "Möchten Sie auch anzeigen",
+    youmayalsoadd: "Sie können auch anzeigen",
+
+    bydays: "nach Tagen",
+    byhours: "nach Stunden",
+    byweeks: "nach Wochen",
+    bymonths: "nach Monaten",
+    byyears: "nach Jahren",
 
     play: "Abspielen",
     pause: "Pause",

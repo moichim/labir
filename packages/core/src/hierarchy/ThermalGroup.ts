@@ -91,6 +91,7 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
         this.files.reset();
         this.minmax.reset();
         this.cursorPosition.reset();
+        this.analysisSync.reset();
 
     }
 

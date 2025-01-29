@@ -4,6 +4,7 @@ import { customElement, property, queryAssignedElements, state } from 'lit/decor
 import { classMap } from "lit/directives/class-map.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { TourableElement } from "../tour/TourableElement";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("thermal-dropdown")
 export class ThermalDropdown extends TourableElement {
@@ -31,11 +32,13 @@ export class ThermalDropdown extends TourableElement {
     @state()
     interactive: "on"|"off" = "on";
 
+    @state()
     @property({
         type: String,
-        reflect: true
+        reflect: true,
+        attribute: true
     })
-    public variant: string = "slate";
+    public variant?: string;
 
     setOpen() {
         this.open = "open";
@@ -203,7 +206,14 @@ export class ThermalDropdown extends TourableElement {
 
             <div class="dropdown" ${ref(this.dropdownRef)}>
 
-                <thermal-button class="${classMap(invokerClasses)}" ${ref(this.invokerRef)} @click=${this.toggle.bind(this)} variant="${this.variant}" interactive="${this.interactive === "on" ? "true" : "false"}">
+                <thermal-button 
+                    class="${classMap(invokerClasses)}" 
+                    ${ref(this.invokerRef)} 
+                    @click=${this.toggle.bind(this)} 
+                    variant="${ifDefined( this.variant )}" 
+                    interactive="${this.interactive === "on" ? "true" : "false"}"
+                    part="invoker"
+                >
                     <div class="dropdown-invoker-wrapper">
                         <slot name="invoker">
                             <div>Dropdown</div>
