@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const cs: Translation = {
+
+    loading: "Načítám",
+
     next: "Další",
     prev: "Předchozí",
     back: "Zpět",
@@ -65,11 +68,20 @@ export const cs: Translation = {
     donotgroup: "Neseskupovat",
     groupby: "Seskupit {{era}}",
 
-    byday: "po dnech",
-    byhour: "po hodinách",
-    byweek: "po týdnech",
-    bymonth: "po měsících",
-    byyear: "po rocích",
+    groupped: "seskupené",
+
+    showingfolder: "Zobrazuji složku",
+    showingfolders: "Zobrazuji složky",
+    and: "a",
+    or: "či",
+    doyouwanttoadd: "Chcete přidat ještě",
+    youmayalsoadd: "Můžete přidat ještě",
+
+    bydays: "po dnech",
+    byhours: "po hodinách",
+    byweeks: "po týdnech",
+    bymonths: "po měsících",
+    byyears: "po rocích",
 
     play: "Přehrát",
     pause: "Pozastavit",

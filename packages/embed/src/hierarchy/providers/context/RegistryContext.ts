@@ -1,4 +1,4 @@
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRangeOrUndefined, ThermalRegistry } from "@labir/core";
 import { createContext } from "@lit/context";
 
 export type RegistryContext = ThermalRegistry;
@@ -23,3 +23,6 @@ export const registryMinContext = createContext<RegistryMinContext>("registry-mi
 
 export type RegistryMaxContext = number|undefined;
 export const registryMaxContext = createContext<RegistryMaxContext>("registry-max");
+
+export const registryHighlightContext = createContext<ThermalRangeOrUndefined>("registry-highlight");
+export const setRegistryHighlightContext = createContext<( value: ThermalRangeOrUndefined ) => void>( "registry-highlight-setter" );

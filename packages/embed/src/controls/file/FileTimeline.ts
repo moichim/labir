@@ -10,6 +10,7 @@ import { currentFrameContext, CurrentFrameContext, durationContext, DurationCont
 import { FileMarker } from "./markers/ImageMarker";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
@@ -18,28 +19,28 @@ export class TimelineElement extends FileConsumer {
         return this.containerRef.value;
     }
 
-    @consume({context: playingContext, subscribe: true})
+    @consume({ context: playingContext, subscribe: true })
     @state()
     protected playing: boolean = false;
 
-    @consume( {context: currentFrameContext, subscribe: true} )
+    @consume({ context: currentFrameContext, subscribe: true })
     @state()
     protected currentFrame?: CurrentFrameContext;
 
-    @consume( {context: durationContext, subscribe: true} )
+    @consume({ context: durationContext, subscribe: true })
     @state()
     protected duration?: DurationContext;
 
-    @consume({context: mayStopContext, subscribe: true})
+    @consume({ context: mayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;
 
-    @consume({context: fileCursorContext, subscribe: true})
+    @consume({ context: fileCursorContext, subscribe: true })
     protected cursor: FileCursorContext;
 
-    @consume({context: fileCursorSetterContext, subscribe: true})
+    @consume({ context: fileCursorSetterContext, subscribe: true })
     protected cursorSetter?: FileCursorSetterContext;
-    
+
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
     protected barRef: Ref<HTMLDivElement> = createRef();
@@ -47,21 +48,16 @@ export class TimelineElement extends FileConsumer {
 
     protected observer!: ResizeObserver;
 
-    @property({type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public hasPlayButton: boolean = true;
 
-    @property({type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public hasInfo: boolean = true;
 
-    @property({type: String, reflect: true})
+    @property({ type: String, reflect: true })
     public interactive: boolean = true;
 
-    @property({type: String, reflect: true})
-    public hasSpeedButton: boolean = true;
-
-
-
-    @consume( {context: fileMarkersContext, subscribe: true} )
+    @consume({ context: fileMarkersContext, subscribe: true })
     public markers: FileMarker[] = [];
 
     @state()
@@ -69,8 +65,17 @@ export class TimelineElement extends FileConsumer {
 
     public static collapseWidth = 500;
 
-    public onInstanceCreated(): void {
-        // ... nothing
+    @state()
+    protected ticks: Tick[] = [];
+
+    @state()
+    protected pointerMs?: number;
+
+    public onInstanceCreated(instance: Instance): void {
+        if (this.containerRef.value) {
+            this.ticks = calculateTicks(this.containerRef.value.clientWidth, instance.duration);
+        }
+
     }
     public onFailure(
         // error: ThermalFileFailure
@@ -79,45 +84,37 @@ export class TimelineElement extends FileConsumer {
     }
 
     protected update(changedProperties: PropertyValues): void {
-        super.update( changedProperties );
+        super.update(changedProperties);
 
-        if ( 
+        if (
             this.observer === undefined
             && this.containerRef.value instanceof Element
-         ) {
+        ) {
 
-            this.observer = new ResizeObserver( ( entries ) => {
+            this.observer = new ResizeObserver((entries) => {
                 const entry = entries[0];
-    
+
+                if (this.file)
+                    this.ticks = calculateTicks(entry.contentRect.width, this.file.duration);
+
                 if (entry.contentRect.width < TimelineElement.collapseWidth) {
-                    if ( this.collapsed === false ) {
+                    if (this.collapsed === false) {
                         this.collapsed = true;
                     }
                 } else {
-                    if ( this.collapsed === true ) {
+                    if (this.collapsed === true) {
                         this.collapsed = false;
                     }
                 }
-    
-            } );
-            this.observer.observe( this.containerRef.value! );
+
+            });
+            this.observer.observe(this.containerRef.value!);
 
         }
 
-        
+
 
     }
-
-
-    
-
-
-
-
-
-    
-
-
 
 
     /** Handlers */
@@ -126,11 +123,11 @@ export class TimelineElement extends FileConsumer {
     /** Handle playback buttons */
     protected handlePlayButtonClick() {
 
-        if ( this.playing === true && this.mayStop === false ) {
+        if (this.playing === true && this.mayStop === false) {
             return;
         }
 
-        if ( this.playing ) {
+        if (this.playing) {
             this.file?.timeline.stop();
         } else {
             this.file?.timeline.play();
@@ -140,10 +137,12 @@ export class TimelineElement extends FileConsumer {
 
     handleBarClick(event: MouseEvent) {
 
-        if ( this.mayStop === false ) {
+        event.preventDefault();
+
+        if (this.mayStop === false) {
             return;
         }
-        
+
         if (this.timelineRef.value && this.barRef.value && this.file) {
 
             const x = event.clientX - this.timelineRef.value.offsetLeft;
@@ -155,18 +154,54 @@ export class TimelineElement extends FileConsumer {
         }
     }
 
-    handleBarHover(event: MouseEvent) {
-        if ( this.cursorSetter && this.timelineRef.value && this.barRef.value && this.file) {
+    /** Take a MouseEvent on `this.timelineRef` and calculate the percentage out of it. */
+    protected getValueFromEvent(event: MouseEvent) {
+
+        if (this.timelineRef.value && this.file) {
             const x = event.clientX - this.timelineRef.value.offsetLeft;
             const percent = x / this.timelineRef.value.clientWidth * 100;
-            this.cursorSetter(percent);
+            const ms = this.file.duration * (percent / 100);
+            return {
+                percent,
+                ms
+            };
+        }
+
+    }
+
+    handleBarEnter(event: MouseEvent) {
+
+        const eventValues = this.getValueFromEvent(event);
+
+        if (eventValues) {
+            this.pointerMs = eventValues.ms;
+        }
+
+        if (this.cursorSetter && eventValues) {
+            this.cursorSetter(eventValues.percent);
+        }
+    }
+
+    handleBarHover(event: MouseEvent) {
+
+        event.preventDefault();
+
+        const eventValues = this.getValueFromEvent(event);
+
+        if (eventValues) {
+            this.pointerMs = eventValues.ms;
+        }
+
+        if (this.cursorSetter && eventValues) {
+            this.cursorSetter(eventValues.percent);
         }
     }
 
     handleBarMouseLeave() {
-        if ( this.cursorSetter ) {
-            this.cursorSetter(undefined)
+        if (this.cursorSetter) {
+            this.cursorSetter(undefined);
         }
+        this.pointerMs = undefined;
     }
 
     static styles = css`
@@ -186,16 +221,24 @@ export class TimelineElement extends FileConsumer {
 
         }
 
-        .item {
-            font-size: var( --thermal-fs );
-            order: 2;
-        }
 
         .button {
-            width: var( --thermal-gap );
+            width: calc( var( --thermal-gap ) * 1.5 );
+
+            font-size: var( --thermal-fs );
+            line-height: var(--thermal-fs );
+
             cursor: pointer;
             transition: color .3 ease-in-out;
+
             color: var( --thermal-foreground );
+            background-color: var(--thermal-slate-light);
+            
+            border: 1px solid var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+
+            padding: 4px;
+
             &:hover {
                 color: var( --thermal-primary );
             }
@@ -210,7 +253,7 @@ export class TimelineElement extends FileConsumer {
         }
 
         .small {
-            font-size: var( --thermal-fs-small );
+            font-size: calc( var( --thermal-fs ) * .7 );
             color: var( --thermal-foreground );
         }
 
@@ -230,24 +273,16 @@ export class TimelineElement extends FileConsumer {
         }
 
         .timeline {
-
             flex-grow: 1;
-            
-            
             cursor: pointer;
-
-            
         }
+
         .timeline-bar {
             width: 100%;
-            height: var( --thermal-gap );
+            height: var( --thermal-fs );
             background: var( --thermal-slate );
             transition: background-color .2s ease-in-out;
             position: relative;
-
-            &:hover {
-                /** background: var( --thermal-slate-light ); */
-            }
         }
 
         .timeline-marks {
@@ -267,25 +302,6 @@ export class TimelineElement extends FileConsumer {
             border-right: 1px solid var( --thermal-foreground );
         }
 
-        .collapsed {
-            .container {
-                flex-wrap: wrap;
-            }
-            .timeline {
-                order: 1;
-                width: 100%;
-                height: 10px;
-            }
-
-            .cursor {
-                flex-grow: 1;
-            }
-            &.real {
-                flex-wrap: wrap;
-                gap: 2px;
-            }
-        }
-
         .mayNot {
             opacity: .5;
             cursor: not-allowed;
@@ -298,6 +314,20 @@ export class TimelineElement extends FileConsumer {
             height: 100%;
             top: 0;
         }
+
+        ${ticksCss}
+
+
+        .controls {
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+
+            padding-top: 5px;
+
+        }
     
     `;
 
@@ -308,15 +338,13 @@ export class TimelineElement extends FileConsumer {
 
     protected render(): unknown {
 
-        // this.log( this.markers );
-
         const file = this.file as Instance;
 
         if (file === undefined) {
             return nothing;
         }
 
-        else if ( file.duration === 0 ) {
+        else if (file.duration === 0) {
             return nothing;
         }
 
@@ -349,61 +377,86 @@ export class TimelineElement extends FileConsumer {
                 ${file !== undefined
 
                 ? html`
-                        <div class="container">
-
-                            ${this.hasPlayButton === true
-                                ? html`
-
-                                    <div class="${classMap(playButtonClasses)}" @click=${this.handlePlayButtonClick.bind(this)}>
+                        <div class="ticks-horizontal-indent">
 
 
-                                    ${this.playing
-                            ? html`
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                            <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
-                                        </svg>
-                                        `
-                            : html`
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                                            <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
-                                        </svg>
-                                        `
-                        }
-
+                            <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
+                                <div 
+                                    class="timeline-bar" 
+                                    @click=${this.handleBarClick}
+                                    @mouseenter=${this.handleBarEnter.bind(this)}
+                                    @mousemove=${this.handleBarHover} 
+                                    @mouseleave=${this.handleBarMouseLeave.bind(this)}
+                                >
+                                    <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
+                                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
                                 </div>
 
-                                `
-                                : nothing
-                            }
+                                <div>
+                                    ${this.markers.map(element => {
+                    return html`<file-marker-timeline start=${element.fromMs} end=${element.endMs} ></file-marker-timeline>`
+                })}
+                                </div>
+
+                            </div>
+
+
+                            ${(this.currentFrame)
+                        ? renderTicks(
+                            file.duration,
+                            this.ticks,
+                            this.currentFrame.ms,
+                            this.pointerMs
+                        )
+                        : nothing
+                    }
 
                             
 
 
-                            <div class="item cursor inline small">
-                                ${this.currentFrame?.time}
-                            </div>
+                            ${this.hasPlayButton === true
+                        ? html`
+
+                                    <div class="controls">
+
+                                        <thermal-button @click=${() => {
+                                file.timeline.prev();
+                            }}>${t(T.prev)}</thermal-button>
 
 
-                            <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
-                                <div class="timeline-bar" @click=${this.handleBarClick.bind(this)} @mousemove=${this.handleBarHover.bind(this)} @mouseleave=${this.handleBarMouseLeave.bind(this)}>
-                                    <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : "" }
-                                </div>
+                                        <button class="${classMap(playButtonClasses)}" @click=${this.handlePlayButtonClick.bind(this)}>
 
-                                <div>
-                                    ${ this.markers.map( element => {
-                                     return html`<file-marker-timeline start=${element.fromMs} end=${element.endMs} ></file-marker-timeline>`
-                                    } ) }
-                                </div>
 
-                            </div>
-
-                            <div class="item inline small">${this.duration?.time}</div>
-
-                            ${ this.hasSpeedButton === true
-                                ? html`<file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>`
-                                : nothing 
+                                        ${this.playing
+                                ? html`
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                                <path fill-rule="evenodd" d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z" clip-rule="evenodd" />
+                                            </svg>
+                                            `
+                                : html`
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                                <path fill-rule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clip-rule="evenodd" />
+                                            </svg>
+                                            `
                             }
+
+                                    </button>
+
+                                    
+
+                                    <thermal-button @click=${() => {
+                                file.timeline.next();
+                            }}>${t(T.next)}</thermal-button>
+
+                                    <thermal-button @click=${()=>file.timeline.setRelativeTime(0)}>${t(T.back)}</thermal-button>
+
+                                    <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
+
+                                </div>
+
+                                `
+                        : nothing
+                    }
 
                             
                         </div>
@@ -415,7 +468,7 @@ export class TimelineElement extends FileConsumer {
             
             </div>
 
-            ${ this.currentFrame !== undefined && this.hasInfo === true
+            ${this.currentFrame !== undefined && this.hasInfo === true
                 ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
                         <div>
                             <span class="label">${t(T.date)}:</span> 

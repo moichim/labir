@@ -5,6 +5,8 @@
  */
 export enum T {
 
+    loading = "loading",
+
     /** Next */
     next = "next",
     /** Previous */
@@ -104,6 +106,13 @@ export enum T {
     csvofanalysisdata = "csvofanalysisdata",
     csvofanalysisdatahint = "csvofanalysisdatahint",
 
+    showingfolder = "showingfolder",
+    showingfolders = "showingfolders",
+    and = "and",
+    or = "or",
+    doyouwanttoadd = "doyouwanttoadd",
+    youmayalsoadd = "youmayalsoadd",
+
     range = "range",
     info = "info",
     note = "note",
@@ -112,11 +121,13 @@ export enum T {
     donotgroup = "donotgroup",
     groupby = "groupby",
 
-    byday = "by day",
-    byhour = "by hour",
-    byweek = "by week",
-    bymonth = "by month",
-    byyear = "by year",
+    groupped = "groupped",
+
+    bydays = "bydays",
+    byhours = "byhours",
+    byweeks = "byweeks",
+    bymonths = "bymonths",
+    byyears = "byyears",
 
     play = "play",
     pause = "pause",

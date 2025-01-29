@@ -1,5 +1,6 @@
 import i18next from "i18next";
 import { LitElement } from "lit";
+import { state } from "lit/decorators.js";
 
 import { v4 as uuid } from "uuid";
 
@@ -23,10 +24,14 @@ export abstract class BaseElement extends LitElement {
         mode: "open"
     }
 
+    @state()
+    locale: string = i18next.language;
+
     connectedCallback(): void {
         super.connectedCallback();
-        i18next.on("languageChanged", () => {
-            this.requestUpdate();
+        i18next.on("languageChanged", (locale) => {
+            // this.requestUpdate();
+            this.locale = locale;
         })
     }
 

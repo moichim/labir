@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const fr: Translation = {
+
+    loading: "Loading",
+
     next: "Avancer",
     prev: "Rétourner",
     back: "Au derriére",
@@ -63,12 +66,20 @@ export const fr: Translation = {
     group: "Groupe",
     donotgroup: "Ne pas groupper",
     groupby: "Groupe {{era}}",
+    groupped: "groupés",
 
-    byday: "par jour",
-    byhour: "par heure",
-    byweek: "par semaine",
-    bymonth: "par mois",
-    byyear: "par année",
+    showingfolder: "Affichage du dossier",
+    showingfolders: "Affichage des dossiers",
+    and: "et",
+    or: "ou",
+    doyouwanttoadd: "Voulez-vous également afficher",
+    youmayalsoadd: "Vous pouvez également afficher",
+
+    bydays: "par jour",
+    byhours: "par heure",
+    byweeks: "par semaine",
+    bymonths: "par mois",
+    byyears: "par année",
 
     play: "Play",
     pause: "Pause",

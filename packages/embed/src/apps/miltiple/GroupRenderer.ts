@@ -132,8 +132,6 @@ export class GroupRenderer {
         group: GroupEntry,
         columns: number,
         grouping: Grouping,
-        onInstanceEnter: InstanceInteractionCallback,
-        onInstanceLeave: InstanceInteractionCallback,
         preservedates: boolean
     ): HtmlResult {
 
@@ -159,13 +157,10 @@ export class GroupRenderer {
 
                 <div class=${classMap(listClasses)}>
 
-
                     ${group.files.map(({ instance, innerHtml, label, time }) => {
 
             return this.instanceRenderer.renderInstance(
                 instance,
-                onInstanceEnter,
-                onInstanceLeave,
                 time!,
                 preservedates,
                 label,
@@ -173,7 +168,6 @@ export class GroupRenderer {
             );
 
         })}
-
 
                 </div>
 

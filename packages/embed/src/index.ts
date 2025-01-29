@@ -61,7 +61,8 @@ import "./controls/manager/PaletteDropdown";
 import "./controls/manager/PaletteButtons";
 import "./controls/manager/SmoothSwitch";
 import "./controls/manager/GraphSmoothSwitch";
-
+import "./controls/manager/GroupToolButtons";
+import "./controls/manager/GroupToolsBar";
 
 // 4. Registry controls
 import "./controls/registry/OpacitySlider";
@@ -75,8 +76,8 @@ import "./controls/registry/Histogram";
 
 
 // 5. Group controls
-import "./controls/group/GroupToolButtons";
-import "./controls/group/GroupToolsBar";
+import "./controls/group/GroupDownloadDropdown";
+import "./controls/group/GroupRangePropagator";
 
 
 // 5. File controls
@@ -100,6 +101,11 @@ import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
 
+import "./controls/file/buttons/FileLrcButton";
+import "./controls/file/buttons/FilePngButton";
+import "./controls/file/buttons/FileButton";
+import "./controls/file/buttons/FileRangePropagator";
+
 
 // 7. Complex apps go last
 import "./apps/single/SingleFileApp";
@@ -116,11 +122,14 @@ import "./apps/registry/parts/TimeGroupRowElement";
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupTimeline";
 
-
-
 import "./apps/registry/RegistryApp";
 
 import "./tour/TourStep";
+
+
+import "./apps/remote/RemoteFolderApp";
+import "./apps/remote/RemoteBrowser";
+import "./apps/remote/RemoteGridApp";
 
 
 

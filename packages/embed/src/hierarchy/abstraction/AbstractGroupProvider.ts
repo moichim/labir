@@ -10,31 +10,12 @@ export abstract class AbstractGroupProvider extends RegistryConsumer {
 
     group!: ThermalGroup;
 
-    tool!: ThermalTool;
-
-    tools!: ThermalGroup["tool"]["tools"]
-
     public autoclear: boolean = false;
 
     connectedCallback(): void {
         super.connectedCallback();
 
         this.group = this.registry.groups.addOrGetGroup(this.slug);
-
-        if (this.slug) {
-            // this.group = this.registry.groups.addOrGetGroup( this.slug );
-        } else {
-            // this.group = getDefaultGroup( this.registry );
-        }
-
-        // Assign tool
-        this.tool = this.group.tool.value;
-        this.tools = this.group.tool.tools;
-
-        // Add tool listener
-        this.group.tool.addListener(this.UUIDGroupListeners, value => {
-            this.tool = value;
-        });
 
     }
 

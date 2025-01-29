@@ -50,6 +50,17 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         instance?: Instance
     ) {
 
+        if ( instance === undefined && this._currentPointer) {
+            this.endSyncingSlot( this._currentPointer, 1 );
+            this.endSyncingSlot( this._currentPointer, 2 );
+            this.endSyncingSlot( this._currentPointer, 3 );
+            this.endSyncingSlot( this._currentPointer, 4 );
+            this.endSyncingSlot( this._currentPointer, 5 );
+            this.endSyncingSlot( this._currentPointer, 6 );
+            this.endSyncingSlot( this._currentPointer, 7 );
+        }
+
+
         if (instance !== this._currentPointer) {
 
             // Remove existing listeners
@@ -137,9 +148,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
 
     public startSyncingSlot(instance: Instance, slotNumber: number) {
-        const { serialise, assign } = this.getSlotListeners(instance, slotNumber)!;
-
-        assign.set(AnalysisSyncDrive.LISTENER_KEY, console.log);
+        const { serialise } = this.getSlotListeners(instance, slotNumber)!;
 
         serialise.set(AnalysisSyncDrive.LISTENER_KEY, value => {
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
@@ -227,8 +236,6 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         serialized: string | undefined,
         slot: number
     ): void {
-
-        console.log(serialized, slot);
 
         this.parent.files.forEveryInstance(
             instance => {

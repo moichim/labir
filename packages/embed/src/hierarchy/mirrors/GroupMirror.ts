@@ -1,10 +1,8 @@
-import { ThermalGroup, ThermalTool } from "@labir/core";
+import { ThermalGroup } from "@labir/core";
 import { provide } from "@lit/context";
-import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { RegistryConsumer } from "../consumers/RegistryConsumer";
-import { groupContext, toolContext, toolsContext } from "../providers/context/GroupContext";
 import { AbstractGroupProvider } from "../abstraction/AbstractGroupProvider";
+import { groupContext } from "../providers/context/GroupContext";
 
 @customElement("group-mirror")
 export class GroupProviderElement extends AbstractGroupProvider {
@@ -19,12 +17,6 @@ export class GroupProviderElement extends AbstractGroupProvider {
 
     @provide({ context: groupContext })
     group!: ThermalGroup;
-
-    @provide({ context: toolContext })
-    tool!: ThermalTool;
-
-    @provide({ context: toolsContext })
-    tools!: ThermalGroup["tool"]["tools"]
 
     @property({ type: Boolean })
     autoclear: boolean = false;

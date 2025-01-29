@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const en: Translation = {
+
+    loading: "Loading",
+
     next: "Next",
     prev: "Previous",
     back: "Back",
@@ -64,12 +67,20 @@ export const en: Translation = {
     group: "Group",
     donotgroup: "Do not group",
     groupby: "Group {{era}}",
+    groupped: "groupped",
 
-    byday: "by day",
-    byhour: "by hour",
-    byweek: "by week",
-    bymonth: "by month",
-    byyear: "by year",
+    showingfolder: "Displaying the folder",
+    showingfolders: "Displaying folders",
+    and: "and",
+    or: "or",
+    doyouwanttoadd: "Do you want to diaplay also",
+    youmayalsoadd: "You may also display",
+
+    bydays: "by day",
+    byhours: "by hour",
+    byweeks: "by week",
+    bymonths: "by month",
+    byyears: "by year",
 
     play: "Play",
     pause: "Pause",

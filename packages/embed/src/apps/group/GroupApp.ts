@@ -107,6 +107,16 @@ export class GroupElement extends AbstractMultipleApp {
         const registry = manager.addOrGetRegistry(this.slug);
         const group = registry.groups.addOrGetGroup(this.slug, this.label, this.description);
 
+        group.files.addListener( this.UUID, (instances) => {
+            this.log( group, instances );
+            if ( group.analysisSync.value === false ) {
+                const instance = instances[0];
+                if ( instance ) {
+                    group.analysisSync.turnOn( instance );
+                }
+            }
+        } )
+
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
 
@@ -116,10 +126,6 @@ export class GroupElement extends AbstractMultipleApp {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-
-        this.log(this.palette, this.group.registry.manager.id);
-
-        this.group.registry.palette.addListener(this.UUID + "paleta", console.log);
 
         this.group.registry.manager.palette.setPalette(this.palette);
 
@@ -310,54 +316,10 @@ export class GroupElement extends AbstractMultipleApp {
 
                                     ${this.grouper.numFiles > 0
                 ? html`
-                                            <thermal-dropdown class="download">
 
-                                                <span slot="invoker">${t(T.download)}</span>
+                                        <group-download-dropdown></group-download-dropdown>
 
-                                                <div slot="option">
-                                                    <thermal-button @click=${() => this.grouper.group.files.downloadAllFiles()}>${t(T.downloadoriginalfiles)}</thermal-button>
-                                                    <small>${t(T.downloadoriginalfileshint)}</small>
-                                                </div>
-
-                                                <div slot="option">
-                                                    <thermal-button @click=${() => this.grouper.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</thermal-button>
-                                                    <small>${t(T.pngofindividualimageshint)}</small>
-                                                </div>
-
-                                                <div slot="option">
-
-                                                    <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
-                    columns: this.columns
-                })}>${t(T.pngofentiregroup)}</thermal-button>
-                                                    <small>${t(T.pngofentiregrouphint)}</small>
-                                                </div>
-
-
-                                                <div slot="option">
-                                                    <thermal-button @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</thermal-button>
-                                                    <small>${t(T.csvofanalysisdatahint)}</small>
-                                                </div>
-
-                                            </thermal-dropdown>
-
-                                            <registry-range-full-button
-                                                @mouseenter=${() => {
-                        this.highlightFrom = this.group.registry.minmax.value?.min;
-                        this.highlightTo = this.group.registry.minmax.value?.max;
-                    }}
-                                                @focus=${() => {
-                        this.highlightFrom = this.group.registry.minmax.value?.min;
-                        this.highlightTo = this.group.registry.minmax.value?.max;
-                    }}
-                                                @mouseleave=${() => {
-                        this.highlightFrom = undefined;
-                        this.highlightTo = undefined;
-                    }}
-                                                @blur=${() => {
-                        this.highlightFrom = undefined;
-                        this.highlightTo = undefined;
-                    }}
-                                            ></registry-range-full-button>
+                                        <registry-range-full-button></registry-range-full-button>
                                         `
                 : nothing
             }
@@ -372,7 +334,7 @@ export class GroupElement extends AbstractMultipleApp {
                             ${this.showhistogram === true ? html`<registry-histogram></registry-histogram>`: nothing}
 
                             <registry-range-slider></registry-range-slider>
-                            <registry-ticks-bar highlightFrom=${ifDefined(this.highlightFrom)} highlightTo=${ifDefined(this.highlightTo)}></registry-ticks-bar>
+                            <registry-ticks-bar></registry-ticks-bar>
 
                             ${this.interactiveanalysis === true ? html`<group-tool-buttons></group-tool-buttons>` : nothing }
 
@@ -387,21 +349,10 @@ export class GroupElement extends AbstractMultipleApp {
                     group,
                     this.columns,
                     this.grouping,
-                    (instance) => {
-                        this.highlightFrom = instance.min;
-                        this.highlightTo = instance.max;
-                    },
-                    () => {
-                        this.highlightFrom = undefined;
-                        this.highlightTo = undefined;
-                    },
                     this.preservetime
                 );
 
-            })}
-
-
-                                
+            })}            
                             
                             </div>
 

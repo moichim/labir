@@ -1,6 +1,8 @@
 import { html, PropertyValues } from "lit";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
-import { RegistryContext } from "../providers/context/RegistryContext";
+import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
+import { ThermalRangeOrUndefined } from "@labir/core";
+import { provide } from "@lit/context";
 
 export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
@@ -23,6 +25,14 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     public loading: boolean = false;
 
     public autoclear: boolean = false;
+
+    @provide( {context: registryHighlightContext} )
+    protected highlight: ThermalRangeOrUndefined;
+
+    @provide( {context: setRegistryHighlightContext} )
+    protected setHighlight = ( value: ThermalRangeOrUndefined ) => {
+        this.highlight = value;
+    }
 
 
     connectedCallback(): void {

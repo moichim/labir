@@ -294,7 +294,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     public recieveOpacity(value: number) {
 
-        if ( this.dom && this.dom.visibleLayer && this.dom.canvasLayer) {
+        if ( this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
             this.dom.canvasLayer.opacity = value;
         }
     }

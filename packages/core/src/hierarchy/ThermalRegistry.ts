@@ -224,12 +224,9 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
     public reset() {
 
-        this.forEveryGroup(group => group.reset());
-
-        // if (this.loader.loading === false) {
-            this.opacity.reset();
-            this.minmax.reset();
-        // }
+        this.groups.removeAllGroups();
+        this.opacity.reset();
+        this.minmax.reset();
 
     }
 

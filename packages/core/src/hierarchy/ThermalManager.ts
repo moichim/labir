@@ -11,6 +11,8 @@ import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";
 import { PaletteDrive } from "../properties/drives/PaletteDrive";
 import { SmoothDrive } from "../properties/drives/SmoothDrive";
 import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
+import { ToolDrive } from "../properties/tool/ToolDrive";
+import { InspectTool } from "../properties/tool/internals/InspectTool";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
@@ -35,6 +37,8 @@ export class ThermalManager extends BaseStructureObject {
     public readonly smooth: SmoothDrive = new SmoothDrive(this, false );
 
     public readonly graphSmooth: GraphSmoothDrive = new GraphSmoothDrive(this, false);
+
+    public readonly tool: ToolDrive = new ToolDrive( this, new InspectTool( this ) );
 
     
 
@@ -101,6 +105,11 @@ export class ThermalManager extends BaseStructureObject {
         } );
 
         return instances;
+    }
+
+
+    public forEveryInstance( callback: (instance: Instance) => void ): void {
+        this.forEveryRegistry( registry => registry.forEveryInstance( callback ) );
     }
 
 

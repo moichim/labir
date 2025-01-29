@@ -1,6 +1,9 @@
 import { Translation } from "../Languages";
 
 export const cy: Translation = {
+
+    loading: "Loading",
+
     next: "Nesaf",
     prev: "Blaenorol",
     back: "Yn ôl",
@@ -17,8 +20,8 @@ export const cy: Translation = {
     smooth: "Llyfn",
     filerenderinghint: "Mae modd 'Picselaidd' yn analluogi gwrth-alwio'r llun isgoch ac yn eich galluogi i weld ei bicseli fel ag y maent.",
     adjusttimescale: "Graddfa tymheredd",
-    automaticrange: "Band awtomatig",
-    fullrange: "Band llawn",
+    automaticrange: "Ystod awtomatig",
+    fullrange: "Ystod llawn",
     adjusttimescalehint: "Addaswch y wraddfa thermol yn awtomatig neu cyflewch y wraddfa i fand lawn.",
 
     palettename: "Palet {{name}}",
@@ -57,18 +60,26 @@ export const cy: Translation = {
     csvofanalysisdata: "CSV - data dadansoddi",
     csvofanalysisdatahint: "Tabl tymheredd mewn dadansoddiadau",
 
-    range: "Band",
+    range: "Ystod",
     info: "Gwybodaeth",
     note: "Nodyn",
     group: "Grwp",
     donotgroup: "Peidiwch â grwpio",
-    groupby: "Group {{era}}",
+    groupby: "grwpio {{era}}",
 
-    byday: "Grŵp yn ystod y dydd",
-    byhour: "Grŵp fesul awr",
-    byweek: "Grŵp fesul wythnos",
-    bymonth: "Grwpio fesul mis",
-    byyear: "Grŵp yn ôl blwyddyn",
+    groupped: "grwpio",
+    showingfolder: "Yn dangos y ffolder",
+    showingfolders: "Yn dangos y ffolderi",
+    and: "a",
+    or: "neu",
+    doyouwanttoadd: "Ydych chi eisiau dangos hefyd",
+    youmayalsoadd: "Gallwch hefyd ddangos",
+
+    bydays: "fesul dydd",
+    byhours: "fesul awr",
+    byweeks: "fesul wythnos",
+    bymonths: "fesul mis",
+    byyears: "fesul blwyddyn",
 
     play: "Chwarae",
     pause: "Oedwch",

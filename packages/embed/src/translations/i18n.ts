@@ -36,3 +36,5 @@ i18next
         },
     }
 );
+
+(window as any).i18next = i18next;

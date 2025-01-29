@@ -44,14 +44,16 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly minmax: MinmaxGroupProperty = new MinmaxGroupProperty(this, undefined);
 
-    /** Tool drive */
-    public readonly tool: ToolDrive = new ToolDrive(this, new InspectTool(this));
+    /** Tool drive from above */
+    public get tool(): ToolDrive {
+        return this.registry.manager.tool;
+    }
 
     public readonly files: FilesState = new FilesState( this, [] );
 
     public readonly cursorPosition: CursorPositionDrive = new CursorPositionDrive(this, undefined);
 
-    public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, true);
+    public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, false);
 
     protected _playback?: GroupPlayback;
     public get playback() {
@@ -89,6 +91,7 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
         this.files.reset();
         this.minmax.reset();
         this.cursorPosition.reset();
+        this.analysisSync.reset();
 
     }
 

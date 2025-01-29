@@ -109,7 +109,6 @@ export class TimeGrouping {
                 batch.onResolve.set(
                     this.element.UUID + "___something",
                     () => {
-                        console.log( "hotovost...", this.records );
                         this.processGroups();
                     }
                 );
