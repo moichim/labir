@@ -4382,9 +4382,9 @@ var AbstractLayer = class {
   }
   unmount() {
     if (this._mounted) {
-      if (this.instance.root !== null) {
+      if (this.instance.dom?.root !== null) {
         this._mounted = false;
-        this.instance.root.removeChild(this.getLayerRoot());
+        this.instance.dom?.root.removeChild(this.getLayerRoot());
       }
     }
   }
@@ -7726,13 +7726,15 @@ var ThermalRegistry = class extends BaseStructureObject {
   /** Load the registry with only one file. @deprecated */
   async loadFullOneFile(file, groupId) {
     this.reset();
+    this.loading.markAsLoading();
     const group = this.groups.addOrGetGroup(groupId);
     const result = await this.service.loadFile(file.thermalUrl, file.visibleUrl);
     if (result instanceof ThermalFileReader) {
       await result.createInstance(group);
     }
-    this.loading.markAsLoading();
+    this.loading.markAsLoaded();
     this.postLoadedProcessing();
+    return;
   }
   _batch;
   get batch() {

@@ -65,7 +65,7 @@ describe("AnalysisSlotsDrive", () => {
 
         // The slot needs to have initial serialized value
         expect(slot.serialized).not.toBeUndefined();
-        expect(slot.serialized).toEqual("Testovací analýza;rectangle;color:Orange;top:10;left:10;width:90;height:90");
+        expect(slot.serialized).toEqual("Testovací analýza;rectangle;color:Blue;top:10;left:10;width:90;height:90");
 
         // Serialisation counter
         let counter = 0;

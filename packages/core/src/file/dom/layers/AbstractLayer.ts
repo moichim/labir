@@ -21,9 +21,9 @@ export abstract class AbstractLayer {
 
     public unmount() {
         if ( this._mounted )
-        if ( this.instance.root !== null ) {
+        if ( this.instance.dom?.root !== null ) {
             this._mounted = false;
-            this.instance.root.removeChild( this.getLayerRoot() );
+            this.instance.dom?.root.removeChild( this.getLayerRoot() );
         }
     }
 
