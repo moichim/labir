@@ -3,7 +3,7 @@
   "apiVersion": 3,
   "name": "thermal-display/remote-group",
   "version": "0.1.0",
-  "title": "Remote Folder",
+  "title": "Remote folder",
   "category": "thermal",
   "icon": "file:./assets/icon.svg",
   "description": "A group display of one remote folder.",

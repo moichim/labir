@@ -49,7 +49,9 @@ export class TicksElement extends RegistryConsumer {
 
         this.registry.minmax.addListener(this.UUID, value => {
             this.minmax = value;
-            this.calculateTicks(value, this.ticksRef.value!.clientWidth);
+            if ( this.ticksRef.value ) {
+                this.calculateTicks(value, this.ticksRef.value.clientWidth);
+            }
         });
 
     }
@@ -135,7 +137,7 @@ export class TicksElement extends RegistryConsumer {
 
         .skeleton {
             height: 100%;
-            background: var( --thermal-slate );
+            background: var( --thermal-slate-light );
         }
 
         .ready {

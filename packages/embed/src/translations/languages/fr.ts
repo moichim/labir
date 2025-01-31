@@ -8,6 +8,7 @@ export const fr: Translation = {
     prev: "Rétourner",
     back: "Au derriére",
     close: "Fermer",
+    reload: "Recharger",
 
     description: "Description",
     author: "Auteur",
@@ -46,7 +47,7 @@ export const fr: Translation = {
     supporteddevices: "Appareils compatibles",
     bytesize: "Taille en octets",
 
-
+    numfiles: "{{num}} fichiers",
     download: "Télécharger",
     downloadoriginalfiles: "LRC - fichiers individuels",
     downloadoriginalfileshint: "Téléchargez tous les fichiers IR sources",
@@ -154,4 +155,6 @@ export const fr: Translation = {
     tutorial: "Tutoriel",
     colourpalette: "Palette",
     palettehint: "Utilisez le menu pour changer le palette.",
+
+    remotefoldersbrowser: "Navigateur de dossiers distants"
 }

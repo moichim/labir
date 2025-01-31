@@ -34,7 +34,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
      * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
     */
     public setResolution(value: number) {
-        this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
+        this._resolution = Math.round(Math.min(Math.max(value, 2), 1000));
     }
 
     /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/

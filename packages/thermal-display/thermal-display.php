@@ -44,7 +44,8 @@ function thermal_display_init_blocks() {
 	register_block_type( __DIR__ . '/build/app' );
 	register_block_type( __DIR__ . '/build/group' );
 	register_block_type( __DIR__ . '/build/remoteGroup' );
-	register_block_type( __DIR__ . '/build/timeGrid' );
+	// register_block_type( __DIR__ . '/build/timeGrid' );
+	register_block_type( __DIR__ . '/build/remoteBrowser' );
 }
 add_action( 'init', 'thermal_display_init_blocks' );
 

@@ -2669,12 +2669,13 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
 
 // src/properties/analysis/storage/AnalysisLayersStorage.ts
 var availableAnalysisColors = [
-  "Orange",
+  "Blue",
+  "Red",
   "Lightblue",
   "Green",
   "Brown",
   "Yellow",
-  "Blue",
+  "Navy",
   "Pink",
   "DarkGoldenRod",
   "GreenYellow",
@@ -7524,7 +7525,7 @@ var GroupsState = class extends AbstractProperty {
 
 // src/properties/states/HistogramState.ts
 var HistogramState = class extends AbstractProperty {
-  _resolution = 150;
+  _resolution = 1e3;
   get resolution() {
     return this._resolution;
   }
@@ -7548,7 +7549,7 @@ var HistogramState = class extends AbstractProperty {
    * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
   */
   setResolution(value) {
-    this._resolution = Math.round(Math.min(Math.max(value, 2), 400));
+    this._resolution = Math.round(Math.min(Math.max(value, 2), 1e3));
   }
   /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
   validate(value) {

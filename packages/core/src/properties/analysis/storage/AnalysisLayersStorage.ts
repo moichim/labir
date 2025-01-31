@@ -15,12 +15,13 @@ export type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | 
 export type SlotNumber = 1|2|3|4|5|6|7;
 
 export const availableAnalysisColors = [
-    "Orange",
+    "Blue",
+    "Red",
     "Lightblue",
     "Green",
     "Brown",
     "Yellow",
-    "Blue",
+    "Navy",
     "Pink",
     "DarkGoldenRod",
     "GreenYellow",

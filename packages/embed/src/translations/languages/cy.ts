@@ -8,6 +8,7 @@ export const cy: Translation = {
     prev: "Blaenorol",
     back: "Yn ôl",
     close: "Cau",
+    reload: "Ail-lwytho",
 
     description: "Disgrifiad",
     author: "Awdur",
@@ -45,7 +46,7 @@ export const cy: Translation = {
     type: "Math",
     supporteddevices: "Dyfeisiau a gefnogir",
 
-
+    numfiles: "{{num}} ffeil",
 
     download: "Lawrlwythwch",
     downloadoriginalfiles: "LRC - ffeiliau thermol wreiddiol unigol",
@@ -157,4 +158,6 @@ export const cy: Translation = {
 
     colourpalette: "Palet lliw",
     palettehint: "Defnyddiwch y gwymplen i newid y palet.",
+
+    remotefoldersbrowser: "Porwr o ffolderi anghysbell"
 }

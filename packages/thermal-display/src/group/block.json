@@ -3,10 +3,10 @@
 	"apiVersion": 3,
 	"name": "thermal-display/group",
 	"version": "0.1.0",
-	"title": "Thermal group",
+	"title": "Group of IR images",
 	"category": "thermal",
 	"icon": "file:./assets/icon.svg",
-	"description": "An group of thermal recordings.",
+	"description": "Upload multiple IR images and analyse them in the browser.",
 	"example": {},
 	"supports": {
 		"interactivity": false,

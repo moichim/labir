@@ -3,10 +3,10 @@
 	"apiVersion": 3,
 	"name": "thermal-display/file",
 	"version": "0.1.0",
-	"title": "Thermal display",
+	"title": "IR image",
 	"category": "thermal",
 	"icon": "file:./assets/icon.svg",
-	"description": "An interactive thermal image application.",
+	"description": "Display and analyse an uploaded IR image.",
 	"example": {},
 	"supports": {
 		"interactivity": false,

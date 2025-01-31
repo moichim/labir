@@ -8,6 +8,7 @@ export const cs: Translation = {
     prev: "Předchozí",
     back: "Zpět",
     close: "Zavřít",
+    reload: "Načíst znovu",
 
     description: "Popis",
     author: "Autor",
@@ -27,7 +28,7 @@ export const cs: Translation = {
     palettename: "Paleta {{name}}",
     colourpalettehint: "Zvolte barevnou paletu",
 
-
+    numfiles: "{{num}} souborů",
 
     fileinfo: "O souboru",
     thermalfilename: "Název IR souboru",
@@ -158,4 +159,6 @@ export const cs: Translation = {
     tutorial: "Tutorial",
     colourpalette: "Barevná paleta",
     palettehint: "Rozbalovací nabídka pro přepínání barevné palety.",
+
+    remotefoldersbrowser: "Prohlížeč vzdálených složek"
 }

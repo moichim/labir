@@ -8,6 +8,7 @@ export const en: Translation = {
     prev: "Previous",
     back: "Back",
     close: "Close",
+    reload: "Reload",
 
     description: "Description",
     author: "Author",
@@ -47,6 +48,8 @@ export const en: Translation = {
     type: "Type",
     supporteddevices: "Supported devices",
 
+
+    numfiles: "{{num}} files",
 
     download: "Download",
     downloadoriginalfiles: "LRC - individual files",
@@ -153,5 +156,7 @@ export const en: Translation = {
 
     tutorial: "Tutorial",
     colourpalette: "Colour palette",
-    palettehint: "Use the menu to change the colour palette."
+    palettehint: "Use the menu to change the colour palette.",
+
+    remotefoldersbrowser: "Remote folders browser"
 }

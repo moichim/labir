@@ -8,6 +8,7 @@ export const de: Translation = {
     prev: "Zurück",
     back: "Zurück",
     close: "Schließen",
+    reload: "Neu laden",
 
     description: "Beschreibung",
     author: "Autor",
@@ -26,6 +27,8 @@ export const de: Translation = {
 
     palettename: "Palette {{name}}",
     colourpalettehint: "Wählen Sie eine Farbpalette",
+
+    numfiles: "{{num}} Dateien",
 
     fileinfo: "Dateiinformationen",
     thermalfilename: "Name der IR-Datei",
@@ -150,4 +153,6 @@ export const de: Translation = {
     tutorial: "Tutorial",
     colourpalette: "Farbpalette",
     palettehint: "Dropdown-Menü zum Wechseln der Farbpalette.",
+
+    remotefoldersbrowser: "Browser für Remote-Ordner"
 }

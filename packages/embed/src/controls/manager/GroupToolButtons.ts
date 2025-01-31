@@ -1,7 +1,7 @@
 import { ThermalGroup, ThermalTool } from "@labir/core";
 import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
@@ -10,6 +10,7 @@ import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
+import { booleanConverter } from "../../utils/booleanMapper";
 
 
 
@@ -33,6 +34,9 @@ export class GroupToolButtons extends ManagerConsumer {
 
     @state()
     hint!: keyof T;
+
+    @property({type: String, reflect: true, converter: booleanConverter(false)})
+    showhint: boolean = true;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -85,7 +89,7 @@ export class GroupToolButtons extends ManagerConsumer {
 
         &:hover,
         &.active {
-            color: var( --thermal-primary );
+            background: var(--thermal-background);
         }
 
     }
@@ -159,9 +163,12 @@ export class GroupToolButtons extends ManagerConsumer {
         )}
                 </div>
 
-                <div class="current">
-                    <div class="tool-description">${t( T[ this.hint as keyof typeof T ] )}</div>
-                </div>
+                ${this.showhint === true
+                    ? html` <div class="current">
+                        <div class="tool-description">${t( T[ this.hint as keyof typeof T ] )}</div>
+                    </div>`
+                    : nothing
+                }
 
                 <slot name="tour"></slot>
         `;

@@ -32,7 +32,8 @@ export type TimeRecordGroup = {
 
 type ApiResponseBase = {
     time: number,
-    success: boolean
+    success: boolean,
+    url_host: string
 }
 
 /** @route / */

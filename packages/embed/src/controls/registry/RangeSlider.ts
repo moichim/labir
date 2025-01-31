@@ -67,6 +67,24 @@ export class RangeSliderElement extends RegistryConsumer {
             }
         });
 
+        this.registry.minmax.addListener(this.UUID, value => {
+            if (value) {
+                this.from = value.min;
+                this.to = value.max;
+            }
+        });
+
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.registry.range.removeListener(this.UUID);
+        this.registry.minmax.removeListener(this.UUID);
+        this.initialised = false;
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
     }
 
     protected willUpdate(_changedProperties: PropertyValues): void {
@@ -98,6 +116,8 @@ export class RangeSliderElement extends RegistryConsumer {
     public updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
+
+
         const slider = this.sliderRef.value;
 
         if (slider && this.initialised === false) {
@@ -110,7 +130,7 @@ export class RangeSliderElement extends RegistryConsumer {
                     border-radius: 0;
                     width: 10px;
                 }
-        ` );
+            ` );
 
             slider.addEventListener("change", (event: Event) => {
 
@@ -181,6 +201,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
     protected render(): unknown {
 
+        /*
         if (this.canRanderSlider() === false) {
             return html`
                 <div class="container loading">
@@ -188,6 +209,7 @@ export class RangeSliderElement extends RegistryConsumer {
                 </div>
             `;
         }
+        */
 
         return html`
 

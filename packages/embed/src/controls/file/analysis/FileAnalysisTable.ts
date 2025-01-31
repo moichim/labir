@@ -15,6 +15,7 @@ export class FileAnalysisTable extends FileConsumer {
     protected container: Ref<HTMLDivElement> = createRef();
 
     @consume({ context: interactiveAnalysisContext, subscribe: true })
+    @property()
     interactiveanalysis: boolean = false;
 
     public getTourableRoot(): HTMLElement | undefined {

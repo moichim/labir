@@ -77,6 +77,8 @@ export class ThermalButton extends TourableElement {
         transition: all .4 ease-in-out;
 
         box-shadow: var( --thermal-shadow-none );
+
+        white-space: nowrap;
         
         &.slate {
             background: var( --thermal-slate-light );

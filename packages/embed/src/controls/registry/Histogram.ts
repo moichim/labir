@@ -4,6 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { ThermalRegistry } from "@labir/core";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { booleanConverter } from "../../utils/booleanMapper";
 
 @customElement("registry-histogram")
 export class HistogramElement extends RegistryConsumer {
@@ -17,6 +18,15 @@ export class HistogramElement extends RegistryConsumer {
 
     @property( { type: String, reflect: true } )
     public height: string = "calc( var( --thermal-gap ) * 1.5 )";
+
+    @property({type: String, reflect: true })
+    public heightExpanded: string = "400px";
+
+    @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
+    public expandable: boolean = false;
+
+    @state()
+    protected expanded: boolean = false;
 
     protected tourableElementRef: Ref<HTMLElement> = createRef();
 
@@ -57,14 +67,28 @@ export class HistogramElement extends RegistryConsumer {
         .histogram {
             display: flex;
             width: 100%;
-            background:  white;
+            background:  var(--thermal-slate-light);
             // height: calc( var( --thermal-gap ) * 1.5);
+
+            &.expandable {
+                transition: all .2s ease-in-out;
+                cursor: pointer;
+                &:hover {
+                    background: var(--thermal-background);
+                }
+            }
         }
 
         .histogram-bar {
             flex-grow: 1;
             position: relative;
             height: 100%;
+
+            &:hover {
+                .histogram-bar-inner {
+                    background: var(--thermal-foreground);
+                }
+            }
         }
 
         .histogram-bar-inner {
@@ -72,7 +96,8 @@ export class HistogramElement extends RegistryConsumer {
             bottom: 0px;
             left: 0px;
             width: 100%;
-            background: black;
+            background: var(--thermal-slate-dark);
+            transition: height .5s ease-in-out;
         }
 
         .interactive {
@@ -90,7 +115,11 @@ export class HistogramElement extends RegistryConsumer {
 
             <div class="container ${this.histogram.length > 0 ? "ready" : "loading"} ${this.interactive ? "interactive" : nothing}" ${ref(this.tourableElementRef)}>
 
-                <div class="histogram" style="height: ${this.height}">
+                <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded: this.height}" part="bg" @click=${() => {
+                    if ( this.expandable === true ) {
+                        this.expanded = !this.expanded;
+                    }
+                }}>
 
                     ${this.histogram.map( item => {
 

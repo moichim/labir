@@ -91,6 +91,8 @@ export enum T {
     /** Supported devices */
     supporteddevices = "supporteddevices",
 
+    numfiles = "numfiles",
+
 
 
     download = "download",
@@ -139,6 +141,7 @@ export enum T {
     straightlines = "straightlines",
     smoothlines = "smoothlines",
     graphlineshint = "graphlineshint",
+    reload = "reload",
 
     analysis = "analysis",
     avg = "avg",
@@ -211,6 +214,8 @@ export enum T {
     colourpalette = "colourpalette",
     /** Use the dropdown to change the palette */
     palettehint = "palettehint",
+
+    remotefoldersbrowser = "remotefoldersbrowser"
 
 }
 

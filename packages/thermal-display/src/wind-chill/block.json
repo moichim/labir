@@ -3,10 +3,10 @@
 	"apiVersion": 3,
 	"name": "thermal-display/wind-chill",
 	"version": "0.1.0",
-	"title": "Apparent Temperature",
+	"title": "Wind chill calculator",
 	"category": "thermal",
 	"icon": "file:./assets/icon.svg",
-	"description": "An interactive calculator of the wind chill.",
+	"description": "An interactive calculator of wind chill using the AAT model.",
 	"example": {},
 	"supports": {
 		"interactivity": false,
