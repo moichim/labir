@@ -1,12 +1,12 @@
-import { CSSResultGroup, html } from "lit";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { customElement } from "lit/decorators.js";
-import { consume } from "@lit/context";
-import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { ThermalRangeOrUndefined } from "@labir/core";
+import { consume } from "@lit/context";
+import { t } from "i18next";
+import { html } from "lit";
+import { customElement } from "lit/decorators.js";
+import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
+import { T } from "../../translations/Languages";
+import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
 
 @customElement("group-range-propagator")
 export class GroupRangePropagator extends GroupConsumer {

@@ -130,8 +130,9 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         this.reset();
 
-        const group = this.groups.addOrGetGroup(groupId);
+        this.loading.markAsLoading();
 
+        const group = this.groups.addOrGetGroup(groupId);
 
         const result = await this.service.loadFile( file.thermalUrl, file.visibleUrl );
 
@@ -139,9 +140,11 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
             await result.createInstance( group );
         }
 
-        this.loading.markAsLoading();
+        this.loading.markAsLoaded();
 
         this.postLoadedProcessing();
+
+        return;
 
     }
 

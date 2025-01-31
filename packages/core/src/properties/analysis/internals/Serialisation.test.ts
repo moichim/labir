@@ -80,7 +80,7 @@ describe("Serialisation of analysis", () => {
         const slot = instance.slots.assignSlot( 1, analysis );
 
         // Contain the initial color
-        expect(slot.serialized).toContain("Orange");
+        expect(slot.serialized).toContain("Blue");
 
         // Set the color
         analysis.setInitialColor("Pink");
@@ -359,7 +359,7 @@ describe("Serialisation of analysis", () => {
         expect(slot.serialized).toContain(`left:${left}`);
         expect(slot.serialized).toContain(`width:${width}`);
         expect(slot.serialized).toContain(`height:${height}`);
-        expect(slot.serialized).toContain(`color:Orange`);
+        expect(slot.serialized).toContain(`color:Blue`);
 
         expect(slot.serialized).not.toContain("max");
         expect(slot.serialized).not.toContain("min");

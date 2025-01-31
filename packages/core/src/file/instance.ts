@@ -259,10 +259,6 @@ export class Instance extends AbstractFile {
 
     public async applyAllAvailableFilters() {
 
-        const filters = this.getAllApplicableFilters();
-
-        // this.reader.applyFilters(filters);
-
         // Get new info
         const baseInfo = await this.reader.baseInfo();
         const frameData = await this.reader.frameData(this.timeline.currentStep.index);

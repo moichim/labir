@@ -13,10 +13,6 @@ enum VUNIT {
     kph = "kph"
 }
 
-const convertor = {
-
-}
-
 const converters = {
     fromAttribute(value: string | null) {
 
@@ -149,7 +145,7 @@ export class AustralianApparentTemperature extends BaseElement {
 
         if (_changedProperties.has(key)) {
 
-            let newValue: number | undefined = this[key] as number | undefined;
+            const newValue: number | undefined = this[key] as number | undefined;
 
             // Assign the new Value
             const inputRef = this[`${key}Ref` as keyof this] as Ref<HTMLInputElement>;
@@ -421,10 +417,6 @@ export class AustralianApparentTemperature extends BaseElement {
             : t(T.youfeelwarmer, prop);
 
         const result = apparentTemperature.toFixed(2);
-
-        const color = diff < 0
-            ? "blue"
-            : "red"
 
         return html`<div class="result">
 

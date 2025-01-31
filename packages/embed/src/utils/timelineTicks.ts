@@ -54,7 +54,7 @@ export const processTickMinute = (
 
     let i = 1;
 
-    let partial = (to - from) / count;
+    const partial = (to - from) / count;
 
     while (i < count) {
 

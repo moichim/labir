@@ -1,6 +1,6 @@
-import { Instance, SlotNumber } from "@labir/core";
+import { Instance } from "@labir/core";
 import { provide } from "@lit/context";
-import { html, PropertyValues } from "lit";
+import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileContext, fileProviderContext } from "../providers/context/FileContexts";

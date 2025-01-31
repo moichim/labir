@@ -1,11 +1,11 @@
+import { provide } from "@lit/context";
 import { css } from "lit";
-import { property, state } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { booleanConverter } from "../../utils/booleanMapper";
+import { interactiveAnalysisContext } from "../../utils/context";
 import { GroupRenderer } from "./GroupRenderer";
 import { InstanceRenderer } from "./InstanceRenderer";
-import { booleanConverter } from "../../utils/booleanMapper";
-import { provide } from "@lit/context";
-import { interactiveAnalysisContext } from "../../utils/context";
 
 export type ParsedFileType = {
     thermal: string;

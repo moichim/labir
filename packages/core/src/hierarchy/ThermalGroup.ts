@@ -11,7 +11,6 @@ import { FilesState } from "../properties/lists/filesState";
 import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
 import { GroupPlayback } from "../properties/time/group/GroupPlayback";
-import { InspectTool } from "../properties/tool/internals/InspectTool";
 import { ToolDrive } from "../properties/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
 

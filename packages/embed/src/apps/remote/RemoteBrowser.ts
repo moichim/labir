@@ -3,25 +3,31 @@ import { customElement, property, state } from "lit/decorators.js";
 
 import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase } from "@labir/api";
 import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
+import { provide } from "@lit/context";
 import { format } from "date-fns";
-import * as loc from "date-fns/locale";
+import { cy, cs, de, fr, enGB} from "date-fns/locale";
 import { t } from "i18next";
 import { classMap } from "lit/directives/class-map.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { provide } from "@lit/context";
-import { interactiveAnalysisContext } from "../../utils/context";
 import { booleanConverter } from "../../utils/booleanMapper";
-
-loc.cy
+import { interactiveAnalysisContext } from "../../utils/context";
 
 enum STATE {
     MAIN,
     ONE,
     MULTIPLE
+}
+
+const loc = {
+    en: enGB,
+    fr,
+    de,
+    cy,
+    cs
 }
 
 @customElement("remote-browser-app")
@@ -231,7 +237,7 @@ export class RemoteBrowser extends BaseElement {
                                     group.analysisSync.turnOn(files[0]);
                                 }
                             }
-                        ) );
+                        ));
                     }
                 );
 
@@ -270,7 +276,7 @@ export class RemoteBrowser extends BaseElement {
         <button class="screen-main-folder" @click=${() => this.actionOpenOneFolder(folder.folder)}>
             <h1>${folder.name}</h1>
             ${folder.description !== undefined ? html`<p>${folder.description}</p>` : nothing}
-            <div>${t(T.numfiles, {num:folder.lrc_count})}</div>
+            <div>${t(T.numfiles, { num: folder.lrc_count })}</div>
         </button>
             `;
 
@@ -387,7 +393,7 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(file, (f) => TimeFormat.human(file.timestamp * 1000))}
+                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp * 1000))}
                     </div>`;
         })}
             
@@ -452,7 +458,7 @@ export class RemoteBrowser extends BaseElement {
                             </td>
                         </tr>
                         <group-provider slug="${timestamp}" class="row">
-                            ${Object.entries(flds).map(([fld, info]) => {
+                            ${Object.values(flds).map((info) => {
                 return html`<td class="cell-content">
                                     ${Object.values(info.files).map(file => this.renderFileInner(file, file => {
                     const ts = file.timestamp * 1000;
@@ -533,8 +539,8 @@ export class RemoteBrowser extends BaseElement {
 
         else if (this.state === STATE.MULTIPLE) {
 
-            let displayed: FolderInfoBase[] = [];
-            let available: FolderInfoBase[] = [];
+            const displayed: FolderInfoBase[] = [];
+            const available: FolderInfoBase[] = [];
 
             Object.values(this.folders).forEach(folder => {
                 if (this.only.includes(folder.folder)) {
@@ -592,7 +598,7 @@ export class RemoteBrowser extends BaseElement {
 
             <div class="info-sticky-content-wrapper">
 
-                ${this.enablegrouping ? this.renderInfo() : nothing }
+                ${this.enablegrouping ? this.renderInfo() : nothing}
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
@@ -908,9 +914,9 @@ thermal-dropdown.selector::part(invoker) {
 
     protected render(): unknown {
 
-        let label = this.loadingInfo === true
+        const label = this.loadingInfo === true
             ? t(T.loading) + "..."
-            : this.label 
+            : this.label
                 ? this.label.trim().length > 0 ? this.label : t(T.remotefoldersbrowser)
                 : t(T.remotefoldersbrowser);
 
@@ -935,17 +941,17 @@ thermal-dropdown.selector::part(invoker) {
                     ${t(T.close)}
                 </thermal-button>
 
-                ${ this.state === STATE.ONE && this.enablegrouping === false ?
-                    html`
+                ${this.state === STATE.ONE && this.enablegrouping === false ?
+                        html`
                 <thermal-dropdown variant="background" class="selector">
 
                     <span slot="invoker">${this.folders[this.only[0]].name}</span>
 
-                    ${Object.values( this.folders ).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
+                    ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
                     <thermal-button>${f.name}</thermal-button>
                     </div>`)}
 
-                </thermal-dropdown>` : nothing }
+                </thermal-dropdown>` : nothing}
 
                 <registry-palette-dropdown></registry-palette-dropdown>
                 <registry-range-full-button></registry-range-full-button>
@@ -980,11 +986,11 @@ thermal-dropdown.selector::part(invoker) {
                     </div>
                 </thermal-dialog>
                 ${this.state === STATE.ONE && this.dataOnly !== undefined
-                    ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
                         <group-download-dropdown></group-download-dropdown>
                     </group-provider>`
-                    : nothing
-                }
+                        : nothing
+                    }
                 <registry-opacity-slider></registry-opacity-slider>
                 `
                 : nothing

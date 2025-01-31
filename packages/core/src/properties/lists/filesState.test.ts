@@ -24,7 +24,7 @@ describe( "FilesState", () => {
         group.files.addListener( "test", console.log );
 
         registry.batch.request(
-            THERMOGRAM_PATHS.SEQUENCE,
+            THERMOGRAM_PATHS.TUCNACI,
             undefined,
             group,
             async result => {
@@ -41,7 +41,7 @@ describe( "FilesState", () => {
             }
         );
 
-        delay( 5000 );
+        await delay( 1000 );
 
         expect( group.files.value.length ).toEqual( 2 );
 

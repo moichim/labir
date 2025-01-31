@@ -57,8 +57,6 @@ export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
 
     };
 
-    const timestamp = readTimestamp(view, 5);
-
 
     // DataType byte 15
     const dataType = view.getUint8(15);

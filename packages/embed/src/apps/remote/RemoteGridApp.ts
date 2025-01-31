@@ -465,7 +465,7 @@ export class RemoteTimeGridApp extends BaseElement {
                         </tr>
 
                         <group-provider class="group-files" slug=${ifDefined( groupKey )}>
-                            ${Object.entries( record ).map( ( [folderKey, folder] ) => {
+                            ${Object.values( record ).map( ( folder ) => {
                                 return html`<td style="width: ${cellWidth};">
                                         <div class="cell-group">
 

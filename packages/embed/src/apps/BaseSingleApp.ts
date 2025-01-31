@@ -248,19 +248,5 @@ export abstract class BaseSingleApp extends BaseElement {
 
     }
 
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-
-        if ( this.fileProviderRef.value ) {
-            if ( this.fileProviderRef.value ) {
-
-            }
-        }
-
-    }
-
-
-
-
 
 }
