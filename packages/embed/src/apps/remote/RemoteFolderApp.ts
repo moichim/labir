@@ -278,11 +278,6 @@ export class RemoteFolderApp extends BaseElement {
                 [request]: url
             }
 
-            const res = {
-                "time": TimeFormat.human( this.data.time )
-            }
-
-
             return html`
                 <thermal-dialog label="Remote folder info">
 

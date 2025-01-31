@@ -5507,7 +5507,6 @@ var Instance = class _Instance extends AbstractFile {
     ];
   }
   async applyAllAvailableFilters() {
-    const filters = this.getAllApplicableFilters();
     const baseInfo2 = await this.reader.baseInfo();
     const frameData2 = await this.reader.frameData(this.timeline.currentStep.index);
     if (this.root) {
@@ -6462,7 +6461,6 @@ var baseInfo = async (entireFileBuffer) => {
     const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
     return Number(milliseconds);
   };
-  const timestamp = readTimestamp(view, 5);
   const dataType = view.getUint8(15);
   let pixelByteSize = 2;
   if (dataType === 1) pixelByteSize = 4;
@@ -6478,11 +6476,11 @@ var baseInfo = async (entireFileBuffer) => {
     const frameView = new DataView(frameArrayBuffer);
     const min = frameView.getFloat32(8, true);
     const max = frameView.getFloat32(12, true);
-    const timestamp2 = readTimestamp(frameView, 0);
+    const timestamp = readTimestamp(frameView, 0);
     const emissivity = frameView.getFloat32(24, true);
     const reflectedKelvins = frameView.getFloat32(28, true);
     return {
-      timestamp: timestamp2,
+      timestamp,
       min,
       max,
       emissivity,
@@ -7525,7 +7523,7 @@ var GroupsState = class extends AbstractProperty {
 
 // src/properties/states/HistogramState.ts
 var HistogramState = class extends AbstractProperty {
-  _resolution = 1e3;
+  _resolution = 150;
   get resolution() {
     return this._resolution;
   }
@@ -7910,53 +7908,6 @@ var AddEllipsisTool = class extends AbstractAddTool {
   };
 };
 
-// src/properties/analysis/internals/point/AddPointTool.ts
-var AddPointTool = class extends AbstractAddTool {
-  key = "add-point";
-  name = "addpointanalysis";
-  description = "clickandaddpoint";
-  icon = `<?xml version="1.0" encoding="UTF-8"?>
-<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
-</svg>`;
-  onActivate() {
-    this.manager.forEveryInstance((instance) => {
-      instance.analysis.layers.selectedOnly.forEach((analysis) => {
-        analysis.setDeselected();
-      });
-    });
-  }
-  onDeactivate() {
-  }
-  onCanvasLeave() {
-  }
-  onCanvasClick(x, y, file) {
-    const newPoint = file.analysis.layers.createPointAt(x, y);
-    newPoint.setSelected(true);
-  }
-  onPointDown() {
-  }
-  onPointUp(point) {
-    if (!point.isInSelectedLayer()) {
-      return;
-    }
-    point.deactivate();
-    point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
-    point.analysis.onMoveOrResize.call(point.analysis);
-  }
-  onPointMove() {
-  }
-  onPointLeave() {
-  }
-  onPointEnter() {
-  }
-  getLabelValue = (x, y, file) => {
-    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
-    return `X:${x}<br />Y:${y}<br />${temperature}`;
-  };
-};
-
 // src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
 var AddRectangleTool = class extends AbstractAddTool {
   key = "add-rect";
@@ -8005,6 +7956,53 @@ var AddRectangleTool = class extends AbstractAddTool {
       point.setYFromTool(top);
       point.analysis.onMoveOrResize.call(point.analysis);
     }
+  }
+  onPointLeave() {
+  }
+  onPointEnter() {
+  }
+  getLabelValue = (x, y, file) => {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  };
+};
+
+// src/properties/analysis/internals/point/AddPointTool.ts
+var AddPointTool = class extends AbstractAddTool {
+  key = "add-point";
+  name = "addpointanalysis";
+  description = "clickandaddpoint";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg class="thermal-tool-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path fill="currentcolor" d="M34,19h-15v15h-4v-15H0v-4h15V0h4v15h15v4ZM64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4Z"/>
+</svg>`;
+  onActivate() {
+    this.manager.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasLeave() {
+  }
+  onCanvasClick(x, y, file) {
+    const newPoint = file.analysis.layers.createPointAt(x, y);
+    newPoint.setSelected(true);
+  }
+  onPointDown() {
+  }
+  onPointUp(point) {
+    if (!point.isInSelectedLayer()) {
+      return;
+    }
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+    point.analysis.onMoveOrResize.call(point.analysis);
+  }
+  onPointMove() {
   }
   onPointLeave() {
   }

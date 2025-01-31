@@ -3,7 +3,7 @@ import { classMap } from "lit/directives/class-map.js";
 import { GroupEntry, Grouping } from "../group/utils/TimeGrouping";
 import { AbstractMultipleApp } from "./AbstractMultipleApp";
 import { HtmlResult } from "./HtmlResult";
-import { InstanceInteractionCallback, InstanceRenderer } from "./InstanceRenderer";
+import { InstanceRenderer } from "./InstanceRenderer";
 
 export class GroupRenderer {
 

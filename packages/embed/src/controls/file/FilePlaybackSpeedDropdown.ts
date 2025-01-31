@@ -1,10 +1,10 @@
-import { playbackSpeed, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
+import { playbackSpeed, PlaybackSpeeds } from "@labir/core";
+import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { ThermalDropdown } from "../../ui/Dropdown";
-import { consume } from "@lit/context";
 import { playbackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
+import { ThermalDropdown } from "../../ui/Dropdown";
 
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {

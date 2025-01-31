@@ -3,7 +3,7 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
-import { languages, languagesObject, T } from "../translations/Languages";
+import { languagesObject, T } from "../translations/Languages";
 
 
 @customElement("thermal-app")

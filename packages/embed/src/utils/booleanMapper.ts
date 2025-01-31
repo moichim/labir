@@ -3,8 +3,7 @@ export const booleanConverter = (
 ) => {
 
     const fromAttribute = (
-        value: string|null,
-        type: unknown
+        value: string|null
     ) => {
 
         if ( 
@@ -20,8 +19,7 @@ export const booleanConverter = (
     }
 
     const toAttribute = (
-        value: boolean,
-        type: unknown
+        value: boolean
     ) => {
         if ( value === true ) {
             return "true";

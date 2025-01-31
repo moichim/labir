@@ -36,5 +36,5 @@ i18next
         },
     }
 );
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).i18next = i18next;

@@ -1,12 +1,11 @@
-import { ThermalGroup } from "../../hierarchy/ThermalGroup";
+import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { AddEllipsisTool } from "../analysis/internals/area/ellipsis/AddEllipsisTool";
-import { AddPointTool } from "../analysis/internals/point/AddPointTool";
 import { AddRectangleTool } from "../analysis/internals/area/rectangle/AddRectangleTool";
+import { AddPointTool } from "../analysis/internals/point/AddPointTool";
 import { AbstractTool, ITool } from "./internals/AbstractTool";
 import { EditTool } from "./internals/EditTool";
 import { InspectTool } from "./internals/InspectTool";
-import { ThermalManager } from "../../hierarchy/ThermalManager";
 
 export interface IWithTool extends IBaseProperty {
     tool: ToolDrive
