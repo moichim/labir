@@ -5,6 +5,8 @@ import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { playbackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
 import { ThermalDropdown } from "../../ui/Dropdown";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
@@ -76,7 +78,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
                 ${this.playbackSpeed}x
                 </div>
 
-                <div slot="option">Adjust playback speed</div>
+                <div slot="option" style="font-size: calc( var(--thermal-fs-sm) * .9);">${t(T.playbackspeed)}</div>
 
                     ${Object.entries( playbackSpeed ).map( ([key]) => {
                         return html`<thermal-button slot="option" @click="${(event: MouseEvent) => {

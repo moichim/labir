@@ -2,7 +2,7 @@ import { Translation } from "../Languages";
 
 export const fr: Translation = {
 
-    loading: "Loading",
+    loading: "Chargement",
 
     next: "Avancer",
     prev: "Rétourner",
@@ -33,17 +33,17 @@ export const fr: Translation = {
     thermalfilename: "Nom du fichier IR",
     thermalfileurl: "URL du fichier IR",
     thermalfiledownload: "Télécharger le fichier IR",
-    visiblefilename: "Nom de l'image visible",
-    visiblefileurl: "URL de l'image visible",
-    visiblefiledownload: "Télécharger l'image visible",
+    visiblefilename: "Nom de l'image visuel",
+    visiblefileurl: "URL de l'image visuel",
+    visiblefiledownload: "Télécharger l'image visuel",
 
     time: "Temps",
-    duration: "Duration",
+    duration: "Durée",
     resolution: "Résolution",
     minimaltemperature: "Température minimale",
     maximaltemperature: "Température maximale",
-    filetype: "Type du fichier",
-    type: "Type",
+    filetype: "Genre du fichier",
+    type: "Genre",
     supporteddevices: "Appareils compatibles",
     bytesize: "Taille en octets",
 
@@ -73,8 +73,8 @@ export const fr: Translation = {
     showingfolders: "Affichage des dossiers",
     and: "et",
     or: "ou",
-    doyouwanttoadd: "Voulez-vous également afficher",
-    youmayalsoadd: "Vous pouvez également afficher",
+    doyouwanttoadd: "Voulez-vous afficher aussi",
+    youmayalsoadd: "Vous pouvez afficher aussi",
 
     bydays: "par jour",
     byhours: "par heure",
@@ -82,15 +82,15 @@ export const fr: Translation = {
     bymonths: "par mois",
     byyears: "par année",
 
-    play: "Play",
+    play: "Lecture",
     pause: "Pause",
-    stop: "Stop",
+    stop: "Arrêter",
     date: "Date",
-    frame: "Cadre",
+    frame: "Image",
     playbackspeed: "Vitesse de lecture",
     graphlines: "Lignes graphiques",
     straightlines: "Lignes droites",
-    smoothlines: "Lignes douces",
+    smoothlines: "Lignes lisses",
     graphlineshint: "Les « lignes lisses » peuvent mieux illustrer les tendances, mais sont moins précises. Si vous avez besoin de voir exactement ce qui se trouve sur le thermogramme, utilisez « Lignes droites ».",
 
 
@@ -116,14 +116,14 @@ export const fr: Translation = {
     point: "point",
     name: "Nom",
     color: "Couleur",
-    top: "Côté supérieur",
+    top: "Côté supérieure",
     left: "Côté gauche",
     right: "Côté droite",
-    bottom: "Côté inférieur",
+    bottom: "Côté inférieure",
     columns: "{{num}} images par ligne",
 
     fromto: "De {{from}} à {{to}}",
-    downloadgraphdataascsv: "Télécharger les données graphiques au format csv",
+    downloadgraphdataascsv: "Télécharger les données graphiques au format CSV",
 
     apparenttemperature: "Température ressentie",
     apparenttemperaturehint: "Ce convertisseur utilise le modèle de température ressentie <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",

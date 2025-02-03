@@ -34,9 +34,9 @@ export const en: Translation = {
     thermalfilename: "IR file name",
     thermalfileurl: "IR file URL",
     thermalfiledownload: "Download the IR file",
-    visiblefilename: "Visible file name",
-    visiblefileurl: "Visible file URL",
-    visiblefiledownload: "Visible file download",
+    visiblefilename: "Visual file name",
+    visiblefileurl: "Visual file URL",
+    visiblefiledownload: "Visual file download",
 
     time: "Time",
     duration: "Duration",
