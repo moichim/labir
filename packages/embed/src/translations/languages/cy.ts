@@ -2,7 +2,7 @@ import { Translation } from "../Languages";
 
 export const cy: Translation = {
 
-    loading: "Loading",
+    loading: "Llwytho",
 
     next: "Nesaf",
     prev: "Blaenorol",
@@ -19,7 +19,7 @@ export const cy: Translation = {
     filerendering: "Rendro ffeil",
     pixelated: "Picselaidd",
     smooth: "Llyfn",
-    filerenderinghint: "Mae modd 'Picselaidd' yn analluogi gwrth-alwio'r llun isgoch ac yn eich galluogi i weld ei bicseli fel ag y maent.",
+    filerenderinghint: "Mae modd 'Picselaidd' yn analluogi gwrth-alwio'r delwedd isgoch ac yn eich galluogi i weld ei bicseli fel ag y maent.",
     adjusttimescale: "Graddfa tymheredd",
     automaticrange: "Ystod awtomatig",
     fullrange: "Ystod llawn",
@@ -68,19 +68,19 @@ export const cy: Translation = {
     donotgroup: "Peidiwch â grwpio",
     groupby: "grwpio {{era}}",
 
-    groupped: "grwpio",
+    groupped: "wedi'u cetegoreiddio",
     showingfolder: "Yn dangos y ffolder",
     showingfolders: "Yn dangos y ffolderi",
     and: "a",
     or: "neu",
-    doyouwanttoadd: "Ydych chi eisiau dangos hefyd",
+    doyouwanttoadd: "Ydych chi eisiau arddangos hefyd",
     youmayalsoadd: "Gallwch hefyd ddangos",
 
-    bydays: "fesul dydd",
-    byhours: "fesul awr",
-    byweeks: "fesul wythnos",
-    bymonths: "fesul mis",
-    byyears: "fesul blwyddyn",
+    bydays: "yn ôl dydd",
+    byhours: "yn ôl awr",
+    byweeks: "yn ôl wythnos",
+    bymonths: "yn ôl mis",
+    byyears: "yn ôl blwyddyn",
 
     play: "Chwarae",
     pause: "Oedwch",
@@ -145,13 +145,13 @@ export const cy: Translation = {
     dragcornersofselectedanalysis: "Llusgwch gorneli'r dadansoddiad a ddewiswyd.",
 
     addpointanalysis: "Adio dadansoddiad pwynt",
-    clickandaddpoint: "Cliciwch ar y llun isgoch i ychwanegu dadansoddiad pwynt.",
+    clickandaddpoint: "Cliciwch ar y delwedd isgoch i ychwanegu dadansoddiad pwynt.",
 
     addrectangleanalysis: "Adio dadansoddiad petryal",
-    clickandaddrectangle: "Cliciwch a dragiwuch ar y llun isgoch i ychwanegu dadansoddiad petryal.",
+    clickandaddrectangle: "Cliciwch a dragiwuch ar y delwedd isgoch i ychwanegu dadansoddiad petryal.",
 
     addellipsisanalysis: "Adio dadansoddiad eliptig",
-    clickandaddellipsis: "Cliciwch a dragiwuch ar y llun isgoch i ychwanegu dadansoddiad eliptig.",
+    clickandaddellipsis: "Cliciwch a dragiwuch ar y delwedd isgoch i ychwanegu dadansoddiad eliptig.",
 
 
     tutorial: "Tiwtorial",

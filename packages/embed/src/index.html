@@ -39,7 +39,7 @@
 
   <apparent-temperature-aat vunits="kph" t="10" v="1" ha="72"></apparent-temperature-aat>
 
-
+<!--
   <thermal-group-app slug="Různé materiály 2" author="Jan Jáchim" label="Různé materiály" author="Jan Jáchim"
     description="Měření desky v exteriéru (9.23 °C) po přechodu z interiéru (26 °C)." license="CC-BY-SA" columns="3"
     palette="iron" from="20.45" to="29" showhistogram="false" interactiveanalysis="true" preservetime="false">
@@ -47,13 +47,15 @@
     <time-entry slot="entry" thermal="/materialy/materialy_plechy_RAW__FIX.lrc"></time-entry>
   </thermal-group-app>
 
+-->
 
-  <thermal-desktop-app url="/sequence.lrc" visible="/kitten.jpg" opacity="0.5" author="Já" license="CC BY-SA 4.0"
+
+  <thermal-file-analyser url="/sequence.lrc" visible="/kitten.jpg" opacity="0.5" author="Já" license="CC BY-SA 4.0"
     label=" " from="20" to="50" speed="10" palette="iron"
     analysis1="Bod A; ellipsis; color:yellow; top:10;left:20;width:30;height:40;max"
     analysis7="První jméno obdélníku; rectangle; color:lightblue; top:0;left:0;width:100;height:100;max;avg">
     <div slot="content">Jsem obsah aplikace</div>
-  </thermal-desktop-app>
+  </thermal-file-analyser>
 
 
   <div>
