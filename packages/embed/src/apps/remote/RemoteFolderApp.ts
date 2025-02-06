@@ -10,7 +10,7 @@ import { T } from "../../translations/Languages";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 @customElement("remote-folder-app")
 export class RemoteFolderApp extends BaseElement {

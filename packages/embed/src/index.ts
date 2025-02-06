@@ -13,6 +13,16 @@ import "./translations/i18n";
  * 
  */
 
+
+// Initialise dark mode
+import { initialiseMode } from "./styles/mode";
+initialiseMode();
+
+// Append default styles
+import { addInlineStyles, appendStyles } from "./styles/defaultStyles";
+
+// addInlineStyles();
+
 appendStyles();
 
 
@@ -132,14 +142,13 @@ import "./apps/remote/RemoteBrowser";
 import "./apps/remote/RemoteGridApp";
 
 
+// Notation
+import "./controls/file/notation/NotationEntry";
+import "./controls/file/notation/NotationContainer";
+import "./controls/file/notation/NotationTest";
 
 
 
-// Initialise dark mode
-import { initialiseMode } from "./styles/mode";
-initialiseMode();
 
-// Append default styles
-import { addDefaultStyles, appendStyles } from "./styles/defaultStyles";
 
-addDefaultStyles();
+

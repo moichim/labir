@@ -2,7 +2,7 @@ import { provide } from "@lit/context";
 import { css } from "lit";
 import { property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { GroupRenderer } from "./GroupRenderer";
 import { InstanceRenderer } from "./InstanceRenderer";

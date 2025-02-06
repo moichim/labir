@@ -8,7 +8,7 @@ import { T } from "../../translations/Languages";
 import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {

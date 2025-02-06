@@ -5,7 +5,7 @@ import { createRef, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { FileProviderElement } from "../hierarchy/providers/FileProvider";
 
-import {booleanConverter} from "../utils/booleanMapper";
+import {booleanConverter} from "../utils/booleanConverter";
 import { provide } from "@lit/context";
 import { interactiveAnalysisContext } from "../utils/context";
 

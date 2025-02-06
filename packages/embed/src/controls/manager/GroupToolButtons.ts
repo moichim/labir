@@ -9,7 +9,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 
 

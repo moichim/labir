@@ -285,7 +285,7 @@ class Controller
     }
 
 
-    function readTimestamp(string $filePath, int $index) {
+    protected function readTimestamp(string $filePath, int $index) {
         $file = fopen($filePath, 'rb');
         if (!$file) {
             return null;
@@ -331,6 +331,24 @@ class Controller
 
         return $milliseconds;
     }
+
+
+    protected function groupBy(
+        $get_group_timestamp,
+        bool $grid = false
+    ) {
+
+        $groups = [];
+
+        foreach ( $this->includedFolders as $folder => $info ) {
+
+
+
+        }
+
+    }
+
+
 }
 
 $controller = new Controller();
