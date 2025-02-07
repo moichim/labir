@@ -31,7 +31,7 @@ pnpm install
 
 ### Development
 
-Every `/package/*` has its own tests and devservers.
+Every `/package/*` has its own tests, build commands and devservers.
 
 ### Release
 
