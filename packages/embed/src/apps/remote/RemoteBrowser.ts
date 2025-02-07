@@ -1,7 +1,7 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase } from "@labir/api";
+import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase, QueryBuilder } from "@labir/api";
 import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
@@ -130,21 +130,80 @@ export class RemoteBrowser extends BaseElement {
         subfolder?: string
     ) {
 
+
         this.loadingInfo = true;
 
-        const target = subfolder !== undefined
-            ? `${url}?scope=${subfolder}`
-            : url;
+        try {
 
-
-        const response = await fetch(target);
-
-        if (response.ok) {
-            const json = await response.json() as ApiInfoResponse;
+            const query = new QueryBuilder( url, subfolder );
+            const json = await query.info();
             this.info = json;
             this.folders = json.folders;
             this.loadingInfo = false;
+
+        } catch ( err ) {
+            this.error = "There was an error loading info"
         }
+
+    }
+
+    protected async loadDataOne(
+        folder: string,
+        url: string,
+        subfolder?: string
+    ) {
+
+        this.loadingData = false;
+        this.dataOnly = undefined;
+        this.dataMultiple = undefined;
+
+        const query = new QueryBuilder( url, subfolder );
+        const data = await query.folder( folder );
+        this.log( "folder", folder, data );
+
+        this.dataOnly = data;
+        this.loadingData = false;
+
+        // Turn on the synchronisation of analyses
+        if ( this.registryRef.value ) {
+            this.registryRef.value.registry.groups.addListener(
+                this.UUID,
+                groups => {
+                    groups.forEach(group => group.files.addListener(
+                        this.UUID,
+                        files => {
+                            if (files[0]) {
+                                group.analysisSync.turnOn(files[0]);
+                            }
+                        }
+                    ));
+                }
+            );
+        }
+
+    }
+
+    protected async loadDataMultiple(
+        only: string[],
+        grouping: ApiTimeGrouping,
+        url: string,
+        subfolder?: string
+    ) {
+
+        this.loadingData = true;
+        this.dataOnly = undefined;
+        this.dataMultiple = undefined;
+
+        const query = new QueryBuilder( url, subfolder );
+        query.setOnly( only.join(",") );
+
+        const data = await query.grid( grouping );
+
+        this.dataMultiple = data;
+        this.loadingData = false;
+
+        // Turn off synchronisation of analyses
+        this.registryRef.value?.registry.groups.removeListener(this.UUID);
 
     }
 
@@ -156,106 +215,15 @@ export class RemoteBrowser extends BaseElement {
         subfolder?: string
     ) {
 
-        this.dataOnly = undefined;
-        this.dataMultiple = undefined;
+        if ( only.length > 1 ) {
 
-        if (only.length === 0) {
-            return;
-        }
+            this.loadDataMultiple( only, grouping, url, subfolder );
 
-        this.loadingData = true;
+        } else if ( only.length === 1 ) {
 
-        const params: string[] = [];
-
-        if (subfolder) {
-            params.push(`scope=${subfolder}`);
-        }
-
-        const onlyOne = only.length === 1;
-
-        if (onlyOne) {
-            params.push(only[0]);
-        } else {
-            params.push(grouping);
-            params.push(
-                `only=${only.join(",")}`
-            );
-            params.push("grid");
+            this.loadDataOne( only[0], url, subfolder );
 
         }
-
-        const target = url + "?" + params.join("&");
-
-        const loadData = async <T extends ApiFolderContentResponse | ApiTimeGroupResponse>(route: string) => {
-
-            const response = await fetch(route);
-
-            if (response.ok) {
-                const json = await response.json() as T;
-
-                if ("data" in json) {
-                    const sortedData = Object.entries(json.data).map(([time, folders]) => {
-
-                        const f = Object.entries(folders);
-
-                        f.sort((a, b) => {
-                            return a[0] < b[0] ? -1 : 1;
-                        });
-
-                        const content = Object.fromEntries(f);
-
-                        return [time, content];
-
-                    });
-                    json.data = Object.fromEntries(sortedData);
-                }
-
-
-
-                return json;
-            }
-
-            return false;
-
-        }
-
-        const response = onlyOne
-            ? await loadData<ApiFolderContentResponse>(target)
-            : await loadData<ApiTimeGroupResponse>(target);
-
-        if (this.registryRef.value) {
-            if (this.state === STATE.ONE) {
-
-
-                this.registryRef.value.registry.groups.addListener(
-                    this.UUID,
-                    groups => {
-                        groups.forEach(group => group.files.addListener(
-                            this.UUID,
-                            files => {
-                                if (files[0]) {
-                                    group.analysisSync.turnOn(files[0]);
-                                }
-                            }
-                        ));
-                    }
-                );
-
-            }
-            else {
-                this.registryRef.value.registry.groups.removeListener(this.UUID);
-            }
-        }
-
-        if (response === false) {
-            this.error = "There was an error loading data";
-        } else if ("files" in response) {
-            this.dataOnly = response;
-        } else if ("folders" in response) {
-            this.dataMultiple = response;
-        }
-
-        this.loadingData = false;
 
     }
 
