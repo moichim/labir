@@ -137,6 +137,7 @@ export class RemoteBrowser extends BaseElement {
 
             const query = new QueryBuilder( url, subfolder );
             const json = await query.info();
+            this.log("json>>>",json);
             this.info = json;
             this.folders = json.folders;
             this.loadingInfo = false;
@@ -196,8 +197,11 @@ export class RemoteBrowser extends BaseElement {
 
         const query = new QueryBuilder( url, subfolder );
         query.setOnly( only.join(",") );
+        query.setGrid(true);
 
         const data = await query.grid( grouping );
+
+        this.log(data);
 
         this.dataMultiple = data;
         this.loadingData = false;
@@ -361,7 +365,7 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp * 1000))}
+                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp ))}
                     </div>`;
         })}
             
@@ -398,7 +402,7 @@ export class RemoteBrowser extends BaseElement {
                 ${Object.entries(folders).map(([timestamp, flds]) => {
 
             let title: string | undefined = undefined;
-            const groupTimestamp = parseInt(timestamp) * 1000;
+            const groupTimestamp = parseInt(timestamp);
 
             if (this.by === ApiTimeGrouping.HOURS) {
                 title = format(groupTimestamp, "d. M. yyyy - HH") + ":00";
@@ -429,7 +433,7 @@ export class RemoteBrowser extends BaseElement {
                             ${Object.values(flds).map((info) => {
                 return html`<td class="cell-content">
                                     ${Object.values(info.files).map(file => this.renderFileInner(file, file => {
-                    const ts = file.timestamp * 1000;
+                    const ts = file.timestamp;
                     if (this.by === ApiTimeGrouping.HOURS) {
                         return format(ts, "HH:ii");
                     } else if (this.by === ApiTimeGrouping.DAYS) {

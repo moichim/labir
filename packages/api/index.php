@@ -1,7 +1,8 @@
 <?php
 
+
 header('Content-Type: application/json');
-// header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: *');
 // header('Access-Control-Allow-Methods GET');
 // header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
 
@@ -39,25 +40,25 @@ abstract class AbstractController
 
 
     /** The base public URL */
-    protected string $api_endpoint;
+    protected $api_endpoint;
 
     /** The base public URL with optional subfolder */
-    protected string $content_url;
+    protected $content_url;
 
     /** The base URI path */
-    protected string $content_path;
+    protected $content_path;
 
     /** The response object */
-    protected array $response;
+    protected $response;
 
     /** Subfolder */
-    protected ?string $subfolder = null;
+    protected $subfolder = null;
 
-    protected array $availableFolders = [];
+    protected $availableFolders = [];
 
-    protected array $includedFolders = [];
+    protected $includedFolders = [];
 
-    protected bool $grid = false;
+    protected $grid = false;
 
 
     protected function doInfo()
@@ -66,7 +67,7 @@ abstract class AbstractController
         $this->response["folders"] = $this->includedFolders;
     }
 
-    protected function doFolder(string $folder)
+    protected function doFolder($folder)
     {
 
         $this->markResponse("folderContent", true);
@@ -148,8 +149,8 @@ abstract class AbstractController
     }
 
     protected function markResponse(
-        string $type,
-        bool $success = true
+        $type,
+        $success = true
     ) {
         $this->response["success"] = $success;
         $this->response["type"] = $type;
@@ -157,12 +158,12 @@ abstract class AbstractController
 
 
 
-    protected function urlParamExists(string $param): bool
+    protected function urlParamExists($param): bool
     {
         return isset($_GET[$param]);
     }
 
-    protected function getParamValue(string $param)
+    protected function getParamValue($param)
     {
         if ($this->urlParamExists($param)) {
             return $this->sanitize($_GET[$param]);
@@ -171,7 +172,7 @@ abstract class AbstractController
     }
 
     /** Make sure the input is safe */
-    protected function sanitize(string $input): string
+    protected function sanitize($input): string
     {
         return preg_replace('/[^a-zA-Z0-9_\- ,]/', '', $input);
     }
@@ -221,7 +222,7 @@ abstract class AbstractController
         return $folders;
     }
 
-    protected function scanFolderInfo(string $folder_name)
+    protected function scanFolderInfo($folder_name)
     {
 
         $folder_path = $this->content_path . "/" . $folder_name;
@@ -247,7 +248,7 @@ abstract class AbstractController
         return $info;
     }
 
-    protected function scanFolderFiles(string $folder_name)
+    protected function scanFolderFiles($folder_name)
     {
 
         $folder_path = $this->content_path . "/" . $folder_name;
@@ -260,6 +261,8 @@ abstract class AbstractController
             $files[] = $this->scanOneFile($folder_name, $file);
         }
 
+        // $this->response["Scanned " . $folder_name] = $files;
+
         usort($files, function ($a, $b) {
             return $a["timestamp"] - $b["timestamp"];
         });
@@ -267,7 +270,7 @@ abstract class AbstractController
         return $files;
     }
 
-    protected function scanOneFile(string $folder, string $path)
+    protected function scanOneFile($folder, $path)
     {
 
         $file_name = basename($path);
@@ -292,18 +295,18 @@ abstract class AbstractController
         return $result;
     }
 
-    protected function getFolderFilePath(string $folder_name, string $file_name)
+    protected function getFolderFilePath($folder_name, $file_name)
     {
         return $this->content_path . "/" . $folder_name . "/" . $file_name;
     }
 
-    protected function getFolderFileUrl(string $folder_name, string $file_name)
+    protected function getFolderFileUrl($folder_name, $file_name)
     {
         return $this->content_url . "" . $folder_name . "/" . $file_name;
     }
 
 
-    protected function readTimestamp(string $filePath, int $index)
+    protected function readTimestamp($filePath, $index)
     {
         $file = fopen($filePath, 'rb');
         if (!$file) {
@@ -360,23 +363,33 @@ abstract class AbstractController
 
         foreach ($this->includedFolders as $folder => $info) {
 
+            // $this->response["Scanning-" . $folder] = $info;
             $lrc_files = $this->scanFolderFiles( $folder );
 
             foreach ( $lrc_files as $file ) {
 
                 $group_start = call_user_func( $get_group_timestamp, $file["timestamp"] );
 
-                if ( !isset( $groups[$group_start] ) ) {
+                if ( $groups[$group_start] === null ) {
                     $groups[$group_start] = [];
                 }
 
-                if (!isset( $groups[$group_start][$folder] )) {
+                if ( $groups[$group_start][$folder] === null ) {
+
                     $groups[$group_start][$folder] = [
                         "name" => $info["name"],
                         "count" => 0,
+                        "folder" => $info["folder"],
                         "files" => []
                     ];
+
                 }
+
+                if ( !isset( $groups[$group_start][$folder]["files"] ) ) {
+                    $groups[$group_start][$folder]["files"] = [];
+                }
+
+                // $this->response[ $folder . " - " . $file["timestamp"] ] = $groups[$group_start][$folder];
 
                 $groups[$group_start][$folder]["files"][$file["timestamp"]] = $file;
 
@@ -479,6 +492,6 @@ class Controller extends AbstractController
 }
 
 
-$controller = new Controller();
+    $controller = new Controller();
 
-return $controller->respond();
+    return $controller->respond();

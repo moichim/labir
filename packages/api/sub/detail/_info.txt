@@ -1,0 +1,2 @@
+name: Detail na strom
+description: Popiska první složky
