@@ -2,7 +2,7 @@
 
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Origin: *');
 // header('Access-Control-Allow-Methods GET');
 // header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
 
@@ -61,6 +61,38 @@ abstract class AbstractController
     protected $grid = false;
 
 
+
+
+    function groupByHour($timestamp)
+    {
+        return strtotime("midnight", $timestamp) + (date("H", $timestamp) * 3600);
+    }
+
+    function groupByDay($timestamp)
+    {
+        return strtotime("midnight", $timestamp);
+    }
+
+    function groupByWeek($timestamp)
+    {
+        $dayOfWeek = date("N", $timestamp);
+
+        return strtotime("midnight", $timestamp) - (($dayOfWeek - 1) * 86400);
+    }
+
+    function groupByMonth($timestamp)
+    {
+        return strtotime(date("Y-m-01", $timestamp));
+    }
+
+    function groupByYear($timestamp)
+    {
+        return strtotime(date("Y-01-01", $timestamp));
+    }
+
+
+
+
     protected function doInfo()
     {
         $this->markResponse("info", true);
@@ -96,31 +128,35 @@ abstract class AbstractController
     }
 
 
-    protected function doHours() {
+    protected function doHours()
+    {
 
-        $this->markResponse( "hours", true );
-        $this->response["data"] = $this->groupBy( "groupByHour" );
-
+        $this->markResponse("hours", true);
+        $this->response["data"] = $this->groupBy("AbstractController::groupByHour");
     }
 
-    protected function doDays() {
-        $this->markResponse( "days", true );
-        $this->response["data"] = $this->groupBy( "groupByDay" );
+    protected function doDays()
+    {
+        $this->markResponse("days", true);
+        $this->response["data"] = $this->groupBy("AbstractController::groupByDay");
     }
 
-    protected function doWeeks() {
-        $this->markResponse( "weeks", true );
-        $this->response["data"] = $this->groupBy( "groupByWeek" );
+    protected function doWeeks()
+    {
+        $this->markResponse("weeks", true);
+        $this->response["data"] = $this->groupBy("AbstractController::groupByWeek");
     }
 
-    protected function doMonths() {
-        $this->markResponse( "months", true );
-        $this->response["data"] = $this->groupBy( "groupByMonth" );
+    protected function doMonths()
+    {
+        $this->markResponse("months", true);
+        $this->response["data"] = $this->groupBy("AbstractController::groupByMonth");
     }
 
-    protected function doYears() {
-        $this->markResponse( "years", true );
-        $this->response["data"] = $this->groupBy( "groupByDay" );
+    protected function doYears()
+    {
+        $this->markResponse("years", true);
+        $this->response["data"] = $this->groupBy("AbstractController::groupByYear");
     }
 
 
@@ -276,8 +312,11 @@ abstract class AbstractController
         $file_name = basename($path);
         $lrc = $this->getFolderFileUrl($folder, $file_name);
 
+        $timestamp = $this->readTimestamp($path, 5);
+
         $result = [
-            "timestamp" => $this->readTimestamp($path, 5),
+            "timestampTmp" => round( $timestamp / 1000 ),
+            "timestamp" => $timestamp,
             "file_name" => $file_name,
             "lrc" => $lrc
         ];
@@ -363,50 +402,49 @@ abstract class AbstractController
 
         foreach ($this->includedFolders as $folder => $info) {
 
-            // $this->response["Scanning-" . $folder] = $info;
-            $lrc_files = $this->scanFolderFiles( $folder );
+            $lrc_files = $this->scanFolderFiles($folder);
 
-            foreach ( $lrc_files as $file ) {
+            foreach ($lrc_files as $file) {
 
-                $group_start = call_user_func( $get_group_timestamp, $file["timestamp"] );
+                $group_start = call_user_func($get_group_timestamp, $file["timestampTmp"]);
+                $group_start_key = strval($group_start);
 
-                if ( $groups[$group_start] === null ) {
-                    $groups[$group_start] = [];
+                if ( !array_key_exists($group_start_key, $groups) ) {
+                    $groups[$group_start_key] = [];
                 }
 
-                if ( $groups[$group_start][$folder] === null ) {
+                if ( !array_key_exists($folder, $groups[$group_start_key]) ) {
 
-                    $groups[$group_start][$folder] = [
+                    $groups[$group_start_key][$folder] = [
                         "name" => $info["name"],
                         "count" => 0,
                         "folder" => $info["folder"],
                         "files" => []
                     ];
-
                 }
 
-                if ( !isset( $groups[$group_start][$folder]["files"] ) ) {
-                    $groups[$group_start][$folder]["files"] = [];
+                if ( !array_key_exists("files", $groups[$group_start_key][$folder]) ) {
+                    $groups[$group_start_key][$folder]["files"] = [];
                 }
 
-                // $this->response[ $folder . " - " . $file["timestamp"] ] = $groups[$group_start][$folder];
+                $groups[$group_start_key][$folder]["files"][$file["timestamp"]] = $file;
 
-                $groups[$group_start][$folder]["files"][$file["timestamp"]] = $file;
-
-                $groups[$group_start][$folder]["count"] += 1;
+                $groups[$group_start_key][$folder]["count"] += 1;
 
             }
-
         }
 
 
-        if ( $this->grid === true ) {
+        if ($this->grid === true) {
 
             foreach ($groups as $time => $group) {
 
                 foreach ($this->includedFolders as $f => $info) {
-    
+
                     if (!array_key_exists($f, $group)) {
+
+                        $this->response[] = "Nebyla nalezena skupina $time $f";
+
                         $groups[$time][$f] = [
                             "name" => $info["name"],
                             "folder" => $f,
@@ -416,14 +454,10 @@ abstract class AbstractController
                     }
                 }
             }
-
         }
 
         return $groups;
-
-
     }
-
 }
 
 
@@ -492,6 +526,6 @@ class Controller extends AbstractController
 }
 
 
-    $controller = new Controller();
+$controller = new Controller();
 
-    return $controller->respond();
+return $controller->respond();

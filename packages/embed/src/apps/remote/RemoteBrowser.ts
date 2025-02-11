@@ -5,7 +5,7 @@ import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGrou
 import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
-import { cy, cs, de, fr, enGB} from "date-fns/locale";
+import { cy, cs, de, fr, enGB } from "date-fns/locale";
 import { t } from "i18next";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -95,6 +95,37 @@ export class RemoteBrowser extends BaseElement {
     protected interactiveAnalysis: boolean = true;
 
 
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+
+        const element = this;
+
+        if (element) {
+            const updatePosition = () => {
+                const rect = element.getBoundingClientRect();
+                console.log(`X: ${rect.left}, Y: ${rect.top}`);
+
+
+                if (rect.top < -50) {
+                    this.classList.add("is-pinned");
+                } else {
+                    this.classList.remove("is-pinned");
+                }
+
+            };
+
+
+            window.addEventListener("scroll", updatePosition);
+            window.addEventListener("resize", updatePosition); // Pro zachycení změn velikosti okna
+        }
+
+    }
+
+
+
+
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
@@ -115,6 +146,14 @@ export class RemoteBrowser extends BaseElement {
     }
 
 
+    protected scrollToComponent() {
+        const element = this;
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+
     protected getApiUrl(
         url: string,
         subfolder?: string
@@ -132,17 +171,18 @@ export class RemoteBrowser extends BaseElement {
 
 
         this.loadingInfo = true;
+        // this.scrollToComponent();
 
         try {
 
-            const query = new QueryBuilder( url, subfolder );
+            const query = new QueryBuilder(url, subfolder);
             const json = await query.info();
-            this.log("json>>>",json);
+            this.log("json>>>", json);
             this.info = json;
             this.folders = json.folders;
             this.loadingInfo = false;
 
-        } catch ( err ) {
+        } catch (err) {
             this.error = "There was an error loading info"
         }
 
@@ -158,15 +198,19 @@ export class RemoteBrowser extends BaseElement {
         this.dataOnly = undefined;
         this.dataMultiple = undefined;
 
-        const query = new QueryBuilder( url, subfolder );
-        const data = await query.folder( folder );
-        this.log( "folder", folder, data );
+        this.scrollToComponent();
+
+        const query = new QueryBuilder(url, subfolder);
+        const data = await query.folder(folder);
+        this.log("folder", folder, data);
+
+        this.scrollToComponent();
 
         this.dataOnly = data;
         this.loadingData = false;
 
         // Turn on the synchronisation of analyses
-        if ( this.registryRef.value ) {
+        if (this.registryRef.value) {
             this.registryRef.value.registry.groups.addListener(
                 this.UUID,
                 groups => {
@@ -195,13 +239,15 @@ export class RemoteBrowser extends BaseElement {
         this.dataOnly = undefined;
         this.dataMultiple = undefined;
 
-        const query = new QueryBuilder( url, subfolder );
-        query.setOnly( only.join(",") );
+        this.scrollToComponent();
+
+        const query = new QueryBuilder(url, subfolder);
+        query.setOnly(only.join(","));
         query.setGrid(true);
 
-        const data = await query.grid( grouping );
+        const data = await query.grid(grouping);
 
-        this.log(data);
+        this.scrollToComponent();
 
         this.dataMultiple = data;
         this.loadingData = false;
@@ -219,13 +265,13 @@ export class RemoteBrowser extends BaseElement {
         subfolder?: string
     ) {
 
-        if ( only.length > 1 ) {
+        if (only.length > 1) {
 
-            this.loadDataMultiple( only, grouping, url, subfolder );
+            this.loadDataMultiple(only, grouping, url, subfolder);
 
-        } else if ( only.length === 1 ) {
+        } else if (only.length === 1) {
 
-            this.loadDataOne( only[0], url, subfolder );
+            this.loadDataOne(only[0], url, subfolder);
 
         }
 
@@ -337,6 +383,9 @@ export class RemoteBrowser extends BaseElement {
                 <span>${labelFormatter(file)}</span>
             </h2>
             <div>
+                <file-info-button>
+                    <file-button slot="invoker" label=${t(T.info)}></file-button>
+                </file-info-button>
                 <file-download-lrc></file-download-lrc>
                 <file-download-png></file-download-png>
                 <file-range-propagator></file-range-propagator>
@@ -365,7 +414,7 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp ))}
+                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp))}
                     </div>`;
         })}
             
@@ -405,15 +454,15 @@ export class RemoteBrowser extends BaseElement {
             const groupTimestamp = parseInt(timestamp);
 
             if (this.by === ApiTimeGrouping.HOURS) {
-                title = format(groupTimestamp, "d. M. yyyy - HH") + ":00";
+                title = format(groupTimestamp * 1000, "d. M. yyyy - HH") + ":00";
             } else if (this.by === ApiTimeGrouping.DAYS) {
-                title = format(groupTimestamp, "d. M. yyyy");
+                title = format(groupTimestamp * 1000, "d. M. yyyy");
             } else if (this.by === ApiTimeGrouping.WEEKS) {
-                title = format(groupTimestamp, "wo");
+                title = format(groupTimestamp * 1000, "wo");
             } else if (this.by === ApiTimeGrouping.MONTHS) {
-                title = format(groupTimestamp, "LLLL yyyy", { locale: loc[this.locale! as keyof typeof loc] })
+                title = format(groupTimestamp * 1000, "LLLL yyyy", { locale: loc[this.locale! as keyof typeof loc] })
             } else if (this.by === ApiTimeGrouping.YEARS) {
-                title = format(groupTimestamp, "yyyy");
+                title = format(groupTimestamp * 1000, "yyyy");
             }
 
             return html`
@@ -424,7 +473,7 @@ export class RemoteBrowser extends BaseElement {
                                     <h2>${title}</h2>
                                     <group-provider slug="${timestamp}" class="buttons">
                                         <group-range-propagator></group-range-propagator>
-                                        <group-download-dropdown></group-download-dropdown>
+                                        <group-download-dropdown class="small"></group-download-dropdown>
                                     </group-provider>
                                 </div>
                             </td>
@@ -569,6 +618,11 @@ export class RemoteBrowser extends BaseElement {
         <nav class="info-sticky-content">
 
             <div class="info-sticky-content-wrapper">
+
+                <div class="info-sticky-content-collapser">
+                    ${this.renderHeader()}
+                </div>
+
 
                 ${this.enablegrouping ? this.renderInfo() : nothing}
                 <registry-histogram expandable="true"></registry-histogram>
@@ -739,7 +793,7 @@ table.affected {
             display: flex;
             gap: var(--thermal-gap);
             h2 {
-                flex-grow: 1;
+                // flex-grow: 1;
             }
         }
     }
@@ -787,6 +841,9 @@ table.affected {
         display: flex;
         gap: 5px;
         align-items: center;
+        // background-color: blue;
+        // padding: 4px;
+
     }
 
     .info-sticky-content-wrapper {
@@ -842,6 +899,21 @@ article.file {
     padding-bottom: var(--thermal-gap);
 }
 
+.info-sticky-content-collapser {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    align-items: center;
+    overflow: hidden;
+    transition: max-height .1s ease-in-out;
+    max-height: 0px;
+}
+
+:host(.is-pinned) .info-sticky-content-collapser {
+    max-height: 300px;
+    transition: max-height .5s ease-in-out;
+}
+
 
 .info {
 
@@ -883,6 +955,84 @@ thermal-dropdown.selector::part(invoker) {
     `;
 
 
+    protected renderHeader() {
+
+        return html`
+        
+        ${this.state !== STATE.MAIN
+            ? html`<thermal-button 
+                    @click=${this.actionCloseToHomepage.bind(this)}
+                    variant="foreground"
+                >
+                ${t(T.close)}
+            </thermal-button>
+
+            ${this.state === STATE.ONE && this.enablegrouping === false ?
+                    html`
+            <thermal-dropdown variant="background" class="selector">
+
+                <span slot="invoker">${this.folders[this.only[0]].name}</span>
+
+                ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
+                <thermal-button>${f.name}</thermal-button>
+                </div>`)}
+
+            </thermal-dropdown>` : nothing}
+
+            <registry-palette-dropdown></registry-palette-dropdown>
+            <registry-range-full-button></registry-range-full-button>
+
+            <!--
+            
+            <thermal-dialog label="${t(T.info)}">
+                <thermal-button slot="invoker">${t(T.info)}</thermal-button>
+                <div slot="content">
+
+                    <ul class="tree">
+                        <li>${this.info?.url_host}</li>
+                        <ul>
+
+                            ${this.state === STATE.ONE && this.dataOnly !== undefined
+                    ? html`<li>/${this.only[0]}/
+                                    <ul>
+                                        ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
+                                    </ul>
+                                </li>`
+                    : nothing
+                }
+
+                            ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
+                    ? html`
+                                    ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
+                                `
+                    : nothing
+                }
+                            
+                        </ul>
+                    </ul>   
+                
+                </div>
+            </thermal-dialog>
+
+            -->
+
+            ${this.state === STATE.ONE && this.dataOnly !== undefined
+                    ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                    <group-download-dropdown></group-download-dropdown>
+                </group-provider>`
+                    : nothing
+                }
+            <registry-opacity-slider></registry-opacity-slider>
+            <group-tool-buttons showhint="false"></group-tool-buttons>
+            `
+            : nothing
+        }
+        
+        `;
+
+    }
+
+
 
     protected render(): unknown {
 
@@ -899,74 +1049,18 @@ thermal-dropdown.selector::part(invoker) {
 
         <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}">
 
-            <thermal-button variant="${this.state === STATE.MAIN ? "foreground" : "default"}" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
-
+        ${ this.state === STATE.MAIN ? html`
+            <thermal-button variant="foreground" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
+            `
+            : nothing
+        }
             <header class="screen-browser-header" slot="bar">
+
+
 
             <thermal-bar>
 
-                ${this.state !== STATE.MAIN
-                ? html`<thermal-button 
-                        @click=${this.actionCloseToHomepage.bind(this)}
-                        variant="foreground"
-                    >
-                    ${t(T.close)}
-                </thermal-button>
-
-                ${this.state === STATE.ONE && this.enablegrouping === false ?
-                        html`
-                <thermal-dropdown variant="background" class="selector">
-
-                    <span slot="invoker">${this.folders[this.only[0]].name}</span>
-
-                    ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                    <thermal-button>${f.name}</thermal-button>
-                    </div>`)}
-
-                </thermal-dropdown>` : nothing}
-
-                <registry-palette-dropdown></registry-palette-dropdown>
-                <registry-range-full-button></registry-range-full-button>
-                <group-tool-buttons showhint="false"></group-tool-buttons>
-                <thermal-dialog label="${t(T.info)}">
-                    <thermal-button slot="invoker">${t(T.info)}</thermal-button>
-                    <div slot="content">
-
-                        <ul class="tree">
-                            <li>${this.info?.url_host}</li>
-                            <ul>
-
-                                ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<li>/${this.only[0]}/
-                                        <ul>
-                                            ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
-                                        </ul>
-                                    </li>`
-                        : nothing
-                    }
-
-                                ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
-                        ? html`
-                                        ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
-                                    `
-                        : nothing
-                    }
-                                
-                            </ul>
-                        </ul>   
-                    
-                    </div>
-                </thermal-dialog>
-                ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
-                        <group-download-dropdown></group-download-dropdown>
-                    </group-provider>`
-                        : nothing
-                    }
-                <registry-opacity-slider></registry-opacity-slider>
-                `
-                : nothing
-            }
+                ${this.renderHeader()}
             
             </thermal-bar>
         
