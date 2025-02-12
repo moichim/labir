@@ -426,6 +426,8 @@ export class DesktopFileApp extends FileConsumer {
             <slot name="content" slot="content"></slot>
             
         </thermal-app>
+
+        <notation-content></notation-content>
     `;
   }
 

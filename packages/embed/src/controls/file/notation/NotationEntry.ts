@@ -1,5 +1,5 @@
 import { html, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { durationConverter } from "../../../utils/durationConverter";
 
@@ -15,16 +15,25 @@ export class NotationEntry extends BaseElement {
     @property({type: Number, reflect: true, converter: durationConverter})
     public duration?: number;
 
+    @property({type: String, reflect: true})
+    public label?: string;
+
     @property({type: String})
-    public url?: string;
+    public image?: string;
+
+    @property({type: String, reflect: true})
+    public say?: String;
+
+    @property({type: String, reflect: true})
+    public color?: string;
 
     @state()
     public _active: boolean = false;
 
     public get active() { return this._active; }
 
-    @property({type: String, reflect: true})
-    public say?: String;
+    @queryAssignedElements() 
+    slotContent!: Element[];
 
 
     protected willUpdate(_changedProperties: PropertyValues): void {
@@ -57,23 +66,18 @@ export class NotationEntry extends BaseElement {
     public activate() {
         if ( this._active === false ) {
             this._active = true;
-            this.log("Setting active", this);
         }
     }
 
     public deactivate() {
         if ( this._active === true ) {
             this._active = false;
-            this.log("Setting inactive", this);
         }
     }
 
     public setMs( ms: number ) {
 
-        this.log(ms, this.from, "-", this.to, "active", this.active );
-
         if ( this.from !== undefined && this.to !== undefined ) {
-            this.log("Jsem tady");
             if ( ms >= this.from && ms < this.to) {
                 this.activate();
             } else {
@@ -83,14 +87,15 @@ export class NotationEntry extends BaseElement {
 
     }
 
-    public getRenderContent() {}
+    public getRenderContent() {
+        return Array.from(this.slotContent);
+    }
 
     public getTTSString() {}
 
     protected render(): unknown {
         return html`
-            <slot></slot>
-            <div> Toto je notation entry </div>
+            <slot style="display: none;"></slot>
         `;
     }
 

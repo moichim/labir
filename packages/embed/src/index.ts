@@ -126,14 +126,10 @@ import "./apps/DropinApp";
 
 
 
-// import "./apps/registry/parts/TimeGroupFileElement";
 import "./apps/registry/parts/TimeGroupRowElement";
-
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupTimeline";
-
 import "./apps/registry/RegistryApp";
-
 import "./tour/TourStep";
 
 
@@ -144,9 +140,12 @@ import "./apps/remote/RemoteGridApp";
 
 // Notation
 import "./controls/file/notation/NotationEntry";
-import "./controls/file/notation/NotationContainer";
+import "./controls/file/notation/NotationContent";
 import "./controls/file/notation/NotationTest";
+import "./controls/file/notation/NotationTimeline";
 
+
+import "./apps/lesson/LessonApp";
 
 
 

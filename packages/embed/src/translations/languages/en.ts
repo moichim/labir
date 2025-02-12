@@ -4,6 +4,8 @@ export const en: Translation = {
 
     loading: "Loading",
 
+    file: "File",
+
     next: "Next",
     prev: "Previous",
     back: "Back",

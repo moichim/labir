@@ -105,7 +105,7 @@ export class RemoteBrowser extends BaseElement {
         if (element) {
             const updatePosition = () => {
                 const rect = element.getBoundingClientRect();
-                console.log(`X: ${rect.left}, Y: ${rect.top}`);
+                // console.log(`X: ${rect.left}, Y: ${rect.top}`);
 
 
                 if (rect.top < -50) {
