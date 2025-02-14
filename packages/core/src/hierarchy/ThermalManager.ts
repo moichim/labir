@@ -7,12 +7,12 @@ import { Instance } from "../file/instance";
 import { AvailableThermalPalettes } from "../file/utils/palettes";
 import { FilterContainer } from "../filters/FilterContainer";
 import { FilesService } from "../loading/workers/FilesService";
-import { GraphSmoothDrive } from "../properties/drives/GraphSmoothDrive";
-import { PaletteDrive } from "../properties/drives/PaletteDrive";
-import { SmoothDrive } from "../properties/drives/SmoothDrive";
+import { GraphSmoothDrive } from "../properties/display/GraphSmoothDrive";
+import { PaletteDrive } from "../properties/scale/PaletteDrive";
+import { SmoothDrive } from "../properties/display/SmoothDrive";
 import { ThermalRegistry, ThermalRegistryOptions } from "./ThermalRegistry";
-import { ToolDrive } from "../properties/tool/ToolDrive";
-import { InspectTool } from "../properties/tool/internals/InspectTool";
+import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
+import { InspectTool } from "../properties/analysis/tool/internals/InspectTool";
 
 export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes

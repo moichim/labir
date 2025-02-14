@@ -47,6 +47,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
         } else {
             return this._map.get(file.thermalUrl)!;
         }
+        
     }
 
     public removeFile(file: string | Instance) {

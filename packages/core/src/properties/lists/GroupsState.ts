@@ -28,6 +28,14 @@ export class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistr
 
     }
 
+    public addExistingGroup( group: ThermalGroup ) {
+        
+        if ( ! this.value.map( g => g.hash ).includes( group.hash ) ) {
+            this.value = [...this.value, group];
+        }
+
+    }
+
     public addOrGetGroup(
         groupId: string,
         name?: string,

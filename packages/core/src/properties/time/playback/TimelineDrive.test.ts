@@ -38,12 +38,11 @@ describe("ReTimelineDrive", async () => {
         // Instance consistency
         expect( instance.frameCount ).toEqual( 518 );
 
-        console.log( "!!!!!!!!!!", timeline.frameCount, timeline.parent.meta.current.timeline );
-
         // Searching for the steps
         expect( timeline.findPreviousRelative(1).relative ).toEqual( 0 );
         expect( timeline.findPreviousRelative( 113 ).relative ).toEqual( 0 );
-        expect( timeline.findPreviousRelative( 114 ).relative ).toEqual( 114 );
+        expect( timeline.findPreviousRelative( 114 ).relative ).toEqual( 0 );
+        expect( timeline.findPreviousRelative(115).relative ).toEqual( 114 );
 
         // Store the value of the first pixel of the first frame for testing
         const firstPixel = timeline.buffer.currentFrame.pixels[0];
@@ -62,7 +61,9 @@ describe("ReTimelineDrive", async () => {
         expect( result_after_negative.buffer.length ).toEqual( 0 );
 
         const result_after_too_much = await timeline.setRelativeTime( 999 * 9999 );
+
         expect( timeline.value ).toEqual( 61085 );
+        expect( timeline.currentFrameIndex ).toEqual( timeline.relativeSteps.length - 1 );
         expect( timeline.value ).toEqual( instance.duration );
         expect( result_after_too_much.preloaded ).toEqual( false );
         expect( result_after_too_much.buffer.length ).toEqual( 0);

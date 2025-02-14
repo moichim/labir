@@ -1,13 +1,13 @@
 import { Instance } from "../file/instance";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalStatistics } from "../hierarchy/ThermalRegistry";
-import { ThermalMinmaxOrUndefined } from "./abstractMinmaxProperty";
-import { AnalysisDataStateValue } from "./analysisData/AnalysisDataState";
-import { AbstractAnalysis } from "./analysis/internals/AbstractAnalysis";
-import { ThermalCursorPositionOrUndefined } from "./drives/CursorPositionDrive";
-import { ThermalRangeOrUndefined } from "./drives/RangeDriver";
+import { ThermalMinmaxOrUndefined } from "./scale/abstractMinmaxProperty";
+import { AnalysisDataStateValue } from "./analysis/data/AnalysisDataState";
+import { AbstractAnalysis } from "./analysis/analysis/internals/AbstractAnalysis";
+import { ThermalCursorPositionOrUndefined } from "./cursor/CursorPositionDrive";
+import { ThermalRangeOrUndefined } from "./scale/RangeDriver";
 import { AbstractTool } from "./tool/internals/AbstractTool";
-import { AnalysisSlotsMap } from "./analysisSlots/AnalysisSlotsDrive";
+import { AnalysisSlotsMap } from "./analysis/slots/AnalysisSlotsDrive";
 
 type PropertyListenersTypes = boolean
     | number

@@ -3,11 +3,11 @@ import { FilterContainer } from "../filters/FilterContainer";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { ParsedFileBaseInfo, ParsedFileFrame } from "../loading/workers/parsers/structure";
-import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { AnalysisDataState } from "../properties/analysisData/AnalysisDataState";
-import { AnalysisSlotsState } from "../properties/analysisSlots/AnalysisSlotsDrive";
-import { ThermalCursorPositionOrUndefined } from "../properties/drives/CursorPositionDrive";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
+import { AnalysisDrive } from "../properties/analysis/analysis/AnalysisDrive";
+import { AnalysisDataState } from "../properties/analysis/data/AnalysisDataState";
+import { AnalysisSlotsState } from "../properties/analysis/slots/AnalysisSlotsDrive";
+import { ThermalCursorPositionOrUndefined } from "../properties/cursor/CursorPositionDrive";
+import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { AbstractFile } from "./AbstractFile";
@@ -18,6 +18,16 @@ import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
 import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 import { FilePngExport } from "./utils/FilePngExport";
 
+
+
+
+/**
+ * An instance of the loaded file
+ * 
+ * Holds DOM, displays the canvas, 
+ * handles playback and do all important 
+ * stuff.
+ */
 export class Instance extends AbstractFile {
 
     declare public timeline: TimelineDrive;

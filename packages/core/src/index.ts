@@ -1,13 +1,9 @@
 // Core structure
 
 // Data types
-import { ThermalMinmaxOrUndefined } from "./properties/abstractMinmaxProperty";
-import { ThermalCursorPositionOrUndefined } from "./properties/drives/CursorPositionDrive";
-import { ThermalRangeOrUndefined } from "./properties/drives/RangeDriver";
 
 // Palette
 import { GRAYSCALE, IRON, JET, ThermalPalettes, ThermalPaletteType, AvailableThermalPalettes } from "./file/utils/palettes";
-import { PaletteId } from "./properties/drives/PaletteDrive";
 
 // Utilities - time
 import { TimeFormat } from "./utils/time/formatting";
@@ -23,26 +19,29 @@ import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
 import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
 import { supportedFileTypes, supportedFileTypesInputProperty } from "./loading/workers/parsers";
 import { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
-import { AbstractAnalysis } from "./properties/analysis/internals/AbstractAnalysis";
-import { AddEllipsisTool } from "./properties/analysis/internals/area/ellipsis/AddEllipsisTool";
-import { EllipsisAnalysis } from "./properties/analysis/internals/area/ellipsis/EllipsisAnalysis";
-import { AddRectangleTool } from "./properties/analysis/internals/area/rectangle/AddRectangleTool";
-import { CornerPoint } from "./properties/analysis/internals/area/CornerPoint";
-import { RectangleAnalysis } from "./properties/analysis/internals/area/rectangle/RectangleAnalysis";
-import { PointAnalysis } from "./properties/analysis/internals/point/PointAnalysis";
 import { CallbacksManager } from "./properties/callbacksManager";
 import { playbackSpeed, PlaybackSpeeds } from "./properties/time/playback/TimelineDrive";
-import { AbstractTool } from "./properties/tool/internals/AbstractTool";
-import { EditTool } from "./properties/tool/internals/EditTool";
-import { InspectTool } from "./properties/tool/internals/InspectTool";
-import { ThermalTool } from "./properties/tool/ToolDrive";
 import { getPool } from "./utils/pool";
 
-import { AnalysisDataStateValue } from "./properties/analysisData/AnalysisDataState";
-import { AbstractAreaAnalysis } from "./properties/analysis/internals/area/AbstractAreaAnalysis";
-import { AnalysisGraph } from "./properties/analysisData/graphs/AnalysisGraph";
-import { availableAnalysisColors } from "./properties/analysis/storage/AnalysisLayersStorage";
-import {SlotUnion, SlotNumber} from "./properties/analysis/storage/AnalysisLayersStorage";
+import { ThermalMinmaxOrUndefined } from "./properties/scale/abstractMinmaxProperty";
+import { ThermalRangeOrUndefined } from "./properties/scale/RangeDriver";
+import { ThermalCursorPositionOrUndefined } from "./properties/cursor/CursorPositionDrive";
+import { AnalysisDataStateValue } from "./properties/analysis/data/AnalysisDataState";
+import { AbstractAreaAnalysis } from "./properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
+import { AnalysisGraph } from "./properties/analysis/data/graphs/AnalysisGraph";
+import { availableAnalysisColors, SlotNumber, SlotUnion } from "./properties/analysis/analysis/storage/AnalysisLayersStorage";
+import { ThermalTool } from "./properties/analysis/tool/ToolDrive";
+import { InspectTool } from "./properties/analysis/tool/internals/InspectTool";
+import { AbstractTool } from "./properties/analysis/tool/internals/AbstractTool";
+import { EditTool } from "./properties/analysis/tool/internals/EditTool";
+import { AbstractAnalysis } from "./properties/analysis/analysis/internals/AbstractAnalysis";
+import { AddEllipsisTool } from "./properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool";
+import { AddRectangleTool } from "./properties/analysis/analysis/internals/area/rectangle/AddRectangleTool";
+import { EllipsisAnalysis } from "./properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis";
+import { CornerPoint } from "./properties/analysis/analysis/internals/area/CornerPoint";
+import { PointAnalysis } from "./properties/analysis/analysis/internals/point/PointAnalysis";
+import { RectangleAnalysis } from "./properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis";
+import { PaletteId } from "./properties/scale/PaletteDrive";
 
 export {
 

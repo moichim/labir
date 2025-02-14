@@ -9,6 +9,10 @@ import { determineParser } from "./parsers";
 import { ThermalFileFailure } from "./ThermalFileFailure";
 import { ThermalFileReader } from "./ThermalFileReader";
 
+
+/**
+ * A singleton instance handling file loading
+ */
 export class FilesService {
 
     public get pool() {

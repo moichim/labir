@@ -33,9 +33,7 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected afterSetEffect(value: boolean): void {
-        // console.log(value);
-    }
+    protected afterSetEffect(value: boolean): void {}
 
     public start() {
 
@@ -93,7 +91,6 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
         const cllbackId = "recording entire file";
 
         this.parent.timeline.callbacksEnd.add(cllbackId, () => {
-            // console.log("playback ended");
             this.end();
             this.parent.timeline.callbacksEnd.delete(cllbackId);
         });

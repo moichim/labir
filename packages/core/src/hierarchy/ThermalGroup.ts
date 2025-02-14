@@ -5,13 +5,13 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { Batch } from "../loading/batch/Batch";
-import { AnalysisSyncDrive } from "../properties/analysisSync/analysisSync";
-import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
+import { AnalysisSyncDrive } from "../properties/analysis/sync/analysisSync";
+import { CursorPositionDrive } from "../properties/cursor/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
-import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
+import { MinmaxGroupProperty } from "../properties/scale/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
 import { GroupPlayback } from "../properties/time/group/GroupPlayback";
-import { ToolDrive } from "../properties/tool/ToolDrive";
+import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
 
 /**

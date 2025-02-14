@@ -173,8 +173,6 @@ export class ThermalFileReader extends AbstractFileResult {
         group: ThermalGroup
     ): Promise<Instance> {
 
-        // console.log( "začínám vytvářet instanci" );
-
         // Create a new instance with copied buffer
         const reader = this.cloneForInstance();
 
@@ -197,9 +195,6 @@ export class ThermalFileReader extends AbstractFileResult {
 
         // Register the instance to the group
         group.files.addFile( instance );
-
-        // console.log( instance.id, "vytvořeno" );
-
 
         return instance;
     }
