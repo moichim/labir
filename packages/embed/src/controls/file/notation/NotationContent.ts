@@ -1,12 +1,12 @@
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { NotationEntry } from "./NotationEntry";
 import { consume } from "@lit/context";
-import { notationCurrentContext } from "./NotationContext";
-import { map } from "lit/directives/map.js";
-import { booleanConverter } from "../../../utils/booleanConverter";
 import { format } from "date-fns";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { map } from "lit/directives/map.js";
+import { BaseElement } from "../../../hierarchy/BaseElement";
+import { booleanConverter } from "../../../utils/booleanConverter";
+import { notationCurrentContext } from "./NotationContext";
+import { NotationEntry } from "./NotationEntry";
 
 /** @deprecated */
 @customElement("notation-content")

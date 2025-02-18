@@ -1,5 +1,5 @@
 import { html, PropertyValues } from "lit";
-import { customElement, property, queryAssignedElements, queryAssignedNodes, state } from "lit/decorators.js";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { durationConverter } from "../../../utils/durationConverter";
 
@@ -22,7 +22,7 @@ export class NotationEntry extends BaseElement {
     public image?: string;
 
     @property({type: String, reflect: true})
-    public say?: String;
+    public say?: string;
 
     @property({type: String, reflect: true})
     public color?: string;

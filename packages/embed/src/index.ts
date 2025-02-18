@@ -19,7 +19,7 @@ import { initialiseMode } from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import { addInlineStyles, appendStyles } from "./styles/defaultStyles";
+import { appendStyles } from "./styles/defaultStyles";
 
 // addInlineStyles();
 
@@ -88,6 +88,8 @@ import "./controls/registry/Histogram";
 // 5. Group controls
 import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
+import "./controls/group/GroupDownloadButtons";
+import "./controls/group/GroupChart";
 
 
 // 5. File controls
@@ -110,11 +112,14 @@ import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
+import "./controls/file/analysis/FileAnalysisOverview";
+import "./controls/file/analysis/FileAnalysisOverviewRow";
 
 import "./controls/file/buttons/FileLrcButton";
 import "./controls/file/buttons/FilePngButton";
 import "./controls/file/buttons/FileButton";
 import "./controls/file/buttons/FileRangePropagator";
+import "./controls/file/buttons/FileDropdown";
 
 
 // 7. Complex apps go last

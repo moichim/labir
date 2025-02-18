@@ -5,7 +5,7 @@ import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGrou
 import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
-import { cy, cs, de, fr, enGB } from "date-fns/locale";
+import { cs, cy, de, enGB, fr } from "date-fns/locale";
 import { t } from "i18next";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -99,27 +99,20 @@ export class RemoteBrowser extends BaseElement {
     connectedCallback(): void {
         super.connectedCallback();
 
+        const updatePosition = () => {
+            const rect = this.getBoundingClientRect();
 
-        const element = this;
+            if (rect.top < -50) {
+                this.classList.add("is-pinned");
+            } else {
+                this.classList.remove("is-pinned");
+            }
 
-        if (element) {
-            const updatePosition = () => {
-                const rect = element.getBoundingClientRect();
-                // console.log(`X: ${rect.left}, Y: ${rect.top}`);
-
-
-                if (rect.top < -50) {
-                    this.classList.add("is-pinned");
-                } else {
-                    this.classList.remove("is-pinned");
-                }
-
-            };
+        };
 
 
-            window.addEventListener("scroll", updatePosition);
-            window.addEventListener("resize", updatePosition); // Pro zachycení změn velikosti okna
-        }
+        window.addEventListener("scroll", updatePosition);
+        window.addEventListener("resize", updatePosition);
 
     }
 
@@ -147,11 +140,8 @@ export class RemoteBrowser extends BaseElement {
 
 
     protected scrollToComponent() {
-        const element = this;
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      }
+        this.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
 
     protected getApiUrl(
@@ -383,18 +373,22 @@ export class RemoteBrowser extends BaseElement {
                 <span>${labelFormatter(file)}</span>
             </h2>
             <div>
-                <file-info-button>
-                    <file-button slot="invoker" label=${t(T.info)}></file-button>
-                </file-info-button>
-                <file-download-lrc></file-download-lrc>
-                <file-download-png></file-download-png>
                 <file-range-propagator></file-range-propagator>
+
+                <file-dropdown label="...">
+                    <file-info-button>
+                        <file-button slot="invoker" label=${t(T.info).toLowerCase()}></file-button>
+                    </file-info-button>
+                    <file-download-lrc></file-download-lrc>
+                    <file-download-png></file-download-png>
+                </file-dropdown>
+
             </div>
         </header>
 
         <main>
             <file-canvas></file-canvas>
-            <file-analysis-table></file-analysis-table>
+            <file-analysis-overview></file-analysis-overview>
         </main>
 
     </file-provider>
@@ -416,7 +410,7 @@ export class RemoteBrowser extends BaseElement {
             return html`<div>
                     ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp))}
                     </div>`;
-        })}
+                })}
             
             </group-provider>   
         `;
@@ -473,7 +467,11 @@ export class RemoteBrowser extends BaseElement {
                                     <h2>${title}</h2>
                                     <group-provider slug="${timestamp}" class="buttons">
                                         <group-range-propagator></group-range-propagator>
-                                        <group-download-dropdown class="small"></group-download-dropdown>
+
+                                        <file-dropdown label="${t(T.download).toLowerCase()}">
+                                            <group-download-buttons></group-download-buttons>
+                                        </file-dropdown>
+
                                     </group-provider>
                                 </div>
                             </td>
@@ -628,6 +626,15 @@ export class RemoteBrowser extends BaseElement {
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
+
+                ${this.dataOnly ? html`<group-provider slug="${this.dataOnly.info.folder}">
+
+                    <div style="width:100%">
+                        <group-chart></group-chart>
+                    </div>
+
+                </group-provider>`
+                : nothing }
 
             </div>
             ${this.state === STATE.MULTIPLE
@@ -960,7 +967,7 @@ thermal-dropdown.selector::part(invoker) {
         return html`
         
         ${this.state !== STATE.MAIN
-            ? html`<thermal-button 
+                ? html`<thermal-button 
                     @click=${this.actionCloseToHomepage.bind(this)}
                     variant="foreground"
                 >
@@ -968,7 +975,7 @@ thermal-dropdown.selector::part(invoker) {
             </thermal-button>
 
             ${this.state === STATE.ONE && this.enablegrouping === false ?
-                    html`
+                        html`
             <thermal-dropdown variant="background" class="selector">
 
                 <span slot="invoker">${this.folders[this.only[0]].name}</span>
@@ -993,20 +1000,20 @@ thermal-dropdown.selector::part(invoker) {
                         <ul>
 
                             ${this.state === STATE.ONE && this.dataOnly !== undefined
-                    ? html`<li>/${this.only[0]}/
+                        ? html`<li>/${this.only[0]}/
                                     <ul>
                                         ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
                                     </ul>
                                 </li>`
-                    : nothing
-                }
+                        : nothing
+                    }
 
                             ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
-                    ? html`
+                        ? html`
                                     ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
                                 `
-                    : nothing
-                }
+                        : nothing
+                    }
                             
                         </ul>
                     </ul>   
@@ -1017,16 +1024,16 @@ thermal-dropdown.selector::part(invoker) {
             -->
 
             ${this.state === STATE.ONE && this.dataOnly !== undefined
-                    ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
                     <group-download-dropdown></group-download-dropdown>
                 </group-provider>`
-                    : nothing
-                }
+                        : nothing
+                    }
             <registry-opacity-slider></registry-opacity-slider>
             <group-tool-buttons showhint="false"></group-tool-buttons>
             `
-            : nothing
-        }
+                : nothing
+            }
         
         `;
 
@@ -1049,11 +1056,11 @@ thermal-dropdown.selector::part(invoker) {
 
         <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}">
 
-        ${ this.state === STATE.MAIN ? html`
+        ${this.state === STATE.MAIN ? html`
             <thermal-button variant="foreground" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
             `
-            : nothing
-        }
+                : nothing
+            }
             <header class="screen-browser-header" slot="bar">
 
 

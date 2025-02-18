@@ -45,8 +45,9 @@ export class FileAnalisisEdit extends BaseElement {
         return html`
 
             <thermal-dialog label="${t(T.editsth, {what: t( T[this.type as keyof typeof T] )})}">
-
-                <thermal-button slot="invoker">${t(T.edit)}</thermal-button>
+                <slot name="invoker" slot="invoker">
+                    <thermal-button>${t(T.edit)}</thermal-button>
+                </slot>
 
                 <div slot="content">
                     ${ this.analysis instanceof PointAnalysis
