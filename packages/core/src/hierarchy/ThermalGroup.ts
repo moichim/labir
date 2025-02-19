@@ -13,6 +13,7 @@ import { IThermalGroup } from "../properties/structure";
 import { GroupPlayback } from "../properties/time/group/GroupPlayback";
 import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
+import { AnalysisGroupGraph } from "../properties/analysis/group/AnalysisGroupGraph";
 
 /**
  * Group of thermal images
@@ -54,6 +55,8 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, false);
 
+    public readonly analysisGraph: AnalysisGroupGraph = new AnalysisGroupGraph(this);
+
     protected _playback?: GroupPlayback;
     public get playback() {
         if ( ! this._playback ) {
@@ -67,17 +70,13 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     /** Iteration */
     public forEveryInstance = ( fn: ( (instance: Instance) => void ) ) => {
         this.files.value.forEach( instance => fn( instance ) );
-
     }
 
 
     /** Remove all instances, reset the minmax */
     public destroySelfAndBelow() {
-
         this.removeAllChildren();
-
         this.minmax.reset();
-
     }
 
 
@@ -86,12 +85,10 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     }
 
     public reset() {
-
         this.files.reset();
         this.minmax.reset();
         this.cursorPosition.reset();
         this.analysisSync.reset();
-
     }
 
     public readonly filters = new FilterContainer( this );

@@ -1,143 +1,3 @@
-// src/properties/abstractProperty.ts
-var AbstractProperty = class {
-  constructor(parent, _initial) {
-    this.parent = parent;
-    this._initial = _initial;
-    this._value = this.validate(this._initial);
-  }
-  _value;
-  reset() {
-    this.value = this._initial;
-  }
-  /** Get the current value @readonly */
-  get value() {
-    return this._value;
-  }
-  /** Set the value and call all listeners */
-  set value(value) {
-    this._value = this.validate(value);
-    this.afterSetEffect(this._value);
-    Object.values(this._listeners).forEach((listener) => listener(this._value));
-  }
-  _listeners = {};
-  addListener(id, listener) {
-    if (id in this._listeners) {
-      delete this._listeners[id];
-    }
-    this._listeners[id] = listener;
-  }
-  removeListener(id) {
-    if (id in this._listeners) {
-      delete this._listeners[id];
-    }
-  }
-  clearAllListeners() {
-    this._listeners = {};
-  }
-};
-
-// src/properties/abstractMinmaxProperty.ts
-var AbstractMinmaxProperty = class extends AbstractProperty {
-  /** Get the current distance between min and max */
-  get distanceInCelsius() {
-    if (this.value === void 0) {
-      return void 0;
-    }
-    return Math.abs(this.value.min - this.value.max);
-  }
-};
-
-// src/properties/drives/CursorPositionDrive.ts
-var CursorPositionDrive = class extends AbstractProperty {
-  _hover = this.value !== void 0;
-  get hover() {
-    return this._hover;
-  }
-  validate(value) {
-    return value;
-  }
-  // After the position changes, update the hover & project the position in all instances
-  afterSetEffect(value) {
-    this._hover = this.value !== void 0;
-    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-  }
-  recieveCursorPosition(position) {
-    this.value = position;
-  }
-};
-
-// src/properties/drives/RangeDriver.ts
-var RangeDriver = class extends AbstractProperty {
-  get currentRange() {
-    return this.value;
-  }
-  /** 
-   * Make sure the range is allways within the minmax values.
-   * 
-   * If this method should work, the value needs to be set before the minmax is calculated.
-   */
-  validate(value) {
-    if (value === void 0) {
-      return void 0;
-    }
-    const minmax = this.parent.minmax.value;
-    if (minmax === void 0) {
-      return value;
-    }
-    const result = { ...value };
-    if (value.from < minmax.min)
-      result.from = minmax.min;
-    if (value.to > minmax.max)
-      result.to = minmax.max;
-    return result;
-  }
-  /**
-   * Whenever the range changes, propagate the value to all instances
-   */
-  afterSetEffect(value) {
-    if (value)
-      this.parent.forEveryInstance((instance) => instance.recieveRange(value));
-  }
-  /** 
-   * Imposes a range to itself and below
-   * - needs to be called before the minmax is calculated!
-   */
-  imposeRange(value) {
-    if (value === void 0 && this.value === void 0) {
-    } else if (value === void 0 && this.value !== void 0) {
-      this.value = value;
-    }
-    if (value !== void 0 && this.value === void 0) {
-      this.value = value;
-    } else if (value !== void 0 && this.value !== void 0) {
-      if (this.value.from !== value.from || this.value.to !== value.to) {
-        this.value = value;
-      }
-    }
-    return this.value;
-  }
-  /** Sets the range to the current minmax values */
-  applyMinmax() {
-    if (this.parent.minmax.value) {
-      const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
-      this.imposeRange(newRange);
-    }
-  }
-  /** Sets the range automatically based on the current histogram */
-  applyAuto() {
-    if (this.parent.histogram.value) {
-      const length = this.parent.histogram.value.length;
-      const percentage = 100 / length;
-      const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
-      const newRange = {
-        from: histogramBarsOverPercentage[0].from,
-        to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
-      };
-      this.imposeRange(newRange);
-    }
-  }
-};
-
 // src/file/utils/palettes.ts
 var generateGrayscalePalette = () => {
   const result = [];
@@ -684,33 +544,6 @@ var ThermalPalettes = {
   }
 };
 
-// src/properties/drives/PaletteDrive.ts
-var PaletteDrive = class extends AbstractProperty {
-  get availablePalettes() {
-    return ThermalPalettes;
-  }
-  /** All the current palette properties should be accessed through this property. */
-  get currentPalette() {
-    return this.availablePalettes[this.value];
-  }
-  /** @deprecated Should not be used at all. Use `currentPalette` instead */
-  get currentPixels() {
-    return this.currentPalette.pixels;
-  }
-  validate(value) {
-    return value;
-  }
-  /** Any changes to the value should propagate directly to every instance. */
-  afterSetEffect(value) {
-    this.parent.forEveryRegistry((registry) => {
-      registry.forEveryInstance((instance) => instance.recievePalette(value));
-    });
-  }
-  setPalette(key) {
-    this.value = key;
-  }
-};
-
 // src/utils/time/formatting.ts
 import { format, formatISO9075 } from "date-fns";
 
@@ -880,7 +713,45 @@ var FilterContainer = class {
   }
 };
 
-// src/properties/analysis/internals/AbstractAnalysis.ts
+// src/properties/abstractProperty.ts
+var AbstractProperty = class {
+  constructor(parent, _initial) {
+    this.parent = parent;
+    this._initial = _initial;
+    this._value = this.validate(this._initial);
+  }
+  _value;
+  reset() {
+    this.value = this._initial;
+  }
+  /** Get the current value @readonly */
+  get value() {
+    return this._value;
+  }
+  /** Set the value and call all listeners */
+  set value(value) {
+    this._value = this.validate(value);
+    this.afterSetEffect(this._value);
+    Object.values(this._listeners).forEach((listener) => listener(this._value));
+  }
+  _listeners = {};
+  addListener(id, listener) {
+    if (id in this._listeners) {
+      delete this._listeners[id];
+    }
+    this._listeners[id] = listener;
+  }
+  removeListener(id) {
+    if (id in this._listeners) {
+      delete this._listeners[id];
+    }
+  }
+  clearAllListeners() {
+    this._listeners = {};
+  }
+};
+
+// src/properties/analysis/analysis/internals/AbstractAnalysis.ts
 var AbstractAnalysis = class {
   constructor(key, file, initialColor) {
     this.key = key;
@@ -1229,7 +1100,7 @@ var AbstractAnalysis = class {
   }
 };
 
-// src/properties/analysis/internals/AbstractPoint.ts
+// src/properties/analysis/analysis/internals/AbstractPoint.ts
 var AbstractPoint = class {
   constructor(key, top, left, analysis, color, placementX, placementY) {
     this.key = key;
@@ -1433,7 +1304,7 @@ var AbstractPoint = class {
   }
 };
 
-// src/properties/analysis/internals/point/PointPoint.ts
+// src/properties/analysis/analysis/internals/point/PointPoint.ts
 var PointPoint = class _PointPoint extends AbstractPoint {
   static size = 20;
   static sizePx(aspect = 1) {
@@ -1584,7 +1455,7 @@ var PointPoint = class _PointPoint extends AbstractPoint {
   }
 };
 
-// src/properties/analysis/internals/point/PointAnalysis.ts
+// src/properties/analysis/analysis/internals/point/PointAnalysis.ts
 var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   getType() {
     return "point";
@@ -1720,7 +1591,7 @@ var PointAnalysis = class _PointAnalysis extends AbstractAnalysis {
   }
 };
 
-// src/properties/analysisData/graphs/AnalysisGraph.ts
+// src/properties/analysis/data/graphs/AnalysisGraph.ts
 var AnalysisGraph = class {
   constructor(analysis) {
     this.analysis = analysis;
@@ -1850,7 +1721,7 @@ var AnalysisGraph = class {
   }
 };
 
-// src/properties/analysis/internals/area/AbstractHandlePoint.ts
+// src/properties/analysis/analysis/internals/area/AbstractHandlePoint.ts
 var AbstractHandlePoint = class extends AbstractPoint {
   constructor(key, top, left, analysis, color, placementX, placementY) {
     super(key, top, left, analysis, color, placementX, placementY);
@@ -1884,7 +1755,7 @@ var AbstractHandlePoint = class extends AbstractPoint {
   }
 };
 
-// src/properties/analysis/internals/area/CornerPoint.ts
+// src/properties/analysis/analysis/internals/area/CornerPoint.ts
 var CornerPoint = class extends AbstractHandlePoint {
   _pairX;
   _pairY;
@@ -1984,7 +1855,7 @@ var CornerPoint = class extends AbstractHandlePoint {
   }
 };
 
-// src/properties/analysis/internals/area/AbstractAreaAnalysis.ts
+// src/properties/analysis/analysis/internals/area/AbstractAreaAnalysis.ts
 var AbstractAreaAnalysis = class extends AbstractAnalysis {
   wPx = (100 / this.file.width / 2).toString() + "%";
   hPx = (100 / this.file.height / 2).toString() + "%";
@@ -2322,7 +2193,7 @@ var AbstractAreaAnalysis = class extends AbstractAnalysis {
   }
 };
 
-// src/properties/analysis/internals/area/AbstractArea.ts
+// src/properties/analysis/analysis/internals/area/AbstractArea.ts
 var AbstractArea = class {
   constructor(analysis, top, right, left, bottom) {
     this.analysis = analysis;
@@ -2403,7 +2274,7 @@ var AbstractArea = class {
   }
 };
 
-// src/properties/analysis/internals/area/ellipsis/EllipsisArea.ts
+// src/properties/analysis/analysis/internals/area/ellipsis/EllipsisArea.ts
 var EllipsisArea = class extends AbstractArea {
   onBuild() {
     this.element.style.borderWidth = "1px";
@@ -2416,7 +2287,7 @@ var EllipsisArea = class extends AbstractArea {
   }
 };
 
-// src/properties/analysis/internals/area/ellipsis/EllipsisAnalysis.ts
+// src/properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis.ts
 var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
   getType() {
     return "ellipsis";
@@ -2506,7 +2377,7 @@ var EllipsisAnalysis = class _EllipsisAnalysis extends AbstractAreaAnalysis {
   }
 };
 
-// src/properties/analysis/internals/area/rectangle/RectangleArea.ts
+// src/properties/analysis/analysis/internals/area/rectangle/RectangleArea.ts
 var RectangleArea = class extends AbstractArea {
   onBuild() {
     this.element.style.borderWidth = "1px";
@@ -2518,7 +2389,7 @@ var RectangleArea = class extends AbstractArea {
   }
 };
 
-// src/properties/analysis/internals/area/rectangle/RectangleAnalysis.ts
+// src/properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis.ts
 var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   getType() {
     return "rectangle";
@@ -2599,7 +2470,7 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   }
 };
 
-// src/properties/analysis/storage/AnalysisLayersStorage.ts
+// src/properties/analysis/analysis/storage/AnalysisLayersStorage.ts
 var availableAnalysisColors = [
   "Blue",
   "Red",
@@ -2777,7 +2648,7 @@ var AnalysisLayersStorage = class extends Map {
   }
 };
 
-// src/properties/analysis/storage/AnalysisPointsAccessor.ts
+// src/properties/analysis/analysis/storage/AnalysisPointsAccessor.ts
 var AnalysisPointsAccessor = class {
   constructor(drive) {
     this.drive = drive;
@@ -2803,7 +2674,7 @@ var AnalysisPointsAccessor = class {
   }
 };
 
-// src/properties/analysis/AnalysisDrive.ts
+// src/properties/analysis/analysis/AnalysisDrive.ts
 var AnalysisDrive = class extends AbstractProperty {
   layers = new AnalysisLayersStorage(this);
   points = new AnalysisPointsAccessor(this);
@@ -2902,10 +2773,10 @@ var AnalysisDrive = class extends AbstractProperty {
   }
 };
 
-// src/properties/analysisData/AnalysisDataState.ts
+// src/properties/analysis/data/AnalysisDataState.ts
 import { download, generateCsv, mkConfig } from "export-to-csv";
 
-// src/properties/analysisData/graphs/AnalysisGraphsStorage.ts
+// src/properties/analysis/data/graphs/AnalysisGraphsStorage.ts
 import { format as format2 } from "date-fns";
 var AnalysisGraphsStorage = class {
   constructor(drive) {
@@ -3047,7 +2918,7 @@ var AnalysisGraphsStorage = class {
   }
 };
 
-// src/properties/analysisData/AnalysisDataState.ts
+// src/properties/analysis/data/AnalysisDataState.ts
 var AnalysisDataState = class extends AbstractProperty {
   _hasActiveGraphs = false;
   get hasActiveGraphs() {
@@ -3093,7 +2964,7 @@ var AnalysisDataState = class extends AbstractProperty {
   }
 };
 
-// src/properties/analysisSlots/AnalysisSlot.ts
+// src/properties/analysis/slots/AnalysisSlot.ts
 var AnalysisSlot = class {
   constructor(slot, analysis) {
     this.slot = slot;
@@ -3158,7 +3029,7 @@ var AnalysisSlot = class {
   }
 };
 
-// src/properties/analysisSlots/AnalysisSlotsDrive.ts
+// src/properties/analysis/slots/AnalysisSlotsDrive.ts
 var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   static MAX_SLOTS = 7;
   /** @deprecated Use particular assignement slot instead */
@@ -3403,7 +3274,7 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   }
 };
 
-// src/properties/states/CursorValueDrive.ts
+// src/properties/cursor/CursorValueDrive.ts
 var CursorValueDrive = class extends AbstractProperty {
   validate(value) {
     return value;
@@ -3450,7 +3321,7 @@ var FrameBuffer = class {
     return this.drive.stepsByAbsolute.get(this._currentFrame.timestamp);
   }
   /** Number of images to preload at once */
-  bufferSize = 1;
+  bufferSize = 3;
   /** The actual buffer holding pair of step & frame */
   buffer = /* @__PURE__ */ new Map();
   /** Accessor to array of steps preloaded in the given moment */
@@ -3486,7 +3357,7 @@ var FrameBuffer = class {
   async preloadAfterFrameSet(step) {
     const subsetStart = step.index + 1 < this.drive.relativeSteps.length ? step.index + 1 : NaN;
     const subsetEnd = isNaN(subsetStart) ? NaN : this.drive._validateIndex(subsetStart + this.bufferSize);
-    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd) {
+    if (isNaN(subsetStart) || isNaN(subsetEnd) || subsetStart > subsetEnd || subsetStart === subsetEnd) {
       if (step.relative === this.drive.parent.duration) {
         this.buffer.clear();
       }
@@ -3655,23 +3526,36 @@ var TimelineDrive = class extends AbstractProperty {
   }
   prev() {
     const prev = this.findPreviousRelative(this.value);
-    console.log(prev);
     this.setRelativeTime(prev.relative);
   }
+  findPreviousOrThis(relativeTimeInMs) {
+    if (this.stepsByRelative.has(relativeTimeInMs)) {
+      return this.stepsByRelative.get(relativeTimeInMs);
+    }
+    return this.findPreviousRelative(relativeTimeInMs);
+  }
+  /**
+   * Find previous frame by relative ms.
+   */
   findPreviousRelative(relativeTimeInMs) {
     if (this.steps.length === 1) {
       return this.steps[0];
     }
     relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
     const aspect = this._convertRelativeToAspect(relativeTimeInMs);
-    const index = Math.ceil(aspect * this.steps.length) + 5;
-    const sliceStart = this._validateIndex(index - 40);
-    const sliceEnd = this._validateIndex(index);
-    const reversedSubarray = this.steps.slice(sliceStart, sliceEnd).reverse();
-    const frame = reversedSubarray.find((f) => {
-      return f.relative < relativeTimeInMs;
-    });
-    return frame !== void 0 ? frame : this.steps[0];
+    let index = Math.max(Math.ceil(aspect * this.steps.length) + 5, this.steps.length);
+    let previous = void 0;
+    while (index >= 0 && previous === void 0) {
+      const step = this.stepsByIndex.get(index);
+      if (step !== void 0) {
+        if (step.relative < relativeTimeInMs) {
+          previous = step;
+        }
+      }
+      index = index - 1;
+    }
+    const result = previous !== void 0 ? previous : this.steps[0];
+    return result;
   }
   findNextRelative(relativeTimeInMs) {
     if (this.steps.length === 1) {
@@ -3690,7 +3574,7 @@ var TimelineDrive = class extends AbstractProperty {
   async setRelativeTime(relativeTimeInMs) {
     relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
     this.value = relativeTimeInMs;
-    const currentStep = this.findPreviousRelative(this.value);
+    const currentStep = this.findPreviousOrThis(this.value);
     if (currentStep !== this._currentStep) {
       this._currentStep = currentStep;
       const result = await this.buffer.recieveStep(this._currentStep);
@@ -4017,6 +3901,7 @@ var InstanceDOM = class _InstanceDOM {
       this.root.classList.remove(_InstanceDOM.CLASS_BASE);
       delete this.root.dataset.thermalInstanceId;
       delete this.root.dataset.thermalInstanceUrl;
+      this.root.innerHTML = "";
     }
   }
   /** Activate all listeners */
@@ -5451,7 +5336,7 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
-// src/properties/analysisSync/utils/GroupExportCSV.ts
+// src/properties/analysis/sync/utils/GroupExportCSV.ts
 import { download as download2, generateCsv as generateCsv2, mkConfig as mkConfig2 } from "export-to-csv";
 var GroupExportCSV = class {
   constructor(drive) {
@@ -5557,7 +5442,7 @@ var GroupExportCSV = class {
   }
 };
 
-// src/properties/analysisSync/utils/GroupExportPNG.ts
+// src/properties/analysis/sync/utils/GroupExportPNG.ts
 var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
   constructor(drive) {
     super();
@@ -5801,7 +5686,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
   }
 };
 
-// src/properties/analysisSync/analysisSync.ts
+// src/properties/analysis/sync/analysisSync.ts
 var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   onSlotSync = new CallbacksManager();
   validate(value) {
@@ -5819,6 +5704,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     this.setCurrentPointer(void 0);
   }
   _currentPointer;
+  get currentPointer() {
+    return this._currentPointer;
+  }
   forEveryExistingSlot(fn) {
     if (this._currentPointer === void 0) {
       return;
@@ -5858,45 +5746,46 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     }
   }
   getSlotListeners(instance, slotNumber) {
+    const slot = instance.slots.getSlot(slotNumber);
     if (slotNumber === 1) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot1Serialize,
         assign: instance.slots.onSlot1Assignement
       };
     } else if (slotNumber === 2) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot2Serialize,
         assign: instance.slots.onSlot2Assignement
       };
     } else if (slotNumber === 3) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot3Serialize,
         assign: instance.slots.onSlot3Assignement
       };
     } else if (slotNumber === 4) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot4Serialize,
         assign: instance.slots.onSlot4Assignement
       };
     } else if (slotNumber === 5) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot5Serialize,
         assign: instance.slots.onSlot5Assignement
       };
     } else if (slotNumber === 6) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot6Serialize,
         assign: instance.slots.onSlot6Assignement
       };
     } else if (slotNumber === 7) {
       return {
-        slot: instance.slots.getSlot(slotNumber),
+        slot,
         serialise: instance.slots.onSlot7Serialize,
         assign: instance.slots.onSlot7Assignement
       };
@@ -5960,6 +5849,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   recieveSlotSerialized(serialized, slot) {
     this.parent.files.forEveryInstance(
       (instance) => {
+        if (instance === this.currentPointer) {
+          return;
+        }
         if (serialized) {
           const sl = instance.slots.getSlot(slot);
           if (sl) {
@@ -6015,6 +5907,25 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       this._png = new GroupExportPNG(this);
     }
     return this._png;
+  }
+};
+
+// src/properties/cursor/CursorPositionDrive.ts
+var CursorPositionDrive = class extends AbstractProperty {
+  _hover = this.value !== void 0;
+  get hover() {
+    return this._hover;
+  }
+  validate(value) {
+    return value;
+  }
+  // After the position changes, update the hover & project the position in all instances
+  afterSetEffect(value) {
+    this._hover = this.value !== void 0;
+    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
+  }
+  recieveCursorPosition(position) {
+    this.value = position;
   }
 };
 
@@ -6078,7 +5989,18 @@ var FilesState = class extends AbstractProperty {
   }
 };
 
-// src/properties/states/MinmaxGroupProperty.ts
+// src/properties/scale/abstractMinmaxProperty.ts
+var AbstractMinmaxProperty = class extends AbstractProperty {
+  /** Get the current distance between min and max */
+  get distanceInCelsius() {
+    if (this.value === void 0) {
+      return void 0;
+    }
+    return Math.abs(this.value.min - this.value.max);
+  }
+};
+
+// src/properties/scale/MinmaxGroupProperty.ts
 var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
   validate(value) {
     return value;
@@ -6280,6 +6202,81 @@ var GroupPlayback = class extends AbstractProperty {
   }
 };
 
+// src/properties/analysis/group/AnalysisGroupGraph.ts
+var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
+  static LISTENER_ID = "AnalysisGroupGraph";
+  constructor(parent) {
+    super(parent, void 0);
+  }
+  timeout;
+  calculateData() {
+    let colors = [];
+    let header = [];
+    const data = [];
+    const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
+    const firstRow = orderedFiles[0].analysisData.value.values[0];
+    header = firstRow;
+    colors = orderedFiles[0].analysisData.value.colors;
+    this.parent.files.forEveryInstance((instance) => {
+      const row = [
+        new Date(instance.timestamp)
+      ];
+      instance.analysis.value.forEach(async (analysis) => {
+        if (analysis.graph.state.MIN === true && analysis.min) {
+          row.push(analysis.min);
+        }
+        if (analysis.graph.state.MAX === true && analysis.max) {
+          row.push(analysis.max);
+        }
+        if (analysis.graph.state.AVG === true && analysis.avg) {
+          row.push(analysis.avg);
+        }
+      });
+      if (row.length > 1) {
+        data.push(row);
+      }
+    });
+    if (colors.length > 0) {
+      this.value = {
+        colors,
+        data: [header, ...data]
+      };
+    } else {
+      this.value = void 0;
+    }
+    console.log("P\u0159epo\u010D\xEDtal jsem data", this.value);
+  }
+  turnOn() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, (value) => {
+        if (this.timeout !== void 0) {
+          clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+          this.calculateData();
+        }, 0);
+      });
+    });
+  }
+  turnOff() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
+    });
+  }
+  _wtf() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysis.layers.forEach((analysis) => {
+        analysis.graph.setAvgActivation(true);
+      });
+    });
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect(value) {
+  }
+};
+
 // src/hierarchy/ThermalGroup.ts
 var ThermalGroup = class extends BaseStructureObject {
   constructor(registry, id, name, description) {
@@ -6305,6 +6302,7 @@ var ThermalGroup = class extends BaseStructureObject {
   files = new FilesState(this, []);
   cursorPosition = new CursorPositionDrive(this, void 0);
   analysisSync = new AnalysisSyncDrive(this, false);
+  analysisGraph = new AnalysisGroupGraph(this);
   _playback;
   get playback() {
     if (!this._playback) {
@@ -7226,7 +7224,7 @@ var FilesService = class {
   }
 };
 
-// src/properties/drives/GraphSmoothDrive.ts
+// src/properties/display/GraphSmoothDrive.ts
 var GraphSmoothDrive = class extends AbstractProperty {
   validate(value) {
     return value;
@@ -7238,7 +7236,34 @@ var GraphSmoothDrive = class extends AbstractProperty {
   }
 };
 
-// src/properties/drives/SmoothDrive.ts
+// src/properties/scale/PaletteDrive.ts
+var PaletteDrive = class extends AbstractProperty {
+  get availablePalettes() {
+    return ThermalPalettes;
+  }
+  /** All the current palette properties should be accessed through this property. */
+  get currentPalette() {
+    return this.availablePalettes[this.value];
+  }
+  /** @deprecated Should not be used at all. Use `currentPalette` instead */
+  get currentPixels() {
+    return this.currentPalette.pixels;
+  }
+  validate(value) {
+    return value;
+  }
+  /** Any changes to the value should propagate directly to every instance. */
+  afterSetEffect(value) {
+    this.parent.forEveryRegistry((registry) => {
+      registry.forEveryInstance((instance) => instance.recievePalette(value));
+    });
+  }
+  setPalette(key) {
+    this.value = key;
+  }
+};
+
+// src/properties/display/SmoothDrive.ts
 var SmoothDrive = class extends AbstractProperty {
   validate(value) {
     return value;
@@ -7333,7 +7358,7 @@ var BatchLoader = class {
   }
   onBatchComplete = new CallbacksManager();
   set = /* @__PURE__ */ new Set();
-  get size() {
+  get numberOfBatches() {
     return this.set.size;
   }
   get currentOpenBatch() {
@@ -7391,13 +7416,13 @@ var BatchLoader = class {
    */
   batchFinished(batch) {
     this.set.delete(batch);
-    if (this.size === 0) {
+    if (this.numberOfBatches === 0) {
       this.registry.loading.markAsLoaded();
     }
   }
 };
 
-// src/properties/drives/OpacityDrive.ts
+// src/properties/display/OpacityDrive.ts
 var OpacityDrive = class extends AbstractProperty {
   /** Make sure the value is allways between 0 and 1 */
   validate(value) {
@@ -7416,6 +7441,78 @@ var OpacityDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/scale/RangeDriver.ts
+var RangeDriver = class extends AbstractProperty {
+  get currentRange() {
+    return this.value;
+  }
+  /** 
+   * Make sure the range is allways within the minmax values.
+   * 
+   * If this method should work, the value needs to be set before the minmax is calculated.
+   */
+  validate(value) {
+    if (value === void 0) {
+      return void 0;
+    }
+    const minmax = this.parent.minmax.value;
+    if (minmax === void 0) {
+      return value;
+    }
+    const result = { ...value };
+    if (value.from < minmax.min)
+      result.from = minmax.min;
+    if (value.to > minmax.max)
+      result.to = minmax.max;
+    return result;
+  }
+  /**
+   * Whenever the range changes, propagate the value to all instances
+   */
+  afterSetEffect(value) {
+    if (value)
+      this.parent.forEveryInstance((instance) => instance.recieveRange(value));
+  }
+  /** 
+   * Imposes a range to itself and below
+   * - needs to be called before the minmax is calculated!
+   */
+  imposeRange(value) {
+    if (value === void 0 && this.value === void 0) {
+    } else if (value === void 0 && this.value !== void 0) {
+      this.value = value;
+    }
+    if (value !== void 0 && this.value === void 0) {
+      this.value = value;
+    } else if (value !== void 0 && this.value !== void 0) {
+      if (this.value.from !== value.from || this.value.to !== value.to) {
+        this.value = value;
+      }
+    }
+    return this.value;
+  }
+  /** Sets the range to the current minmax values */
+  applyMinmax() {
+    if (this.parent.minmax.value) {
+      const newRange = { from: this.parent.minmax.value.min, to: this.parent.minmax.value.max };
+      this.imposeRange(newRange);
+    }
+  }
+  /** Sets the range automatically based on the current histogram */
+  applyAuto() {
+    if (this.parent.histogram.value) {
+      const length = this.parent.histogram.value.length;
+      const percentage = 100 / length;
+      const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
+      const newRange = {
+        from: histogramBarsOverPercentage[0].from,
+        to: histogramBarsOverPercentage[histogramBarsOverPercentage.length - 1].to
+      };
+      this.imposeRange(newRange);
+    }
+  }
+};
+
 // src/properties/lists/GroupsState.ts
 var GroupsState = class extends AbstractProperty {
   _map = /* @__PURE__ */ new Map();
@@ -7428,6 +7525,11 @@ var GroupsState = class extends AbstractProperty {
   afterSetEffect(value) {
     this._map.clear();
     value.forEach((group) => this._map.set(group.id, group));
+  }
+  addExistingGroup(group) {
+    if (!this.value.map((g) => g.hash).includes(group.hash)) {
+      this.value = [...this.value, group];
+    }
   }
   addOrGetGroup(groupId, name, description) {
     if (this._map.has(groupId)) {
@@ -7569,7 +7671,7 @@ var LoadingState = class extends AbstractProperty {
   }
 };
 
-// src/properties/states/MinmaxRegistryState.ts
+// src/properties/scale/MinmaxRegistryState.ts
 var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
   validate(value) {
     return value;
@@ -7643,7 +7745,7 @@ var ThermalRegistry = class extends BaseStructureObject {
         groupFiles
       };
     }));
-    await Promise.all(servicesByGroup.map(async ({ group, groupFiles }) => {
+    const result = await Promise.all(servicesByGroup.map(async ({ group, groupFiles }) => {
       const instances = await Promise.all(groupFiles.map(async (service) => {
         if (service instanceof ThermalFileReader) {
           return await service.createInstance(group);
@@ -7654,6 +7756,7 @@ var ThermalRegistry = class extends BaseStructureObject {
       return instances;
     }));
     this.postLoadedProcessing();
+    return result;
   }
   /** Load the registry with only one file. @deprecated */
   async loadFullOneFile(file, groupId) {
@@ -7661,12 +7764,10 @@ var ThermalRegistry = class extends BaseStructureObject {
     this.loading.markAsLoading();
     const group = this.groups.addOrGetGroup(groupId);
     const result = await this.service.loadFile(file.thermalUrl, file.visibleUrl);
-    if (result instanceof ThermalFileReader) {
-      await result.createInstance(group);
-    }
+    const instanceOrError = result instanceof ThermalFileReader ? await result.createInstance(group) : result;
     this.loading.markAsLoaded();
     this.postLoadedProcessing();
-    return;
+    return instanceOrError;
   }
   _batch;
   get batch() {
@@ -7761,7 +7862,7 @@ var ThermalRegistry = class extends BaseStructureObject {
   }
 };
 
-// src/properties/tool/internals/AbstractTool.ts
+// src/properties/analysis/tool/internals/AbstractTool.ts
 var AbstractTool = class {
   constructor(manager) {
     this.manager = manager;
@@ -7777,11 +7878,11 @@ var AbstractTool = class {
   }
 };
 
-// src/properties/analysis/internals/AbstractAddTool.ts
+// src/properties/analysis/analysis/internals/AbstractAddTool.ts
 var AbstractAddTool = class extends AbstractTool {
 };
 
-// src/properties/analysis/internals/area/ellipsis/AddEllipsisTool.ts
+// src/properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool.ts
 var AddEllipsisTool = class extends AbstractAddTool {
   key = "add-ellipsis";
   name = "addellipsisanalysis";
@@ -7842,7 +7943,7 @@ var AddEllipsisTool = class extends AbstractAddTool {
   };
 };
 
-// src/properties/analysis/internals/area/rectangle/AddRectangleTool.ts
+// src/properties/analysis/analysis/internals/area/rectangle/AddRectangleTool.ts
 var AddRectangleTool = class extends AbstractAddTool {
   key = "add-rect";
   name = "addrectangleanalysis";
@@ -7901,7 +8002,7 @@ var AddRectangleTool = class extends AbstractAddTool {
   };
 };
 
-// src/properties/analysis/internals/point/AddPointTool.ts
+// src/properties/analysis/analysis/internals/point/AddPointTool.ts
 var AddPointTool = class extends AbstractAddTool {
   key = "add-point";
   name = "addpointanalysis";
@@ -7948,7 +8049,7 @@ var AddPointTool = class extends AbstractAddTool {
   };
 };
 
-// src/properties/tool/internals/EditTool.ts
+// src/properties/analysis/tool/internals/EditTool.ts
 var EditTool = class extends AbstractTool {
   key = "edit";
   name = "editanalysis";
@@ -8003,7 +8104,7 @@ var EditTool = class extends AbstractTool {
   }
 };
 
-// src/properties/tool/internals/InspectTool.ts
+// src/properties/analysis/tool/internals/InspectTool.ts
 var InspectTool = class extends AbstractTool {
   key = "inspect";
   name = "inspecttemperatures";
@@ -8040,7 +8141,7 @@ var InspectTool = class extends AbstractTool {
   };
 };
 
-// src/properties/tool/ToolDrive.ts
+// src/properties/analysis/tool/ToolDrive.ts
 var toolsRegistry = [
   InspectTool,
   AddPointTool,

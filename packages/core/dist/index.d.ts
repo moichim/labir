@@ -1,30 +1,6 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
 
-/**
- * Manage callbacks on optional property values
- */
-declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
-    /** @deprecated use set method instead */
-    add(key: string, callback: CallbackType): void;
-    call(...args: Parameters<CallbackType>): void;
-}
-
-type AbstractFilterParameters = {
-    key: number;
-    text: string;
-};
-declare abstract class AbstractFilter<T extends AbstractFilterParameters = AbstractFilterParameters> {
-    protected _bypass: boolean;
-    get bypass(): boolean;
-    setBypass(value: boolean): void;
-    readonly onBypass: CallbacksManager<(value: boolean) => void>;
-    readonly onParameterChanged: CallbacksManager<(parameters: T) => void>;
-    protected parameterChanged(): void;
-    protected abstract getParameters(): T;
-    abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
-}
-
 /** Definition of a palette containing its name, gradient and pixels value. */
 type ThermalPaletteType = {
     /** Actial pixels that shall be ised for drawings of thermograms. */
@@ -50,6 +26,74 @@ declare const ThermalPalettes: {
 };
 /** Keys of palettes available in `@labir/core`. */
 type AvailableThermalPalettes = "jet" | "iron" | "grayscale";
+
+type AcceptableDateInput = number | Date;
+declare abstract class TimeUtilsBase {
+    /** Convert an input to a date object */
+    static inputToDate: (value: AcceptableDateInput) => Date;
+}
+
+/** Utility class for time formatting in the LabIR ecosystem. */
+declare class TimeFormat extends TimeUtilsBase {
+    /** YYYY-MM-DD */
+    static isoDate: (value: AcceptableDateInput) => string;
+    /** HH:MM:SS */
+    static isoTime: (value: AcceptableDateInput) => string;
+    /** YYYY-MM-DD HH:MM:SS */
+    static isoComplete: (value: AcceptableDateInput) => string;
+    /** HH:mm */
+    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
+    /** j. M. ???? (y) */
+    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
+    /** Range */
+    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
+    static human(date: AcceptableDateInput): string;
+}
+
+/** Defined time periods used in the LabIR ecosystem. */
+declare enum TimePeriod {
+    HOUR = "jednu hodinu",
+    DAY = "jeden den",
+    WEEK = "jeden t\u00FDden",
+    MONTH = "jeden m\u011Bs\u00EDc",
+    YEAR = "jeden rok"
+}
+
+/** Utility class for time rounding in the LabIR ecosystem. */
+declare class TimeRound extends TimeUtilsBase {
+    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
+    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
+}
+
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
+    /** @deprecated use set method instead */
+    add(key: string, callback: CallbackType): void;
+    call(...args: Parameters<CallbackType>): void;
+}
+
+type AbstractFilterParameters = {
+    key: number;
+    text: string;
+};
+declare abstract class AbstractFilter<T extends AbstractFilterParameters = AbstractFilterParameters> {
+    protected _bypass: boolean;
+    get bypass(): boolean;
+    setBypass(value: boolean): void;
+    readonly onBypass: CallbacksManager<(value: boolean) => void>;
+    readonly onParameterChanged: CallbacksManager<(parameters: T) => void>;
+    protected parameterChanged(): void;
+    protected abstract getParameters(): T;
+    abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
+}
+
+declare abstract class BaseStructureObject {
+    abstract getInstances(): Instance[];
+}
 
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 declare abstract class AbstractFileResult {
@@ -131,6 +175,9 @@ declare class DropinElementListener {
     openFileDialog(): void;
 }
 
+/**
+ * A singleton instance handling file loading
+ */
 declare class FilesService {
     readonly manager: ThermalManager;
     get pool(): Pool__default;
@@ -159,34 +206,177 @@ declare class FilesService {
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
 }
 
-type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
-declare class AnalysisGraph {
-    readonly analysis: AbstractAnalysis;
-    constructor(analysis: AbstractAnalysis);
-    protected _min: boolean;
-    protected _max: boolean;
-    protected _avg: boolean;
-    get state(): {
-        MIN: boolean;
-        MAX: boolean;
-        AVG: boolean;
-    };
-    protected _value?: GraphDataTypes;
-    get value(): GraphDataTypes | undefined;
-    protected set value(value: GraphDataTypes | undefined);
-    setMinActivation(active: boolean): void;
-    setMaxActivation(active: boolean): void;
-    setAvgActivation(active: boolean): void;
-    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    readonly onGraphData: CallbacksManager<(data: GraphDataTypes | undefined, analysis: AbstractAnalysis) => void>;
-    readonly onAnalysisSelection: CallbacksManager<(activated: boolean, analysis: AbstractAnalysis) => void>;
-    protected emitGraphActivation(): void;
-    protected hydrate(): Promise<void>;
-    protected getGraphData(): Promise<GraphDataTypes>;
-    getGraphColors(): string[];
-    getGraphLabels(): string[];
-    hasDataToPrint(): boolean;
-    getDtaAtTime(timestamp: number): number[];
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class ThermalFileFailure extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): ThermalFileFailure;
+}
+
+/**
+ * Handle batch loading of thermal files.
+ *
+ * This class should be used as a lazy-loaded member of a thermal registry.
+ */
+declare class BatchLoader {
+    readonly registry: ThermalRegistry;
+    readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+    private set;
+    get numberOfBatches(): number;
+    get currentOpenBatch(): Batch | undefined;
+    get hasLoadingBatches(): boolean;
+    get numLoadingBatches(): number;
+    constructor(registry: ThermalRegistry);
+    getBatchById(id: string): Batch;
+    /**
+     * Request a file through a batch
+     *
+     * If there is an open batch, register the request in it.
+     * Else open a new batch.
+     *
+     * The batch will execute automatically in the next tick.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
+    closeBatch(): void;
+    /**
+     * This method is called from the inside of a batch object
+     * to indicate its completion.
+     *
+     * Upon completion, the batch object is deleted and if there
+     * are no other batches, mark the registry as loaded.
+     */
+    batchFinished(batch: Batch): void;
+}
+
+/**
+ * A single batch object
+ *
+ * A batch is created from all requests registered in a single tick.
+ * The Batch creation and requests registration is handled completely
+ * by `BatchLoader.request` method.
+ *
+ * Internally, this object stores an array of file requests along
+ * with all the necessary additional information: the target group
+ * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
+ *
+ */
+declare class Batch {
+    protected readonly loader: BatchLoader;
+    readonly id?: string | undefined;
+    private _loading;
+    get loading(): boolean;
+    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+    /** The current timeout fn that is being overriden by every call of the `request` method */
+    private timeout?;
+    /** Array of currently queued requests */
+    private queue;
+    get size(): number;
+    protected constructor(loader: BatchLoader, id?: string | undefined);
+    static init(loader: BatchLoader, id?: string): Batch;
+    static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
+    /**
+     * Request a thermal file
+     *
+     * Requesting adds new record to the queue and creates a new
+     * timeout closure.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    close(): void;
+}
+
+type AnalysisSlotsMap = Map<number, AnalysisSlot>;
+/** Say the slot number. True = next free. False = no slot at all */
+type SlotInitialisationValue = number | true | false;
+/**
+ * Create up to 7 slots for analysis of the image.
+ *
+ * Value of this property is a map.
+ */
+declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
+    static MAX_SLOTS: number;
+    /** @deprecated Use particular assignement slot instead */
+    readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
+    /** @deprecated Use particular assignement slot instead */
+    readonly onSlotRemove: CallbacksManager<(number: number) => void>;
+    readonly onSlot1Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot2Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot3Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot4Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot5Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot6Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot7Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
+    readonly onSlot1Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot2Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot3Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot4Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot5Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot6Serialize: CallbacksManager<(value: string | undefined) => void>;
+    readonly onSlot7Serialize: CallbacksManager<(value: string | undefined) => void>;
+    /** Calculate the next free slot */
+    getNextFreeSlotNumber(): number | undefined;
+    assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    hasSlot(slot: number): boolean;
+    getSlot(slot: number): AnalysisSlot | undefined;
+    getSlotMap(): Map<number, AnalysisSlot | undefined>;
+    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
+    /**
+     * Completely remove the slot and also the corresponding analysis
+     */
+    removeSlotAndAnalysis(slot: number): void;
+    /**
+     * Remove a slot that is assigned to a given analysis, but keep the analysis
+     */
+    unassignAnalysisFromItsSlot(analysis: AbstractAnalysis): void;
+    /**
+     * Create an analysis from a serialized state
+     */
+    createFromSerialized(serialized: string, slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
+    protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
+    protected afterSetEffect(): void;
+    /**
+     * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place.
+     */
+    private callEffectsAndListeners;
+    /**
+     * Whenever a slot is assigned, call both particular and general listeners
+     */
+    private emitOnAssignement;
+    /**
+     * Whenever a slit serializes call the particular manager
+     */
+    private emitSerializedValue;
+    /**
+     * Get a callback manager that is triggered upon a slot serialisation
+     */
+    getOnSerializeManager(slot: number): CallbacksManager<(value: string | undefined) => void> | undefined;
+    /**
+     * Get a callback manager that is triggered whenever a slot is assigned
+     */
+    getOnAssignementManager(slot: number): CallbacksManager<(slot: AnalysisSlot | undefined) => void> | undefined;
+    /**
+     * Get value of a given slot
+     */
+    getSlotValue(slot: number): string | undefined;
+    /**
+     * Call a function on every existing slot skipping empty slots.
+     */
+    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
 }
 
 declare enum PointPlacement {
@@ -290,230 +480,60 @@ declare abstract class AbstractPoint {
     deactivate(): void;
 }
 
-type AnalysisEvent = (analysis: AbstractAnalysis) => void;
-declare abstract class AbstractAnalysis {
-    readonly key: string;
-    readonly file: Instance;
-    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
-    abstract recievedSerialized(input: string): void;
-    abstract toSerialized(): string;
-    protected serializedIsValid(input: string): boolean;
-    abstract get graph(): AnalysisGraph;
-    /** Selection status */
-    protected _selected: boolean;
-    get selected(): boolean;
-    readonly onSelected: CallbacksManager<AnalysisEvent>;
-    readonly onDeselected: CallbacksManager<AnalysisEvent>;
-    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
-    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
-    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
-    readonly onMoveOrResize: CallbacksManager<(analysis: AbstractAnalysis) => void>;
-    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
-    readonly layerRoot: HTMLDivElement;
-    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
-    get renderRoot(): HTMLElement;
-    readonly points: Map<string, AbstractPoint>;
-    protected _top: number;
-    protected _left: number;
-    protected _width: number;
-    protected _height: number;
-    get left(): number;
-    get top(): number;
-    /** This dimension does not count the last pixel. */
-    get width(): number;
-    /** This dimension does not count the last pixel. */
-    get height(): number;
-    get right(): number;
-    get bottom(): number;
-    protected abstract onSetTop(validatedValue: number): void;
-    protected abstract onSetLeft(validatedValue: number): void;
-    protected abstract onSetWidth(validatedValue: number): void;
-    protected abstract onSetHeight(validatedValue: number): void;
-    protected abstract validateWidth(value: number): number;
-    protected abstract validateHeight(value: number): number;
-    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
-        top: number;
-        bottom: number;
-        height: number;
-    };
-    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
-        left: number;
-        right: number;
-        width: number;
-    };
-    setTop(value: number): void;
-    setLeft(value: number): void;
-    setWidth(value: number): void;
-    setHeight(value: number): void;
-    setBottom(value: number): void;
-    setRight(value: number): void;
-    /** Access all the file's analysis layers. */
-    get layers(): AnalysisLayersStorage;
-    protected _min?: number;
-    get min(): number | undefined;
-    protected _max?: number;
-    get max(): number | undefined;
-    protected _avg?: number;
-    get avg(): number | undefined;
-    dangerouslySetValues(avg: number, min?: number | undefined, max?: number | undefined): void;
-    get arrayOfPoints(): AbstractPoint[];
-    get arrayOfActivePoints(): AbstractPoint[];
-    protected _color: string;
-    get color(): string;
-    setColor(value: string): void;
-    protected abstract setColorCallback(value: string): void;
-    readonly onSetColor: CallbacksManager<(value: string) => void>;
-    protected _initialColor: string;
-    get initialColor(): string;
-    setInitialColor(value: string): void;
-    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
-    readonly activeColor = "yellow";
-    readonly inactiveColor = "black";
-    /** @deprecated is moved to GraphObject instead */
-    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
-    ready: boolean;
-    readonly nameInitial: string;
-    protected _name: string;
-    get name(): string;
-    setName(value: string): void;
-    readonly onSetName: CallbacksManager<(value: string) => void>;
-    abstract getType(): string;
-    constructor(key: string, file: Instance, initialColor: string);
-    remove(): void;
-    /** Selection / Deselection */
-    setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
-    setDeselected(emitGlobalEvent?: boolean): void;
-    /** Detect whether a coordinate is withing the analysis. */
-    abstract isWithin(x: number, y: number): boolean;
-    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
-    recalculateValues(): void;
-    /** Obtain the current values of the analysis using current position and dimensions */
-    protected abstract getValues(): {
-        min?: number;
-        max?: number;
-        avg?: number;
-    };
-    /** Override this method to get proper analysis data. */
-    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
-    /** When parsing incoming serialized attribute, look if segments have an exact value */
-    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
-    /** When parsing incooming serialized attribute, try to extract it by its key as string */
-    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
-    /** When parsing incooming serialized attribute, try to extract it by its key as number */
-    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
+interface ITool {
+    key: string;
+    name: string;
+    description: string;
+    icon: string;
+    active: boolean;
+}
+declare abstract class AbstractTool {
+    readonly manager: ThermalManager;
+    active: boolean;
+    constructor(manager: ThermalManager);
+    /** Action taken upon tool activation */
+    activate(): void;
+    protected abstract onActivate(): void;
+    /** Actions taken upon tool deactivation */
+    deactivate(): void;
+    protected abstract onDeactivate(): void;
+    abstract onCanvasClick(x: number, y: number, file: Instance): void;
+    abstract onCanvasLeave(file: Instance): void;
+    /** Whenever a point is entered by the mouse */
+    abstract onPointEnter(point: AbstractPoint): void;
+    /** Whenever the mouse leaves the point */
+    abstract onPointLeave(point: AbstractPoint): void;
+    /** Whenever the point should move to a new position */
+    abstract onPointMove(point: AbstractPoint, top: number, left: number): void;
+    /** Whenever a point is clicked */
+    abstract onPointDown(point: AbstractPoint): void;
+    /** Whenever a point is ended clicking */
+    abstract onPointUp(point: AbstractPoint): void;
+    /** Assamble the cursor label at the given point */
+    abstract getLabelValue(x: number, y: number, file: Instance): string;
 }
 
-/**
- * Analysis slot takes care of serialisation
- *
- * Slot is an independent object that applies on the first 7 analysis.
- * All the serialisation is perfoemed here. An analysis does not know
- * about its slots at all.
- *
- * One analysis may be in one slot only. Never in two slots.
- */
-declare class AnalysisSlot {
-    readonly slot: number;
-    private _analysis;
-    get analysis(): AbstractAnalysis;
-    private _serialized;
-    get serialized(): string;
-    /** @deprecated Serialisation is emitted by the driver. This emitter is used mainly in tests, but not elsewhere. */
-    readonly onSerialize: CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
-    /** Serialisation is done in the next tick */
-    protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
-    constructor(slot: number, analysis: AbstractAnalysis);
-    /** Generate the listener key for this slot */
-    private listenerKey;
-    /** Remove all listeners created by this slot */
-    private dehydrate;
-    /** Add all listeners to the analysis object */
-    private hydrate;
-    protected enqueueSerialisation(): void;
-    protected serialize(): void;
-    recieveSerialized(serialized: string): void;
-    /** Call global and particular callbacks */
-    protected propagateSerialisationUp(value: string | undefined): void;
+interface IWithTool extends IBaseProperty {
+    tool: ToolDrive;
 }
-
-type AnalysisSlotsMap = Map<number, AnalysisSlot>;
-/** Say the slot number. True = next free. False = no slot at all */
-type SlotInitialisationValue = number | true | false;
-/**
- * Create up to 7 slots for analysis of the image.
- *
- * Value of this property is a map.
- */
-declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
-    static MAX_SLOTS: number;
-    /** @deprecated Use particular assignement slot instead */
-    readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
-    /** @deprecated Use particular assignement slot instead */
-    readonly onSlotRemove: CallbacksManager<(number: number) => void>;
-    readonly onSlot1Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot2Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot3Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot4Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot5Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot6Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot7Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    readonly onSlot1Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot2Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot3Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot4Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot5Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot6Serialize: CallbacksManager<(value: string | undefined) => void>;
-    readonly onSlot7Serialize: CallbacksManager<(value: string | undefined) => void>;
-    /** Calculate the next free slot */
-    getNextFreeSlotNumber(): number | undefined;
-    assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
-    hasSlot(slot: number): boolean;
-    getSlot(slot: number): AnalysisSlot | undefined;
-    getSlotMap(): Map<number, AnalysisSlot | undefined>;
-    getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
-    /**
-     * Completely remove the slot and also the corresponding analysis
-     */
-    removeSlotAndAnalysis(slot: number): void;
-    /**
-     * Remove a slot that is assigned to a given analysis, but keep the analysis
-     */
-    unassignAnalysisFromItsSlot(analysis: AbstractAnalysis): void;
-    /**
-     * Create an analysis from a serialized state
-     */
-    createFromSerialized(serialized: string, slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
-    protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
-    protected afterSetEffect(): void;
-    /**
-     * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place.
-     */
-    private callEffectsAndListeners;
-    /**
-     * Whenever a slot is assigned, call both particular and general listeners
-     */
-    private emitOnAssignement;
-    /**
-     * Whenever a slit serializes call the particular manager
-     */
-    private emitSerializedValue;
-    /**
-     * Get a callback manager that is triggered upon a slot serialisation
-     */
-    getOnSerializeManager(slot: number): CallbacksManager<(value: string | undefined) => void> | undefined;
-    /**
-     * Get a callback manager that is triggered whenever a slot is assigned
-     */
-    getOnAssignementManager(slot: number): CallbacksManager<(slot: AnalysisSlot | undefined) => void> | undefined;
-    /**
-     * Get value of a given slot
-     */
-    getSlotValue(slot: number): string | undefined;
-    /**
-     * Call a function on every existing slot skipping empty slots.
-     */
-    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
+/** The tool type merging Abstract class and the interface */
+type ThermalTool = AbstractTool & ITool & {
+    key: string;
+};
+declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalManager> {
+    /** Create own set of tools from the registry of tools */
+    protected _tools: {
+        [x: string]: ThermalTool;
+    };
+    /** Readonly list of available tools */
+    get tools(): {
+        [x: string]: ThermalTool;
+    };
+    constructor(parent: ThermalManager, initial: ThermalTool);
+    protected validate(value: ThermalTool): ThermalTool;
+    protected afterSetEffect(value: ThermalTool): void;
+    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
+    selectTool(tool: ThermalTool | keyof ToolDrive["tools"]): void;
 }
 
 /** Access list of points from analysis layers */
@@ -592,6 +612,36 @@ declare abstract class AbstractArea {
     abstract onBuild(): void;
     setColor(value: string): void;
     abstract onSetColor(value: string): void;
+}
+
+type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
+declare class AnalysisGraph {
+    readonly analysis: AbstractAnalysis;
+    constructor(analysis: AbstractAnalysis);
+    protected _min: boolean;
+    protected _max: boolean;
+    protected _avg: boolean;
+    get state(): {
+        MIN: boolean;
+        MAX: boolean;
+        AVG: boolean;
+    };
+    protected _value?: GraphDataTypes;
+    get value(): GraphDataTypes | undefined;
+    protected set value(value: GraphDataTypes | undefined);
+    setMinActivation(active: boolean): void;
+    setMaxActivation(active: boolean): void;
+    setAvgActivation(active: boolean): void;
+    readonly onGraphActivation: CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    readonly onGraphData: CallbacksManager<(data: GraphDataTypes | undefined, analysis: AbstractAnalysis) => void>;
+    readonly onAnalysisSelection: CallbacksManager<(activated: boolean, analysis: AbstractAnalysis) => void>;
+    protected emitGraphActivation(): void;
+    protected hydrate(): Promise<void>;
+    protected getGraphData(): Promise<GraphDataTypes>;
+    getGraphColors(): string[];
+    getGraphLabels(): string[];
+    hasDataToPrint(): boolean;
+    getDtaAtTime(timestamp: number): number[];
 }
 
 declare abstract class AbstractHandlePoint extends AbstractPoint {
@@ -826,436 +876,151 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     protected getNextName(type: string): string;
 }
 
-declare class AnalysisGraphsStorage {
-    readonly drive: AnalysisDataState;
-    readonly listenerKey = "___listen-to-graphs___";
+type AnalysisEvent = (analysis: AbstractAnalysis) => void;
+declare abstract class AbstractAnalysis {
+    readonly key: string;
+    readonly file: Instance;
+    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
+    abstract recievedSerialized(input: string): void;
+    abstract toSerialized(): string;
+    protected serializedIsValid(input: string): boolean;
+    abstract get graph(): AnalysisGraph;
+    /** Selection status */
+    protected _selected: boolean;
+    get selected(): boolean;
+    readonly onSelected: CallbacksManager<AnalysisEvent>;
+    readonly onDeselected: CallbacksManager<AnalysisEvent>;
+    /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
+    readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
+    /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
+    readonly onMoveOrResize: CallbacksManager<(analysis: AbstractAnalysis) => void>;
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
+    readonly layerRoot: HTMLDivElement;
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    get renderRoot(): HTMLElement;
+    readonly points: Map<string, AbstractPoint>;
+    protected _top: number;
+    protected _left: number;
+    protected _width: number;
+    protected _height: number;
+    get left(): number;
+    get top(): number;
+    /** This dimension does not count the last pixel. */
+    get width(): number;
+    /** This dimension does not count the last pixel. */
+    get height(): number;
+    get right(): number;
+    get bottom(): number;
+    protected abstract onSetTop(validatedValue: number): void;
+    protected abstract onSetLeft(validatedValue: number): void;
+    protected abstract onSetWidth(validatedValue: number): void;
+    protected abstract onSetHeight(validatedValue: number): void;
+    protected abstract validateWidth(value: number): number;
+    protected abstract validateHeight(value: number): number;
+    protected abstract getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
+        top: number;
+        bottom: number;
+        height: number;
+    };
+    protected abstract getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
+        left: number;
+        right: number;
+        width: number;
+    };
+    setTop(value: number): void;
+    setLeft(value: number): void;
+    setWidth(value: number): void;
+    setHeight(value: number): void;
+    setBottom(value: number): void;
+    setRight(value: number): void;
+    /** Access all the file's analysis layers. */
     get layers(): AnalysisLayersStorage;
-    protected readonly _graphs: Map<string, AnalysisGraph>;
-    get graphs(): Map<string, AnalysisGraph>;
-    protected addGraph(graph: AnalysisGraph): void;
-    protected removeGraph(graph: string): void;
-    protected _output: AnalysisDataStateValue;
-    get output(): AnalysisDataStateValue;
-    protected set output(output: AnalysisDataStateValue);
-    onOutput: CallbacksManager<(output: AnalysisDataStateValue) => void>;
-    onAddGraph: CallbacksManager<(graph: AnalysisGraph) => void>;
-    onRemoveGraph: CallbacksManager<(graph: string) => void>;
-    constructor(drive: AnalysisDataState);
-    refreshOutput(): AnalysisDataStateValue;
-    hasGraph(): boolean;
-    generateExportData(): {
-        header: {
-            key: string;
-            displayLabel: string;
-        }[];
-        data: {
-            [index: string]: string | number;
-        }[];
+    protected _min?: number;
+    get min(): number | undefined;
+    protected _max?: number;
+    get max(): number | undefined;
+    protected _avg?: number;
+    get avg(): number | undefined;
+    dangerouslySetValues(avg: number, min?: number | undefined, max?: number | undefined): void;
+    get arrayOfPoints(): AbstractPoint[];
+    get arrayOfActivePoints(): AbstractPoint[];
+    protected _color: string;
+    get color(): string;
+    setColor(value: string): void;
+    protected abstract setColorCallback(value: string): void;
+    readonly onSetColor: CallbacksManager<(value: string) => void>;
+    protected _initialColor: string;
+    get initialColor(): string;
+    setInitialColor(value: string): void;
+    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
+    readonly activeColor = "yellow";
+    readonly inactiveColor = "black";
+    /** @deprecated is moved to GraphObject instead */
+    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
+    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
+    ready: boolean;
+    readonly nameInitial: string;
+    protected _name: string;
+    get name(): string;
+    setName(value: string): void;
+    readonly onSetName: CallbacksManager<(value: string) => void>;
+    abstract getType(): string;
+    constructor(key: string, file: Instance, initialColor: string);
+    remove(): void;
+    /** Selection / Deselection */
+    setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
+    setDeselected(emitGlobalEvent?: boolean): void;
+    /** Detect whether a coordinate is withing the analysis. */
+    abstract isWithin(x: number, y: number): boolean;
+    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
+    recalculateValues(): void;
+    /** Obtain the current values of the analysis using current position and dimensions */
+    protected abstract getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
     };
-}
-
-type HeaderRow = string[];
-type ValueRow = [Date, ...number[]];
-type DataType = [HeaderRow, ...ValueRow[]];
-type AnalysisDataStateValue = {
-    values: DataType;
-    colors: string[];
-};
-/** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
-declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
-    protected _hasActiveGraphs: boolean;
-    get hasActiveGraphs(): boolean;
-    readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
-    readonly listeners: AnalysisGraphsStorage;
-    constructor(parent: Instance);
-    protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
-    protected afterSetEffect(): void;
-    dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
-    /** Assamble the current analysis data and download them as CSV directly. */
-    downloadData(): void;
-}
-
-/** The cursor position coordinates */
-type ThermalCursorPosition = {
-    x: number;
-    y: number;
-};
-/** The cursor position coordinates or undefined */
-type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
-/** An object that has CursorPositionDrive should implement it in one particular way. */
-interface IWithCursorPosition extends IBaseProperty {
-    cursorPosition: CursorPositionDrive;
-}
-/** Handles cursor position */
-declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
-    protected _hover: boolean;
-    get hover(): boolean;
-    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
-    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
-    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
-}
-
-/** The range should allways contain both properties. */
-type ThermalRangeType = {
-    from: number;
-    to: number;
-};
-/** The range or undefined */
-type ThermalRangeOrUndefined = ThermalRangeType | undefined;
-/** An object with range should implement it in a unified way */
-interface IWithRange extends IBaseProperty {
-}
-/** Handles the thermal range display. */
-declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
-    get currentRange(): ThermalRangeOrUndefined;
-    /**
-     * Make sure the range is allways within the minmax values.
-     *
-     * If this method should work, the value needs to be set before the minmax is calculated.
-     */
-    protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
-    /**
-     * Whenever the range changes, propagate the value to all instances
-     */
-    protected afterSetEffect(value: ThermalRangeOrUndefined): void;
-    /**
-     * Imposes a range to itself and below
-     * - needs to be called before the minmax is calculated!
-     */
-    imposeRange(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
-    /** Sets the range to the current minmax values */
-    applyMinmax(): void;
-    /** Sets the range automatically based on the current histogram */
-    applyAuto(): void;
-}
-
-interface ITool {
-    key: string;
-    name: string;
-    description: string;
-    icon: string;
-    active: boolean;
-}
-declare abstract class AbstractTool {
-    readonly manager: ThermalManager;
-    active: boolean;
-    constructor(manager: ThermalManager);
-    /** Action taken upon tool activation */
-    activate(): void;
-    protected abstract onActivate(): void;
-    /** Actions taken upon tool deactivation */
-    deactivate(): void;
-    protected abstract onDeactivate(): void;
-    abstract onCanvasClick(x: number, y: number, file: Instance): void;
-    abstract onCanvasLeave(file: Instance): void;
-    /** Whenever a point is entered by the mouse */
-    abstract onPointEnter(point: AbstractPoint): void;
-    /** Whenever the mouse leaves the point */
-    abstract onPointLeave(point: AbstractPoint): void;
-    /** Whenever the point should move to a new position */
-    abstract onPointMove(point: AbstractPoint, top: number, left: number): void;
-    /** Whenever a point is clicked */
-    abstract onPointDown(point: AbstractPoint): void;
-    /** Whenever a point is ended clicking */
-    abstract onPointUp(point: AbstractPoint): void;
-    /** Assamble the cursor label at the given point */
-    abstract getLabelValue(x: number, y: number, file: Instance): string;
-}
-
-type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap;
-type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
-interface IBaseProperty {
-}
-/**
- * A common basis for all observable properties
- * @internal
- */
-declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
-    readonly parent: ParentType;
-    readonly _initial: ValueType;
-    protected _value: ValueType;
-    constructor(parent: ParentType, _initial: ValueType);
-    reset(): void;
-    protected abstract validate(value: ValueType): ValueType;
-    protected abstract afterSetEffect(value: ValueType): void;
-    /** Get the current value @readonly */
-    get value(): ValueType;
-    /** Set the value and call all listeners */
-    protected set value(value: ValueType);
-    protected _listeners: {
-        [index: string]: PropertyListenerFn<ValueType>;
-    };
-    addListener(id: string, listener: PropertyListenerFn<ValueType>): void;
-    removeListener(id: string): void;
-    clearAllListeners(): void;
-}
-
-/** Controls image smoothing */
-declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    setGraphSmooth(value: boolean): void;
-}
-
-/** Controls image smoothing */
-declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    setSmooth(value: boolean): void;
-}
-
-interface IWithTool extends IBaseProperty {
-    tool: ToolDrive;
-}
-/** The tool type merging Abstract class and the interface */
-type ThermalTool = AbstractTool & ITool & {
-    key: string;
-};
-declare class ToolDrive extends AbstractProperty<ThermalTool, ThermalManager> {
-    /** Create own set of tools from the registry of tools */
-    protected _tools: {
-        [x: string]: ThermalTool;
-    };
-    /** Readonly list of available tools */
-    get tools(): {
-        [x: string]: ThermalTool;
-    };
-    constructor(parent: ThermalManager, initial: ThermalTool);
-    protected validate(value: ThermalTool): ThermalTool;
-    protected afterSetEffect(value: ThermalTool): void;
-    /** Pick a tool. Its activation is handled by the `afterSetEffect` */
-    selectTool(tool: ThermalTool | keyof ToolDrive["tools"]): void;
-}
-
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
-};
-declare class ThermalManager extends BaseStructureObject {
-    readonly id: number;
-    /** Service for creation of loading and caching the files. */
-    readonly service: FilesService;
-    /** Index of existing registries */
-    readonly registries: {
-        [index: string]: ThermalRegistry;
-    };
-    /** A palette is common to all registries within the manager */
-    readonly palette: PaletteDrive;
-    readonly smooth: SmoothDrive;
-    readonly graphSmooth: GraphSmoothDrive;
-    readonly tool: ToolDrive;
-    readonly pool: Pool__default;
-    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
-    readonly filters: FilterContainer;
-    getInstances(): Instance[];
-    forEveryInstance(callback: (instance: Instance) => void): void;
-}
-
-/** @deprecated Should use `AvailableThermalPalettes` instead. */
-type PaletteId = keyof typeof ThermalPalettes;
-interface IWithPalette extends IBaseProperty {
-    palette: PaletteDrive;
-}
-declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
-    get availablePalettes(): {
-        iron: ThermalPaletteType;
-        jet: ThermalPaletteType;
-        grayscale: ThermalPaletteType;
-    };
-    /** All the current palette properties should be accessed through this property. */
-    get currentPalette(): ThermalPaletteType;
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    get currentPixels(): string[];
-    protected validate(value: PaletteId): PaletteId;
-    /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId): void;
-    setPalette(key: PaletteId): void;
-}
-
-/** Codes of errors */
-declare enum FileErrors {
-    NOT_SPECIFIED = 0,
-    FILE_NOT_FOUND = 1,
-    MIME_UNSUPPORTED = 2,
-    PARSING_ERROR = 3,
-    OUT_OF_MEMORY = 4
-}
-/** The error that is thrown anytime something happens during the loading */
-declare class FileLoadingError extends Error {
-    readonly code: FileErrors;
-    readonly url: string;
-    constructor(code: FileErrors, url: string, message?: string);
-}
-
-declare class ThermalFileFailure extends AbstractFileResult {
-    readonly code: FileErrors;
-    readonly message: string;
-    constructor(thermalUrl: string, code: FileErrors, message: string);
-    isSuccess(): boolean;
-    static fromError(error: FileLoadingError): ThermalFileFailure;
+    /** Override this method to get proper analysis data. */
+    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
 }
 
 /**
- * A single batch object
+ * Analysis slot takes care of serialisation
  *
- * A batch is created from all requests registered in a single tick.
- * The Batch creation and requests registration is handled completely
- * by `BatchLoader.request` method.
+ * Slot is an independent object that applies on the first 7 analysis.
+ * All the serialisation is perfoemed here. An analysis does not know
+ * about its slots at all.
  *
- * Internally, this object stores an array of file requests along
- * with all the necessary additional information: the target group
- * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
- *
+ * One analysis may be in one slot only. Never in two slots.
  */
-declare class Batch {
-    protected readonly loader: BatchLoader;
-    readonly id?: string | undefined;
-    private _loading;
-    get loading(): boolean;
-    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
-    /** The current timeout fn that is being overriden by every call of the `request` method */
-    private timeout?;
-    /** Array of currently queued requests */
-    private queue;
-    get size(): number;
-    protected constructor(loader: BatchLoader, id?: string | undefined);
-    static init(loader: BatchLoader, id?: string): Batch;
-    static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
-    /**
-     * Request a thermal file
-     *
-     * Requesting adds new record to the queue and creates a new
-     * timeout closure.
-     */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
-    close(): void;
-}
-
-/**
- * Handle batch loading of thermal files.
- *
- * This class should be used as a lazy-loaded member of a thermal registry.
- */
-declare class BatchLoader {
-    readonly registry: ThermalRegistry;
-    readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
-    private set;
-    get size(): number;
-    get currentOpenBatch(): Batch | undefined;
-    get hasLoadingBatches(): boolean;
-    get numLoadingBatches(): number;
-    constructor(registry: ThermalRegistry);
-    getBatchById(id: string): Batch;
-    /**
-     * Request a file through a batch
-     *
-     * If there is an open batch, register the request in it.
-     * Else open a new batch.
-     *
-     * The batch will execute automatically in the next tick.
-     */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
-    closeBatch(): void;
-    /**
-     * This method is called from the inside of a batch object
-     * to indicate its completion.
-     *
-     * Upon completion, the batch object is deleted and if there
-     * are no other batches, mark the registry as loaded.
-     */
-    batchFinished(batch: Batch): void;
-}
-
-/** A stupid object containing only requested URLS. Does not perform any further logic. */
-type ThermalFileRequest = {
-    thermalUrl: string;
-    visibleUrl?: string;
-};
-
-interface IWithOpacity extends IBaseProperty {
-    opacity: OpacityDrive;
-}
-declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
-    /** Make sure the value is allways between 0 and 1 */
-    protected validate(value: number): number;
-    /**
-     * Whenever the opacity changes, propagate the value to all instances
-     */
-    protected afterSetEffect(value: number): void;
-    /** Impose an opacity to all instances */
-    imposeOpacity(value: number): number;
-}
-
-interface IWithGroups extends IBaseProperty {
-    groups: GroupsState;
-}
-/** Handles group creation and removal */
-declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
-    protected _map: Map<string, ThermalGroup>;
-    get map(): Map<string, ThermalGroup>;
-    protected validate(value: ThermalGroup[]): ThermalGroup[];
-    protected afterSetEffect(value: ThermalGroup[]): void;
-    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
-    removeGroup(groupId: string): void;
-    removeAllGroups(): void;
-}
-
-/** Handles the histogram creation and subscription.
- * - should be used only in registries
- */
-declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
-    protected _resolution: number;
-    get resolution(): number;
-    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
-    protected buffer: Map<number, number>;
-    /** Total countOfPixels in every image @deprecated */
-    protected bufferPixelsCount: number;
-    /** @deprecated */
-    protected _bufferResolution: number;
-    set bufferResolution(value: number);
-    get bufferResolution(): number;
-    /** Set the historgam resolution
-     * - does not recalculate the value!
-     * - to recalculate value, call `recalculateWithCurrentSetting`
-     *
-     * @notice Higher the number, lower the resolution.
-     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
-    */
-    setResolution(value: number): void;
-    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
-    protected afterSetEffect(): void;
-    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
-    recalculateWithCurrentSetting(): ThermalStatistics[];
-    /**
-     * Recalculate the histogram buffer using web workers.
-     * This is an async operation using `workerpool`
-     */
-    recalculateHistogramBufferInWorker(): void;
-    protected recalculateHistogram(): Promise<void>;
-}
-
-interface IWithLoading extends IBaseProperty {
-    /** Stores the loading state and executes all the listeners. */
-    loading: LoadingState;
-}
-declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    markAsLoading(): void;
-    markAsLoaded(): void;
-}
-
-interface IWithMinmaxRegistry extends IBaseProperty {
-    minmax: MinmaxRegistryProperty;
-}
-declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
-    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
-    protected afterSetEffect(): void;
-    recalculateFromGroups(): ThermalMinmaxOrUndefined;
-    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+declare class AnalysisSlot {
+    readonly slot: number;
+    private _analysis;
+    get analysis(): AbstractAnalysis;
+    private _serialized;
+    get serialized(): string;
+    /** @deprecated Serialisation is emitted by the driver. This emitter is used mainly in tests, but not elsewhere. */
+    readonly onSerialize: CallbacksManager<(serializedValue: string, analysis: AbstractAnalysis) => void>;
+    /** Serialisation is done in the next tick */
+    protected enqueuedSerialisation?: ReturnType<typeof setTimeout>;
+    constructor(slot: number, analysis: AbstractAnalysis);
+    /** Generate the listener key for this slot */
+    private listenerKey;
+    /** Remove all listeners created by this slot */
+    private dehydrate;
+    /** Add all listeners to the analysis object */
+    private hydrate;
+    protected enqueueSerialisation(): void;
+    protected serialize(): void;
+    recieveSerialized(serialized: string): void;
+    /** Call global and particular callbacks */
+    protected propagateSerialisationUp(value: string | undefined): void;
 }
 
 type ExportHeaderEntryType = {
@@ -1391,6 +1156,7 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
     turnOn(instance: Instance): void;
     turnOff(): void;
     protected _currentPointer?: Instance;
+    get currentPointer(): Instance | undefined;
     forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
     protected setCurrentPointer(instance?: Instance): void;
     protected getSlotListeners(instance: Instance, slotNumber: number): {
@@ -1423,6 +1189,26 @@ declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> 
     get png(): GroupExportPNG;
 }
 
+/** The cursor position coordinates */
+type ThermalCursorPosition = {
+    x: number;
+    y: number;
+};
+/** The cursor position coordinates or undefined */
+type ThermalCursorPositionOrUndefined = ThermalCursorPosition | undefined;
+/** An object that has CursorPositionDrive should implement it in one particular way. */
+interface IWithCursorPosition extends IBaseProperty {
+    cursorPosition: CursorPositionDrive;
+}
+/** Handles cursor position */
+declare class CursorPositionDrive extends AbstractProperty<ThermalCursorPositionOrUndefined, ThermalGroup> {
+    protected _hover: boolean;
+    get hover(): boolean;
+    protected validate(value: ThermalCursorPositionOrUndefined): ThermalCursorPositionOrUndefined;
+    protected afterSetEffect(value: ThermalCursorPositionOrUndefined): void;
+    recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
+}
+
 interface IWithFiles extends IBaseProperty {
     files: FilesState;
 }
@@ -1449,14 +1235,17 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     downloadAllFiles(): void;
 }
 
-interface IWithCursorValue extends IBaseProperty {
-    cursorValue: CursorValueDrive;
+interface ThermalMinmaxType {
+    min: number;
+    max: number;
 }
-declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
-    protected validate(value: number | undefined): number | undefined;
-    protected afterSetEffect(): void;
-    recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
-    protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
+type ThermalMinmaxOrUndefined = ThermalMinmaxType | undefined;
+/**
+ * A common basis for all Minmax properties
+ */
+declare abstract class AbstractMinmaxProperty<Target extends ThermalRegistry | ThermalGroup> extends AbstractProperty<ThermalMinmaxOrUndefined, Target> {
+    /** Get the current distance between min and max */
+    get distanceInCelsius(): undefined | number;
 }
 
 interface IWithMinmaxGroup extends IBaseProperty {
@@ -1468,6 +1257,100 @@ declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
     /** Call this method once all instances are created */
     recalculateFromInstances(): ThermalMinmaxOrUndefined;
     protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
+}
+
+interface IWithOpacity extends IBaseProperty {
+    opacity: OpacityDrive;
+}
+declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
+    /** Make sure the value is allways between 0 and 1 */
+    protected validate(value: number): number;
+    /**
+     * Whenever the opacity changes, propagate the value to all instances
+     */
+    protected afterSetEffect(value: number): void;
+    /** Impose an opacity to all instances */
+    imposeOpacity(value: number): number;
+}
+
+/** The range should allways contain both properties. */
+type ThermalRangeType = {
+    from: number;
+    to: number;
+};
+/** The range or undefined */
+type ThermalRangeOrUndefined = ThermalRangeType | undefined;
+/** An object with range should implement it in a unified way */
+interface IWithRange extends IBaseProperty {
+}
+/** Handles the thermal range display. */
+declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
+    get currentRange(): ThermalRangeOrUndefined;
+    /**
+     * Make sure the range is allways within the minmax values.
+     *
+     * If this method should work, the value needs to be set before the minmax is calculated.
+     */
+    protected validate(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
+    /**
+     * Whenever the range changes, propagate the value to all instances
+     */
+    protected afterSetEffect(value: ThermalRangeOrUndefined): void;
+    /**
+     * Imposes a range to itself and below
+     * - needs to be called before the minmax is calculated!
+     */
+    imposeRange(value: ThermalRangeOrUndefined): ThermalRangeOrUndefined;
+    /** Sets the range to the current minmax values */
+    applyMinmax(): void;
+    /** Sets the range automatically based on the current histogram */
+    applyAuto(): void;
+}
+
+interface IWithGroups extends IBaseProperty {
+    groups: GroupsState;
+}
+/** Handles group creation and removal */
+declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
+    protected _map: Map<string, ThermalGroup>;
+    get map(): Map<string, ThermalGroup>;
+    protected validate(value: ThermalGroup[]): ThermalGroup[];
+    protected afterSetEffect(value: ThermalGroup[]): void;
+    addExistingGroup(group: ThermalGroup): void;
+    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
+    removeGroup(groupId: string): void;
+    removeAllGroups(): void;
+}
+
+interface IWithCursorValue extends IBaseProperty {
+    cursorValue: CursorValueDrive;
+}
+declare class CursorValueDrive extends AbstractProperty<number | undefined, Instance> {
+    protected validate(value: number | undefined): number | undefined;
+    protected afterSetEffect(): void;
+    recalculateFromCursor(position: ThermalCursorPositionOrUndefined): void;
+    protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
+}
+
+interface IWithLoading extends IBaseProperty {
+    /** Stores the loading state and executes all the listeners. */
+    loading: LoadingState;
+}
+declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    markAsLoading(): void;
+    markAsLoaded(): void;
+}
+
+interface IWithMinmaxRegistry extends IBaseProperty {
+    minmax: MinmaxRegistryProperty;
+}
+declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
+    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
+    protected afterSetEffect(): void;
+    recalculateFromGroups(): ThermalMinmaxOrUndefined;
+    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
 }
 
 declare class FrameBuffer {
@@ -1573,6 +1456,10 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
     formatDuration(ms: number): string;
     next(): void;
     prev(): void;
+    protected findPreviousOrThis(relativeTimeInMs: number): ParsedTimelineFrame;
+    /**
+     * Find previous frame by relative ms.
+     */
     findPreviousRelative(relativeTimeInMs: number): ParsedTimelineFrame;
     findNextRelative(relativeTimeInMs: number): false | ParsedTimelineFrame;
     setRelativeTime(relativeTimeInMs: number): Promise<TimelineChangedStatusType>;
@@ -1636,6 +1523,307 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles,
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
 }
 
+/**
+ * Control coordinated playback of files within a group.
+ *
+ * The value is actual time in relative MS (from start, to the end of the latest sequence).
+ *
+ * This functionality depends on batch analysis of all group files.
+ *
+ * @todo Group should have its own loading method for batch processing. This method should provide its own callbacks.
+ */
+declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
+    protected _hasAnyPlayback: boolean;
+    /** Does this group include any sequence? */
+    get hasAnyPlayback(): boolean;
+    protected set hasAnyPlayback(value: boolean);
+    readonly onHasAnyCallback: CallbacksManager<(value: boolean) => void>;
+    protected recalculateHasAnyPlayback(instances: Instance[]): void;
+    protected _playing: boolean;
+    get playing(): boolean;
+    protected set playing(value: boolean);
+    readonly onPlayingStatusChange: CallbacksManager<(value: boolean) => void>;
+    /** Internal pointer holding the current loop iteration*/
+    protected loopStep: number;
+    /** Internal setTimeout for playback. */
+    protected loopTimer?: ReturnType<typeof setTimeout>;
+    protected _loopInterval: number;
+    /** Interval upon which the main loop triggers. In MS. */
+    get loopInterval(): number;
+    /** @deprecated The playback interval should not change during playback */
+    setLoopInterval(value: number): void;
+    /** @deprecated The loop playback should not change during playback */
+    readonly onLoopIntervalChanged: CallbacksManager<(value: number) => void>;
+    protected _duration: number;
+    get duration(): number;
+    protected set duration(value: number);
+    readonly onDurationChanged: CallbacksManager<(value: number | undefined) => void>;
+    protected recalculateDuration(instances: Instance[]): void;
+    protected UUID: string;
+    constructor(parent: ThermalGroup, initial: number);
+    protected validate(value: number): number;
+    protected afterSetEffect(value: number): void;
+    /** Set time value by percent. The actual MS is calculated depending on the duration. */
+    setValueByPercent(percent: number): void;
+    /** Set the time value by MS. */
+    setValueByRelativeMs(relativeMs: number): void;
+    /** Convert percent value to relative time in MS */
+    protected percentToMs(percent: number): number;
+    /** Convert relative time in MS to percent value */
+    protected msToPercent(ms: number): number;
+    /**
+     * The main method that shall create a timer leading to the next step.
+     *
+     * It might be called recursively to ensure fluent playback.
+     */
+    protected createTimerStep(recursive?: boolean): void;
+    /**
+     * Play the entire group
+     */
+    play(): void;
+    /**
+     * Stop the entire group
+     */
+    stop(): void;
+    /**
+     * Set the MS value to 0
+     */
+    reset(): void;
+}
+
+type ThermalGroupGraphData = [
+    string[],
+    ...[Date, ...number[]][]
+];
+type ThermalGraphDefinition = {
+    data: ThermalGroupGraphData;
+    colors: string[];
+};
+type ThermalGraphGroupDataOrUndefined = ThermalGraphDefinition | undefined;
+declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOrUndefined, ThermalGroup> {
+    static LISTENER_ID: string;
+    constructor(parent: ThermalGroup);
+    protected timeout?: ReturnType<typeof setTimeout>;
+    protected calculateData(): void;
+    turnOn(): void;
+    turnOff(): void;
+    _wtf(): void;
+    protected validate(value: ThermalGraphGroupDataOrUndefined): ThermalGraphGroupDataOrUndefined;
+    protected afterSetEffect(value: ThermalGraphDefinition): void;
+}
+
+/**
+ * Group of thermal images
+ */
+declare class ThermalGroup extends BaseStructureObject implements IThermalGroup {
+    readonly registry: ThermalRegistry;
+    readonly id: string;
+    readonly name?: string | undefined;
+    readonly description?: string | undefined;
+    readonly hash: number;
+    /** Human readable label = name or id or hasn */
+    get label(): string;
+    get pool(): Pool;
+    constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
+    readonly minmax: MinmaxGroupProperty;
+    /** Tool drive from above */
+    get tool(): ToolDrive;
+    readonly files: FilesState;
+    readonly cursorPosition: CursorPositionDrive;
+    readonly analysisSync: AnalysisSyncDrive;
+    readonly analysisGraph: AnalysisGroupGraph;
+    protected _playback?: GroupPlayback;
+    get playback(): GroupPlayback;
+    /** Iteration */
+    forEveryInstance: (fn: ((instance: Instance) => void)) => void;
+    /** Remove all instances, reset the minmax */
+    destroySelfAndBelow(): void;
+    removeAllChildren(): void;
+    reset(): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+    startBatch(id: string): Batch;
+}
+
+declare class AnalysisGraphsStorage {
+    readonly drive: AnalysisDataState;
+    readonly listenerKey = "___listen-to-graphs___";
+    get layers(): AnalysisLayersStorage;
+    protected readonly _graphs: Map<string, AnalysisGraph>;
+    get graphs(): Map<string, AnalysisGraph>;
+    protected addGraph(graph: AnalysisGraph): void;
+    protected removeGraph(graph: string): void;
+    protected _output: AnalysisDataStateValue;
+    get output(): AnalysisDataStateValue;
+    protected set output(output: AnalysisDataStateValue);
+    onOutput: CallbacksManager<(output: AnalysisDataStateValue) => void>;
+    onAddGraph: CallbacksManager<(graph: AnalysisGraph) => void>;
+    onRemoveGraph: CallbacksManager<(graph: string) => void>;
+    constructor(drive: AnalysisDataState);
+    refreshOutput(): AnalysisDataStateValue;
+    hasGraph(): boolean;
+    generateExportData(): {
+        header: {
+            key: string;
+            displayLabel: string;
+        }[];
+        data: {
+            [index: string]: string | number;
+        }[];
+    };
+}
+
+type HeaderRow = string[];
+type ValueRow = [Date, ...number[]];
+type DataType = [HeaderRow, ...ValueRow[]];
+type AnalysisDataStateValue = {
+    values: DataType;
+    colors: string[];
+};
+/** Stores the data of all analysis. Purpose: store data for the purpose of graph. The graph data format is constructed for Google Charts webcomponent. */
+declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, Instance> {
+    protected _hasActiveGraphs: boolean;
+    get hasActiveGraphs(): boolean;
+    readonly onGraphsPresence: CallbacksManager<(hasActiveGraphs: boolean) => void>;
+    readonly listeners: AnalysisGraphsStorage;
+    constructor(parent: Instance);
+    protected validate(value: AnalysisDataStateValue): AnalysisDataStateValue;
+    protected afterSetEffect(): void;
+    dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
+    /** Assamble the current analysis data and download them as CSV directly. */
+    downloadData(): void;
+}
+
+type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;
+type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
+interface IBaseProperty {
+}
+/**
+ * A common basis for all observable properties
+ * @internal
+ */
+declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
+    readonly parent: ParentType;
+    readonly _initial: ValueType;
+    protected _value: ValueType;
+    constructor(parent: ParentType, _initial: ValueType);
+    reset(): void;
+    protected abstract validate(value: ValueType): ValueType;
+    protected abstract afterSetEffect(value: ValueType): void;
+    /** Get the current value @readonly */
+    get value(): ValueType;
+    /** Set the value and call all listeners */
+    protected set value(value: ValueType);
+    protected _listeners: {
+        [index: string]: PropertyListenerFn<ValueType>;
+    };
+    addListener(id: string, listener: PropertyListenerFn<ValueType>): void;
+    removeListener(id: string): void;
+    clearAllListeners(): void;
+}
+
+/** Controls image smoothing */
+declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    setGraphSmooth(value: boolean): void;
+}
+
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalettes;
+};
+declare class ThermalManager extends BaseStructureObject {
+    readonly id: number;
+    /** Service for creation of loading and caching the files. */
+    readonly service: FilesService;
+    /** Index of existing registries */
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    /** A palette is common to all registries within the manager */
+    readonly palette: PaletteDrive;
+    readonly smooth: SmoothDrive;
+    readonly graphSmooth: GraphSmoothDrive;
+    readonly tool: ToolDrive;
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+    forEveryInstance(callback: (instance: Instance) => void): void;
+}
+
+/** @deprecated Should use `AvailableThermalPalettes` instead. */
+type PaletteId = keyof typeof ThermalPalettes;
+interface IWithPalette extends IBaseProperty {
+    palette: PaletteDrive;
+}
+declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
+    get availablePalettes(): {
+        iron: ThermalPaletteType;
+        jet: ThermalPaletteType;
+        grayscale: ThermalPaletteType;
+    };
+    /** All the current palette properties should be accessed through this property. */
+    get currentPalette(): ThermalPaletteType;
+    /** @deprecated Should not be used at all. Use `currentPalette` instead */
+    get currentPixels(): string[];
+    protected validate(value: PaletteId): PaletteId;
+    /** Any changes to the value should propagate directly to every instance. */
+    protected afterSetEffect(value: PaletteId): void;
+    setPalette(key: PaletteId): void;
+}
+
+/** A stupid object containing only requested URLS. Does not perform any further logic. */
+type ThermalFileRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+};
+
+/** Handles the histogram creation and subscription.
+ * - should be used only in registries
+ */
+declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
+    protected _resolution: number;
+    get resolution(): number;
+    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
+    protected buffer: Map<number, number>;
+    /** Total countOfPixels in every image @deprecated */
+    protected bufferPixelsCount: number;
+    /** @deprecated */
+    protected _bufferResolution: number;
+    set bufferResolution(value: number);
+    get bufferResolution(): number;
+    /** Set the historgam resolution
+     * - does not recalculate the value!
+     * - to recalculate value, call `recalculateWithCurrentSetting`
+     *
+     * @notice Higher the number, lower the resolution.
+     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
+    */
+    setResolution(value: number): void;
+    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
+    protected afterSetEffect(): void;
+    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
+    recalculateWithCurrentSetting(): ThermalStatistics[];
+    /**
+     * Recalculate the histogram buffer using web workers.
+     * This is an async operation using `workerpool`
+     */
+    recalculateHistogramBufferInWorker(): void;
+    protected recalculateHistogram(): Promise<void>;
+}
+
 type ThermalRegistryOptions = {
     histogramResolution?: number;
 };
@@ -1660,9 +1848,9 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
     /** Full load of the registry with multiple files @deprecated */
     loadFullMultipleFiles(files: {
         [index: string]: ThermalFileRequest[];
-    }): Promise<void>;
+    }): Promise<(false | Instance)[][]>;
     /** Load the registry with only one file. @deprecated */
-    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<void>;
+    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
     private _batch?;
     get batch(): BatchLoader;
     /** @deprecated use batch member class instead */
@@ -2162,6 +2350,13 @@ declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileE
     protected onDownload(params: AbstractExportTypeMandatory): void;
 }
 
+/**
+ * An instance of the loaded file
+ *
+ * Holds DOM, displays the canvas,
+ * handles playback and do all important
+ * stuff.
+ */
 declare class Instance extends AbstractFile {
     readonly group: ThermalGroup;
     readonly reader: ThermalFileReader;
@@ -2197,163 +2392,6 @@ declare class Instance extends AbstractFile {
     applyAllAvailableFilters(): Promise<void>;
 }
 
-declare abstract class BaseStructureObject {
-    abstract getInstances(): Instance[];
-}
-
-/**
- * Control coordinated playback of files within a group.
- *
- * The value is actual time in relative MS (from start, to the end of the latest sequence).
- *
- * This functionality depends on batch analysis of all group files.
- *
- * @todo Group should have its own loading method for batch processing. This method should provide its own callbacks.
- */
-declare class GroupPlayback extends AbstractProperty<number, ThermalGroup> {
-    protected _hasAnyPlayback: boolean;
-    /** Does this group include any sequence? */
-    get hasAnyPlayback(): boolean;
-    protected set hasAnyPlayback(value: boolean);
-    readonly onHasAnyCallback: CallbacksManager<(value: boolean) => void>;
-    protected recalculateHasAnyPlayback(instances: Instance[]): void;
-    protected _playing: boolean;
-    get playing(): boolean;
-    protected set playing(value: boolean);
-    readonly onPlayingStatusChange: CallbacksManager<(value: boolean) => void>;
-    /** Internal pointer holding the current loop iteration*/
-    protected loopStep: number;
-    /** Internal setTimeout for playback. */
-    protected loopTimer?: ReturnType<typeof setTimeout>;
-    protected _loopInterval: number;
-    /** Interval upon which the main loop triggers. In MS. */
-    get loopInterval(): number;
-    /** @deprecated The playback interval should not change during playback */
-    setLoopInterval(value: number): void;
-    /** @deprecated The loop playback should not change during playback */
-    readonly onLoopIntervalChanged: CallbacksManager<(value: number) => void>;
-    protected _duration: number;
-    get duration(): number;
-    protected set duration(value: number);
-    readonly onDurationChanged: CallbacksManager<(value: number | undefined) => void>;
-    protected recalculateDuration(instances: Instance[]): void;
-    protected UUID: string;
-    constructor(parent: ThermalGroup, initial: number);
-    protected validate(value: number): number;
-    protected afterSetEffect(value: number): void;
-    /** Set time value by percent. The actual MS is calculated depending on the duration. */
-    setValueByPercent(percent: number): void;
-    /** Set the time value by MS. */
-    setValueByRelativeMs(relativeMs: number): void;
-    /** Convert percent value to relative time in MS */
-    protected percentToMs(percent: number): number;
-    /** Convert relative time in MS to percent value */
-    protected msToPercent(ms: number): number;
-    /**
-     * The main method that shall create a timer leading to the next step.
-     *
-     * It might be called recursively to ensure fluent playback.
-     */
-    protected createTimerStep(recursive?: boolean): void;
-    /**
-     * Play the entire group
-     */
-    play(): void;
-    /**
-     * Stop the entire group
-     */
-    stop(): void;
-    /**
-     * Set the MS value to 0
-     */
-    reset(): void;
-}
-
-/**
- * Group of thermal images
- */
-declare class ThermalGroup extends BaseStructureObject implements IThermalGroup {
-    readonly registry: ThermalRegistry;
-    readonly id: string;
-    readonly name?: string | undefined;
-    readonly description?: string | undefined;
-    readonly hash: number;
-    /** Human readable label = name or id or hasn */
-    get label(): string;
-    get pool(): Pool;
-    constructor(registry: ThermalRegistry, id: string, name?: string | undefined, description?: string | undefined);
-    readonly minmax: MinmaxGroupProperty;
-    /** Tool drive from above */
-    get tool(): ToolDrive;
-    readonly files: FilesState;
-    readonly cursorPosition: CursorPositionDrive;
-    readonly analysisSync: AnalysisSyncDrive;
-    protected _playback?: GroupPlayback;
-    get playback(): GroupPlayback;
-    /** Iteration */
-    forEveryInstance: (fn: ((instance: Instance) => void)) => void;
-    /** Remove all instances, reset the minmax */
-    destroySelfAndBelow(): void;
-    removeAllChildren(): void;
-    reset(): void;
-    readonly filters: FilterContainer;
-    getInstances(): Instance[];
-    startBatch(id: string): Batch;
-}
-
-interface ThermalMinmaxType {
-    min: number;
-    max: number;
-}
-type ThermalMinmaxOrUndefined = ThermalMinmaxType | undefined;
-/**
- * A common basis for all Minmax properties
- */
-declare abstract class AbstractMinmaxProperty<Target extends ThermalRegistry | ThermalGroup> extends AbstractProperty<ThermalMinmaxOrUndefined, Target> {
-    /** Get the current distance between min and max */
-    get distanceInCelsius(): undefined | number;
-}
-
-type AcceptableDateInput = number | Date;
-declare abstract class TimeUtilsBase {
-    /** Convert an input to a date object */
-    static inputToDate: (value: AcceptableDateInput) => Date;
-}
-
-/** Utility class for time formatting in the LabIR ecosystem. */
-declare class TimeFormat extends TimeUtilsBase {
-    /** YYYY-MM-DD */
-    static isoDate: (value: AcceptableDateInput) => string;
-    /** HH:MM:SS */
-    static isoTime: (value: AcceptableDateInput) => string;
-    /** YYYY-MM-DD HH:MM:SS */
-    static isoComplete: (value: AcceptableDateInput) => string;
-    /** HH:mm */
-    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
-    /** j. M. ???? (y) */
-    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
-    /** Range */
-    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
-    static human(date: AcceptableDateInput): string;
-}
-
-/** Defined time periods used in the LabIR ecosystem. */
-declare enum TimePeriod {
-    HOUR = "jednu hodinu",
-    DAY = "jeden den",
-    WEEK = "jeden t\u00FDden",
-    MONTH = "jeden m\u011Bs\u00EDc",
-    YEAR = "jeden rok"
-}
-
-/** Utility class for time rounding in the LabIR ecosystem. */
-declare class TimeRound extends TimeUtilsBase {
-    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
-    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
-}
-
 /**
  * Array of all supported file types and extensions
  * - this is only for the purpose of display!
@@ -2362,6 +2400,42 @@ declare class TimeRound extends TimeUtilsBase {
  */
 declare const supportedFileTypes: IParserObject["extensions"][];
 declare const supportedFileTypesInputProperty: string;
+
+declare const getPool: () => Promise<Pool__default>;
+
+declare class InspectTool extends AbstractTool implements ITool {
+    readonly key = "inspect";
+    readonly name: string;
+    readonly description: string;
+    readonly icon: string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasClick(): void;
+    onCanvasLeave(): void;
+    onPointEnter(): void;
+    onPointLeave(): void;
+    onPointMove(): void;
+    onPointDown(): void;
+    onPointUp(): void;
+    getLabelValue: (x: number, y: number, file: Instance) => string;
+}
+
+declare class EditTool extends AbstractTool implements ITool {
+    readonly key = "edit";
+    readonly name = "editanalysis";
+    readonly description = "dragcornersofselectedanalysis";
+    readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
+    onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasLeave(): void;
+    onCanvasClick(): void;
+    onPointEnter(point: AbstractPoint): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
+    getLabelValue(x: number, y: number, file: Instance): string;
+}
 
 /** Tool for analysis addition */
 declare abstract class AbstractAddTool extends AbstractTool {
@@ -2400,41 +2474,5 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
     onPointEnter(): void;
     getLabelValue: (x: number, y: number, file: Instance) => string;
 }
-
-declare class EditTool extends AbstractTool implements ITool {
-    readonly key = "edit";
-    readonly name = "editanalysis";
-    readonly description = "dragcornersofselectedanalysis";
-    readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
-    onActivate(): void;
-    protected onDeactivate(): void;
-    onCanvasLeave(): void;
-    onCanvasClick(): void;
-    onPointEnter(point: AbstractPoint): void;
-    onPointLeave(point: AbstractPoint): void;
-    onPointMove(point: AbstractPoint, top: number, left: number): void;
-    onPointDown(point: AbstractPoint): void;
-    onPointUp(point: AbstractPoint): void;
-    getLabelValue(x: number, y: number, file: Instance): string;
-}
-
-declare class InspectTool extends AbstractTool implements ITool {
-    readonly key = "inspect";
-    readonly name: string;
-    readonly description: string;
-    readonly icon: string;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-    onCanvasClick(): void;
-    onCanvasLeave(): void;
-    onPointEnter(): void;
-    onPointLeave(): void;
-    onPointMove(): void;
-    onPointDown(): void;
-    onPointUp(): void;
-    getLabelValue: (x: number, y: number, file: Instance) => string;
-}
-
-declare const getPool: () => Promise<Pool__default>;
 
 export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };

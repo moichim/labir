@@ -36,6 +36,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     }
 
     protected _currentPointer?: Instance;
+    public get currentPointer() { return this._currentPointer; }
 
     public forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void) {
         if (this._currentPointer === undefined) {
@@ -99,45 +100,49 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
     }
 
     protected getSlotListeners(instance: Instance, slotNumber: number) {
+
+
+        const slot = instance.slots.getSlot( slotNumber );
+
         if (slotNumber === 1) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot1Serialize,
                 assign: instance.slots.onSlot1Assignement
             }
         } else if (slotNumber === 2) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot2Serialize,
                 assign: instance.slots.onSlot2Assignement
             }
         } else if (slotNumber === 3) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot3Serialize,
                 assign: instance.slots.onSlot3Assignement
             }
         } else if (slotNumber === 4) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot4Serialize,
                 assign: instance.slots.onSlot4Assignement
             }
         } else if (slotNumber === 5) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot5Serialize,
                 assign: instance.slots.onSlot5Assignement
             }
         } else if (slotNumber === 6) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot6Serialize,
                 assign: instance.slots.onSlot6Assignement
             }
         } else if (slotNumber === 7) {
             return {
-                slot: instance.slots.getSlot(slotNumber),
+                slot,
                 serialise: instance.slots.onSlot7Serialize,
                 assign: instance.slots.onSlot7Assignement
             }
@@ -148,9 +153,11 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
 
     public startSyncingSlot(instance: Instance, slotNumber: number) {
+        
         const { serialise } = this.getSlotListeners(instance, slotNumber)!;
 
         serialise.set(AnalysisSyncDrive.LISTENER_KEY, value => {
+            
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
 
                 this.onSlotSync.call(value, slotNumber);
@@ -239,6 +246,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
         this.parent.files.forEveryInstance(
             instance => {
+
+                if ( instance === this.currentPointer ) {
+                    return;
+                }
 
                 if (serialized) {
                     const sl = instance.slots.getSlot(slot);

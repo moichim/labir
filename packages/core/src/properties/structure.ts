@@ -2,7 +2,7 @@
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { IWithAnalysis } from "./analysis/analysis/AnalysisDrive";
-import { IWithAnalysisSync } from "./analysisSync/analysisSync";
+import { IWithAnalysisSync } from "./analysis/sync/analysisSync";
 import { IWithCursorPosition } from "./cursor/CursorPositionDrive";
 import { IWithOpacity } from "./display/OpacityDrive";
 import { IWithPalette } from "./scale/PaletteDrive";
@@ -15,7 +15,7 @@ import { IWithMinmaxGroup } from "./scale/MinmaxGroupProperty";
 import { IWithMinmaxRegistry } from "./scale/MinmaxRegistryState";
 import { IWithTimeline } from "./time/playback/TimelineDrive";
 import { IWithRedording } from "./time/recording/RecordingDrive";
-import { IWithTool } from "./tool/ToolDrive";
+import { IWithTool } from "./analysis/tool/ToolDrive";
 
 
 

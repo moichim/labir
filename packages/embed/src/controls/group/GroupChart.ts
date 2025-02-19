@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { html, css, LitElement, PropertyValues, nothing } from 'lit';
+import { html, css, LitElement, PropertyValues, nothing, CSSResultGroup } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 
 import { createChartWrapper, dataTable, DataTableLike } from '../file/analysis/chart/loader';
@@ -26,6 +26,8 @@ const DEFAULT_EVENTS = ['ready', 'select'];
 
 import '@google-web-components/google-chart';
 import { addHours } from 'date-fns';
+import { t } from 'i18next';
+import { T } from '../../translations/Languages';
 
 /**
  * Constructor names for supported chart types.
@@ -82,155 +84,93 @@ export class GroupChart extends GroupConsumer {
     protected timeout?: NodeJS.Timeout;
 
     @state()
-    protected data: (string | number | Date)[][] = [];
+    protected data: [
+        string[],
+        ...[Date,...number[]][]
+    ] | undefined;
 
     @state()
     protected colors?: string[];
 
+    @state()
+    protected on: boolean = false;
+
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-    
-        this.group.files.addListener(this.UUID, value => {
-
-
-            value.forEach( instance => {
-                instance.analysisData.listeners.onOutput.set( this.UUID, data => {
-                    console.log( data.values[1] );
-
-                    if ( this.timeout !== undefined ) {
-                        clearTimeout( this.timeout );
-                    }
-                    this.timeout = setTimeout( async () => { 
-                        await this.calculateData() 
-                    }, 0 );
-
-                } );
-            } );
-
-            /*
-            this.instances.forEach(instance => {
-                instance.analysisData.removeListener(this.UUID);
-            });
-            */
-
-            this.instances = value;
-
-            /*
-            this.instances.forEach(instance => {
-                instance.analysisData.addListener(this.UUID, data => {
-                    if (this.timeout !== undefined) {
-                        clearTimeout(this.timeout);
-                    }
-                    this.timeout = setTimeout(() => this.calculateData(), 10);
-                });
-            });
-            */
-
-        });
-        
-        /*
-        this.group.analysisSync.onSlotSync.add( this.UUID, (a, b) => {
-
-            if ( this.timeout !== undefined ) {
-                clearTimeout( this.timeout );
-            }
-            this.timeout = setTimeout( async () => { 
-                await this.calculateData() 
-            }, 0 );
+        this.group.files.addListener( this.UUID, value => {
+            this.group.analysisGraph.turnOn();
         } );
-        */
+
+        this.group.analysisGraph.addListener( this.UUID, value => {
+            this.log( value );
+
+            if ( value !== undefined ) {
+                this.data = value.data;
+                this.colors = value.colors;
+                this.on = true;
+            } else {
+                this.data = undefined;
+                this.colors = undefined;
+                this.on = false;
+            }
+
+        } );
 
     }
 
-    protected async calculateData() {
-
-        this.log("Přepočítávám data");
-
-        let header: string[] = [];
-
-        let colors: string[] = [];
-
-        let d: [Date, ...number[]][] = [];
-
-
-        // Iterate the first instance and get the current analysis names
-        const firstFile: Instance = this.group.files.value[0];
-
-        if (firstFile !== undefined) {
-
-            const firstRow = firstFile.analysisData.value.values[0];
-
-            if (firstRow !== undefined) {
-
-                header = firstRow;
-                colors = firstFile.analysisData.value.colors;
-
-            }
-
+    static styles?: CSSResultGroup | undefined = css`
+    
+        .wrapper {
+            transition: all 0.3s ease-in-out;
+            width: 100%;
+            overflow: hidden;
         }
 
+        .on {
+            height: 300px;
+            border-bottom: 1px solid var( --thermalforeground );
+        }
 
-        const sth = await Promise.all( this.instances.map( async ( instance ) => {
-            return await Promise.all( instance.analysis.value.map( async ( analysis ) => {
-                return analysis.getAnalysisData();
-            } ) );
-        } ) );
+        .off {
+            height: 0px;
+        }
 
+    `;
 
+    download() {
 
-        this.instances.forEach( ( instance ) => {
+        const svg = this.shadowRoot?.querySelectorAll( "google-chart" );
 
-            const affectedRow = instance.analysisData.value.values[1];
-
-            if (affectedRow) {
-                
-                const time = new Date();
-                time.setTime(instance.timestamp);
-                const row: [Date, ...number[]] = [
-                    time,
-                    ...affectedRow.slice(1) as number[]
-                ];
-
-                d.push(row);
-
-            }
-
-        });
-
-        d.sort( (a, b) => {
-            return a[0].getTime() - b[0].getTime();
-        } );
-
-        this.data = [
-            header,
-            ...d
-        ];
-
-        this.colors = colors;
-
+        console.log( svg );
 
     }
+
 
     protected render(): unknown {
 
-        if (this.data.length <= 1) {
-            return nothing;
-        }
 
         return html`
-            <div>
-                <google-chart 
-                    .data=${this.data} 
-                    .options=${{
-                        colors: this.colors
-                    }}
-                    w="100" 
-                    h="100"
-                    type="line"
-                    width="100%"
-                    style="width: 100%;"
-                ></google-chart>
+            <div class="wrapper ${this.on ? "on" : "off"}">
+
+                ${this.on === true ? html`
+                    <google-chart 
+                        .data=${this.data} 
+                        .options=${{
+                            colors: this.colors,
+                            legend: { position: 'bottom' },
+                            hAxis: { title: 'Time' },
+                            vAxis: { title: 'Temperature °C' },
+                            chartArea: { 
+                                width: '90%', 
+                            },
+                        }}
+                        type="line"
+                        width="100%"
+                        style="width: 100%;height: 300px"
+                    ></google-chart>
+                ` : nothing}
+                
             </div>
         `;
     }

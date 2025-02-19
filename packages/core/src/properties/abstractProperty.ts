@@ -6,8 +6,9 @@ import { AnalysisDataStateValue } from "./analysis/data/AnalysisDataState";
 import { AbstractAnalysis } from "./analysis/analysis/internals/AbstractAnalysis";
 import { ThermalCursorPositionOrUndefined } from "./cursor/CursorPositionDrive";
 import { ThermalRangeOrUndefined } from "./scale/RangeDriver";
-import { AbstractTool } from "./tool/internals/AbstractTool";
+import { AbstractTool } from "./analysis/tool/internals/AbstractTool";
 import { AnalysisSlotsMap } from "./analysis/slots/AnalysisSlotsDrive";
+import { ThermalGraphGroupDataOrUndefined } from "./analysis/group/AnalysisGroupGraph";
 
 type PropertyListenersTypes = boolean
     | number
@@ -21,7 +22,8 @@ type PropertyListenersTypes = boolean
     | AbstractAnalysis[]
     | AbstractTool
     | AnalysisDataStateValue
-    | AnalysisSlotsMap;
+    | AnalysisSlotsMap
+    | ThermalGraphGroupDataOrUndefined;
 
 export type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void
 

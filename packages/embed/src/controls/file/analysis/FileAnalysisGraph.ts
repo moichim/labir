@@ -10,6 +10,9 @@ import { ThermalChart } from "./chart/chart";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
+    public getTourableRoot(): HTMLElement | undefined {
+        throw new Error("Method not implemented.");
+    }
 
     @state()
     protected hydrated: boolean = false;

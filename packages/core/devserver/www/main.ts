@@ -70,6 +70,15 @@ const buildExportPngButton = () => {
 
     document.body.appendChild( dn );
 
+
+    const dn2 = document.createElement( "button" );
+    dn2.innerHTML = "Togle analysis";
+    dn2.addEventListener("click", () => {
+        group.analysisGraph._wtf();
+    } );
+    document.body.appendChild( dn2 );
+
+
 }
 
 buildExportPngButton();
@@ -77,7 +86,10 @@ buildExportPngButton();
 const array = [
     "/sequence.lrc",
     "/soustruh.lrc",
+    "/tucnaci_04.lrc"
 ];
+
+registry.palette.setPalette( "iron" );
 
 array.map( file => {
     registry.batch.request( file, undefined, group, async ( result ) => {
@@ -107,6 +119,12 @@ array.map( file => {
             } );
 
             document.body.appendChild( play );
+
+            group.analysisSync.turnOn( result );
+            group.analysisGraph.turnOn();
+
+            // group.registry.palette.setPalette( "jet" );
+
         }
     } )
 } );

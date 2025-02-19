@@ -68,6 +68,7 @@ export class AnalysisSlot {
 
     protected serialize() {
         this._serialized = this.analysis.toSerialized();
+        
         this.onSerialize.call(this._serialized, this.analysis);
 
         this.propagateSerialisationUp( this._serialized );
@@ -77,6 +78,14 @@ export class AnalysisSlot {
     public recieveSerialized(
         serialized: string
     ) {
+
+        /*
+        console.log( 
+            "recieved serialised", 
+            this._analysis.file.timestamp, 
+            serialized 
+        );
+        */
 
         this.analysis.recievedSerialized(serialized);
 
@@ -88,6 +97,8 @@ export class AnalysisSlot {
             this._serialized = newSerialized;
 
             this.onSerialize.call(this._serialized, this.analysis);
+
+            // this.propagateSerialisationUp( this._serialized );
 
         }
 
