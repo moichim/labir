@@ -5,6 +5,13 @@ export const en: Translation = {
     loading: "Loading",
 
     file: "File",
+    upload: "Upload",
+    uploadafile: "Upload a file",
+    selectfile: "Select a file",
+    addfiles: "Add file(s)",
+    clear: "Clear",
+    dragorselectfile: "Drag and drop an LRC file or select it from disk",
+
 
     next: "Next",
     prev: "Previous",

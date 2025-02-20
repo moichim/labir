@@ -19,7 +19,7 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     public get map() { return this._map; }
 
     protected validate(value: Instance[]): Instance[] {
-        return value;
+        return value.sort( (a,b) => a.timestamp - b.timestamp );
     }
 
     /** Array of all files sorted by timestamp from the earliest to the latest. */

@@ -335,6 +335,7 @@ export class GroupElement extends AbstractMultipleApp {
 
                             <registry-range-slider></registry-range-slider>
                             <registry-ticks-bar></registry-ticks-bar>
+                            <group-chart></group-chart>
 
                             ${this.interactiveanalysis === true ? html`<group-tool-buttons></group-tool-buttons>` : nothing }
 

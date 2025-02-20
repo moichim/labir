@@ -143,6 +143,8 @@ export class DropinElementListener {
 
         }
 
+        console.log( "drop >>>>>", results );
+
         this.onDrop.call(results);
 
         this.handleLeave();
@@ -160,11 +162,17 @@ export class DropinElementListener {
 
         if ( target.files ) {
 
-            const file = target.files[0];
+            const results: AbstractFileResult[] = [];
 
-            const result = await this.service.loadUploadedFile( file );
+            for ( const file of Array.from( target.files )) {
 
-            this.onDrop.call( [ result ] );
+                results.push( await this.service.loadUploadedFile( file ) );
+
+            }
+
+            console.log( "input >>>>>", results );
+
+            this.onDrop.call( results );
 
             this.handleLeave();
 
@@ -194,11 +202,15 @@ export class DropinElementListener {
         const element = document.createElement("input");
         element.type = "file";
         element.accept = supportedFileTypesInputProperty;
+        element.multiple = true;
         return element;
     }
 
-    public openFileDialog() {
-        this.input?.click();
+    public openFileDialog( multiple: boolean = true ) {
+        if ( this.input !== undefined ) {
+            this.input.multiple = multiple;
+            this.input.click();
+        }
     }
 
     

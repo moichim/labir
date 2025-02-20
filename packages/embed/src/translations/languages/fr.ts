@@ -4,6 +4,16 @@ export const fr: Translation = {
 
     loading: "Chargement",
 
+    upload: "Téléverser",
+    uploadafile: "Téléverser un fichier",
+    selectfile: "Sélectionner un fichier",
+    addfiles: "Ajouter un/des fichier(s)",
+    clear: "Effacer",
+    dragorselectfile: "Glissez-déposez un fichier LRC ou sélectionnez-le depuis le disque",
+
+    file: "fichier",
+
+
     next: "Avancer",
     prev: "Rétourner",
     back: "Au derriére",

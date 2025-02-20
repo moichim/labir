@@ -172,7 +172,7 @@ declare class DropinElementListener {
     handleLeave(): void;
     /** Build the internal input */
     protected getInput(): HTMLInputElement;
-    openFileDialog(): void;
+    openFileDialog(multiple?: boolean): void;
 }
 
 /**

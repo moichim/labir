@@ -58,6 +58,7 @@ import "./hierarchy/providers/GroupProvider";
 import "./hierarchy/providers/FileProvider";
 import "./hierarchy/providers/FileDropin";
 import "./controls/group/GroupDropin";
+import "./controls/group/GroupDropinInput";
 
 // 2.1. Mirrors
 import "./hierarchy/mirrors/ManagerMirror";
@@ -90,6 +91,7 @@ import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
 import "./controls/group/GroupDownloadButtons";
 import "./controls/group/GroupChart";
+
 
 
 // 5. File controls

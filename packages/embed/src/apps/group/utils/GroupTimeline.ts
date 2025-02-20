@@ -43,6 +43,9 @@ export class GroupTimeline extends GroupConsumer {
         throw new Error("Method not implemented.");
     }
 
+    @state()
+    listener?: ReturnType<typeof setTimeout>;
+
 
     connectedCallback(): void {
 
@@ -52,6 +55,15 @@ export class GroupTimeline extends GroupConsumer {
             this.UUID,
             this.onRegistryBatchEnded.bind(this)
         );
+
+        this.group.files.addListener(this.UUID, (value) => {
+            if ( this.listener !== undefined ) {
+                clearTimeout( this.listener );
+            }
+            this.listener = setTimeout( async () => {
+               this.onRegistryBatchEnded( value );
+            }, 0 );
+        });
 
         this.group.playback.addListener(this.UUID, value => this.ms = value);
 

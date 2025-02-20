@@ -4,6 +4,16 @@ export const cy: Translation = {
 
     loading: "Llwytho",
 
+    upload: "Llwytho i fyny",
+    uploadafile: "Llwytho ffeil i fyny",
+    selectfile: "Dewis ffeil",
+    addfiles: "Ychwanegu ffeil(iau)",
+    clear: "Clirio",
+    dragorselectfile: "Llusgwch ffeil LRC neu dewiswch hi o'r ddisg",
+
+    file: "ffeil",
+
+
     next: "Nesaf",
     prev: "Blaenorol",
     back: "Yn ôl",

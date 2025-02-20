@@ -6004,7 +6004,7 @@ var FilesState = class extends AbstractProperty {
     return this._map;
   }
   validate(value) {
-    return value;
+    return value.sort((a, b) => a.timestamp - b.timestamp);
   }
   /** Array of all files sorted by timestamp from the earliest to the latest. */
   get sortedFiles() {
@@ -7183,6 +7183,7 @@ var DropinElementListener = class _DropinElementListener {
         }
       }
     }
+    console.log("drop >>>>>", results);
     this.onDrop.call(results);
     this.handleLeave();
     return results;
@@ -7191,9 +7192,12 @@ var DropinElementListener = class _DropinElementListener {
     event.preventDefault();
     const target = event.target;
     if (target.files) {
-      const file = target.files[0];
-      const result = await this.service.loadUploadedFile(file);
-      this.onDrop.call([result]);
+      const results = [];
+      for (const file of Array.from(target.files)) {
+        results.push(await this.service.loadUploadedFile(file));
+      }
+      console.log("input >>>>>", results);
+      this.onDrop.call(results);
       this.handleLeave();
     }
   }
@@ -7214,10 +7218,14 @@ var DropinElementListener = class _DropinElementListener {
     const element = document.createElement("input");
     element.type = "file";
     element.accept = supportedFileTypesInputProperty;
+    element.multiple = true;
     return element;
   }
-  openFileDialog() {
-    this.input?.click();
+  openFileDialog(multiple = true) {
+    if (this.input !== void 0) {
+      this.input.multiple = multiple;
+      this.input.click();
+    }
   }
 };
 

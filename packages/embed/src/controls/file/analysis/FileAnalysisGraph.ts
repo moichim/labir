@@ -131,6 +131,11 @@ export class FileAnalysisGraph extends FileConsumer {
     `;
 
     protected render(): unknown {
+
+        if ( this.file?.timeline.isSequence === false ) {
+            return nothing;
+        }
+
         return html`
 
             <div style="position: relative; background-color: white; height: 100%;">
