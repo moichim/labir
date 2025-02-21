@@ -4,6 +4,8 @@ export const de: Translation = {
 
     loading: "Loading",
 
+    temperature: "Temperatur",
+
     upload: "Hochladen",
     uploadafile: "Datei hochladen",
     selectfile: "Datei auswählen",

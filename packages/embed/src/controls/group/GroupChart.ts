@@ -21,18 +21,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { Instance } from '@labir/core';
 import { GroupConsumer } from '../../hierarchy/consumers/GroupConsumer';
 
-const DEFAULT_EVENTS = ['ready', 'select'];
-
 import '@google-web-components/google-chart';
-
-
-type GoogleGraphHeader = string[];
-type GoogleGraphRows = number[][];
-
-type GoogleGraphData = [
-    string[],
-    number[]
-];
 
 
 @customElement("group-chart")

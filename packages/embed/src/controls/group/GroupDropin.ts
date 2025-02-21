@@ -32,7 +32,7 @@ export class GroupDropin extends GroupConsumer {
 
         if (this.container.value !== undefined) {
 
-            const listener = this.manager.service.handleDropzone(this.container.value);
+            const listener = this.manager.service.handleDropzone(this.container.value, false);
 
             listener.onMouseEnter.add(this.UUID, () => {
                 console.log("mouseenter");
@@ -49,7 +49,7 @@ export class GroupDropin extends GroupConsumer {
 
                 results.forEach(async (result) => {
                     if (result instanceof ThermalFileReader) {
-                        const instance = await result.createInstance(this.group);
+                        await result.createInstance(this.group);
                     }
                 });
 
@@ -64,7 +64,7 @@ export class GroupDropin extends GroupConsumer {
     public static styles = css`
 
         .container {
-
+            color: var(--thermal-foreground);
         }
 
         .dropin {

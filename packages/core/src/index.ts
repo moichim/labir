@@ -42,11 +42,13 @@ import { CornerPoint } from "./properties/analysis/analysis/internals/area/Corne
 import { PointAnalysis } from "./properties/analysis/analysis/internals/point/PointAnalysis";
 import { RectangleAnalysis } from "./properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis";
 import { PaletteId } from "./properties/scale/PaletteDrive";
+import { AbstractAddTool } from "./properties/analysis/analysis/internals/AbstractAddTool";
+
 
 export {
 
     // Analysis
-    AbstractAnalysis, AbstractFileResult,
+    AbstractAnalysis, AbstractFileResult,AbstractAddTool,
     // Analysis
     AbstractTool, AddEllipsisTool, AddRectangleTool, AvailableThermalPalettes, CallbacksManager,
     // Points

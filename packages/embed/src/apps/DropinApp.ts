@@ -1,14 +1,13 @@
+import { Instance, TimeFormat } from "@labir/core";
+import { provide } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { BaseElement } from "../hierarchy/BaseElement";
-import { FileDropinElement } from "../hierarchy/providers/FileDropin";
 import { GroupDropin } from "../controls/group/GroupDropin";
+import { BaseElement } from "../hierarchy/BaseElement";
 import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
-import { Instance, TimeFormat } from "@labir/core";
-import { t } from "i18next";
 import { T } from "../translations/Languages";
-import { provide } from "@lit/context";
 import { interactiveAnalysisContext } from "../utils/context";
 
 @customElement( "thermal-dropin-app" )
@@ -65,8 +64,15 @@ export class DropinAppElement extends BaseElement {
                 if ( this.listener !== undefined ) {
                     clearTimeout( this.listener );
                 }
+
+                if ( value.length === 0 ) {
+                    this.files = [];
+                } else {
+                    this.files = [value[0]];
+                }
+                
+
                 this.listener = setTimeout( async () => {
-                    this.files = value;
 
                     const registry = this.groupRef.value?.group.registry;
 
@@ -143,7 +149,7 @@ export class DropinAppElement extends BaseElement {
 
             .file-expanded {
                 display: grid;
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: 50% calc( 50%  - var(--thermal-gap));
                 gap: var(--thermal-gap);
             }
 
@@ -173,6 +179,7 @@ export class DropinAppElement extends BaseElement {
             <registry-histogram expandable="true"></registry-histogram>
             <registry-range-slider></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
+            
         </div>
 
         <div class="browser">
@@ -207,6 +214,8 @@ export class DropinAppElement extends BaseElement {
                         variant="foreground"
                     >x</thermal-button>
 
+                    
+
                     <file-info-button>
                         <thermal-button slot="invoker">
 
@@ -220,9 +229,7 @@ export class DropinAppElement extends BaseElement {
                         </thermal-button>
                     </file-info-button>
 
-                    <file-range-propagator></file-range-propagator>
-                    <file-download-lrc></file-download-lrc>
-                    <file-download-png></file-download-png>
+                    <file-download-dropdown></file-download-dropdown>
 
                     <div>${TimeFormat.human( file.timestamp )}</div>
                 </div>
@@ -250,10 +257,7 @@ export class DropinAppElement extends BaseElement {
                                 <file-timeline></file-timeline>
                             </div>
                             <div>
-                                <file-analysis-table interactiveanalysis="true"></file-analysis-table>
-                                <div style="height: 500px;">
-                                    <file-analysis-graph></file-analysis-graph>
-                                </div>
+                                <file-analysis-complex></file-analysis-complex>
                             </div>
                         </div>
                         `
@@ -291,9 +295,9 @@ export class DropinAppElement extends BaseElement {
     protected render(): unknown {
         return html`
 
-            <manager-provider slug="${this.UUID}">
+            <manager-provider slug="${this.UUID}" palette="iron">
 
-                <registry-provider slug="${this.UUID}">
+                <registry-provider slug="${this.UUID}" palette="iron">
 
                     <group-provider ${ref(this.groupRef)} slug="${this.UUID}">
 
@@ -303,7 +307,7 @@ export class DropinAppElement extends BaseElement {
                                     <group-dropin-input></group-dropin-input>
                                     ${this.files.length > 0 ? html`
                                         <thermal-button @click="${()=>this.handleClear()}">${t(T.clear)}</thermal-button>
-                                        <registry-palette-dropdown></registry-palette-dropdown>
+                                        <registry-palette-dropdown></registry-palette-dropdown><registry-range-full-button></registry-range-full-button>
                                     ` : nothing}
                                     ${this.files.length > 1 ? html`<group-download-dropdown></group-download-dropdown><registry-range-full-button></registry-range-full-button>` : nothing}
                                 </thermal-bar>

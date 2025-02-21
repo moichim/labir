@@ -3721,14 +3721,14 @@ var RecordingDrive = class extends AbstractProperty {
       if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
         this.mimeType = type;
     });
-    const options = {
+    const options2 = {
       mimeType: this.mimeType
     };
-    const recorder = new MediaRecorder(stream, options);
+    const recorder = new MediaRecorder(stream, options2);
     return {
       stream,
       recorder,
-      options
+      options: options2
     };
   }
   download() {
@@ -4919,15 +4919,15 @@ var AbstractPngExport = class _AbstractPngExport {
     return fileName;
   }
   async downloadPng(params) {
-    const options = this.getFinalParams(params);
-    options.fileName = this.makeSureFileNameIsValid(options.fileName);
+    const options2 = this.getFinalParams(params);
+    options2.fileName = this.makeSureFileNameIsValid(options2.fileName);
     if (this.exporting === true) {
-      console.warn(`PNG export of ${options.fileName} is already working. New requests are allowed after the export finishes.`);
+      console.warn(`PNG export of ${options2.fileName} is already working. New requests are allowed after the export finishes.`);
       return;
     }
     this.setExporting(true);
-    this.buildDom(options);
-    this.onDownload(options);
+    this.buildDom(options2);
+    this.onDownload(options2);
   }
   /** A unified way to download an image */
   downloadImage(fileName, container) {
@@ -7034,9 +7034,10 @@ var FileRequest = class _FileRequest {
 
 // src/loading/workers/dropin/DropinElementManager.ts
 var DropinElementListener = class _DropinElementListener {
-  constructor(service, element) {
+  constructor(service, element, multiple = true) {
     this.service = service;
     this.element = element;
+    this.multiple = multiple;
     this.bindedLeaveListener = this.handleLeave.bind(this);
     this.bindedEnterListener = this.handleEnter.bind(this);
     this.bindedDropListener = this.handleDrop.bind(this);
@@ -7055,6 +7056,7 @@ var DropinElementListener = class _DropinElementListener {
   /** An invissible input element */
   input;
   hydrated = false;
+  multiple;
   // Listeners are not added from the class, but binded
   // into the following properties
   bindedEnterListener;
@@ -7063,8 +7065,8 @@ var DropinElementListener = class _DropinElementListener {
   bindedInputChangeListener;
   bindedDragoverListener;
   bindedClickListener;
-  static listenOnElement(service, element) {
-    const listener = new _DropinElementListener(service, element);
+  static listenOnElement(service, element, multiple = true) {
+    const listener = new _DropinElementListener(service, element, multiple);
     listener.hydrate();
     return listener;
   }
@@ -7103,19 +7105,27 @@ var DropinElementListener = class _DropinElementListener {
     event.preventDefault();
     this.handleEnter();
   }
-  async handleDrop(event) {
-    event.preventDefault();
-    const results = [];
-    const transfer = event.dataTransfer;
-    if (transfer && transfer.files) {
-      for (const file of Array.from(transfer.files)) {
-        if (file) {
-          const service = await this.service.loadUploadedFile(file);
-          results.push(service);
-        }
+  async handleFiles(files) {
+    let results = [];
+    if (this.multiple) {
+      results = await Promise.all(files.map(async (file) => {
+        return await this.service.loadUploadedFile(file);
+      }));
+    } else {
+      const file = files[0];
+      if (file) {
+        results.push(await this.service.loadUploadedFile(file));
       }
     }
-    console.log("drop >>>>>", results);
+    return results;
+  }
+  async handleDrop(event) {
+    event.preventDefault();
+    let results = [];
+    const transfer = event.dataTransfer;
+    if (transfer && transfer.files) {
+      results = await this.handleFiles(Array.from(transfer.files));
+    }
     this.onDrop.call(results);
     this.handleLeave();
     return results;
@@ -7124,11 +7134,7 @@ var DropinElementListener = class _DropinElementListener {
     event.preventDefault();
     const target = event.target;
     if (target.files) {
-      const results = [];
-      for (const file of Array.from(target.files)) {
-        results.push(await this.service.loadUploadedFile(file));
-      }
-      console.log("input >>>>>", results);
+      const results = await this.handleFiles(Array.from(target.files));
       this.onDrop.call(results);
       this.handleLeave();
     }
@@ -7150,7 +7156,9 @@ var DropinElementListener = class _DropinElementListener {
     const element = document.createElement("input");
     element.type = "file";
     element.accept = supportedFileTypesInputProperty;
-    element.multiple = true;
+    if (this.multiple) {
+      element.multiple = true;
+    }
     return element;
   }
   openFileDialog(multiple = true) {
@@ -7212,8 +7220,8 @@ var FilesService = class {
     }
   }
   /** Create a dropzone listener on a HTML element */
-  handleDropzone(element) {
-    return DropinElementListener.listenOnElement(this, element);
+  handleDropzone(element, multiple = true) {
+    return DropinElementListener.listenOnElement(this, element, multiple);
   }
   /** Load a file from URL, eventually using already cached result */
   async loadFile(thermalUrl, visibleUrl) {
@@ -7710,15 +7718,15 @@ var MinmaxRegistryProperty = class extends AbstractMinmaxProperty {
 
 // src/hierarchy/ThermalRegistry.ts
 var ThermalRegistry = class extends BaseStructureObject {
-  constructor(id, manager, options) {
+  constructor(id, manager, options2) {
     super();
     this.id = id;
     this.manager = manager;
     this.palette = this.manager.palette;
-    if (options) {
-      if (options.histogramResolution !== void 0) {
-        if (options.histogramResolution > 0)
-          this.histogram.setResolution(options.histogramResolution);
+    if (options2) {
+      if (options2.histogramResolution !== void 0) {
+        if (options2.histogramResolution > 0)
+          this.histogram.setResolution(options2.histogramResolution);
       }
     }
   }
@@ -8201,6 +8209,12 @@ var ToolDrive = class extends AbstractProperty {
 };
 
 // src/hierarchy/ThermalManager.ts
+var isChromium = "chrome" in window;
+console.log("is chromium", isChromium);
+var options = isChromium ? {
+  maxWorkers: 4
+} : {};
+var globalPool = workerpool.pool(options);
 var ThermalManager = class extends BaseStructureObject {
   id;
   /** Service for creation of loading and caching the files. */
@@ -8213,13 +8227,13 @@ var ThermalManager = class extends BaseStructureObject {
   graphSmooth = new GraphSmoothDrive(this, false);
   tool = new ToolDrive(this, new InspectTool(this));
   pool;
-  constructor(pool4, options) {
+  constructor(pool4, options2) {
     super();
-    this.pool = pool4 ? pool4 : workerpool.pool();
+    this.pool = pool4 ? pool4 : globalPool;
     this.id = Math.random();
-    if (options) {
-      if (options.palette) {
-        this.palette.setPalette(options.palette);
+    if (options2) {
+      if (options2.palette) {
+        this.palette.setPalette(options2.palette);
       }
     }
   }
@@ -8227,9 +8241,9 @@ var ThermalManager = class extends BaseStructureObject {
   forEveryRegistry(fn) {
     Object.values(this.registries).forEach((registry) => fn(registry));
   }
-  addOrGetRegistry(id, options) {
+  addOrGetRegistry(id, options2) {
     if (this.registries[id] === void 0) {
-      this.registries[id] = new ThermalRegistry(id, this, options);
+      this.registries[id] = new ThermalRegistry(id, this, options2);
     }
     return this.registries[id];
   }
@@ -8268,6 +8282,7 @@ var getPool = async () => {
   return pool3;
 };
 export {
+  AbstractAddTool,
   AbstractAnalysis,
   AbstractAreaAnalysis,
   AbstractFileResult,

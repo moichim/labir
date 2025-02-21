@@ -4,6 +4,8 @@ export const fr: Translation = {
 
     loading: "Chargement",
 
+    temperature: "Temperature",
+
     upload: "Téléverser",
     uploadafile: "Téléverser un fichier",
     selectfile: "Sélectionner un fichier",

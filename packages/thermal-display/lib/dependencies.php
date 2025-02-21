@@ -94,6 +94,7 @@ if (! function_exists("thermal_display_enqueue_frontend_assets")) {
             || has_block("thermal-display/remote-browser")
             || has_block("thermal-display/remote-group")
             || has_block("thermal-display/wind-chill")
+            || has_block( "thermal-display/dropin" )
         ) {
             global $styles_name;
             global $scripts_name_cjs;

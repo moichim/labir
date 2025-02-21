@@ -18,6 +18,7 @@ export class DropinElementListener {
     /** An invissible input element */
     public input?: HTMLInputElement;
     protected hydrated: boolean = false;
+    protected multiple: boolean;
 
     // Listeners are not added from the class, but binded
     // into the following properties
@@ -32,7 +33,10 @@ export class DropinElementListener {
     protected constructor(
         public readonly service: FilesService,
         public readonly element: HTMLElement,
+        multiple: boolean = true
     ) {
+
+        this.multiple = multiple;
 
         // Bind listener methods to this instance and store them in
         // properties for the purpose of hydration &cdehydration
@@ -48,10 +52,11 @@ export class DropinElementListener {
 
     public static listenOnElement(
         service: FilesService,
-        element: HTMLElement
+        element: HTMLElement,
+        multiple: boolean = true
     ) {
 
-        const listener = new DropinElementListener(service, element);
+        const listener = new DropinElementListener(service, element, multiple);
 
         listener.hydrate()
 
@@ -119,31 +124,42 @@ export class DropinElementListener {
         this.handleEnter();
     }
 
+    protected async handleFiles( files: File[] ) {
+
+        let results: AbstractFileResult[] = [];
+
+        if ( this.multiple ) {
+
+            results = await Promise.all( files.map( async ( file ) => {
+                return await this.service.loadUploadedFile( file );
+            } ) );
+
+        } else {
+
+            const file = files[0];
+
+            if ( file ) {
+                results.push( await this.service.loadUploadedFile( file ) );
+            }
+
+        }
+
+        return results;
+    }
+
 
     public async handleDrop(event: DragEvent) {
         event.preventDefault();
 
-        const results: AbstractFileResult[] = [];
+        let results: AbstractFileResult[] = [];
 
         const transfer = event.dataTransfer;
 
         if (transfer && transfer.files) {
 
-            for (const file of Array.from(transfer.files)) {
-
-                if (file) {
-
-                    const service = await this.service.loadUploadedFile(file);
-
-                    results.push(service);
-
-                }
-
-            }
+            results = await this.handleFiles( Array.from(transfer.files) );
 
         }
-
-        console.log( "drop >>>>>", results );
 
         this.onDrop.call(results);
 
@@ -162,15 +178,7 @@ export class DropinElementListener {
 
         if ( target.files ) {
 
-            const results: AbstractFileResult[] = [];
-
-            for ( const file of Array.from( target.files )) {
-
-                results.push( await this.service.loadUploadedFile( file ) );
-
-            }
-
-            console.log( "input >>>>>", results );
+            const results: AbstractFileResult[] = await this.handleFiles( Array.from( target.files ) );
 
             this.onDrop.call( results );
 
@@ -202,15 +210,25 @@ export class DropinElementListener {
         const element = document.createElement("input");
         element.type = "file";
         element.accept = supportedFileTypesInputProperty;
-        element.multiple = true;
+        if (this.multiple) {
+            element.multiple = true;
+        }
         return element;
     }
 
     public openFileDialog( multiple: boolean = true ) {
+
+        /*
+        const input: HTMLInputElement = this.getInput();
+        input.multiple = multiple;
+        input.click();
+        */
+
         if ( this.input !== undefined ) {
             this.input.multiple = multiple;
             this.input.click();
         }
+
     }
 
     

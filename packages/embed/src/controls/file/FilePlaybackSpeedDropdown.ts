@@ -18,7 +18,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
 
     @consume({context: playbackSpeedContext, subscribe: true})
     @state()
-    protected playbackSpeed?: PlaybackSpeeds;
+    protected playbackSpeed: PlaybackSpeeds = 1;
     
     public onInstanceCreated(): void {}
 

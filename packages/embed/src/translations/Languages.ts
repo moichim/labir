@@ -7,6 +7,8 @@ export enum T {
 
     loading = "loading",
 
+    temperature = "temperature",
+
     upload = "upload",
     uploadafile = "uploadafile",
     selectfile = "selectfile",

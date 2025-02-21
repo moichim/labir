@@ -46,11 +46,9 @@ export class GroupDropin extends GroupConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        this.log(this.container.value);
-
         if (this.container.value !== undefined) {
 
-            this.listener = this.manager.service.handleDropzone(this.container.value);
+            this.listener = this.manager.service.handleDropzone(this.container.value, false);
 
             this.listener.onMouseEnter.add(this.UUID, () => {
                     this.hover = true;
@@ -63,13 +61,14 @@ export class GroupDropin extends GroupConsumer {
 
             this.listener.onDrop.add(this.UUID, results => {
 
+                this.group.files.removeAllInstances();
+
                 results.forEach( async ( result ) => {
                     if ( result instanceof ThermalFileReader ) {
                         await result.createInstance(this.group );
                     }
                 } );
 
-                this.log(results);  
             });
 
         }
@@ -88,9 +87,9 @@ export class GroupDropin extends GroupConsumer {
 
             <thermal-button @click="${() => {
                 if (this.listener) {
-                    this.listener.openFileDialog(true);
+                    this.listener.openFileDialog(false);
                 }
-            }}"><slot>${t(T.addfiles)}</slot></thermal-button>
+            }}"><slot>${t(T.uploadafile)}</slot></thermal-button>
 
             <div class="container" ${ref(this.tourableElementRef)}>
             

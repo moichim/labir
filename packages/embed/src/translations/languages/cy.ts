@@ -4,6 +4,8 @@ export const cy: Translation = {
 
     loading: "Llwytho",
 
+    temperature: "Tymheredd",
+
     upload: "Llwytho i fyny",
     uploadafile: "Llwytho ffeil i fyny",
     selectfile: "Dewis ffeil",

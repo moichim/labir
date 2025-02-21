@@ -152,20 +152,22 @@ declare class DropinElementListener {
     /** An invissible input element */
     input?: HTMLInputElement;
     protected hydrated: boolean;
+    protected multiple: boolean;
     protected bindedEnterListener: DropinElementListener["handleEnter"];
     protected bindedLeaveListener: DropinElementListener["handleLeave"];
     protected bindedDropListener: DropinElementListener["handleDrop"];
     protected bindedInputChangeListener: DropinElementListener["handleInputChange"];
     protected bindedDragoverListener: DropinElementListener["handleDragover"];
     protected bindedClickListener: DropinElementListener["handleClick"];
-    protected constructor(service: FilesService, element: HTMLElement);
-    static listenOnElement(service: FilesService, element: HTMLElement): DropinElementListener;
+    protected constructor(service: FilesService, element: HTMLElement, multiple?: boolean);
+    static listenOnElement(service: FilesService, element: HTMLElement, multiple?: boolean): DropinElementListener;
     /** Bind all event listeners to the provided element */
     hydrate(): void;
     /** Remove all event listeners from the element */
     dehydrate(): void;
     handleClick(event: PointerEvent): void;
     handleDragover(event: DragEvent): void;
+    protected handleFiles(files: File[]): Promise<AbstractFileResult[]>;
     handleDrop(event: DragEvent): Promise<AbstractFileResult[]>;
     handleInputChange(event: Event): Promise<void>;
     handleEnter(): void;
@@ -201,7 +203,7 @@ declare class FilesService {
     /** Process a file obrained from anywhere */
     loadUploadedFile(file: File): Promise<AbstractFileResult>;
     /** Create a dropzone listener on a HTML element */
-    handleDropzone(element: HTMLElement): DropinElementListener;
+    handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
     /** Load a file from URL, eventually using already cached result */
     loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
 }
@@ -2475,4 +2477,4 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
     getLabelValue: (x: number, y: number, file: Instance) => string;
 }
 
-export { AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };

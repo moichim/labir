@@ -4,6 +4,8 @@ export const cs: Translation = {
 
     loading: "Načítám",
 
+    temperature: "Teplota",
+
     upload: "Nahrát",
     uploadafile: "Nahrát soubor",
     selectfile: "Vybrat soubor",

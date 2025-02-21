@@ -116,6 +116,7 @@ import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
 import "./controls/file/analysis/FileAnalysisOverview";
 import "./controls/file/analysis/FileAnalysisOverviewRow";
+import "./controls/file/analysis/FileAnalysisComplex";
 
 import "./controls/file/buttons/FileLrcButton";
 import "./controls/file/buttons/FilePngButton";

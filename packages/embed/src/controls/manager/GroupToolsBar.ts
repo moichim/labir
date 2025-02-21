@@ -94,12 +94,43 @@ export class GroupToolButtons extends GroupConsumer {
 
     .thermal-tool-icon {
         width: calc( var( --thermal-gap ) * 1.2 );
+        box-sizing: border-box;
         margin: 0;
         padding: 0;
     }
 
     .tool-name {
         font-weight: bold;
+    }
+
+
+    .item {
+        position: relative;
+        .tooltip {
+            display: none;
+        }
+
+        &:hover {
+            .tooltip {
+                display: block;
+            }
+        }
+    }
+
+    .tooltip {
+        position: absolute;
+        top: 0;
+        left: calc( var( --thermal-gap ) * 1.2 + 15px );
+        min-width: 100px;
+        box-sizing: border-box;
+        padding: 10px;
+        border: 1px solid var(--thermal-slate);
+        background: var(--thermal-primary);
+        border-radius: var(--thermal-radius);
+        color: white;
+        z-index: 9999999;
+        white-space: preserve nowrap;
+        font-size: calc( var(--thermal-fs) * .8 );
     }
 
     `;
@@ -123,16 +154,15 @@ export class GroupToolButtons extends GroupConsumer {
             }
 
             return html`
-                        
-                        <button 
-                            class=${classMap(classes)} 
-                            @click=${() => { this.group.tool.selectTool(tool) }}
-                            title=${t( T[tool.name as keyof typeof T] )}
-                            
-                        >
-                            ${unsafeSVG(tool.icon)}
-                        </button>
-                        
+                        <div class="item">
+                            <button 
+                                class=${classMap(classes)} 
+                                @click=${() => { this.group.tool.selectTool(tool) }}
+                            >
+                                ${unsafeSVG(tool.icon)}
+                            </button>
+                            <div class="tooltip">${t(T[ tool.name as keyof typeof T ])}</div>
+                        </div>
                         
 
                     ` }

@@ -18,6 +18,18 @@ export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
 }
 
+const isChromium = "chrome" in window;//window.CSS && window.CSS.supports && window.CSS.supports('(-webkit-appearance:none)');
+
+console.log( "is chromium", isChromium );
+
+const options: workerpool.WorkerPoolOptions = isChromium
+    ? {
+        maxWorkers: 4
+    }
+    : {};
+
+const globalPool = workerpool.pool(options);
+
 export class ThermalManager extends BaseStructureObject {
     
 
@@ -52,7 +64,7 @@ export class ThermalManager extends BaseStructureObject {
 
         this.pool = pool 
             ? pool 
-            : workerpool.pool();
+            : globalPool;
 
         this.id = Math.random();
 
