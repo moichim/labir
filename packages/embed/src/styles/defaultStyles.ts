@@ -34,7 +34,7 @@ const appendHeadCss = (scope: string, styles: string) => {
 
 }
 
-export const addDefaultStyles = () => {
+export const addInlineStyles = () => {
 
     appendHeadCss("rootVariables", `
 

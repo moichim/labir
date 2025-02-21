@@ -197,39 +197,61 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
 
     public prev() {
         const prev = this.findPreviousRelative( this.value );
-        console.log( prev );
-
         this.setRelativeTime( prev.relative );
+    }
+
+
+    protected findPreviousOrThis( relativeTimeInMs: number ) {
+
+        if ( this.stepsByRelative.has( relativeTimeInMs ) ) {
+            return this.stepsByRelative.get( relativeTimeInMs ) as ParsedTimelineFrame;
+        }
+
+        return this.findPreviousRelative( relativeTimeInMs );
 
     }
 
+
+
+    /**
+     * Find previous frame by relative ms.
+     */
     public findPreviousRelative(relativeTimeInMs: number) {
 
         // Return The first step if no sequence
         if ( this.steps.length === 1 ) {
-            return this.steps[0];
+            return this.steps[0] as ParsedTimelineFrame;
         }
 
+        // Make sure the lookup time is 
         relativeTimeInMs = this._validateRelativeTime(relativeTimeInMs);
 
         const aspect = this._convertRelativeToAspect(relativeTimeInMs);
 
-        const index = Math.ceil(aspect * this.steps.length) + 5;
+        let index = Math.max( Math.ceil(aspect * this.steps.length) + 5, this.steps.length );
 
-        const sliceStart = this._validateIndex(index - 40);
-        const sliceEnd = this._validateIndex(index);
+        let previous: undefined|ParsedTimelineFrame = undefined;
 
-        const reversedSubarray = this.steps
-            .slice(sliceStart, sliceEnd)
-            .reverse();
+        while ( index >= 0 && previous === undefined ) {
 
-        const frame = reversedSubarray.find(f => {
-            return f.relative < relativeTimeInMs
-        });
+            const step = this.stepsByIndex.get( index );
 
-        return frame !== undefined
-            ? frame
+            if ( step !== undefined ) {
+
+                if ( step.relative < relativeTimeInMs ) {
+                    previous = step;
+                }
+
+            }
+            index = index - 1;
+
+        }
+
+        const result = previous !== undefined 
+            ? previous
             : this.steps[0];
+
+        return result;
 
 
     }
@@ -269,12 +291,13 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
 
         
         // The current (previous) step is stored 
-        const currentStep = this.findPreviousRelative(this.value);
+        const currentStep = this.findPreviousOrThis(this.value);
 
         // Store propagate the step only when it changed
         if ( currentStep !== this._currentStep ) {
 
             this._currentStep = currentStep;
+
             const result = await this.buffer.recieveStep( this._currentStep );
 
             this.callbacksChangeFrame.call(this._currentStep);
@@ -348,8 +371,6 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     }
 
     play() {
-
-        // console.log( "pokouším se hrát" );
 
         if ( this.steps.length > 1 ) {
             this._isPlaying = true;

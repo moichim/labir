@@ -36,8 +36,7 @@ describe( "BatchLoader", () => {
             THERMOGRAM_PATHS.SOUSTRUH,
             undefined,
             group,
-            async result => {
-                console.log( "resultát!", result.thermalUrl );
+            async () => {
                 counter = counter + 1;
             }
         );
@@ -89,7 +88,6 @@ describe( "BatchLoader", () => {
             undefined,
             group,
             async () => {
-                // console.log( "resultát!", result.thermalUrl );
                 counter = counter + 1;
             }
         );
@@ -99,13 +97,12 @@ describe( "BatchLoader", () => {
             undefined,
             group,
             async () => {
-                // console.log( "druhý resultát", result.thermalUrl );
                 counter = counter + 1;
             }
         );
 
         expect( loader.numLoadingBatches ).toEqual( 0 );
-        expect( loader.size ).toEqual( 1 );
+        expect( loader.numberOfBatches ).toEqual( 1 );
         expect( loader.currentOpenBatch?.size ).toEqual( 2 );
 
         loader.request(
@@ -113,13 +110,12 @@ describe( "BatchLoader", () => {
             undefined,
             group,
             async () => {
-                // console.log( "třetí resultát", result.thermalUrl );
                 counter = counter + 1;
             }
         );
 
         expect( loader.numLoadingBatches ).toEqual( 0 );
-        expect( loader.size ).toEqual( 1 );
+        expect( loader.numberOfBatches ).toEqual( 1 );
         expect( loader.currentOpenBatch?.size ).toEqual( 3 );
 
         await sleep( 0 );
@@ -131,7 +127,7 @@ describe( "BatchLoader", () => {
         await sleep( 1000 );
 
         expect( loader.numLoadingBatches ).toEqual( 0 );
-        expect( loader.size ).toEqual( 0 );
+        expect( loader.numberOfBatches ).toEqual( 0 );
 
         expect( counter ).toEqual(3);
 
@@ -175,7 +171,7 @@ describe( "BatchLoader", () => {
             THERMOGRAM_PATHS.SEQUENCE
         );
 
-        expect( loader.size ).toEqual(1);
+        expect( loader.numberOfBatches ).toEqual(1);
         expect( loader.numLoadingBatches ).toEqual(0);
         expect( loader.currentOpenBatch ).not.toBeUndefined();
 
@@ -186,7 +182,7 @@ describe( "BatchLoader", () => {
         // In the next tick...
         await sleep(0);
 
-        expect( loader.size ).toEqual(1);
+        expect( loader.numberOfBatches ).toEqual(1);
         expect( loader.numLoadingBatches ).toEqual(1);
         expect( loader.currentOpenBatch ).toBeUndefined();
 
@@ -196,7 +192,7 @@ describe( "BatchLoader", () => {
             THERMOGRAM_PATHS.TUCNACI 
         );
 
-        expect( loader.size ).toEqual(2);
+        expect( loader.numberOfBatches ).toEqual(2);
         expect( loader.numLoadingBatches ).toEqual(1);
         expect( loader.currentOpenBatch?.size).toEqual(2);
 
@@ -205,7 +201,7 @@ describe( "BatchLoader", () => {
         // After another tick
         await sleep(0);
 
-        expect( loader.size ).toEqual(2);
+        expect( loader.numberOfBatches ).toEqual(2);
         expect( loader.numLoadingBatches ).toEqual(2);
         expect( loader.currentOpenBatch ).toBeUndefined();
 
@@ -217,7 +213,7 @@ describe( "BatchLoader", () => {
 
         await sleep( 1000 );
 
-        expect( loader.size ).toEqual(0);
+        expect( loader.numberOfBatches ).toEqual(0);
         expect( instanceCounter ).toEqual(5);
         expect( loader.currentOpenBatch ).toBeUndefined();
         expect( loader.numLoadingBatches ).toEqual(0);

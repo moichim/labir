@@ -1,9 +1,10 @@
 import { css, html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { Instance } from "@labir/core";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
@@ -13,9 +14,14 @@ export class FileDownloadButton extends FileConsumer {
     public getTourableRoot(): HTMLElement | undefined {
         return this.tourableElementRef.value;
     }
+
+    @state()
+    protected hasGraphs: boolean = false;
     
-    public onInstanceCreated(): void {
-        // throw new Error("Method not implemented.");
+    public onInstanceCreated(instance: Instance): void {
+        instance.analysisData.onGraphsPresence.set( this.UUID, value => {
+            this.hasGraphs = value;
+        } );
     }
     public onFailure(): void {
         // throw new Error("Method not implemented.");
@@ -85,6 +91,13 @@ export class FileDownloadButton extends FileConsumer {
                     ${this.file.timeline.isSequence
                         ? html`<div slot="option">
                             <thermal-button @click="${() => this.file?.recording.recordEntireFile()}">${t(T.convertentiresequencetovideo)}</thermal-button>
+                        </div>`
+                        : nothing
+                    }
+
+                    ${this.hasGraphs === true 
+                        ? html`<div slot="option">
+                            <thermal-button @click=${() => this.file?.analysisData.downloadData()}>${t(T.csvofanalysisdata)}</thermal-button>
                         </div>`
                         : nothing
                     }

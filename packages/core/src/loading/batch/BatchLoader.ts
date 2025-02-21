@@ -17,7 +17,7 @@ export class BatchLoader {
 
     private set: Set<Batch> = new Set;
 
-    public get size() {
+    public get numberOfBatches() {
         return this.set.size;
     }
 
@@ -115,7 +115,7 @@ export class BatchLoader {
         this.set.delete(batch);
 
         /** Mark the registry as loaded whenever there are no other loading batches */
-        if ( this.size === 0 ) {
+        if ( this.numberOfBatches === 0 ) {
             this.registry.loading.markAsLoaded();
         }
 

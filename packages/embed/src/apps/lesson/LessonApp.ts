@@ -1,179 +1,326 @@
-import { css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { BaseElement } from "../../hierarchy/BaseElement";
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { TimelineElement } from "../properties/Timeline";
-import { ThermalFileElement } from "../single/thermalFileElement";
-import { ElementInheritingGroup } from "../structure/group/ElementInheritingGroup";
+import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
+import { provide } from "@lit/context";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { AvailableThermalPalettes } from "@labir/core";
+import { booleanConverter } from "../../utils/booleanConverter";
+import { interactiveAnalysisContext } from "../../utils/context";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
+import { classMap } from "lit/directives/class-map.js";
+import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, NotationCurrentContext, notationCurrentContext, notationDurationContext, NotationListContext, notationListContext } from "../../controls/file/notation/NotationContext";
+import { NotationEntry } from "../../controls/file/notation/NotationEntry";
 
 @customElement("thermal-lesson-app")
-export class LessonElement extends ElementInheritingGroup {
-  protected getClassName(): string {
-    return "SingleFileApp";
-  }
+export class LessonElement extends BaseElement implements IWithNotationContext {
 
-  // Declare reactive properties
+  protected fileProviderRef: Ref<FileProviderElement> = createRef();
+
   @property({ type: String, reflect: true })
-  url?: string = "";
+  url?: string;
+
+  @property({ type: String, reflect: true })
+  visible?: string;
+
+  @property({ type: String, reflect: true, attribute: true })
+  palette: AvailableThermalPalettes = "jet";
+
+  @property({ type: Number, reflect: true, attribute: true })
+  opacity: number = 1;
+
+  @property({ type: Number, reflect: true })
+  from?: number;
+
+  @property({ type: Number, reflect: true })
+  to?: number;
+
+  @property()
+  author?: string;
+
+  @property()
+  recorded?: string;
+
+  @property()
+  license?: string;
+
+  @property()
+  label?: string;
+
+  @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+  showembed: boolean = false;
+
+  @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+  showabout: boolean = false;
+
+  @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
+  showtutorial: boolean = false;
+
+  @property({ type: String, reflect: false, converter: booleanConverter(true) })
+  showfullscreen: boolean = false;
+
+  @property({ type: String, reflect: true, converter: booleanConverter(true) })
+  showhistogram: boolean = true;
+
+  @provide({ context: interactiveAnalysisContext })
+  @property({ type: String, reflect: true, converter: booleanConverter(true) })
+  interactiveanalysis: boolean = true;
+
+  @property({ type: String, reflect: true })
+  analysis1?: string;
+
+  @property({ type: String, reflect: true })
+  analysis2?: string;
+
+  @property({ type: String, reflect: true })
+  analysis3?: string;
+
+  @property({ type: String, reflect: true })
+  analysis4?: string;
+
+  @property({ type: String, reflect: true })
+  analysis5?: string;
+
+  @property({ type: String, reflect: true })
+  analysis6?: string;
+
+  @property({ type: String, reflect: true })
+  analysis7?: string;
+
+  @property({ type: String, reflect: true })
+  ms?: number;
+
+  @property({ type: String, reflect: true })
+  speed?: 0.5 | 1 | 2 | 3 | 5 | 10;
+
+  @property({ type: String, reflect: true, })
+  autoclear: boolean = false;
+
+  @state()
+  protected collapsed: boolean = false;
+
+  protected observerResize?: ResizeObserver;
+
+
+  @state()
+  @queryAssignedElements({ flatten: true })
+  _notationSlot!: Array<HTMLElement>;
+
+  @state()
+  notations: NotationEntry[] = [];
+
+  @state()
+  @provide({ context: notationDurationContext })
+  duration: number = 1000 * 1000;
+
+  @state()
+  @provide({ context: notationListContext })
+  notationList: NotationListContext = [];
+
+  @state()
+  @provide({ context: notationCurrentContext })
+  notationCurrent: NotationCurrentContext;
+
+  private observerMutation: MutationObserver | null = null;
+
 
   connectedCallback(): void {
     super.connectedCallback();
 
-    window.addEventListener( "fullscreenchange", () => {
-      if ( ! document.fullscreenElement ) {
-        this.fullscreen = "off";
+    this.observerResize = new ResizeObserver(entries => {
+
+      const entry = entries[0];
+
+      if (entry) {
+        if (entry.contentRect.width > 1000) {
+          if (this.collapsed === true) this.collapsed = false;
+        } else {
+          if (this.collapsed === false) this.collapsed = true
+        }
       }
-    } );
+
+    });
+
+    this.observerResize.observe(this);
 
   }
 
-  static styles = css`
+  protected firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties);
+    
+    this.observeSlotChanges();
 
-    .container {
+    if ( this.fileProviderRef.value ) {
 
-      padding: calc( var( --thermal-gap ) / 3 );
-      background-color: var( --thermal-slate-light );
-      border: 1px solid var( --thermal-slate );
-      border-radius: var( --thermal-radius );
-      // box-shadow: var( --thermal-shadow );
+      this.fileProviderRef.value.onSuccess.add( this.UUID, instance => {
+
+        this.duration = instance.timeline.duration;
+
+        instance.timeline.addListener( this.UUID, ms => {
+          this.ms = ms;
+          this.updateNotationsMs( ms );
+        } );
+
+      } );
 
     }
 
-    .fullscreen-on {
+  }
 
-      border: 0;
-      border-radius: 0;
-      // background: var( --thermal-slate-base-dark );
+  observeSlotChanges() {
 
-      ::part( file-canvas-wrapper ) {
+    const slot = this.renderRoot?.querySelector('slot[name="notation"]') as HTMLSlotElement | null | undefined;
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    // this.log("SLOT", slot);
 
-        padding: var( --thermal-gap );
-        box-sizing: border-box;
-        height: 100%;
+    if (!slot) return;
+
+    // this.log("SLOT", slot.assignedElements());
+
+    this.notationList = grabNotationsFromSlot(slot.assignedElements());
+
+    this.observerMutation = new MutationObserver(() => {
+      this.notationList = grabNotationsFromSlot(slot.assignedElements());
+    });
+
+    slot.addEventListener('slotchange', () => {
+      this.observerMutation?.disconnect();
+      this.notationList = grabNotationsFromSlot(slot.assignedElements());
+    });
+
+  }
+
+
+  updateNotationsMs(ms: number) {
+
+    this.notationCurrent = getCurrentNotationsByMs(ms, this);
+
+  }
+
+
+
+  static styles?: CSSResultGroup | undefined = css`
+  
+    :host {
+      width: 100%;
+      display: block;
+    }
+
+
+    .content {
+
+      width: 100%;
+      box-sizing: border-box;
+
+      &.content__collapsed {
+
+        display: grid;
+        grid-template-columns: 25px calc(100% - 25px);
 
       }
 
-      ::part( file-canvas-container ) {
-
-        max-width: 100vw;
-        max-height: 100vh;
-        
-        aspect-ratio: 4 / 3;
-        margin:: 0 auto;7
-
-        width: 80vw;
+      &.content__expanded {
+        display: grid;
+        grid-template-columns: 25px 1fr 1fr;
+        gap: var(--thermal-gap);
 
       }
 
-      @media ( min-height: 800px ) {
-        ::part( file-canvas-container ) {
-            width: 70vw;
-        }
-      }
     }
   
   `;
 
-  @property({type: String, reflect: true})
-  fullscreen: string = "off";
-
-  protected appRef: Ref<HTMLDivElement> = createRef();
-
-  attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-    super.attributeChangedCallback( name, _old, value );
-
-    if ( name === "fullscreen" ) {
-      if ( value === "on" ) {
-
-        this.appRef.value?.requestFullscreen();
-        // ...
-      } else if ( value === "off" ) {
-        // ...
-        if ( document.fullscreenElement ) 
-          document.exitFullscreen();
-      }
-    }
-
-  }
-
-  toggleFullscreen() {
-    if ( this.fullscreen === "on" ) {
-      this.fullscreen = "off";
-    } else {
-      this.fullscreen = "on";
-    }
-  }
 
 
-  
-
-  imageRef: Ref<ThermalFileElement> = createRef();
-  timelineRef: Ref<TimelineElement> = createRef();
 
   protected render(): unknown {
 
-    return html`
-    <thermal-manager>
-      <thermal-registry>
-        <thermal-group>
-          <div class="container fullscreen-${this.fullscreen}" ${ref( this.appRef )}>
 
-            <thermal-image thermal="${this.url}">
-              <thermal-file-name slot="bar"></thermal-file-name>
-              
-              <thermal-histogram slot="pre" interactive></thermal-histogram>
-              <thermal-range slot="pre"></thermal-range>
-              <thermal-ticks slot="pre"></thermal-ticks>
-              
+    const title = this.fileProviderRef.value === undefined
+      ? t(T.loading)
+      : this.label ?? this.fileProviderRef.value.file?.fileName ?? t(T.file);
 
-              <div slot="bar" style="flex-grow: 4;">
-                <thermal-bar>
-                    <thermal-file-info></thermal-file-info>
-                    <thermal-file-download></thermal-file-download>
-                    <thermal-palette></thermal-palette>
-                    <thermal-dropdown>
-                      <div slot="invoker">Adjustment</div>
-                      <thermal-range-auto slot="option"></thermal-range-auto>
-                      <thermal-range-minmax slot="option"></thermal-range-minmax>
-                      <!--<thermal-opacity slot="option"></thermal-opacity>-->
-                    </thermal-dropdown>
 
-                    <thermal-file-share></thermal-file-share>
+    const contentClasses = {
+      "content": true,
+      "content__collapsed": this.collapsed,
+      "content__expanded": !this.collapsed
+    }
 
-                    <thermal-app-info></thermal-app-info>
-                </thermal-bar>
-              </div>
-              
-
-              <thermal-button slot="bar" @click=${this.toggleFullscreen.bind(this)}>
-                <div style="width: calc( var( --thermal-gap ) * .9 );line-height: 0;">
-                ${this.fullscreen === "on"
-                  ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
-                  </svg>`
-                  : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                  </svg>`
-                }
-                </div>
-              </thermal-button>
-              
-            </thermal-image>
-
-            <thermal-lesson timeline="${this.timelineRef.value}">
-                <thermal-timeline ${ref( this.timelineRef )} slot="timeline"></thermal-timeline>
-                <slot name="mark"></slot>
-            </thermal-lesson>
+    return html`<manager-provider
+      slug="manager_${this.UUID}"
+      palette=${this.palette}
+      autoclear=${this.autoclear}
+    >
+      <registry-provider 
+        slug="registry_${this.UUID}"
+        from=${ifDefined(this.from)}
+        to=${ifDefined(this.to)}
+        opacity=${ifDefined(this.opacity)}
+        autoclear=${this.autoclear}
+      >
+        <group-provider 
+          slug="group_${this.UUID}"
+        >
+          
+          <file-provider
+            ${ref(this.fileProviderRef)}
+            thermal="${this.url}"
+            visible=${ifDefined(this.visible)}
+            analysis1=${ifDefined(this.analysis1)}
+            analysis2=${ifDefined(this.analysis2)}
+            analysis3=${ifDefined(this.analysis3)}
+            analysis4=${ifDefined(this.analysis4)}
+            analysis5=${ifDefined(this.analysis5)}
+            analysis6=${ifDefined(this.analysis6)}
+            analysis7=${ifDefined(this.analysis7)}
+            speed=${ifDefined(this.speed)}
+            autoclear=${this.autoclear}
+          >
             
-            <slot></slot>
+            <thermal-app
+              author=${ifDefined(this.author)} 
+              recorded=${ifDefined(this.recorded)} 
+              license=${ifDefined(this.license)}
+              label="${title}"
+            >
 
-          </div>
-          <thermal-group>
-      </thermal-registry>
-    </thermal-manager>
+              <div class="${classMap(contentClasses)}">
+
+                <div class="content-part content-part__tools">
+                  <group-tool-bar></group-tool-bar>
+                </div>
+
+                <div class="content-part content-part__left">
+                  
+                  <registry-histogram expandable="true"></registry-histogram>
+                  <registry-range-slider></registry-range-slider>
+                  <registry-ticks-bar></registry-ticks-bar>
+
+                  <file-canvas></file-canvas>
+                  <file-timeline></file-timeline>
+
+                </div>
+
+                <div class="content-part content-part__right">
+                  <file-analysis-table></file-analysis-table>
+                  <notation-content></notation-content>
+                </div>
+
+              </div>
+            
+            </thermal-app>
+          
+          </file-provider>
+        
+        </group-provider>
+      </registry-provider>
+    </manager-provider>
+    
+    <slot name="notation"></slot>
+    
     `;
   }
 

@@ -5,7 +5,7 @@ import { customElement, property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { consume } from "@lit/context";
 import { interactiveAnalysisContext } from "../../utils/context";
 

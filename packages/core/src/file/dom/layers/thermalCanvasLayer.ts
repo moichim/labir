@@ -1,7 +1,7 @@
 import { Instance } from "../../instance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "../domFactories";
-import { PointAnalysis } from "../../../properties/analysis/internals/point/PointAnalysis";
+import { PointAnalysis } from "../../../properties/analysis/analysis/internals/point/PointAnalysis";
 
 type AnalysisExtractDefinition = [
     /** Type */

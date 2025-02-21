@@ -4,6 +4,17 @@ export const cs: Translation = {
 
     loading: "Načítám",
 
+    temperature: "Teplota",
+
+    upload: "Nahrát",
+    uploadafile: "Nahrát soubor",
+    selectfile: "Vybrat soubor",
+    addfiles: "Přidat soubor(y)",
+    clear: "Smazat",
+    dragorselectfile: "Přetáhněte LRC soubor nebo jej vyberte z disku",
+
+    file: "soubor",
+
     next: "Další",
     prev: "Předchozí",
     back: "Zpět",

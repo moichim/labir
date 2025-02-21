@@ -13,6 +13,16 @@ import "./translations/i18n";
  * 
  */
 
+
+// Initialise dark mode
+import { initialiseMode } from "./styles/mode";
+initialiseMode();
+
+// Append default styles
+import { appendStyles } from "./styles/defaultStyles";
+
+// addInlineStyles();
+
 appendStyles();
 
 
@@ -48,6 +58,7 @@ import "./hierarchy/providers/GroupProvider";
 import "./hierarchy/providers/FileProvider";
 import "./hierarchy/providers/FileDropin";
 import "./controls/group/GroupDropin";
+import "./controls/group/GroupDropinInput";
 
 // 2.1. Mirrors
 import "./hierarchy/mirrors/ManagerMirror";
@@ -78,6 +89,9 @@ import "./controls/registry/Histogram";
 // 5. Group controls
 import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
+import "./controls/group/GroupDownloadButtons";
+import "./controls/group/GroupChart";
+
 
 
 // 5. File controls
@@ -100,11 +114,15 @@ import "./controls/file/analysis/FileAnalysisEdit";
 import "./controls/file/analysis/FileAnalysisGraph";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
+import "./controls/file/analysis/FileAnalysisOverview";
+import "./controls/file/analysis/FileAnalysisOverviewRow";
+import "./controls/file/analysis/FileAnalysisComplex";
 
 import "./controls/file/buttons/FileLrcButton";
 import "./controls/file/buttons/FilePngButton";
 import "./controls/file/buttons/FileButton";
 import "./controls/file/buttons/FileRangePropagator";
+import "./controls/file/buttons/FileDropdown";
 
 
 // 7. Complex apps go last
@@ -116,14 +134,10 @@ import "./apps/DropinApp";
 
 
 
-// import "./apps/registry/parts/TimeGroupFileElement";
 import "./apps/registry/parts/TimeGroupRowElement";
-
 import "./apps/group/GroupApp";
 import "./apps/group/utils/GroupTimeline";
-
 import "./apps/registry/RegistryApp";
-
 import "./tour/TourStep";
 
 
@@ -132,14 +146,16 @@ import "./apps/remote/RemoteBrowser";
 import "./apps/remote/RemoteGridApp";
 
 
+// Notation
+import "./controls/file/notation/NotationEntry";
+import "./controls/file/notation/NotationContent";
+import "./controls/file/notation/NotationTest";
+import "./controls/file/notation/NotationTimeline";
+
+
+import "./apps/lesson/LessonApp";
 
 
 
-// Initialise dark mode
-import { initialiseMode } from "./styles/mode";
-initialiseMode();
 
-// Append default styles
-import { addDefaultStyles, appendStyles } from "./styles/defaultStyles";
 
-addDefaultStyles();

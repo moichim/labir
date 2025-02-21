@@ -191,6 +191,12 @@ export class ThermalDropdown extends TourableElement {
                 //  backdrop-filter: blur(1px);
             }
         }
+
+        :host(.small) {
+            .dropdown-invoker {
+                // background-color: red !important;
+            }
+        }
     
     `;
 

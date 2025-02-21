@@ -4,6 +4,18 @@ export const cy: Translation = {
 
     loading: "Llwytho",
 
+    temperature: "Tymheredd",
+
+    upload: "Llwytho i fyny",
+    uploadafile: "Llwytho ffeil i fyny",
+    selectfile: "Dewis ffeil",
+    addfiles: "Ychwanegu ffeil(iau)",
+    clear: "Clirio",
+    dragorselectfile: "Llusgwch ffeil LRC neu dewiswch hi o'r ddisg",
+
+    file: "ffeil",
+
+
     next: "Nesaf",
     prev: "Blaenorol",
     back: "Yn ôl",
@@ -23,19 +35,19 @@ export const cy: Translation = {
     adjusttimescale: "Graddfa tymheredd",
     automaticrange: "Ystod awtomatig",
     fullrange: "Ystod llawn",
-    adjusttimescalehint: "Addaswch y wraddfa thermol yn awtomatig neu cyflewch y wraddfa i fand lawn.",
+    adjusttimescalehint: "Addaswch yr ystod thermol yn awtomatig neu cyflewch yr ystod i fand lawn.",
 
     palettename: "Palet {{name}}",
-    colourpalettehint: "Dewiswch balet lliw o arddangosfa thermol.",
+    colourpalettehint: "Dewiswch balet lliw o arddangos thermol.",
 
 
     fileinfo: "Gwybodaeth ffeil",
     thermalfilename: "Enw ffeil isgoch",
     thermalfileurl: "URL ffeil isgoch",
     thermalfiledownload: "Lawrlwythwch y ffeil isgoch",
-    visiblefilename: "Enw ffeil weladwy",
-    visiblefileurl: "URL ffeil weladwy",
-    visiblefiledownload: "Lawrlwythwch y ffeil weladwy",
+    visiblefilename: "Enw ffeil weledol",
+    visiblefileurl: "URL ffeil weledol",
+    visiblefiledownload: "Lawrlwythwch y ffeil weledol",
     time: "Amser",
     duration: "Hyd",
     resolution: "Datrysiad",

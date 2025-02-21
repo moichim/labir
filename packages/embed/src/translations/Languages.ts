@@ -7,6 +7,17 @@ export enum T {
 
     loading = "loading",
 
+    temperature = "temperature",
+
+    upload = "upload",
+    uploadafile = "uploadafile",
+    selectfile = "selectfile",
+    addfiles = "addfiles",
+    clear = "clear",
+    dragorselectfile = "dragorselectfile",
+
+    file = "file",
+
     /** Next */
     next = "next",
     /** Previous */

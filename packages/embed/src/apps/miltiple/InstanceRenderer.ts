@@ -177,7 +177,7 @@ export class InstanceRenderer {
                 : nothing
             }
                     
-                    <file-analysis-table></file-analysis-table>
+                    <file-analysis-overview></file-analysis-overview>
 
                 </file-mirror>
 

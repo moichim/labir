@@ -7,9 +7,14 @@ import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, currentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
 import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
 import { ThermalChart } from "./chart/chart";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
+    public getTourableRoot(): HTMLElement | undefined {
+        throw new Error("Method not implemented.");
+    }
 
     @state()
     protected hydrated: boolean = false;
@@ -56,13 +61,17 @@ export class FileAnalysisGraph extends FileConsumer {
 
     public onInstanceCreated(instance: Instance): void {
 
+
+        // Set the initial analysis data
+        this.graphs = instance.analysisData.value;
+        
+
         // Listen to changes in the analysis data
         instance.analysisData.addListener(this.UUID, (value) => {
             this.graphs = value;
         });
 
-        // Set the initial analysis data
-        this.graphs = instance.analysisData.value;
+        
 
         // Observe the graph width
         if (this.container.value) {
@@ -95,6 +104,7 @@ export class FileAnalysisGraph extends FileConsumer {
         super.connectedCallback();
 
         if ( this.file ) {
+            this.graphs = this.file.analysisData.value;
             this.file.analysisData.addListener( this.UUID, value => {
                 this.graphs = value;
             } );
@@ -128,6 +138,11 @@ export class FileAnalysisGraph extends FileConsumer {
     `;
 
     protected render(): unknown {
+
+        if ( this.file?.timeline.isSequence === false ) {
+            return nothing;
+        }
+
         return html`
 
             <div style="position: relative; background-color: white; height: 100%;">
@@ -142,7 +157,7 @@ export class FileAnalysisGraph extends FileConsumer {
                 `}
             </div>
         
-            <div ${ref(this.container)} style="height: 100%">
+            <div ${ref(this.container)} style="height: 100%; ">
                 ${this.graphs.colors.length > 0
                 ? html`<thermal-chart 
                         ${ref(this.graphRef)}
@@ -152,8 +167,8 @@ export class FileAnalysisGraph extends FileConsumer {
                             colors: this.graphs.colors,
                             curveType: this.graphSmooth ? 'function' : "default",
                             legend: { position: 'bottom' },
-                            hAxis: { title: 'Time', format: `m:ss:SSS` },
-                            vAxis: { title: 'Temperature °C' },
+                            hAxis: { title: t(T.time), format: `m:ss:SSS` },
+                            vAxis: { title:  t(T.temperature)+ ' °C' },
                             width: this.graphWidth,
                             height: this.graphHeight,
                             chartArea: { 

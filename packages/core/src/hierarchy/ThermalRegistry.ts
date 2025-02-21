@@ -8,12 +8,12 @@ import { ThermalFileRequest } from "../loading/ThermalRequest";
 import { ThermalFileFailure } from "../loading/workers/ThermalFileFailure";
 import { ThermalFileReader } from "../loading/workers/ThermalFileReader";
 import { CallbacksManager } from "../properties/callbacksManager";
-import { OpacityDrive } from "../properties/drives/OpacityDrive";
-import { RangeDriver } from "../properties/drives/RangeDriver";
+import { OpacityDrive } from "../properties/display/OpacityDrive";
+import { RangeDriver } from "../properties/scale/RangeDriver";
 import { GroupsState } from "../properties/lists/GroupsState";
 import { HistogramState } from "../properties/states/HistogramState";
 import { LoadingState } from "../properties/states/LoadingState";
-import { MinmaxRegistryProperty } from "../properties/states/MinmaxRegistryState";
+import { MinmaxRegistryProperty } from "../properties/scale/MinmaxRegistryState";
 import { IThermalRegistry } from "../properties/structure";
 import { ThermalGroup } from "./ThermalGroup";
 import { ThermalManager } from "./ThermalManager";
@@ -103,7 +103,7 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
         } ) );
 
         // Create instances from loaded services
-        await Promise.all( servicesByGroup.map( async ({group, groupFiles}) => {
+        const result = await Promise.all( servicesByGroup.map( async ({group, groupFiles}) => {
 
             const instances = await Promise.all( groupFiles.map( async ( service ) => {
 
@@ -122,6 +122,8 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         this.postLoadedProcessing();
 
+        return result;
+
     }
 
 
@@ -136,15 +138,15 @@ export class ThermalRegistry extends BaseStructureObject implements IThermalRegi
 
         const result = await this.service.loadFile( file.thermalUrl, file.visibleUrl );
 
-        if ( result instanceof ThermalFileReader ) {
-            await result.createInstance( group );
-        }
+        const instanceOrError = result instanceof ThermalFileReader
+            ? await result.createInstance( group )
+            : result as ThermalFileFailure;
 
         this.loading.markAsLoaded();
 
         this.postLoadedProcessing();
 
-        return;
+        return instanceOrError;
 
     }
 

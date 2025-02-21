@@ -1,11 +1,11 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase } from "@labir/api";
+import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase, QueryBuilder } from "@labir/api";
 import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
-import { cy, cs, de, fr, enGB} from "date-fns/locale";
+import { cs, cy, de, enGB, fr } from "date-fns/locale";
 import { t } from "i18next";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -13,7 +13,7 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
 
 enum STATE {
@@ -95,6 +95,30 @@ export class RemoteBrowser extends BaseElement {
     protected interactiveAnalysis: boolean = true;
 
 
+
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        const updatePosition = () => {
+            const rect = this.getBoundingClientRect();
+
+            if (rect.top < -50) {
+                this.classList.add("is-pinned");
+            } else {
+                this.classList.remove("is-pinned");
+            }
+
+        };
+
+
+        window.addEventListener("scroll", updatePosition);
+        window.addEventListener("resize", updatePosition);
+
+    }
+
+
+
+
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
@@ -115,6 +139,11 @@ export class RemoteBrowser extends BaseElement {
     }
 
 
+    protected scrollToComponent() {
+        this.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+
     protected getApiUrl(
         url: string,
         subfolder?: string
@@ -130,21 +159,91 @@ export class RemoteBrowser extends BaseElement {
         subfolder?: string
     ) {
 
+
         this.loadingInfo = true;
+        // this.scrollToComponent();
 
-        const target = subfolder !== undefined
-            ? `${url}?scope=${subfolder}`
-            : url;
+        try {
 
-
-        const response = await fetch(target);
-
-        if (response.ok) {
-            const json = await response.json() as ApiInfoResponse;
+            const query = new QueryBuilder(url, subfolder);
+            const json = await query.info();
+            this.log("json>>>", json);
             this.info = json;
             this.folders = json.folders;
             this.loadingInfo = false;
+
+        } catch (err) {
+            this.error = "There was an error loading info"
         }
+
+    }
+
+    protected async loadDataOne(
+        folder: string,
+        url: string,
+        subfolder?: string
+    ) {
+
+        this.loadingData = false;
+        this.dataOnly = undefined;
+        this.dataMultiple = undefined;
+
+        this.scrollToComponent();
+
+        const query = new QueryBuilder(url, subfolder);
+        const data = await query.folder(folder);
+        this.log("folder", folder, data);
+
+        this.scrollToComponent();
+
+        this.dataOnly = data;
+        this.loadingData = false;
+
+        // Turn on the synchronisation of analyses
+        if (this.registryRef.value) {
+            this.registryRef.value.registry.groups.addListener(
+                this.UUID,
+                groups => {
+                    groups.forEach(group => group.files.addListener(
+                        this.UUID,
+                        files => {
+                            if (files[0]) {
+                                group.analysisSync.turnOn(files[0]);
+                            }
+                        }
+                    ));
+                }
+            );
+        }
+
+    }
+
+    protected async loadDataMultiple(
+        only: string[],
+        grouping: ApiTimeGrouping,
+        url: string,
+        subfolder?: string
+    ) {
+
+        this.loadingData = true;
+        this.dataOnly = undefined;
+        this.dataMultiple = undefined;
+
+        this.scrollToComponent();
+
+        const query = new QueryBuilder(url, subfolder);
+        query.setOnly(only.join(","));
+        query.setGrid(true);
+
+        const data = await query.grid(grouping);
+
+        this.scrollToComponent();
+
+        this.dataMultiple = data;
+        this.loadingData = false;
+
+        // Turn off synchronisation of analyses
+        this.registryRef.value?.registry.groups.removeListener(this.UUID);
 
     }
 
@@ -156,106 +255,15 @@ export class RemoteBrowser extends BaseElement {
         subfolder?: string
     ) {
 
-        this.dataOnly = undefined;
-        this.dataMultiple = undefined;
+        if (only.length > 1) {
 
-        if (only.length === 0) {
-            return;
-        }
+            this.loadDataMultiple(only, grouping, url, subfolder);
 
-        this.loadingData = true;
+        } else if (only.length === 1) {
 
-        const params: string[] = [];
-
-        if (subfolder) {
-            params.push(`scope=${subfolder}`);
-        }
-
-        const onlyOne = only.length === 1;
-
-        if (onlyOne) {
-            params.push(only[0]);
-        } else {
-            params.push(grouping);
-            params.push(
-                `only=${only.join(",")}`
-            );
-            params.push("grid");
+            this.loadDataOne(only[0], url, subfolder);
 
         }
-
-        const target = url + "?" + params.join("&");
-
-        const loadData = async <T extends ApiFolderContentResponse | ApiTimeGroupResponse>(route: string) => {
-
-            const response = await fetch(route);
-
-            if (response.ok) {
-                const json = await response.json() as T;
-
-                if ("data" in json) {
-                    const sortedData = Object.entries(json.data).map(([time, folders]) => {
-
-                        const f = Object.entries(folders);
-
-                        f.sort((a, b) => {
-                            return a[0] < b[0] ? -1 : 1;
-                        });
-
-                        const content = Object.fromEntries(f);
-
-                        return [time, content];
-
-                    });
-                    json.data = Object.fromEntries(sortedData);
-                }
-
-
-
-                return json;
-            }
-
-            return false;
-
-        }
-
-        const response = onlyOne
-            ? await loadData<ApiFolderContentResponse>(target)
-            : await loadData<ApiTimeGroupResponse>(target);
-
-        if (this.registryRef.value) {
-            if (this.state === STATE.ONE) {
-
-
-                this.registryRef.value.registry.groups.addListener(
-                    this.UUID,
-                    groups => {
-                        groups.forEach(group => group.files.addListener(
-                            this.UUID,
-                            files => {
-                                if (files[0]) {
-                                    group.analysisSync.turnOn(files[0]);
-                                }
-                            }
-                        ));
-                    }
-                );
-
-            }
-            else {
-                this.registryRef.value.registry.groups.removeListener(this.UUID);
-            }
-        }
-
-        if (response === false) {
-            this.error = "There was an error loading data";
-        } else if ("files" in response) {
-            this.dataOnly = response;
-        } else if ("folders" in response) {
-            this.dataMultiple = response;
-        }
-
-        this.loadingData = false;
 
     }
 
@@ -365,15 +373,22 @@ export class RemoteBrowser extends BaseElement {
                 <span>${labelFormatter(file)}</span>
             </h2>
             <div>
-                <file-download-lrc></file-download-lrc>
-                <file-download-png></file-download-png>
                 <file-range-propagator></file-range-propagator>
+
+                <file-dropdown label="...">
+                    <file-info-button>
+                        <file-button slot="invoker" label=${t(T.info).toLowerCase()}></file-button>
+                    </file-info-button>
+                    <file-download-lrc></file-download-lrc>
+                    <file-download-png></file-download-png>
+                </file-dropdown>
+
             </div>
         </header>
 
         <main>
             <file-canvas></file-canvas>
-            <file-analysis-table></file-analysis-table>
+            <file-analysis-overview></file-analysis-overview>
         </main>
 
     </file-provider>
@@ -393,9 +408,9 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp * 1000))}
+                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp))}
                     </div>`;
-        })}
+                })}
             
             </group-provider>   
         `;
@@ -430,18 +445,18 @@ export class RemoteBrowser extends BaseElement {
                 ${Object.entries(folders).map(([timestamp, flds]) => {
 
             let title: string | undefined = undefined;
-            const groupTimestamp = parseInt(timestamp) * 1000;
+            const groupTimestamp = parseInt(timestamp);
 
             if (this.by === ApiTimeGrouping.HOURS) {
-                title = format(groupTimestamp, "d. M. yyyy - HH") + ":00";
+                title = format(groupTimestamp * 1000, "d. M. yyyy - HH") + ":00";
             } else if (this.by === ApiTimeGrouping.DAYS) {
-                title = format(groupTimestamp, "d. M. yyyy");
+                title = format(groupTimestamp * 1000, "d. M. yyyy");
             } else if (this.by === ApiTimeGrouping.WEEKS) {
-                title = format(groupTimestamp, "wo");
+                title = format(groupTimestamp * 1000, "wo");
             } else if (this.by === ApiTimeGrouping.MONTHS) {
-                title = format(groupTimestamp, "LLLL yyyy", { locale: loc[this.locale! as keyof typeof loc] })
+                title = format(groupTimestamp * 1000, "LLLL yyyy", { locale: loc[this.locale! as keyof typeof loc] })
             } else if (this.by === ApiTimeGrouping.YEARS) {
-                title = format(groupTimestamp, "yyyy");
+                title = format(groupTimestamp * 1000, "yyyy");
             }
 
             return html`
@@ -452,7 +467,11 @@ export class RemoteBrowser extends BaseElement {
                                     <h2>${title}</h2>
                                     <group-provider slug="${timestamp}" class="buttons">
                                         <group-range-propagator></group-range-propagator>
-                                        <group-download-dropdown></group-download-dropdown>
+
+                                        <file-dropdown label="${t(T.download).toLowerCase()}">
+                                            <group-download-buttons></group-download-buttons>
+                                        </file-dropdown>
+
                                     </group-provider>
                                 </div>
                             </td>
@@ -461,7 +480,7 @@ export class RemoteBrowser extends BaseElement {
                             ${Object.values(flds).map((info) => {
                 return html`<td class="cell-content">
                                     ${Object.values(info.files).map(file => this.renderFileInner(file, file => {
-                    const ts = file.timestamp * 1000;
+                    const ts = file.timestamp;
                     if (this.by === ApiTimeGrouping.HOURS) {
                         return format(ts, "HH:ii");
                     } else if (this.by === ApiTimeGrouping.DAYS) {
@@ -598,10 +617,24 @@ export class RemoteBrowser extends BaseElement {
 
             <div class="info-sticky-content-wrapper">
 
+                <div class="info-sticky-content-collapser">
+                    ${this.renderHeader()}
+                </div>
+
+
                 ${this.enablegrouping ? this.renderInfo() : nothing}
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
+
+                ${this.dataOnly ? html`<group-provider slug="${this.dataOnly.info.folder}">
+
+                    <div style="width:100%">
+                        <group-chart></group-chart>
+                    </div>
+
+                </group-provider>`
+                : nothing }
 
             </div>
             ${this.state === STATE.MULTIPLE
@@ -767,7 +800,7 @@ table.affected {
             display: flex;
             gap: var(--thermal-gap);
             h2 {
-                flex-grow: 1;
+                // flex-grow: 1;
             }
         }
     }
@@ -815,6 +848,9 @@ table.affected {
         display: flex;
         gap: 5px;
         align-items: center;
+        // background-color: blue;
+        // padding: 4px;
+
     }
 
     .info-sticky-content-wrapper {
@@ -870,6 +906,21 @@ article.file {
     padding-bottom: var(--thermal-gap);
 }
 
+.info-sticky-content-collapser {
+    display: flex;
+    gap: 5px;
+    width: 100%;
+    align-items: center;
+    overflow: hidden;
+    transition: max-height .1s ease-in-out;
+    max-height: 0px;
+}
+
+:host(.is-pinned) .info-sticky-content-collapser {
+    max-height: 300px;
+    transition: max-height .5s ease-in-out;
+}
+
 
 .info {
 
@@ -911,6 +962,84 @@ thermal-dropdown.selector::part(invoker) {
     `;
 
 
+    protected renderHeader() {
+
+        return html`
+        
+        ${this.state !== STATE.MAIN
+                ? html`<thermal-button 
+                    @click=${this.actionCloseToHomepage.bind(this)}
+                    variant="foreground"
+                >
+                ${t(T.close)}
+            </thermal-button>
+
+            ${this.state === STATE.ONE && this.enablegrouping === false ?
+                        html`
+            <thermal-dropdown variant="background" class="selector">
+
+                <span slot="invoker">${this.folders[this.only[0]].name}</span>
+
+                ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
+                <thermal-button>${f.name}</thermal-button>
+                </div>`)}
+
+            </thermal-dropdown>` : nothing}
+
+            <registry-palette-dropdown></registry-palette-dropdown>
+            <registry-range-full-button></registry-range-full-button>
+
+            <!--
+            
+            <thermal-dialog label="${t(T.info)}">
+                <thermal-button slot="invoker">${t(T.info)}</thermal-button>
+                <div slot="content">
+
+                    <ul class="tree">
+                        <li>${this.info?.url_host}</li>
+                        <ul>
+
+                            ${this.state === STATE.ONE && this.dataOnly !== undefined
+                        ? html`<li>/${this.only[0]}/
+                                    <ul>
+                                        ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
+                                    </ul>
+                                </li>`
+                        : nothing
+                    }
+
+                            ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
+                        ? html`
+                                    ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
+                                `
+                        : nothing
+                    }
+                            
+                        </ul>
+                    </ul>   
+                
+                </div>
+            </thermal-dialog>
+
+            -->
+
+            ${this.state === STATE.ONE && this.dataOnly !== undefined
+                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                    <group-download-dropdown></group-download-dropdown>
+                </group-provider>`
+                        : nothing
+                    }
+            <registry-opacity-slider></registry-opacity-slider>
+            <group-tool-buttons showhint="false"></group-tool-buttons>
+            `
+                : nothing
+            }
+        
+        `;
+
+    }
+
+
 
     protected render(): unknown {
 
@@ -927,74 +1056,18 @@ thermal-dropdown.selector::part(invoker) {
 
         <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}">
 
-            <thermal-button variant="${this.state === STATE.MAIN ? "foreground" : "default"}" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
-
+        ${this.state === STATE.MAIN ? html`
+            <thermal-button variant="foreground" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
+            `
+                : nothing
+            }
             <header class="screen-browser-header" slot="bar">
+
+
 
             <thermal-bar>
 
-                ${this.state !== STATE.MAIN
-                ? html`<thermal-button 
-                        @click=${this.actionCloseToHomepage.bind(this)}
-                        variant="foreground"
-                    >
-                    ${t(T.close)}
-                </thermal-button>
-
-                ${this.state === STATE.ONE && this.enablegrouping === false ?
-                        html`
-                <thermal-dropdown variant="background" class="selector">
-
-                    <span slot="invoker">${this.folders[this.only[0]].name}</span>
-
-                    ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                    <thermal-button>${f.name}</thermal-button>
-                    </div>`)}
-
-                </thermal-dropdown>` : nothing}
-
-                <registry-palette-dropdown></registry-palette-dropdown>
-                <registry-range-full-button></registry-range-full-button>
-                <group-tool-buttons showhint="false"></group-tool-buttons>
-                <thermal-dialog label="${t(T.info)}">
-                    <thermal-button slot="invoker">${t(T.info)}</thermal-button>
-                    <div slot="content">
-
-                        <ul class="tree">
-                            <li>${this.info?.url_host}</li>
-                            <ul>
-
-                                ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<li>/${this.only[0]}/
-                                        <ul>
-                                            ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
-                                        </ul>
-                                    </li>`
-                        : nothing
-                    }
-
-                                ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
-                        ? html`
-                                        ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
-                                    `
-                        : nothing
-                    }
-                                
-                            </ul>
-                        </ul>   
-                    
-                    </div>
-                </thermal-dialog>
-                ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
-                        <group-download-dropdown></group-download-dropdown>
-                    </group-provider>`
-                        : nothing
-                    }
-                <registry-opacity-slider></registry-opacity-slider>
-                `
-                : nothing
-            }
+                ${this.renderHeader()}
             
             </thermal-bar>
         

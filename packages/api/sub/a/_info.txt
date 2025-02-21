@@ -1,2 +1,0 @@
-name: Název první složky
-description: Popiska první složky

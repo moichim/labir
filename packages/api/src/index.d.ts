@@ -1,3 +1,5 @@
+import { ApiTimeGrouping, QueryBuilder } from "./queryBuilder"
+
 /** Folder information definition */
 export type FolderInfoBase = {
     name: string,
@@ -73,10 +75,9 @@ export type ApiEverythingResponse = ApiResponseBase & {
 
 }
 
-export enum ApiTimeGrouping {
-    HOURS = "hours",
-    DAYS = "days",
-    WEEKS = "weeks",
-    MONTHS = "months",
-    YEARS = "years"
+
+
+export {
+    ApiTimeGrouping,
+    QueryBuilder
 }

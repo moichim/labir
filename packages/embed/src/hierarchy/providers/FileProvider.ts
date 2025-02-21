@@ -18,7 +18,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
     @property({ type: Number, reflect: true, attribute: true })
     @provide({ context: playbackSpeedContext })
-    public speed?: PlaybackSpeeds;
+    public speed?: PlaybackSpeeds = 1;
 
     @provide({ context: fileProviderContext })
     protected providedSelf: FileProviderElement = this;

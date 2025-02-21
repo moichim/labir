@@ -21,7 +21,7 @@ export class FrameBuffer {
     }
 
     /** Number of images to preload at once */
-    readonly bufferSize:number =  1;
+    readonly bufferSize:number =  3;
     /** The actual buffer holding pair of step & frame */
     protected buffer: Map<ParsedTimelineFrame,ParsedFileFrame> = new Map;
     /** Accessor to array of steps preloaded in the given moment */
@@ -105,6 +105,7 @@ export class FrameBuffer {
         if (
             ( isNaN( subsetStart ) || isNaN( subsetEnd ) )
             || subsetStart > subsetEnd
+            || subsetStart === subsetEnd
         ) {
 
             if ( step.relative === this.drive.parent.duration ) {
@@ -120,6 +121,7 @@ export class FrameBuffer {
                 preloaded: false,
                 hasChanged: true
             };
+
         }
 
         // Steps that should be in the buffer
@@ -144,11 +146,9 @@ export class FrameBuffer {
 
         // Remove all values that are not in new Steps
         this.preloadedSteps.forEach( (step) => {
-
             if ( ! stepsThatShouldBe.includes( step ) ) {
                 this.buffer.delete( step );
             }
-
         } );
 
         return {

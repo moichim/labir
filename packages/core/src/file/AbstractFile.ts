@@ -1,9 +1,9 @@
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ParsedFileBaseInfo } from "../loading/workers/parsers/structure";
-import { AnalysisDrive } from "../properties/analysis/AnalysisDrive";
-import { ThermalRangeOrUndefined } from "../properties/drives/RangeDriver";
-import { CursorValueDrive } from "../properties/states/CursorValueDrive";
+import { AnalysisDrive } from "../properties/analysis/analysis/AnalysisDrive";
+import { ThermalRangeOrUndefined } from "../properties/scale/RangeDriver";
+import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { InstanceDOM } from "./dom/InstanceDom";
@@ -218,8 +218,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public async draw() {
-
-        // console.log( "drawing", this.dom, this.dom?.canvasLayer );
     
         if ( this.dom && this.dom.canvasLayer) {
             return await this.dom.canvasLayer.draw();

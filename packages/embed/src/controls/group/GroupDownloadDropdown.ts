@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { css, CSSResultGroup, html } from "lit";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
@@ -11,11 +11,19 @@ export class GroupDownloadDropdown extends GroupConsumer {
         return undefined;
     }
 
+    static styles?: CSSResultGroup | undefined = css`
+    
+    `;
+
+
     protected render(): unknown {
+
+        const dropdownClass = this.classList.contains( "small" ) ? "small" : "";
+
 
         return html`
         
-            <thermal-dropdown class="download">
+            <thermal-dropdown class="download ${dropdownClass}">
             
                 <span slot="invoker">${t(T.download)}</span>
             

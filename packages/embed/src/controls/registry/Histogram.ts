@@ -4,7 +4,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { ThermalRegistry } from "@labir/core";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 @customElement("registry-histogram")
 export class HistogramElement extends RegistryConsumer {

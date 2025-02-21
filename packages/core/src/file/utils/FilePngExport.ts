@@ -1,6 +1,6 @@
 import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
-import { AbstractAreaAnalysis } from "../../properties/analysis/internals/area/AbstractAreaAnalysis";
-import { PointAnalysis } from "../../properties/analysis/internals/point/PointAnalysis";
+import { AbstractAreaAnalysis } from "../../properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
+import { PointAnalysis } from "../../properties/analysis/analysis/internals/point/PointAnalysis";
 import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from "../../utils/AbstractPngExport";
 import { Instance } from "../instance";
 

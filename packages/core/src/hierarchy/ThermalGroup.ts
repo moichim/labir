@@ -5,14 +5,15 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
 import { FilterContainer } from "../filters/FilterContainer";
 import { Batch } from "../loading/batch/Batch";
-import { AnalysisSyncDrive } from "../properties/analysisSync/analysisSync";
-import { CursorPositionDrive } from "../properties/drives/CursorPositionDrive";
+import { AnalysisSyncDrive } from "../properties/analysis/sync/analysisSync";
+import { CursorPositionDrive } from "../properties/cursor/CursorPositionDrive";
 import { FilesState } from "../properties/lists/filesState";
-import { MinmaxGroupProperty } from "../properties/states/MinmaxGroupProperty";
+import { MinmaxGroupProperty } from "../properties/scale/MinmaxGroupProperty";
 import { IThermalGroup } from "../properties/structure";
 import { GroupPlayback } from "../properties/time/group/GroupPlayback";
-import { ToolDrive } from "../properties/tool/ToolDrive";
+import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { ThermalRegistry } from "./ThermalRegistry";
+import { AnalysisGroupGraph } from "../properties/analysis/group/AnalysisGroupGraph";
 
 /**
  * Group of thermal images
@@ -54,6 +55,8 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
 
     public readonly analysisSync: AnalysisSyncDrive = new AnalysisSyncDrive(this, false);
 
+    public readonly analysisGraph: AnalysisGroupGraph = new AnalysisGroupGraph(this);
+
     protected _playback?: GroupPlayback;
     public get playback() {
         if ( ! this._playback ) {
@@ -67,17 +70,13 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     /** Iteration */
     public forEveryInstance = ( fn: ( (instance: Instance) => void ) ) => {
         this.files.value.forEach( instance => fn( instance ) );
-
     }
 
 
     /** Remove all instances, reset the minmax */
     public destroySelfAndBelow() {
-
         this.removeAllChildren();
-
         this.minmax.reset();
-
     }
 
 
@@ -86,12 +85,10 @@ export class ThermalGroup extends BaseStructureObject implements IThermalGroup {
     }
 
     public reset() {
-
         this.files.reset();
         this.minmax.reset();
         this.cursorPosition.reset();
         this.analysisSync.reset();
-
     }
 
     public readonly filters = new FilterContainer( this );

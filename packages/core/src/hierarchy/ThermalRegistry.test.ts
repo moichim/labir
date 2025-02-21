@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { ThermalManager } from './ThermalManager';
 import { THERMOGRAM_PATHS as THERMOGRAM_PATHS } from '../../devserver/node/mocks';
 import { getPool } from '../utils/pool';
+import { Instance } from '../file/instance';
 
 describe("ThermalRegistry", async () => {
 
@@ -14,45 +15,49 @@ describe("ThermalRegistry", async () => {
 
         const manager = new ThermalManager( pool );
         const registry = manager.addOrGetRegistry(REGISTRY_ID);
-        const group = registry.groups.addOrGetGroup(GROUP_ID);
+        // const group = registry.groups.addOrGetGroup(GROUP_ID);
 
         // First load
-        await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID);
+        const instance = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }, GROUP_ID) as Instance;
 
         expect(registry.groups.value.length).toEqual(1);
-        expect(group.files.value.length).toEqual(1);
+        expect(instance.group.files.value.length).toEqual(1);
 
         // Validate if there is only one instance of the group
-        expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
+        expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
 
 
         // Second load - the instance should be loaded only once
-        await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID);
+        const instance2 = await registry.loadFullOneFile({ thermalUrl: THERMOGRAM_PATHS.CAS }, GROUP_ID) as Instance;
 
-        expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
+        expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance2.group.id);
         
-        expect(group.files.value.length).toEqual(1);
+        expect(instance2.group.files.value.length).toEqual(1);
 
 
         // Third load
-        await registry.loadFullMultipleFiles({
+        const multiple = await registry.loadFullMultipleFiles({
             [GROUP_ID]: [{ thermalUrl: THERMOGRAM_PATHS.CAS }]
         });
 
-        expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
-        expect(group.files.value.length).toEqual(1);
+        const instance3 = multiple[0][0] as Instance;
+
+        expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
+        expect(instance3.group.files.value.length).toEqual(1);
 
 
         // Fourth load
-        await registry.loadFullMultipleFiles({
+        const multiple2 = await registry.loadFullMultipleFiles({
             [GROUP_ID]: [
                 { thermalUrl: THERMOGRAM_PATHS.CAS },
                 { thermalUrl: THERMOGRAM_PATHS.SOUSTRUH }
             ]
         });
 
-        expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
-        expect(group.files.value.length).toEqual(2);
+        const instance4 = multiple2[0][0] as Instance;
+
+        expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
+        expect(instance4.group.files.value.length).toEqual(2);
 
 
         // Fifth load to a new group
@@ -65,8 +70,8 @@ describe("ThermalRegistry", async () => {
             ]
         });
 
-        expect(registry.groups.addOrGetGroup(GROUP_ID).hash).toEqual(group.hash);
-        expect(group.files.value.length).toEqual(0);
+        expect(registry.groups.addOrGetGroup(GROUP_ID).id).toEqual(instance.group.id);
+        expect(instance.group.files.value.length).toEqual(0);
 
     });
 

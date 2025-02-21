@@ -1,2 +1,0 @@
-name: Název druhé složky
-description: Popiska druhé složky

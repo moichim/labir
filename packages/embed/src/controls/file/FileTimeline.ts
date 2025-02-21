@@ -377,10 +377,14 @@ export class TimelineElement extends FileConsumer {
                 ${file !== undefined
 
                 ? html`
+
                         <div class="ticks-horizontal-indent">
+
+                            <notation-timeline></notation-timeline>
 
 
                             <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
+
                                 <div 
                                     class="timeline-bar" 
                                     @click=${this.handleBarClick}

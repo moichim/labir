@@ -10,7 +10,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: fileContext })
     @state()
-    protected file?: Instance;
+    public file?: Instance;
 
     @provide({ context: FailureContext })
     @state()
@@ -53,7 +53,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     public ms: number = 0;
 
     @provide({ context: playbackSpeedContext })
-    public speed?: PlaybackSpeeds;
+    public speed?: PlaybackSpeeds = 1;
 
     @provide({ context: recordingContext })
     public recording: boolean = false;

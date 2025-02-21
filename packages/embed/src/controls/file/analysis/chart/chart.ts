@@ -412,7 +412,7 @@ export class ThermalChart extends LitElement {
     const lastChart = this.chartWrapper.getChart();
     google.visualization.events.addOneTimeListener(
         this.chartWrapper, 'ready', () => {
-          console.log( "ready", this.chartWrapper.visualization.ha.O );
+          // console.log( "ready", this.chartWrapper.visualization.ha.O );
           // Ready event fires after `chartWrapper` is initialized.
           const chart = this.chartWrapper!.getChart();
           if (chart !== lastChart) {

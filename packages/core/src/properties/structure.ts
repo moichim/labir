@@ -1,21 +1,21 @@
 // Range
 
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
-import { IWithAnalysis } from "./analysis/AnalysisDrive";
-import { IWithAnalysisSync } from "./analysisSync/analysisSync";
-import { IWithCursorPosition } from "./drives/CursorPositionDrive";
-import { IWithOpacity } from "./drives/OpacityDrive";
-import { IWithPalette } from "./drives/PaletteDrive";
-import { IWithRange } from "./drives/RangeDriver";
+import { IWithAnalysis } from "./analysis/analysis/AnalysisDrive";
+import { IWithAnalysisSync } from "./analysis/sync/analysisSync";
+import { IWithCursorPosition } from "./cursor/CursorPositionDrive";
+import { IWithOpacity } from "./display/OpacityDrive";
+import { IWithPalette } from "./scale/PaletteDrive";
+import { IWithRange } from "./scale/RangeDriver";
 import { IWithFiles } from "./lists/filesState";
 import { IWithGroups } from "./lists/GroupsState";
-import { IWithCursorValue } from "./states/CursorValueDrive";
+import { IWithCursorValue } from "./cursor/CursorValueDrive";
 import { IWithLoading } from "./states/LoadingState";
-import { IWithMinmaxGroup } from "./states/MinmaxGroupProperty";
-import { IWithMinmaxRegistry } from "./states/MinmaxRegistryState";
+import { IWithMinmaxGroup } from "./scale/MinmaxGroupProperty";
+import { IWithMinmaxRegistry } from "./scale/MinmaxRegistryState";
 import { IWithTimeline } from "./time/playback/TimelineDrive";
 import { IWithRedording } from "./time/recording/RecordingDrive";
-import { IWithTool } from "./tool/ToolDrive";
+import { IWithTool } from "./analysis/tool/ToolDrive";
 
 
 

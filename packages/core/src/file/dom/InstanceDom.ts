@@ -184,6 +184,8 @@ export class InstanceDOM {
             delete this.root.dataset.thermalInstanceId;
             delete this.root.dataset.thermalInstanceUrl;
 
+            this.root.innerHTML = "";
+
         }
 
     }

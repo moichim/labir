@@ -9,7 +9,7 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { Tour } from "../../tour/Tour";
 import { tourContext, TourStepContext, tourStepContext } from "../../tour/tourContext";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanMapper";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
@@ -426,6 +426,8 @@ export class DesktopFileApp extends FileConsumer {
             <slot name="content" slot="content"></slot>
             
         </thermal-app>
+
+        <notation-content></notation-content>
     `;
   }
 

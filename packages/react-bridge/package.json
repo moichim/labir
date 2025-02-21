@@ -11,7 +11,7 @@
     "url": "https://github.com/moichim/labir"
   },
   "scripts": {
-    "vite": "vite",
+    "dev": "vite",
     "build": "tsup src/index.ts --format cjs,esm --dts --tsconfig tsconfig.lib.json",
     "lint": "eslint src"
   },

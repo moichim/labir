@@ -4,6 +4,18 @@ export const de: Translation = {
 
     loading: "Loading",
 
+    temperature: "Temperatur",
+
+    upload: "Hochladen",
+    uploadafile: "Datei hochladen",
+    selectfile: "Datei auswählen",
+    addfiles: "Datei(en) hinzufügen",
+    clear: "Löschen",
+    dragorselectfile: "Ziehen Sie eine LRC-Datei hierher oder wählen Sie sie von der Festplatte aus",
+
+    file: "Datei",
+
+
     next: "Weiter",
     prev: "Zurück",
     back: "Zurück",

@@ -9,6 +9,10 @@ import { determineParser } from "./parsers";
 import { ThermalFileFailure } from "./ThermalFileFailure";
 import { ThermalFileReader } from "./ThermalFileReader";
 
+
+/**
+ * A singleton instance handling file loading
+ */
 export class FilesService {
 
     public get pool() {
@@ -83,9 +87,10 @@ export class FilesService {
 
     /** Create a dropzone listener on a HTML element */
     public handleDropzone(
-        element: HTMLElement
+        element: HTMLElement,
+        multiple: boolean = true
     ) {
-        return DropinElementListener.listenOnElement( this, element );
+        return DropinElementListener.listenOnElement( this, element, multiple );
     }
 
    
