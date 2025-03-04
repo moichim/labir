@@ -9,6 +9,8 @@ import { BaseElement } from "../hierarchy/BaseElement";
 import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
 import { T } from "../translations/Languages";
 import { interactiveAnalysisContext } from "../utils/context";
+import { publicIpv4 } from "public-ip";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/pngExportContext";
 
 @customElement( "thermal-dropin-app" )
 export class DropinAppElement extends BaseElement {
@@ -28,11 +30,32 @@ export class DropinAppElement extends BaseElement {
     @state()
     protected files: Instance[] = [];
 
+    @state()
+    protected ip?: string;
+
     @provide({context: interactiveAnalysisContext})
     protected interactiveanalysis: boolean = true;
 
     connectedCallback(): void {
         super.connectedCallback();
+        publicIpv4().then( ip => this.ip = ip );
+    }
+
+    @provide({context: pngExportWidthContext})
+    protected pngExportWidth: number = 1200;
+
+    @provide({context: pngExportWidthSetterContext})
+    protected pngExportWidthSetterContext = ( value: number ) => {
+        this.pngExportWidth = value;
+    }
+
+
+    @provide({context: pngExportFsContext})
+    protected pngExportFs: number = 20;
+
+    @provide({context: pngExportFsSetterContext})
+    protected pngExportFsSetterContext = ( value: number ) => {
+        this.pngExportFs = value;
     }
 
 
@@ -58,6 +81,31 @@ export class DropinAppElement extends BaseElement {
                 value.forEach( file => {
                     file.analysis.reset();
                     file.analysis.layers.clear();
+
+
+                    const data = {
+                        ip: this.ip,
+                        fileName: file.fileName,
+                        fileSize: file.bytesize,
+                        fileIsSequence: file.timeline.isSequence,
+                        fileNumFrames: file.timeline.frameCount,
+                        fileWidth: file.width,
+                        fileHeight: file.height,
+                        fileTimestamp: file.timeline.frames[0].absolute,
+                        fileDataType: file.fileDataType,
+                        userAgent: window.navigator.userAgent,
+                        windowWidth: window.innerWidth,
+                        windowHeight: window.innerHeight,
+                        time: (new Date()).getTime(),
+                        url: window.location.href
+                    }
+
+                    this.dispatchEvent( new CustomEvent("uploaded", {
+                        detail: data,
+                        bubbles: true,
+                        composed: true
+                    }) );
+
                     //file.unmountFromDom();
                 } );
 
@@ -308,6 +356,7 @@ export class DropinAppElement extends BaseElement {
                                     ${this.files.length > 0 ? html`
                                         <thermal-button @click="${()=>this.handleClear()}">${t(T.clear)}</thermal-button>
                                         <registry-palette-dropdown></registry-palette-dropdown><registry-range-full-button></registry-range-full-button>
+                                        <png-export-config></png-export-config>
                                     ` : nothing}
                                     ${this.files.length > 1 ? html`<group-download-dropdown></group-download-dropdown><registry-range-full-button></registry-range-full-button>` : nothing}
                                 </thermal-bar>

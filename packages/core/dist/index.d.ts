@@ -147,8 +147,8 @@ declare class DropinElementListener {
     get hover(): boolean;
     readonly onMouseEnter: CallbacksManager<() => void>;
     readonly onMouseLeave: CallbacksManager<() => void>;
-    readonly onDrop: CallbacksManager<(results: AbstractFileResult[]) => void>;
-    readonly onProcessingEnd: CallbacksManager<() => void>;
+    readonly onDrop: CallbacksManager<() => void>;
+    readonly onProcessingEnd: CallbacksManager<(results: AbstractFileResult[], event: Event | DragEvent) => void>;
     /** An invissible input element */
     input?: HTMLInputElement;
     protected hydrated: boolean;
@@ -168,8 +168,14 @@ declare class DropinElementListener {
     handleClick(event: PointerEvent): void;
     handleDragover(event: DragEvent): void;
     protected handleFiles(files: File[]): Promise<AbstractFileResult[]>;
-    handleDrop(event: DragEvent): Promise<AbstractFileResult[]>;
-    handleInputChange(event: Event): Promise<void>;
+    handleDrop(event: DragEvent): Promise<{
+        results: AbstractFileResult[];
+        event: DragEvent;
+    }>;
+    handleInputChange(event: Event): Promise<{
+        results: AbstractFileResult[];
+        event: Event;
+    }>;
     handleEnter(): void;
     handleLeave(): void;
     /** Build the internal input */
@@ -1050,16 +1056,30 @@ declare class GroupExportCSV {
 }
 
 type AbstractExportProps = {
+    fileName?: string;
     width?: number;
+    fontSize?: number;
+    textColor?: string;
     backgroundColor?: string;
     showAnalysis?: boolean;
-    fileName?: string;
+    showFileInfo?: boolean;
+    showThermalScale?: boolean;
+    author?: string;
+    license?: string;
+    showSource?: boolean;
 };
 type AbstractExportTypeMandatory = {
     fileName: string;
     width: number;
+    fontSize: number;
+    textColor: string;
     backgroundColor: string;
     showAnalysis: boolean;
+    showFileInfo: boolean;
+    showThermalScale: boolean;
+    author?: string;
+    license?: string;
+    showSource: boolean;
 };
 declare abstract class AbstractPngExport<O extends AbstractExportProps, M extends AbstractExportTypeMandatory> {
     static FONT_SIZE_NORMAL: string;
@@ -2348,8 +2368,8 @@ declare class FilePngExport extends AbstractPngExport<FileExportPngParams, FileE
     protected onBuildDom(): void;
     protected beforeDomRemoved(): void;
     protected afterDomRemoved(): void;
-    protected getFinalParams(params?: AbstractExportProps | undefined): AbstractExportTypeMandatory;
-    protected onDownload(params: AbstractExportTypeMandatory): void;
+    protected getFinalParams(params?: AbstractExportProps | undefined): FileExportPngParamsMandatory;
+    protected onDownload(params: AbstractExportTypeMandatory): Promise<void>;
 }
 
 /**

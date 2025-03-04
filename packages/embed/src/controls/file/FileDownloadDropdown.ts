@@ -5,6 +5,8 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { Instance } from "@labir/core";
+import { pngExportFsContext, pngExportWidthContext } from "../../utils/pngExportContext";
+import { consume } from "@lit/context";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
@@ -14,6 +16,12 @@ export class FileDownloadButton extends FileConsumer {
     public getTourableRoot(): HTMLElement | undefined {
         return this.tourableElementRef.value;
     }
+
+    @consume({ context: pngExportWidthContext, subscribe: true })
+    protected pngWidth: number = 1350;
+
+    @consume({context: pngExportFsContext, subscribe: true})
+    protected pngFs!: number;
 
     @state()
     protected hasGraphs: boolean = false;
@@ -85,7 +93,10 @@ export class FileDownloadButton extends FileConsumer {
                     </div>
 
                     <div slot="option">
-                        <thermal-button @click=${() => this.file!.export.downloadPng()}>${t(T.exportcurrentframeaspng)}</thermal-button>
+                        <thermal-button @click=${() => this.file!.export.downloadPng({
+                            width: this.pngWidth,
+                            fontSize: this.pngFs,
+                        })}>${t(T.exportcurrentframeaspng)}</thermal-button>
                     </div>
 
                     ${this.file.timeline.isSequence

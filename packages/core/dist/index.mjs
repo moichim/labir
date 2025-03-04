@@ -4711,126 +4711,6 @@ var ThermalListenerLayer = class extends AbstractLayer {
   }
 };
 
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-  }
-};
-
-// src/loading/workers/ThermalFileReader.ts
-var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
-  constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
-    super(thermalUrl, visibleUrl);
-    this.service = service;
-    this.parser = parser2;
-    this._buffer = buffer;
-    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
-    if (preserveOriginalBuffer === true) {
-      this.originalBuffer = this.copyBuffer(this.buffer);
-    }
-  }
-  /** For the purpose of testing we have a unique ID */
-  id = Math.random();
-  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
-  baseInfoCache;
-  fileName;
-  get pool() {
-    return this.service.pool;
-  }
-  originalBuffer;
-  _buffer;
-  get buffer() {
-    return this._buffer;
-  }
-  set buffer(value) {
-    this._buffer = value;
-  }
-  isSuccess() {
-    return true;
-  }
-  /** @todo This method relies on the functionality of filters. */
-  copyBuffer(buffer) {
-    const copiedBuffer = new ArrayBuffer(buffer.byteLength);
-    const copiedArray = new Uint8Array(copiedBuffer);
-    copiedArray.set(new Uint8Array(buffer));
-    return copiedArray.buffer;
-  }
-  /** Create copy of the self so that the */
-  cloneForInstance() {
-    return this;
-    return new _ThermalFileReader(
-      this.service,
-      this.buffer,
-      this.parser,
-      this.thermalUrl,
-      this.visibleUrl,
-      true
-    );
-  }
-  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
-  async baseInfo() {
-    if (this.baseInfoCache) {
-      return this.baseInfoCache;
-    }
-    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
-    this.baseInfoCache = baseInfo2;
-    return baseInfo2;
-  }
-  /** 
-   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
-   * 
-   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
-   */
-  getFrameSubset(frameIndex) {
-    return this.parser.getFrameSubset(this.buffer, frameIndex);
-  }
-  /** Read a given frame
-   * @todo Implement index range check
-   */
-  async frameData(index) {
-    const data = this.getFrameSubset(index);
-    const result = await this.parser.frameData(data.array, data.dataType);
-    return result;
-  }
-  async pointAnalysisData(x, y) {
-    return await this.parser.pointAnalysisData(this.buffer, x, y);
-  }
-  async rectAnalysisData(x, y, width, height) {
-    return await this.parser.rectAnalysisData(this.buffer, x, y, width, height);
-  }
-  async ellipsisAnalysisData(x, y, width, height) {
-    return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
-  }
-  /** 
-   * Recalculates the core array buffer using all available filters. 
-   * 
-   * This method does not emit anything - it only changes the array buffer.
-   */
-  async applyFilters(filters) {
-    if (this.originalBuffer === void 0) {
-      console.error("trying to apply filters on a filereader template");
-      return this;
-    }
-    this.buffer = this.copyBuffer(this.originalBuffer);
-    for (const filter of filters) {
-      this.buffer = await filter.apply(this.buffer);
-    }
-    this.baseInfoCache = void 0;
-    await this.baseInfo();
-    return this;
-  }
-  async createInstance(group) {
-    const reader = this.cloneForInstance();
-    const baseInfo2 = await reader.baseInfo();
-    const firstFrame = await reader.frameData(0);
-    const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
-    group.files.addFile(instance);
-    return instance;
-  }
-};
-
 // src/utils/AbstractPngExport.ts
 import domtoimage from "dom-to-image";
 var AbstractPngExport = class _AbstractPngExport {
@@ -5057,8 +4937,13 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
   static DEFAULT_PARAMS = {
     fileName: "sth",
     width: 1200,
+    fontSize: 20,
+    textColor: "black",
+    backgroundColor: "white",
     showAnalysis: true,
-    backgroundColor: "white"
+    showFileInfo: false,
+    showThermalScale: true,
+    showSource: false
   };
   localInstance;
   get canvas() {
@@ -5080,110 +4965,147 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
       fileName
     };
   }
-  onDownload(params) {
+  async onDownload(params) {
     const registryId = Math.random().toString();
     const manager = this.file.group.registry.manager;
     const registry = manager.addOrGetRegistry(registryId);
     const group = registry.groups.addOrGetGroup(registryId);
+    const fontSize = `${params.fontSize}px`;
+    const fontColor = params.textColor;
     manager.palette.setPalette(this.file.group.registry.manager.palette.value);
     registry.range.imposeRange(this.file.group.registry.range.value);
-    registry.service.loadFile(this.file.thermalUrl).then(async (result) => {
-      if (result instanceof ThermalFileReader) {
-        this.localInstance = await result.createInstance(group);
-        const relativeTime = this.file.timeline.currentStep.relative;
-        if (relativeTime !== 0) {
-          this.localInstance.timeline.setRelativeTime(relativeTime);
-        }
-        if (this.container) {
-          const registryMin = this.file.group.registry.minmax.value.min;
-          const registryMax = this.file.group.registry.minmax.value.max;
-          const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max ? { from: this.file.meta.current.min, to: this.file.meta.current.max } : void 0;
-          this.container.appendChild(this.buildHorizontalScale(
-            this.container,
-            registryMin,
-            registryMax,
-            this.file.group.registry.range.value.from,
-            this.file.group.registry.range.value.to,
-            this.file.group.registry.palette.currentPalette.gradient,
-            "gray",
-            "black",
-            highlight
-          ));
-          this.localInstance.mountToDom(this.container);
-          const instance = this.localInstance;
-          if (instance.dom && instance.dom.visibleLayer) {
-            instance.dom.visibleLayer.getLayerRoot().style.display = "none";
-          }
-          await this.localInstance.draw();
-          if (params.showAnalysis && this.file.analysis.value.length > 0) {
-            const table = document.createElement("table");
-            table.style.width = "100%";
-            table.style.borderCollapse = "collapse";
-            const header = document.createElement("tr");
-            ["Analysis", "AVG", "MIN", "MAX"].forEach((string) => {
-              const el = this.createElementWithText(
-                "th",
-                string,
-                _FilePngExport.FONT_SIZE_SMALL,
-                void 0,
-                _FilePngExport.COLOR_GRAY
-              );
-              el.style.padding = _FilePngExport.GAP_SMALL + "px";
-              el.style.textAlign = "left";
-              header.appendChild(el);
-            });
-            table.appendChild(header);
-            this.container.appendChild(table);
-            this.file.slots.forEveryExistingSlot((slot, number) => {
-              const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
-              if (localAnalysis) {
-                const row = document.createElement("tr");
-                const name = this.createElementWithText(
-                  "td",
-                  slot.analysis.name,
-                  _FilePngExport.FONT_SIZE_SMALL,
-                  void 0,
-                  slot.analysis.initialColor
-                );
-                name.style.borderTop = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
-                name.style.padding = `${_FilePngExport.GAP_SMALL}px 0px ${_FilePngExport.GAP_SMALL} 0px`;
-                row.appendChild(name);
-                const createAndAppendValue = (color, value) => {
-                  const td = this.createElementWithText(
-                    "td",
-                    value ? value.toFixed(3) + " \xB0C" : "",
-                    _FilePngExport.FONT_SIZE_SMALL,
-                    void 0
-                  );
-                  td.style.borderTop = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
-                  td.style.paddingTop = `${_FilePngExport.GAP_SMALL}px`;
-                  td.style.paddingBottom = `${_FilePngExport.GAP_SMALL}px`;
-                  row.appendChild(td);
-                };
-                if (slot.analysis instanceof AbstractAreaAnalysis) {
-                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
-                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
-                } else if (slot.analysis instanceof PointAnalysis) {
-                  createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                  createAndAppendValue(slot.analysis.initialColor);
-                  createAndAppendValue(slot.analysis.initialColor);
-                }
-                table.appendChild(row);
-              }
-            });
-          }
-          setTimeout(() => {
-            if (this.container) {
-              this.downloadImage(
-                params.fileName,
-                this.container
-              );
-            }
-          }, 1e3);
-        }
+    this.localInstance = await this.file.reader.createInstance(group);
+    const relativeTime = this.file.timeline.currentStep.relative;
+    if (relativeTime !== 0) {
+      this.localInstance.timeline.setRelativeTime(relativeTime);
+    }
+    if (this.container) {
+      this.container.style.lineHeight = `${params.fontSize * 1.5}px`;
+      const registryMin = this.file.group.registry.minmax.value.min;
+      const registryMax = this.file.group.registry.minmax.value.max;
+      if (params.showFileInfo) {
+        const infoElement = document.createElement("div");
+        infoElement.style.paddingBottom = `${params.fontSize / 3}px`;
+        infoElement.appendChild(
+          this.createElementWithText("div", this.file.fileName, fontSize, "bold", params.textColor)
+        );
+        this.container.appendChild(infoElement);
       }
-    });
+      if (params.showThermalScale) {
+        const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max ? { from: this.file.meta.current.min, to: this.file.meta.current.max } : void 0;
+        this.container.appendChild(this.buildHorizontalScale(
+          this.container,
+          registryMin,
+          registryMax,
+          this.file.group.registry.range.value.from,
+          this.file.group.registry.range.value.to,
+          this.file.group.registry.palette.currentPalette.gradient,
+          "gray",
+          "black",
+          highlight
+        ));
+      }
+      this.localInstance.mountToDom(this.container);
+      if (this.localInstance.dom && this.localInstance.dom.visibleLayer) {
+        this.localInstance.dom.visibleLayer.getLayerRoot().style.display = "none";
+      }
+      await this.localInstance.draw();
+      if (params.showAnalysis && this.file.analysis.value.length > 0) {
+        const table = document.createElement("table");
+        table.style.width = "100%";
+        table.style.borderCollapse = "collapse";
+        table.style.marginTop = `${params.fontSize / 3}px`;
+        const header = document.createElement("tr");
+        ["Analysis", "AVG", "MIN", "MAX"].forEach((string) => {
+          const el = this.createElementWithText(
+            "th",
+            string,
+            fontSize,
+            void 0,
+            _FilePngExport.COLOR_GRAY
+          );
+          el.style.textAlign = "left";
+          el.style.borderBottom = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
+          el.style.padding = `${params.fontSize / 3}px 0px ${params.fontSize / 3} 0px`;
+          header.appendChild(el);
+        });
+        table.appendChild(header);
+        this.container.appendChild(table);
+        this.file.slots.forEveryExistingSlot((slot, number) => {
+          const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
+          if (localAnalysis) {
+            const row = document.createElement("tr");
+            const name = this.createElementWithText(
+              "td",
+              slot.analysis.name,
+              fontSize,
+              void 0,
+              slot.analysis.initialColor
+            );
+            name.style.borderBottom = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
+            name.style.padding = `${params.fontSize / 3}px 0px ${params.fontSize / 3} 0px`;
+            row.appendChild(name);
+            const createAndAppendValue = (color, value) => {
+              const td = this.createElementWithText(
+                "td",
+                value ? value.toFixed(3) + " \xB0C" : "",
+                fontSize,
+                void 0
+              );
+              td.style.borderBottom = `1px solid ${_FilePngExport.COLOR_LIGHT}`;
+              td.style.paddingTop = `${params.fontSize / 3}px`;
+              td.style.paddingBottom = `${params.fontSize / 3}px`;
+              row.appendChild(td);
+            };
+            if (slot.analysis instanceof AbstractAreaAnalysis) {
+              createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+              createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+              createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+            } else if (slot.analysis instanceof PointAnalysis) {
+              createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+              createAndAppendValue(slot.analysis.initialColor);
+              createAndAppendValue(slot.analysis.initialColor);
+            }
+            table.appendChild(row);
+          }
+        });
+      }
+      if (params.author || params.license) {
+        const byline = document.createElement("div");
+        byline.style.lineHeight = "1.5em";
+        byline.style.color = _FilePngExport.COLOR_GRAY;
+        byline.style.paddingTop = `${params.fontSize / 3}px`;
+        if (params.author) {
+          byline.appendChild(this.createElementWithText("span", params.author, fontSize));
+        }
+        if (params.author && params.license) {
+          byline.appendChild(this.createElementWithText("span", " - ", fontSize));
+        }
+        if (params.license) {
+          byline.appendChild(this.createElementWithText("span", params.license, fontSize));
+        }
+        this.container.appendChild(byline);
+      }
+      if (params.showSource) {
+        const source = document.createElement("div");
+        source.style.lineHeight = "1.5em";
+        source.style.paddingTop = `${params.fontSize / 3}px`;
+        const date = TimeFormat.human(/* @__PURE__ */ new Date());
+        const href = window.location.href;
+        source.appendChild(
+          this.createElementWithText("span", `${date} - ${href}`, fontSize, void 0, _FilePngExport.COLOR_GRAY)
+        );
+        this.container.appendChild(source);
+      }
+      setTimeout(() => {
+        if (this.container) {
+          this.downloadImage(
+            params.fileName,
+            this.container
+          );
+        }
+      }, 0);
+    }
   }
 };
 
@@ -6340,6 +6262,14 @@ var ThermalGroup = class extends BaseStructureObject {
 // src/hierarchy/ThermalManager.ts
 import * as workerpool from "workerpool";
 
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+  }
+};
+
 // src/loading/workers/ThermalFileFailure.ts
 var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
   constructor(thermalUrl, code, message) {
@@ -6361,6 +6291,118 @@ var FileLoadingError = class extends Error {
     super(message);
     this.code = code;
     this.url = url;
+  }
+};
+
+// src/loading/workers/ThermalFileReader.ts
+var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
+  constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
+    super(thermalUrl, visibleUrl);
+    this.service = service;
+    this.parser = parser2;
+    this._buffer = buffer;
+    this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
+    if (preserveOriginalBuffer === true) {
+      this.originalBuffer = this.copyBuffer(this.buffer);
+    }
+  }
+  /** For the purpose of testing we have a unique ID */
+  id = Math.random();
+  /** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
+  baseInfoCache;
+  fileName;
+  get pool() {
+    return this.service.pool;
+  }
+  originalBuffer;
+  _buffer;
+  get buffer() {
+    return this._buffer;
+  }
+  set buffer(value) {
+    this._buffer = value;
+  }
+  isSuccess() {
+    return true;
+  }
+  /** @todo This method relies on the functionality of filters. */
+  copyBuffer(buffer) {
+    const copiedBuffer = new ArrayBuffer(buffer.byteLength);
+    const copiedArray = new Uint8Array(copiedBuffer);
+    copiedArray.set(new Uint8Array(buffer));
+    return copiedArray.buffer;
+  }
+  /** Create copy of the self so that the */
+  cloneForInstance() {
+    return this;
+    return new _ThermalFileReader(
+      this.service,
+      this.buffer,
+      this.parser,
+      this.thermalUrl,
+      this.visibleUrl,
+      true
+    );
+  }
+  /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
+  async baseInfo() {
+    if (this.baseInfoCache) {
+      return this.baseInfoCache;
+    }
+    const baseInfo2 = await this.pool.exec(this.parser.baseInfo, [this.buffer]);
+    this.baseInfoCache = baseInfo2;
+    return baseInfo2;
+  }
+  /** 
+   * Before requesting a frame, create a dedicated `ArrayBuffer` containing only the frame's data 
+   * 
+   * **THIS IS SYNCHRONOUSE AND MIGHT BE EXPENSIVE**
+   */
+  getFrameSubset(frameIndex) {
+    return this.parser.getFrameSubset(this.buffer, frameIndex);
+  }
+  /** Read a given frame
+   * @todo Implement index range check
+   */
+  async frameData(index) {
+    const data = this.getFrameSubset(index);
+    const result = await this.parser.frameData(data.array, data.dataType);
+    return result;
+  }
+  async pointAnalysisData(x, y) {
+    return await this.parser.pointAnalysisData(this.buffer, x, y);
+  }
+  async rectAnalysisData(x, y, width, height) {
+    return await this.parser.rectAnalysisData(this.buffer, x, y, width, height);
+  }
+  async ellipsisAnalysisData(x, y, width, height) {
+    return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
+  }
+  /** 
+   * Recalculates the core array buffer using all available filters. 
+   * 
+   * This method does not emit anything - it only changes the array buffer.
+   */
+  async applyFilters(filters) {
+    if (this.originalBuffer === void 0) {
+      console.error("trying to apply filters on a filereader template");
+      return this;
+    }
+    this.buffer = this.copyBuffer(this.originalBuffer);
+    for (const filter of filters) {
+      this.buffer = await filter.apply(this.buffer);
+    }
+    this.baseInfoCache = void 0;
+    await this.baseInfo();
+    return this;
+  }
+  async createInstance(group) {
+    const reader = this.cloneForInstance();
+    const baseInfo2 = await reader.baseInfo();
+    const firstFrame = await reader.frameData(0);
+    const instance = Instance.fromService(group, reader, baseInfo2, firstFrame);
+    group.files.addFile(instance);
+    return instance;
   }
 };
 
@@ -7121,23 +7163,33 @@ var DropinElementListener = class _DropinElementListener {
   }
   async handleDrop(event) {
     event.preventDefault();
+    this.onDrop.call();
     let results = [];
     const transfer = event.dataTransfer;
     if (transfer && transfer.files) {
       results = await this.handleFiles(Array.from(transfer.files));
     }
-    this.onDrop.call(results);
+    this.onProcessingEnd.call(results, event);
     this.handleLeave();
-    return results;
+    return {
+      results,
+      event
+    };
   }
   async handleInputChange(event) {
     event.preventDefault();
+    this.onDrop.call();
     const target = event.target;
+    let results = [];
     if (target.files) {
-      const results = await this.handleFiles(Array.from(target.files));
-      this.onDrop.call(results);
+      results = await this.handleFiles(Array.from(target.files));
+      this.onProcessingEnd.call(results, event);
       this.handleLeave();
     }
+    return {
+      results,
+      event
+    };
   }
   handleEnter() {
     if (this._hover === false) {

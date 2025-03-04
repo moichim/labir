@@ -7,15 +7,19 @@ import { classMap } from "lit/directives/class-map.js";
 import { DropinElementListener, ThermalFileReader } from "@labir/core";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
 @customElement("group-dropin-input")
-export class GroupDropin extends GroupConsumer {
+export class GroupDropin extends AbstractGroupDropin {
 
     @state()
     protected container: Ref<HTMLVideoElement> = createRef();
 
     @state()
     protected hover: boolean = false;
+
+    @state()
+    protected uploading: boolean = false;
 
     protected tourableElementRef: Ref<HTMLElement> = createRef();
 
@@ -40,6 +44,79 @@ export class GroupDropin extends GroupConsumer {
         .hover {
             background: var( --thermal-slate-light );
         }
+
+        svg {
+            width: 1em;
+        }
+
+
+
+.lds-ellipsis,
+.lds-ellipsis div {
+  box-sizing: border-box;
+}
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 21px;
+  height: 1em;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+
+.lds-ellipsis div:nth-child(1) {
+  left: 0px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(2) {
+  left: 7px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(3) {
+  left: 14px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+
+.lds-ellipsis div:nth-child(4) {
+  left: 21px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0px, 0);
+  }
+}
+
+
     
     `;
 
@@ -58,16 +135,23 @@ export class GroupDropin extends GroupConsumer {
                     this.hover = false;
             });
 
+            this.listener.onDrop.set( this.UUID, () => {
+                this.uploading = true;
+            } );
 
-            this.listener.onDrop.add(this.UUID, results => {
+
+            this.listener.onProcessingEnd.add(this.UUID, async ( results ) => {
 
                 this.group.files.removeAllInstances();
 
-                results.forEach( async ( result ) => {
+                await Promise.all( results.map( async ( result ) => {
                     if ( result instanceof ThermalFileReader ) {
-                        await result.createInstance(this.group );
+                        const instance = await result.createInstance(this.group );
+                        this.emitUpload( instance.fileName, instance.bytesize );
                     }
-                } );
+                } ) );
+
+                this.uploading = false;
 
             });
 
@@ -77,10 +161,14 @@ export class GroupDropin extends GroupConsumer {
 
     render() {
 
-        const dropinClasses = {
-            dropin: true,
-            hover: this.hover
-        }
+        const title = this.uploading === false 
+            ? t(T.uploadafile)
+            : html`<div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>`;
 
         return html`
 
@@ -89,11 +177,11 @@ export class GroupDropin extends GroupConsumer {
                 if (this.listener) {
                     this.listener.openFileDialog(false);
                 }
-            }}"><slot>${t(T.uploadafile)}</slot></thermal-button>
+            }}"><slot>${title}</slot></thermal-button>
 
             <div class="container" ${ref(this.tourableElementRef)}>
             
-                <div ${ref(this.container)} class="${classMap(dropinClasses)}"></div>
+                <div ${ref(this.container)}></div>
 
             </div>
 

@@ -2,17 +2,31 @@ import domtoimage from 'dom-to-image';
 import { CallbacksManager } from "../properties/callbacksManager";
 
 export type AbstractExportProps = {
+    fileName?: string,
     width?: number,
+    fontSize?: number,
+    textColor?: string,
     backgroundColor?: string,
     showAnalysis?: boolean,
-    fileName?: string
+    showFileInfo?: boolean,
+    showThermalScale?: boolean,
+    author?: string,
+    license?: string,
+    showSource?: boolean
 }
 
 export type AbstractExportTypeMandatory = {
     fileName: string,
     width: number,
+    fontSize: number,
+    textColor: string,
     backgroundColor: string,
-    showAnalysis: boolean
+    showAnalysis: boolean,
+    showFileInfo: boolean,
+    showThermalScale: boolean,
+    author?: string,
+    license?: string,
+    showSource: boolean
 }
 
 export abstract class AbstractPngExport<

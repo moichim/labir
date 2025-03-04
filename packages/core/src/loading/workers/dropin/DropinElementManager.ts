@@ -12,8 +12,8 @@ export class DropinElementListener {
     }
     public readonly onMouseEnter = new CallbacksManager<() => void>
     public readonly onMouseLeave = new CallbacksManager<() => void>
-    public readonly onDrop = new CallbacksManager<(results: AbstractFileResult[]) => void>
-    public readonly onProcessingEnd = new CallbacksManager<() => void>
+    public readonly onDrop = new CallbacksManager<() => void>
+    public readonly onProcessingEnd = new CallbacksManager<(results: AbstractFileResult[], event: Event|DragEvent) => void>
 
     /** An invissible input element */
     public input?: HTMLInputElement;
@@ -151,6 +151,8 @@ export class DropinElementListener {
     public async handleDrop(event: DragEvent) {
         event.preventDefault();
 
+        this.onDrop.call();
+
         let results: AbstractFileResult[] = [];
 
         const transfer = event.dataTransfer;
@@ -161,11 +163,14 @@ export class DropinElementListener {
 
         }
 
-        this.onDrop.call(results);
+        this.onProcessingEnd.call(results, event);
 
         this.handleLeave();
 
-        return results;
+        return {
+            results,
+            event
+        };
 
     }
 
@@ -174,16 +179,25 @@ export class DropinElementListener {
 
         event.preventDefault();
 
+        this.onDrop.call();
+
         const target = event.target as HTMLInputElement;
+
+        let results: AbstractFileResult[] = [];
 
         if ( target.files ) {
 
-            const results: AbstractFileResult[] = await this.handleFiles( Array.from( target.files ) );
+            results = await this.handleFiles( Array.from( target.files ) );
 
-            this.onDrop.call( results );
+            this.onProcessingEnd.call( results, event );
 
             this.handleLeave();
 
+        }
+
+        return {
+            results,
+            event
         }
 
     }
@@ -217,12 +231,6 @@ export class DropinElementListener {
     }
 
     public openFileDialog( multiple: boolean = true ) {
-
-        /*
-        const input: HTMLInputElement = this.getInput();
-        input.multiple = multiple;
-        input.click();
-        */
 
         if ( this.input !== undefined ) {
             this.input.multiple = multiple;

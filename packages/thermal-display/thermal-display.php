@@ -52,4 +52,223 @@ add_action( 'init', 'thermal_display_init_blocks' );
 
 
 
+register_activation_hook(__FILE__, 'my_plugin_create_table');
+
+function my_plugin_create_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'thermal_dropin_stats';
+    
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    $sql = "CREATE TABLE $table_name (
+        id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        ip varchar(45) NOT NULL,
+        file_name varchar(255) NOT NULL,
+        file_size bigint(20) UNSIGNED NOT NULL,
+        file_is_sequence tinyint(1) NOT NULL,
+        file_num_frames int(11) UNSIGNED NOT NULL,
+        file_width int(11) UNSIGNED NOT NULL,
+        file_height int(11) UNSIGNED NOT NULL,
+        file_timestamp bigint(20) UNSIGNED NOT NULL,
+        file_data_type int(11) NOT NULL,
+        user_agent text NOT NULL,
+        window_width int(11) UNSIGNED NOT NULL,
+        window_height int(11) UNSIGNED NOT NULL,
+        time bigint(20) UNSIGNED NOT NULL,
+        url text NOT NULL,
+        created_at datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    dbDelta($sql);
+}
+
+function my_plugin_update_check() {
+    $current_version = get_option('thermal_display_db_version', '1.0');
+    $new_version = '1.2';
+
+    if ($current_version !== $new_version) {
+        my_plugin_create_table();
+        update_option('thermal_display_db_version', $new_version);
+    }
+}
+add_action('admin_init', 'my_plugin_update_check');
+
+
+
+
+function my_plugin_download_csv() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'thermal_dropin_stats';
+
+    // Získání všech záznamů
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC", ARRAY_A);
+
+    if (empty($logs)) {
+        wp_die('Žádná data k exportu.');
+    }
+
+    // Hlavičky pro stažení CSV
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="thermal_display_dropin_stats.csv"');
+
+    // Otevření výstupního bufferu
+    $output = fopen('php://output', 'w');
+
+    // Hlavička CSV souboru
+    fputcsv($output, array(
+        'ID', 'IP', 'File Name', 'File Size (bytes)', 'Is Sequence', 'Num Frames', 'Width', 'Height',
+        'File Timestamp', 'Data Type', 'User Agent', 'Window Width', 'Window Height', 'Time', 'URL', 'Created At'
+    ));
+
+	// Přidání záznamů do CSV
+    foreach ($logs as $log) {
+        // Odstranění středníků a čárek z každé hodnoty
+        $safe_log = array_map(function ($value) {
+            return is_string($value) ? str_replace([',', ';'], '', $value) : $value;
+        }, $log);
+
+        // Zapsání do CSV
+        fputcsv($output, $safe_log);
+    }
+
+    fclose($output);
+    exit;
+}
+add_action('wp_ajax_my_plugin_download_csv', 'my_plugin_download_csv');
+
+
+
+
+
+
+// Přidání vlastní admin stránky
+function my_plugin_add_admin_page() {
+    add_menu_page(
+        'Thermal Display usage',  // Název stránky
+        'Thermal Display usage',  // Název stránky v menu
+        'manage_options', // Oprávnění
+        'my-plugin-file-logs', // Slug stránky
+        'my_plugin_render_admin_page', // Callback funkce
+        'dashicons-chart-area', // Ikona
+        1000000000000000 // Pozice v menu
+    );
+}
+add_action('admin_menu', 'my_plugin_add_admin_page');
+
+function my_plugin_render_admin_page() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'thermal_dropin_stats';
+
+	$csv_url = admin_url('admin-ajax.php?action=my_plugin_download_csv');
+
+    // Načtení dat
+    $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
+
+    echo '<div class="wrap">';
+    echo '<h1>Thermal display usage statistics</h1>';
+	echo '<a href="' . esc_url($csv_url) . '" class="button button-primary" style="margin-bottom: 10px;">📥 Stáhnout CSV</a>';
+    echo '<table class="wp-list-table widefat fixed striped">';
+    echo '<thead>
+            <tr>
+				<th>Time</th>
+				<th>URL</th>
+                <th>IP</th>
+                <th>File name</th>
+                <th>File size (MB)</th>
+                <th>Frames</th>
+                <th>Resolution</th>
+                <th>File recorded at</th>
+                <th>Browser</th>
+                
+                
+            </tr>
+          </thead>';
+    echo '<tbody>';
+
+    foreach ($logs as $log) {
+        echo '<tr>';
+		echo '<td>' . date('Y-m-d H:i:s', $log->time / 1000) . '</td>';
+		echo '<td><a href="' . esc_url($log->url) . '" target="_blank">'.esc_url($log->url).'</a></td>';
+        echo '<td>' . esc_html($log->ip) . '</td>';
+        echo '<td>' . esc_html($log->file_name) . '</td>';
+        echo '<td>' . number_format($log->file_size / (1024 * 1024), 2) . '</td>';
+        echo '<td>' . esc_html($log->file_num_frames) . '</td>';
+        echo '<td>' . esc_html($log->file_width) . ' × ' . esc_html($log->file_height) . '</td>';
+        echo '<td>' . date('Y-m-d H:i:s', $log->file_timestamp / 1000) . '</td>';
+        echo '<td>' . esc_html($log->user_agent) . '</td>';
+        
+        
+        echo '</tr>';
+    }
+
+    echo '</tbody>';
+    echo '</table>';
+    echo '</div>';
+}
+
+
+add_action('rest_api_init', 'my_plugin_register_api_routes');
+
+function my_plugin_handle_api_request(WP_REST_Request $request) {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'thermal_dropin_stats';
+
+    // Získání dat z JSON požadavku
+    $params = $request->get_json_params();
+
+    // Validace dat
+    if (
+        empty($params['ip']) || empty($params['fileName']) || !isset($params['fileSize']) ||
+        !isset($params['fileIsSequence']) || !isset($params['fileNumFrames']) ||
+        !isset($params['fileWidth']) || !isset($params['fileHeight']) ||
+        !isset($params['fileTimestamp']) || !isset($params['fileDataType']) ||
+        empty($params['userAgent']) || !isset($params['windowWidth']) ||
+        !isset($params['windowHeight']) || !isset($params['time']) || empty($params['url'])
+    ) {
+        return new WP_REST_Response(['error' => 'Neplatná data'], 400);
+    }
+
+    // Uložení do databáze
+    $wpdb->insert(
+        $table_name,
+        array(
+            'ip'              => sanitize_text_field($params['ip']),
+            'file_name'       => sanitize_text_field($params['fileName']),
+            'file_size'       => intval($params['fileSize']),
+            'file_is_sequence'=> intval($params['fileIsSequence']),
+            'file_num_frames' => intval($params['fileNumFrames']),
+            'file_width'      => intval($params['fileWidth']),
+            'file_height'     => intval($params['fileHeight']),
+            'file_timestamp'  => intval($params['fileTimestamp']),
+            'file_data_type'  => intval($params['fileDataType']),
+            'user_agent'      => sanitize_text_field($params['userAgent']),
+            'window_width'    => intval($params['windowWidth']),
+            'window_height'   => intval($params['windowHeight']),
+            'time'            => intval($params['time']),
+            'url'             => esc_url_raw($params['url']),
+            'created_at'      => current_time('mysql', 1)
+        ),
+        array('%s', '%s', '%d', '%d', '%d', '%d', '%d', '%d', '%d', '%s', '%d', '%d', '%d', '%s', '%s')
+    );
+
+    if ($wpdb->last_error) {
+        return new WP_REST_Response(['error' => 'Chyba při ukládání dat'], 500);
+    }
+
+    return new WP_REST_Response(['success' => 'Data uložena'], 200);
+}
+
+function my_plugin_register_api_routes() {
+    register_rest_route('thermal-display/v1', '/log-dropin/', array(
+        'methods'  => WP_REST_Server::CREATABLE,
+        'callback' => 'my_plugin_handle_api_request',
+        'permission_callback' => '__return_true',
+    ));
+}
+
+
+
+
 

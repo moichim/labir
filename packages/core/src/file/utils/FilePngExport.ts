@@ -2,6 +2,7 @@ import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
 import { AbstractAreaAnalysis } from "../../properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
 import { PointAnalysis } from "../../properties/analysis/analysis/internals/point/PointAnalysis";
 import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from "../../utils/AbstractPngExport";
+import { TimeFormat } from "../../utils/time/formatting";
 import { Instance } from "../instance";
 
 type FileExportPngParams = AbstractExportProps;
@@ -13,8 +14,13 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
     public static DEFAULT_PARAMS: FileExportPngParamsMandatory = {
         fileName: "sth",
         width: 1200,
+        fontSize: 20,
+        textColor: "black",
+        backgroundColor: "white",
         showAnalysis: true,
-        backgroundColor: "white"
+        showFileInfo: false,
+        showThermalScale: true,
+        showSource: false,
     }
 
     protected localInstance?: Instance;
@@ -31,18 +37,18 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
 
 
-    protected onBuildDom(): void {}
+    protected onBuildDom(): void { }
 
-    protected beforeDomRemoved(): void {}
+    protected beforeDomRemoved(): void { }
 
 
     protected afterDomRemoved(): void {
-        this.localInstance?.group.registry.manager.removeRegistry( this.localInstance.group.registry.id );
+        this.localInstance?.group.registry.manager.removeRegistry(this.localInstance.group.registry.id);
         delete this.localInstance;
 
     }
 
-    protected getFinalParams(params?: AbstractExportProps | undefined): AbstractExportTypeMandatory {
+    protected getFinalParams(params?: AbstractExportProps | undefined): FileExportPngParamsMandatory {
 
         const fileName = params && params.fileName
             ? params.fileName
@@ -54,7 +60,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
             fileName: fileName
         }
     }
-    protected onDownload(params: AbstractExportTypeMandatory): void {
+    protected async onDownload(params: AbstractExportTypeMandatory): Promise<void> {
 
         const registryId = Math.random().toString();
 
@@ -63,165 +69,229 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
         const registry = manager.addOrGetRegistry(registryId);
         const group = registry.groups.addOrGetGroup(registryId);
 
+        const fontSize = `${params.fontSize}px`;
+        const fontColor = params.textColor;
+
         // Mirror state
         // Mirror the group state to the local objects
         manager.palette.setPalette(this.file.group.registry.manager.palette.value);
         registry.range.imposeRange(this.file.group.registry.range.value!);
 
-        registry.service.loadFile(this.file.thermalUrl).then(async (result) => {
 
-            if (result instanceof ThermalFileReader) {
+        this.localInstance = await this.file.reader.createInstance(group);
 
-                this.localInstance = await result.createInstance(group);
+        const relativeTime = this.file.timeline.currentStep.relative;
 
-                const relativeTime = this.file.timeline.currentStep.relative;
+        if (relativeTime !== 0) {
+            this.localInstance.timeline.setRelativeTime(relativeTime);
+        }
 
-                if ( relativeTime !== 0 ) {
-                    this.localInstance.timeline.setRelativeTime( relativeTime );
-                }
+        if (this.container) {
 
-                if (this.container) {
+            this.container.style.lineHeight = `${params.fontSize*1.5}px`;
 
-                    const registryMin = this.file.group.registry.minmax.value!.min;
-                    const registryMax = this.file.group.registry.minmax.value!.max;
-                    const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max
-                        ? { from: this.file.meta.current.min, to: this.file.meta.current.max }
-                        : undefined;
+            const registryMin = this.file.group.registry.minmax.value!.min;
+            const registryMax = this.file.group.registry.minmax.value!.max;
 
-                    this.container.appendChild(this.buildHorizontalScale(
-                        this.container,
-                        registryMin,
-                        registryMax,
-                        this.file.group.registry.range.value!.from,
-                        this.file.group.registry.range.value!.to,
-                        this.file.group.registry.palette.currentPalette.gradient,
-                        "gray",
-                        "black",
-                        highlight
-                    ));
+            // File info
+            if (params.showFileInfo) {
 
+                const infoElement = document.createElement("div");
+                infoElement.style.paddingBottom = `${params.fontSize/3}px`;
 
-                    this.localInstance.mountToDom(this.container);
+                infoElement.appendChild(
+                    this.createElementWithText("div", this.file.fileName, fontSize, "bold", params.textColor)
+                );
 
-                    const instance = this.localInstance;
-
-                    if ( instance.dom && instance.dom.visibleLayer ) {
-                        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
-                    }
-
-                    await this.localInstance.draw();
-
-                    if (params.showAnalysis && this.file.analysis.value.length > 0) {
-
-                        const table = document.createElement("table");
-                        table.style.width = "100%";
-                        table.style.borderCollapse = "collapse";
-
-                        const header = document.createElement("tr");
-
-                        ["Analysis", "AVG", "MIN", "MAX"].forEach(string => {
-                            const el = this.createElementWithText(
-                                "th",
-                                string,
-                                FilePngExport.FONT_SIZE_SMALL,
-                                undefined,
-                                FilePngExport.COLOR_GRAY
-                            );
-                            el.style.padding = FilePngExport.GAP_SMALL + "px";
-                            el.style.textAlign = "left";
-                            header.appendChild(el);
-                        });
-
-                        table.appendChild(header);
-                        this.container.appendChild(table);
-
-                        this.file.slots.forEveryExistingSlot((slot, number) => {
-
-                            const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
-
-                            if (localAnalysis) {
-
-                                // Create a record into a table
-
-                                const row = document.createElement("tr");
-
-                                const name = this.createElementWithText(
-                                    "td",
-                                    slot.analysis.name,
-                                    FilePngExport.FONT_SIZE_SMALL,
-                                    undefined,
-                                    slot.analysis.initialColor
-                                );
-
-                                name.style.borderTop = `1px solid ${FilePngExport.COLOR_LIGHT}`;
-                                name.style.padding = `${FilePngExport.GAP_SMALL}px 0px ${FilePngExport.GAP_SMALL} 0px`;
-
-                                row.appendChild(name);
-
-                                const createAndAppendValue = (
-                                    color: string,
-                                    value?: number,
-                                ) => {
-
-                                    const td = this.createElementWithText(
-                                        "td",
-                                        value ? value.toFixed(3) + " °C" : "",
-                                        FilePngExport.FONT_SIZE_SMALL,
-                                        undefined,
-
-                                    );
-
-                                    td.style.borderTop = `1px solid ${FilePngExport.COLOR_LIGHT}`;
-
-                                    td.style.paddingTop = `${FilePngExport.GAP_SMALL}px`;
-                                    td.style.paddingBottom = `${FilePngExport.GAP_SMALL}px`;
-
-                                    row.appendChild(td);
-                                }
-
-                                if (slot.analysis instanceof AbstractAreaAnalysis) {
-
-                                    createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-
-                                    createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
-
-                                    createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
-
-                                } else if (slot.analysis instanceof PointAnalysis) {
-
-                                    createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-
-                                    createAndAppendValue(slot.analysis.initialColor);
-
-                                    createAndAppendValue(slot.analysis.initialColor);
-
-                                }
-
-                                table.appendChild(row);
-
-                            }
-
-                        });
-
-                    }
-
-
-                    setTimeout(() => {
-
-                        if (this.container) {
-                            this.downloadImage(
-                                params.fileName,
-                                this.container
-                            );
-                        }
-
-                    }, 1000);
-
-                }
+                this.container.appendChild(infoElement);
 
             }
 
-        });
+            // Thermal scale
+            if (params.showThermalScale) {
+
+                const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max
+                    ? { from: this.file.meta.current.min, to: this.file.meta.current.max }
+                    : undefined;
+
+                this.container.appendChild(this.buildHorizontalScale(
+                    this.container,
+                    registryMin,
+                    registryMax,
+                    this.file.group.registry.range.value!.from,
+                    this.file.group.registry.range.value!.to,
+                    this.file.group.registry.palette.currentPalette.gradient,
+                    "gray",
+                    "black",
+                    highlight
+                ));
+
+            }
+
+            // The image itself
+
+            this.localInstance.mountToDom(this.container);
+
+            if (this.localInstance.dom && this.localInstance.dom.visibleLayer) {
+                this.localInstance.dom.visibleLayer.getLayerRoot().style.display = "none";
+            }
+
+            await this.localInstance.draw();
+
+            // Analysis
+            if (params.showAnalysis && this.file.analysis.value.length > 0) {
+
+                const table = document.createElement("table");
+                table.style.width = "100%";
+                table.style.borderCollapse = "collapse";
+                table.style.marginTop = `${params.fontSize/3}px`;
+
+                const header = document.createElement("tr");
+
+                ["Analysis", "AVG", "MIN", "MAX"].forEach(string => {
+                    const el = this.createElementWithText(
+                        "th",
+                        string,
+                        fontSize,
+                        undefined,
+                        FilePngExport.COLOR_GRAY
+                    );
+                    el.style.textAlign = "left";
+                    el.style.borderBottom = `1px solid ${FilePngExport.COLOR_LIGHT}`;
+                    el.style.padding = `${params.fontSize / 3}px 0px ${params.fontSize / 3} 0px`;
+                    header.appendChild(el);
+                });
+
+                table.appendChild(header);
+                this.container.appendChild(table);
+
+
+
+                this.file.slots.forEveryExistingSlot((slot, number) => {
+
+                    const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
+
+                    if (localAnalysis) {
+
+                        // Create a record into a table
+
+                        const row = document.createElement("tr");
+
+                        const name = this.createElementWithText(
+                            "td",
+                            slot.analysis.name,
+                            fontSize,
+                            undefined,
+                            slot.analysis.initialColor
+                        );
+
+                        name.style.borderBottom = `1px solid ${FilePngExport.COLOR_LIGHT}`;
+                        name.style.padding = `${params.fontSize / 3}px 0px ${params.fontSize / 3} 0px`;
+
+                        row.appendChild(name);
+
+                        const createAndAppendValue = (
+                            color: string,
+                            value?: number,
+                        ) => {
+
+                            const td = this.createElementWithText(
+                                "td",
+                                value ? value.toFixed(3) + " °C" : "",
+                                fontSize,
+                                undefined,
+
+                            );
+
+                            td.style.borderBottom = `1px solid ${FilePngExport.COLOR_LIGHT}`;
+
+                            td.style.paddingTop = `${params.fontSize / 3}px`;
+                            td.style.paddingBottom = `${params.fontSize / 3}px`;
+
+                            row.appendChild(td);
+                        }
+
+                        if (slot.analysis instanceof AbstractAreaAnalysis) {
+
+                            createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+
+                            createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+
+                            createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+
+                        } else if (slot.analysis instanceof PointAnalysis) {
+
+                            createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+
+                            createAndAppendValue(slot.analysis.initialColor);
+
+                            createAndAppendValue(slot.analysis.initialColor);
+
+                        }
+
+                        table.appendChild(row);
+
+                    }
+
+                });
+
+            }
+
+            // Author & License
+            if (params.author || params.license) {
+
+                const byline = document.createElement("div");
+                byline.style.lineHeight = "1.5em";
+                byline.style.color = FilePngExport.COLOR_GRAY;
+                byline.style.paddingTop = `${params.fontSize/3}px`;
+
+                if (params.author) {
+                    byline.appendChild(this.createElementWithText("span", params.author, fontSize));
+                }
+
+                if (params.author && params.license) {
+                    byline.appendChild(this.createElementWithText("span", " - ", fontSize));
+                }
+
+                if (params.license) {
+                    byline.appendChild(this.createElementWithText("span", params.license, fontSize));
+                }
+
+                this.container.appendChild(byline);
+
+            }
+
+            // Source
+            if (params.showSource) {
+
+                const source = document.createElement("div");
+                source.style.lineHeight = "1.5em";
+                source.style.paddingTop = `${params.fontSize/3}px`;
+
+                const date = TimeFormat.human(new Date());
+                const href = window.location.href;
+
+                source.appendChild(
+                    this.createElementWithText("span", `${date} - ${href}`, fontSize, undefined, FilePngExport.COLOR_GRAY )
+                );
+
+                this.container.appendChild(source);
+
+            }
+
+            setTimeout(() => {
+
+                if (this.container) {
+                    this.downloadImage(
+                        params.fileName,
+                        this.container
+                    );
+                }
+
+            }, 0);
+
+        }
+
     }
 
 

@@ -141,6 +141,9 @@ import "./apps/registry/RegistryApp";
 import "./tour/TourStep";
 
 
+import "./controls/manager/PngExportSettingDialog";
+
+
 import "./apps/remote/RemoteFolderApp";
 import "./apps/remote/RemoteBrowser";
 import "./apps/remote/RemoteGridApp";
