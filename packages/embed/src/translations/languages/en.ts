@@ -14,6 +14,8 @@ export const en: Translation = {
     clear: "Clear",
     dragorselectfile: "Drag and drop an LRC file or select it from disk",
 
+    detail: "Detail",
+
 
     next: "Next",
     prev: "Previous",
@@ -32,7 +34,7 @@ export const en: Translation = {
     smooth: "Smooth",
     filerenderinghint: "'Pixelated' mode disables antialising of the thermogram and enables you to see its pixels as they are.",
     adjusttimescale: "Adjust temperature scale",
-    automaticrange: "Automaticrange",
+    automaticrange: "Automatic range",
     fullrange: "Full range",
     adjusttimescalehint: "Adjust the time scale automatically (based on histogram) or set its values to the full range (min and max).",
 
@@ -48,6 +50,7 @@ export const en: Translation = {
     visiblefilename: "Visual file name",
     visiblefileurl: "Visual file URL",
     visiblefiledownload: "Visual file download",
+    togglevisibleimage: "Switch IR / VIS image",
 
     time: "Time",
     duration: "Duration",

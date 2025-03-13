@@ -55,6 +55,8 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
         if (value.to > minmax.max)
             result.to = minmax.max;
 
+        console.log( "Výsledná range, která bude nastavena", result );
+
         return result;
 
     }
@@ -115,8 +117,8 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
 
         if (this.parent.histogram.value) {
 
-            const length = this.parent.histogram.value.length;
-            const percentage = 100 / length;
+            // const length = this.parent.histogram.value.length;
+            const percentage = 5; //100 / length;
 
             const histogramBarsOverPercentage = this.parent.histogram.value.filter(bar => bar.height >= percentage);
 

@@ -2,7 +2,7 @@
 
 
 header('Content-Type: application/json');
-// header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Origin: *');
 // header('Access-Control-Allow-Methods GET');
 // header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
 
@@ -323,7 +323,7 @@ abstract class AbstractController
 
 
         $png_file_name = str_replace(".lrc", ".png", $file_name);
-        $png_file_name = str_replace("image-thermal", "image-visual", $png_file_name);
+        $png_file_name = str_replace("thermal", "visual", $png_file_name);
 
         $png_path = $this->getFolderFilePath($folder, $png_file_name);
 

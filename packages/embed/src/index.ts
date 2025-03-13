@@ -105,6 +105,7 @@ import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
+import "./controls/file/fileTime";
 
 import "./controls/file/analysis/edit/analysisName";
 import "./controls/file/analysis/edit/analysisColor";

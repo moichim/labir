@@ -30,6 +30,7 @@ export class FileRangePropagator extends AbstractFileButton {
 
     action() {
         if ( this.file ) {
+            this.log( this.file.min, this.file.max );
             this.file.group.registry.range.imposeRange({
                 from: this.file.min,
                 to: this.file.max

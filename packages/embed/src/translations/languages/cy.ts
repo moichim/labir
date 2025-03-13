@@ -14,6 +14,7 @@ export const cy: Translation = {
     dragorselectfile: "Llusgwch ffeil LRC neu dewiswch hi o'r ddisg",
 
     file: "ffeil",
+    detail: "Manylder",
 
 
     next: "Nesaf",
@@ -48,6 +49,7 @@ export const cy: Translation = {
     visiblefilename: "Enw ffeil weledol",
     visiblefileurl: "URL ffeil weledol",
     visiblefiledownload: "Lawrlwythwch y ffeil weledol",
+    togglevisibleimage: "Newid delwedd IR/VIS",
     time: "Amser",
     duration: "Hyd",
     resolution: "Datrysiad",

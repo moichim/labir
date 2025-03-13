@@ -62,8 +62,25 @@ export class RangeSliderElement extends RegistryConsumer {
 
         this.registry.range.addListener(this.UUID, value => {
             if (value) {
-                this.from = value.from;
-                this.to = value.to;
+
+                if ( this.from !== undefined && this.to !== undefined ) {
+
+                    // If new min is larger the existing max
+                    if ( this.max! < value.from ) {
+                        this.to = value.to;
+                        this.from = value.from;
+                    } 
+                    // If new max is smaller than existing min
+                    else {
+                        this.from = value.from;
+                        this.to = value.to;
+                    }
+
+                } else {
+                    this.from = value.from;
+                    this.to = value.to;
+                }
+
             }
         });
 

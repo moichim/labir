@@ -19,7 +19,8 @@ import { interactiveAnalysisContext } from "../../utils/context";
 enum STATE {
     MAIN,
     ONE,
-    MULTIPLE
+    MULTIPLE,
+    DETAIL
 }
 
 const loc = {
@@ -94,6 +95,48 @@ export class RemoteBrowser extends BaseElement {
     @provide({ context: interactiveAnalysisContext })
     protected interactiveAnalysis: boolean = true;
 
+    @state()
+    protected detail?: {
+        folder: string,
+        lrc: string,
+        png?: string
+    } = undefined;
+
+    protected async showDetail(
+        folder: string,
+        lrc: string,
+        png?: string
+    ) {
+        this.detail = {
+            folder, lrc, png
+        };
+        this.state = STATE.DETAIL;
+
+        this.resetRegistry();
+
+    }
+
+    protected async closeDetail() {
+
+        delete this.detail;
+        this.detail = undefined;
+
+        const data = this.dataMultiple ?? this.dataOnly;
+
+        switch ( typeof data ) {
+            case "undefined":
+                this.state = STATE.MAIN;
+                break;
+            case typeof this.dataOnly:
+                this.state = STATE.ONE;
+                break;
+            case typeof this.dataMultiple:
+                this.state = STATE.MULTIPLE;
+                break;
+        }
+
+    }
+
 
 
     connectedCallback(): void {
@@ -135,6 +178,12 @@ export class RemoteBrowser extends BaseElement {
                     this.subfolder
                 );
             }
+        }
+
+        if ( this.registryRef.value ) {
+            this.registryRef.value.registry.batch.onBatchComplete.set( this.UUID, () => {
+                this.registryRef.value?.registry.range.applyMinmax();
+            } );
         }
     }
 
@@ -237,6 +286,8 @@ export class RemoteBrowser extends BaseElement {
 
         const data = await query.grid(grouping);
 
+        this.log( data );
+
         this.scrollToComponent();
 
         this.dataMultiple = data;
@@ -302,6 +353,7 @@ export class RemoteBrowser extends BaseElement {
             this.registryRef.value.registry.reset();
             this.registryRef.value.registry.minmax.reset();
             this.registryRef.value.registry.range.reset();
+            this.registryRef.value.registry.opacity.imposeOpacity(1);
         }
     }
 
@@ -361,6 +413,7 @@ export class RemoteBrowser extends BaseElement {
 
 
     protected renderFileInner(
+        folderName: string,
         file: FolderFileType,
         labelFormatter: (f: FolderFileType) => string
     ) {
@@ -373,6 +426,39 @@ export class RemoteBrowser extends BaseElement {
                 <span>${labelFormatter(file)}</span>
             </h2>
             <div>
+
+                ${file.png ? html`<button class="eye" @click=${() => {
+                    if ( this.registryRef.value ) {
+                        if ( this.registryRef.value.registry.opacity.value === 1 ) {
+                            this.registryRef.value.registry.opacity.imposeOpacity(0);
+                        } else {
+                            this.registryRef.value.registry.opacity.imposeOpacity(1);
+                        }
+                    
+                    }
+                }}>
+                    <div class="eye-tooltip">
+                        <div>${t(T.togglevisibleimage)}</div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
+                        <path fill-rule="evenodd" d="M1.38 8.28a.87.87 0 0 1 0-.566 7.003 7.003 0 0 1 13.238.006.87.87 0 0 1 0 .566A7.003 7.003 0 0 1 1.379 8.28ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
+                    </svg>
+                </button` : nothing}
+
+                <button class="eye" @click=${() => {
+                    this.showDetail( folderName, file.lrc, file.png );
+                }}>
+                    <div class="eye-tooltip">
+                        <div>${t(T.detail)}</div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
+                        <path fill-rule="evenodd" d="M7 12c1.11 0 2.136-.362 2.965-.974l2.755 2.754a.75.75 0 1 0 1.06-1.06l-2.754-2.755A5 5 0 1 0 7 12Zm0-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" clip-rule="evenodd" />
+                    </svg>
+
+                </button>
+
                 <file-range-propagator></file-range-propagator>
 
                 <file-dropdown label="...">
@@ -408,7 +494,7 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(file, () => TimeFormat.human(file.timestamp))}
+                    ${this.renderFileInner( this.dataOnly!.info.name, file, () => TimeFormat.human(file.timestamp))}
                     </div>`;
                 })}
             
@@ -420,11 +506,13 @@ export class RemoteBrowser extends BaseElement {
 
     protected renderMultiple() {
 
-        if (this.loadingData || this.dataMultiple === undefined) {
+        if (this.loadingData || this.dataMultiple === undefined || this.dataMultiple.data === undefined) {
             return this.renderLoading("Načítám data...");
         }
 
-        const folders = this.dataMultiple.data;
+        console.log( this.dataMultiple, this.only );
+
+        const groups = this.dataMultiple.data;
 
         const header = Object.entries(
             Object.values(
@@ -437,12 +525,14 @@ export class RemoteBrowser extends BaseElement {
 
         const columns = header.length;
 
+        const sortedKeys = Object.keys( Object.values( groups )[0] ).sort( (a,b) => a < b ? -1 : 1 );
+
         return html`
 
             <table class="affected">
 
                 <tbody>
-                ${Object.entries(folders).map(([timestamp, flds]) => {
+                ${Object.entries(groups).map(([timestamp, folders]) => {
 
             let title: string | undefined = undefined;
             const groupTimestamp = parseInt(timestamp);
@@ -477,9 +567,10 @@ export class RemoteBrowser extends BaseElement {
                             </td>
                         </tr>
                         <group-provider slug="${timestamp}" class="row">
-                            ${Object.values(flds).map((info) => {
-                return html`<td class="cell-content">
-                                    ${Object.values(info.files).map(file => this.renderFileInner(file, file => {
+                            ${sortedKeys.map((key) => {
+                            const info = folders[key];
+                return html`<td class="cell-content" data-name="${info.name}">
+                                    ${Object.values(info.files).map(file => this.renderFileInner(info.name, file, file => {
                     const ts = file.timestamp;
                     if (this.by === ApiTimeGrouping.HOURS) {
                         return format(ts, "HH:ii");
@@ -659,10 +750,50 @@ export class RemoteBrowser extends BaseElement {
         <section>
             ${this.state === STATE.ONE ? this.renderOne() : nothing}
             ${this.state === STATE.MULTIPLE ? this.renderMultiple() : nothing}
+            ${this.state === STATE.DETAIL ? this.renderDetail(): nothing}
         </section>
         
 `;
 
+    }
+
+    protected renderDetail() {
+        if (this.detail === undefined) {
+            return this.renderLoading( "Načítám obrázek" );
+        }
+        return html`
+        <group-provider slug="detail" autoclear="true">
+            <file-provider thermal="${this.detail?.lrc}" visible="${this.detail?.png}" batch="true" autoclear="true">
+                <article class="detail">
+                    <header class="detail-header">
+                        <thermal-button @click=${() => this.closeDetail()} variant="foreground">${t(T.close)}</thermal-button>
+
+                        <thermal-button variant="background" interactive="false">
+                            ${this.detail.folder}
+                        </thermal-button>
+                        <thermal-button variant="background" interactive="false">
+                            <file-time></file-time></h1>
+                        </thermal-button>
+
+                        <file-info-button>
+                        </file-info-button>
+                        <file-download-dropdown></file-download-dropdown>
+                    </header>
+
+                    <main>
+                        <section>
+                            <file-canvas></file-canvas>
+                            <file-timeline></file-timeline>
+                        </section>
+                        <section>
+                            <file-analysis-complex></file-analysis-complex>
+                        </section>
+                    </main>    
+                    
+                </article>
+            </file-provider>
+        </group-provider>
+        `;
     }
 
 
@@ -763,7 +894,7 @@ h1, h2, h3, h4, h5 {
         flex-wrap: wrap;
 
         > div {
-            width: 25%;
+            width: 33.3333%;
             box-sizing: border-box;
             padding: calc(var(--thermal-gap) * .5);
         }
@@ -958,7 +1089,88 @@ thermal-dropdown.selector::part(invoker) {
         }
     }
 }
-    
+
+
+
+    .eye {
+
+        border: none;
+        background: transparent;
+        color: var(--thermal-foreground);
+        padding: 0;
+        margin: 0;
+
+        transition: all .2s ease-in-out;
+        cursor: pointer;
+        position: relative;
+
+        .eye-tooltip {
+            display: none;
+            position: absolute;
+            z-index: 9999;
+            top: -30px;
+            left: 0rem;
+            width: 0;
+
+            > div {
+                padding: 5px 10px;
+                border-radius: var(--thermal-radius);
+                border: 1px solid var(--thermal-slate);
+                color: var(--thermal-background);
+                background: var(--thermal-primary);
+                font-size: 12px;
+                width: fit-content;
+                white-space: preserve nowrap;
+            }
+        }
+
+        &:hover {
+            color: var(--thermal-primary);
+            .eye-tooltip {
+                display: block;
+                
+            }
+        }
+
+        
+        
+        svg {
+            width: 1em;
+        }
+    }
+
+
+    .detail {
+        padding: var(--thermal-gap);
+        border-radius: var(--thermal-radius);
+        border: 1px solid var( --thermal-slate );
+        background-color: var(--thermal-background);
+        box-sizing: border-box;
+        width: 100%;
+
+        main {
+            display: grid;
+            gap: var(--thermal-gap);
+            grid-template-columns: 1fr;
+            @media ( min-width: 900px ) {
+                grid-template-columns: 2fr 1fr;
+            }
+            @media ( min-width: 1300px ) {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        header {
+            width: 100%;
+            display: flex;
+            gap: 5px;
+            margin-bottom: var(--thermal-gap);
+            align-items: center;
+        }
+
+    }
+
+
     `;
 
 
@@ -988,40 +1200,7 @@ thermal-dropdown.selector::part(invoker) {
 
             <registry-palette-dropdown></registry-palette-dropdown>
             <registry-range-full-button></registry-range-full-button>
-
-            <!--
-            
-            <thermal-dialog label="${t(T.info)}">
-                <thermal-button slot="invoker">${t(T.info)}</thermal-button>
-                <div slot="content">
-
-                    <ul class="tree">
-                        <li>${this.info?.url_host}</li>
-                        <ul>
-
-                            ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<li>/${this.only[0]}/
-                                    <ul>
-                                        ${this.dataOnly.files.map(file => html`<li>${file.file_name}</li>`)}
-                                    </ul>
-                                </li>`
-                        : nothing
-                    }
-
-                            ${this.state === STATE.MULTIPLE && this.dataMultiple !== undefined
-                        ? html`
-                                    ${Object.values(this.dataMultiple.data).map(folder => html`<li>${folder}</li>`)}
-                                `
-                        : nothing
-                    }
-                            
-                        </ul>
-                    </ul>   
-                
-                </div>
-            </thermal-dialog>
-
-            -->
+            <registry-range-auto-button></registry-range-auto-button>
 
             ${this.state === STATE.ONE && this.dataOnly !== undefined
                         ? html`<group-provider slug="${this.dataOnly.info.folder}">
@@ -1078,7 +1257,8 @@ thermal-dropdown.selector::part(invoker) {
                 "screen-main": this.state === STATE.MAIN,
                 "screen-browser": [STATE.ONE, STATE.MULTIPLE].includes(this.state),
                 "screen-browser__one": this.state === STATE.ONE,
-                "screen-browser__multiple": this.state === STATE.MULTIPLE
+                "screen-browser__multiple": this.state === STATE.MULTIPLE,
+                "screen-detail": this.state === STATE.DETAIL
             })}>
                 ${this.renderApp()}
             </div>

@@ -14,6 +14,7 @@ export const fr: Translation = {
     dragorselectfile: "Glissez-déposez un fichier LRC ou sélectionnez-le depuis le disque",
 
     file: "fichier",
+    detail: "Détail",
 
 
     next: "Avancer",
@@ -48,6 +49,7 @@ export const fr: Translation = {
     visiblefilename: "Nom de l'image visuel",
     visiblefileurl: "URL de l'image visuel",
     visiblefiledownload: "Télécharger l'image visuel",
+    togglevisibleimage: "Commuter l'image IR / VIS",
 
     time: "Temps",
     duration: "Durée",

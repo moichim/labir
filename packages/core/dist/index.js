@@ -7601,6 +7601,7 @@ var RangeDriver = class extends AbstractProperty {
       result.from = minmax.min;
     if (value.to > minmax.max)
       result.to = minmax.max;
+    console.log("V\xFDsledn\xE1 range, kter\xE1 bude nastavena", result);
     return result;
   }
   /**
@@ -7639,7 +7640,7 @@ var RangeDriver = class extends AbstractProperty {
   applyAuto() {
     if (this.parent.histogram.value) {
       const length = this.parent.histogram.value.length;
-      const percentage = 100 / length;
+      const percentage = 5;
       const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
       const newRange = {
         from: histogramBarsOverPercentage[0].from,

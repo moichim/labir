@@ -27,6 +27,8 @@ export enum T {
     /** Close */
     close = "close",
 
+    detail = "detail",
+
     /** Description */
     description = "description",
     /** Author */
@@ -81,6 +83,8 @@ export enum T {
     visiblefileurl = "visiblefileurl",
     /** Download visible file */
     visiblefiledownload = "visiblefiledownload",
+
+    togglevisibleimage = "togglevisibleimage",
 
     /** Time */
     time = "time",

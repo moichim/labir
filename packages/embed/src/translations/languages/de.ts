@@ -14,6 +14,7 @@ export const de: Translation = {
     dragorselectfile: "Ziehen Sie eine LRC-Datei hierher oder wählen Sie sie von der Festplatte aus",
 
     file: "Datei",
+    detail: "Detail",
 
 
     next: "Weiter",
@@ -49,6 +50,7 @@ export const de: Translation = {
     visiblefilename: "Name der sichtbaren Datei",
     visiblefileurl: "URL der sichtbaren Datei",
     visiblefiledownload: "Sichtbares Bild herunterladen",
+    togglevisibleimage: "IR/VIS-Bild umschalten",
     time: "Zeit",
     duration: "Sequenzdauer",
     resolution: "Auflösung",
