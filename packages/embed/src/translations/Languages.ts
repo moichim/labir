@@ -6,7 +6,7 @@
 export enum T {
 
     loading = "loading",
-
+    config = "config",
     temperature = "temperature",
 
     upload = "upload",
@@ -122,6 +122,8 @@ export enum T {
     pngofentiregrouphint = "pngofentiregrouphint",
     csvofanalysisdata = "csvofanalysisdata",
     csvofanalysisdatahint = "csvofanalysisdatahint",
+    exportimagewidth = "exportimagewidth",
+    exportimagefontsize = "exportimagefontsize",
 
     showingfolder = "showingfolder",
     showingfolders = "showingfolders",

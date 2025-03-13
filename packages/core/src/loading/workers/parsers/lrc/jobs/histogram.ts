@@ -92,7 +92,7 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
     const max = pixels[ pixels.length - 1 ];
     const distance = Math.abs( min - max );
 
-    const resolution = 200;
+    const resolution = 255;
     const step = distance / resolution;
 
     const bars: {
@@ -111,22 +111,39 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
 
         const nextUpIndex = buf.findIndex( pixel => pixel > to );
 
-        const subs = buf.slice( 0, nextUpIndex - 1 );
+        if ( nextUpIndex === 0 ) {
 
-        const count = subs.length;
+            const bar = {
+                from,
+                to,
+                count: 0,
+                percentage: 0
+            };
 
-        const percentage = count / pixels.length * 100;
+            bars.push( bar );
 
-        const bar = {
-            from,
-            to,
-            count,
-            percentage
+        } else {
+
+            const subs = buf.slice( 0, nextUpIndex - 1 );
+
+            const count = subs.length;
+
+            const percentage = count / pixels.length * 100;
+
+            const bar = {
+                from,
+                to,
+                count,
+                percentage
+            }
+
+            bars.push( bar );
+
+            buf = buf.slice( nextUpIndex );
+
         }
 
-        bars.push( bar );
-
-        buf = buf.slice( nextUpIndex );
+        
 
     }
 

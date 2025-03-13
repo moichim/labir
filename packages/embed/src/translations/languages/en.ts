@@ -3,6 +3,7 @@ import { Translation } from "../Languages";
 export const en: Translation = {
 
     loading: "Loading",
+    config: "Settings",
 
     temperature: "Temperature",
 
@@ -77,6 +78,8 @@ export const en: Translation = {
     pngofentiregrouphint: "Export the entire group as one image",
     csvofanalysisdata: "CSV - analysis data",
     csvofanalysisdatahint: "Table of temperatures in analyses",
+    exportimagewidth: "Exported image width",
+    exportimagefontsize: "Exported image font size",
 
     range: "Range",
     info: "Info",

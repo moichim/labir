@@ -4,6 +4,7 @@ import { customElement, property, queryAssignedElements, state } from "lit/decor
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { languagesObject, T } from "../translations/Languages";
+import { booleanConverter } from "../utils/booleanConverter";
 
 
 @customElement("thermal-app")
@@ -24,8 +25,8 @@ export class ThermalAppUiElement extends BaseElement {
     @property({ type: String, reflect: true })
     fullscreen: string = "off";
 
-    @property({ type: String, reflect: true, attribute: true })
-    showfullscreen: boolean = true;
+    @property({ type: String, reflect: true, attribute: true, converter: booleanConverter(false) })
+    showfullscreen: boolean = false;
 
     @property( {type: String, reflect: true, attribute: true} )
     dark: boolean = false;
@@ -45,6 +46,7 @@ export class ThermalAppUiElement extends BaseElement {
 
 
     protected appRef: Ref<HTMLDivElement> = createRef();
+    protected headerRef: Ref<HTMLDivElement> = createRef();
 
     protected contentRef: Ref<HTMLDivElement> = createRef();
 
@@ -116,9 +118,6 @@ export class ThermalAppUiElement extends BaseElement {
                         width = height * aspect;
                     }
 
-
-                    this.contentRef.value.setAttribute("style", `width: ${width}px !important; height: ${height}px !important; align-self: center; justify-self: center;`);
-
                 }
 
                 else if (this.fullscreen === "off" && this.contentRef.value) {
@@ -174,7 +173,8 @@ export class ThermalAppUiElement extends BaseElement {
             padding: calc( var( --thermal-gap ) / 3 );
             background-color: var( --thermal-slate-light );
             border: 1px solid var( --thermal-slate );
-            border-radius: var( --thermal-radius );            
+            border-radius: var( --thermal-radius );    
+            position: relative;        
 
         }
 
@@ -188,17 +188,25 @@ export class ThermalAppUiElement extends BaseElement {
         :host([fullscreen="on"]) .container {
             border: 0;
             border-radius: 0;
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: column;
-            justify-content: space-between;
+            box-sizing: border-box;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-top: 0px;
 
-            header {
-                width: 100%;
+            .app-header {
+                padding-top: calc( var( --thermal-gap ) / 3 );
             }
 
+            header,
             .content {
-                background: red;
+                width: 100%;
+            }
+        }
+
+        .app-fullscreen-button {
+            svg {
+                width: 1em;
             }
         }
 
@@ -240,6 +248,14 @@ export class ThermalAppUiElement extends BaseElement {
                 padding-bottom: calc( var(--thermal-gap) * .5);
             }
         }
+
+        .app-header {
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            background: var(--thermal-slate-light);
+            background: linear-gradient(var(--thermal-slate-light) calc(100% - 10px), transparent);
+        }
     
     `;
 
@@ -251,9 +267,9 @@ export class ThermalAppUiElement extends BaseElement {
 
         return html`
 
-        <div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
+    <div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
 
-        <header>
+        <header ${ref(this.headerRef)} class="app-header">
             
         ${this.barElements.length >= 0 ? html`
             <div class="bar">
@@ -269,7 +285,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                 <slot name="close"></slot>
 
-                <thermal-dropdown >
+                <thermal-dropdown>
 
                     <span slot="invoker">${this.language.toUpperCase()}</span>
 
@@ -291,22 +307,22 @@ export class ThermalAppUiElement extends BaseElement {
                     ` )}
                 </thermal-dropdown>
 
-                <!--
+                
                 ${ this.showfullscreen === true ? html`
-                    <thermal-button @click=${this.toggleFullscreen.bind(this)}>
+                    <thermal-button class="app-fullscreen-button" @click=${this.toggleFullscreen.bind(this)}>
                         ${this.fullscreen === "on"
-                            ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9 3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5 5.25 5.25" />
-                        </svg>`
-                            : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
-                        </svg>`
+                            ? html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                                <path fill-rule="evenodd" d="M2.22 2.22a.75.75 0 0 1 1.06 0L5.5 4.44V2.75a.75.75 0 0 1 1.5 0v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1 0-1.5h1.69L2.22 3.28a.75.75 0 0 1 0-1.06Zm10.5 0a.75.75 0 1 1 1.06 1.06L11.56 5.5h1.69a.75.75 0 0 1 0 1.5h-3.5A.75.75 0 0 1 9 6.25v-3.5a.75.75 0 0 1 1.5 0v1.69l2.22-2.22ZM2.75 9h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-1.69l-2.22 2.22a.75.75 0 0 1-1.06-1.06l2.22-2.22H2.75a.75.75 0 0 1 0-1.5ZM9 9.75A.75.75 0 0 1 9.75 9h3.5a.75.75 0 0 1 0 1.5h-1.69l2.22 2.22a.75.75 0 1 1-1.06 1.06l-2.22-2.22v1.69a.75.75 0 0 1-1.5 0v-3.5Z" clip-rule="evenodd" />
+                            </svg>`
+                            : html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                                <path fill-rule="evenodd" d="M2.75 9a.75.75 0 0 1 .75.75v1.69l2.22-2.22a.75.75 0 0 1 1.06 1.06L4.56 12.5h1.69a.75.75 0 0 1 0 1.5h-3.5a.75.75 0 0 1-.75-.75v-3.5A.75.75 0 0 1 2.75 9ZM2.75 7a.75.75 0 0 0 .75-.75V4.56l2.22 2.22a.75.75 0 0 0 1.06-1.06L4.56 3.5h1.69a.75.75 0 0 0 0-1.5h-3.5a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75ZM13.25 9a.75.75 0 0 0-.75.75v1.69l-2.22-2.22a.75.75 0 1 0-1.06 1.06l2.22 2.22H9.75a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75ZM13.25 7a.75.75 0 0 1-.75-.75V4.56l-2.22 2.22a.75.75 0 1 1-1.06-1.06l2.22-2.22H9.75a.75.75 0 0 1 0-1.5h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75Z" clip-rule="evenodd" />
+                            </svg>`
                         }
                         </div>
                     </thermal-button>
                 ` : nothing }
 
-                -->
+                
                 
             </div> 
         ` : ""}
@@ -363,7 +379,7 @@ export class ThermalAppUiElement extends BaseElement {
                 <slot name="content"></slot>
             </div>
 
-        </div>
+    </div>
         
         `
     }

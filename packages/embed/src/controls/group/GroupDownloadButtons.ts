@@ -3,6 +3,8 @@ import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { customElement } from "lit/decorators.js";
+import { consume } from "@lit/context";
+import { pngExportWidthContext } from "../../utils/pngExportContext";
 
 @customElement("group-download-buttons")
 export class GroupDownloadDropdown extends GroupConsumer {

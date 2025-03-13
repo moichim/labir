@@ -3,6 +3,7 @@ import { Translation } from "../Languages";
 export const cs: Translation = {
 
     loading: "Načítám",
+    config: "Nastavení",
 
     temperature: "Teplota",
 
@@ -74,6 +75,10 @@ export const cs: Translation = {
     pngofentiregrouphint: "Exportovat celou skupinu do 1 obrázku.",
     csvofanalysisdata: "CSV - data analýz",
     csvofanalysisdatahint: "Tabulka s teplotami v aktuálně nastavených analýzách",
+
+    exportimagewidth: "Šířka exportovaných obrázků",
+    exportimagefontsize: "Velikost písma v exportovaných obrázcích",
+
 
     range: "Rozsah",
     info: "Info",

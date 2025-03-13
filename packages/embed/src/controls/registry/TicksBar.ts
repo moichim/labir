@@ -154,6 +154,7 @@ export class TicksElement extends RegistryConsumer {
             position: relative;
             color: var( --thermal-slate-dark );
             font-family: sans-serif;
+            height: 1em;
         }
 
         .tick {
@@ -172,7 +173,7 @@ export class TicksElement extends RegistryConsumer {
 
         .placement-top {
             margin-top: 10x;
-            margin-bottom: calc( var( --thermal-gap ) * .5 );
+            padding-bottom: var( --thermal-gap );
             .tick {
                 &::before {
                     background: var(--thermal-slate);

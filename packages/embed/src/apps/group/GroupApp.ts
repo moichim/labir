@@ -331,13 +331,13 @@ export class GroupElement extends AbstractMultipleApp {
                             </div>
 
 
-                            ${this.showhistogram === true ? html`<registry-histogram></registry-histogram>`: nothing}
+                            ${this.showhistogram === true ? html`<registry-histogram slot="pre"></registry-histogram>`: nothing}
 
-                            <registry-range-slider></registry-range-slider>
-                            <registry-ticks-bar></registry-ticks-bar>
-                            <group-chart></group-chart>
+                            <registry-range-slider slot="pre"></registry-range-slider>
+                            <registry-ticks-bar slot="pre"></registry-ticks-bar>
+                            <group-chart slot="pre"></group-chart>
 
-                            ${this.interactiveanalysis === true ? html`<group-tool-buttons></group-tool-buttons>` : nothing }
+                            ${this.interactiveanalysis === true ? html`<group-tool-buttons slot="pre"></group-tool-buttons>` : nothing }
 
                             <div class="app-content">
 

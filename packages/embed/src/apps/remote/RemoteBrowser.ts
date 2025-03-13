@@ -15,6 +15,7 @@ import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvi
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
+import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
 
 enum STATE {
     MAIN,
@@ -102,40 +103,27 @@ export class RemoteBrowser extends BaseElement {
         png?: string
     } = undefined;
 
-    protected async showDetail(
-        folder: string,
-        lrc: string,
-        png?: string
-    ) {
-        this.detail = {
-            folder, lrc, png
-        };
-        this.state = STATE.DETAIL;
 
-        this.resetRegistry();
+    @provide({ context: pngExportWidthContext })
+    protected pngExportWidth: number = 1200;
 
+    @provide({ context: pngExportWidthSetterContext })
+    protected pngExportWidthSetterContext = (value: number) => {
+        this.pngExportWidth = value;
     }
 
-    protected async closeDetail() {
 
-        delete this.detail;
-        this.detail = undefined;
+    @provide({ context: pngExportFsContext })
+    protected pngExportFs: number = 20;
 
-        const data = this.dataMultiple ?? this.dataOnly;
-
-        switch ( typeof data ) {
-            case "undefined":
-                this.state = STATE.MAIN;
-                break;
-            case typeof this.dataOnly:
-                this.state = STATE.ONE;
-                break;
-            case typeof this.dataMultiple:
-                this.state = STATE.MULTIPLE;
-                break;
-        }
-
+    @provide({ context: pngExportFsSetterContext })
+    protected pngExportFsSetterContext = (value: number) => {
+        this.pngExportFs = value;
     }
+
+
+
+    
 
 
 
@@ -180,11 +168,52 @@ export class RemoteBrowser extends BaseElement {
             }
         }
 
-        if ( this.registryRef.value ) {
-            this.registryRef.value.registry.batch.onBatchComplete.set( this.UUID, () => {
+        if (this.registryRef.value) {
+            this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
                 this.registryRef.value?.registry.range.applyMinmax();
-            } );
+            });
         }
+    }
+
+
+
+    protected async showDetail(
+        folder: string,
+        lrc: string,
+        png?: string
+    ) {
+        this.detail = {
+            folder, lrc, png
+        };
+        this.state = STATE.DETAIL;
+
+        this.resetRegistry();
+
+        this.scrollToComponent();
+
+    }
+
+    protected async closeDetail() {
+
+        delete this.detail;
+        this.detail = undefined;
+
+        const data = this.dataMultiple ?? this.dataOnly;
+
+        switch (typeof data) {
+            case "undefined":
+                this.state = STATE.MAIN;
+                break;
+            case typeof this.dataOnly:
+                this.state = STATE.ONE;
+                break;
+            case typeof this.dataMultiple:
+                this.state = STATE.MULTIPLE;
+                break;
+        }
+
+        this.scrollToComponent();
+
     }
 
 
@@ -286,7 +315,7 @@ export class RemoteBrowser extends BaseElement {
 
         const data = await query.grid(grouping);
 
-        this.log( data );
+        this.log(data);
 
         this.scrollToComponent();
 
@@ -428,15 +457,15 @@ export class RemoteBrowser extends BaseElement {
             <div>
 
                 ${file.png ? html`<button class="eye" @click=${() => {
-                    if ( this.registryRef.value ) {
-                        if ( this.registryRef.value.registry.opacity.value === 1 ) {
-                            this.registryRef.value.registry.opacity.imposeOpacity(0);
-                        } else {
-                            this.registryRef.value.registry.opacity.imposeOpacity(1);
-                        }
-                    
+                if (this.registryRef.value) {
+                    if (this.registryRef.value.registry.opacity.value === 1) {
+                        this.registryRef.value.registry.opacity.imposeOpacity(0);
+                    } else {
+                        this.registryRef.value.registry.opacity.imposeOpacity(1);
                     }
-                }}>
+
+                }
+            }}>
                     <div class="eye-tooltip">
                         <div>${t(T.togglevisibleimage)}</div>
                     </div>
@@ -447,8 +476,8 @@ export class RemoteBrowser extends BaseElement {
                 </button` : nothing}
 
                 <button class="eye" @click=${() => {
-                    this.showDetail( folderName, file.lrc, file.png );
-                }}>
+                this.showDetail(folderName, file.lrc, file.png);
+            }}>
                     <div class="eye-tooltip">
                         <div>${t(T.detail)}</div>
                     </div>
@@ -494,9 +523,9 @@ export class RemoteBrowser extends BaseElement {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner( this.dataOnly!.info.name, file, () => TimeFormat.human(file.timestamp))}
+                    ${this.renderFileInner(this.dataOnly!.info.name, file, () => TimeFormat.human(file.timestamp))}
                     </div>`;
-                })}
+        })}
             
             </group-provider>   
         `;
@@ -509,8 +538,6 @@ export class RemoteBrowser extends BaseElement {
         if (this.loadingData || this.dataMultiple === undefined || this.dataMultiple.data === undefined) {
             return this.renderLoading("Načítám data...");
         }
-
-        console.log( this.dataMultiple, this.only );
 
         const groups = this.dataMultiple.data;
 
@@ -525,7 +552,7 @@ export class RemoteBrowser extends BaseElement {
 
         const columns = header.length;
 
-        const sortedKeys = Object.keys( Object.values( groups )[0] ).sort( (a,b) => a < b ? -1 : 1 );
+        const sortedKeys = Object.keys(Object.values(groups)[0]).sort((a, b) => a < b ? -1 : 1);
 
         return html`
 
@@ -568,7 +595,7 @@ export class RemoteBrowser extends BaseElement {
                         </tr>
                         <group-provider slug="${timestamp}" class="row">
                             ${sortedKeys.map((key) => {
-                            const info = folders[key];
+                const info = folders[key];
                 return html`<td class="cell-content" data-name="${info.name}">
                                     ${Object.values(info.files).map(file => this.renderFileInner(info.name, file, file => {
                     const ts = file.timestamp;
@@ -699,67 +726,17 @@ export class RemoteBrowser extends BaseElement {
     }
 
     protected renderBrowser() {
-
-        const header = Object.values(this.folders).filter(f => this.only.includes(f.folder));
-
-        return html`
-
-        <nav class="info-sticky-content">
-
-            <div class="info-sticky-content-wrapper">
-
-                <div class="info-sticky-content-collapser">
-                    ${this.renderHeader()}
-                </div>
-
-
-                ${this.enablegrouping ? this.renderInfo() : nothing}
-                <registry-histogram expandable="true"></registry-histogram>
-                <registry-range-slider></registry-range-slider>
-                <registry-ticks-bar></registry-ticks-bar>
-
-                ${this.dataOnly ? html`<group-provider slug="${this.dataOnly.info.folder}">
-
-                    <div style="width:100%">
-                        <group-chart></group-chart>
-                    </div>
-
-                </group-provider>`
-                : nothing }
-
-            </div>
-            ${this.state === STATE.MULTIPLE
-                ? html`<table class="affected">
-                <thead>
-                    <tr>
-                        ${header.map(folder => html`<th>
-                            <div class="cell-header">
-                                ${folder.name}
-                            </div>
-                        </th>` )}
-                    </tr>
-                </thead>
-            </table>`
-                : nothing
-            }
-
-        </nav>
-
-        
-
-        <section>
+        return html`<section>
             ${this.state === STATE.ONE ? this.renderOne() : nothing}
             ${this.state === STATE.MULTIPLE ? this.renderMultiple() : nothing}
-            ${this.state === STATE.DETAIL ? this.renderDetail(): nothing}
-        </section>
-        
-`;
+            ${this.state === STATE.DETAIL ? this.renderDetail() : nothing}
+        </section>`;
 
     }
 
     protected renderDetail() {
         if (this.detail === undefined) {
-            return this.renderLoading( "Načítám obrázek" );
+            return this.renderLoading("Načítám obrázek");
         }
         return html`
         <group-provider slug="detail" autoclear="true">
@@ -979,13 +956,6 @@ table.affected {
         display: flex;
         gap: 5px;
         align-items: center;
-        // background-color: blue;
-        // padding: 4px;
-
-    }
-
-    .info-sticky-content-wrapper {
-        box-shadow: 0px 40px 20px var(--thermal-slate-light);
     }
     
 
@@ -1022,34 +992,6 @@ article.file {
         }
     }
 
-}
-
-.info-sticky-content {
-    position: sticky;
-    top: 0px;
-    z-index: 12;
-    color: var(--thermal-foreground);
-    
-}
-
-.info-sticky-content-wrapper {
-    background: var(--thermal-slate-light);
-    padding-bottom: var(--thermal-gap);
-}
-
-.info-sticky-content-collapser {
-    display: flex;
-    gap: 5px;
-    width: 100%;
-    align-items: center;
-    overflow: hidden;
-    transition: max-height .1s ease-in-out;
-    max-height: 0px;
-}
-
-:host(.is-pinned) .info-sticky-content-collapser {
-    max-height: 300px;
-    transition: max-height .5s ease-in-out;
 }
 
 
@@ -1218,6 +1160,47 @@ thermal-dropdown.selector::part(invoker) {
 
     }
 
+    protected renderHistogram() {
+        if (this.state === STATE.MAIN) return nothing;
+        return html`<registry-histogram expandable="true"></registry-histogram>
+        <registry-range-slider></registry-range-slider>
+        <registry-ticks-bar></registry-ticks-bar>
+        
+        <nav id="graf">
+        ${this.dataOnly !== undefined
+            ? html`<group-provider slug="${this.dataOnly.info.folder}">
+
+                    <div style="width:100%">
+                        <group-chart></group-chart>
+                    </div>
+
+                </group-provider>`
+            : nothing}
+        </nav>
+        `;
+    }
+
+    protected renderTableHeader() {
+
+        if (this.state !== STATE.MULTIPLE) return nothing;
+
+        const header = Object.values(this.folders).filter(f => this.only.includes(f.folder));
+
+        return html`<table class="affected">
+                <thead>
+                    <tr>
+                        ${header.map(folder => html`<th>
+                            <div class="cell-header">
+                                ${folder.name}
+                            </div>
+                        </th>` )}
+                    </tr>
+                </thead>
+            </table>
+            `;
+
+    }
+
 
 
     protected render(): unknown {
@@ -1233,24 +1216,27 @@ thermal-dropdown.selector::part(invoker) {
 <manager-provider slug=${this.UUID} palette="${this.palette}">
     <registry-provider ref=${ref(this.registryRef)}>
 
-        <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}">
+        <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}" showfullscreen="true">
 
         ${this.state === STATE.MAIN ? html`
             <thermal-button variant="foreground" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
             `
                 : nothing
             }
+
             <header class="screen-browser-header" slot="bar">
+                <thermal-bar>
 
+                    ${this.renderHeader()}
+                
+                </thermal-bar>
+            </header>
 
-
-            <thermal-bar>
-
-                ${this.renderHeader()}
-            
-            </thermal-bar>
-        
-        </header>
+            <div slot="pre">
+                ${this.renderInfo()}
+                ${this.renderHistogram()}
+                ${this.renderTableHeader()}
+            </div>
         
             <div class=${classMap({
                 screen: true,
@@ -1262,6 +1248,21 @@ thermal-dropdown.selector::part(invoker) {
             })}>
                 ${this.renderApp()}
             </div>
+
+             <thermal-dialog label="${t(T.config)}" slot="close">
+                <thermal-button slot="invoker">
+                    <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                        <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
+                    </svg>
+
+                </thermal-button>
+                <div slot="content">
+                    <table>
+                    <png-export-panel></png-export-panel>
+                    <registry-display-panel></registry-display-panel>
+                    </table>
+                </div>
+            </thermal-dialog>
 
         </thermal-app>
 

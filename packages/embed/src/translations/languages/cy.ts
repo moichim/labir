@@ -3,6 +3,7 @@ import { Translation } from "../Languages";
 export const cy: Translation = {
 
     loading: "Llwytho",
+    config: "Gosodiadau",
 
     temperature: "Tymheredd",
 
@@ -74,6 +75,10 @@ export const cy: Translation = {
     pngofentiregrouphint: "Allforio'r grŵp cyfan fel un ddelwedd",
     csvofanalysisdata: "CSV - data dadansoddi",
     csvofanalysisdatahint: "Tabl tymheredd mewn dadansoddiadau",
+
+    exportimagewidth: "Lled delwedd wedi'i hallforio",
+    exportimagefontsize: "Maint ffont delwedd wedi'i hallforio",
+
 
     range: "Ystod",
     info: "Gwybodaeth",

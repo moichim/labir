@@ -48,6 +48,8 @@ import "./apps/apparent-temperature/AustralianApparentTemperature";
 
 import "./controls/AppInfoButton";
 
+import "./controls/manager/PngExportPanel";
+import "./controls/registry/DisplaySettingsPanel";
 
 
 

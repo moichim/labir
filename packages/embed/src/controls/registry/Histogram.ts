@@ -124,7 +124,7 @@ export class HistogramElement extends RegistryConsumer {
                     ${this.histogram.map( item => {
 
                         return html`
-                            <div class="histogram-bar">
+                            <div class="histogram-bar" data-height="${item.height}" data-percentage="${item.percentage}" data-count="${item.count}" data-from="${item.from}" data-to="${item.to}">
                                 <div style="height: ${item.height}%" class="histogram-bar-inner"></div>
                             </div
                         `;

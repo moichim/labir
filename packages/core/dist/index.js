@@ -6867,7 +6867,7 @@ var registryHistogram = async (files) => {
   const min = pixels[0];
   const max = pixels[pixels.length - 1];
   const distance = Math.abs(min - max);
-  const resolution = 200;
+  const resolution = 255;
   const step = distance / resolution;
   const bars = [];
   let buf = [...pixels];
@@ -6875,17 +6875,27 @@ var registryHistogram = async (files) => {
     const from = min + step * i;
     const to = from + step;
     const nextUpIndex = buf.findIndex((pixel) => pixel > to);
-    const subs = buf.slice(0, nextUpIndex - 1);
-    const count = subs.length;
-    const percentage = count / pixels.length * 100;
-    const bar = {
-      from,
-      to,
-      count,
-      percentage
-    };
-    bars.push(bar);
-    buf = buf.slice(nextUpIndex);
+    if (nextUpIndex === 0) {
+      const bar = {
+        from,
+        to,
+        count: 0,
+        percentage: 0
+      };
+      bars.push(bar);
+    } else {
+      const subs = buf.slice(0, nextUpIndex - 1);
+      const count = subs.length;
+      const percentage = count / pixels.length * 100;
+      const bar = {
+        from,
+        to,
+        count,
+        percentage
+      };
+      bars.push(bar);
+      buf = buf.slice(nextUpIndex);
+    }
   }
   const sortedByPercentage = [...bars].sort((a, b) => {
     return a.percentage - b.percentage;
@@ -7639,8 +7649,7 @@ var RangeDriver = class extends AbstractProperty {
   /** Sets the range automatically based on the current histogram */
   applyAuto() {
     if (this.parent.histogram.value) {
-      const length = this.parent.histogram.value.length;
-      const percentage = 5;
+      const percentage = 10;
       const histogramBarsOverPercentage = this.parent.histogram.value.filter((bar) => bar.height >= percentage);
       const newRange = {
         from: histogramBarsOverPercentage[0].from,
