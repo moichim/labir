@@ -84,16 +84,16 @@ const buildExportPngButton = () => {
 buildExportPngButton();
 
 const array = [
-    "/sequence.lrc",
-    "/soustruh.lrc",
-    "/tucnaci_04.lrc"
+    "/klokani_01.lrc",
+    "/klokani_02.lrc",
+    "/tucnaci_04.lrc",
+    "/klokani_03.lrc",
 ];
 
 registry.palette.setPalette( "iron" );
 
 array.map( file => {
     registry.batch.request( file, undefined, group, async ( result ) => {
-        console.log( "testovací resultát", result );
         if ( result instanceof Instance ) {
             const container = document.createElement( "div" );
             document.body.appendChild( container );

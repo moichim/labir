@@ -8,6 +8,7 @@ import { FileErrors } from "./errors";
 import { determineParser } from "./parsers";
 import { ThermalFileFailure } from "./ThermalFileFailure";
 import { ThermalFileReader } from "./ThermalFileReader";
+import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 
 
 /**
@@ -131,6 +132,17 @@ export class FilesService {
             return result;
 
         }
+
+    }
+
+    async loadFiles(files: {
+        lrc: string,
+        png?: string,
+        callback?: (result: AbstractFileResult) => void,
+        group: ThermalGroup
+    }[]) {
+
+        return files;
 
     }
 

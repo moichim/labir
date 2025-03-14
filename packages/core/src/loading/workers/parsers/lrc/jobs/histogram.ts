@@ -6,6 +6,8 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
     files: ArrayBuffer[]
 ) => {
 
+    console.log( "Reading histogram" );
+
     let pixels: number[] = [];
 
     // Function to read a file returning all its pixels
@@ -49,23 +51,26 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
 
             if (dataType === 0) {
 
-                /*
-                
-                const array = new Uint16Array(pixelsSubset);
 
-                const distance = Math.abs(min - max);
+                const frameHeaderView = new DataView(streamSubset.slice(frameStart, 56));
+
+                const min = frameHeaderView.getFloat32(8, true);
+                const max = frameHeaderView.getFloat32(12, true);
+
+                const array = new Uint16Array( pixelsSubset );
+                const distance = Math.abs( min - max );
                 const UINT16_MAX = 65535;
 
-                array.forEach(pixel => {
-
+                array.forEach( pixel => {
+                    
                     const mappedValue = pixel / UINT16_MAX;
-                    filePixels.push(min + (distance * mappedValue));
+                    filePixels.push( min + ( distance * mappedValue ) );
 
-                });
+                } );
 
-                */
-
-            } else if (dataType === 1) {
+            } 
+            // Float32 (TIMI Edu)
+            else if (dataType === 1) {
 
                 filePixels = filePixels.concat( Array.from(new Float32Array(pixelsSubset)) );
 

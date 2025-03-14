@@ -90,11 +90,10 @@ export const frameData: IParserObject["frameData"] = async (frameSubset, dataTyp
     // UInt16 array needs to be converted to floats
     if (dataType === 0) {
 
-
         const array = new Uint16Array(subset);
 
         const distance = Math.abs(min - max);
-        const UINT16_MAX = 65535; // Math.pow( 2, 16 ) - 1;
+        const UINT16_MAX = 65535;
 
         array.forEach(pixel => {
 

@@ -9,6 +9,8 @@ import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
 import { booleanConverter } from "../../utils/booleanConverter";
+import { provide } from "@lit/context";
+import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp {
@@ -96,8 +98,26 @@ export class GroupElement extends AbstractMultipleApp {
     @property({ type: String, reflect: true })
     public analysis7?: string;
 
-    @property({type: String, reflect: true, converter: booleanConverter(false)})
+    @property({ type: String, reflect: true, converter: booleanConverter(false) })
     public preservetime: boolean = true;
+
+
+    @provide({ context: pngExportWidthContext })
+    protected pngExportWidth: number = 1200;
+
+    @provide({ context: pngExportWidthSetterContext })
+    protected pngExportWidthSetterContext = (value: number) => {
+        this.pngExportWidth = value;
+    }
+
+
+    @provide({ context: pngExportFsContext })
+    protected pngExportFs: number = 20;
+
+    @provide({ context: pngExportFsSetterContext })
+    protected pngExportFsSetterContext = (value: number) => {
+        this.pngExportFs = value;
+    }
 
 
     connectedCallback(): void {
@@ -107,15 +127,15 @@ export class GroupElement extends AbstractMultipleApp {
         const registry = manager.addOrGetRegistry(this.slug);
         const group = registry.groups.addOrGetGroup(this.slug, this.label, this.description);
 
-        group.files.addListener( this.UUID, (instances) => {
-            this.log( group, instances );
-            if ( group.analysisSync.value === false ) {
+        group.files.addListener(this.UUID, (instances) => {
+            this.log(group, instances);
+            if (group.analysisSync.value === false) {
                 const instance = instances[0];
-                if ( instance ) {
-                    group.analysisSync.turnOn( instance );
+                if (instance) {
+                    group.analysisSync.turnOn(instance);
                 }
             }
-        } )
+        })
 
         this.group = group;
         this.grouper = new TimeGrouping(this, group);
@@ -287,6 +307,7 @@ export class GroupElement extends AbstractMultipleApp {
                         <thermal-app
                             author=${ifDefined(this.author)}
                             license=${ifDefined(this.license)}
+                            showfullscreen="true"
                         >
                         
                             <thermal-button 
@@ -310,8 +331,8 @@ export class GroupElement extends AbstractMultipleApp {
                 if (value !== undefined) {
                     this.columns = parseInt(value);
                 }
-                                        }}></input>
-                                        <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, {num: this.columns})}</div>
+            }}></input>
+                                        <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                                     </div>
 
                                     ${this.grouper.numFiles > 0
@@ -330,14 +351,29 @@ export class GroupElement extends AbstractMultipleApp {
 
                             </div>
 
+                            <thermal-dialog label="${t(T.config)}" slot="close">
+                                            <thermal-button slot="invoker">
+                                                <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                                                    <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
+                                                </svg>
 
-                            ${this.showhistogram === true ? html`<registry-histogram slot="pre"></registry-histogram>`: nothing}
+                                            </thermal-button>
+                                            <div slot="content">
+                                                <table>
+                                                <png-export-panel></png-export-panel>
+                                                <registry-display-panel></registry-display-panel>
+                                                </table>
+                                            </div>
+                            </thermal-dialog>
+
+
+                            ${this.showhistogram === true ? html`<registry-histogram expandable="true" slot="pre"></registry-histogram>` : nothing}
 
                             <registry-range-slider slot="pre"></registry-range-slider>
                             <registry-ticks-bar slot="pre"></registry-ticks-bar>
                             <group-chart slot="pre"></group-chart>
 
-                            ${this.interactiveanalysis === true ? html`<group-tool-buttons slot="pre"></group-tool-buttons>` : nothing }
+                            ${this.interactiveanalysis === true ? html`<group-tool-buttons slot="pre"></group-tool-buttons>` : nothing}
 
                             <div class="app-content">
 

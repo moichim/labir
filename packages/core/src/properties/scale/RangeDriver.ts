@@ -55,8 +55,6 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
         if (value.to > minmax.max)
             result.to = minmax.max;
 
-        console.log( "Výsledná range, která bude nastavena", result );
-
         return result;
 
     }

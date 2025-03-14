@@ -48,7 +48,7 @@ export class FileRequest {
         if ( this.response === undefined ) {
 
             // Fetch the file
-            this.response = this.processResponse( fetch( this.thermalUrl ) );
+            this.response = this.processResponse( await fetch( this.thermalUrl ) );
         }
 
         return this.response;
@@ -63,9 +63,9 @@ export class FileRequest {
      * - assign parser to the file
      * - create the service
      */
-    protected async processResponse( response: Promise<Response> ) {
+    protected async processResponse( response: Response ) {
 
-        const res = await response;
+        const res = response;
 
         // If the file was not found, return the appropriate failure
         if ( res.status !== 200 ) {

@@ -146,7 +146,7 @@ export class InstanceRenderer {
 
             <article>
 
-                <file-mirror  .file=${instance}>
+                <file-mirror .file=${instance}>
                 
                     <div class="file-title">
                     

@@ -255,7 +255,7 @@ export class DesktopFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)}>
+        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)} showfullscreen="true">
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ?
         this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName
@@ -365,7 +365,7 @@ export class DesktopFileApp extends FileConsumer {
 
                 <div class="content-container__part content-container__left">
 
-                ${this.showhistogram === true ? html`<registry-histogram slot="pre"></registry-histogram>`: nothing}
+                ${this.showhistogram === true ? html`<registry-histogram expandable="true" slot="pre"></registry-histogram>`: nothing}
                   <registry-range-slider slot="pre" tour="range">
                     <tour-step label="Thermal range" placement="bottom" slot="tour">
                       <p>Move the left and right handle to adjust the thermal range.</p>

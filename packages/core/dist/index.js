@@ -6832,6 +6832,7 @@ var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
 
 // src/loading/workers/parsers/lrc/jobs/histogram.ts
 var registryHistogram = async (files) => {
+  console.log("Reading histogram");
   let pixels = [];
   const readFile = async (file) => {
     const headerView = new DataView(file.slice(0, 25));
@@ -6851,6 +6852,16 @@ var registryHistogram = async (files) => {
       const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
       const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
       if (dataType === 0) {
+        const frameHeaderView = new DataView(streamSubset.slice(frameStart, 56));
+        const min2 = frameHeaderView.getFloat32(8, true);
+        const max2 = frameHeaderView.getFloat32(12, true);
+        const array = new Uint16Array(pixelsSubset);
+        const distance2 = Math.abs(min2 - max2);
+        const UINT16_MAX = 65535;
+        array.forEach((pixel) => {
+          const mappedValue = pixel / UINT16_MAX;
+          filePixels.push(min2 + distance2 * mappedValue);
+        });
       } else if (dataType === 1) {
         filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
       }
@@ -7101,7 +7112,7 @@ var FileRequest = class _FileRequest {
    */
   async load() {
     if (this.response === void 0) {
-      this.response = this.processResponse(fetch(this.thermalUrl));
+      this.response = this.processResponse(await fetch(this.thermalUrl));
     }
     return this.response;
   }
@@ -7112,7 +7123,7 @@ var FileRequest = class _FileRequest {
    * - create the service
    */
   async processResponse(response) {
-    const res = await response;
+    const res = response;
     if (res.status !== 200) {
       return this.pocessTheService(
         new ThermalFileFailure(
@@ -7369,6 +7380,9 @@ var FilesService = class {
       return result;
     }
   }
+  async loadFiles(files) {
+    return files;
+  }
 };
 
 // src/properties/display/GraphSmoothDrive.ts
@@ -7611,7 +7625,6 @@ var RangeDriver = class extends AbstractProperty {
       result.from = minmax.min;
     if (value.to > minmax.max)
       result.to = minmax.max;
-    console.log("V\xFDsledn\xE1 range, kter\xE1 bude nastavena", result);
     return result;
   }
   /**

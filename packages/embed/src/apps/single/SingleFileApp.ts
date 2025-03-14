@@ -74,7 +74,7 @@ export class SingleFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
-        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)}>
+        <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)} showfullscreen="true">
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ?
         this.label && this.label.trim().length > 0 ? this.label.trim() : this.file.fileName
