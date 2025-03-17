@@ -9,11 +9,13 @@ import { T } from "../../translations/Languages";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { AvailableThermalPalettes } from "@labir/core";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { provide } from "@lit/context";
 
 type GroupingType = "hours" | "days" | "weeks" | "months" | "years";
 
 @customElement("remote-grid-app")
-export class RemoteTimeGridApp extends BaseElement {
+export class RemoteTimeGridApp extends BaseElement implements IWithlocale {
 
     /** The API endpoint main URL address */
     @property({ type: String, reflect: true })
@@ -54,9 +56,13 @@ export class RemoteTimeGridApp extends BaseElement {
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        
+    @provide({context: localeContext})
+    @property({reflect: true, converter: localeConverter})
+    public locale!: Locales;
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+        initLocalesInTopLevelElement( this );
     }
 
 

@@ -18,6 +18,7 @@
 <div <?= get_block_wrapper_attributes(); ?>>
 
 		<apparent-temperature-aat
+ 			locale="<?= get_locale(); ?>"
 			<?php if ( labir_aat_value_exists($t) ): print( " t='{$t}'" ); endif; ?>
 			<?php if ( labir_aat_value_exists( $v ) ): echo " v='{$v}'"; endif; ?>
 			<?php if ( labir_aat_value_exists( $ha ) ): echo " ha='{$ha}'"; endif; ?>

@@ -11,9 +11,10 @@ import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { provide } from "@lit/context";
 import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 @customElement("thermal-group-app")
-export class GroupElement extends AbstractMultipleApp {
+export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
@@ -119,6 +120,10 @@ export class GroupElement extends AbstractMultipleApp {
         this.pngExportFs = value;
     }
 
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
+
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -146,6 +151,8 @@ export class GroupElement extends AbstractMultipleApp {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
+
+        initLocalesInTopLevelElement( this );
 
         this.group.registry.manager.palette.setPalette(this.palette);
 

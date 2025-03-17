@@ -1,8 +1,9 @@
 import i18next from "i18next";
 import { LitElement } from "lit";
-import { state } from "lit/decorators.js";
 
+import { consume } from "@lit/context";
 import { v4 as uuid } from "uuid";
+import { localeContext } from "../translations/localeContext";
 
 export abstract class BaseElement extends LitElement {
 
@@ -24,14 +25,13 @@ export abstract class BaseElement extends LitElement {
         mode: "open"
     }
 
-    @state()
-    locale: string = i18next.language;
+    @consume({context: localeContext, subscribe: true})
+    protected _locale?: string;
 
     connectedCallback(): void {
         super.connectedCallback();
         i18next.on("languageChanged", (locale) => {
-            // this.requestUpdate();
-            this.locale = locale;
+            this._locale = locale;
         })
     }
 

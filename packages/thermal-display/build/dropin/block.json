@@ -39,6 +39,10 @@
       "default": {
         "type": "constrained"
       }
+    },
+    "statistics": {
+      "type": "boolean",
+      "default": "false"
     }
   }
 }

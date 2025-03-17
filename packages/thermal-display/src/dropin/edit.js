@@ -1,10 +1,9 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
+import { useCallback } from '@wordpress/element';
 import {
 	PanelBody,
-	__experimentalNumberControl as NumberControl,
-	SelectControl,
 	Tooltip,
-	Button
+	CheckboxControl
 } from '@wordpress/components';
 
 import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
@@ -23,9 +22,41 @@ export default function Edit({ attributes, setAttributes }) {
 	/** Register the webcomponents if not already */
 	useRegisterIframeScript();
 
+	const {
+		statistics
+	} = attributes;
+
+	const setStatistics = useCallback( ( value ) =>  {
+		setAttributes({ statistics: value});
+	}, statistics, setAttributes );
+
 
 	return (
 		<>
+
+			<InspectorControls>
+				<PanelBody title="Statistics">
+					<CheckboxControl 
+						__nextHasNoMarginBottom
+						checked={statistics}
+						label='Store usage statistics'
+						onChange={ setStatistics }
+						help={<div>Anonymysed data shall be stored <a href="/wp-admin/admin.php?page=thermal-dropin-statistics" target="_blank">here</a>:
+							<ul style={{listStyleType: "disc"}}>
+								<li>Time of file upload</li>
+								<li>URL where the file was uploaded</li>
+								<li>IP Address</li>
+								<li>File name</li>
+								<li>File size</li>
+								<li>Number of frames in the file</li>
+								<li>File resolution</li>
+								<li>File timestamp</li>
+								<li>Browser `userAgent` properties</li>
+							</ul>
+						</div>}
+					/>
+				</PanelBody>
+			</InspectorControls>
 
 
 			<div {...useBlockProps()}>
@@ -41,7 +72,7 @@ export default function Edit({ attributes, setAttributes }) {
 						<div className="thermal__content-editor__container">
 							<div>
 
-								<thermal-dropin-app></thermal-dropin-app>
+								<thermal-dropin-app style={{pointerEvents: "none"}}></thermal-dropin-app>
 
 								<div className="thermal__content-editor__wrapper">
 									<div>Edit parameters in the sidebar.</div>

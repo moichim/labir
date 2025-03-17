@@ -7,6 +7,8 @@ import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { HtmlResult } from "../miltiple/HtmlResult";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { provide } from "@lit/context";
 
 enum VUNIT {
     mps = "mps",
@@ -36,7 +38,7 @@ const converters = {
     },
 };
 @customElement("apparent-temperature-aat")
-export class AustralianApparentTemperature extends BaseElement {
+export class AustralianApparentTemperature extends BaseElement implements IWithlocale {
 
     tRef: Ref<HTMLInputElement> = createRef();
     vRef: Ref<HTMLInputElement> = createRef();
@@ -61,6 +63,10 @@ export class AustralianApparentTemperature extends BaseElement {
 
     @property({ type: String, reflect: true, attribute: true })
     public vunits: VUNIT = VUNIT.mps;
+
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
 
 
 
@@ -90,6 +96,8 @@ export class AustralianApparentTemperature extends BaseElement {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
+
+        initLocalesInTopLevelElement(this);
 
         if (this.tRef.value) {
             this.tRef.value.addEventListener("change", event => {
@@ -172,7 +180,7 @@ export class AustralianApparentTemperature extends BaseElement {
 
             const v = this.vunits === VUNIT.mps
                 ? this.v
-                : this.kphToMps( this.v );
+                : this.kphToMps(this.v);
 
             const e = this.calculateE(this.ha, this.t);
             const ta = this.calculateTa(this.t, e, v);
@@ -221,7 +229,7 @@ export class AustralianApparentTemperature extends BaseElement {
         // Propagate the VUNITS change to the DOM
         if (_changedProperties.has("vunits")) {
 
-            if ( this.vunitsRef.value ) {
+            if (this.vunitsRef.value) {
                 this.vunitsRef.value.value = this.vunits;
                 this.recalculateVa();
             }
@@ -410,7 +418,7 @@ export class AustralianApparentTemperature extends BaseElement {
             t: temperature
         };
 
-        const summary = t( T.apparenttemperatureverbose, prop );
+        const summary = t(T.apparenttemperatureverbose, prop);
 
         const comment = diff < 0
             ? t(T.youfeelcolder, prop)

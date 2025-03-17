@@ -4971,7 +4971,6 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
     const registry = manager.addOrGetRegistry(registryId);
     const group = registry.groups.addOrGetGroup(registryId);
     const fontSize = `${params.fontSize}px`;
-    const fontColor = params.textColor;
     manager.palette.setPalette(this.file.group.registry.manager.palette.value);
     registry.range.imposeRange(this.file.group.registry.range.value);
     this.localInstance = await this.file.reader.createInstance(group);
@@ -6170,7 +6169,7 @@ var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
   }
   turnOn() {
     this.parent.files.forEveryInstance((instance) => {
-      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, (value) => {
+      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, () => {
         if (this.timeout !== void 0) {
           clearTimeout(this.timeout);
         }
@@ -6195,7 +6194,7 @@ var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
   validate(value) {
     return value;
   }
-  afterSetEffect(value) {
+  afterSetEffect() {
   }
 };
 

@@ -17,6 +17,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 	
 
 		<<?= $attributes["webcomponent"]?>
+			locale="<?= get_locale(); ?>"
 			url="<?= $attributes["thermal"]?>" 
 			<?php if (analysis_is_set( $attributes["visible"] ) ) { echo 'visible="'.$attributes["visible"].'"'; } ?>
 			palette=<?= $attributes["palette"]; ?> 

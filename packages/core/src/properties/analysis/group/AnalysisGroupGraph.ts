@@ -91,7 +91,7 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
 
         this.parent.files.forEveryInstance( instance => {
 
-            instance.analysisData.addListener( AnalysisGroupGraph.LISTENER_ID, (value) => {
+            instance.analysisData.addListener( AnalysisGroupGraph.LISTENER_ID, () => {
 
                 if ( this.timeout !== undefined ) {
                     clearTimeout( this.timeout );
@@ -136,7 +136,7 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
         return value;
         // throw new Error("Method not implemented.");
     }
-    protected afterSetEffect(value: ThermalGraphDefinition): void {
+    protected afterSetEffect(): void {
         /*
         // throw new Error("Method not implemented.");
         console.log( "Přepočítal jsem grafí data", value.colors);

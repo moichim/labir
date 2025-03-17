@@ -17,6 +17,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 	
 
 		<thermal-group-app
+			locale="<?= get_locale(); ?>"
 			<?php if (analysis_is_set( $attributes["visible"] ) ) { echo 'visible="'.$attributes["visible"].'"'; } ?>
 			palette="<?= $attributes["palette"]; ?>"
 			author="<?= $attributes["author"] ?>" 

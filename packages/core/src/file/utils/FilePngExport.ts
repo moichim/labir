@@ -1,4 +1,3 @@
-import { ThermalFileReader } from "../../loading/workers/ThermalFileReader";
 import { AbstractAreaAnalysis } from "../../properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
 import { PointAnalysis } from "../../properties/analysis/analysis/internals/point/PointAnalysis";
 import { AbstractExportProps, AbstractExportTypeMandatory, AbstractPngExport } from "../../utils/AbstractPngExport";
@@ -70,7 +69,6 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
         const group = registry.groups.addOrGetGroup(registryId);
 
         const fontSize = `${params.fontSize}px`;
-        const fontColor = params.textColor;
 
         // Mirror state
         // Mirror the group state to the local objects
@@ -88,7 +86,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
         if (this.container) {
 
-            this.container.style.lineHeight = `${params.fontSize*1.5}px`;
+            this.container.style.lineHeight = `${params.fontSize * 1.5}px`;
 
             const registryMin = this.file.group.registry.minmax.value!.min;
             const registryMax = this.file.group.registry.minmax.value!.max;
@@ -97,7 +95,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
             if (params.showFileInfo) {
 
                 const infoElement = document.createElement("div");
-                infoElement.style.paddingBottom = `${params.fontSize/3}px`;
+                infoElement.style.paddingBottom = `${params.fontSize / 3}px`;
 
                 infoElement.appendChild(
                     this.createElementWithText("div", this.file.fileName, fontSize, "bold", params.textColor)
@@ -144,7 +142,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
                 const table = document.createElement("table");
                 table.style.width = "100%";
                 table.style.borderCollapse = "collapse";
-                table.style.marginTop = `${params.fontSize/3}px`;
+                table.style.marginTop = `${params.fontSize / 3}px`;
 
                 const header = document.createElement("tr");
 
@@ -243,7 +241,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
                 const byline = document.createElement("div");
                 byline.style.lineHeight = "1.5em";
                 byline.style.color = FilePngExport.COLOR_GRAY;
-                byline.style.paddingTop = `${params.fontSize/3}px`;
+                byline.style.paddingTop = `${params.fontSize / 3}px`;
 
                 if (params.author) {
                     byline.appendChild(this.createElementWithText("span", params.author, fontSize));
@@ -266,13 +264,13 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
                 const source = document.createElement("div");
                 source.style.lineHeight = "1.5em";
-                source.style.paddingTop = `${params.fontSize/3}px`;
+                source.style.paddingTop = `${params.fontSize / 3}px`;
 
                 const date = TimeFormat.human(new Date());
                 const href = window.location.href;
 
                 source.appendChild(
-                    this.createElementWithText("span", `${date} - ${href}`, fontSize, undefined, FilePngExport.COLOR_GRAY )
+                    this.createElementWithText("span", `${date} - ${href}`, fontSize, undefined, FilePngExport.COLOR_GRAY)
                 );
 
                 this.container.appendChild(source);

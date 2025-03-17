@@ -1,10 +1,8 @@
-import { css, CSSResultGroup, html } from "lit";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { t } from "i18next";
-import { T } from "../../translations/Languages";
+import { css, CSSResultGroup, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { consume } from "@lit/context";
-import { pngExportWidthContext } from "../../utils/pngExportContext";
+import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { T } from "../../translations/Languages";
 
 @customElement("group-download-buttons")
 export class GroupDownloadDropdown extends GroupConsumer {

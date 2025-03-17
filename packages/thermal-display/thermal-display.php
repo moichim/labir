@@ -9,6 +9,7 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       thermal-display
+ * Domain Path:       /languages
  *
  * @package ThermalDisplay
  */
@@ -20,6 +21,30 @@ if ( ! defined( 'ABSPATH' ) ) {
 require( __DIR__ . '/lib/dependencies.php' );
 require( __DIR__ . '/lib/uploads.php' );
 
+/**
+ * Load the textdomain for frontend and backend
+ */
+add_action( 'init', 'wpdocs_load_textdomain' );
+function wpdocs_load_textdomain() {
+	load_plugin_textdomain( 'thermal-display', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' ); 
+}
+
+/**
+ * Load the textdomain for wordpress.org
+ */
+function thermal_display_i18n_textdomain( $mofile, $domain ) {
+	if ( 'thermal-display' === $domain && false !== strpos( $mofile, WP_LANG_DIR . '/plugins/' ) ) {
+		$locale = apply_filters( 'plugin_locale', determine_locale(), $domain );
+		$mofile = WP_PLUGIN_DIR . '/' . dirname( plugin_basename( __FILE__ ) ) . '/languages/' . $domain . '-' . $locale . '.mo';
+	}
+	return $mofile;
+}
+add_filter( 'load_textdomain_mofile', 'thermal_display_i18n_textdomain', 10, 2 );
+
+
+/**
+ * Register block categories
+ */
 add_filter( 'block_categories_all' , function( $categories ) {
 
     // Adding a new category.
@@ -118,8 +143,22 @@ function my_plugin_download_csv() {
 
     // Hlavička CSV souboru
     fputcsv($output, array(
-        'ID', 'IP', 'File Name', 'File Size (bytes)', 'Is Sequence', 'Num Frames', 'Width', 'Height',
-        'File Timestamp', 'Data Type', 'User Agent', 'Window Width', 'Window Height', 'Time', 'URL', 'Created At'
+        'ID', 
+        'IP', 
+        'File Name', 
+        'File Size (bytes)', 
+        'Is Sequence', 
+        'Num Frames', 
+        'Width', 
+        'Height',
+        'File Timestamp', 
+        'Data Type', 
+        'User Agent', 
+        'Window Width', 
+        'Window Height', 
+        'Time', 
+        'URL', 
+        'Created At'
     ));
 
 	// Přidání záznamů do CSV
@@ -146,18 +185,18 @@ add_action('wp_ajax_my_plugin_download_csv', 'my_plugin_download_csv');
 // Přidání vlastní admin stránky
 function my_plugin_add_admin_page() {
     add_menu_page(
-        'Thermal Display usage',  // Název stránky
-        'Thermal Display usage',  // Název stránky v menu
+        __("Thermal display usage","thermal-display"),  // Název stránky
+        __("Thermal Display","thermal-display"),  // Název stránky v menu
         'manage_options', // Oprávnění
-        'my-plugin-file-logs', // Slug stránky
-        'my_plugin_render_admin_page', // Callback funkce
+        'thermal-dropin-statistics', // Slug stránky
+        'thermal_dropin_statistics_page_callback', // Callback funkce
         'dashicons-chart-area', // Ikona
         1000000000000000 // Pozice v menu
     );
 }
 add_action('admin_menu', 'my_plugin_add_admin_page');
 
-function my_plugin_render_admin_page() {
+function thermal_dropin_statistics_page_callback() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'thermal_dropin_stats';
 
@@ -167,24 +206,22 @@ function my_plugin_render_admin_page() {
     $logs = $wpdb->get_results("SELECT * FROM $table_name ORDER BY created_at DESC");
 
     echo '<div class="wrap">';
-    echo '<h1>Thermal display usage statistics</h1>';
-	echo '<a href="' . esc_url($csv_url) . '" class="button button-primary" style="margin-bottom: 10px;">📥 Stáhnout CSV</a>';
+    echo '<h1>' . __("Thermal display usage","thermal-display") . '</h1>';
+	echo '<a href="' . esc_url($csv_url) . '" class="button button-primary" style="margin-bottom: 10px;">📥 ' . __("Download CSV","thermal-display") . '</a>';
     echo '<table class="wp-list-table widefat fixed striped">';
-    echo '<thead>
+    echo "<thead>
             <tr>
-				<th>Time</th>
-				<th>URL</th>
-                <th>IP</th>
-                <th>File name</th>
-                <th>File size (MB)</th>
-                <th>Frames</th>
-                <th>Resolution</th>
-                <th>File recorded at</th>
-                <th>Browser</th>
-                
-                
+				<th>" . __("Time") . "</th>
+				<th>" . __("URL") . "</th>
+                <th>" . __("IP") . "</th>
+                <th>" . __("File name","thermal-display") . "</th>
+                <th>" . __("File size (MB)","thermal-display") . ")</th>
+                <th>" . __("Frames","thermal-display") . "</th>
+                <th>" . __("Resolution","thermal-display") . "</th>
+                <th>" . __("File recorded at","thermal-display") . "</th>
+                <th>" . __("Browser","thermal-display") . "</th>
             </tr>
-          </thead>';
+          </thead>";
     echo '<tbody>';
 
     foreach ($logs as $log) {

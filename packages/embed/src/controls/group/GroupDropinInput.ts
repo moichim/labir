@@ -1,35 +1,33 @@
 import { customElement, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { css, html, PropertyValues } from "lit";
-import { classMap } from "lit/directives/class-map.js";
 import { DropinElementListener, ThermalFileReader } from "@labir/core";
 import { t } from "i18next";
+import { css, html, PropertyValues } from "lit";
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
 @customElement("group-dropin-input")
 export class GroupDropin extends AbstractGroupDropin {
 
-    @state()
-    protected container: Ref<HTMLVideoElement> = createRef();
+  @state()
+  protected container: Ref<HTMLVideoElement> = createRef();
 
-    @state()
-    protected hover: boolean = false;
+  @state()
+  protected hover: boolean = false;
 
-    @state()
-    protected uploading: boolean = false;
+  @state()
+  protected uploading: boolean = false;
 
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
+  protected tourableElementRef: Ref<HTMLElement> = createRef();
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
+  public getTourableRoot(): HTMLElement | undefined {
+    return this.tourableElementRef.value;
+  }
 
-    listener?: DropinElementListener;
+  listener?: DropinElementListener;
 
-    public static styles = css`
+  public static styles = css`
 
         .container {
             display: none;
@@ -120,64 +118,64 @@ export class GroupDropin extends AbstractGroupDropin {
     
     `;
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
+  protected firstUpdated(_changedProperties: PropertyValues): void {
+    super.firstUpdated(_changedProperties);
 
-        if (this.container.value !== undefined) {
+    if (this.container.value !== undefined) {
 
-            this.listener = this.manager.service.handleDropzone(this.container.value, false);
+      this.listener = this.manager.service.handleDropzone(this.container.value, false);
 
-            this.listener.onMouseEnter.add(this.UUID, () => {
-                    this.hover = true;
-            });
+      this.listener.onMouseEnter.add(this.UUID, () => {
+        this.hover = true;
+      });
 
-            this.listener.onMouseLeave.add(this.UUID, () => {
-                    this.hover = false;
-            });
+      this.listener.onMouseLeave.add(this.UUID, () => {
+        this.hover = false;
+      });
 
-            this.listener.onDrop.set( this.UUID, () => {
-                this.uploading = true;
-            } );
+      this.listener.onDrop.set(this.UUID, () => {
+        this.uploading = true;
+      });
 
 
-            this.listener.onProcessingEnd.add(this.UUID, async ( results ) => {
+      this.listener.onProcessingEnd.add(this.UUID, async (results) => {
 
-                this.group.files.removeAllInstances();
+        this.group.files.removeAllInstances();
 
-                await Promise.all( results.map( async ( result ) => {
-                    if ( result instanceof ThermalFileReader ) {
-                        const instance = await result.createInstance(this.group );
-                        this.emitUpload( instance.fileName, instance.bytesize );
-                    }
-                } ) );
+        await Promise.all(results.map(async (result) => {
+          if (result instanceof ThermalFileReader) {
+            const instance = await result.createInstance(this.group);
+            this.emitUpload(instance.fileName, instance.bytesize);
+          }
+        }));
 
-                this.uploading = false;
+        this.uploading = false;
 
-            });
-
-        }
+      });
 
     }
 
-    render() {
+  }
 
-        const title = this.uploading === false 
-            ? t(T.uploadafile)
-            : html`<div class="lds-ellipsis">
+  render() {
+
+    const title = this.uploading === false
+      ? t(T.uploadafile)
+      : html`<div class="lds-ellipsis">
                 <div></div>
                 <div></div>
                 <div></div>
                 <div></div>
             </div>`;
 
-        return html`
+    return html`
 
 
             <thermal-button @click="${() => {
-                if (this.listener) {
-                    this.listener.openFileDialog(false);
-                }
-            }}"><slot>${title}</slot></thermal-button>
+        if (this.listener) {
+          this.listener.openFileDialog(false);
+        }
+      }}"><slot>${title}</slot></thermal-button>
 
             <div class="container" ${ref(this.tourableElementRef)}>
             
@@ -189,7 +187,7 @@ export class GroupDropin extends AbstractGroupDropin {
         
         `;
 
-    }
+  }
 
 
 }

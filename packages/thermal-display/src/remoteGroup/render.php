@@ -19,6 +19,7 @@
 <div <?= get_block_wrapper_attributes(); ?>>
 
 		<remote-folder-app
+ 			locale="<?= get_locale(); ?>"
 			<?php if ( labir_aat_value_exists($url) ): print( " url='{$url}'" ); endif; ?>
 			<?php if ( labir_aat_value_exists( $subfolder ) ): echo " subfolder='{$subfolder}'"; endif; ?>
 			<?php if ( labir_aat_value_exists( $folder ) ): echo " folder='{$folder}'"; endif; ?>

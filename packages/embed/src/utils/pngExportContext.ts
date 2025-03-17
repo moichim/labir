@@ -1,6 +1,6 @@
 import { createContext } from "@lit/context";
 
-export type ContextSetter<T extends any> = ( value: T ) => void
+export type ContextSetter<T> = ( value: T ) => void
 
 export const pngExportColorContext = createContext<string>( "png-export-color-context" );
 export const pngExportColorSetterContext = createContext<ContextSetter<string>>("png-export-color-setter-context");

@@ -1,10 +1,7 @@
-import { describe, expect, test, vi } from "vitest";
-import { ThermalManager } from "../../../hierarchy/ThermalManager";
-import { ThermalRegistry } from "../../../hierarchy/ThermalRegistry";
+import { describe, expect, test } from "vitest";
 import { THERMOGRAM_PATHS } from "../../../../devserver/node/mocks";
+import { ThermalManager } from "../../../hierarchy/ThermalManager";
 import { ThermalFileReader } from "../../../loading/workers/ThermalFileReader";
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 global.document = window.document;
 

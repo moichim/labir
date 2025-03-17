@@ -1,14 +1,12 @@
 import { customElement, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { css, html, PropertyValues } from "lit";
-import { classMap } from "lit/directives/class-map.js";
 import { ThermalFileReader } from "@labir/core";
 import { t } from "i18next";
+import { css, html, PropertyValues } from "lit";
+import { classMap } from "lit/directives/class-map.js";
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { T } from "../../translations/Languages";
 
-import {publicIpv4} from 'public-ip';
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
 @customElement("group-dropin")
@@ -58,7 +56,7 @@ export class GroupDropin extends AbstractGroupDropin {
                 await Promise.all(results.map(async (result) => {
                     if (result instanceof ThermalFileReader) {
                         const instance = await result.createInstance(this.group);
-                        this.emitUpload( instance.fileName, instance.bytesize );
+                        this.emitUpload(instance.fileName, instance.bytesize);
                     }
                 }));
 

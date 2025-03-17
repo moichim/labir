@@ -25,7 +25,7 @@ export abstract class AbstractGroupDropin extends GroupConsumer {
         const time = ( new Date() ).getTime();
 
 
-        let event = new CustomEvent('uploaded', {
+        const event = new CustomEvent('uploaded', {
             bubbles: true,
             cancelable: false,
             detail: {

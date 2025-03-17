@@ -2,18 +2,19 @@ import { Instance, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
+import { publicIpv4 } from "public-ip";
 import { GroupDropin } from "../controls/group/GroupDropin";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
 import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { interactiveAnalysisContext } from "../utils/context";
-import { publicIpv4 } from "public-ip";
 import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/pngExportContext";
 
-@customElement( "thermal-dropin-app" )
-export class DropinAppElement extends BaseElement {
+@customElement("thermal-dropin-app")
+export class DropinAppElement extends BaseElement implements IWithlocale {
 
     @state()
     protected dropinRef: Ref<GroupDropin> = createRef();
@@ -33,52 +34,58 @@ export class DropinAppElement extends BaseElement {
     @state()
     protected ip?: string;
 
-    @provide({context: interactiveAnalysisContext})
+    @provide({ context: interactiveAnalysisContext })
     protected interactiveanalysis: boolean = true;
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        publicIpv4().then( ip => this.ip = ip );
-    }
 
-    @provide({context: pngExportWidthContext})
+
+    @provide({ context: pngExportWidthContext })
     protected pngExportWidth: number = 1200;
 
-    @provide({context: pngExportWidthSetterContext})
-    protected pngExportWidthSetterContext = ( value: number ) => {
+    @provide({ context: pngExportWidthSetterContext })
+    protected pngExportWidthSetterContext = (value: number) => {
         this.pngExportWidth = value;
     }
 
 
-    @provide({context: pngExportFsContext})
+    @provide({ context: pngExportFsContext })
     protected pngExportFs: number = 20;
 
-    @provide({context: pngExportFsSetterContext})
-    protected pngExportFsSetterContext = ( value: number ) => {
+    @provide({ context: pngExportFsSetterContext })
+    protected pngExportFsSetterContext = (value: number) => {
         this.pngExportFs = value;
+    }
+
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        publicIpv4().then(ip => this.ip = ip);
     }
 
 
     public firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated( _changedProperties );
+        super.firstUpdated(_changedProperties);
 
-        this.log( this.groupRef.value );
+        initLocalesInTopLevelElement(this);
 
-        if ( this.groupRef.value !== undefined ) {
+        if (this.groupRef.value !== undefined) {
 
-            this.groupRef.value.group.files.addListener( this.UUID, (value) => {
+            this.groupRef.value.group.files.addListener(this.UUID, (value) => {
 
-                if ( this.groupRef.value !== undefined ) {
+                if (this.groupRef.value !== undefined) {
 
                     this.groupRef.value.group.analysisSync.turnOff();
-                    if ( value.length > 0 ) {
-                        this.groupRef.value.group.analysisSync.turnOn( value[0] );
+                    if (value.length > 0) {
+                        this.groupRef.value.group.analysisSync.turnOn(value[0]);
                     }
-                    
-                }
-                
 
-                value.forEach( file => {
+                }
+
+
+                value.forEach(file => {
                     file.analysis.reset();
                     file.analysis.layers.clear();
 
@@ -100,43 +107,43 @@ export class DropinAppElement extends BaseElement {
                         url: window.location.href
                     }
 
-                    this.dispatchEvent( new CustomEvent("uploaded", {
+                    this.dispatchEvent(new CustomEvent("uploaded", {
                         detail: data,
                         bubbles: true,
                         composed: true
-                    }) );
+                    }));
 
                     //file.unmountFromDom();
-                } );
+                });
 
-                if ( this.listener !== undefined ) {
-                    clearTimeout( this.listener );
+                if (this.listener !== undefined) {
+                    clearTimeout(this.listener);
                 }
 
-                if ( value.length === 0 ) {
+                if (value.length === 0) {
                     this.files = [];
                 } else {
                     this.files = [value[0]];
                 }
-                
 
-                this.listener = setTimeout( async () => {
+
+                this.listener = setTimeout(async () => {
 
                     const registry = this.groupRef.value?.group.registry;
 
-                    if ( registry !== undefined ) {
+                    if (registry !== undefined) {
                         await registry.postLoadedProcessing();
-                        if ( registry.minmax.value !== undefined ) {
-                            registry.range.imposeRange( {
+                        if (registry.minmax.value !== undefined) {
+                            registry.range.imposeRange({
                                 from: registry.minmax.value.min,
                                 to: registry.minmax.value.max
-                            } );
+                            });
                         }
-                        
-                    }
-                }, 0 );
 
-                this.log( "files", value );
+                    }
+                }, 0);
+
+                this.log("files", value);
             });
 
         }
@@ -145,7 +152,7 @@ export class DropinAppElement extends BaseElement {
 
     protected handleClear() {
 
-        if ( this.groupRef.value !== undefined ) {
+        if (this.groupRef.value !== undefined) {
             this.groupRef.value.group.files.removeAllInstances();
 
         }
@@ -223,7 +230,7 @@ export class DropinAppElement extends BaseElement {
     protected renderBrowserScene() {
 
         return html`
-        <div class="browser-bar">
+        <div class="browser-bar" slot="pre">
             <registry-histogram expandable="true"></registry-histogram>
             <registry-range-slider></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
@@ -237,9 +244,9 @@ export class DropinAppElement extends BaseElement {
             </div>
             <div class="browser-content">
                 ${this.files.length === 1
-                    ? this.renderOneFile()
-                    : this.renderMultipleFiles()
-                }
+                ? this.renderOneFile()
+                : this.renderMultipleFiles()
+            }
             </div>
         </div>
         `;
@@ -248,21 +255,19 @@ export class DropinAppElement extends BaseElement {
 
     protected renderOneFile() {
         return html`
-        ${this.files.map( file => this.renderDetail( file, true ) )}
+        ${this.files.map(file => this.renderDetail(file, true))}
         `;
     }
 
-    protected renderFileHeader( file: Instance ) {
+    protected renderFileHeader(file: Instance) {
         return html`
             <header>
                 <div class="file-label">
 
                     <thermal-button
-                        @click=${() => file.group.files.removeFile( file )}
+                        @click=${() => file.group.files.removeFile(file)}
                         variant="foreground"
                     >x</thermal-button>
-
-                    
 
                     <file-info-button>
                         <thermal-button slot="invoker">
@@ -279,7 +284,7 @@ export class DropinAppElement extends BaseElement {
 
                     <file-download-dropdown></file-download-dropdown>
 
-                    <div>${TimeFormat.human( file.timestamp )}</div>
+                    <div>${TimeFormat.human(file.timestamp)}</div>
                 </div>
             </header>
         `;
@@ -298,7 +303,7 @@ export class DropinAppElement extends BaseElement {
                     ${this.renderFileHeader(file)}
 
                     ${expanded === true
-                        ? html`
+                ? html`
                         <div class="file-expanded">
                             <div>
                                 <file-canvas></file-canvas>
@@ -309,7 +314,7 @@ export class DropinAppElement extends BaseElement {
                             </div>
                         </div>
                         `
-                        : html`
+                : html`
                             <div>
                                 <file-canvas></file-canvas>
                                 <file-timeline></file-timeline>
@@ -317,9 +322,7 @@ export class DropinAppElement extends BaseElement {
                                 <file-analysis-graph></file-analysis-graph>
                             </div>
                         `
-                    }
-                
-                    
+            }
                 
                 </file-mirror>
             </article>
@@ -332,11 +335,11 @@ export class DropinAppElement extends BaseElement {
         return html`
         <div class="files-multiple">
         ${this.files
-            // .sort((a,b)=> a.timestamp - b.timestamp)
-            .map( file => this.renderDetail(file, false) )}
+                // .sort((a,b)=> a.timestamp - b.timestamp)
+                .map(file => this.renderDetail(file, false))}
         </div>
         `;
-        
+
     }
 
 
@@ -352,35 +355,38 @@ export class DropinAppElement extends BaseElement {
                         <thermal-app label="LabIR Edu Analyser" showfullscreen="true">
                             <div slot="bar" style="flex-grow: 1;">
                                 <thermal-bar>
+
                                     <group-dropin-input></group-dropin-input>
+
                                     ${this.files.length > 0 ? html`
-                                        <thermal-button @click="${()=>this.handleClear()}">${t(T.clear)}</thermal-button>
+                                        <thermal-button @click="${() => this.handleClear()}">${t(T.clear)}</thermal-button>
                                         <registry-palette-dropdown></registry-palette-dropdown>
                                         <registry-range-full-button></registry-range-full-button>
                                         <registry-range-auto-button></registry-range-auto-button>
                                         
                                     ` : nothing}
+
                                     ${this.files.length > 1 ? html`<group-download-dropdown></group-download-dropdown><registry-range-full-button></registry-range-full-button>` : nothing}
+
+                                    <slot name="header"></slot>
                                 </thermal-bar>
                             </div>
 
-
                             <thermal-dialog label="${t(T.config)}" slot="close">
-                                            <thermal-button slot="invoker">
-                                                <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                                    <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                                                </svg>
-
-                                            </thermal-button>
-                                            <div slot="content">
-                                                <table>
-                                                <png-export-panel></png-export-panel>
-                                                <registry-display-panel></registry-display-panel>
-                                                </table>
-                                            </div>
+                                <thermal-button slot="invoker">
+                                    <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                                        <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
+                                    </svg>
+                                </thermal-button>
+                                <div slot="content">
+                                    <table>
+                                        <png-export-panel></png-export-panel>
+                                        <registry-display-panel></registry-display-panel>
+                                    </table>
+                                </div>
                             </thermal-dialog>
 
-                            ${ this.files.length === 0 ? this.renderIntroScene() : this.renderBrowserScene() }
+                            ${this.files.length === 0 ? this.renderIntroScene() : this.renderBrowserScene()}
                         
                         </thermal-app>
 

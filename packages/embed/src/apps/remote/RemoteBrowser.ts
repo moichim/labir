@@ -16,6 +16,7 @@ import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 enum STATE {
     MAIN,
@@ -33,7 +34,7 @@ const loc = {
 }
 
 @customElement("remote-browser-app")
-export class RemoteBrowser extends BaseElement {
+export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     @property({ type: String, reflect: true })
     label?: string;
@@ -121,9 +122,13 @@ export class RemoteBrowser extends BaseElement {
         this.pngExportFs = value;
     }
 
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
 
 
-    
+
+
 
 
 
@@ -145,6 +150,11 @@ export class RemoteBrowser extends BaseElement {
         window.addEventListener("scroll", updatePosition);
         window.addEventListener("resize", updatePosition);
 
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+        initLocalesInTopLevelElement( this );
     }
 
 
@@ -571,7 +581,7 @@ export class RemoteBrowser extends BaseElement {
             } else if (this.by === ApiTimeGrouping.WEEKS) {
                 title = format(groupTimestamp * 1000, "wo");
             } else if (this.by === ApiTimeGrouping.MONTHS) {
-                title = format(groupTimestamp * 1000, "LLLL yyyy", { locale: loc[this.locale! as keyof typeof loc] })
+                title = format(groupTimestamp * 1000, "LLLL yyyy", { locale: loc[this._locale! as keyof typeof loc] })
             } else if (this.by === ApiTimeGrouping.YEARS) {
                 title = format(groupTimestamp * 1000, "yyyy");
             }
@@ -1168,14 +1178,14 @@ thermal-dropdown.selector::part(invoker) {
         
         <nav id="graf">
         ${this.dataOnly !== undefined
-            ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                ? html`<group-provider slug="${this.dataOnly.info.folder}">
 
                     <div style="width:100%">
                         <group-chart></group-chart>
                     </div>
 
                 </group-provider>`
-            : nothing}
+                : nothing}
         </nav>
         `;
     }

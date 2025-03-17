@@ -22,6 +22,7 @@
 <div <?= get_block_wrapper_attributes(); ?>>
 
 		<remote-browser-app
+ 			locale="<?= get_locale(); ?>"
 			<?php if ( labir_remoteBrowser_attr_exists($url) ): print( " url='{$url}'" ); endif; ?>
 			<?php if ( labir_remoteBrowser_attr_exists( $subfolder ) ): echo " subfolder='{$subfolder}'"; endif; ?>
 			<?php if ( labir_remoteBrowser_attr_exists( $palette ) ): echo " palette='{$palette}'"; endif; ?>

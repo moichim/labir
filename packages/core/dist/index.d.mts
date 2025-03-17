@@ -1134,7 +1134,7 @@ declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataO
     turnOff(): void;
     _wtf(): void;
     protected validate(value: ThermalGraphGroupDataOrUndefined): ThermalGraphGroupDataOrUndefined;
-    protected afterSetEffect(value: ThermalGraphDefinition): void;
+    protected afterSetEffect(): void;
 }
 
 type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;

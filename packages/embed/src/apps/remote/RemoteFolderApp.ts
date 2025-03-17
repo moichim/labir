@@ -11,9 +11,11 @@ import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 import { booleanConverter } from "../../utils/booleanConverter";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { provide } from "@lit/context";
 
 @customElement("remote-folder-app")
-export class RemoteFolderApp extends BaseElement {
+export class RemoteFolderApp extends BaseElement implements IWithlocale {
 
     /** The API endpoint main URL address */
     @property({ type: String, reflect: true })
@@ -67,6 +69,10 @@ export class RemoteFolderApp extends BaseElement {
     /** We need to observe the actual element width in order to automatically adjust the columns width */
     protected resizeObserver: ResizeObserver | undefined;
 
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
+
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -84,6 +90,7 @@ export class RemoteFolderApp extends BaseElement {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
+        initLocalesInTopLevelElement( this );
         if (this.groupRef.value) {
             this.group = this.groupRef.value.group;
         }
@@ -93,9 +100,9 @@ export class RemoteFolderApp extends BaseElement {
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        if ( _changedProperties.has( "folder" ) || _changedProperties.has("url") || _changedProperties.has( "subfolder" ) ) {
-            if ( this.folder, this.url ) {
-                this.loadData( this.url, this.folder, this.subfolder );
+        if (_changedProperties.has("folder") || _changedProperties.has("url") || _changedProperties.has("subfolder")) {
+            if (this.folder, this.url) {
+                this.loadData(this.url, this.folder, this.subfolder);
             }
         }
 
@@ -268,7 +275,7 @@ export class RemoteFolderApp extends BaseElement {
 
         if (this.data) {
 
-            const url = this.getUrl( this.url, this.folder, this.subfolder );
+            const url = this.getUrl(this.url, this.folder, this.subfolder);
             const request = "Request";
 
             const req = {
@@ -287,7 +294,7 @@ export class RemoteFolderApp extends BaseElement {
 
                     <div slot="content">
 
-                        ${this.data.info["description"] ? html`<p>${this.data.info["description"]}</p>` : nothing }
+                        ${this.data.info["description"] ? html`<p>${this.data.info["description"]}</p>` : nothing}
 
                         <table>
                             
@@ -295,20 +302,20 @@ export class RemoteFolderApp extends BaseElement {
 
                             <tbody>
 
-                                ${Object.entries( req ).map( ([key, value]) => {
+                                ${Object.entries(req).map(([key, value]) => {
 
-                                    const isLink = key === request;
+                const isLink = key === request;
 
-                                    const link = isLink
-                                        ? html`<a href="${value}" target="_blank">${value}</a>`
-                                        : value;
+                const link = isLink
+                    ? html`<a href="${value}" target="_blank">${value}</a>`
+                    : value;
 
-                                    return html`<tr>
+                return html`<tr>
                                         <td>${key}</td>
                                         <td>${link}</td>
                                     </tr>`;
 
-                                } )}
+            })}
                             
                             </tbody>
 
