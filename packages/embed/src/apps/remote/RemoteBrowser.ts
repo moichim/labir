@@ -451,76 +451,6 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     }
 
 
-    protected renderFileInner(
-        folderName: string,
-        file: FolderFileType,
-        labelFormatter: (f: FolderFileType) => string
-    ) {
-        return html`
-<article class="file">
-    <file-provider batch="true" thermal=${file.lrc} visible="${file.png}">
-
-        <header>
-            <h2>
-                <span>${labelFormatter(file)}</span>
-            </h2>
-            <div>
-
-                ${file.png ? html`<button class="eye" @click=${() => {
-                if (this.registryRef.value) {
-                    if (this.registryRef.value.registry.opacity.value === 1) {
-                        this.registryRef.value.registry.opacity.imposeOpacity(0);
-                    } else {
-                        this.registryRef.value.registry.opacity.imposeOpacity(1);
-                    }
-
-                }
-            }}>
-                    <div class="eye-tooltip">
-                        <div>${t(T.togglevisibleimage)}</div>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                        <path d="M8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-                        <path fill-rule="evenodd" d="M1.38 8.28a.87.87 0 0 1 0-.566 7.003 7.003 0 0 1 13.238.006.87.87 0 0 1 0 .566A7.003 7.003 0 0 1 1.379 8.28ZM11 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
-                    </svg>
-                </button` : nothing}
-
-                <button class="eye" @click=${() => {
-                this.showDetail(folderName, file.lrc, file.png);
-            }}>
-                    <div class="eye-tooltip">
-                        <div>${t(T.detail)}</div>
-                    </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                        <path d="M6.25 8.75v-1h-1a.75.75 0 0 1 0-1.5h1v-1a.75.75 0 0 1 1.5 0v1h1a.75.75 0 0 1 0 1.5h-1v1a.75.75 0 0 1-1.5 0Z" />
-                        <path fill-rule="evenodd" d="M7 12c1.11 0 2.136-.362 2.965-.974l2.755 2.754a.75.75 0 1 0 1.06-1.06l-2.754-2.755A5 5 0 1 0 7 12Zm0-1.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" clip-rule="evenodd" />
-                    </svg>
-
-                </button>
-
-                <file-range-propagator></file-range-propagator>
-
-                <file-dropdown label="...">
-                    <file-info-button>
-                        <file-button slot="invoker" label=${t(T.info).toLowerCase()}></file-button>
-                    </file-info-button>
-                    <file-download-lrc></file-download-lrc>
-                    <file-download-png></file-download-png>
-                </file-dropdown>
-
-            </div>
-        </header>
-
-        <main>
-            <file-canvas></file-canvas>
-            <file-analysis-overview></file-analysis-overview>
-        </main>
-
-    </file-provider>
-</article>
-        `;
-    }
-
 
     protected renderOne() {
 
@@ -533,7 +463,19 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
                 ${Object.values(this.dataOnly.files).map(file => {
             return html`<div>
-                    ${this.renderFileInner(this.dataOnly!.info.name, file, () => TimeFormat.human(file.timestamp))}
+                    <file-provider 
+                        batch="true" 
+                        thermal="${file.lrc}" 
+                        visible="${file.png}"
+                    >
+                        <file-thumbnail
+                            grouping="years"
+                            .ondetail=${() => {
+                            this.showDetail( this.dataOnly!.info.name, file.lrc, file.png )
+                            }}
+                        ></file-thumbnail>
+                    </file-provider>
+                    
                     </div>`;
         })}
             
@@ -607,16 +549,24 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                             ${sortedKeys.map((key) => {
                 const info = folders[key];
                 return html`<td class="cell-content" data-name="${info.name}">
-                                    ${Object.values(info.files).map(file => this.renderFileInner(info.name, file, file => {
-                    const ts = file.timestamp;
-                    if (this.by === ApiTimeGrouping.HOURS) {
-                        return format(ts, "HH:ii");
-                    } else if (this.by === ApiTimeGrouping.DAYS) {
-                        return format(ts, "HH:ii");
-                    } else {
-                        return TimeFormat.human(ts);
-                    }
-                }))}
+                                    ${Object.values(info.files).map(file => html`
+                                    <div style="background-color: var(--thermal-background); padding: var(--thermal-gap); border-radius: var(--thermal-radius);">
+                                        <file-provider
+                                            batch="true"
+                                            thermal="${file.lrc}"
+                                            visible="${file.png}"
+                                        >
+                                            
+                                            <file-thumbnail
+                                                grouping="${this.by}"
+                                                .ondetail=${() => {
+                                this.showDetail( info.name, file.lrc, file.png )
+                                                }}
+                                            ></file-thumbnail>
+                                        </file-provider>
+                                    </div>
+                                ` ) }
+                                    
                                 </td>`;
             })}
                         </group-provider>
@@ -759,7 +709,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                             ${this.detail.folder}
                         </thermal-button>
                         <thermal-button variant="background" interactive="false">
-                            <file-time></file-time></h1>
+                            <file-label></file-label>
                         </thermal-button>
 
                         <file-info-button>
@@ -971,39 +921,6 @@ table.affected {
 
 }
 
-article.file {
-
-    width: 100%;
-    box-sizing: border-box;
-
-    header {
-        width: 100%;
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        padding-bottom: 5px;
-        color: var(--thermal-foreground);
-
-        h2 {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-size: var(--thermal-fs-sm);
-
-            span {
-                white-space: nowrap;
-            }
-        }
-
-        div {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 5px;
-        }
-    }
-
-}
-
 
 .info {
 
@@ -1031,65 +948,6 @@ thermal-dropdown.selector::part(invoker) {
 
 }
 
-
-.tree {
-    .item {
-        padding-left: var(--thermal-gap);
-        &::before {
-            content: "";
-            background: red;
-        }
-    }
-}
-
-
-
-    .eye {
-
-        border: none;
-        background: transparent;
-        color: var(--thermal-foreground);
-        padding: 0;
-        margin: 0;
-
-        transition: all .2s ease-in-out;
-        cursor: pointer;
-        position: relative;
-
-        .eye-tooltip {
-            display: none;
-            position: absolute;
-            z-index: 9999;
-            top: -30px;
-            left: 0rem;
-            width: 0;
-
-            > div {
-                padding: 5px 10px;
-                border-radius: var(--thermal-radius);
-                border: 1px solid var(--thermal-slate);
-                color: var(--thermal-background);
-                background: var(--thermal-primary);
-                font-size: 12px;
-                width: fit-content;
-                white-space: preserve nowrap;
-            }
-        }
-
-        &:hover {
-            color: var(--thermal-primary);
-            .eye-tooltip {
-                display: block;
-                
-            }
-        }
-
-        
-        
-        svg {
-            width: 1em;
-        }
-    }
 
 
     .detail {

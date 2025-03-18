@@ -35,14 +35,6 @@ export abstract class AbstractMultipleApp extends BaseElement {
     @property({ type: String, reflect: true, converter: booleanConverter(true) })
     interactiveanalysis: boolean = true;
 
-    static styles? = [
-        InstanceRenderer.styles,
-        GroupRenderer.styles,
-        css`
-    
-        `
-    ];
-
     protected readonly instanceRenderer = new InstanceRenderer(this);
 
     protected readonly groupRenderer = new GroupRenderer(this);

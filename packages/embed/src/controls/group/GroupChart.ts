@@ -56,7 +56,6 @@ export class GroupChart extends GroupConsumer {
         });
 
         this.group.analysisGraph.addListener(this.UUID, value => {
-            this.log(value);
 
             if (value !== undefined) {
                 this.data = value.data;

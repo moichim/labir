@@ -12,9 +12,19 @@ import { booleanConverter } from "../../utils/booleanConverter";
 import { provide } from "@lit/context";
 import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
+
+
+enum STATE {
+    GROUP,
+    DETAIL
+}
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp implements IWithlocale {
+
+    protected groupRef: Ref<GroupProviderElement> = createRef();
 
     @property({ type: String, reflect: true, attribute: true })
     palette: AvailableThermalPalettes = "jet";
@@ -102,6 +112,15 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
     @property({ type: String, reflect: true, converter: booleanConverter(false) })
     public preservetime: boolean = true;
 
+    @state()
+    protected state: STATE = STATE.GROUP;
+
+    @state()
+    protected detail?: {
+        lrc: string,
+        png?: string
+    } = undefined;
+
 
     @provide({ context: pngExportWidthContext })
     protected pngExportWidth: number = 1200;
@@ -133,7 +152,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         const group = registry.groups.addOrGetGroup(this.slug, this.label, this.description);
 
         group.files.addListener(this.UUID, (instances) => {
-            this.log(group, instances);
             if (group.analysisSync.value === false) {
                 const instance = instances[0];
                 if (instance) {
@@ -149,22 +167,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     }
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-
-        initLocalesInTopLevelElement( this );
-
-        this.group.registry.manager.palette.setPalette(this.palette);
-
-        if (this.from !== undefined && this.to !== undefined) {
-            this.group.registry.range.imposeRange({
-                from: this.from,
-                to: this.to
-            });
-        }
-
-
-
+    protected load() {
         const files = this.files ?
             this.parseFilesProperty(this.files)
             : [];
@@ -175,6 +178,24 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         } else {
             this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
         }
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+
+        initLocalesInTopLevelElement(this);
+
+        this.group.registry.manager.palette.setPalette(this.palette);
+
+
+        if (this.from !== undefined && this.to !== undefined) {
+            this.group.registry.range.imposeRange({
+                from: this.from,
+                to: this.to
+            });
+        }
+
+        this.load();
 
     }
 
@@ -217,9 +238,53 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
     }
 
-    public static styles?: CSSResultGroup | undefined = [
-        AbstractMultipleApp.styles,
-        css`
+    protected scrollToComponent() {
+        this.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+
+    protected async showDetail(
+        lrc: string,
+        png?: string
+    ) {
+
+        this.detail = {
+            lrc,
+            png
+        }
+
+        this.group.files.removeAllInstances();
+        this.group.registry.range.reset();
+        this.group.analysisSync.reset();
+        this.group.analysisGraph.reset();
+        this.state = STATE.DETAIL;
+        this.scrollToComponent();
+    }
+
+    protected async closeDetail() {
+
+        delete this.detail;
+        this.detail = undefined;
+        this.group.analysisSync.reset();
+        this.group.analysisGraph.reset();
+        this.group.registry.range.reset();
+        this.load();
+        this.state = STATE.GROUP;
+        this.scrollToComponent();
+
+    }
+
+
+
+    static styles?: CSSResultGroup | undefined = css`
+
+        .app-content {
+            box-sizing: border-box;
+            display: grid;
+            width: 100%;
+            gap: var(--thermal-gap);
+            grid-template-columns: 30px 1fr;
+        }
 
 
         .group {
@@ -244,31 +309,29 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
 
         .group-files {
-            display: flex;
-            flex-wrap: wrap;
-            width: calc( 100%  + 5px);
-            margin: 0 -2.5px;
+            display: grid;
+            gap: calc( var(--thermal-gap) * .5 );
         }
 
-        .group-files-1 .file { width: 100%; }
+        .group-files-1 { grid-template-columns: 1fr; }
         
-        .group-files-2 .file { width: 50%; }
+        .group-files-2 { grid-template-columns: 1fr 1fr; }
 
-        .group-files-3 .file { width: 33%; }
+        .group-files-3 { grid-template-columns: 1fr 1fr 1fr; }
 
-        .group-files-4 .file { width: 25%; }
+        .group-files-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
 
-        .group-files-5 .file { width: 20%; }
+        .group-files-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
 
-        .group-files-6 .file { width: calc( 100% / 6 ); }
+        .group-files-6 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; }
 
-        .group-files-7 .file { width: calc( 100% / 7 ); }
+        .group-files-7 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
 
-        .group-files-8 .file { width: calc( 100% / 8 ); }
+        .group-files-8 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
 
-        .group-files-9 .file { width: calc( 100% / 9 ); }
+        .group-files-9 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
 
-        .group-files-10 .file { width: calc( 100% / 10 ); }
+        .group-files-10 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
 
         .group-header {
 
@@ -277,9 +340,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             align-items: center;
             padding: calc( var( --thermal-gap ) * .5 );
             border-bottom: 1px solid var( --thermal-slate-light );
-
-
-        
         }
 
         .group-title {
@@ -296,9 +356,58 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             padding: 0;
         }
 
+        .detail {
+            padding: var(--thermal-gap);
+            background: var(--thermal-background);
+            box-sizing: border-box;
+            border-radius: var(--thermal-gap);
+            border: 1px solid var(--thermal-slate);
+            width: 100%;
+        }
+
+        group-tool-bar {
+            position: sticky;
+            top: 0px;
+            z-index: 99999;
+        }
+
 
     
-    `];
+    `;
+
+
+    protected renderGroup() {
+
+        return html`${this.groups.map(group => html`<section class="group">
+                                        
+            <div class="group-files group-files-${this.columns}">
+                ${group.files.map(file => html`<div class="file">
+                    <file-mirror .file=${file.instance} autoclear="true">
+                        <file-thumbnail
+                            .ondetail=${() => {
+                this.showDetail(file.instance.thermalUrl, file.instance.visibleUrl)
+            }}
+                            label=${ifDefined( file.label )}
+                        ></file-thumbnail>
+                    </file-mirror>
+                </div>` )}
+            </div>
+        </section>` )} `;
+
+    }
+
+    protected renderDetail() {
+        if (this.detail === undefined) {
+            return nothing;
+        }
+        return html`<div class="detail">
+            <file-provider thermal="${this.detail.lrc}" visible="${this.detail.png}">
+                <file-detail label="${this.label}" .onback=${() => this.closeDetail()}></file-detail>
+            </file-provider>
+        </div>`;
+    }
+
+
 
     protected render(): unknown {
         return html`
@@ -307,9 +416,9 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
             <manager-provider slug="${this.slug}">
 
-                <registry-provider slug="${this.slug}">
+                <registry-provider slug="${this.slug}" from="${ifDefined(this.from)}" to="${ifDefined(this.to)}">
 
-                    <group-provider slug="${this.slug}">
+                    <group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupRef)}>
 
                         <thermal-app
                             author=${ifDefined(this.author)}
@@ -330,27 +439,29 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                                 <thermal-bar>
 
                                     <registry-palette-dropdown></registry-palette-dropdown>
-                                    <div>
+                                    <registry-range-full-button></registry-range-full-button>
+                                    <registry-range-auto-button></registry-range-auto-button>
+                                    ${this.state === STATE.GROUP
+                ? html`
+                    ${this.grouper.numFiles > 0
+                        ? html`<group-download-dropdown></group-download-dropdown>`
+                        : nothing
+                    }
+                                        <div>
                                         <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
 
-                const target = event.target as null | { value: string }
-                const value = target?.value;
-                if (value !== undefined) {
-                    this.columns = parseInt(value);
-                }
-            }}></input>
+                        const target = event.target as null | { value: string }
+                        const value = target?.value;
+                        if (value !== undefined) {
+                            this.columns = parseInt(value);
+                        }
+                    }}></input>
                                         <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                                     </div>
-
-                                    ${this.grouper.numFiles > 0
-                ? html`
-
-                                        <group-download-dropdown></group-download-dropdown>
-
-                                        <registry-range-full-button></registry-range-full-button>
                                         `
                 : nothing
             }
+                                    
 
                                 ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
 
@@ -359,18 +470,18 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             </div>
 
                             <thermal-dialog label="${t(T.config)}" slot="close">
-                                            <thermal-button slot="invoker">
-                                                <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                                    <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                                                </svg>
+                                <thermal-button slot="invoker">
+                                    <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                                        <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
+                                    </svg>
 
-                                            </thermal-button>
-                                            <div slot="content">
-                                                <table>
-                                                <png-export-panel></png-export-panel>
-                                                <registry-display-panel></registry-display-panel>
-                                                </table>
-                                            </div>
+                                </thermal-button>
+                                <div slot="content">
+                                    <table>
+                                        <png-export-panel></png-export-panel>
+                                        <registry-display-panel></registry-display-panel>
+                                    </table>
+                                </div>
                             </thermal-dialog>
 
 
@@ -378,31 +489,33 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
                             <registry-range-slider slot="pre"></registry-range-slider>
                             <registry-ticks-bar slot="pre"></registry-ticks-bar>
-                            <group-chart slot="pre"></group-chart>
+                            ${ this.state === STATE.GROUP ? html`
+                                <group-chart slot="pre"></group-chart>
+                            ` : nothing }
 
-                            ${this.interactiveanalysis === true ? html`<group-tool-buttons slot="pre"></group-tool-buttons>` : nothing}
+                            
 
                             <div class="app-content">
 
                                     <slot></slot>
 
+                                    <group-tool-bar></group-tool-bar>
 
-                                    ${this.groups.map(group => {
-
-                return this.groupRenderer.renderGroup(
-                    group,
-                    this.columns,
-                    this.grouping,
-                    this.preservetime
-                );
-
-            })}            
+                                    <div class="app-content-main">
+                                    ${this.state === STATE.GROUP
+                ? this.renderGroup()
+                : this.renderDetail()
+            }
+                                    </div>
                             
                             </div>
 
-                            <group-timeline></group-timeline>
+                            ${ this.state === STATE.GROUP ? html`
+                                <group-timeline></group-timeline>
+                            ` : nothing }
 
-                        
+                            
+
                         </thermal-app>
 
                     </group-provider>

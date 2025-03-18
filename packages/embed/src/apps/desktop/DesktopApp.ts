@@ -255,6 +255,11 @@ export class DesktopFileApp extends FileConsumer {
   protected render(): unknown {
 
     return html`
+
+      <file-detail-icon></file-detail-icon>
+      <file-opacity-icon></file-opacity-icon>
+
+
         <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)} showfullscreen="true">
 
           <thermal-button variant="foreground" interactive="false" slot="bar">${this.file ?
@@ -281,8 +286,8 @@ export class DesktopFileApp extends FileConsumer {
 
 
                 <thermal-dialog label=${t(T.displaysettings)}>
-                <thermal-button slot="invoker" tourstepid="sth3">${t(T.displaysettings)}</thermal-button>
-                <div slot="content">
+                  <thermal-button slot="invoker" tourstepid="sth3">${t(T.displaysettings)}</thermal-button>
+                  <div slot="content">
                   
                   <thermal-field 
                     label=${t(T.filerendering)} 

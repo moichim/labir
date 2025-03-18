@@ -107,7 +107,7 @@ import "./controls/file/FileVideo";
 import "./controls/file/markers/ImageMarker";
 import "./controls/file/markers/MarkerTimeline";
 import "./controls/file/markers/MarksContent";
-import "./controls/file/fileTime";
+import "./controls/file/fileLabel";
 
 import "./controls/file/analysis/edit/analysisName";
 import "./controls/file/analysis/edit/analysisColor";
@@ -126,6 +126,12 @@ import "./controls/file/buttons/FilePngButton";
 import "./controls/file/buttons/FileButton";
 import "./controls/file/buttons/FileRangePropagator";
 import "./controls/file/buttons/FileDropdown";
+
+import "./controls/file/icons/FileDetailIcon";
+import "./controls/file/icons/FileOpacityIcon";
+
+import "./renderers/FileThumbnail";
+import "./renderers/FileDetail";
 
 
 // 7. Complex apps go last
