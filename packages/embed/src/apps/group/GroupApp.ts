@@ -178,6 +178,14 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         } else {
             this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
         }
+
+        this.group.files.addListener( this.UUID, value => {
+            if ( value.length < 4 ) {
+                this.columns = value.length;
+            } else {
+                this.columns = 4;
+            }
+        } );
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
