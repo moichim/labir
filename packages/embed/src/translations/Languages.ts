@@ -29,6 +29,8 @@ export enum T {
 
     detail = "detail",
 
+    showeverything = "showeverything",
+
     /** Description */
     description = "description",
     /** Author */

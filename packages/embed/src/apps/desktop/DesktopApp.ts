@@ -256,9 +256,6 @@ export class DesktopFileApp extends FileConsumer {
 
     return html`
 
-      <file-detail-icon></file-detail-icon>
-      <file-opacity-icon></file-opacity-icon>
-
 
         <thermal-app author=${ifDefined(this.author)} recorded=${ifDefined(this.recorded)} license=${ifDefined(this.license)} showfullscreen="true">
 

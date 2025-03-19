@@ -17,6 +17,8 @@ export const cy: Translation = {
     file: "ffeil",
     detail: "Manylder",
 
+    showeverything: "Dangos popeth",
+
 
     next: "Nesaf",
     prev: "Blaenorol",

@@ -37,6 +37,9 @@ export class GroupToolButtons extends ManagerConsumer {
     @property({type: String, reflect: true, converter: booleanConverter(false)})
     showhint: boolean = true;
 
+    @property({reflect: true, converter: booleanConverter(false) })
+    showpopup: boolean = false;
+
     connectedCallback(): void {
         super.connectedCallback();
         this.hint = this.value.description as keyof T;
@@ -73,6 +76,8 @@ export class GroupToolButtons extends ManagerConsumer {
         color: var( --thermal-foreground );
         border-radius: var( --thermal-radius );
         padding: 3px;
+
+        position: relative;
     
     }
 
@@ -81,12 +86,11 @@ export class GroupToolButtons extends ManagerConsumer {
         line-height: 0;
         cursor: pointer;
 
-        transition: all .25s ease-in-out;
+        transition: all .2s ease-in-out;
 
         width: calc( var( --thermal-gap ) * 1.2 + 6px);
         height: calc( var( --thermal-gap ) * 1.2 + 6px);
 
-        &:hover,
         &.active {
             background: var(--thermal-background);
         }
@@ -120,6 +124,30 @@ export class GroupToolButtons extends ManagerConsumer {
         text-overflow: ellipsis;
         white-space: nowrap;
         overflow: hidden;
+    }
+
+
+    .button > div {
+        display: none;
+        position: absolute;
+        top: 2rem;
+        padding: 7px 10px;
+        background: var(--thermal-primary);
+        color: var(--thermal-background);
+        border: 1px solid var(--thermal-slate);
+        border-radius: var(--thermal-radius);
+        white-space: preserve nowrap;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .button:hover {
+        color: var(--thermal-primary);
+        border-color: var(--thermal-primary);
+    }
+
+    .button:hover > div {
+        display: block;
     }
 
     `;
@@ -156,6 +184,11 @@ export class GroupToolButtons extends ManagerConsumer {
                 }}
                         >
                             ${unsafeSVG(tool.icon)}
+
+                            ${this.showpopup === true
+                            ? html`<div>${t(T[tool.name as keyof typeof T])}</div>`
+                            : nothing}
+
                         </button>
                         
                     ` }

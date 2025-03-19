@@ -17,6 +17,8 @@ export const fr: Translation = {
     file: "fichier",
     detail: "Détail",
 
+    showeverything: "Montrer tout",
+
 
     next: "Avancer",
     prev: "Rétourner",

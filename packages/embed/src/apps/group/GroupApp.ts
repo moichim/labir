@@ -376,7 +376,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         group-tool-bar {
             position: sticky;
             top: 0px;
-            z-index: 99999;
+            z-index: 999;
         }
 
 

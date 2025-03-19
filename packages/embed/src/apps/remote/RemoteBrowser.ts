@@ -154,7 +154,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-        initLocalesInTopLevelElement( this );
+        initLocalesInTopLevelElement(this);
     }
 
 
@@ -255,7 +255,6 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
             const query = new QueryBuilder(url, subfolder);
             const json = await query.info();
-            this.log("json>>>", json);
             this.info = json;
             this.folders = json.folders;
             this.loadingInfo = false;
@@ -389,6 +388,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     protected resetRegistry() {
         if (this.registryRef.value) {
+            this.registryRef.value.registry.forEveryInstance(instance => instance.unmountFromDom());
             this.registryRef.value.registry.reset();
             this.registryRef.value.registry.minmax.reset();
             this.registryRef.value.registry.range.reset();
@@ -446,8 +446,20 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     }
 
 
+    protected actionShowEverything() {
+        this.only = Object.keys(this.folders);
+        // delete this.detail;
+        // delete this.dataOnly;
+        this.resetRegistry();
+        this.state = STATE.MULTIPLE;
+    }
+
+
     protected renderLoading(what: string) {
-        return html`<div class="loading">${what}</div>`;
+        return html`<div class="loading">
+            <div class="lds-facebook"><div></div><div></div><div></div></div>
+            <div>${what}</div>
+        </div>`;
     }
 
 
@@ -455,7 +467,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     protected renderOne() {
 
         if (this.loadingData || this.dataOnly === undefined) {
-            return this.renderLoading("Načítám data...");
+            return this.renderLoading("Loading folder data");
         }
 
         return html`
@@ -471,8 +483,8 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                         <file-thumbnail
                             grouping="years"
                             .ondetail=${() => {
-                            this.showDetail( this.dataOnly!.info.name, file.lrc, file.png )
-                            }}
+                    this.showDetail(this.dataOnly!.info.name, file.lrc, file.png)
+                }}
                         ></file-thumbnail>
                     </file-provider>
                     
@@ -488,7 +500,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     protected renderMultiple() {
 
         if (this.loadingData || this.dataMultiple === undefined || this.dataMultiple.data === undefined) {
-            return this.renderLoading("Načítám data...");
+            return this.renderLoading("Loading selected folders' data");
         }
 
         const groups = this.dataMultiple.data;
@@ -560,12 +572,12 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                                             <file-thumbnail
                                                 grouping="${this.by}"
                                                 .ondetail=${() => {
-                                this.showDetail( info.name, file.lrc, file.png )
-                                                }}
+                        this.showDetail(info.name, file.lrc, file.png)
+                    }}
                                             ></file-thumbnail>
                                         </file-provider>
                                     </div>
-                                ` ) }
+                                ` )}
                                     
                                 </td>`;
             })}
@@ -696,7 +708,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     protected renderDetail() {
         if (this.detail === undefined) {
-            return this.renderLoading("Načítám obrázek");
+            return this.renderLoading("Loading the IR image");
         }
         return html`
         <group-provider slug="detail" autoclear="true">
@@ -738,7 +750,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
 
         if (this.info === undefined) {
-            return this.renderLoading("Načítám základní informaci");
+            return this.renderLoading("Loading data");
         }
 
         if (this.state === STATE.MAIN) {
@@ -803,7 +815,7 @@ h1, h2, h3, h4, h5 {
 
         &:hover,
         &:focus {
-            background: var(--thermal-slate-light);
+            background: var(--thermal-background);
             box-shadow: var(--thermal-shadow);
         }
 
@@ -980,6 +992,67 @@ thermal-dropdown.selector::part(invoker) {
 
     }
 
+    .loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        border: 1px solid var(--thermal-slate);
+        border-radius: var(--thermal-radius);
+        box-sizing: border-box;
+        padding: var(--thermal-gap);
+        min-height: 30vh;
+        color: var(--thermal-slate-dark);
+        background: var(--thermal-slate-light);
+    }
+
+
+    .lds-facebook {
+  /* change color here */
+  color: var(--thermal-slate-dark);
+}
+.lds-facebook,
+.lds-facebook div {
+  box-sizing: border-box;
+}
+.lds-facebook {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-facebook div {
+  display: inline-block;
+  position: absolute;
+  left: 8px;
+  width: 16px;
+  background: currentColor;
+  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
+}
+.lds-facebook div:nth-child(1) {
+  left: 8px;
+  animation-delay: -0.24s;
+}
+.lds-facebook div:nth-child(2) {
+  left: 32px;
+  animation-delay: -0.12s;
+}
+.lds-facebook div:nth-child(3) {
+  left: 56px;
+  animation-delay: 0s;
+}
+@keyframes lds-facebook {
+  0% {
+    top: 8px;
+    height: 64px;
+  }
+  50%, 100% {
+    top: 24px;
+    height: 32px;
+  }
+}
+
 
     `;
 
@@ -987,6 +1060,14 @@ thermal-dropdown.selector::part(invoker) {
     protected renderHeader() {
 
         return html`
+
+
+        ${this.state === STATE.MAIN && this.info !== undefined
+                ? html`<thermal-button @click=${() => {
+                    this.actionShowEverything();
+                }}>${t(T.showeverything)}</thermal-button>`
+                : nothing
+            }
         
         ${this.state !== STATE.MAIN
                 ? html`<thermal-button 
@@ -1019,7 +1100,7 @@ thermal-dropdown.selector::part(invoker) {
                         : nothing
                     }
             <registry-opacity-slider></registry-opacity-slider>
-            <group-tool-buttons showhint="false"></group-tool-buttons>
+            <group-tool-buttons showhint="false" showpopup="true"></group-tool-buttons>
             `
                 : nothing
             }

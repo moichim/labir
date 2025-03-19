@@ -17,6 +17,8 @@ export const cs: Translation = {
     file: "soubor",
     detail: "Detail",
 
+    showeverything: "Zobrazit vše",
+
     next: "Další",
     prev: "Předchozí",
     back: "Zpět",

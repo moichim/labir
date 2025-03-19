@@ -17,6 +17,8 @@ export const en: Translation = {
 
     detail: "Detail",
 
+    showeverything: "Show everything",
+
 
     next: "Next",
     prev: "Previous",
