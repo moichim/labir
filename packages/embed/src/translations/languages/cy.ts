@@ -14,6 +14,8 @@ export const cy: Translation = {
     clear: "Clirio",
     dragorselectfile: "Llusgwch ffeil LRC neu dewiswch hi o'r ddisg",
 
+    analysissync: "Cydamseru dadansoddiadau",
+
     file: "ffeil",
     detail: "Manylder",
 

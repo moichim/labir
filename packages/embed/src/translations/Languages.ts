@@ -203,7 +203,7 @@ export enum T {
     youfeelcolder = "youfeelcolder",
     apparenttemperaturehint = "apparenttemperaturehint",
 
-
+    analysissync = "analysissync",
 
     /** Inspect tool */
     inspecttemperatures = "inspecttemperatures",

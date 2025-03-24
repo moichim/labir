@@ -40,6 +40,7 @@ import "./ui/Dropdown";
 import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
+import "./ui/Loading";
 
 import "./apps/registry/parts/TimeEntryElement";
 import "./apps/registry/parts/TimeGroupElement";
@@ -93,6 +94,7 @@ import "./controls/group/GroupDownloadDropdown";
 import "./controls/group/GroupRangePropagator";
 import "./controls/group/GroupDownloadButtons";
 import "./controls/group/GroupChart";
+import "./controls/group/GroupAnalysisSyncButton";
 
 
 

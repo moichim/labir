@@ -121,6 +121,9 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         png?: string
     } = undefined;
 
+    @state()
+    protected loading?: boolean = false;
+
 
     @provide({ context: pngExportWidthContext })
     protected pngExportWidth: number = 1200;
@@ -167,10 +170,13 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     }
 
-    protected load() {
+    protected async load() {
+        this.loading = true;
         const files = this.files ?
             this.parseFilesProperty(this.files)
             : [];
+
+        // await new Promise(resolve => setTimeout(resolve, 5000))
 
         // Fire the initial grouping
         if (files.length > 0) {
@@ -180,6 +186,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
 
         this.group.files.addListener( this.UUID, value => {
+            this.loading = false;
             if ( value.length < 4 ) {
                 this.columns = value.length;
             } else {
@@ -316,30 +323,30 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             padding: calc( var( --thermal-gap ) * .5 );
         }
 
-        .group-files {
-            display: grid;
-            gap: calc( var(--thermal-gap) * .5 );
+        :host {
+            --gap: calc(var(--thermal-gap) * .5);
         }
 
-        .group-files-1 { grid-template-columns: 1fr; }
-        
-        .group-files-2 { grid-template-columns: 1fr 1fr; }
+        .group-files {
+            display: flex;
+            flex-wrap: wrap;
 
-        .group-files-3 { grid-template-columns: 1fr 1fr 1fr; }
+            div file-mirror {
+                padding: calc( var(--gap) * .5);
+                display: block;
+            }
+        }
 
-        .group-files-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-
-        .group-files-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
-
-        .group-files-6 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr; }
-
-        .group-files-7 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-
-        .group-files-8 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-
-        .group-files-9 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
-
-        .group-files-10 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr; }
+        .group-files-1 div { width: 100%; }
+        .group-files-2 div { width: 50%; }
+        .group-files-3 div { width: calc(100% / 3); }
+        .group-files-4 div { width: calc(100% / 4); }
+        .group-files-5 div { width: calc(100% / 5); }
+        .group-files-6 div { width: calc(100% / 6); }
+        .group-files-7 div { width: calc(100% / 7); }
+        .group-files-8 div { width: calc(100% / 8); }
+        .group-files-9 div { width: calc(100% / 9); }
+        .group-files-10 div { width: calc(100% / 10); }
 
         .group-header {
 
@@ -446,10 +453,14 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
                                 <thermal-bar>
 
-                                    <registry-palette-dropdown></registry-palette-dropdown>
-                                    <registry-range-full-button></registry-range-full-button>
-                                    <registry-range-auto-button></registry-range-auto-button>
-                                    ${this.state === STATE.GROUP
+                                    ${this.loading === false 
+                                        ? html`
+                                        <registry-palette-dropdown></registry-palette-dropdown>
+                                        <registry-range-full-button></registry-range-full-button>
+                                        <registry-range-auto-button></registry-range-auto-button>
+                                        
+
+                                        ${this.state === STATE.GROUP
                 ? html`
                     ${this.grouper.numFiles > 0
                         ? html`<group-download-dropdown></group-download-dropdown>`
@@ -466,12 +477,21 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                     }}></input>
                                         <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                                     </div>
+                                    <group-analysis-sync-button></group-analysis-sync-button>
                                         `
                 : nothing
             }
                                     
 
-                                ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+                                        ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+
+                                        `
+                                        : nothing
+                                    }
+
+                                    
+
+                                    
 
                                 </thermal-bar>
 
@@ -492,18 +512,24 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                                 </div>
                             </thermal-dialog>
 
+                            ${ this.loading === false
+                                ? html`
+                                    ${this.showhistogram === true ? html`<registry-histogram expandable="true" slot="pre"></registry-histogram>` : nothing}
 
-                            ${this.showhistogram === true ? html`<registry-histogram expandable="true" slot="pre"></registry-histogram>` : nothing}
+                                    <registry-range-slider slot="pre"></registry-range-slider>
+                                    <registry-ticks-bar slot="pre"></registry-ticks-bar>
+                                `
+                                : nothing
+                            }
+                            
 
-                            <registry-range-slider slot="pre"></registry-range-slider>
-                            <registry-ticks-bar slot="pre"></registry-ticks-bar>
                             ${ this.state === STATE.GROUP ? html`
                                 <group-chart slot="pre"></group-chart>
                             ` : nothing }
 
-                            
-
-                            <div class="app-content">
+                            ${this.loading === true 
+                                ? html`<thermal-loading message="${t(T.loading)}"></thermal-loading>`
+                                : html`<div class="app-content">
 
                                     <slot></slot>
 
@@ -521,7 +547,8 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             ${ this.state === STATE.GROUP ? html`
                                 <group-timeline></group-timeline>
                             ` : nothing }
-
+                            `
+                            }
                             
 
                         </thermal-app>

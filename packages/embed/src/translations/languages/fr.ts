@@ -19,6 +19,8 @@ export const fr: Translation = {
 
     showeverything: "Montrer tout",
 
+    analysissync: "Synchroniser les analyses",
+
 
     next: "Avancer",
     prev: "Rétourner",

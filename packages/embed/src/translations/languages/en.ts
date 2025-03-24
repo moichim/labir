@@ -152,6 +152,8 @@ export const en: Translation = {
     windspeed: "Wind speed",
     inpercent: "in percent",
 
+    analysissync: "Synchronise analyses",
+
     apparenttemperatureverbose: "The thermometer shows {{t}} °C, but due to humidity and wind, it feels like {{app}} °C outside.",
     youfeelwarmer: "The apparent temperature is {{diff}} °C higher than the air temperature.",
     youfeelcolder: "The apparent temperature is {{diff}} °C lower than the air temperature.",

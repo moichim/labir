@@ -14,6 +14,8 @@ export const de: Translation = {
     clear: "Löschen",
     dragorselectfile: "Ziehen Sie eine LRC-Datei hierher oder wählen Sie sie von der Festplatte aus",
 
+    analysissync: "Analysen synchronisieren",
+
     file: "Datei",
     detail: "Detail",
 

@@ -146,6 +146,8 @@ export const cs: Translation = {
     fromto: "Od {{from}} do {{to}}",
     downloadgraphdataascsv: "Stáhnout data grafu jako CSV",
 
+    analysissync: "Synchronizovat analýzy",
+
 
     apparenttemperature: "Pocitová teplota",
     apparenttemperaturehint: "Tento převodník využívá model pocitové teploty <a href='{{href}}' target='_blank'>Australian Apparent Temperature</a>.",
