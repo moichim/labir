@@ -6,7 +6,7 @@ import { T } from "../../translations/Languages";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { HtmlResult } from "../miltiple/HtmlResult";
+import { HtmlResult } from "../multiple/HtmlResult";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { provide } from "@lit/context";
 

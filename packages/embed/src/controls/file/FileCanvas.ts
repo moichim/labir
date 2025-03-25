@@ -62,7 +62,19 @@ export class FileCanvas extends FileConsumer {
         }
     }
 
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if (this.file !== undefined) {
+            this.file.unmountFromDom();
+        }
+    }
+
     static styles = css`
+
+        :host {
+            display: inline-block;
+            width: 100%;
+        }
 
         .canvas-container {
 

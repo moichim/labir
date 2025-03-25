@@ -5,7 +5,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, Ref } from 'lit/directives/ref.js';
 import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
-import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
+import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
 import { Grouping, TimeGroupElement } from "./parts/TimeGroupElement";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { provide } from "@lit/context";

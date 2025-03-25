@@ -1,11 +1,12 @@
 import { provide } from "@lit/context";
-import { css } from "lit";
 import { property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { GroupRenderer } from "./GroupRenderer";
 import { InstanceRenderer } from "./InstanceRenderer";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
+import { localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 export type ParsedFileType = {
     thermal: string;
@@ -38,6 +39,28 @@ export abstract class AbstractMultipleApp extends BaseElement {
     protected readonly instanceRenderer = new InstanceRenderer(this);
 
     protected readonly groupRenderer = new GroupRenderer(this);
+
+
+    @provide({ context: pngExportWidthContext })
+    protected pngExportWidth: number = 1200;
+
+    @provide({ context: pngExportWidthSetterContext })
+    protected pngExportWidthSetterContext = (value: number) => {
+        this.pngExportWidth = value;
+    }
+
+
+    @provide({ context: pngExportFsContext })
+    protected pngExportFs: number = 20;
+
+    @provide({ context: pngExportFsSetterContext })
+    protected pngExportFsSetterContext = (value: number) => {
+        this.pngExportFs = value;
+    }
+
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    public locale!: Locales;
 
     public static FILE_RECORD_SEPARATOR = ";";
     public static FILE_SEGMENT_SEPAROATOR = "|";

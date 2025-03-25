@@ -13,11 +13,12 @@ import { t } from "i18next";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
+import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 
 
 
 @customElement("group-tool-bar")
-export class GroupToolButtons extends GroupConsumer {
+export class GroupToolButtons extends ManagerConsumer {
 
     protected tourableElementRef: Ref<HTMLElement> = createRef();
 
@@ -40,7 +41,7 @@ export class GroupToolButtons extends GroupConsumer {
 
     /** Handle user input events */
     onSelect(tool: ThermalTool) {
-        this.group.tool.selectTool(tool);
+        this.manager.tool.selectTool(tool);
     }
 
     static styles = css`
@@ -137,14 +138,14 @@ export class GroupToolButtons extends GroupConsumer {
 
     protected render(): unknown {
 
-        if (this.group === undefined) {
+        if (this.manager === undefined) {
             return nothing;
         }
 
         return html`
 
             <aside ${ref(this.tourableElementRef)}>
-                    ${Object.entries(this.group.tool.tools).map(([key, tool]) => {
+                    ${Object.entries(this.manager.tool.tools).map(([key, tool]) => {
 
             const classes = {
                 [key]: true,
@@ -157,7 +158,7 @@ export class GroupToolButtons extends GroupConsumer {
                         <div class="item">
                             <button 
                                 class=${classMap(classes)} 
-                                @click=${() => { this.group.tool.selectTool(tool) }}
+                                @click=${() => { this.manager.tool.selectTool(tool) }}
                             >
                                 ${unsafeSVG(tool.icon)}
                             </button>

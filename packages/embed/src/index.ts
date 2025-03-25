@@ -52,6 +52,10 @@ import "./controls/AppInfoButton";
 import "./controls/manager/PngExportPanel";
 import "./controls/registry/DisplaySettingsPanel";
 
+import "./apps/gallery/GalleryApp";
+import "./apps/multiple/definitions/ThermalGroup";
+import "./apps/multiple/definitions/ThermalFile";
+
 
 
 // 2. Providers

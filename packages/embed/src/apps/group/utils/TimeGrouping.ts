@@ -2,7 +2,7 @@ import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { TimeEntryElement } from "../../registry/parts/TimeEntryElement";
 import { GroupElement } from "../GroupApp";
-import { ParsedFileType } from "../../miltiple/AbstractMultipleApp";
+import { ParsedFileType } from "../../multiple/AbstractMultipleApp";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 

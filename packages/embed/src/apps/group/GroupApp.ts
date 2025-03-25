@@ -5,7 +5,7 @@ import { customElement, property, queryAssignedElements, state } from "lit/decor
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { T } from "../../translations/Languages";
-import { AbstractMultipleApp } from "../miltiple/AbstractMultipleApp";
+import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
 import { booleanConverter } from "../../utils/booleanConverter";
@@ -27,44 +27,44 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
     protected groupRef: Ref<GroupProviderElement> = createRef();
 
     @property({ type: String, reflect: true, attribute: true })
-    palette: AvailableThermalPalettes = "jet";
+    public palette: AvailableThermalPalettes = "jet";
 
     @property({ type: Number, reflect: true })
-    from?: number;
+    public from?: number;
 
     @property({ type: Number, reflect: true })
-    to?: number;
+    public to?: number;
 
 
     // Presentational attributes
     @property({ type: String, reflect: true })
-    author?: string;
+    public author?: string;
 
     @property({ type: String, reflect: true })
-    label: string = "Group of IR images";
+    public label: string = "Group of IR images";
 
     @property({ type: String, reflect: false })
-    description?: string;
+    public description?: string;
 
     @property({ type: String, reflect: true })
-    license?: string;
+    public license?: string;
 
     /** `TimeEntryElements` slotted in slot called `entry`. Flat list. Need to be filtered before usage. */
     @state()
     @queryAssignedElements({ slot: 'entry', flatten: true })
-    entries!: Array<Element>;
+    public entries!: Array<Element>;
 
     /** Internal key from which an isolated hierarchy of @labir/core components will be created. */
     @property({ type: String, reflect: true })
-    slug: string = Math.random().toFixed(5);
+    public slug: string = Math.random().toFixed(5);
 
     /** Number of columns of files. */
     @property()
-    columns: number = 3;
+    public columns: number = 3;
 
     /** The breakpoint in PX below which the images will be 100% wide. The breakpoint is relative to the container, not to the window. */
     @property()
-    breakpoint: number = 700;
+    public breakpoint: number = 700;
 
     /** The current grouping mode. Its change will trigger reorganisation of rows. */
     @property({ type: String, reflect: true })
@@ -123,28 +123,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     @state()
     protected loading?: boolean = false;
-
-
-    @provide({ context: pngExportWidthContext })
-    protected pngExportWidth: number = 1200;
-
-    @provide({ context: pngExportWidthSetterContext })
-    protected pngExportWidthSetterContext = (value: number) => {
-        this.pngExportWidth = value;
-    }
-
-
-    @provide({ context: pngExportFsContext })
-    protected pngExportFs: number = 20;
-
-    @provide({ context: pngExportFsSetterContext })
-    protected pngExportFsSetterContext = (value: number) => {
-        this.pngExportFs = value;
-    }
-
-    @provide({ context: localeContext })
-    @property({ reflect: true, converter: localeConverter })
-    public locale!: Locales;
 
 
     connectedCallback(): void {
@@ -488,10 +466,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                                         `
                                         : nothing
                                     }
-
-                                    
-
-                                    
 
                                 </thermal-bar>
 

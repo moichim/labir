@@ -324,8 +324,6 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
         const data = await query.grid(grouping);
 
-        this.log(data);
-
         this.scrollToComponent();
 
         this.dataMultiple = data;

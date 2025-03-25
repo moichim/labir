@@ -5,8 +5,8 @@ import { BaseElement } from "../../../hierarchy/BaseElement";
 import { createOrGetManager } from "../../../hierarchy/providers/getters";
 import { TimeEntryElement } from "./TimeEntryElement";
 
-import { GroupRenderer } from "../../miltiple/GroupRenderer";
-import { InstanceInteractionCallback, InstanceRenderer } from "../../miltiple/InstanceRenderer";
+import { GroupRenderer } from "../../multiple/GroupRenderer";
+import { InstanceInteractionCallback, InstanceRenderer } from "../../multiple/InstanceRenderer";
 import { GroupEntry, TimeGrouping } from "../utils/TimeGrouping";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
