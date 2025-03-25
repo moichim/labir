@@ -246,6 +246,9 @@ export class GalleryApp extends BaseElement {
         return this.renderBrowser(html`
             <group-provider slug="${this.group.label ?? "group_detail"}" autoclear="true">
 
+                <group-chart slot="pre"></group-chart>
+
+
                 <header>
 
                     <thermal-button variant="foreground" @click="${() => this.actionMainOpen()}">x</thermal-button>
@@ -462,6 +465,7 @@ export class GalleryApp extends BaseElement {
                             <registry-histogram slot="pre" expandable="true"></registry-histogram>
                             <registry-range-slider slot="pre"></registry-range-slider>
                             <registry-ticks-bar slot="pre"></registry-ticks-bar>
+                            
                         `
                 : nothing
             }
