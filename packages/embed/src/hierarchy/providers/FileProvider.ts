@@ -174,10 +174,19 @@ export class FileProviderElement extends AbstractFileProvider {
         result: Instance|ThermalFileFailure
     ) {
 
+        this.log( "recieving", result );
+
         if ( result instanceof Instance ) {
 
-            this.file = result;
+            if ( this.file !== undefined ) {
+                this.file.unmountFromDom();
+                delete this.file;
+            }
 
+            // this.log(this.file, result);
+
+            this.file = result;
+            
             this.onSuccess.call(result);
 
             this.handleLoaded(result);

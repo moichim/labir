@@ -4397,6 +4397,7 @@ var VisibleLayer = class extends AbstractLayer {
 
 // src/file/dom/layers/thermalCanvasLayer.ts
 var ThermalCanvasLayer = class extends AbstractLayer {
+  renderCount = 0;
   get pool() {
     return this.instance.pool;
   }
@@ -4454,6 +4455,8 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     return this.instance.group.registry.palette.currentPalette.pixels;
   }
   async draw() {
+    this.renderCount += 1;
+    console.log("Rendering", this.instance.fileName, this.renderCount);
     const paletteColors = this.getPalette();
     try {
       const analysis = this.instance.analysis.value.map((a) => {
@@ -7447,6 +7450,7 @@ var BatchLoader = class {
   constructor(registry) {
     this.registry = registry;
   }
+  onBatchStart = new CallbacksManager();
   onBatchComplete = new CallbacksManager();
   set = /* @__PURE__ */ new Set();
   get numberOfBatches() {
@@ -7663,6 +7667,15 @@ var HistogramState = class extends AbstractProperty {
   get bufferResolution() {
     return this._bufferResolution;
   }
+  _loading = false;
+  get loading() {
+    return this._loading;
+  }
+  set loading(value) {
+    this._loading = value;
+  }
+  onCalculationStart = new CallbacksManager();
+  onCalculationEnd = new CallbacksManager();
   /** Set the historgam resolution
    * - does not recalculate the value!
    * - to recalculate value, call `recalculateWithCurrentSetting`
@@ -7678,11 +7691,6 @@ var HistogramState = class extends AbstractProperty {
     return value;
   }
   afterSetEffect() {
-  }
-  /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
-  recalculateWithCurrentSetting() {
-    this.recalculateHistogram();
-    return this.value;
   }
   /** 
    * Recalculate the histogram buffer using web workers.
@@ -7727,18 +7735,27 @@ var HistogramState = class extends AbstractProperty {
       ]).then((result) => {
         this.buffer = result.result;
         this.bufferPixelsCount = result.resultCount;
-        this.recalculateWithCurrentSetting();
+        this.recalculateHistogram();
       });
     }
   }
   async recalculateHistogram() {
+    this.onCalculationStart.call();
+    this.loading = true;
     const allFiles = this.parent.groups.value.map((group) => group.files.value).reduce((state, current) => {
       state = state.concat(current);
       return state;
     }, []);
     const allBuffers = allFiles.map((reader) => reader.reader.buffer);
-    const result = await this.parent.pool.exec(LrcParser.registryHistogram, [allBuffers]);
-    this.value = result;
+    try {
+      const result = await this.parent.pool.exec(LrcParser.registryHistogram, [allBuffers]);
+      this.value = result;
+      this.loading = false;
+      this.onCalculationEnd.call(true);
+    } catch (error) {
+      this.loading = false;
+      this.onCalculationEnd.call(false);
+    }
   }
 };
 

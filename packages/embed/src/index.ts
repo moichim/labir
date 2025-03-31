@@ -147,6 +147,8 @@ import "./apps/desktop/DesktopApp";
 import "./apps/desktop/DesktopAppIsolated";
 import "./apps/DropinApp";
 
+import "./apps/file/FileApp";
+
 
 
 import "./apps/registry/parts/TimeGroupRowElement";

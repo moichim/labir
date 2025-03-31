@@ -213,6 +213,7 @@ declare class ThermalFileFailure extends AbstractFileResult {
  */
 declare class BatchLoader {
     readonly registry: ThermalRegistry;
+    readonly onBatchStart: CallbacksManager<() => void>;
     readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
     private set;
     get numberOfBatches(): number;
@@ -1836,6 +1837,11 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
     protected _bufferResolution: number;
     set bufferResolution(value: number);
     get bufferResolution(): number;
+    protected _loading: boolean;
+    get loading(): boolean;
+    protected set loading(value: boolean);
+    readonly onCalculationStart: CallbacksManager<() => void>;
+    readonly onCalculationEnd: CallbacksManager<(success: boolean) => void>;
     /** Set the historgam resolution
      * - does not recalculate the value!
      * - to recalculate value, call `recalculateWithCurrentSetting`
@@ -1847,8 +1853,6 @@ declare class HistogramState extends AbstractProperty<ThermalStatistics[], Therm
     /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
     protected validate(value: ThermalStatistics[]): ThermalStatistics[];
     protected afterSetEffect(): void;
-    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
-    recalculateWithCurrentSetting(): ThermalStatistics[];
     /**
      * Recalculate the histogram buffer using web workers.
      * This is an async operation using `workerpool`
@@ -2061,6 +2065,7 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
+    protected renderCount: number;
     protected get pool(): Pool;
     protected container: HTMLDivElement;
     readonly canvas: HTMLCanvasElement;

@@ -35,6 +35,7 @@ export abstract class AbstractFileButton extends FileConsumer {
             border-width: 1px;
             border-radius: var( --thermal-radius );
             background-color: var(--thermal-slate-light);
+            white-space: nowrap;
             &:hover {
                 cursor: pointer;
                 background: var(--thermal-background);

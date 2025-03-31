@@ -13,9 +13,6 @@ export class HistogramElement extends RegistryConsumer {
     @state()
     protected histogram: ThermalRegistry["histogram"]["value"] = [];
 
-    @property({ type: Boolean, reflect: true })
-    public interactive: boolean = false;
-
     @property( { type: String, reflect: true } )
     public height: string = "calc( var( --thermal-gap ) * 1.5 )";
 
@@ -30,12 +27,40 @@ export class HistogramElement extends RegistryConsumer {
 
     protected tourableElementRef: Ref<HTMLElement> = createRef();
 
+    @state()
+    protected loading: boolean = false;
+
+    @state()
+    protected error: boolean = false;
+
     public getTourableRoot(): HTMLElement | undefined {
         return this.tourableElementRef.value;
     }
 
     protected getClassName(): string {
         return "HistogramElement";
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.loading = this.registry.histogram.loading;
+
+        this.registry.histogram.onCalculationStart.set( this.UUID, () => {
+            this.loading = true;
+            this.error = false;
+        } );
+
+        this.registry.histogram.onCalculationEnd.set( this.UUID, (success) => {
+            this.loading = false;
+            this.error = !success;
+        } );
+
+        this.registry.loading.addListener( this.UUID, value => {
+            if (value === true) {
+                this.loading = true;
+            }
+        })
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
@@ -45,30 +70,83 @@ export class HistogramElement extends RegistryConsumer {
             this.histogram = value;
         } );
 
+        
+
     }
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
+        this.registry.loading.removeListener(this.UUID);
         this.registry.histogram.removeListener( this.UUID );
+        this.registry.histogram.onCalculationStart.delete( this.UUID );
+        this.registry.histogram.onCalculationEnd.delete( this.UUID );
     }
 
     static styles = css`
 
+        @keyframes spinner {
+            0% {left: 0px; width: 0%;}
+            50% {left: 25%; width: 50%;}
+            100% {left: 100%; width: 0%;}
+        }
+
         .container {
             padding: 0 calc( var( --thermal-gap ) * .5 );
+            position: relative;
+
+            .spinner {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                
+
+                span {
+                    width: calc( 100% - var(--thermal-gap) );
+                    height: 6px;
+                    display: block;
+                    position: relative;
+                    overflow: hidden;
+                    border-radius: 3px;
+
+                    &::after {
+                        content: "";
+                        display: block;
+                        background: var(--thermal-slate-dark);
+                        position: absolute;
+                        opacity: .2;
+                        height: 100%;
+                        animation-name: spinner;
+                        animation-duration: 1s;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear
+                    }
+                }
+
+            }
 
             &.loading {
+
+                .spinner {
+                    display: flex;
+                }
+
                 .histogram {
-                    background: var( --thermal-slate );
+                    opacity: .8;
                 }
             }
+
         }
 
         .histogram {
             display: flex;
             width: 100%;
-            background:  var(--thermal-slate-light);
-            // height: calc( var( --thermal-gap ) * 1.5);
+            background:  transparent;
+            transition: opacity .3s ease-in-out;
 
             &.expandable {
                 transition: all .2s ease-in-out;
@@ -100,20 +178,29 @@ export class HistogramElement extends RegistryConsumer {
             transition: height .5s ease-in-out;
         }
 
-        .interactive {
-            cursor: pointer;
-            &:hover {
-                opacity: .8;
-            }
+        .error {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--thermal-slate-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
         }
 
 
     `;
 
-    protected renderHistogram(): unknown {
+    protected render(): unknown {
+
+        const isLoading = this.histogram.length > 0 && this.loading === false;
+
         return html`
 
-            <div class="container ${this.histogram.length > 0 ? "ready" : "loading"} ${this.interactive ? "interactive" : nothing}" ${ref(this.tourableElementRef)}>
+            <div class="container ${isLoading ? "ready" : "loading"}" ${ref(this.tourableElementRef)}>
 
                 <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded: this.height}" part="bg" @click=${() => {
                     if ( this.expandable === true ) {
@@ -133,35 +220,18 @@ export class HistogramElement extends RegistryConsumer {
 
                 </div>
 
+                ${this.error === true
+                    ? html`<div class="error">Unable to calculate the histogram</div>`
+                    : nothing
+                }
+
+                <div class="spinner">
+                    <span></span>
+                </div>
+
             </div>
         
         `;
     }
 
-    protected render(): unknown {
-        if ( this.interactive === false ) {
-            return this.renderHistogram();
-        }
-        return html`
-            <thermal-dialog label="Histogram">
-
-                <div slot="invoker">
-                    ${this.renderHistogram()}
-                </div>
-
-                <div slot="content">
-                    <div style="margin: 0 calc( var( --thermal-gap ) * -0.5 )">
-                        <thermal-ticks placement="bottom"></thermal-ticks>
-                        <thermal-range></thermal-range>
-                    </div>
-                    <thermal-histogram slot="pre" height="400px"></thermal-histogram>
-                    
-                    <div style="margin: 0 calc( var( --thermal-gap ) * -0.5 )">
-                        <thermal-ticks></thermal-ticks>
-                    </div>
-                </div>
-            
-            </thermal-dialog>
-        `
-    }
 }

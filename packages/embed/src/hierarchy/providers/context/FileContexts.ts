@@ -3,9 +3,6 @@ import { createContext } from "@lit/context";
 import { FileMarker } from "../../../controls/file/markers/ImageMarker";
 import { AbstractFileProvider } from "../../abstraction/AbstractFileProvider";
 
-
-
-
 type FileContext = Instance;
 export const fileContext = createContext<FileContext|undefined>( "file" );
 

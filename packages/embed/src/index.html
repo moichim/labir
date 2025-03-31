@@ -12,9 +12,27 @@
 
 <body style="padding: 1rem; background: #ffffff">
 
+  <thermal-file-new url="/sequence.lrc" palette="iron" from="-25" to="30" layout="lesson"
+  showhistogram="true"
+  analysis1="Bod A; ellipsis; color:yellow; top:10;left:20;width:30;height:40;max"
+  analysis7="První jméno obdélníku; rectangle; color:lightblue; top:0;left:0;width:100;height:100;max;avg"
+  >
+
+  <notation-entry label="Popiska entry" say="toto se přečte při aktivaci" slot="notation" from="0:00:00"
+      duration="0:01:500" image="/kitten.jpg"></notation-entry>
+    <notation-entry label="Tady je nějaký popisek hezký" slot="notation" from="0:01:500"
+      duration="0:01:000"></notation-entry>
+    <notation-entry slot="notation" from="0:02:500" duration="0:05:000"></notation-entry>
 
 
+</thermal-file-new>
 
+
+<!--
+
+  <remote-browser-app url="http://termogram.labir.cz/2025-badatel/" subfolder="manetin" palette="iron" author="Jan Jáchim"
+  license="CC BY-SA 4.0" enablegrouping="true">
+</remote-browser-app>
 
 
 
@@ -33,74 +51,27 @@
       <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
       <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
     </thermal-group>
-    <thermal-group label="22. skupina se strašně moc dlouhým nápisem a názvem a tak dále">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
-    </thermal-group>
-    <thermal-group label="3. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
-    </thermal-group>
-    <thermal-group label="4. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
-    </thermal-group>
     <thermal-group label="5. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
+      <thermal-file lrc="/pokus_voda_proudeni_sklenice.lrc"></thermal-file>
       <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
       <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
       <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
       <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
       <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
     </thermal-group>
-    <thermal-group label="6. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
-    </thermal-group>
-    <thermal-group label="7. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
-    </thermal-group>
-    <thermal-group label="8. skupina">
-      <thermal-file lrc="/tucnaci_04.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_01.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_02.lrc"></thermal-file>
-      <thermal-file lrc="/zelvy_03.lrc"></thermal-file>
-      <thermal-file lrc="/nosorozec_02.lrc"></thermal-file>
+    <thermal-group label="22. skupina se" description="Toto je popiska skupiny">
+      <thermal-file lrc="/kudlanka.lrc"></thermal-file>
     </thermal-group>
   </thermal-gallery-app>
 
 
 
 
+  
 
 
 
-
-
-
-  <thermal-file-analyser url="/tucnaci_04.lrc" visible="/kitten.jpg" opacity="0.5" author="Já" license="CC BY-SA 4.0"
+  <thermal-file-analyser url="/sequence.lrc" visible="/kitten.jpg" opacity="0.5" author="Já" license="CC BY-SA 4.0"
     label=" " from="20" to="50" speed="10" palette="iron"
     analysis1="Bod A; ellipsis; color:yellow; top:10;left:20;width:30;height:40;max"
     analysis7="První jméno obdélníku; rectangle; color:lightblue; top:0;left:0;width:100;height:100;max;avg">

@@ -28,6 +28,9 @@ export class FileThumbnail extends FileConsumer {
     @property({type: Object})
     onback?: () => void;
 
+    @property({converter: booleanConverter(false)})
+    public norender: boolean = false;
+
     @property({type: String})
     public label?: string;
 
@@ -90,7 +93,7 @@ export class FileThumbnail extends FileConsumer {
 
             <main>
                 <section>
-                    <file-canvas></file-canvas>
+                    <file-canvas norender="${this.norender}"></file-canvas>
                     <file-timeline></file-timeline>
                 </section>
                 <section>

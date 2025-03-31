@@ -4,6 +4,7 @@ import { ThermalRegistry, ThermalStatistics } from "../../hierarchy/ThermalRegis
 import { Instance } from "../../file/instance";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 import { LrcParser } from "../../loading/workers/parsers/lrc/LrcParser";
+import { CallbacksManager } from "../callbacksManager";
 
 export interface IWithHistogram extends IBaseProperty {
     histogram: HistogramState
@@ -26,6 +27,16 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     public set bufferResolution(value: number) { this._bufferResolution = Math.round(Math.max(value, 1000)) }
     public get bufferResolution() { return this._bufferResolution; }
 
+    protected _loading: boolean = false;
+    public get loading() { return this._loading; }
+    protected set loading(value: boolean) {
+        this._loading = value; 
+    }
+    
+
+    public readonly onCalculationStart = new CallbacksManager<()=>void>();
+    public readonly onCalculationEnd = new CallbacksManager<(success: boolean)=>void>();
+
     /** Set the historgam resolution
      * - does not recalculate the value!
      * - to recalculate value, call `recalculateWithCurrentSetting`
@@ -44,13 +55,6 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
 
     protected afterSetEffect() {
 
-    }
-
-
-    /** Recalculates the value using all current instances and with che current resolution @deprecated should not recalculate the histogram on the fly*/
-    public recalculateWithCurrentSetting() {
-        this.recalculateHistogram();
-        return this.value;
     }
 
 
@@ -125,7 +129,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
             ]).then(result => {
                 this.buffer = result.result;
                 this.bufferPixelsCount = result.resultCount;
-                this.recalculateWithCurrentSetting();
+                this.recalculateHistogram();
             });
 
         } // End async operation
@@ -133,6 +137,10 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
     }
 
     protected async recalculateHistogram() {
+
+        this.onCalculationStart.call();
+
+        this.loading = true;
 
         // All living instances
         const allFiles = this.parent.groups.value.map( group => group.files.value ).reduce( (state, current) => {
@@ -144,10 +152,18 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
         }, [] as Instance[] );
 
         const allBuffers = allFiles.map( reader => reader.reader.buffer );
+        try {
+            const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
+            this.value = result;
+            this.loading = false;
+            this.onCalculationEnd.call(true);
+        } catch (error) {
+            this.loading = false;
+            this.onCalculationEnd.call(false);
+        }
+        
 
-        const result = await this.parent.pool.exec( LrcParser.registryHistogram, [allBuffers] );
-
-        this.value = result;
+        
 
     }
 

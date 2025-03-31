@@ -21,6 +21,8 @@ type AnalysisExtractDefinition = [
 /** Displays the canvas and renders it */
 export class ThermalCanvasLayer extends AbstractLayer {
 
+    protected renderCount: number = 0;
+
     protected get pool() {
         return this.instance.pool;
     }
@@ -97,6 +99,9 @@ export class ThermalCanvasLayer extends AbstractLayer {
     }
 
     public async draw(): Promise<boolean> {
+
+        this.renderCount += 1;
+        console.log("Rendering", this.instance.fileName, this.renderCount);
 
         const paletteColors = this.getPalette();
 
