@@ -1,6 +1,6 @@
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { AvailableThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, Instance, TimeFormat } from "@labir/core";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { provide } from "@lit/context";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
@@ -15,6 +15,7 @@ import { FileCanvas } from "../../controls/file/FileCanvas";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, NotationCurrentContext, notationCurrentContext, notationDurationContext, NotationListContext, notationListContext } from "../../controls/file/notation/NotationContext";
 import { NotationEntry } from "../../controls/file/notation/NotationEntry";
 import { interactiveAnalysisContext } from "../../utils/context";
+import {cache} from 'lit/directives/cache.js';
 
 enum Layout {
     NOGUI = "nogui",
@@ -45,6 +46,8 @@ const layouts: LayoutItem[] = [
     }
 ];
 
+console.log(Layout.SIMPLE);
+
 const layoutConverter = {
     toAttribute(value: Layout) {
         return value;
@@ -64,6 +67,8 @@ const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4"
 export class FileApp extends BaseElement implements IWithNotationContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
+
+
 
     @property({ type: String, reflect: true })
     public layout: Layout = Layout.SIMPLE;
@@ -89,7 +94,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     @property()
     author?: string;
 
-    @property()
+    @state()
     recorded?: string;
 
     @property()
@@ -190,6 +195,8 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     }
 
+    protected _file?: Instance;
+
 
 
     protected get file() {
@@ -199,24 +206,20 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
+
+        // Set the time to the current ms
+        setTimeout(() => {
+            this.updateNotationsMs(this.ms);
+        }, 0)
+
+        // Register notations listeners
         this.observeSlotChanges();
+
+        // Register intl listeners
         initLocalesInTopLevelElement(this);
+
+        // Register listeners to internal properties of the file, group, registry
         this.hydrateInternalListeners();
-
-
-        this.file?.group.files.addListener(this.UUID, this.log);
-
-        if (this.fileProviderRef.value) {
-            this.fileProviderRef.value.onSuccess.add(this.UUID, instance => {
-
-                this.duration = instance.timeline.duration;
-
-                instance.timeline.addListener(this.UUID, ms => {
-                    this.updateNotationsMs(ms);
-                });
-
-            });
-        }
 
     }
 
@@ -228,6 +231,16 @@ export class FileApp extends BaseElement implements IWithNotationContext {
             this.fileProviderRef.value.onSuccess.set(this.UUID, instance => {
 
                 this.loading = false;
+
+                this.recorded = TimeFormat.human( instance.timestamp );
+
+                /**  */
+                this.duration = instance.timeline.duration;
+
+                /** Update notations when tineline changed */
+                instance.timeline.addListener(this.UUID, ms => {
+                    this.updateNotationsMs(ms);
+                });
 
                 /** Range changes */
                 instance.group.registry.range.addListener(this.UUID + "mirror_changes", value => {
@@ -314,8 +327,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     protected updated(_changedProperties: PropertyValues<FileApp>): void {
         super.updated(_changedProperties);
 
-        this.log(this.notationList);
-
         if (this.file !== undefined) {
 
             const group = this.file.group;
@@ -398,6 +409,12 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     protected setLayout(value: Layout) {
         this.layout = value;
+        setTimeout(() => {
+            if (this.fileProviderRef.value && this.file) {
+                this.fileProviderRef.value.redraw();
+                this.updateNotationsMs(0);
+            }
+        }, 0);
     }
 
 
@@ -413,37 +430,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     }
 
 
-
-    protected renderScale() {
-        return html`${this.showhistogram ? html`<registry-histogram expandable="true"></registry-histogram>` : nothing}
-    ${this.showscale ? html`<registry-range-slider></registry-range-slider>` : nothing}
-    ${this.showhistogram || this.showscale ? html`<registry-ticks-bar placement="top"></registry-ticks-bar>` : nothing}`;
-    }
-
-    protected renderOneLayoutItem(icon: string, key: string, hasLabel: boolean = false) {
-        return html`<div class="layout-item">
-        ${unsafeSVG(icon)}
-        ${hasLabel ? html`<span>${key}</span>` : nothing}
-    </div>`;
-    }
-
-    protected renderLayoutSwitch() {
-
-        const currentLayout = layouts.find(layout => layout.key === this.layout);
-
-        if (!currentLayout) {
-            return nothing;
-        }
-
-        const otherLayouts = layouts.filter(layout => layout.key !== this.layout);
-
-        return html`<thermal-dropdown slot="close">
-        <div slot="invoker">${this.renderOneLayoutItem(currentLayout.icon, currentLayout.key, false)}</div>
-        ${otherLayouts.map(l => html`<div slot="option" @click=${() => this.setLayout(l.key as Layout)}>${this.renderOneLayoutItem(l.icon, l.key, true)}</div>`)}
-    </thermal-dropdown>`;
-
-    }
-
+    /** Render the */
     protected renderApp() {
 
         return html`
@@ -453,8 +440,12 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                 author="${ifDefined(this.author)}"
                 license="${ifDefined(this.license)}"
                 showfullscreen="${this.showfullscreen}"
+                recorded="${ifDefined(this.recorded)}"
             >
-                <registry-palette-dropdown slot="bar"></registry-palette-dropdown>
+
+                ${this.renderLayoutSwitch()}
+
+                ${cache(html`<registry-palette-dropdown slot="bar"></registry-palette-dropdown>
 
                 <div slot="bar" style="flex-grow: 4;">
                     <thermal-bar>
@@ -463,7 +454,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                         <file-info-button></file-info-button>
                         <file-download-dropdown></file-download-dropdown>
                     </thermal-bar>
-                </div>
+                </div>`)}
 
 
                 
@@ -473,7 +464,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                         <group-tool-bar></group-tool-bar>
                     </aside>
                     <main class="thermogram">
-                        ${this.layout === Layout.ADVANCED ? this.renderScale() : nothing}
+                        ${this.layout === Layout.ADVANCED || this.layout === Layout.LESSON ? this.renderScale() : nothing}
                         <file-canvas></file-canvas>
                         <file-timeline></file-timeline>
                     </main>
@@ -493,14 +484,83 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     }
 
 
+
+    protected renderScale() {
+        return html`${this.showhistogram ? html`<registry-histogram expandable="true"></registry-histogram>` : nothing}
+    ${this.showscale ? html`<registry-range-slider></registry-range-slider>` : nothing}
+    ${this.showhistogram || this.showscale ? html`<registry-ticks-bar placement="top"></registry-ticks-bar>` : nothing}`;
+    }
+
+    protected renderOneLayoutItem(icon: string, key: string, hasLabel: boolean = false) {
+        return html`<div class="layout-item">
+        ${unsafeSVG(icon)}
+        ${hasLabel ? html`<span>${t(T[`layout_${key}` as T])}</span>` : nothing}
+    </div>`;
+    }
+
+    protected renderLayoutSwitch() {
+
+        const currentLayout = layouts.find(layout => layout.key === this.layout);
+
+        if (!currentLayout) {
+            return nothing;
+        }
+
+        const otherLayouts = layouts.map(layout => {
+            return {
+                ...layout,
+                action: layout.key !== this.layout
+                    ? () => this.setLayout(layout.key as Layout)
+                    : undefined
+            }
+        });
+
+        return html`<thermal-dropdown slot="close">
+        <div slot="invoker">
+            ${this.renderOneLayoutItem(currentLayout.icon, currentLayout.key, false)}
+        </div>
+        
+        ${otherLayouts.map(l => html`<div 
+            slot="option" 
+            class="layout-option ${l.action ? "current":"available"}"
+            @click=${l.action}
+        >${this.renderOneLayoutItem(l.icon, l.key, true)}</div>`)}
+
+    </thermal-dropdown>`;
+
+    }
+
+    
+
+
     static styles?: CSSResultGroup | undefined = css`
+
+    .layout-option {
+
+        &.current {
+
+            .layout-item {
+                cursor: pointer;
+                color: var(--thermal-foreground);
+                &:hover {
+                    color: var(--thermal-primary);
+                }
+            }
+        
+        }
+        &.available {
+            .layout-item {
+                opacity: .5;
+            }
+        }
+    }
 
     .layout-item {
         display: flex;
         flex-wrap: nowrap;
         align-items: center;
         gap: 5px;
-        cursor: pointer;
+        
         svg {
             width: 1em;
         }
@@ -508,10 +568,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
             font-size: 12px;
         }
 
-        color: var(--thermal-foreground);
-        &:hover {
-            color: var(--thermal-primary);
-        }
+        
     }
 
     .layout {
@@ -550,20 +607,19 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
 
         &.layout__lesson {
-            grid-template-columns: 2em 1fr calc(50% - var(--thermal-gap) );
+            grid-template-columns: 2em 1fr calc(40% - var(--thermal-gap) );
 
             grid-template-areas: 
                 "toolbar thermogram notations" 
                 "toolbar analysis graph";
-        }
 
-        /**
-        .toolbar {background: green;}
-        .thermogram {background: blue;}
-        .notations {background: red;}
-        .analysis {background: yellow;}
-        .graph {background: orange;}
-        */
+            .thermogram {
+                padding: var(--thermal-gap);
+                border: 1px solid var(--thermal-slate);
+                border-radius: var(--thermal-radius);
+                background: var(--thermal-background);
+            }
+        }
 
     }
 
@@ -575,8 +631,9 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
         return html`
         
-        <slot name="notation"></slot>
-        <manager-provider 
+    <slot name="notation"></slot>
+
+    <manager-provider 
         slug="${this.UUID}"
         palette="${this.palette}"
     >
@@ -587,29 +644,23 @@ export class FileApp extends BaseElement implements IWithNotationContext {
         >
             <group-provider slug="${this.UUID}">
 
-            <file-provider 
-                batch="true"
-                ${ref(this.fileProviderRef)} 
-                thermal="${this.url}"
-                analysis1="${ifDefined(this.analysis1)}"
-                analysis2="${ifDefined(this.analysis2)}"
-                analysis3="${ifDefined(this.analysis3)}"
-                analysis4="${ifDefined(this.analysis4)}"
-                analysis5="${ifDefined(this.analysis5)}"
-                analysis6="${ifDefined(this.analysis6)}"
-                analysis7="${ifDefined(this.analysis7)}"
-                autoclear="true"
-            >
+                <file-provider 
+                    ${ref(this.fileProviderRef)} 
+                    thermal="${this.url}"
+                    batch="true"
+                    analysis1="${ifDefined(this.analysis1)}"
+                    analysis2="${ifDefined(this.analysis2)}"
+                    analysis3="${ifDefined(this.analysis3)}"
+                    analysis4="${ifDefined(this.analysis4)}"
+                    analysis5="${ifDefined(this.analysis5)}"
+                    analysis6="${ifDefined(this.analysis6)}"
+                    analysis7="${ifDefined(this.analysis7)}"
+                    autoclear="true"
+                >
 
-                    ${this.layout === Layout.NOGUI ? this.renderNogui() : nothing}
+                    ${this.layout === Layout.NOGUI ? this.renderNogui() : this.renderApp() }
 
-                    ${this.layout === Layout.SIMPLE ? this.renderApp() : nothing}
-
-                    ${this.layout === Layout.ADVANCED ? this.renderApp() : nothing}
-
-                    ${this.layout === Layout.LESSON ? this.renderApp() : nothing}
-
-            </file-provider>
+                </file-provider>
 
             </group-provider>
         </registry-provider>

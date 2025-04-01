@@ -18,6 +18,11 @@ export enum T {
 
     file = "file",
 
+    layout_simple = "layout_simple",
+    layout_advanced = "layout_advanced",
+    layout_nogui = "layout_nogui",
+    layout_lesson = "layout_lesson",
+
     /** Next */
     next = "next",
     /** Previous */

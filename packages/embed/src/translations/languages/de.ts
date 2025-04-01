@@ -5,6 +5,11 @@ export const de: Translation = {
     loading: "Loading",
     config: "Paramètres",
 
+    layout_simple: "Einfaches Layout",
+    layout_advanced: "Analyse-Layout",
+    layout_nogui: "Kein GUI",
+    layout_lesson: "Lektions-Layout",
+
     temperature: "Temperatur",
 
     upload: "Hochladen",

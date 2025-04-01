@@ -2,6 +2,11 @@ import { Translation } from "../Languages";
 
 export const en: Translation = {
 
+    layout_simple: "Simple layout",
+    layout_advanced: "Evaluation layout",
+    layout_nogui: "No GUI",
+    layout_lesson: "Lesson layout",
+
     loading: "Loading",
     config: "Settings",
 

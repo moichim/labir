@@ -44,8 +44,12 @@ import { RectangleAnalysis } from "./properties/analysis/analysis/internals/area
 import { PaletteId } from "./properties/scale/PaletteDrive";
 import { AbstractAddTool } from "./properties/analysis/analysis/internals/AbstractAddTool";
 
+import { Batch } from "./loading/batch/Batch";
+
 
 export {
+
+    Batch,
 
     // Analysis
     AbstractAnalysis, AbstractFileResult,AbstractAddTool,

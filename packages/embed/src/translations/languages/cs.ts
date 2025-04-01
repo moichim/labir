@@ -5,6 +5,11 @@ export const cs: Translation = {
     loading: "Načítám",
     config: "Nastavení",
 
+    layout_simple: "Jednoduché rozvržení",
+    layout_advanced: "Analytické rozvržení",
+    layout_nogui: "Bez GUI",
+    layout_lesson: "Rozvržení lekce",
+
     temperature: "Teplota",
 
     upload: "Nahrát",

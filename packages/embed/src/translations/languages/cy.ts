@@ -21,6 +21,11 @@ export const cy: Translation = {
 
     showeverything: "Dangos popeth",
 
+    layout_simple: "Cynllun syml",
+    layout_advanced: "Cynllun dadansoddi",
+    layout_nogui: "Dim GUI",
+    layout_lesson: "Cynllun gwers",
+
 
     next: "Nesaf",
     prev: "Blaenorol",

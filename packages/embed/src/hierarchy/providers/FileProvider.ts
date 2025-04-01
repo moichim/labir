@@ -1,9 +1,10 @@
-import { Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Batch, Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from "@labir/core";
 import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
@@ -11,6 +12,9 @@ export class FileProviderElement extends AbstractFileProvider {
     public getTourableRoot(): HTMLElement | undefined {
         return undefined;
     }
+
+    @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
+    keepinitialhistogram: boolean = false;
 
     @property({ type: Number, reflect: true, attribute: true })
     @provide({ context: fileMsContext })
@@ -170,11 +174,21 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+
+    public async redraw() {
+        this.loading = true;
+        this.onLoadingStart.call();
+        if (this.file ) {
+            this.removeInstance( this.file );
+        }
+
+        await this.load();
+
+    }
+
     public async asyncLoadCallback(
         result: Instance|ThermalFileFailure
     ) {
-
-        this.log( "recieving", result );
 
         if ( result instanceof Instance ) {
 
@@ -182,8 +196,6 @@ export class FileProviderElement extends AbstractFileProvider {
                 this.file.unmountFromDom();
                 delete this.file;
             }
-
-            // this.log(this.file, result);
 
             this.file = result;
             

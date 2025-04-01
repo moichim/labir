@@ -21,6 +21,11 @@ export const fr: Translation = {
 
     analysissync: "Synchroniser les analyses",
 
+    layout_simple: "Disposition simple",
+    layout_advanced: "Disposition d'analyse",
+    layout_nogui: "Pas d'interface graphique",
+    layout_lesson: "Disposition de leçon",
+
 
     next: "Avancer",
     prev: "Rétourner",

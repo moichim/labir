@@ -8381,6 +8381,7 @@ export {
   AddEllipsisTool,
   AddRectangleTool,
   AnalysisGraph,
+  Batch,
   CallbacksManager,
   CornerPoint,
   DropinElementListener,
