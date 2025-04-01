@@ -1,21 +1,24 @@
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { AvailableThermalPalettes, Instance, TimeFormat } from "@labir/core";
-import { booleanConverter } from "../../utils/booleanConverter";
 import { provide } from "@lit/context";
-import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { t } from "i18next";
-import { T } from "../../translations/Languages";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { FileCanvas } from "../../controls/file/FileCanvas";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, NotationCurrentContext, notationCurrentContext, notationDurationContext, NotationListContext, notationListContext } from "../../controls/file/notation/NotationContext";
 import { NotationEntry } from "../../controls/file/notation/NotationEntry";
+import { BaseElement } from "../../hierarchy/BaseElement";
+import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
+import { T } from "../../translations/Languages";
+import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import {cache} from 'lit/directives/cache.js';
+
+import { version } from "../../../package.json";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
 
 enum Layout {
     NOGUI = "nogui",
@@ -112,6 +115,12 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     @property({ type: Boolean, reflect: true, converter: booleanConverter(true) })
     showhistogram: boolean = true;
 
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
+    showlayout: boolean = false;
+
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
+    showshare: boolean = false;
+
     @property({ type: String, reflect: true })
     analysis1?: string;
 
@@ -145,6 +154,9 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     @state()
     protected loading: boolean = true;
 
+    @state()
+    protected hasVisible: boolean = false;
+
 
 
     @state()
@@ -168,6 +180,29 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     @state()
     @provide({ context: notationCurrentContext })
     notationCurrent: NotationCurrentContext;
+
+
+
+
+
+    @provide({ context: pngExportWidthContext })
+    protected pngExportWidth: number = 1200;
+
+    @provide({ context: pngExportWidthSetterContext })
+    protected pngExportWidthSetterContext = (value: number) => {
+        this.pngExportWidth = value;
+    }
+
+
+    @provide({ context: pngExportFsContext })
+    protected pngExportFs: number = 20;
+
+    @provide({ context: pngExportFsSetterContext })
+    protected pngExportFsSetterContext = (value: number) => {
+        this.pngExportFs = value;
+    }
+
+
 
     private observer: MutationObserver | null = null;
 
@@ -196,6 +231,9 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     }
 
     protected _file?: Instance;
+
+    @state()
+    protected outerHTMLSnapshot?: string;
 
 
 
@@ -232,7 +270,9 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
                 this.loading = false;
 
-                this.recorded = TimeFormat.human( instance.timestamp );
+                this.recorded = TimeFormat.human(instance.timestamp);
+
+                this.hasVisible = instance.visibleUrl !== undefined;
 
                 /**  */
                 this.duration = instance.timeline.duration;
@@ -250,7 +290,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                         this.to = undefined;
                     } else {
                         if (this.from !== value.from) this.from = value.from;
-                        if (this.to !== value.to) this.to !== value.to;
+                        if (this.to !== value.to) this.to = value.to;
                     }
 
                 });
@@ -393,6 +433,8 @@ export class FileApp extends BaseElement implements IWithNotationContext {
             });
 
         }
+
+        this.outerHTMLSnapshot = this.outerHTML;
     }
 
 
@@ -443,7 +485,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                 recorded="${ifDefined(this.recorded)}"
             >
 
-                ${this.renderLayoutSwitch()}
+                ${this.showlayout ? this.renderLayoutSwitch() : nothing}
 
                 ${cache(html`<registry-palette-dropdown slot="bar"></registry-palette-dropdown>
 
@@ -453,10 +495,41 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                         <registry-range-auto-button></registry-range-auto-button>
                         <file-info-button></file-info-button>
                         <file-download-dropdown></file-download-dropdown>
+                        ${this.hasVisible ? html`<registry-opacity-slider></registry-opacity-slider>` : nothing}
                     </thermal-bar>
                 </div>`)}
 
+                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="close" class="share">
+                    <thermal-button slot="invoker">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M12 6a2 2 0 1 0-1.994-1.842L5.323 6.5a2 2 0 1 0 0 3l4.683 2.342a2 2 0 1 0 .67-1.342L5.995 8.158a2.03 2.03 0 0 0 0-.316L10.677 5.5c.353.311.816.5 1.323.5Z" />
+                        </svg>
+                    </thermal-button>
+                    <div slot="content">
+                        <p>${t(T.embedhint)}</p>
+                        <h2>1. ${t(T.embedlibrary)} <thermal-button @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-button></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>2. ${t(T.embedcomponent)} <thermal-button @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-button></h2>
+                        <pre>${this.outerHTMLSnapshot}</pre>
+                    </div>
+                </thermal-dialog>` : nothing}
 
+                ${ cache( html`<thermal-dialog label="${t(T.config)}" slot="close">
+                    <thermal-button slot="invoker">
+                        <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
+                            <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
+                        </svg>
+
+                    </thermal-button>
+                    <div slot="content">
+                        <table>
+                        <png-export-panel></png-export-panel>
+                        <registry-display-panel></registry-display-panel>
+                        </table>
+                    </div>
+                </thermal-dialog> ` )}
                 
     
                 <div class="layout layout__${this.layout}">
@@ -465,7 +538,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                     </aside>
                     <main class="thermogram">
                         ${this.layout === Layout.ADVANCED || this.layout === Layout.LESSON ? this.renderScale() : nothing}
-                        <file-canvas></file-canvas>
+                        ${cache( html`<file-canvas></file-canvas>` )}
                         <file-timeline></file-timeline>
                     </main>
                     <notation-content class="notations"></notation-content>
@@ -486,7 +559,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
 
     protected renderScale() {
-        return html`${this.showhistogram ? html`<registry-histogram expandable="true"></registry-histogram>` : nothing}
+        return html`${this.showhistogram ? cache( html`<registry-histogram expandable="true"></registry-histogram>` ) : nothing}
     ${this.showscale ? html`<registry-range-slider></registry-range-slider>` : nothing}
     ${this.showhistogram || this.showscale ? html`<registry-ticks-bar placement="top"></registry-ticks-bar>` : nothing}`;
     }
@@ -522,7 +595,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
         
         ${otherLayouts.map(l => html`<div 
             slot="option" 
-            class="layout-option ${l.action ? "current":"available"}"
+            class="layout-option ${l.action ? "current" : "available"}"
             @click=${l.action}
         >${this.renderOneLayoutItem(l.icon, l.key, true)}</div>`)}
 
@@ -530,7 +603,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     }
 
-    
+
 
 
     static styles?: CSSResultGroup | undefined = css`
@@ -623,6 +696,22 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     }
 
+    .share {
+        svg {
+            width: 1em;
+            translateY: 3px;
+        }
+
+        pre {
+            padding: var(--thermal-gap);
+            border-radius: var(--thermal-radius);
+            background: var(--thermal-background);
+            color: var(--thermal-foreground);
+            border: 1px solid var(--thermal-slate);
+            white-space: pre-wrap;
+        }
+    }
+
 `;
 
 
@@ -647,6 +736,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                 <file-provider 
                     ${ref(this.fileProviderRef)} 
                     thermal="${this.url}"
+                    visible="${ifDefined(this.visible)}"
                     batch="true"
                     analysis1="${ifDefined(this.analysis1)}"
                     analysis2="${ifDefined(this.analysis2)}"
@@ -658,7 +748,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                     autoclear="true"
                 >
 
-                    ${this.layout === Layout.NOGUI ? this.renderNogui() : this.renderApp() }
+                    ${this.layout === Layout.NOGUI ? this.renderNogui() : this.renderApp()}
 
                 </file-provider>
 

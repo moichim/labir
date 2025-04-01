@@ -14,6 +14,14 @@ export const cy: Translation = {
     clear: "Clirio",
     dragorselectfile: "Llusgwch ffeil LRC neu dewiswch hi o'r ddisg",
 
+    share: "Rhannu",
+    fileloadingerror: "Gwall wrth lwytho'r ffeil",
+    embedhint: "I fewnosod y bloc hwn mewn gwefan arall, defnyddiwch y cod canlynol:",
+    embedlibrary: "Mewnosodwch y llyfrgell – unwaith yn pennyn HTML",
+    embedcomponent: "Defnyddiwch y cod canlynol yn unrhyw le yn y corff HTML",
+    copy: "Copïo",
+
+
     analysissync: "Cydamseru dadansoddiadau",
 
     file: "ffeil",

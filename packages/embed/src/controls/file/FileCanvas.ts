@@ -6,6 +6,8 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
@@ -118,6 +120,7 @@ export class FileCanvas extends FileConsumer {
             align-items: center;
             justify-content: center;
             padding: var( --thermal-gap );
+            box-sizing: border-box;
         }
 
         .error-wrapper {
@@ -207,7 +210,7 @@ export class FileCanvas extends FileConsumer {
                             </div>
 
                             <div class="error-title">
-                                File loading error
+                                ${t(T.fileloadingerror)}
                             </div>
 
                             <div class="error-url">

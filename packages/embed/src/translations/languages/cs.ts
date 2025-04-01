@@ -10,6 +10,13 @@ export const cs: Translation = {
     layout_nogui: "Bez GUI",
     layout_lesson: "Rozvržení lekce",
 
+    share: "Sdílet",
+    fileloadingerror: "Chyba při načítání souboru",
+    embedhint: "Chcete-li vložit tento blok na jinou webovou stránku, použijte následující kód:",
+    embedlibrary: "Vložte knihovnu – jednou v HTML hlavičce",
+    embedcomponent: "Použijte následující kód kdekoli v HTML těle",
+    copy: "Kopírovat",
+
     temperature: "Teplota",
 
     upload: "Nahrát",

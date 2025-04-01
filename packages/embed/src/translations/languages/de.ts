@@ -10,6 +10,14 @@ export const de: Translation = {
     layout_nogui: "Kein GUI",
     layout_lesson: "Lektions-Layout",
 
+    share: "Teilen",
+    fileloadingerror: "Fehler beim Laden der Datei",
+    embedhint: "Um diesen Block in eine andere Website einzubetten, verwenden Sie den folgenden Code:",
+    embedlibrary: "Bibliothek einfügen – einmal im HTML-Head",
+    embedcomponent: "Verwenden Sie den folgenden Code überall im HTML-Body",
+    copy: "Kopieren",
+
+
     temperature: "Temperatur",
 
     upload: "Hochladen",

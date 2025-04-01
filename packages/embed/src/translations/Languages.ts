@@ -16,6 +16,13 @@ export enum T {
     clear = "clear",
     dragorselectfile = "dragorselectfile",
 
+    share = "share",
+    fileloadingerror = "fileloadingerror",
+    embedhint = "embedhint",
+    embedlibrary = "embedlibrary",
+    embedcomponent = "embedcomponent",
+    copy = "copy",
+
     file = "file",
 
     layout_simple = "layout_simple",
