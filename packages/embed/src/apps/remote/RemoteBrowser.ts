@@ -1,22 +1,21 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase, QueryBuilder } from "@labir/api";
-import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
+import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderInfoBase, QueryBuilder } from "@labir/api";
+import { AvailableThermalPalettes } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
 import { cs, cy, de, enGB, fr } from "date-fns/locale";
 import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { booleanConverter } from "../../utils/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
 
 enum STATE {
     MAIN,

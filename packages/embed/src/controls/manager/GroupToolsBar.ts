@@ -1,19 +1,14 @@
 import { ThermalManager, ThermalTool } from "@labir/core";
 import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-
-
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-
-
-import { t } from "i18next";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
-import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 
 
 
@@ -162,7 +157,7 @@ export class GroupToolButtons extends ManagerConsumer {
                             >
                                 ${unsafeSVG(tool.icon)}
                             </button>
-                            <div class="tooltip">${t(T[ tool.name as keyof typeof T ])}</div>
+                            <div class="tooltip">${t(T[tool.name as keyof typeof T])}</div>
                         </div>
                         
 

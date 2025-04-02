@@ -1,13 +1,12 @@
 import { Instance } from "@labir/core";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { booleanConverter } from "../../utils/booleanConverter";
-import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/booleanConverter";
 
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {

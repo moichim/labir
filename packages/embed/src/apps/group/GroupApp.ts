@@ -3,17 +3,15 @@ import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { T } from "../../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale } from "../../translations/localeContext";
+import { booleanConverter } from "../../utils/booleanConverter";
 import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
 import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
 import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
-import { booleanConverter } from "../../utils/booleanConverter";
-import { provide } from "@lit/context";
-import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 
 
 enum STATE {

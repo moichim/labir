@@ -1,5 +1,5 @@
-import { PropertyValues, html } from "lit";
-import { property, state, queryAssignedElements, customElement } from "lit/decorators.js";
+import { html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 
 @customElement("thermal-group")
