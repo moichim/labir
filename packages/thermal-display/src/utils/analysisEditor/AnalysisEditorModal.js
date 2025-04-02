@@ -57,6 +57,8 @@ export const AnalysisEditorModal = ({
 
     }, [thermal]);
 
+    const hasAnalysis = analysis1 || analysis2 || analysis3 || analysis4 || analysis5 || analysis6 || analysis7;
+
     // Return nothing when closed
     if (!open) return <></>
 
@@ -73,9 +75,10 @@ export const AnalysisEditorModal = ({
             <registry-provider
                 from={from}
                 to={to}
+                autoclear={true}
             >
 
-                <group-provider>
+                <group-provider autoclear={true}>
 
                     <file-provider
                         thermal={thermal}
@@ -87,6 +90,8 @@ export const AnalysisEditorModal = ({
                         analysis5={analysis5}
                         analysis6={analysis6}
                         analysis7={analysis7}
+                        autoclear={true}
+                        batch={true}
                     >
 
                         <div className="modal-editor__container">
@@ -102,10 +107,10 @@ export const AnalysisEditorModal = ({
 
                                 <p>Use the tools to draw analyses on the image!</p>
 
-                                <group-tool-buttons style={{paddingBottom: "1rem"}}></group-tool-buttons>
+                                <group-tool-buttons style={{ paddingBottom: "1rem" }}></group-tool-buttons>
 
-                                <div style={{  }}>
-                                    <file-analysis-table></file-analysis-table>
+                                <div style={{}}>
+                                    <file-analysis-table forceinteractiveanalysis={true}></file-analysis-table>
                                 </div>
                                 <div style={{ height: 300 }}>
                                     <file-analysis-graph style={{ height: "300px" }}></file-analysis-graph>
@@ -114,10 +119,22 @@ export const AnalysisEditorModal = ({
 
                         </div>
 
-                        <div style={{ width: "100%", paddingTop: "1rem" }}>
+                        <div className="modal-editor__footer">
 
-                            <Button size="compact" variant="primary" style={{  }} onClick={() => setOpen(false)}>
-                                Close
+                            {hasAnalysis && <Button size="compact" variant="secondary" onClick={() => {
+                                setAttributes({
+                                    analysis1: undefined,
+                                    analysis2: undefined,
+                                    analysis3: undefined,
+                                    analysis4: undefined,
+                                    analysis5: undefined,
+                                    analysis6: undefined,
+                                    analysis7: undefined
+                                });
+                            }}>Remove all analyses</Button>}
+
+                            <Button size="compact" variant="primary" style={{}} onClick={() => setOpen(false)}>
+                                Save & Close
                             </Button>
 
                         </div>

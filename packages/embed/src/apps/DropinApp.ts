@@ -344,7 +344,10 @@ export class DropinAppElement extends BaseElement implements IWithlocale {
 
 
     protected render(): unknown {
-        return html`
+
+        try {
+
+            return html`
 
             <manager-provider slug="${this.UUID}" palette="iron">
 
@@ -397,6 +400,13 @@ export class DropinAppElement extends BaseElement implements IWithlocale {
             </manager-provider>
 
         `;
+
+        } catch (err) {
+
+            return html`Stala se chyba`;
+
+        }
+
     }
 
 }

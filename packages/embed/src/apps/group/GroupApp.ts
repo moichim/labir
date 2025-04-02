@@ -49,7 +49,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     /** `TimeEntryElements` slotted in slot called `entry`. Flat list. Need to be filtered before usage. */
     @state()
-    @queryAssignedElements({ slot: 'entry', flatten: true })
+    @queryAssignedElements({ flatten: true })
     public entries!: Array<Element>;
 
     /** Internal key from which an isolated hierarchy of @labir/core components will be created. */
@@ -152,8 +152,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             this.parseFilesProperty(this.files)
             : [];
 
-        // await new Promise(resolve => setTimeout(resolve, 5000))
-
         // Fire the initial grouping
         if (files.length > 0) {
             this.grouper.processParsedFiles(files);
@@ -178,7 +176,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
         this.group.registry.manager.palette.setPalette(this.palette);
 
-
         if (this.from !== undefined && this.to !== undefined) {
             this.group.registry.range.imposeRange({
                 from: this.from,
@@ -186,7 +183,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             });
         }
 
-        this.load();
+        setTimeout( () => this.load(), 0 );
 
     }
 
@@ -207,6 +204,8 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
 
         if (_changedProperties.has("files")) {
+
+            this.log( this.files );
 
             if (this.files && _changedProperties.get("files") !== undefined) {
                 const parsedFiles = this.parseFilesProperty(this.files);
@@ -269,6 +268,11 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
     static styles?: CSSResultGroup | undefined = css`
 
+
+        :host {
+            --gap: calc(var(--thermal-gap) * .5);
+        }
+
         .app-content {
             box-sizing: border-box;
             display: grid;
@@ -299,9 +303,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             padding: calc( var( --thermal-gap ) * .5 );
         }
 
-        :host {
-            --gap: calc(var(--thermal-gap) * .5);
-        }
+        
 
         .group-files {
             display: flex;

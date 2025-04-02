@@ -122,7 +122,7 @@ export class HistogramElement extends RegistryConsumer {
 
             }
 
-            &.loading {
+            &.loading:not(.has-error) {
 
                 .spinner {
                     display: flex;
@@ -178,6 +178,7 @@ export class HistogramElement extends RegistryConsumer {
             width: 100%;
             height: 100%;
             background: var(--thermal-slate-light);
+            color: var(--thermal-slate);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -193,7 +194,7 @@ export class HistogramElement extends RegistryConsumer {
 
         return html`
 
-            <div class="container ${isLoading ? "ready" : "loading"}">
+            <div class="container ${isLoading ? "ready" : "loading"} ${this.error ? "has-error" : "is-ok"}">
 
                 <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded: this.height}" part="bg" @click=${() => {
                     if ( this.expandable === true ) {

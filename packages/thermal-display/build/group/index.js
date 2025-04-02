@@ -875,6 +875,7 @@ const AnalysisEditorModal = ({
       node.onInstanceCreated.set(getId("instance_created__2"), closure);
     }
   }, [thermal]);
+  const hasAnalysis = analysis1 || analysis2 || analysis3 || analysis4 || analysis5 || analysis6 || analysis7;
 
   // Return nothing when closed
   if (!open) return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.Fragment, {});
@@ -888,7 +889,9 @@ const AnalysisEditorModal = ({
       children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("registry-provider", {
         from: from,
         to: to,
+        autoclear: true,
         children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("group-provider", {
+          autoclear: true,
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("file-provider", {
             thermal: thermal,
             ref: fileProviderRef,
@@ -899,6 +902,8 @@ const AnalysisEditorModal = ({
             analysis5: analysis5,
             analysis6: analysis6,
             analysis7: analysis7,
+            autoclear: true,
+            batch: true,
             children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
               className: "modal-editor__container",
               children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
@@ -916,7 +921,9 @@ const AnalysisEditorModal = ({
                   }
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
                   style: {},
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("file-analysis-table", {})
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("file-analysis-table", {
+                    forceinteractiveanalysis: true
+                  })
                 }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
                   style: {
                     height: 300
@@ -928,18 +935,30 @@ const AnalysisEditorModal = ({
                   })
                 })]
               })]
-            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("div", {
-              style: {
-                width: "100%",
-                paddingTop: "1rem"
-              },
-              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+            }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
+              className: "modal-editor__footer",
+              children: [hasAnalysis && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
+                size: "compact",
+                variant: "secondary",
+                onClick: () => {
+                  setAttributes({
+                    analysis1: undefined,
+                    analysis2: undefined,
+                    analysis3: undefined,
+                    analysis4: undefined,
+                    analysis5: undefined,
+                    analysis6: undefined,
+                    analysis7: undefined
+                  });
+                },
+                children: "Remove all analyses"
+              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.Button, {
                 size: "compact",
                 variant: "primary",
                 style: {},
                 onClick: () => setOpen(false),
-                children: "Close"
-              })
+                children: "Save & Close"
+              })]
             })]
           })
         })

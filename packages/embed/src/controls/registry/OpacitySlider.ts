@@ -52,6 +52,7 @@ export class OpacityRangeElement extends RegistryConsumer {
             display: block;
             width: 100%;
             max-width: 100px;
+            min-width: 75px;
             cursor: pointer;
             accent-color: var(--thermal-slate);
             
@@ -65,6 +66,7 @@ export class OpacityRangeElement extends RegistryConsumer {
             color: var( --thermal-slate-dark );
             font-size: calc( var( --thermal-fs-sm ) * .7 );
             max-width: 100px;
+            min-width: 75px;
         }
     
     `;

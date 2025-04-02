@@ -23,6 +23,7 @@ import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 
 import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
+import { useNotations } from '../utils/notationEditor/useNotations';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -40,7 +41,7 @@ export default function Edit({ attributes, setAttributes }) {
 	useRegisterIframeScript();
 
 	const {
-		webcomponent,
+		variant,
 		palette,
 		thermal,
 		opacity,
@@ -61,12 +62,21 @@ export default function Edit({ attributes, setAttributes }) {
 		speed,
 		showabout,
 		showhistogram,
-		interactiveanalysis
+		showshare,
+		showlayout,
+		interactiveanalysis,
+		notations
 	} = attributes;
+
+	
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
 
 	const [previewFile, setPreviewFile] = useState();
+
+	const [duration, setDuration] = useState(0);
+
+	const n = useNotations(notations, duration);
 
 	const { open, setOpen } = useAnalysisEditor();
 
@@ -104,6 +114,8 @@ export default function Edit({ attributes, setAttributes }) {
 				if (instance.moutedBaseLayers) {
 					instance.unmountFromDom();
 				}
+
+				setDuration( instance.timeline.duration );
 
 				instance.draw();
 
@@ -144,19 +156,20 @@ export default function Edit({ attributes, setAttributes }) {
 
 	return (
 		<>
+
+			{open === true && <AnalysisEditorModal
+				thermal={thermal}
+				open={open}
+				setOpen={setOpen}
+				attributes={attributes}
+				setAttributes={setAttributes}
+			/>}
+
 			<MediaUploadCheck>
 
 				<InspectorControls >
 
 					<PanelBody title="Thermal file">
-
-						<AnalysisEditorModal
-							thermal={thermal}
-							open={open}
-							setOpen={setOpen}
-							attributes={attributes}
-							setAttributes={setAttributes}
-						/>
 
 
 						{thermal &&
@@ -175,9 +188,7 @@ export default function Edit({ attributes, setAttributes }) {
 											thermal={thermal}
 											ref={filePreviewCallback}
 										>
-
 											<file-canvas></file-canvas>
-
 										</file-provider>
 									</group-provider>
 								</registry-provider>
@@ -192,26 +203,22 @@ export default function Edit({ attributes, setAttributes }) {
 									successfullyUploadedThermalFile(result.url);
 								}}
 								onClose={calcelUploadingThermalFile}
-								render={({ open }) => (
-									<>
-										<Button
-											onClick={() => {
-												startUploadingThermalFile();
-												open();
-											}}
-											variant="primary"
-											size="compact"
-										>
-											{thermal ? "Change file" : "Upload or select a LRC file"}
-										</Button>
-
-										{thermal && <AnalysisEditorTrigger
-											setOpen={setOpen}
-										/>}
-
-									</>
-								)}
+								render={({ open }) => <Button
+									onClick={() => {
+										startUploadingThermalFile();
+										open();
+									}}
+									variant="primary"
+									size="compact"
+								>
+									{thermal ? "Change file" : "Upload or select a LRC file"}
+								</Button>
+								}
 							/>
+
+							{thermal && <AnalysisEditorTrigger
+								setOpen={setOpen}
+							/>}
 						</div>
 
 
@@ -305,6 +312,13 @@ export default function Edit({ attributes, setAttributes }) {
 
 					</PanelBody>
 
+					<PanelBody title="Notations">
+						{n.array.map(item => <Button onClick={() => n.removeNotation(item.id)}>{item.id}</Button>)}
+						<Button variant="primary" onClick={() => {
+							n.addNotation(14, 100, "something", "image");
+						}}>Add new notation</Button>
+					</PanelBody>
+
 					<PanelBody title="Display settings" initialOpen={false}>
 
 						<manager-provider
@@ -322,18 +336,26 @@ export default function Edit({ attributes, setAttributes }) {
 
 										<SelectControl
 											label="Variant"
-											value={webcomponent}
+											value={variant}
 											options={[
 												{
 													label: "Advanced analyser",
-													value: "thermal-file-analyser"
+													value: "advanced"
 												},
 												{
-													label: "Simplified display",
-													value: "thermal-file-app"
+													label: "Simple layout",
+													value: "simple"
 												},
+												{
+													label: "Lesson",
+													value: "lesson"
+												},
+												{
+													label: "Image without interface",
+													value: "nogui"
+												}
 											]}
-											onChange={(value) => setAttributes({ webcomponent: value })}
+											onChange={(value) => setAttributes({ variant: value })}
 										>
 
 										</SelectControl>
@@ -411,10 +433,18 @@ export default function Edit({ attributes, setAttributes }) {
 
 										<CheckboxControl
 											__nextHasNoMarginBottom
-											checked={showabout}
-											label="Show about button"
-											help="Display the button with application info?"
-											onChange={(value) => { setAttributes({ showabout: value }) }}
+											checked={showshare}
+											label="Show share button"
+											help="Display a button with instruction on embedding this file to other websites?"
+											onChange={(value) => { setAttributes({ showshare: value }) }}
+										/>
+
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											checked={showlayout}
+											label="Show layout button"
+											help="Enable the user to change the application layout?"
+											onChange={(value) => { setAttributes({ showlayout: value }) }}
 										/>
 
 										<CheckboxControl
@@ -433,9 +463,6 @@ export default function Edit({ attributes, setAttributes }) {
 
 					</PanelBody>
 
-
-
-
 				</InspectorControls>
 
 
@@ -453,7 +480,7 @@ export default function Edit({ attributes, setAttributes }) {
 							<div className="thermal__content-editor__container">
 								<div>
 
-									{webcomponent === "thermal-file-app" && <thermal-file-app
+									<thermal-file-app
 										url={thermal}
 										visible={visible}
 										palette={palette}
@@ -475,37 +502,12 @@ export default function Edit({ attributes, setAttributes }) {
 										}}
 										speed={speed}
 										opacity={opacity}
-										showabout={showabout}
 										showhistogram={showhistogram}
+										showshare={showshare}
+										showlayout={showlayout}
 										interactiveanalysis={interactiveanalysis}
-									></thermal-file-app>}
-
-									{webcomponent === "thermal-file-analyser" && <thermal-file-analyser
-										url={thermal}
-										visible={visible}
-										palette={palette}
-										author={author}
-										license={license}
-										label={label}
-										description={description}
-										from={from}
-										to={to}
-										analysis1={analysis1}
-										analysis2={analysis2}
-										analysis3={analysis3}
-										analysis4={analysis4}
-										analysis5={analysis5}
-										analysis6={analysis6}
-										analysis7={analysis7}
-										style={{
-											pointerEvents: "none"
-										}}
-										speed={speed}
-										opacity={opacity}
-										showabout={showabout}
-										showhistogram={showhistogram}
-										interactiveanalysis={interactiveanalysis}
-									></thermal-file-analyser>}
+										layout={variant}
+									></thermal-file-app>
 								</div>
 
 								<div className="thermal__content-editor__wrapper">

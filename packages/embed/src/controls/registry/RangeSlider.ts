@@ -9,6 +9,7 @@ import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
+import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
 
 
 
@@ -49,6 +50,9 @@ export class RangeSliderElement extends RegistryConsumer {
     @state()
     protected initialised: boolean = false;
 
+    @consume({context: loadingContext, subscribe: true})
+    protected loading: boolean = false;
+
     protected getClassName(): string {
         return "RangeSliderElement";
     }
@@ -80,12 +84,14 @@ export class RangeSliderElement extends RegistryConsumer {
             }
         });
 
+        /*
         this.registry.minmax.addListener(this.UUID, value => {
             if (value) {
                 this.from = value.min;
                 this.to = value.max;
             }
         });
+        */
 
     }
 
@@ -104,6 +110,8 @@ export class RangeSliderElement extends RegistryConsumer {
         super.willUpdate(_changedProperties);
 
         if ("from" in _changedProperties && "to" in _changedProperties) {
+
+            this.log("Tady nastavuji něco hezkého", _changedProperties);
 
             this.registry.range.imposeRange({
                 from: _changedProperties.from as number,
@@ -128,8 +136,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
     public updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
-
-
 
         const slider = this.sliderRef.value;
 

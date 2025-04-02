@@ -48,7 +48,7 @@ const layouts: LayoutItem[] = [
 const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4", "analysis5", "analysis6", "analysis7"];
 
 
-@customElement("thermal-file-new")
+@customElement("thermal-file-app")
 export class FileApp extends BaseElement implements IWithNotationContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
@@ -74,7 +74,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     to?: number;
 
     @property({ type: Number, reflect: true })
-    opacity?: number;
+    opacity?: number = 1;
 
     @property()
     author?: string;
