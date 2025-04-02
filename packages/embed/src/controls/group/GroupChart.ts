@@ -26,9 +26,6 @@ import '@google-web-components/google-chart';
 
 @customElement("group-chart")
 export class GroupChart extends GroupConsumer {
-    public getTourableRoot(): HTMLElement | undefined {
-        throw new Error('Method not implemented.');
-    }
 
     @state()
     protected instances: Instance[] = [];

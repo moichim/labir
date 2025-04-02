@@ -11,10 +11,6 @@ import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
 @customElement("group-range-propagator")
 export class GroupRangePropagator extends GroupConsumer {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
     public static styles = AbstractFileButton.styles;
 
     @consume({context: setRegistryHighlightContext, subscribe: true})

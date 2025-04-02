@@ -2,16 +2,12 @@ import { Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from 
 import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     keepinitialhistogram: boolean = false;

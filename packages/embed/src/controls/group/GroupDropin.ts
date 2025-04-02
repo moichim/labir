@@ -21,12 +21,6 @@ export class GroupDropin extends AbstractGroupDropin {
     @state()
     protected uploading: boolean = false;
 
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
 
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
@@ -179,7 +173,7 @@ export class GroupDropin extends AbstractGroupDropin {
 
         return html`
 
-            <div class="container" ${ref(this.tourableElementRef)}>
+            <div class="container">
             
                 <div ${ref(this.container)} class="${classMap(dropinClasses)}">
 
@@ -199,8 +193,6 @@ export class GroupDropin extends AbstractGroupDropin {
                 </div>
 
             </div>
-
-            <slot name="tour"></slot>
         
         `;
 

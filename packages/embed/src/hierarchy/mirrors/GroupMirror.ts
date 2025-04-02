@@ -7,11 +7,6 @@ import { groupContext } from "../providers/context/GroupContext";
 @customElement("group-mirror")
 export class GroupProviderElement extends AbstractGroupProvider {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
-
     @property({ type: String })
     public slug!: string;
 

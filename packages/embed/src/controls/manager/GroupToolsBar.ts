@@ -4,7 +4,6 @@ import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
-import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
@@ -14,13 +13,6 @@ import { T } from "../../translations/Languages";
 
 @customElement("group-tool-bar")
 export class GroupToolButtons extends ManagerConsumer {
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
 
     @consume({ context: toolContext, subscribe: true })
     @state()
@@ -139,7 +131,7 @@ export class GroupToolButtons extends ManagerConsumer {
 
         return html`
 
-            <aside ${ref(this.tourableElementRef)}>
+            <aside>
                     ${Object.entries(this.manager.tool.tools).map(([key, tool]) => {
 
             const classes = {
@@ -166,7 +158,6 @@ export class GroupToolButtons extends ManagerConsumer {
 
             </aside>
 
-            <slot name="tour"></slot>
         `;
     }
 

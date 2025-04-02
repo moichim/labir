@@ -1,7 +1,7 @@
 import { customElement } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
 import { consume } from "@lit/context";
-import { pngExportFsContext, pngExportWidthContext } from "../../../utils/pngExportContext";
+import { pngExportFsContext, pngExportWidthContext } from "../../../utils/converters/pngExportContext";
 
 @customElement("file-download-png")
 export class FilePngButton extends AbstractFileButton {

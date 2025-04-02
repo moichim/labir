@@ -12,10 +12,6 @@ import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
-    
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     @state()
     protected hydrated: boolean = false;

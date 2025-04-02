@@ -19,12 +19,6 @@ export class GroupDropin extends AbstractGroupDropin {
   @state()
   protected uploading: boolean = false;
 
-  protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-  public getTourableRoot(): HTMLElement | undefined {
-    return this.tourableElementRef.value;
-  }
-
   listener?: DropinElementListener;
 
   public static styles = css`
@@ -177,13 +171,11 @@ export class GroupDropin extends AbstractGroupDropin {
         }
       }}"><slot>${title}</slot></thermal-button>
 
-            <div class="container" ${ref(this.tourableElementRef)}>
+            <div class="container">
             
                 <div ${ref(this.container)}></div>
 
             </div>
-
-            <slot name="tour"></slot>
         
         `;
 

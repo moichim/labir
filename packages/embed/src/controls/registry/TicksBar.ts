@@ -35,14 +35,6 @@ export class TicksElement extends RegistryConsumer {
 
     protected containerRef: Ref<HTMLElement> = createRef();
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.containerRef.value;
-    }
-
-
-
-
-
     connectedCallback(): void {
 
         super.connectedCallback();
@@ -55,7 +47,6 @@ export class TicksElement extends RegistryConsumer {
         });
 
     }
-
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
 
@@ -250,7 +241,6 @@ export class TicksElement extends RegistryConsumer {
                 </div>                
 
             </div>
-            <slot name="tour"></slot>
         
         `;
     }

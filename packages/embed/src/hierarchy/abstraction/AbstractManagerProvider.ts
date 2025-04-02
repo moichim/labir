@@ -1,11 +1,11 @@
 import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labir/core";
+import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { TourableElement } from "../../tour/TourableElement";
+import { BaseElement } from "../BaseElement";
 import { ManagerContext, ManagerGraphFunctionContext, ManagerPaletteContext, toolContext, toolsContext } from "../providers/context/ManagerContext";
 import { createOrGetManager, removeManager } from "../providers/getters";
-import { provide } from "@lit/context";
 
-export abstract class AbstractManagerProvider extends TourableElement {
+export abstract class AbstractManagerProvider extends BaseElement {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 

@@ -7,7 +7,6 @@ import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
-import { FileMarker } from "./markers/ImageMarker";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
@@ -16,10 +15,6 @@ const isChromium = "chrome" in window;
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.containerRef.value;
-    }
 
     @consume({ context: playingContext, subscribe: true })
     @state()
@@ -58,9 +53,6 @@ export class TimelineElement extends FileConsumer {
 
     @property({ type: String, reflect: true })
     public interactive: boolean = true;
-
-    @consume({ context: fileMarkersContext, subscribe: true })
-    public markers: FileMarker[] = [];
 
     @state()
     protected collapsed: boolean = false;
@@ -415,12 +407,6 @@ export class TimelineElement extends FileConsumer {
                                     ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
                                 </div>
 
-                                <div>
-                                    ${this.markers.map(element => {
-                    return html`<file-marker-timeline start=${element.fromMs} end=${element.endMs} ></file-marker-timeline>`
-                })}
-                                </div>
-
                             </div>
 
 
@@ -528,8 +514,6 @@ export class TimelineElement extends FileConsumer {
                     </div>`
                 : nothing
             }
-
-            <slot name="tour"></slot>
 
           `;
     }

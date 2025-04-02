@@ -18,10 +18,6 @@ export class FileAnalysisTable extends FileConsumer {
     @property()
     interactiveanalysis: boolean = false;
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.container.value;
-    }
-
     @state()
     protected analysis: AbstractAnalysis[] = [];
 
@@ -277,8 +273,6 @@ export class FileAnalysisTable extends FileConsumer {
                 </table>
 
             </div>
-
-        <slot name="tour"></slot>
         `;
     }
 

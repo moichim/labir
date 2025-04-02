@@ -1,11 +1,9 @@
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { GroupRenderer } from "./GroupRenderer";
-import { InstanceRenderer } from "./InstanceRenderer";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 import { localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 export type ParsedFileType = {
@@ -35,10 +33,6 @@ export abstract class AbstractMultipleApp extends BaseElement {
     @provide({ context: interactiveAnalysisContext })
     @property({ type: String, reflect: true, converter: booleanConverter(true) })
     interactiveanalysis: boolean = true;
-
-    protected readonly instanceRenderer = new InstanceRenderer(this);
-
-    protected readonly groupRenderer = new GroupRenderer(this);
 
 
     @provide({ context: pngExportWidthContext })

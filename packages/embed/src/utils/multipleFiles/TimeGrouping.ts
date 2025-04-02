@@ -1,12 +1,20 @@
 import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labir/core";
-import { Grouping, TimeGroupElement } from "../parts/TimeGroupElement";
-import { TimeEntryElement } from "../parts/TimeEntryElement";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+import { GroupElement } from "../GroupApp";
+import { ParsedFileType } from "../../multiple/AbstractMultipleApp";
+import { ThermalFileElement } from "../../multiple/definitions/ThermalFile";
+
+export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
 export type FileEntry = {
+    /** Individual name of the file provided optionally by the user */
     label?: string,
+    /** The respective instance. */
     instance: Instance,
-    innerHtml?: string
+    /** Optional inner html from the webcomponent. */
+    innerHtml?: string,
+    /** Automatically generated time relative to the actual grouping */
+    time?: string
 }
 
 export type GroupEntry = {
@@ -21,12 +29,23 @@ export class TimeGrouping {
 
     protected records: FileEntry[] = [];
 
+    public get numFiles(): number {
+        return this.records.length;
+    }
+
+    public forEveryInstance( fn: ( instance: Instance ) => void ) {
+        this.records.forEach( record => {
+            fn( record.instance );
+        });
+    }
+
+
     protected groups: Map<number, GroupEntry> = new Map;
 
     protected grouping: Grouping = "none";
 
     constructor(
-        public readonly element: TimeGroupElement,
+        public readonly element: GroupElement,
         public readonly group: ThermalGroup
     ) {
 
@@ -38,6 +57,8 @@ export class TimeGrouping {
             record.instance.unmountFromDom();
         });
 
+        this.group.removeAllChildren();
+
         this.records = [];
         this.groups.clear();
         this.element.groups = [];
@@ -45,7 +66,7 @@ export class TimeGrouping {
 
 
     processEntries(
-        entries: TimeEntryElement[]
+        entries: ThermalFileElement[]
     ) {
 
         this.flush();
@@ -69,16 +90,21 @@ export class TimeGrouping {
 
                 this.records.push({
                     instance: result,
-                    innerHtml: storedContent
+                    innerHtml: storedContent,
+                    label: entry.label,
                 });
 
+            }
+
+            if ( entry.lrc === undefined ) {
+                return;
             }
 
             if (batch === undefined) {
 
                 batch = this.group.registry.batch.request(
-                    entry.thermal,
-                    entry.visible,
+                    entry.lrc,
+                    entry.png,
                     this.group,
                     callback,
                     this.element.UUID
@@ -93,8 +119,8 @@ export class TimeGrouping {
 
             } else {
                 batch.request(
-                    entry.thermal,
-                    entry.visible,
+                    entry.lrc,
+                    entry.png,
                     this.group,
                     callback
                 );
@@ -104,13 +130,83 @@ export class TimeGrouping {
 
     }
 
+    processParsedFiles(
+        files: ParsedFileType[]
+    ) {
+
+        this.flush();
+
+        let batch: ReturnType<ThermalRegistry["batch"]["request"]> | undefined;
+
+        files.forEach( file => {
+
+            const callback = async (
+                result: Instance | ThermalFileFailure
+            ) => {
+
+                if (result instanceof ThermalFileFailure) {
+                    return;
+                }
+
+                const innerHtml = file.note ?? "";
+                const storedContent = innerHtml.length > 0
+                    ? innerHtml
+                    : undefined;
+
+                this.records.push({
+                    instance: result,
+                    innerHtml: storedContent,
+                    label: file.label
+                });
+
+            }
+
+            if (batch === undefined) {
+
+                batch = this.group.registry.batch.request(
+                    file.thermal,
+                    file.visible,
+                    this.group,
+                    callback,
+                    this.element.UUID
+                );
+
+                batch.onResolve.set(
+                    this.element.UUID + "___something",
+                    () => {
+                        this.processGroups();
+
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis1, 1 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis2, 2 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis3, 3 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis4, 4 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis5, 5 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis6, 6 );
+                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis7, 7 );
+
+                    }
+                );
+
+            } else {
+                batch.request(
+                    file.thermal,
+                    file.visible,
+                    this.group,
+                    callback
+                );
+            }
+
+        } );
+
+    }
+
     protected processGroups() {
 
         this.element.groups = [];
 
         this.groups.clear();
 
-        this.group.registry.manager.palette.setPalette(this.element.parentElement.palette);
+        this.group.registry.palette.setPalette( this.element.palette );
 
         this.records
 
@@ -145,7 +241,7 @@ export class TimeGrouping {
 
                 }
 
-                record.label = this.getItemLabel( record.instance.timestamp )
+                record.time = this.getItemLabel( record.instance.timestamp )
 
                 existingGroup.files.push(record);
 

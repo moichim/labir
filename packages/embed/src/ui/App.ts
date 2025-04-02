@@ -4,7 +4,7 @@ import { customElement, property, queryAssignedElements, state } from "lit/decor
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { languagesObject, T } from "../translations/Languages";
-import { booleanConverter } from "../utils/booleanConverter";
+import { booleanConverter } from "../utils/converters/booleanConverter";
 
 const isChromium = "chrome" in window;
 

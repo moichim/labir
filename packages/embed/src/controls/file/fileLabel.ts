@@ -14,10 +14,6 @@ export class FileCanvas extends FileConsumer {
     @property({type: String})
     public label?: string;
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
     public onInstanceCreated(): void {}
 
     public onFailure(): void {}

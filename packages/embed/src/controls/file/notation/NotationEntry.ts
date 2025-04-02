@@ -1,7 +1,7 @@
 import { html, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { durationConverter } from "../../../utils/durationConverter";
+import { durationConverter } from "../../../utils/converters/durationConverter";
 
 @customElement("notation-entry")
 export class NotationEntry extends BaseElement {

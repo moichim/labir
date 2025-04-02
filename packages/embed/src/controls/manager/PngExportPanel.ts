@@ -1,10 +1,10 @@
+import { consume } from "@lit/context";
+import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { consume } from "@lit/context";
-import { pngExportWidthContext, pngExportWidthSetterContext, ContextSetter, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { ContextSetter, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 @customElement("png-export-panel")
 export class PngExportPanel extends BaseElement {

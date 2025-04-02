@@ -6,7 +6,7 @@ import { customElement, property } from "lit/decorators.js"
 import { ifDefined } from "lit/directives/if-defined.js"
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
 import { T } from "../translations/Languages"
-import { booleanConverter } from "../utils/booleanConverter"
+import { booleanConverter } from "../utils/converters/booleanConverter"
 
 @customElement("file-thumbnail")
 export class FileThumbnail extends FileConsumer {
@@ -26,10 +26,6 @@ export class FileThumbnail extends FileConsumer {
     public onInstanceCreated(): void {}
 
     public onFailure(): void {}
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     static styles?: CSSResultGroup | undefined = css`
     

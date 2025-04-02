@@ -2,8 +2,8 @@ import { Instance, ThermalFileFailure } from "@labir/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { GroupConsumer } from "../../../hierarchy/consumers/GroupConsumer";
-import { calculateTicks, renderTicks, Tick, ticksCss as tickCSS } from "../../../utils/timelineTicks";
+import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
 
 
@@ -38,10 +38,6 @@ export class GroupTimeline extends GroupConsumer {
 
     protected timelineRef: Ref<HTMLDivElement> = createRef();
     protected indicatorRef: Ref<HTMLDivElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        throw new Error("Method not implemented.");
-    }
 
     @state()
     listener?: ReturnType<typeof setTimeout>;
@@ -283,7 +279,7 @@ export class GroupTimeline extends GroupConsumer {
         }
 
 
-        ${tickCSS}
+        ${ticksCss}
     
     `;
 

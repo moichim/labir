@@ -1,10 +1,9 @@
 import { consume } from "@lit/context";
-import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
-import { managerSmoothContext } from "../../hierarchy/providers/context/ManagerContext";
+import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { t } from "i18next";
+import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
+import { managerSmoothContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
 
 @customElement("manager-smooth-switch")
@@ -12,12 +11,6 @@ export class SmoothSwitch extends ManagerConsumer {
 
     @consume({context: managerSmoothContext, subscribe: true})
     smooth!: boolean;
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
 
     public static styles = css`
     
@@ -28,7 +21,7 @@ export class SmoothSwitch extends ManagerConsumer {
     protected render(): unknown {
         return html`
 
-            <div ${ref(this.tourableElementRef)}>
+            <div>
 
                 <thermal-button
                     variant=${this.smooth ? "default" : "foreground"}
@@ -42,7 +35,6 @@ export class SmoothSwitch extends ManagerConsumer {
 
             </div>
 
-            <slot name="tour"></slot>
         `;
     }
 

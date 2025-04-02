@@ -13,10 +13,6 @@ export class OpacityRangeElement extends RegistryConsumer {
 
     protected containerRef: Ref<HTMLElement> = createRef();
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.containerRef.value;
-    }
-
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -93,7 +89,6 @@ export class OpacityRangeElement extends RegistryConsumer {
                 </div>
             </div>
             <slot></slot>
-            <slot name="tour"></slot>
         `;
     }
 

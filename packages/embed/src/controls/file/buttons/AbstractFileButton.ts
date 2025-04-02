@@ -18,10 +18,6 @@ export abstract class AbstractFileButton extends FileConsumer {
 
     public onFailure(): void {}
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.ref.value;
-    }
-
     static styles?: CSSResultGroup | undefined = css`
         slot {
             display: content;

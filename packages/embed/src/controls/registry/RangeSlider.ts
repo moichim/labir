@@ -53,10 +53,6 @@ export class RangeSliderElement extends RegistryConsumer {
         return "RangeSliderElement";
     }
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.sliderRef.value;
-    }
-
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -218,16 +214,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
     protected render(): unknown {
 
-        /*
-        if (this.canRanderSlider() === false) {
-            return html`
-                <div class="container loading">
-                    <div class="skeleton"></div>
-                </div>
-            `;
-        }
-        */
-
         return html`
 
         <div class="container ready">
@@ -277,7 +263,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
         </div>
 
-        <slot name="tour"></slot>
         <slot></slot>
 
         `;

@@ -14,9 +14,9 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 enum Layout {
     NOGUI = "nogui",

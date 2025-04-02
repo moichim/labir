@@ -1,10 +1,9 @@
-import { PropertyValueMap, css, html, nothing } from "lit";
+import { css, html, nothing, PropertyValueMap } from "lit";
 
-import { customElement, property, state } from "lit/decorators.js";
 import { ThermalRegistry } from "@labir/core";
+import { customElement, property, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("registry-histogram")
 export class HistogramElement extends RegistryConsumer {
@@ -25,17 +24,11 @@ export class HistogramElement extends RegistryConsumer {
     @state()
     protected expanded: boolean = false;
 
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
     @state()
     protected loading: boolean = false;
 
     @state()
     protected error: boolean = false;
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
 
     protected getClassName(): string {
         return "HistogramElement";
@@ -200,7 +193,7 @@ export class HistogramElement extends RegistryConsumer {
 
         return html`
 
-            <div class="container ${isLoading ? "ready" : "loading"}" ${ref(this.tourableElementRef)}>
+            <div class="container ${isLoading ? "ready" : "loading"}">
 
                 <div class="histogram ${this.expandable === true ? "expandable" : ""}" style="height: ${this.expanded ? this.heightExpanded: this.height}" part="bg" @click=${() => {
                     if ( this.expandable === true ) {

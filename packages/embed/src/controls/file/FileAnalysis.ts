@@ -11,12 +11,6 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 @customElement("file-analysis-list")
 export class FileAnalysisList extends FileConsumer {
 
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
     @consume({ context: analysisList, subscribe: true })
     analysis: AnalysisList = [];
 
@@ -159,7 +153,7 @@ export class FileAnalysisList extends FileConsumer {
 
         return html`
 
-            <div ${ref(this.tourableElementRef)}>
+            <div>
             
 
                 ${this.analysis.length === 0
@@ -238,8 +232,6 @@ export class FileAnalysisList extends FileConsumer {
                 </div>
 
             </div>
-        
-            <slot name="tour"></slot>
 
         `;
     }

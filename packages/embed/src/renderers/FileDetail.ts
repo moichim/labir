@@ -2,7 +2,7 @@ import { ApiTimeGrouping } from "@labir/api"
 import { css, CSSResultGroup, html, nothing } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
-import { booleanConverter } from "../utils/booleanConverter"
+import { booleanConverter } from "../utils/converters/booleanConverter"
 
 @customElement("file-detail")
 export class FileThumbnail extends FileConsumer {
@@ -22,10 +22,6 @@ export class FileThumbnail extends FileConsumer {
     public onInstanceCreated(): void {}
 
     public onFailure(): void {}
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     static styles?: CSSResultGroup | undefined = css`
     

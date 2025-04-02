@@ -6,7 +6,7 @@ import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
@@ -17,10 +17,6 @@ export class FileCanvas extends FileConsumer {
     public norender: boolean = false;
 
     getContainer(): HTMLDivElement|undefined {
-        return this.container.value;
-    }
-
-    public getTourableRoot(): HTMLElement | undefined {
         return this.container.value;
     }
 
@@ -224,8 +220,6 @@ export class FileCanvas extends FileConsumer {
                 }
             
             </div>
-
-            <slot name="tour"></slot>
         
         `;
     }

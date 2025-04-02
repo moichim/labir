@@ -8,10 +8,10 @@ import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
 import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale } from "../../translations/localeContext";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
-import { TimeEntryElement } from "../registry/parts/TimeEntryElement";
-import { GroupEntry, Grouping, TimeGrouping } from "./utils/TimeGrouping";
+import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
+import { GroupEntry, Grouping, TimeGrouping } from "../../utils/multipleFiles/TimeGrouping";
 
 
 enum STATE {
@@ -158,7 +158,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         if (files.length > 0) {
             this.grouper.processParsedFiles(files);
         } else {
-            this.grouper.processEntries(this.entries.filter(el => el instanceof TimeEntryElement));
+            this.grouper.processEntries(this.entries.filter(el => el instanceof ThermalFileElement));
         }
 
         this.group.files.addListener( this.UUID, value => {

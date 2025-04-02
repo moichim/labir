@@ -9,9 +9,9 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/pngExportContext";
-import { ThermalFile } from "../multiple/definitions/ThermalFile";
-import { ThermalGroup } from "../multiple/definitions/ThermalGroup";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
+import { ThermalGroup } from "../../utils/multipleFiles/ThermalGroup";
 
 type ParsedFile = {
     lrc: string;
@@ -144,7 +144,7 @@ export class GalleryApp extends BaseElement {
                         lon: element.getAttribute("lon"),
                         files: Array.from(element.children)
                             .filter(child => {
-                                return child instanceof ThermalFile
+                                return child instanceof ThermalFileElement
                                     && child.hasAttribute("lrc")
                             })
                             .map(child => {

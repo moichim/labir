@@ -1,21 +1,14 @@
+import { Instance } from "@labir/core";
+import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
-import { Instance } from "@labir/core";
-import { pngExportFsContext, pngExportWidthContext } from "../../utils/pngExportContext";
-import { consume } from "@lit/context";
+import { pngExportFsContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
 
     @consume({ context: pngExportWidthContext, subscribe: true })
     protected pngWidth: number = 1350;
@@ -79,7 +72,7 @@ export class FileDownloadButton extends FileConsumer {
 
             <thermal-dropdown variant="foreground" >
 
-                <slot name="invoker" slot="invoker" ${ref(this.tourableElementRef)}>
+                <slot name="invoker" slot="invoker">
                     <div class="button">
                         ${this.file 
                             ? t(T.download)
@@ -114,8 +107,6 @@ export class FileDownloadButton extends FileConsumer {
                     }
             
             </thermal-dropdown>
-
-            <slot name="tour"></slot>
 
         
         `

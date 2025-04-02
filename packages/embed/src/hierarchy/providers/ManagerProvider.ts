@@ -7,10 +7,6 @@ import { ManagerContext, managerContext, managerGraphFunctionContext, ManagerGra
 @customElement("manager-provider")
 export class ManagerProviderElement extends AbstractManagerProvider {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
     @provide({ context: managerContext })
