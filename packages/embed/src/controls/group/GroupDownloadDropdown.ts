@@ -6,10 +6,6 @@ import { customElement } from "lit/decorators.js";
 
 @customElement("group-download-dropdown")
 export class GroupDownloadDropdown extends GroupConsumer {
-    public getTourableRoot(): HTMLElement | undefined {
-        // throw new Error("Method not implemented.");
-        return undefined;
-    }
 
     static styles?: CSSResultGroup | undefined = css`
     

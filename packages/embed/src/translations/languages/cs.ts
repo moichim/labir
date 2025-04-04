@@ -5,6 +5,20 @@ export const cs: Translation = {
     loading: "Načítám",
     config: "Nastavení",
 
+    layout_simple: "Jednoduché rozvržení",
+    layout_advanced: "Analytické rozvržení",
+    layout_nogui: "Bez GUI",
+    layout_lesson: "Rozvržení lekce",
+
+    share: "Sdílet",
+    fileloadingerror: "Chyba při načítání souboru",
+    embedhint: "Chcete-li vložit tento blok na jinou webovou stránku, použijte následující kód:",
+    embedlibrary: "Vložte knihovnu – jednou v HTML hlavičce",
+    embedcomponent: "Použijte následující kód kdekoli v HTML těle",
+    copy: "Kopírovat",
+
+    remotefoldersbrowseraddfolderhint: "Pokud v úložišti přidáte další složku, uvidíte zde další možnosti vyhodnocení.",
+
     temperature: "Teplota",
 
     upload: "Nahrát",
@@ -24,6 +38,7 @@ export const cs: Translation = {
     back: "Zpět",
     close: "Zavřít",
     reload: "Načíst znovu",
+    open: "Otevřít",
 
     description: "Popis",
     author: "Autor",

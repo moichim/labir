@@ -16,7 +16,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 <div <?= get_block_wrapper_attributes(); ?>>
 	
 
-		<<?= $attributes["webcomponent"]?>
+		<thermal-file-app
 			locale="<?= get_locale(); ?>"
 			url="<?= $attributes["thermal"]?>" 
 			<?php if (analysis_is_set( $attributes["visible"] ) ) { echo 'visible="'.$attributes["visible"].'"'; } ?>
@@ -39,9 +39,11 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			<?php if (analysis_is_set( $attributes["analysis6"] ) ) { echo 'analysis6="'.$attributes["analysis6"].'"'; } ?>
 			<?php if (analysis_is_set( $attributes["analysis7"] ) ) { echo 'analysis7="'.$attributes["analysis7"].'"'; } ?>
 			showhistogram="<?= $attributes["showhistogram"] ? "true": "false" ?>"
-			showabout="<?= $attributes["showabout"] ? "true": "false" ?>"
+			showlayout="<?= $attributes["showlayout"] ? "true": "false" ?>"
+			showshare="<?= $attributes["showshare"] ? "true": "false" ?>"
 			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
-		></<?= $attributes["webcomponent"]?>>
+			layout="<?= $attributes["variant"]; ?>"
+		></thermal-file-app>
 
 </div>
 

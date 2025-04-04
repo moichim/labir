@@ -4,8 +4,10 @@ import { customElement, property, queryAssignedElements, state } from "lit/decor
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { languagesObject, T } from "../translations/Languages";
-import { booleanConverter } from "../utils/booleanConverter";
+import { booleanConverter } from "../utils/converters/booleanConverter";
+import { ifDefined } from "lit/directives/if-defined.js";
 
+const isChromium = "chrome" in window;
 
 @customElement("thermal-app")
 export class ThermalAppUiElement extends BaseElement {
@@ -42,6 +44,12 @@ export class ThermalAppUiElement extends BaseElement {
 
     @property()
     label?: string;
+
+    @property({type: Object})
+    onlabel?: () => void;
+
+    @property({converter: booleanConverter(false)})
+    chromiumwarning: boolean = false;
 
 
 
@@ -256,6 +264,21 @@ export class ThermalAppUiElement extends BaseElement {
             background: var(--thermal-slate-light);
             background: linear-gradient(var(--thermal-slate-light) calc(100% - 10px), transparent);
         }
+
+        footer.chromium {
+            color: var(--thermal-foreground);
+            font-size: 12px;
+            opacity: .5;
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+            svg {
+                width: 1em;
+            }
+            a {
+                color: var(--thermal-foreground);
+            }
+        }
     
     `;
 
@@ -264,6 +287,8 @@ export class ThermalAppUiElement extends BaseElement {
 
 
     protected render(): unknown {
+
+        const showChromiumWarning = isChromium === true && this.chromiumwarning === true;
 
         return html`
 
@@ -276,7 +301,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                 <slot name="label">
                     ${this.label
-                        ? html`<thermal-button variant="foreground" interactive="false">${this.label}</thermal-button>`
+                        ? html`<thermal-button variant="foreground" interactive="${this.onlabel !== undefined}" @click=${ifDefined(this.onlabel)}>${this.label}</thermal-button>`
                         : nothing
                     }
                 </slot>
@@ -376,6 +401,17 @@ export class ThermalAppUiElement extends BaseElement {
             <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
                 <slot name="content"></slot>
             </div>
+
+            ${showChromiumWarning === true 
+                ? html`<footer class="chromium">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                </svg>
+
+                    <span>Chromium-based browsers provide a slightly worse performance during the playback. Consider using <a href="https://mozilla.org/firefox" target="_blank">Firefox</a>.</span>
+                </footer>`
+                : nothing
+            }
 
     </div>
         

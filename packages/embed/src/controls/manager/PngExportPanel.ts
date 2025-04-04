@@ -1,10 +1,10 @@
+import { consume } from "@lit/context";
+import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { consume } from "@lit/context";
-import { pngExportWidthContext, pngExportWidthSetterContext, ContextSetter, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { ContextSetter, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 @customElement("png-export-panel")
 export class PngExportPanel extends BaseElement {
@@ -46,15 +46,16 @@ export class PngExportPanel extends BaseElement {
     ) {
 
         const content = html`<input 
-                value=${value}
-                min=${min}
-                max=${max}
-                step=${step}
+                name="${label}"
+                value="${value}"
+                min="${min}"
+                max="${max}"
+                step="${step}"
                 type="range"
-                @input=${(event: { target: { value: string } }) => {
+                @input="${(event: { target: { value: string } }) => {
                 const value = Math.min(max, Math.max(0, parseFloat(event.target.value)));
                 onChange(value);
-            }}
+            }}"
             ></input>`;
 
         const tip = html`<div class="hint"><strong>${value} ${unit}</strong> (${min} - ${max} ${unit})${hint ? html`<br />${hint}</div>` : nothing}`;
@@ -78,10 +79,17 @@ export class PngExportPanel extends BaseElement {
         `;
 
     protected render(): unknown {
+
+        if ( this.pngFs === undefined || this.pngWidth === undefined || this.pngWidthSetter === undefined || this.pngFsSetter === undefined ) {
+            return nothing;
+        }
+
         return html`
-        ${this.renderSlider( t(T.exportimagewidth), this.pngWidth, "px", 300, 1920, 20, this.pngWidthSetter.bind(this) )}
+
+        ${this.renderSlider( t(T.exportimagewidth), this.pngWidth, "px", 300, 2000, 50, this.pngWidthSetter.bind(this) )}
 
         ${this.renderSlider( t(T.exportimagefontsize), this.pngFs, "px", 10, 50, 1, this.pngFsSetter.bind(this) )}
+        
         `;
     }
 

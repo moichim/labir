@@ -1,15 +1,17 @@
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { ThermalGroup } from "../multiple/definitions/ThermalGroup";
-import { ThermalFile } from "../multiple/definitions/ThermalFile";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
+import { AvailableThermalPalettes } from "@labir/core";
 import { provide } from "@lit/context";
-import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
+import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { T } from "../../translations/Languages";
+import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
+import { ThermalGroup } from "../../utils/multipleFiles/ThermalGroup";
 
 type ParsedFile = {
     lrc: string;
@@ -35,6 +37,20 @@ enum STATE {
 
 @customElement("thermal-gallery-app")
 export class GalleryApp extends BaseElement {
+
+
+    // Presentational attributes
+    @property({ type: String, reflect: true })
+    public author?: string;
+
+    @property({ type: String, reflect: true })
+    public label: string = "Gallery of IR images";
+
+    @property({ type: String, reflect: true })
+    public license?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public palette: AvailableThermalPalettes = "jet";
 
     @state()
     @queryAssignedElements({ flatten: true })
@@ -96,47 +112,52 @@ export class GalleryApp extends BaseElement {
 
         this.resetRegistry();
 
-        if ( this.registryRef.value ) {
-            this.registryRef.value.registry.batch.onBatchComplete.set( this.UUID, () => {
-                if ( this.registryRef.value ) {
+        if (this.registryRef.value) {
+
+            this.registryRef.value?.registry.palette.setPalette(this.palette);
+
+            this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
+                if (this.registryRef.value) {
                     const registry = this.registryRef.value.registry;
                     registry.range.applyMinmax();
                 }
-            } );
-            this.registryRef.value.registry.groups.addListener( this.UUID, groups => {
-                if ( this.registryRef.value ) {
+            });
+
+            this.registryRef.value.registry.groups.addListener(this.UUID, () => {
+                if (this.registryRef.value) {
                     const registry = this.registryRef.value.registry;
                     registry.range.applyMinmax();
                 }
-            } );
+            });
         }
     }
 
     protected processSlots(): void {
-
-        this.structure = this.slottedElements
-            .filter(element => element instanceof ThermalGroup)
-            .map(element => {
-                return {
-                    label: element.getAttribute("label"),
-                    description: element.getAttribute("description"),
-                    lat: element.getAttribute("lat"),
-                    lon: element.getAttribute("lon"),
-                    files: Array.from(element.children)
-                        .filter(child => {
-                            return child instanceof ThermalFile
-                                && child.hasAttribute("lrc")
-                        })
-                        .map(child => {
-                            return {
-                                lrc: child.getAttribute("lrc"),
-                                png: child.getAttribute("png"),
-                                label: child.getAttribute("label")
-                            } as ParsedFile
-                        })
-                } as ParsedGroup;
-            })
-            .filter(element => element.files.length > 0);
+        setTimeout(() => {
+            this.structure = this.slottedElements
+                .filter(element => element instanceof ThermalGroup)
+                .map(element => {
+                    return {
+                        label: element.getAttribute("label"),
+                        description: element.getAttribute("description"),
+                        lat: element.getAttribute("lat"),
+                        lon: element.getAttribute("lon"),
+                        files: Array.from(element.children)
+                            .filter(child => {
+                                return child instanceof ThermalFileElement
+                                    && child.hasAttribute("lrc")
+                            })
+                            .map(child => {
+                                return {
+                                    lrc: child.getAttribute("lrc"),
+                                    png: child.getAttribute("png"),
+                                    label: child.getAttribute("label")
+                                } as ParsedFile
+                            })
+                    } as ParsedGroup;
+                })
+                .filter(element => element.files.length > 0);
+        }, 1000);
 
     }
 
@@ -144,20 +165,28 @@ export class GalleryApp extends BaseElement {
     protected actionMainOpen() {
         this.state = STATE.MAIN;
         this.resetRegistry();
-        setTimeout( () => {
+        setTimeout(() => {
             this.group = undefined;
             this.file = undefined;
-        }, 0 );
+        }, 0);
     }
 
 
     protected actionGroupOpen(group: ParsedGroup) {
-        this.state = STATE.GROUP;
+
         this.resetRegistry();
-        setTimeout( () => {
+        setTimeout(() => {
             this.group = group;
-            this.columns = Math.min( 4, group.files.length );
-        }, 0 );
+            this.columns = Math.min(4, group.files.length);
+
+            if (group.files.length > 1) {
+                this.state = STATE.GROUP;
+            } else {
+                this.state = STATE.FILE;
+                this.file = group.files[0];
+            }
+
+        }, 0);
     }
 
 
@@ -167,31 +196,31 @@ export class GalleryApp extends BaseElement {
         }
         this.state = STATE.FILE;
         this.resetRegistry();
-        setTimeout( () => {
+        setTimeout(() => {
             this.file = file;
-        }, 0 );
+        }, 0);
     }
 
 
     protected actionDetailClose() {
         this.state = STATE.GROUP;
         this.resetRegistry();
-        setTimeout( () => {
+        setTimeout(() => {
             this.file = undefined;
-        }, 0 );
+        }, 0);
     }
 
 
     protected resetRegistry() {
         if (this.registryRef.value) {
 
-            this.registryRef.value.registry.forEveryInstance( instance => instance.unmountFromDom() );
+            this.registryRef.value.registry.forEveryInstance(instance => instance.unmountFromDom());
 
-            this.registryRef.value.registry.reset();
+            // this.registryRef.value.registry.reset();
 
-            this.registryRef.value.registry.batch.onBatchComplete.set( this.UUID, () => {
+            this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
                 this.registryRef.value?.registry.range.applyMinmax();
-            } );
+            });
         }
     }
 
@@ -217,8 +246,20 @@ export class GalleryApp extends BaseElement {
             return html`<group-provider slug="${slug}" autoclear="true">
                 <button class="group-thumbnail" @click="${() => this.actionGroupOpen(group.group)}">
                     <div class="header">
+                        <div class="info">
                             <div class="title">${group.label}</div>
-                            <div class="count">${group.group.files.length} souborů</div>
+                            <div class="count">${t(T.numfiles, { num: group.group.files.length })}</div>
+                        </div>
+                        <div class="button">
+                            ${group.group.files.length > 1
+                    ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+                                </svg>`
+                    : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                </svg>`
+                }
+                        </div>
                     </div>
                     <file-provider thermal="${group.file.lrc}" batch="true" autoclear="true">
                         <file-canvas></file-canvas>
@@ -244,10 +285,9 @@ export class GalleryApp extends BaseElement {
         }
 
         return this.renderBrowser(html`
-            <group-provider slug="${this.group.label ?? "group_detail"}" autoclear="true">
+            <group-provider slug="${this.group.label ?? `group_detail_${Math.random()}`}" autoclear="true">
 
                 <group-chart slot="pre"></group-chart>
-
 
                 <header>
 
@@ -265,20 +305,30 @@ export class GalleryApp extends BaseElement {
                     <group-download-dropdown></group-download-dropdown>
 
                     <div>
-                        <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
+                        <input type="range" min="1" max="4" step="1" value=${this.columns} @input=${(event: InputEvent) => {
 
-                            const target = event.target as null | { value: string }
-                            const value = target?.value;
-                            if (value !== undefined) {
-                                this.columns = parseInt(value);
-                            }
-                        }}></input>
+                const target = event.target as null | { value: string }
+                const value = target?.value;
+                if (value !== undefined) {
+                    this.columns = parseInt(value);
+                }
+            }}></input>
                         <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                     </div>
                     
                     <group-analysis-sync-button></group-analysis-sync-button>
 
                 </header>
+
+                ${this.group.description
+                ? html`<section class="group-description">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+                        </svg>
+                        <p>${this.group.description}</p>
+                    </section>`
+                : nothing
+            }
 
                 <section class="files columns_${this.columns}">
             
@@ -303,7 +353,11 @@ export class GalleryApp extends BaseElement {
         return this.renderBrowser(html`<group-provider slug="${this.file.lrc}" autoclear="true">
 
             <file-provider batch="true" autoclear="true" thermal="${this.file.lrc}">
-                <file-detail label="${this.group.label}" .onback="${() => this.actionDetailClose()}"></file-detail>
+                <file-detail label="${this.group.label}" .onback="${() => {
+                this.group?.files.length === 1
+                    ? this.actionMainOpen()
+                    : this.actionDetailClose()
+            }}"></file-detail>
             </file-provider>
 
         </group-provider>`);
@@ -348,7 +402,11 @@ export class GalleryApp extends BaseElement {
             box-shadow: 0 0 5px var(--thermal-slate);
 
             div.header {
+
+                display: grid;
+                grid-template-columns: auto 1.5em;
                 padding: var(--thermal-gap);
+                gap: var(--thermal-gap);
                 text-align: left;
 
                 .title {
@@ -359,6 +417,10 @@ export class GalleryApp extends BaseElement {
 
                 .count {
                     font-size: .9em;
+                    opacity: .8;
+                }
+
+                .button {
                     opacity: .8;
                 }
             }
@@ -414,6 +476,29 @@ export class GalleryApp extends BaseElement {
                         margin-bottom: var(--thermal-gap);
                     }
 
+                    .group-description {
+                        border: 1px solid var(--thermal-slate);
+                        border-radius: var(--thermal-radius);
+                        padding: var(--thermal-gap);
+                        box-sizing: border-box;
+                        width: 100%;
+                        display: flex;
+                        align-items: center;
+                        gap: var(--thermal-gap);
+                        margin-bottom: var(--thermal-gap);
+
+                        svg {
+                            opacity: .8;
+                            width: 1em;
+                        }
+
+                        p {
+                            margin: 0;
+                            padding: 0;
+                            font-size: calc(var(--thermal-gap) * .8);
+                        }
+                    }
+
                     .files {
 
                         display: grid;
@@ -455,17 +540,16 @@ export class GalleryApp extends BaseElement {
 
     protected render(): unknown {
         return html`<manager-provider slug="${this.UUID}">
-            <registry-provider slug="${this.UUID}" ${ref(this.registryRef)}>
-                <thermal-app>
+            <registry-provider slug="${this.UUID}" ${ref(this.registryRef)} palette="${this.palette}">
+                <thermal-app author="${ifDefined(this.author)}" license="${this.license}" showfullscreen="true">
 
-                    <thermal-button variant="foreground" slot="label" @click="${() => this.actionMainOpen()}">galerie</thermal-button>
+                    <thermal-button variant="foreground" slot="label" @click="${() => this.actionMainOpen()}">${this.label}</thermal-button>
 
                     ${this.structure !== undefined
                 ? html`
-                            <registry-histogram slot="pre" expandable="true"></registry-histogram>
-                            <registry-range-slider slot="pre"></registry-range-slider>
-                            <registry-ticks-bar slot="pre"></registry-ticks-bar>
-                            
+                        <registry-histogram slot="pre" expandable="true"></registry-histogram>
+                        <registry-range-slider slot="pre"></registry-range-slider>
+                        <registry-ticks-bar slot="pre"></registry-ticks-bar>
                         `
                 : nothing
             }

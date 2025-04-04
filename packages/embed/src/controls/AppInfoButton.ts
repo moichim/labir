@@ -1,13 +1,10 @@
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-
 import { version } from "../../package.json";
-import { TourableElement } from "../tour/TourableElement";
-
-import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { BaseElement } from "../hierarchy/BaseElement";
 
 @customElement("app-info-button")
-export class AppInfoButton extends TourableElement {
+export class AppInfoButton extends BaseElement {
 
     static styles = css`
 
@@ -69,16 +66,10 @@ export class AppInfoButton extends TourableElement {
     
     `;
 
-    protected tourableElementRef: Ref<HTMLDivElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
     protected render(): unknown {
         return html`
             <thermal-dialog label="Thermal images in the browser">
-                <thermal-button slot="invoker" ${ref(this.tourableElementRef)}>About</thermal-button>
+                <thermal-button slot="invoker">About</thermal-button>
                 <div slot="content">
                     <div class="content">
                         <div class="logo">
@@ -136,7 +127,6 @@ export class AppInfoButton extends TourableElement {
                 </div>
             </thermal-dialog>
 
-            <slot name="tour"></slot>
         `
     }
 

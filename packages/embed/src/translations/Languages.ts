@@ -16,7 +16,21 @@ export enum T {
     clear = "clear",
     dragorselectfile = "dragorselectfile",
 
+    share = "share",
+    fileloadingerror = "fileloadingerror",
+    embedhint = "embedhint",
+    embedlibrary = "embedlibrary",
+    embedcomponent = "embedcomponent",
+    copy = "copy",
+
+    remotefoldersbrowseraddfolderhint = "remotefoldersbrowseraddfolderhint",
+
     file = "file",
+
+    layout_simple = "layout_simple",
+    layout_advanced = "layout_advanced",
+    layout_nogui = "layout_nogui",
+    layout_lesson = "layout_lesson",
 
     /** Next */
     next = "next",
@@ -24,8 +38,10 @@ export enum T {
     prev = "prev",
     /** Back */
     back = "back",
+    
     /** Close */
     close = "close",
+    open = "open",
 
     detail = "detail",
 

@@ -12,12 +12,9 @@ export class FileVideo extends FileConsumer {
     @state()
     protected currentFrame?: CurrentFrameContext;
 
-    public onInstanceCreated(): void {
-    }
+    public onInstanceCreated(): void {}
 
-    public onFailure(): void {
-        // throw new Error("Method not implemented.");
-    }
+    public onFailure(): void {}
 
 
 

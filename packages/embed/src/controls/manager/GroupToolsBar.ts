@@ -1,31 +1,18 @@
 import { ThermalManager, ThermalTool } from "@labir/core";
 import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
-
-
 import { classMap } from 'lit/directives/class-map.js';
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-
-
-import { t } from "i18next";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
+import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
-import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 
 
 
 @customElement("group-tool-bar")
 export class GroupToolButtons extends ManagerConsumer {
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
 
     @consume({ context: toolContext, subscribe: true })
     @state()
@@ -144,7 +131,7 @@ export class GroupToolButtons extends ManagerConsumer {
 
         return html`
 
-            <aside ${ref(this.tourableElementRef)}>
+            <aside>
                     ${Object.entries(this.manager.tool.tools).map(([key, tool]) => {
 
             const classes = {
@@ -162,7 +149,7 @@ export class GroupToolButtons extends ManagerConsumer {
                             >
                                 ${unsafeSVG(tool.icon)}
                             </button>
-                            <div class="tooltip">${t(T[ tool.name as keyof typeof T ])}</div>
+                            <div class="tooltip">${t(T[tool.name as keyof typeof T])}</div>
                         </div>
                         
 
@@ -171,7 +158,6 @@ export class GroupToolButtons extends ManagerConsumer {
 
             </aside>
 
-            <slot name="tour"></slot>
         `;
     }
 

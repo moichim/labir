@@ -1,7 +1,8 @@
 apparent-temperature-aat,
 thermal-file-app,
 thermal-group-app,
-thermal-file-analyser
+thermal-file-file,
+remote-browser
 {
     &:focus {
         outline: 0;

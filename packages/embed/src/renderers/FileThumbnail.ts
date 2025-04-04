@@ -1,40 +1,31 @@
-import { Instance, ThermalFileFailure } from "@labir/core"
-import { css, CSSResultGroup, html, nothing } from "lit"
-import { ifDefined } from "lit/directives/if-defined.js"
-import { BaseElement } from "../hierarchy/BaseElement"
-import { customElement, property, state } from "lit/decorators.js"
-import { createRef, ref, Ref } from "lit/directives/ref.js"
-import { FileProviderElement } from "../hierarchy/providers/FileProvider"
-import { FileMirrorElement } from "../hierarchy/mirrors/FileMirror"
-import { booleanConverter } from "../utils/booleanConverter"
-import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
-import { t } from "i18next"
-import { T } from "../translations/Languages"
 import { ApiTimeGrouping } from "@labir/api"
+import { Instance } from "@labir/core"
+import { t } from "i18next"
+import { css, CSSResultGroup, html } from "lit"
+import { customElement, property } from "lit/decorators.js"
+import { ifDefined } from "lit/directives/if-defined.js"
+import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
+import { T } from "../translations/Languages"
+import { booleanConverter } from "../utils/converters/booleanConverter"
 
 @customElement("file-thumbnail")
 export class FileThumbnail extends FileConsumer {
-    public onInstanceCreated(instance: Instance): void {
-        // throw new Error("Method not implemented.")
-    }
-    public onFailure(error: ThermalFileFailure): void {
-        // throw new Error("Method not implemented.")
-    }
-    public getTourableRoot(): HTMLElement | undefined {
-        // throw new Error("Method not implemented.")
-        return undefined;
-    }
 
-    @property({type: Object})
-    ondetail?: ( file: Instance ) => void;
+    @property({ type: Object })
+    ondetail?: (file: Instance) => void;
 
-    @property({type: String})
+    @property({ converter: booleanConverter(false) })
+    public norender: boolean = false;
+
+    @property({ type: String })
     public label?: string;
 
-    @property({type: String})
+    @property({ type: String })
     public grouping?: ApiTimeGrouping;
 
-    
+    public onInstanceCreated(): void {}
+
+    public onFailure(): void {}
 
     static styles?: CSSResultGroup | undefined = css`
     
@@ -99,7 +90,7 @@ export class FileThumbnail extends FileConsumer {
             </header>
 
             <main>
-                <file-canvas></file-canvas>
+                <file-canvas norender="${this.norender}"></file-canvas>
                 <file-timeline></file-timeline>
                 <file-analysis-overview></file-analysis-overview>
             </main>

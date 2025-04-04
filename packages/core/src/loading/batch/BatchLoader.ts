@@ -13,6 +13,8 @@ import { Batch } from "./Batch";
  */
 export class BatchLoader {
 
+    public readonly onBatchStart = new CallbacksManager< () => void >();
+
     public readonly onBatchComplete = new CallbacksManager< ( result: (Instance|ThermalFileFailure)[] ) => void >();
 
     private set: Set<Batch> = new Set;

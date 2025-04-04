@@ -1,20 +1,22 @@
 import { Instance } from "@labir/core";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
 
-    protected container: Ref<HTMLDivElement> = createRef();
+    public container: Ref<HTMLDivElement> = createRef();
+
+    @property({converter: booleanConverter(false)})
+    public norender: boolean = false;
 
     getContainer(): HTMLDivElement|undefined {
-        return this.container.value;
-    }
-
-    public getTourableRoot(): HTMLElement | undefined {
         return this.container.value;
     }
 
@@ -22,16 +24,12 @@ export class FileCanvas extends FileConsumer {
 
         const container = this.getContainer();
 
-        /*
-        this.log( {
-            dom: container, 
-            class: this
-        } );
-         */
-
         if ( container !== undefined ) {
             instance.mountToDom( container );
-            instance.draw();
+            if (this.norender === false) {
+                instance.draw();
+            }
+            
         } else {
             throw new Error( "Error mounting the instance to the canvas!" );
         }
@@ -44,6 +42,8 @@ export class FileCanvas extends FileConsumer {
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
         if ( _changedProperties.has("file") ) {
+
+            // this.log("changed_properties",_changedProperties, this.file);
 
             const oldFile = _changedProperties.get( "file" ) as Instance;
             const newFile = this.file;
@@ -64,8 +64,14 @@ export class FileCanvas extends FileConsumer {
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
+        this.log("unmount");
         if (this.file !== undefined) {
             this.file.unmountFromDom();
+            this.parentFileProviderElement?.onSuccess.delete(this.UUID);
+            this.parentFileProviderElement?.onInstanceCreated.delete(this.UUID);
+            this.parentFileProviderElement?.onLoadingStart.delete(this.UUID);
+            this.parentFileProviderElement?.onFailure.delete(this.UUID);
+            // this.container.value?.classList.remove();
         }
     }
 
@@ -109,6 +115,7 @@ export class FileCanvas extends FileConsumer {
             align-items: center;
             justify-content: center;
             padding: var( --thermal-gap );
+            box-sizing: border-box;
         }
 
         .error-wrapper {
@@ -198,7 +205,7 @@ export class FileCanvas extends FileConsumer {
                             </div>
 
                             <div class="error-title">
-                                File loading error
+                                ${t(T.fileloadingerror)}
                             </div>
 
                             <div class="error-url">
@@ -213,8 +220,6 @@ export class FileCanvas extends FileConsumer {
                 }
             
             </div>
-
-            <slot name="tour"></slot>
         
         `;
     }

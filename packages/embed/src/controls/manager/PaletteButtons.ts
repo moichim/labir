@@ -1,11 +1,10 @@
-import { AvailableThermalPalettes, ThermalPaletteType, ThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labir/core";
 import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
 
 
@@ -13,18 +12,9 @@ import { T } from "../../translations/Languages";
 @customElement("registry-palette-buttons")
 export class PaletteButtonsElement extends RegistryConsumer {
 
-
     @consume({ context: managerPaletteContext, subscribe: true })
     @state()
     value!: ManagerPaletteContext;
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
-
-
 
     /** Handle user input events */
     onSelect(palette: AvailableThermalPalettes) {
@@ -72,7 +62,7 @@ export class PaletteButtonsElement extends RegistryConsumer {
 
     protected render(): unknown {
         return html`
-            <div class="container" ${ref(this.tourableElementRef)}>
+            <div class="container">
                 ${Object.entries(ThermalPalettes).map(([key, palette]) => html`
                     
                     <thermal-button @click=${() => this.onSelect(key as AvailableThermalPalettes)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
@@ -82,7 +72,6 @@ export class PaletteButtonsElement extends RegistryConsumer {
                 `)}
             </div>
 
-            <slot name="tour"></slot>
         `;
     }
 

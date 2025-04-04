@@ -1,12 +1,11 @@
+import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis, ThermalRangeOrUndefined } from "@labir/core";
+import { consume } from "@lit/context";
+import { t } from "i18next";
+import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis, ThermalRangeOrUndefined } from "@labir/core";
-import { css, html, nothing, PropertyValues } from "lit";
-import { t } from "i18next";
-import { T } from "../../../translations/Languages";
-import { consume } from "@lit/context";
-import { interactiveAnalysisContext } from "../../../utils/context";
 import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-table-row")
 export class FileAnalysisRow extends BaseElement {
@@ -14,8 +13,8 @@ export class FileAnalysisRow extends BaseElement {
     @property()
     public analysis!: AbstractAnalysis;
 
-    @consume({ context: interactiveAnalysisContext, subscribe: true })
-    interactiveanalysis: boolean = false;
+    @property({type: Boolean})
+    public interactiveanalysis: boolean = false;
 
     @state()
     protected value: {

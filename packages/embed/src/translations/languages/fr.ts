@@ -14,6 +14,16 @@ export const fr: Translation = {
     clear: "Effacer",
     dragorselectfile: "Glissez-déposez un fichier LRC ou sélectionnez-le depuis le disque",
 
+    share: "Partager",
+    fileloadingerror: "Erreur de chargement du fichier",
+    embedhint: "Pour intégrer ce bloc dans un autre site Web, utilisez le code suivant :",
+    embedlibrary: "Insérez la bibliothèque – une seule fois dans l'en-tête HTML",
+    embedcomponent: "Utilisez le code suivant n'importe où dans le corps HTML",
+    copy: "Copier",
+
+    remotefoldersbrowseraddfolderhint: "Si vous ajoutez un autre dossier dans le référentiel, vous verrez ici des options d'évaluation supplémentaires.",
+
+
     file: "fichier",
     detail: "Détail",
 
@@ -21,12 +31,19 @@ export const fr: Translation = {
 
     analysissync: "Synchroniser les analyses",
 
+    layout_simple: "Disposition simple",
+    layout_advanced: "Disposition d'analyse",
+    layout_nogui: "Pas d'interface graphique",
+    layout_lesson: "Disposition de leçon",
+
 
     next: "Avancer",
     prev: "Rétourner",
     back: "Au derriére",
     close: "Fermer",
     reload: "Recharger",
+
+    open: "Ouvrir",
 
     description: "Description",
     author: "Auteur",

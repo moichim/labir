@@ -11,7 +11,7 @@ import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { interactiveAnalysisContext } from "../utils/context";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/pngExportContext";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/converters/pngExportContext";
 
 @customElement("thermal-dropin-app")
 export class DropinAppElement extends BaseElement implements IWithlocale {
@@ -344,7 +344,10 @@ export class DropinAppElement extends BaseElement implements IWithlocale {
 
 
     protected render(): unknown {
-        return html`
+
+        try {
+
+            return html`
 
             <manager-provider slug="${this.UUID}" palette="iron">
 
@@ -397,6 +400,13 @@ export class DropinAppElement extends BaseElement implements IWithlocale {
             </manager-provider>
 
         `;
+
+        } catch (err) {
+
+            return html`Stala se chyba`;
+
+        }
+
     }
 
 }

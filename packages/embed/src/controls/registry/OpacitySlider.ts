@@ -13,10 +13,6 @@ export class OpacityRangeElement extends RegistryConsumer {
 
     protected containerRef: Ref<HTMLElement> = createRef();
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.containerRef.value;
-    }
-
     connectedCallback(): void {
         super.connectedCallback();
 
@@ -53,10 +49,13 @@ export class OpacityRangeElement extends RegistryConsumer {
         }
 
         .thermal-opacity-handler {
-            accent-color: var( --thermal-primary );
             display: block;
             width: 100%;
+            max-width: 100px;
+            min-width: 75px;
             cursor: pointer;
+            accent-color: var(--thermal-primary);
+            
         }
         
         .thermal-opacity-container {
@@ -66,6 +65,8 @@ export class OpacityRangeElement extends RegistryConsumer {
             justify-content: space-between;
             color: var( --thermal-slate-dark );
             font-size: calc( var( --thermal-fs-sm ) * .7 );
+            max-width: 100px;
+            min-width: 75px;
         }
     
     `;
@@ -90,7 +91,6 @@ export class OpacityRangeElement extends RegistryConsumer {
                 </div>
             </div>
             <slot></slot>
-            <slot name="tour"></slot>
         `;
     }
 

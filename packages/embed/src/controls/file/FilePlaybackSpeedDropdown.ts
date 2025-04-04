@@ -11,8 +11,6 @@ import { T } from "../../translations/Languages";
 @customElement("file-playback-speed-dropdown")
 export class FilePlaybackSpeedDropdown extends FileConsumer {
 
-    
-
     @property({type: String, reflect: true})
     enabled: "on"|"off" = "on";
 
@@ -23,12 +21,6 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
     public onInstanceCreated(): void {}
 
     public onFailure(): void {}
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
-    
 
     static styles = css`
 

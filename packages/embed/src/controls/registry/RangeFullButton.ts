@@ -16,10 +16,6 @@ export class RegistrySetAutoRangeElement extends RegistryConsumer {
     @consume( { context: setRegistryHighlightContext, subscribe: true } )
     protected setter?: ( value?: ThermalRangeOrUndefined ) => void;
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.buttonRef.value;
-    }
-
     doAction() {
         this.registry.range.applyMinmax();
     }
@@ -49,7 +45,6 @@ export class RegistrySetAutoRangeElement extends RegistryConsumer {
                 @focus="${this.mouseenter}"
                 @blur="${this.mouseleave}"
             >${t(T.fullrange)}</thermal-button>
-            <slot name="tour"></slot>
         `;
     }
 

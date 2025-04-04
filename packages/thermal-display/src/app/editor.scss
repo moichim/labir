@@ -53,10 +53,10 @@
 $modal-color: rgb(226, 226, 226);
 
 .modal-editor__container {
-    display: flex;
+    display: grid;
     width: 100%;
-    flex-wrap: wrap;
-    gap: 5px;
+    gap: 1rem;
+    grid-template-columns: 100%;
 }
 
 .modal-editor__tools {
@@ -74,9 +74,17 @@ $modal-color: rgb(226, 226, 226);
 
 @media(min-width: 900px) {
 
-    .modal-editor__canvas,
-    .modal-editor__details {
-        // flex-grow: 1;
-        flex-basis: calc( 50% - 5px/2 );
+    .modal-editor__container {
+        grid-template-columns: 50% calc(50% - 1rem);
     }
+
+}
+
+.modal-editor__footer {
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+
 }

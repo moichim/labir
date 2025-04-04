@@ -1,31 +1,20 @@
-import { customElement } from "lit/decorators.js";
-import { css, html, nothing } from "lit";
-import { Instance, ThermalFileFailure, TimeFormat } from "@labir/core";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { TimeFormat } from "@labir/core";
 import { t } from "i18next";
+import { css, html, nothing } from "lit";
+import { customElement } from "lit/decorators.js";
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
 
 @customElement("file-info-button")
 export class FileInfoButton extends FileConsumer {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
-    protected onFileLoaded(): void {
-        // throw new Error("Method not implemented.");
-    }
+    protected onFileLoaded(): void {}
 
-    public onInstanceCreated(instance: Instance): void {
-        // this.log( instance );
-        instance;
-    }
+    public onInstanceCreated(): void {}
 
-    public onFailure(error: ThermalFileFailure): void {
-        // this.log( error );
-        error;
-    }
+    public onFailure(): void {}
 
     static styles = css`
 

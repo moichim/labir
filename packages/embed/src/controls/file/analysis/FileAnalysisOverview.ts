@@ -8,6 +8,7 @@ import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
 import { interactiveAnalysisContext } from "../../../utils/context";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 @customElement("file-analysis-overview")
 export class FileAnalysisTable extends FileConsumer {
@@ -18,9 +19,8 @@ export class FileAnalysisTable extends FileConsumer {
     @property()
     interactiveanalysis: boolean = false;
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.container.value;
-    }
+    @property({ type: Boolean, converter: booleanConverter(false) })
+    forceinteractiveanalysis: boolean = false;
 
     @state()
     protected analysis: AbstractAnalysis[] = [];
@@ -194,7 +194,7 @@ export class FileAnalysisTable extends FileConsumer {
 
 
 
-    
+
     protected renderRow(
         analysis: AbstractAnalysis
     ) {
@@ -219,6 +219,8 @@ export class FileAnalysisTable extends FileConsumer {
             return nothing;
         }
 
+        const interactiveanalysis = this.interactiveanalysis === true || this.forceinteractiveanalysis === true;
+
         return html`
 
         <div class="overflow" ${ref(this.container)}>
@@ -234,7 +236,7 @@ export class FileAnalysisTable extends FileConsumer {
 
                     <tr>
                         <th
-                            class="all ${this.allSelected ? "yes" : "no"} ${this.interactiveanalysis ? "interactive" : ""}"
+                            class="all ${this.allSelected ? "yes" : "no"} ${interactiveanalysis ? "interactive" : ""}"
                             @click=${() => {
                 if (this.allSelected)
                     this.file?.analysis.layers.deselectAll();
@@ -242,7 +244,7 @@ export class FileAnalysisTable extends FileConsumer {
                     this.file?.analysis.layers.selectAll();
             }}
                         >
-                            ${this.interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing }
+                            ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing}
                             <span>${t(T.analysis)}</span>
                             ${this.hasHighlightedData
                 ? html`<button @click=${() => { this.file?.analysisData.downloadData() }} title=${t(T.downloadgraphdataascsv)}>CSV</button>`
@@ -253,7 +255,7 @@ export class FileAnalysisTable extends FileConsumer {
                         <th>${t(T.min)}</th>
                         <th>${t(T.max)}</th>
                         <th>${t(T.size)}</th>
-                        ${this.interactiveanalysis === true ? html`<th></th>` : nothing}
+                        ${interactiveanalysis === true ? html`<th></th>` : nothing}
                     </tr>
 
                     -->
@@ -277,8 +279,6 @@ export class FileAnalysisTable extends FileConsumer {
                 </table>
 
             </div>
-
-        <slot name="tour"></slot>
         `;
     }
 

@@ -5,6 +5,21 @@ export const de: Translation = {
     loading: "Loading",
     config: "Paramètres",
 
+    layout_simple: "Einfaches Layout",
+    layout_advanced: "Analyse-Layout",
+    layout_nogui: "Kein GUI",
+    layout_lesson: "Lektions-Layout",
+
+    share: "Teilen",
+    fileloadingerror: "Fehler beim Laden der Datei",
+    embedhint: "Um diesen Block in eine andere Website einzubetten, verwenden Sie den folgenden Code:",
+    embedlibrary: "Bibliothek einfügen – einmal im HTML-Head",
+    embedcomponent: "Verwenden Sie den folgenden Code überall im HTML-Body",
+    copy: "Kopieren",
+
+    remotefoldersbrowseraddfolderhint: "Wenn Sie einen weiteren Ordner im Repository hinzufügen, werden Ihnen hier zusätzliche Auswertungsmöglichkeiten angezeigt.",
+
+
     temperature: "Temperatur",
 
     upload: "Hochladen",
@@ -27,6 +42,8 @@ export const de: Translation = {
     back: "Zurück",
     close: "Schließen",
     reload: "Neu laden",
+
+    open: "Öffnen",
 
     description: "Beschreibung",
     author: "Autor",

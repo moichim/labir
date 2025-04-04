@@ -2,6 +2,20 @@ import { Translation } from "../Languages";
 
 export const en: Translation = {
 
+    layout_simple: "Simple layout",
+    layout_advanced: "Evaluation layout",
+    layout_nogui: "No GUI",
+    layout_lesson: "Lesson layout",
+
+    share: "Share",
+    fileloadingerror: "File loading error",
+    embedhint: "To embed this block in another website, use the following code:",
+    embedlibrary: "Insert the library - once in HTML head",
+    embedcomponent: "Use the following code anywhere in HTML body",
+    copy: "Copy",
+
+    remotefoldersbrowseraddfolderhint: "If you add another folder in the storage, you will see additional evaluation options here.",
+
     loading: "Loading",
     config: "Settings",
 
@@ -25,6 +39,7 @@ export const en: Translation = {
     back: "Back",
     close: "Close",
     reload: "Reload",
+    open: "Open",
 
     description: "Description",
     author: "Author",

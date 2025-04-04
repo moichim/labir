@@ -41,21 +41,29 @@
 				"type": "constrained"
 			}
 		},
-		"webcomponent": {
+		"variant": {
 			"type": "string",
-			"default": "thermal-file-app"
+			"default": "advanced"
 		},
 		"showabout": {
 			"type": "boolean",
-			"default": "true"
+			"default": true
 		},
 		"showhistogram": {
 			"type": "boolean",
-			"default": "true"
+			"default": true
+		},
+		"showshare": {
+			"type": "boolean",
+			"default": false
+		},
+		"showlayout": {
+			"type": "boolean",
+			"default": false
 		},
 		"interactiveanalysis": {
 			"type": "boolean",
-			"default": "true"
+			"default": true
 		},
 		"thermal": {
 			"type": "string"
@@ -114,6 +122,10 @@
 		},
 		"analysis7": {
 			"type": "string"
+		},
+		"notations": {
+			"type":"array"
 		}
+		
 	}
 }

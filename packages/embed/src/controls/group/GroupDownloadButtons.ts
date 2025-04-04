@@ -6,10 +6,6 @@ import { T } from "../../translations/Languages";
 
 @customElement("group-download-buttons")
 export class GroupDownloadDropdown extends GroupConsumer {
-    public getTourableRoot(): HTMLElement | undefined {
-        // throw new Error("Method not implemented.");
-        return undefined;
-    }
 
     static styles?: CSSResultGroup | undefined = css`
 

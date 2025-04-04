@@ -4,23 +4,16 @@ import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
-import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from 'lit/directives/unsafe-svg.js';
 import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
 import { toolContext, toolsContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 
 
 @customElement("group-tool-buttons")
 export class GroupToolButtons extends ManagerConsumer {
-
-    protected tourableElementRef: Ref<HTMLElement> = createRef();
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.tourableElementRef.value;
-    }
 
 
     @consume({ context: toolContext, subscribe: true })
@@ -159,7 +152,7 @@ export class GroupToolButtons extends ManagerConsumer {
         }
 
         return html`
-                <div class="switchers" ${ref(this.tourableElementRef)}>
+                <div class="switchers">
                     ${Object.entries(this.manager.tool.tools).map(([key, tool]) => {
 
             const classes = {
@@ -202,7 +195,6 @@ export class GroupToolButtons extends ManagerConsumer {
                     : nothing
                 }
 
-                <slot name="tour"></slot>
         `;
     }
 

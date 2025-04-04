@@ -2,7 +2,7 @@
 
 
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Origin: *');
 // header('Access-Control-Allow-Methods GET');
 // header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
 
@@ -263,12 +263,14 @@ abstract class AbstractController
 
         $folder_path = $this->content_path . "/" . $folder_name;
 
+        $lrc_files = glob($folder_path . "/*.lrc");
+
         $info = [
             "folder" => $folder_name,
             "name" => $folder_name,
             "content_url" => $this->content_url . $folder_name,
             "request_url" => $this->api_endpoint . "?folder=" . $folder_name . ($this->subfolder ? "&scope=" . $this->subfolder : ""),
-            "lrc_count" => count(glob("$folder_path/*.lrc"))
+            "lrc_count" => count($lrc_files)
         ];
 
         $info_file_path = $this->getFolderFilePath($folder_name, "_info.txt");
@@ -279,6 +281,13 @@ abstract class AbstractController
                 list($key, $value) = explode(': ', $line, 2);
                 $info[$key] = $value;
             }
+        }
+
+        
+
+        if (!empty($lrc_files)) {
+            $first_file = $lrc_files[0];
+            $info["preview"] = $this->scanOneFile($folder_name, $first_file);
         }
 
         return $info;

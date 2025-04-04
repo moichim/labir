@@ -1,22 +1,21 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderFileType, FolderInfoBase, QueryBuilder } from "@labir/api";
-import { AvailableThermalPalettes, TimeFormat } from "@labir/core";
+import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderInfoBase, QueryBuilder } from "@labir/api";
+import { AvailableThermalPalettes } from "@labir/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
 import { cs, cy, de, enGB, fr } from "date-fns/locale";
 import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
-import { booleanConverter } from "../../utils/booleanConverter";
-import { interactiveAnalysisContext } from "../../utils/context";
-import { pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../../utils/pngExportContext";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { interactiveAnalysisContext } from "../../utils/context";
+import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 enum STATE {
     MAIN,
@@ -175,6 +174,13 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                     this.url,
                     this.subfolder
                 );
+            }
+        }
+
+        if ( _changedProperties.has("folders") ) {
+            const keys = Object.keys(this.folders);
+            if ( keys.length === 1 ) {
+                this.actionOpenOneFolder( keys[0] );
             }
         }
 
@@ -357,7 +363,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     protected renderMainScreen() {
         return html`
-<div class="screen screen-main">
+<group-provider class="screen screen-main" autoclear="true" slug="main">
 
     <main>
         <slot></slot>
@@ -368,10 +374,33 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
         ${Object.values(this.folders).map(folder => {
 
             return html`
-        <button class="screen-main-folder" @click=${() => this.actionOpenOneFolder(folder.folder)}>
-            <h1>${folder.name}</h1>
-            ${folder.description !== undefined ? html`<p>${folder.description}</p>` : nothing}
-            <div>${t(T.numfiles, { num: folder.lrc_count })}</div>
+        <button class="folder" @click=${() => this.actionOpenOneFolder(folder.folder)}>
+
+            <div class="folder-header">
+                <div class="folder-header-text">
+                    <h1>${folder.name}</h1>
+                    ${folder.description !== undefined ? html`<p>${folder.description}</p>` : nothing}
+                    <div>${t(T.numfiles, { num: folder.lrc_count })}</div>
+                </div>
+                <div class="folder-header-icon">
+                    ${folder.lrc_count > 1
+                        ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
+                                </svg>`
+                        : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                                </svg>`
+                    }
+                </div>
+            </div>
+
+            <file-provider thermal="${folder.preview.lrc}" batch="true" autoclear="true">
+                <file-canvas style="pointer-events: none;"></file-canvas>
+                <div class="open-button">
+                    <thermal-button variant="primary">${t(T.open)}</thermal-button>
+                </div>
+            </file-provider>
+            
         </button>
             `;
 
@@ -379,7 +408,8 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     </nav>
 
 
-</div>
+</group-provider>
+
         `;
     }
 
@@ -446,8 +476,6 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
     protected actionShowEverything() {
         this.only = Object.keys(this.folders);
-        // delete this.detail;
-        // delete this.dataOnly;
         this.resetRegistry();
         this.state = STATE.MULTIPLE;
     }
@@ -489,7 +517,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                     </div>`;
         })}
             
-            </group-provider>   
+            </group-provider>
         `;
 
     }
@@ -621,24 +649,28 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
             const theOne = this.folders[this.only[0]];
             const theOthers = Object.values(this.folders).filter(f => f.folder !== theOne.folder);
 
-            const dropdown = html`<thermal-dropdown variant="background" class="selector">
-                <span slot="invoker">${theOne.name}</span>
+            const dropdown = theOthers.length > 0
+                ? html`<thermal-dropdown variant="background" class="selector">
+                    <span slot="invoker">${theOne.name}</span>
 
-                ${theOthers.map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                    <thermal-button>${f.name}</thermal-button>
-                </div>`)}
+                    ${theOthers.map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
+                        <thermal-button>${f.name}</thermal-button>
+                    </div>`)}
 
-            </thermal-dropdown>`;
+                </thermal-dropdown>`
+                : html`<thermal-button variant="background" interactive="false">${theOne.name}</thermal-button>`;
 
-            const add = theOthers.map((f, i) => html`<thermal-button @click=${() => this.actionToggleFolder(f.folder)}>
-                <span class="button-inline-icon">+</span> ${f.name}
-            </thermal-button> ${i !== theOthers.length - 1 ? ` ${t(T.or)} ` : nothing}`);
+            const add = theOthers.length > 0 
+                ? theOthers.map((f, i) => html`<thermal-button @click=${() => this.actionToggleFolder(f.folder)}>
+                    <span class="button-inline-icon">+</span> ${f.name}
+                </thermal-button> ${i !== theOthers.length - 1 ? ` ${t(T.or)} ` : nothing}`)
+                : html`<span>${t(T.remotefoldersbrowseraddfolderhint)}</span>`;
 
             content = html`${t(T.showingfolder)} ${dropdown}. 
             
             ${theOthers.length > 0
                     ? html` ${t(T.doyouwanttoadd)} ${add}?`
-                    : nothing}
+                    : add}
             `;
 
         }
@@ -748,7 +780,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
 
 
         if (this.info === undefined) {
-            return this.renderLoading("Loading data");
+            return this.renderLoading(t(T.loading));
         }
 
         if (this.state === STATE.MAIN) {
@@ -770,6 +802,13 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     --table-gap: calc( var( --thermal-gap ) * .8 );
     --table-gap-sm: calc( var( --thermal-gap ) * .4 );
 
+    --thermal-browser-width: 150px;
+
+    
+
+    @media(min-width: 400px) {
+        --thermal-browser-width: 300px;
+    }
 }
 
 .reset-text,
@@ -791,19 +830,21 @@ h1, h2, h3, h4, h5 {
 
 
 .screen-main-folders {
-    display: flex;
+
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat( auto-fill, minmax(var(--thermal-browser-width), 1fr) );
     gap: var(--thermal-gap);
-    flex-wrap: wrap;
 
-    > button {
+    .folder {
 
-        background: red;
-        padding: var(--thermal-gap);
+        padding: 0;
+        overflow: hidden;
 
         border-radius: var(--thermal-radius);
         border: 1px solid var( --thermal-slate );
 
-        background: var(--thermal-slate-light);
+        background: var(--thermal-background);
         color: var(--thermal-foreground);
 
         cursor: pointer;
@@ -811,13 +852,72 @@ h1, h2, h3, h4, h5 {
 
         transition: all .2s ease-in-out;
 
+        file-canvas,
+        file-provider {
+            displaY: block;
+        }
+
+        file-provider {
+            overflow: hidden;
+            position: relative;
+        }
+
+        file-canvas {
+            transition: all .4s ease-in-out;
+        }
+
+        .open-button {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+            transition: all .4s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+
+
+        .folder-header {
+            padding: var(--thermal-gap);
+            display: grid;
+            gap: var(--thermal-gap);
+            grid-template-columns: auto 2rem;
+            text-align: left;
+        }
+
+        .folder-header-icon {
+            color: var(--thermal-slate-light);
+            transition: all .4s ease-in-out;
+        }
+
+
         &:hover,
         &:focus {
             background: var(--thermal-background);
             box-shadow: var(--thermal-shadow);
+            file-canvas {
+                transform: scale(1.2);
+            }
+
+            .open-button {
+                opacity: 1;
+                transform: translateY(0px);
+            }
+
+            .folder-header-icon {
+                color: var(--thermal-primary);
+            }
         }
 
     }
+
+    
 
 }
 
@@ -834,17 +934,16 @@ h1, h2, h3, h4, h5 {
     }
 }
 
+
+
 .screen-browser__one {
 
     group-provider {
-        display: flex;
-        flex-wrap: wrap;
 
-        > div {
-            width: 33.3333%;
-            box-sizing: border-box;
-            padding: calc(var(--thermal-gap) * .5);
-        }
+        display: grid;
+        grid-template-columns: repeat( auto-fill, minmax(var(--thermal-browser-width), 1fr) );
+        gap: var(--thermal-gap);
+
     }
 
 }
@@ -1057,51 +1156,28 @@ thermal-dropdown.selector::part(invoker) {
 
     protected renderHeader() {
 
+        if ( this.state === STATE.MAIN ) {
+            return html`<header class="screen-browser-header" slot="bar"></header>`;
+        }
+
         return html`
+            <header class="screen-browser-header" slot="bar">
+                <thermal-bar>
 
+                    <registry-range-full-button></registry-range-full-button>
+                    <registry-range-auto-button></registry-range-auto-button>
 
-        ${this.state === STATE.MAIN && this.info !== undefined
-                ? html`<thermal-button @click=${() => {
-                    this.actionShowEverything();
-                }}>${t(T.showeverything)}</thermal-button>`
-                : nothing
-            }
-        
-        ${this.state !== STATE.MAIN
-                ? html`<thermal-button 
-                    @click=${this.actionCloseToHomepage.bind(this)}
-                    variant="foreground"
-                >
-                ${t(T.close)}
-            </thermal-button>
+                    ${this.state === STATE.ONE && this.dataOnly !== undefined
+                                ? html`<group-provider slug="${this.dataOnly.info.folder}">
+                            <group-download-dropdown></group-download-dropdown>
+                        </group-provider>`
+                                : nothing
+                            }
+                    <registry-opacity-slider></registry-opacity-slider>
+                    <group-tool-buttons showhint="false" showpopup="true"></group-tool-buttons>
 
-            ${this.state === STATE.ONE && this.enablegrouping === false ?
-                        html`
-            <thermal-dropdown variant="background" class="selector">
-
-                <span slot="invoker">${this.folders[this.only[0]].name}</span>
-
-                ${Object.values(this.folders).filter(f => !this.only.includes(f.folder)).map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                <thermal-button>${f.name}</thermal-button>
-                </div>`)}
-
-            </thermal-dropdown>` : nothing}
-
-            <registry-palette-dropdown></registry-palette-dropdown>
-            <registry-range-full-button></registry-range-full-button>
-            <registry-range-auto-button></registry-range-auto-button>
-
-            ${this.state === STATE.ONE && this.dataOnly !== undefined
-                        ? html`<group-provider slug="${this.dataOnly.info.folder}">
-                    <group-download-dropdown></group-download-dropdown>
-                </group-provider>`
-                        : nothing
-                    }
-            <registry-opacity-slider></registry-opacity-slider>
-            <group-tool-buttons showhint="false" showpopup="true"></group-tool-buttons>
-            `
-                : nothing
-            }
+                </thermal-bar>
+            </header>
         
         `;
 
@@ -1152,33 +1228,57 @@ thermal-dropdown.selector::part(invoker) {
 
     protected render(): unknown {
 
-        const label = this.loadingInfo === true
-            ? t(T.loading) + "..."
-            : this.label
-                ? this.label.trim().length > 0 ? this.label : t(T.remotefoldersbrowser)
-                : t(T.remotefoldersbrowser);
+        let title = t(T.remotefoldersbrowser);
+        let onlabel: undefined|(() => void) = undefined;
+
+        if ( this.info === undefined ) {
+            title = t(T.loading) + "...";
+        } else {
+            // In case there is only one group in the entire app, show a special title
+            if ( Object.keys(this.folders).length === 1 && this.label) {
+                title = this.label;
+            }
+
+            // If looking on the main page, show the label
+            else if ( this.state === STATE.MAIN && this.label ) {
+                title = this.label;
+            }
+
+            // In all other cases, show the close button
+            else if ( this.state !== STATE.MAIN ) {
+                title = t(T.close);
+                onlabel = () => this.actionCloseToHomepage();
+            }
+
+        }
 
         return html`
 
 <manager-provider slug=${this.UUID} palette="${this.palette}">
     <registry-provider ref=${ref(this.registryRef)}>
 
-        <thermal-app author="${ifDefined(this.author)}" license="${ifDefined(this.license)}" showfullscreen="true">
+        <thermal-app 
+            author="${ifDefined(this.author)}" 
+            license="${ifDefined(this.license)}" 
+            showfullscreen="true" 
+            label=${title} 
+            .onlabel=${ifDefined(onlabel)}
+        >
 
-        ${this.state === STATE.MAIN ? html`
-            <thermal-button variant="foreground" slot="bar" @click=${this.actionCloseToHomepage.bind(this)}>${label}</thermal-button>
-            `
+            ${this.state !== STATE.MAIN
+                ? html`<registry-palette-dropdown slot="bar"></registry-palette-dropdown>`
                 : nothing
             }
 
-            <header class="screen-browser-header" slot="bar">
-                <thermal-bar>
+            ${this.state === STATE.MAIN && Object.keys(this.folders).length > 1
+                ? html`<thermal-button slot="bar" @click=${() => {
+                this.actionShowEverything();
+            }}>${t(T.showeverything)}</thermal-button>`
+                : nothing
+            }
 
-                    ${this.renderHeader()}
-                
-                </thermal-bar>
-            </header>
-
+            ${this.renderHeader()}
+            
             <div slot="pre">
                 ${this.renderInfo()}
                 ${this.renderHistogram()}

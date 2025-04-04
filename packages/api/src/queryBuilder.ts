@@ -127,7 +127,6 @@ export class QueryBuilder {
      * The main method that performs the fetch internally 
      */
     protected async fetch<T>(): Promise<T> {
-        console.info( "Fetching", this.url );
         const response = await fetch( this.url );
         const json = await response.json() as T;
         return json;

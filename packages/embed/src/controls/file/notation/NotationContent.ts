@@ -4,7 +4,7 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { booleanConverter } from "../../../utils/booleanConverter";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { notationCurrentContext } from "./NotationContext";
 import { NotationEntry } from "./NotationEntry";
 

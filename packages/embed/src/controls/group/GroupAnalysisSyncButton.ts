@@ -1,15 +1,12 @@
 import { customElement, property } from "lit/decorators.js";
 import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
 import { css, CSSResultGroup, html } from "lit";
-import { booleanConverter } from "../../utils/booleanConverter";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 
 @customElement("group-analysis-sync-button")
 export class GroupAnalysisSyncButton extends GroupConsumer {
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
     public on!: boolean;

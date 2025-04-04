@@ -7,17 +7,14 @@ import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
-import { FileMarker } from "./markers/ImageMarker";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
+const isChromium = "chrome" in window;
+
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
-
-    public getTourableRoot(): HTMLElement | undefined {
-        return this.containerRef.value;
-    }
 
     @consume({ context: playingContext, subscribe: true })
     @state()
@@ -56,9 +53,6 @@ export class TimelineElement extends FileConsumer {
 
     @property({ type: String, reflect: true })
     public interactive: boolean = true;
-
-    @consume({ context: fileMarkersContext, subscribe: true })
-    public markers: FileMarker[] = [];
 
     @state()
     protected collapsed: boolean = false;
@@ -242,6 +236,12 @@ export class TimelineElement extends FileConsumer {
             &:hover {
                 color: var( --thermal-primary );
             }
+
+            &.playback {
+                svg {
+                    min-width: 1em;
+                }
+            }
         }
 
         .cursor {
@@ -328,6 +328,16 @@ export class TimelineElement extends FileConsumer {
             padding-top: 5px;
 
         }
+
+        .chrome {
+            width: 1em;
+            color: var(--thermal-primary-dark);
+            transition: all .3s ease-in-out;
+            cursor: pointer;
+            &:hover {
+                color: var(--thermal-primary);
+            }
+        }
     
     `;
 
@@ -361,6 +371,7 @@ export class TimelineElement extends FileConsumer {
         const playButtonClasses = {
             item: true,
             button: true,
+            playback: true,
             ...mayClasses
         }
 
@@ -394,12 +405,6 @@ export class TimelineElement extends FileConsumer {
                                 >
                                     <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
                                     ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
-                                </div>
-
-                                <div>
-                                    ${this.markers.map(element => {
-                    return html`<file-marker-timeline start=${element.fromMs} end=${element.endMs} ></file-marker-timeline>`
-                })}
                                 </div>
 
                             </div>
@@ -456,6 +461,26 @@ export class TimelineElement extends FileConsumer {
 
                                     <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
 
+                                ${isChromium === true
+                                    ? html`<thermal-dialog label="Performance">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentcolor" class="chrome" slot="invoker">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                                        </svg>
+
+                                        <div slot="content" style="max-width: 500px;">
+
+                                            <p>Your browser is based on Chromium and might have slightly worse performance during playback.</p>
+
+                                            <p>Consider using <a href="https://mozilla.org/firefox" target="_blank">Firefox</a>.</p>
+
+                                            <p style="opacity: .5">Reason of lagging in Chromium is its aggressive resources optimisation. Firefox will enable you to use more of your system's power.</p>
+                                        
+                                        </div>
+
+                                    </thermal-dialog>`
+                                    : nothing}
+
                                 </div>
 
                                 `
@@ -489,8 +514,6 @@ export class TimelineElement extends FileConsumer {
                     </div>`
                 : nothing
             }
-
-            <slot name="tour"></slot>
 
           `;
     }

@@ -12,9 +12,6 @@ import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
-    public getTourableRoot(): HTMLElement | undefined {
-        throw new Error("Method not implemented.");
-    }
 
     @state()
     protected hydrated: boolean = false;
@@ -128,7 +125,7 @@ export class FileAnalysisGraph extends FileConsumer {
     public static styles = css`
 
         :host {
-            background: white;
+            // background: white;
         }
     
         google-chart {
@@ -145,7 +142,7 @@ export class FileAnalysisGraph extends FileConsumer {
 
         return html`
 
-            <div style="position: relative; background-color: white; height: 100%;">
+            <div style="position: relative; background-color: white; border-radius: var(--thermal-radius); height: 100%;">
 
             <div style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
             ${this.currentFrame && html`

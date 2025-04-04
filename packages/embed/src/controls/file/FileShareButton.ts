@@ -5,16 +5,9 @@ import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-share-button")
 export class FileShareButton extends FileConsumer {
-    public onInstanceCreated(instance: Instance): void {
-        // throw new Error("Method not implemented.");
-        // this.log( instance );
-        instance;
-    }
-    public onFailure(error: ThermalFileFailure): void {
-        // throw new Error("Method not implemented.");
-        // this.log( error );
-        error;
-    }
+
+    public onInstanceCreated(): void {}
+    public onFailure(): void {}
 
     static styles = css`
 
@@ -48,7 +41,7 @@ export class FileShareButton extends FileConsumer {
 &lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- The file itself may be placed anywhere in the body --&gt;
-&lt;thermal-file-app url=&quot;${this.file.url}&quot;&gt;&lt;/thermal-file-app&gt;
+&lt;thermal-file-app url=&quot;${this.file.thermalUrl}&quot;&gt;&lt;/thermal-file-app&gt;
                     </code>
                 </div>
             </thermal-dialog-component>

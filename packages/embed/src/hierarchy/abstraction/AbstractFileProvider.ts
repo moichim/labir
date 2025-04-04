@@ -18,7 +18,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: loadingContext })
     @state()
-    protected loading: boolean = false;
+    public loading: boolean = false;
 
     @provide({ context: loadedContext })
     protected ready = false;
@@ -174,7 +174,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
 
     /** Register instance callback listeners */
-    protected recieveInstance(
+    public recieveInstance(
         instance: Instance
     ) {
 
@@ -251,12 +251,12 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         this.onInstanceCreated.call(instance);
 
         // Draw the instance in the end
-        instance.draw();
+        // instance.draw();
 
     }
 
 
-    protected removeInstance(
+    public removeInstance(
         instance: Instance
     ) {
 
@@ -388,9 +388,21 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         value?: string
     ) {
 
-        if (value !== undefined && value.trim().length > 0) {
-            const analysis = instance.slots.createFromSerialized(value, index);
-            analysis?.setSelected(false, true);
+        if (value !== undefined && value !== null && value.trim().length > 0) {
+            if ( instance.slots.hasSlot(index) ) {
+
+                const analysis = instance.slots.getSlot(index);
+                analysis?.recieveSerialized(value);
+                analysis?.analysis.setSelected(false, true);
+
+
+            } else {
+                const analysis = instance.slots.createFromSerialized(value, index);
+                analysis?.setSelected(false, true);
+            }
+
+            
+            
         }
 
     }

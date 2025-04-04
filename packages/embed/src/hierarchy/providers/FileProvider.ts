@@ -2,15 +2,15 @@ import { Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from 
 import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
 import { fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
+    keepinitialhistogram: boolean = false;
 
     @property({ type: Number, reflect: true, attribute: true })
     @provide({ context: fileMsContext })
@@ -32,15 +32,15 @@ export class FileProviderElement extends AbstractFileProvider {
     public playing: boolean = false;
 
     @property({
-        type: Boolean, 
-        reflect: true, 
+        type: Boolean,
+        reflect: true,
         attribute: true,
         converter: {
-            fromAttribute( value: string ) {
+            fromAttribute(value: string) {
                 return value === "true";
             },
-            toAttribute( value: boolean|undefined ) {
-                if ( value === true ) {
+            toAttribute(value: boolean | undefined) {
+                if (value === true) {
                     return "true";
                 }
                 return "false";
@@ -163,18 +163,35 @@ export class FileProviderElement extends AbstractFileProvider {
             this.visible,
             this.group,
             this.asyncLoadCallback.bind(this)
-            
+
         )
 
         return result;
 
     }
 
+
+    public async redraw() {
+        this.loading = true;
+        this.onLoadingStart.call();
+        if (this.file) {
+            this.removeInstance(this.file);
+        }
+
+        await this.load();
+
+    }
+
     public async asyncLoadCallback(
-        result: Instance|ThermalFileFailure
+        result: Instance | ThermalFileFailure
     ) {
 
-        if ( result instanceof Instance ) {
+        if (result instanceof Instance) {
+
+            if (this.file !== undefined) {
+                this.file.unmountFromDom();
+                delete this.file;
+            }
 
             this.file = result;
 
@@ -186,7 +203,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
             this.recieveInstance(result);
 
-        } else if ( result instanceof ThermalFileFailure ) {
+        } else if (result instanceof ThermalFileFailure) {
 
             this.failure = result as ThermalFileFailure;
 
@@ -198,7 +215,7 @@ export class FileProviderElement extends AbstractFileProvider {
     }
 
 
-    
+
 
 
     /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
@@ -228,10 +245,10 @@ export class FileProviderElement extends AbstractFileProvider {
         }
 
 
-        
+
 
     }
 
-    
+
 
 }

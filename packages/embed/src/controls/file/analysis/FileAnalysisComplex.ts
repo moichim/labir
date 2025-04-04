@@ -82,10 +82,8 @@ export class FileAnalysisComplex extends FileConsumer {
 
 
     }
+    
     public onFailure(): void {}
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);

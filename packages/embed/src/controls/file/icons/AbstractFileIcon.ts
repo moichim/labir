@@ -15,10 +15,6 @@ export abstract class AbstractFileIcon extends FileConsumer {
 
     public onFailure(): void { }
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
     protected abstract getLabel(): ReturnType<typeof html>|string;
 
     protected abstract getIcon(): ReturnType<typeof html>;

@@ -6,10 +6,6 @@ import { RegistryContext, registryContext, registryLoadingContext, registryMaxCo
 @customElement("registry-mirror")
 export class RegistryProviderElement extends AbstractRegistryProvider {
 
-    public getTourableRoot(): HTMLElement | undefined {
-        return undefined;
-    }
-
     @property({ type: String, reflect: true, attribute: true })
     slug!: string;
 
