@@ -17,6 +17,8 @@ export const cs: Translation = {
     embedcomponent: "Použijte následující kód kdekoli v HTML těle",
     copy: "Kopírovat",
 
+    remotefoldersbrowseraddfolderhint: "Pokud v úložišti přidáte další složku, uvidíte zde další možnosti vyhodnocení.",
+
     temperature: "Teplota",
 
     upload: "Nahrát",
@@ -36,6 +38,7 @@ export const cs: Translation = {
     back: "Zpět",
     close: "Zavřít",
     reload: "Načíst znovu",
+    open: "Otevřít",
 
     description: "Popis",
     author: "Autor",

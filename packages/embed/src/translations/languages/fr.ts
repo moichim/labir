@@ -21,6 +21,8 @@ export const fr: Translation = {
     embedcomponent: "Utilisez le code suivant n'importe où dans le corps HTML",
     copy: "Copier",
 
+    remotefoldersbrowseraddfolderhint: "Si vous ajoutez un autre dossier dans le référentiel, vous verrez ici des options d'évaluation supplémentaires.",
+
 
     file: "fichier",
     detail: "Détail",
@@ -40,6 +42,8 @@ export const fr: Translation = {
     back: "Au derriére",
     close: "Fermer",
     reload: "Recharger",
+
+    open: "Ouvrir",
 
     description: "Description",
     author: "Auteur",

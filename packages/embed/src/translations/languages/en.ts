@@ -14,6 +14,8 @@ export const en: Translation = {
     embedcomponent: "Use the following code anywhere in HTML body",
     copy: "Copy",
 
+    remotefoldersbrowseraddfolderhint: "If you add another folder in the storage, you will see additional evaluation options here.",
+
     loading: "Loading",
     config: "Settings",
 
@@ -37,6 +39,7 @@ export const en: Translation = {
     back: "Back",
     close: "Close",
     reload: "Reload",
+    open: "Open",
 
     description: "Description",
     author: "Author",

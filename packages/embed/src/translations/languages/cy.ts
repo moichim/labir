@@ -21,11 +21,15 @@ export const cy: Translation = {
     embedcomponent: "Defnyddiwch y cod canlynol yn unrhyw le yn y corff HTML",
     copy: "Copïo",
 
+    remotefoldersbrowseraddfolderhint: "Os ychwanegwch ffolder arall yn y gadwrfa, fe welwch opsiynau gwerthuso ychwanegol yma.",
+
 
     analysissync: "Cydamseru dadansoddiadau",
 
     file: "ffeil",
     detail: "Manylder",
+
+    open: "Agor",
 
     showeverything: "Dangos popeth",
 

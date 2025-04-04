@@ -23,6 +23,8 @@ export enum T {
     embedcomponent = "embedcomponent",
     copy = "copy",
 
+    remotefoldersbrowseraddfolderhint = "remotefoldersbrowseraddfolderhint",
+
     file = "file",
 
     layout_simple = "layout_simple",
@@ -39,6 +41,7 @@ export enum T {
     
     /** Close */
     close = "close",
+    open = "open",
 
     detail = "detail",
 

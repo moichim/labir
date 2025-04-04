@@ -10,7 +10,7 @@ $styles_name = "thermal_display_styles";
 $scripts_name_cjs = "thermal_display_embed_library_cjs";
 $scripts_name_es = "thermal_display_embed_library_es";
 
-$version = "1.2.62";
+$version = "1.2.66";
 
 
 
@@ -34,7 +34,7 @@ if (! function_exists("thermal_display_register_assets")) {
 
         wp_register_style(
             $styles_name,
-            plugin_dir_url(__DIR__) . 'assets/embed.css',
+            plugin_dir_url(__DIR__) . 'assets/embed.css?v=' . $version,
             array(),
             time()
         );
@@ -43,7 +43,7 @@ if (! function_exists("thermal_display_register_assets")) {
 
         wp_register_script(
             $scripts_name_cjs,
-            plugin_dir_url(__DIR__) . 'assets/embed.js',
+            plugin_dir_url(__DIR__) . 'assets/embed.js?v=' . $version,
             array(),
             time()
         );
@@ -51,7 +51,7 @@ if (! function_exists("thermal_display_register_assets")) {
 
         wp_register_script(
             $scripts_name_es,
-            plugin_dir_url(__DIR__) . 'assets/embed.esm.js',
+            plugin_dir_url(__DIR__) . 'assets/embed.esm.js?v=' . $version,
             array(),
             time()
         );
@@ -60,7 +60,7 @@ if (! function_exists("thermal_display_register_assets")) {
 
         wp_register_style(
             "thermal_display_wp_styles",
-            plugin_dir_url(__DIR__) . 'lib/styles.css',
+            plugin_dir_url(__DIR__) . 'lib/styles.css?v=' . $version,
             array(),
             time()
         );

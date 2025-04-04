@@ -54,7 +54,7 @@ export class OpacityRangeElement extends RegistryConsumer {
             max-width: 100px;
             min-width: 75px;
             cursor: pointer;
-            accent-color: var(--thermal-slate);
+            accent-color: var(--thermal-primary);
             
         }
         

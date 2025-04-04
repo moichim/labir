@@ -5,6 +5,7 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 const isChromium = "chrome" in window;
 
@@ -43,6 +44,9 @@ export class ThermalAppUiElement extends BaseElement {
 
     @property()
     label?: string;
+
+    @property({type: Object})
+    onlabel?: () => void;
 
     @property({converter: booleanConverter(false)})
     chromiumwarning: boolean = false;
@@ -297,7 +301,7 @@ export class ThermalAppUiElement extends BaseElement {
 
                 <slot name="label">
                     ${this.label
-                        ? html`<thermal-button variant="foreground" interactive="false">${this.label}</thermal-button>`
+                        ? html`<thermal-button variant="foreground" interactive="${this.onlabel !== undefined}" @click=${ifDefined(this.onlabel)}>${this.label}</thermal-button>`
                         : nothing
                     }
                 </slot>

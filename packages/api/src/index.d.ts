@@ -5,7 +5,8 @@ export type FolderInfoBase = {
     name: string,
     url: string,
     lrc_count: number,
-    folder: string
+    folder: string,
+    preview: FolderFileType
 } & {
     [index: string]: string
 }

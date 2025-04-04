@@ -17,6 +17,8 @@ export const de: Translation = {
     embedcomponent: "Verwenden Sie den folgenden Code überall im HTML-Body",
     copy: "Kopieren",
 
+    remotefoldersbrowseraddfolderhint: "Wenn Sie einen weiteren Ordner im Repository hinzufügen, werden Ihnen hier zusätzliche Auswertungsmöglichkeiten angezeigt.",
+
 
     temperature: "Temperatur",
 
@@ -40,6 +42,8 @@ export const de: Translation = {
     back: "Zurück",
     close: "Schließen",
     reload: "Neu laden",
+
+    open: "Öffnen",
 
     description: "Beschreibung",
     author: "Autor",
