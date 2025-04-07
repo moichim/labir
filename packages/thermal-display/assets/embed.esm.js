@@ -4962,12 +4962,7 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
     `;Un([m({type:Object})],es.prototype,"onback",2);Un([m({converter:nt(!1)})],es.prototype,"norender",2);Un([m({type:String})],es.prototype,"label",2);Un([m({type:String})],es.prototype,"grouping",2);es=Un([Z("file-detail")],es);const lo={fromAttribute:r=>{if(r){const e=r.split(":").map(Number);if(e.some(isNaN))return;if(e.length===3){const[t,i,s]=e;return t*6e4+i*1e3+s}else if(e.length===4){const[t,i,s,n]=e;return t*36e5+i*6e4+s*1e3+n}}},toAttribute:r=>{if(r!==void 0){const e=Math.floor(r/36e5),t=Math.floor(r%36e5/6e4),i=Math.floor(r%6e4/1e3),s=r%1e3,n=String(i).padStart(2,"0"),a=String(s).padStart(3,"0");return e>0?`${e}:${t}:${n}:${a}`:`${t}:${n}:${a}`}}};var gw=Object.defineProperty,mw=Object.getOwnPropertyDescriptor,ei=(r,e,t,i)=>{for(var s=i>1?void 0:i?mw(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&gw(e,t,s),s};let kr=class extends Xe{constructor(){super(...arguments),this._active=!1}get active(){return this._active}willUpdate(r){super.willUpdate(r),r.has("duration")&&this.from!==void 0&&this.duration!==void 0&&(this.to=this.from+this.duration),r.has("to")&&!r.has("duration")&&this.from!==void 0&&this.to!==void 0&&(this.duration=this.to-this.from),r.has("from")&&!r.has("to")&&!r.has("duration")&&this.from!==void 0&&this.to!==void 0&&(this.duration=this.to-this.from),(r.has("from")||r.has("to")||r.has("duration"))&&this.dispatchEvent(new CustomEvent("modified",{bubbles:!0,cancelable:!1,composed:!0}))}activate(){this._active===!1&&(this._active=!0)}deactivate(){this._active===!0&&(this._active=!1)}setMs(r){this.from!==void 0&&this.to!==void 0&&(r>=this.from&&r<this.to?this.activate():this.deactivate())}getRenderContent(){return Array.from(this.slotContent)}getTTSString(){}render(){return p`
             <slot style="display: none;"></slot>
         `}};ei([m({type:Number,reflect:!0,converter:lo})],kr.prototype,"from",2);ei([m({type:Number,reflect:!0,converter:lo})],kr.prototype,"to",2);ei([m({type:Number,reflect:!0,converter:lo})],kr.prototype,"duration",2);ei([m({type:String,reflect:!0})],kr.prototype,"label",2);ei([m({type:String})],kr.prototype,"image",2);ei([m({type:String,reflect:!0})],kr.prototype,"say",2);ei([m({type:String,reflect:!0})],kr.prototype,"color",2);ei([w()],kr.prototype,"_active",2);ei([di()],kr.prototype,"slotContent",2);kr=ei([Z("notation-entry")],kr);const Zu="NotationListContext",Ju="NotationCurrentContext",Qu="NotationDurationContext",sa=r=>r.filter(e=>e instanceof kr),vw=(r,e)=>{const t=[];for(const i of e.notationList)i.from!==void 0&&i.to!==void 0&&(i.from<=r&&i.to>r?(t.push(i),i.activate()):i.deactivate());return t};var yw=Object.defineProperty,bw=Object.getOwnPropertyDescriptor,ho=(r,e,t,i)=>{for(var s=i>1?void 0:i?bw(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&yw(e,t,s),s};let Ps=class extends Xe{constructor(){super(...arguments),this.showlabel=!0,this.showTime=!0}renderEntry(e){const t=this.showlabel===!0?e.label:P,i=this.showTime===!0&&e.from!==void 0&&e.to!==void 0?[ht(e.from,"mm:ss.SSS"),ht(e.to,"mm:ss.SSS")].join(" - "):P,s=e.getRenderContent(),n=e.image!==void 0?p`<img src="${e.image}" class="builtin-image" />`:P;return p`<article>
-
-            ${t!==P?p`<h1>${t}</h1>`:P}
-
-            ${i!==P?p`<div class="time">${i}</div>`:P}
-
-            ${n}
+            ${i!==P?p`<div class="time">${i}</div>`:P}${t!==P?p`<h1 style="${e.color?`background-color:${e.color}`:""}">${t}</h1>`:P}${n}
 
             ${s.length>0?p`<div class="content">
                     ${s}
@@ -4981,28 +4976,49 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
             width: 100%;
             box-sizing: border-box;
-            padding: var(--thermal-gap);
-            
-            border: 1px solid var(--thermal-slate);
-            border-radius: var(--thermal-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0px;
         }
 
         h1, .time {
-            font-size: var(--thermal-fs);
-            font-weight: bold;
             line-height: 1em;
             margin: 0;
-            padding: 0;
-            margin-bottom: calc( var( --thermal-gap ) * .5);
+            padding: 7px 10px;
+            color: var(--thermal-background);
+            display: inline-block;
+            border: 0;
+            outline: 0;
         }
 
         .content {
             
         }
 
+        h1 {
+            font-weight: bold;
+            font-size: var(--thermal-fs);
+            background: var(--thermal-primary-dark);
+            border-radius: 0px var(--thermal-radius) var(--thermal-radius) 0px;
+            border-left: 1px solid var(--thermal-foreground);
+        }
+
+        .time {
+            font-size: 0.7em;
+            background: var(--thermal-foreground);
+            border-radius: var(--thermal-radius) var(--thermal-radius) var(--thermal-radius) 0px;
+            border-left: 1px solid var(--thermal-foreground);
+        }
+
         img {
+            display: block;
             max-width: 100%;
             height: auto;
+            border-radius: 0px var(--thermal-radius) var(--thermal-radius) var(--thermal-radius);
+            border: 0;
+            border-left: 1px solid var(--thermal-foreground);
+            border-top: 1px solid var(--thermal-foreground);
         }
     
     `;ho([w(),ge({context:Ju,subscribe:!0})],Ps.prototype,"entries",2);ho([m({converter:nt(!0)})],Ps.prototype,"showlabel",2);ho([m({converter:nt(!0)})],Ps.prototype,"showTime",2);Ps=ho([Z("notation-content")],Ps);var ww=Object.defineProperty,xw=Object.getOwnPropertyDescriptor,ah=(r,e,t,i)=>{for(var s=i>1?void 0:i?xw(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&ww(e,t,s),s};let vn=class extends mt{constructor(){super(...arguments),this.durationConverter=lo}onInstanceCreated(){}onFailure(){}renderEntry(r){if(r.from!==void 0&&r.to!==void 0){const e=r.from/this.duration*100,i=r.to/this.duration*100-e;return p`<button class="entry" style="left: ${e}%; width: ${i}%; ${r.color?`background-color: ${r.color};`:""}}" @click=${()=>{var s;return(s=this.file)==null?void 0:s.timeline.setRelativeTime(r.from+1)}}>
@@ -5487,6 +5503,14 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 "toolbar thermogram complex"
                 "notations notations notations";
 
+                @media(max-width: 800px) {
+                grid-template-columns: 2em calc(100% - 3em);
+                grid-template-areas: 
+                    "toolbar thermogram"
+                    "toolbar notations"
+                    "toolbar complex";
+            }
+
         }
 
         &.layout__simple {
@@ -5507,6 +5531,15 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             grid-template-areas: 
                 "toolbar thermogram notations" 
                 "toolbar analysis graph";
+
+            @media(max-width: 800px) {
+                grid-template-columns: 2em calc(100% - 3em);
+                grid-template-areas: 
+                    "toolbar thermogram"
+                    "toolbar notations"
+                    "toolbar analysis"
+                    "toolbar graph";
+            }
 
             .thermogram {
                 padding: var(--thermal-gap);

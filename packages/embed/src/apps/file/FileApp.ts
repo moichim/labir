@@ -2,20 +2,18 @@ import { AvailableThermalPalettes, Instance, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { version } from "../../../package.json";
-import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, NotationCurrentContext, notationCurrentContext, notationDurationContext, NotationListContext, notationListContext } from "../../controls/file/notation/NotationContext";
-import { NotationEntry } from "../../controls/file/notation/NotationEntry";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 enum Layout {
@@ -582,6 +580,14 @@ export class FileApp extends BaseElement {
                 "toolbar thermogram complex"
                 "notations notations notations";
 
+                @media(max-width: 800px) {
+                grid-template-columns: 2em calc(100% - 3em);
+                grid-template-areas: 
+                    "toolbar thermogram"
+                    "toolbar notations"
+                    "toolbar complex";
+            }
+
         }
 
         &.layout__simple {
@@ -602,6 +608,15 @@ export class FileApp extends BaseElement {
             grid-template-areas: 
                 "toolbar thermogram notations" 
                 "toolbar analysis graph";
+
+            @media(max-width: 800px) {
+                grid-template-columns: 2em calc(100% - 3em);
+                grid-template-areas: 
+                    "toolbar thermogram"
+                    "toolbar notations"
+                    "toolbar analysis"
+                    "toolbar graph";
+            }
 
             .thermogram {
                 padding: var(--thermal-gap);

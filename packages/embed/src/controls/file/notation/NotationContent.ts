@@ -45,18 +45,13 @@ export class NotationContent extends BaseElement {
             : nothing;
 
         return html`<article>
-
-            ${label !== nothing
-                ? html`<h1>${label}</h1>`
-                : nothing
-            }
-
             ${time !== nothing
                 ? html`<div class="time">${time}</div>`
                 : nothing
-            }
-
-            ${img}
+            }${label !== nothing
+                ? html`<h1 style="${entry.color ? `background-color:${entry.color}` : ''}">${label}</h1>`
+                : nothing
+            }${img}
 
             ${content.length > 0
                 ? html`<div class="content">
@@ -78,28 +73,49 @@ export class NotationContent extends BaseElement {
 
             width: 100%;
             box-sizing: border-box;
-            padding: var(--thermal-gap);
-            
-            border: 1px solid var(--thermal-slate);
-            border-radius: var(--thermal-radius);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0px;
         }
 
         h1, .time {
-            font-size: var(--thermal-fs);
-            font-weight: bold;
             line-height: 1em;
             margin: 0;
-            padding: 0;
-            margin-bottom: calc( var( --thermal-gap ) * .5);
+            padding: 7px 10px;
+            color: var(--thermal-background);
+            display: inline-block;
+            border: 0;
+            outline: 0;
         }
 
         .content {
             
         }
 
+        h1 {
+            font-weight: bold;
+            font-size: var(--thermal-fs);
+            background: var(--thermal-primary-dark);
+            border-radius: 0px var(--thermal-radius) var(--thermal-radius) 0px;
+            border-left: 1px solid var(--thermal-foreground);
+        }
+
+        .time {
+            font-size: 0.7em;
+            background: var(--thermal-foreground);
+            border-radius: var(--thermal-radius) var(--thermal-radius) var(--thermal-radius) 0px;
+            border-left: 1px solid var(--thermal-foreground);
+        }
+
         img {
+            display: block;
             max-width: 100%;
             height: auto;
+            border-radius: 0px var(--thermal-radius) var(--thermal-radius) var(--thermal-radius);
+            border: 0;
+            border-left: 1px solid var(--thermal-foreground);
+            border-top: 1px solid var(--thermal-foreground);
         }
     
     `;
