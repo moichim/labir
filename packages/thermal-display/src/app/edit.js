@@ -15,7 +15,8 @@ import {
 	Tooltip,
 	RangeControl,
 	PanelHeader,
-	CheckboxControl
+	CheckboxControl,
+	ButtonGroup
 } from '@wordpress/components';
 
 import './editor.scss';
@@ -24,7 +25,7 @@ import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
 import { useNotations } from '../utils/notationEditor/useNotations';
-import { NotationEditor } from '../utils/notationEditor/notationEditor';
+import { EditorModal } from '../utils/editor/EditorModal';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -69,6 +70,8 @@ export default function Edit({ attributes, setAttributes }) {
 		notations
 	} = attributes;
 
+	const [hasEditor, setHasEditor] = useState(false);
+
 
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
@@ -76,8 +79,6 @@ export default function Edit({ attributes, setAttributes }) {
 	const [previewFile, setPreviewFile] = useState();
 
 	const [duration, setDuration] = useState(0);
-
-	const n = useNotations(notations, duration);
 
 	const { open, setOpen } = useAnalysisEditor();
 
@@ -158,6 +159,14 @@ export default function Edit({ attributes, setAttributes }) {
 	return (
 		<>
 
+			{hasEditor === true &&
+				<EditorModal
+					attributes={attributes}
+					setAttributes={setAttributes}
+					onClose={setHasEditor}
+				/>
+			}
+
 			{open === true && <AnalysisEditorModal
 				thermal={thermal}
 				open={open}
@@ -198,36 +207,36 @@ export default function Edit({ attributes, setAttributes }) {
 
 						<div style={{ marginBottom: "1rem", marginTop: thermal ? "1rem" : "0" }}>
 
-							<MediaUpload
-								allowedTypes={['application/octet-stream']}
-								onSelect={result => {
-									successfullyUploadedThermalFile(result.url);
-								}}
-								onClose={calcelUploadingThermalFile}
-								render={({ open }) => <Button
-									onClick={() => {
-										startUploadingThermalFile();
-										open();
-									}}
-									variant="primary"
-									size="compact"
-								>
-									{thermal ? "Change file" : "Upload or select a LRC file"}
-								</Button>
-								}
-							/>
+							<ButtonGroup>
 
-							{thermal && <>
-								{/*<NotationEditor
-									attributes={attributes}
-									setAttributes={setAttributes}
-									duration={duration}
-									thermal={thermal}
-								/>*/}
-								<AnalysisEditorTrigger
-									setOpen={setOpen}
+								<MediaUpload
+									allowedTypes={['application/octet-stream']}
+									onSelect={result => {
+										successfullyUploadedThermalFile(result.url);
+									}}
+									onClose={calcelUploadingThermalFile}
+									render={({ open }) => <Button
+										onClick={() => {
+											startUploadingThermalFile();
+											open();
+										}}
+										variant="primary"
+										size="compact"
+									>
+										{thermal ? "Change file" : "Upload or select a LRC file"}
+									</Button>
+									}
 								/>
-							</>}
+
+								{thermal &&
+									<Button
+										variant="secondary"
+										size='compact'
+										onClick={() => setHasEditor(true)}
+									>Editor</Button>
+								}
+
+							</ButtonGroup>
 						</div>
 
 
@@ -509,7 +518,17 @@ export default function Edit({ attributes, setAttributes }) {
 										showlayout={showlayout}
 										interactiveanalysis={interactiveanalysis}
 										layout={variant}
-									></thermal-file-app>
+									>
+
+										{Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry 
+											label={notation.label} 
+											slot="notation" 
+											from={notation.from} 
+											to={notation.to} 
+											image={notation.image}
+										/>)}
+
+									</thermal-file-app>
 								</div>
 
 								<div className="thermal__content-editor__wrapper">

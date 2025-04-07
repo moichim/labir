@@ -54,6 +54,8 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     public get playbackSpeedAspect() {
         return playbackSpeed[this.playbackSpeed];
     }
+
+    public readonly onFrame = new CallbacksManager< (currentFrame: ParsedTimelineFrame) => void >();
     
 
     public get duration() { return this.parent.duration; }
@@ -138,6 +140,8 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     }
 
     protected afterSetEffect(): void {
+
+        this.onFrame.call(this._currentStep);
 
         // Do nothing if no sequence
         if ( this.steps.length === 1 ) {

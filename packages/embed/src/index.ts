@@ -42,6 +42,8 @@ import "./ui/App";
 import "./ui/Field";
 import "./ui/Loading";
 
+
+
 import "./apps/apparent-temperature/AustralianApparentTemperature";
 
 import "./controls/AppInfoButton";
@@ -133,10 +135,11 @@ import "./controls/file/icons/FileOpacityIcon";
 import "./renderers/FileThumbnail";
 import "./renderers/FileDetail";
 // File notations
+
 import "./controls/file/notation/NotationEntry";
 import "./controls/file/notation/NotationContent";
-import "./controls/file/notation/NotationTest";
 import "./controls/file/notation/NotationTimeline";
+import "./controls/file/notation/NotationProvider";
 
 
 // 7. Complex apps go last
@@ -144,6 +147,7 @@ import "./apps/DropinApp";
 import "./apps/file/FileApp";
 import "./apps/group/GroupApp";
 import "./apps/remote/RemoteBrowser";
+
 
 
 

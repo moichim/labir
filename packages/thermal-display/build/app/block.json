@@ -124,7 +124,8 @@
       "type": "string"
     },
     "notations": {
-      "type": "array"
+      "type": "object",
+      "default": {}
     }
   }
 }

@@ -3505,6 +3505,7 @@ var TimelineDrive = class extends AbstractProperty {
   get playbackSpeedAspect() {
     return playbackSpeed[this.playbackSpeed];
   }
+  onFrame = new CallbacksManager();
   get duration() {
     return this.parent.duration;
   }
@@ -3555,6 +3556,7 @@ var TimelineDrive = class extends AbstractProperty {
     this.buffer.init();
   }
   afterSetEffect() {
+    this.onFrame.call(this._currentStep);
     if (this.steps.length === 1) {
       return;
     }

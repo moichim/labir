@@ -1507,6 +1507,7 @@ declare class TimelineDrive extends AbstractProperty<number, Instance> {
     get playbackSpeed(): PlaybackSpeeds;
     set playbackSpeed(value: PlaybackSpeeds);
     get playbackSpeedAspect(): number;
+    readonly onFrame: CallbacksManager<(currentFrame: ParsedTimelineFrame) => void>;
     get duration(): number;
     get frameCount(): number;
     readonly startTimestampRelative: number;

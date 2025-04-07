@@ -1,5 +1,5 @@
 import { consume } from "@lit/context";
-import { PropertyValues, css, html } from "lit";
+import { PropertyValues, css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
@@ -35,10 +35,7 @@ export class RangeSliderElement extends RegistryConsumer {
     public to?: number;
 
     @state()
-    protected hasFixedFrom: boolean = false;
-
-    @state()
-    protected hasFixedTo: boolean = false;
+    protected hasInitialValues: boolean = false;
 
     @consume({ context: managerPaletteContext, subscribe: true })
     @state()
@@ -50,6 +47,7 @@ export class RangeSliderElement extends RegistryConsumer {
     @state()
     protected initialised: boolean = false;
 
+    @state()
     @consume({context: loadingContext, subscribe: true})
     protected loading: boolean = false;
 
@@ -60,39 +58,6 @@ export class RangeSliderElement extends RegistryConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.registry.range.addListener(this.UUID, value => {
-            if (value) {
-
-                if ( this.from !== undefined && this.to !== undefined ) {
-
-                    // If new min is larger the existing max
-                    if ( this.max! < value.from ) {
-                        this.to = value.to;
-                        this.from = value.from;
-                    } 
-                    // If new max is smaller than existing min
-                    else {
-                        this.from = value.from;
-                        this.to = value.to;
-                    }
-
-                } else {
-                    this.from = value.from;
-                    this.to = value.to;
-                }
-
-            }
-        });
-
-        /*
-        this.registry.minmax.addListener(this.UUID, value => {
-            if (value) {
-                this.from = value.min;
-                this.to = value.max;
-            }
-        });
-        */
-
     }
 
     disconnectedCallback(): void {
@@ -102,22 +67,19 @@ export class RangeSliderElement extends RegistryConsumer {
         this.initialised = false;
     }
 
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-    }
-
     protected willUpdate(_changedProperties: PropertyValues): void {
         super.willUpdate(_changedProperties);
 
         if ("from" in _changedProperties && "to" in _changedProperties) {
-
-            this.log("Tady nastavuji něco hezkého", _changedProperties);
-
             this.registry.range.imposeRange({
                 from: _changedProperties.from as number,
                 to: _changedProperties.to as number
             });
         }
+    }
+
+    protected getSlider() {
+        return this.renderRoot?.querySelector("tc-range-slider");
     }
 
     public sliderDownListener(event: Event) {
@@ -137,54 +99,106 @@ export class RangeSliderElement extends RegistryConsumer {
     public updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        const slider = this.sliderRef.value;
-
-        if (slider && this.initialised === false) {
-            this.initialised = true;
-            slider.addCSS(`
-                .tooltip {
-                    font-size: 12px;
-                }
-                .pointer-shape {
-                    border-radius: 0;
-                    width: 10px;
-                }
-            ` );
-
-            slider.addEventListener("change", (event: Event) => {
-
-                const evt = event as CustomEvent;
-                const detail = evt.detail as { value1: number, value2: number };
-
-                this.from = detail.value1;
-                this.to = detail.value2;
-
-            });
-
-
-            slider.addEventListener("onMouseUp", () => {
-
-                if (this.from !== undefined && this.to !== undefined)
-                    this.registry.range.imposeRange({ from: this.from, to: this.to });
-
-            });
-
-            slider.addEventListener("onMouseDown", event => {
-                this.log(event);
-            });
-
+        // Initialise the slider
+        if ( _changedProperties.has("loading") && this.loading === false ) {
+            this.log("should initialise now");
+            this.initialiseSlider();
         }
 
+        
+
     }
 
 
+    /**
+     * Create the initial listeners and bind the CSS to the slider
+     */
+    protected initialiseSlider() {
 
-    protected canRanderSlider() {
-        return this.min !== undefined
-            && this.max !== undefined
-            && this.from !== undefined
-            && this.to !== undefined
+        this.initialised = true;
+
+        // The main functionality needs to be deferred, since the component is rendered in the next tick
+        setTimeout( () => {
+
+            const slider = this.sliderRef.value;
+
+            if (slider) {
+                slider.addCSS(`
+                    .tooltip {
+                        font-size: 12px;
+                    }
+                    .pointer-shape {
+                        border-radius: 0;
+                        width: 10px;
+                    }
+                ` );
+    
+                slider.addEventListener("change", (event: Event) => {
+    
+                    const evt = event as CustomEvent;
+                    const detail = evt.detail as { value1: number, value2: number };
+    
+                    this.from = detail.value1;
+                    this.to = detail.value2;
+    
+                });
+    
+    
+                slider.addEventListener("onMouseUp", () => {
+    
+                    if (this.from !== undefined && this.to !== undefined)
+                        this.registry.range.imposeRange({ from: this.from, to: this.to });
+    
+                });
+    
+                slider.addEventListener("onMouseDown", event => {
+                    this.log(event);
+                });
+            }
+
+        }, 0);
+
+
+        this.registry.range.addListener(this.UUID, value => {
+            if (value) {
+
+                this.log( "přišla hodnota", value );
+
+                if ( this.from !== undefined && this.to !== undefined ) {
+
+                    // If new min is larger the existing max
+                    if ( this.max! < value.from ) {
+                        this.to = value.to;
+                        this.from = value.from;
+                    } 
+                    // If new max is smaller than existing min
+                    else {
+                        this.from = value.from;
+                        this.to = value.to;
+                    }
+
+                } else {
+                    this.from = value.from;
+                    this.to = value.to;
+                }
+
+                // Set the values the hard way to the component - in case their setting is somehow not working in the component itself
+
+                if ( this.sliderRef.value ) {
+
+                    if ( value.from && this.from ) {
+                        this.sliderRef.value.setAttribute(  "value1", this.from.toString() );
+                    }
+        
+                    if ( value.to && this.to ) {
+                        this.sliderRef.value.setAttribute(  "value2", this.to.toString() );
+                    }
+                }
+
+            }
+        });
     }
+
 
     static styles = css`
 
@@ -219,6 +233,12 @@ export class RangeSliderElement extends RegistryConsumer {
     `;
 
     protected render(): unknown {
+
+        if ( this.loading === true ) {
+            return html`<div class="container loading">
+                <div class"skeleton"></div>    
+            </div>`;
+        }
 
         return html`
 

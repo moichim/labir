@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useId, useMemo, useState } from '@wordpress/element';
 
-export const useNotations = (notations = {}, duration) => {
+export const useNotations = (notations = {}, setAttributes, duration) => {
+
+    console.log(notations);
 
     const [state, setState] = useState(notations);
 
@@ -19,8 +21,8 @@ export const useNotations = (notations = {}, duration) => {
 
         const notation = {
             id,
-            from: Math.max( 0, Math.min( from, to ) ),
-            to: Math.min( duration, Math.max( from, to ) ),
+            from,
+            to,
             label,
             img
         };
@@ -37,6 +39,7 @@ export const useNotations = (notations = {}, duration) => {
     const removeNotation = useCallback((
         id
     ) => {
+        console.log("removing notation", id);
         const newState = {...state};
         delete newState[id.toString()];
         setState(newState);
@@ -49,17 +52,11 @@ export const useNotations = (notations = {}, duration) => {
         updates
     ) => {
 
+        console.log("updating", id, updates);
+
         const notation = state[id];
 
         if ( notation ) {
-
-            if ( "from" in updates ) {
-                updates.from = Math.max( 0, Math.min( updates.from, notation.to ) );
-            }
-
-            if ( "to" in updates ) {
-                updates.to = Math.min( duration, Math.max( updates.to, notation.from ) );
-            }
 
             const newNotation = {
                 ...notation,
@@ -72,6 +69,8 @@ export const useNotations = (notations = {}, duration) => {
             };
 
             setState(newState);
+
+            console.log("updated", newState);
 
         }
 
@@ -86,33 +85,25 @@ export const useNotations = (notations = {}, duration) => {
         }
 
         const newState = {...state};
-        const changed = false;
 
-        arr.forEach( notation => {
-            if ( notation.from > duration ) {
-                delete newState[notation.id];
-                changed = true;
-                return;
-            }
+        // setState(newState);
 
-            if ( notation.to > duration ) {
-                newState.to = duration;
-                changed = true;
-            }
-
-        } );
-
-        if ( changed ) {
-            setState(newState);
-        }
-
-    }, [state,duration, setState] );
+    }, [state, duration, setState] );
 
 
 
     const array = useMemo(() => {
-        return Object.values(state).sort( (a,b) => a.from - b.from );
+        const arr = Object.values(state);
+        return arr;//.sort( (a,b) => a.from - b.from );
     }, [state]);
+
+    useEffect(() => {
+        if ( Object.values(state).length > 0 ) {
+            setAttributes( {notations:state} );
+        }
+    }, [state]);
+
+    
 
 
 

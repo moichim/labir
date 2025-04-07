@@ -26,7 +26,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_analysisEditor_AnalysisEditorModal__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/analysisEditor/AnalysisEditorModal */ "./src/utils/analysisEditor/AnalysisEditorModal.js");
 /* harmony import */ var _utils_analysisEditor_AnalysisEditorTrigger__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/analysisEditor/AnalysisEditorTrigger */ "./src/utils/analysisEditor/AnalysisEditorTrigger.js");
 /* harmony import */ var _utils_notationEditor_useNotations__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/notationEditor/useNotations */ "./src/utils/notationEditor/useNotations.js");
-/* harmony import */ var _utils_notationEditor_notationEditor__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/notationEditor/notationEditor */ "./src/utils/notationEditor/notationEditor.js");
+/* harmony import */ var _utils_editor_EditorModal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/editor/EditorModal */ "./src/utils/editor/EditorModal.js");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__);
 
@@ -85,10 +85,10 @@ function Edit({
     interactiveanalysis,
     notations
   } = attributes;
+  const [hasEditor, setHasEditor] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
   const [thermalBackup, setThermalBackup] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(thermal);
   const [previewFile, setPreviewFile] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)();
   const [duration, setDuration] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
-  const n = (0,_utils_notationEditor_useNotations__WEBPACK_IMPORTED_MODULE_9__.useNotations)(notations, duration);
   const {
     open,
     setOpen
@@ -154,7 +154,11 @@ function Edit({
     }
   }, []);
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.Fragment, {
-    children: [open === true && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_utils_analysisEditor_AnalysisEditorModal__WEBPACK_IMPORTED_MODULE_7__.AnalysisEditorModal, {
+    children: [hasEditor === true && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_utils_editor_EditorModal__WEBPACK_IMPORTED_MODULE_10__.EditorModal, {
+      attributes: attributes,
+      setAttributes: setAttributes,
+      onClose: setHasEditor
+    }), open === true && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_utils_analysisEditor_AnalysisEditorModal__WEBPACK_IMPORTED_MODULE_7__.AnalysisEditorModal, {
       thermal: thermal,
       open: open,
       setOpen: setOpen,
@@ -179,33 +183,36 @@ function Edit({
                 })
               })
             })
-          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)("div", {
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
             style: {
               marginBottom: "1rem",
               marginTop: thermal ? "1rem" : "0"
             },
-            children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
-              allowedTypes: ['application/octet-stream'],
-              onSelect: result => {
-                successfullyUploadedThermalFile(result.url);
-              },
-              onClose: calcelUploadingThermalFile,
-              render: ({
-                open
-              }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
-                onClick: () => {
-                  startUploadingThermalFile();
-                  open();
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.ButtonGroup, {
+              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
+                allowedTypes: ['application/octet-stream'],
+                onSelect: result => {
+                  successfullyUploadedThermalFile(result.url);
                 },
-                variant: "primary",
+                onClose: calcelUploadingThermalFile,
+                render: ({
+                  open
+                }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
+                  onClick: () => {
+                    startUploadingThermalFile();
+                    open();
+                  },
+                  variant: "primary",
+                  size: "compact",
+                  children: thermal ? "Change file" : "Upload or select a LRC file"
+                })
+              }), thermal && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.Button, {
+                variant: "secondary",
                 size: "compact",
-                children: thermal ? "Change file" : "Upload or select a LRC file"
-              })
-            }), thermal && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.Fragment, {
-              children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)(_utils_analysisEditor_AnalysisEditorTrigger__WEBPACK_IMPORTED_MODULE_8__.AnalysisEditorTrigger, {
-                setOpen: setOpen
-              })
-            })]
+                onClick: () => setHasEditor(true),
+                children: "Editor"
+              })]
+            })
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_4__.PanelBody, {
           title: "Visible file",
@@ -442,7 +449,14 @@ function Edit({
                 showshare: showshare,
                 showlayout: showlayout,
                 interactiveanalysis: interactiveanalysis,
-                layout: variant
+                layout: variant,
+                children: Object.values(notations).length > 0 && Object.values(notations).map(notation => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("notation-entry", {
+                  label: notation.label,
+                  slot: "notation",
+                  from: notation.from,
+                  to: notation.to,
+                  image: notation.image
+                }))
               })
             }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_11__.jsx)("div", {
               className: "thermal__content-editor__wrapper",
@@ -995,6 +1009,367 @@ const useAnalysisEditor = () => {
 
 /***/ }),
 
+/***/ "./src/utils/editor/EditorModal.js":
+/*!*****************************************!*\
+  !*** ./src/utils/editor/EditorModal.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   EditorModal: () => (/* binding */ EditorModal),
+/* harmony export */   formatTimestamp: () => (/* binding */ formatTimestamp)
+/* harmony export */ });
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
+/* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
+/* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/* harmony import */ var _wordpress_i18n__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _notationEditor_notationEditor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../notationEditor/notationEditor */ "./src/utils/notationEditor/notationEditor.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__);
+
+
+
+
+
+const formatFixed = (number, fixed) => {
+  const f = number.toFixed(0);
+  const length = f.length;
+  const add = length - fixed;
+  let result = [];
+  if (add > 0) {
+    for (let i = 0; i < add; i++) {
+      result.push(0);
+    }
+  }
+  result.push(f);
+  return result.join("");
+};
+const formatTimestamp = timestamp => {
+  const date = new Date(timestamp);
+  return `${formatFixed(date.getUTCMinutes(), 0)}:${formatFixed(date.getUTCSeconds(), 2)}.${formatFixed(date.getUTCMilliseconds(), 3)}`;
+};
+const EditorModal = ({
+  attributes,
+  setAttributes,
+  onClose
+}) => {
+  const ID = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useMemo)(() => (Math.random() * 1000000).toFixed(0), []);
+  const getId = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useCallback)(input => `${ID}__${input}`, [ID]);
+  const {
+    thermal,
+    visible,
+    opacity,
+    palette,
+    variant,
+    showhistogram,
+    showlayout,
+    interactiveanalysis,
+    showshare,
+    from,
+    to,
+    author,
+    license,
+    label,
+    analysis1,
+    analysis2,
+    analysis3,
+    analysis4,
+    analysis5,
+    analysis6,
+    analysis7,
+    notations
+  } = attributes;
+  const [tab, setTab] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)("analyses");
+  const [ms, setMs] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(0);
+  const [duration, setDuration] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(undefined);
+  const fileProviderRef = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useCallback)(node => {
+    if (node) {
+      /** Mirror internal changes of analysis to the global state */
+      const closure = instance => {
+        instance.slots.onSlot1Serialize.set(ID, value => setAttributes({
+          analysis1: value
+        }));
+        instance.slots.onSlot2Serialize.set(ID, value => setAttributes({
+          analysis2: value
+        }));
+        instance.slots.onSlot3Serialize.set(ID, value => setAttributes({
+          analysis3: value
+        }));
+        instance.slots.onSlot4Serialize.set(ID, value => setAttributes({
+          analysis4: value
+        }));
+        instance.slots.onSlot5Serialize.set(ID, value => setAttributes({
+          analysis5: value
+        }));
+        instance.slots.onSlot6Serialize.set(ID, value => setAttributes({
+          analysis6: value
+        }));
+        instance.slots.onSlot7Serialize.set(ID, value => setAttributes({
+          analysis7: value
+        }));
+        instance.group.registry.range.addListener(ID, value => setAttributes({
+          from: value.from,
+          to: value.to
+        }));
+        instance.group.registry.manager.palette.addListener(ID, value => setAttributes({
+          palette: value
+        }));
+        setDuration(instance.timeline.duration);
+        instance.timeline.addListener(ID, value => {
+          setMs(value);
+        });
+      };
+      node.onInstanceCreated.set(getId("instance_created__2"), closure);
+    }
+  }, [thermal, setMs]);
+  const tabs = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useMemo)(() => {
+    const result = [{
+      name: 'analyses',
+      title: 'Analyses',
+      className: 'tab-one',
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("group-tool-buttons", {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          style: {
+            width: "100%"
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-analysis-table", {
+            style: {
+              width: "100%"
+            }
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          style: {
+            width: "100%"
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-analysis-graph", {
+            style: {
+              width: "100%"
+            }
+          })
+        })]
+      })
+    }];
+    if (duration > 0) {
+      result.push({
+        name: 'notations',
+        title: 'Notations',
+        className: 'tab-two',
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_notationEditor_notationEditor__WEBPACK_IMPORTED_MODULE_3__.NotationsEditorLayout, {
+            attributes: attributes,
+            setAttributes: setAttributes,
+            duration: duration,
+            ms: ms
+          })
+        })
+      });
+    }
+    result.push({
+      name: 'display',
+      title: 'Display',
+      className: 'tab-display',
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-palette-buttons", {})
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.SelectControl, {
+            label: "Variant",
+            value: variant,
+            options: [{
+              label: "Advanced analyser",
+              value: "advanced"
+            }, {
+              label: "Simple layout",
+              value: "simple"
+            }, {
+              label: "Lesson",
+              value: "lesson"
+            }, {
+              label: "Image without interface",
+              value: "nogui"
+            }],
+            onChange: value => setAttributes({
+              variant: value
+            })
+          })
+        }), visible && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          style: {
+            paddingTop: "1rem"
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.RangeControl, {
+            __nextHasNoMarginBottom: true,
+            label: "IR image opacity",
+            help: "If a visible file is provided, you can set the initial transparency of the thermal file.",
+            value: opacity,
+            onChange: value => setAttributes({
+              opacity: value
+            }),
+            min: 0,
+            max: 1,
+            step: 0.01
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.CheckboxControl, {
+            __nextHasNoMarginBottom: true,
+            checked: showhistogram,
+            label: "Show histogram",
+            hint: "Enable histogram display in the thermal scale?",
+            onChange: value => {
+              setAttributes({
+                showhistogram: value
+              });
+            }
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.CheckboxControl, {
+            __nextHasNoMarginBottom: true,
+            checked: showshare,
+            label: "Show share button",
+            help: "Display a button with instruction on embedding this file to other websites?",
+            onChange: value => {
+              setAttributes({
+                showshare: value
+              });
+            }
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.CheckboxControl, {
+            __nextHasNoMarginBottom: true,
+            checked: showlayout,
+            label: "Show layout button",
+            help: "Enable the user to change the application layout?",
+            onChange: value => {
+              setAttributes({
+                showlayout: value
+              });
+            }
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.CheckboxControl, {
+            __nextHasNoMarginBottom: true,
+            checked: interactiveanalysis,
+            label: "Interactive analysis",
+            help: "Should the visitor be able to edit analysis?",
+            onChange: value => {
+              setAttributes({
+                interactiveanalysis: value
+              });
+            }
+          })
+        })]
+      })
+    });
+    result.push({
+      name: 'metadata',
+      title: 'Metadata',
+      className: 'tab-three',
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.Fragment, {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelRow, {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.TextControl, {
+            label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Author', 'thermal-display'),
+            value: author || '',
+            onChange: value => setAttributes({
+              author: value
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.TextControl, {
+            label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('License', 'thermal-display'),
+            value: license || '',
+            onChange: value => setAttributes({
+              license: value
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.TextControl, {
+            label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_2__.__)('Label', 'thermal-display'),
+            help: "Label appears on the black button on top & left of the app.",
+            value: label || '',
+            onChange: value => setAttributes({
+              label: value
+            })
+          })]
+        })
+      })
+    });
+    return result;
+  }, [attributes, setAttributes, duration]);
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.Modal, {
+    title: "File editor",
+    onRequestClose: onClose,
+    isFullScreen: true,
+    className: "file-editor",
+    children: [formatTimestamp(ms), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("manager-provider", {
+      slug: "notations-editor",
+      palette: attributes.palette,
+      autoclear: true,
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-provider", {
+        slug: "notations-editor",
+        autoclear: true,
+        from: from,
+        to: to,
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("group-provider", {
+          slug: "notations-editor",
+          autoclear: true,
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-provider", {
+            thermal: thermal,
+            visible: visible,
+            ref: fileProviderRef,
+            analysis1: analysis1,
+            analysis2: analysis2,
+            analysis3: analysis3,
+            analysis4: analysis4,
+            analysis5: analysis5,
+            analysis6: analysis6,
+            analysis7: analysis7,
+            autoclear: true,
+            batch: true,
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("notation-provider", {
+              children: [Object.values(notations).length > 0 && Object.values(notations).map(notation => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("notation-entry", {
+                label: notation.label,
+                slot: "notation",
+                from: notation.from,
+                to: notation.to
+              })), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("main", {
+                class: "file-editor-layout",
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("section", {
+                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    class: "file-editor-stack gap-bottom",
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-palette-dropdown", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-range-full-button", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-range-auto-button", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-info-button", {})]
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+                    class: "",
+                    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-histogram", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-range-slider", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("registry-ticks-bar", {})]
+                  }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-canvas", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("file-timeline", {})]
+                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("section", {
+                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.TabPanel, {
+                    className: "my-tab-panel",
+                    onSelect: setTab,
+                    tabs: tabs,
+                    children: tab => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+                      className: "file-editor-tab",
+                      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.Panel, {
+                        header: tab.title,
+                        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(React.Fragment, {
+                          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_0__.PanelBody, {
+                            children: tab.children
+                          })
+                        }, ".0")
+                      })
+                    })
+                  })
+                })]
+              })]
+            })
+          })
+        })
+      })
+    })]
+  });
+};
+
+/***/ }),
+
 /***/ "./src/utils/libScriptElement.js":
 /*!***************************************!*\
   !*** ./src/utils/libScriptElement.js ***!
@@ -1047,7 +1422,6 @@ const documentHasLibScriptElement = document => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   NotationEditor: () => (/* binding */ NotationEditor),
 /* harmony export */   NotationsEditorLayout: () => (/* binding */ NotationsEditorLayout)
 /* harmony export */ });
 /* harmony import */ var _useNotations__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./useNotations */ "./src/utils/notationEditor/useNotations.js");
@@ -1055,146 +1429,140 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @wordpress/components */ "@wordpress/components");
 /* harmony import */ var _wordpress_components__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
-/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @wordpress/block-editor */ "@wordpress/block-editor");
+/* harmony import */ var _wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _editor_EditorModal__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../editor/EditorModal */ "./src/utils/editor/EditorModal.js");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+/* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__);
 
 
 
 
-/**
- * 
- * @param {*} notation 
- * @param {CallableFunction} update 
- */
 
-const NotationForm = (notation, update) => {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-    children: ["Editor", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
-      children: "Save notation"
-    })]
-  });
-};
-const NotationThumbnail = ({
-  notation,
-  setCurrentNotation
-}) => {
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-    onClick: () => setCurrentNotation(notation.id),
-    children: ["Thumb:", notation.id]
-  });
-};
+
 const Notation = ({
   notation,
-  currentNotationId,
-  setCurrentNotation,
-  updateFn
+  updateFn,
+  deleteFn
 }) => {
-  if (notation.id === currentNotationId) {
-    return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(NotationForm, {
-      notation: notation,
-      update: updateFn
-    });
-  }
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(NotationThumbnail, {
-    notation: notation,
-    setCurrentNotation: setCurrentNotation
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+        value: notation.from,
+        onChange: value => {
+          updateFn(notation.id, {
+            from: value
+          });
+        }
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+        value: notation.to,
+        onChange: value => {
+          updateFn(notation.id, {
+            to: value
+          });
+        }
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+        value: notation.label,
+        onChange: value => {
+          updateFn(notation.id, {
+            label: value
+          });
+        }
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_3__.MediaUpload, {
+        allowedTypes: "image",
+        onSelect: result => {
+          console.log(result);
+          // successfullyUploadedVisibleFile(result.url);
+          updateFn(notation.id, {
+            image: result.url
+          });
+        },
+        render: ({
+          open
+        }) => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("div", {
+          className: "file-upload-cell",
+          children: [notation.image && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("img", {
+            src: notation.image,
+            alt: notation.img,
+            onClick: open,
+            className: "notation-image"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.ButtonGroup, {
+            children: notation.image ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+              variant: "secondary",
+              size: "small",
+              onClick: () => {
+                updateFn(notation.id, {
+                  image: undefined
+                });
+              },
+              children: "Remove image"
+            }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+              onClick: open,
+              variant: "primary",
+              size: "small",
+              children:  true ? "Change file" : 0
+            })
+          })]
+        })
+      })
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("td", {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+        onClick: deleteFn,
+        variant: "tertiary",
+        size: "compact",
+        children: "Remove"
+      })
+    })]
   });
 };
 const NotationsEditorLayout = ({
   attributes,
   setAttributes,
   duration,
-  thermal
+  ms
 }) => {
   const n = (0,_useNotations__WEBPACK_IMPORTED_MODULE_0__.useNotations)(attributes.notations, setAttributes, duration);
-  const [openNotation, setOpenNotation] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(undefined);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {
-    children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("manager-provider", {
-      slug: "notations-editor",
-      palette: attributes.palette,
-      autoclear: true,
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-provider", {
-        slug: "notations-editor",
-        autoclear: true,
-        from: attributes.from,
-        to: attributes.to,
-        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("group-provider", {
-          slug: "notations-editor",
-          autoclear: true,
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("file-provider", {
-            thermal: thermal,
-            batch: true,
-            autoclear: true,
-            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-              style: {
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "20px"
-              },
-              children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-histogram", {
-                  interactive: true
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-range-slider", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-ticks-bar", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("file-canvas", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("div", {
-                  position: "relative",
-                  children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("file-timeline", {})
-                })]
-              }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("div", {
-                  style: {
-                    display: "flex",
-                    gap: "10px",
-                    width: "100%"
-                  },
-                  children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-palette-dropdown", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-range-full-button", {}), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("registry-range-auto-button", {})]
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)("h1", {
-                  children: "Add or edit notations here"
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)("p", {
-                  children: [duration, " ms"]
-                }), n.array.map(notation => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(Notation, {
-                  notation: notation,
-                  setAttributes: setAttributes,
-                  setCurrentNotation: setOpenNotation,
-                  currentNotationId: openNotation?.id
-                })), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
-                  onClick: () => {
-                    const notation = n.addNotation(0, 0, "Popiska notace");
-                    setOpenNotation(notation);
-                  },
-                  children: "Add notation"
-                })]
-              })]
-            })
-          })
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.Fragment, {
+    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("p", {
+      children: ["Sequence duration: ", /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("strong", {
+        children: (0,_editor_EditorModal__WEBPACK_IMPORTED_MODULE_4__.formatTimestamp)(duration)
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("table", {
+      class: "notations-table",
+      children: [n.array.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("thead", {
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)("tr", {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+            children: "From"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+            children: "To"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+            children: "Text"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+            children: "Image"
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("th", {
+            children: "Actions"
+          })]
         })
-      })
-    })
-  });
-};
-const NotationEditor = ({
-  attributes,
-  setAttributes,
-  duration,
-  thermal
-}) => {
-  const [open, setOpen] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_1__.useState)(false);
-  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.Fragment, {
-    children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
-      variant: "secondary",
-      size: "compact",
-      onClick: () => setOpen(true),
-      children: "Notations"
-    }), open && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Modal, {
-      title: "Notations editor",
-      isFullScreen: true,
-      onRequestClose: () => {
-        setOpen(false);
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)("tbody", {
+        children: n.array.map(notation => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(Notation, {
+          notation: notation,
+          setAttributes: setAttributes,
+          updateFn: n.updateNotation,
+          deleteFn: () => n.removeNotation(notation.id)
+        }))
+      })]
+    }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+      onClick: () => {
+        n.addNotation(ms, ms, "Popiska notace");
       },
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_3__.jsx)(NotationsEditorLayout, {
-        attributes: attributes,
-        setAttributes: setAttributes,
-        duration: duration,
-        thermal: thermal
-      })
+      variant: "primary",
+      children: "Add notation"
     })]
   });
 };
@@ -1214,7 +1582,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @wordpress/element */ "@wordpress/element");
 /* harmony import */ var _wordpress_element__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_wordpress_element__WEBPACK_IMPORTED_MODULE_0__);
 
-const useNotations = (notations = {}, duration) => {
+const useNotations = (notations = {}, setAttributes, duration) => {
+  console.log(notations);
   const [state, setState] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useState)(notations);
   const addNotation = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useCallback)((from, to, label, img) => {
     if (duration === undefined || duration === 0) {
@@ -1223,8 +1592,8 @@ const useNotations = (notations = {}, duration) => {
     const id = Math.random();
     const notation = {
       id,
-      from: Math.max(0, Math.min(from, to)),
-      to: Math.min(duration, Math.max(from, to)),
+      from,
+      to,
       label,
       img
     };
@@ -1236,6 +1605,7 @@ const useNotations = (notations = {}, duration) => {
     return notation;
   }, [state, setState, duration]);
   const removeNotation = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useCallback)(id => {
+    console.log("removing notation", id);
     const newState = {
       ...state
     };
@@ -1243,14 +1613,9 @@ const useNotations = (notations = {}, duration) => {
     setState(newState);
   }, [state, setState]);
   const updateNotation = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useCallback)((id, updates) => {
+    console.log("updating", id, updates);
     const notation = state[id];
     if (notation) {
-      if ("from" in updates) {
-        updates.from = Math.max(0, Math.min(updates.from, notation.to));
-      }
-      if ("to" in updates) {
-        updates.to = Math.min(duration, Math.max(updates.to, notation.from));
-      }
       const newNotation = {
         ...notation,
         ...updates
@@ -1260,6 +1625,7 @@ const useNotations = (notations = {}, duration) => {
         [id]: newNotation
       };
       setState(newState);
+      console.log("updated", newState);
     }
   }, [state, setState, duration]);
   (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
@@ -1270,24 +1636,19 @@ const useNotations = (notations = {}, duration) => {
     const newState = {
       ...state
     };
-    const changed = false;
-    arr.forEach(notation => {
-      if (notation.from > duration) {
-        delete newState[notation.id];
-        changed = true;
-        return;
-      }
-      if (notation.to > duration) {
-        newState.to = duration;
-        changed = true;
-      }
-    });
-    if (changed) {
-      setState(newState);
-    }
+
+    // setState(newState);
   }, [state, duration, setState]);
   const array = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => {
-    return Object.values(state).sort((a, b) => a.from - b.from);
+    const arr = Object.values(state);
+    return arr; //.sort( (a,b) => a.from - b.from );
+  }, [state]);
+  (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+    if (Object.values(state).length > 0) {
+      setAttributes({
+        notations: state
+      });
+    }
   }, [state]);
   return {
     notations: state,
@@ -1427,7 +1788,7 @@ module.exports = window["wp"]["i18n"];
   \****************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/file","version":"0.1.0","title":"IR image","category":"thermal","icon":"file:./assets/icon.svg","description":"Display and analyse an uploaded IR image.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"variant":{"type":"string","default":"advanced"},"showabout":{"type":"boolean","default":true},"showhistogram":{"type":"boolean","default":true},"showshare":{"type":"boolean","default":false},"showlayout":{"type":"boolean","default":false},"interactiveanalysis":{"type":"boolean","default":true},"thermal":{"type":"string"},"visible":{"type":"string"},"opacity":{"type":"number","default":1},"palette":{"type":"string","default":"iron"},"from":{"type":"number"},"to":{"type":"number"},"speed":{"type":"number","default":1},"label":{"type":"string"},"author":{"type":"string"},"license":{"type":"string","default":"CC BY-SA 4.0"},"description":{"type":"string"},"analysis1":{"type":"string"},"analysis2":{"type":"string"},"analysis3":{"type":"string"},"analysis4":{"type":"string"},"analysis5":{"type":"string"},"analysis6":{"type":"string"},"analysis7":{"type":"string"},"notations":{"type":"array"}}}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/file","version":"0.1.0","title":"IR image","category":"thermal","icon":"file:./assets/icon.svg","description":"Display and analyse an uploaded IR image.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","viewScript":"file:./view.js","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"variant":{"type":"string","default":"advanced"},"showabout":{"type":"boolean","default":true},"showhistogram":{"type":"boolean","default":true},"showshare":{"type":"boolean","default":false},"showlayout":{"type":"boolean","default":false},"interactiveanalysis":{"type":"boolean","default":true},"thermal":{"type":"string"},"visible":{"type":"string"},"opacity":{"type":"number","default":1},"palette":{"type":"string","default":"iron"},"from":{"type":"number"},"to":{"type":"number"},"speed":{"type":"number","default":1},"label":{"type":"string"},"author":{"type":"string"},"license":{"type":"string","default":"CC BY-SA 4.0"},"description":{"type":"string"},"analysis1":{"type":"string"},"analysis2":{"type":"string"},"analysis3":{"type":"string"},"analysis4":{"type":"string"},"analysis5":{"type":"string"},"analysis6":{"type":"string"},"analysis7":{"type":"string"},"notations":{"type":"object","default":{}}}}');
 
 /***/ })
 

@@ -49,7 +49,7 @@ const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4"
 
 
 @customElement("thermal-file-app")
-export class FileApp extends BaseElement implements IWithNotationContext {
+export class FileApp extends BaseElement {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
 
@@ -144,25 +144,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     @state()
     ms: number = 0;
 
-    @state()
-    @queryAssignedElements({ flatten: true })
-    _notationSlot!: Array<HTMLElement>;
-
-    @state()
-    notations: NotationEntry[] = [];
-
-    @state()
-    @provide({ context: notationDurationContext })
-    duration: number = 1000 * 1000;
-
-    @state()
-    @provide({ context: notationListContext })
-    notationList: NotationListContext = [];
-
-    @state()
-    @provide({ context: notationCurrentContext })
-    notationCurrent: NotationCurrentContext;
-
 
 
 
@@ -185,33 +166,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     }
 
 
-
-    private observer: MutationObserver | null = null;
-
-
-    updateNotationsMs(ms: number) {
-        this.notationCurrent = getCurrentNotationsByMs(ms, this);
-    }
-
-    observeSlotChanges() {
-
-        const slot = this.renderRoot?.querySelector('slot[name="notation"]') as HTMLSlotElement | null | undefined;
-
-        if (!slot) return;
-
-        this.notationList = grabNotationsFromSlot(slot.assignedElements());
-
-        this.observer = new MutationObserver(() => {
-            this.notationList = grabNotationsFromSlot(slot.assignedElements());
-        });
-
-        slot.addEventListener('slotchange', () => {
-            this.observer?.disconnect();
-            this.notationList = grabNotationsFromSlot(slot.assignedElements());
-        });
-
-    }
-
     protected _file?: Instance;
 
     @state()
@@ -226,14 +180,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-
-        // Set the time to the current ms
-        setTimeout(() => {
-            this.updateNotationsMs(this.ms);
-        }, 0)
-
-        // Register notations listeners
-        this.observeSlotChanges();
 
         // Register intl listeners
         initLocalesInTopLevelElement(this);
@@ -255,14 +201,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                 this.recorded = TimeFormat.human(instance.timestamp);
 
                 this.hasVisible = instance.visibleUrl !== undefined;
-
-                /**  */
-                this.duration = instance.timeline.duration;
-
-                /** Update notations when tineline changed */
-                instance.timeline.addListener(this.UUID, ms => {
-                    this.updateNotationsMs(ms);
-                });
 
                 /** Range changes */
                 instance.group.registry.range.addListener(this.UUID + "mirror_changes", value => {
@@ -436,7 +374,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
         setTimeout(() => {
             if (this.fileProviderRef.value && this.file) {
                 this.fileProviderRef.value.redraw();
-                this.updateNotationsMs(0);
+                // this.updateNotationsMs(0);
             }
         }, 0);
     }
@@ -698,8 +636,6 @@ export class FileApp extends BaseElement implements IWithNotationContext {
     protected render(): unknown {
 
         return html`
-        
-    <slot name="notation"></slot>
 
     <manager-provider 
         slug="${this.UUID}"
@@ -727,8 +663,16 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                     analysis7="${ifDefined(this.analysis7)}"
                     autoclear="true"
                 >
+                    <notation-provider>
 
-                    ${this.layout === Layout.NOGUI ? this.renderNogui() : this.renderApp()}
+                        <slot name="notation" slot="notation"></slot>
+
+                        ${this.layout === Layout.NOGUI 
+                            ? this.renderNogui() 
+                            : this.renderApp()
+                        }
+
+                    </notation-provider>
 
                 </file-provider>
 

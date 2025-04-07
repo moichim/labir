@@ -14,7 +14,6 @@ if ( !function_exists( "analysis_is_set" ) ) {
 <?php if ( $attributes["thermal"] ): ?>
 
 <div <?= get_block_wrapper_attributes(); ?>>
-	
 
 		<thermal-file-app
 			locale="<?= get_locale(); ?>"
@@ -43,7 +42,21 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			showshare="<?= $attributes["showshare"] ? "true": "false" ?>"
 			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
 			layout="<?= $attributes["variant"]; ?>"
-		></thermal-file-app>
+		>
+		<?php if ( isset($attributes["notations"]) ):
+			foreach ( $attributes["notations"] as $notation ):	
+		?>
+			<notation-entry 
+				slot="notation" 
+				from="<?= $notation['from']?>" 
+				to="<?= $notation['to']?>" 
+				label="<?= $notation['label']?>"
+				<?php if (isset($notation["image"])): ?>image='<?=$notation["image"];?>' <?php endif;?>
+			></notation-entry>
+		<?php 
+			endforeach;
+		endif; ?>
+	</thermal-file-app>
 
 </div>
 
