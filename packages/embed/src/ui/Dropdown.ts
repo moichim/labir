@@ -149,7 +149,7 @@ export class ThermalDropdown extends BaseElement {
             top: 0;
             left: 0;
             
-            padding: calc( var( --thermal-gap ) * .5);
+            padding: 5px 10px;
 
             border: 1px solid var( --thermal-slate );
             border-radius: var( --thermal-radius );
@@ -184,15 +184,21 @@ export class ThermalDropdown extends BaseElement {
                 left: 0;
                 width: 100vw;
                 height: 100vh;
-                //  backdrop-filter: blur(1px);
             }
         }
 
-        :host(.small) {
-            .dropdown-invoker {
-                // background-color: red !important;
-            }
+        slot[name="option"]::slotted(*) {
+
+            display: block;
+            width: 100%;
+
+            margin-top: 5px;
+            margin-bottom: 5px;
+            width: 100%;
+
         }
+
+
     
     `;
 
@@ -241,8 +247,6 @@ export class ThermalDropdown extends BaseElement {
                 </div>
             
             </div>
-
-            <slot> name="tour"</slot>
         
         `;
 

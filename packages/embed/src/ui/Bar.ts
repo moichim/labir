@@ -9,11 +9,18 @@ export class ThermalBar extends LitElement {
 
         .container {
             // width: 100%;
+            display: flex;
+            gap: 5px;
+            position: relative;
         }
 
 
         .ruler {
             width: 100%;
+            position: absolute;
+            height: 0;
+            top: 0;
+            left: 0;
         }
 
         .ruler-item {}

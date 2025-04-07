@@ -105,8 +105,6 @@ export const AnalysisEditorModal = ({
 
                             <div className="modal-editor__details">
 
-                                <p>Use the tools to draw analyses on the image!</p>
-
                                 <group-tool-buttons style={{ paddingBottom: "1rem" }}></group-tool-buttons>
 
                                 <div style={{}}>

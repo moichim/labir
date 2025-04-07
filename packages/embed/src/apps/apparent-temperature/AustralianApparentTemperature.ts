@@ -448,11 +448,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         return html`
             <thermal-app label=${t(T.apparenttemperature)} author="LabIR Edu" license="CC BY-SA 4.0">
 
-            <div slot="bar" style="flex-grow: 4;">
-
-                                <thermal-bar>
-
-                <thermal-dialog label=${t(T.info)}>
+                <thermal-dialog label=${t(T.info)} slot="bar-pre">
                     <thermal-button slot="invoker">${t(T.info)}</thermal-button>
                     <div slot="content">
                         ${unsafeHTML(t(T.apparenttemperaturehint, { href: "https://en.wikipedia.org/wiki/Wind_chill#Australian_apparent_temperature" }))}
@@ -469,9 +465,6 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
                 : nothing
             }
 
-                </thermal-bar>
-
-                </div>
 
                 <section class="table">
 

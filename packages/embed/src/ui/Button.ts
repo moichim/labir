@@ -5,7 +5,7 @@ import { BaseElement } from '../hierarchy/BaseElement';
 @customElement("thermal-button")
 export class ThermalButton extends BaseElement {
 
-    public static VARIANTS = ["slate", "primary", "foreground", "background"]
+    public static VARIANTS = ["slate", "primary", "foreground", "background", "plain"]
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
@@ -88,6 +88,19 @@ export class ThermalButton extends BaseElement {
         &.background {
             background: var( --thermal-background );
             color: var( --thermal-foreground );
+        }
+
+        &.plain {
+            background: transparent;
+            color: var(--thermal-slate);
+            border: 0;
+            box-shadow: none !important;
+            padding-left: 0;
+            padding-right: 0;
+
+            &:hover {
+                color: var(--thermal-primary);
+            }
         }
     }
     

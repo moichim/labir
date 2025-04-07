@@ -191,6 +191,17 @@ export class ThermalAppUiElement extends BaseElement {
             display: flex;
             gap: 5px;
             align-items: center;
+
+            .bar-content {
+                flex-grow: 1;
+            }
+
+            .bar-separator {
+                flex-grow: 100;
+                content: "";
+            }
+
+
         }
 
         :host([fullscreen="on"]) .container {
@@ -296,8 +307,7 @@ export class ThermalAppUiElement extends BaseElement {
 
         <header ${ref(this.headerRef)} class="app-header">
             
-        ${this.barElements.length >= 0 ? html`
-            <div class="bar">
+            <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
 
                 <slot name="label">
                     ${this.label
@@ -306,7 +316,21 @@ export class ThermalAppUiElement extends BaseElement {
                     }
                 </slot>
 
-                <slot name="bar"></slot>
+                <slot name="bar-persistent"></slot>
+
+                <div class="bar-content">
+
+                    <thermal-bar>
+
+                        <slot name="bar-pre"></slot>
+
+                        <div class="bar-separator"></div>
+
+                        <slot name="bar-post"></slot>
+
+                    </thermal-bar>
+                
+                </div>
 
                 <slot name="close"></slot>
 
@@ -347,8 +371,7 @@ export class ThermalAppUiElement extends BaseElement {
                     ` )}
                 </thermal-dropdown>
                 
-            </div> 
-        ` : ""}
+            </div>
 
         ${this.preElements.length >= 0 ? html`
             <div class="pre" class="pre">

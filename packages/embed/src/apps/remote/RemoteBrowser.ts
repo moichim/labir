@@ -1157,28 +1157,22 @@ thermal-dropdown.selector::part(invoker) {
     protected renderHeader() {
 
         if ( this.state === STATE.MAIN ) {
-            return html`<header class="screen-browser-header" slot="bar"></header>`;
+            return nothing;
         }
 
         return html`
-            <header class="screen-browser-header" slot="bar">
-                <thermal-bar>
 
-                    <registry-range-full-button></registry-range-full-button>
-                    <registry-range-auto-button></registry-range-auto-button>
+            <registry-range-full-button slot="bar-pre"></registry-range-full-button>
+            <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
 
-                    ${this.state === STATE.ONE && this.dataOnly !== undefined
-                                ? html`<group-provider slug="${this.dataOnly.info.folder}">
-                            <group-download-dropdown></group-download-dropdown>
-                        </group-provider>`
-                                : nothing
-                            }
-                    <registry-opacity-slider></registry-opacity-slider>
-                    <group-tool-buttons showhint="false" showpopup="true"></group-tool-buttons>
-
-                </thermal-bar>
-            </header>
-        
+            ${this.state === STATE.ONE && this.dataOnly !== undefined
+                ? html`<group-provider slug="${this.dataOnly.info.folder}" slot="bar-pre">
+                    <group-download-dropdown></group-download-dropdown>
+                </group-provider>`
+                : nothing
+            }
+            <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
+            <group-tool-buttons showhint="false" showpopup="true" slot="bar-pre"></group-tool-buttons>       
         `;
 
     }
@@ -1266,12 +1260,12 @@ thermal-dropdown.selector::part(invoker) {
         >
 
             ${this.state !== STATE.MAIN
-                ? html`<registry-palette-dropdown slot="bar"></registry-palette-dropdown>`
+                ? html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>`
                 : nothing
             }
 
             ${this.state === STATE.MAIN && Object.keys(this.folders).length > 1
-                ? html`<thermal-button slot="bar" @click=${() => {
+                ? html`<thermal-button slot="bar-pre" @click=${() => {
                 this.actionShowEverything();
             }}>${t(T.showeverything)}</thermal-button>`
                 : nothing

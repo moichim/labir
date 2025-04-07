@@ -913,9 +913,7 @@ const AnalysisEditorModal = ({
                 })]
               }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsxs)("div", {
                 className: "modal-editor__details",
-                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("p", {
-                  children: "Use the tools to draw analyses on the image!"
-                }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("group-tool-buttons", {
+                children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_2__.jsx)("group-tool-buttons", {
                   style: {
                     paddingBottom: "1rem"
                   }
@@ -992,7 +990,7 @@ const AnalysisEditorTrigger = ({
     variant: "secondary",
     size: "compact",
     onClick: () => setOpen(true),
-    children: "Analysis editor"
+    children: "Analyses"
   });
 };
 

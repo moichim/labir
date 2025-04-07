@@ -9,5 +9,5 @@ export const AnalysisEditorTrigger = ({
         variant="secondary"
         size="compact"
         onClick={() => setOpen(true)}
-    >Analysis editor</Button>
+    >Analyses</Button>
 }

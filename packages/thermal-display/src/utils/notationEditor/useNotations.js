@@ -28,6 +28,8 @@ export const useNotations = (notations = {}, duration) => {
         const newState = {...state, [id]: notation};
         setState(newState);
 
+        return notation;
+
     }, [state, setState, duration]);
 
 

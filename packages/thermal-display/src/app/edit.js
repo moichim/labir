@@ -24,6 +24,7 @@ import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
 import { useNotations } from '../utils/notationEditor/useNotations';
+import { NotationEditor } from '../utils/notationEditor/notationEditor';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -68,7 +69,7 @@ export default function Edit({ attributes, setAttributes }) {
 		notations
 	} = attributes;
 
-	
+
 
 	const [thermalBackup, setThermalBackup] = useState(thermal);
 
@@ -115,7 +116,7 @@ export default function Edit({ attributes, setAttributes }) {
 					instance.unmountFromDom();
 				}
 
-				setDuration( instance.timeline.duration );
+				setDuration(instance.timeline.duration);
 
 				instance.draw();
 
@@ -216,9 +217,17 @@ export default function Edit({ attributes, setAttributes }) {
 								}
 							/>
 
-							{thermal && <AnalysisEditorTrigger
-								setOpen={setOpen}
-							/>}
+							{thermal && <>
+								{/*<NotationEditor
+									attributes={attributes}
+									setAttributes={setAttributes}
+									duration={duration}
+									thermal={thermal}
+								/>*/}
+								<AnalysisEditorTrigger
+									setOpen={setOpen}
+								/>
+							</>}
 						</div>
 
 
@@ -310,13 +319,6 @@ export default function Edit({ attributes, setAttributes }) {
 							}
 						/>
 
-					</PanelBody>
-
-					<PanelBody title="Notations">
-						{n.array.map(item => <Button onClick={() => n.removeNotation(item.id)}>{item.id}</Button>)}
-						<Button variant="primary" onClick={() => {
-							n.addNotation(14, 100, "something", "image");
-						}}>Add new notation</Button>
 					</PanelBody>
 
 					<PanelBody title="Display settings" initialOpen={false}>

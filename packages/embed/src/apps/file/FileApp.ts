@@ -469,19 +469,16 @@ export class FileApp extends BaseElement implements IWithNotationContext {
 
                 ${this.showlayout ? this.renderLayoutSwitch() : nothing}
 
-                ${cache(html`<registry-palette-dropdown slot="bar"></registry-palette-dropdown>
+                ${cache(html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-                <div slot="bar" style="flex-grow: 4;">
-                    <thermal-bar>
-                        <registry-range-full-button></registry-range-full-button>
-                        <registry-range-auto-button></registry-range-auto-button>
-                        <file-info-button></file-info-button>
-                        <file-download-dropdown></file-download-dropdown>
-                        ${this.hasVisible ? html`<registry-opacity-slider></registry-opacity-slider>` : nothing}
-                    </thermal-bar>
-                </div>`)}
+                <registry-range-full-button slot="bar-pre"></registry-range-full-button>
+                <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
+                <file-info-button slot="bar-pre"></file-info-button>
+                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+                ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
+                `)}
 
-                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="close" class="share">
+                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="bar-post" class="share">
                     <thermal-button slot="invoker">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
                             <path d="M12 6a2 2 0 1 0-1.994-1.842L5.323 6.5a2 2 0 1 0 0 3l4.683 2.342a2 2 0 1 0 .67-1.342L5.995 8.158a2.03 2.03 0 0 0 0-.316L10.677 5.5c.353.311.816.5 1.323.5Z" />
@@ -498,7 +495,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
                     </div>
                 </thermal-dialog>` : nothing}
 
-                ${cache(html`<thermal-dialog label="${t(T.config)}" slot="close">
+                ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-post">
                     <thermal-button slot="invoker">
                         <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                             <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
@@ -570,7 +567,7 @@ export class FileApp extends BaseElement implements IWithNotationContext {
             }
         });
 
-        return html`<thermal-dropdown slot="close">
+        return html`<thermal-dropdown slot="bar-post">
         <div slot="invoker">
             ${this.renderOneLayoutItem(currentLayout.icon, currentLayout.key, false)}
         </div>

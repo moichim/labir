@@ -417,62 +417,52 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             author=${ifDefined(this.author)}
                             license=${ifDefined(this.license)}
                             showfullscreen="true"
+                            label=${ifDefined(this.label)}
                         >
-                        
-                            <thermal-button 
-                                variant="foreground" 
-                                interactive="false" 
-                                slot="bar"
-                            >
-                                ${this.label}
-                            </thermal-button>
 
-                            <div slot="bar" style="flex-grow: 4;">
+                            ${this.loading === false 
+                                ? html`
 
-                                <thermal-bar>
+                                <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-                                    ${this.loading === false 
-                                        ? html`
-                                        <registry-palette-dropdown></registry-palette-dropdown>
-                                        <registry-range-full-button></registry-range-full-button>
-                                        <registry-range-auto-button></registry-range-auto-button>
+                                <registry-range-full-button slot="bar-pre"></registry-range-full-button>
+
+                                <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
                                         
 
-                                        ${this.state === STATE.GROUP
-                ? html`
-                    ${this.grouper.numFiles > 0
-                        ? html`<group-download-dropdown></group-download-dropdown>`
-                        : nothing
-                    }
-                                        <div>
-                                        <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
+                                ${this.state === STATE.GROUP
+                                    ? html`
+                                        ${this.grouper.numFiles > 0
+                                            ? html`<group-download-dropdown slot="bar-pre"></group-download-dropdown>`
+                                            : nothing
+                                        }
+                                        <div slot="bar-pre">
+                                            <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
 
                         const target = event.target as null | { value: string }
                         const value = target?.value;
                         if (value !== undefined) {
                             this.columns = parseInt(value);
                         }
-                    }}></input>
+                    }}
+                                            ></input>
                                         <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                                     </div>
-                                    <group-analysis-sync-button></group-analysis-sync-button>
+
+                            <group-analysis-sync-button slot="bar-pre"></group-analysis-sync-button>
                                         `
                 : nothing
             }
                                     
 
-                                        ${this.showabout === true ? html`<app-info-button ></app-info-button>` : nothing}
+                            ${this.showabout === true ? html`<app-info-button slot="bar-pre"></app-info-button>` : nothing}
 
                                         `
                                         : nothing
-                                    }
-
-                                </thermal-bar>
-
-                            </div>
+                            }
 
                             <thermal-dialog label="${t(T.config)}" slot="close">
-                                <thermal-button slot="invoker">
+                                <thermal-button slot="invoker" variant="plain">
                                     <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
                                         <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
                                     </svg>
