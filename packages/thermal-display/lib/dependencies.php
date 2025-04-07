@@ -10,7 +10,7 @@ $styles_name = "thermal_display_styles";
 $scripts_name_cjs = "thermal_display_embed_library_cjs";
 $scripts_name_es = "thermal_display_embed_library_es";
 
-$version = "1.2.66";
+$version = "1.2.67";
 
 
 

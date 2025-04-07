@@ -6,7 +6,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, fileMarkersContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
+import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
@@ -297,9 +297,13 @@ export class TimelineElement extends FileConsumer {
 
         .bar {
             height: 100%;
-            background: var( --thermal-primary );
+            background: var( --thermal-primary-dark );
             content: "";
             border-right: 1px solid var( --thermal-foreground );
+            transition: background-color .3s ease-in-out;
+            &:hover {
+                background: var(--thermal-primary);
+            }
         }
 
         .mayNot {

@@ -2,13 +2,17 @@ import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { durationConverter } from "../../../utils/converters/durationConverter";
 import { notationDurationContext, notationListContext } from "./NotationContext";
 import { NotationEntry } from "./NotationEntry";
 
-/** @deprecated */
 @customElement("notation-timeline")
-export class NotationContent extends BaseElement {
+export class NotationContent extends FileConsumer {
+
+    protected durationConverter = durationConverter;
+    public onInstanceCreated(): void {}
+    public onFailure(): void {}
 
     @state()
     @consume({ context: notationListContext, subscribe: true })
@@ -25,11 +29,12 @@ export class NotationContent extends BaseElement {
             const right = entry.to / this.duration * 100;
             const width = right - left;
 
-            return html`<div class="entry" style="left: ${left}%; width: ${width}%;">
+            return html`<button class="entry" style="left: ${left}%; width: ${width}%; ${entry.color ? `background-color: ${entry.color};` : "" }}" @click=${() => this.file?.timeline.setRelativeTime(entry.from! + 1)}>
                 ${entry.label !== undefined ? html`<div class="entry-tooltip">
-                    <div>${entry.label}</div>
+                    <div class="time">${this.durationConverter.toAttribute( entry.from )} - ${this.durationConverter.toAttribute( entry.to )}</div>
+                    <div class="label">${entry.label}</div>
                 </div>` : nothing }
-            </div>`;
+            </button>`;
 
         }
 
@@ -47,6 +52,7 @@ export class NotationContent extends BaseElement {
             margin-bottom: 5px;
             margin-top: 3px;
             display: block;
+            overflow: hidden;
         }
 
         .container {
@@ -57,13 +63,14 @@ export class NotationContent extends BaseElement {
         }
 
         .entry {
-            height: 5px;
-            border-radius: 5px;
+            height: 7px;
             background: var(--thermal-foreground);
             position: absolute;
-            top: 0px;
+            top: -2px;
             cursor: pointer;
+            border: 0;
             border-left: 1px solid var(--thermal-foreground);
+            box-sizing: border-box;
         }
 
         .entry:nth-child(2n) {
@@ -72,28 +79,45 @@ export class NotationContent extends BaseElement {
 
         .entry-tooltip {
             display: none;
+            z-index: 99999;
         }
 
-        .entry:hover {
+        .entry:hover,
+        .entry:focus {
 
-            background: green;
+            background: var(--thermal-primary);
+            box-shadow: var(--thermal-shadow);
 
             .entry-tooltip {
 
                 display: block;
                 position: absolute;
-                left: 50%;
-                bottom: 1em;
+                left: -1px;
+                bottom: 7px;
                 width: 0px;
                 text-align: center;
 
                 > div {
 
-                    display: inline;
-                    padding: 3px;
+                    display: inline-block;
+                    padding: 5px 7px;
                     white-space: preserve nowrap;
-                    background: gray;
+                    background: var(--thermal-primary-dark);
+                    color: var(--thermal-background);
                     text-align: center;
+                    
+                    border-left: 1px solid var(--thermal-foreground);
+
+                    &.time {
+                        border-radius: var(--thermal-radius) var(--thermal-radius) var(--thermal-radius) 0px;
+                        font-size: 0.7em;
+                        background: var(--thermal-foreground);
+                        color: var(--thermal-background);
+                    }
+                    &.label {
+                        border-radius: 0px var(--thermal-radius) var(--thermal-radius) 0px;
+                        border-bottom: 1px solid var(--thermal-foreground);
+                    }
 
                     
 

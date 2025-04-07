@@ -59,6 +59,14 @@ export class NotationEntry extends BaseElement {
                 this.duration = this.to - this.from;
             }
         }
+
+        if ( _changedProperties.has("from") || _changedProperties.has("to") || _changedProperties.has("duration") ) {
+            this.dispatchEvent( new CustomEvent("modified", {
+                bubbles: true,
+                cancelable: false,
+                composed: true
+              }) );
+        }
     }
 
 

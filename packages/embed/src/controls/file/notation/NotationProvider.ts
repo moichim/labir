@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
+import { Instance } from "@labir/core";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
 import { html, PropertyValues } from "lit";
@@ -39,6 +39,10 @@ export class NotationProvider extends FileConsumer implements IWithNotationConte
         }, 0 );
 
         instance.timeline.addListener( this.UUID, value => this.ms = value );
+
+        this.shadowRoot?.addEventListener("modified", () => {
+            this.notationList = grabNotationsFromSlot(this._notationSlot);
+        });
     }
     public onFailure(): void { }
 
