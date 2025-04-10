@@ -398,6 +398,8 @@ export class DropinAppElement extends BaseElement implements IWithlocale {
                                 </div>
                             </thermal-dialog>
 
+                            <slot name="bar-pre" slot="bar-pre"></slot>
+
                             ${this.files.length === 0 ? this.renderIntroScene() : this.renderBrowserScene()}
                         
                         </thermal-app>

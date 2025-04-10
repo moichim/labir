@@ -5016,9 +5016,6 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
             max-width: 100%;
             height: auto;
             border-radius: 0px var(--thermal-radius) var(--thermal-radius) var(--thermal-radius);
-            border: 0;
-            border-left: 1px solid var(--thermal-foreground);
-            border-top: 1px solid var(--thermal-foreground);
         }
     
     `;ho([w(),ge({context:Ju,subscribe:!0})],Ps.prototype,"entries",2);ho([m({converter:nt(!0)})],Ps.prototype,"showlabel",2);ho([m({converter:nt(!0)})],Ps.prototype,"showTime",2);Ps=ho([Z("notation-content")],Ps);var ww=Object.defineProperty,xw=Object.getOwnPropertyDescriptor,ah=(r,e,t,i)=>{for(var s=i>1?void 0:i?xw(e,t):e,n=r.length-1,a;n>=0;n--)(a=r[n])&&(s=(i?a(e,t,s):a(s))||s);return i&&s&&ww(e,t,s),s};let vn=class extends mt{constructor(){super(...arguments),this.durationConverter=lo}onInstanceCreated(){}onFailure(){}renderEntry(r){if(r.from!==void 0&&r.to!==void 0){const e=r.from/this.duration*100,i=r.to/this.duration*100-e;return p`<button class="entry" style="left: ${e}%; width: ${i}%; ${r.color?`background-color: ${r.color};`:""}}" @click=${()=>{var s;return(s=this.file)==null?void 0:s.timeline.setRelativeTime(r.from+1)}}>
@@ -5238,6 +5235,8 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                                     </table>
                                 </div>
                             </thermal-dialog>
+
+                            <slot name="bar-pre" slot="bar-pre"></slot>
 
                             ${this.files.length===0?this.renderIntroScene():this.renderBrowserScene()}
                         
@@ -5514,7 +5513,10 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
         }
 
         &.layout__simple {
-            grid-template-columns: 2em 1fr;
+
+            gap: 0px;
+            grid-template-columns: 2.5em 1fr;
+            grid-template-rows: auto;
 
             grid-template-areas: 
                 "toolbar thermogram" 
@@ -5522,6 +5524,13 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
                 "toolbar graph" 
                 "toolbar notations" 
                 "toolbar complex";
+
+            .analysis,
+            .graph,
+            .complex,
+            .notations {
+                // border: 10px solid red;
+            }
         }
 
 

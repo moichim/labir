@@ -4,7 +4,7 @@
  * Description:       A block for displaying IR camera recordings as interactive analysis apps.
  * Requires at least: 6.6
  * Requires PHP:      7.2
- * Version:           0.1.10
+ * Version:           1.2.68
  * Author:            Jan Jáchim, New Technologies Research Center, University of West Bohemia in Pilsen
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html

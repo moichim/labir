@@ -113,9 +113,6 @@ export class NotationContent extends BaseElement {
             max-width: 100%;
             height: auto;
             border-radius: 0px var(--thermal-radius) var(--thermal-radius) var(--thermal-radius);
-            border: 0;
-            border-left: 1px solid var(--thermal-foreground);
-            border-top: 1px solid var(--thermal-foreground);
         }
     
     `;
