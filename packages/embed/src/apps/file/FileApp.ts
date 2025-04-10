@@ -591,7 +591,10 @@ export class FileApp extends BaseElement {
         }
 
         &.layout__simple {
-            grid-template-columns: 2em 1fr;
+
+            gap: 0px;
+            grid-template-columns: 2.5em 1fr;
+            grid-template-rows: auto;
 
             grid-template-areas: 
                 "toolbar thermogram" 
@@ -599,6 +602,13 @@ export class FileApp extends BaseElement {
                 "toolbar graph" 
                 "toolbar notations" 
                 "toolbar complex";
+
+            .analysis,
+            .graph,
+            .complex,
+            .notations {
+                // border: 10px solid red;
+            }
         }
 
 
