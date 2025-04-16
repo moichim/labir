@@ -189,6 +189,9 @@ export const de: Translation = {
     addellipsisanalysis: "Elliptische Analyse hinzufügen",
     clickandaddellipsis: "Klicken und ziehen Sie auf dem Thermogramm, um eine elliptische Analyse hinzuzufügen.",
 
+    addlineanalysis: "Linienprofil hinzufügen",
+    clickandaddline: "Klicken und ziehen, um ein Linienprofil hinzuzufügen.",
+
     tutorial: "Tutorial",
     colourpalette: "Farbpalette",
     palettehint: "Dropdown-Menü zum Wechseln der Farbpalette.",

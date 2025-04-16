@@ -5,6 +5,7 @@ import { EllipsisAnalysis } from "../internals/area/ellipsis/EllipsisAnalysis";
 import { PointAnalysis } from "../internals/point/PointAnalysis";
 import { RectangleAnalysis } from "../internals/area/rectangle/RectangleAnalysis";
 import { SlotInitialisationValue } from "../../slots/AnalysisSlotsDrive";
+import { LineAnalysis } from "../internals/line/LineAnalysis";
 
 
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
@@ -135,6 +136,18 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         }
     }
 
+
+    public createLineFrom(top: number, left: number) {
+        const newAnalysis = LineAnalysis.startAddingAtPoint(
+            this.getNextName("Line"),
+            this.getNextColor(),
+            this.drive.parent,
+            top,
+            left
+        );
+        this.addAnalysis(newAnalysis, false);
+        return newAnalysis;
+    }
 
 
 

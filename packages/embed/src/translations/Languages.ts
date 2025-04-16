@@ -241,6 +241,10 @@ export enum T {
     addellipsisanalysis = "addellipsisanalysis",
     clickandaddellipsis = "clickandaddellipsis",
 
+    /** Add line tool */
+    addlineanalysis = "addlineanalysis",
+    clickandaddline = "clickandaddline",
+
 
 
     /** Tutorial */

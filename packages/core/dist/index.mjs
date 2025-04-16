@@ -2470,6 +2470,197 @@ var RectangleAnalysis = class _RectangleAnalysis extends AbstractAreaAnalysis {
   }
 };
 
+// src/properties/analysis/analysis/internals/line/LinePoint.ts
+var LinePoint = class extends AbstractPoint {
+  // protected readonly onX: (x: number) => void;
+  // protected readonly onY: (x: number) => void;
+  mayMoveToX(value) {
+    return value >= 0 && value < this.file.width;
+  }
+  mayMoveToY(value) {
+    return value >= 0 && value < this.file.height;
+  }
+  analyzeXFromTool(value) {
+    return {
+      x: value,
+      placement: 2 /* MIDDLE */
+    };
+  }
+  sideEffectOnXFromTool(value, placement) {
+  }
+  analyzeYFromTool(value) {
+    return {
+      y: value,
+      placement: 2 /* MIDDLE */
+    };
+  }
+  sideEffectOnYFromTool(value, placement) {
+  }
+  onSetColor(value) {
+    this.innerElement.style.backgroundColor = value;
+  }
+  getRadius() {
+    return 10;
+  }
+  actionOnActivate() {
+    this.setColor(this.activeColor);
+  }
+  actionOnDeactivate() {
+    this.setColor(
+      this.isInSelectedLayer() ? this.initialColor : this.inactiveColor
+    );
+  }
+  createInnerElement() {
+    const inner = document.createElement("div");
+    inner.style.position = "absolute";
+    inner.style.top = "-5px";
+    inner.style.left = "-5px";
+    inner.style.width = "10px";
+    inner.style.height = "10px";
+    inner.style.position = "absolute";
+    inner.style.backgroundColor = this.color;
+    return inner;
+  }
+  actionOnMouseEnter() {
+    if (this.innerElement && this.isInSelectedLayer()) {
+      this.innerElement.style.boxShadow = "0px 0px 10px 2px white";
+      this.innerElement.style.borderWidth = "1px";
+      this.innerElement.style.borderStyle = "solid";
+      this.innerElement.style.borderColor = "white";
+    }
+  }
+  actionOnMouseLeave() {
+    if (this.innerElement) {
+      this.innerElement.style.removeProperty("box-shadow");
+      this.innerElement.style.removeProperty("border-width");
+      this.innerElement.style.removeProperty("border-style");
+      this.innerElement.style.removeProperty("border-color");
+    }
+  }
+};
+
+// src/properties/analysis/analysis/internals/line/LineAnalysis.ts
+var LineAnalysis = class _LineAnalysis extends AbstractAnalysis {
+  point1;
+  point2;
+  svg;
+  line;
+  constructor(key, color, file, top, left) {
+    super(key, file, color);
+    this.point1 = new LinePoint(
+      "one",
+      top,
+      left,
+      this,
+      color,
+      1 /* START */,
+      1 /* START */
+    );
+    this.point1.deactivate();
+    this.point2 = new LinePoint(
+      "two",
+      top,
+      left,
+      this,
+      color,
+      3 /* END */,
+      3 /* END */
+    );
+    this.point2.activate();
+    this.points.set(this.point1.key, this.point1);
+    this.points.set(this.point2.key, this.point2);
+    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    this.svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    this.svg.setAttribute("viewBox", `0 0 ${this.file.width} ${this.file.height}`);
+    this.svg.style.width = "100%";
+    this.svg.style.height = "100%";
+    this.line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    this.line.setAttribute("x1", left.toString());
+    this.line.setAttribute("x2", left.toString());
+    this.line.setAttribute("y1", top.toString());
+    this.line.setAttribute("y2", top.toString());
+    this.line.style.stroke = color;
+    this.line.style.strokeWidth = "1px";
+    this.point1.onX.set("sync_X", (x) => {
+      this.line.setAttribute("x1", x.toString());
+    });
+    this.point1.onY.set("sync_y", (y) => {
+      this.line.setAttribute("y1", y.toString());
+    });
+    this.point2.onX.set("sync_X", (x) => {
+      this.line.setAttribute("x2", x.toString());
+    });
+    this.point2.onY.set("sync_y", (y) => {
+      this.line.setAttribute("y2", y.toString());
+    });
+    this.svg.appendChild(this.line);
+    this.layerRoot.appendChild(this.svg);
+  }
+  calculatePercentageX(value) {
+    return value / this.file.width * 100;
+  }
+  calculatePercentageY(value) {
+    return value / this.file.height * 100;
+  }
+  static startAddingAtPoint(key, color, file, top, left) {
+    const item = new _LineAnalysis(
+      key,
+      color,
+      file,
+      top,
+      left
+    );
+    return item;
+  }
+  recievedSerialized(input) {
+  }
+  toSerialized() {
+    return "";
+  }
+  updateLine() {
+  }
+  get graph() {
+    return new AnalysisGraph(this);
+  }
+  onSetTop(validatedValue) {
+  }
+  onSetLeft(validatedValue) {
+  }
+  onSetWidth(validatedValue) {
+  }
+  onSetHeight(validatedValue) {
+  }
+  validateWidth(value) {
+    return value;
+  }
+  validateHeight(value) {
+    return value;
+  }
+  getVerticalDimensionFromNewValue(bottom, preferredSide) {
+    throw new Error("Method not implemented.");
+  }
+  getHorizontalDimensionsFromNewValue(value, preferredSide) {
+    throw new Error("Method not implemented.");
+  }
+  setColorCallback(value) {
+    this.line.style.stroke = value;
+    this.point1.setColor(value);
+    this.point2.setColor(value);
+  }
+  getType() {
+    return "line";
+  }
+  isWithin(x, y) {
+    return false;
+  }
+  getValues() {
+    return {};
+  }
+  async getAnalysisData() {
+    return await {};
+  }
+};
+
 // src/properties/analysis/analysis/storage/AnalysisLayersStorage.ts
 var availableAnalysisColors = [
   "Blue",
@@ -2531,6 +2722,17 @@ var AnalysisLayersStorage = class extends Map {
         this.onRemove.call(key);
       }
     }
+  }
+  createLineFrom(top, left) {
+    const newAnalysis = LineAnalysis.startAddingAtPoint(
+      this.getNextName("Line"),
+      this.getNextColor(),
+      this.drive.parent,
+      top,
+      left
+    );
+    this.addAnalysis(newAnalysis, false);
+    return newAnalysis;
   }
   /** Add a rectangular analysis in the given position and start editing it. */
   createRectFrom(top, left) {
@@ -8111,6 +8313,57 @@ var AddRectangleTool = class extends AbstractAddTool {
   };
 };
 
+// src/properties/analysis/analysis/internals/line/AddLineTool.ts
+var AddLineTool = class extends AbstractAddTool {
+  key = "add-line";
+  name = "addlineanalysis";
+  description = "clickandaddline";
+  icon = `<?xml version="1.0" encoding="UTF-8"?>
+<svg id="SmallFinal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path fill="currentcolor" d="M64,42.5c0,11.87-9.63,21.5-21.5,21.5s-21.5-9.63-21.5-21.5,9.63-21.5,21.5-21.5,21.5,9.63,21.5,21.5ZM55.23,40.5h-10.65v-10.65h-4v10.65h-10.65v4h10.65v10.65h4v-10.65h10.65v-4ZM37.72,12.13l2,2.17,4.41-4.07L35.4.78l-4.41,4.07,2.65,2.87L7.93,31.46l-2.65-2.87-4.41,4.07,8.73,9.45,4.41-4.07-2-2.17,25.72-23.74Z"/>
+</svg>`;
+  onActivate() {
+    this.manager.forEveryInstance((instance) => {
+      instance.analysis.layers.selectedOnly.forEach((analysis) => {
+        analysis.setDeselected();
+      });
+    });
+  }
+  onDeactivate() {
+  }
+  onCanvasClick(x, y, file) {
+    const newLine = file.analysis.layers.createLineFrom(x, y);
+    newLine.setSelected(true);
+  }
+  onCanvasLeave() {
+  }
+  onPointEnter() {
+  }
+  onPointLeave() {
+  }
+  onPointMove(point, top, left) {
+    if (point.isInSelectedLayer() && point.active) {
+      point.setXFromTool(left);
+      point.setYFromTool(top);
+      point.analysis.onMoveOrResize.call(point.analysis);
+    }
+  }
+  onPointDown(point) {
+  }
+  onPointUp(point) {
+    if (!point.isInSelectedLayer()) {
+      return;
+    }
+    point.deactivate();
+    point.analysis.file.group.tool.selectTool("edit");
+    point.analysis.ready = true;
+  }
+  getLabelValue(x, y, file) {
+    const temperature = file.group.tool.tools.inspect.getLabelValue(x, y, file);
+    return `X:${x}<br />Y:${y}<br />${temperature}`;
+  }
+};
+
 // src/properties/analysis/analysis/internals/point/AddPointTool.ts
 var AddPointTool = class extends AbstractAddTool {
   key = "add-point";
@@ -8256,6 +8509,7 @@ var toolsRegistry = [
   AddPointTool,
   AddRectangleTool,
   AddEllipsisTool,
+  AddLineTool,
   EditTool
 ];
 var createDefinedTools = (group) => {

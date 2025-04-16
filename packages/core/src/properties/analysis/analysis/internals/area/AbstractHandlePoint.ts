@@ -22,17 +22,14 @@ export abstract class AbstractHandlePoint extends AbstractPoint {
 
 
     createInnerElement(): HTMLDivElement {
-
         const inner = document.createElement("div");
         inner.style.position = "absolute";
         inner.style.top = "-5px";
         inner.style.left = "-5px";
-
         inner.style.width = "10px";
         inner.style.height = "10px";
         inner.style.position = "absolute";
         inner.style.backgroundColor = this.color;
-
         return inner;
 
     }

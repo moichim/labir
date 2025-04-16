@@ -422,6 +422,69 @@ declare abstract class AbstractPoint {
     deactivate(): void;
 }
 
+declare class LinePoint extends AbstractPoint {
+    mayMoveToX(value: number): boolean;
+    mayMoveToY(value: number): boolean;
+    protected analyzeXFromTool(value: number): {
+        x: number;
+        placement: PointPlacement;
+    };
+    protected sideEffectOnXFromTool(value: number, placement: PointPlacement): void;
+    protected analyzeYFromTool(value: number): {
+        y: number;
+        placement: PointPlacement;
+    };
+    protected sideEffectOnYFromTool(value: number, placement: PointPlacement): void;
+    protected onSetColor(value: string): void;
+    getRadius(): number;
+    protected actionOnActivate(): void;
+    protected actionOnDeactivate(): void;
+    createInnerElement(): HTMLDivElement;
+    actionOnMouseEnter(): void;
+    actionOnMouseLeave(): void;
+}
+
+type LineAnalysisData = {};
+declare class LineAnalysis extends AbstractAnalysis {
+    readonly point1: LinePoint;
+    readonly point2: LinePoint;
+    protected readonly svg: SVGSVGElement;
+    protected readonly line: SVGLineElement;
+    protected constructor(key: string, color: string, file: Instance, top: number, left: number);
+    private calculatePercentageX;
+    private calculatePercentageY;
+    static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): LineAnalysis;
+    recievedSerialized(input: string): void;
+    toSerialized(): string;
+    updateLine(): void;
+    get graph(): AnalysisGraph;
+    protected onSetTop(validatedValue: number): void;
+    protected onSetLeft(validatedValue: number): void;
+    protected onSetWidth(validatedValue: number): void;
+    protected onSetHeight(validatedValue: number): void;
+    protected validateWidth(value: number): number;
+    protected validateHeight(value: number): number;
+    protected getVerticalDimensionFromNewValue(bottom: number, preferredSide: "top" | "bottom"): {
+        top: number;
+        bottom: number;
+        height: number;
+    };
+    protected getHorizontalDimensionsFromNewValue(value: number, preferredSide: "left" | "right"): {
+        left: number;
+        right: number;
+        width: number;
+    };
+    protected setColorCallback(value: string): void;
+    getType(): string;
+    isWithin(x: number, y: number): boolean;
+    protected getValues(): {
+        min?: number;
+        max?: number;
+        avg?: number;
+    };
+    getAnalysisData(): Promise<LineAnalysisData>;
+}
+
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
@@ -527,7 +590,7 @@ declare abstract class AbstractAnalysis {
         avg?: number;
     };
     /** Override this method to get proper analysis data. */
-    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData | LineAnalysisData>;
     /** When parsing incoming serialized attribute, look if segments have an exact value */
     static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
     /** When parsing incooming serialized attribute, try to extract it by its key as string */
@@ -991,6 +1054,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     constructor(drive: AnalysisDrive);
     protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
     removeAnalysis(key: string): void;
+    createLineFrom(top: number, left: number): LineAnalysis;
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;
     /** Build an ellyptical analysis at the given position. */

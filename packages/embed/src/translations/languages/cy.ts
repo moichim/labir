@@ -193,6 +193,9 @@ export const cy: Translation = {
     addellipsisanalysis: "Adio dadansoddiad eliptig",
     clickandaddellipsis: "Cliciwch a dragiwuch ar y delwedd isgoch i ychwanegu dadansoddiad eliptig.",
 
+    addlineanalysis: "Ychwanegu proffil llinell",
+    clickandaddline: "Cliciwch a llusgwch i ychwanegu proffil llinell.",
+
 
     tutorial: "Tiwtorial",
 

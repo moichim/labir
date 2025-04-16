@@ -3,6 +3,7 @@ import { AreaAnalysisData, PointAnalysisData } from "../../../../loading/workers
 import { AnalysisGraph } from "../../data/graphs/AnalysisGraph";
 import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
+import { LineAnalysisData } from "./line/LineAnalysis";
 
 
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
@@ -32,7 +33,6 @@ export abstract class AbstractAnalysis {
 
         return true;
     }
-
 
 
     public abstract get graph(): AnalysisGraph;
@@ -477,7 +477,7 @@ export abstract class AbstractAnalysis {
     protected abstract getValues(): { min?: number, max?: number, avg?: number }
 
     /** Override this method to get proper analysis data. */
-    public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+    public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData | LineAnalysisData>;
 
 
     /** When parsing incoming serialized attribute, look if segments have an exact value */

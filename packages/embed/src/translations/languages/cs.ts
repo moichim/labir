@@ -192,6 +192,9 @@ export const cs: Translation = {
     addellipsisanalysis: "Přidat eliptickou analýzu",
     clickandaddellipsis: "Klikněte a táhněte na termogramu pro přidání eliptické analýzy.",
 
+    addlineanalysis: "Přidat čárový profil",
+    clickandaddline: "Klikněte a tažením přidejte čárový profil.",
+
 
     tutorial: "Tutorial",
     colourpalette: "Barevná paleta",

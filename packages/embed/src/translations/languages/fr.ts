@@ -192,6 +192,9 @@ export const fr: Translation = {
     addellipsisanalysis: "Ajouter une analyse elliptique",
     clickandaddellipsis: "Cliquez et faites glisser sur le thermogramme pour ajouter une analyse elliptique.",
 
+    addlineanalysis: "Ajouter un profil linéaire",
+    clickandaddline: "Cliquez et faites glisser pour ajouter un profil linéaire.",
+
     tutorial: "Tutoriel",
     colourpalette: "Palette",
     palettehint: "Utilisez le menu pour changer le palette.",

@@ -68,6 +68,15 @@ export type AreaAnalysisData = {
     }
 }
 
+export type LineAnalysisData = {
+    [time: number]: {
+        min: number,
+        max: number,
+        avg: number,
+        profile: number[]
+    }
+}
+
 
 
 /**

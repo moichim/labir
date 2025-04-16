@@ -189,6 +189,9 @@ export const en: Translation = {
     addellipsisanalysis: "Add an elyptical analysis",
     clickandaddellipsis: "Click and drag on the thermogram to add an elyptical analysis.",
 
+    addlineanalysis: "Add line profile",
+    clickandaddline: "Click and drag to add a line profile.",
+
 
     tutorial: "Tutorial",
     colourpalette: "Colour palette",
