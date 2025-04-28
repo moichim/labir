@@ -466,6 +466,7 @@ export abstract class AbstractAnalysis {
     public recalculateValues() {
 
         const { min, max, avg } = this.getValues();
+        console.log( "recalculate values", min, max, avg );
         this._min = min;
         this._max = max;
         this._avg = avg;

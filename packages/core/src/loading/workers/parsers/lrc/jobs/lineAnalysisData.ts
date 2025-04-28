@@ -1,15 +1,40 @@
-import { AreaAnalysisData, IParserObject } from "../../structure";
+import { LineAnalysisData } from "../../structure";
 
-export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async (entireFileBuffer, left, top, _width, _height) => {
+export const lineAnalysisData = async (
+    entireFileBuffer: ArrayBuffer,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+): Promise<LineAnalysisData> => {
 
     const view = new DataView(entireFileBuffer);
 
-    // The dimensions
     const fileWidth = view.getUint16(17, true);
     const fileHeight = view.getUint16(19, true);
 
     // DataType byte 15
     const dataType = view.getUint8(15);
+
+    const isOnLine = (x: number, y: number): boolean => {
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const distance = Math.abs(dy * x - dx * y + x2 * y1 - y2 * x1) / Math.sqrt(dx * dx + dy * dy);
+        return distance < 1; // Tolerance for being "on the line"
+    };
+
+    const output: LineAnalysisData = {};
+
+    // Iterate over frames and calculate data
+    const frameHeaderByteSize = 57;
+    let pixelByteSize = 2; // Assuming int16 for simplicity
+    if (dataType === 1) pixelByteSize = 4;
+    const framePixelsSize = fileWidth * fileHeight * pixelByteSize;
+    const frameSize = frameHeaderByteSize + framePixelsSize;
+
+    const streamSubset = entireFileBuffer.slice(25);
+
+    const frameCount = streamSubset.byteLength / frameSize;
 
 
     const readTimestamp = (readingView: DataView, index: number) => {
@@ -58,36 +83,6 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
 
     };
 
-
-    
-
-    // One pixel length
-    // DataType 2 = float16
-    // DataType 1 = float32 (TIMI Edu)
-    // DataType 0 = int16 (Vario Cam .seq => .lrc)
-    let pixelByteSize: number = 2;
-    if (dataType === 1) pixelByteSize = 4;
-
-    const frameHeaderByteSize = 57;
-    const framePixelsSize = fileWidth * fileHeight * pixelByteSize;
-    const frameSize = frameHeaderByteSize + framePixelsSize;
-
-    const streamSubset = entireFileBuffer.slice(25);
-
-    const frameCount = streamSubset.byteLength / frameSize;
-
-
-    const output: AreaAnalysisData = {};
-
-    const isWithin = (x: number, y: number): boolean => {
-        const centerX = left + _width / 2;
-        const centerY = top + _height / 2;
-        const normalizedX = (x - centerX) / (_width / 2);
-        const normalizedY = (y - centerY) / (_height / 2);
-        return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-    }
-
-
     const readFrame = (index: number) => {
 
         const frameSubsetStart = index * frameSize;
@@ -95,31 +90,27 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
         const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
 
         const frameView = new DataView(frameArrayBuffer);
-        const timestamp = readTimestamp(frameView, 0);
+        const timestamp = readTimestamp(frameView, 0 );
         const min = frameView.getFloat32(8, true);
         const max = frameView.getFloat32(12, true);
         const range = max - min;
 
-
-        const fromX = left;
-        const toX = left + _width;
-        const fromY = top;
-        const toY = top + _height;
-
         let _min = Infinity;
         let _max = -Infinity;
-        let count = 0;
         let sum = 0;
+        let count = 0;
 
-        for (let y = fromY; y <= toY; y++) {
+        const xStart = Math.min(x1, x2);
+        const xEnd = Math.max(x1, x2);
+        const yStart = Math.min(y1, y2);
+        const yEnd = Math.max(y1, y2);
 
-            const rowOffset = y * fileWidth;
+        for (let y = yStart; y <= yEnd; y++) {
+            for (let x = xStart; x <= xEnd; x++) {
 
-            for (let x = fromX; x <= toX; x++) {
+                if (isOnLine(x, y)) {
 
-                if (isWithin(x, y)) {
-
-                    const pointIndex = frameHeaderByteSize + ((rowOffset + x) * pixelByteSize);
+                    const pointIndex = frameHeaderByteSize + (y * fileWidth + x) * pixelByteSize;
 
                     let value: number = NaN;
 
@@ -132,49 +123,31 @@ export const ellipsisAnalysisData: IParserObject["ellipsisAnalysisData"] = async
                         value = min + (range * mappedValue);
                     }
 
-                    if (value < _min) {
-                        _min = value;
-                    }
-                    if (value > _max) {
-                        _max = value;
-                    }
+                    _min = Math.min(_min, value);
+                    _max = Math.max(_max, value);
                     sum += value;
                     count++;
 
                 }
 
             }
-
         }
 
-        const result = {
-            min: _min,
-            max: _max,
-            avg: sum / count,
-            count
-        };
-
-
         return {
-            timestamp,
-            result
+            timestamp: Number(timestamp),
+            result: {
+                min: _min,
+                max: _max,
+                avg: sum / count,
+                count
+            }
         };
-
     };
-
-    let firstTimestamp: number = 0;
-
 
     for (let i = 0; i < frameCount; i++) {
         const frame = readFrame(i);
-
-        if (firstTimestamp === 0) {
-            firstTimestamp = frame.timestamp;
-        }
-
-        output[frame.timestamp - firstTimestamp] = frame.result;
+        output[frame.timestamp] = frame.result;
     }
 
     return output;
-
 };

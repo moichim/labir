@@ -444,7 +444,7 @@ declare class LinePoint extends AbstractPoint {
     actionOnMouseLeave(): void;
 }
 
-type LineAnalysisData = {};
+type LineAnalysisData$1 = {};
 declare class LineAnalysis extends AbstractAnalysis {
     readonly point1: LinePoint;
     readonly point2: LinePoint;
@@ -456,7 +456,6 @@ declare class LineAnalysis extends AbstractAnalysis {
     static startAddingAtPoint(key: string, color: string, file: Instance, top: number, left: number): LineAnalysis;
     recievedSerialized(input: string): void;
     toSerialized(): string;
-    updateLine(): void;
     get graph(): AnalysisGraph;
     protected onSetTop(validatedValue: number): void;
     protected onSetLeft(validatedValue: number): void;
@@ -482,7 +481,7 @@ declare class LineAnalysis extends AbstractAnalysis {
         max?: number;
         avg?: number;
     };
-    getAnalysisData(): Promise<LineAnalysisData>;
+    getAnalysisData(): Promise<LineAnalysisData$1>;
 }
 
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
@@ -590,7 +589,7 @@ declare abstract class AbstractAnalysis {
         avg?: number;
     };
     /** Override this method to get proper analysis data. */
-    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData | LineAnalysisData>;
+    abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData | LineAnalysisData$1>;
     /** When parsing incoming serialized attribute, look if segments have an exact value */
     static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
     /** When parsing incooming serialized attribute, try to extract it by its key as string */
@@ -2069,6 +2068,13 @@ type AreaAnalysisData = {
         avg: number;
     };
 };
+type LineAnalysisData = {
+    [time: number]: {
+        min: number;
+        max: number;
+        avg: number;
+    };
+};
 /**
  * Interface for a parser object
  * - all methods must be completely and totally static
@@ -2114,6 +2120,7 @@ interface IParserObject {
     pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
     rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
     ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
+    lineAnalysisData(file: ArrayBuffer, x1: number, y1: number, x2: number, y2: number): Promise<LineAnalysisData>;
 }
 
 declare abstract class AbstractLayer {
@@ -2429,6 +2436,7 @@ declare class ThermalFileReader extends AbstractFileResult {
     pointAnalysisData(x: number, y: number): ReturnType<IParserObject["pointAnalysisData"]>;
     rectAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["rectAnalysisData"]>;
     ellipsisAnalysisData(x: number, y: number, width: number, height: number): ReturnType<IParserObject["ellipsisAnalysisData"]>;
+    lineAnalysisData(x1: number, y1: number, x2: number, y2: number): ReturnType<IParserObject["lineAnalysisData"]>;
     /**
      * Recalculates the core array buffer using all available filters.
      *

@@ -1140,6 +1140,7 @@ var AbstractAnalysis = class {
   /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
   recalculateValues() {
     const { min, max, avg } = this.getValues();
+    console.log("recalculate values", min, max, avg);
     this._min = min;
     this._max = max;
     this._avg = avg;
@@ -2651,6 +2652,7 @@ var LineAnalysis = class _LineAnalysis extends AbstractAnalysis {
     this.line.setAttribute("y2", top.toString());
     this.line.style.stroke = color;
     this.line.style.strokeWidth = "1px";
+    this.line.setAttribute("vector-effect", "non-scaling-stroke");
     this.point1.onX.set("sync_X", (x) => {
       this.line.setAttribute("x1", x.toString());
     });
@@ -2683,11 +2685,27 @@ var LineAnalysis = class _LineAnalysis extends AbstractAnalysis {
     return item;
   }
   recievedSerialized(input) {
+    console.log(input);
   }
   toSerialized() {
-    return "";
-  }
-  updateLine() {
+    const output = [];
+    output.push(this.name);
+    output.push("point");
+    output.push(`x1:${this.point1.x}`);
+    output.push(`y1:${this.point1.y}`);
+    output.push(`x2:${this.point2.x}`);
+    output.push(`y2:${this.point2.y}`);
+    output.push(`color:${this.initialColor}`);
+    if (this.graph.state.AVG) {
+      output.push("avg");
+    }
+    if (this.graph.state.MIN) {
+      output.push("min");
+    }
+    if (this.graph.state.MAX) {
+      output.push("max");
+    }
+    return output.join(";");
   }
   get graph() {
     return new AnalysisGraph(this);
@@ -2721,13 +2739,52 @@ var LineAnalysis = class _LineAnalysis extends AbstractAnalysis {
     return "line";
   }
   isWithin(x, y) {
-    return false;
+    const x1 = this.point1.x;
+    const y1 = this.point1.y;
+    const x2 = this.point2.x;
+    const y2 = this.point2.y;
+    const distance = Math.abs((y2 - y1) * x - (x2 - x1) * y + x2 * y1 - y2 * x1) / Math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2);
+    const tolerance = 0.5;
+    if (distance > tolerance) {
+      return false;
+    }
+    const withinX = x >= Math.min(x1, x2) && x <= Math.max(x1, x2);
+    const withinY = y >= Math.min(y1, y2) && y <= Math.max(y1, y2);
+    return withinX && withinY;
   }
   getValues() {
-    return {};
+    let min = Infinity;
+    let max = -Infinity;
+    let count = 0;
+    let sum = 0;
+    let minX = Math.min(this.point1.x, this.point2.x);
+    let maxX = Math.max(this.point1.x, this.point2.x);
+    let minY = Math.min(this.point1.y, this.point2.y);
+    let maxY = Math.max(this.point1.y, this.point2.y);
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+        if (this.isWithin(x, y)) {
+          const point = this.file.pixels[y * this.file.width + x];
+          if (point < min) {
+            min = point;
+          }
+          if (point > max) {
+            max = point;
+          }
+          sum += point;
+          count++;
+        }
+      }
+    }
+    return {
+      min: min === Infinity ? void 0 : min,
+      max: max === -Infinity ? void 0 : max,
+      avg: count === 0 ? void 0 : sum / count
+    };
   }
   async getAnalysisData() {
-    return await {};
+    const data = await this.file.reader.lineAnalysisData(this.point1.x, this.point1.y, this.point2.x, this.point2.y);
+    return data;
   }
 };
 
@@ -3410,7 +3467,7 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       return;
     }
     const type = splitted[1];
-    if (!["rectangle", "ellipsis", "point"].includes(type)) {
+    if (!["rectangle", "ellipsis", "point", "line"].includes(type)) {
       return;
     }
     let top = AbstractAnalysis.serializedGetNumericalValueByKey(splitted, "top");
@@ -4736,6 +4793,8 @@ var ThermalCanvasLayer = class extends AbstractLayer {
       const analysis = this.instance.analysis.value.map((a) => {
         if (a instanceof PointAnalysis) {
           return [a.getType(), a.key, a.top, a.left, 1, 1];
+        } else if (a instanceof LineAnalysis) {
+          return [a.getType(), a.key, a.point1.x, a.point1.y, a.point2.x, a.point2.y];
         }
         return [a.getType(), a.key, a.top, a.left, a.width, a.height];
       });
@@ -4803,6 +4862,28 @@ var ThermalCanvasLayer = class extends AbstractLayer {
                 }
               } else if (type === "ellipsis") {
                 if (isWithin(x, y, left, top, width, height)) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              } else if (type === "line") {
+                if (x < left || x > w + left || y < top || y > h + top) {
+                  return;
+                }
+                const isWithin2 = (x1, y1, x2, y2) => {
+                  const dx = x2 - x1;
+                  const dy = y2 - y1;
+                  const lengthSquared = dx * dx + dy * dy;
+                  if (lengthSquared === 0) return false;
+                  const t = ((x - x1) * dx + (y - y1) * dy) / lengthSquared;
+                  return t >= 0 && t <= 1;
+                };
+                if (isWithin2(x, width, y, height)) {
                   if (rawTemperature < bufferValue.min.value) {
                     bufferValue.min.value = rawTemperature;
                   }
@@ -6654,6 +6735,9 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   async ellipsisAnalysisData(x, y, width, height) {
     return await this.parser.ellipsisAnalysisData(this.buffer, x, y, width, height);
   }
+  async lineAnalysisData(x1, y1, x2, y2) {
+    return await this.parser.lineAnalysisData(this.buffer, x1, y1, x2, y2);
+  }
   /** 
    * Recalculates the core array buffer using all available filters. 
    * 
@@ -7143,6 +7227,7 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
   const view = new DataView(entireFileBuffer);
   const fileWidth = view.getUint16(17, true);
   const fileHeight = view.getUint16(19, true);
+  const dataType = view.getUint8(15);
   const readTimestamp = (readingView, index) => {
     const bigIntTime = readingView.getBigInt64(index, true);
     const UnixEpoch = 62135596800000n;
@@ -7164,7 +7249,6 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
     const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
     return Number(milliseconds);
   };
-  const dataType = view.getUint8(15);
   let pixelByteSize = 2;
   if (dataType === 1) pixelByteSize = 4;
   const frameHeaderByteSize = 57;
@@ -7189,7 +7273,6 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
     const min = frameView.getFloat32(8, true);
     const max = frameView.getFloat32(12, true);
     const range = max - min;
-    const frameHeaderByteSize2 = 57;
     const fromX = left;
     const toX = left + _width;
     const fromY = top;
@@ -7202,7 +7285,7 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
       const rowOffset = y * fileWidth;
       for (let x = fromX; x <= toX; x++) {
         if (isWithin(x, y)) {
-          const pointIndex = frameHeaderByteSize2 + (rowOffset + x) * pixelByteSize;
+          const pointIndex = frameHeaderByteSize + (rowOffset + x) * pixelByteSize;
           let value = NaN;
           if (dataType === 1) {
             value = frameView.getFloat32(pointIndex, true);
@@ -7245,6 +7328,101 @@ var ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) 
   return output;
 };
 
+// src/loading/workers/parsers/lrc/jobs/lineAnalysisData.ts
+var lineAnalysisData = async (entireFileBuffer, x1, y1, x2, y2) => {
+  const view = new DataView(entireFileBuffer);
+  const fileWidth = view.getUint16(17, true);
+  const fileHeight = view.getUint16(19, true);
+  const dataType = view.getUint8(15);
+  const isOnLine = (x, y) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const distance = Math.abs(dy * x - dx * y + x2 * y1 - y2 * x1) / Math.sqrt(dx * dx + dy * dy);
+    return distance < 1;
+  };
+  const output = {};
+  const frameHeaderByteSize = 57;
+  let pixelByteSize = 2;
+  if (dataType === 1) pixelByteSize = 4;
+  const framePixelsSize = fileWidth * fileHeight * pixelByteSize;
+  const frameSize = frameHeaderByteSize + framePixelsSize;
+  const streamSubset = entireFileBuffer.slice(25);
+  const frameCount = streamSubset.byteLength / frameSize;
+  const readTimestamp = (readingView, index) => {
+    const bigIntTime = readingView.getBigInt64(index, true);
+    const UnixEpoch = 62135596800000n;
+    const TicksPerMillisecond = 10000n;
+    const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+    const TicksCeiling = 0x4000000000000000n;
+    const LocalMask = 0x8000000000000000n;
+    const TicksMask = 0x3fffffffffffffffn;
+    let ticks = bigIntTime & TicksMask;
+    const isLocalTime = bigIntTime & LocalMask;
+    if (isLocalTime) {
+      if (ticks > TicksCeiling - TicksPerDay) {
+        ticks -= TicksCeiling;
+      }
+      if (ticks < 0) {
+        ticks += TicksPerDay;
+      }
+    }
+    const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+    return Number(milliseconds);
+  };
+  const readFrame = (index) => {
+    const frameSubsetStart = index * frameSize;
+    const frameSubsetEnd = frameSubsetStart + frameSize;
+    const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+    const frameView = new DataView(frameArrayBuffer);
+    const timestamp = readTimestamp(frameView, 0);
+    const min = frameView.getFloat32(8, true);
+    const max = frameView.getFloat32(12, true);
+    const range = max - min;
+    let _min = Infinity;
+    let _max = -Infinity;
+    let sum = 0;
+    let count = 0;
+    const xStart = Math.min(x1, x2);
+    const xEnd = Math.max(x1, x2);
+    const yStart = Math.min(y1, y2);
+    const yEnd = Math.max(y1, y2);
+    for (let y = yStart; y <= yEnd; y++) {
+      for (let x = xStart; x <= xEnd; x++) {
+        if (isOnLine(x, y)) {
+          const pointIndex = frameHeaderByteSize + (y * fileWidth + x) * pixelByteSize;
+          let value = NaN;
+          if (dataType === 1) {
+            value = frameView.getFloat32(pointIndex, true);
+          } else {
+            const valueRaw = frameView.getInt16(pointIndex, true);
+            const UINT16_MAX = 65535;
+            const mappedValue = valueRaw / UINT16_MAX;
+            value = min + range * mappedValue;
+          }
+          _min = Math.min(_min, value);
+          _max = Math.max(_max, value);
+          sum += value;
+          count++;
+        }
+      }
+    }
+    return {
+      timestamp: Number(timestamp),
+      result: {
+        min: _min,
+        max: _max,
+        avg: sum / count,
+        count
+      }
+    };
+  };
+  for (let i = 0; i < frameCount; i++) {
+    const frame = readFrame(i);
+    output[frame.timestamp] = frame.result;
+  }
+  return output;
+};
+
 // src/loading/workers/parsers/lrc/LrcParser.ts
 var extensions = [{
   extension: "lrc",
@@ -7277,7 +7455,8 @@ var parser = {
   registryHistogram,
   pointAnalysisData,
   rectAnalysisData,
-  ellipsisAnalysisData
+  ellipsisAnalysisData,
+  lineAnalysisData
 };
 var LrcParser = Object.freeze(parser);
 

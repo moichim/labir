@@ -7,6 +7,7 @@ import { rectAnalysisData } from "./jobs/rectAnalysisData";
 import { registryHistogram } from "./jobs/histogram";
 import { is } from "./jobs/is";
 import { ellipsisAnalysisData } from "./jobs/ellipsisAnalysisData";
+import { lineAnalysisData } from "./jobs/lineAnalysisData";
 
 
 
@@ -43,7 +44,8 @@ const parser: IParserObject = {
     registryHistogram,
     pointAnalysisData,
     rectAnalysisData,
-    ellipsisAnalysisData
+    ellipsisAnalysisData,
+    lineAnalysisData
 }
 
 export const LrcParser = Object.freeze( parser );

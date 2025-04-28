@@ -205,7 +205,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
         const type = splitted[1];
 
-        if (!["rectangle", "ellipsis", "point"].includes(type)) {
+        if (!["rectangle", "ellipsis", "point", "line"].includes(type)) {
             return;
         }
 

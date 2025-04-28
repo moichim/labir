@@ -135,6 +135,11 @@ export class ThermalFileReader extends AbstractFileResult {
         return await this.parser.ellipsisAnalysisData( this.buffer, x, y, width, height );
     }
 
+    public async lineAnalysisData( x1: number, y1: number, x2: number, y2: number ): ReturnType<IParserObject["lineAnalysisData"]> {
+        return await this.parser.lineAnalysisData( this.buffer, x1, y1, x2, y2 );
+    }
+
+
     /** 
      * Recalculates the core array buffer using all available filters. 
      * 

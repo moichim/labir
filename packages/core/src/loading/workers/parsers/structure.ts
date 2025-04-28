@@ -73,7 +73,6 @@ export type LineAnalysisData = {
         min: number,
         max: number,
         avg: number,
-        profile: number[]
     }
 }
 
@@ -135,6 +134,8 @@ export interface IParserObject {
     rectAnalysisData( file: ArrayBuffer, x: number, y: number, width: number, height: number ): Promise<AreaAnalysisData>,
 
     ellipsisAnalysisData( file: ArrayBuffer, x: number, y: number, width: number, height: number ): Promise<AreaAnalysisData>,
+
+    lineAnalysisData( file: ArrayBuffer, x1: number, y1: number, x2: number, y2: number ): Promise<LineAnalysisData>,
 
 }
 

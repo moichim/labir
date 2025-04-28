@@ -84,10 +84,10 @@ const buildExportPngButton = () => {
 buildExportPngButton();
 
 const array = [
-    "/klokani_01.lrc",
-    "/klokani_02.lrc",
-    "/tucnaci_04.lrc",
-    "/klokani_03.lrc",
+    "/sequence.lrc",
+    // "/klokani_02.lrc",
+    // "/tucnaci_04.lrc",
+    // "/klokani_03.lrc",
 ];
 
 registry.palette.setPalette( "iron" );
