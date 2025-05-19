@@ -5016,9 +5016,10 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
     textColor: "black",
     backgroundColor: "white",
     showAnalysis: true,
-    showFileInfo: false,
-    showThermalScale: true,
-    showSource: false
+    showFileName: false,
+    showFileDate: false,
+    license: void 0,
+    showThermalScale: true
   };
   localInstance;
   get canvas() {
@@ -5057,15 +5058,25 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
       this.container.style.lineHeight = `${params.fontSize * 1.5}px`;
       const registryMin = this.file.group.registry.minmax.value.min;
       const registryMax = this.file.group.registry.minmax.value.max;
-      if (params.showFileInfo) {
+      if (params.showFileName || params.showFileDate) {
         const infoElement = document.createElement("div");
         infoElement.style.paddingBottom = `${params.fontSize / 3}px`;
-        infoElement.appendChild(
-          this.createElementWithText("div", this.file.fileName, fontSize, "bold", params.textColor)
-        );
+        if (params.showFileDate) {
+          const infoText = TimeFormat.human(this.file.timestamp);
+          infoElement.appendChild(
+            this.createElementWithText("span", infoText, fontSize, "bold", params.textColor)
+          );
+        }
+        if (params.showFileName) {
+          const infoText = (params.showFileDate ? " - " : "") + this.file.fileName;
+          const infoWeight = params.showFileDate ? "normal" : "bold";
+          infoElement.appendChild(
+            this.createElementWithText("span", infoText, fontSize, infoWeight, params.textColor)
+          );
+        }
         this.container.appendChild(infoElement);
       }
-      if (params.showThermalScale) {
+      if (params.showThermalScale === true) {
         const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max ? { from: this.file.meta.current.min, to: this.file.meta.current.max } : void 0;
         this.container.appendChild(this.buildHorizontalScale(
           this.container,
@@ -5159,17 +5170,6 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
           byline.appendChild(this.createElementWithText("span", params.license, fontSize));
         }
         this.container.appendChild(byline);
-      }
-      if (params.showSource) {
-        const source = document.createElement("div");
-        source.style.lineHeight = "1.5em";
-        source.style.paddingTop = `${params.fontSize / 3}px`;
-        const date = TimeFormat.human(/* @__PURE__ */ new Date());
-        const href = window.location.href;
-        source.appendChild(
-          this.createElementWithText("span", `${date} - ${href}`, fontSize, void 0, _FilePngExport.COLOR_GRAY)
-        );
-        this.container.appendChild(source);
       }
       setTimeout(() => {
         if (this.container) {
@@ -5445,9 +5445,17 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
     this.drive = drive;
   }
   static DEFAULT_PROPS = {
+    fileName: "export.png",
     columns: 3,
     width: 1600,
     showAnalysis: true,
+    showFileDate: true,
+    showFileName: false,
+    showThermalScale: true,
+    license: void 0,
+    textColor: "black",
+    fontSize: 12,
+    showGroupName: true,
     backgroundColor: "white"
   };
   /** Alias to the group this exporter is attached to */
@@ -5460,46 +5468,9 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
   header;
   /** Images are mounted to this DIV */
   list;
+  /** @deprecated not needed anymore */
   buildHeader() {
-    const element = document.createElement("div");
-    element.style.padding = _GroupExportPNG.GAP_BASE;
-    element.style.border = "1px lightgray solid";
-    const title = this.createElementWithText(
-      "div",
-      this.group.label,
-      void 0,
-      "bold"
-    );
-    element.appendChild(title);
-    if (this.group.description) {
-      const description = this.createElementWithText(
-        "div",
-        this.group.description,
-        _GroupExportPNG.FONT_SIZE_SMALL,
-        "normal",
-        _GroupExportPNG.COLOR_BASE
-      );
-      description.style.paddingTop = _GroupExportPNG.GAP_SMALL;
-      element.appendChild(description);
-    }
-    const summary = this.createElementWithText(
-      "div",
-      `${this.group.files.value.length} files. MIN: ${this.group.registry.minmax.value?.min.toFixed(3)} \xB0C. MAX: ${this.group.registry.minmax.value?.max.toFixed(3)} \xB0C.`,
-      _GroupExportPNG.FONT_SIZE_SMALL,
-      void 0,
-      _GroupExportPNG.COLOR_GRAY
-    );
-    summary.style.paddingTop = _GroupExportPNG.GAP_SMALL;
-    element.appendChild(summary);
-    const colophon = this.createElementWithText(
-      "div",
-      `Image exported at ${TimeFormat.human(/* @__PURE__ */ new Date())} at <i>${window.location.href}</i> using LabIR Edu web viewer. More information at <i>https://edu.labir.cz</i>.`,
-      _GroupExportPNG.FONT_SIZE_SMALL,
-      void 0,
-      _GroupExportPNG.COLOR_GRAY
-    );
-    colophon.style.paddingTop = _GroupExportPNG.GAP_SMALL;
-    return element;
+    return document.createElement("div");
   }
   buildList() {
     const element = document.createElement("div");
@@ -5509,33 +5480,40 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
     element.style.flexWrap = "wrap";
     return element;
   }
-  buildInstance(instance, width, showAnalysis) {
+  buildInstance(instance, width, showAnalysis, showFileDate, showFileName, fontSize) {
     const container = document.createElement("div");
     container.style.width = width.toString() + "%";
     container.style.padding = _GroupExportPNG.GAP_SMALL;
     container.style.boxSizing = "border-box";
     const wrapper = document.createElement("div");
     container.appendChild(wrapper);
-    const title = this.createElementWithText(
-      "div",
-      `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
-      _GroupExportPNG.FONT_SIZE_SMALL,
-      "bold"
-    );
-    wrapper.appendChild(title);
+    if (showFileDate || showFileName) {
+      const label = document.createElement("div");
+      if (showFileDate) {
+        const date = this.createElementWithText(
+          "div",
+          `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
+          fontSize,
+          "bold"
+        );
+        label.appendChild(date);
+      }
+      if (showFileName) {
+        const fileName = this.createElementWithText(
+          "div",
+          showFileDate ? " - " + instance.fileName : instance.fileName,
+          _GroupExportPNG.FONT_SIZE_SMALL,
+          showFileDate ? "normal" : "bold"
+        );
+        label.appendChild(fileName);
+      }
+      wrapper.appendChild(label);
+    }
     if (this.list) {
-      this.group.files.forEveryInstance((i) => {
-        if (this.localGroup) {
-          const localEquivalent = this.localGroup.files.value.find((value) => {
-            return value.fileName === i.fileName;
-          });
-          if (localEquivalent) {
-            localEquivalent.timeline.setRelativeTime(
-              i.timeline.value
-            );
-          }
-        }
-      });
+      let reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
+      if (reference) {
+        instance.timeline.setRelativeTime(reference?.timeline.currentMs);
+      }
       this.list.appendChild(container);
       instance.mountToDom(wrapper);
       instance.draw();
@@ -5543,7 +5521,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
         instance.dom.visibleLayer.getLayerRoot().style.display = "none";
       }
       if (showAnalysis) {
-        const referenceInstance = this.group.files.value[0];
+        const referenceInstance = reference;
         if (referenceInstance && referenceInstance.analysis.value.length > 0) {
           const table = document.createElement("table");
           table.style.width = "100%";
@@ -5553,7 +5531,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
             const el = this.createElementWithText(
               "th",
               string,
-              _GroupExportPNG.FONT_SIZE_SMALL,
+              fontSize,
               void 0,
               _GroupExportPNG.COLOR_GRAY
             );
@@ -5570,7 +5548,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
               const name = this.createElementWithText(
                 "td",
                 slot.analysis.name,
-                _GroupExportPNG.FONT_SIZE_SMALL,
+                fontSize,
                 void 0,
                 slot.analysis.initialColor
               );
@@ -5581,7 +5559,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
                 const td = this.createElementWithText(
                   "td",
                   value ? value.toFixed(3) + " \xB0C" : "",
-                  _GroupExportPNG.FONT_SIZE_SMALL,
+                  fontSize,
                   void 0
                 );
                 td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
@@ -5627,16 +5605,30 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
     const manager = this.group.registry.manager;
     const registry = manager.addOrGetRegistry(registryId);
     const group = registry.groups.addOrGetGroup(this.group.id);
-    this.list?.appendChild(this.buildHorizontalScale(
-      this.list,
-      this.group.registry.minmax.value.min,
-      this.group.registry.minmax.value.max,
-      this.group.registry.range.value.from,
-      this.group.registry.range.value.to,
-      this.group.registry.palette.currentPalette.gradient,
-      "gray",
-      "black"
-    ));
+    if (params.showGroupName && this.header) {
+      const label = params.label ? params.label : this.group.label;
+      this.header.appendChild(
+        this.createElementWithText(
+          "div",
+          label,
+          params.fontSize.toString() + "px",
+          "bold"
+        )
+      );
+      this.header.style.paddingBottom = _GroupExportPNG.GAP_BASE;
+    }
+    if (params.showThermalScale) {
+      this.list?.appendChild(this.buildHorizontalScale(
+        this.list,
+        this.group.registry.minmax.value.min,
+        this.group.registry.minmax.value.max,
+        this.group.registry.range.value.from,
+        this.group.registry.range.value.to,
+        this.group.registry.palette.currentPalette.gradient,
+        "gray",
+        "black"
+      ));
+    }
     this.localGroup = group;
     manager.palette.setPalette(this.group.registry.manager.palette.value);
     registry.range.imposeRange(this.group.registry.range.value);
@@ -5650,7 +5642,14 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
       const width = 100 / params.columns;
       results.forEach((result) => {
         if (result instanceof Instance) {
-          this.buildInstance(result, width, params.showAnalysis);
+          this.buildInstance(
+            result,
+            width,
+            params.showAnalysis,
+            params.showFileDate,
+            params.showFileName,
+            params.fontSize.toString() + "px"
+          );
         }
       });
       setTimeout(() => {

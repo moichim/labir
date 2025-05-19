@@ -99,6 +99,15 @@ export const cy: Translation = {
 
     exportimagewidth: "Lled delwedd wedi'i hallforio",
     exportimagefontsize: "Maint ffont delwedd wedi'i hallforio",
+    exportgroupname: "Enw'r grŵp allforio",
+    exportfilenames: "Enwau'r ffeiliau allforio",
+    exportdimensions: "Dimensiynau allforio",
+    exportgroup: "Allforio'r grŵp",
+    exportcontent: "Allforio'r cynnwys",
+    numberofcolumns: "Nifer y colofnau",
+    thermalscale: "Graddfa thermol",
+    analyses: "Dadansoddiadau",
+    filedate: "Dyddiad y ffeil",
 
 
     range: "Ystod",

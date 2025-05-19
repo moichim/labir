@@ -8,11 +8,13 @@ export type AbstractExportProps = {
     textColor?: string,
     backgroundColor?: string,
     showAnalysis?: boolean,
-    showFileInfo?: boolean,
+
+    showFileName?: boolean,
+    showFileDate?: boolean,
+
     showThermalScale?: boolean,
     author?: string,
     license?: string,
-    showSource?: boolean
 }
 
 export type AbstractExportTypeMandatory = {
@@ -22,11 +24,11 @@ export type AbstractExportTypeMandatory = {
     textColor: string,
     backgroundColor: string,
     showAnalysis: boolean,
-    showFileInfo: boolean,
+    showFileName: boolean,
+    showFileDate: boolean,
     showThermalScale: boolean,
     author?: string,
     license?: string,
-    showSource: boolean
 }
 
 export abstract class AbstractPngExport<

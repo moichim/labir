@@ -17,9 +17,10 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
         textColor: "black",
         backgroundColor: "white",
         showAnalysis: true,
-        showFileInfo: false,
+        showFileName: false,
+        showFileDate: false,
+        license: undefined,
         showThermalScale: true,
-        showSource: false,
     }
 
     protected localInstance?: Instance;
@@ -91,22 +92,36 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
             const registryMin = this.file.group.registry.minmax.value!.min;
             const registryMax = this.file.group.registry.minmax.value!.max;
 
-            // File info
-            if (params.showFileInfo) {
+            if (params.showFileName || params.showFileDate) {
 
                 const infoElement = document.createElement("div");
                 infoElement.style.paddingBottom = `${params.fontSize / 3}px`;
 
-                infoElement.appendChild(
-                    this.createElementWithText("div", this.file.fileName, fontSize, "bold", params.textColor)
-                );
+
+                if (params.showFileDate) {
+                    const infoText = TimeFormat.human(this.file.timestamp);
+                    infoElement.appendChild(
+                        this.createElementWithText("span", infoText, fontSize, "bold", params.textColor)
+                    );
+                }
+
+                if (params.showFileName) {
+                    const infoText = (params.showFileDate ? " - " : "")
+                        + this.file.fileName;
+                    const infoWeight = params.showFileDate ? "normal" : "bold";
+                    infoElement.appendChild(
+                        this.createElementWithText("span", infoText, fontSize, infoWeight, params.textColor)
+                    );
+                }
+
+                
 
                 this.container.appendChild(infoElement);
 
             }
 
             // Thermal scale
-            if (params.showThermalScale) {
+            if (params.showThermalScale === true) {
 
                 const highlight = registryMin !== this.file.meta.current.min || registryMax !== this.file.meta.current.max
                     ? { from: this.file.meta.current.min, to: this.file.meta.current.max }
@@ -256,24 +271,6 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
                 }
 
                 this.container.appendChild(byline);
-
-            }
-
-            // Source
-            if (params.showSource) {
-
-                const source = document.createElement("div");
-                source.style.lineHeight = "1.5em";
-                source.style.paddingTop = `${params.fontSize / 3}px`;
-
-                const date = TimeFormat.human(new Date());
-                const href = window.location.href;
-
-                source.appendChild(
-                    this.createElementWithText("span", `${date} - ${href}`, fontSize, undefined, FilePngExport.COLOR_GRAY)
-                );
-
-                this.container.appendChild(source);
 
             }
 

@@ -8,19 +8,31 @@ import { PointAnalysis } from "../../analysis/internals/point/PointAnalysis";
 import { AnalysisSyncDrive } from "../analysisSync";
 
 export type GroupExportPNGParams = AbstractExportProps & {
-    columns?: number
+    columns?: number,
+    showGroupName?: boolean,
+    label?: string
 }
 
 type GroupExportPNGParamsMandatory = AbstractExportTypeMandatory & {
     columns: number,
+    showGroupName: boolean,
+    label?: string
 }
 
 export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, GroupExportPNGParamsMandatory> {
 
-    public static DEFAULT_PROPS: GroupExportPNGParams = {
+    public static DEFAULT_PROPS: GroupExportPNGParamsMandatory = {
+        fileName: "export.png",
         columns: 3,
         width: 1600,
         showAnalysis: true,
+        showFileDate: true,
+        showFileName: false,
+        showThermalScale: true,
+        license: undefined,
+        textColor: "black",
+        fontSize: 12,
+        showGroupName: true,
         backgroundColor: "white"
     }
 
@@ -47,57 +59,10 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
     }
 
 
-
+    /** @deprecated not needed anymore */
     protected buildHeader(): HTMLDivElement {
 
-        const element = document.createElement("div");
-        element.style.padding = GroupExportPNG.GAP_BASE;
-        element.style.border = "1px lightgray solid";
-
-        const title = this.createElementWithText<HTMLDivElement>(
-            "div",
-            this.group.label,
-            undefined,
-            "bold"
-        );
-        element.appendChild(title);
-
-        if (this.group.description) {
-            const description = this.createElementWithText<HTMLDivElement>(
-                "div",
-                this.group.description,
-                GroupExportPNG.FONT_SIZE_SMALL, "normal",
-                GroupExportPNG.COLOR_BASE
-            );
-            description.style.paddingTop = GroupExportPNG.GAP_SMALL;
-            element.appendChild(description);
-        }
-
-        // Create the summary
-
-        const summary = this.createElementWithText<HTMLDivElement>(
-            "div",
-            `${this.group.files.value.length} files. MIN: ${this.group.registry.minmax.value?.min.toFixed(3)} °C. MAX: ${this.group.registry.minmax.value?.max.toFixed(3)} °C.`,
-            GroupExportPNG.FONT_SIZE_SMALL,
-            undefined,
-            GroupExportPNG.COLOR_GRAY
-        );
-        summary.style.paddingTop = GroupExportPNG.GAP_SMALL;
-
-        element.appendChild(summary);
-
-        const colophon = this.createElementWithText<HTMLDivElement>(
-            "div",
-            `Image exported at ${TimeFormat.human(new Date)} at <i>${window.location.href}</i> using LabIR Edu web viewer. More information at <i>https://edu.labir.cz</i>.`,
-            GroupExportPNG.FONT_SIZE_SMALL,
-            undefined,
-            GroupExportPNG.COLOR_GRAY
-        );
-        colophon.style.paddingTop = GroupExportPNG.GAP_SMALL;
-
-        // element.appendChild(colophon);
-
-        return element;
+        return document.createElement("div");
 
     }
 
@@ -118,7 +83,10 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
     protected buildInstance(
         instance: Instance,
         width: number,
-        showAnalysis: boolean
+        showAnalysis: boolean,
+        showFileDate: boolean,
+        showFileName: boolean,
+        fontSize: string
     ) {
 
         const container = document.createElement("div");
@@ -129,38 +97,51 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
         const wrapper = document.createElement("div");
         container.appendChild(wrapper);
 
-        const title = this.createElementWithText(
-            "div",
-            `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
-            GroupExportPNG.FONT_SIZE_SMALL,
-            "bold"
-        );
+        if (showFileDate || showFileName) {
 
-        wrapper.appendChild(title);
+            const label = document.createElement("div");
+
+            if (showFileDate) {
+                const date = this.createElementWithText(
+                    "div",
+                    `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
+                    fontSize,
+                    "bold"
+                );
+                label.appendChild( date );
+            }
+
+            if ( showFileName ) {
+
+                const fileName = this.createElementWithText(
+                    "div",
+                    showFileDate 
+                        ? " - " + instance.fileName 
+                        : instance.fileName,
+                    GroupExportPNG.FONT_SIZE_SMALL,
+                    showFileDate 
+                        ? "normal" 
+                        : "bold"
+                );
+                label.appendChild( fileName );
+            }
+
+            wrapper.appendChild(label);
+
+        }
+
+
 
         // Build the image
         if (this.list) {
 
+            let reference: Instance | undefined = this.group.files.value.find( i => i.fileName === instance.fileName );
 
-            // Set MS of the file
-            this.group.files.forEveryInstance( i => {
+            if ( reference ) {
 
-                if ( this.localGroup ) {
-                    
-                    const localEquivalent = this.localGroup.files.value.find( ( value ) => { 
-                        return value.fileName === i.fileName 
-                    } );
-
-                    if ( localEquivalent ) {
-                        localEquivalent.timeline.setRelativeTime(
-                            i.timeline.value
-                        );
-                    }
-
-
-                }
-
-            } );
+                // Synchronize the MS
+                instance.timeline.setRelativeTime( reference?.timeline.currentMs );
+            }
 
 
 
@@ -168,15 +149,15 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
             instance.mountToDom(wrapper);
             instance.draw();
 
-            if ( instance.dom && instance.dom.visibleLayer ) {
+            if (instance.dom && instance.dom.visibleLayer) {
                 instance.dom.visibleLayer.getLayerRoot().style.display = "none";
             }
-            
+
 
             // Transpose all analysis if necessary
             if (showAnalysis) {
 
-                const referenceInstance = this.group.files.value[0];
+                const referenceInstance = reference;
 
                 if (referenceInstance && referenceInstance.analysis.value.length > 0) {
 
@@ -191,7 +172,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
                         const el = this.createElementWithText(
                             "th",
                             string,
-                            GroupExportPNG.FONT_SIZE_SMALL,
+                            fontSize,
                             undefined,
                             GroupExportPNG.COLOR_GRAY
                         );
@@ -219,7 +200,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
                             const name = this.createElementWithText(
                                 "td",
                                 slot.analysis.name,
-                                GroupExportPNG.FONT_SIZE_SMALL,
+                                fontSize,
                                 undefined,
                                 slot.analysis.initialColor
                             );
@@ -237,7 +218,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
                                 const td = this.createElementWithText(
                                     "td",
                                     value ? value.toFixed(3) + " °C" : "",
-                                    GroupExportPNG.FONT_SIZE_SMALL,
+                                    fontSize,
                                     undefined,
 
                                 );
@@ -326,9 +307,25 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
         const registry = manager.addOrGetRegistry(registryId);
         const group = registry.groups.addOrGetGroup(this.group.id);
 
+        // Popilate the header
+        if ( params.showGroupName && this.header ) {
+
+            const label = params.label ? params.label : this.group.label;
+            this.header.appendChild(
+                this.createElementWithText<HTMLDivElement>(
+                    "div",
+                    label,
+                    params.fontSize.toString() + "px",
+                    "bold"
+                )
+            );
+            this.header.style.paddingBottom = GroupExportPNG.GAP_BASE;
+        }
+
         // Build the temperature scale
 
-        this.list?.appendChild(this.buildHorizontalScale(
+        if ( params.showThermalScale ) {
+            this.list?.appendChild(this.buildHorizontalScale(
             this.list!,
             this.group.registry.minmax.value!.min,
             this.group.registry.minmax.value!.max,
@@ -338,6 +335,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
             "gray",
             "black"
         ));
+        }
 
         // Assign the local group for further usage
         this.localGroup = group;
@@ -365,7 +363,14 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
             // Build all recieved instances
             results.forEach(result => {
                 if (result instanceof Instance) {
-                    this.buildInstance(result, width, params.showAnalysis!);
+                    this.buildInstance(
+                        result, 
+                        width, 
+                        params.showAnalysis, 
+                        params.showFileDate, 
+                        params.showFileName,
+                        params.fontSize.toString() + "px"
+                    );
                 }
             });
 

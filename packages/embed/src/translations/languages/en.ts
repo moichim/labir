@@ -97,6 +97,14 @@ export const en: Translation = {
     csvofanalysisdatahint: "Table of temperatures in analyses",
     exportimagewidth: "Exported image width",
     exportimagefontsize: "Exported image font size",
+    exportgroupname: "Export group name",
+    exportfilenames: "Export file names",
+    exportdimensions: "Export dimensions",
+    exportgroup: "Export group",
+    exportcontent: "Export content",
+    numberofcolumns: "Number of columns",
+    thermalscale: "Thermal scale",
+    filedate: "File date",
 
     range: "Range",
     info: "Info",
@@ -131,6 +139,7 @@ export const en: Translation = {
     graphlineshint: "'Smooth lines' can illustrate trends better, but are less precise. If you need to see exactly what is in the thermogram, use 'Straight lines'.",
 
     analysis: "Analysis",
+    analyses: "Analyses",
     avg: "AVG",
     min: "MIN",
     max: "MAX",

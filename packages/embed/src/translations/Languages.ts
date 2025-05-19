@@ -142,6 +142,14 @@ export enum T {
     csvofanalysisdatahint = "csvofanalysisdatahint",
     exportimagewidth = "exportimagewidth",
     exportimagefontsize = "exportimagefontsize",
+    exportgroupname = "exportgroupname",
+    exportfilenames = "exportfilenames",
+    numberofcolumns = "numberofcolumns",
+    exportcontent = "exportcontent",
+    exportdimensions = "exportdimensions",
+    exportgroup = "exportgroup",
+    thermalscale = "thermalscale",
+    filedate = "filedate",
 
     showingfolder = "showingfolder",
     showingfolders = "showingfolders",
@@ -179,6 +187,7 @@ export enum T {
     reload = "reload",
 
     analysis = "analysis",
+    analyses = "analyses",
     avg = "avg",
     min = "min",
     max = "max",

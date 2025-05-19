@@ -57,7 +57,15 @@ const buildExportPngButton = () => {
     const element = document.createElement( "button" );
     element.innerHTML = "PNG of the group";
     element.addEventListener("click", () => {
-        group.analysisSync.png.downloadPng();
+        group.analysisSync.png.downloadPng({
+            showFileName: false,
+            showFileDate: true,
+            fontSize: 40,
+            showThermalScale: true,
+            showAnalysis: true,
+            license: "Nějaká license",
+            columns: 2
+        });
     } );
 
     document.body.appendChild( element );
@@ -103,7 +111,14 @@ array.map( file => {
             const btn = document.createElement( "button" );
 
             btn.addEventListener( "click", () => {
-                result.export.downloadPng();
+                result.export.downloadPng({
+                    showFileName: true,
+                    showFileDate: true,
+                    fontSize: 20,
+                    showThermalScale: true,
+                    showAnalysis: true,
+                    license: "Nějaká license"
+                });
             } );
 
             btn.innerHTML = result.fileName;

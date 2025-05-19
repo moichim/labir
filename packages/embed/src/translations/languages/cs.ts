@@ -95,6 +95,15 @@ export const cs: Translation = {
 
     exportimagewidth: "Šířka exportovaných obrázků",
     exportimagefontsize: "Velikost písma v exportovaných obrázcích",
+    exportgroupname: "Název skupiny",
+    exportfilenames: "Názvy souborů",
+    exportdimensions: "Rozměry exportu",
+    exportgroup: "Export skupiny",
+    exportcontent: "Obsah exportu",
+    numberofcolumns: "Počet sloupců",
+    thermalscale: "Teplotní škála",
+    analyses: "Analýzy",
+    filedate: "File date",
 
 
     range: "Rozsah",

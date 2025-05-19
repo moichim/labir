@@ -15,7 +15,7 @@ import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 enum STATE {
     MAIN,
@@ -33,7 +33,7 @@ const loc = {
 }
 
 @customElement("remote-browser-app")
-export class RemoteBrowser extends BaseElement implements IWithlocale {
+export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithlocale {
 
     @property({ type: String, reflect: true })
     label?: string;
@@ -104,26 +104,16 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
     } = undefined;
 
 
-    @provide({ context: pngExportWidthContext })
-    protected pngExportWidth: number = 1200;
-
-    @provide({ context: pngExportWidthSetterContext })
-    protected pngExportWidthSetterContext = (value: number) => {
-        this.pngExportWidth = value;
-    }
-
-
-    @provide({ context: pngExportFsContext })
-    protected pngExportFs: number = 20;
-
-    @provide({ context: pngExportFsSetterContext })
-    protected pngExportFsSetterContext = (value: number) => {
-        this.pngExportFs = value;
-    }
-
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })
     public locale!: Locales;
+
+
+
+
+    
+
+
 
 
 
@@ -177,10 +167,10 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
             }
         }
 
-        if ( _changedProperties.has("folders") ) {
+        if (_changedProperties.has("folders")) {
             const keys = Object.keys(this.folders);
-            if ( keys.length === 1 ) {
-                this.actionOpenOneFolder( keys[0] );
+            if (keys.length === 1) {
+                this.actionOpenOneFolder(keys[0]);
             }
         }
 
@@ -384,13 +374,13 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                 </div>
                 <div class="folder-header-icon">
                     ${folder.lrc_count > 1
-                        ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
                                 </svg>`
-                        : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                    : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
                                 </svg>`
-                    }
+                }
                 </div>
             </div>
 
@@ -576,7 +566,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                                         <group-range-propagator></group-range-propagator>
 
                                         <file-dropdown label="${t(T.download).toLowerCase()}">
-                                            <group-download-buttons></group-download-buttons>
+                                            <group-download-buttons label=${title}></group-download-buttons>
                                         </file-dropdown>
 
                                     </group-provider>
@@ -660,7 +650,7 @@ export class RemoteBrowser extends BaseElement implements IWithlocale {
                 </thermal-dropdown>`
                 : html`<thermal-button variant="background" interactive="false">${theOne.name}</thermal-button>`;
 
-            const add = theOthers.length > 0 
+            const add = theOthers.length > 0
                 ? theOthers.map((f, i) => html`<thermal-button @click=${() => this.actionToggleFolder(f.folder)}>
                     <span class="button-inline-icon">+</span> ${f.name}
                 </thermal-button> ${i !== theOthers.length - 1 ? ` ${t(T.or)} ` : nothing}`)
@@ -1156,7 +1146,7 @@ thermal-dropdown.selector::part(invoker) {
 
     protected renderHeader() {
 
-        if ( this.state === STATE.MAIN ) {
+        if (this.state === STATE.MAIN) {
             return nothing;
         }
 
@@ -1223,23 +1213,23 @@ thermal-dropdown.selector::part(invoker) {
     protected render(): unknown {
 
         let title = t(T.remotefoldersbrowser);
-        let onlabel: undefined|(() => void) = undefined;
+        let onlabel: undefined | (() => void) = undefined;
 
-        if ( this.info === undefined ) {
+        if (this.info === undefined) {
             title = t(T.loading) + "...";
         } else {
             // In case there is only one group in the entire app, show a special title
-            if ( Object.keys(this.folders).length === 1 && this.label) {
+            if (Object.keys(this.folders).length === 1 && this.label) {
                 title = this.label;
             }
 
             // If looking on the main page, show the label
-            else if ( this.state === STATE.MAIN && this.label ) {
+            else if (this.state === STATE.MAIN && this.label) {
                 title = this.label;
             }
 
             // In all other cases, show the close button
-            else if ( this.state !== STATE.MAIN ) {
+            else if (this.state !== STATE.MAIN) {
                 title = t(T.close);
                 onlabel = () => this.actionCloseToHomepage();
             }
@@ -1266,8 +1256,8 @@ thermal-dropdown.selector::part(invoker) {
 
             ${this.state === STATE.MAIN && Object.keys(this.folders).length > 1
                 ? html`<thermal-button slot="bar-pre" @click=${() => {
-                this.actionShowEverything();
-            }}>${t(T.showeverything)}</thermal-button>`
+                    this.actionShowEverything();
+                }}>${t(T.showeverything)}</thermal-button>`
                 : nothing
             }
 

@@ -1197,11 +1197,11 @@ type AbstractExportProps = {
     textColor?: string;
     backgroundColor?: string;
     showAnalysis?: boolean;
-    showFileInfo?: boolean;
+    showFileName?: boolean;
+    showFileDate?: boolean;
     showThermalScale?: boolean;
     author?: string;
     license?: string;
-    showSource?: boolean;
 };
 type AbstractExportTypeMandatory = {
     fileName: string;
@@ -1210,11 +1210,11 @@ type AbstractExportTypeMandatory = {
     textColor: string;
     backgroundColor: string;
     showAnalysis: boolean;
-    showFileInfo: boolean;
+    showFileName: boolean;
+    showFileDate: boolean;
     showThermalScale: boolean;
     author?: string;
     license?: string;
-    showSource: boolean;
 };
 declare abstract class AbstractPngExport<O extends AbstractExportProps, M extends AbstractExportTypeMandatory> {
     static FONT_SIZE_NORMAL: string;
@@ -1274,13 +1274,17 @@ declare abstract class AbstractPngExport<O extends AbstractExportProps, M extend
 
 type GroupExportPNGParams = AbstractExportProps & {
     columns?: number;
+    showGroupName?: boolean;
+    label?: string;
 };
 type GroupExportPNGParamsMandatory = AbstractExportTypeMandatory & {
     columns: number;
+    showGroupName: boolean;
+    label?: string;
 };
 declare class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, GroupExportPNGParamsMandatory> {
     readonly drive: AnalysisSyncDrive;
-    static DEFAULT_PROPS: GroupExportPNGParams;
+    static DEFAULT_PROPS: GroupExportPNGParamsMandatory;
     /** Alias to the group this exporter is attached to */
     protected get group(): ThermalGroup;
     /** Temporary local group is used to build a mirror of images. */
@@ -1290,9 +1294,10 @@ declare class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Gro
     /** Images are mounted to this DIV */
     protected list?: HTMLDivElement;
     constructor(drive: AnalysisSyncDrive);
+    /** @deprecated not needed anymore */
     protected buildHeader(): HTMLDivElement;
     protected buildList(): HTMLDivElement;
-    protected buildInstance(instance: Instance, width: number, showAnalysis: boolean): void;
+    protected buildInstance(instance: Instance, width: number, showAnalysis: boolean, showFileDate: boolean, showFileName: boolean, fontSize: string): void;
     protected onBuildDom(): void;
     protected beforeDomRemoved(): void;
     protected afterDomRemoved(): void;

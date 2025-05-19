@@ -98,6 +98,15 @@ export const de: Translation = {
 
     exportimagewidth: "Exportierte Bildbreite",
     exportimagefontsize: "Exportierte Bildschriftgröße",
+    exportgroupname: "Exportgruppenname",
+    exportfilenames: "Dateinamen exportieren",
+    exportdimensions: "Exportabmessungen",
+    exportgroup: "Gruppe exportieren",
+    exportcontent: "Inhalt exportieren",
+    numberofcolumns: "Anzahl der Spalten",
+    thermalscale: "Thermische Skala",
+    analyses: "Analysen",
+    filedate: "Dateidatum",
 
     range: "Bereich",
     info: "Info",
