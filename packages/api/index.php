@@ -4,7 +4,7 @@
 header('Content-Type: application/json');
 // header('Access-Control-Allow-Origin: *');
 // header('Access-Control-Allow-Methods GET');
-// header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' );
+// header( 'Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"' )
 
 
 function groupByHour($timestamp)
@@ -34,9 +34,15 @@ function groupByYear($timestamp)
     return strtotime(date("Y-01-01", $timestamp));
 }
 
+$v = $_REQUEST;
+
 
 abstract class AbstractController
 {
+
+    const VERSION = 1.1;
+
+    abstract static function isRequest(): bool;
 
 
     /** The base public URL */
@@ -160,29 +166,7 @@ abstract class AbstractController
     }
 
 
-    protected function router()
-    {
-
-        if ($_SERVER["QUERY_STRING"] === "" || strpos($_SERVER["REQUEST_URI"], '&') === false) {
-            $this->doInfo();
-        } else if (isset($_GET["folder"])) {
-            $this->doFolder($_GET["folder"]);
-        } else if (isset($_GET["hours"])) {
-            $this->doHours();
-        } else if (isset($_GET["days"])) {
-            $this->doDays();
-        } else if (isset($_GET["weeks"])) {
-            $this->doWeeks();
-        } else if (isset($_GET["months"])) {
-            $this->doMonths();
-        } else if (isset($_GET["years"])) {
-            $this->doYears();
-        } else if (isset($_GET["everything"])) {
-            $this->doEverything();
-        } else {
-            throw new Exception("No route found!", 0);
-        }
-    }
+    protected abstract function router();
 
     protected function markResponse(
         $type,
@@ -283,7 +267,7 @@ abstract class AbstractController
             }
         }
 
-        
+
 
         if (!empty($lrc_files)) {
             $first_file = $lrc_files[0];
@@ -324,7 +308,7 @@ abstract class AbstractController
         $timestamp = $this->readTimestamp($path, 5);
 
         $result = [
-            "timestampTmp" => round( $timestamp / 1000 ),
+            "timestampTmp" => round($timestamp / 1000),
             "timestamp" => $timestamp,
             "file_name" => $file_name,
             "lrc" => $lrc
@@ -418,11 +402,11 @@ abstract class AbstractController
                 $group_start = call_user_func($get_group_timestamp, $file["timestampTmp"]);
                 $group_start_key = strval($group_start);
 
-                if ( !array_key_exists($group_start_key, $groups) ) {
+                if (!array_key_exists($group_start_key, $groups)) {
                     $groups[$group_start_key] = [];
                 }
 
-                if ( !array_key_exists($folder, $groups[$group_start_key]) ) {
+                if (!array_key_exists($folder, $groups[$group_start_key])) {
 
                     $groups[$group_start_key][$folder] = [
                         "name" => $info["name"],
@@ -432,14 +416,13 @@ abstract class AbstractController
                     ];
                 }
 
-                if ( !array_key_exists("files", $groups[$group_start_key][$folder]) ) {
+                if (!array_key_exists("files", $groups[$group_start_key][$folder])) {
                     $groups[$group_start_key][$folder]["files"] = [];
                 }
 
                 $groups[$group_start_key][$folder]["files"][$file["timestamp"]] = $file;
 
                 $groups[$group_start_key][$folder]["count"] += 1;
-
             }
         }
 
@@ -470,8 +453,13 @@ abstract class AbstractController
 }
 
 
-class Controller extends AbstractController
+class GetController extends AbstractController
 {
+
+    static function isRequest(): bool
+    {
+        return true;
+    }
 
     public function __construct()
     {
@@ -481,10 +469,12 @@ class Controller extends AbstractController
         $this->subfolder = $this->getParamValue("scope");
 
         $this->content_url = $this->api_endpoint;
-        if ($this->subfolder) $this->content_url .= $this->subfolder . "/";
+        if ($this->subfolder)
+            $this->content_url .= $this->subfolder . "/";
 
         $this->content_path = __DIR__;
-        if ($this->subfolder) $this->content_path .= "/" . $this->subfolder;
+        if ($this->subfolder)
+            $this->content_path .= "/" . $this->subfolder;
 
         $this->availableFolders = $this->getAvailableFolders();
 
@@ -515,7 +505,7 @@ class Controller extends AbstractController
 
         $this->response = [
             "app" => "LabIR Edu folder scanner",
-            "version" => 1,
+            "version" => self::VERSION,
             "success" => false,
             "content_url" => $this->content_url
         ];
@@ -532,9 +522,282 @@ class Controller extends AbstractController
             // $this->respond();
         }
     }
+
+    protected function router()
+    {
+
+        if ($_SERVER["QUERY_STRING"] === "" || strpos($_SERVER["REQUEST_URI"], '&') === false) {
+            $this->doInfo();
+        } else if (isset($_GET["folder"])) {
+            $this->doFolder($_GET["folder"]);
+        } else if (isset($_GET["hours"])) {
+            $this->doHours();
+        } else if (isset($_GET["days"])) {
+            $this->doDays();
+        } else if (isset($_GET["weeks"])) {
+            $this->doWeeks();
+        } else if (isset($_GET["months"])) {
+            $this->doMonths();
+        } else if (isset($_GET["years"])) {
+            $this->doYears();
+        } else if (isset($_GET["everything"])) {
+            $this->doEverything();
+        } else {
+            throw new Exception("No route found!", 0);
+        }
+    }
 }
 
 
-$controller = new Controller();
+
+class PostController extends AbstractController
+{
+
+    static function isRequest(): bool
+    {
+        return $_SERVER["REQUEST_METHOD"] === "POST";
+    }
+
+    public function __construct()
+    {
+
+        session_start();
+
+        $this->api_endpoint = $this->getBaseUrl();
+
+        $this->subfolder = $this->getParamValue("scope");
+
+        $this->content_url = $this->api_endpoint;
+        if ($this->subfolder)
+            $this->content_url .= $this->subfolder . "/";
+
+        $this->content_path = __DIR__;
+        if ($this->subfolder)
+            $this->content_path .= "/" . $this->subfolder;
+
+        $this->response = [
+            "app" => "LabIR Edu folder manager",
+            "version" => self::VERSION,
+            "success" => false,
+            "content_url" => $this->content_url
+        ];
+
+        try {
+            $this->authorise();
+            $this->router();
+        } catch (Exception $e) {
+            $this->response["error"] = $e->getMessage();
+            $this->response["code"] = $e->getCode();
+            $this->response["success"] = false;
+            // $this->respond();
+        }
+    }
+
+    protected function authorise()
+    {
+
+        $data = json_decode(file_get_contents('php://input'), true) ?? [$_POST];
+        $token = $data["token"] ?? null;
+        $password = $data["password"] ?? null;
+
+        // If there is a token, if it is valid and if it is not too old, return true
+        if ($token && $this->isValidToken($token)) {
+            return true;
+        }
+
+        if ($password && $this->isValidPassword($password)) {
+            $newToken = $this->generateToken();
+            $_SESSION["token"] = $newToken;
+            $_SESSION["token_time"] = time();
+            $_SESSION["token_subfolder"] = $this->subfolder ?? "/";
+            $this->response["token"] = $newToken;
+            $this->markResponse("authorised", true);
+            $this->respond();
+            exit;
+        }
+
+        throw new Exception("Unauthorised: missing or invalid token or password", 401);
+    }
+
+    const SESSION_DURATION = 1080;
+
+    protected function isValidToken(string $token): bool
+    {
+
+        // If no token is in the session, return false
+        if (
+            !isset($_SESSION["token"])
+            || !isset($_SESSION["token_time"])
+            || !isset($_SESSION["token_subfolder"])
+        ) {
+            throw new Exception("Token does not exist", 401);
+            return false;
+        }
+        // If the token is different, return false
+        if ($_SESSION["token"] !== $token) {
+            throw new Exception("Invalid token", 401);
+            return false;
+        }
+        $incomingSubfolder = $this->subfolder ?? "/";
+        $existingSubfolder = $_SESSION["token_subfolder"] ?? "/";
+        if ($incomingSubfolder !== $existingSubfolder) {
+            throw new Exception("Invalid token for this subfolder", 401);
+            return false;
+        }
+        // If the token is older than 30 minutes, return false
+        if (time() - $_SESSION["token_time"] > self::SESSION_DURATION) {
+            unset($_SESSION["token"]);
+            unset($_SESSION["token_time"]);
+            unset($_SESSION["token_subfolder"]);
+            throw new Exception("Token too old", 401);
+            return false;
+        }
+        // The token validity is prolonged upon every request
+        $_SESSION["token_time"] = time();
+        return true;
+    }
+
+    protected function isValidPassword(string $password): bool
+    {
+        $realPassword = $this->getStoredPassword();
+        return $password === $realPassword;
+    }
+
+    protected function getStoredPassword(): string
+    {
+        $this->subfolder = $this->getParamValue("scope");
+        $passFile = $this->content_path . "/password.txt";
+        if (!file_exists($passFile)) {
+            throw new Exception("Password file not found", 404);
+            return false;
+        }
+        return trim(file_get_contents($passFile));
+    }
+
+    protected function generateToken(): string
+    {
+        return bin2hex(random_bytes(32));
+    }
+
+    protected function webalize(string $text): string
+    {
+        // Odstranění diakritiky
+        $text = $this->removeDiacritics($text);
+        $text = iconv('UTF-8', 'ASCII//TRANSLIT', $text);
+        // Malá písmena, nahrazení mezer a odstranění nepovolených znaků
+        $text = strtolower($text);
+        // Nahrazení mezer a tabulátorů pomlčkou
+        $text = preg_replace('/[\s]+/', '-', $text);
+        // Odstranění nepovolených znaků (ponechá pouze a-z, 0-9, pomlčku a podtržítko)
+        $text = preg_replace('/[^a-z0-9_\-]+/', '-', $text);
+        // Odstranění vícenásobných pomlček
+        $text = preg_replace('/-+/', '-', $text);
+        
+        $text = trim($text, '-');
+        return $text;
+    }
+
+    protected function sanitizeText(string $text, int $maxLength = 255): string
+    {
+        // Odstraní neviditelné znaky (např. \n, \r, \t, \0, \x0B)
+        $text = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
+
+        // Odstraní HTML tagy
+        $text = strip_tags($text);
+
+        // Escapuje HTML entity
+        $text = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+        // Odstraní znaky nebezpečné pro souborový systém
+        $text = str_replace(['/', '\\', '?', '%', '*', ':', '|', '"', '<', '>', ';', '#', '&'], '', $text);
+
+        // Ořízne na maximální délku
+        $text = mb_substr($text, 0, $maxLength);
+
+        // Odstraní bílé znaky na začátku a konci
+        $text = trim($text);
+
+        return $text;
+    }
+
+    protected function removeDiacritics(string $text): string
+{
+    $table = [
+        'á'=>'a','č'=>'c','ď'=>'d','é'=>'e','ě'=>'e','í'=>'i','ň'=>'n','ó'=>'o','ř'=>'r','š'=>'s','ť'=>'t','ú'=>'u','ů'=>'u','ý'=>'y','ž'=>'z',
+        'Á'=>'A','Č'=>'C','Ď'=>'D','É'=>'E','Ě'=>'E','Í'=>'I','Ň'=>'N','Ó'=>'O','Ř'=>'R','Š'=>'S','Ť'=>'T','Ú'=>'U','Ů'=>'U','Ý'=>'Y','Ž'=>'Z',
+        'ä'=>'a','ĺ'=>'l','ľ'=>'l','ĺ'=>'l','ô'=>'o','ŕ'=>'r','Ĺ'=>'L','Ľ'=>'L','Ŕ'=>'R','Ä'=>'A','Ô'=>'O',
+    ];
+    return strtr($text, $table);
+}
+
+    protected function createFolder(string $name, string $description)
+    {
+        $folder_name = $this->webalize($this->sanitizeText($name));
+        $folder_path = $this->content_path . "/" . $folder_name;
+        if (file_exists($folder_path)) {
+            throw new Exception("Folder already exists", 409);
+        }
+        if (!mkdir($folder_path, 0777, true)) {
+            throw new Exception("Failed to create the folder '$folder_path'", 500);
+        }
+        $info_file_path = $this->getFolderFilePath($folder_name, "_info.txt");
+        $info_file_content = "name: " . $name . "\ndescription: " . $description;
+        file_put_contents($info_file_path, $info_file_content);
+
+        $this->markResponse("folderCreated", true);
+        $this->response["newFolder"] = [
+            "name" => $name,
+            "slug" => $folder_name,
+            "description" => $description
+        ];
+    }
+
+    protected function router()
+    {
+        $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
+
+        // Akce pro vytvoření složky
+        if (isset($data['action']) && $data['action'] === 'createFolder') {
+            if (empty($data['name'])) {
+                throw new Exception("Missing parameter: name", 400);
+            }
+            $name = $data['name'];
+            $description = $data['description'] ?? '';
+            $this->createFolder($name, $description);
+            $this->respond();
+            return;
+        }
+
+        // ...další akce zde...
+        throw new Exception("Unknown or missing action", 400);
+    }
+}
+
+class Resolver
+{
+
+    protected $var = [
+        PostController::class,
+        GetController::class
+    ];
+
+    public function resolve()
+    {
+
+        foreach ($this->var as $cls) {
+
+            if ($cls::isRequest()) {
+                $controller = new $cls();
+                return $controller->respond();
+            }
+        }
+    }
+}
+
+$resolver = new Resolver();
+return $resolver->resolve();
+
+
+$controller = new GetController();
 
 return $controller->respond();
