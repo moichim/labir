@@ -34,8 +34,6 @@ function groupByYear($timestamp)
     return strtotime(date("Y-01-01", $timestamp));
 }
 
-$v = $_REQUEST;
-
 
 abstract class AbstractController
 {
@@ -692,7 +690,7 @@ class PostController extends AbstractController
         $text = preg_replace('/[^a-z0-9_\-]+/', '-', $text);
         // Odstranění vícenásobných pomlček
         $text = preg_replace('/-+/', '-', $text);
-        
+
         $text = trim($text, '-');
         return $text;
     }
@@ -721,14 +719,52 @@ class PostController extends AbstractController
     }
 
     protected function removeDiacritics(string $text): string
-{
-    $table = [
-        'á'=>'a','č'=>'c','ď'=>'d','é'=>'e','ě'=>'e','í'=>'i','ň'=>'n','ó'=>'o','ř'=>'r','š'=>'s','ť'=>'t','ú'=>'u','ů'=>'u','ý'=>'y','ž'=>'z',
-        'Á'=>'A','Č'=>'C','Ď'=>'D','É'=>'E','Ě'=>'E','Í'=>'I','Ň'=>'N','Ó'=>'O','Ř'=>'R','Š'=>'S','Ť'=>'T','Ú'=>'U','Ů'=>'U','Ý'=>'Y','Ž'=>'Z',
-        'ä'=>'a','ĺ'=>'l','ľ'=>'l','ĺ'=>'l','ô'=>'o','ŕ'=>'r','Ĺ'=>'L','Ľ'=>'L','Ŕ'=>'R','Ä'=>'A','Ô'=>'O',
-    ];
-    return strtr($text, $table);
-}
+    {
+        $table = [
+            'á' => 'a',
+            'č' => 'c',
+            'ď' => 'd',
+            'é' => 'e',
+            'ě' => 'e',
+            'í' => 'i',
+            'ň' => 'n',
+            'ó' => 'o',
+            'ř' => 'r',
+            'š' => 's',
+            'ť' => 't',
+            'ú' => 'u',
+            'ů' => 'u',
+            'ý' => 'y',
+            'ž' => 'z',
+            'Á' => 'A',
+            'Č' => 'C',
+            'Ď' => 'D',
+            'É' => 'E',
+            'Ě' => 'E',
+            'Í' => 'I',
+            'Ň' => 'N',
+            'Ó' => 'O',
+            'Ř' => 'R',
+            'Š' => 'S',
+            'Ť' => 'T',
+            'Ú' => 'U',
+            'Ů' => 'U',
+            'Ý' => 'Y',
+            'Ž' => 'Z',
+            'ä' => 'a',
+            'ĺ' => 'l',
+            'ľ' => 'l',
+            'ĺ' => 'l',
+            'ô' => 'o',
+            'ŕ' => 'r',
+            'Ĺ' => 'L',
+            'Ľ' => 'L',
+            'Ŕ' => 'R',
+            'Ä' => 'A',
+            'Ô' => 'O',
+        ];
+        return strtr($text, $table);
+    }
 
     protected function createFolder(string $name, string $description)
     {
@@ -752,6 +788,152 @@ class PostController extends AbstractController
         ];
     }
 
+    protected function updateFolder(
+        string $slug,
+        ?string $name,
+        ?string $description
+    ) {
+        $old_folder_path = $this->content_path . "/" . $slug;
+        if (!file_exists($old_folder_path)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+        // Update the folder itself if necessary
+        $new_slug = $slug;
+        if ($name !== null && trim($name) !== "") {
+
+            $new_slug = $this->webalize($this->sanitizeText($name));
+            $new_folder_path = $this->content_path . "/" . $new_slug;
+
+            if ($new_slug !== $slug && file_exists($new_folder_path)) {
+                throw new Exception("Folder '$new_slug' already exists", 409);
+            }
+
+            if ($new_slug !== $slug) {
+                if (!rename($old_folder_path, $new_folder_path)) {
+                    throw new Exception("Failed to rename the folder '$old_folder_path' to '$new_folder_path'", 500);
+                }
+                $old_folder_path = $new_folder_path;
+            }
+        }
+
+        // Update the info_php
+        $info_file_path = $this->getFolderFilePath($new_slug, "_info.txt");
+        $info = [];
+
+        // Pokud info soubor existuje, načti původní hodnoty
+        if (file_exists($info_file_path)) {
+            $lines = file($info_file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos($line, "name: " === 0)) {
+                    $info["name"] = substr($line, 6);
+                } else if (strpos($line, "description: ") === 0) {
+                    $info["description"] = substr($line, 13);
+                }
+            }
+        }
+
+        // Nastav nové hodnoty, pokud jsou zadány
+        if ($name !== null) {
+            $info["name"] = $name;
+        }
+        if ($description !== null) {
+            $info["description"] = $description;
+        }
+
+        // Sestav nový obsah _info.txt
+        $info_file_content = "";
+        if ($info["name"]) {
+            $info_file_content .= "name: " . $info["name"] . "\n";
+        }
+        if ($info["description"]) {
+            $info_file_content .= "description: " . $info["description"];
+        }
+
+        file_put_contents($info_file_path, $info_file_content);
+
+        $this->markResponse("folderUpdated", true);
+        $this->response["updatedFolder"] = [
+            "name" => $info["name"],
+            "slug" => $new_slug,
+            "description" => $info["description"]
+        ];
+    }
+
+
+    protected function deleteFolder(string $slug)
+    {
+        $folderPath = $this->content_path . "/" . $slug;
+
+        // Zkontroluj, zda složka existuje
+        if (!is_dir($folderPath)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+
+        // Pokus o rekurzivní smazání složky
+        $success = $this->deleteDirectoryRecursive($folderPath);
+
+        if (!$success) {
+            throw new Exception("Failed to delete folder '$slug'", 500);
+        }
+
+        $this->markResponse("folderDeleted", true);
+        $this->response["deletedFolder"] = $slug;
+    }
+
+    /**
+     * Rekurzivně smaže složku a její obsah.
+     */
+    protected function deleteDirectoryRecursive(string $dir): bool
+    {
+        if (!is_dir($dir)) {
+            return false;
+        }
+        $items = scandir($dir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                if (!$this->deleteDirectoryRecursive($path)) {
+                    return false;
+                }
+            } else {
+                if (!unlink($path)) {
+                    return false;
+                }
+            }
+        }
+        return rmdir($dir);
+    }
+
+    protected function uploadFile(string $folder, $file) {
+
+        // Zkontroluj, jestli složka neexistuje
+        $folder_path = $this->content_path . "/" . $folder;
+        if (!is_dir($folder_path)) {
+            throw new Exception("Folder '$folder' does not exist", 404);
+        }
+
+        if (
+            ! isset($file["name"])
+            || ! isset( $file["tmp_name"] )
+            || ! isset( $file["type"] )
+        ) {
+            throw new Exception();
+        }
+
+        $allowedMimeTypes = [
+            'png' => 'image/png',
+            'lrc' => 'application/octet-stream'
+        ];
+        $allowedExtensions = array_keys( $allowedMimeTypes );
+
+    }
+
+
+
+
     protected function router()
     {
         $data = json_decode(file_get_contents('php://input'), true) ?? $_POST;
@@ -766,6 +948,35 @@ class PostController extends AbstractController
             $this->createFolder($name, $description);
             $this->respond();
             return;
+        }
+
+        if (isset($data["action"]) && $data["action"] === "updateFolder") {
+            if (
+                empty($data["slug"])
+                && (
+                    empty($data["description"])
+                    || empty($data["name"])
+                )
+            ) {
+                throw new Exception("Missing required parameters", 400);
+            }
+            $slug = $data["slug"] ?? null;
+            $name = $data["name"] ?? null;
+            $description = $data["description"] ?? null;
+            $this->updateFolder($slug, $name, $description);
+            $this->respond();
+            return;
+        }
+
+        if ( isset($data["action"]) && $data["action"] === "deleteFolder") {
+            if (empty($data["slug"])) {
+                throw new Exception("Missing required parameters", 400);
+            }
+            $slug = $data["slug"];
+            $this->deleteFolder($slug);
+            $this->respond();
+            return;
+
         }
 
         // ...další akce zde...
@@ -783,9 +994,7 @@ class Resolver
 
     public function resolve()
     {
-
         foreach ($this->var as $cls) {
-
             if ($cls::isRequest()) {
                 $controller = new $cls();
                 return $controller->respond();
