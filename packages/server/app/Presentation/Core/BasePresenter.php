@@ -10,11 +10,15 @@ use Nette\Application\UI\Presenter;
 use Nette\Application\Request;
 use Nette\Application\Response;
 use Nette\Application\Responses\JsonResponse;
+use Nette\Application\Application;
+use Nette\DI\Attributes\Inject;
+use Nette\DI\Container;
 
 /**
  * Základní presenter pro celou aplikaci
  */
-abstract class BasePresenter extends Presenter {
+abstract class BasePresenter extends Presenter
+{
 
     /** @var array */
     protected array $json = [
@@ -23,12 +27,15 @@ abstract class BasePresenter extends Presenter {
     ];
 
     protected ?string $path = null;
+    protected ?string $dataPath = null;
+    protected ?string $dataUrl = null;
 
-    public final function run( Request $request ): Response {
+    public final function run(Request $request): Response
+    {
         try {
-            return parent::run( $request );
-        } catch ( \Throwable $e ) {
-            $this->handleError( $e );
+            return parent::run($request);
+        } catch (\Throwable $e) {
+            $this->handleError($e);
             return $this->getResponse();
         }
     }
@@ -42,36 +49,65 @@ abstract class BasePresenter extends Presenter {
 
 
 
-public function startup() {
-    parent::startup();
+    public function startup()
+    {
+        parent::startup();
 
-    $request = $this->getRequest();
-    $path = $request->getParameter("path");
+        $request = $this->getRequest();
+        $params = $request->getParameters();
+        $path = $params["path"];
 
-    if ( $path === null || $path === "" ) {
-        throw new Exception('Path parameter is required.', 400);
-    } else {
-        $this->path = $path;
-        $this->json['path'] = $this->getParameter("wwwDir");
+        if ($path === null || $path === "") {
+            // throw new Exception('Path parameter is required.', 400);
+        } else {
+            $this->path = $path;
+            $this->dataPath = $this->getPath($path);
+        }
+
+        $this->json["time"] = time();
+        $this->storeData("params", $params);
+
     }
-}
+
+    protected function storeData( string $key, mixed $value ): void
+    {
+        if ( !isset($this->json['data']) ) {
+            $this->json['data'] = [];
+        }
+        $this->json['data'][$key] = $value;
+    }
 
 
 
-    protected function markSuccess(): void {
+    protected function markSuccess(): void
+    {
         $this->json['success'] = true;
     }
 
-    public function handleError( \Throwable $exception ): void {
+
+    public function handleError(\Throwable $exception): void
+    {
         $this->json["success"] = false;
-        $this->json["data"] = [];
+        unset( $this->json["data"] );
         $this->json["error"] = $exception->getMessage();
         $this->json["code"] = $exception->getCode();
     }
 
 
-    protected function respond() {
-        $this->sendJson( $this->json );
+    protected final function respond()
+    {
+        $this->sendJson($this->json);
     }
 
+    protected function getPath( string $path ): string {
+        return DATA_DIR . DIRECTORY_SEPARATOR . $path;
+    }
+
+    protected function getUrl(string $path): string
+{
+    if ( $this->dataUrl === null ) {
+        $this->dataUrl = $this->getHttpRequest()->getUrl()->getBaseUrl();
+    }
+    return rtrim($this->dataUrl, '/') . '/data/' . ltrim($path, '/\\');
+}
 }

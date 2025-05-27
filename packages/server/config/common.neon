@@ -1,5 +1,4 @@
 parameters:
-	wwwDir: %appDir%/../www
 
 
 application:
@@ -26,3 +25,8 @@ di:
 	export:
 		parameters: no
 		tags: no
+
+constants:
+	WWW_DIR: %wwwDir%
+	DATA_DIR: %wwwDir%/data
+
