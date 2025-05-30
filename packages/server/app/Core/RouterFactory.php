@@ -29,7 +29,7 @@ final class RouterFactory
 
 		$router->add( $customRouter );
 
-		$router->addRoute('<path .+>', 'Home:default');
+		$router->addRoute('<path .+>', 'Get:default');
 		return $router;
 	}
 }

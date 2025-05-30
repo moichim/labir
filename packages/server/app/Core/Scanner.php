@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Core\Folder;
 use Nette\Http\IRequest;
 
 final class Scanner {
@@ -14,12 +15,19 @@ final class Scanner {
 
     protected IRequest $request;
 
+    public Folder $folder;
+    public File $file;
+    public Access $access;
+
     public function __construct(
         IRequest $request
     )
     {
         $this->request = $request;
-        $this->dataUrl = rtrim( $request->getUrl()->getBaseUrl(), '/' ) . '/data';
+        $this->dataUrl = rtrim( $request->getUrl()->getBaseUrl(), '/' );
+        $this->folder = new Folder( $this );
+        $this->file = new File( $this );
+        $this->access = new Access( $this );
     }
 
     public function getFullPath(
@@ -34,11 +42,12 @@ final class Scanner {
         return $this->dataUrl . "/" . ltrim( $path, '/' );
     }
 
-    public function folderExists(
-        string $path
-    ): bool {
-        $fullPath = $this->getFullPath($path);
-        return is_dir($fullPath) && is_readable($fullPath);
+    public function getFileUrl( string $path ) {
+        return  $this->dataUrl . "/data/" . ltrim( $path, "/" );
+    }
+
+    public function getDataPath() {
+        return $this->dataPath;
     }
 
 }

@@ -31,7 +31,7 @@ class CustomRouter implements Router
         }
 
         // Make sure the given path corresponds to an existing folder
-        if (! $this->scanner->folderExists($path)) {
+        if (! $this->scanner->folder->exists($path)) {
             return $this->error("Path does not exist.", 404);
         }
 
@@ -43,17 +43,29 @@ class CustomRouter implements Router
         $parameters = [
             "path" => $path,
             "params" => $params
-        ];
+        ] + $params;
+
+
+
+        if ( isset( $params["action"] ) ) {
+
+            if ( $request->isMethod( "GET" ) ) {
+
+                if ( $params["action"] === "files" ) {
+                    $presenter = "Get";
+                    $action = "files";
+                }
+
+            }
+
+        }
 
 
         // No parameters => show info about the folder
         if ( count( $params ) === 0 && $request->isMethod('GET') ) {
-            $presenter = "Home";
+            $presenter = "Get";
             $action = "default";
         }
-
-
-
 
 
         // Return results

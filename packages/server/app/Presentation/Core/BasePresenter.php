@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Presentation\Core;
 
-use Exception;
+use App\Core\Scanner;
 use Nette;
 use Nette\Application\UI\Presenter;
 use Nette\Application\Request;
 use Nette\Application\Response;
 use Nette\Application\Responses\JsonResponse;
-use Nette\Application\Application;
 use Nette\DI\Attributes\Inject;
-use Nette\DI\Container;
 
 /**
  * Základní presenter pro celou aplikaci
@@ -29,6 +27,9 @@ abstract class BasePresenter extends Presenter
     protected ?string $path = null;
     protected ?string $dataPath = null;
     protected ?string $dataUrl = null;
+
+    #[Inject]
+    public Scanner $scanner;
 
     public final function run(Request $request): Response
     {
@@ -64,8 +65,10 @@ abstract class BasePresenter extends Presenter
             $this->dataPath = $this->getPath($path);
         }
 
-        $this->json["time"] = time();
-        $this->storeData("params", $params);
+        $this->json["time"] = time() * 1000;
+        $this->storeData("_debug", [
+            "presenter" => $params
+        ]);
 
     }
 
