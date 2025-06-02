@@ -12,9 +12,15 @@ final class GetPresenter extends BasePresenter
     public function actionDefault(?string $path): void
     {
 
+        $access = $this->scanner->access->getFolderAccess( $path );
+
+        $this->storeData( "access", $access );
+
+
+
         $this->storeData("folder", $this->scanner->folder->getInfo($path));
         $this->storeData("subfolders", $this->scanner->folder->getSubdirectories($path));
-        $this->storeData("files", $this->scanner->folder->getFiles($path));
+        // $this->storeData("files", $this->scanner->folder->getFiles($path));
 
         $this->markSuccess();
 

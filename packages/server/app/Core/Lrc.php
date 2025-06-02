@@ -83,16 +83,16 @@ final class Lrc
     }
 
 
-    protected function getNeonPath()
+    protected function getJsonPath()
     {
         return $this->scanner->getFullPath($this->path . DIRECTORY_SEPARATOR .
-            preg_replace('/\.lrc$/i', '.neon', $this->fileName));
+            preg_replace('/\.lrc$/i', '.json', $this->fileName));
     }
 
 
-    protected function neonExists()
+    protected function jsonExists()
     {
-        $path = $this->getNeonPath();
+        $path = $this->getJsonPath();
         return is_file($path) && is_readable($path);
     }
 
@@ -110,17 +110,17 @@ final class Lrc
     protected function getOrCreateNeon()
     {
 
-        if (! $this->neonExists()) {
-            return $this->createNeon();
+        if (! $this->jsonExists()) {
+            return $this->createJson();
         }
 
-        $content = file_get_contents($this->getNeonPath());
+        $content = file_get_contents($this->getJsonPath());
         if ($content === false) {
             return false;
         }
 
         try {
-            $data = Neon::decode($content);
+            $data = json_decode($content, true);
             return is_array($data) ? $data : null;
         } catch (\Throwable $e) {
             return null;
@@ -128,14 +128,10 @@ final class Lrc
     }
 
 
-    protected function createNeon()
+    protected function createJson()
     {
 
-        if ($this->neonExists()) {
-            return false;
-        }
-
-        $neonPath = $this->getNeonPath();
+        $neonPath = $this->getJsonPath();
 
         $timestamp = $this->readFileTimestamp();
 
@@ -146,7 +142,7 @@ final class Lrc
             "tags" => []
         ];
 
-        $neonContent = Neon::encode($data, true);
+        $neonContent = json_encode($data);
 
         file_put_contents($neonPath, $neonContent) !== false;
 
@@ -206,25 +202,21 @@ final class Lrc
         $dir = $this->scanner->getFullPath($this->path);
         $base = pathinfo($this->fileName, PATHINFO_FILENAME);
 
-        // První maska: 2025-05-14_13-59-41_image_thermal.lrc
-        // -> hledáme 2025-05-14_13-59-41_visual.png nebo 2025-05-14_13-59-41_thermal.png
-        if (preg_match('/^(.+)_image_(thermal|visual)$/', $base, $m)) {
-            $prefix = $m[1];
+        // Current file name convention
+        if ( str_ends_with( $base, "_thermal" ) ) {
             if ($type === 'visual') {
-                $file = $prefix . '_visual.png';
-            } else { // preview
-                $file = $prefix . '_thermal.png';
+                $file = str_replace( "_thermal", "_visual.png", $base );
+            } else {
+                $file = str_replace( "_thermal", "_image_thermal.png", $base );
             }
             $full = $dir . DIRECTORY_SEPARATOR . $file;
             if (is_file($full)) {
-                return $this->scanner->getFileUrl($this->path . $file);
+                return $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $file);
             }
         }
 
-        // Druhá maska: image-thermal 2025-04-28 07-57-01.lrc
-        // -> hledáme image-visual 2025-04-28 07-57-01.png (visual)
-        //    nebo image-thermal 2025-04-28 07-57-01.png (preview)
-        if (preg_match('/^(image-(thermal|visual) .+)$/', $base, $m)) {
+        // Old file name convention
+        else if ( str_starts_with( "image-thermal", $base ) ) {
             if ($type === 'visual') {
                 $file = preg_replace('/thermal/', 'visual', $base) . '.png';
             } else { // preview

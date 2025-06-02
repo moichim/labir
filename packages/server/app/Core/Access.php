@@ -4,15 +4,83 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use Exception;
+
 final class Access
 {
+    protected string $currentPath;
+    protected array $currentAccess;
 
     public function __construct(
         protected Scanner $scanner
-    ) {}
+    ) {
+
+        // Get the current path
+        $currentPath = $this->scanner->getBasePath();
+
+        // Calculate the access for the current path
+        $this->currentAccess = $this->getFolderAccess( $currentPath );
+
+        // Store the current path
+        $this->currentPath = $currentPath;
+
+    }
+
+    public function validateCurrentFolder() {
+
+        // If get, check only the current route show access
+        if ( $this->scanner->getRequest()->isMethod( "GET" ) ) {
+
+            // Proceed only when the folder is hidden
+            if ( $this->currentAccess["show"] === false ) {
+
+                // If the user is logged out, throw
+                if ( ! $this->scanner->tokenService->isLoggedin() ) {
+                    throw new Exception( "You need to be logged in to see this folder" );
+                }
+
+                
+
+                // If the user is logged in, but there is no token in the get method, throw
+                else if ( in_array( "token", $this->scanner->getRequest()->getQuery() ) ) {
+                    throw new Exception( "You are logged in, but no token was passed with the request!" );
+                }
+
+                // if the current user does not have access to the current folder, throw
+                else {
+
+                    $query = $this->scanner->getRequest()->getQuery();
+                    $token = $query["token"];
+                    $this->scanner->tokenService->validateIdentity(
+                        $this->currentPath,
+                        $token
+                    );
+
+                }
+
+            }
+
+        }
+
+
+        // If post, check if the user is authenticated
+
+
+        if ( $this->currentAccess[ "show" ] === false ) {
+
+        }
+
+    }
+
+
 
     public function getFolderAccess(string $path): array
     {
+
+        // Whenever asking for access to the current path, return the access calculated in the constructor
+        if ( isset( $this->currentPath ) && trim( $path, "/" ) === $this->currentPath ) {
+            return $this->currentAccess;
+        }
 
 
         $users = [];
@@ -76,23 +144,6 @@ final class Access
 
         return $users;
 
-        /*
-        // Check if the user exists
-        if (array_key_exists($user["name"], $users)) {
-
-            $existingUser = $users[$user["name"]];
-
-            $existingUser["read"] = $existingUser["read"] || $user["read"];
-            $existingUser["write"] = $existingUser["write"];
-
-            $users[$user["name"]] = $existingUser;
-        } else {
-            $users[$user["name"]] = $user;
-        }
-
-        return $users;
-
-        */
     }
 
 

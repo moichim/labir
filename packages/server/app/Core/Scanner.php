@@ -6,6 +6,7 @@ namespace App\Core;
 
 use App\Core\Folder;
 use Nette\Http\IRequest;
+use Nette\Http\Session;
 
 final class Scanner {
 
@@ -18,22 +19,40 @@ final class Scanner {
     public Folder $folder;
     public File $file;
     public Access $access;
+    public AuthService $tokenService;
+
+    protected string $basePath;
 
     public function __construct(
-        IRequest $request
+        IRequest $request,
+        Session $session
     )
     {
         $this->request = $request;
-        $this->dataUrl = rtrim( $request->getUrl()->getBaseUrl(), '/' );
+        $url = $request->getUrl();
+        $this->dataUrl = rtrim( $url->getBaseUrl(), '/' );
+
+        $this->basePath = trim( $url->getPath(), "/" );
+
         $this->folder = new Folder( $this );
         $this->file = new File( $this );
         $this->access = new Access( $this );
+        $this->tokenService = new AuthService( $session, $this );
+
+    }
+
+    public function getRequest(): IRequest {
+        return $this->request;
+    }
+
+    public function getBasePath() {
+        return $this->basePath;
     }
 
     public function getFullPath(
         string $path
     ): string {
-        return $this->dataPath . DIRECTORY_SEPARATOR . $path;
+        return $this->dataPath . DIRECTORY_SEPARATOR . trim( $path, DIRECTORY_SEPARATOR );
     }
 
     public function getFullUrl(

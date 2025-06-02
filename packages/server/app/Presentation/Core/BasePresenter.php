@@ -65,6 +65,10 @@ abstract class BasePresenter extends Presenter
             $this->dataPath = $this->getPath($path);
         }
 
+
+        $this->scanner->access->validateCurrentFolder();
+
+
         $this->json["time"] = time() * 1000;
         $this->storeData("_debug", [
             "presenter" => $params

@@ -34,7 +34,9 @@ final class File {
         string $neonName
     ): array|false {
 
-        $filePath = $this->scanner->getFullPath( $path ) . DIRECTORY_SEPARATOR . "_" . $neonName . ".neon";
+        $filePath = $this->scanner->getFullPath( $path ) . DIRECTORY_SEPARATOR . "_" . $neonName . ".json";
+
+        // var_dump( $filePath );
 
         if ( $this->existsByFullPath( $filePath ) ) {
 
@@ -42,7 +44,7 @@ final class File {
 
             try {
 
-                $neonData = Neon::decode( $neonString );
+                $neonData = json_decode( $neonString, true );
 
                 if ( is_array( $neonData ) ) {
                     return $neonData;

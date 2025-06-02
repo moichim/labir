@@ -6,6 +6,7 @@ namespace App\Core;
 
 use App\Core\Scanner;
 use Exception;
+use FilesystemIterator;
 use Nette\Neon\Neon;
 
 final class Folder
@@ -18,10 +19,14 @@ final class Folder
     public function exists(
         string $path
     ) {
+
+        // var_dump( $path );
+
         $fullPath = $this->scanner->getFullPath($path);
         return is_dir($fullPath) && is_readable($fullPath);
     }
 
+    /** @deprecated not needed anymore */
     public function isEmpty(
         string $path
     ): bool {
@@ -39,7 +44,7 @@ final class Folder
         $this->throwIfNotExists($path);
 
         $info = [
-            "url" => $this->scanner->getFullUrl($path),
+            "api" => $this->scanner->getFullUrl($path),
             "path" => $path,
             "slug" => basename($path),
             "name" => basename($path),
@@ -70,19 +75,16 @@ final class Folder
 
     public function getSubdirectories(string $path): array|false
     {
-        $fullPath = $this->scanner->getFullPath($path);
+        $fullPath = $this->scanner->getFullPath(trim( $path, "/"));
         if (!$this->exists($path)) {
             return false;
         }
 
         $subdirs = [];
-        foreach (scandir($fullPath) as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            $subdirPath = $fullPath . DIRECTORY_SEPARATOR . $item;
+        foreach (new FilesystemIterator($fullPath, FilesystemIterator::SKIP_DOTS) as $item) {
+            $subdirPath = $fullPath . DIRECTORY_SEPARATOR . trim( $item->getFileName(),  DIRECTORY_SEPARATOR);
             if (is_dir($subdirPath)) {
-                $relativePath = rtrim($path, '/\\') . DIRECTORY_SEPARATOR . $item;
+                $relativePath = trim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $item->getFileName();
                 $info = $this->getInfo($relativePath);
                 if ($info) {
                     $subdirs[$info["slug"]] = $info;
@@ -97,25 +99,8 @@ final class Folder
     protected function throwIfNotExists(string $path)
     {
         if (! $this->exists($path)) {
-            throw new Exception("Folder !$path' does not exist", 404);
+            throw new Exception("Folder '$path' does not exist", 404);
         }
-    }
-
-    public function hasSubdirectories(string $path): bool
-    {
-        $fullPath = $this->scanner->getFullPath($path);
-        if (!$this->exists($path)) {
-            return false;
-        }
-        foreach (scandir($fullPath) as $item) {
-            if ($item === '.' || $item === '..') {
-                continue;
-            }
-            if (is_dir($fullPath . DIRECTORY_SEPARATOR . $item)) {
-                return true;
-            }
-        }
-        return false;
     }
 
 
@@ -130,9 +115,11 @@ final class Folder
 
         $files = [];
 
-        foreach (scandir($fullPath) as $item) {
+        foreach (
+            new FilesystemIterator( $fullPath, FilesystemIterator::SKIP_DOTS ) as $item
+        ) {
 
-            $entity = Lrc::createIfExists($this->scanner, $path, $item);
+            $entity = Lrc::createIfExists($this->scanner, $path, $item->getFilename());
 
             if ($entity) {
 
@@ -177,8 +164,8 @@ final class Folder
         }
 
         $count = 0;
-        foreach (scandir($fullPath) as $item) {
-            if (preg_match('/\.lrc$/i', $item) && is_file($fullPath . DIRECTORY_SEPARATOR . $item)) {
+        foreach (new FilesystemIterator($fullPath, FilesystemIterator::SKIP_DOTS) as $item) {
+            if (preg_match('/\.lrc$/i', $item->getFileName()) && is_file($fullPath . DIRECTORY_SEPARATOR . $item->getFileName())) {
                 $count++;
             }
         }
