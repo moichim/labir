@@ -45,8 +45,6 @@ class CustomRouter implements Router
             "params" => $params
         ] + $params;
 
-
-
         if ( isset( $params["action"] ) ) {
 
             if ( $request->isMethod( "GET" ) ) {
@@ -54,6 +52,13 @@ class CustomRouter implements Router
                 if ( $params["action"] === "files" ) {
                     $presenter = "Get";
                     $action = "files";
+                }
+
+            } else if ( $request->isMethod("POST") ) {
+
+                if ( $params["action"] === "login" ) {
+                    $presenter = "Auth";
+                    $action = "login";
                 }
 
             }

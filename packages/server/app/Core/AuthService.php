@@ -45,7 +45,7 @@ class AuthService {
             && isset( $access[ "users" ][ $userName ][ "password" ] )
             && $access[ "users" ][ $userName ][ "password" ] === $password
         ) {
-            $this->createIdentity( $path, $userName );
+            $this->createIdentity( $userName, $path );
             return $this->getIdentity();
         }
 
