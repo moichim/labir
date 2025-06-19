@@ -14,7 +14,7 @@ final class Scanner {
 
     protected string $dataUrl;
 
-    protected IRequest $request;
+    public readonly IRequest $request;
 
     public Folder $folder;
     public File $file;

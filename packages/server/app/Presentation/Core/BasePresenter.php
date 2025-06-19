@@ -65,14 +65,19 @@ abstract class BasePresenter extends Presenter
             $this->dataPath = $this->getPath($path);
         }
 
+        $this->json["time"] = time() * 1000;
+
+        $this->storeDebug( "path", $path );
+
+        $this->storeDebug("nette", [
+            "class" => get_class($this),
+            "params" => $params,
+            "user" => $this->scanner->tokenService->getIdentity(),
+            "loggedIn" => $this->scanner->tokenService->isLoggedin()
+            // "access" => $this->scanner->access->getFolderAccess($this->path)
+        ]);
 
         $this->scanner->access->validateCurrentFolder();
-
-
-        $this->json["time"] = time() * 1000;
-        $this->storeData("_debug", [
-            "presenter" => $params
-        ]);
 
     }
 
@@ -82,6 +87,15 @@ abstract class BasePresenter extends Presenter
             $this->json['data'] = [];
         }
         $this->json['data'][$key] = $value;
+    }
+
+
+    protected function storeDebug( string $key, mixed $value ): void
+    {
+        if ( !isset($this->json['_debug']) ) {
+            $this->json['_debug'] = [];
+        }
+        $this->json['_debug'][$key] = $value;
     }
 
 

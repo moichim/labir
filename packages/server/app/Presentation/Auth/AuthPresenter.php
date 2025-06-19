@@ -5,12 +5,11 @@ declare( strict_types=1 );
 namespace App\Presentation\Auth;
 
 use App\Presentation\Core\BasePresenter;
+use Exception;
 
 final class AuthPresenter extends BasePresenter {
 
     public function actionLogin( string $path ): void {
-
-        $this->storeData( "path", $path );
 
         $post = $this->getHttpRequest()->getRawBody();
 
@@ -18,7 +17,9 @@ final class AuthPresenter extends BasePresenter {
             $post = json_decode( $post );
         }
 
-        $this->storeData( "post", $post );
+        if ( !isset( $post->user ) || !isset( $post->password ) ) {
+            throw new Exception( 'No credentials provided.', 400 );
+        }
 
         $login = $this->scanner->tokenService->authenticate( 
             $path, 
@@ -28,9 +29,10 @@ final class AuthPresenter extends BasePresenter {
 
         if ( $login ) {
             $this->markSuccess();
+            $this->storeData( "login", $login );
+        } else {
+            throw new Exception( "Unable to authenticate", 401 );
         }
-
-        $this->storeData( "login", $login );
 
         $this->respond();
 

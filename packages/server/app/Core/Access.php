@@ -19,56 +19,67 @@ final class Access
         $currentPath = $this->scanner->getBasePath();
 
         // Calculate the access for the current path
-        $this->currentAccess = $this->getFolderAccess( $currentPath );
+        $this->currentAccess = $this->getFolderAccess($currentPath);
 
         // Store the current path
         $this->currentPath = $currentPath;
-
     }
 
-    public function validateCurrentFolder() {
+    public function validateCurrentFolder()
+    {
 
         // If get, check only the current route show access
-        if ( $this->scanner->getRequest()->isMethod( "GET" ) ) {
+        if ($this->scanner->getRequest()->isMethod("GET")) {
 
             // Proceed only when the folder is hidden
-            if ( $this->currentAccess["show"] === false ) {
+            if ($this->currentAccess["show"] === false) {
 
                 // If the user is logged out, throw
-                if ( ! $this->scanner->tokenService->isLoggedin() ) {
-                    throw new Exception( "You need to be logged in to see this folder" );
-                }
+                if (! $this->scanner->tokenService->isLoggedin()) {
+                    throw new Exception("You need to be logged in to see this folder", 401);
+                } 
 
-                
-
-                // If the user is logged in, but there is no token in the get method, throw
-                else if ( in_array( "token", $this->scanner->getRequest()->getQuery() ) ) {
-                    throw new Exception( "You are logged in, but no token was passed with the request!" );
-                }
-
-                // if the current user does not have access to the current folder, throw
+                // Logged in users need to see the current folder
                 else {
 
-                    $query = $this->scanner->getRequest()->getQuery();
-                    $token = $query["token"];
-                    $this->scanner->tokenService->validateIdentity(
-                        $this->currentPath,
-                        $token
-                    );
+                    $identity = $this->scanner->tokenService->getIdentity();
+
+                    $maySee = $identity
+                        ? $this->userMayReadFolder($this->currentPath, $identity["user"])
+                        : false;
+
+                    if ( ! $maySee ) {
+                        throw new Exception("You do not have access to this folder", 403);
+                    }
 
                 }
-
             }
-
         }
 
 
         // If post, check if the user is authenticated
+        else if ( $this->scanner->getRequest()->isMethod( "POST" ) ) {
 
+            $query = $this->scanner->getRequest()->getQuery();
 
-        if ( $this->currentAccess[ "show" ] === false ) {
+            // Login is the only POST route accessible from outside
+            if ( array_key_exists( "action", $query ) && $query["action"] === "login" ) {
 
+                
+
+            } else {
+
+                // If the user is not logging in, check if the user is logged in
+                if ( ! $this->scanner->tokenService->isLoggedin() ) {
+                    throw new Exception( "You need to be logged in to perform this action.", 401 );
+                }
+
+            }
+
+        } else {
+            throw new Exception( "You do what you do not need to do! Only GET and POST allowed.", 401 );
         }
+
 
     }
 
@@ -76,45 +87,61 @@ final class Access
 
     public function getFolderAccess(string $path): array
     {
-
         // Whenever asking for access to the current path, return the access calculated in the constructor
-        if ( isset( $this->currentPath ) && trim( $path, "/" ) === $this->currentPath ) {
+        if (isset($this->currentPath) && trim($path, "/") === $this->currentPath) {
             return $this->currentAccess;
         }
 
-
         $users = [];
         $currentPath = trim($path, "/\\");
+        $paths = [];
+        $counter = 0;
 
         $show = true;
 
-        while (
-            $currentPath !== ""
-            && $currentPath !== "."
-            && $currentPath !== DIRECTORY_SEPARATOR
-            && $currentPath !== null
-        ) {
+        // Nový cyklus: vždy zkusíme i root (prázdný string)
+        while (true) {
 
             $accessData = $this->scanner->file->getNeonContentByRelativePath($currentPath, "access");
 
-            if ($accessData && is_array($accessData) && isset($accessData["users"])) {
+            $paths[ $currentPath ] = $accessData;
 
-                foreach ($accessData["users"] as $user) {
-                    $this->storeOrOverrideUser($users, $user);
+            if ($accessData && is_array($accessData)) {
+
+                $counter++;
+
+                if (isset($accessData["users"])) {
+                    foreach ($accessData["users"] as $user) {
+                        if (!isset($users[$user["name"]])) {
+                            $this->storeOrOverrideUser($users, $user);
+                        }
+                    }
                 }
-
 
                 if (isset($accessData["show"]) && ($accessData["show"] === false)) {
                     $show = false;
                 }
             }
 
+
+
+            // Pokud jsme už v rootu, skonči
+            if ($currentPath === "" || $currentPath === "." || $currentPath === DIRECTORY_SEPARATOR || $currentPath === null) {
+                break;
+            }
+
             $currentPath = dirname($currentPath);
+            // dirname('') vrací '.', takže cyklus skončí v dalším kole
+            if ($currentPath === "." || $currentPath === DIRECTORY_SEPARATOR) {
+                $currentPath = "";
+            }
         }
 
         return [
             "show" => $show,
-            "users" => $users
+            "users" => $users,
+            "paths" => $paths,
+            "counter" => $counter
         ];
     }
 
@@ -124,7 +151,9 @@ final class Access
 
         if (
             isset($user["name"])
+            && $user["name"] !== ""
             && isset($user["password"])
+            && strlen($user["password"]) > 5
         ) {
             return $user;
         }
@@ -137,13 +166,12 @@ final class Access
     {
 
         if (! $this->validateUser($user)) {
-            return false;
+            return $users;
         }
 
         $users[$user["name"]] = $user;
 
         return $users;
-
     }
 
 
@@ -155,12 +183,12 @@ final class Access
         $access = $this->getFolderAccess($path);
 
         // If the folder is visible, return true
-        if ( $access[ "show" ] === true ) {
+        if ($access["show"] === true) {
             return true;
         }
 
         // If the folder is invisible, check the ucrrent user
-        if ( array_key_exists( $user, $access["users"] ) ) {
+        if (array_key_exists($user, $access["users"])) {
             return $access["users"][$user]["name"] === $user;
         }
 
@@ -173,9 +201,8 @@ final class Access
         string $user
     ): bool {
 
-        $access = $this->getFolderAccess( $path );
+        $access = $this->getFolderAccess($path);
 
-        return array_key_exists( $user, $access["users"] );
-
+        return array_key_exists($user, $access["users"]);
     }
 }

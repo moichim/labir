@@ -8,6 +8,12 @@ use Nette\Http\IRequest;
 use Nette\Routing\Router;
 use Nette\Http\UrlScript;
 
+
+/**
+ * Tato třída vezme REQUEST, extrahuje z něj parametry a přiřadí je do prezenteru.
+ * 
+ * Neprobíhá zde žádná validace, pouze se zkontroluje, zda je platná cesta k adresáři (je to první parametr).
+ */
 class CustomRouter implements Router
 {
 
@@ -32,7 +38,7 @@ class CustomRouter implements Router
 
         // Make sure the given path corresponds to an existing folder
         if (! $this->scanner->folder->exists($path)) {
-            return $this->error("Path does not exist.", 404);
+            return $this->error("Folder does not exist.", 404);
         }
 
         $presenter = null;
@@ -67,7 +73,7 @@ class CustomRouter implements Router
 
 
         // No parameters => show info about the folder
-        if ( count( $params ) === 0 && $request->isMethod('GET') ) {
+        else if ( $request->isMethod('GET') ) {
             $presenter = "Get";
             $action = "default";
         }
@@ -97,7 +103,7 @@ class CustomRouter implements Router
         return [
             'presenter' => 'Error',
             'action' => 'default',
-            'message' => $message,
+            'message' => "Router Error: " . $message,
             'code' => $code
         ];
     }
