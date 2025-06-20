@@ -2,9 +2,9 @@
 
 declare( strict_types = 1 );
 
-namespace App\Core;
+namespace App\Core\Data;
 
-use Nette\Neon\Neon;
+use App\Core\Scanner;
 
 final class File {
 
@@ -35,8 +35,6 @@ final class File {
     ): array|false {
 
         $filePath = $this->scanner->getFullPath( $path ) . DIRECTORY_SEPARATOR . "_" . $neonName . ".json";
-
-        // var_dump( $filePath );
 
         if ( $this->existsByFullPath( $filePath ) ) {
 

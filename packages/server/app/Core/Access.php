@@ -177,7 +177,7 @@ final class Access
 
     public function userMayReadFolder(
         string $path,
-        string $user
+        ?string $user = null
     ): bool {
 
         $access = $this->getFolderAccess($path);
@@ -190,6 +190,11 @@ final class Access
         // If the folder is invisible, check the ucrrent user
         if (array_key_exists($user, $access["users"])) {
             return $access["users"][$user]["name"] === $user;
+        }
+
+        // Pokud je složka skrytá a uživatel není zadán, přístup odepři
+        if ($user === null) {
+            return false;
         }
 
         // Otherwise return false

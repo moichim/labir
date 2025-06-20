@@ -18,10 +18,13 @@ use Nette\DI\Attributes\Inject;
 abstract class BasePresenter extends Presenter
 {
 
+    protected string $version = "0.1.0";
+
     /** @var array */
     protected array $json = [
         'success' => false,
-        'data' => []
+        'data' => [],
+        'colophon' => []
     ];
 
     protected ?string $path = null;
@@ -65,7 +68,7 @@ abstract class BasePresenter extends Presenter
             $this->dataPath = $this->getPath($path);
         }
 
-        $this->json["time"] = time() * 1000;
+        // $this->json["time"] = time() * 1000;
 
         $this->storeDebug( "path", $path );
 
@@ -76,6 +79,13 @@ abstract class BasePresenter extends Presenter
             "loggedIn" => $this->scanner->tokenService->isLoggedin()
             // "access" => $this->scanner->access->getFolderAccess($this->path)
         ]);
+
+        $this->json["colophon"] = [
+            "time" => time() * 1000,
+            "version" => $this->version,
+            "path" => $this->path,
+            "action" => $this->getAction()
+        ];
 
         $this->scanner->access->validateCurrentFolder();
 

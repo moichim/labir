@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\Core\Data;
 
-use Nette\Neon\Neon;
+use App\Core\Scanner;
 
 final class Lrc
 {
@@ -17,14 +17,38 @@ final class Lrc
     protected array $tags = [];
     protected array $analyses = [];
 
-    public function getPath() { return $this->path; }
-    public function getFileName() { return $this->fileName; }
-    public function getVisual() { return $this->visual; }
-    public function getPreview() { return $this->preview; }
-    public function getTimestamp() { return $this->timestamp; }
-    public function getUploaded() { return $this->uploaded; }
-    public function getTags() { return $this->tags; }
-    public function getAnalyses() { return $this->analyses; }
+    public function getPath()
+    {
+        return $this->path;
+    }
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+    public function getVisual()
+    {
+        return $this->visual;
+    }
+    public function getPreview()
+    {
+        return $this->preview;
+    }
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+    public function getUploaded()
+    {
+        return $this->uploaded;
+    }
+    public function getTags()
+    {
+        return $this->tags;
+    }
+    public function getAnalyses()
+    {
+        return $this->analyses;
+    }
 
 
     public static function createIfExists(
@@ -55,30 +79,35 @@ final class Lrc
         protected string $path,
         protected string $fileName
     ) {
-        $this->url = $this->scanner->getFileUrl( $this->path . DIRECTORY_SEPARATOR . $this->fileName );
+        $this->url = $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $this->fileName);
         $this->visual = $this->readVisual();
         $this->preview = $this->readPreview();
 
         $neon = $this->getOrCreateNeon();
 
-        $this->timestamp = $neon[ "timestamp" ];
-        $this->tags = $neon[ "tags" ] ?? [];
-        $this->analyses = $neon[ "analyses" ] ?? [];
-        $this->uploaded = $neon[ "uploaded" ] ?? time() * 1000;
-
+        $this->timestamp = $neon["timestamp"];
+        $this->tags = $neon["tags"] ?? [];
+        $this->analyses = $neon["analyses"] ?? [];
+        $this->uploaded = $neon["uploaded"] ?? time() * 1000;
     }
 
     public function getInfo()
     {
         return [
+            "entity" => "file",
             "url" => $this->url,
             "fileName" => $this->fileName,
-            "folder" => $this->scanner->getFullUrl($this->path),
+            "folder" => basename($this->path),
+            "parent" => basename(dirname($this->path)),
+            "path" => $this->path,
             "visual" => $this->visual,
             "preview" => $this->preview,
             "timestamp" => $this->timestamp,
             "uploaded" => $this->uploaded,
-            "tags" => $this->tags
+            "tags" => $this->tags,
+            "dateHuman" => $this->timestamp
+                ? date('d.m.Y H:i:s', (int)($this->timestamp / 1000))
+                : null
         ];
     }
 
@@ -203,11 +232,11 @@ final class Lrc
         $base = pathinfo($this->fileName, PATHINFO_FILENAME);
 
         // Current file name convention
-        if ( str_ends_with( $base, "_thermal" ) ) {
+        if (str_ends_with($base, "_thermal")) {
             if ($type === 'visual') {
-                $file = str_replace( "_thermal", "_visual.png", $base );
+                $file = str_replace("_thermal", "_visual.png", $base);
             } else {
-                $file = str_replace( "_thermal", "_image_thermal.png", $base );
+                $file = str_replace("_thermal", "_image_thermal.png", $base);
             }
             $full = $dir . DIRECTORY_SEPARATOR . $file;
             if (is_file($full)) {
@@ -216,7 +245,7 @@ final class Lrc
         }
 
         // Old file name convention
-        else if ( str_starts_with( "image-thermal", $base ) ) {
+        else if (str_starts_with("image-thermal", $base)) {
             if ($type === 'visual') {
                 $file = preg_replace('/thermal/', 'visual', $base) . '.png';
             } else { // preview

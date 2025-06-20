@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Folder;
+use App\Core\Data\Folder;
+use App\Core\Data\File;
 use Nette\Http\IRequest;
 use Nette\Http\Session;
 

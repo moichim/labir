@@ -44,36 +44,39 @@ class CustomRouter implements Router
         $presenter = null;
         $action = null;
 
-        $params = $request->getQuery();
+        $params = $this->parseParams( $request->getQuery() );
 
         $parameters = [
             "path" => $path,
             "params" => $params
         ] + $params;
 
-        if ( isset( $params["action"] ) ) {
+        if (isset($params["action"])) {
 
-            if ( $request->isMethod( "GET" ) ) {
+            if ($request->isMethod("GET")) {
 
-                if ( $params["action"] === "files" ) {
+                if ($params["action"] === "files") {
                     $presenter = "Get";
                     $action = "files";
                 }
 
-            } else if ( $request->isMethod("POST") ) {
+                if ( $params["action"] === "grid" ) {
+                    $presenter = "Get";
+                    $action = "grid";
+                }
 
-                if ( $params["action"] === "login" ) {
+            } else if ($request->isMethod("POST")) {
+
+                if ($params["action"] === "login") {
                     $presenter = "Auth";
                     $action = "login";
                 }
-
             }
-
         }
 
 
         // No parameters => show info about the folder
-        else if ( $request->isMethod('GET') ) {
+        else if ($request->isMethod('GET')) {
             $presenter = "Get";
             $action = "default";
         }
@@ -106,5 +109,41 @@ class CustomRouter implements Router
             'message' => "Router Error: " . $message,
             'code' => $code
         ];
+    }
+
+    protected function parseParams(array $params): array
+    {
+        $parsed = [];
+        foreach ($params as $key => $value) {
+            if (is_string($value)) {
+                $trimmed = trim($value);
+
+                // Boolean
+                if (strcasecmp($trimmed, 'true') === 0) {
+                    $parsed[$key] = true;
+                } elseif (strcasecmp($trimmed, 'false') === 0) {
+                    $parsed[$key] = false;
+                }
+                // Null
+                elseif (strcasecmp($trimmed, 'null') === 0) {
+                    $parsed[$key] = null;
+                }
+                // Integer
+                elseif (is_numeric($trimmed) && ctype_digit($trimmed)) {
+                    $parsed[$key] = (int)$trimmed;
+                }
+                // Float
+                elseif (is_numeric($trimmed)) {
+                    $parsed[$key] = (float)$trimmed;
+                }
+                // Default: string
+                else {
+                    $parsed[$key] = $trimmed;
+                }
+            } else {
+                $parsed[$key] = $value;
+            }
+        }
+        return $parsed;
     }
 }
