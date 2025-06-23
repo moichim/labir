@@ -8,9 +8,7 @@ describe("HTTP methods test", () => {
         const getToVisible = await apiCall("http://localhost:8080/zihle", "GET");
 
         expect(getToVisible.json.success).toBe(true);
-
         expect(getToVisible.json.data).not.toBeUndefined();
-
         expect(getToVisible.json.data.folder).not.toBeUndefined();
 
     });
@@ -21,7 +19,6 @@ describe("HTTP methods test", () => {
         const postToVisible = await apiCall("http://localhost:8080/zihle", "POST");
 
         expect(postToVisible.json.success).toBe(false);
-
         expect(postToVisible.json.data).toBeUndefined();
 
     });

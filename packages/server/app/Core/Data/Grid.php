@@ -130,7 +130,13 @@ final class Grid
 
         $info = $this->scanner->folder->getInfo($this->path);
 
-        $directories = $this->scanner->folder->getSubdirectories($this->path);
+        $identity = $this->scanner->tokenService->getIdentity();
+
+        $user = $identity
+            ? $identity["user"]
+            : null;
+
+        $directories = $this->scanner->folder->getSubdirectories($this->path, $user);
 
         $all_accessible_directories = $directories;
 
@@ -140,11 +146,6 @@ final class Grid
             });
         }
 
-        $identity = $this->scanner->tokenService->getIdentity();
-
-        $user = $identity
-            ? $identity["user"]
-            : null;
 
         $access = $this->scanner->access;
         $visibleDirectories = [];

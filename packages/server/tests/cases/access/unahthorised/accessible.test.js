@@ -8,6 +8,8 @@ describe("Unauthorised: Accessible folder", () => {
         const response = await apiCall("http://localhost:8080/access/accessible", "GET");
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.folder).not.toBeUndefined();
+        expect(response.json.data.folder.protected).toBe(false);
 
     });
 
@@ -16,6 +18,8 @@ describe("Unauthorised: Accessible folder", () => {
         const response = await apiCall( "http://localhost:8080/access/accessible/accessible", "GET" );
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
+        expect(response.json.data.folder).not.toBeUndefined();
+        expect(response.json.data.folder.protected).toBe(false);
 
     } );
 

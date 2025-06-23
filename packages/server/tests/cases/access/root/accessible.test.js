@@ -5,7 +5,7 @@ describe("Root: Accessible folder", () => {
 
     test('/accessible', async () => {
 
-        const response = await apiCallRoot("accessible");
+        const response = await apiCallRoot("access/accessible");
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
 
@@ -13,7 +13,7 @@ describe("Root: Accessible folder", () => {
 
     test( "/accessible/accessible", async () => {
 
-        const response = await apiCallRoot( "accessible/accessible" );
+        const response = await apiCallRoot( "access/accessible/accessible" );
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
 
@@ -21,7 +21,7 @@ describe("Root: Accessible folder", () => {
 
     test( "/accessible/restricted", async () => {
 
-        const response = await apiCallRoot( "accessible/restricted" );
+        const response = await apiCallRoot( "access/accessible/restricted" );
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
 

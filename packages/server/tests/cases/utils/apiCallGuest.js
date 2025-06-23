@@ -1,8 +1,7 @@
 import { apiCall } from "./apiCall.js";
 import { expect } from "vitest";
 
-export const apiCallGuest = async (folder) => {
-
+export const apiCallGuest = async (fullPath) => {
     const response = await apiCall(`http://localhost:8080/access/restricted_to_guest/?action=login`, "POST", {
         user: "guest",
         password: "querty"
@@ -12,11 +11,10 @@ export const apiCallGuest = async (folder) => {
 
     const user = response.json.data.login.user;
     const token = response.json.data.login.token;
-
     const authorisation = "Basic " + Buffer.from(`${user}:${token}`).toString("base64");
 
     const subsequent = await apiCall(
-        `http://localhost:8080/access/${folder}`,
+        `http://localhost:8080/${fullPath}`,
         "GET",
         null,
         response.session,
@@ -28,9 +26,8 @@ export const apiCallGuest = async (folder) => {
     const tokenOriginal = response.json.data.login.token;
     const tokenSubsequent = subsequent.json._debug.nette.user.token;
 
-    expect( tokenOriginal ).toBe( tokenSubsequent );
+    expect(tokenOriginal).toBe(tokenSubsequent);
 
     return subsequent;
-
-}
+};
 

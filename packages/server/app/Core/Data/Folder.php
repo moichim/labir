@@ -38,8 +38,16 @@ final class Folder
 
     public function getInfo(string $path)
     {
-
         $this->throwIfNotExists($path);
+
+        // Zjisti protected přes getFolderAccess
+        $protected = false;
+        if (isset($this->scanner->access)) {
+            $access = $this->scanner->access->getFolderAccess($path);
+            if (is_array($access) && array_key_exists('show', $access) && $access['show'] === false) {
+                $protected = true;
+            }
+        }
 
         $info = [
             "entity" => "folder",
@@ -49,8 +57,17 @@ final class Folder
             "name" => basename($path),
             "description" => null,
             "data" => [],
-            "lrc_count" => $this->getFileCount($path)
+            "lrc_count" => $this->getFileCount($path),
+            "protected" => $protected
         ];
+
+        // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
+        if (isset($this->scanner->access)) {
+            // user = null => anonym
+            if (!$this->scanner->access->userMayReadFolder($path, null)) {
+                $info["protected"] = true;
+            }
+        }
 
         try {
 
@@ -69,7 +86,21 @@ final class Folder
         } catch (\Throwable $e) {
         }
 
+        // own_tags
+        $ownTagsPath = $this->scanner->getFullPath(trim($path, "/") . DIRECTORY_SEPARATOR . '_tags.json');
+        $info['own_tags'] = [];
+        if (is_file($ownTagsPath) && is_readable($ownTagsPath)) {
+            $ownTagsContent = file_get_contents($ownTagsPath);
+            if ($ownTagsContent !== false) {
+                $ownTagsData = json_decode($ownTagsContent, true);
+                if (is_array($ownTagsData)) {
+                    $info['own_tags'] = $ownTagsData;
+                }
+            }
+        }
+
         $parentPath = rtrim(dirname(trim($path, "/")), "/\\");
+        $info['parent_tags'] = [];
         if ($parentPath !== '' && $parentPath !== '.' && $parentPath !== $path) {
             $tagsJsonPath = $this->scanner->getFullPath($parentPath . DIRECTORY_SEPARATOR . '_tags.json');
             if (is_file($tagsJsonPath) && is_readable($tagsJsonPath)) {
@@ -86,7 +117,7 @@ final class Folder
         return $info;
     }
 
-    public function getSubdirectories(string $path): array|false
+    public function getSubdirectories(string $path, $user = null): array|false
     {
         $fullPath = $this->scanner->getFullPath(trim($path, "/"));
         if (!$this->exists($path)) {
@@ -98,10 +129,39 @@ final class Folder
             $subdirPath = $fullPath . DIRECTORY_SEPARATOR . trim($item->getFileName(),  DIRECTORY_SEPARATOR);
             if (is_dir($subdirPath)) {
                 $relativePath = trim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $item->getFileName();
-                $info = $this->getInfo($relativePath);
-                if ($info) {
+                // Zobraz složku pouze pokud userMaySeeFolder vrací true
+                if ($this->scanner->access->userMayReadFolder($relativePath, $user)) {
+                    
+                    $info = $this->getInfo($relativePath);
                     $subdirs[$info["slug"]] = $info;
+                    
+                    continue;
                 }
+
+                /*
+
+                $info = $this->getInfo($relativePath);
+                // Kontrola pouze _access.json pro show:false
+                $show = true;
+                $accessPath = $this->scanner->getFullPath($relativePath . DIRECTORY_SEPARATOR . '_access.json');
+                if (is_file($accessPath) && is_readable($accessPath)) {
+                    $accessContent = file_get_contents($accessPath);
+                    if ($accessContent !== false) {
+                        $accessData = json_decode($accessContent, true);
+                        if (is_array($accessData) && array_key_exists('show', $accessData) && $accessData['show'] === false) {
+                            $show = false;
+                        }
+                    }
+                }
+                // Pokud show je false, ověř práva uživatele
+                if ($show === false) {
+                    if (!$this->scanner->access->userMayReadFolder($relativePath, $user)) {
+                        continue;
+                    }
+                }
+
+                */
+                
             }
         }
 

@@ -5,7 +5,7 @@ describe("Root: Restricted folder", () => {
 
     test('/restricted', async () => {
 
-        const response = await apiCallRoot("restricted" );
+        const response = await apiCallRoot("access/restricted" );
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
 
@@ -13,7 +13,7 @@ describe("Root: Restricted folder", () => {
 
     test( "/restricted/accessible", async () => {
 
-        const response = await apiCallRoot( "restricted/accessible" );
+        const response = await apiCallRoot( "access/restricted/accessible" );
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
 
@@ -21,7 +21,7 @@ describe("Root: Restricted folder", () => {
 
     test( "/restricted/restricted", async () => {
 
-        const response = await apiCallRoot( "restricted/restricted" );
+        const response = await apiCallRoot( "access/restricted/restricted" );
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
 

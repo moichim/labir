@@ -5,7 +5,7 @@ describe("Guest: Restricted folder", () => {
 
     test('/restricted', async () => {
 
-        const response = await apiCallGuest("restricted", "GET");
+        const response = await apiCallGuest("access/restricted", "GET");
 
         expect(response.json.success).toBe( false );
         expect(response.json.data).toBeUndefined();
@@ -14,7 +14,7 @@ describe("Guest: Restricted folder", () => {
 
     test( "/restricted/accessible", async () => {
 
-        const response = await apiCallGuest( "restricted/accessible", "GET" );
+        const response = await apiCallGuest( "access/restricted/accessible", "GET" );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();
@@ -24,7 +24,7 @@ describe("Guest: Restricted folder", () => {
 
     test( "/restricted/restricted", async () => {
 
-        const response = await apiCallGuest( "restricted/restricted", "GET" );
+        const response = await apiCallGuest( "access/restricted/restricted", "GET" );
 
         console.log( response.json );
 

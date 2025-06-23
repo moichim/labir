@@ -2,7 +2,7 @@ import { apiCall } from "./apiCall";
 
 
 export const loginGuest = async (folder) => {
-    const response = await apiCall(`http://localhost:8080/access/${folder}/?action=login`, "POST", {
+    const response = await apiCall(`http://localhost:8080/${folder}/?action=login`, "POST", {
         user: "guest",
         password: "querty"
     });

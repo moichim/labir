@@ -141,16 +141,11 @@ class AuthService
         string $path
     ) {
 
-        // var_dump( "creating identity" );
-
-
         $token = bin2hex(random_bytes(32));
 
         $this->section->set("user", $userName);
         $this->section->set("path", $path);
         $this->section->set("token", $token);
-
-        // var_dump( $this->section );
 
     }
 
