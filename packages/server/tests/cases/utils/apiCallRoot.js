@@ -1,7 +1,7 @@
 import { apiCall } from "./apiCall.js";
 import { expect } from "vitest";
 
-export const apiCallRoot = async (fullPath) => {
+export const apiCallRoot = async (fullPath, method = "GET", body = null) => {
     // Odstraní počáteční lomítka a přidá jedno na začátek
     const normalizedPath = '/' + String(fullPath).replace(/^\/+/, '');
 
@@ -18,8 +18,8 @@ export const apiCallRoot = async (fullPath) => {
 
     const subsequent = await apiCall(
         `http://localhost:8080${normalizedPath}`,
-        "GET",
-        null,
+        method,
+        body,
         response.session,
         {
             Authorization: authorisation

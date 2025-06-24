@@ -1,8 +1,8 @@
 import { apiCall } from "./apiCall.js";
 import { expect } from "vitest";
 
-export const apiCallGuest = async (fullPath) => {
-    const response = await apiCall(`http://localhost:8080/access/restricted_to_guest/?action=login`, "POST", {
+export const apiCallGuest = async (fullPath, method = "GET", body = null) => {
+    const response = await apiCall(`http://localhost:8080/access/restricted_to_guest?action=login`, "POST", {
         user: "guest",
         password: "querty"
     });
@@ -15,8 +15,8 @@ export const apiCallGuest = async (fullPath) => {
 
     const subsequent = await apiCall(
         `http://localhost:8080/${fullPath}`,
-        "GET",
-        null,
+        method,
+        body,
         response.session,
         {
             Authorization: authorisation

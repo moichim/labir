@@ -74,6 +74,17 @@ final class Access
                     throw new Exception( "You need to be logged in to perform this action.", 401 );
                 }
 
+                // Kontrola explicitního uživatele pouze při POST
+                if ($this->scanner->getRequest()->isMethod("POST")) {
+                    $identity = $this->scanner->tokenService->getIdentity();
+                    $user = $identity ? $identity["user"] : null;
+
+                    $access = $this->getFolderAccess($this->currentPath);
+
+                    if (!($user && array_key_exists($user, $access["users"]))) {
+                        throw new Exception("You do not have write access to this folder", 403);
+                    }
+                }
             }
 
         } else {

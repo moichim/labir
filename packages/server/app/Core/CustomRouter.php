@@ -30,55 +30,47 @@ class CustomRouter implements Router
         $url = $request->getUrl();
         $path = $url->getPath();
 
+        $params = $this->parseParams($request->getQuery());
+
+        $parameters = [
+            "path" => $path,
+            "url" => $url->getAbsoluteUrl(),
+            "params" => $params
+        ] + $params;
+
 
         // Make sure the path is provided
         if ($path == null || $path === "" || $path === "/") {
+
             return $this->error("Path was not provided.", 400);
         }
 
+        // var_dump( $path );
+
         // Make sure the given path corresponds to an existing folder
         if (! $this->scanner->folder->exists($path)) {
+
             return $this->error("Folder does not exist.", 404);
         }
 
         $presenter = null;
         $action = null;
 
-        $params = $this->parseParams( $request->getQuery() );
 
-        $parameters = [
-            "path" => $path,
-            "params" => $params
-        ] + $params;
+        // Základní logika: presenter podle metody, action podle parametru nebo default
+        $presenter = $request->isMethod('POST') ? 'Post' : 'Get';
+        $action = $params['action'] ?? 'default';
 
-        if (isset($params["action"])) {
-
-            if ($request->isMethod("GET")) {
-
-                if ($params["action"] === "files") {
-                    $presenter = "Get";
-                    $action = "files";
-                }
-
-                if ( $params["action"] === "grid" ) {
-                    $presenter = "Get";
-                    $action = "grid";
-                }
-
-            } else if ($request->isMethod("POST")) {
-
-                if ($params["action"] === "login") {
-                    $presenter = "Auth";
-                    $action = "login";
-                }
-            }
+        // Speciální případ: login
+        if ($presenter === 'Post' && $action === 'login') {
+            $presenter = 'Auth';
         }
 
-
-        // No parameters => show info about the folder
-        else if ($request->isMethod('GET')) {
-            $presenter = "Get";
-            $action = "default";
+        // Speciální případy pro GET
+        if ($presenter === 'Get' && isset($params['action'])) {
+            if ($params['action'] === 'files' || $params['action'] === 'grid') {
+                $action = $params['action'];
+            }
         }
 
 

@@ -26,7 +26,7 @@ describe("Guest: Restricted folder", () => {
 
         const response = await apiCallGuest( "access/restricted/restricted", "GET" );
 
-        console.log( response.json );
+        // console.log( response.json );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();

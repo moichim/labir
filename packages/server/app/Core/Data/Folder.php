@@ -7,6 +7,7 @@ namespace App\Core\Data;
 use App\Core\Scanner;
 use Exception;
 use FilesystemIterator;
+use Nette\Utils\Strings;
 
 final class Folder
 {
@@ -137,30 +138,6 @@ final class Folder
                     
                     continue;
                 }
-
-                /*
-
-                $info = $this->getInfo($relativePath);
-                // Kontrola pouze _access.json pro show:false
-                $show = true;
-                $accessPath = $this->scanner->getFullPath($relativePath . DIRECTORY_SEPARATOR . '_access.json');
-                if (is_file($accessPath) && is_readable($accessPath)) {
-                    $accessContent = file_get_contents($accessPath);
-                    if ($accessContent !== false) {
-                        $accessData = json_decode($accessContent, true);
-                        if (is_array($accessData) && array_key_exists('show', $accessData) && $accessData['show'] === false) {
-                            $show = false;
-                        }
-                    }
-                }
-                // Pokud show je false, ověř práva uživatele
-                if ($show === false) {
-                    if (!$this->scanner->access->userMayReadFolder($relativePath, $user)) {
-                        continue;
-                    }
-                }
-
-                */
                 
             }
         }
@@ -307,5 +284,105 @@ final class Folder
         string $path
     ): Grid {
         return new Grid($this->scanner, $path);
+    }
+
+    /**
+     * Rename a folder and update its name in _access.json.
+     */
+    public function renameFolder(string $slug, string $name): array
+    {
+        // Webalizace nového názvu s odstraněním diakritiky, zachování písmen
+        $webalized = Strings::webalize($name, '0-9a-zA-Z');
+
+        $parentDir = dirname($slug);
+        $oldPath = $this->scanner->getFullPath($slug);
+        $newSlug = ($parentDir === '.' || $parentDir === '') ? $webalized : $parentDir . DIRECTORY_SEPARATOR . $webalized;
+        $newPath = $this->scanner->getFullPath($newSlug);
+
+        if (!is_dir($oldPath)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+        if (is_dir($newPath)) {
+            throw new Exception("Target folder '$newSlug' already exists", 409);
+        }
+
+        // Přejmenuj složku
+        if (!rename($oldPath, $newPath)) {
+            throw new Exception("Failed to rename folder", 500);
+        }
+
+        // Aktualizuj _access.json (nebo access.neon, podle implementace)
+        $accessPath = $this->scanner->getFullPath($newSlug . DIRECTORY_SEPARATOR . 'access.neon');
+        if (is_file($accessPath) && is_writable($accessPath)) {
+            $content = file_get_contents($accessPath);
+            if ($content !== false) {
+                // Předpokládáme, že je to NEON, ale pro jednoduchost použijeme regex
+                // Pokud je tam "name: ..." tak ho přepíšeme, jinak přidáme
+                if (preg_match('/^name\s*:/m', $content)) {
+                    $content = preg_replace('/^name\s*:.*$/m', 'name: ' . $name, $content);
+                } else {
+                    $content = "name: $name\n" . $content;
+                }
+                file_put_contents($accessPath, $content);
+            }
+        }
+
+        // Aktualizuj _content.json
+        $contentJsonPath = $this->scanner->getFullPath($newSlug . DIRECTORY_SEPARATOR . '_content.json');
+        if (is_file($contentJsonPath) && is_writable($contentJsonPath)) {
+            $json = file_get_contents($contentJsonPath);
+            if ($json !== false) {
+                $data = json_decode($json, true);
+                if (is_array($data)) {
+                    $data['name'] = $name;
+                    file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                }
+            }
+        }
+
+        return [
+            'oldSlug' => $slug,
+            'newSlug' => $newSlug,
+            'newName' => $name,
+        ];
+    }
+
+    /**
+     * Create a new folder and write its name and description to _content.json.
+     */
+    public function createFolder(string $parentSlug, string $name, ?string $description = null): array
+    {
+        // Webalizace nového názvu s odstraněním diakritiky, zachování písmen
+        $webalized = Strings::webalize($name, '0-9a-zA-Z');
+
+        $newSlug = ($parentSlug === '' || $parentSlug === '.' || $parentSlug === DIRECTORY_SEPARATOR)
+            ? $webalized
+            : $parentSlug . DIRECTORY_SEPARATOR . $webalized;
+        $newPath = $this->scanner->getFullPath($newSlug);
+
+        if (is_dir($newPath)) {
+            throw new Exception("Target folder '$newSlug' already exists", 409);
+        }
+
+        if (!mkdir($newPath, 0777, true)) {
+            throw new Exception("Failed to create folder", 500);
+        }
+
+        // Vytvoř _content.json
+        $contentJsonPath = $newPath . DIRECTORY_SEPARATOR . '_content.json';
+        $data = [
+            'name' => $name
+        ];
+        if ($description !== null) {
+            $data['description'] = $description;
+        }
+        file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return [
+            'slug' => $newSlug,
+            'name' => $name,
+            'description' => $description,
+            'info' => $this->getInfo($newSlug),
+        ];
     }
 }

@@ -30,7 +30,7 @@ describe( "User special cases", () => {
             }
         );
 
-        console.log( response.json );
+        // console.log( response.json );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();
