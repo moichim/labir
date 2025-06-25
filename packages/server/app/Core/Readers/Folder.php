@@ -408,15 +408,7 @@ final class Folder
     public function readJson(string $slug, string $type): ?array
     {
         $path = $this->getJsonPath($slug, $type);
-        if (!is_file($path) || !is_readable($path)) {
-            return null;
-        }
-        $json = file_get_contents($path);
-        if ($json === false) {
-            return null;
-        }
-        $data = json_decode($json, true);
-        return is_array($data) ? $data : null;
+        return $this->scanner->json->read($path);
     }
 
     /**
@@ -425,7 +417,7 @@ final class Folder
     protected function writeJson(string $slug, string $type, array $data): void
     {
         $path = $this->getJsonPath($slug, $type);
-        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->scanner->json->write($path, $data);
     }
 
     /**

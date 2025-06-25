@@ -17,39 +17,6 @@ final class Lrc
     protected array $tags = [];
     protected array $analyses = [];
 
-    public function getPath()
-    {
-        return $this->path;
-    }
-    public function getFileName()
-    {
-        return $this->fileName;
-    }
-    public function getVisual()
-    {
-        return $this->visual;
-    }
-    public function getPreview()
-    {
-        return $this->preview;
-    }
-    public function getTimestamp()
-    {
-        return $this->timestamp;
-    }
-    public function getUploaded()
-    {
-        return $this->uploaded;
-    }
-    public function getTags()
-    {
-        return $this->tags;
-    }
-    public function getAnalyses()
-    {
-        return $this->analyses;
-    }
-
 
     public static function createIfExists(
         Scanner $scanner,
@@ -83,7 +50,7 @@ final class Lrc
         $this->visual = $this->readVisual();
         $this->preview = $this->readPreview();
 
-        $neon = $this->getOrCreateNeon();
+        $neon = $this->getOrCreateJson();
 
         $this->timestamp = $neon["timestamp"];
         $this->tags = $neon["tags"] ?? [];
@@ -112,18 +79,50 @@ final class Lrc
     }
 
 
-    protected function getJsonPath()
+
+
+    public function getPath()
     {
-        return $this->scanner->getFullPath($this->path . DIRECTORY_SEPARATOR .
-            preg_replace('/\.lrc$/i', '.json', $this->fileName));
+        return $this->path;
+    }
+    
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
+    public function getVisual()
+    {
+        return $this->visual;
+    }
+
+    public function getPreview()
+    {
+        return $this->preview;
+    }
+
+    public function getTimestamp()
+    {
+        return $this->timestamp;
+    }
+
+    public function getUploaded()
+    {
+        return $this->uploaded;
+    }
+
+    public function getTags()
+    {
+        return $this->tags;
+    }
+
+    public function getAnalyses()
+    {
+        return $this->analyses;
     }
 
 
-    protected function jsonExists()
-    {
-        $path = $this->getJsonPath();
-        return is_file($path) && is_readable($path);
-    }
+
 
     public function readVisual(): string|false
     {
@@ -136,31 +135,27 @@ final class Lrc
     }
 
 
-    protected function getOrCreateNeon()
+    protected function getJsonPath()
+    {
+        return $this->scanner->getFullPath($this->path . DIRECTORY_SEPARATOR .
+            preg_replace('/\.lrc$/i', '.json', $this->fileName));
+    }
+
+
+    protected function getOrCreateJson()
     {
 
-        if (! $this->jsonExists()) {
-            return $this->createJson();
+        $existing = $this->readJson();
+        if ($existing === null) {
+            $existing = $this->createJson();
         }
 
-        $content = file_get_contents($this->getJsonPath());
-        if ($content === false) {
-            return false;
-        }
-
-        try {
-            $data = json_decode($content, true);
-            return is_array($data) ? $data : null;
-        } catch (\Throwable $e) {
-            return null;
-        }
+        return $existing;
     }
 
 
     protected function createJson()
     {
-
-        $neonPath = $this->getJsonPath();
 
         $timestamp = $this->readFileTimestamp();
 
@@ -171,11 +166,24 @@ final class Lrc
             "tags" => []
         ];
 
-        $neonContent = json_encode($data);
-
-        file_put_contents($neonPath, $neonContent) !== false;
+        $this->writeJson($data);
 
         return $data;
+    }
+
+
+    protected function readJson(): ?array
+    {
+
+        $path = $this->getJsonPath();
+        $json = $this->scanner->json->read($path);
+        return $json;
+    }
+
+    protected function writeJson(array $data): void
+    {
+        $path = $this->getJsonPath();
+        $this->scanner->json->write($path, $data);
     }
 
 

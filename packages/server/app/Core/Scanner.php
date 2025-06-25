@@ -6,6 +6,7 @@ namespace App\Core;
 
 use App\Core\Readers\Folder;
 use App\Core\Readers\File;
+use App\Core\Readers\Json;
 use Nette\Http\IRequest;
 use Nette\Http\Session;
 
@@ -17,6 +18,7 @@ final class Scanner {
 
     public readonly IRequest $request;
 
+    public Json $json;
     public Folder $folder;
     public File $file;
     public Access $access;
@@ -35,6 +37,7 @@ final class Scanner {
 
         $this->basePath = trim( $url->getPath(), "/" );
 
+        $this->json = new Json( $this );
         $this->folder = new Folder( $this );
         $this->file = new File( $this );
         $this->access = new Access( $this );
