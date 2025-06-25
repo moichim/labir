@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core\Data;
 
 use App\Core\Scanner;
+use App\Core\Readers\Json;
 
 final class Lrc
 {
@@ -16,6 +17,8 @@ final class Lrc
     protected int $uploaded;
     protected array $tags = [];
     protected array $analyses = [];
+    protected ?string $label = null;
+    protected ?string $description = null;
 
 
     public static function createIfExists(
@@ -50,12 +53,15 @@ final class Lrc
         $this->visual = $this->readVisual();
         $this->preview = $this->readPreview();
 
-        $neon = $this->getOrCreateJson();
+        $json = $this->getOrCreateJson();
 
-        $this->timestamp = $neon["timestamp"];
-        $this->tags = $neon["tags"] ?? [];
-        $this->analyses = $neon["analyses"] ?? [];
-        $this->uploaded = $neon["uploaded"] ?? time() * 1000;
+        $this->label = $json["label"] ?? null;
+        $this->description = $json["description"] ?? null;
+
+        $this->timestamp = $json["timestamp"];
+        $this->tags = $json["tags"] ?? [];
+        $this->analyses = $json["analyses"] ?? [];
+        $this->uploaded = $json["uploaded"] ?? time() * 1000;
     }
 
     public function getInfo()
@@ -64,6 +70,8 @@ final class Lrc
         return [
             "entity" => "file",
             "url" => $this->url,
+            "label" => $this->label,
+            "description" => $this->description,
             "fileName" => $this->fileName,
             "folder" => basename($this->path),
             "parent" => basename(dirname($this->path)),
@@ -76,7 +84,8 @@ final class Lrc
             "dateHuman" => $this->timestamp
                 ? date('d.m.Y H:i:s', (int)($this->timestamp / 1000))
                 : null,
-            "apiRoot" => $apiRoot
+            "apiRoot" => $apiRoot,
+            "analyses" => $this->analyses,
         ];
     }
 
@@ -268,5 +277,59 @@ final class Lrc
         }
 
         return false;
+    }
+
+    /**
+     * Aktualizuje metadata souboru (label, description, tagy, analýzy)
+     * @param array $params
+     *  - label: string|null
+     *  - description: string|null
+     *  - addTags: array|null
+     *  - removeTags: array|null
+     *  - addAnalyses: array|null
+     *  - removeAnalyses: array|null
+     */
+    public function update(array $params): void
+    {
+        $json = $this->readJson() ?? [];
+
+        // Label (uloženo jako 'label' v JSON)
+        if (isset($params['label'])) {
+            $json['label'] = Json::s($params['label']);
+        }
+        // Description
+        if (isset($params['description'])) {
+            $json['description'] = Json::s($params['description']);
+        }
+        // Tagy
+        if (!isset($json['tags']) || !is_array($json['tags'])) {
+            $json['tags'] = [];
+        }
+        if (isset($params['addTags']) && is_array($params['addTags'])) {
+            $sanitizedTags = array_map(function($t) { return Json::s($t); }, $params['addTags']);
+            $json['tags'] = array_values(array_unique(array_merge($json['tags'], $sanitizedTags)));
+        }
+        if (isset($params['removeTags']) && is_array($params['removeTags'])) {
+            $sanitizedRemoveTags = array_map(function($t) { return Json::s($t); }, $params['removeTags']);
+            $json['tags'] = array_values(array_diff($json['tags'], $sanitizedRemoveTags));
+        }
+        // Analýzy
+        if (!isset($json['analyses']) || !is_array($json['analyses'])) {
+            $json['analyses'] = [];
+        }
+        if (isset($params['addAnalyses']) && is_array($params['addAnalyses'])) {
+            $sanitizedAnalyses = array_map(function($a) { return Json::s($a); }, $params['addAnalyses']);
+            $json['analyses'] = array_values(array_unique(array_merge($json['analyses'], $sanitizedAnalyses)));
+        }
+        if (isset($params['removeAnalyses']) && is_array($params['removeAnalyses'])) {
+            $sanitizedRemoveAnalyses = array_map(function($a) { return Json::s($a); }, $params['removeAnalyses']);
+            $json['analyses'] = array_values(array_diff($json['analyses'], $sanitizedRemoveAnalyses));
+        }
+        $this->writeJson($json);
+        // Refresh instance
+        $this->tags = $json['tags'];
+        $this->analyses = $json['analyses'];
+        if (isset($json['label'])) $this->label = $json['label'];
+        if (isset($json['description'])) $this->description = $json['description'];
     }
 }

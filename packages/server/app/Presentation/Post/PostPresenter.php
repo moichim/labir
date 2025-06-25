@@ -158,4 +158,43 @@ final class PostPresenter extends BasePresenter
         $this->markSuccess();
         $this->respond();
     }
+
+    /**
+     * Aktualizace metadat souboru (label, description, tagy, analýzy)
+     * @param string $path Cesta ke složce (povinné, z parametru akce)
+     * @param string $file Název souboru (povinné, z parametru akce)
+     * V POST body pouze update data (viz výše)
+     */
+    public function actionUpdatefile(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        if (!is_string($requestData) || strlen($requestData) === 0) {
+            throw new Exception('Invalid request body format. Expected JSON string.', 400);
+        }
+        $data = json_decode($requestData, true);
+        if (!is_array($data)) {
+            throw new Exception('Invalid JSON body.', 400);
+        }
+        // Najdi soubor v dané složce
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+        // Proveď update
+        $lrc->update([
+            'label' => $data['label'] ?? null,
+            'description' => $data['description'] ?? null,
+            'addTags' => $data['addTags'] ?? null,
+            'removeTags' => $data['removeTags'] ?? null,
+            'addAnalyses' => $data['addAnalyses'] ?? null,
+            'removeAnalyses' => $data['removeAnalyses'] ?? null,
+        ]);
+        $this->storeData('file', $lrc->getInfo());
+        $this->markSuccess();
+        $this->respond();
+    }
 }
