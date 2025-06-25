@@ -13,8 +13,11 @@ export const apiCallGuest = async (fullPath, method = "GET", body = null) => {
     const token = response.json.data.login.token;
     const authorisation = "Basic " + Buffer.from(`${user}:${token}`).toString("base64");
 
+    // Přidat prefix jen pokud fullPath nezačíná na http
+    const url = fullPath.startsWith("http") ? fullPath : `http://localhost:8080/${fullPath}`;
+
     const subsequent = await apiCall(
-        `http://localhost:8080/${fullPath}`,
+        url,
         method,
         body,
         response.session,

@@ -576,4 +576,17 @@ final class Folder
         }
         return $result;
     }
+
+    /**
+     * Najde a vrátí soubor v této složce jako objekt Lrc (nebo null, pokud neexistuje nebo není LRC).
+     */
+    public function getFile(string $path, string $fileName): ?Lrc
+    {
+        $fullPath = $this->scanner->getFullPath(trim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $fileName);
+        if (!is_file($fullPath) || !is_readable($fullPath)) {
+            return null;
+        }
+        // Vytvoří objekt Lrc pouze pokud je to .lrc soubor
+        return Lrc::createIfExists($this->scanner, $path, $fileName);
+    }
 }

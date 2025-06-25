@@ -60,6 +60,7 @@ final class Lrc
 
     public function getInfo()
     {
+        $apiRoot = $this->scanner->getFullUrl($this->path) . '?file=' . rawurlencode($this->fileName);
         return [
             "entity" => "file",
             "url" => $this->url,
@@ -74,7 +75,8 @@ final class Lrc
             "tags" => $this->tags,
             "dateHuman" => $this->timestamp
                 ? date('d.m.Y H:i:s', (int)($this->timestamp / 1000))
-                : null
+                : null,
+            "apiRoot" => $apiRoot
         ];
     }
 

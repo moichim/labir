@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Presentation\Get;
 
 use App\Presentation\Core\BasePresenter;
+use Exception;
 
 final class GetPresenter extends BasePresenter
 {
@@ -146,4 +147,23 @@ final class GetPresenter extends BasePresenter
         ];
         $this->respond();
     }
+
+
+    public function actionFile( ?string $path, ?string $file): void {
+
+        $lrc = $this->scanner->folder->getFile($path, $file);
+
+        if ( $lrc ) {
+            $this->storeData( "file", $lrc->getInfo() );
+        } else {
+            throw new Exception( "File '$file' was not found in '$path'.", 404 );
+        }
+
+        $this->markSuccess();
+        $this->respond();
+
+    }
+
+
+
 }

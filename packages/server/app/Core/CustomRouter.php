@@ -50,7 +50,7 @@ class CustomRouter implements Router
         // Make sure the given path corresponds to an existing folder
         if (! $this->scanner->folder->exists($path)) {
 
-            return $this->error("Folder does not exist.", 404);
+            return $this->error("Folder does not exist. '$path'", 404);
         }
 
         $presenter = null;
