@@ -19,8 +19,8 @@ final class GetPresenter extends BasePresenter
 
         $this->storeData("folder", $this->scanner->folder->getInfo($path));
 
-        // Předání aktuálního uživatele z authService do getSubdirectories
-        $user = $this->scanner->tokenService->getIdentity();
+        // Předání aktuálního uživatele z authorisation do getSubdirectories
+        $user = $this->scanner->authorisation->getIdentity();
         $user = $user ? $user["user"] : null;
         $this->storeData("subfolders", $this->scanner->folder->getSubdirectories($path, $user));
 

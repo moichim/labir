@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace App\Core\Data;
+namespace App\Core\Readers;
 
 use App\Core\Scanner;
 use Exception;
 use FilesystemIterator;
 use Nette\Utils\Strings;
+use App\Core\Data\Lrc;
+use App\Core\Data\Grid;
 
 final class Folder
 {
@@ -53,7 +55,7 @@ final class Folder
         $info = [
             "entity" => "folder",
             "api" => $this->scanner->getFullUrl($path),
-            "path" => $path,
+            "path" => ltrim( $path, "/" ),
             "slug" => basename($path),
             "name" => basename($path),
             "description" => null,
@@ -291,12 +293,9 @@ final class Folder
      */
     public function renameFolder(string $slug, string $name): array
     {
-        // Webalizace nového názvu s odstraněním diakritiky, zachování písmen
-        $webalized = Strings::webalize($name, '0-9a-zA-Z');
-
         $parentDir = dirname($slug);
         $oldPath = $this->scanner->getFullPath($slug);
-        $newSlug = ($parentDir === '.' || $parentDir === '') ? $webalized : $parentDir . DIRECTORY_SEPARATOR . $webalized;
+        $newSlug = ($parentDir === '.' || $parentDir === '') ? $this->webalizeName($name) : $parentDir . DIRECTORY_SEPARATOR . $this->webalizeName($name);
         $newPath = $this->scanner->getFullPath($newSlug);
 
         if (!is_dir($oldPath)) {
@@ -352,12 +351,7 @@ final class Folder
      */
     public function createFolder(string $parentSlug, string $name, ?string $description = null): array
     {
-        // Webalizace nového názvu s odstraněním diakritiky, zachování písmen
-        $webalized = Strings::webalize($name, '0-9a-zA-Z');
-
-        $newSlug = ($parentSlug === '' || $parentSlug === '.' || $parentSlug === DIRECTORY_SEPARATOR)
-            ? $webalized
-            : $parentSlug . DIRECTORY_SEPARATOR . $webalized;
+        $newSlug = $this->buildSlug($parentSlug, $name);
         $newPath = $this->scanner->getFullPath($newSlug);
 
         if (is_dir($newPath)) {
@@ -384,5 +378,110 @@ final class Folder
             'description' => $description,
             'info' => $this->getInfo($newSlug),
         ];
+    }
+
+    /**
+     * Delete a folder and all its contents.
+     */
+    public function deleteFolder(string $slug): array
+    {
+        $fullPath = $this->scanner->getFullPath($slug);
+
+        if (!is_dir($fullPath)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+
+        $this->deleteDirRecursive($fullPath);
+
+        return [
+            'deleted' => $slug,
+            'success' => true,
+        ];
+    }
+
+    /**
+     * Helper for recursive directory deletion.
+     */
+    protected function deleteDirRecursive(string $dir): void
+    {
+        $items = array_diff(scandir($dir), ['.', '..']);
+        foreach ($items as $item) {
+            $path = $dir . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($path)) {
+                $this->deleteDirRecursive($path);
+            } else {
+                unlink($path);
+            }
+        }
+        rmdir($dir);
+    }
+
+
+    /**
+     * Webalize a name of folder used in slugs.
+     * Internal helper function.
+     */
+    protected function webalizeName(string $name): string
+    {
+        return Strings::webalize($name, '0-9a-zA-Z');
+    }
+
+    protected function buildSlug(string $parent, string $name): string
+    {
+        $webalized = $this->webalizeName($name);
+        return ($parent === '' || $parent === '.' || $parent === DIRECTORY_SEPARATOR)
+            ? $webalized
+            : $parent . DIRECTORY_SEPARATOR . $webalized;
+    }
+
+    protected function getContentJsonPath(string $slug): string
+    {
+        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . '_content.json');
+    }
+
+    protected function writeContentJson(string $path, array $data): void
+    {
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Get the full path to a JSON file of a given type in a folder.
+     * $type: 'content', 'tags', 'access'
+     */
+    protected function getJsonPath(string $slug, string $type): string
+    {
+        $filename = match ($type) {
+            'content' => '_content.json',
+            'tags' => '_tags.json',
+            'access' => '_access.json',
+            default => throw new Exception("Unknown JSON type '$type'"),
+        };
+        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . $filename);
+    }
+
+    /**
+     * Read and decode a JSON file from a folder.
+     */
+    protected function readJson(string $slug, string $type): ?array
+    {
+        $path = $this->getJsonPath($slug, $type);
+        if (!is_file($path) || !is_readable($path)) {
+            return null;
+        }
+        $json = file_get_contents($path);
+        if ($json === false) {
+            return null;
+        }
+        $data = json_decode($json, true);
+        return is_array($data) ? $data : null;
+    }
+
+    /**
+     * Write an array to a JSON file in a folder.
+     */
+    protected function writeJson(string $slug, string $type, array $data): void
+    {
+        $path = $this->getJsonPath($slug, $type);
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 }

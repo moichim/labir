@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
-use App\Core\Data\Folder;
-use App\Core\Data\File;
+use App\Core\Readers\Folder;
+use App\Core\Readers\File;
 use Nette\Http\IRequest;
 use Nette\Http\Session;
 
@@ -20,7 +20,7 @@ final class Scanner {
     public Folder $folder;
     public File $file;
     public Access $access;
-    public AuthService $tokenService;
+    public AuthorisationService $authorisation;
 
     protected string $basePath;
 
@@ -38,7 +38,7 @@ final class Scanner {
         $this->folder = new Folder( $this );
         $this->file = new File( $this );
         $this->access = new Access( $this );
-        $this->tokenService = new AuthService( $session, $this );
+        $this->authorisation = new AuthorisationService( $session, $this );
 
     }
 

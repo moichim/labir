@@ -8,7 +8,7 @@ use Nette\Http\Session;
 use Nette\Http\SessionSection;
 use \Exception;
 
-class AuthService
+class AuthorisationService
 {
 
     const SECTION = "auth";

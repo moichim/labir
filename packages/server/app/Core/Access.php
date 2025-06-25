@@ -35,14 +35,14 @@ final class Access
             if ($this->currentAccess["show"] === false) {
 
                 // If the user is logged out, throw
-                if (! $this->scanner->tokenService->isLoggedin()) {
+                if (! $this->scanner->authorisation->isLoggedin()) {
                     throw new Exception("You need to be logged in to see this folder", 401);
                 } 
 
                 // Logged in users need to see the current folder
                 else {
 
-                    $identity = $this->scanner->tokenService->getIdentity();
+                    $identity = $this->scanner->authorisation->getIdentity();
 
                     $maySee = $identity
                         ? $this->userMayReadFolder($this->currentPath, $identity["user"])
@@ -70,13 +70,13 @@ final class Access
             } else {
 
                 // If the user is not logging in, check if the user is logged in
-                if ( ! $this->scanner->tokenService->isLoggedin() ) {
+                if ( ! $this->scanner->authorisation->isLoggedin() ) {
                     throw new Exception( "You need to be logged in to perform this action.", 401 );
                 }
 
                 // Kontrola explicitního uživatele pouze při POST
                 if ($this->scanner->getRequest()->isMethod("POST")) {
-                    $identity = $this->scanner->tokenService->getIdentity();
+                    $identity = $this->scanner->authorisation->getIdentity();
                     $user = $identity ? $identity["user"] : null;
 
                     $access = $this->getFolderAccess($this->currentPath);

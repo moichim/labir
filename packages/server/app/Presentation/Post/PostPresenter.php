@@ -10,11 +10,10 @@ final class PostPresenter extends BasePresenter
 {
 
 
-    public function startup(): void {
+    public function startup(): void
+    {
 
         parent::startup();
-
-
     }
 
     /** 
@@ -27,7 +26,7 @@ final class PostPresenter extends BasePresenter
 
 
         $this->storeData("path", $path);
-        $this->storeData( "message", "The test request was successfull, but nothing happened." );
+        $this->storeData("message", "The test request was successfull, but nothing happened.");
 
         $this->markSuccess();
 
@@ -53,12 +52,19 @@ final class PostPresenter extends BasePresenter
 
     public function actionCreate(string $name, ?string $description = null): void
     {
+        $parentSlug = $this->scanner->getBasePath();
+        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description);
+        $this->storeData('result', $result);
+        $this->markSuccess();
+        $this->respond();
+    }
 
-            $folder = $this->scanner->folder;
-            $parentSlug = $this->scanner->getBasePath();
-            $result = $folder->createFolder($parentSlug, $name, $description);
-            $this->storeData('result', $result);
-            $this->markSuccess();
+    public function actionDelete(): void
+    {
+        $slug = $this->scanner->getBasePath();
+        $result = $this->scanner->folder->deleteFolder($slug);
+        $this->storeData('result', $result);
+        $this->markSuccess();
         $this->respond();
     }
 }

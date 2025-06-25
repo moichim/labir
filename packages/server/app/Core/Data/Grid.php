@@ -130,7 +130,7 @@ final class Grid
 
         $info = $this->scanner->folder->getInfo($this->path);
 
-        $identity = $this->scanner->tokenService->getIdentity();
+        $identity = $this->scanner->authorisation->getIdentity();
 
         $user = $identity
             ? $identity["user"]

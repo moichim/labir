@@ -75,8 +75,8 @@ abstract class BasePresenter extends Presenter
         $this->storeDebug("nette", [
             "class" => get_class($this),
             "params" => $params,
-            "user" => $this->scanner->tokenService->getIdentity(),
-            "loggedIn" => $this->scanner->tokenService->isLoggedin()
+            "user" => $this->scanner->authorisation->getIdentity(),
+            "loggedIn" => $this->scanner->authorisation->isLoggedin()
             // "access" => $this->scanner->access->getFolderAccess($this->path)
         ]);
 

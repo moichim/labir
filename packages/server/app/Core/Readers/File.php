@@ -2,7 +2,7 @@
 
 declare( strict_types = 1 );
 
-namespace App\Core\Data;
+namespace App\Core\Readers;
 
 use App\Core\Scanner;
 

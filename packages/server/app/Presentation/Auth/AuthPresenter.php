@@ -21,7 +21,7 @@ final class AuthPresenter extends BasePresenter {
             throw new Exception( 'No credentials provided.', 400 );
         }
 
-        $login = $this->scanner->tokenService->authenticate( 
+        $login = $this->scanner->authorisation->authenticate( 
             $path, 
             $post->user, 
             $post->password 
