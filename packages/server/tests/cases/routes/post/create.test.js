@@ -1,12 +1,15 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterAll } from "vitest";
 import { apiCallGuest } from "../../utils/apiCallGuest";
 import { apiCall } from "../../utils/apiCall";
+import { cleanupFolders } from "../../utils/cleanupFolders";
 
 const getApiCallUrl = (action, folderName, newFolderName, description) => {
     return `${folderName}?action=${action}&name=${newFolderName}&description=${description}`;
 }
 
 describe( "POST action=create", () => {
+    const createdFolders = [];
+
     test( "unauthorised user should not be allowed", async () => {
         const url = "another_folder?action=create";
         const response = await apiCall( "http://localhost:8080/" + url, "POST", { name: "Pracovní název složky" } );
@@ -55,6 +58,8 @@ describe( "POST action=create", () => {
         expect( response.json.data.result.info.name ).toBeDefined();
         expect( response.json.data.result.info.description ).toBeDefined();
 
+        createdFolders.push(response.json.data.result.info.path);
+
         const deleteUrl = getApiCallUrl( "delete", response.json.data.result.info.path, "" );
         const deleteResponse = await apiCallGuest( deleteUrl, "POST" );
 
@@ -66,10 +71,14 @@ describe( "POST action=create", () => {
 
     } );
 
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
+    });
 } );
 
 
 describe( "POST action=delete", () => {
+    const createdFolders = [];
 
     test( "create and delete a folder", async () => {
 
@@ -85,6 +94,8 @@ describe( "POST action=delete", () => {
         expect( createResponse.json.data.result.info.description ).toBe( "A description of a new folder" );
         expect( createResponse.json.data.result.info.slug ).toBe( "temporary-folder-for-deletion" );
         expect( createResponse.json.data.result.info.protected ).toBe( true );
+
+        createdFolders.push(createResponse.json.data.result.info.path);
 
         const infoResponse = await apiCallGuest( createResponse.json.data.result.info.path, "GET" );
 
@@ -146,6 +157,8 @@ describe( "POST action=delete", () => {
         expect( createResponse.json.data.result.info.name ).toBe( "Temporary folder with subfolders" );
         expect( createResponse.json.data.result.info.slug ).toBe( "temporary-folder-with-subfolders" );
 
+        createdFolders.push(createResponse.json.data.result.info.path);
+
         // Vytvoření více sub-složek
         const subfolders = ["Subfolder 1", "Subfolder 2", "Subfolder 3"];
         const subfolderResponses = [];
@@ -179,10 +192,14 @@ describe( "POST action=delete", () => {
         expect( deleteResponse.json.data.result.deleted ).toBe( createResponse.json.data.result.info.path );
     } );
 
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
+    });
 } );
 
 
 describe( "POST action=create with meta", () => {
+    const createdFolders = [];
     test("create folder with meta data", async () => {
         const meta = { lat: "50.123", long: "14.456", custom: "test" };
         const url = "access/restricted_to_guest?action=create";
@@ -201,16 +218,23 @@ describe( "POST action=create with meta", () => {
         // Ověř, že name a description zůstaly správně
         expect(response.json.data.result.info.name).toBe("Složka s meta");
 
+        createdFolders.push(response.json.data.result.info.path);
+
         // Smazání složky po testu
         const deleteUrl = response.json.data.result.info.path + "?action=delete";
         const deleteResponse = await apiCallGuest(deleteUrl, "POST");
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
     });
+
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
+    });
 });
 
 
 describe( "POST action=create with meta, name, description in JSON", () => {
+    const createdFolders = [];
     test("create folder with meta, name, description in JSON body", async () => {
         const meta = { lat: "50.123", long: "14.456", custom: "test" };
         const name = "Složka s meta v JSON";
@@ -232,16 +256,23 @@ describe( "POST action=create with meta, name, description in JSON", () => {
         expect(response.json.data.result.info.name).toBe(name);
         expect(response.json.data.result.info.description).toBe(description);
 
+        createdFolders.push(response.json.data.result.info.path);
+
         // Smazání složky po testu
         const deleteUrl = response.json.data.result.info.path + "?action=delete";
         const deleteResponse = await apiCallGuest(deleteUrl, "POST");
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
     });
+
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
+    });
 });
 
 
 describe("POST action=create with tags", () => {
+    const createdFolders = [];
     test.skip("create folder with tags and verify tags are accessible", async () => {
         const tags = { project: "labir", type: "test", custom: [1, 2, 3] };
         const name = "Složka s tagy";
@@ -263,6 +294,8 @@ describe("POST action=create with tags", () => {
         expect(infoResponse.json.success).toBe(true);
         // Ověř, že tagy jsou dostupné v detailu složky
         expect(infoResponse.json.data.folder.tags).toMatchObject(tags);
+
+        createdFolders.push(response.json.data.result.info.path);
 
         // Smazání složky po testu
         const deleteUrl = response.json.data.result.info.path + "?action=delete";
@@ -292,6 +325,8 @@ describe("POST action=create with tags", () => {
         const infoResponse = await apiCallGuest(response.json.data.result.info.path, "GET");
         expect(infoResponse.json.success).toBe(true);
         expect(infoResponse.json.data.folder.own_tags).toMatchObject(tags);
+
+        createdFolders.push(response.json.data.result.info.path);
 
         // Smazání složky po testu
         const deleteUrl = response.json.data.result.info.path + "?action=delete";
@@ -333,10 +368,16 @@ describe("POST action=create with tags", () => {
         expect(infoResponse.json.success).toBe(true);
         expect(infoResponse.json.data.folder.own_tags).toMatchObject(expectedTags);
 
+        createdFolders.push(response.json.data.result.info.path);
+
         // Smazání složky po testu
         const deleteUrl = response.json.data.result.info.path + "?action=delete";
         const deleteResponse = await apiCallGuest(deleteUrl, "POST");
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
     });
 });

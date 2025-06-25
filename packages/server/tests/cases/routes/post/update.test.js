@@ -1,5 +1,8 @@
-import { describe, test, expect } from "vitest";
+import { describe, test, expect, afterAll } from "vitest";
 import { apiCallGuest } from "../../utils/apiCallGuest";
+import { cleanupFolders } from "../../utils/cleanupFolders";
+
+const createdFolders = [];
 
 describe("POST action=update", () => {
     test("update name, description, meta in folder", async () => {
@@ -9,6 +12,7 @@ describe("POST action=update", () => {
         const createResponse = await apiCallGuest(createUrl, "POST", original);
         expect(createResponse.json.success).toBe(true);
         const folderPath = createResponse.json.data.result.info.path;
+        createdFolders.push(folderPath);
 
         // 2. Proveď update
         const updateUrl = folderPath + "?action=update";
@@ -42,6 +46,7 @@ describe("POST action=update", () => {
         const createResponse = await apiCallGuest(createUrl, "POST", original);
         expect(createResponse.json.success).toBe(true);
         const oldFolderPath = createResponse.json.data.result.info.path;
+        createdFolders.push(oldFolderPath);
 
         // 2. Proveď update s přesunem (move)
         const updateUrl = oldFolderPath + "?action=update";
@@ -49,6 +54,7 @@ describe("POST action=update", () => {
         const updateResponse = await apiCallGuest(updateUrl, "POST", updated);
         expect(updateResponse.json.success).toBe(true);
         const newFolderPath = updateResponse.json.data.result.info.path;
+        createdFolders.push(newFolderPath);
         expect(newFolderPath).not.toBe(oldFolderPath);
         expect(updateResponse.json.data.result.info.name).toBe(updated.name);
         expect(updateResponse.json.data.result.info.description).toBe(updated.description);
@@ -83,6 +89,7 @@ describe("POST action=update", () => {
         const createResponse = await apiCallGuest(createUrl, "POST", { name: "Složka pro update tagů", tags: originalTags });
         expect(createResponse.json.success).toBe(true);
         const folderPath = createResponse.json.data.result.info.path;
+        createdFolders.push(folderPath);
 
         // 2. Proveď update s novými tagy
         const updateUrl = folderPath + "?action=update";
@@ -121,6 +128,7 @@ describe("POST action=update", () => {
         const createResponse = await apiCallGuest(createUrl, "POST", { name: "Složka pro merge tagů", tags: originalTags });
         expect(createResponse.json.success).toBe(true);
         const folderPath = createResponse.json.data.result.info.path;
+        createdFolders.push(folderPath);
 
         // 2. Proveď update s novými tagy a mergeTags=true
         const updateUrl = folderPath + "?action=update";
@@ -150,5 +158,9 @@ describe("POST action=update", () => {
         const deleteResponse = await apiCallGuest(deleteUrl, "POST");
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(folderPath);
+    });
+
+    afterAll(async () => {
+        await cleanupFolders(createdFolders);
     });
 });
