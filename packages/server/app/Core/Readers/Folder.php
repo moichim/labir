@@ -554,4 +554,47 @@ final class Folder
             'moved' => false,
         ];
     }
+
+    /**
+     * Move a folder to a new parent folder.
+     * @param string $slug Slug (relativní cesta) přesouvané složky
+     * @param string $targetParentSlug Cílová složka (relativní cesta)
+     * @return array
+     * @throws Exception
+     */
+    public function moveFolder(string $slug, string $targetParentSlug): array
+    {
+        $fullPath = $this->scanner->getFullPath($slug);
+        if (!is_dir($fullPath)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+        $targetParentPath = $this->scanner->getFullPath($targetParentSlug);
+        if (!is_dir($targetParentPath)) {
+            throw new Exception("Target parent folder '$targetParentSlug' does not exist", 404);
+        }
+        // Ověření práv: uživatel musí mít právo zápisu do obou složek
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$this->scanner->access->userMayWriteToFolder($slug, $user)) {
+            throw new Exception("You do not have write access to the source folder", 403);
+        }
+        if (!$this->scanner->access->userMayWriteToFolder($targetParentSlug, $user)) {
+            throw new Exception("You do not have write access to the target parent folder", 403);
+        }
+        $folderName = basename($slug);
+        $newSlug = rtrim($targetParentSlug, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $folderName;
+        $newPath = $this->scanner->getFullPath($newSlug);
+        if (is_dir($newPath)) {
+            throw new Exception("Target folder '$newSlug' already exists", 409);
+        }
+        if (!rename($fullPath, $newPath)) {
+            throw new Exception("Failed to move folder", 500);
+        }
+        return [
+            'oldSlug' => $slug,
+            'newSlug' => $newSlug,
+            'info' => $this->getInfo($newSlug),
+            'moved' => true,
+        ];
+    }
 }

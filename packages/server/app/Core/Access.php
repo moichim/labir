@@ -79,9 +79,7 @@ final class Access
                     $identity = $this->scanner->authorisation->getIdentity();
                     $user = $identity ? $identity["user"] : null;
 
-                    $access = $this->getFolderAccess($this->currentPath);
-
-                    if (!($user && array_key_exists($user, $access["users"]))) {
+                    if (!$this->userMayWriteToFolder($this->currentPath, $user)) {
                         throw new Exception("You do not have write access to this folder", 403);
                     }
                 }
@@ -216,9 +214,8 @@ final class Access
         string $path,
         string $user
     ): bool {
-
         $access = $this->getFolderAccess($path);
-
-        return array_key_exists($user, $access["users"]);
+        // Uživatel musí být explicitně uveden v users (v této nebo nadřazené složce)
+        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]);
     }
 }
