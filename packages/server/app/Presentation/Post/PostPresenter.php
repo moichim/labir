@@ -45,6 +45,7 @@ final class PostPresenter extends BasePresenter
         $name = null;
         $description = null;
         $meta = [];
+        $tags = null;
 
         // Kontrola data v $post
         if (is_string($requestData) && strlen($requestData) > 0) {
@@ -68,13 +69,16 @@ final class PostPresenter extends BasePresenter
                 if (isset($data['meta'])) {
                     $meta = is_array($data['meta']) ? $data['meta'] : [];
                 }
+                if (isset($data['tags'])) {
+                    $tags = $data['tags'];
+                }
             }
         } else {
             throw new Exception( 'Invalid request body format. Expected JSON string.', 400);
         }
         
         $this->storeData('request', $requestData);
-        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta);
+        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta, $tags);
         $this->storeData('result', $result);
         $this->markSuccess();
         $this->respond();
@@ -98,7 +102,8 @@ final class PostPresenter extends BasePresenter
         $description = null;
         $meta = [];
         $move = false;
-
+        $tags = null;
+        $mergeTags = false;
         if (is_string($requestData) && strlen($requestData) > 0) {
             $data = json_decode($requestData, true);
             if (is_array($data)) {
@@ -114,11 +119,17 @@ final class PostPresenter extends BasePresenter
                 if (isset($data['move']) && $data['move'] === true) {
                     $move = true;
                 }
+                if (isset($data['tags'])) {
+                    $tags = $data['tags'];
+                }
+                if (isset($data['mergeTags']) && $data['mergeTags'] === true) {
+                    $mergeTags = true;
+                }
             }
         }
 
         $slug = $parentSlug;
-        $result = $this->scanner->folder->updateFolderContent($slug, $name, $description, $meta, $move);
+        $result = $this->scanner->folder->updateFolderContent($slug, $name, $description, $meta, $move, $tags, $mergeTags);
         $this->storeData('result', $result);
         $this->markSuccess();
         $this->respond();

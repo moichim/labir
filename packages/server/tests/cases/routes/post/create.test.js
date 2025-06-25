@@ -239,3 +239,104 @@ describe( "POST action=create with meta, name, description in JSON", () => {
         expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
     });
 });
+
+
+describe("POST action=create with tags", () => {
+    test.skip("create folder with tags and verify tags are accessible", async () => {
+        const tags = { project: "labir", type: "test", custom: [1, 2, 3] };
+        const name = "Složka s tagy";
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest(url, "POST", { name, tags });
+
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.result).not.toBeUndefined();
+        expect(response.json.data.result.info).not.toBeUndefined();
+        expect(response.json.data.result.info.name).toBe(name);
+
+        // Ověř, že tagy jsou dostupné přes API (např. v info nebo samostatně)
+        // Pokud API vrací tagy v info, ověř zde
+        expect(response.json.data.result.info.tags).toMatchObject(tags);
+
+        // Pokud je potřeba ověřit načtení tagů samostatně, proveď GET na složku
+        const infoResponse = await apiCallGuest(response.json.data.result.info.path, "GET");
+        expect(infoResponse.json.success).toBe(true);
+        // Ověř, že tagy jsou dostupné v detailu složky
+        expect(infoResponse.json.data.folder.tags).toMatchObject(tags);
+
+        // Smazání složky po testu
+        const deleteUrl = response.json.data.result.info.path + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+
+
+    test("create folder with valid tags and verify tags are accessible", async () => {
+        const tags = {
+            tag1: { name: "Správný tag", description: "Popis", color: "#123456" },
+            tag2: { name: "Druhý tag" }
+        };
+        const name = "Složka s validními tagy";
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest(url, "POST", { name, tags });
+
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.result).not.toBeUndefined();
+        expect(response.json.data.result.info).not.toBeUndefined();
+        expect(response.json.data.result.info.name).toBe(name);
+        // Ověř, že tagy jsou dostupné a správné
+        expect(response.json.data.result.info.own_tags).toMatchObject(tags);
+
+        const infoResponse = await apiCallGuest(response.json.data.result.info.path, "GET");
+        expect(infoResponse.json.success).toBe(true);
+        expect(infoResponse.json.data.folder.own_tags).toMatchObject(tags);
+
+        // Smazání složky po testu
+        const deleteUrl = response.json.data.result.info.path + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+
+    test("create folder with some invalid tags - only valid tags are saved", async () => {
+        const tags = {
+            valid1: { name: "Validní tag", color: "#fff" },
+            invalid1: { description: "Chybí name" },
+            invalid2: { name: 123, color: "#000" },
+            invalid3: { name: "Nesprávný color", color: 123 },
+            valid2: { name: "Druhý validní tag", description: "Popis" },
+            invalid4: "string místo objektu",
+            valid3: { name: "Třetí validní tag" }
+        };
+        const expectedTags = {
+            valid1: { name: "Validní tag", color: "#fff" },
+            valid2: { name: "Druhý validní tag", description: "Popis" },
+            valid3: { name: "Třetí validní tag" }
+        };
+        const name = "Složka s validními a nevalidními tagy";
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest(url, "POST", { name, tags });
+
+        // expect(response.json).toMatchSnapshot(); // pro debug
+
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.result).not.toBeUndefined();
+        expect(response.json.data.result.info).not.toBeUndefined();
+        expect(response.json.data.result.info.name).toBe(name);
+        // Ověř, že byly uloženy pouze validní tagy (pole own_tags)
+        expect(response.json.data.result.info.own_tags).toMatchObject(expectedTags);
+
+        const infoResponse = await apiCallGuest(response.json.data.result.info.path, "GET");
+        expect(infoResponse.json.success).toBe(true);
+        expect(infoResponse.json.data.folder.own_tags).toMatchObject(expectedTags);
+
+        // Smazání složky po testu
+        const deleteUrl = response.json.data.result.info.path + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+});

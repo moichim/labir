@@ -349,7 +349,7 @@ final class Folder
     /**
      * Create a new folder and write its name and description to _content.json.
      */
-    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = []): array
+    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = [], $tags = null): array
     {
         $newSlug = $this->buildSlug($parentSlug, $name);
         $newPath = $this->scanner->getFullPath($newSlug);
@@ -373,6 +373,15 @@ final class Folder
         // Sloučení s meta
         $data = array_merge($data, $meta);
         file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        // Pokud jsou zadány tags, validuj a ulož je do _tags.json
+        if ($tags !== null && (is_array($tags) || is_object($tags))) {
+            $validTags = $this->filterValidTags($tags);
+            if (!empty($validTags)) {
+                $tagsJsonPath = $newPath . DIRECTORY_SEPARATOR . '_tags.json';
+                file_put_contents($tagsJsonPath, json_encode($validTags, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            }
+        }
 
         return [
             'slug' => $newSlug,
@@ -491,7 +500,7 @@ final class Folder
      * Update _content.json in a folder. If name, description nebo meta jsou zadány, přepíše je.
      * Pokud je $move true a $name není null, přejmenuje složku a aktualizuje obsah.
      */
-    public function updateFolderContent(string $slug, ?string $name = null, ?string $description = null, array $meta = [], bool $move = false): array
+    public function updateFolderContent(string $slug, ?string $name = null, ?string $description = null, array $meta = [], bool $move = false, $tags = null, bool $mergeTags = false): array
     {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
@@ -524,6 +533,16 @@ final class Folder
             }
             $this->writeJson($newSlug, 'content', $data);
 
+            // Pokud jsou zadány tags, ulož je do _tags.json
+            if ($tags !== null && (is_array($tags) || is_object($tags))) {
+                $validTags = $this->filterValidTags($tags);
+                if ($mergeTags) {
+                    $oldTags = $this->readJson($newSlug, 'tags') ?? [];
+                    $validTags = array_merge($oldTags, $validTags);
+                }
+                $this->writeJson($newSlug, 'tags', $validTags);
+            }
+
             return [
                 'slug' => $newSlug,
                 'name' => $data['name'] ?? basename($newSlug),
@@ -546,6 +565,17 @@ final class Folder
             $data = array_merge($data, $meta);
         }
         $this->writeJson($slug, 'content', $data);
+
+        // Pokud jsou zadány tags, ulož je do _tags.json
+        if ($tags !== null && (is_array($tags) || is_object($tags))) {
+            $validTags = $this->filterValidTags($tags);
+            if ($mergeTags) {
+                $oldTags = $this->readJson($slug, 'tags') ?? [];
+                $validTags = array_merge($oldTags, $validTags);
+            }
+            $this->writeJson($slug, 'tags', $validTags);
+        }
+
         return [
             'slug' => $slug,
             'name' => $data['name'] ?? basename($slug),
@@ -596,5 +626,30 @@ final class Folder
             'info' => $this->getInfo($newSlug),
             'moved' => true,
         ];
+    }
+
+    /**
+     * Validate tags structure: each tag must have a string 'name',
+     * optional 'description' and 'color' (if present, must be strings).
+     * Returns filtered array of valid tags only.
+     */
+    protected function filterValidTags($tags): array
+    {
+        if (!is_array($tags) && !is_object($tags)) return [];
+        $tagsArr = (array)$tags;
+        $result = [];
+        foreach ($tagsArr as $key => $tag) {
+            if (!is_array($tag) && !is_object($tag)) continue;
+            $tagArr = (array)$tag;
+            if (!isset($tagArr['name']) || !is_string($tagArr['name'])) continue;
+            if (isset($tagArr['description']) && !is_string($tagArr['description'])) continue;
+            if (isset($tagArr['color']) && !is_string($tagArr['color'])) continue;
+            $result[$key] = [
+                'name' => $tagArr['name'],
+            ];
+            if (isset($tagArr['description'])) $result[$key]['description'] = $tagArr['description'];
+            if (isset($tagArr['color'])) $result[$key]['color'] = $tagArr['color'];
+        }
+        return $result;
     }
 }

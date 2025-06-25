@@ -72,4 +72,83 @@ describe("POST action=update", () => {
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(newFolderPath);
     });
+
+    test("update tags in folder (overwrite, not merge)", async () => {
+        // 1. Vytvoř složku s původními tagy
+        const createUrl = "access/restricted_to_guest?action=create";
+        const originalTags = {
+            tag1: { name: "Původní tag", color: "#111" },
+            tag2: { name: "Druhý tag", description: "Popis" }
+        };
+        const createResponse = await apiCallGuest(createUrl, "POST", { name: "Složka pro update tagů", tags: originalTags });
+        expect(createResponse.json.success).toBe(true);
+        const folderPath = createResponse.json.data.result.info.path;
+
+        // 2. Proveď update s novými tagy
+        const updateUrl = folderPath + "?action=update";
+        const newTags = {
+            tag3: { name: "Nový tag", color: "#222" },
+            tag4: { name: "Další nový tag" }
+        };
+        const updateResponse = await apiCallGuest(updateUrl, "POST", { tags: newTags });
+        expect(updateResponse.json.success).toBe(true);
+        // Ověř, že own_tags obsahuje pouze nové tagy
+        expect(updateResponse.json.data.result.info.own_tags).toMatchObject(newTags);
+        expect(Object.keys(updateResponse.json.data.result.info.own_tags)).toHaveLength(2);
+        expect(updateResponse.json.data.result.info.own_tags.tag1).toBeUndefined();
+
+        // 3. Ověř po GET, že staré tagy zmizely a nové zůstaly
+        const infoResponse = await apiCallGuest(folderPath, "GET");
+        expect(infoResponse.json.success).toBe(true);
+        expect(infoResponse.json.data.folder.own_tags).toMatchObject(newTags);
+        expect(Object.keys(infoResponse.json.data.folder.own_tags)).toHaveLength(2);
+        expect(infoResponse.json.data.folder.own_tags.tag1).toBeUndefined();
+
+        // 4. Smazání složky po testu
+        const deleteUrl = folderPath + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(folderPath);
+    });
+
+    test("update tags in folder with mergeTags=true (merge old and new tags)", async () => {
+        // 1. Vytvoř složku s původními tagy
+        const createUrl = "access/restricted_to_guest?action=create";
+        const originalTags = {
+            tag1: { name: "Původní tag", color: "#111" },
+            tag2: { name: "Druhý tag", description: "Popis" }
+        };
+        const createResponse = await apiCallGuest(createUrl, "POST", { name: "Složka pro merge tagů", tags: originalTags });
+        expect(createResponse.json.success).toBe(true);
+        const folderPath = createResponse.json.data.result.info.path;
+
+        // 2. Proveď update s novými tagy a mergeTags=true
+        const updateUrl = folderPath + "?action=update";
+        const newTags = {
+            tag2: { name: "Druhý tag - změněný", color: "#222" }, // přepíše původní tag2
+            tag3: { name: "Nový tag" }
+        };
+        const updateResponse = await apiCallGuest(updateUrl, "POST", { tags: newTags, mergeTags: true });
+        expect(updateResponse.json.success).toBe(true);
+        // Výsledek by měl obsahovat tag1 (původní), tag2 (nový) a tag3 (nový)
+        const expectedTags = {
+            tag1: { name: "Původní tag", color: "#111" },
+            tag2: { name: "Druhý tag - změněný", color: "#222" },
+            tag3: { name: "Nový tag" }
+        };
+        expect(updateResponse.json.data.result.info.own_tags).toMatchObject(expectedTags);
+        expect(Object.keys(updateResponse.json.data.result.info.own_tags)).toHaveLength(3);
+
+        // 3. Ověř po GET, že merge zůstal
+        const infoResponse = await apiCallGuest(folderPath, "GET");
+        expect(infoResponse.json.success).toBe(true);
+        expect(infoResponse.json.data.folder.own_tags).toMatchObject(expectedTags);
+        expect(Object.keys(infoResponse.json.data.folder.own_tags)).toHaveLength(3);
+
+        // 4. Smazání složky po testu
+        const deleteUrl = folderPath + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(folderPath);
+    });
 });
