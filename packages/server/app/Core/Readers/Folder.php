@@ -349,7 +349,7 @@ final class Folder
     /**
      * Create a new folder and write its name and description to _content.json.
      */
-    public function createFolder(string $parentSlug, string $name, ?string $description = null): array
+    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = []): array
     {
         $newSlug = $this->buildSlug($parentSlug, $name);
         $newPath = $this->scanner->getFullPath($newSlug);
@@ -370,6 +370,8 @@ final class Folder
         if ($description !== null) {
             $data['description'] = $description;
         }
+        // Sloučení s meta
+        $data = array_merge($data, $meta);
         file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         return [

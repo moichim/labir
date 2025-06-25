@@ -53,7 +53,17 @@ final class PostPresenter extends BasePresenter
     public function actionCreate(string $name, ?string $description = null): void
     {
         $parentSlug = $this->scanner->getBasePath();
-        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description);
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        $meta = [];
+        if (is_string($requestData) && strlen($requestData) > 0) {
+            $data = json_decode($requestData, true);
+            if (is_array($data) && isset($data['meta'])) {
+                $meta = is_array($data['meta']) ? $data['meta'] : [];
+            }
+        }
+        $this->storeData('request', $requestData);
+        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta);
         $this->storeData('result', $result);
         $this->markSuccess();
         $this->respond();

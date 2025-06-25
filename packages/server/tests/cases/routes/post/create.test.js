@@ -187,3 +187,29 @@ describe( "POST action=delete", () => {
     } );
 
 } );
+
+
+describe( "POST action=create with meta", () => {
+
+    test("create folder with meta data", async () => {
+        const meta = { lat: "50.123", long: "14.456", custom: "test" };
+        const url = getApiCallUrl("create", "access/restricted_to_guest", "Složka s meta");
+        const response = await apiCallGuest(url, "POST", { meta: meta });
+
+        console.log( response.json );
+
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.result).not.toBeUndefined();
+        expect(response.json.data.result.info).not.toBeUndefined();
+
+        // Ověř, že meta data jsou ve výsledku info
+        expect(response.json.data.result.info.data.lat).toBe(meta.lat);
+        expect(response.json.data.result.info.data.long).toBe(meta.long);
+        expect(response.json.data.result.info.data.custom).toBe(meta.custom);
+
+        // Ověř, že name a description zůstaly správně
+        expect(response.json.data.result.info.name).toBe("Složka s meta");
+    });
+
+} );
