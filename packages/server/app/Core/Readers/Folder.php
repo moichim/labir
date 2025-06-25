@@ -486,4 +486,72 @@ final class Folder
         $path = $this->getJsonPath($slug, $type);
         file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
+
+    /**
+     * Update _content.json in a folder. If name, description nebo meta jsou zadány, přepíše je.
+     * Pokud je $move true a $name není null, přejmenuje složku a aktualizuje obsah.
+     */
+    public function updateFolderContent(string $slug, ?string $name = null, ?string $description = null, array $meta = [], bool $move = false): array
+    {
+        $fullPath = $this->scanner->getFullPath($slug);
+        if (!is_dir($fullPath)) {
+            throw new Exception("Folder '$slug' does not exist", 404);
+        }
+
+        // Pokud je move true a name zadáno, přejmenuj složku
+        if ($move && $name !== null) {
+            $parentDir = dirname($slug);
+            $newSlug = ($parentDir === '.' || $parentDir === '') ? $this->webalizeName($name) : $parentDir . DIRECTORY_SEPARATOR . $this->webalizeName($name);
+            $newPath = $this->scanner->getFullPath($newSlug);
+
+            if (is_dir($newPath)) {
+                throw new Exception("Target folder '$newSlug' already exists", 409);
+            }
+
+            // Přejmenuj složku
+            if (!rename($fullPath, $newPath)) {
+                throw new Exception("Failed to rename folder", 500);
+            }
+
+            // Aktualizuj _content.json
+            $data = $this->readJson($newSlug, 'content') ?? [];
+            $data['name'] = $name;
+            if ($description !== null) {
+                $data['description'] = $description;
+            }
+            if (!empty($meta)) {
+                $data = array_merge($data, $meta);
+            }
+            $this->writeJson($newSlug, 'content', $data);
+
+            return [
+                'slug' => $newSlug,
+                'name' => $data['name'] ?? basename($newSlug),
+                'description' => $data['description'] ?? null,
+                'info' => $this->getInfo($newSlug),
+                'moved' => true,
+                'oldSlug' => $slug,
+            ];
+        }
+
+        // Jinak pouze aktualizuj _content.json
+        $data = $this->readJson($slug, 'content') ?? [];
+        if ($name !== null) {
+            $data['name'] = $name;
+        }
+        if ($description !== null) {
+            $data['description'] = $description;
+        }
+        if (!empty($meta)) {
+            $data = array_merge($data, $meta);
+        }
+        $this->writeJson($slug, 'content', $data);
+        return [
+            'slug' => $slug,
+            'name' => $data['name'] ?? basename($slug),
+            'description' => $data['description'] ?? null,
+            'info' => $this->getInfo($slug),
+            'moved' => false,
+        ];
+    }
 }

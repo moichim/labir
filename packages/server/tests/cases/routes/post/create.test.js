@@ -7,13 +7,9 @@ const getApiCallUrl = (action, folderName, newFolderName, description) => {
 }
 
 describe( "POST action=create", () => {
-
-
     test( "unauthorised user should not be allowed", async () => {
-
-        const url = getApiCallUrl( "create", "another_folder", "Pracovní název složky" );
-
-        const response = await apiCall( "http://localhost:8080/" + url, "POST" );
+        const url = "another_folder?action=create";
+        const response = await apiCall( "http://localhost:8080/" + url, "POST", { name: "Pracovní název složky" } );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();
@@ -24,9 +20,8 @@ describe( "POST action=create", () => {
 
     test( "guest should not be allowed to rename a restricted folder", async () => {
 
-        const url = getApiCallUrl( "create", "access/restricted", "Pracovní název složky" );
-
-        const response = await apiCallGuest( url, "POST" );
+        const url = "access/restricted?action=create";
+        const response = await apiCallGuest( url, "POST", { name: "Pracovní název složky" } );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();
@@ -37,9 +32,8 @@ describe( "POST action=create", () => {
 
     test( "creation should fail when the folder already exists", async () => {
 
-        const url = getApiCallUrl( "create", "access/restricted_to_guest", "Název nové složky", "Popiska nové složky" );
-
-        const response = await apiCallGuest( url, "POST" );
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest( url, "POST", { name: "Název nové složky", description: "Popiska nové složky" } );
 
         expect( response.json.success ).toBe( false );
         expect( response.json.data ).toBeUndefined();
@@ -50,9 +44,8 @@ describe( "POST action=create", () => {
 
     test( "creation and deletion response data structure", async () => {
 
-        const url = getApiCallUrl( "create", "access/restricted_to_guest", "Temporary folder for deletion" );
-
-        const response = await apiCallGuest( url, "POST" );
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest( url, "POST", { name: "Temporary folder for deletion" } );
 
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
@@ -80,8 +73,8 @@ describe( "POST action=delete", () => {
 
     test( "create and delete a folder", async () => {
 
-        const createUrl = getApiCallUrl( "create", "access/restricted_to_guest", "Temporary folder for deletion", "A description of a new folder" );
-        const createResponse = await apiCallGuest( createUrl, "POST" );
+        const createUrl = "access/restricted_to_guest?action=create";
+        const createResponse = await apiCallGuest( createUrl, "POST", { name: "Temporary folder for deletion", description: "A description of a new folder" } );
 
         expect( createResponse.json.success ).toBe( true );
         expect( createResponse.json.data ).not.toBeUndefined();
@@ -142,8 +135,8 @@ describe( "POST action=delete", () => {
 
     test( "create a structure with subfolders and delete it back again", async () => {
 
-        const createUrl = getApiCallUrl( "create", "access/restricted_to_guest", "Temporary folder with subfolders" );
-        const createResponse = await apiCallGuest( createUrl, "POST" );
+        const createUrl = "access/restricted_to_guest?action=create";
+        const createResponse = await apiCallGuest( createUrl, "POST", { name: "Temporary folder with subfolders" } );
         
         expect( createResponse.json.success ).toBe( true );
         expect( createResponse.json.data ).not.toBeUndefined();
@@ -157,8 +150,8 @@ describe( "POST action=delete", () => {
         const subfolders = ["Subfolder 1", "Subfolder 2", "Subfolder 3"];
         const subfolderResponses = [];
         for (const subfolderName of subfolders) {
-            const subfolderCreateUrl = getApiCallUrl( "create", createResponse.json.data.result.info.path, subfolderName );
-            const subfolderCreateResponse = await apiCallGuest( subfolderCreateUrl, "POST" );
+            const subfolderCreateUrl = createResponse.json.data.result.info.path + "?action=create";
+            const subfolderCreateResponse = await apiCallGuest( subfolderCreateUrl, "POST", { name: subfolderName } );
             expect( subfolderCreateResponse.json.success ).toBe( true );
             expect( subfolderCreateResponse.json.data ).not.toBeUndefined();
             expect( subfolderCreateResponse.json.data.result ).not.toBeUndefined();
@@ -190,13 +183,10 @@ describe( "POST action=delete", () => {
 
 
 describe( "POST action=create with meta", () => {
-
     test("create folder with meta data", async () => {
         const meta = { lat: "50.123", long: "14.456", custom: "test" };
-        const url = getApiCallUrl("create", "access/restricted_to_guest", "Složka s meta");
-        const response = await apiCallGuest(url, "POST", { meta: meta });
-
-        console.log( response.json );
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest(url, "POST", { name: "Složka s meta", meta: meta });
 
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
@@ -210,6 +200,42 @@ describe( "POST action=create with meta", () => {
 
         // Ověř, že name a description zůstaly správně
         expect(response.json.data.result.info.name).toBe("Složka s meta");
-    });
 
-} );
+        // Smazání složky po testu
+        const deleteUrl = response.json.data.result.info.path + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+});
+
+
+describe( "POST action=create with meta, name, description in JSON", () => {
+    test("create folder with meta, name, description in JSON body", async () => {
+        const meta = { lat: "50.123", long: "14.456", custom: "test" };
+        const name = "Složka s meta v JSON";
+        const description = "Popis složky v JSON";
+        const url = "access/restricted_to_guest?action=create";
+        const response = await apiCallGuest(url, "POST", { name, description, meta });
+
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).not.toBeUndefined();
+        expect(response.json.data.result).not.toBeUndefined();
+        expect(response.json.data.result.info).not.toBeUndefined();
+
+        // Ověř, že meta data jsou ve výsledku info
+        expect(response.json.data.result.info.data.lat).toBe(meta.lat);
+        expect(response.json.data.result.info.data.long).toBe(meta.long);
+        expect(response.json.data.result.info.data.custom).toBe(meta.custom);
+
+        // Ověř, že name a description jsou z JSON
+        expect(response.json.data.result.info.name).toBe(name);
+        expect(response.json.data.result.info.description).toBe(description);
+
+        // Smazání složky po testu
+        const deleteUrl = response.json.data.result.info.path + "?action=delete";
+        const deleteResponse = await apiCallGuest(deleteUrl, "POST");
+        expect(deleteResponse.json.success).toBe(true);
+        expect(deleteResponse.json.data.result.deleted).toBe(response.json.data.result.info.path);
+    });
+});
