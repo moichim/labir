@@ -41,7 +41,6 @@ final class Folder
 
     public function getInfo(string $path)
     {
-        $this->throwIfNotExists($path);
 
         // Zjisti protected přes getFolderAccess
         $protected = false;
@@ -73,8 +72,7 @@ final class Folder
         }
 
         try {
-
-            $content = $this->scanner->file->getNeonContentByRelativePath($path, "content");
+            $content = $this->readJson($path, "content");
             if ($content) {
                 if (isset($content["name"])) {
                     $info["name"] = $content["name"];
@@ -145,14 +143,6 @@ final class Folder
         }
 
         return count($subdirs) > 0 ? $subdirs : false;
-    }
-
-
-    protected function throwIfNotExists(string $path)
-    {
-        if (! $this->exists($path)) {
-            throw new Exception("Folder '$path' does not exist", 404);
-        }
     }
 
 
@@ -289,64 +279,6 @@ final class Folder
     }
 
     /**
-     * Rename a folder and update its name in _access.json.
-     */
-    public function renameFolder(string $slug, string $name): array
-    {
-        $parentDir = dirname($slug);
-        $oldPath = $this->scanner->getFullPath($slug);
-        $newSlug = ($parentDir === '.' || $parentDir === '') ? $this->webalizeName($name) : $parentDir . DIRECTORY_SEPARATOR . $this->webalizeName($name);
-        $newPath = $this->scanner->getFullPath($newSlug);
-
-        if (!is_dir($oldPath)) {
-            throw new Exception("Folder '$slug' does not exist", 404);
-        }
-        if (is_dir($newPath)) {
-            throw new Exception("Target folder '$newSlug' already exists", 409);
-        }
-
-        // Přejmenuj složku
-        if (!rename($oldPath, $newPath)) {
-            throw new Exception("Failed to rename folder", 500);
-        }
-
-        // Aktualizuj _access.json (nebo access.neon, podle implementace)
-        $accessPath = $this->scanner->getFullPath($newSlug . DIRECTORY_SEPARATOR . 'access.neon');
-        if (is_file($accessPath) && is_writable($accessPath)) {
-            $content = file_get_contents($accessPath);
-            if ($content !== false) {
-                // Předpokládáme, že je to NEON, ale pro jednoduchost použijeme regex
-                // Pokud je tam "name: ..." tak ho přepíšeme, jinak přidáme
-                if (preg_match('/^name\s*:/m', $content)) {
-                    $content = preg_replace('/^name\s*:.*$/m', 'name: ' . $name, $content);
-                } else {
-                    $content = "name: $name\n" . $content;
-                }
-                file_put_contents($accessPath, $content);
-            }
-        }
-
-        // Aktualizuj _content.json
-        $contentJsonPath = $this->scanner->getFullPath($newSlug . DIRECTORY_SEPARATOR . '_content.json');
-        if (is_file($contentJsonPath) && is_writable($contentJsonPath)) {
-            $json = file_get_contents($contentJsonPath);
-            if ($json !== false) {
-                $data = json_decode($json, true);
-                if (is_array($data)) {
-                    $data['name'] = $name;
-                    file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                }
-            }
-        }
-
-        return [
-            'oldSlug' => $slug,
-            'newSlug' => $newSlug,
-            'newName' => $name,
-        ];
-    }
-
-    /**
      * Create a new folder and write its name and description to _content.json.
      */
     public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = [], $tags = null): array
@@ -473,7 +405,7 @@ final class Folder
     /**
      * Read and decode a JSON file from a folder.
      */
-    protected function readJson(string $slug, string $type): ?array
+    public function readJson(string $slug, string $type): ?array
     {
         $path = $this->getJsonPath($slug, $type);
         if (!is_file($path) || !is_readable($path)) {

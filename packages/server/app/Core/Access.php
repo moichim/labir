@@ -111,7 +111,7 @@ final class Access
         // Nový cyklus: vždy zkusíme i root (prázdný string)
         while (true) {
 
-            $accessData = $this->scanner->file->getNeonContentByRelativePath($currentPath, "access");
+            $accessData = $this->scanner->folder->readJson($currentPath, "access");
 
             $paths[ $currentPath ] = $accessData;
 

@@ -21,39 +21,5 @@ final class File {
 
     }
 
-    public function existsByRelativePath(
-        string $path,
-        string $fileName
-    ): bool {
-        $fullPath = $this->scanner->getFullPath( $path ) . DIRECTORY_SEPARATOR . $fileName;
-        return $this->existsByFullPath( $fullPath );
-    }
-
-    public function getNeonContentByRelativePath(
-        string $path,
-        string $neonName
-    ): array|false {
-
-        $filePath = $this->scanner->getFullPath( $path ) . DIRECTORY_SEPARATOR . "_" . $neonName . ".json";
-
-        if ( $this->existsByFullPath( $filePath ) ) {
-
-            $neonString = file_get_contents( $filePath );
-
-            try {
-
-                $neonData = json_decode( $neonString, true );
-
-                if ( is_array( $neonData ) ) {
-                    return $neonData;
-                }
-
-            } catch ( \Throwable $e ) {}
-
-        }
-
-        return false;
-
-    }
 
 }
