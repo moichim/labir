@@ -1,0 +1,4 @@
+show: true
+users:
+  - name: Pepík
+    password: some password

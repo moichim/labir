@@ -1,0 +1,9 @@
+{
+  "show": false,
+  "users": [
+    {
+      "name": "guest",
+      "password": "querty"
+    }
+  ]
+}

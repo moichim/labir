@@ -1,0 +1,38 @@
+{
+    "timestamp": 1743163299890,
+    "analyses": [
+        "removeAnalysis2_81pi5m4t",
+        "František je borec",
+        "Toto je povolený tag.",
+        "removeAnalysis2_9nziy7oe",
+        "removeAnalysis2_rhbtpema",
+        "removeAnalysis2_p48734sx",
+        "removeAnalysis2_3xmmmfp6",
+        "removeAnalysis2_y1ztqwtw",
+        "removeAnalysis2_ncey6ajv",
+        "removeAnalysis2_mdnyh3hu",
+        "removeAnalysis2_e8yzrdyn",
+        "removeAnalysis2_iqicagdh",
+        "removeAnalysis2_44q9wjdv",
+        "removeAnalysis2_hmsk2dd8"
+    ],
+    "uploaded": 1750857558000,
+    "tags": [
+        "removeTag2_81pi5m4t",
+        "Tohle se nesmí;alert(1))",
+        "obsah Mimo obsah.",
+        "removeTag2_9nziy7oe",
+        "removeTag2_rhbtpema",
+        "removeTag2_p48734sx",
+        "removeTag2_3xmmmfp6",
+        "removeTag2_y1ztqwtw",
+        "removeTag2_ncey6ajv",
+        "removeTag2_mdnyh3hu",
+        "removeTag2_e8yzrdyn",
+        "removeTag2_iqicagdh",
+        "removeTag2_44q9wjdv",
+        "removeTag2_hmsk2dd8"
+    ],
+    "label": "A B C D E F G",
+    "description": "Popiska zůstane Toto by mělo zůstat.odstavec Mimo odstavec."
+}

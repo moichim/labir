@@ -1,0 +1,13 @@
+{
+  "show": false,
+  "users": [
+    {
+      "name": "root",
+      "password": "abcdefghijk"
+    },
+    {
+      "name": "guest",
+      "password": "perokleslo"
+    }
+  ]
+}
