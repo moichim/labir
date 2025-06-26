@@ -46,6 +46,7 @@ final class PostPresenter extends BasePresenter
         $description = null;
         $meta = [];
         $tags = null;
+        $access = null;
 
         // Kontrola data v $post
         if (is_string($requestData) && strlen($requestData) > 0) {
@@ -72,13 +73,17 @@ final class PostPresenter extends BasePresenter
                 if (isset($data['tags'])) {
                     $tags = $data['tags'];
                 }
+                // Nově: access je volitelný objekt
+                if (isset($data['access']) && is_array($data['access'])) {
+                    $access = $data['access'];
+                }
             }
         } else {
             throw new Exception( 'Invalid request body format. Expected JSON string.', 400);
         }
         
         $this->storeData('request', $requestData);
-        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta, $tags);
+        $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta, $tags, $access);
         $this->storeData('result', $result);
         $this->markSuccess();
         $this->respond();

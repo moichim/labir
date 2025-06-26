@@ -235,12 +235,6 @@ describe("POST action=updatefile", () => {
             for (const key in dangerous) {
                 expect(val).not.toContain(dangerous[key].danger);
 
-                console.log( {
-                    val, 
-                    submitted: dangerous[key].submit, 
-                    danger: dangerous[key].danger 
-                } );
-
                 // Ověř, že neobsahuje koncové tagy
                 if (["a", "p", "div", "img", "iframe", "script"].includes(key)) {
                     expect(val).not.toMatch(new RegExp(`</?${key}[^>]*>`, 'i'));

@@ -166,4 +166,26 @@ final class GetPresenter extends BasePresenter
 
 
 
+    /**
+     * Vrátí strom složek, ke kterým má aktuální uživatel přístup (usertree) a metadata uživatele.
+     */
+    public function actionCurrentusertree(?string $path = null): void
+    {
+        $identity = $this->scanner->authorisation->getIdentity();
+        if (!$identity || !$identity["user"]) {
+            throw new Exception("You must be logged in to access this resource.", 401);
+        }
+        $login = $identity["user"];
+        $usertree = $this->scanner->folder->getUserFolders($login);
+        $user = $this->scanner->access->getUser($login);
+        if ($user) {
+            unset($user["access"], $user["password"], $user["email"]);
+            $user["entity"] = "user";
+        }
+        $this->storeData("tree", $usertree);
+        $this->storeData("user", $user);
+        $this->markSuccess();
+        $this->respond();
+    }
+
 }

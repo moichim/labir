@@ -1,6 +1,6 @@
 {
-    "name": "Jméno složky",
-    "description": "Popiska prde",
+    "name": "Zakázaná složka",
+    "description": "Nějaká složka, kam by neměl mít přístup žádný uživatel.",
     "lat": "smrt",
     "long": "prd"
 }

@@ -10,10 +10,14 @@ final class Access
 {
     protected string $currentPath;
     protected array $currentAccess;
+    protected array $users = [];
+    protected array $folders = [];
 
     public function __construct(
         protected Scanner $scanner
     ) {
+        $this->users = $this->getUsers();
+        $this->folders = $this->usersToFolders($this->users);
 
         // Get the current path
         $currentPath = $this->scanner->getBasePath();
@@ -23,6 +27,45 @@ final class Access
 
         // Store the current path
         $this->currentPath = $currentPath;
+    }
+
+    public function getUsers(): array
+    {
+
+        if ( count( $this->users ) > 0 ) {
+            return $this->users;
+        }
+
+        $usersFile = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . '_users.json';
+        if (file_exists($usersFile)) {
+            $json = file_get_contents($usersFile);
+            $data = json_decode($json, true);
+            if (isset($data['users']) && is_array($data['users'])) {
+                return $data['users'];
+            }
+        }
+        return [];
+    }
+
+    public function getFolders(): array {
+        return $this->folders;
+    }
+
+    protected function usersToFolders(array $users): array
+    {
+        $folders = [];
+        foreach ($users as $username => $user) {
+            if (isset($user['access']) && is_array($user['access'])) {
+                foreach ($user['access'] as $folder) {
+                    $folderKey = trim($folder, '/');
+                    if (!isset($folders[$folderKey])) {
+                        $folders[$folderKey] = [];
+                    }
+                    $folders[$folderKey][$username] = $user;
+                }
+            }
+        }
+        return $folders;
     }
 
     public function validateCurrentFolder()
@@ -101,48 +144,61 @@ final class Access
             return $this->currentAccess;
         }
 
-        $users = [];
         $currentPath = trim($path, "/\\");
         $paths = [];
         $counter = 0;
-
         $show = true;
+        $users = [];
+        $accepts_files = false;
+        $may_create_subfolders = false;
 
-        // Nový cyklus: vždy zkusíme i root (prázdný string)
+        // Zjisti show, accepts_files a may_create_subfolders z access.json v dané složce (pouze aktuální složka)
+        $accessData = $this->scanner->folder->readJson($currentPath, "access");
+        $paths[$currentPath] = $accessData;
+        if ($accessData && is_array($accessData)) {
+            $counter++;
+            if (isset($accessData["show"]) && ($accessData["show"] === false)) {
+                $show = false;
+            }
+            if (array_key_exists("accepts_files", $accessData)) {
+                $accepts_files = (bool)$accessData["accepts_files"];
+            } else {
+                $accepts_files = false;
+            }
+            if (array_key_exists("may_create_subfolders", $accessData)) {
+                $may_create_subfolders = (bool)$accessData["may_create_subfolders"];
+            } else {
+                $may_create_subfolders = false;
+            }
+        }
+
+        // Zjisti show z access.json v nadřazených složkách (ale už neřeš accepts_files ani may_create_subfolders)
+        $searchPath = dirname($currentPath);
         while (true) {
-
-            $accessData = $this->scanner->folder->readJson($currentPath, "access");
-
-            $paths[ $currentPath ] = $accessData;
-
+            if ($searchPath === "" || $searchPath === "." || $searchPath === DIRECTORY_SEPARATOR || $searchPath === null) {
+                break;
+            }
+            $accessData = $this->scanner->folder->readJson($searchPath, "access");
+            $paths[$searchPath] = $accessData;
             if ($accessData && is_array($accessData)) {
-
                 $counter++;
-
-                if (isset($accessData["users"])) {
-                    foreach ($accessData["users"] as $user) {
-                        if (!isset($users[$user["name"]])) {
-                            $this->storeOrOverrideUser($users, $user);
-                        }
-                    }
-                }
-
                 if (isset($accessData["show"]) && ($accessData["show"] === false)) {
                     $show = false;
                 }
             }
-
-
-
-            // Pokud jsme už v rootu, skonči
-            if ($currentPath === "" || $currentPath === "." || $currentPath === DIRECTORY_SEPARATOR || $currentPath === null) {
-                break;
+            $searchPath = dirname($searchPath);
+            if ($searchPath === "." || $searchPath === DIRECTORY_SEPARATOR) {
+                $searchPath = "";
             }
+        }
 
-            $currentPath = dirname($currentPath);
-            // dirname('') vrací '.', takže cyklus skončí v dalším kole
-            if ($currentPath === "." || $currentPath === DIRECTORY_SEPARATOR) {
-                $currentPath = "";
+        // Najdi uživatele podle cesty v $folders (shoda začátku klíče)
+        foreach ($this->folders as $folderKey => $folderUsers) {
+            // Pokud je klíč prázdný, je to root a platí pro všechny složky
+            if ($folderKey === '' || str_starts_with($currentPath, $folderKey)) {
+                foreach ($folderUsers as $username => $user) {
+                    $users[$username] = $user;
+                }
             }
         }
 
@@ -150,7 +206,9 @@ final class Access
             "show" => $show,
             "users" => $users,
             "paths" => $paths,
-            "counter" => $counter
+            "counter" => $counter,
+            "accepts_files" => $accepts_files,
+            "may_create_subfolders" => $may_create_subfolders
         ];
     }
 
@@ -159,8 +217,8 @@ final class Access
     {
 
         if (
-            isset($user["name"])
-            && $user["name"] !== ""
+            isset($user["login"])
+            && $user["login"] !== ""
             && isset($user["password"])
             && strlen($user["password"]) > 5
         ) {
@@ -178,7 +236,7 @@ final class Access
             return $users;
         }
 
-        $users[$user["name"]] = $user;
+        $users[$user["login"]] = $user;
 
         return $users;
     }
@@ -196,9 +254,9 @@ final class Access
             return true;
         }
 
-        // If the folder is invisible, check the ucrrent user
+        // If the folder is invisible, check the current user
         if (array_key_exists($user, $access["users"])) {
-            return $access["users"][$user]["name"] === $user;
+            return $access["users"][$user]["login"] === $user;
         }
 
         // Pokud je složka skrytá a uživatel není zadán, přístup odepři
@@ -217,5 +275,25 @@ final class Access
         $access = $this->getFolderAccess($path);
         // Uživatel musí být explicitně uveden v users (v této nebo nadřazené složce)
         return isset($user) && $user !== '' && array_key_exists($user, $access["users"]);
+    }
+
+    /**
+     * Vrátí uživatele podle loginu, bez hesla a access (pokud není withAccess true)
+     * Přidá is_root: true pokud má uživatel přístup ke kořenové složce (tj. má v access '/').
+     */
+    public function getUser(string $login, bool $withAccess = false): ?array
+    {
+        $users = $this->getUsers();
+        if (!isset($users[$login])) {
+            return null;
+        }
+        $user = $users[$login];
+        unset($user["password"]);
+        if (!$withAccess) {
+            unset($user["access"]);
+        }
+        // is_root: true pokud má access na '/'
+        $user["is_root"] = isset($users[$login]["access"]) && in_array("/", $users[$login]["access"], true);
+        return $user;
     }
 }

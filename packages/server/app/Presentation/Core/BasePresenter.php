@@ -76,7 +76,9 @@ abstract class BasePresenter extends Presenter
             "class" => get_class($this),
             "params" => $params,
             "user" => $this->scanner->authorisation->getIdentity(),
-            "loggedIn" => $this->scanner->authorisation->isLoggedin()
+            "loggedIn" => $this->scanner->authorisation->isLoggedin(),
+            // "users" => $this->scanner->access->getUsers(),
+            // "folders" => $this->scanner->access->getFolders()
             // "access" => $this->scanner->access->getFolderAccess($this->path)
         ]);
 

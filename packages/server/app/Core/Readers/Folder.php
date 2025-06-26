@@ -49,6 +49,8 @@ final class Folder
             if (is_array($access) && array_key_exists('show', $access) && $access['show'] === false) {
                 $protected = true;
             }
+            $accepts_files = isset($access['accepts_files']) ? $access['accepts_files'] : false;
+            $may_create_subfolders = isset($access['may_create_subfolders']) ? $access['may_create_subfolders'] : false;
         }
 
         $info = [
@@ -60,7 +62,9 @@ final class Folder
             "description" => null,
             "data" => [],
             "lrc_count" => $this->getFileCount($path),
-            "protected" => $protected
+            "protected" => $protected,
+            "accepts_files" => $accepts_files,
+            "may_create_subfolders" => $may_create_subfolders
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -281,19 +285,26 @@ final class Folder
     /**
      * Create a new folder and write its name and description to _content.json.
      */
-    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = [], $tags = null): array
+    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = [], $tags = null, ?array $access = null): array
     {
+        // Ověření práv: uživatel musí být root, nebo složka musí povolovat podsložky
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        $userMeta = $user ? $this->scanner->access->getUser($user) : null;
+        $isRoot = $userMeta && isset($userMeta["is_root"]) && $userMeta["is_root"];
+        $parentAccess = $this->scanner->access->getFolderAccess($parentSlug);
+        $mayCreate = isset($parentAccess["may_create_subfolders"]) ? $parentAccess["may_create_subfolders"] : false;
+        if (!$isRoot && !$mayCreate) {
+            throw new Exception("You do not have permission to create subfolders in this folder.", 403);
+        }
         $newSlug = $this->buildSlug($parentSlug, $name);
         $newPath = $this->scanner->getFullPath($newSlug);
-
         if (is_dir($newPath)) {
             throw new Exception("Target folder '$newSlug' already exists", 409);
         }
-
         if (!mkdir($newPath, 0777, true)) {
             throw new Exception("Failed to create folder", 500);
         }
-
         // Vytvoř _content.json
         $contentJsonPath = $newPath . DIRECTORY_SEPARATOR . '_content.json';
         $data = [
@@ -304,17 +315,30 @@ final class Folder
         }
         // Sloučení s meta
         $data = array_merge($data, $meta);
-        file_put_contents($contentJsonPath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
+        // Zápis přes scanner->json
+        $this->scanner->json->write($contentJsonPath, $data);
         // Pokud jsou zadány tags, validuj a ulož je do _tags.json
         if ($tags !== null && (is_array($tags) || is_object($tags))) {
             $validTags = $this->filterValidTags($tags);
             if (!empty($validTags)) {
                 $tagsJsonPath = $newPath . DIRECTORY_SEPARATOR . '_tags.json';
-                file_put_contents($tagsJsonPath, json_encode($validTags, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                $this->scanner->json->write($tagsJsonPath, $validTags);
             }
         }
-
+        // Pokud je zadán access, validuj a vytvoř _access.json
+        if ($access !== null && is_array($access)) {
+            $allowedKeys = ['show', 'accepts_files', 'may_create_subfolders'];
+            $filteredAccess = [];
+            foreach ($access as $key => $value) {
+                if (in_array($key, $allowedKeys, true) && is_bool($value)) {
+                    $filteredAccess[$key] = $value;
+                }
+            }
+            if (!empty($filteredAccess)) {
+                $accessJsonPath = $newPath . DIRECTORY_SEPARATOR . '_access.json';
+                $this->scanner->json->write($accessJsonPath, $filteredAccess);
+            }
+        }
         return [
             'slug' => $newSlug,
             'name' => $name,
@@ -535,6 +559,14 @@ final class Folder
         if (!$this->scanner->access->userMayWriteToFolder($targetParentSlug, $user)) {
             throw new Exception("You do not have write access to the target parent folder", 403);
         }
+        // Kontrola, zda cílová složka umožňuje vytváření podsložek nebo je uživatel root
+        $userMeta = $user ? $this->scanner->access->getUser($user) : null;
+        $isRoot = $userMeta && isset($userMeta["is_root"]) && $userMeta["is_root"];
+        $targetAccess = $this->scanner->access->getFolderAccess($targetParentSlug);
+        $mayCreate = isset($targetAccess["may_create_subfolders"]) ? $targetAccess["may_create_subfolders"] : false;
+        if (!$isRoot && !$mayCreate) {
+            throw new Exception("You do not have permission to create subfolders in the target folder.", 403);
+        }
         $folderName = basename($slug);
         $newSlug = rtrim($targetParentSlug, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $folderName;
         $newPath = $this->scanner->getFullPath($newSlug);
@@ -588,5 +620,52 @@ final class Folder
         }
         // Vytvoří objekt Lrc pouze pokud je to .lrc soubor
         return Lrc::createIfExists($this->scanner, $path, $fileName);
+    }
+
+    /**
+     * Vrátí všechny složky (a jejich podstromy), ke kterým má uživatel přístup podle access.
+     * Výstup je pole struktur s klíči: path, api, name, protected, subfolders
+     */
+    public function getUserFolders(string $login): array
+    {
+        $user = $this->scanner->access->getUser($login, true);
+        if (!$user || !isset($user['access']) || !is_array($user['access'])) {
+            return [];
+        }
+        $result = [];
+        foreach ($user['access'] as $folderPath) {
+            $folderPath = trim($folderPath, '/');
+            $result[] = $this->getFolderTree($folderPath, $login);
+        }
+        return $result;
+    }
+
+    /**
+     * Rekurzivně načte složku a všechny její podsložky do stromové struktury
+     */
+    protected function getFolderTree(string $path, string $login): array
+    {
+        $info = $this->getInfo($path);
+        $info['subfolders'] = [];
+        $subdirs = $this->getSubdirectories($path, $login);
+        if ($subdirs && is_array($subdirs)) {
+            foreach ($subdirs as $sub) {
+                $info['subfolders'][] = $this->getFolderTree($sub['path'], $login);
+            }
+        }
+        return [
+            'entity' => 'treeitem',
+            'path' => $info['path'],
+            'api' => $info['api'],
+            'name' => $info['name'],
+            'slug' => $info['slug'],
+            'description' => $info['description'],
+            'lrc_count' => $info['lrc_count'],
+            'protected' => $info['protected'],
+            'accepts_files' => $info['accepts_files'],
+            'may_create_subfolders' => $info['may_create_subfolders'],
+            'metadata' => $info['data'],
+            'subfolders' => $info['subfolders'],
+        ];
     }
 }

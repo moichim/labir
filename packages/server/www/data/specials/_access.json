@@ -1,3 +1,4 @@
 {
-  "show": true
+  "show": true,
+  "may_create_subfolders": true
 }

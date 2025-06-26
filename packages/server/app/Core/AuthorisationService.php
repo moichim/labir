@@ -151,7 +151,6 @@ class AuthorisationService
 
     public function getIdentity(): false|array
     {
-
         if (
             $this->section->offsetExists("user") === false
             || $this->section->offsetExists("path") === false
@@ -160,10 +159,14 @@ class AuthorisationService
             return false;
         }
 
+        $userLogin = $this->section->get("user");
+        $meta = $this->scanner->access->getUser($userLogin);
+
         return [
-            "user" => $this->section->get("user"),
+            "user" => $userLogin,
             "path" => $this->section->get("path"),
-            "token" => $this->section->get("token")
+            "token" => $this->section->get("token"),
+            "meta" => $meta
         ];
     }
 }

@@ -1,13 +1,4 @@
 {
   "show": true,
-  "users": [
-    {
-      "name": "František Dobrota",
-      "password": "abcdefghijk"
-    },
-    {
-      "name": "",
-      "password": "abcdefghijk"
-    }
-  ]
+  "may_create_subfolders": true
 }

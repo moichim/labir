@@ -1,9 +1,4 @@
 {
   "show": false,
-  "users": [
-    {
-      "name": "guest",
-      "password": "querty"
-    }
-  ]
+  "may_create_subfolders": true
 }
