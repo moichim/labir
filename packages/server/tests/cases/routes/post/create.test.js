@@ -147,7 +147,7 @@ describe( "POST action=delete", () => {
     test( "create a structure with subfolders and delete it back again", async () => {
 
         const createUrl = "access/restricted_to_guest?action=create";
-        const createResponse = await apiCallGuest( createUrl, "POST", { name: "Temporary folder with subfolders", access: { may_create_subfolders: true } } );
+        const createResponse = await apiCallGuest( createUrl, "POST", { name: "Temporary folder with subfolders", access: { may_have_files: true } } );
         
         expect( createResponse.json.success ).toBe( true );
         expect( createResponse.json.data ).not.toBeUndefined();

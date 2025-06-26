@@ -73,7 +73,7 @@ final class PostPresenter extends BasePresenter
                 if (isset($data['tags'])) {
                     $tags = $data['tags'];
                 }
-                // Nově: access je volitelný objekt
+                // Nově: access je volitelný objekt, obsahuje show a may_have_files
                 if (isset($data['access']) && is_array($data['access'])) {
                     $access = $data['access'];
                 }

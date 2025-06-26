@@ -122,7 +122,7 @@ final class Access
                     $identity = $this->scanner->authorisation->getIdentity();
                     $user = $identity ? $identity["user"] : null;
 
-                    if (!$this->userMayWriteToFolder($this->currentPath, $user)) {
+                    if (!$this->userMayReadFolder($this->currentPath, $user)) {
                         throw new Exception("You do not have write access to this folder", 403);
                     }
                 }
@@ -149,10 +149,9 @@ final class Access
         $counter = 0;
         $show = true;
         $users = [];
-        $accepts_files = false;
-        $may_create_subfolders = false;
+        $may_have_files = false;
 
-        // Zjisti show, accepts_files a may_create_subfolders z access.json v dané složce (pouze aktuální složka)
+        // Zjisti show a may_have_files z access.json v dané složce (pouze aktuální složka)
         $accessData = $this->scanner->folder->readJson($currentPath, "access");
         $paths[$currentPath] = $accessData;
         if ($accessData && is_array($accessData)) {
@@ -160,19 +159,14 @@ final class Access
             if (isset($accessData["show"]) && ($accessData["show"] === false)) {
                 $show = false;
             }
-            if (array_key_exists("accepts_files", $accessData)) {
-                $accepts_files = (bool)$accessData["accepts_files"];
+            if (array_key_exists("may_have_files", $accessData)) {
+                $may_have_files = (bool)$accessData["may_have_files"];
             } else {
-                $accepts_files = false;
-            }
-            if (array_key_exists("may_create_subfolders", $accessData)) {
-                $may_create_subfolders = (bool)$accessData["may_create_subfolders"];
-            } else {
-                $may_create_subfolders = false;
+                $may_have_files = false;
             }
         }
 
-        // Zjisti show z access.json v nadřazených složkách (ale už neřeš accepts_files ani may_create_subfolders)
+        // Zjisti show z access.json v nadřazených složkách (ale už neřeš may_have_files)
         $searchPath = dirname($currentPath);
         while (true) {
             if ($searchPath === "" || $searchPath === "." || $searchPath === DIRECTORY_SEPARATOR || $searchPath === null) {
@@ -207,8 +201,7 @@ final class Access
             "users" => $users,
             "paths" => $paths,
             "counter" => $counter,
-            "accepts_files" => $accepts_files,
-            "may_create_subfolders" => $may_create_subfolders
+            "may_have_files" => $may_have_files
         ];
     }
 
@@ -268,13 +261,24 @@ final class Access
         return false;
     }
 
-    public function userMayWriteToFolder(
-        string $path,
-        string $user
-    ): bool {
+    /**
+     * Zjistí, zda uživatel může spravovat složky v dané složce (tj. vytvářet/přejmenovávat/mazat podsložky).
+     * Uživatel musí být uveden v seznamu uživatelů a složka nesmí mít may_have_files=true.
+     */
+    public function userMayManageFoldersIn(string $path, string $user): bool
+    {
         $access = $this->getFolderAccess($path);
-        // Uživatel musí být explicitně uveden v users (v této nebo nadřazené složce)
-        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]);
+        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]) && ($access["may_have_files"] === false);
+    }
+
+    /**
+     * Zjistí, zda uživatel může spravovat soubory v dané složce (tj. nahrávat/mazat soubory).
+     * Uživatel musí být uveden v seznamu uživatelů a složka musí mít may_have_files=true.
+     */
+    public function userMayManageFilesIn(string $path, string $user): bool
+    {
+        $access = $this->getFolderAccess($path);
+        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]) && ($access["may_have_files"] === true);
     }
 
     /**

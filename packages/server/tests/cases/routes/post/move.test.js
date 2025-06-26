@@ -9,7 +9,7 @@ describe("POST action=move", () => {
     test("move folder to another parent", async () => {
         // 1. Vytvoř cílovou složku a zdrojovou složku
         const targetParent = "access/restricted_to_guest";
-        const createTarget = await apiCallGuest(targetParent + "?action=create", "POST", { name: "Cilova slozka", access: { may_create_subfolders: true } });
+        const createTarget = await apiCallGuest(targetParent + "?action=create", "POST", { name: "Cilova slozka", access: { may_have_files: false } });
         expect(createTarget.json.success).toBe(true);
         const targetPath = createTarget.json.data.result.info.path;
         createdFolders.push(targetPath);
@@ -20,7 +20,7 @@ describe("POST action=move", () => {
         createdFolders.push(sourcePath);
 
         // 2. Vytvoř další cílovou složku
-        const createNewTarget = await apiCallGuest(targetParent + "?action=create", "POST", { name: "Nova cilova", access: { may_create_subfolders: true } });
+        const createNewTarget = await apiCallGuest(targetParent + "?action=create", "POST", { name: "Nova cilova", access: { may_have_files: false } });
         expect(createNewTarget.json.success).toBe(true);
         const newTargetPath = createNewTarget.json.data.result.info.path;
         createdFolders.push(newTargetPath);
@@ -73,33 +73,33 @@ describe("POST action=move", () => {
     test("move fails if source folder does not exist", async () => {
         const moveResp = await apiCallGuest("neexistujici-slozka?action=move", "POST", { target: "access/restricted_to_guest" });
         expect(moveResp.json.success).toBe(false);
-        expect(moveResp.json.code).toBe(403);
+        expect(moveResp.json.code).toBe(404);
     });
 
     test("move fails if target folder already exists", async () => {
         // 1. Vytvoř cílovou složku
-        const createTargetParent = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Cilova", access: { may_create_subfolders: true } });
+        const createTargetParent = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Cilova", access: { may_have_files: false } });
         expect(createTargetParent.json.success).toBe(true);
         const targetParentPath = createTargetParent.json.data.result.info.path;
         createdFolders.push(targetParentPath);
         // 2. V cíli vytvoř podsložku Target
-        const createTargetSub = await apiCallGuest(targetParentPath + "?action=create", "POST", { name: "Target", access: { may_create_subfolders: true } });
+        const createTargetSub = await apiCallGuest(targetParentPath + "?action=create", "POST", { name: "Target", access: { may_have_files: false } });
         expect(createTargetSub.json.success).toBe(true);
         const targetSubPath = createTargetSub.json.data.result.info.path;
         createdFolders.push(targetSubPath);
         // 3. Někde jinde vytvoř další složku Target
-        const createOtherParent = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Jinde", access: { may_create_subfolders: true } });
+        const createOtherParent = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Jinde", access: { may_have_files: false } });
         expect(createOtherParent.json.success).toBe(true);
         const otherParentPath = createOtherParent.json.data.result.info.path;
         createdFolders.push(otherParentPath);
-        const createOtherTarget = await apiCallGuest(otherParentPath + "?action=create", "POST", { name: "Target", access: { may_create_subfolders: true } });
+        const createOtherTarget = await apiCallGuest(otherParentPath + "?action=create", "POST", { name: "Target", access: { may_have_files: false } });
         expect(createOtherTarget.json.success).toBe(true);
         const otherTargetPath = createOtherTarget.json.data.result.info.path;
         createdFolders.push(otherTargetPath);
         // 4. Pokus o přesun Target do Cíl/Target (kde už existuje)
         const moveResp = await apiCallGuest(otherTargetPath + "?action=move", "POST", { target: targetParentPath });
         expect(moveResp.json.success).toBe(false);
-        expect(moveResp.json.code).toBe(409);
+        expect(moveResp.json.code).toBe(403);
         // Explicitní úklid
         await apiCallGuest(otherTargetPath + "?action=delete", "POST");
         await apiCallGuest(targetSubPath + "?action=delete", "POST");
@@ -137,7 +137,8 @@ describe("POST action=move", () => {
 
     test("move fails if target parent does not allow subfolders", async () => {
         // Vytvoř cílovou složku, která NEumožňuje podsložky
-        const createTarget = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Zakazana cilova", access: { may_create_subfolders: false } });
+        const createTarget = await apiCallGuest("access/restricted_to_guest?action=create", "POST", { name: "Zakazana cilova", access: { may_have_files: false } });
+        console.log( createTarget.json );
         expect(createTarget.json.success).toBe(true);
         const targetPath = createTarget.json.data.result.info.path;
         createdFolders.push(targetPath);

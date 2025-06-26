@@ -49,8 +49,7 @@ final class Folder
             if (is_array($access) && array_key_exists('show', $access) && $access['show'] === false) {
                 $protected = true;
             }
-            $accepts_files = isset($access['accepts_files']) ? $access['accepts_files'] : false;
-            $may_create_subfolders = isset($access['may_create_subfolders']) ? $access['may_create_subfolders'] : false;
+            $may_have_files = isset($access['may_have_files']) ? $access['may_have_files'] : false;
         }
 
         $info = [
@@ -63,8 +62,7 @@ final class Folder
             "data" => [],
             "lrc_count" => $this->getFileCount($path),
             "protected" => $protected,
-            "accepts_files" => $accepts_files,
-            "may_create_subfolders" => $may_create_subfolders
+            "may_have_files" => $may_have_files
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -290,11 +288,7 @@ final class Folder
         // Ověření práv: uživatel musí být root, nebo složka musí povolovat podsložky
         $identity = $this->scanner->authorisation->getIdentity();
         $user = $identity ? $identity["user"] : null;
-        $userMeta = $user ? $this->scanner->access->getUser($user) : null;
-        $isRoot = $userMeta && isset($userMeta["is_root"]) && $userMeta["is_root"];
-        $parentAccess = $this->scanner->access->getFolderAccess($parentSlug);
-        $mayCreate = isset($parentAccess["may_create_subfolders"]) ? $parentAccess["may_create_subfolders"] : false;
-        if (!$isRoot && !$mayCreate) {
+        if (!$this->scanner->access->userMayManageFoldersIn($parentSlug, $user)) {
             throw new Exception("You do not have permission to create subfolders in this folder.", 403);
         }
         $newSlug = $this->buildSlug($parentSlug, $name);
@@ -327,7 +321,7 @@ final class Folder
         }
         // Pokud je zadán access, validuj a vytvoř _access.json
         if ($access !== null && is_array($access)) {
-            $allowedKeys = ['show', 'accepts_files', 'may_create_subfolders'];
+            $allowedKeys = ['show', 'may_have_files'];
             $filteredAccess = [];
             foreach ($access as $key => $value) {
                 if (in_array($key, $allowedKeys, true) && is_bool($value)) {
@@ -550,21 +544,18 @@ final class Folder
         if (!is_dir($targetParentPath)) {
             throw new Exception("Target parent folder '$targetParentSlug' does not exist", 404);
         }
-        // Ověření práv: uživatel musí mít právo zápisu do obou složek
+        // Ověření práv: uživatel musí mít právo zápisu pouze do cílové složky
         $identity = $this->scanner->authorisation->getIdentity();
         $user = $identity ? $identity["user"] : null;
-        if (!$this->scanner->access->userMayWriteToFolder($slug, $user)) {
-            throw new Exception("You do not have write access to the source folder", 403);
-        }
-        if (!$this->scanner->access->userMayWriteToFolder($targetParentSlug, $user)) {
+        if (!$this->scanner->access->userMayManageFoldersIn($targetParentSlug, $user)) {
             throw new Exception("You do not have write access to the target parent folder", 403);
         }
         // Kontrola, zda cílová složka umožňuje vytváření podsložek nebo je uživatel root
         $userMeta = $user ? $this->scanner->access->getUser($user) : null;
         $isRoot = $userMeta && isset($userMeta["is_root"]) && $userMeta["is_root"];
         $targetAccess = $this->scanner->access->getFolderAccess($targetParentSlug);
-        $mayCreate = isset($targetAccess["may_create_subfolders"]) ? $targetAccess["may_create_subfolders"] : false;
-        if (!$isRoot && !$mayCreate) {
+        $mayHaveFiles = isset($targetAccess["may_have_files"]) ? $targetAccess["may_have_files"] : false;
+        if (!$isRoot && !$mayHaveFiles) {
             throw new Exception("You do not have permission to create subfolders in the target folder.", 403);
         }
         $folderName = basename($slug);
@@ -662,8 +653,7 @@ final class Folder
             'description' => $info['description'],
             'lrc_count' => $info['lrc_count'],
             'protected' => $info['protected'],
-            'accepts_files' => $info['accepts_files'],
-            'may_create_subfolders' => $info['may_create_subfolders'],
+            'may_have_files' => $info['may_have_files'],
             'metadata' => $info['data'],
             'subfolders' => $info['subfolders'],
         ];
