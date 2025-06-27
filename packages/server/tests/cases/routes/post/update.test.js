@@ -1,5 +1,6 @@
-import { describe, test, expect, afterAll, afterEach } from "vitest";
+import { describe, expect, test, afterEach } from "vitest";
 import { apiCallGuest } from "../../utils/apiCallGuest";
+import { apiCallRoot } from "../../utils/apiCallRoot";
 import { cleanupFolders } from "../../utils/cleanupFolders";
 
 let createdFolders = [];
@@ -8,8 +9,54 @@ describe("POST action=update", () => {
 
     afterEach(async () => {
         await cleanupFolders(createdFolders);
-        createdFolders = [];
+        createdFolders.length = 0;
     });
+
+
+    const updateUrlAccessible = "access/accessible?action=update";
+    const updateUrlRestricted = "access/restricted?action=update";
+    const updateUrlGuestRestricted = "access/restricted_to_guest/restricted?action=update";
+
+    test("anonymous user cannot update access/accessible", async () => {
+        const response = await apiCallGuest(updateUrlAccessible, "POST", { name: "Test" });
+        expect(response.json.success).toBe(false);
+        expect(response.json.error).toBeDefined();
+        expect(response.json.error).toMatch(/permission|access|denied/i);
+    });
+
+    test("anonymous user cannot update access/restricted", async () => {
+        const response = await apiCallGuest(updateUrlRestricted, "POST", { name: "Test" });
+        expect(response.json.success).toBe(false);
+        expect(response.json.error).toBeDefined();
+        expect(response.json.error).toMatch(/permission|access|denied/i);
+    });
+
+    test("guest cannot update access/accessible", async () => {
+        const response = await apiCallGuest(updateUrlAccessible, "POST", { name: "Test" });
+        expect(response.json.success).toBe(false);
+        expect(response.json.error).toBeDefined();
+        expect(response.json.error).toMatch(/permission|access|denied/i);
+    });
+
+    test("guest cannot update access/restricted", async () => {
+        const response = await apiCallGuest(updateUrlRestricted, "POST", { name: "Test" });
+        expect(response.json.success).toBe(false);
+        expect(response.json.error).toBeDefined();
+        expect(response.json.error).toMatch(/permission|access|denied/i);
+    });
+
+    test("root can update access/accessible", async () => {
+        const response = await apiCallRoot(updateUrlAccessible, "POST", { name: "Root update" });
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).toBeDefined();
+    });
+
+    test("guest can update access/restricted_to_guest/restricted", async () => {
+        const response = await apiCallGuest(updateUrlGuestRestricted, "POST", { name: "Guest update" });
+        expect(response.json.success).toBe(true);
+        expect(response.json.data).toBeDefined();
+    });
+
 
     test("update name, description, meta in folder", async () => {
 
@@ -71,7 +118,7 @@ describe("POST action=update", () => {
         );
         expect(deleteResponse.json.success).toBe(true);
         expect(deleteResponse.json.data.result.deleted).toBe(folderPath);
-        
+
     });
 
 

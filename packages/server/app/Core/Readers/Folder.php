@@ -498,7 +498,14 @@ final class Folder
                     }
                 }
             }
-            $this->writeJson($newSlug, 'tags', $tags);
+            // Pokud nejsou žádné tagy, smaž _tags.json, jinak zapiš
+            if (empty($tags)) {
+                if (is_file($this->getJsonPath($newSlug, 'tags'))) {
+                    @unlink($this->getJsonPath($newSlug, 'tags'));
+                }
+            } else {
+                $this->writeJson($newSlug, 'tags', $tags);
+            }
 
             return [
                 'slug' => $newSlug,
@@ -542,7 +549,14 @@ final class Folder
                 }
             }
         }
-        $this->writeJson($slug, 'tags', $tags);
+        // Pokud nejsou žádné tagy, smaž _tags.json, jinak zapiš
+        if (empty($tags)) {
+            if (is_file($tagsPath)) {
+                @unlink($tagsPath);
+            }
+        } else {
+            $this->writeJson($slug, 'tags', $tags);
+        }
 
         return [
             'slug' => $slug,
