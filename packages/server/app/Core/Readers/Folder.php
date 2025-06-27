@@ -550,14 +550,6 @@ final class Folder
         if (!$this->scanner->access->userMayManageFoldersIn($targetParentSlug, $user)) {
             throw new Exception("You do not have write access to the target parent folder", 403);
         }
-        // Kontrola, zda cílová složka umožňuje vytváření podsložek nebo je uživatel root
-        $userMeta = $user ? $this->scanner->access->getUser($user) : null;
-        $isRoot = $userMeta && isset($userMeta["is_root"]) && $userMeta["is_root"];
-        $targetAccess = $this->scanner->access->getFolderAccess($targetParentSlug);
-        $mayHaveFiles = isset($targetAccess["may_have_files"]) ? $targetAccess["may_have_files"] : false;
-        if (!$isRoot && !$mayHaveFiles) {
-            throw new Exception("You do not have permission to create subfolders in the target folder.", 403);
-        }
         $folderName = basename($slug);
         $newSlug = rtrim($targetParentSlug, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $folderName;
         $newPath = $this->scanner->getFullPath($newSlug);
