@@ -39,8 +39,6 @@ describe('GET action=files', () => {
                 expect(file.tags).toContain('something');
             });
         }
-
-        console.log( json.data );
         
         // Očekáváme, že soubor s tagem je jeden
         expect( json.data.files.length ).toEqual(1);

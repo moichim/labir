@@ -263,7 +263,6 @@ describe("POST action=move", () => {
                 name: "Presunout me 5"
             }
         );
-        console.log( createResp.json );
         const folderPath = createResp.json.data.result.info.path;
         createdFolders.push(folderPath);
         expect(createResp.json.success).toBe(true);

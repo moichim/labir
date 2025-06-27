@@ -19,8 +19,6 @@ describe( "GET action=currentusertree", () => {
 
         const response = await apiCallGuest( "access?action=currentusertree", "GET" );
 
-        console.log( response.json );
-
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
         expect( response.json.data.tree ).not.toBeUndefined();
@@ -31,8 +29,6 @@ describe( "GET action=currentusertree", () => {
     test( "accessible to guest", async () => {
 
         const response = await apiCallRoot( "access?action=currentusertree", "GET" );
-
-        console.log( response.json );
 
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
