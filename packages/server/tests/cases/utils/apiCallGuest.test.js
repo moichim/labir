@@ -1,11 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import { apiCallGuest } from './apiCallGuest';
 
-describe.skip("apiCallGuest()", () => {
+describe("apiCallGuest()", () => {
 
     test("has a proper response", async () => {
 
-        const response = await apiCallGuest("accessible");
+        const response = await apiCallGuest("access/accessible");
 
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
@@ -14,7 +14,7 @@ describe.skip("apiCallGuest()", () => {
 
     test("non existing folder", async () => {
 
-        const response = await apiCallGuest("accessible___");
+        const response = await apiCallGuest("non-existing-folder");
 
         expect(response.json.success).toBe(false);
         expect(response.json.data).toBeUndefined();

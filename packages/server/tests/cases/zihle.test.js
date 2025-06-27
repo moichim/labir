@@ -6,7 +6,7 @@ test('/zihle', async () => {
 
     const json = await request.json();
 
-    console.log( json );
+    // console.log( json );
 
     expect( request.status ).toBe( 200 );
 

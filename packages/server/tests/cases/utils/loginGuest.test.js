@@ -8,7 +8,7 @@ describe( "loginGuest()", () => {
 
         const response = await loginGuest( "access/restricted_to_guest" );
 
-        console.log( response.json );
+        // console.log( response.json );
 
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
