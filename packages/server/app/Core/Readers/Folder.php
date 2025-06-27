@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * -------------------------------------------------------------
+ *  Třída Folder
+ *  =============
+ *  Pracuje s adresářovou strukturou, poskytuje informace o složkách,
+ *  umožňuje jejich vytváření, mazání, přesun, úpravu obsahu a práci s tagy.
+ *  Vše s ohledem na práva uživatele a přístupové politiky.
+ * -------------------------------------------------------------
+ */
+
 declare(strict_types=1);
 
 namespace App\Core\Readers;
@@ -11,17 +21,24 @@ use Nette\Utils\Strings;
 use App\Core\Data\Lrc;
 use App\Core\Data\Grid;
 
+/**
+ * Třída Folder - hlavní logika pro práci se složkami a jejich obsahem.
+ */
 final class Folder
 {
-
+    /**
+     * Konstruktor - přijímá instanci Scanneru
+     */
     public function __construct(
         protected Scanner $scanner
     ) {}
 
+    /**
+     * Ověří existenci složky (a čitelnost)
+     */
     public function exists(
         string $path
     ) {
-
         $fullPath = $this->scanner->getFullPath($path);
         return is_dir($fullPath) && is_readable($fullPath);
     }
@@ -38,7 +55,9 @@ final class Folder
         return count($files) === 0;
     }
 
-
+    /**
+     * Vrátí informace o složce (název, popis, tagy, metadata, práva, ...)
+     */
     public function getInfo(string $path)
     {
 
@@ -120,6 +139,9 @@ final class Folder
         return $info;
     }
 
+    /**
+     * Vrátí seznam podadresářů složky, ke kterým má uživatel přístup
+     */
     public function getSubdirectories(string $path, $user = null): array|false
     {
         $fullPath = $this->scanner->getFullPath(trim($path, "/"));
@@ -147,7 +169,9 @@ final class Folder
         return count($subdirs) > 0 ? $subdirs : false;
     }
 
-
+    /**
+     * Vrátí seznam souborů ve složce, případně filtruje podle času a tagů
+     */
     public function getFiles(string $path, ?int $from = null, ?int $to = null, ?array $tags = null)
     {
 
@@ -201,6 +225,9 @@ final class Folder
         return $files;
     }
 
+    /**
+     * Spáruje soubory s parent tagy a vrátí statistiku výskytu tagů
+     */
     public static function matchFilesWithParentTags(
         array $files,
         ?array $parentTags = null
@@ -255,7 +282,9 @@ final class Folder
         return $result;
     }
 
-
+    /**
+     * Vrátí počet .lrc souborů ve složce
+     */
     public function getFileCount(string $path): int
     {
         $fullPath = $this->scanner->getFullPath($path);
@@ -272,8 +301,9 @@ final class Folder
         return $count;
     }
 
-
-
+    /**
+     * Vytvoří instanci Grid pro danou složku
+     */
     public function createGrid(
         string $path
     ): Grid {
@@ -281,25 +311,40 @@ final class Folder
     }
 
     /**
-     * Create a new folder and write its name and description to _content.json.
+     * Vytvoří novou složku, zapíše _content.json, případně _tags.json a _access.json
+     * Ověřuje práva, validuje vstupy, vrací info o nové složce
      */
-    public function createFolder(string $parentSlug, string $name, ?string $description = null, array $meta = [], $tags = null, ?array $access = null): array
+    public function createFolder(
+        string $parentSlug, 
+        string $name, 
+        ?string $description = null, 
+        ?array $meta = [], 
+        ?array $tags = null, 
+        ?array $access = null
+    ): array
     {
-        // Ověření práv: uživatel musí být root, nebo složka musí povolovat podsložky
+        // --- 1. Ověření práv: uživatel musí být root, nebo složka musí povolovat podsložky ---
         $identity = $this->scanner->authorisation->getIdentity();
         $user = $identity ? $identity["user"] : null;
         if (!$this->scanner->access->userMayManageFoldersIn($parentSlug, $user)) {
             throw new Exception("You do not have permission to create subfolders in this folder.", 403);
         }
+
+        // --- 2. Sestavení slug a absolutní cesty nové složky ---
         $newSlug = $this->buildSlug($parentSlug, $name);
         $newPath = $this->scanner->getFullPath($newSlug);
+
+        // --- 3. Kontrola, zda složka už neexistuje ---
         if (is_dir($newPath)) {
             throw new Exception("Target folder '$newSlug' already exists", 409);
         }
+
+        // --- 4. Vytvoření nové složky v souborovém systému ---
         if (!mkdir($newPath, 0777, true)) {
             throw new Exception("Failed to create folder", 500);
         }
-        // Vytvoř _content.json
+
+        // --- 5. Vytvoření _content.json s názvem, popisem a metadaty ---
         $contentJsonPath = $newPath . DIRECTORY_SEPARATOR . '_content.json';
         $data = [
             'name' => $name
@@ -311,7 +356,8 @@ final class Folder
         $data = array_merge($data, $meta);
         // Zápis přes scanner->json
         $this->scanner->json->write($contentJsonPath, $data);
-        // Pokud jsou zadány tags, validuj a ulož je do _tags.json
+
+        // --- 6. Pokud jsou zadány tagy, validuj a ulož je do _tags.json ---
         if ($tags !== null && (is_array($tags) || is_object($tags))) {
             $validTags = $this->filterValidTags($tags);
             if (!empty($validTags)) {
@@ -319,7 +365,8 @@ final class Folder
                 $this->scanner->json->write($tagsJsonPath, $validTags);
             }
         }
-        // Pokud je zadán access, validuj a vytvoř _access.json
+
+        // --- 7. Pokud je zadán access, validuj a vytvoř _access.json ---
         if ($access !== null && is_array($access)) {
             $allowedKeys = ['show', 'may_have_files'];
             $filteredAccess = [];
@@ -333,6 +380,8 @@ final class Folder
                 $this->scanner->json->write($accessJsonPath, $filteredAccess);
             }
         }
+
+        // --- 8. Vrať informace o nové složce ---
         return [
             'slug' => $newSlug,
             'name' => $name,
@@ -342,18 +391,22 @@ final class Folder
     }
 
     /**
-     * Delete a folder and all its contents.
+     * Smaže složku a všechen její obsah (rekurzivně)
      */
     public function deleteFolder(string $slug): array
     {
+        // --- 1. Získej absolutní cestu ke složce ---
         $fullPath = $this->scanner->getFullPath($slug);
 
+        // --- 2. Ověř, že složka existuje ---
         if (!is_dir($fullPath)) {
             throw new Exception("Folder '$slug' does not exist", 404);
         }
 
+        // --- 3. Rekurzivně smaž složku a její obsah ---
         $this->deleteDirRecursive($fullPath);
 
+        // --- 4. Vrať výsledek mazání ---
         return [
             'deleted' => $slug,
             'success' => true,
@@ -361,88 +414,38 @@ final class Folder
     }
 
     /**
-     * Helper for recursive directory deletion.
+     * Pomocná metoda pro rekurzivní mazání složky a jejího obsahu
      */
     protected function deleteDirRecursive(string $dir): void
     {
+        // --- 1. Získej všechny položky ve složce kromě . a .. ---
         $items = array_diff(scandir($dir), ['.', '..']);
         foreach ($items as $item) {
             $path = $dir . DIRECTORY_SEPARATOR . $item;
+            // --- 2. Pokud je položka složka, smaž ji rekurzivně ---
             if (is_dir($path)) {
                 $this->deleteDirRecursive($path);
             } else {
+                // --- 3. Pokud je položka soubor, smaž soubor ---
                 unlink($path);
             }
         }
+        // --- 4. Smaž samotnou složku ---
         rmdir($dir);
     }
 
-
     /**
-     * Webalize a name of folder used in slugs.
-     * Internal helper function.
+     * Aktualizuje _content.json ve složce, případně přejmenuje složku, upraví tagy
      */
-    protected function webalizeName(string $name): string
-    {
-        return Strings::webalize($name, '0-9a-zA-Z');
-    }
-
-    protected function buildSlug(string $parent, string $name): string
-    {
-        $webalized = $this->webalizeName($name);
-        return ($parent === '' || $parent === '.' || $parent === DIRECTORY_SEPARATOR)
-            ? $webalized
-            : $parent . DIRECTORY_SEPARATOR . $webalized;
-    }
-
-    protected function getContentJsonPath(string $slug): string
-    {
-        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . '_content.json');
-    }
-
-    protected function writeContentJson(string $path, array $data): void
-    {
-        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-    }
-
-    /**
-     * Get the full path to a JSON file of a given type in a folder.
-     * $type: 'content', 'tags', 'access'
-     */
-    protected function getJsonPath(string $slug, string $type): string
-    {
-        $filename = match ($type) {
-            'content' => '_content.json',
-            'tags' => '_tags.json',
-            'access' => '_access.json',
-            default => throw new Exception("Unknown JSON type '$type'"),
-        };
-        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . $filename);
-    }
-
-    /**
-     * Read and decode a JSON file from a folder.
-     */
-    public function readJson(string $slug, string $type): ?array
-    {
-        $path = $this->getJsonPath($slug, $type);
-        return $this->scanner->json->read($path);
-    }
-
-    /**
-     * Write an array to a JSON file in a folder.
-     */
-    protected function writeJson(string $slug, string $type, array $data): void
-    {
-        $path = $this->getJsonPath($slug, $type);
-        $this->scanner->json->write($path, $data);
-    }
-
-    /**
-     * Update _content.json in a folder. If name, description nebo meta jsou zadány, přepíše je.
-     * Pokud je $move true a $name není null, přejmenuje složku a aktualizuje obsah.
-     */
-    public function updateFolderContent(string $slug, ?string $name = null, ?string $description = null, array $meta = [], bool $move = false, $tags = null, bool $mergeTags = false): array
+    public function updateFolderContent(
+        string $slug, 
+        ?string $name = null, 
+        ?string $description = null, 
+        array $meta = [], 
+        bool $move = false, 
+        ?array $tags = null, 
+        bool $mergeTags = false
+    ): array
     {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
@@ -528,18 +531,8 @@ final class Folder
     }
 
     /**
-     * Move a folder to a new parent folder.
-     * Přesune složku do nové nadřazené složky (target parent).
-     * 
-     * Práva:
-     *  - Uživatel musí mít právo zápisu (userMayManageFoldersIn) do cílové složky.
-     *  - Pokud cílová složka neexistuje, nebo už v ní existuje složka stejného jména, akce selže.
-     *  - Pokud přesouvaná složka neexistuje, akce selže.
-     * 
-     * @param string $slug Slug (relativní cesta) přesouvané složky
-     * @param string $targetParentSlug Cílová složka (relativní cesta)
-     * @return array
-     * @throws Exception
+     * Přesune složku do nové nadřazené složky (target parent)
+     * Ověřuje práva, existenci, kolize
      */
     public function moveFolder(string $slug, string $targetParentSlug): array
     {
@@ -587,9 +580,7 @@ final class Folder
     }
 
     /**
-     * Validate tags structure: each tag must have a string 'name',
-     * optional 'description' and 'color' (if present, must be strings).
-     * Returns filtered array of valid tags only.
+     * Validuje strukturu tagů, vrací pouze validní tagy
      */
     protected function filterValidTags($tags): array
     {
@@ -612,7 +603,7 @@ final class Folder
     }
 
     /**
-     * Najde a vrátí soubor v této složce jako objekt Lrc (nebo null, pokud neexistuje nebo není LRC).
+     * Vrátí soubor v této složce jako objekt Lrc (nebo null)
      */
     public function getFile(string $path, string $fileName): ?Lrc
     {
@@ -625,8 +616,7 @@ final class Folder
     }
 
     /**
-     * Vrátí všechny složky (a jejich podstromy), ke kterým má uživatel přístup podle access.
-     * Výstup je pole struktur s klíči: path, api, name, protected, subfolders
+     * Vrátí všechny složky (a jejich podstromy), ke kterým má uživatel přístup podle access
      */
     public function getUserFolders(string $login): array
     {
@@ -669,4 +659,72 @@ final class Folder
             'subfolders' => $info['subfolders'],
         ];
     }
+
+    /**
+     * Webalizuje název složky pro použití ve slugu
+     */
+    protected function webalizeName(string $name): string
+    {
+        return Strings::webalize($name, '0-9a-zA-Z');
+    }
+
+    /**
+     * Sestaví slug pro novou složku
+     */
+    protected function buildSlug(string $parent, string $name): string
+    {
+        $webalized = $this->webalizeName($name);
+        return ($parent === '' || $parent === '.' || $parent === DIRECTORY_SEPARATOR)
+            ? $webalized
+            : $parent . DIRECTORY_SEPARATOR . $webalized;
+    }
+
+    /**
+     * Vrátí cestu k _content.json
+     */
+    protected function getContentJsonPath(string $slug): string
+    {
+        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . '_content.json');
+    }
+
+    /**
+     * Zapíše _content.json
+     */
+    protected function writeContentJson(string $path, array $data): void
+    {
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    }
+
+    /**
+     * Vrátí cestu k JSON souboru daného typu
+     */
+    protected function getJsonPath(string $slug, string $type): string
+    {
+        $filename = match ($type) {
+            'content' => '_content.json',
+            'tags' => '_tags.json',
+            'access' => '_access.json',
+            default => throw new Exception("Unknown JSON type '$type'"),
+        };
+        return $this->scanner->getFullPath($slug . DIRECTORY_SEPARATOR . $filename);
+    }
+
+    /**
+     * Načte a dekóduje JSON soubor ze složky
+     */
+    public function readJson(string $slug, string $type): ?array
+    {
+        $path = $this->getJsonPath($slug, $type);
+        return $this->scanner->json->read($path);
+    }
+
+    /**
+     * Zapíše pole do JSON souboru ve složce
+     */
+    protected function writeJson(string $slug, string $type, array $data): void
+    {
+        $path = $this->getJsonPath($slug, $type);
+        $this->scanner->json->write($path, $data);
+    }
+
 }

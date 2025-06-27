@@ -140,7 +140,7 @@ describe("POST action=move", () => {
             { target: "access/restricted_to_guest" }
         );
         expect(moveResp.json.success).toBe(false);
-        expect(moveResp.json.code).toBe(404);
+        expect(moveResp.json.code).toBe(403);
 
     });
 
