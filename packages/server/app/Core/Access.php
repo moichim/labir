@@ -32,7 +32,7 @@ final class Access
     public function getUsers(): array
     {
 
-        if ( count( $this->users ) > 0 ) {
+        if (count($this->users) > 0) {
             return $this->users;
         }
 
@@ -47,7 +47,8 @@ final class Access
         return [];
     }
 
-    public function getFolders(): array {
+    public function getFolders(): array
+    {
         return $this->folders;
     }
 
@@ -80,7 +81,7 @@ final class Access
                 // If the user is logged out, throw
                 if (! $this->scanner->authorisation->isLoggedin()) {
                     throw new Exception("You need to be logged in to see this folder", 401);
-                } 
+                }
 
                 // Logged in users need to see the current folder
                 else {
@@ -91,48 +92,34 @@ final class Access
                         ? $this->userMayReadFolder($this->currentPath, $identity["user"])
                         : false;
 
-                    if ( ! $maySee ) {
+                    if (! $maySee) {
                         throw new Exception("You do not have access to this folder", 403);
                     }
-
                 }
             }
         }
 
 
         // If post, check if the user is authenticated
-        else if ( $this->scanner->getRequest()->isMethod( "POST" ) ) {
-
+        else if ($this->scanner->getRequest()->isMethod("POST")) {
             $query = $this->scanner->getRequest()->getQuery();
-
             // Login is the only POST route accessible from outside
-            if ( array_key_exists( "action", $query ) && $query["action"] === "login" ) {
-
-                
-
+            if (array_key_exists("action", $query) && $query["action"] === "login") {
+                // ...existing code...
             } else {
-
                 // If the user is not logging in, check if the user is logged in
-                if ( ! $this->scanner->authorisation->isLoggedin() ) {
-                    throw new Exception( "You need to be logged in to perform this action.", 401 );
+                if (! $this->scanner->authorisation->isLoggedin()) {
+                    throw new Exception("You need to be logged in to perform this action.", 401);
                 }
-
-                // Kontrola explicitního uživatele pouze při POST
-                if ($this->scanner->getRequest()->isMethod("POST")) {
-                    $identity = $this->scanner->authorisation->getIdentity();
-                    $user = $identity ? $identity["user"] : null;
-
-                    if (!$this->userMayReadFolder($this->currentPath, $user)) {
-                        throw new Exception("You do not have write access to this folder", 403);
-                    }
+                $identity = $this->scanner->authorisation->getIdentity();
+                $user = $identity ? $identity["user"] : null;
+                if (!$this->userMayPostToFolder($this->currentPath, $user)) {
+                    throw new Exception("You do not have write access to this folder", 403);
                 }
             }
-
         } else {
-            throw new Exception( "You do what you do not need to do! Only GET and POST allowed.", 401 );
+            throw new Exception("You do what you do not need to do! Only GET and POST allowed.", 401);
         }
-
-
     }
 
 
@@ -205,36 +192,6 @@ final class Access
         ];
     }
 
-
-    protected function validateUser(array $user): array|false
-    {
-
-        if (
-            isset($user["login"])
-            && $user["login"] !== ""
-            && isset($user["password"])
-            && strlen($user["password"]) > 5
-        ) {
-            return $user;
-        }
-
-        return false;
-    }
-
-
-    protected function storeOrOverrideUser(array &$users, array $user)
-    {
-
-        if (! $this->validateUser($user)) {
-            return $users;
-        }
-
-        $users[$user["login"]] = $user;
-
-        return $users;
-    }
-
-
     public function userMayReadFolder(
         string $path,
         ?string $user = null
@@ -261,24 +218,44 @@ final class Access
         return false;
     }
 
+
     /**
-     * Zjistí, zda uživatel může spravovat složky v dané složce (tj. vytvářet/přejmenovávat/mazat podsložky).
-     * Uživatel musí být uveden v seznamu uživatelů a složka nesmí mít may_have_files=true.
+     * Zjistí, zda uživatel může POSTovat do složky 
+     * (tj. má explicitní právo na správu souborů nebo složek).
+     * Uživatel musí mát v seznamu svých accessů uvedenou tuto 
+     * složku nebo některého z jejích rodičů.
+     */
+    protected function userMayPostToFolder(string $path, ?string $user): bool
+    {
+        $access = $this->getFolderAccess($path);
+        return isset($user)
+            && $user !== ''
+            && array_key_exists($user, $access["users"]);
+    }
+
+
+    /**
+     * Zjistí, zda uživatel může spravovat složky v dané složce 
+     * (tj. vytvářet/přejmenovávat/mazat podsložky).
+     * Uživatel musí být uveden v seznamu uživatelů 
+     * a složka nesmí mít may_have_files=true.
      */
     public function userMayManageFoldersIn(string $path, string $user): bool
     {
         $access = $this->getFolderAccess($path);
-        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]) && ($access["may_have_files"] === false);
+        return $this->userMayPostToFolder($path, $user) && ($access["may_have_files"] === false);
     }
 
     /**
-     * Zjistí, zda uživatel může spravovat soubory v dané složce (tj. nahrávat/mazat soubory).
-     * Uživatel musí být uveden v seznamu uživatelů a složka musí mít may_have_files=true.
+     * Zjistí, zda uživatel může spravovat soubory v dané složce 
+     * (tj. nahrávat/mazat soubory).
+     * Uživatel musí být uveden v seznamu uživatelů a složka 
+     * musí mít may_have_files=true.
      */
     public function userMayManageFilesIn(string $path, string $user): bool
     {
         $access = $this->getFolderAccess($path);
-        return isset($user) && $user !== '' && array_key_exists($user, $access["users"]) && ($access["may_have_files"] === true);
+        return $this->userMayPostToFolder($path, $user) && ($access["may_have_files"] === true);
     }
 
     /**
