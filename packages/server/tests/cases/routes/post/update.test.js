@@ -147,7 +147,7 @@ describe("POST action=update", () => {
     });
 
 
-    test("update tags in folder (overwrite, not merge)", async () => {
+    test("update tags in folder (addTags/removeTags, overwrite)", async () => {
 
         // --- 1. Vytvoření složky s původními tagy ---
         const createUrl = "access/restricted_to_guest?action=create";
@@ -167,17 +167,19 @@ describe("POST action=update", () => {
         const folderPath = createResponse.json.data.result.info.path;
         createdFolders.push(folderPath);
 
-        // --- 2. Proveď update s novými tagy (přepíše původní) ---
+        // --- 2. Proveď update s addTags (přepíše původní tagy, protože všechny původní odebereme a přidáme nové) ---
         const updateUrl = folderPath + "?action=update";
         const newTags = {
             tag3: { name: "Nový tag", color: "#222" },
             tag4: { name: "Další nový tag" }
         };
+        const removeTags = Object.keys(originalTags); // odebereme všechny původní tagy
         const updateResponse = await apiCallGuest(
             updateUrl,
             "POST",
             {
-                tags: newTags
+                addTags: newTags,
+                removeTags: removeTags
             }
         );
         expect(updateResponse.json.success).toBe(true);
@@ -208,7 +210,7 @@ describe("POST action=update", () => {
     });
 
 
-    test("update tags in folder with mergeTags=true (merge old and new tags)", async () => {
+    test("update tags in folder with addTags/removeTags (merge old and new tags)", async () => {
 
         // --- 1. Vytvoření složky s původními tagy ---
         const createUrl = "access/restricted_to_guest?action=create";
@@ -228,9 +230,9 @@ describe("POST action=update", () => {
         const folderPath = createResponse.json.data.result.info.path;
         createdFolders.push(folderPath);
 
-        // --- 2. Proveď update s novými tagy a mergeTags=true ---
+        // --- 2. Proveď update s addTags (přidá nové tagy, některé přepíše) a removeTags (odebere žádný) ---
         const updateUrl = folderPath + "?action=update";
-        const newTags = {
+        const addTags = {
             tag2: { name: "Druhý tag - změněný", color: "#222" }, // přepíše původní tag2
             tag3: { name: "Nový tag" }
         };
@@ -238,8 +240,8 @@ describe("POST action=update", () => {
             updateUrl,
             "POST",
             {
-                tags: newTags,
-                mergeTags: true
+                addTags: addTags,
+                removeTags: [] // žádné tagy neodebíráme
             }
         );
         expect(updateResponse.json.success).toBe(true);

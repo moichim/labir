@@ -435,18 +435,17 @@ final class Folder
     }
 
     /**
-     * Aktualizuje _content.json ve složce, případně přejmenuje složku, upraví tagy
+     * Aktualizuje _content.json ve složce, případně přejmenuje složku, upraví tagy (addTags/removeTags)
      */
     public function updateFolderContent(
-        string $slug, 
-        ?string $name = null, 
-        ?string $description = null, 
-        array $meta = [], 
-        bool $move = false, 
-        ?array $tags = null, 
-        bool $mergeTags = false
-    ): array
-    {
+        string $slug,
+        ?string $name = null,
+        ?string $description = null,
+        array $meta = [],
+        bool $move = false,
+        ?array $addTags = null,
+        ?array $removeTags = null
+    ): array {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
             throw new Exception("Folder '$slug' does not exist", 404);
@@ -478,15 +477,28 @@ final class Folder
             }
             $this->writeJson($newSlug, 'content', $data);
 
-            // Pokud jsou zadány tags, ulož je do _tags.json
-            if ($tags !== null && (is_array($tags) || is_object($tags))) {
-                $validTags = $this->filterValidTags($tags);
-                if ($mergeTags) {
-                    $oldTags = $this->readJson($newSlug, 'tags') ?? [];
-                    $validTags = array_merge($oldTags, $validTags);
-                }
-                $this->writeJson($newSlug, 'tags', $validTags);
+            // --- Tagy: addTags/removeTags ---
+            $tagsPath = $this->getJsonPath($newSlug, 'tags');
+            $tags = is_file($tagsPath) ? ($this->scanner->json->read($tagsPath) ?? []) : [];
+            if (!is_array($tags)) $tags = [];
+
+            // Přidání tagů
+            if ($addTags !== null && (is_array($addTags) || is_object($addTags))) {
+                $addTagsArr = $this->filterValidTags($addTags);
+                $tags = array_merge($tags, $addTagsArr);
             }
+            
+            // Odebrání tagů
+            if ($removeTags !== null && (is_array($removeTags) || is_object($removeTags))) {
+                foreach ($removeTags as $key => $tag) {
+                    if (is_string($key)) {
+                        unset($tags[$key]);
+                    } elseif (is_string($tag)) {
+                        unset($tags[$tag]);
+                    }
+                }
+            }
+            $this->writeJson($newSlug, 'tags', $tags);
 
             return [
                 'slug' => $newSlug,
@@ -511,15 +523,26 @@ final class Folder
         }
         $this->writeJson($slug, 'content', $data);
 
-        // Pokud jsou zadány tags, ulož je do _tags.json
-        if ($tags !== null && (is_array($tags) || is_object($tags))) {
-            $validTags = $this->filterValidTags($tags);
-            if ($mergeTags) {
-                $oldTags = $this->readJson($slug, 'tags') ?? [];
-                $validTags = array_merge($oldTags, $validTags);
-            }
-            $this->writeJson($slug, 'tags', $validTags);
+        // --- Tagy: addTags/removeTags ---
+        $tagsPath = $this->getJsonPath($slug, 'tags');
+        $tags = is_file($tagsPath) ? ($this->scanner->json->read($tagsPath) ?? []) : [];
+        if (!is_array($tags)) $tags = [];
+        // Přidání tagů
+        if ($addTags !== null && (is_array($addTags) || is_object($addTags))) {
+            $addTagsArr = $this->filterValidTags($addTags);
+            $tags = array_merge($tags, $addTagsArr);
         }
+        // Odebrání tagů
+        if ($removeTags !== null && (is_array($removeTags) || is_object($removeTags))) {
+            foreach ($removeTags as $key => $tag) {
+                if (is_string($key)) {
+                    unset($tags[$key]);
+                } elseif (is_string($tag)) {
+                    unset($tags[$tag]);
+                }
+            }
+        }
+        $this->writeJson($slug, 'tags', $tags);
 
         return [
             'slug' => $slug,

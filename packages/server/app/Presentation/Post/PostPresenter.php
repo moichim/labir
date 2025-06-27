@@ -98,43 +98,81 @@ final class PostPresenter extends BasePresenter
         $this->respond();
     }
 
+    /**
+     * Aktualizace složky (název, popis, meta, přesun, tagy)
+     * 
+     * Očekává JSON body s libovolnou kombinací:
+     *  - name: nový název složky (string, volitelné)
+     *  - description: nový popis složky (string, volitelné)
+     *  - meta: objekt s metadaty (volitelné)
+     *  - move: true/false (přejmenuje složku, pokud je true a name zadáno)
+     *  - addTags: objekt s tagy k přidání (volitelné, klíč = slug, hodnota = objekt tagu)
+     *  - removeTags: pole klíčů/slugů tagů k odebrání (volitelné)
+     *
+     * Výsledek obsahuje aktualizované informace o složce.
+     *
+     * @return void
+     * @throws Exception pokud je request nevalidní
+     */
     public function actionUpdate(): void
     {
+
+        // --- 1. Získání slug aktuální složky ---
         $parentSlug = $this->scanner->getBasePath();
+        
+        // --- 2. Získání a dekódování requestu ---
         $request = $this->getHttpRequest();
         $requestData = $request->getRawBody();
         $name = null;
         $description = null;
         $meta = [];
         $move = false;
-        $tags = null;
-        $mergeTags = false;
+        $addTags = null;
+        $removeTags = null;
+        
+        // --- 3. Zpracování vstupních dat z JSON body ---
         if (is_string($requestData) && strlen($requestData) > 0) {
             $data = json_decode($requestData, true);
             if (is_array($data)) {
+                // Název složky
                 if (isset($data['name']) && is_string($data['name'])) {
                     $name = $data['name'];
                 }
+                // Popis složky
                 if (isset($data['description']) && is_string($data['description'])) {
                     $description = $data['description'];
                 }
+                // Metadata
                 if (isset($data['meta'])) {
                     $meta = is_array($data['meta']) ? $data['meta'] : [];
                 }
+                // Přesun složky (přejmenování)
                 if (isset($data['move']) && $data['move'] === true) {
                     $move = true;
                 }
-                if (isset($data['tags'])) {
-                    $tags = $data['tags'];
+                // Přidání tagů
+                if (isset($data['addTags'])) {
+                    $addTags = $data['addTags'];
                 }
-                if (isset($data['mergeTags']) && $data['mergeTags'] === true) {
-                    $mergeTags = true;
+                // Odebrání tagů
+                if (isset($data['removeTags'])) {
+                    $removeTags = $data['removeTags'];
                 }
             }
         }
 
-        $slug = $parentSlug;
-        $result = $this->scanner->folder->updateFolderContent($slug, $name, $description, $meta, $move, $tags, $mergeTags);
+        // --- 4. Zavolání updateFolderContent s předanými parametry ---
+        $result = $this->scanner->folder->updateFolderContent(
+            $parentSlug, 
+            $name, 
+            $description, 
+            $meta, 
+            $move, 
+            $addTags, 
+            $removeTags
+        );
+
+        // --- 5. Uložení výsledku a odpověď ---
         $this->storeData('result', $result);
         $this->markSuccess();
         $this->respond();
