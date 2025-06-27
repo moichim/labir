@@ -72,7 +72,6 @@ describe("GET action=currentusertree", () => {
     function checkFoldersInTree(expected, tree) {
         expected.forEach(expectedFolder => {
             const found = tree.find(child => child.slug === expectedFolder.name);
-            console.log(expectedFolder.name, found);
             expect(found).toBeDefined();
             if (expectedFolder.children && expectedFolder.children.length > 0) {
                 checkFoldersInTree(expectedFolder.children, found.subfolders || []);
@@ -82,72 +81,29 @@ describe("GET action=currentusertree", () => {
 
 
 
-    test("guest tree contains only /access/restricted_to_guest", async () => {
+    test("guest tree contains pouze /access/restricted_to_guest a jeho podstrom", async () => {
         // Guest má podle _users.json přístup pouze do /access/restricted_to_guest
         const response = await apiCallGuest("access?action=currentusertree", "GET");
         expect(response.json.success).toBe(true);
         expect(response.json.data).not.toBeUndefined();
         expect(response.json.data.tree).not.toBeUndefined();
-        // Očekáváme, že root node je /access/restricted_to_guest
         const tree = response.json.data.tree;
-
-        expect(Array.isArray(tree)).toBe(true);
-
         testTreeItemList(tree);
 
+        // Očekávaná struktura pro guesta
+        const expectedGuestFolders = [
+            {
+                name: "restricted_to_guest",
+                children: [
+                    { name: "accessible", children: [] },
+                    { name: "nazev-nove-slozky", children: [] },
+                    { name: "restricted", children: [] }
+                ]
+            }
+        ];
+        // Strom pro guesta začíná polem subfolders (root je /access/restricted_to_guest)
+        checkFoldersInTree(expectedGuestFolders, tree);
     });
-
-    // Hierarchická struktura složek v www/data
-    const expectedFolders = [
-        {
-            name: "",
-            children: [
-                {
-                    name: "access",
-                    children: [
-                        {
-                            name: "accessible",
-                            children: [
-                                { name: "accessible", children: [] },
-                                { name: "restricted", children: [] }
-                            ]
-                        },
-                        {
-                            name: "restricted",
-                            children: [
-                                { name: "accessible", children: [] },
-                                { name: "restricted", children: [] }
-                            ]
-                        },
-                        {
-                            name: "restricted_to_guest",
-                            children: [
-                                { name: "accessible", children: [] },
-                                { name: "nazev-nove-slozky", children: [] },
-                                { name: "restricted", children: [] }
-                            ]
-                        }
-                    ]
-                },
-                { name: "another-folder", children: [] },
-                {
-                    name: "manetin", children: [
-                        { name: "les", children: [] },
-                        { name: "naves", children: [] },
-                        { name: "optherm", children: [] }
-                    ]
-                },
-                { name: "some_folder", children: [] },
-                {
-                    name: "specials", children: [
-                        { name: "restricted", children: [] },
-                        { name: "user", children: [] }
-                    ]
-                },
-                { name: "zihle", children: [] }
-            ]
-        }
-    ];
 
 
 
@@ -160,7 +116,58 @@ describe("GET action=currentusertree", () => {
 
         testTreeItemList(tree);
 
-        console.log(tree);
+
+        // Hierarchická struktura složek v www/data
+        const expectedFolders = [
+            {
+                name: "",
+                children: [
+                    {
+                        name: "access",
+                        children: [
+                            {
+                                name: "accessible",
+                                children: [
+                                    { name: "accessible", children: [] },
+                                    { name: "restricted", children: [] }
+                                ]
+                            },
+                            {
+                                name: "restricted",
+                                children: [
+                                    { name: "accessible", children: [] },
+                                    { name: "restricted", children: [] }
+                                ]
+                            },
+                            {
+                                name: "restricted_to_guest",
+                                children: [
+                                    { name: "accessible", children: [] },
+                                    { name: "nazev-nove-slozky", children: [] },
+                                    { name: "restricted", children: [] }
+                                ]
+                            }
+                        ]
+                    },
+                    { name: "another-folder", children: [] },
+                    {
+                        name: "manetin", children: [
+                            { name: "les", children: [] },
+                            { name: "naves", children: [] },
+                            { name: "optherm", children: [] }
+                        ]
+                    },
+                    { name: "some_folder", children: [] },
+                    {
+                        name: "specials", children: [
+                            { name: "restricted", children: [] },
+                            { name: "user", children: [] }
+                        ]
+                    },
+                    { name: "zihle", children: [] }
+                ]
+            }
+        ];
 
         // Ověř, že všechny složky z expectedFolders jsou ve stromu
         checkFoldersInTree(expectedFolders, tree);
