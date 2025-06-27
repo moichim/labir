@@ -119,7 +119,7 @@ Tento projekt obsahuje backendové API (PHP) pro správu složek, souborů, tag�
 
 ### Vytvoření podsložky
 ```http
-POST /access/{cesta}?action=create
+POST {cesta}?action=create
 {
   "name": "Nová složka",
   "description": "Popis složky",
@@ -130,7 +130,7 @@ POST /access/{cesta}?action=create
 
 ### Update složky (přidání a odebrání tagů)
 ```http
-POST /access/{cesta}?action=update
+POST {cesta}?action=update
 {
   "addTags": { "tag2": { "name": "Druhý tag" } },
   "removeTags": ["tag1"]
@@ -139,7 +139,7 @@ POST /access/{cesta}?action=update
 
 ### Update souboru
 ```http
-POST /access/{cesta}?action=updatefile&file=example.lrc
+POST {cesta}?action=updatefile&file=example.lrc
 {
   "label": "Nový popisek",
   "addTags": ["tag3"],
