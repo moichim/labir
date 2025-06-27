@@ -84,6 +84,24 @@ Tento projekt obsahuje backendové API (PHP) pro správu složek, souborů, tag�
   - Parametry: žádné
   - Odpověď: JSON se stromem složek
 
+### 9. Výpis souborů v gridu (časové řazení napříč podsložkami)
+- **GET** `{cesta}?action=grid`
+  - Vrací soubory ze všech podsložek aktuální složky v časovém gridu (např. po hodinách, dnech, týdnech apod.), vhodné pro tabulkové zobrazení napříč podsložkami.
+  - Přístup: kdokoli, kdo má právo složku zobrazit (včetně anonymních, pokud je složka veřejná)
+  - Parametry v URL (volitelné):
+    - `from` (int): časový začátek (timestamp)
+    - `to` (int): časový konec (timestamp)
+    - `tags` (string): filtr na tagy (čárkou oddělené)
+    - `folders` (string): filtr na podsložky (čárkou oddělené slugs)
+    - `info` (bool): zda vracet i info o složce
+    - `by` (string): časová jednotka pro seskupení gridu. Dostupné hodnoty:
+        - `hour` (hodiny)
+        - `day` (dny)
+        - `week` (týdny)
+        - `month` (měsíce)
+        - `year` (roky)
+  - Odpověď: JSON s gridem souborů napříč podsložkami
+
 ## Přístupová práva a autentizace
 - Uživatelé (root, guest, další) jsou definováni v `_users.json`.
 - Každý uživatel má přístup pouze do vybraných složek.

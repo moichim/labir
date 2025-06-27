@@ -10,9 +10,10 @@ use Exception;
 final class GetPresenter extends BasePresenter
 {
 
-    /** 
-     * Information about a folder, eventually about its subfolders and files.
-     * The basic route called whenever there is no action specified.
+    /**
+     * Základní informace o složce, podsložkách a souborech.
+     * GET {cesta}
+     * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
      */
     public function actionDefault(
         ?string $path = null
@@ -32,10 +33,10 @@ final class GetPresenter extends BasePresenter
 
 
     /**
-     * Action: files
-     * 
-     * Retrieves files from one folder, filtered 
-     * by their parameters.
+     * Výpis souborů ve složce (s možností filtrování).
+     * GET {cesta}?action=files
+     * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
+     * Parametry: from, to, tags (volitelné)
      */
     public function actionFiles(
         ?string $path,
@@ -94,6 +95,12 @@ final class GetPresenter extends BasePresenter
 
 
 
+    /**
+     * Výpis souborů z podsložek v gridu (časové řazení, tabulka).
+     * GET {cesta}?action=grid
+     * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
+     * Parametry: from, to, tags, folders, info, by (volitelné) – viz README
+     */
     public function actionGrid(
         string $path,
         ?int $from = null,
@@ -136,6 +143,11 @@ final class GetPresenter extends BasePresenter
 
 
 
+    /**
+     * Testovací akce (pro ladění, nemá produkční význam).
+     * GET {cesta}?action=test
+     * Přístup: pouze admin nebo vývojář (dle implementace)
+     */
     public function actionTest(?string $path, ?string $action, ?string $id): void
     {
         $this->markSuccess();
@@ -149,6 +161,11 @@ final class GetPresenter extends BasePresenter
     }
 
 
+    /**
+     * Získání informací o konkrétním souboru ve složce.
+     * GET {cesta}?action=file&file={soubor}
+     * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
+     */
     public function actionFile( ?string $path, ?string $file): void {
 
         $lrc = $this->scanner->folder->getFile($path, $file);
@@ -168,6 +185,8 @@ final class GetPresenter extends BasePresenter
 
     /**
      * Vrátí strom složek, ke kterým má aktuální uživatel přístup (usertree) a metadata uživatele.
+     * GET {cesta}?action=currentusertree
+     * Přístup: pouze přihlášený uživatel smí získat svůj vlastní seznam složek
      */
     public function actionCurrentusertree(?string $path = null): void
     {

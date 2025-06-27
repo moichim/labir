@@ -18,9 +18,10 @@ final class PostPresenter extends BasePresenter
         parent::startup();
     }
 
-    /** 
-     * Information about a folder, eventually about its subfolders and files.
-     * The basic route called whenever there is no action specified.
+    /**
+     * Základní informace o složce (a jejích podsložkách a souborech).
+     * GET {cesta}
+     * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
      */
     public function actionDefault(
         ?string $path = null
@@ -35,7 +36,12 @@ final class PostPresenter extends BasePresenter
         $this->respond();
     }
 
-
+    /**
+     * Vytvoření nové podsložky v aktuální složce.
+     * POST {cesta}?action=create
+     * Přístup: pouze uživatel s právem zápisu do složky (typicky přihlášený uživatel nebo admin)
+     * Parametry v POST body: viz README
+     */
     public function actionCreate(): void
     {
         $parentSlug = $this->scanner->getBasePath();
@@ -89,6 +95,11 @@ final class PostPresenter extends BasePresenter
         $this->respond();
     }
 
+    /**
+     * Smazání aktuální složky (včetně obsahu).
+     * POST {cesta}?action=delete
+     * Přístup: pouze uživatel s právem mazat složku (typicky admin nebo vlastník)
+     */
     public function actionDelete(): void
     {
         $slug = $this->scanner->getBasePath();
@@ -99,20 +110,10 @@ final class PostPresenter extends BasePresenter
     }
 
     /**
-     * Aktualizace složky (název, popis, meta, přesun, tagy)
-     * 
-     * Očekává JSON body s libovolnou kombinací:
-     *  - name: nový název složky (string, volitelné)
-     *  - description: nový popis složky (string, volitelné)
-     *  - meta: objekt s metadaty (volitelné)
-     *  - move: true/false (přejmenuje složku, pokud je true a name zadáno)
-     *  - addTags: objekt s tagy k přidání (volitelné, klíč = slug, hodnota = objekt tagu)
-     *  - removeTags: pole klíčů/slugů tagů k odebrání (volitelné)
-     *
-     * Výsledek obsahuje aktualizované informace o složce.
-     *
-     * @return void
-     * @throws Exception pokud je request nevalidní
+     * Úprava vlastností aktuální složky (název, popis, metadata, tagy, přesun).
+     * POST {cesta}?action=update
+     * Přístup: pouze uživatel s právem zápisu do složky (typicky přihlášený uživatel nebo admin)
+     * Parametry v POST body: viz README
      */
     public function actionUpdate(): void
     {
@@ -178,6 +179,12 @@ final class PostPresenter extends BasePresenter
         $this->respond();
     }
 
+    /**
+     * Přesun aktuální složky do jiné složky.
+     * POST {cesta}?action=move
+     * Přístup: pouze uživatel s právem zápisu do obou složek (typicky admin nebo vlastník)
+     * Parametry v POST body: viz README
+     */
     public function actionMove(): void
     {
         $slug = $this->scanner->getBasePath();
@@ -203,10 +210,10 @@ final class PostPresenter extends BasePresenter
     }
 
     /**
-     * Aktualizace metadat souboru (label, description, tagy, analýzy)
-     * @param string $path Cesta ke složce (povinné, z parametru akce)
-     * @param string $file Název souboru (povinné, z parametru akce)
-     * V POST body pouze update data (viz výše)
+     * Úprava metadat konkrétního souboru v aktuální složce.
+     * POST {cesta}?action=updatefile&file={soubor}
+     * Přístup: pouze uživatel s právem zápisu do složky (typicky přihlášený uživatel nebo admin)
+     * Parametry v POST body: viz README
      */
     public function actionUpdatefile(string $path, string $file): void
     {
