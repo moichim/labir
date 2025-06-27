@@ -529,6 +529,13 @@ final class Folder
 
     /**
      * Move a folder to a new parent folder.
+     * Přesune složku do nové nadřazené složky (target parent).
+     * 
+     * Práva:
+     *  - Uživatel musí mít právo zápisu (userMayManageFoldersIn) do cílové složky.
+     *  - Pokud cílová složka neexistuje, nebo už v ní existuje složka stejného jména, akce selže.
+     *  - Pokud přesouvaná složka neexistuje, akce selže.
+     * 
      * @param string $slug Slug (relativní cesta) přesouvané složky
      * @param string $targetParentSlug Cílová složka (relativní cesta)
      * @return array
@@ -536,29 +543,41 @@ final class Folder
      */
     public function moveFolder(string $slug, string $targetParentSlug): array
     {
+        // Získej absolutní cestu ke zdrojové složce
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
             throw new Exception("Folder '$slug' does not exist", 404);
         }
+
+        // Získej absolutní cestu k cílové nadřazené složce
         $targetParentPath = $this->scanner->getFullPath($targetParentSlug);
         if (!is_dir($targetParentPath)) {
             throw new Exception("Target parent folder '$targetParentSlug' does not exist", 404);
         }
+
         // Ověření práv: uživatel musí mít právo zápisu pouze do cílové složky
         $identity = $this->scanner->authorisation->getIdentity();
         $user = $identity ? $identity["user"] : null;
         if (!$this->scanner->access->userMayManageFoldersIn($targetParentSlug, $user)) {
             throw new Exception("You do not have write access to the target parent folder", 403);
         }
+
+        // Sestav nový slug a cestu pro přesouvanou složku
         $folderName = basename($slug);
         $newSlug = rtrim($targetParentSlug, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $folderName;
         $newPath = $this->scanner->getFullPath($newSlug);
+
+        // Pokud v cílové složce už existuje složka stejného jména, akce selže
         if (is_dir($newPath)) {
             throw new Exception("Target folder '$newSlug' already exists", 409);
         }
+
+        // Proveď přesun (přejmenování) složky
         if (!rename($fullPath, $newPath)) {
             throw new Exception("Failed to move folder", 500);
         }
+
+        // Vrať informace o přesunu
         return [
             'oldSlug' => $slug,
             'newSlug' => $newSlug,
