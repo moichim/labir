@@ -9,7 +9,7 @@ use Exception;
 
 final class AuthPresenter extends BasePresenter {
 
-    public function actionLogin( string $path ): void {
+    public function actionLogin(): void {
 
         $post = $this->getHttpRequest()->getRawBody();
 
@@ -22,7 +22,6 @@ final class AuthPresenter extends BasePresenter {
         }
 
         $login = $this->scanner->authorisation->authenticate( 
-            $path, 
             $post->user, 
             $post->password 
         );

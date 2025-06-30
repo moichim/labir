@@ -40,7 +40,18 @@ class CustomRouter implements Router
 
 
         // Make sure the path is provided
-        if ($path == null || $path === "" || $path === "/") {
+        if (
+            (
+                $path == null 
+                || $path === "" 
+                || $path === "/" 
+            )
+            && !isset( $params["action"] )
+            && (
+                $params["action"] !== "connect"
+                || $params["action"] !== "login"
+            )
+        ) {
 
             return $this->error("Path was not provided.", 400);
         }

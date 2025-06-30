@@ -5,7 +5,7 @@ describe( "loginRoot()", () => {
 
     test( "login to proper folder", async () => {
 
-        const response = await loginRoot( "access" );
+        const response = await loginRoot( );
 
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();
@@ -17,7 +17,7 @@ describe( "loginRoot()", () => {
 
     test( "login to another folder", async () => {
 
-        const response = await loginRoot( "some_folder" );
+        const response = await loginRoot( );
 
         expect( response.json.success ).toBe( true );
         expect( response.json.data ).not.toBeUndefined();

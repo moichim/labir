@@ -75,24 +75,20 @@ class AuthorisationService
      * create a new identity and return it.
      */
     public function authenticate(
-        string $path,
         string $userName,
         string $password
     ): array|false {
-
-
-        $access = $this->scanner->access->getFolderAccess($path);
-
-        if (
-            isset($access["users"])
-            && isset($access["users"][$userName])
-            && isset($access["users"][$userName]["password"])
-            && $access["users"][$userName]["password"] === $password
-        ) {
-            $this->createIdentity($userName, $path);
-            return $this->getIdentity();
+        // Hledání uživatele podle pole 'login' v getUsers()
+        $users = $this->scanner->access->getUsers();
+        foreach ($users as $user) {
+            if (
+                isset($user["login"]) && $user["login"] === $userName &&
+                isset($user["password"]) && $user["password"] === $password
+            ) {
+                $this->createIdentity($user["login"], "/");
+                return $this->getIdentity();
+            }
         }
-
         return false;
     }
 

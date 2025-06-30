@@ -11,6 +11,20 @@ final class GetPresenter extends BasePresenter
 {
 
     /**
+     * Základní připojení k serveru
+     */
+    public function actionConnect(): void {
+
+        $this->storeData("message", "Connection established successfully.");
+        $this->storeData( "identity", $this->scanner->authorisation->getIdentity() );
+        $this->storeData( "headers", $this->getHttpRequest()->getHeaders() );
+        $this->storeData( "session_ID", session_id() );
+        $this->markSuccess();
+        $this->respond();
+
+    }
+
+    /**
      * Základní informace o složce, podsložkách a souborech.
      * GET {cesta}
      * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
