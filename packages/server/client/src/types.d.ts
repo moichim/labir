@@ -110,3 +110,12 @@ export type TreeItem = {
   metadata: Record<string, any>,
   subfolders: TreeItem[]
 }
+
+/** @deprecated updating of tags should go without this object. There should be a type for tags in response...  */
+export type TagUpdateObject = {
+  [slug: string]: {
+    name: string;
+    description?: string;
+    color?: string;
+  };
+};

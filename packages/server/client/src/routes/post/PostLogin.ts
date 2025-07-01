@@ -3,11 +3,11 @@ import { Identity } from "../../types";
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type PostLoginData = {
+export type PostLoginDataType = {
     login: Identity
 }
 
-export class PostLogin extends Operation<PostLoginData> {
+export class PostLogin extends Operation<PostLoginDataType> {
 
     protected request!: RequestFactory;
 
@@ -32,9 +32,9 @@ export class PostLogin extends Operation<PostLoginData> {
         return this;
     }
 
-    public async execute(): Promise<ApiResponseType<PostLoginData>> {
+    public async execute(): Promise<ApiResponseType<PostLoginDataType>> {
 
-        const response = await this.client.fetch<PostLoginData>(this.request);
+        const response = await this.client.fetch<PostLoginDataType>(this.request);
 
         if (response.success ) {
 
