@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import Client from "../../../src";
-import { ApiResponseError, ApiResponseSuccess } from "../../../src/routes/ResponseTypes";
 import { GetDefaultDataType } from "../../../src/routes/get/GetDefault";
 import { PostLoginData } from "../../../src/routes/post/PostLogin";
 
@@ -20,14 +19,12 @@ describe( "GetDefault", () => {
 
         expect( response.success ).toBe( true );
 
-        const typedResponse = response as ApiResponseSuccess<GetDefaultDataType>;
-
         // Check if the response has the folder and subfolders
-        expect( typedResponse.data ).toHaveProperty("folder");
-        expect( typedResponse.data ).toHaveProperty("subfolders");
+        expect( response.data ).toHaveProperty("folder");
+        expect( response.data ).toHaveProperty("subfolders");
 
         // Check if the folder is the public folder
-        expect( typedResponse.data.folder.name ).toBe( "Jméno složky" );
+        expect( response.data!.folder.name ).toBe( "Jméno složky" );
 
     } );
 
@@ -44,9 +41,7 @@ describe( "GetDefault", () => {
 
         expect( response.success ).toBe( false );
 
-        const typedResponse = response as ApiResponseError;
-
-        expect( typedResponse.code ).toBe( 401 );
+        expect( response.code ).toBe( 401 );
 
     } );
 
@@ -64,12 +59,10 @@ describe( "GetDefault", () => {
 
         const failed_response = await failed_request.execute();
 
-        expect( failed_response.success ).toBe( false );
+        expect( failed_response.success ).toBe( false );;
 
-        const failed_typed_response = failed_response as ApiResponseError;
-
-        expect( failed_typed_response ).toHaveProperty("code");
-        expect( failed_typed_response ).toHaveProperty("error");
+        expect( failed_response ).toHaveProperty("code");
+        expect( failed_response ).toHaveProperty("message");
 
 
 
@@ -83,8 +76,7 @@ describe( "GetDefault", () => {
 
         expect( loginResponse.success ).toBe( true );
 
-        const typedLoginResponse = loginResponse as ApiResponseSuccess<PostLoginData>;
-        expect( typedLoginResponse.data.login ).toBe( client.auth.getIdentity() );
+        expect( loginResponse.data!.login ).toBe( client.auth.getIdentity() );
 
         // Now try to access the protected folder when we are logged in
         const request = client.routes.GetDefault();
@@ -94,11 +86,9 @@ describe( "GetDefault", () => {
 
         expect( response.success ).toBe( true );
 
-        const typedResponse = response as ApiResponseSuccess<GetDefaultDataType>;
-
         // Check if the response has the folder and subfolders
-        expect( typedResponse.data ).toHaveProperty("folder");
-        expect( typedResponse.data ).toHaveProperty("subfolders");
+        expect( response.data ).toHaveProperty("folder");
+        expect( response.data ).toHaveProperty("subfolders");
 
     } );
 

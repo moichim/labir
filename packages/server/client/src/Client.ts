@@ -1,7 +1,7 @@
 import { Auth } from "./authentication/Auth";
 import { RequestFactory } from "./request/RequestFactory";
 import { GetConnectDataType } from "./routes/get/GetConnect";
-import { ApiResponseDataType, ApiResponseError, ApiResponseSuccess, ApiResponseType } from "./routes/ResponseTypes";
+import { ApiResponseDataType, ApiResponseType } from "./routes/ResponseTypes";
 import { Routes } from "./routes/Routes";
 
 export class Client {
@@ -112,20 +112,17 @@ export class Client {
 
         const json = await response.json();
 
-        json.request = request;
-        json.response = response;
+        json.raw = {
+            request: request,
+            response: response
+        }
 
         // If the response failed completely, throw an error
         if ( !response.ok ) {
             throw new Error( "Request was not successfull at all!" );
         }
 
-        // If the response came, but was not successfull, return error
-        if ( !json.success ) {
-            return json as ApiResponseError;
-        }
-
-        return json as ApiResponseSuccess<R>;
+        return json as ApiResponseType<R>;
 
     }
 

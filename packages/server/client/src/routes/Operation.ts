@@ -1,5 +1,5 @@
 import { Client } from "../Client";
-import { ApiResponseDataType, ApiResponseError, ApiResponseSuccess, ApiResponseType } from "./ResponseTypes";
+import { ApiResponseDataType, ApiResponseType } from "./ResponseTypes";
 
 export abstract class Operation<R extends ApiResponseDataType>  {
 

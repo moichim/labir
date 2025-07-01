@@ -1,7 +1,7 @@
 import { RequestFactory } from "../../request/RequestFactory";
-import { FolderInfo, Identity } from "../../types";
+import { Identity } from "../../types";
 import { Operation } from "../Operation";
-import { ApiResponseError, ApiResponseSuccess, ApiResponseType } from "../ResponseTypes";
+import { ApiResponseType } from "../ResponseTypes";
 
 export type GetConnectDataType = {
     message: string,
@@ -14,8 +14,8 @@ export class GetConnect extends Operation<GetConnectDataType> {
 
     public init(): this {
         this.request = this.client.createRequest();
-        this.request.setMethod( "GET" );
-        this.request.setAction( "connect" );
+        this.request.setMethod("GET");
+        this.request.setAction("connect");
         return this;
     }
 
@@ -23,14 +23,14 @@ export class GetConnect extends Operation<GetConnectDataType> {
     public async execute(): Promise<ApiResponseType<GetConnectDataType>> {
         const response = await this.client.fetch<GetConnectDataType>(this.request);
 
-        if ( response.success ) {
+        if (response.success) {
 
             // If the connection was successful, set the identity in the auth module
-            const typedResponse = response as ApiResponseSuccess<GetConnectDataType>;
+            const typedResponse = response;
 
             // If the identity is not false, login the user
-            if ( typedResponse.data.identity !== false ) {
-                this.client.auth.login( typedResponse.data.identity );
+            if (typedResponse.data.identity !== false) {
+                this.client.auth.login(typedResponse.data.identity);
             }
 
         }

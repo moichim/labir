@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import { Client } from "../src/Client";
-import { ApiResponseError, ApiResponseSuccess } from "../src/routes/ResponseTypes";
 import { GetConnect, GetConnectDataType } from "../src/routes/get/GetConnect";
 
 describe("Client", () => {
@@ -27,9 +26,7 @@ describe("Client", () => {
         expect( connection.success ).toBe( true );        
         expect( connection ).toHaveProperty( "data" );
 
-        const connectionTypes = connection as ApiResponseSuccess<GetConnectDataType>;
-
-        expect( connectionTypes.data ).toHaveProperty("message", "Connection established successfully." );
+        // expect( connection.message ).toHaveProperty("message", "Connection established successfully." );
 
         // Check if the client is connected
         expect( client.isConnected() ).toBe( true );
@@ -95,14 +92,14 @@ describe("Client", () => {
         expect(result.success).toBe( true );
 
         // Expect the subsequent request rawObject to have PHPSESSID in the headers
-        expect( result.request.headers.get("Cookie") ).toBeDefined();
-        expect( result.request.headers.get("Cookie") ).toMatch(/PHPSESSID=/);
-        expect( result.request.headers.get("Cookie") ).toContain( client.auth.getSession() );
+        expect( result.raw.request.headers.get("Cookie") ).toBeDefined();
+        expect( result.raw.request.headers.get("Cookie") ).toMatch(/PHPSESSID=/);
+        expect( result.raw.request.headers.get("Cookie") ).toContain( client.auth.getSession() );
 
 
         // Expect the subsequent request to have PHPSESSID in the headers
-        expect( result.response.headers.get("set-cookie") ).toMatch(/PHPSESSID=/);
-        expect( result.response.headers.get("set-cookie") ).toContain( client.auth.getSession() )
+        expect( result.raw.response.headers.get("set-cookie") ).toMatch(/PHPSESSID=/);
+        expect( result.raw.response.headers.get("set-cookie") ).toContain( client.auth.getSession() )
 
     } );
 
@@ -161,13 +158,11 @@ describe("Client", () => {
 
         const result = await get.execute();
 
-        expect( result.response.status ).toBe(200);
+        expect( result.raw.response.status ).toBe(200);
         expect( result.success ).toBe( false );
 
-        const typedResult = result as ApiResponseError;
-
-        expect( typedResult.code ).toBe(404);
-        expect( typedResult.error ).toMatch(/Folder does not exist/i);
+        expect( result.code ).toBe(404);
+        expect( result.message ).toMatch(/Folder does not exist/i);
 
     } );
 

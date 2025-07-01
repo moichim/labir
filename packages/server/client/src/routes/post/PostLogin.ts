@@ -1,7 +1,7 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { Identity } from "../../types";
 import { Operation } from "../Operation";
-import { ApiResponseSuccess, ApiResponseType } from "../ResponseTypes";
+import { ApiResponseType } from "../ResponseTypes";
 
 export type PostLoginData = {
     login: Identity
@@ -39,7 +39,7 @@ export class PostLogin extends Operation<PostLoginData> {
         if (response.success ) {
 
             // Retype the response
-            const typedResponse = response as ApiResponseSuccess<PostLoginData>;
+            const typedResponse = response;
 
             // Login the user
             this.client.auth.login( typedResponse.data.login );

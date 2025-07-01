@@ -1,7 +1,7 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { FolderInfo } from "../../types";
 import { Operation } from "../Operation";
-import { ApiResponseError, ApiResponseSuccess, ApiResponseType } from "../ResponseTypes";
+import { ApiResponseType } from "../ResponseTypes";
 
 export type GetDefaultDataType = {
     folder: FolderInfo,
