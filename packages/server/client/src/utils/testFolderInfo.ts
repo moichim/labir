@@ -1,4 +1,5 @@
 import { expect } from "vitest";
+import { testFileInfo } from "./testFileStructure";
 
 // Helper function to validate FolderInfo structure
 export function testFolderInfo(folder: any) {
@@ -19,5 +20,15 @@ export function testFolderInfo(folder: any) {
     }
     if (folder.parent_tags !== undefined) {
         expect(typeof folder.parent_tags).toBe("object");
+    }
+    // Pokud je přítomen klíč files, ověř že je to pole souborů
+    if (folder.files !== undefined) {
+        expect(Array.isArray(folder.files)).toBe(true);
+        for (const file of folder.files) {
+            // Pokud máš k dispozici testFileInfo, můžeš zde volat testFileInfo(file);
+            // Jinak pouze základní kontrola:
+            expect(file).toHaveProperty("entity", "file");
+            testFileInfo( file );
+        }
     }
 }

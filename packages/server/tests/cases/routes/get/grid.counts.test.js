@@ -14,11 +14,11 @@ describe("GET action=grid – počty snímků podle filtru", () => {
         const year = await apiCallGuest( "zihle?action=grid&by=year" );
 
         const counts = [
-            hour.json.data.grid.count.displayed,
-            day.json.data.grid.count.displayed,
-            week.json.data.grid.count.displayed,
-            month.json.data.grid.count.displayed,
-            year.json.data.grid.count.displayed
+            hour.json.data.count.displayed,
+            day.json.data.count.displayed,
+            week.json.data.count.displayed,
+            month.json.data.count.displayed,
+            year.json.data.count.displayed
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );
@@ -34,11 +34,11 @@ describe("GET action=grid – počty snímků podle filtru", () => {
         const year = await apiCallGuest( "manetin?action=grid&by=year" );
 
         const counts = [
-            hour.json.data.grid.count.displayed,
-            day.json.data.grid.count.displayed,
-            week.json.data.grid.count.displayed,
-            month.json.data.grid.count.displayed,
-            year.json.data.grid.count.displayed
+            hour.json.data.count.displayed,
+            day.json.data.count.displayed,
+            week.json.data.count.displayed,
+            month.json.data.count.displayed,
+            year.json.data.count.displayed
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );
@@ -54,11 +54,11 @@ describe("GET action=grid – počty snímků podle filtru", () => {
         const year = await apiCallGuest( "zihle?action=grid&by=year&tags=something" );
 
         const counts = [
-            hour.json.data.grid.count.displayed,
-            day.json.data.grid.count.displayed,
-            week.json.data.grid.count.displayed,
-            month.json.data.grid.count.displayed,
-            year.json.data.grid.count.displayed
+            hour.json.data.count.displayed,
+            day.json.data.count.displayed,
+            week.json.data.count.displayed,
+            month.json.data.count.displayed,
+            year.json.data.count.displayed
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );
@@ -74,11 +74,11 @@ describe("GET action=grid – počty snímků podle filtru", () => {
         const year = await apiCallGuest( "zihle?action=grid&by=year&folders=barevne-krabicky,trava" );
 
         const counts = [
-            hour.json.data.grid.count.omitted,
-            day.json.data.grid.count.omitted,
-            week.json.data.grid.count.omitted,
-            month.json.data.grid.count.omitted,
-            year.json.data.grid.count.omitted
+            hour.json.data.count.omitted,
+            day.json.data.count.omitted,
+            week.json.data.count.omitted,
+            month.json.data.count.omitted,
+            year.json.data.count.omitted
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );
@@ -94,11 +94,11 @@ describe("GET action=grid – počty snímků podle filtru", () => {
         const year = await apiCallGuest( "zihle?action=grid&by=year&folders=barevne-krabicky,trava&tags=something" );
 
         const counts = [
-            hour.json.data.grid.count.displayed,
-            day.json.data.grid.count.displayed,
-            week.json.data.grid.count.displayed,
-            month.json.data.grid.count.displayed,
-            year.json.data.grid.count.displayed
+            hour.json.data.count.displayed,
+            day.json.data.count.displayed,
+            week.json.data.count.displayed,
+            month.json.data.count.displayed,
+            year.json.data.count.displayed
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );

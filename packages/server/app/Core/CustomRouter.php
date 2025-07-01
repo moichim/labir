@@ -38,6 +38,39 @@ class CustomRouter implements Router
             "params" => $params
         ] + $params;
 
+        $rootActions = [
+            "connect",
+            "login",
+            "currentusertree"
+        ];
+
+        $isRootAction = in_array( $params["action"] ?? "default", $rootActions );
+
+        if ( $isRootAction ) {
+
+            if ( ! (
+                $path === null
+                || $path === ""
+                || $path === "/"
+            ) ) {
+
+                $action = $params["action"] ?? "default";
+
+                return $this->error( "The action '$action' can be called only on the server root!", 400 );
+            }
+
+        } else {
+
+            if ( 
+                $path === null
+                || $path === ""
+                || $path === "/"
+             ) {
+                return $this->error("Path was not provided.", 400);
+            }
+
+        }
+
 
         // Make sure the path is provided
         if (
@@ -47,14 +80,12 @@ class CustomRouter implements Router
                 || $path === "/" 
             )
             && !isset( $params["action"] )
-            && (
-                $params["action"] !== "connect"
-                || $params["action"] !== "login"
-            )
+            && ! $isRootAction
         ) {
-
-            return $this->error("Path was not provided.", 400);
+            // return $this->error("Path was not provided.", 400);
         }
+
+
 
         // var_dump( $path );
 

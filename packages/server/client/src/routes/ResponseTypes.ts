@@ -1,7 +1,7 @@
 export type ApiResponseDataType = {}
 
 /**
- * The main type for all API responses.
+ * The response of LabIR server to any request.
  */
 export type ApiResponseType<R extends ApiResponseDataType = ApiResponseDataType> =
     {

@@ -6,7 +6,7 @@ describe( "Authentication",  () => {
 
     test( "GET to login should be restricted", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "GET" );
+        const request = await apiCall( "http://localhost:8080/?action=login", "GET" );
 
         expect( request.json.success ).toBe( false );
 
@@ -15,7 +15,7 @@ describe( "Authentication",  () => {
 
     test( "POST to login without credentials in the body", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST" );
+        const request = await apiCall( "http://localhost:8080/?action=login", "POST" );
 
         expect( request.json.success ).toBe( false );
         expect( request.json.code ).toBe( 400 );
@@ -25,7 +25,7 @@ describe( "Authentication",  () => {
 
     test( "POST to login with non existing user", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST", {
+        const request = await apiCall( "http://localhost:8080?action=login", "POST", {
             user: "non_existing_user",
             password: "some_password"
         } );
@@ -38,7 +38,7 @@ describe( "Authentication",  () => {
 
     test( "POST to login with correct user but wrong password", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST", {
+        const request = await apiCall( "http://localhost:8080?action=login", "POST", {
             user: "root",
             password: "wrong_password"
         } );
@@ -51,7 +51,7 @@ describe( "Authentication",  () => {
 
     test( "POST to login with incorrect user but with an existing password", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST", {
+        const request = await apiCall( "http://localhost:8080?action=login", "POST", {
             user: "non_existing_user",
             password: "abcdefghijk"
         } );
@@ -64,7 +64,7 @@ describe( "Authentication",  () => {
 
     test( "POST to login with correct credentials", async () => {
 
-        const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST", {
+        const request = await apiCall( "http://localhost:8080?action=login", "POST", {
             user: "root",
             password: "abcdefghijk"
         } );

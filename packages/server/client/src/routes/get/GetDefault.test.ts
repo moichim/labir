@@ -1,8 +1,6 @@
 import { describe, expect, test } from "vitest";
 import Client from "../..";
-import { GetDefaultDataType } from "./GetDefault";
-import { PostLoginData } from "../post/PostLogin";
-import { testFolderInfo } from "../../utils/testFolderStructure";
+import { testFolderInfo } from "../../utils/testFolderInfo";
 
 
 describe( "GetDefault", () => {
@@ -13,7 +11,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.GetDefault();
+        const request = client.routes.get.default();
         request.setPath( "access/accessible/accessible" );
 
         const response = await request.execute();
@@ -37,7 +35,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.GetDefault();
+        const request = client.routes.get.default();
         request.setPath( "access/accessible/restricted" );
 
         const response = await request.execute();
@@ -57,7 +55,7 @@ describe( "GetDefault", () => {
 
 
         // Try to access the protected folder before logging in
-        const failed_request = client.routes.GetDefault();
+        const failed_request = client.routes.get.default();
         failed_request.setPath( "access/restricted_to_guest" );
 
         const failed_response = await failed_request.execute();
@@ -71,7 +69,7 @@ describe( "GetDefault", () => {
 
 
         // Login as guest
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("guest");
         login.setPassword("querty");
 
@@ -82,7 +80,7 @@ describe( "GetDefault", () => {
         expect( loginResponse.data!.login ).toBe( client.auth.getIdentity() );
 
         // Now try to access the protected folder when we are logged in
-        const request = client.routes.GetDefault();
+        const request = client.routes.get.default();
         request.setPath( "access/restricted_to_guest" );
 
         const response = await request.execute();

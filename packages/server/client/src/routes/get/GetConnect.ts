@@ -4,7 +4,6 @@ import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetConnectDataType = {
-    message: string,
     identity: false | Identity
 }
 

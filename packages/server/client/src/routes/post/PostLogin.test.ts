@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import Client from "../../../src";
-import { ApiResponseSuccess } from "../../../src/routes/ResponseTypes";
 import { PostLoginData } from "../../../src/routes/post/PostLogin";
 
 describe( "PostLogin", () => {
@@ -11,7 +10,7 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("guest");
         login.setPassword("querty");
 
@@ -19,10 +18,9 @@ describe( "PostLogin", () => {
 
         expect( response.success ).toBe( true );
 
-        const typedResponse = response as ApiResponseSuccess<PostLoginData>;
-        expect( typedResponse.data ).toHaveProperty("login");
+        expect( response.data ).toHaveProperty("login");
 
-        expect( typedResponse.data.login ).toBe( client.auth.getIdentity() );
+        expect( response.data!.login ).toBe( client.auth.getIdentity() );
 
     } );
 
@@ -32,7 +30,7 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("root");
         login.setPassword("abcdefghijk");
 
@@ -40,10 +38,9 @@ describe( "PostLogin", () => {
 
         expect( response.success ).toBe( true );
 
-        const typedResponse = response as ApiResponseSuccess<PostLoginData>;
-        expect( typedResponse.data ).toHaveProperty("login");
+        expect( response.data ).toHaveProperty("login");
 
-        expect( typedResponse.data.login ).toBe( client.auth.getIdentity() );
+        expect( response.data!.login ).toBe( client.auth.getIdentity() );
 
     } );
 
@@ -55,7 +52,7 @@ describe( "PostLogin", () => {
 
         expect( client.auth.isLoggedIn() ).toBe( false );
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("František Dobrota");
         login.setPassword("abcdefghijk");
 
@@ -65,10 +62,9 @@ describe( "PostLogin", () => {
 
         expect( client.auth.isLoggedIn() ).toBe( true );
 
-        const typedResponse = response as ApiResponseSuccess<PostLoginData>;
-        expect( typedResponse.data ).toHaveProperty("login");
+        expect( response.data ).toHaveProperty("login");
 
-        expect( typedResponse.data.login ).toBe( client.auth.getIdentity() );
+        expect( response.data!.login ).toBe( client.auth.getIdentity() );
 
     } );
 
@@ -78,7 +74,7 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("guest");
         login.setPassword("wrongpassword");
 
@@ -96,7 +92,7 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("wronguser");
         login.setPassword("querty");
 
@@ -114,7 +110,7 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
 
         // Do not set any parameters
         // login.setUser("guest");
@@ -137,7 +133,7 @@ describe( "PostLogin", () => {
         expect( client1.auth.getSession() ).toBeDefined();
         expect( client1.isConnected() ).toBe( true );
 
-        const login = client1.routes.PostLogin();
+        const login = client1.routes.post.login();
         login.setUser("guest");
         login.setPassword("querty");
 

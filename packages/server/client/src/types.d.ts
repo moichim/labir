@@ -40,20 +40,35 @@ export interface FolderInfo {
 
 export interface FileInfo {
   entity: "file",
+  /** URL address of the file itself */
   url: string,
+  /** Optioanl label of the file */
   label: string | null,
+  /** Optional description of the file */
   description: string | null,
+  /** Name of the file including its extension */
   fileName: string,
+  /** Slug of the folder in which this file is located */
   folder: string,
+  /** Slug of the parent folder of the `folder` */
   parent: string,
+  /** A path of the `folder` relative to the www/data. Usable in all api calls. */
   path: string,
+  /** URL of the visual image or false */
   visual: string | false,
+  /** URL of the preview file or undefined */
   preview: string | false,
+  /** Timestamp of the file stored in its .json file. */
   timestamp: number,
+  /** Timestamp of the upload date */
   uploaded: number,
+  /** This file is assigned to these tags. Tags may be defined in `_tags.json` of the `parent` folder */
   tags: string[],
+  /** A human-redable date - is taken from the timestamp */
   dateHuman: string,
+  /** An api root of this file may serve for calling subsequent requests related to this file */
   apiRoot: string,
+  /** Storage of the analyses */
   analyses: string[]
 }
 
@@ -79,4 +94,19 @@ export type TagWithContent = TagDefinition & {
 
 export type TagsWithContent = {
   [index: string]: TagWithContent;
+}
+
+
+export type TreeItem = {
+  entity: "treeitem",
+  path: string,
+  api: string,
+  slug: string,
+  name: string,
+  descriotion: string | null,
+  lrc_count: number,
+  protected: boolean,
+  may_have_files: boolean,
+  metadata: Record<string, any>,
+  subfolders: TreeItem[]
 }

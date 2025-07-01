@@ -13,7 +13,7 @@ describe("GET action=grid – testování parametrů from a to (timestamp)", () 
             `zihle?action=grid&from=${from}&to=${to}`
         );
         expect(response.json.success).toBe(true);
-        const grid = response.json.data.grid;
+        const grid = response.json.data;
 
         // Ověř, že všechny snímky ve výsledku jsou v rozsahu from–to
         Object.values(grid.groups).forEach(group => {
@@ -70,7 +70,7 @@ describe("GET action=grid – testování parametrů from a to (timestamp)", () 
             `zihle?action=grid&from=${from}&to=${to}`
         );
         expect(response.json.success).toBe(true);
-        const grid = response.json.data.grid;
+        const grid = response.json.data;
         expect(grid.count.displayed).toBe(115);
     });
 
@@ -86,11 +86,11 @@ describe("GET action=grid – testování parametrů from a to (timestamp)", () 
         const year = await apiCallGuest( `zihle?action=grid&from=${from}&to=${to}&by=year` );
 
         const counts = [
-            hour.json.data.grid.count.displayed,
-            day.json.data.grid.count.displayed,
-            week.json.data.grid.count.displayed,
-            month.json.data.grid.count.displayed,
-            year.json.data.grid.count.displayed
+            hour.json.data.count.displayed,
+            day.json.data.count.displayed,
+            week.json.data.count.displayed,
+            month.json.data.count.displayed,
+            year.json.data.count.displayed
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );
@@ -111,11 +111,11 @@ describe("GET action=grid – testování parametrů from a to (timestamp)", () 
         const year = await apiCallGuest( `zihle?action=grid&from=${from}&to=${to}&by=year&tags=something` );
 
         const counts = [
-            hour.json.data.grid.count.omitted,
-            day.json.data.grid.count.omitted,
-            week.json.data.grid.count.omitted,
-            month.json.data.grid.count.omitted,
-            year.json.data.grid.count.omitted
+            hour.json.data.count.omitted,
+            day.json.data.count.omitted,
+            week.json.data.count.omitted,
+            month.json.data.count.omitted,
+            year.json.data.count.omitted
         ];
 
         counts.forEach( count => expect( count ).toBe( counts[0] ) );

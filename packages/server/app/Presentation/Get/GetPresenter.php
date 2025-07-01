@@ -13,17 +13,17 @@ final class GetPresenter extends BasePresenter
     /**
      * Základní připojení k serveru
      */
-    public function actionConnect(): void {
+    public function actionConnect(): void
+    {
 
         $identity = $this->scanner->authorisation->getIdentity();
         $message = $identity
             ? "Connection established successfully for user: " . $identity["user"]
             : "Connection established successfully without user identity.";
 
-        $this->storeData( "identity", $identity );
-        $this->markSuccess( $message );
+        $this->storeData("identity", $identity);
+        $this->markSuccess($message);
         $this->respond();
-
     }
 
     /**
@@ -37,15 +37,15 @@ final class GetPresenter extends BasePresenter
 
         $info = $this->scanner->folder->getInfo($path);
 
-        $this->storeData("folder", $info );
+        $this->storeData("folder", $info);
 
         // Předání aktuálního uživatele z authorisation do getSubdirectories
         $user = $this->scanner->authorisation->getIdentity();
         $user = $user ? $user["user"] : null;
         $this->storeData("subfolders", $this->scanner->folder->getSubdirectories($path, $user));
 
-        $this->markSuccess( 
-            $this->formatMessage( "Information about the folder '%s'.", $info["name"] )
+        $this->markSuccess(
+            $this->formatMessage("Information about the folder '%s'.", $info["name"])
         );
 
         $this->respond();
@@ -110,8 +110,8 @@ final class GetPresenter extends BasePresenter
             "total" => $total
         ]);
 
-        $this->markSuccess( 
-            $this->formatMessage( "List of files in the folder '%s'.", $info["name"] )
+        $this->markSuccess(
+            $this->formatMessage("List of files in the folder '%s'.", $info["name"])
         );
 
         $this->respond();
@@ -155,14 +155,16 @@ final class GetPresenter extends BasePresenter
 
         $result = $grid->fetch($by);
 
-        if ( $info === true ) {
-            $this->storeData(  "folder", $result["folder"] );
+        if ($info === true) {
+            $this->storeData("folder", $result["folder"]);
         }
 
-        $this->storeData("grid", $result);
+        foreach ($result as $key => $value) {
+            $this->storeData($key, $value);
+        }
 
-        $this->markSuccess( 
-            $this->formatMessage( "Grid of files in the folder '%s'.", $result["folder"]["name"] )
+        $this->markSuccess(
+            $this->formatMessage("Grid of files in the folder '%s'.", $result["folder"]["name"])
         );
 
         $this->respond();
@@ -178,7 +180,7 @@ final class GetPresenter extends BasePresenter
      */
     public function actionTest(?string $path, ?string $action, ?string $id): void
     {
-        $this->markSuccess( "Test action executed successfully" );
+        $this->markSuccess("Test action executed successfully");
         $this->json['data'] = [
             // 'message' => 'Test action executed successfully.',
             'path' => $path,
@@ -194,21 +196,26 @@ final class GetPresenter extends BasePresenter
      * GET {cesta}?action=file&file={soubor}
      * Přístup: kdokoli s právem číst složku (včetně anonymních, pokud je složka veřejná)
      */
-    public function actionFile( ?string $path, ?string $file): void {
+    public function actionFile(?string $path, ?string $file): void
+    {
+
+        if ( $file === null || $file === "" ) {
+            throw new Exception("File parameter is required.", 400);
+
+        }
 
         $lrc = $this->scanner->folder->getFile($path, $file);
 
-        if ( $lrc ) {
-            $this->storeData( "file", $lrc->getInfo() );
+        if ($lrc) {
+            $this->storeData("file", $lrc->getInfo());
         } else {
-            throw new Exception( "File '$file' was not found in '$path'.", 404 );
+            throw new Exception("File '$file' was not found in '$path'.", 404);
         }
 
         $this->markSuccess(
-            $this->formatMessage( "Information about the file '%s' in folder '%s'.", $file, $path )
+            $this->formatMessage("Information about the file '%s' in folder '%s'.", $file, $path)
         );
         $this->respond();
-
     }
 
 
@@ -238,5 +245,4 @@ final class GetPresenter extends BasePresenter
         );
         $this->respond();
     }
-
 }

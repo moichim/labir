@@ -55,7 +55,7 @@ describe("Client", () => {
         // Before connection, the server should not be connecting
         expect( client.isConnected() ).toBe( false );
 
-        const request = client.routes.GetDefault();
+        const request = client.routes.get.default();
         request.setPath( "zihle" );
 
         await expect( request.execute() ).rejects.toThrowError( "Client is not connected to the server!" );
@@ -79,7 +79,7 @@ describe("Client", () => {
         expect( client.auth.getSession() ).toBeDefined();
 
         // Create a request to the default route
-        const get = client.routes.GetDefault();
+        const get = client.routes.get.default();
 
         // Configure the request
         get.setPath("zihle");
@@ -132,7 +132,7 @@ describe("Client", () => {
         await client.connect();
 
         // Create a request to the default route
-        const get = client.routes.GetDefault();
+        const get = client.routes.get.default();
 
         // Configure the request
         get.setPath("zihle");
@@ -151,7 +151,7 @@ describe("Client", () => {
         await client.connect();
 
         // Create a request to the default route
-        const get = client.routes.GetDefault();
+        const get = client.routes.get.default();
 
         // Configure the request
         get.setPath("non-existing-folder");

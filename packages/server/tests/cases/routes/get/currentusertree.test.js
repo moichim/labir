@@ -20,7 +20,7 @@ describe("GET action=currentusertree", () => {
 
     test("inaccessible to unauthorised", async () => {
 
-        const response = await apiCall("http://localhost:8080/access?action=currentusertree");
+        const response = await apiCall("http://localhost:8080/?action=currentusertree");
 
         expect(response.json.success).toBe(false);
         expect(response.json.code).toBe(401);
@@ -29,7 +29,7 @@ describe("GET action=currentusertree", () => {
 
     test("accessible to guest", async () => {
 
-        const response = await apiCallGuest("access?action=currentusertree", "GET");
+        const response = await apiCallGuest("?action=currentusertree", "GET");
 
         expect(response.json.success).toBe(true);
         expect(response.json.data.tree).not.toBeUndefined();
@@ -39,7 +39,7 @@ describe("GET action=currentusertree", () => {
 
     test("accessible to root", async () => {
 
-        const response = await apiCallRoot("access?action=currentusertree", "GET");
+        const response = await apiCallRoot("?action=currentusertree", "GET");
 
         expect(response.json.success).toBe(true);
         expect(response.json.data.tree).not.toBeUndefined();
@@ -80,7 +80,7 @@ describe("GET action=currentusertree", () => {
 
     test("guest tree contains pouze /access/restricted_to_guest a jeho podstrom", async () => {
         // Guest má podle _users.json přístup pouze do /access/restricted_to_guest
-        const response = await apiCallGuest("access?action=currentusertree", "GET");
+        const response = await apiCallGuest("?action=currentusertree", "GET");
         expect(response.json.success).toBe(true);
         expect(response.json.data.tree).not.toBeUndefined();
         const tree = response.json.data.tree;
@@ -104,7 +104,7 @@ describe("GET action=currentusertree", () => {
 
 
     test("root tree contains / as root and includes všechny složky z www/data", async () => {
-        const response = await apiCallRoot("access?action=currentusertree", "GET");
+        const response = await apiCallRoot("?action=currentusertree", "GET");
         expect(response.json.success).toBe(true);
         expect(response.json.data.tree).not.toBeUndefined();
         const tree = response.json.data.tree;

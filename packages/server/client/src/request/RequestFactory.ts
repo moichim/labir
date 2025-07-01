@@ -3,6 +3,19 @@ import { Client } from "../Client";
 
 type AvailableMethod = "GET" | "POST";
 
+/**
+ * An universal factory of requests to LabIR servers.
+ * 
+ * It is intended to be used in the `routes` factories, such as `GetRoutesFactory` or `PostRoutesFactory`. 
+ * 
+ * These classes take care of all the parameters settings and this RequestFactory shall never be exposed publically.
+ * 
+ * **Functionality**
+ * - accepts the query parameters, body and header contents
+ * - creates a `Request` object that is used internally by `Client.fetch()`
+ * - takes care of passing credentials and session ID to the request
+ * 
+ */
 export class RequestFactory {
 
     protected path?: string = undefined;
@@ -15,13 +28,12 @@ export class RequestFactory {
 
     constructor(
         protected readonly client: Client
-    ) {
-
-    }
+    ) {}
 
     public setPath(
         value: string
     ): RequestFactory {
+        value = value.replace(/^\/+|\/+$/g, "");
         this.path = value;
         return this;
     }
@@ -67,7 +79,11 @@ export class RequestFactory {
     public createRequest(): Request|false {
 
 
-        const isValidRequestToRoot = ["connect", "login"].includes( this.action || "" )
+        const isValidRequestToRoot = [
+            "connect", 
+            "login",
+            "currentusertree"
+        ].includes( this.action || "" )
 
         if ( 
             this.path === undefined 

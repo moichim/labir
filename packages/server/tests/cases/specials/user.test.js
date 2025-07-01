@@ -6,7 +6,7 @@ describe( "User special cases", () => {
     test( "name with diacritics", async () => {
 
         const response = await apiCall(
-            "http://localhost:8080/specials/user?action=login",
+            "http://localhost:8080?action=login",
             "POST",
             {
                 user: "František Dobrota",
@@ -21,7 +21,7 @@ describe( "User special cases", () => {
     test( "empty name", async () => {
 
         const response = await apiCall(
-            "http://localhost:8080/specials/user?action=login",
+            "http://localhost:8080?action=login",
             "POST",
             {
                 user: "",

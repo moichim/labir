@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { Client } from "../../Client";
 import { testFileInfo } from "../../utils/testFileStructure";
-import { testFolderInfo } from "../../utils/testFolderStructure";
+import { testFolderInfo } from "../../utils/testFolderInfo";
 import { testTagDefinition } from "../../utils/testTagDefinition";
 
 describe("GetFiles", () => {
@@ -12,7 +12,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
         request.setPath("access/restricted/restricted");
 
         const response = await request.execute();
@@ -29,7 +29,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
         request.setPath("access/accessible/accessible");
 
         const response = await request.execute();
@@ -69,14 +69,14 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as guest
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("guest");
         login.setPassword("querty");
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.GetFiles();
+        const files = client.routes.get.files();
         files.setPath("access/restricted_to_guest/restricted");
 
         const response = await files.execute();
@@ -100,14 +100,14 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as guest
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("guest");
         login.setPassword("querty");
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.GetFiles();
+        const files = client.routes.get.files();
         files.setPath("access/restricted/restricted");
 
         const response = await files.execute();
@@ -124,14 +124,14 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as root
-        const login = client.routes.PostLogin();
+        const login = client.routes.post.login();
         login.setUser("root");
         login.setPassword("abcdefghijk");
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.GetFiles();
+        const files = client.routes.get.files();
         files.setPath("access/restricted/restricted");
 
         const response = await files.execute();
@@ -164,7 +164,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
         request.setPath("manetin/les");
 
         request.setFrom(date);
@@ -204,7 +204,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
         request.setPath("manetin/les");
 
         request.setTo(date);
@@ -244,7 +244,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
 
         request.setPath("manetin/les");
 
@@ -277,7 +277,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
 
         request.setPath("manetin/les");
 
@@ -309,7 +309,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.GetFiles();
+        const request = client.routes.get.files();
 
         request.setPath("manetin/les");
 

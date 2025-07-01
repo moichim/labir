@@ -54,7 +54,7 @@ const testGridInsideFolder = async (folderPath, numFiles) => {
 
     expect(response.json.success).toBe(true);
 
-    const grid = response.json.data.grid;
+    const grid = response.json.data;
 
     testGridDataStructure(grid, numFiles);
 
@@ -105,7 +105,7 @@ describe("GET action=grid", () => {
     test("grid of a accessible folder should return 1 folder for anonymous when the restricted is restricted", async () => {
         const response = await apiCall("http://localhost:8080/access/accessible?action=grid");
         expect(response.json.success).toBe(true);
-        const grid = response.json.data.grid;
+        const grid = response.json.data;
         expect(Object.keys(grid.header).length).toBe(1);
     });
 
@@ -113,7 +113,7 @@ describe("GET action=grid", () => {
 
         const response = await apiCallRoot("access/restricted?action=grid");
 
-        testGridDataStructure(response.json.data.grid, 2);
+        testGridDataStructure(response.json.data, 2);
 
     });
 
@@ -121,7 +121,7 @@ describe("GET action=grid", () => {
 
         const response = await apiCallRoot("access/restricted/accessible?action=grid");
 
-        testGridDataStructure(response.json.data.grid, 0);
+        testGridDataStructure(response.json.data, 0);
 
     });
 
@@ -129,7 +129,7 @@ describe("GET action=grid", () => {
 
         const response = await apiCallGuest("access/restricted_to_guest?action=grid");
 
-        testGridDataStructure(response.json.data.grid, 2);
+        testGridDataStructure(response.json.data, 2);
 
     });
 
@@ -139,7 +139,7 @@ describe("GET action=grid", () => {
 
         expect(response.json.success).toBe(true);
 
-        const grid = response.json.data.grid;
+        const grid = response.json.data;
 
         // Check that the grid contains only two folders
         expect(Object.keys(grid.header).length).toBe(2);
@@ -154,7 +154,7 @@ describe("GET action=grid", () => {
 
         expect(response.json.success).toBe(true);
 
-        const grid = response.json.data.grid;
+        const grid = response.json.data;
 
         // Check that the grid contains only two folders
         expect(Object.keys(grid.header).length).toBe(3);
