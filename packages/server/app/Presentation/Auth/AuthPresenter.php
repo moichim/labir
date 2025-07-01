@@ -27,7 +27,7 @@ final class AuthPresenter extends BasePresenter {
         );
 
         if ( $login ) {
-            $this->markSuccess();
+            $this->markSuccess( $this->formatMessage( "User '%s' authenticated successfully.", $login["user"] ) );
             $this->storeData( "login", $login );
         } else {
             throw new Exception( "Unable to authenticate", 401 );

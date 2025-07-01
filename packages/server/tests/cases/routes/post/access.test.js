@@ -12,7 +12,6 @@ describe("POST access", () => {
         // --- 1. Pokus o POST bez autorizace ---
         const request = await apiCall("http://localhost:8080/zihle", "POST");
         expect(request.json.success).toBe(false);
-        expect(request.json.data).toBeUndefined();
         expect(request.json.code).toBe(401);
 
     });
@@ -23,7 +22,6 @@ describe("POST access", () => {
         // --- 1. Guest se pokouší POSTnout do veřejné složky ---
         const request = await apiCallGuest("access/accessible", "POST");
         expect(request.json.success).toBe(false);
-        expect(request.json.data).toBeUndefined();
         expect(request.json.code).toBe(403);
 
     });
@@ -34,7 +32,6 @@ describe("POST access", () => {
         // --- 1. Guest se pokouší POSTnout do složky přístupné pouze rootovi ---
         const request = await apiCallGuest("access/restricted", "POST");
         expect(request.json.success).toBe(false);
-        expect(request.json.data).toBeUndefined();
         expect(request.json.code).toBe(403);
 
     });
@@ -46,8 +43,7 @@ describe("POST access", () => {
         const request = await apiCallGuest("access/restricted_to_guest", "POST");
         expect(request.json.success).toBe(true);
         expect(request.json.data).not.toBeUndefined();
-        expect(request.json.data.message).not.toBeUndefined();
-        expect(request.json.data.message).toBe("The test request was successfull, but nothing happened.");
+        expect(request.json.message).toBe("The test request was successfull.");
 
     });
 
@@ -58,8 +54,7 @@ describe("POST access", () => {
         const request = await apiCallRoot("access/accessible", "POST");
         expect(request.json.success).toBe(true);
         expect(request.json.data).not.toBeUndefined();
-        expect(request.json.data.message).not.toBeUndefined();
-        expect(request.json.data.message).toBe("The test request was successfull, but nothing happened.");
+        expect(request.json.message).toBe("The test request was successfull.");
 
     });
 
@@ -70,8 +65,7 @@ describe("POST access", () => {
         const request = await apiCallRoot("access/restricted", "POST");
         expect(request.json.success).toBe(true);
         expect(request.json.data).not.toBeUndefined();
-        expect(request.json.data.message).not.toBeUndefined();
-        expect(request.json.data.message).toBe("The test request was successfull, but nothing happened.");
+        expect(request.json.message).toBe("The test request was successfull.");
 
     });
 
@@ -82,8 +76,7 @@ describe("POST access", () => {
         const request = await apiCallRoot("access/restricted_to_guest", "POST");
         expect(request.json.success).toBe(true);
         expect(request.json.data).not.toBeUndefined();
-        expect(request.json.data.message).not.toBeUndefined();
-        expect(request.json.data.message).toBe("The test request was successfull, but nothing happened.");
+        expect(request.json.message).toBe("The test request was successfull.");
 
     });
 

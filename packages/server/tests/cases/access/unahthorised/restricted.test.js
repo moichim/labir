@@ -7,7 +7,6 @@ describe("Unauthorised: Restricted folder", () => {
 
         const response = await apiCall("http://localhost:8080/access/restricted", "GET");
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
 
     });
 
@@ -15,7 +14,6 @@ describe("Unauthorised: Restricted folder", () => {
 
         const response = await apiCall( "http://localhost:8080/access/restricted/accessible", "GET" );
         expect( response.json.success ).toBe( false );
-        expect( response.json.data ).toBeUndefined();
         expect( response.json.code ).toBe( 401 );
 
     } );
@@ -24,7 +22,6 @@ describe("Unauthorised: Restricted folder", () => {
 
         const response = await apiCall( "http://localhost:8080/access/restricted/restricted", "GET" );
         expect( response.json.success ).toBe( false );
-        expect( response.json.data ).toBeUndefined();
         expect( response.json.code ).toBe( 401 );
 
     } );

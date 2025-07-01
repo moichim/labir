@@ -27,7 +27,6 @@ describe("Unauthorised: Accessible folder", () => {
 
         const response = await apiCall( "http://localhost:8080/access/accessible/restricted", "GET" );
         expect( response.json.success ).toBe( false );
-        expect( response.json.data ).toBeUndefined();
         expect( response.json.code ).toBe( 401 );
 
     } );

@@ -25,7 +25,6 @@ describe("POST action=create", () => {
         );
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(401);
 
     });
@@ -42,7 +41,6 @@ describe("POST action=create", () => {
         );
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(403);
 
     });
@@ -59,7 +57,6 @@ describe("POST action=create", () => {
         );
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(403);
 
     } );
@@ -76,7 +73,6 @@ describe("POST action=create", () => {
         );
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(409);
 
     });

@@ -29,9 +29,9 @@ final class PostPresenter extends BasePresenter
 
 
         $this->storeData("path", $path);
-        $this->storeData("message", "The test request was successfull, but nothing happened.");
+        // $this->storeData("message", "The test request was successfull, but nothing happened.");
 
-        $this->markSuccess();
+        $this->markSuccess( "The test request was successfull." );
 
         $this->respond();
     }
@@ -91,7 +91,13 @@ final class PostPresenter extends BasePresenter
         $this->storeData('request', $requestData);
         $result = $this->scanner->folder->createFolder($parentSlug, $name, $description, $meta, $tags, $access);
         $this->storeData('result', $result);
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage(
+                "Folder '%s' created successfully in '%s'.",
+                $result['name'] ?? 'unknown',
+                $parentSlug
+            )
+        );
         $this->respond();
     }
 
@@ -105,7 +111,12 @@ final class PostPresenter extends BasePresenter
         $slug = $this->scanner->getBasePath();
         $result = $this->scanner->folder->deleteFolder($slug);
         $this->storeData('result', $result);
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage(
+                "Folder '%s' deleted successfully.",
+                $result["deleted"] ?? 'unknown' // Pokud není vráceno jméno, použijeme 'unknown'
+            )
+        );
         $this->respond();
     }
 
@@ -175,7 +186,12 @@ final class PostPresenter extends BasePresenter
 
         // --- 5. Uložení výsledku a odpověď ---
         $this->storeData('result', $result);
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage(
+                "Folder '%s' updated successfully.",
+                $result['name'] ?? 'unknown' // Pokud není vráceno jméno, použijeme 'unknown'
+            )
+        );
         $this->respond();
     }
 
@@ -205,7 +221,13 @@ final class PostPresenter extends BasePresenter
 
         $result = $this->scanner->folder->moveFolder($slug, $targetParent);
         $this->storeData('result', $result);
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage(
+                "Folder '%s' moved successfully to '%s'.",
+                $result['name'] ?? 'unknown',
+                $targetParent
+            )
+        );
         $this->respond();
     }
 
@@ -244,7 +266,13 @@ final class PostPresenter extends BasePresenter
             'removeAnalyses' => $data['removeAnalyses'] ?? null,
         ]);
         $this->storeData('file', $lrc->getInfo());
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage(
+                "File '%s' in folder '%s' updated successfully.",
+                $file,
+                $path
+            )
+        );
         $this->respond();
     }
 }

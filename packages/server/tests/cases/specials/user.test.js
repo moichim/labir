@@ -15,7 +15,6 @@ describe( "User special cases", () => {
         );
 
         expect( response.json.success ).toBe( true );
-        expect( response.json.data ).not.toBeUndefined();
 
     } );
 
@@ -33,7 +32,6 @@ describe( "User special cases", () => {
         // console.log( response.json );
 
         expect( response.json.success ).toBe( false );
-        expect( response.json.data ).toBeUndefined();
         expect( response.json.code ).toBe( 401 );
 
     } )

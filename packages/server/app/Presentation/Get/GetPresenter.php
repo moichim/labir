@@ -15,11 +15,13 @@ final class GetPresenter extends BasePresenter
      */
     public function actionConnect(): void {
 
-        $this->storeData("message", "Connection established successfully.");
-        $this->storeData( "identity", $this->scanner->authorisation->getIdentity() );
-        $this->storeData( "headers", $this->getHttpRequest()->getHeaders() );
-        $this->storeData( "session_ID", session_id() );
-        $this->markSuccess();
+        $identity = $this->scanner->authorisation->getIdentity();
+        $message = $identity
+            ? "Connection established successfully for user: " . $identity["user"]
+            : "Connection established successfully without user identity.";
+
+        $this->storeData( "identity", $identity );
+        $this->markSuccess( $message );
         $this->respond();
 
     }
@@ -33,14 +35,18 @@ final class GetPresenter extends BasePresenter
         ?string $path = null
     ): void {
 
-        $this->storeData("folder", $this->scanner->folder->getInfo($path));
+        $info = $this->scanner->folder->getInfo($path);
+
+        $this->storeData("folder", $info );
 
         // Předání aktuálního uživatele z authorisation do getSubdirectories
         $user = $this->scanner->authorisation->getIdentity();
         $user = $user ? $user["user"] : null;
         $this->storeData("subfolders", $this->scanner->folder->getSubdirectories($path, $user));
 
-        $this->markSuccess();
+        $this->markSuccess( 
+            $this->formatMessage( "Information about the folder '%s'.", $info["name"] )
+        );
 
         $this->respond();
     }
@@ -102,7 +108,9 @@ final class GetPresenter extends BasePresenter
             "total" => $displayed
         ]);
 
-        $this->markSuccess();
+        $this->markSuccess( 
+            $this->formatMessage( "List of files in the folder '%s'.", $info["name"] )
+        );
 
         $this->respond();
     }
@@ -143,13 +151,17 @@ final class GetPresenter extends BasePresenter
             $grid->setFolders($folders);
         }
 
-        if ($info === true) {
-            $this->storeData("folder", $this->scanner->folder->getInfo($path));
+        $result = $grid->fetch($by);
+
+        if ( $info === true ) {
+            $this->storeData(  "folder", $result["folder"] );
         }
 
-        $this->storeData("grid", $grid->fetch($by));
+        $this->storeData("grid", $result);
 
-        $this->markSuccess();
+        $this->markSuccess( 
+            $this->formatMessage( "Grid of files in the folder '%s'.", $result["folder"]["name"] )
+        );
 
         $this->respond();
     }
@@ -164,9 +176,9 @@ final class GetPresenter extends BasePresenter
      */
     public function actionTest(?string $path, ?string $action, ?string $id): void
     {
-        $this->markSuccess();
+        $this->markSuccess( "Test action executed successfully" );
         $this->json['data'] = [
-            'message' => 'Test action executed successfully.',
+            // 'message' => 'Test action executed successfully.',
             'path' => $path,
             'action' => $action,
             'id' => $id,
@@ -190,7 +202,9 @@ final class GetPresenter extends BasePresenter
             throw new Exception( "File '$file' was not found in '$path'.", 404 );
         }
 
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage( "Information about the file '%s' in folder '%s'.", $file, $path )
+        );
         $this->respond();
 
     }
@@ -217,7 +231,9 @@ final class GetPresenter extends BasePresenter
         }
         $this->storeData("tree", $usertree);
         $this->storeData("user", $user);
-        $this->markSuccess();
+        $this->markSuccess(
+            $this->formatMessage("User tree for user '%s'.", $login)
+        );
         $this->respond();
     }
 

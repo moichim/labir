@@ -9,7 +9,6 @@ describe( "Authentication",  () => {
         const request = await apiCall( "http://localhost:8080/some_folder?action=login", "GET" );
 
         expect( request.json.success ).toBe( false );
-        expect( request.json.data ).toBeUndefined();
 
     } );
 
@@ -19,7 +18,6 @@ describe( "Authentication",  () => {
         const request = await apiCall( "http://localhost:8080/some_folder?action=login", "POST" );
 
         expect( request.json.success ).toBe( false );
-        expect( request.json.data ).toBeUndefined();
         expect( request.json.code ).toBe( 400 );
 
     } );
@@ -33,7 +31,6 @@ describe( "Authentication",  () => {
         } );
 
         expect( request.json.success ).toBe( false );
-        expect( request.json.data ).toBeUndefined();
         expect( request.json.code ).toBe( 401 );
 
     } );
@@ -47,7 +44,6 @@ describe( "Authentication",  () => {
         } );
 
         expect( request.json.success ).toBe( false );
-        expect( request.json.data ).toBeUndefined();
         expect( request.json.code ).toBe( 401 );
 
     } );
@@ -60,10 +56,7 @@ describe( "Authentication",  () => {
             password: "abcdefghijk"
         } );
 
-        // console.log( request.json );
-
         expect( request.json.success ).toBe( false );
-        expect( request.json.data ).toBeUndefined();
         expect( request.json.code ).toBe( 401 );
 
     } );

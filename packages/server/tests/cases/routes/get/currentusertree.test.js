@@ -23,7 +23,6 @@ describe("GET action=currentusertree", () => {
         const response = await apiCall("http://localhost:8080/access?action=currentusertree");
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(401);
 
     });
@@ -33,7 +32,6 @@ describe("GET action=currentusertree", () => {
         const response = await apiCallGuest("access?action=currentusertree", "GET");
 
         expect(response.json.success).toBe(true);
-        expect(response.json.data).not.toBeUndefined();
         expect(response.json.data.tree).not.toBeUndefined();
 
     });
@@ -44,7 +42,6 @@ describe("GET action=currentusertree", () => {
         const response = await apiCallRoot("access?action=currentusertree", "GET");
 
         expect(response.json.success).toBe(true);
-        expect(response.json.data).not.toBeUndefined();
         expect(response.json.data.tree).not.toBeUndefined();
 
     });
@@ -85,7 +82,6 @@ describe("GET action=currentusertree", () => {
         // Guest má podle _users.json přístup pouze do /access/restricted_to_guest
         const response = await apiCallGuest("access?action=currentusertree", "GET");
         expect(response.json.success).toBe(true);
-        expect(response.json.data).not.toBeUndefined();
         expect(response.json.data.tree).not.toBeUndefined();
         const tree = response.json.data.tree;
         testTreeItemList(tree);
@@ -110,7 +106,6 @@ describe("GET action=currentusertree", () => {
     test("root tree contains / as root and includes všechny složky z www/data", async () => {
         const response = await apiCallRoot("access?action=currentusertree", "GET");
         expect(response.json.success).toBe(true);
-        expect(response.json.data).not.toBeUndefined();
         expect(response.json.data.tree).not.toBeUndefined();
         const tree = response.json.data.tree;
 

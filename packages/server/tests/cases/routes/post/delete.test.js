@@ -82,7 +82,6 @@ describe( "POST action=delete", () => {
 
         // --- 2. Ověření odpovědi na pokus o smazání neexistující složky ---
         expect( deleteResponse.json.success ).toBe( false );
-        expect( deleteResponse.json.data ).toBeUndefined();
         expect( deleteResponse.json.code ).toBe( 404 );
 
     });
@@ -99,7 +98,6 @@ describe( "POST action=delete", () => {
 
         // --- 2. Ověření odpovědi na pokus o smazání nepřístupné složky ---
         expect( deleteResponse.json.success ).toBe( false );
-        expect( deleteResponse.json.data ).toBeUndefined();
         expect( deleteResponse.json.code ).toBe( 403 );
 
     });

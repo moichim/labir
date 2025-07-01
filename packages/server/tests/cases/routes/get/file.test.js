@@ -44,7 +44,7 @@ describe("GET action=file", () => {
         const nonExistingFileRequest = await apiCallGuest(apiRoot + "nonexistingfile&action=file", "GET");
 
         expect(nonExistingFileRequest.json.success).toBe(false);
-        expect(nonExistingFileRequest.json.error).toBeDefined();
+        expect(nonExistingFileRequest.json.message).toBeDefined();
         expect(nonExistingFileRequest.json.code).toBe(404);
 
     } );

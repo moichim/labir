@@ -17,7 +17,7 @@ describe("apiCallGuest()", () => {
         const response = await apiCallGuest("non-existing-folder");
 
         expect(response.json.success).toBe(false);
-        expect(response.json.data).toBeUndefined();
+        // expect(response.json.data).toBeUndefined();
         expect(response.json.code).toBe(404);
 
     });

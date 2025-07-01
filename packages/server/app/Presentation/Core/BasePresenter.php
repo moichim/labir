@@ -70,8 +70,9 @@ abstract class BasePresenter extends Presenter
 
         // $this->json["time"] = time() * 1000;
 
-        $this->storeDebug( "path", $path );
+        // $this->storeDebug( "path", $path );
 
+        /*
         $this->storeDebug("nette", [
             "class" => get_class($this),
             "params" => $params,
@@ -81,6 +82,7 @@ abstract class BasePresenter extends Presenter
             // "folders" => $this->scanner->access->getFolders()
             // "access" => $this->scanner->access->getFolderAccess($this->path)
         ]);
+        */
 
         $this->json["colophon"] = [
             "time" => time() * 1000,
@@ -90,21 +92,20 @@ abstract class BasePresenter extends Presenter
         ];
 
         $this->scanner->access->validateCurrentFolder();
-
     }
 
-    protected function storeData( string $key, mixed $value ): void
+    protected function storeData(string $key, mixed $value): void
     {
-        if ( !isset($this->json['data']) ) {
+        if (!isset($this->json['data'])) {
             $this->json['data'] = [];
         }
         $this->json['data'][$key] = $value;
     }
 
 
-    protected function storeDebug( string $key, mixed $value ): void
+    protected function storeDebug(string $key, mixed $value): void
     {
-        if ( !isset($this->json['_debug']) ) {
+        if (!isset($this->json['_debug'])) {
             $this->json['_debug'] = [];
         }
         $this->json['_debug'][$key] = $value;
@@ -112,17 +113,19 @@ abstract class BasePresenter extends Presenter
 
 
 
-    protected function markSuccess(): void
+    protected function markSuccess(string $message): void
     {
         $this->json['success'] = true;
+        $this->json['message'] = $message;
+        $this->json['code'] = 200; // HTTP OK
     }
 
 
     public function handleError(\Throwable $exception): void
     {
         $this->json["success"] = false;
-        unset( $this->json["data"] );
-        $this->json["error"] = $exception->getMessage();
+        // unset( $this->json["data"] );
+        $this->json["message"] = $exception->getMessage();
         $this->json["code"] = $exception->getCode();
     }
 
@@ -132,15 +135,20 @@ abstract class BasePresenter extends Presenter
         $this->sendJson($this->json);
     }
 
-    protected function getPath( string $path ): string {
+    protected function getPath(string $path): string
+    {
         return DATA_DIR . DIRECTORY_SEPARATOR . $path;
     }
 
     protected function getUrl(string $path): string
-{
-    if ( $this->dataUrl === null ) {
-        $this->dataUrl = $this->getHttpRequest()->getUrl()->getBaseUrl();
+    {
+        if ($this->dataUrl === null) {
+            $this->dataUrl = $this->getHttpRequest()->getUrl()->getBaseUrl();
+        }
+        return rtrim($this->dataUrl, '/') . '/data/' . ltrim($path, '/\\');
     }
-    return rtrim($this->dataUrl, '/') . '/data/' . ltrim($path, '/\\');
-}
+
+    protected function formatMessage( string $message, ...$subjects ): string {
+        return sprintf( $message, ...$subjects );
+    }
 }

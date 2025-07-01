@@ -12,7 +12,6 @@ describe("POST action=update", () => {
         createdFolders.length = 0;
     });
 
-
     const updateUrlAccessible = "access/accessible?action=update";
     const updateUrlRestricted = "access/restricted?action=update";
     const updateUrlGuestRestricted = "access/restricted_to_guest/restricted?action=update";
@@ -20,29 +19,29 @@ describe("POST action=update", () => {
     test("anonymous user cannot update access/accessible", async () => {
         const response = await apiCallGuest(updateUrlAccessible, "POST", { name: "Test" });
         expect(response.json.success).toBe(false);
-        expect(response.json.error).toBeDefined();
-        expect(response.json.error).toMatch(/permission|access|denied/i);
+        expect(response.json.message).toBeDefined();
+        expect(response.json.message).toMatch(/permission|access|denied/i);
     });
 
     test("anonymous user cannot update access/restricted", async () => {
         const response = await apiCallGuest(updateUrlRestricted, "POST", { name: "Test" });
         expect(response.json.success).toBe(false);
-        expect(response.json.error).toBeDefined();
-        expect(response.json.error).toMatch(/permission|access|denied/i);
+        expect(response.json.message).toBeDefined();
+        expect(response.json.message).toMatch(/permission|access|denied/i);
     });
 
     test("guest cannot update access/accessible", async () => {
         const response = await apiCallGuest(updateUrlAccessible, "POST", { name: "Test" });
         expect(response.json.success).toBe(false);
-        expect(response.json.error).toBeDefined();
-        expect(response.json.error).toMatch(/permission|access|denied/i);
+        expect(response.json.message).toBeDefined();
+        expect(response.json.message).toMatch(/permission|access|denied/i);
     });
 
     test("guest cannot update access/restricted", async () => {
         const response = await apiCallGuest(updateUrlRestricted, "POST", { name: "Test" });
         expect(response.json.success).toBe(false);
-        expect(response.json.error).toBeDefined();
-        expect(response.json.error).toMatch(/permission|access|denied/i);
+        expect(response.json.message).toBeDefined();
+        expect(response.json.message).toMatch(/permission|access|denied/i);
     });
 
     test("root can update access/accessible", async () => {

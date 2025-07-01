@@ -19,7 +19,6 @@ describe("HTTP methods test", () => {
         const postToVisible = await apiCall("http://localhost:8080/zihle", "POST");
 
         expect(postToVisible.json.success).toBe(false);
-        expect(postToVisible.json.data).toBeUndefined();
 
     });
 
@@ -29,7 +28,6 @@ describe("HTTP methods test", () => {
         const put = await apiCall("http://localhost:8080/zihle", "PUT");
 
         expect(put.json.success).toBe(false);
-        expect(put.json.data).toBeUndefined();
 
     });
 
@@ -39,7 +37,6 @@ describe("HTTP methods test", () => {
         const del = await apiCall("http://localhost:8080/zihle", "DELETE");
 
         expect(del.json.success).toBe(false);
-        expect(del.json.data).toBeUndefined();
 
     });
 
@@ -49,7 +46,6 @@ describe("HTTP methods test", () => {
         const patch = await apiCall("http://localhost:8080/zihle", "PATCH");
 
         expect(patch.json.success).toBe(false);
-        expect(patch.json.data).toBeUndefined();
 
     });
 

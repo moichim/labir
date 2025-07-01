@@ -213,7 +213,7 @@ describe("POST action=updatefile", () => {
             updateBody
         );
         expect(updateResponse.json.success).toBe(false);
-        expect(updateResponse.json.error).toMatch(/event handler|on\.\.\./i);
+        expect(updateResponse.json.message).toMatch(/event handler|on\.\.\./i);
     });
 
     test("should collapse multiple spaces into one", async () => {
