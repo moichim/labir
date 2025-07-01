@@ -15,7 +15,7 @@ export default defineConfig({
         }
     },
     test: {
-        root: path.resolve( __dirname, "client", "tests" ),
+        root: path.resolve( __dirname, "client" ),
         setupFiles: [
             path.resolve( __dirname, 'tests','vitest.setup.js')
         ],

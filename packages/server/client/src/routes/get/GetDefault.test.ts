@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import Client from "../../../src";
-import { GetDefaultDataType } from "../../../src/routes/get/GetDefault";
-import { PostLoginData } from "../../../src/routes/post/PostLogin";
+import Client from "../..";
+import { GetDefaultDataType } from "./GetDefault";
+import { PostLoginData } from "../post/PostLogin";
+import { testFolderInfo } from "../../utils/testFolderStructure";
 
 
 describe( "GetDefault", () => {
@@ -25,6 +26,8 @@ describe( "GetDefault", () => {
 
         // Check if the folder is the public folder
         expect( response.data!.folder.name ).toBe( "Jméno složky" );
+
+        testFolderInfo( response.data!.folder );
 
     } );
 

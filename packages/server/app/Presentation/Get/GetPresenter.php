@@ -102,10 +102,12 @@ final class GetPresenter extends BasePresenter
 
         // Výpočet count
         $displayed = count($files);
+        $total = $this->scanner->folder->getFileCount($path);
+        $omitted = $total - $displayed;
         $this->storeData("count", [
             "displayed" => $displayed,
-            "omitted" => 0,
-            "total" => $displayed
+            "omitted" => $omitted,
+            "total" => $total
         ]);
 
         $this->markSuccess( 

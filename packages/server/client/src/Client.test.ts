@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { Client } from "../src/Client";
-import { GetConnect, GetConnectDataType } from "../src/routes/get/GetConnect";
+import { Client } from "./Client";
+import { GetConnect, GetConnectDataType } from "./routes/get/GetConnect";
 
 describe("Client", () => {
 

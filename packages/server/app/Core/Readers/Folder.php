@@ -250,6 +250,7 @@ final class Folder
             }
 
             $result[$slug] = [
+                'slug' => $slug,
                 'count' => 0,
                 'meta' => $meta,
                 'folders' => [],
@@ -265,8 +266,9 @@ final class Folder
                     // Pokud tag ještě není v $result, přidej ho s minimální metou
                     if (!isset($result[$tag])) {
                         $result[$tag] = [
+                            'slug' => $tag,
                             'count' => 0,
-                            'meta' => ['slug' => $tag],
+                            'meta' => [],
                             'folders' => [],
                         ];
                     }

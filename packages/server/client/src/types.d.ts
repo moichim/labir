@@ -37,3 +37,46 @@ export interface FolderInfo {
     [index: string]: TagInfo;
   };
 }
+
+export interface FileInfo {
+  entity: "file",
+  url: string,
+  label: string | null,
+  description: string | null,
+  fileName: string,
+  folder: string,
+  parent: string,
+  path: string,
+  visual: string | false,
+  preview: string | false,
+  timestamp: number,
+  uploaded: number,
+  tags: string[],
+  dateHuman: string,
+  apiRoot: string,
+  analyses: string[]
+}
+
+export type TagDefinition = {
+  slug: string,
+  count: number,
+  meta?: {
+    name?: string,
+    description?: string,
+    color?: string
+  }
+}
+
+export type TagDefinitions = {
+  [index: string]: TagDefinition;
+}
+
+export type TagWithContent = TagDefinition & {
+  folders: {
+    [index:string]: FileInfo[]
+  }
+}
+
+export type TagsWithContent = {
+  [index: string]: TagWithContent;
+}
