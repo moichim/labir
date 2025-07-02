@@ -25,7 +25,9 @@ export default defineConfig({
         slowTestThreshold: 0,
         testTimeout: 300000,
         sequence: {
+    
             shuffle: false, // Disable shuffling of test order
+            // repeatEach: 1
             // repeatEach: 1, // Run each test only once
         }
     }
