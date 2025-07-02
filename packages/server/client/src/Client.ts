@@ -3,6 +3,7 @@ import { RequestFactory } from "./request/RequestFactory";
 import { GetConnectDataType } from "./routes/get/GetConnect";
 import { ApiResponseDataType, ApiResponseType } from "./routes/ResponseTypes";
 import { Routes } from "./routes/factories/Routes";
+import { Entities } from "./entities/Entities";
 
 /**
  * The client for accessing a remote LabIR server.
@@ -26,6 +27,14 @@ export class Client {
      * The factories for creating requests to the API.
      */
     public readonly routes: Routes;
+
+
+    /**
+     * Access server entities directly and manipulate them using a comfortable API.
+     * 
+     * All entities are observable by their consuming objects, so there should be only one instance of every entity by its given identification.
+     */
+    public readonly entities: Entities = new Entities( this );
 
     /**
      * Needs to be set to `true` before any requests are made (with the exception of the `connect()` route).

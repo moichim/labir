@@ -19,7 +19,11 @@ export type TagInfo = {
     color?: string | null
 }
 
-export interface FolderInfo {
+export interface ApiEditableEntity {
+
+}
+
+export interface FolderInfo extends ApiEditableEntity {
   entity: "folder";
   api: string;
   path: string;
@@ -38,7 +42,7 @@ export interface FolderInfo {
   };
 }
 
-export interface FileInfo {
+export interface FileInfo extends ApiEditableEntity{
   entity: "file",
   /** URL address of the file itself */
   url: string,
