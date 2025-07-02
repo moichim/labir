@@ -18,13 +18,13 @@ describe( "Entities", () => {
 
         const observer1 = await client.entities.connectToFolder( "access/accessible", {
             onFolderChanged( folder, change ) {
-                console.log( "OBSERVER1", "Folder changed:", folder, change );
+                // console.log( "OBSERVER1", "Folder changed:", folder, change );
             }
         } );
 
         const observer2 = await client.entities.connectToFolder( "access/accessible", {
             onFolderChanged( folder, change ) {
-                console.log( "OBSERVER2", "Folder changed:", folder, change );
+                // console.log( "OBSERVER2", "Folder changed:", folder, change );
             }
         } );
 

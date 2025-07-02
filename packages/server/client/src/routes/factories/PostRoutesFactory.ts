@@ -1,5 +1,6 @@
 import { Client } from "../../Client";
 import { PostLogin } from "../post/PostLogin";
+import { PostMoveFolder } from "../post/PostMoveFolder";
 import { PostUpdateFolder } from "../post/PostUpdateFolder";
 
 export class PostRoutesFactory {
@@ -14,6 +15,10 @@ export class PostRoutesFactory {
 
     public updateFolder(): PostUpdateFolder {
         return (new PostUpdateFolder(this.client)).init();
+    }
+
+    public moveFolder(): PostMoveFolder {
+        return (new PostMoveFolder(this.client)).init();
     }
 
 }

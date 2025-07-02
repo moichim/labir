@@ -1,0 +1,191 @@
+import { describe, test, expect } from "vitest";
+import { Client } from "../../Client";
+import { b } from "vitest/dist/suite-IbNSsUWN.js";
+
+describe( "PostMoveFolder", () => {
+
+    test( "root moves folders there and back again", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser("root");
+        login.setPassword("abcdefghijk");
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/accessible" );
+        request.setTarget( "zihle" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( true );
+
+        // Move back
+        request.setPath( "zihle/accessible" );
+        request.setTarget( "access/restricted" );
+        const resultBack = await request.execute();
+
+        expect( resultBack.success ).toBe( true );
+
+    } );
+
+    test( "move fails if target is missing in body", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser("root");
+        login.setPassword("abcdefghijk");
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/accessible" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 400 );
+        expect( result.message ).toBe( "Invalid request body format. Expected JSON string." );
+
+    } );
+
+    test( "move fails if the source folder does not exist", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser("root");
+        login.setPassword("abcdefghijk");
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/nonexistent" );
+        request.setTarget( "zihle" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 404 );
+        expect( result.message ).toContain( "Folder does not exist." );
+
+    } );
+
+    test( "move fails when target does not exist", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser("root");
+        login.setPassword("abcdefghijk");
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/accessible" );
+        request.setTarget( "nonexistent" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 404 );
+        expect( result.message ).toContain( "does not exist" );
+
+    } );
+
+    test( "move fails when there is a folder of the same name in the destination", async () => {
+
+        const client = new Client(  "http://localhost:8080" );
+
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser( "root" );
+        login.setPassword( "abcdefghijk" );
+        await login.execute();
+
+        expect( client.auth.isLoggedIn() ).toBe( true );
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/accessible" );
+        request.setTarget( "access/accessible/" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 409 );
+        expect( result.message ).toContain( "already exists" );
+
+    } );
+
+    test( "move fails when the target folder is set to have files", async () => {
+
+        const client = new Client( "http://localhost:8080" );
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser( "root" );
+        login.setPassword( "abcdefghijk" );
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted/accessible" );
+        request.setTarget( "access/accessible/accessible" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 403 );
+
+        expect( result.message ).toContain( "You do not have write access to the target parent folder" );
+
+    } );
+
+    test( "move fails when user wants to move a folder to a destination to  which he does not have any access", async () => {
+
+        const client = new Client( "http://localhost:8080" );
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser( "guest" );
+        login.setPassword( "querty" );
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted_to_guest/accessible" );
+        request.setTarget( "zihle" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 403 );
+        expect( result.message ).toContain( "You do not have write access to the target parent folder" );
+
+    } );
+
+    test( "move fails when guest is trying to move a folder that is not accessible to him", async () => {
+
+        const client = new Client( "http://localhost:8080" );
+        await client.connect();
+
+        const login = client.routes.post.login();
+        login.setUser( "guest" );
+        login.setPassword( "querty" );
+        await login.execute();
+
+        const request = client.routes.post.moveFolder();
+        request.setPath( "access/restricted" );
+        request.setTarget( "zihle" );
+
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 403 );
+        expect( result.message ).toContain( "You do not have write access to this folder" );
+
+    } );
+
+} );

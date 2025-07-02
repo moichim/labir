@@ -94,7 +94,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
             const report = Object.fromEntries( mutations );
 
-            console.log( "report", report );
+            // console.log( "report", report );
 
             this.emit("updated", true, report);
 

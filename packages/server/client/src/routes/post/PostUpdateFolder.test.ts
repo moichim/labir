@@ -155,8 +155,6 @@ describe( "PostUpdateFolder", () => {
 
         expect( reverted.data?.result.info ).toEqual( info.data?.folder );
 
-
-
     } );
 
 
