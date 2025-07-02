@@ -9,10 +9,7 @@ export type PostLoginDataType = {
 
 export class PostLogin extends Operation<PostLoginDataType> {
 
-    protected request!: RequestFactory;
-
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod( "POST" );
         this.request.setAction( "login" );
         return this;

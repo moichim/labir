@@ -1,27 +1,18 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { FileInfo } from "../../types";
 import { Operation } from "../Operation";
+import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetFileDataType = {
     file: FileInfo
 }
 
-export class GetFile extends Operation<GetFileDataType> {
-
-    protected request!: RequestFactory;
+export class GetFile extends OperationWithPath<GetFileDataType> {
 
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod("GET");
         this.request.setAction("file");
-        return this;
-    }
-
-    public setPath(
-        value: string
-    ): this {
-        this.request.setPath( value );
         return this;
     }
 

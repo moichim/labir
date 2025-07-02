@@ -1,6 +1,8 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { FileInfo, FolderInfo, TagsWithContent } from "../../types";
 import { Operation } from "../Operation";
+import { OperationWithPath } from "../OperationWithPath";
+import { OperationWithFilters } from "../OperationWithPathAndFilters";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetGridDataType = {
@@ -36,7 +38,6 @@ export type GetGridDataType = {
         omitted: number,
         total: number
     },
-    files: FileInfo[],
     tags: TagsWithContent
 }
 
@@ -48,28 +49,16 @@ export enum GridGrouping {
     YEAR = "year"
 }
 
-export class GetGrid extends Operation<GetGridDataType> {
-
-    protected request!: RequestFactory;
-
-    protected tags: string[] = [];
+export class GetGrid extends OperationWithFilters<GetGridDataType> {
 
     protected folders: string[] = [];
 
     protected by: GridGrouping = GridGrouping.HOUR;
 
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod( "GET" );
         this.request.setAction( "grid" );
         this.request.addQueryParameter("by", this.by);
-        return this;
-    }
-
-    public setPath(
-        path: string
-    ): this {
-        this.request.setPath(path);
         return this;
     }
 
@@ -78,69 +67,6 @@ export class GetGrid extends Operation<GetGridDataType> {
     ): this {
         this.by = value;
         this.request.addQueryParameter("by", value);
-        return this;
-    }
-
-    public setFrom(
-        value: number | Date
-    ): this {
-        const timestamp = value instanceof Date
-            ? value.getTime()
-            : value;
-        this.request.addQueryParameter("from", timestamp.toString());
-        return this;
-    }
-
-    public setTo(
-        value: number | Date
-    ): this {
-        const timestamp = value instanceof Date
-            ? value.getTime()
-            : value;
-        this.request.addQueryParameter("to", timestamp.toString());
-        return this;
-    }
-
-    public setTags(
-        value: string[]
-    ): this {
-
-        this.tags = value;
-        this.applyTags();
-        return this;
-    }
-
-    public addTag(
-        value: string
-    ): this {
-
-        // Add the tag only if it is not already present
-        if ( ! this.tags.includes(value) ) {
-            this.tags.push(value);
-            this.applyTags();    
-        }
-        return this;
-    }
-
-    public removeTag(
-        value: string
-    ): this {
-
-        const originalLength = this.tags.length;
-
-        // Filter out the tag to be removed
-        this.tags = this.tags.filter( tag => tag !== value );
-
-        // Apply the change if the length has changed
-        if ( this.tags.length !== originalLength ) {
-            this.applyTags();
-        }
-
-        return this;
-    }
-
-    protected applyTags(): this {
-        this.request.addQueryParameter("tags", this.tags.join(","));
         return this;
     }
 

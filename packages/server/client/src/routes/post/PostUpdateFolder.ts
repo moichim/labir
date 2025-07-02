@@ -1,6 +1,7 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { FolderInfo, TagUpdateObject } from "../../types";
 import { Operation } from "../Operation";
+import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type PostUpdateFolderDataType = {
@@ -21,22 +22,13 @@ export type PostUpdateFolderDataType = {
     
 }
 
-export class PostUpdateFolder extends Operation<PostUpdateFolderDataType> {
+export class PostUpdateFolder extends OperationWithPath<PostUpdateFolderDataType> {
 
-    protected request!: RequestFactory;
     protected tagBuffer: TagUpdateObject = {};
 
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod("POST");
         this.request.setAction("update");
-        return this;
-    }
-
-    public setPath(
-        value: string
-    ) {
-        this.request.setPath(value);
         return this;
     }
 

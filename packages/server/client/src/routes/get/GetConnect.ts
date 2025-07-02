@@ -9,10 +9,7 @@ export type GetConnectDataType = {
 
 export class GetConnect extends Operation<GetConnectDataType> {
 
-    protected request!: RequestFactory;
-
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod("GET");
         this.request.setAction("connect");
         return this;

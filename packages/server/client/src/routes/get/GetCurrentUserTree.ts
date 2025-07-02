@@ -12,10 +12,7 @@ export type GetCurrentUserTreeDataType = {
  */
 export class GetCurrentUserTree extends Operation<GetCurrentUserTreeDataType> {
 
-    protected request!: RequestFactory;
-
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod( "GET" );
         this.request.setAction( "currentusertree" );
         return this;

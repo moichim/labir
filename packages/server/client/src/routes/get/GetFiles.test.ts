@@ -3,6 +3,7 @@ import { Client } from "../../Client";
 import { testFileInfo } from "../../utils/testFileStructure";
 import { testFolderInfo } from "../../utils/testFolderInfo";
 import { testTagDefinition } from "../../utils/testTagDefinition";
+import { request } from "http";
 
 describe("GetFiles", () => {
 
@@ -238,6 +239,46 @@ describe("GetFiles", () => {
 
     });
 
+    test( "filter by both from & to", async () => {
+
+        /** Ïn this test, we use a folder that has 3 files. First, we will fetch it without filters. Then, we will use the min & max time of the files as a filter for a subsequent request. The subsequent request shall then have only one file. */
+
+        const client = new Client(  "http://localhost:8080");
+
+        await client.connect();
+
+        /** First, we need to make the request without a filter */
+        const requestWithoutFilters = client.routes.get.files();
+
+        requestWithoutFilters
+            .setPath( "zihle/barevne-krabicky" );
+
+        const responseWithoutFilters = await requestWithoutFilters.execute();
+
+        expect( responseWithoutFilters.success ).toBe( true );
+
+        const times = responseWithoutFilters.data!.time.files;
+
+        /** The subsequent request */
+        const requestWithFilters = client.routes.get.files();
+        requestWithFilters
+            .setPath( "zihle/barevne-krabicky" )
+            .setFrom( times.from )
+            .setTo( times.to );
+
+        const responseWithFilters = await requestWithFilters.execute();
+
+        expect( responseWithFilters.success ).toBe( true );
+
+        expect( responseWithFilters.data!.count.displayed ).toEqual( 1 );
+        expect( responseWithFilters.data!.count.omitted ).toEqual( 2 );
+        expect( responseWithFilters.data!.count.total ).toEqual( 3 );
+
+        expect( responseWithFilters.data!.files.length ).toEqual( 1 );
+        
+
+    } );
+
     test("filter by one tag that is in two files", async () => {
 
         const client = new Client("http://localhost:8080");
@@ -337,6 +378,29 @@ describe("GetFiles", () => {
         });
 
     });
+
+    test( "returns empty array of files for filtering by tag that does not exist", async () => {
+
+        const client = new Client("http://localhost:8080");
+
+        await client.connect();
+
+        const request = client.routes.get.files();
+
+        request
+            .setPath("zihle/barevne-krabicky")
+            .addTag("nonexistent-tag");
+
+        const result = await request.execute();
+
+        expect(result.success).toBe(true);
+
+        testFolderInfo( result.data!.folder );
+
+        expect( Array.isArray(result.data!.files) ).toBe( true );
+        expect( result.data?.files.length ).toBe( 0 );
+
+    } );
 
 
 });

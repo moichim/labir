@@ -1,29 +1,20 @@
 import { RequestFactory } from "../../request/RequestFactory";
 import { FolderInfo } from "../../types";
 import { Operation } from "../Operation";
+import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetDefaultDataType = {
     folder: FolderInfo,
-    subfolders: {
+    subfolders: false | {
         [index: string]: FolderInfo
     }
 }
 
-export class GetDefault extends Operation<GetDefaultDataType> {
-
-    protected request!: RequestFactory;
+export class GetDefault extends OperationWithPath<GetDefaultDataType> {
 
     public init(): this {
-        this.request = this.client.createRequest();
         this.request.setMethod( "GET" );
-        return this;
-    }
-
-    public setPath(
-        path: string
-    ): this {
-        this.request.setPath(path);
         return this;
     }
 
