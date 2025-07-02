@@ -1,10 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { Client } from "../../Client";
 import { testFolderInfo } from "../../utils/testFolderInfo";
+import { info } from "console";
 
 describe( "PostUpdateFolder", () => {
 
-    test( "should not be accessible to unauthorised at all", async () => {
+    test( "should not be able to edit a public folder when not looged in", async () => {
 
         const client = new Client("http://localhost:8080");
         await client.connect();
@@ -20,7 +21,23 @@ describe( "PostUpdateFolder", () => {
 
     } );
 
-    test( "guest should be able to update folders accessible by him", async () => {
+    test( "should not be able to edit a private folder when not looged in", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+
+        const request = client.routes.post.updateFolder();
+
+        request.setPath( "/access/restricted" );
+        
+        const result = await request.execute();
+
+        expect( result.success ).toBe( false );
+        expect( result.code ).toBe( 401 );
+
+    } );
+
+    test( "guest should be able to update folders accessible by him - update the tags as well", async () => {
 
         const client = new Client("http://localhost:8080");
         await client.connect();
@@ -57,21 +74,23 @@ describe( "PostUpdateFolder", () => {
         updateRequest
             .setPath( folder )
             .setName( temporaryName )
-            .setDescription( temporaryDescription )
-            .addTags( temporaryTags );
+            .setDescription( temporaryDescription );
+
+        Object.entries( temporaryTags ).forEach( ( [ slug, tag ] ) => {
+            updateRequest.addTag( slug, tag.name, tag.description, tag.color );
+        } );
 
         const updateResponse = await updateRequest.execute();
 
         testFolderInfo( updateResponse.data!.result.info );
 
         expect( updateResponse.data!.result.moved ).toBe( false );
-
         expect( updateResponse.data?.result.name ).toBe( temporaryName );
         expect( updateResponse.data?.result.slug ).toBe( infoResponse.data?.folder.path );
         expect( updateResponse.data?.result.description ).toBe( temporaryDescription );
         expect( updateResponse.data?.result.info.own_tags ).toEqual( temporaryTags );
 
-
+        // Restore back the original folder info
         const updateBackRequest = client.routes.post.updateFolder();
         updateBackRequest
             .setPath( folder )
@@ -82,10 +101,64 @@ describe( "PostUpdateFolder", () => {
         const updateBackResponse = await updateBackRequest.execute();
 
         expect( updateBackResponse.success ).toBe( true );
-
         expect( updateBackResponse.data?.result.info ).toEqual( infoResponse.data?.folder );
+        expect( updateBackResponse.data?.result.info.own_tags.length ).toBe( 0 );
+
+        testFolderInfo( updateBackResponse.data!.result.info );
+
+    } );
+
+
+    test( "update metadata", async () => {
+
+        const client = new Client("http://localhost:8080");
+
+        await client.connect();
+
+        // Login as root
+        const login = client.routes.post.login();
+        login
+            .setUser("root")
+            .setPassword("abcdefghijk");
+        await login.execute();
+
+        // Original state
+        const infoRequest = client.routes.get.default();
+        infoRequest.setPath( "access/restricted" );
+        const info = await infoRequest.execute();
+
+        const originalMetadata = info.data!.folder.data;
+
+        // Update the folder metadata to a new state
+        const updateRequest = client.routes.post.updateFolder();
+        updateRequest
+            .setPath( "access/restricted" )
+            .setMetadata( {
+                lat: "Testing value"
+            } );
+        const updated = await updateRequest.execute();
+
+        expect( updated.success ).toBe( true );
+        expect( updated.data?.result.info.data ).toEqual( {
+            lat: "Testing value",
+            long: originalMetadata.long,
+        } );
+
+        // Set back the original value
+        const updateBackRequest = client.routes.post.updateFolder();
+        updateBackRequest
+            .setPath( "access/restricted" )
+            .setMetadata( originalMetadata );
+        const reverted = await updateBackRequest.execute();
+
+        expect( reverted.success ).toBe( true );
+
+        expect( reverted.data?.result.info ).toEqual( info.data?.folder );
+
 
 
     } );
+
+
 
 } );

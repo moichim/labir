@@ -47,15 +47,6 @@ export class PostUpdateFolder extends OperationWithPath<PostUpdateFolderDataType
         return this;
     }
 
-    public addTags(
-        tags: TagUpdateObject
-    ): this {
-        // Merge tags into buffer
-        this.tagBuffer = { ...this.tagBuffer, ...tags };
-        this.request.addBodyParameter("addTags", this.tagBuffer);
-        return this;
-    }
-
     public addTag(
         key: string,
         name: string,
@@ -74,6 +65,12 @@ export class PostUpdateFolder extends OperationWithPath<PostUpdateFolderDataType
     ): this {
         this.request.addBodyParameter("removeTags", tags);
         return this;
+    }
+
+    public setMetadata(
+        value: Record<string, any>
+    ) {
+        this.request.addBodyParameter("meta", value);
     }
 
 
