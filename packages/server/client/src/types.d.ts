@@ -66,6 +66,12 @@ export interface FileInfo extends ApiEditableEntity{
   timestamp: number,
   /** Timestamp of the upload date */
   uploaded: number,
+  uploadedby: null | {
+    login: string,
+    name: string,
+    description: string | null,
+    institution: string | null
+  },
   /** This file is assigned to these tags. Tags may be defined in `_tags.json` of the `parent` folder */
   tags: string[],
   /** A human-redable date - is taken from the timestamp */
