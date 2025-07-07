@@ -1,0 +1,12 @@
+services:
+	- App\Core\Scanner
+	- App\Core\RouterFactory::createRouter(@App\Core\Scanner, @http.request)
+
+
+search:
+	-	in: %appDir%
+		classes:
+			- *Facade
+			- *Factory
+			- *Repository
+			- *Service
