@@ -13,8 +13,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-        request.setPath("access/restricted/restricted");
+        const request = client.routes.get.files( "access/restricted/restricted" );
 
         const response = await request.execute();
 
@@ -30,8 +29,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-        request.setPath("access/accessible/accessible");
+        const request = client.routes.get.files("access/accessible/accessible");
 
         const response = await request.execute();
 
@@ -78,8 +76,7 @@ describe("GetFiles", () => {
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.get.files();
-        files.setPath("access/restricted_to_guest/restricted");
+        const files = client.routes.get.files("access/restricted_to_guest/restricted");
 
         const response = await files.execute();
 
@@ -110,8 +107,7 @@ describe("GetFiles", () => {
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.get.files();
-        files.setPath("access/restricted/restricted");
+        const files = client.routes.get.files("access/restricted/restricted");
 
         const response = await files.execute();
 
@@ -135,8 +131,7 @@ describe("GetFiles", () => {
 
         expect(loginResponse.success).toBe(true);
 
-        const files = client.routes.get.files();
-        files.setPath("access/restricted/restricted");
+        const files = client.routes.get.files("access/restricted/restricted");
 
         const response = await files.execute();
 
@@ -168,8 +163,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-        request.setPath("manetin/les");
+        const request = client.routes.get.files("manetin/les");
 
         request.setFrom(date);
 
@@ -208,8 +202,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-        request.setPath("manetin/les");
+        const request = client.routes.get.files("manetin/les");
 
         request.setTo(date);
 
@@ -251,10 +244,7 @@ describe("GetFiles", () => {
         await client.connect();
 
         /** First, we need to make the request without a filter */
-        const requestWithoutFilters = client.routes.get.files();
-
-        requestWithoutFilters
-            .setPath( "zihle/barevne-krabicky" );
+        const requestWithoutFilters = client.routes.get.files("zihle/barevne-krabicky");
 
         const responseWithoutFilters = await requestWithoutFilters.execute();
 
@@ -263,9 +253,8 @@ describe("GetFiles", () => {
         const times = responseWithoutFilters.data!.time.files;
 
         /** The subsequent request */
-        const requestWithFilters = client.routes.get.files();
+        const requestWithFilters = client.routes.get.files("zihle/barevne-krabicky");
         requestWithFilters
-            .setPath( "zihle/barevne-krabicky" )
             .setFrom( times.from )
             .setTo( times.to );
 
@@ -288,9 +277,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-
-        request.setPath("manetin/les");
+        const request = client.routes.get.files("manetin/les");
 
         request.addTag("tag1");
 
@@ -321,9 +308,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-
-        request.setPath("manetin/les");
+        const request = client.routes.get.files("manetin/les");
 
         request.addTag("tag2");
 
@@ -353,9 +338,7 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
-
-        request.setPath("manetin/les");
+        const request = client.routes.get.files("manetin/les");
 
         request
             .addTag("tag1")
@@ -388,10 +371,9 @@ describe("GetFiles", () => {
 
         await client.connect();
 
-        const request = client.routes.get.files();
+        const request = client.routes.get.files("zihle/barevne-krabicky");
 
         request
-            .setPath("zihle/barevne-krabicky")
             .addTag("nonexistent-tag");
 
         const result = await request.execute();

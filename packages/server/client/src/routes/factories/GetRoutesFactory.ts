@@ -27,8 +27,12 @@ export class GetRoutesFactory {
             .setPath(path);
     }
 
-    public files(): GetFiles {
-        return (new GetFiles(this.client)).init();
+    public files(
+        path: string
+    ): GetFiles {
+        return (new GetFiles(this.client))
+            .init()
+            .setPath( path );
     }
 
     public grid(): GetGrid {

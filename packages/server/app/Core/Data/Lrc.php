@@ -80,10 +80,13 @@ final class Lrc
             throw new \Exception("You do not have permission to upload files to this folder.", 403);
         }
 
-        // 3. Zjisti unikátní jméno pro uploadovaný LRC soubor (původní jméno, případně __1, __2 ...)
+        // 3. Ověření, že uploadovaný soubor má příponu .lrc nebo .LRC
         $originalName = $lrcFile->getUntrustedName();
         $base = pathinfo($originalName, PATHINFO_FILENAME);
         $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+        if (strtolower($ext) !== 'lrc') {
+            throw new \Exception("Only .lrc files are allowed.", 400);
+        }
         $candidate = $base;
         $i = 1;
         $finalName = $base . '.' . $ext;
