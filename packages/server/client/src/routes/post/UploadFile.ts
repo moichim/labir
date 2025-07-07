@@ -29,11 +29,32 @@ export class UploadFile extends OperationWithPath<UploadFileDataType> {
     }
 
 
+    /**
+     * Nastaví label pro uploadovaný soubor
+     */
+    public setLabel(label: string): this {
+        this.request.addBodyParameter("label", label);
+        return this;
+    }
+
+    /**
+     * Nastaví description pro uploadovaný soubor
+     */
+    public setDescription(description: string): this {
+        this.request.addBodyParameter("description", description);
+        return this;
+    }
+
+    /**
+     * Nastaví tagy pro uploadovaný soubor
+     */
+    public setTags(tags: string[]): this {
+        this.request.addBodyParameter("tags", tags);
+        return this;
+    }
+
     public async execute(): Promise<ApiResponseType<UploadFileDataType>> {
-        
         const response = await this.client.fetch<UploadFileDataType>(this.request);
         return response;
-
-
     }
 }

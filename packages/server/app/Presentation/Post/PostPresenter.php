@@ -285,6 +285,14 @@ final class PostPresenter extends BasePresenter
         $visualFile = $this->getHttpRequest()->getFile('visual');
         $previewFile = $this->getHttpRequest()->getFile('preview');
 
+        // Získání metadat z POST (label, description, tags)
+        $label = $this->getHttpRequest()->getPost('label');
+        $description = $this->getHttpRequest()->getPost('description');
+        $tags = $this->getHttpRequest()->getPost('tags');
+        if (is_string($tags)) {
+            $tags = json_decode($tags, true);
+        }
+
         // Nahraj soubory přes Folder::uploadFile (ověření accessu je uvnitř)
         $result = $this->scanner->folder->uploadFile(
             $path,
@@ -292,6 +300,15 @@ final class PostPresenter extends BasePresenter
             $visualFile,
             $previewFile,
         );
+
+        // Pokud jsou metadata, proveď update
+        if ($label !== null || $description !== null || !empty($tags)) {
+            $result->update([
+                'label' => $label,
+                'description' => $description,
+                'addTags' => $tags,
+            ]);
+        }
 
         $this->storeData('file', $result->getInfo());
         $this->markSuccess(

@@ -174,6 +174,8 @@ final class Lrc
         $identity = $scanner->authorisation->getIdentity();
         $login = $identity && isset($identity['user']) ? $identity['user'] : null;
         $lrc->setUploadedby($login, $scanner->access ?? null);
+
+        // Vrací instanci, metadata (label, description, tags) se nastavují až v presenteru
         return $lrc;
     }
     /**

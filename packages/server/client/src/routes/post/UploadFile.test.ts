@@ -106,43 +106,58 @@ describe("UploadFile route", () => {
         const pngOriginalName = path.basename(pngPath);
         const pngFile = new File([pngBuffer], pngOriginalName, { type: "image/png" });
 
+        // Popisky a stringy, které se předají do souboru
+        const name = "Testovací LRC soubor";
+        const description = "Toto je testovací LRC soubor s vizuálem a preview.";
+        const tags = ["test", "lrc", "upload"];
+
         // Vytvoření requestu pro upload .lrc souboru s vizuálem a preview
         const request = client.routes.post.uploadFile("access/restricted_to_guest/accessible", lrcFile);
         request
             .setVisual(pngFile)
-            .setPreview(pngFile);
+            .setPreview(pngFile)
+            .setLabel(name)
+            .setDescription(description)
+            .setTags(tags);
 
         // Odeslání requestu a získání odpovědi
-        const responseLrc = await request.execute();
+        const response = await request.execute();
 
         // Uložení URL nahraných souborů (včetně JSON) pro úklid po testu
-        if (responseLrc.data?.file) {
-            uploadedFileUrls.push(responseLrc.data.file.url);
-            if (responseLrc.data.file.visual) uploadedFileUrls.push(responseLrc.data.file.visual);
-            if (responseLrc.data.file.preview) uploadedFileUrls.push(responseLrc.data.file.preview);
+        if (response.data?.file) {
+            uploadedFileUrls.push(response.data.file.url);
+            if (response.data.file.visual) uploadedFileUrls.push(response.data.file.visual);
+            if (response.data.file.preview) uploadedFileUrls.push(response.data.file.preview);
             // Přidej i JSON soubor (stejná cesta jako .lrc, ale s .json)
-            if (responseLrc.data.file.url && typeof responseLrc.data.file.url === "string") {
-                const jsonUrl = responseLrc.data.file.url.replace(/\.lrc($|\?)/, ".json$1");
+            if (response.data.file.url && typeof response.data.file.url === "string") {
+                const jsonUrl = response.data.file.url.replace(/\.lrc($|\?)/, ".json$1");
                 uploadedFileUrls.push(jsonUrl);
             }
         }
 
         // Ověření úspěšnosti uploadu a správné cesty
-        expect(responseLrc.success).toBe(true);
-        expect(responseLrc.data?.file).toBeDefined();
-        expect(responseLrc.data?.file.path).toContain("access/restricted_to_guest/accessible");
+        expect(response.success).toBe(true);
+        expect(response.data?.file).toBeDefined();
+        expect(response.data?.file.path).toContain("access/restricted_to_guest/accessible");
 
         // Integrita odpověďi
-        testFileInfo(responseLrc.data?.file);
+        testFileInfo(response.data?.file);
 
         // Uvěření, že bylo správně zaznamenáno, kdo soubor nahrál
-        expect( responseLrc.data?.file.uploadedby ).toBeDefined();
-        expect(responseLrc.data?.file.uploadedby).toStrictEqual({
+        expect( response.data?.file.uploadedby ).toBeDefined();
+        expect(response.data?.file.uploadedby).toStrictEqual({
             login: "guest",
             name: "Host",
             description: "Veřejný uživatel s omezeným přístupem.",
             institution: "Veřejnost"
         });
+
+        // Ověření, zda soubor obsahuje patřičné stringy
+        expect(response.data?.file.label).toBe(name);
+        expect(response.data?.file.description).toBe(description);
+        expect(response.data?.file.tags).toEqual(expect.arrayContaining(tags));
+
+        console.log( response.data?.file );
 
     });
 
