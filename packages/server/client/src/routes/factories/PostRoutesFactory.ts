@@ -51,14 +51,14 @@ export class PostRoutesFactory {
             .setTarget( target );
     }
 
-    public updateFile(
+    public uploadFile(
         folderPath: string,
         file: File
     ): UploadFile {
         return (new UploadFile(this.client))
             .init()
             .setPath( folderPath )
-            .setFile( file );
+            .setLrc( file );
     }
 
 }

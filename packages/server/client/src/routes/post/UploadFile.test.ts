@@ -16,18 +16,32 @@ describe("UploadFile route", () => {
         await client.routes.post.login("guest", "querty").execute();
 
         // Najdi .lrc soubor ve složce public v rootu repozitáře
-        const filePath = path.join(PUBLIC_DIR, "klokani_01.lrc");
-        const buffer = readFileSync(filePath);
-        // Zachovej původní jméno souboru
-        const originalName = path.basename(filePath);
-        const file = new File([buffer], originalName, { type: "application/octet-stream" });
-        const upload = client.routes.post.updateFile("access/restricted_to_guest/accessible", file);
-        const response = await upload.execute();
-        console.log( response, file );
-        expect(response.success).toBe(true);
-        expect(response.data?.file).toBeDefined();
-        expect(response.data?.file.fileName).toMatch(/klokani_01(__(\d+))?\.lrc/);
-        expect(response.data?.file.path).toContain("access/restricted_to_guest/accessible");
+        const lrcPath = path.join(PUBLIC_DIR, "klokani_01.lrc");
+        const lrcBuffer = readFileSync(lrcPath);
+        const lrcOriginalName = path.basename(lrcPath);
+        const lrcFile = new File([lrcBuffer], lrcOriginalName, { type: "application/octet-stream" });
+
+        // Nyní nahraj PNG obrázek kitten.png
+        const pngPath = path.join(PUBLIC_DIR, "kitten.png");
+        const pngBuffer = readFileSync(pngPath);
+        const pngOriginalName = path.basename(pngPath);
+        const pngFile = new File([pngBuffer], pngOriginalName, { type: "image/png" });
+
+        // Request
+        const request = client.routes.post.uploadFile("access/restricted_to_guest/accessible", lrcFile);
+
+        request
+            .setVisual(pngFile)
+            .setPreview(pngFile);
+
+        const responseLrc = await request.execute();
+
+        console.log(responseLrc, lrcFile);
+        
+        expect(responseLrc.success).toBe(true);
+        expect(responseLrc.data?.file).toBeDefined();
+        expect(responseLrc.data?.file.path).toContain("access/restricted_to_guest/accessible");
+
     });
     
 });

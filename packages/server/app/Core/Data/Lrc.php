@@ -15,6 +15,7 @@ final class Lrc
     protected string|false $preview = false;
     protected int $timestamp;
     protected int $uploaded;
+    protected $uploadedby = null;
     protected array $tags = [];
     protected array $analyses = [];
     protected ?string $label = null;
@@ -44,6 +45,161 @@ final class Lrc
         return null;
     }
 
+
+
+
+    /**
+     * Nahraje LRC soubor a volitelné obrázky visual/preview do cílové složky pod správnými jmény podle timestampu.
+     * Vrací instanci Lrc a info o uložených souborech.
+     *
+     * @param Scanner $scanner
+     * @param string $targetPath Cílová složka (slug)
+     * @param \Nette\Http\FileUpload $lrcFile Povinný .lrc soubor
+     * @param \Nette\Http\FileUpload|null $visualFile Nepovinný .png soubor (vizuál)
+     * @param \Nette\Http\FileUpload|null $previewFile Nepovinný .png soubor (náhled)
+     * @throws \Exception
+     */
+    public static function upload(
+        Scanner $scanner,
+        string $targetPath,
+        $lrcFile,
+        $visualFile = null,
+        $previewFile = null
+    ): Lrc {
+
+        // 1. Ověření existence složky
+        $targetDir = $scanner->getFullPath($targetPath);
+        if (!is_dir($targetDir)) {
+            throw new \Exception("Target directory does not exist: $targetDir", 404);
+        }
+
+        // 2. Ověření práv na správu souborů (userMayManageFilesIn)
+        $identity = $scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$scanner->access->userMayManageFilesIn($targetPath, $user)) {
+            throw new \Exception("You do not have permission to upload files to this folder.", 403);
+        }
+
+        // 3. Zjisti unikátní jméno pro uploadovaný LRC soubor (původní jméno, případně __1, __2 ...)
+        $originalName = $lrcFile->getUntrustedName();
+        $base = pathinfo($originalName, PATHINFO_FILENAME);
+        $ext = pathinfo($originalName, PATHINFO_EXTENSION);
+        $candidate = $base;
+        $i = 1;
+        $finalName = $base . '.' . $ext;
+        while (is_file($targetDir . DIRECTORY_SEPARATOR . $finalName)) {
+            $finalName = $base . "__" . $i . "." . $ext;
+            $i++;
+        }
+        $targetLrcPath = $targetDir . DIRECTORY_SEPARATOR . $finalName;
+
+        // 4. Přesunout LRC do složky pod tímto jménem
+        $lrcFile->move($targetLrcPath);
+
+        // 5. Přečíst timestamp z LRC souboru (už v cílové složce)
+        $lrcInstanceTmp = new self($scanner, $targetPath, $finalName);
+        $timestamp = $lrcInstanceTmp->readFileTimestamp();
+        if ($timestamp === null) {
+            @unlink($targetLrcPath);
+            throw new \Exception("Failed to read timestamp from LRC file.");
+        }
+
+
+        // 6. Vygenerovat nový název podle timestampu ve formátu YYYY-MM-DD_hh-mm-ss_thermal.lrc (a případně __1, __2 ... pokud existuje)
+        $dt = new \DateTimeImmutable();
+        $dt = $dt->setTimestamp((int)($timestamp / 1000));
+        $dateStr = $dt->format('Y-m-d_H-i-s');
+        $baseName = $dateStr . '_thermal';
+        $lrcName = $baseName . '.lrc';
+        $lrcFinalPath = $targetDir . DIRECTORY_SEPARATOR . $lrcName;
+        $lrcNameCandidate = $lrcName;
+        $j = 1;
+        while (is_file($lrcFinalPath)) {
+            $lrcNameCandidate = $baseName . "__" . $j . ".lrc";
+            $lrcFinalPath = $targetDir . DIRECTORY_SEPARATOR . $lrcNameCandidate;
+            $j++;
+        }
+        // Pokud je potřeba, přejmenuj
+        $oldJsonPath = $scanner->getFullPath($targetPath . DIRECTORY_SEPARATOR . preg_replace('/\.lrc$/i', '.json', $finalName));
+        if ($lrcNameCandidate !== $finalName) {
+            if (!@rename($targetLrcPath, $lrcFinalPath)) {
+                throw new \Exception("Failed to rename LRC file to timestamped name.");
+            }
+            // Smazat původní JSON, pokud existuje
+            if (is_file($oldJsonPath)) {
+                @unlink($oldJsonPath);
+            }
+        } else {
+            $lrcFinalPath = $targetLrcPath;
+            $lrcNameCandidate = $finalName;
+        }
+
+        // 7. Uložit visual a preview pod správnými jmény (a případně __1, __2 ... pokud existují)
+        $visualSaved = null;
+        if ($visualFile && $visualFile->isOk()) {
+            $visualBase = $dateStr . '_visual';
+            $visualName = $visualBase . '.png';
+            $visualPath = $targetDir . DIRECTORY_SEPARATOR . $visualName;
+            $k = 1;
+            $visualNameCandidate = $visualName;
+            while (is_file($visualPath)) {
+                $visualNameCandidate = $visualBase . "__" . $k . ".png";
+                $visualPath = $targetDir . DIRECTORY_SEPARATOR . $visualNameCandidate;
+                $k++;
+            }
+            $visualFile->move($visualPath);
+            $visualSaved = $visualNameCandidate;
+        }
+
+        $previewSaved = null;
+        if ($previewFile && $previewFile->isOk()) {
+            $previewBase = $dateStr . '_image_thermal';
+            $previewName = $previewBase . '.png';
+            $previewPath = $targetDir . DIRECTORY_SEPARATOR . $previewName;
+            $l = 1;
+            $previewNameCandidate = $previewName;
+            while (is_file($previewPath)) {
+                $previewNameCandidate = $previewBase . "__" . $l . ".png";
+                $previewPath = $targetDir . DIRECTORY_SEPARATOR . $previewNameCandidate;
+                $l++;
+            }
+            $previewFile->move($previewPath);
+            $previewSaved = $previewNameCandidate;
+        }
+
+        // 8. Vytvoř Lrc instanci (ta vytvoří JSON)
+        $lrc = new self($scanner, $targetPath, $lrcNameCandidate);
+
+        // Nastav uploadedby (pouze login)
+        $identity = $scanner->authorisation->getIdentity();
+        $login = $identity && isset($identity['user']) ? $identity['user'] : null;
+        $lrc->setUploadedby($login, $scanner->access ?? null);
+        return $lrc;
+    }
+    /**
+     * Nastaví login uživatele, uloží do JSON a interně načte metadata bez emailu a is_root
+     */
+    public function setUploadedby($login, $access = null)
+    {
+        // Zapiš pouze login do JSON
+        $json = $this->readJson() ?? [];
+        $json['uploadedby'] = $login;
+        $this->writeJson($json);
+        // Načti metadata pokud je k dispozici access
+        if ($login && $access && method_exists($access, 'getUser')) {
+            $meta = $access->getUser($login, false);
+            if (is_array($meta)) {
+                unset($meta['email'], $meta['is_root']);
+            }
+            $this->uploadedby = $meta;
+        } else {
+            $this->uploadedby = $login;
+        }
+    }
+
+
+
+
     public function __construct(
         protected Scanner $scanner,
         protected string $path,
@@ -62,6 +218,16 @@ final class Lrc
         $this->tags = $json["tags"] ?? [];
         $this->analyses = $json["analyses"] ?? [];
         $this->uploaded = $json["uploaded"] ?? time() * 1000;
+        $login = $json["uploadedby"] ?? null;
+        if ($login && isset($this->scanner->access) && method_exists($this->scanner->access, 'getUser')) {
+            $meta = $this->scanner->access->getUser($login, false);
+            if (is_array($meta)) {
+                unset($meta['email'], $meta['is_root']);
+            }
+            $this->uploadedby = $meta;
+        } else {
+            $this->uploadedby = $login;
+        }
     }
 
     public function getInfo()
@@ -80,6 +246,7 @@ final class Lrc
             "preview" => $this->preview,
             "timestamp" => $this->timestamp,
             "uploaded" => $this->uploaded,
+            "uploadedby" => $this->uploadedby,
             "tags" => $this->tags,
             "dateHuman" => $this->timestamp
                 ? date('d.m.Y H:i:s', (int)($this->timestamp / 1000))
@@ -87,6 +254,14 @@ final class Lrc
             "apiRoot" => $apiRoot,
             "analyses" => $this->analyses,
         ];
+    }
+
+    /**
+     * Vrací login uživatele, který nahrál soubor, nebo null
+     */
+    public function getUploadedBy()
+    {
+        return $this->uploadedby ?? null;
     }
 
 
@@ -250,29 +425,49 @@ final class Lrc
         $dir = $this->scanner->getFullPath($this->path);
         $base = pathinfo($this->fileName, PATHINFO_FILENAME);
 
+        // Zjisti případný __PORADI suffix
+        $orderSuffix = '';
+        if (preg_match('/(__\d+)$/', $base, $m)) {
+            $orderSuffix = $m[1];
+        }
+        // Odeber případné __PORADI z konce názvu
+        $baseNoOrder = preg_replace('/(__\d+)?$/', '', $base);
+
         // Current file name convention
-        if (str_ends_with($base, "_thermal")) {
+        if (str_ends_with($baseNoOrder, "_thermal")) {
             if ($type === 'visual') {
-                $file = str_replace("_thermal", "_visual.png", $base);
+                $imgBase = str_replace("_thermal", "_visual", $baseNoOrder);
             } else {
-                $file = str_replace("_thermal", "_image_thermal.png", $base);
+                $imgBase = str_replace("_thermal", "_image_thermal", $baseNoOrder);
             }
-            $full = $dir . DIRECTORY_SEPARATOR . $file;
-            if (is_file($full)) {
-                return $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $file);
+            // Pokud máme pořadí, hledej přesný soubor s tímto pořadím
+            if ($orderSuffix !== '') {
+                $fileName = $imgBase . $orderSuffix . '.png';
+                $filePath = $dir . DIRECTORY_SEPARATOR . $fileName;
+                if (is_file($filePath)) {
+                    return $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $fileName);
+                }
+            }
+            // Jinak najdi první existující soubor odpovídající patternu
+            $filePattern = $imgBase . '*.png';
+            $files = glob($dir . DIRECTORY_SEPARATOR . $filePattern);
+            if ($files && count($files) > 0) {
+                $fileName = basename($files[0]);
+                return $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $fileName);
             }
         }
 
         // Old file name convention
-        else if (str_starts_with("image-thermal", $base)) {
+        else if (str_starts_with($baseNoOrder, "image-thermal")) {
             if ($type === 'visual') {
-                $file = preg_replace('/thermal/', 'visual', $base) . '.png';
+                $filePattern = preg_replace('/thermal/', 'visual', $baseNoOrder) . '*.png';
             } else { // preview
-                $file = $base . '.png';
+                $filePattern = $baseNoOrder . '*.png';
             }
-            $full = $dir . DIRECTORY_SEPARATOR . $file;
-            if (is_file($full)) {
-                return $this->scanner->getFileUrl($this->path . $file);
+            $files = glob($dir . DIRECTORY_SEPARATOR . $filePattern);
+            if ($files && count($files) > 0) {
+                $fileName = basename($files[0]);
+                return $this->scanner->getFileUrl($this->path . DIRECTORY_SEPARATOR . $fileName);
             }
         }
 

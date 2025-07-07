@@ -13,10 +13,21 @@ export class UploadFile extends OperationWithPath<UploadFileDataType> {
         return this;
     }
 
-    public setFile(file: File): this {
-        this.request.addFile("file", file);
+    public setLrc(file: File): this {
+        this.request.addFile("lrc", file);
         return this;
     }
+
+    public setVisual(file: File): this {
+        this.request.addFile("visual", file);
+        return this;
+    }
+
+    public setPreview(file: File): this {
+        this.request.addFile("preview", file);
+        return this;
+    }
+
 
     public async execute(): Promise<ApiResponseType<UploadFileDataType>> {
         

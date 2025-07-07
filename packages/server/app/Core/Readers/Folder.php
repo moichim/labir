@@ -745,14 +745,7 @@ final class Folder
 
 
 
-    /**
-     * Nahraje .lrc soubor do složky, ověří práva a možnost nahrávání, vytvoří JSON.
-     * @param string $path Cílová složka (slug)
-     * @param \Nette\Http\FileUpload $file Uploadovaný soubor
-     * @return array Info o nahraném souboru
-     * @throws Exception Pokud nejsou práva, složka neexistuje, nebo soubor není validní
-     */
-    public function uploadFile(string $path, $file): array
+    public function uploadFile(string $path, $lrcFile, $visualFile = null, $previewFile = null): Lrc
     {
         // Ověření existence složky
         if (!$this->exists($path)) {
@@ -772,39 +765,31 @@ final class Folder
             throw new Exception("This folder does not allow file uploads.", 400);
         }
 
-        // Ověření uploadovaného souboru
-        if (!$file || $file->getError()) {
-            throw new Exception("No file uploaded or upload error.", 400);
+        // Ověření uploadovaného LRC souboru
+        if (!$lrcFile || $lrcFile->getError()) {
+            throw new Exception("No LRC file uploaded or upload error.", 400);
         }
-
-        $ext = pathinfo($file->getUntrustedName(), PATHINFO_EXTENSION);
-
-
+        $ext = strtolower(pathinfo($lrcFile->getUntrustedName(), PATHINFO_EXTENSION));
         if ($ext !== 'lrc') {
             throw new Exception("Only .lrc files are allowed.", 400);
         }
 
-        // Zjisti unikátní jméno souboru pokud už existuje
-        $originalName = $file->getUntrustedName();
-        $base = pathinfo($originalName, PATHINFO_FILENAME);
-        
-        $targetDir = $this->scanner->getFullPath($path);
-        $candidate = $base;
-        $i = 1;
-        $finalName = $base . '.' . $ext;
-        while (is_file($targetDir . DIRECTORY_SEPARATOR . $finalName)) {
-            $finalName = $base . "__" . $i . "." . $ext;
-            $i++;
+        // Ověření typů obrázků (pokud jsou)
+        if ($visualFile && $visualFile->isOk()) {
+            $vext = strtolower(pathinfo($visualFile->getUntrustedName(), PATHINFO_EXTENSION));
+            if ($vext !== 'png') {
+                throw new Exception("Visual file must be .png", 400);
+            }
         }
-        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $finalName;
-        $file->move($targetPath);
+        if ($previewFile && $previewFile->isOk()) {
+            $pext = strtolower(pathinfo($previewFile->getUntrustedName(), PATHINFO_EXTENSION));
+            if ($pext !== 'png') {
+                throw new Exception("Preview file must be .png", 400);
+            }
+        }
 
-        // Vytvoření JSON souboru (Lrc konstruktor jej vytvoří pokud neexistuje)
-        $lrc = new Lrc($this->scanner, $path, $finalName);
-
-        return [
-            'file' => $lrc->getInfo(),
-        ];
+        // Nahraj vše přes Lrc::upload
+        return Lrc::upload($this->scanner, $path, $lrcFile, $visualFile, $previewFile);
     }
 
 }

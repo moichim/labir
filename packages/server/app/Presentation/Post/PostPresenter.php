@@ -280,17 +280,24 @@ final class PostPresenter extends BasePresenter
     public function actionUploadfile(
         string $path
     ): void {
-        // Získání uploadovaného souboru (Nette: $this->getHttpRequest()->getFile('file'))
-        $file = $this->getHttpRequest()->getFile('file');
+        // Získání uploadovaných souborů (Nette: $this->getHttpRequest()->getFile('lrc'), ...)
+        $lrcFile = $this->getHttpRequest()->getFile('lrc');
+        $visualFile = $this->getHttpRequest()->getFile('visual');
+        $previewFile = $this->getHttpRequest()->getFile('preview');
 
-        // Nahraj soubor přes Folder::uploadFile (ověření accessu je uvnitř)
-        $result = $this->scanner->folder->uploadFile($path, $file);
+        // Nahraj soubory přes Folder::uploadFile (ověření accessu je uvnitř)
+        $result = $this->scanner->folder->uploadFile(
+            $path,
+            $lrcFile,
+            $visualFile,
+            $previewFile,
+        );
 
-        $this->storeData('file', $result['file']);
+        $this->storeData('file', $result->getInfo());
         $this->markSuccess(
             $this->formatMessage(
                 "File '%s' uploaded successfully to folder '%s'.",
-                $file ? $file->getUntrustedName() : 'unknown',
+                $lrcFile ? $lrcFile->getUntrustedName() : 'unknown',
                 $path
             )
         );
