@@ -743,4 +743,68 @@ final class Folder
         $this->scanner->json->write($path, $data);
     }
 
+
+
+    /**
+     * Nahraje .lrc soubor do složky, ověří práva a možnost nahrávání, vytvoří JSON.
+     * @param string $path Cílová složka (slug)
+     * @param \Nette\Http\FileUpload $file Uploadovaný soubor
+     * @return array Info o nahraném souboru
+     * @throws Exception Pokud nejsou práva, složka neexistuje, nebo soubor není validní
+     */
+    public function uploadFile(string $path, $file): array
+    {
+        // Ověření existence složky
+        if (!$this->exists($path)) {
+            throw new Exception("Target folder '$path' does not exist.", 404);
+        }
+
+        // Ověření práv na zápis souborů
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$this->scanner->access->userMayManageFilesIn($path, $user)) {
+            throw new Exception("You do not have permission to upload files to this folder.", 403);
+        }
+
+        // Ověření, že složka umožňuje nahrávání souborů
+        $access = $this->scanner->access->getFolderAccess($path);
+        if (empty($access['may_have_files'])) {
+            throw new Exception("This folder does not allow file uploads.", 400);
+        }
+
+        // Ověření uploadovaného souboru
+        if (!$file || $file->getError()) {
+            throw new Exception("No file uploaded or upload error.", 400);
+        }
+
+        $ext = pathinfo($file->getUntrustedName(), PATHINFO_EXTENSION);
+
+
+        if ($ext !== 'lrc') {
+            throw new Exception("Only .lrc files are allowed.", 400);
+        }
+
+        // Zjisti unikátní jméno souboru pokud už existuje
+        $originalName = $file->getUntrustedName();
+        $base = pathinfo($originalName, PATHINFO_FILENAME);
+        
+        $targetDir = $this->scanner->getFullPath($path);
+        $candidate = $base;
+        $i = 1;
+        $finalName = $base . '.' . $ext;
+        while (is_file($targetDir . DIRECTORY_SEPARATOR . $finalName)) {
+            $finalName = $base . "__" . $i . "." . $ext;
+            $i++;
+        }
+        $targetPath = $targetDir . DIRECTORY_SEPARATOR . $finalName;
+        $file->move($targetPath);
+
+        // Vytvoření JSON souboru (Lrc konstruktor jej vytvoří pokud neexistuje)
+        $lrc = new Lrc($this->scanner, $path, $finalName);
+
+        return [
+            'file' => $lrc->getInfo(),
+        ];
+    }
+
 }

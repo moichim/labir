@@ -24,6 +24,7 @@ export class RequestFactory {
     protected query: Map<string, string> = new Map<string, string>();
     protected body: { [key: string]: any } = {};
     protected headers: { [key: string]: string } = {};
+    protected files: { [key: string]: File } = {};
 
 
     constructor(
@@ -76,90 +77,153 @@ export class RequestFactory {
         return this;
     }
 
-    public createRequest(): Request|false {
+    public addFile(
+        key: string,
+        file: File
+    ): RequestFactory {
+        this.files[key] = file;
+        return this;
+    }
 
+
+    protected createRequestInit(): {
+        url: URL;
+        options: RequestInit;
+    }|false {
 
         const isValidRequestToRoot = [
-            "connect", 
+            "connect",
             "login",
             "currentusertree"
-        ].includes( this.action || "" )
+        ].includes(this.action || "");
 
-        if ( 
-            this.path === undefined 
-            && ! isValidRequestToRoot
-         ) {
+        if (this.path === undefined && !isValidRequestToRoot) {
             return false;
         }
 
         let address = this.client.getServerUrl();
-
-        if ( ! isValidRequestToRoot ) {
+        if (!isValidRequestToRoot) {
             address += this.path;
         }
 
-        const queryString: {[key: string]:string} = {};
-
-        // Append the action if it is set
-        if ( this.action !== undefined ) {
+        const queryString: { [key: string]: string } = {};
+        if (this.action !== undefined) {
             queryString["action"] = this.action;
         }
-
-        // Append the query parameters if any
-        if ( this.query.size > 0 ) {
-            this.query.forEach( (value, key) => {
+        if (this.query.size > 0) {
+            this.query.forEach((value, key) => {
                 queryString[key] = value;
             });
         }
-
-        // Create the URL with query parameters
-        if ( Object.keys( queryString ).length > 0) {
-
+        if (Object.keys(queryString).length > 0) {
             address += "?";
             address += new URLSearchParams(queryString).toString();
-
         }
+        const url = new URL(address);
 
-        const url = new URL( address );
+        const headers: Record<string, string> = { ...this.headers };
 
-        // Always use a plain object for headers to allow property assignment
-        const headers: Record<string, string> = { 
-            ...this.headers,
-            "Content-Type": "application/json",
-        };
-
-        // Set the PHP session ID if available
-        const session = this.client.auth.getSession();
-        if ( session ) {
-            headers["Cookie"] = session;
-        }
-
-        // Add credentials and session if any
-        if ( this.client.auth.isLoggedIn() ) {
-            // Ensure headers is a plain object
+        if (this.client.auth.isLoggedIn()) {
             headers["Authorization"] = this.client.auth.getAuthorisationHeader() || "";
+        }
+
+        const session = this.client.auth.getSession();
+        if (session) {
+            headers["Cookie"] = session;
         }
 
         const options: RequestInit = {
             method: this.method,
-            headers: headers,
-            credentials: "include", // Include credentials for cross-origin requests
+            headers,
+            credentials: "include",
+        };
+        
+        return {
+            url,
+            options
         };
 
-        // Assign the body only for post requests
-        if ( this.method === "POST" && Object.keys(this.body).length > 0 ) {
-    
-            options.body = JSON.stringify(this.body);
+    }
+
+
+    /**
+     * Vytvoří Request s application/json body (bez souborů)
+     */
+    protected createRequestJson(): Request|false {
+
+        const init = this.createRequestInit();
+
+        if ( init !== false ) {
+
+            const { url, options } = init;
+
+            if ( this.method === "POST" && Object.keys(this.body).length > 0 ) {
+                options.body = JSON.stringify(this.body);
+            }
+
+            const finaleOptions = {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    "Content-Type": "application/json",
+                }
+            }
+
+            return new Request(url, finaleOptions);
 
         }
 
-        const request = new Request( 
-            url,
-            options
-        );
+        return false;
+        
 
-        return request;
+    }
 
+    /**
+     * Vytvoří Request s multipart/form-data (pro upload souborů)
+     */
+    protected createRequestFormData(): Request|false {
+        // Využij společnou logiku pro URL, hlavičky atd.
+        const init = this.createRequestInit();
+        if (init === false) {
+            return false;
+        }
+        const { url, options } = init;
+
+        // Vytvoř FormData a naplň ji body parametry a soubory
+        const formData = new FormData();
+        for (const [key, value] of Object.entries(this.body)) {
+            formData.append(key, typeof value === 'object' ? JSON.stringify(value) : String(value));
+        }
+        for (const [key, file] of Object.entries(this.files)) {
+            formData.append(key, file, file.name);
+        }
+
+        // Content-Type NENASTAVUJEME! FormData jej nastaví automaticky včetně boundary.
+        const finaleOptions: RequestInit = {
+            ...options,
+            body: formData,
+        };
+        // Pokud by v headers zůstal Content-Type, odstraníme ho (pro jistotu)
+        if (finaleOptions.headers && typeof finaleOptions.headers === 'object') {
+            // @ts-ignore
+            delete finaleOptions.headers["Content-Type"];
+        }
+
+        return new Request(url, finaleOptions);
+    }
+
+    public createRequest(): Request|false {
+
+        // Rozhodnutí, kterou metodu použít, bude doplněno později
+        // (zatím zachováme původní chování pro zpětnou kompatibilitu)
+
+        if (Object.keys(this.files).length > 0) {
+            // Pokud předáváme soubory, použijeme multipart/form-data
+            return this.createRequestFormData();
+        } else {
+            // Jinak použijeme application/json
+            return this.createRequestJson();
+        }
     }
 
     public getAction(): string|undefined {

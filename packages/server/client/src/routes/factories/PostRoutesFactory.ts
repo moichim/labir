@@ -3,6 +3,7 @@ import { PostCreateFolder } from "../post/PostCreateFolder";
 import { PostLogin } from "../post/PostLogin";
 import { PostMoveFolder } from "../post/PostMoveFolder";
 import { PostUpdateFolder } from "../post/PostUpdateFolder";
+import { UploadFile } from "../post/UploadFile";
 
 export class PostRoutesFactory {
 
@@ -48,6 +49,16 @@ export class PostRoutesFactory {
             .init()
             .setPath( folderPath )
             .setTarget( target );
+    }
+
+    public updateFile(
+        folderPath: string,
+        file: File
+    ): UploadFile {
+        return (new UploadFile(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( file );
     }
 
 }

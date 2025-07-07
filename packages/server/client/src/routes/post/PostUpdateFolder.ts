@@ -1,6 +1,4 @@
-import { RequestFactory } from "../../request/RequestFactory";
 import { FolderInfo, TagUpdateObject } from "../../types";
-import { Operation } from "../Operation";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 

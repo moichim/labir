@@ -275,4 +275,27 @@ final class PostPresenter extends BasePresenter
         );
         $this->respond();
     }
+
+
+    public function actionUploadfile(
+        string $path
+    ): void {
+        // Získání uploadovaného souboru (Nette: $this->getHttpRequest()->getFile('file'))
+        $file = $this->getHttpRequest()->getFile('file');
+
+        // Nahraj soubor přes Folder::uploadFile (ověření accessu je uvnitř)
+        $result = $this->scanner->folder->uploadFile($path, $file);
+
+        $this->storeData('file', $result['file']);
+        $this->markSuccess(
+            $this->formatMessage(
+                "File '%s' uploaded successfully to folder '%s'.",
+                $file ? $file->getUntrustedName() : 'unknown',
+                $path
+            )
+        );
+        $this->respond();
+    }
+
+
 }

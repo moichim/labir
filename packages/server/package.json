@@ -11,7 +11,7 @@
   "files": [
     "client/dist",
     "client/src"
-    ],
+  ],
   "scripts": {
     "dev": "vite --config vite.config.ts",
     "eslint": "eslint src",
@@ -30,6 +30,7 @@
   "devDependencies": {
     "@eslint/js": "^9.4.0",
     "@types/node": "^20.14.2",
+    "@web-std/file": "^3.0.3",
     "eslint": "^8.57.0",
     "jsdom": "^24.1.0",
     "serve": "^14.2.4",
