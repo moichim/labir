@@ -157,8 +157,6 @@ describe("UploadFile route", () => {
         expect(response.data?.file.description).toBe(description);
         expect(response.data?.file.tags).toEqual(expect.arrayContaining(tags));
 
-        console.log( response.data?.file );
-
     });
 
 

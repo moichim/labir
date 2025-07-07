@@ -135,7 +135,6 @@ final class Lrc
         }
 
         // 7. Uložit visual a preview pod správnými jmény (a případně __1, __2 ... pokud existují)
-        $visualSaved = null;
         if ($visualFile && $visualFile->isOk()) {
             $visualBase = $dateStr . '_visual';
             $visualName = $visualBase . '.png';
@@ -148,10 +147,8 @@ final class Lrc
                 $k++;
             }
             $visualFile->move($visualPath);
-            $visualSaved = $visualNameCandidate;
         }
 
-        $previewSaved = null;
         if ($previewFile && $previewFile->isOk()) {
             $previewBase = $dateStr . '_image_thermal';
             $previewName = $previewBase . '.png';
@@ -164,7 +161,6 @@ final class Lrc
                 $l++;
             }
             $previewFile->move($previewPath);
-            $previewSaved = $previewNameCandidate;
         }
 
         // 8. Vytvoř Lrc instanci (ta vytvoří JSON)
