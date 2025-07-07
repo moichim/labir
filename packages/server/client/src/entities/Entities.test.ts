@@ -8,10 +8,7 @@ describe( "Entities", () => {
         const client = new Client( "http://localhost:8080" );
         await client.connect();
 
-        const login = client.routes.post.login();
-        login
-            .setUser( "root" )
-            .setPassword( "abcdefghijk" );
+        const login = client.routes.post.login( "root", "abcdefghijk" );
         await login.execute();
 
         expect( client.isConnected() ).toBe( true );

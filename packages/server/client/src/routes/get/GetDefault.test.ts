@@ -11,8 +11,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "access/accessible/accessible" );
+        const request = client.routes.get.default( "access/accessible/accessible" );
 
         const response = await request.execute();
 
@@ -35,8 +34,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "access/accessible/restricted" );
+        const request = client.routes.get.default("access/accessible/restricted");
 
         const response = await request.execute();
 
@@ -55,8 +53,7 @@ describe( "GetDefault", () => {
 
 
         // Try to access the protected folder before logging in
-        const failed_request = client.routes.get.default();
-        failed_request.setPath( "access/restricted_to_guest" );
+        const failed_request = client.routes.get.default("access/restricted_to_guest");
 
         const failed_response = await failed_request.execute();
 
@@ -69,10 +66,10 @@ describe( "GetDefault", () => {
 
 
         // Login as guest
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
-
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         const loginResponse = await login.execute();
 
         expect( loginResponse.success ).toBe( true );
@@ -80,8 +77,7 @@ describe( "GetDefault", () => {
         expect( loginResponse.data!.login ).toBe( client.auth.getIdentity() );
 
         // Now try to access the protected folder when we are logged in
-        const request = client.routes.get.default();
-        request.setPath( "access/restricted_to_guest" );
+        const request = client.routes.get.default("access/restricted_to_guest" );
 
         const response = await request.execute();
 
@@ -99,8 +95,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle" );
+        const request = client.routes.get.default( "zihle" );
 
         const response = await request.execute();
 
@@ -111,8 +106,8 @@ describe( "GetDefault", () => {
 
         testFolderInfo( response.data!.folder );
 
-        expect( response.data?.folder.data ).toHaveProperty( "latitude", 50.027);
-        expect( response.data?.folder.data ).toHaveProperty( "longitude", 13.237 );
+        expect( response.data?.folder.meta ).toHaveProperty( "latitude", 50.027);
+        expect( response.data?.folder.meta ).toHaveProperty( "longitude", 13.237 );
 
     } );
 
@@ -122,8 +117,7 @@ describe( "GetDefault", () => {
         
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle/deska" );
+        const request = client.routes.get.default( "zihle/deska" );
 
         const response = await request.execute();
 
@@ -134,9 +128,9 @@ describe( "GetDefault", () => {
         expect( response.data?.folder.name ).toBe( "Deska měření" );
         expect( response.data?.folder.description ).toBe( 'Data pro složku deska v lokalitě Žihle.' );
 
-        expect( typeof response.data?.folder.data ).toBe( "object" );
+        expect( typeof response.data?.folder.meta ).toBe( "object" );
 
-        expect( response.data?.folder.data ).not.toBeNull();
+        expect( response.data?.folder.meta ).not.toBeNull();
 
     } );
 
@@ -146,8 +140,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle/trava" );
+        const request = client.routes.get.default("zihle/trava");
 
         const result = await request.execute();
 
@@ -157,7 +150,7 @@ describe( "GetDefault", () => {
 
         expect( result.data?.folder ).toHaveProperty( "name", "trava" );
         expect( result.data?.folder ).toHaveProperty( "description", null );
-        expect( Object.keys( result.data!.folder.data ).length ).toBe( 0 );
+        expect( Object.keys( result.data!.folder.meta ).length ).toBe( 0 );
 
     } );
 
@@ -167,8 +160,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle" );
+        const request = client.routes.get.default("zihle");
 
         const response = await request.execute();
 
@@ -186,14 +178,14 @@ describe( "GetDefault", () => {
         await client.connect();
 
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle" );
+        const request = client.routes.get.default( "zihle" );
 
         const response = await request.execute();
 
@@ -209,8 +201,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default();
-        request.setPath( "zihle/trava" );
+        const request = client.routes.get.default("zihle/trava");
 
         const response = await request.execute();
 

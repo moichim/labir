@@ -10,20 +10,44 @@ export class PostRoutesFactory {
         protected readonly client: Client
     ) { }
 
-    public login(): PostLogin {
-        return (new PostLogin(this.client)).init();
+    public login(
+        login: string,
+        password: string
+    ): PostLogin {
+        return (new PostLogin(this.client))
+            .init()
+            .setUser(login)
+            .setPassword(password);
     }
 
-    public createFolder(): PostCreateFolder {
-        return (new PostCreateFolder(this.client)).init();
+    public createFolder(
+        /** An obligatory path of the folder in which the new Folder shall be created */
+        targetPath: string,
+        /** Name of the new folder - will be webalised for the real folder name in the file system */
+        newFolderName: string
+    ): PostCreateFolder {
+        return (new PostCreateFolder(this.client))
+            .init()
+            .setName(newFolderName)
+            .setPath(targetPath);
     }
 
-    public updateFolder(): PostUpdateFolder {
-        return (new PostUpdateFolder(this.client)).init();
+    public updateFolder(
+        path: string
+    ): PostUpdateFolder {
+        return (new PostUpdateFolder(this.client))
+            .init()
+            .setPath( path );
     }
 
-    public moveFolder(): PostMoveFolder {
-        return (new PostMoveFolder(this.client)).init();
+    public moveFolder(
+        folderPath: string,
+        target: string
+    ): PostMoveFolder {
+        return (new PostMoveFolder(this.client))
+            .init()
+            .setPath( folderPath )
+            .setTarget( target );
     }
 
 }

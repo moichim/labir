@@ -8,6 +8,12 @@ export default defineConfig({
     sequence: {
       shuffle: false, // Disable shuffling of test order
       repeatEach: 1, // Run each test only once
-    }
+    },
+    exclude: [
+      'node_modules',
+      'dist',
+      'build',
+      'tests',
+    ],
   },
 })

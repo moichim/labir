@@ -70,9 +70,10 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as guest
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);
@@ -101,9 +102,10 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as guest
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);
@@ -125,9 +127,10 @@ describe("GetFiles", () => {
         await client.connect();
 
         // Login as root
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         const loginResponse = await login.execute();
 
         expect(loginResponse.success).toBe(true);

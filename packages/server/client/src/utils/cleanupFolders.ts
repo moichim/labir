@@ -10,26 +10,12 @@ export async function cleanupFolders(createdFolders: string[]) {
     console.info("Provedu úklid testovacích složek...", createdFolders);
     
     for (const folder of createdFolders) {
-        const relPath = "../www/data/" + folder;
+        const relPath = "./www/data/" + folder;
         const absPath = path.resolve( relPath );
         try {
 
             await fs.rm(absPath, { recursive: true, force: true });
 
-            // Zkontroluj existenci složky
-            let exists = false;
-            try {
-                const stat = await fs.stat(absPath);
-                exists = stat.isDirectory();
-            } catch (e) {
-                exists = false;
-            }
-            if (exists) {
-                await fs.rm(absPath, { recursive: true, force: true });
-                console.info(`DELETED: ${absPath}`);
-            } else {
-                console.info(`NOT EXISTING: ${absPath}`);
-            }
         } catch (e) {
             console.warn(`ERROR ${folder}:`, (e as Error).message);
         }

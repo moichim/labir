@@ -19,8 +19,12 @@ export class GetRoutesFactory {
         return (new GetConnect(this.client)).init();
     }
 
-    public default(): GetDefault {
-        return (new GetDefault(this.client)).init();
+    public default(
+        path: string
+    ): GetDefault {
+        return (new GetDefault(this.client))
+            .init()
+            .setPath(path);
     }
 
     public files(): GetFiles {

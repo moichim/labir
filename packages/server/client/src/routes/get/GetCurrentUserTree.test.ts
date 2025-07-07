@@ -48,10 +48,10 @@ describe("GetCurrentUserTree", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
-
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
         expect(client.auth.isLoggedIn()).toBe(true);
@@ -70,10 +70,10 @@ describe("GetCurrentUserTree", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
-
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
         expect(client.auth.isLoggedIn()).toBe(true);
@@ -83,8 +83,6 @@ describe("GetCurrentUserTree", () => {
 
         expect(result.data).toHaveProperty("tree");
 
-        console.log(result.data!.tree);
-
     });
 
     test( "guest tree contains only /access/restricted_to_guest and their subtrees", async () => {
@@ -93,9 +91,10 @@ describe("GetCurrentUserTree", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
 
@@ -124,9 +123,10 @@ describe("GetCurrentUserTree", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
 

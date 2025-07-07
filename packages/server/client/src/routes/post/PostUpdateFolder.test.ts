@@ -10,9 +10,7 @@ describe( "PostUpdateFolder", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.post.updateFolder();
-
-        request.setPath( "/access/accessible" );
+        const request = client.routes.post.updateFolder( "/access/accessible" );
         
         const result = await request.execute();
 
@@ -26,9 +24,7 @@ describe( "PostUpdateFolder", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.post.updateFolder();
-
-        request.setPath( "/access/restricted" );
+        const request = client.routes.post.updateFolder( "/access/restricted" );
         
         const result = await request.execute();
 
@@ -42,9 +38,10 @@ describe( "PostUpdateFolder", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
         const folder = "access/restricted_to_guest";
@@ -64,15 +61,13 @@ describe( "PostUpdateFolder", () => {
         };
 
         // Create the first request to the folder that shall be updated later
-        const infoRequest = client.routes.get.default();
-        infoRequest.setPath( folder );
+        const infoRequest = client.routes.get.default( folder );
         const infoResponse = await infoRequest.execute();
         expect( infoResponse.success ).toBe( true );
 
         // Update the folder
-        const updateRequest = client.routes.post.updateFolder();
+        const updateRequest = client.routes.post.updateFolder( folder );
         updateRequest
-            .setPath( folder )
             .setName( temporaryName )
             .setDescription( temporaryDescription );
 
@@ -91,9 +86,8 @@ describe( "PostUpdateFolder", () => {
         expect( updateResponse.data?.result.info.own_tags ).toEqual( temporaryTags );
 
         // Restore back the original folder info
-        const updateBackRequest = client.routes.post.updateFolder();
+        const updateBackRequest = client.routes.post.updateFolder( folder );
         updateBackRequest
-            .setPath( folder )
             .setName( infoResponse.data!.folder.name )
             .setDescription( infoResponse.data!.folder.description! )
             .removeTags( ["tag1", "tag2"] );
@@ -116,38 +110,35 @@ describe( "PostUpdateFolder", () => {
         await client.connect();
 
         // Login as root
-        const login = client.routes.post.login();
-        login
-            .setUser("root")
-            .setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
         // Original state
-        const infoRequest = client.routes.get.default();
-        infoRequest.setPath( "access/restricted" );
+        const infoRequest = client.routes.get.default( "access/restricted" );
         const info = await infoRequest.execute();
 
-        const originalMetadata = info.data!.folder.data;
+        const originalMetadata = info.data!.folder.meta;
 
         // Update the folder metadata to a new state
-        const updateRequest = client.routes.post.updateFolder();
+        const updateRequest = client.routes.post.updateFolder( "access/restricted" );
         updateRequest
-            .setPath( "access/restricted" )
             .setMetadata( {
                 lat: "Testing value"
             } );
         const updated = await updateRequest.execute();
 
         expect( updated.success ).toBe( true );
-        expect( updated.data?.result.info.data ).toEqual( {
+        expect( updated.data?.result.info.meta ).toEqual( {
             lat: "Testing value",
             long: originalMetadata.long,
         } );
 
         // Set back the original value
-        const updateBackRequest = client.routes.post.updateFolder();
+        const updateBackRequest = client.routes.post.updateFolder( "access/restricted" );
         updateBackRequest
-            .setPath( "access/restricted" )
             .setMetadata( originalMetadata );
         const reverted = await updateBackRequest.execute();
 

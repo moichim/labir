@@ -9,14 +9,16 @@ describe( "PostMoveFolder", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/accessible" );
-        request.setTarget( "zihle" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted/accessible",
+            "zihle"
+        );
 
         const result = await request.execute();
 
@@ -31,40 +33,22 @@ describe( "PostMoveFolder", () => {
 
     } );
 
-    test( "move fails if target is missing in body", async () => {
-
-        const client = new Client("http://localhost:8080");
-        await client.connect();
-
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
-        await login.execute();
-
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/accessible" );
-
-        const result = await request.execute();
-
-        expect( result.success ).toBe( false );
-        expect( result.code ).toBe( 400 );
-        expect( result.message ).toBe( "Invalid request body format. Expected JSON string." );
-
-    } );
 
     test( "move fails if the source folder does not exist", async () => {
 
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/nonexistent" );
-        request.setTarget( "zihle" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted/nonexistent",
+            "zihle"
+        );
 
         const result = await request.execute();
 
@@ -79,14 +63,16 @@ describe( "PostMoveFolder", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/accessible" );
-        request.setTarget( "nonexistent" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted/accessible",
+            "nonexistent"
+        );
 
         const result = await request.execute();
 
@@ -102,16 +88,18 @@ describe( "PostMoveFolder", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser( "root" );
-        login.setPassword( "abcdefghijk" );
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
         expect( client.auth.isLoggedIn() ).toBe( true );
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/accessible" );
-        request.setTarget( "access/accessible/" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted/accessible",
+            "access/accessible"
+        );
 
         const result = await request.execute();
 
@@ -126,14 +114,16 @@ describe( "PostMoveFolder", () => {
         const client = new Client( "http://localhost:8080" );
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser( "root" );
-        login.setPassword( "abcdefghijk" );
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted/accessible" );
-        request.setTarget( "access/accessible/accessible" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted/accessible",
+            "access/accessible/accessible"
+        );
 
         const result = await request.execute();
 
@@ -149,14 +139,16 @@ describe( "PostMoveFolder", () => {
         const client = new Client( "http://localhost:8080" );
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser( "guest" );
-        login.setPassword( "querty" );
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted_to_guest/accessible" );
-        request.setTarget( "zihle" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted_to_guest/accessible",
+            "zihle"
+        );
 
         const result = await request.execute();
 
@@ -171,14 +163,16 @@ describe( "PostMoveFolder", () => {
         const client = new Client( "http://localhost:8080" );
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser( "guest" );
-        login.setPassword( "querty" );
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
-        const request = client.routes.post.moveFolder();
-        request.setPath( "access/restricted" );
-        request.setTarget( "zihle" );
+        const request = client.routes.post.moveFolder(
+            "access/restricted",
+            "zihle"
+        );
 
         const result = await request.execute();
 

@@ -49,9 +49,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
         const request = client.routes.get.file();
@@ -76,9 +77,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
         await login.execute();
 
         const request = client.routes.get.file();
@@ -99,9 +101,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
         await login.execute();
 
         const request = client.routes.get.file();

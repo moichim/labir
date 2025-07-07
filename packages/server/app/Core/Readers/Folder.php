@@ -78,7 +78,7 @@ final class Folder
             "slug" => basename($path),
             "name" => basename($path),
             "description" => null,
-            "data" => [],
+            "meta" => [],
             "lrc_count" => $this->getFileCount($path),
             "protected" => $protected,
             "may_have_files" => $may_have_files
@@ -103,7 +103,7 @@ final class Folder
                     $info["description"] = $content["description"];
                     unset($content["description"]);
                 }
-                $info["data"] = $content;
+                $info["meta"] = $content;
             }
         } catch (\Throwable $e) {
         }
@@ -325,6 +325,16 @@ final class Folder
         ?array $access = null
     ): array
     {
+
+
+        // Sanitize input values
+        $name = Json::s($name);
+        $description = $description !== null ? Json::s($description) : null;
+        // Sanitize meta values (rekurzivně, in-place)
+        if (!empty($meta) && is_array($meta)) {
+            array_walk_recursive($meta, function (&$v) { if (is_string($v)) { $v = Json::s($v); } });
+        }
+
         // --- 1. Ověření práv: uživatel musí být root, nebo složka musí povolovat podsložky ---
         $identity = $this->scanner->authorisation->getIdentity();
         $user = $identity ? $identity["user"] : null;
@@ -453,73 +463,34 @@ final class Folder
             throw new Exception("Folder '$slug' does not exist", 404);
         }
 
+        // Sanitizuj input
+        $name = $name !== null ? Json::s($name) : null;
+        $description = $description !== null ? Json::s($description) : null;
+        // Sanitize meta values (rekurzivně, in-place)
+        if (!empty($meta) && is_array($meta)) {
+            array_walk_recursive($meta, function (&$v) { if (is_string($v)) { $v = Json::s($v); } });
+        }
+
+        $moved = false;
+        $oldSlug = $slug;
+
         // Pokud je move true a name zadáno, přejmenuj složku
         if ($move && $name !== null) {
             $parentDir = dirname($slug);
             $newSlug = ($parentDir === '.' || $parentDir === '') ? $this->webalizeName($name) : $parentDir . DIRECTORY_SEPARATOR . $this->webalizeName($name);
             $newPath = $this->scanner->getFullPath($newSlug);
-
             if (is_dir($newPath)) {
                 throw new Exception("Target folder '$newSlug' already exists", 409);
             }
-
-            // Přejmenuj složku
             if (!rename($fullPath, $newPath)) {
                 throw new Exception("Failed to rename folder", 500);
             }
-
-            // Aktualizuj _content.json
-            $data = $this->readJson($newSlug, 'content') ?? [];
-            $data['name'] = $name;
-            if ($description !== null) {
-                $data['description'] = $description;
-            }
-            if (!empty($meta)) {
-                $data = array_merge($data, $meta);
-            }
-            $this->writeJson($newSlug, 'content', $data);
-
-            // --- Tagy: addTags/removeTags ---
-            $tagsPath = $this->getJsonPath($newSlug, 'tags');
-            $tags = is_file($tagsPath) ? ($this->scanner->json->read($tagsPath) ?? []) : [];
-            if (!is_array($tags)) $tags = [];
-
-            // Přidání tagů
-            if ($addTags !== null && (is_array($addTags) || is_object($addTags))) {
-                $addTagsArr = $this->filterValidTags($addTags);
-                $tags = array_merge($tags, $addTagsArr);
-            }
-            
-            // Odebrání tagů
-            if ($removeTags !== null && (is_array($removeTags) || is_object($removeTags))) {
-                foreach ($removeTags as $key => $tag) {
-                    if (is_string($key)) {
-                        unset($tags[$key]);
-                    } elseif (is_string($tag)) {
-                        unset($tags[$tag]);
-                    }
-                }
-            }
-            // Pokud nejsou žádné tagy, smaž _tags.json, jinak zapiš
-            if (empty($tags)) {
-                if (is_file($this->getJsonPath($newSlug, 'tags'))) {
-                    @unlink($this->getJsonPath($newSlug, 'tags'));
-                }
-            } else {
-                $this->writeJson($newSlug, 'tags', $tags);
-            }
-
-            return [
-                'slug' => $newSlug,
-                'name' => $data['name'] ?? basename($newSlug),
-                'description' => $data['description'] ?? null,
-                'info' => $this->getInfo($newSlug),
-                'moved' => true,
-                'oldSlug' => $slug,
-            ];
+            $slug = $newSlug;
+            $fullPath = $newPath;
+            $moved = true;
         }
 
-        // Jinak pouze aktualizuj _content.json
+        // Aktualizuj _content.json
         $data = $this->readJson($slug, 'content') ?? [];
         if ($name !== null) {
             $data['name'] = $name;
@@ -565,7 +536,8 @@ final class Folder
             'name' => $data['name'] ?? basename($slug),
             'description' => $data['description'] ?? null,
             'info' => $this->getInfo($slug),
-            'moved' => false,
+            'moved' => $moved,
+            'oldSlug' => $moved ? $oldSlug : null,
         ];
     }
 
@@ -627,16 +599,21 @@ final class Folder
         $tagsArr = (array)$tags;
         $result = [];
         foreach ($tagsArr as $key => $tag) {
+
+            $sanitizedKey = Json::s( $key );
+
             if (!is_array($tag) && !is_object($tag)) continue;
             $tagArr = (array)$tag;
             if (!isset($tagArr['name']) || !is_string($tagArr['name'])) continue;
             if (isset($tagArr['description']) && !is_string($tagArr['description'])) continue;
             if (isset($tagArr['color']) && !is_string($tagArr['color'])) continue;
-            $result[$key] = [
-                'name' => $tagArr['name'],
+            $result[$sanitizedKey] = [
+                'name' => Json::s($tagArr['name']),
             ];
-            if (isset($tagArr['description'])) $result[$key]['description'] = $tagArr['description'];
-            if (isset($tagArr['color'])) $result[$key]['color'] = $tagArr['color'];
+            if (isset($tagArr['description']))
+                $result[$sanitizedKey]['description'] = Json::s($tagArr['description']);
+            if (isset($tagArr['color']))
+                $result[$sanitizedKey]['color'] = Json::s($tagArr['color']);
         }
         return $result;
     }

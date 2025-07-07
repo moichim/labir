@@ -43,19 +43,20 @@ final class Json
      */
     public static function s(string $value): string
     {
-        // Pokud obsahuje HTML event handler atribut typu onmouseover=, onclick=, onerror= atd. (case-insensitive), vyhoď výjimku
-        if (preg_match('/on[a-z]+\s*=\s*/i', $value)) {
-            throw new \InvalidArgumentException('Zadávaný text obsahuje zakázaný JS event handler atribut (on...=)');
-        }
+        // Odstraní všechny HTML event handlery typu on...="..." nebo on...='...'
+        $value = preg_replace('/on[a-z]+\s*=\s*"[^"]*"/i', '', $value);
+        $value = preg_replace("/on[a-z]+\s*=\s*'[^']*'/i", '', $value);
+        // Odstraní celé <script ...>...</script> včetně obsahu a parametrů (multiline, case-insensitive)
+        $value = preg_replace('/<script[^>]*?>.*?<\/script>/is', '', $value);
         // Odstraní HTML a PHP tagy
         $value = strip_tags($value);
         // Odstraní neviditelné znaky (včetně \r, \n, \t, atd.)
         $value = preg_replace('/[\x00-\x1F\x7F]+/u', ' ', $value);
         // Odstraní potenciální zbytky PHP/JS kódu (např. <?php, <script>, eval, ...)
-        $value = preg_replace('/<\/?(script|style|iframe|object|embed|applet|meta|link)[^>]*>/i', '', $value);
+        $value = preg_replace('/<\/?(style|iframe|object|embed|applet|meta|link)[^>]*>/i', '', $value);
         $value = preg_replace('/(eval|base64_decode|shell_exec|system|passthru|exec|popen|proc_open|require|include|phpinfo|assert)\s*\(/i', '', $value);
         // Odstraní HTML event handler atributy typu onmouseover=, onclick=, onerror= atd. (case-insensitive)
-        $value = preg_replace('/on[a-z]+\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', '', $value);
+        $value = preg_replace('/on[a-z]+\s*=\s*("[^"]*"|\'[^"]*\'|[^\s>]+)/i', '', $value);
         // Odstraní znaky, které by mohly narušit JSON nebo způsobit injekci
         $value = str_replace(["\"", "'", "`", "\\"], '', $value);
         // Nahradí sekvenci více mezer jednou mezerou

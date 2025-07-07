@@ -10,9 +10,10 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
 
         const response = await login.execute();
 
@@ -30,9 +31,10 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("root");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
 
         const response = await login.execute();
 
@@ -52,9 +54,10 @@ describe( "PostLogin", () => {
 
         expect( client.auth.isLoggedIn() ).toBe( false );
 
-        const login = client.routes.post.login();
-        login.setUser("František Dobrota");
-        login.setPassword("abcdefghijk");
+        const login = client.routes.post.login(
+            "František Dobrota",
+            "abcdefghijk"
+        );
 
         const response = await login.execute();
 
@@ -74,9 +77,10 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("wrongpassword");
+        const login = client.routes.post.login(
+            "guest",
+            "wrongpassword"
+        );
 
         const response = await login.execute();
 
@@ -92,29 +96,10 @@ describe( "PostLogin", () => {
 
         await client.connect();
 
-        const login = client.routes.post.login();
-        login.setUser("wronguser");
-        login.setPassword("querty");
-
-        const response = await login.execute();
-
-        expect( response.success ).toBe( false );
-
-        expect( client.auth.isLoggedIn() ).toBe( false );
-
-    } );
-
-    test( "fails with no parameters provided", async () => {
-
-        const client = new Client("http://localhost:8080");
-
-        await client.connect();
-
-        const login = client.routes.post.login();
-
-        // Do not set any parameters
-        // login.setUser("guest");
-        // login.setPassword("querty");
+        const login = client.routes.post.login(
+            "wronguser",
+            "querty"
+        );
 
         const response = await login.execute();
 
@@ -133,9 +118,10 @@ describe( "PostLogin", () => {
         expect( client1.auth.getSession() ).toBeDefined();
         expect( client1.isConnected() ).toBe( true );
 
-        const login = client1.routes.post.login();
-        login.setUser("guest");
-        login.setPassword("querty");
+        const login = client1.routes.post.login(
+            "guest",
+            "querty"
+        );
 
         // Perform the login
         await login.execute();

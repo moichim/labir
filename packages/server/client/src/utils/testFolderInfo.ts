@@ -9,7 +9,7 @@ export function testFolderInfo(folder: any) {
     expect(typeof folder.slug).toBe("string");
     expect(typeof folder.name).toBe("string");
     expect(["string", "object"].includes(typeof folder.description)).toBe(true);
-    expect(typeof folder.data).toBe("object");
+    expect(typeof folder.meta).toBe("object");
     expect(typeof folder.lrc_count).toBe("number");
     expect(typeof folder.protected).toBe("boolean");
     if (folder.may_have_files !== undefined) {

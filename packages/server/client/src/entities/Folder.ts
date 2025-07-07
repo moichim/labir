@@ -46,8 +46,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
     public async persist(): Promise<FolderInfo|void> {
 
         // 1. Create the update request
-        const request = this.client.routes.post.updateFolder();
-        request.setPath(this.path);
+        const request = this.client.routes.post.updateFolder( this.path );
 
 
         // 2. Enqueue all pending updates
@@ -114,8 +113,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
     public async connect(): Promise<boolean> {
 
-        const request = this.client.routes.get.default();
-        request.setPath(this.path);
+        const request = this.client.routes.get.default( this.path );
 
         const response = await request.execute();
 
