@@ -15,7 +15,7 @@ import {
   DropdownMenuProps,
   DropdownProps,
   DropdownTrigger,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { useMemo } from "react";
 
 type PaletteDropdownProps = {

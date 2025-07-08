@@ -2,7 +2,7 @@
 
 import { ThermalRegistry } from "@labir/core";
 import { useHistogramResolutionInput } from "@labir/react-bridge";
-import { Input, InputProps } from "@nextui-org/react";
+import { Input, InputProps } from "@heroui/react";
 
 type OpacityInputProps = InputProps & {
     registry: ThermalRegistry

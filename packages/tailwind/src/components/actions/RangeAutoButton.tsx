@@ -2,7 +2,7 @@
 
 import { ThermalRegistry } from "@labir/core";
 import { useRangeButtonAuto } from "@labir/react-bridge";
-import { Button, ButtonProps } from "@nextui-org/react";
+import { Button, ButtonProps } from "@heroui/react";
 import React from "react";
 
 type RangeButtonAutoProps = ButtonProps & {

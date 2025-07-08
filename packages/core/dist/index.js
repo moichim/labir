@@ -28,8 +28,8 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
-var src_exports = {};
-__export(src_exports, {
+var index_exports = {};
+__export(index_exports, {
   AbstractAddTool: () => AbstractAddTool,
   AbstractAnalysis: () => AbstractAnalysis,
   AbstractAreaAnalysis: () => AbstractAreaAnalysis,
@@ -66,7 +66,7 @@ __export(src_exports, {
   supportedFileTypes: () => supportedFileTypes,
   supportedFileTypesInputProperty: () => supportedFileTypesInputProperty
 });
-module.exports = __toCommonJS(src_exports);
+module.exports = __toCommonJS(index_exports);
 
 // src/file/utils/palettes.ts
 var generateGrayscalePalette = () => {

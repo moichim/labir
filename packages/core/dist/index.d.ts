@@ -183,99 +183,46 @@ declare class DropinElementListener {
     openFileDialog(multiple?: boolean): void;
 }
 
-/** Codes of errors */
-declare enum FileErrors {
-    NOT_SPECIFIED = 0,
-    FILE_NOT_FOUND = 1,
-    MIME_UNSUPPORTED = 2,
-    PARSING_ERROR = 3,
-    OUT_OF_MEMORY = 4
-}
-/** The error that is thrown anytime something happens during the loading */
-declare class FileLoadingError extends Error {
-    readonly code: FileErrors;
-    readonly url: string;
-    constructor(code: FileErrors, url: string, message?: string);
-}
-
-declare class ThermalFileFailure extends AbstractFileResult {
-    readonly code: FileErrors;
-    readonly message: string;
-    constructor(thermalUrl: string, code: FileErrors, message: string);
-    isSuccess(): boolean;
-    static fromError(error: FileLoadingError): ThermalFileFailure;
-}
-
 /**
- * Handle batch loading of thermal files.
- *
- * This class should be used as a lazy-loaded member of a thermal registry.
+ * A singleton instance handling file loading
  */
-declare class BatchLoader {
-    readonly registry: ThermalRegistry;
-    readonly onBatchStart: CallbacksManager<() => void>;
-    readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
-    private set;
-    get numberOfBatches(): number;
-    get currentOpenBatch(): Batch | undefined;
-    get hasLoadingBatches(): boolean;
-    get numLoadingBatches(): number;
-    constructor(registry: ThermalRegistry);
-    getBatchById(id: string): Batch;
-    /**
-     * Request a file through a batch
-     *
-     * If there is an open batch, register the request in it.
-     * Else open a new batch.
-     *
-     * The batch will execute automatically in the next tick.
-     */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
-    closeBatch(): void;
-    /**
-     * This method is called from the inside of a batch object
-     * to indicate its completion.
-     *
-     * Upon completion, the batch object is deleted and if there
-     * are no other batches, mark the registry as loaded.
-     */
-    batchFinished(batch: Batch): void;
-}
-
-/**
- * A single batch object
- *
- * A batch is created from all requests registered in a single tick.
- * The Batch creation and requests registration is handled completely
- * by `BatchLoader.request` method.
- *
- * Internally, this object stores an array of file requests along
- * with all the necessary additional information: the target group
- * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
- *
- */
-declare class Batch {
-    protected readonly loader: BatchLoader;
-    readonly id?: string | undefined;
-    private _loading;
-    get loading(): boolean;
-    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
-    /** The current timeout fn that is being overriden by every call of the `request` method */
-    private timeout?;
-    /** Array of currently queued requests */
-    private queue;
-    get size(): number;
-    protected constructor(loader: BatchLoader, id?: string | undefined);
-    static init(loader: BatchLoader, id?: string): Batch;
-    static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
-    /**
-     * Request a thermal file
-     *
-     * Requesting adds new record to the queue and creates a new
-     * timeout closure.
-     */
-    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
-    close(): void;
+declare class FilesService {
+    readonly manager: ThermalManager;
+    get pool(): Pool__default;
+    constructor(manager: ThermalManager);
+    static isolatedInstance(pool: Pool__default, registryName?: string): {
+        service: FilesService;
+        registry: ThermalRegistry;
+    };
+    /** Map of peoding requesta */
+    protected readonly requestsByUrl: Map<string, FileRequest>;
+    /** Number of currently pending requests */
+    get requestsCount(): number;
+    /** Is an URL currently pending? */
+    fileIsPending(url: string): boolean;
+    /** Cache of loaded files */
+    protected readonly cacheByUrl: Map<string, AbstractFileResult>;
+    /** Number of cached results */
+    get cachedServicesCount(): number;
+    /** Is the URL already in the cache? */
+    fileIsInCache(url: string): boolean;
+    /** Process a file obrained from anywhere */
+    loadUploadedFile(file: File): Promise<AbstractFileResult>;
+    /** Create a dropzone listener on a HTML element */
+    handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
+    /** Load a file from URL, eventually using already cached result */
+    loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
+    loadFiles(files: {
+        lrc: string;
+        png?: string;
+        callback?: (result: AbstractFileResult) => void;
+        group: ThermalGroup;
+    }[]): Promise<{
+        lrc: string;
+        png?: string;
+        callback?: (result: AbstractFileResult) => void;
+        group: ThermalGroup;
+    }[]>;
 }
 
 interface ThermalMinmaxType {
@@ -289,6 +236,113 @@ type ThermalMinmaxOrUndefined = ThermalMinmaxType | undefined;
 declare abstract class AbstractMinmaxProperty<Target extends ThermalRegistry | ThermalGroup> extends AbstractProperty<ThermalMinmaxOrUndefined, Target> {
     /** Get the current distance between min and max */
     get distanceInCelsius(): undefined | number;
+}
+
+type ParsedTimelineFrame = {
+    index: number;
+    absolute: number;
+    relative: number;
+    offset: number;
+};
+/**
+ * Every file needs to have this information
+ */
+type ParsedFileBaseInfo = {
+    width: number;
+    height: number;
+    timestamp: number;
+    frameCount: number;
+    duration: number;
+    frameInterval: number;
+    fps: number;
+    min: number;
+    max: number;
+    timeline: ParsedTimelineFrame[];
+    averageEmissivity: number;
+    averageReflectedKelvins: number;
+    bytesize: number;
+};
+type ParsedFileFrame = {
+    timestamp: number;
+    min: number;
+    max: number;
+    emissivity: number;
+    reflectedKelvins: number;
+    pixels: number[];
+};
+/**
+ * Definition of a supported file type
+ * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
+*/
+type ParserFileType = {
+    /** File extension, lowercase and without starting dots */
+    extension: string;
+    /** Mime type of the file */
+    minme: string;
+};
+/** A supported device dedfinition */
+type SupportedDeviceType = {
+    deviceName: string;
+    deviceDescription: string;
+    deviceUrl: string;
+    manufacturer: string;
+    manufacturerUrl: string;
+};
+type PointAnalysisData = {
+    [time: number]: number;
+};
+type AreaAnalysisData = {
+    [time: number]: {
+        min: number;
+        max: number;
+        avg: number;
+    };
+};
+/**
+ * Interface for a parser object
+ * - all methods must be completely and totally static
+ * - data needs to be transferred as ArrayBuffer, since it is serialisable
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
+ */
+interface IParserObject {
+    /** Name of the file format */
+    name: string;
+    /** Description of the file format */
+    description: string;
+    /** List of supported devices */
+    devices: SupportedDeviceType[];
+    /** Define the supported file type for the purpose of display */
+    extensions: ParserFileType[];
+    /** Determine whether the file corresponds to the given parser */
+    is(buffer: ArrayBuffer, url: string): boolean;
+    /**
+     * Get the basic information necessary for every file
+     * - without any pixels!
+     * - this sould be called once only
+     */
+    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
+    /**
+     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
+     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
+     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
+     *
+     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
+     */
+    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
+        array: ArrayBuffer;
+        dataType: number;
+    };
+    /**
+     * Calculate the pixels and other parameters of one frame
+     * @param frameSubset ArrayBuffer of data related to the frame.
+     * @param dataType
+     */
+    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
+    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
+    pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
+    rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
+    ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
 }
 
 type GraphDataTypes = PointAnalysisData | AreaAnalysisData;
@@ -1166,6 +1220,220 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
     clearAllListeners(): void;
 }
 
+/** Controls image smoothing */
+declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    setGraphSmooth(value: boolean): void;
+}
+
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalettes;
+};
+declare class ThermalManager extends BaseStructureObject {
+    readonly id: number;
+    /** Service for creation of loading and caching the files. */
+    readonly service: FilesService;
+    /** Index of existing registries */
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    /** A palette is common to all registries within the manager */
+    readonly palette: PaletteDrive;
+    readonly smooth: SmoothDrive;
+    readonly graphSmooth: GraphSmoothDrive;
+    readonly tool: ToolDrive;
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+    forEveryInstance(callback: (instance: Instance) => void): void;
+}
+
+/** @deprecated Should use `AvailableThermalPalettes` instead. */
+type PaletteId = keyof typeof ThermalPalettes;
+interface IWithPalette extends IBaseProperty {
+    palette: PaletteDrive;
+}
+declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
+    get availablePalettes(): {
+        iron: ThermalPaletteType;
+        jet: ThermalPaletteType;
+        grayscale: ThermalPaletteType;
+    };
+    /** All the current palette properties should be accessed through this property. */
+    get currentPalette(): ThermalPaletteType;
+    /** @deprecated Should not be used at all. Use `currentPalette` instead */
+    get currentPixels(): string[];
+    protected validate(value: PaletteId): PaletteId;
+    /** Any changes to the value should propagate directly to every instance. */
+    protected afterSetEffect(value: PaletteId): void;
+    setPalette(key: PaletteId): void;
+}
+
+/** Codes of errors */
+declare enum FileErrors {
+    NOT_SPECIFIED = 0,
+    FILE_NOT_FOUND = 1,
+    MIME_UNSUPPORTED = 2,
+    PARSING_ERROR = 3,
+    OUT_OF_MEMORY = 4
+}
+/** The error that is thrown anytime something happens during the loading */
+declare class FileLoadingError extends Error {
+    readonly code: FileErrors;
+    readonly url: string;
+    constructor(code: FileErrors, url: string, message?: string);
+}
+
+declare class ThermalFileFailure extends AbstractFileResult {
+    readonly code: FileErrors;
+    readonly message: string;
+    constructor(thermalUrl: string, code: FileErrors, message: string);
+    isSuccess(): boolean;
+    static fromError(error: FileLoadingError): ThermalFileFailure;
+}
+
+/**
+ * Handle batch loading of thermal files.
+ *
+ * This class should be used as a lazy-loaded member of a thermal registry.
+ */
+declare class BatchLoader {
+    readonly registry: ThermalRegistry;
+    readonly onBatchStart: CallbacksManager<() => void>;
+    readonly onBatchComplete: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+    private set;
+    get numberOfBatches(): number;
+    get currentOpenBatch(): Batch | undefined;
+    get hasLoadingBatches(): boolean;
+    get numLoadingBatches(): number;
+    constructor(registry: ThermalRegistry);
+    getBatchById(id: string): Batch;
+    /**
+     * Request a file through a batch
+     *
+     * If there is an open batch, register the request in it.
+     * Else open a new batch.
+     *
+     * The batch will execute automatically in the next tick.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback, id?: string): Batch;
+    closeBatch(): void;
+    /**
+     * This method is called from the inside of a batch object
+     * to indicate its completion.
+     *
+     * Upon completion, the batch object is deleted and if there
+     * are no other batches, mark the registry as loaded.
+     */
+    batchFinished(batch: Batch): void;
+}
+
+/** A stupid object containing only requested URLS. Does not perform any further logic. */
+type ThermalFileRequest = {
+    thermalUrl: string;
+    visibleUrl?: string;
+};
+
+interface IWithOpacity extends IBaseProperty {
+    opacity: OpacityDrive;
+}
+declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
+    /** Make sure the value is allways between 0 and 1 */
+    protected validate(value: number): number;
+    /**
+     * Whenever the opacity changes, propagate the value to all instances
+     */
+    protected afterSetEffect(value: number): void;
+    /** Impose an opacity to all instances */
+    imposeOpacity(value: number): number;
+}
+
+interface IWithGroups extends IBaseProperty {
+    groups: GroupsState;
+}
+/** Handles group creation and removal */
+declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
+    protected _map: Map<string, ThermalGroup>;
+    get map(): Map<string, ThermalGroup>;
+    protected validate(value: ThermalGroup[]): ThermalGroup[];
+    protected afterSetEffect(value: ThermalGroup[]): void;
+    addExistingGroup(group: ThermalGroup): void;
+    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
+    removeGroup(groupId: string): void;
+    removeAllGroups(): void;
+}
+
+/** Handles the histogram creation and subscription.
+ * - should be used only in registries
+ */
+declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
+    protected _resolution: number;
+    get resolution(): number;
+    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
+    protected buffer: Map<number, number>;
+    /** Total countOfPixels in every image @deprecated */
+    protected bufferPixelsCount: number;
+    /** @deprecated */
+    protected _bufferResolution: number;
+    set bufferResolution(value: number);
+    get bufferResolution(): number;
+    protected _loading: boolean;
+    get loading(): boolean;
+    protected set loading(value: boolean);
+    readonly onCalculationStart: CallbacksManager<() => void>;
+    readonly onCalculationEnd: CallbacksManager<(success: boolean) => void>;
+    /** Set the historgam resolution
+     * - does not recalculate the value!
+     * - to recalculate value, call `recalculateWithCurrentSetting`
+     *
+     * @notice Higher the number, lower the resolution.
+     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
+    */
+    setResolution(value: number): void;
+    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
+    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
+    protected afterSetEffect(): void;
+    /**
+     * Recalculate the histogram buffer using web workers.
+     * This is an async operation using `workerpool`
+     */
+    recalculateHistogramBufferInWorker(): void;
+    protected recalculateHistogram(): Promise<void>;
+}
+
+interface IWithLoading extends IBaseProperty {
+    /** Stores the loading state and executes all the listeners. */
+    loading: LoadingState;
+}
+declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    markAsLoading(): void;
+    markAsLoaded(): void;
+}
+
+interface IWithMinmaxRegistry extends IBaseProperty {
+    minmax: MinmaxRegistryProperty;
+}
+declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
+    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
+    protected afterSetEffect(): void;
+    recalculateFromGroups(): ThermalMinmaxOrUndefined;
+    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+}
+
 type ExportHeaderEntryType = {
     key: string;
     displayLabel: string;
@@ -1377,46 +1645,6 @@ declare class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     downloadAllFiles(): void;
 }
 
-interface IWithMinmaxGroup extends IBaseProperty {
-    minmax: MinmaxGroupProperty;
-}
-declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
-    protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
-    protected afterSetEffect(): void;
-    /** Call this method once all instances are created */
-    recalculateFromInstances(): ThermalMinmaxOrUndefined;
-    protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
-}
-
-interface IWithOpacity extends IBaseProperty {
-    opacity: OpacityDrive;
-}
-declare class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
-    /** Make sure the value is allways between 0 and 1 */
-    protected validate(value: number): number;
-    /**
-     * Whenever the opacity changes, propagate the value to all instances
-     */
-    protected afterSetEffect(value: number): void;
-    /** Impose an opacity to all instances */
-    imposeOpacity(value: number): number;
-}
-
-interface IWithGroups extends IBaseProperty {
-    groups: GroupsState;
-}
-/** Handles group creation and removal */
-declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegistry> {
-    protected _map: Map<string, ThermalGroup>;
-    get map(): Map<string, ThermalGroup>;
-    protected validate(value: ThermalGroup[]): ThermalGroup[];
-    protected afterSetEffect(value: ThermalGroup[]): void;
-    addExistingGroup(group: ThermalGroup): void;
-    addOrGetGroup(groupId: string, name?: string, description?: string): ThermalGroup;
-    removeGroup(groupId: string): void;
-    removeAllGroups(): void;
-}
-
 interface IWithCursorValue extends IBaseProperty {
     cursorValue: CursorValueDrive;
 }
@@ -1427,25 +1655,15 @@ declare class CursorValueDrive extends AbstractProperty<number | undefined, Inst
     protected _getValueAtCoordinate(x: number | undefined, y: number | undefined): number | undefined;
 }
 
-interface IWithLoading extends IBaseProperty {
-    /** Stores the loading state and executes all the listeners. */
-    loading: LoadingState;
+interface IWithMinmaxGroup extends IBaseProperty {
+    minmax: MinmaxGroupProperty;
 }
-declare class LoadingState extends AbstractProperty<boolean, IWithLoading> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    markAsLoading(): void;
-    markAsLoaded(): void;
-}
-
-interface IWithMinmaxRegistry extends IBaseProperty {
-    minmax: MinmaxRegistryProperty;
-}
-declare class MinmaxRegistryProperty extends AbstractMinmaxProperty<ThermalRegistry> {
+declare class MinmaxGroupProperty extends AbstractMinmaxProperty<ThermalGroup> {
     protected validate(value: ThermalMinmaxOrUndefined): ThermalMinmaxOrUndefined;
     protected afterSetEffect(): void;
-    recalculateFromGroups(): ThermalMinmaxOrUndefined;
-    protected _getMinmaxFromAllGroups(groups: ThermalGroup[]): ThermalMinmaxOrUndefined;
+    /** Call this method once all instances are created */
+    recalculateFromInstances(): ThermalMinmaxOrUndefined;
+    protected _getMinmaxFromInstances(): ThermalMinmaxOrUndefined;
 }
 
 declare class FrameBuffer {
@@ -1619,6 +1837,125 @@ interface IThermalGroup extends IThermalContainer, IWithMinmaxGroup, IWithFiles,
 interface IThermalRegistry extends IThermalContainer, IWithGroups, IWithOpacity, IWithLoading, IWithMinmaxRegistry, IWithRange, IWithPalette {
 }
 
+type ThermalRegistryOptions = {
+    histogramResolution?: number;
+};
+type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
+/**
+ * The global thermal registry
+ * @todo implementing EventTarget
+ */
+declare class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
+    readonly id: string;
+    readonly manager: ThermalManager;
+    readonly hash: number;
+    constructor(id: string, manager: ThermalManager, options?: ThermalRegistryOptions);
+    /** Service */
+    get service(): FilesService;
+    get pool(): Pool;
+    /** Groups are stored in an observable property */
+    readonly groups: GroupsState;
+    /** Iterator methods */
+    forEveryGroup(fn: ((group: ThermalGroup) => void)): void;
+    forEveryInstance(fn: (instance: Instance) => void): void;
+    /** Full load of the registry with multiple files @deprecated */
+    loadFullMultipleFiles(files: {
+        [index: string]: ThermalFileRequest[];
+    }): Promise<(false | Instance)[][]>;
+    /** Load the registry with only one file. @deprecated */
+    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
+    private _batch?;
+    get batch(): BatchLoader;
+    /** @deprecated use batch member class instead */
+    registerRequest(thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    readonly onProcessingStart: CallbacksManager<() => void>;
+    readonly onProcessingEnd: CallbacksManager<() => void>;
+    /**
+     * Actions to take after the registry is loaded
+     * - recalculate the minmax of groups
+     * - recalculate minmax of registry
+     * - impose new minmax as new range
+     * - recalculate the histogram
+    */
+    postLoadedProcessing(): Promise<void>;
+    reset(): void;
+    removeAllChildren(): void;
+    destroySelfAndBelow(): void;
+    destroySelfInTheManager(): void;
+    /**
+     * Observable properties and drives
+     */
+    /**
+     * Opacity property
+     */
+    readonly opacity: OpacityDrive;
+    /**
+     * Minmax property
+     */
+    readonly minmax: MinmaxRegistryProperty;
+    /**
+     * Loading
+     */
+    readonly loading: LoadingState;
+    /**
+     * Range
+     */
+    readonly range: RangeDriver;
+    /**
+     * Histogram
+     */
+    readonly histogram: HistogramState;
+    /**
+     * Palette
+     */
+    readonly palette: PaletteDrive;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+}
+type ThermalStatistics = {
+    from: number;
+    to: number;
+    percentage: number;
+    count: number;
+    height: number;
+};
+
+/**
+ * A single batch object
+ *
+ * A batch is created from all requests registered in a single tick.
+ * The Batch creation and requests registration is handled completely
+ * by `BatchLoader.request` method.
+ *
+ * Internally, this object stores an array of file requests along
+ * with all the necessary additional information: the target group
+ * and a callback that will be fired AFTER ALL FILES OF THE BATCH ARE LOADED.
+ *
+ */
+declare class Batch {
+    protected readonly loader: BatchLoader;
+    readonly id?: string | undefined;
+    private _loading;
+    get loading(): boolean;
+    readonly onResolve: CallbacksManager<(result: (Instance | ThermalFileFailure)[]) => void>;
+    /** The current timeout fn that is being overriden by every call of the `request` method */
+    private timeout?;
+    /** Array of currently queued requests */
+    private queue;
+    get size(): number;
+    protected constructor(loader: BatchLoader, id?: string | undefined);
+    static init(loader: BatchLoader, id?: string): Batch;
+    static initWithRequest(loader: BatchLoader, thermalUrl: string, visibleUrl: undefined | string, group: ThermalGroup, callback: BatchLoadingCallback): Batch;
+    /**
+     * Request a thermal file
+     *
+     * Requesting adds new record to the queue and creates a new
+     * timeout closure.
+     */
+    request(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
+    close(): void;
+}
+
 /**
  * Control coordinated playback of files within a group.
  *
@@ -1718,343 +2055,6 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
     readonly filters: FilterContainer;
     getInstances(): Instance[];
     startBatch(id: string): Batch;
-}
-
-/**
- * A singleton instance handling file loading
- */
-declare class FilesService {
-    readonly manager: ThermalManager;
-    get pool(): Pool__default;
-    constructor(manager: ThermalManager);
-    static isolatedInstance(pool: Pool__default, registryName?: string): {
-        service: FilesService;
-        registry: ThermalRegistry;
-    };
-    /** Map of peoding requesta */
-    protected readonly requestsByUrl: Map<string, FileRequest>;
-    /** Number of currently pending requests */
-    get requestsCount(): number;
-    /** Is an URL currently pending? */
-    fileIsPending(url: string): boolean;
-    /** Cache of loaded files */
-    protected readonly cacheByUrl: Map<string, AbstractFileResult>;
-    /** Number of cached results */
-    get cachedServicesCount(): number;
-    /** Is the URL already in the cache? */
-    fileIsInCache(url: string): boolean;
-    /** Process a file obrained from anywhere */
-    loadUploadedFile(file: File): Promise<AbstractFileResult>;
-    /** Create a dropzone listener on a HTML element */
-    handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
-    /** Load a file from URL, eventually using already cached result */
-    loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
-    loadFiles(files: {
-        lrc: string;
-        png?: string;
-        callback?: (result: AbstractFileResult) => void;
-        group: ThermalGroup;
-    }[]): Promise<{
-        lrc: string;
-        png?: string | undefined;
-        callback?: ((result: AbstractFileResult) => void) | undefined;
-        group: ThermalGroup;
-    }[]>;
-}
-
-/** Controls image smoothing */
-declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    setGraphSmooth(value: boolean): void;
-}
-
-/** Controls image smoothing */
-declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    setSmooth(value: boolean): void;
-}
-
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
-};
-declare class ThermalManager extends BaseStructureObject {
-    readonly id: number;
-    /** Service for creation of loading and caching the files. */
-    readonly service: FilesService;
-    /** Index of existing registries */
-    readonly registries: {
-        [index: string]: ThermalRegistry;
-    };
-    /** A palette is common to all registries within the manager */
-    readonly palette: PaletteDrive;
-    readonly smooth: SmoothDrive;
-    readonly graphSmooth: GraphSmoothDrive;
-    readonly tool: ToolDrive;
-    readonly pool: Pool__default;
-    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
-    readonly filters: FilterContainer;
-    getInstances(): Instance[];
-    forEveryInstance(callback: (instance: Instance) => void): void;
-}
-
-/** @deprecated Should use `AvailableThermalPalettes` instead. */
-type PaletteId = keyof typeof ThermalPalettes;
-interface IWithPalette extends IBaseProperty {
-    palette: PaletteDrive;
-}
-declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
-    get availablePalettes(): {
-        iron: ThermalPaletteType;
-        jet: ThermalPaletteType;
-        grayscale: ThermalPaletteType;
-    };
-    /** All the current palette properties should be accessed through this property. */
-    get currentPalette(): ThermalPaletteType;
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    get currentPixels(): string[];
-    protected validate(value: PaletteId): PaletteId;
-    /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId): void;
-    setPalette(key: PaletteId): void;
-}
-
-/** A stupid object containing only requested URLS. Does not perform any further logic. */
-type ThermalFileRequest = {
-    thermalUrl: string;
-    visibleUrl?: string;
-};
-
-/** Handles the histogram creation and subscription.
- * - should be used only in registries
- */
-declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
-    protected _resolution: number;
-    get resolution(): number;
-    /** Map of temperature => countOfPixels in the scaled down resolution @deprecated */
-    protected buffer: Map<number, number>;
-    /** Total countOfPixels in every image @deprecated */
-    protected bufferPixelsCount: number;
-    /** @deprecated */
-    protected _bufferResolution: number;
-    set bufferResolution(value: number);
-    get bufferResolution(): number;
-    protected _loading: boolean;
-    get loading(): boolean;
-    protected set loading(value: boolean);
-    readonly onCalculationStart: CallbacksManager<() => void>;
-    readonly onCalculationEnd: CallbacksManager<(success: boolean) => void>;
-    /** Set the historgam resolution
-     * - does not recalculate the value!
-     * - to recalculate value, call `recalculateWithCurrentSetting`
-     *
-     * @notice Higher the number, lower the resolution.
-     * @deprecated Resolution is calculated in a separate thread, no resolution changes allowed
-    */
-    setResolution(value: number): void;
-    /** If incorrect resolution is being set, set empty array @todo there may be an error in +1*/
-    protected validate(value: ThermalStatistics[]): ThermalStatistics[];
-    protected afterSetEffect(): void;
-    /**
-     * Recalculate the histogram buffer using web workers.
-     * This is an async operation using `workerpool`
-     */
-    recalculateHistogramBufferInWorker(): void;
-    protected recalculateHistogram(): Promise<void>;
-}
-
-type ThermalRegistryOptions = {
-    histogramResolution?: number;
-};
-type BatchLoadingCallback = (result: ThermalFileFailure | Instance) => Promise<void>;
-/**
- * The global thermal registry
- * @todo implementing EventTarget
- */
-declare class ThermalRegistry extends BaseStructureObject implements IThermalRegistry {
-    readonly id: string;
-    readonly manager: ThermalManager;
-    readonly hash: number;
-    constructor(id: string, manager: ThermalManager, options?: ThermalRegistryOptions);
-    /** Service */
-    get service(): FilesService;
-    get pool(): Pool;
-    /** Groups are stored in an observable property */
-    readonly groups: GroupsState;
-    /** Iterator methods */
-    forEveryGroup(fn: ((group: ThermalGroup) => void)): void;
-    forEveryInstance(fn: (instance: Instance) => void): void;
-    /** Full load of the registry with multiple files @deprecated */
-    loadFullMultipleFiles(files: {
-        [index: string]: ThermalFileRequest[];
-    }): Promise<(false | Instance)[][]>;
-    /** Load the registry with only one file. @deprecated */
-    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
-    private _batch?;
-    get batch(): BatchLoader;
-    /** @deprecated use batch member class instead */
-    registerRequest(thermalUrl: string, visibleUrl: string | undefined, group: ThermalGroup, callback: BatchLoadingCallback): void;
-    readonly onProcessingStart: CallbacksManager<() => void>;
-    readonly onProcessingEnd: CallbacksManager<() => void>;
-    /**
-     * Actions to take after the registry is loaded
-     * - recalculate the minmax of groups
-     * - recalculate minmax of registry
-     * - impose new minmax as new range
-     * - recalculate the histogram
-    */
-    postLoadedProcessing(): Promise<void>;
-    reset(): void;
-    removeAllChildren(): void;
-    destroySelfAndBelow(): void;
-    destroySelfInTheManager(): void;
-    /**
-     * Observable properties and drives
-     */
-    /**
-     * Opacity property
-     */
-    readonly opacity: OpacityDrive;
-    /**
-     * Minmax property
-     */
-    readonly minmax: MinmaxRegistryProperty;
-    /**
-     * Loading
-     */
-    readonly loading: LoadingState;
-    /**
-     * Range
-     */
-    readonly range: RangeDriver;
-    /**
-     * Histogram
-     */
-    readonly histogram: HistogramState;
-    /**
-     * Palette
-     */
-    readonly palette: PaletteDrive;
-    readonly filters: FilterContainer;
-    getInstances(): Instance[];
-}
-type ThermalStatistics = {
-    from: number;
-    to: number;
-    percentage: number;
-    count: number;
-    height: number;
-};
-
-type ParsedTimelineFrame = {
-    index: number;
-    absolute: number;
-    relative: number;
-    offset: number;
-};
-/**
- * Every file needs to have this information
- */
-type ParsedFileBaseInfo = {
-    width: number;
-    height: number;
-    timestamp: number;
-    frameCount: number;
-    duration: number;
-    frameInterval: number;
-    fps: number;
-    min: number;
-    max: number;
-    timeline: ParsedTimelineFrame[];
-    averageEmissivity: number;
-    averageReflectedKelvins: number;
-    bytesize: number;
-};
-type ParsedFileFrame = {
-    timestamp: number;
-    min: number;
-    max: number;
-    emissivity: number;
-    reflectedKelvins: number;
-    pixels: number[];
-};
-/**
- * Definition of a supported file type
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
-*/
-type ParserFileType = {
-    /** File extension, lowercase and without starting dots */
-    extension: string;
-    /** Mime type of the file */
-    minme: string;
-};
-/** A supported device dedfinition */
-type SupportedDeviceType = {
-    deviceName: string;
-    deviceDescription: string;
-    deviceUrl: string;
-    manufacturer: string;
-    manufacturerUrl: string;
-};
-type PointAnalysisData = {
-    [time: number]: number;
-};
-type AreaAnalysisData = {
-    [time: number]: {
-        min: number;
-        max: number;
-        avg: number;
-    };
-};
-/**
- * Interface for a parser object
- * - all methods must be completely and totally static
- * - data needs to be transferred as ArrayBuffer, since it is serialisable
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects#transferring_objects_between_threads
- */
-interface IParserObject {
-    /** Name of the file format */
-    name: string;
-    /** Description of the file format */
-    description: string;
-    /** List of supported devices */
-    devices: SupportedDeviceType[];
-    /** Define the supported file type for the purpose of display */
-    extensions: ParserFileType[];
-    /** Determine whether the file corresponds to the given parser */
-    is(buffer: ArrayBuffer, url: string): boolean;
-    /**
-     * Get the basic information necessary for every file
-     * - without any pixels!
-     * - this sould be called once only
-     */
-    baseInfo(entireFileBuffer: ArrayBuffer): Promise<ParsedFileBaseInfo>;
-    /**
-     * Prepare an array buffer for `frameData()` so that we do not need to passe the entire file to it.
-     * - the data passed to `frameData()` needs to be as little as possible to avoid memory problems
-     * - because the data going to `frameData()` are created per every call, the may be transfered in threads (instead of clonning)
-     *
-     * **THIS IS SYNCHRONOUS AND NEEDS TO BE CALLED IN THE MAIN THREAD**
-     */
-    getFrameSubset(entireFileBuffer: ArrayBuffer, frameIndex: number): {
-        array: ArrayBuffer;
-        dataType: number;
-    };
-    /**
-     * Calculate the pixels and other parameters of one frame
-     * @param frameSubset ArrayBuffer of data related to the frame.
-     * @param dataType
-     */
-    frameData(frameSubset: ArrayBuffer, dataType: number): Promise<ParsedFileFrame>;
-    registryHistogram(files: ArrayBuffer[]): Promise<ThermalStatistics[]>;
-    pointAnalysisData(file: ArrayBuffer, x: number, y: number): Promise<PointAnalysisData>;
-    rectAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
-    ellipsisAnalysisData(file: ArrayBuffer, x: number, y: number, width: number, height: number): Promise<AreaAnalysisData>;
 }
 
 declare abstract class AbstractLayer {
