@@ -1,11 +1,11 @@
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type PostMoveFolderDataType = {
+export type MoveFolderDataType = {
 
 }
 
-export class PostMoveFolder extends OperationWithPath<PostMoveFolderDataType> {
+export class MoveFolder extends OperationWithPath<MoveFolderDataType> {
 
     public init(): this {
         this.request.setMethod("POST");
@@ -20,8 +20,8 @@ export class PostMoveFolder extends OperationWithPath<PostMoveFolderDataType> {
         return this;
     }
 
-    public async execute(): Promise<ApiResponseType<PostMoveFolderDataType>> {
-        const response = await this.client.fetch<PostMoveFolderDataType>(this.request);
+    public async execute(): Promise<ApiResponseType<MoveFolderDataType>> {
+        const response = await this.client.fetch<MoveFolderDataType>(this.request);
         return response;
     }
 }

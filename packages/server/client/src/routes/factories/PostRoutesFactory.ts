@@ -1,8 +1,8 @@
 import { Client } from "../../Client";
-import { PostCreateFolder } from "../post/PostCreateFolder";
-import { PostLogin } from "../post/PostLogin";
-import { PostMoveFolder } from "../post/PostMoveFolder";
-import { PostUpdateFolder } from "../post/PostUpdateFolder";
+import { CreateFolder } from "../post/CreateFolder";
+import { Login } from "../post/Login";
+import { MoveFolder } from "../post/MoveFolder";
+import { UpdateFolder } from "../post/UpdateFolder";
 import { UploadFile } from "../post/UploadFile";
 
 export class PostRoutesFactory {
@@ -14,8 +14,8 @@ export class PostRoutesFactory {
     public login(
         login: string,
         password: string
-    ): PostLogin {
-        return (new PostLogin(this.client))
+    ): Login {
+        return (new Login(this.client))
             .init()
             .setUser(login)
             .setPassword(password);
@@ -26,8 +26,8 @@ export class PostRoutesFactory {
         targetPath: string,
         /** Name of the new folder - will be webalised for the real folder name in the file system */
         newFolderName: string
-    ): PostCreateFolder {
-        return (new PostCreateFolder(this.client))
+    ): CreateFolder {
+        return (new CreateFolder(this.client))
             .init()
             .setName(newFolderName)
             .setPath(targetPath);
@@ -35,8 +35,8 @@ export class PostRoutesFactory {
 
     public updateFolder(
         path: string
-    ): PostUpdateFolder {
-        return (new PostUpdateFolder(this.client))
+    ): UpdateFolder {
+        return (new UpdateFolder(this.client))
             .init()
             .setPath( path );
     }
@@ -44,8 +44,8 @@ export class PostRoutesFactory {
     public moveFolder(
         folderPath: string,
         target: string
-    ): PostMoveFolder {
-        return (new PostMoveFolder(this.client))
+    ): MoveFolder {
+        return (new MoveFolder(this.client))
             .init()
             .setPath( folderPath )
             .setTarget( target );
