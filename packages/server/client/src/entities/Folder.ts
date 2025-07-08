@@ -1,5 +1,5 @@
 import { Client } from "../Client";
-import { FolderInfo } from "../types";
+import { FolderInfo } from "../responseEntities";
 import { AbstractEntity, EntityObserver } from "./AbstractEntity";
 import { MutableProperty } from "./MutableProperty";
 
@@ -113,7 +113,7 @@ export class Folder extends AbstractEntity<FolderInfo, ConnectsToFolder> {
 
     public async connect(): Promise<boolean> {
 
-        const request = this.client.routes.get.default( this.path );
+        const request = this.client.routes.get.info( this.path );
 
         const response = await request.execute();
 

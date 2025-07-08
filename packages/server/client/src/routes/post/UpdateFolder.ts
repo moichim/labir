@@ -1,8 +1,8 @@
-import { FolderInfo, TagUpdateObject } from "../../types";
+import { FolderInfo, TagUpdateObject } from "../../responseEntities";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type PostUpdateFolderDataType = {
+export type UpdateFolderDataType = {
     result: {
         /** The new slug of the updated folder */
         slug?: string,
@@ -20,7 +20,7 @@ export type PostUpdateFolderDataType = {
     
 }
 
-export class PostUpdateFolder extends OperationWithPath<PostUpdateFolderDataType> {
+export class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
 
     protected tagBuffer: TagUpdateObject = {};
 
@@ -72,9 +72,9 @@ export class PostUpdateFolder extends OperationWithPath<PostUpdateFolderDataType
     }
 
 
-    public async execute(): Promise<ApiResponseType<PostUpdateFolderDataType>> {
+    public async execute(): Promise<ApiResponseType<UpdateFolderDataType>> {
 
-        const response = await this.client.fetch<PostUpdateFolderDataType>(this.request);
+        const response = await this.client.fetch<UpdateFolderDataType>(this.request);
 
         return response;
     }

@@ -1,5 +1,5 @@
 import { Client } from "../Client";
-import { ApiEditableEntity } from "../types";
+import { ApiEditableEntity } from "../responseEntities";
 
 
 export interface EntityObserver<E extends ApiEditableEntity> {

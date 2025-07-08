@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import Client from "../../../src";
-import { PostLoginDataType } from "../../../src/routes/post/PostLogin";
+import { LoginDataType } from "./Login";
 
 describe( "PostLogin", () => {
 

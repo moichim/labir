@@ -2,7 +2,7 @@ import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 
-export type PostCreateDataType = {
+export type CreateDataType = {
     result: {
         slug?: string,
         name?: string,
@@ -15,7 +15,7 @@ export type PostCreateDataType = {
  * Vytvoření nové složky (viz actionCreate v PHP)
  * Parametry: name (povinné), description (volitelné), meta (volitelné), tags (volitelné), access (volitelné)
  */
-export class PostCreateFolder extends OperationWithPath<PostCreateDataType> {
+export class CreateFolder extends OperationWithPath<CreateDataType> {
 
     // Tag buffer for accumulating tags one by one
     protected tagBuffer: Record<string, any> = {};
@@ -73,7 +73,7 @@ export class PostCreateFolder extends OperationWithPath<PostCreateDataType> {
 
 
 
-    public async execute(): Promise<ApiResponseType<PostCreateDataType>> {
+    public async execute(): Promise<ApiResponseType<CreateDataType>> {
         // Přidej tagy, pokud nějaké jsou
         if (Object.keys(this.tagBuffer).length > 0) {
             this.request.addBodyParameter("tags", this.tagBuffer);
@@ -82,7 +82,7 @@ export class PostCreateFolder extends OperationWithPath<PostCreateDataType> {
         if (Object.keys(this.accessBuffer).length > 0) {
             this.request.addBodyParameter("access", this.accessBuffer);
         }
-        const response = await this.client.fetch<PostCreateDataType>(this.request);
+        const response = await this.client.fetch<CreateDataType>(this.request);
         return response;
     }
 }

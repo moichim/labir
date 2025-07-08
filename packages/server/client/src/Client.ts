@@ -25,6 +25,37 @@ export class Client {
 
     /**
      * The factories for creating requests to the API.
+     * 
+     * ```typescript
+     * // Create a client
+     * const client = new Client("http://localhost:8080");
+     * 
+     * // Connect it to the server
+     * await client.connect();
+     * 
+     * // Create a request to list files inside a folder
+     * const request = client.routes.get.files("path/to/folder");
+     * 
+     * request
+     *  .setFrom( new Date("2023-01-01") ) // Set optional filter
+     *  .setTo( new Date("2023-12-31") ) // Set optional filter
+     *  .addTag( "tag-slug" ); // Set optional filter
+     * 
+     * // Execute the request
+     * const result = await request.execute();
+     * ```
+     * 
+     * All requests are created as instances of `Operation`, or one of its subclasses.
+     * 
+     * A request contains a hidden `RequestFactory` that is used to create the actual `Request` object. This object shall never be exposed nor manipulated publically.
+     * Every individual `Operation` has its own methods for setting parameters, such as `setPath()`, `addTags()`, etc. 
+     * 
+     * These methods will store the data in the internal `RequestFactory` object. The `Operation` instance needs to be executed using its asynchronous `execute()` method, which will return a promise that resolves to an `ApiResponseType` object.
+     * 
+     * Note:
+     * - upon creation of the `Client` instance, the route `connect` needs to be called
+     * - after connection to the server, other requests are available
+     * @package `@labir/server`
      */
     public readonly routes: Routes;
 

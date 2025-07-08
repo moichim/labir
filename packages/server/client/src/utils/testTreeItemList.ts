@@ -1,5 +1,5 @@
 import { expect } from "vitest";
-import { TreeItem } from "../types";
+import { TreeItem } from "../responseEntities";
 
 export const testTreeItemList = (list: TreeItem[]) => {
     list.forEach(item => {

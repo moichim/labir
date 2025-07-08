@@ -1,13 +1,13 @@
 import { RequestFactory } from "../../request/RequestFactory";
-import { Identity } from "../../types";
+import { Identity } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type PostLoginDataType = {
+export type LoginDataType = {
     login: Identity
 }
 
-export class PostLogin extends Operation<PostLoginDataType> {
+export class Login extends Operation<LoginDataType> {
 
     public init(): this {
         this.request.setMethod( "POST" );
@@ -29,9 +29,9 @@ export class PostLogin extends Operation<PostLoginDataType> {
         return this;
     }
 
-    public async execute(): Promise<ApiResponseType<PostLoginDataType>> {
+    public async execute(): Promise<ApiResponseType<LoginDataType>> {
 
-        const response = await this.client.fetch<PostLoginDataType>(this.request);
+        const response = await this.client.fetch<LoginDataType>(this.request);
 
         if (response.success ) {
 

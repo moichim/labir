@@ -61,7 +61,7 @@ describe( "PostUpdateFolder", () => {
         };
 
         // Create the first request to the folder that shall be updated later
-        const infoRequest = client.routes.get.default( folder );
+        const infoRequest = client.routes.get.info( folder );
         const infoResponse = await infoRequest.execute();
         expect( infoResponse.success ).toBe( true );
 
@@ -117,7 +117,7 @@ describe( "PostUpdateFolder", () => {
         await login.execute();
 
         // Original state
-        const infoRequest = client.routes.get.default( "access/restricted" );
+        const infoRequest = client.routes.get.info( "access/restricted" );
         const info = await infoRequest.execute();
 
         const originalMetadata = info.data!.folder.meta;

@@ -1,5 +1,5 @@
 import { RequestFactory } from "../../request/RequestFactory";
-import { FileInfo, FolderInfo, TagsWithContent } from "../../types";
+import { FileInfo, FolderInfo, TagsWithContent } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { OperationWithPath } from "../OperationWithPath";
 import { OperationWithFilters } from "../OperationWithPathAndFilters";

@@ -10,11 +10,10 @@ describe("GetGrid - access", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid("access/restricted");
 
         request
-            .setBy(GridGrouping.DAY)
-            .setPath("access/restricted");
+            .setBy(GridGrouping.DAY);
 
         const result = await request.execute();
 
@@ -27,11 +26,10 @@ describe("GetGrid - access", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid( "manetin" );
 
         request
-            .setBy(GridGrouping.DAY)
-            .setPath("manetin");
+            .setBy(GridGrouping.DAY);
 
         const result = await request.execute();
 
@@ -51,10 +49,7 @@ describe("GetGrid - access", () => {
 
         await client.connect();
 
-        const request = client.routes.get.grid();
-
-        request
-            .setPath("access/restricted/accessible");
+        const request = client.routes.get.grid("access/restricted/accessible");
 
         const result = await request.execute();
 
@@ -69,9 +64,7 @@ describe("GetGrid - access", () => {
 
         await client.connect();
 
-        const request = client.routes.get.grid();
-
-        request.setPath("access/accessible");
+        const request = client.routes.get.grid("access/accessible");
 
         const result = await request.execute();
 
@@ -97,8 +90,7 @@ describe("GetGrid - access", () => {
         );
         await login.execute();
 
-        const request = client.routes.get.grid();
-        request.setPath("access/restricted");
+        const request = client.routes.get.grid("access/restricted");
 
         const result = await request.execute();
 
@@ -124,8 +116,8 @@ describe("GetGrid - access", () => {
         );
         await login.execute();
 
-        const request = client.routes.get.grid();
-        request.setPath("access/restricted");
+        const request = client.routes.get.grid("access/restricted");
+
         const result = await request.execute();
 
         expect(result.success).toBe(false);

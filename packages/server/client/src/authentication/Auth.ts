@@ -1,5 +1,5 @@
 import { Client } from "../Client";
-import { Identity } from "../types";
+import { Identity } from "../responseEntities";
 
 export class Auth {
 

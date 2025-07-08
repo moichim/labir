@@ -14,11 +14,9 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
         const requestGrid = async (by: GridGrouping) => {
 
-            const request = client.routes.get.grid();
+            const request = client.routes.get.grid( "manetin" );
 
-            request
-                .setBy(by)
-                .setPath("manetin");
+            request.setBy(by);
 
             const result = await request.execute();
 
@@ -58,10 +56,9 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
         await client.connect();
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid( "manetin" );
 
         request
-            .setPath("manetin")
             .addFolder("les")
             .addFolder("naves");
 
@@ -87,10 +84,7 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
         await client.connect();
 
-        const request = client.routes.get.grid();
-
-        request
-            .setPath("specials");
+        const request = client.routes.get.grid( "specials" );
 
         const result = await request.execute();
 
@@ -114,9 +108,8 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
         await client.connect();
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid( "specials/user" );
         request
-            .setPath("specials/user")
             .setBy(GridGrouping.DAY);
 
         const result = await request.execute();

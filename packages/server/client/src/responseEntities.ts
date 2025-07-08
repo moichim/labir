@@ -80,6 +80,16 @@ export interface FileInfo extends ApiEditableEntity{
   apiRoot: string,
   /** Storage of the analyses */
   analyses: string[]
+  /** Stoage of comments */
+  comments: {
+    message: string,
+    timestamp: number,
+    by: {
+      name: string,
+      institution: string | null,
+      description: string | null
+    }
+  }[]
 }
 
 export type TagDefinition = {

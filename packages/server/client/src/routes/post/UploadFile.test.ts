@@ -275,8 +275,6 @@ describe("UploadFile", () => {
         const info = client.routes.get.files(path);
         const getResponse = await info.execute();
 
-        console.log( getResponse.data );
-
         expect(  getResponse.success ).toBe( true );
 
         expect(getResponse.data).toBeDefined();
