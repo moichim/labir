@@ -1,5 +1,9 @@
 import { Client } from "../../Client";
 import { CreateFolder } from "../post/CreateFolder";
+import { FileAddComment } from "../post/FileAddComment";
+import { FileClearComments } from "../post/FileClearComments";
+import { FileDeleteComment } from "../post/FileDeleteComment";
+import { FileUpdateComment } from "../post/FileUpdateComment";
 import { Login } from "../post/Login";
 import { MoveFolder } from "../post/MoveFolder";
 import { UpdateFile } from "../post/UpdateFile";
@@ -70,6 +74,54 @@ export class PostRoutesFactory {
             .init()
             .setPath( folderPath )
             .setFile( filename );
+    }
+
+    public fileAddComment(
+        folderPath: string,
+        filename: string,
+        message: string
+    ): FileAddComment {
+        return (new FileAddComment(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( filename )
+            .setMessage( message );
+    }
+
+    public fileClearComments(
+        folderPath: string,
+        filename: string
+    ): FileClearComments {
+        return (new FileClearComments(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( filename );
+    }
+
+    public fileUpdateComment(
+        folderPath: string,
+        filename: string,
+        timestamp: number,
+        message: string
+    ): FileUpdateComment {
+        return (new FileUpdateComment(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( filename )
+            .setCommentTimestamp( timestamp )
+            .setMessage( message );
+    }
+
+    public fileDeleteComment(
+        folderPath: string,
+        filename: string,
+        timestamp: number
+    ): FileDeleteComment {
+        return (new FileDeleteComment(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( filename )
+            .setCommentTimestamp( timestamp );
     }
 
 }

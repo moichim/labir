@@ -1,4 +1,5 @@
 import { FileInfo } from "../../responseEntities";
+import { OperationWithFile } from "../OperationWithFile";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
@@ -6,7 +7,7 @@ export type UpdateFileDataType = {
     file: FileInfo
 }
 
-export class UpdateFile extends OperationWithPath<UpdateFileDataType> {
+export class UpdateFile extends OperationWithFile<UpdateFileDataType> {
 
     protected _clearTags: boolean = false;
     protected _clearAnalyses: boolean = false;
@@ -22,12 +23,7 @@ export class UpdateFile extends OperationWithPath<UpdateFileDataType> {
         return this;
     }
 
-    public setFile(
-        filename: string
-    ): this {
-        this.request.addQueryParameter("file", filename);
-        return this;
-    }
+    
 
     public setLabel(value: string): this {
         this.request.addBodyParameter("label", value);

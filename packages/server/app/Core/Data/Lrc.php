@@ -234,6 +234,30 @@ final class Lrc
     public function getInfo()
     {
         $apiRoot = $this->scanner->getFullUrl($this->path) . '?file=' . rawurlencode($this->fileName);
+        $json = $this->readJson() ?? [];
+
+        // Komentáře - převod na požadovaný formát
+        $comments = [];
+        if (isset($json['comments']) && is_array($json['comments'])) {
+            foreach ($json['comments'] as $comment) {
+                $userSlug = $comment['by'] ?? null;
+                $userObj = null;
+                if ($userSlug && isset($this->scanner->access) && method_exists($this->scanner->access, 'getUser')) {
+                    $userObj = $this->scanner->access->getUser($userSlug, false);
+                }
+                $comments[] = [
+                    'message' => $comment['message'] ?? '',
+                    'timestamp' => $comment['timestamp'] ?? 0,
+                    'by' => [
+                        'name' => $userObj['name'] ?? 'unknown',
+                        'login' => $userObj['login'] ?? "unknown",
+                        'institution' => $userObj['institution'] ?? null,
+                        'description' => $userObj['description'] ?? null
+                    ]
+                ];
+            }
+        }
+
         return [
             "entity" => "file",
             "url" => $this->url,
@@ -254,6 +278,7 @@ final class Lrc
                 : null,
             "apiRoot" => $apiRoot,
             "analyses" => $this->analyses,
+            "comments" => $comments,
         ];
     }
 
@@ -538,4 +563,122 @@ final class Lrc
         if (isset($json['label'])) $this->label = $json['label'];
         if (isset($json['description'])) $this->description = $json['description'];
     }
+
+
+    /**
+     * Přidá komentář k souboru.
+     * @param string $message
+     * @throws \Exception
+     */
+    public function addComment(string $message): void
+    {
+        $message = trim($message);
+        if ($message === '') {
+            throw new \Exception('Comment message cannot be empty.', 400);
+        }
+        // Sanitizace (odstranění nebezpečných znaků, případně další úpravy)
+        $message = Json::s($message);
+
+        $json = $this->readJson() ?? [];
+        if (!isset($json['comments']) || !is_array($json['comments'])) {
+            $json['comments'] = [];
+        }
+
+        // Zjisti uživatele
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity && isset($identity['user']) ? $identity['user'] : null;
+        $timestamp = (int)(microtime(true) * 1000);
+
+        $json['comments'][] = [
+            'message' => $message,
+            'timestamp' => $timestamp,
+            'by' => $user,
+        ];
+
+        $this->writeJson($json);
+    }
+
+
+    /**
+     * Smaže komentář podle timestampu.
+     * @param int $timestamp
+     * @throws \Exception
+     */
+    public function deleteComment(int $timestamp): void
+    {
+        $json = $this->readJson() ?? [];
+        if (!isset($json['comments']) || !is_array($json['comments'])) {
+            throw new \Exception('Comment not found.', 404);
+        }
+        // Zjisti aktuálního uživatele
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity && isset($identity['user']) ? $identity['user'] : null;
+        $found = false;
+        foreach ($json['comments'] as $i => $comment) {
+            if (isset($comment['timestamp']) && (int)$comment['timestamp'] === $timestamp) {
+                // Kontrola, že komentář patří aktuálnímu uživateli
+                if (!isset($comment['by']) || $comment['by'] !== $user) {
+                    throw new \Exception('You can only delete your own comments.', 403);
+                }
+                array_splice($json['comments'], $i, 1);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            throw new \Exception('Comment not found.', 404);
+        }
+        $this->writeJson($json);
+    }
+
+    /**
+     * Upraví komentář podle timestampu.
+     * @param int $timestamp
+     * @param string $message
+     * @throws \Exception
+     */
+    public function updateComment(int $timestamp, string $message): void
+    {
+        $message = trim($message);
+        if ($message === '') {
+            throw new \Exception('Comment message cannot be empty.', 400);
+        }
+        $message = Json::s($message);
+        $json = $this->readJson() ?? [];
+        if (!isset($json['comments']) || !is_array($json['comments'])) {
+            throw new \Exception('Comment not found.', 404);
+        }
+        // Zjisti aktuálního uživatele
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity && isset($identity['user']) ? $identity['user'] : null;
+        $found = false;
+        foreach ($json['comments'] as $i => $comment) {
+            if (isset($comment['timestamp']) && (int)$comment['timestamp'] === $timestamp) {
+                // Kontrola, že komentář patří aktuálnímu uživateli
+                if (!isset($comment['by']) || $comment['by'] !== $user) {
+                    throw new \Exception('You can only update your own comment.', 403);
+                }
+                $json['comments'][$i]['message'] = $message;
+                $json['comments'][$i]['timestamp'] = (int)(microtime(true) * 1000);
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            throw new \Exception('Comment not found.', 404);
+        }
+        $this->writeJson($json);
+    }
+
+    /**
+     * Smaže všechny komentáře.
+     */
+    public function clearComments(): void
+    {
+        $json = $this->readJson() ?? [];
+        $json['comments'] = [];
+        $this->writeJson($json);
+    }
+
+
 }

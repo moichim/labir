@@ -323,5 +323,186 @@ final class PostPresenter extends BasePresenter
         $this->respond();
     }
 
+    /**
+     * Přidá komentář k souboru.
+     * Přidá komentář k souboru.
+     * 
+     * Endpoint: POST {cesta}?action=addfilecomment&file={soubor}
+     * 
+     * Přístup: Pouze uživatel s právem zápisu do složky (typicky přihlášený uživatel nebo admin)
+     * 
+     * Parametry v těle požadavku (JSON):
+     *   {
+     *     "message": string // Text komentáře (povinný)
+     *   }
+     *
+     * Poznámky:
+     * - Uživatelská identita a timestamp jsou určeny serverem (nelze je podvrhnout z klienta).
+     * - Komentář je bezpečně uložen, včetně informace o uživateli a času vytvoření.
+     * - Návratová data obsahují aktualizované informace o souboru včetně komentářů.
+     *
+     * Chybové stavy:
+     * - 400: Chybí nebo je neplatný parametr (path, file, message, nebo tělo není validní JSON)
+     * - 404: Soubor nebyl nalezen
+     *
+     * Příklad volání (fetch):
+     *   fetch('/api/slozka?file=example.lrc&action=addfilecomment', {
+     *     method: 'POST',
+     *     body: JSON.stringify({ message: 'Můj komentář' }),
+     *     headers: { 'Content-Type': 'application/json' }
+     *   })
+     */
+    public function actionFileaddcomment(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+        // Ověření práv uživatele na správu souborů ve složce
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null; // Získání ID uživatele, pokud je přihlášen
+        if (!$this->scanner->access->userMayManageFilesIn($path, $user)) {
+            throw new Exception('Access denied: insufficient permissions to manage files in this folder.', 403);
+        }
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        if (!is_string($requestData) || strlen($requestData) === 0) {
+            throw new Exception('Invalid request body format. Expected JSON string.', 400);
+        }
+
+        $data = json_decode($requestData, true);
+        if (!is_array($data) || !isset($data['message']) || !is_string($data['message'])) {
+            throw new Exception('Missing or invalid message.', 400);
+        }
+
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+        
+        $lrc->addComment($data['message']);
+        $this->storeData('file', $lrc->getInfo());
+        $this->markSuccess(
+            $this->formatMessage(
+                "Comment added to file '%s' in folder '%s'.",
+                $file,
+                $path
+            )
+        );
+        $this->respond();
+    }
+
+    /**
+     * Smaže komentář podle timestampu.
+     * POST {cesta}?action=deletefilecomment&file={soubor}
+     * Body: { timestamp: int }
+     */
+    public function actionFiledeletecomment(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+        // Ověření práv uživatele na správu souborů ve složce
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$this->scanner->access->userMayManageFilesIn($path, $user)) {
+            throw new Exception('Access denied: insufficient permissions to manage files in this folder.', 403);
+        }
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        if (!is_string($requestData) || strlen($requestData) === 0) {
+            throw new Exception('Invalid request body format. Expected JSON string.', 400);
+        }
+        $data = json_decode($requestData, true);
+        if (!is_array($data) || !isset($data['timestamp']) || !is_int($data['timestamp'])) {
+            throw new Exception('Missing or invalid timestamp.', 400);
+        }
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+        $lrc->deleteComment($data['timestamp']);
+        $this->storeData('file', $lrc->getInfo());
+        $this->markSuccess(
+            $this->formatMessage(
+                "Comment deleted from file '%s' in folder '%s'.",
+                $file,
+                $path
+            )
+        );
+        $this->respond();
+    }
+
+    /**
+     * Upraví komentář podle timestampu.
+     * POST {cesta}?action=updatefilecomment&file={soubor}
+     * Body: { timestamp: int, message: string }
+     */
+    public function actionFileupdatecomment(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+        // Ověření práv uživatele na správu souborů ve složce
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$this->scanner->access->userMayManageFilesIn($path, $user)) {
+            throw new Exception('Access denied: insufficient permissions to manage files in this folder.', 403);
+        }
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        if (!is_string($requestData) || strlen($requestData) === 0) {
+            throw new Exception('Invalid request body format. Expected JSON string.', 400);
+        }
+        $data = json_decode($requestData, true);
+        if (!is_array($data) || !isset($data['timestamp']) || !is_int($data['timestamp']) || !isset($data['message']) || !is_string($data['message'])) {
+            throw new Exception('Missing or invalid timestamp or message.', 400);
+        }
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+        $lrc->updateComment($data['timestamp'], $data['message']);
+        $this->storeData('file', $lrc->getInfo());
+        $this->markSuccess(
+            $this->formatMessage(
+                "Comment updated in file '%s' in folder '%s'.",
+                $file,
+                $path
+            )
+        );
+        $this->respond();
+    }
+
+    /**
+     * Smaže všechny komentáře u souboru.
+     * POST {cesta}?action=clearfilecomments&file={soubor}
+     */
+    public function actionFileclearcomments(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+        // Ověření, že uživatel je administrátor
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        $userInfo = $this->scanner->access->getUser($user ?? "");
+        if (!$userInfo || !(isset($userInfo["is_root"]) && $userInfo["is_root"] === true)) {
+            throw new Exception('Access denied: only administrators can clear all comments.', 403);
+        }
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+        $lrc->clearComments();
+        $this->storeData('file', $lrc->getInfo());
+        $this->markSuccess(
+            $this->formatMessage(
+                "All comments cleared for file '%s' in folder '%s'.",
+                $file,
+                $path
+            )
+        );
+        $this->respond();
+    }
 
 }
