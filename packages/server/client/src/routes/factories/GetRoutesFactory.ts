@@ -1,7 +1,7 @@
 import { Client } from "../../Client";
 import { GetConnect } from "../get/GetConnect";
 import { GetCurrentUserTree } from "../get/GetCurrentUserTree";
-import { GetDefault } from "../get/GetDefault";
+import { GetInto } from "../get/GetInfo";
 import { GetFile } from "../get/GetFile";
 import { GetFiles } from "../get/GetFiles";
 import { GetGrid } from "../get/GetGrid";
@@ -17,7 +17,14 @@ export class GetRoutesFactory {
     
     /**
      * Connects to a server, eventually returning the existing identity of the currently logged-in user.
-     * - if you want to load existing user identity, you need to pass the PHPSESSID to the client before calling this method using `auth.setSession()`.
+     * 
+     * If you want to load existing user identity, you need to pass the PHPSESSID to the client before calling this method using `auth.setSession()`.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.auth.setSession("PHPSESSID=1234567890abcdef"); // Set the session ID
+     * await client.connect(); // This method is accessible from the Client object itself
+     * ```
      */
     public connect(): GetConnect {
         return (new GetConnect(this.client)).init();
@@ -25,19 +32,40 @@ export class GetRoutesFactory {
 
     /**
      * Get information about a folder.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.connect();
+     * const request = client.routes.get.info("path/to/folder");
+     * // Configure request:
+     * request.setPath("path/to/folder"); // already set by factory
+     * const result = await request.execute();
+     * ```
+     * 
      * @param path Path of the folder.
-     * @returns 
      */
     public info(
         path: string
-    ): GetDefault {
-        return (new GetDefault(this.client))
+    ): GetInto {
+        return (new GetInto(this.client))
             .init()
             .setPath(path);
     }
 
     /**
      * List of files in the given folder.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.connect();
+     * const request = client.routes.get.files("path/to/folder");
+     * request
+     *  .setFrom(new Date("2023-01-01")) // Optional filter
+     *  .setTo(new Date("2023-12-31")) // Optional filter
+     *  .addTag("tag-slug"); // Optional filter
+     * const result = await request.execute();
+     * ```
+     * 
      * @param path Path to the folder from which you want to get the files
      */
     public files(
@@ -49,8 +77,20 @@ export class GetRoutesFactory {
     }
 
     /**
-     * Generate the grid from subfolders inside the given directory.
-     * @param path Path to the folder from which you want the grid to be generated
+     * List of files in the given folder.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.connect();
+     * const request = client.routes.get.files("path/to/folder");
+     * // Configure request:
+     * request.setFrom(new Date("2023-01-01")); // Optional filter
+     * request.setTo(new Date("2023-12-31"));   // Optional filter
+     * request.addTag("tag-slug");              // Optional filter
+     * const result = await request.execute();
+     * ```
+     * 
+     * @param path Path to the folder from which you want to get the files
      */
     public grid(
         path: string
@@ -61,8 +101,16 @@ export class GetRoutesFactory {
     }
 
     /**
-     * Fetch full information about a file.
-     * @param path Path to the folder where the file is located
+     * Generate the grid from subfolders inside the given directory.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.connect();
+     * const request = client.routes.get.grid("path/to/folder");
+     * const result = await request.execute();
+     * ```
+     * 
+     * @param path Path to the folder from which you want the grid to be generated
      * @param filename Name of the LRC file
      */
     public file(
@@ -75,6 +123,16 @@ export class GetRoutesFactory {
             .setFileName( filename );
     }
 
+    /**
+     * Get list of folders accessible by the currently logged-in user.
+     * 
+     * ```typescript
+     * const client = new Client("http://localhost:8080");
+     * await client.connect();
+     * const request = client.routes.get.currentUserTree();
+     * const result = await request.execute();
+     * ```
+     */
     public currentUserTree(): GetCurrentUserTree {
         return (new GetCurrentUserTree(this.client)).init();
     }

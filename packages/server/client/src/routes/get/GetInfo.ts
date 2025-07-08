@@ -1,17 +1,15 @@
-import { RequestFactory } from "../../request/RequestFactory";
 import { FolderInfo } from "../../responseEntities";
-import { Operation } from "../Operation";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type GetDefaultDataType = {
+export type GetInfoDataType = {
     folder: FolderInfo,
     subfolders: false | {
         [index: string]: FolderInfo
     }
 }
 
-export class GetDefault extends OperationWithPath<GetDefaultDataType> {
+export class GetInto extends OperationWithPath<GetInfoDataType> {
 
     public init(): this {
         this.request.setMethod( "GET" );
@@ -19,8 +17,8 @@ export class GetDefault extends OperationWithPath<GetDefaultDataType> {
     }
 
 
-    public async execute(): Promise<ApiResponseType<GetDefaultDataType>> {
-        const response = await this.client.fetch<GetDefaultDataType>(this.request);
+    public async execute(): Promise<ApiResponseType<GetInfoDataType>> {
+        const response = await this.client.fetch<GetInfoDataType>(this.request);
         return response;
     }
 
