@@ -1,5 +1,5 @@
 import { RequestFactory } from "../../request/RequestFactory";
-import { FolderInfo } from "../../types";
+import { FolderInfo } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";

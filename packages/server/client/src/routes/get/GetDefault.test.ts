@@ -11,7 +11,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default( "access/accessible/accessible" );
+        const request = client.routes.get.info( "access/accessible/accessible" );
 
         const response = await request.execute();
 
@@ -34,7 +34,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default("access/accessible/restricted");
+        const request = client.routes.get.info("access/accessible/restricted");
 
         const response = await request.execute();
 
@@ -53,7 +53,7 @@ describe( "GetDefault", () => {
 
 
         // Try to access the protected folder before logging in
-        const failed_request = client.routes.get.default("access/restricted_to_guest");
+        const failed_request = client.routes.get.info("access/restricted_to_guest");
 
         const failed_response = await failed_request.execute();
 
@@ -77,7 +77,7 @@ describe( "GetDefault", () => {
         expect( loginResponse.data!.login ).toBe( client.auth.getIdentity() );
 
         // Now try to access the protected folder when we are logged in
-        const request = client.routes.get.default("access/restricted_to_guest" );
+        const request = client.routes.get.info("access/restricted_to_guest" );
 
         const response = await request.execute();
 
@@ -95,7 +95,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default( "zihle" );
+        const request = client.routes.get.info( "zihle" );
 
         const response = await request.execute();
 
@@ -117,7 +117,7 @@ describe( "GetDefault", () => {
         
         await client.connect();
 
-        const request = client.routes.get.default( "zihle/deska" );
+        const request = client.routes.get.info( "zihle/deska" );
 
         const response = await request.execute();
 
@@ -140,7 +140,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default("zihle/trava");
+        const request = client.routes.get.info("zihle/trava");
 
         const result = await request.execute();
 
@@ -160,7 +160,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default("zihle");
+        const request = client.routes.get.info("zihle");
 
         const response = await request.execute();
 
@@ -185,7 +185,7 @@ describe( "GetDefault", () => {
         await login.execute();
 
 
-        const request = client.routes.get.default( "zihle" );
+        const request = client.routes.get.info( "zihle" );
 
         const response = await request.execute();
 
@@ -201,7 +201,7 @@ describe( "GetDefault", () => {
 
         await client.connect();
 
-        const request = client.routes.get.default("zihle/trava");
+        const request = client.routes.get.info("zihle/trava");
 
         const response = await request.execute();
 

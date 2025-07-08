@@ -1,4 +1,4 @@
-import { FolderInfo, TagUpdateObject } from "../../types";
+import { FolderInfo, TagUpdateObject } from "../../responseEntities";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 

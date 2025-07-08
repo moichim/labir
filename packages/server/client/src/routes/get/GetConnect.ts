@@ -1,5 +1,5 @@
 import { RequestFactory } from "../../request/RequestFactory";
-import { Identity } from "../../types";
+import { Identity } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 

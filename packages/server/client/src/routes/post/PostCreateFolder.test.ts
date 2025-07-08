@@ -2,7 +2,7 @@ import { describe, expect, test, afterEach } from "vitest";
 import { Client } from "../../Client";
 import { b } from "vitest/dist/suite-IbNSsUWN.js";
 import { cleanupFolders } from "../../utils/cleanupFolders";
-import { FolderInfo } from "../../types";
+import { FolderInfo } from "../../responseEntities";
 
 describe("PostCreateFolder", () => {
 

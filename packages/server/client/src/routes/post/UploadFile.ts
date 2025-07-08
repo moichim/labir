@@ -1,4 +1,4 @@
-import { FileInfo } from "../../types";
+import { FileInfo } from "../../responseEntities";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 

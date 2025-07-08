@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { Client } from "../../Client";
-import { TreeItem } from "../../types";
+import { TreeItem } from "../../responseEntities";
 
 
 type CorrectTreeItem = {

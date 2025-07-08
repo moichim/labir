@@ -9,11 +9,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/restricted/restricted")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "access/restricted/restricted",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -28,11 +27,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/accessible/accessible")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "access/accessible/accessible",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -55,11 +53,10 @@ describe( "GetFile", () => {
         );
         await login.execute();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/restricted_to_guest")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "access/restricted_to_guest",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -83,11 +80,10 @@ describe( "GetFile", () => {
         );
         await login.execute();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/restricted")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "access/restricted",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -107,11 +103,10 @@ describe( "GetFile", () => {
         );
         await login.execute();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/restricted")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "access/restricted",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -128,11 +123,10 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("non/existing/folder")
-            .setFileName("2025-03-28_13-01-39_thermal.lrc");
+        const request = client.routes.get.file(
+            "non/existing/folder",
+            "2025-03-28_13-01-39_thermal.lrc"
+        );
 
         const result = await request.execute();
 
@@ -147,47 +141,16 @@ describe( "GetFile", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.file();
-
-        request
-            .setPath("access/accessible/accessible")
-            .setFileName("non-existing-file.lrc");
+        const request = client.routes.get.file(
+            "access/accessible/accessible",
+            "non-existing-file.lrc"
+        );
 
         const result = await request.execute();
 
         expect(result.success).toBe(false);
         expect( result.code ).toBe(404);
         expect(result.message).toMatch(/was not found/i);
-
-    } );
-
-    test( "request fails when parameters are not set at all", async () => {
-
-        const client = new Client("http://localhost:8080");
-        await client.connect();
-
-        const request = client.routes.get.file();
-
-        // The request fails always when no path was provided
-
-        await expect( request.execute() ).rejects.toThrowError( "Invalid request configuration" );
-
-    } );
-
-    test( "request fails when the file name is not provided", async () => {
-
-        const client = new Client("http://localhost:8080");
-        await client.connect();
-
-        const request = client.routes.get.file();
-
-        request.setPath( "/access/accessible" );
-        // Do not set any file name
-
-        const result = await request.execute();
-
-        expect( result.success ).toBe( false );
-        expect( result.code ).toBe( 400 );
 
     } );
 

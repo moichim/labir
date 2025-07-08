@@ -15,9 +15,8 @@ describe("GetGrid - filtering by time", () => {
         const from = Date.UTC(2025, 0, 11, 10, 0, 7);
         const to = Date.UTC(2025, 9, 31, 23, 59, 59);
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid( "zihle" );
         request
-            .setPath("zihle")
             .setFrom(from)
             .setTo(to);
 
@@ -87,9 +86,8 @@ describe("GetGrid - filtering by time", () => {
         const client = new Client("http://localhost:8080");
         await client.connect();
 
-        const request = client.routes.get.grid();
+        const request = client.routes.get.grid("zihle");
         request
-            .setPath("zihle")
             .setFrom(from)
             .setTo(to);
 
@@ -115,9 +113,8 @@ describe("GetGrid - filtering by time", () => {
             by: GridGrouping
         ) => {
 
-            const request = client.routes.get.grid();
+            const request = client.routes.get.grid( "zihle" );
             request
-                .setPath("zihle")
                 .setBy(by)
                 .setFrom(from)
                 .setTo(to);
@@ -174,9 +171,8 @@ describe("GetGrid - filtering by time", () => {
             by: GridGrouping
         ) => {
 
-            const request = client.routes.get.grid();
+            const request = client.routes.get.grid("zihle");
             request
-                .setPath("zihle")
                 .setBy(by)
                 .setFrom(from)
                 .setTo(to)
