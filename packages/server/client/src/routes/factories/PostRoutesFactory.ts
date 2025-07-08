@@ -2,6 +2,7 @@ import { Client } from "../../Client";
 import { CreateFolder } from "../post/CreateFolder";
 import { Login } from "../post/Login";
 import { MoveFolder } from "../post/MoveFolder";
+import { UpdateFile } from "../post/UpdateFile";
 import { UpdateFolder } from "../post/UpdateFolder";
 import { UploadFile } from "../post/UploadFile";
 
@@ -59,6 +60,16 @@ export class PostRoutesFactory {
             .init()
             .setPath( folderPath )
             .setLrc( file );
+    }
+
+    public updateFile(
+        folderPath: string,
+        filename: string
+    ): UpdateFile {
+        return (new UpdateFile(this.client))
+            .init()
+            .setPath( folderPath )
+            .setFile( filename );
     }
 
 }

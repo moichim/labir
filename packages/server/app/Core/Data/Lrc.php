@@ -484,6 +484,8 @@ final class Lrc
      *  - removeTags: array|null
      *  - addAnalyses: array|null
      *  - removeAnalyses: array|null
+     *  - clearTags: bool|null
+     *  - clearAnalyses: bool|null
      */
     public function update(array $params): void
     {
@@ -501,25 +503,33 @@ final class Lrc
         if (!isset($json['tags']) || !is_array($json['tags'])) {
             $json['tags'] = [];
         }
-        if (isset($params['addTags']) && is_array($params['addTags'])) {
-            $sanitizedTags = array_map(function($t) { return Json::s($t); }, $params['addTags']);
-            $json['tags'] = array_values(array_unique(array_merge($json['tags'], $sanitizedTags)));
-        }
-        if (isset($params['removeTags']) && is_array($params['removeTags'])) {
-            $sanitizedRemoveTags = array_map(function($t) { return Json::s($t); }, $params['removeTags']);
-            $json['tags'] = array_values(array_diff($json['tags'], $sanitizedRemoveTags));
+        if (!empty($params['clearTags'])) {
+            $json['tags'] = [];
+        } else {
+            if (isset($params['addTags']) && is_array($params['addTags'])) {
+                $sanitizedTags = array_map(function($t) { return Json::s($t); }, $params['addTags']);
+                $json['tags'] = array_values(array_unique(array_merge($json['tags'], $sanitizedTags)));
+            }
+            if (isset($params['removeTags']) && is_array($params['removeTags'])) {
+                $sanitizedRemoveTags = array_map(function($t) { return Json::s($t); }, $params['removeTags']);
+                $json['tags'] = array_values(array_diff($json['tags'], $sanitizedRemoveTags));
+            }
         }
         // Analýzy
         if (!isset($json['analyses']) || !is_array($json['analyses'])) {
             $json['analyses'] = [];
         }
-        if (isset($params['addAnalyses']) && is_array($params['addAnalyses'])) {
-            $sanitizedAnalyses = array_map(function($a) { return Json::s($a); }, $params['addAnalyses']);
-            $json['analyses'] = array_values(array_unique(array_merge($json['analyses'], $sanitizedAnalyses)));
-        }
-        if (isset($params['removeAnalyses']) && is_array($params['removeAnalyses'])) {
-            $sanitizedRemoveAnalyses = array_map(function($a) { return Json::s($a); }, $params['removeAnalyses']);
-            $json['analyses'] = array_values(array_diff($json['analyses'], $sanitizedRemoveAnalyses));
+        if (!empty($params['clearAnalyses'])) {
+            $json['analyses'] = [];
+        } else {
+            if (isset($params['addAnalyses']) && is_array($params['addAnalyses'])) {
+                $sanitizedAnalyses = array_map(function($a) { return Json::s($a); }, $params['addAnalyses']);
+                $json['analyses'] = array_values(array_unique(array_merge($json['analyses'], $sanitizedAnalyses)));
+            }
+            if (isset($params['removeAnalyses']) && is_array($params['removeAnalyses'])) {
+                $sanitizedRemoveAnalyses = array_map(function($a) { return Json::s($a); }, $params['removeAnalyses']);
+                $json['analyses'] = array_values(array_diff($json['analyses'], $sanitizedRemoveAnalyses));
+            }
         }
         $this->writeJson($json);
         // Refresh instance

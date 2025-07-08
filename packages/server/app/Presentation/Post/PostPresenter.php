@@ -264,6 +264,8 @@ final class PostPresenter extends BasePresenter
             'removeTags' => $data['removeTags'] ?? null,
             'addAnalyses' => $data['addAnalyses'] ?? null,
             'removeAnalyses' => $data['removeAnalyses'] ?? null,
+            'clearTags' => $data['clearTags'] ?? null,
+            'clearAnalyses' => $data['clearAnalyses'] ?? null,
         ]);
         $this->storeData('file', $lrc->getInfo());
         $this->markSuccess(
