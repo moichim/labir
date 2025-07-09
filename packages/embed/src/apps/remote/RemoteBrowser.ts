@@ -9,13 +9,12 @@ import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { BaseAppWithPngExportContext, ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { BaseAppWithPngExportContext } from "../../utils/converters/pngExportContext";
 
 enum STATE {
     MAIN,

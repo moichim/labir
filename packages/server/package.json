@@ -2,7 +2,9 @@
   "name": "@labir/server",
   "version": "1.2.68",
   "description": "Data access layer for the backend API",
-  "main": "client/dist/index.js",
+  "main": "client/dist/server.es.js",
+  "module": "client/dist/server.es.js",
+  "types": "client/src/index.ts",
   "type": "module",
   "repository": {
     "type": "git",
