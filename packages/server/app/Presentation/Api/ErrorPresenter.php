@@ -3,9 +3,9 @@
 declare(strict_types=1);
 namespace App\Presentation\Error;
 
-use App\Presentation\Core\BasePresenter;
+use App\Presentation\Core\BaseApiPresenter;
 
-final class ErrorPresenter extends BasePresenter {
+final class ErrorPresenter extends BaseApiPresenter {
 
     public function actionDefault( string $message, int $code ): void {
         $this->json["success"] = false;

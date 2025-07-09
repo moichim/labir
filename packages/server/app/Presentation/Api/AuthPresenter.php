@@ -4,10 +4,13 @@ declare( strict_types=1 );
 
 namespace App\Presentation\Auth;
 
-use App\Presentation\Core\BasePresenter;
+use App\Presentation\Core\BaseApiPresenter;
 use Exception;
 
-final class AuthPresenter extends BasePresenter {
+use Nette\Application\Attributes\Requires;
+
+#[Requires(methods: ['POST'])]
+final class AuthPresenter extends BaseApiPresenter {
 
     public function actionLogin(): void {
 

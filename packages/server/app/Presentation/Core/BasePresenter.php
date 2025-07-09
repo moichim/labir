@@ -8,10 +8,19 @@ use Nette\Application\UI\Presenter;
 
 abstract class BasePresenter extends Presenter
 {
+
+    /**
+     * Všechny presentery musí mít stejnou hlavičku
+     */
+    public function startup(): void
+    {
+        parent::startup();
+        $this->setupHeaders();
+    }
     /**
      * Nastavení hlaviček pro CORS a další HTTP hlavičky.
      */
-    protected function setupHeaders(): void
+    private function setupHeaders(): void
     {
 
         // Nastavení CORS hlaviček

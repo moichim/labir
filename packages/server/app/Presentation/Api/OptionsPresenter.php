@@ -21,8 +21,6 @@ final class OptionsPresenter extends BasePresenter {
      */
     public function actionDefault(): void {
 
-        $this->setupHeaders();
-
         $this->getHttpResponse()->setCode( 204 );
 
         $this->terminate();

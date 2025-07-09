@@ -52,11 +52,9 @@ abstract class BaseApiPresenter extends BasePresenter
 
 
 
-    public function startup()
+    public function startup(): void
     {
         parent::startup();
-
-        $this->setupHeaders();
 
         $request = $this->getRequest();
         $params = $request->getParameters();
