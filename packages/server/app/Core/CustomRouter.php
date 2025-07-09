@@ -32,6 +32,15 @@ class CustomRouter implements Router
 
         $params = $this->parseParams($request->getQuery());
 
+        // All OPTIONS requests are being redirected to the OptionsPresenter
+        if ( $request->isMethod( "OPTIONS" ) ) {
+
+            return [
+                "presenter" => "Options",
+                "action" => "default"
+            ];
+        }
+
         $parameters = [
             "path" => $path,
             "url" => $url->getAbsoluteUrl(),

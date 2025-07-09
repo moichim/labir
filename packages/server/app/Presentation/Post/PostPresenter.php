@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Presentation\Post;
 
-use App\Presentation\Core\BasePresenter;
+use App\Presentation\Core\BaseApiPresenter;
 
 use \Exception;
+use Nette\Application\Attributes\Requires;
 
-final class PostPresenter extends BasePresenter
+#[Requires(methods: ['POST'])]
+final class PostPresenter extends BaseApiPresenter
 {
 
 

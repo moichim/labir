@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Presentation\Get;
 
-use App\Presentation\Core\BasePresenter;
+use App\Presentation\Core\BaseApiPresenter;
+use Nette\Application\Attributes\Requires;
 use Exception;
 
-final class GetPresenter extends BasePresenter
+#[Requires(methods: ['GET'])]
+final class GetPresenter extends BaseApiPresenter
 {
 
     /**
