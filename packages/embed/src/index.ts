@@ -148,7 +148,10 @@ import "./apps/file/FileApp";
 import "./apps/group/GroupApp";
 import "./apps/remote/RemoteBrowser";
 
-import "./apps/connected/ConnectedApp"
+import "./apps/connected/ConnectedApp";
+
+// 8. Connection components
+import "./connection/components/auth/UserButton";
 
 
 

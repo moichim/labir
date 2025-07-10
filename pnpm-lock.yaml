@@ -238,6 +238,9 @@ importers:
 
   packages/server:
     dependencies:
+      '@labir/core':
+        specifier: workspace:*
+        version: link:../core
       uuid:
         specifier: ^9.0.1
         version: 9.0.1

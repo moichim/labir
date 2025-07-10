@@ -104,7 +104,10 @@ final class Access
         else if ($this->scanner->getRequest()->isMethod("POST")) {
             $query = $this->scanner->getRequest()->getQuery();
             // Login is the only POST route accessible from outside
-            if (array_key_exists("action", $query) && $query["action"] === "login") {
+            if (array_key_exists("action", $query) && (
+                $query["action"] === "login"
+                || $query["action"] === "logout"
+                ) ) {
                 // ...existing code...
             } else {
                 // If the user is not logging in, check if the user is logged in

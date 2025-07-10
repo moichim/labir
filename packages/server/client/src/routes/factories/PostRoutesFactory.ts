@@ -5,6 +5,7 @@ import { FileClearComments } from "../post/FileClearComments";
 import { FileDeleteComment } from "../post/FileDeleteComment";
 import { FileUpdateComment } from "../post/FileUpdateComment";
 import { Login } from "../post/Login";
+import { Logout } from "../post/Logout";
 import { MoveFolder } from "../post/MoveFolder";
 import { UpdateFile } from "../post/UpdateFile";
 import { UpdateFolder } from "../post/UpdateFolder";
@@ -24,6 +25,11 @@ export class PostRoutesFactory {
             .init()
             .setUser(login)
             .setPassword(password);
+    }
+
+    public logout(): Logout {
+        return (new Logout(this.client))
+            .init();
     }
 
     public createFolder(

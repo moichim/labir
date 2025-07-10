@@ -12,12 +12,18 @@ export class ThermalDialog extends LitElement {
         mode: "open"
     }
 
+    @property( { type: String, reflect: false } )
+    public button: string = t(T.close);
+
     protected dialogRef: Ref<HTMLDialogElement> = createRef();
     protected closeButtonRef: Ref<HTMLButtonElement> = createRef();
     protected invokerRef: Ref<HTMLSlotElement> = createRef();
 
     @property( {type: String, reflect: true} )
     public label?: string;
+
+    @property( { type: Object, reflect: true } )
+    public beforeClose?: () => Promise<boolean>;
 
     constructor() {
         
@@ -160,8 +166,17 @@ export class ThermalDialog extends LitElement {
 
                 <div class="dialog-footer">
                     <slot name="button"></slot>
-                    <thermal-button variant="foreground" @click=${this.setClose}>
-                        ${t(T.close)}
+                    <thermal-button variant="foreground" @click=${async() => {
+                        if ( this.beforeClose ) {
+                            const result = await this.beforeClose();
+                            if ( result ) {
+                                this.setClose();
+                            }
+                        } else {
+                            this.setClose();
+                        }
+                    }}>
+                        ${this.button}
                     </thermal-button>
                 </div>
                 

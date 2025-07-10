@@ -94,6 +94,7 @@ export class RequestFactory {
         const isValidRequestToRoot = [
             "connect",
             "login",
+            "logout",
             "currentusertree"
         ].includes(this.action || "");
 

@@ -50,6 +50,7 @@ class CustomRouter implements Router
         $rootActions = [
             "connect",
             "login",
+            "logout",
             "currentusertree"
         ];
 
@@ -113,7 +114,8 @@ class CustomRouter implements Router
         $action = $params['action'] ?? 'default';
 
         // Speciální případ: login
-        if ($presenter === 'Post' && $action === 'login') {
+        if ($presenter === 'Post' && 
+        ( $action === 'login' || $action === 'logout') ) {
             $presenter = 'Auth';
         }
 

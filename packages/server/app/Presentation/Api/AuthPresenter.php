@@ -40,4 +40,14 @@ final class AuthPresenter extends BaseApiPresenter {
 
     }
 
+    public function actionLogout(): void {
+
+        $this->scanner->authorisation->logout();
+
+        $this->markSuccess( "User logged out successfully." );
+
+        $this->respond();
+
+    }
+
 }
