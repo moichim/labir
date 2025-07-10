@@ -24,6 +24,7 @@ final class GetPresenter extends BaseApiPresenter
             : "Connection established successfully without user identity.";
 
         $this->storeData("identity", $identity);
+
         $this->markSuccess($message);
         $this->respond();
     }

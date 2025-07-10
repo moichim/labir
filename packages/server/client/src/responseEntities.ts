@@ -1,3 +1,10 @@
+export type ServerInfo = {
+  url: string,
+  name?: string,
+  description?: string,
+  version: string
+}
+
 export type Identity = {
 
     user: string,

@@ -152,6 +152,9 @@ import "./apps/connected/ConnectedApp";
 
 // 8. Connection components
 import "./connection/components/auth/UserButton";
+import "./connection/components/server/ServerBar"
+import "./connection/components/folder/FolderBaseInfo";
+import "./connection/components/folder/FolderSubfolders";
 
 
 

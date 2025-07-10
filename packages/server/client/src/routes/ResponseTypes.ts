@@ -1,3 +1,5 @@
+import { ServerInfo } from "../responseEntities"
+
 export type ApiResponseDataType = {}
 
 /**
@@ -7,11 +9,11 @@ export type ApiResponseType<R extends ApiResponseDataType = ApiResponseDataType>
     {
         message: string,
         code: number,
-        colophoon: {
+        colophon: {
             time: number,
-            version: string,
             path: string | null,
-            action: string
+            action: string,
+            server: ServerInfo
         },
         raw: {
             request: Request,

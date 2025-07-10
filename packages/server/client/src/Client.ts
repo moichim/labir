@@ -4,6 +4,8 @@ import { GetConnectDataType } from "./routes/get/GetConnect";
 import { ApiResponseDataType, ApiResponseType } from "./routes/ResponseTypes";
 import { Routes } from "./routes/factories/Routes";
 import { Entities } from "./entities/Entities";
+import { CallbacksManager } from "@labir/core";
+import { ServerInfo } from "./responseEntities";
 
 /**
  * The client for accessing a remote LabIR server.
@@ -16,6 +18,11 @@ export class Client {
     /** 
      * The core server URL ending with a slash */
     protected serverUrl: string;
+
+    protected _serverInfo?: ServerInfo;
+    public get serverInfo(): ServerInfo | undefined {
+        return this._serverInfo;
+    }
 
     /**
      * The authentication service stores the session ID and also the identity of the currently logged in user.
@@ -72,6 +79,24 @@ export class Client {
      */
     protected connected: boolean = false;
 
+    public readonly onConnection: CallbacksManager<( status: false|ServerInfo ) => void> = new CallbacksManager();
+
+    public readonly onResult: CallbacksManager<( 
+        timestamp: number,
+        success: boolean, 
+        code: boolean, 
+        message: boolean, 
+        method: string 
+    ) => void> = new CallbacksManager();
+
+    protected activeRequests: number = 0;
+
+    public readonly onLoading: CallbacksManager<(loading: boolean) => void> = new CallbacksManager();
+
+    public get loading(): boolean {
+        return this.activeRequests > 0;
+    }
+
     constructor(
         serverUrl: string
     ) {
@@ -105,6 +130,10 @@ export class Client {
         // Mark self as connected if the response was successful
         if ( response.success === true ) {
             this.connected = true;
+            this._serverInfo = response.colophon.server;
+            this.onConnection.call( response.colophon.server );
+        } else {
+            this.onConnection.call( false );
         }
 
         return response;
@@ -164,6 +193,13 @@ export class Client {
         factory: RequestFactory
     ): Promise<ApiResponseType<R>> {
 
+        if ( this.activeRequests === 0 ) {
+            this.onLoading.call( true );
+        }
+
+        this.activeRequests++;
+
+
         if ( factory.getAction() !== "connect" && this.connected === false ) {
             throw new Error("Client is not connected to the server!");
 
@@ -195,6 +231,19 @@ export class Client {
         if ( !response.ok ) {
             throw new Error( "Request was not successfull at all!" );
         }
+
+        this.activeRequests--;
+        if ( this.activeRequests === 0 ) {
+            this.onLoading.call( false );
+        }
+
+        this.onResult.call(
+            json.colophon.time,
+            json.success,
+            json.code,
+            json.message,
+            request.method
+        )
 
         return json as ApiResponseType<R>;
 

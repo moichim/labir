@@ -1,3 +1,73 @@
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// src/index.ts
+var index_exports = {};
+__export(index_exports, {
+  AbstractAddTool: () => AbstractAddTool,
+  AbstractAnalysis: () => AbstractAnalysis,
+  AbstractAreaAnalysis: () => AbstractAreaAnalysis,
+  AbstractFileResult: () => AbstractFileResult,
+  AbstractTool: () => AbstractTool,
+  AddEllipsisTool: () => AddEllipsisTool,
+  AddRectangleTool: () => AddRectangleTool,
+  AnalysisGraph: () => AnalysisGraph,
+  Batch: () => Batch,
+  CallbacksManager: () => CallbacksManager,
+  CornerPoint: () => CornerPoint,
+  DropinElementListener: () => DropinElementListener,
+  EditTool: () => EditTool,
+  EllipsisAnalysis: () => EllipsisAnalysis,
+  GRAYSCALE: () => GRAYSCALE,
+  IRON: () => IRON,
+  InspectTool: () => InspectTool,
+  Instance: () => Instance,
+  JET: () => JET,
+  PointAnalysis: () => PointAnalysis,
+  RectangleAnalysis: () => RectangleAnalysis,
+  ThermalFileFailure: () => ThermalFileFailure,
+  ThermalFileReader: () => ThermalFileReader,
+  ThermalGroup: () => ThermalGroup,
+  ThermalManager: () => ThermalManager,
+  ThermalPalettes: () => ThermalPalettes,
+  ThermalRegistry: () => ThermalRegistry,
+  TimeFormat: () => TimeFormat,
+  TimePeriod: () => TimePeriod,
+  TimeRound: () => TimeRound,
+  availableAnalysisColors: () => availableAnalysisColors,
+  getPool: () => getPool,
+  playbackSpeed: () => playbackSpeed,
+  supportedFileTypes: () => supportedFileTypes,
+  supportedFileTypesInputProperty: () => supportedFileTypesInputProperty
+});
+module.exports = __toCommonJS(index_exports);
+
 // src/file/utils/palettes.ts
 var generateGrayscalePalette = () => {
   const result = [];
@@ -545,7 +615,7 @@ var ThermalPalettes = {
 };
 
 // src/utils/time/formatting.ts
-import { format, formatISO9075 } from "date-fns";
+var import_date_fns = require("date-fns");
 
 // src/utils/time/base.ts
 var TimeUtilsBase = class {
@@ -565,27 +635,27 @@ var TimeFormat = class _TimeFormat extends TimeUtilsBase {
   /** YYYY-MM-DD */
   static isoDate = (value) => {
     value = _TimeFormat.inputToDate(value);
-    return formatISO9075(value, { representation: "date" });
+    return (0, import_date_fns.formatISO9075)(value, { representation: "date" });
   };
   /** HH:MM:SS */
   static isoTime = (value) => {
     value = _TimeFormat.inputToDate(value);
-    return formatISO9075(value, { representation: "time" });
+    return (0, import_date_fns.formatISO9075)(value, { representation: "time" });
   };
   /** YYYY-MM-DD HH:MM:SS */
   static isoComplete = (value) => {
     value = _TimeFormat.inputToDate(value);
-    return formatISO9075(value);
+    return (0, import_date_fns.formatISO9075)(value);
   };
   /** HH:mm */
   static humanTime = (value, showSeconds = false) => {
     value = _TimeFormat.inputToDate(value);
-    return format(value, showSeconds ? "HH:mm:ss" : "HH:mm");
+    return (0, import_date_fns.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
   };
   /** j. M. ???? (y) */
   static humanDate = (value, includeYear = false) => {
     value = _TimeFormat.inputToDate(value);
-    return format(value, includeYear ? "d. M." : "d. M. yyyy");
+    return (0, import_date_fns.format)(value, includeYear ? "d. M." : "d. M. yyyy");
   };
   /** Range */
   static humanRangeDates(from, to) {
@@ -615,29 +685,29 @@ var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
 })(TimePeriod || {});
 
 // src/utils/time/rounding.ts
-import { addDays, addHours, addMonths, addYears, endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
+var import_date_fns2 = require("date-fns");
 var TimeRound = class _TimeRound extends TimeUtilsBase {
   static down = (value, roundTo) => {
     if (roundTo === "jednu hodinu" /* HOUR */)
-      return startOfHour(value);
+      return (0, import_date_fns2.startOfHour)(value);
     else if (roundTo === "jeden den" /* DAY */)
-      return startOfDay(value);
+      return (0, import_date_fns2.startOfDay)(value);
     else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return startOfWeek(value);
+      return (0, import_date_fns2.startOfWeek)(value);
     else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return startOfMonth(value);
-    return startOfYear(value);
+      return (0, import_date_fns2.startOfMonth)(value);
+    return (0, import_date_fns2.startOfYear)(value);
   };
   static up = (value, roundTo) => {
     if (roundTo === "jednu hodinu" /* HOUR */)
-      return endOfHour(value);
+      return (0, import_date_fns2.endOfHour)(value);
     else if (roundTo === "jeden den" /* DAY */)
-      return endOfDay(value);
+      return (0, import_date_fns2.endOfDay)(value);
     else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return endOfWeek(value);
+      return (0, import_date_fns2.endOfWeek)(value);
     else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return endOfMonth(value);
-    return endOfYear(value);
+      return (0, import_date_fns2.endOfMonth)(value);
+    return (0, import_date_fns2.endOfYear)(value);
   };
   static pick = (value, period) => {
     return [
@@ -648,15 +718,15 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   static modify = (value, amount, period) => {
     switch (period) {
       case "jednu hodinu" /* HOUR */:
-        return addHours(value, amount);
+        return (0, import_date_fns2.addHours)(value, amount);
       case "jeden den" /* DAY */:
-        return addDays(value, amount);
+        return (0, import_date_fns2.addDays)(value, amount);
       case "jeden t\xFDden" /* WEEK */:
-        return addDays(value, amount * 7);
+        return (0, import_date_fns2.addDays)(value, amount * 7);
       case "jeden m\u011Bs\xEDc" /* MONTH */:
-        return addMonths(value, amount);
+        return (0, import_date_fns2.addMonths)(value, amount);
       case "jeden rok" /* YEAR */:
-        return addYears(value, amount);
+        return (0, import_date_fns2.addYears)(value, amount);
     }
   };
 };
@@ -2774,10 +2844,10 @@ var AnalysisDrive = class extends AbstractProperty {
 };
 
 // src/properties/analysis/data/AnalysisDataState.ts
-import { download, generateCsv, mkConfig } from "export-to-csv";
+var import_export_to_csv = require("export-to-csv");
 
 // src/properties/analysis/data/graphs/AnalysisGraphsStorage.ts
-import { format as format2 } from "date-fns";
+var import_date_fns3 = require("date-fns");
 var AnalysisGraphsStorage = class {
   constructor(drive) {
     this.drive = drive;
@@ -2898,8 +2968,8 @@ var AnalysisGraphsStorage = class {
             const timestamp_relative = parseInt(key);
             const timestamp_absolute = timestamp_relative + graph.analysis.file.timestamp;
             dataBuffer[key] = {
-              [header[0].key]: format2(timestamp_relative, "m:ss:SSS") + " ",
-              [header[1].key]: format2(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
+              [header[0].key]: (0, import_date_fns3.format)(timestamp_relative, "m:ss:SSS") + " ",
+              [header[1].key]: (0, import_date_fns3.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
               [header[2].key]: timestamp_relative,
               [header[3].key]: timestamp_absolute
             };
@@ -2954,13 +3024,13 @@ var AnalysisDataState = class extends AbstractProperty {
   /** Assamble the current analysis data and download them as CSV directly. */
   downloadData() {
     const { data, header } = this.listeners.generateExportData();
-    const csvConfig = mkConfig({
+    const csvConfig = (0, import_export_to_csv.mkConfig)({
       fieldSeparator: ";",
       filename: `analysis_${this.parent.fileName}_${Date.now()}.csv`,
       columnHeaders: header
     });
-    const csv = generateCsv(csvConfig)(data);
-    download(csvConfig)(csv);
+    const csv = (0, import_export_to_csv.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv.download)(csvConfig)(csv);
   }
 };
 
@@ -3297,7 +3367,7 @@ var CursorValueDrive = class extends AbstractProperty {
 };
 
 // src/properties/time/playback/TimelineDrive.ts
-import { format as format3 } from "date-fns";
+var import_date_fns4 = require("date-fns");
 
 // src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
@@ -3518,7 +3588,7 @@ var TimelineDrive = class extends AbstractProperty {
   formatDuration(ms) {
     const date = /* @__PURE__ */ new Date(0);
     date.setMilliseconds(ms);
-    return format3(date, "mm:ss:SSS");
+    return (0, import_date_fns4.format)(date, "mm:ss:SSS");
   }
   next() {
     const next = this.findNextRelative(this.value);
@@ -4717,7 +4787,7 @@ var ThermalListenerLayer = class extends AbstractLayer {
 };
 
 // src/utils/AbstractPngExport.ts
-import domtoimage from "dom-to-image";
+var import_dom_to_image = __toESM(require("dom-to-image"), 1);
 var AbstractPngExport = class _AbstractPngExport {
   static FONT_SIZE_NORMAL = "16px";
   static FONT_SIZE_SMALL = "12px";
@@ -4816,7 +4886,7 @@ var AbstractPngExport = class _AbstractPngExport {
   }
   /** A unified way to download an image */
   downloadImage(fileName, container) {
-    domtoimage.toPng(container).then((dataUrl) => {
+    import_dom_to_image.default.toPng(container).then((dataUrl) => {
       const link = document.createElement("a");
       link.download = fileName;
       link.href = dataUrl;
@@ -5263,7 +5333,7 @@ var Instance = class _Instance extends AbstractFile {
 };
 
 // src/properties/analysis/sync/utils/GroupExportCSV.ts
-import { download as download2, generateCsv as generateCsv2, mkConfig as mkConfig2 } from "export-to-csv";
+var import_export_to_csv2 = require("export-to-csv");
 var GroupExportCSV = class {
   constructor(drive) {
     this.drive = drive;
@@ -5358,13 +5428,13 @@ var GroupExportCSV = class {
     const group = this.drive.parent;
     const groupIdentificator = group.name ?? group.id ?? group.hash;
     const { header, data } = this.getData();
-    const csvConfig = mkConfig2({
+    const csvConfig = (0, import_export_to_csv2.mkConfig)({
       fieldSeparator: ";",
       filename: `group_${groupIdentificator}`,
       columnHeaders: header
     });
-    const csv = generateCsv2(csvConfig)(data);
-    download2(csvConfig)(csv);
+    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv2.download)(csvConfig)(csv);
   }
 };
 
@@ -6263,7 +6333,7 @@ var ThermalGroup = class extends BaseStructureObject {
 };
 
 // src/hierarchy/ThermalManager.ts
-import * as workerpool from "workerpool";
+var workerpool = __toESM(require("workerpool"), 1);
 
 // src/loading/workers/AbstractFileResult.ts
 var AbstractFileResult = class {
@@ -8363,7 +8433,7 @@ var ThermalManager = class extends BaseStructureObject {
 };
 
 // src/utils/pool.ts
-import * as workerpool2 from "workerpool";
+var workerpool2 = __toESM(require("workerpool"), 1);
 var pool3 = void 0;
 var getPool = async () => {
   if (!pool3) {
@@ -8373,7 +8443,8 @@ var getPool = async () => {
   }
   return pool3;
 };
-export {
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
   AbstractAddTool,
   AbstractAnalysis,
   AbstractAreaAnalysis,
@@ -8409,4 +8480,4 @@ export {
   playbackSpeed,
   supportedFileTypes,
   supportedFileTypesInputProperty
-};
+});

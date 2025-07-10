@@ -19,6 +19,15 @@ export class UserButton extends ClientConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
+        const identity = this.client?.auth.getIdentity();
+
+        if (identity) {
+            this.identity = identity;
+            this.isLoggedIn = true;
+        } else {
+            this.isLoggedIn = false;
+        }
+
         this.client?.auth.onIdentity.set(this.UUID, (identity) => {
             this.identity = identity;
             this.isLoggedIn = !!identity;

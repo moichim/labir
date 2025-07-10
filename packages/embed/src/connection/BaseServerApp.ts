@@ -2,7 +2,7 @@ import { provide } from "@lit/context";
 import { BaseAppWithPngExportContext } from "../utils/converters/pngExportContext";
 import Client from "@labir/server";
 import { clientContext } from "./ClientContext";
-import { property } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 
 export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
@@ -15,12 +15,24 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     @provide({context: clientContext})
     protected client!: Client;
 
+    @state()
+    protected isClientConnected: boolean = false;
+
     /**
      * Inicializace klienta při připojení komponenty
      */
     connectedCallback(): void {
         super.connectedCallback();
         this.initializeClient();
+
+        this.client.onConnection.set( this.UUID, ( status ) => {
+            if ( status ) {
+                this.isClientConnected = true;
+            } else {
+                this.isClientConnected = false;
+            }
+            this.requestUpdate();
+        } );
     }
 
     /**

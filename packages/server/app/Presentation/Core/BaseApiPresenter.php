@@ -69,9 +69,11 @@ abstract class BaseApiPresenter extends BasePresenter
 
         $this->json["colophon"] = [
             "time" => time() * 1000,
-            "version" => $this->version,
             "path" => $this->path,
-            "action" => $this->getAction()
+            "action" => $this->getAction(),
+            "server" => array_merge( $this->scanner->getServerInfo(), [
+                "version" => $this->version
+            ])
         ];
 
         $this->scanner->access->validateCurrentFolder();
