@@ -41,6 +41,9 @@ export interface FolderInfo extends ApiEditableEntity {
   lrc_count: number;
   protected: boolean;
   may_have_files?: boolean;
+  may_manage_files_in: boolean;
+  may_manage_folders_in: boolean;
+  may_read_folder: boolean;
   own_tags: [] | {
     [index: string]: TagInfo;
   };

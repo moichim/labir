@@ -8,29 +8,12 @@ import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 export class UserButton extends ClientConsumer {
 
     @state()
-    protected identity?: Identity;
-
-    @state()
-    protected isLoggedIn: boolean = false;
-
-    @state()
     protected message?: string;
 
     connectedCallback(): void {
         super.connectedCallback();
 
-        const identity = this.client?.auth.getIdentity();
-
-        if (identity) {
-            this.identity = identity;
-            this.isLoggedIn = true;
-        } else {
-            this.isLoggedIn = false;
-        }
-
         this.client?.auth.onIdentity.set(this.UUID, (identity) => {
-            this.identity = identity;
-            this.isLoggedIn = !!identity;
             this.message = undefined;
         });
     }

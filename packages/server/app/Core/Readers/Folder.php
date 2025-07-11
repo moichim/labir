@@ -71,6 +71,9 @@ final class Folder
             $may_have_files = isset($access['may_have_files']) ? $access['may_have_files'] : false;
         }
 
+        $identity = $this->scanner->authorisation->getIdentity();
+        $login = $identity ? $identity["user"] : null;
+
         $info = [
             "entity" => "folder",
             "api" => $this->scanner->getFullUrl($path),
@@ -81,7 +84,10 @@ final class Folder
             "meta" => [],
             "lrc_count" => $this->getFileCount($path),
             "protected" => $protected,
-            "may_have_files" => $may_have_files
+            "may_have_files" => $may_have_files,
+            "may_manage_files_in" => $this->scanner->access->userMayManageFilesIn($path, $login),
+            "may_manage_folders_in" => $this->scanner->access->userMayManageFoldersIn($path, $login),
+            "may_read_folder" => $this->scanner->access->userMayReadFolder($path, $login)
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -672,7 +678,7 @@ final class Folder
             'protected' => $info['protected'],
             'may_have_files' => $info['may_have_files'],
             'metadata' => $info['data'],
-            'subfolders' => $info['subfolders'],
+            'subfolders' => $info['subfolders']
         ];
     }
 

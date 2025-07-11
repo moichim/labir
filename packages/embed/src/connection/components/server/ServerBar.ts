@@ -16,43 +16,19 @@ type HistoryItem = {
 export class ServerBar extends ClientConsumer {
 
     @state()
-    protected serverInfo?: ServerInfo;
-
-    @state()
-    protected isConnecting: boolean = true;
-
-    @state()
     protected history: HistoryItem[] = [];
 
     @state()
     protected logExpanded: boolean = false;
 
-    @state()
-    protected isLoading: boolean = true;
-
     connectedCallback(): void {
         super.connectedCallback();
-        this.client?.onConnection.set(this.UUID, (serverInfo: ServerInfo | false) => {
-            if (serverInfo) {
-                this.serverInfo = serverInfo;
-            } else {
-                this.serverInfo = undefined;
-            }
-            this.isConnecting = false;
-        });
+
 
         this.client?.onResult.set(this.UUID, (timestamp, success, code, message, method) => {
             this.history.push({ timestamp, success, code, message, method });
             this.requestUpdate();
         });
-
-        this.client?.onLoading.set(this.UUID, (loading: boolean) => {
-            this.isLoading = loading;
-            this.requestUpdate();
-            console.log( "logint", loading );
-        });
-
-        this.isLoading = this.client?.loading ?? true;
 
     }
 
@@ -105,11 +81,13 @@ export class ServerBar extends ClientConsumer {
                 vertical-align: center;
 
                 &.time {width: 55px;}
-                &.method { width: 40px; }
+                &.method,
+                &.code { width: 40px; }
                 &.success,
                 &.error {width: 1em;}
 
                 &.method,
+                &.code,
                 &.success,
                 &.error {
                     text-align: center;
@@ -204,7 +182,7 @@ export class ServerBar extends ClientConsumer {
 
     protected renderIcon(): unknown {
         // Pokud probíhá načítání, zobraz spinner
-        if (this.isLoading) {
+        if (this.isClientLoading) {
             // Spinner: oblouk 270°, 90° mezera
             return html`
                 <svg class="spinner" viewBox="0 0 50 50">
@@ -220,12 +198,13 @@ export class ServerBar extends ClientConsumer {
             `;
         }
 
-        // Jinak zobraz wifi ikonu podle stavu připojení
-        const color = this.isConnected
+        let col = this.isClientConnecting
             ? "var(--thermal-primary)"
-            : "red";
+            : this.client?.isConnected()
+                ? "var(--thermal-primary)"
+                : "red";
 
-        return html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon" style="color: ${color};">
+        return html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon" style="color: ${col};">
             <path fill-rule="evenodd" d="M1.371 8.143c5.858-5.857 15.356-5.857 21.213 0a.75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.06 0c-4.98-4.979-13.053-4.979-18.032 0a.75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.182 3.182c4.1-4.1 10.749-4.1 14.85 0a.75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.062 0 8.25 8.25 0 0 0-11.667 0 .75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.204 3.182a6 6 0 0 1 8.486 0 .75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.061 0 3.75 3.75 0 0 0-5.304 0 .75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.182 3.182a1.5 1.5 0 0 1 2.122 0 .75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.061 0l-.53-.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
         </svg>`;
     }
@@ -277,6 +256,8 @@ export class ServerBar extends ClientConsumer {
                 </td>`}
 
                 <td class="method">${item.method}</td>
+
+                <td class="code">${item.code}</td>
 
                 <td class="message">${item.message}</td>
 
@@ -334,7 +315,7 @@ export class ServerBar extends ClientConsumer {
 
     protected render(): unknown {
 
-        const content = this.isConnecting
+        const content = this.isClientConnecting
             ? this.renderLoading()
             : this.renderServerInfo();
 

@@ -1151,15 +1151,39 @@ var Client = class {
       throw new Error("Client is already connected.");
     }
     const request = this.routes.get.connect();
-    const response = await request.execute();
-    if (response.success === true) {
-      this.connected = true;
-      this._serverInfo = response.colophon.server;
-      this.onConnection.call(response.colophon.server);
-    } else {
+    try {
+      const response = await request.execute();
+      if (response.success === true) {
+        this.connected = true;
+        this._serverInfo = response.colophon.server;
+        this.onConnection.call(response.colophon.server);
+      } else {
+        this.onConnection.call(false);
+        this.onLoading.call(false);
+      }
+      return response;
+    } catch (error) {
       this.onConnection.call(false);
+      this.onLoading.call(false);
+      const response = {
+        success: false,
+        code: 404,
+        message: "Server is not available or network error occurred.",
+        data: void 0,
+        raw: {
+          request: {},
+          response: {}
+          // No response because the server is not available
+        },
+        colophon: {
+          time: Date.now(),
+          server: void 0,
+          action: "connect",
+          path: "/"
+        }
+      };
+      return response;
     }
-    return response;
   }
   /** 
    * Was this `Client` already connected using `Client.connect()`? 

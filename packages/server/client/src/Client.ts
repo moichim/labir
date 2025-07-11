@@ -72,21 +72,21 @@ export class Client {
      * 
      * All entities are observable by their consuming objects, so there should be only one instance of every entity by its given identification.
      */
-    public readonly entities: Entities = new Entities( this );
+    public readonly entities: Entities = new Entities(this);
 
     /**
      * Needs to be set to `true` before any requests are made (with the exception of the `connect()` route).
      */
     protected connected: boolean = false;
 
-    public readonly onConnection: CallbacksManager<( status: false|ServerInfo ) => void> = new CallbacksManager();
+    public readonly onConnection: CallbacksManager<(status: false | ServerInfo) => void> = new CallbacksManager();
 
-    public readonly onResult: CallbacksManager<( 
+    public readonly onResult: CallbacksManager<(
         timestamp: number,
-        success: boolean, 
-        code: boolean, 
-        message: boolean, 
-        method: string 
+        success: boolean,
+        code: boolean,
+        message: boolean,
+        method: string
     ) => void> = new CallbacksManager();
 
     protected activeRequests: number = 0;
@@ -106,8 +106,8 @@ export class Client {
             this.serverUrl += "/";
         }
 
-        this.auth = new Auth( this );
-        this.routes = new Routes( this );
+        this.auth = new Auth(this);
+        this.routes = new Routes(this);
 
     }
 
@@ -119,24 +119,55 @@ export class Client {
     public async connect(): Promise<ApiResponseType<GetConnectDataType>> {
 
         // If already connected, throw an error
-        if ( this.connected ) {
+        if (this.connected) {
             throw new Error("Client is already connected.");
         }
 
         // Perform the connection request
         const request = this.routes.get.connect();
-        const response = await request.execute();
 
-        // Mark self as connected if the response was successful
-        if ( response.success === true ) {
-            this.connected = true;
-            this._serverInfo = response.colophon.server;
-            this.onConnection.call( response.colophon.server );
-        } else {
+        try {
+            const response = await request.execute();
+
+            // Mark self as connected if the response was successful
+            if (response.success === true) {
+                this.connected = true;
+                this._serverInfo = response.colophon.server;
+                this.onConnection.call(response.colophon.server);
+            } else {
+                this.onConnection.call(false);
+                this.onLoading.call( false );
+            }
+
+            return response;
+
+        } catch (error) {
+
             this.onConnection.call( false );
+            this.onLoading.call( false );
+
+            const response: ApiResponseType<GetConnectDataType> = {
+                success: false,
+                code: 404,
+                message: "Server is not available or network error occurred.",
+                data: undefined,
+                raw: {
+                    request: {} as Request,
+                    response: {} as Response, // No response because the server is not available
+                },
+                colophon: {
+                    time: Date.now(),
+                    server: undefined,
+                    action: "connect",
+                    path: "/",
+
+                },
+            }
+
+            return response;
+
         }
 
-        return response;
 
     }
 
@@ -193,32 +224,32 @@ export class Client {
         factory: RequestFactory
     ): Promise<ApiResponseType<R>> {
 
-        if ( this.activeRequests === 0 ) {
-            this.onLoading.call( true );
+        if (this.activeRequests === 0) {
+            this.onLoading.call(true);
         }
 
         this.activeRequests++;
 
 
-        if ( factory.getAction() !== "connect" && this.connected === false ) {
+        if (factory.getAction() !== "connect" && this.connected === false) {
             throw new Error("Client is not connected to the server!");
 
         }
 
         const request = factory.createRequest();
-        if ( !request ) {
+        if (!request) {
             throw new Error("Invalid request configuration");
         }
 
         let response: Response;
         try {
-            response = await fetch( request );
+            response = await fetch(request);
         } catch (error) {
             throw new Error("Server is not available or network error occurred.");
         }
 
         // Process the response
-        this.processResponse( response );
+        this.processResponse(response);
 
         const json = await response.json();
 
@@ -228,13 +259,13 @@ export class Client {
         }
 
         // If the response failed completely, throw an error
-        if ( !response.ok ) {
-            throw new Error( "Request was not successfull at all!" );
+        if (!response.ok) {
+            throw new Error("Request was not successfull at all!");
         }
 
         this.activeRequests--;
-        if ( this.activeRequests === 0 ) {
-            this.onLoading.call( false );
+        if (this.activeRequests === 0) {
+            this.onLoading.call(false);
         }
 
         this.onResult.call(

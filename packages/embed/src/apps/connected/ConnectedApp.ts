@@ -2,57 +2,137 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { BaseServerApp } from "../../connection/BaseServerApp";
 import { customElement, property, state } from "lit/decorators.js";
 import { FolderInfo } from "@labir/server";
+import { FileInfo } from "packages/server/client/dist";
+
+
 
 @customElement("connected-app")
 export class ConnectedApp extends BaseServerApp {
+
+    
 
     @property({ type: String, reflect: true })
     public label: string = "Connected app";
 
     @property({ type: String, reflect: true, attribute: "path" })
     public path!: string;
+    protected originalPath!: string;
 
-    @state()
-    protected error?: string;
 
-    @state()
-    protected info?: FolderInfo;
+    
 
-    @state()
-    protected subfolders?: FolderInfo[];
+    
 
 
 
     public connectedCallback(): void {
+
         super.connectedCallback();
 
-        if ( this.path === undefined || this.path.trim() === '' ) {
-            this.error = "Parametr path je vyžadovaný pro správnou funkcionalitu této aplikace.";
+        if (this.path === undefined || this.path.trim() === '') {
+            this.setError( "Parametr path je vyžadovaný pro správnou funkcionalitu této aplikace." );
         }
 
+        this.originalPath = this.path;
 
-        this.client.onConnection.set( this.UUID + "_init", async (state) => {
 
-            if ( state ) {
+        this.client.onConnection.set(this.UUID + "_init", async (state) => {
 
-                const request = this.client.routes.get.info( this.path );
+            if (state) {
 
-                const result = await request.execute();
-
-                console.log( result );
-
-                if ( result.success === true ) {
-                    this.info = result.data.folder;
-                    if ( result.data.subfolders !== false )
-                        this.subfolders = Object.values( result.data.subfolders );
-                } else {
-                    this.error = "Chyba při načítání informací o složce: " + result.message;
-
-                }
+                this.initContentFromApi();
 
             }
 
-        } );
+        });
+
+        this.client.auth.onIdentity.set(this.UUID + "_init", async () => {
+            this.initContentFromApi();
+        });
+
+        this.setLoadingState(
+            "Připojuji se k serveru."
+        );
+
+    }
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    protected checkReadyForData(): boolean {
+        if (this.client.isConnected() === false) {
+            this.setError( "Aplikace není připojena k serveru. Zkontrolujte připojení." );
+            this.cleanupData();
+            return false;
+        }
+        this.clearError();
+        return true;
+    }
+
+    protected cleanupData(): void {
+        super.cleanupData();
+        this.path = this.originalPath;
+    }
+
+
+    protected async initContentFromApi(): Promise<void> {
+
+        this.cleanupData();
+
+        if (this.checkReadyForData()) {
+
+            this.setLoadingState(
+                "Načítám obsah."
+            );
+
+            const path = this.path!;
+
+            const request = this.client.routes.get.info(path);
+
+            const result = await request.execute();
+
+            if (result.success === true) {
+
+                this.setFolderState(
+                    result.data.folder,
+                    result.data.subfolders 
+                        ? Object.values(result.data.subfolders)
+                        : []
+                );
+
+            } else {
+
+                let content = html`<p>${result.message}</p>`;
+
+                switch (result.code) {
+                    case 404:
+                        content = html`<p>Složka nebyla nalezena.</p>`;
+                        break;
+                    case 403:
+                        content = html`<p>Nemáte oprávnění k zobrazení této složky.</p>`;
+                        break;
+                    case 401:
+                        content = html`<login-form prompt="Tato složka je přístupná pouze přihlášeným uživatelům."></login-form>`;
+                        break;
+                }
+
+                this.setPosterState(
+                    content,
+                    false
+                );
+            }
+
+        }
 
     }
 
@@ -60,10 +140,20 @@ export class ConnectedApp extends BaseServerApp {
 
 
     static styles?: CSSResultGroup | undefined = css`
+
+        ${super.styles!}
+
+        :host {
+            display: block;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
     
         .server-footer {
             font-size: calc( var(--thermal-fs) * 0.8 );
             color: var( --thermal-slate-dark );
+            margin-top: calc( var(--thermal-gap) * 0.5 );
         }
 
         .error {
@@ -86,7 +176,7 @@ export class ConnectedApp extends BaseServerApp {
 
 
     protected renderError() {
-        if ( this.error === undefined ) {
+        if (this.error === undefined) {
             return nothing;
         }
         return html`<div class="error" slot="pre">${this.error}</div>`;
@@ -96,11 +186,11 @@ export class ConnectedApp extends BaseServerApp {
 
     protected renderInfo() {
 
-        if ( this.info === undefined ) {
+        if (this.folder === undefined) {
             return nothing;
         }
 
-        return html`<folder-base-info .info=${this.info} slot="pre"></folder-base-info>
+        return html`<folder-base-info .info=${this.folder} slot="pre"></folder-base-info>
         <folder-subfolders .subfolders=${this.subfolders}></folder-subfolders>`;
 
     }
@@ -115,11 +205,11 @@ export class ConnectedApp extends BaseServerApp {
 
             ${this.renderError()}
 
-            ${this.renderInfo()}
+            ${this.renderContent()}
 
             ${this.isClientConnected === true
                 ? html`<labir-user-button slot="close"></labir-user-button>`
-                : nothing }
+                : nothing}
 
             <slot></slot>
 
