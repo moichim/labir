@@ -133,13 +133,14 @@ export class ConnectedApp extends BaseServerApp {
         <manager-provider>
             <thermal-app label="${this.label}">          
 
-                ${this.renderError()}
-
-                ${this.renderContent()}
 
                 ${this.isClientConnected === true
                     ? html`<labir-user-button slot="close"></labir-user-button>`
                     : nothing}
+
+                ${this.renderError()}
+
+                ${this.renderContent()}
 
                 <slot></slot>
 

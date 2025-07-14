@@ -29,27 +29,6 @@ export class FolderSubfolders extends ClientConsumer {
             .folder=${info}
             @click=${() => this.onFolderClick && this.onFolderClick(info)}
         >
-            <thermal-btn 
-                slot="action" 
-                variant="foreground" 
-                size="sm" 
-                icon="wifi" 
-                iconStyle="micro" 
-                title="Toto je nějaký titulek"
-                @click=${() => console.log("tpx")}
-            >Info</thermal-btn>    
-
-
-            <thermal-btn 
-                slot="action" 
-                variant="primary" 
-                size="sm" 
-                icon="wifi" 
-                iconStyle="micro" 
-                title="Toto je nějaký titulek"
-                @click=${() => console.log("tpx")}
-            >Info</thermal-btn> 
-
         </server-folder-thumbnail>`;
 
     }

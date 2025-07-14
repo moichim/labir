@@ -37,10 +37,10 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     @state()
     protected error?: string;
 
-    @provide({context: currentUserTreeContext})
+    @provide({ context: currentUserTreeContext })
     protected tree: TreeItem[] = [];
 
-    @provide({context: currentUserTreeSetterContext})
+    @provide({ context: currentUserTreeSetterContext })
     protected treeSetter: (tree: TreeItem[]) => void = (tree: TreeItem[]) => {
         this.tree = tree;
         this.requestUpdate();
@@ -78,17 +78,21 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     // Content properties
 
     @state()
-    protected _breadcrumb: BreadcrumbItem[] = [];
+    private _breadcrumb: BreadcrumbItem[] = [];
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
 
 
     @state()
-    protected _folder?: FolderInfo;
+    private _folder?: FolderInfo;
     public get folder(): FolderInfo | undefined { return this._folder; }
 
     @state()
     private _subfolders?: FolderInfo[];
     public get subfolders(): FolderInfo[] | undefined { return this._subfolders; }
+
+    @state()
+    private _files?: FileInfo[];
+    public get files(): FileInfo[] | undefined { return this._files; }
 
     @state()
     private _file?: FileInfo;
@@ -129,7 +133,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
     protected checkReadyForData(): boolean {
         if (this.client.isConnected() === false) {
-            this.setError( "Aplikace není připojena k serveru. Zkontrolujte připojení." );
+            this.setError("Aplikace není připojena k serveru. Zkontrolujte připojení.");
             this.cleanupData();
             return false;
         }
@@ -160,10 +164,23 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
                 this.setFolderState(
                     result.data.folder,
-                    result.data.subfolders 
+                    result.data.subfolders
                         ? Object.values(result.data.subfolders)
                         : []
                 );
+
+                if ( result.data.folder.lrc_count > 0 ) {
+
+                    const files = await this.client.routes.get.files(path)
+                        .execute();
+
+                    console.log( files );
+
+                    this._files = files.data?.files;
+
+                }
+
+
 
             } else {
 
@@ -218,7 +235,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
         }
 
         this.log("Initialised successfully", {
-            url: this.serverUrl, 
+            url: this.serverUrl,
             result,
             client: this.client
         });
@@ -237,7 +254,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     }
 
 
-    
+
 
 
 
@@ -304,12 +321,22 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
         this._folder = undefined;
         this._subfolders = undefined;
         this._file = undefined;
+        this._files = undefined;
     }
 
 
     static styles?: CSSResultGroup | undefined = css`
 
         :host {
+        
+        }
+
+        .base-info-content {
+
+            display: flex;
+            width: 100%;
+            gap: var(--thermal-gap);
+            flex-direction: column;
         
         }
 
@@ -380,16 +407,31 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
 
         return html`
-        <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
-        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)} slot="bar-persistent"></folder-breadcrumb>
+        <registry-provider slug="${this.path}__list" slot="bar-persistent">
+            <registry-palette-dropdown></registry-palette-dropdown>
+        </registry-provider>
+
+        ${this.files && this.files.length > 0 ? html`<registry-provider slug="${this.path}__list" slot="pre">
+            <registry-histogram interactive="true" expandable="true"></registry-histogram>
+            <registry-range-slider></registry-range-slider>
+        </registry-provider>`
+        : nothing }
         
-        <main class="folder-state">
+        <main class="folder-state base-info-content">
+
+            <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
+        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-breadcrumb>
 
             <folder-base-info .info=${this.folder} slot="pre"></folder-base-info>
 
-            <folder-subfolders .subfolders=${this.subfolders} slot="pre" .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-subfolders>
+            ${this.subfolders && this.subfolders.length > 0 ? html`<folder-subfolders .subfolders=${this.subfolders} slot="pre" .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-subfolders>`
+            : nothing}
 
-            <p>Folder state is implemented in BaseServerApp.</p>
+            <folder-files
+                .folder=${this.folder}
+                .files=${this.files}
+            ></folder-files>
+
         </main>`;
     }
 

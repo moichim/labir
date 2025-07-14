@@ -161,6 +161,7 @@ import "./connection/components/auth/LoginForm";
 import "./connection/components/server/ServerBreadcrumb";
 import "./connection/components/folder/FolderThumbnail";
 import "./connection/components/folder/FolderBreadcrumb";
+import "./connection/components/folder/FolderFiles";
 
 
 
