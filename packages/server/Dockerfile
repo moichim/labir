@@ -1,7 +1,7 @@
 FROM php:8.1-apache
 
-# Zapne mod_rewrite, který Nette potřebuje
-RUN a2enmod rewrite
+# Zapne mod_rewrite, který Nette potřebuje, a mod_headers pro CORS
+RUN a2enmod rewrite headers
 
 # Přenastaví DocumentRoot na /var/www/html/www
 RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/www|' /etc/apache2/sites-available/000-default.conf \

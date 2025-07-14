@@ -37,6 +37,7 @@ export interface FolderInfo extends ApiEditableEntity {
   slug: string;
   name: string;
   description: string | null;
+  thumb: string | null,
   meta: Record<string, any>;
   lrc_count: number;
   protected: boolean;

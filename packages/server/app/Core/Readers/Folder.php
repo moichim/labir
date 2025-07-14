@@ -87,7 +87,8 @@ final class Folder
             "may_have_files" => $may_have_files,
             "may_manage_files_in" => $this->scanner->access->userMayManageFilesIn($path, $login),
             "may_manage_folders_in" => $this->scanner->access->userMayManageFoldersIn($path, $login),
-            "may_read_folder" => $this->scanner->access->userMayReadFolder($path, $login)
+            "may_read_folder" => $this->scanner->access->userMayReadFolder($path, $login),
+            "thumb" => $this->getLastLrcThumb($path)
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -796,6 +797,32 @@ final class Folder
 
         // Nahraj vše přes Lrc::upload
         return Lrc::upload($this->scanner, $path, $lrcFile, $visualFile, $previewFile);
+    }
+
+    /**
+     * Vrátí URL posledního LRC souboru ve složce nebo null
+     */
+    protected function getLastLrcThumb(string $path): ?string
+    {
+        $fullPath = $this->scanner->getFullPath($path);
+        if (!is_dir($fullPath)) {
+            return null;
+        }
+
+        $lastLrc = null;
+        $lastTimestamp = 0;
+
+        foreach (new FilesystemIterator($fullPath, FilesystemIterator::SKIP_DOTS) as $item) {
+            if (preg_match('/\.lrc$/i', $item->getFileName()) && is_file($fullPath . DIRECTORY_SEPARATOR . $item->getFileName())) {
+                $lrc = Lrc::createIfExists($this->scanner, $path, $item->getFileName());
+                if ($lrc && $lrc->getTimestamp() > $lastTimestamp) {
+                    $lastTimestamp = $lrc->getTimestamp();
+                    $lastLrc = $lrc;
+                }
+            }
+        }
+
+        return $lastLrc ? $lastLrc->getUrl() : null;
     }
 
 }

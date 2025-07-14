@@ -184,39 +184,31 @@ export class ConnectedApp extends BaseServerApp {
 
 
 
-    protected renderInfo() {
-
-        if (this.folder === undefined) {
-            return nothing;
-        }
-
-        return html`<folder-base-info .info=${this.folder} slot="pre"></folder-base-info>
-        <folder-subfolders .subfolders=${this.subfolders}></folder-subfolders>`;
-
-    }
-
-
-
 
 
     protected render(): unknown {
         return html`
-        <thermal-app label="${this.label}">
+        <manager-provider>
+            <thermal-app label="${this.label}">
 
-            ${this.renderError()}
+            
 
-            ${this.renderContent()}
+                ${this.renderError()}
 
-            ${this.isClientConnected === true
-                ? html`<labir-user-button slot="close"></labir-user-button>`
-                : nothing}
+                ${this.renderContent()}
 
-            <slot></slot>
+                ${this.isClientConnected === true
+                    ? html`<labir-user-button slot="close"></labir-user-button>`
+                    : nothing}
 
-            <footer class="server-footer">
-                <server-info></server-info>
-            </footer>
-        </thermal-app>
+                <slot></slot>
+
+                <footer class="server-footer">
+                    <server-info></server-info>
+                </footer>
+
+            </thermal-app>
+        </manager-provider>
         `;
     }
 

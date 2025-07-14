@@ -14,15 +14,24 @@ export class FolderSubfolders extends ClientConsumer {
             color: var(--thermal-foreground);
         }
 
+        section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1em;
+        }
     `;
 
     protected renderSubfolder( info: FolderInfo ): unknown {
-        return html`<folder-base-info .info=${info}></folder-base-info>`;
+        return html`<server-folder-thumbnail
+            .folder=${info}
+            @click=${() => this.log( info.path )}
+        ></server-folder-thumbnail>`;
 
     }
 
     protected render(): unknown {
-        return html`<section>
+        return html`
+        <section>
             ${this.subfolders?.map( subfolder => this.renderSubfolder( subfolder ) )}
         </section>`;
     }

@@ -290,15 +290,6 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
         <server-breadcrumb current="${this.folder!.path}" style="margin-bottom: 20px;"></server-breadcrumb>
 
 
-        <thermal-button slot="bar-pre" variant="foreground" interactive="false">${this.folder?.name}</thermal-button>
-
-        ${this.folder!.may_manage_folders_in
-            ? html`<thermal-button slot="bar-pre" variant="primary">
-            Nová složka</thermal-button>`
-            : nothing
-        }
-
-
         <main class="folder-state">
 
             ${this.folder?.description

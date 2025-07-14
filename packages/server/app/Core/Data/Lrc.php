@@ -291,6 +291,10 @@ final class Lrc
     }
 
 
+    public function getUrl()
+    {
+        return $this->url;
+    }
 
 
     public function getPath()

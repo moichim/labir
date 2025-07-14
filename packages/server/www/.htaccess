@@ -1,5 +1,12 @@
 # Apache configuration file (see https://httpd.apache.org/docs/current/mod/quickreference.html)
 
+# Diagnostické hlavičky pro debugging 403 chyb
+<IfModule mod_headers.c>
+	Header always set X-Debug-Htaccess "loaded"
+	Header always set X-Debug-Request-URI "%{REQUEST_URI}e"
+	Header always set X-Debug-Filename "%{REQUEST_FILENAME}e"
+</IfModule>
+
 # Allow access to all resources by default
 Require all granted
 
@@ -22,16 +29,6 @@ Require all granted
 	# Permit requests to the '.well-known' directory (used for SSL verification and more)
 	RewriteRule ^\.well-known/.* - [L]
 
-	# Block access to hidden files (starting with a dot) and URLs resembling WordPress admin paths
-	RewriteRule /\.|^\.|^wp-(login|admin|includes|content) - [F]
-
-	# Return 404 for missing files with specific extensions (images, scripts, styles, archives)
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule \.(pdf|js|mjs|ico|gif|jpg|jpeg|png|webp|avif|svg|css|rar|zip|7z|tar\.gz|map|eot|ttf|otf|woff|woff2)$ - [L]
-
-	# Zablokuj přímý přístup k JSON souborům
-	RewriteRule \.json$ - [F,L]
-
 	# Pokud je požadavek na existující soubor nebo adresář, neřeš
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteCond %{REQUEST_FILENAME} !-d
@@ -45,8 +42,12 @@ Require all granted
 	AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json application/xml application/rss+xml image/svg+xml
 </IfModule>
 
-# Pro jistotu: Zablokuj přímý přístup k JSON i bez mod_rewrite
-<FilesMatch "\.json$">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
+# CORS hlavičky pouze pro GET požadavky na .lrc soubory
+<IfModule mod_headers.c>
+	<FilesMatch "\.lrc$">
+		Header always set Access-Control-Allow-Origin "*"
+		Header always set Access-Control-Allow-Methods "GET"
+		Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
+		Header always set X-Debug-File "lrc-file-accessed"
+	</FilesMatch>
+</IfModule>
