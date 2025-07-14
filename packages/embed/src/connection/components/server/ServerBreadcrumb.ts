@@ -19,6 +19,7 @@ export class ServerBreadcrumb extends ClientConsumer {
 
     @state()
     protected folders: TreeItem[] = [];
+    
 
     connectedCallback(): void {
         super.connectedCallback();

@@ -1,7 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { FolderInfo } from "@labir/server";
-import { css, CSSResultGroup, html } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
 
 @customElement( "folder-base-info" )
 export class FolderBaseInfo extends ClientConsumer {
@@ -12,11 +12,9 @@ export class FolderBaseInfo extends ClientConsumer {
     public static styles?: CSSResultGroup | undefined = css`
         :host {
             display: block;
-            padding: 0.5rem;
-            border: 1px solid var(--thermal-slate);
-            border-radius: var(--thermal-radius);
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--thermal-slate);
             color: var(--thermal-foreground);
-            background-color: var(--thermal-background);
         }
 
         h1 {
@@ -34,8 +32,7 @@ export class FolderBaseInfo extends ClientConsumer {
     protected render(): unknown {
         return html`<section>
             <h1>${this.info?.name}</h1>
-            <div class="description">${this.info?.description}</div>
-            <div>Souborů: ${this.info?.lrc_count}</div>
+            ${this.info?.description ? html`<div class="description">${this.info?.description}</div>` : nothing}
         </section>`;
     }
 

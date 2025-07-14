@@ -6,6 +6,7 @@ import { property, state } from "lit/decorators.js";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { FolderInfo } from "packages/server/client/dist";
 import { currentFrameContext } from "../hierarchy/providers/context/FileContexts";
+import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 
 enum STATE {
     LOADING,
@@ -16,6 +17,13 @@ enum STATE {
 }
 
 export abstract class BaseServerApp extends BaseAppWithPngExportContext {
+
+
+    @property({ type: String, reflect: true, attribute: "path" })
+    public path!: string;
+    protected originalPath!: string;
+
+
 
     @property({ type: String, attribute: "server-url" })
     public serverUrl!: string;
@@ -69,6 +77,10 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
     // Content properties
 
+    @state()
+    protected _breadcrumb: BreadcrumbItem[] = [];
+    public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
+
 
     @state()
     protected _folder?: FolderInfo;
@@ -104,6 +116,83 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
             this.requestUpdate();
         });
     }
+
+    protected setPath(
+        value: string
+    ): void {
+        this.path = value;
+        this.requestUpdate();
+        this.initContentFromApi();
+    }
+
+
+
+    protected checkReadyForData(): boolean {
+        if (this.client.isConnected() === false) {
+            this.setError( "Aplikace není připojena k serveru. Zkontrolujte připojení." );
+            this.cleanupData();
+            return false;
+        }
+        this.clearError();
+        return true;
+    }
+
+
+    protected async initContentFromApi(): Promise<void> {
+
+        this.cleanupData();
+
+        if (this.checkReadyForData()) {
+
+            this.setLoadingState(
+                "Načítám obsah."
+            );
+
+            const path = this.path!;
+
+            const request = this.client.routes.get.info(path);
+
+            const result = await request.execute();
+
+            if (result.success === true) {
+
+                this.setBreadcumb(result.data.breadcrumb);
+
+                this.setFolderState(
+                    result.data.folder,
+                    result.data.subfolders 
+                        ? Object.values(result.data.subfolders)
+                        : []
+                );
+
+            } else {
+
+                let content = html`<p>${result.message}</p>`;
+
+                switch (result.code) {
+                    case 404:
+                        content = html`<p>Složka nebyla nalezena.</p>`;
+                        break;
+                    case 403:
+                        content = html`<p>Nemáte oprávnění k zobrazení této složky.</p>`;
+                        break;
+                    case 401:
+                        content = html`<login-form prompt="Tato složka je přístupná pouze přihlášeným uživatelům."></login-form>`;
+                        break;
+                }
+
+                this.setPosterState(
+                    content,
+                    false
+                );
+            }
+
+        }
+
+    }
+
+
+
 
     /**
      * Vytvoří novou instanci klienta
@@ -198,6 +287,16 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     }
 
 
+
+    protected setBreadcumb(
+        value: BreadcrumbItem[]
+    ): void {
+        this._breadcrumb = value;
+        this.requestUpdate();
+    }
+
+
+
     /**
      * Cleans all loaded content
      */
@@ -235,11 +334,6 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
             }
         
         }
-
-
-
-
-
     
     `;
 
@@ -286,24 +380,16 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
 
         return html`
-
-        <server-breadcrumb current="${this.folder!.path}" style="margin-bottom: 20px;"></server-breadcrumb>
-
-
+        <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
+        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)} slot="bar-persistent"></folder-breadcrumb>
+        
         <main class="folder-state">
-
-            ${this.folder?.description
-                ? html`<div class="poster">
-                <div>${this.folder?.description}</div>`
-                : nothing
-            }
-            </div>
 
             <folder-base-info .info=${this.folder} slot="pre"></folder-base-info>
 
-            <folder-subfolders .subfolders=${this.subfolders} slot="pre"></folder-subfolders>
+            <folder-subfolders .subfolders=${this.subfolders} slot="pre" .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-subfolders>
 
-            <p>Folder state is not implemented in BaseServerApp.</p>
+            <p>Folder state is implemented in BaseServerApp.</p>
         </main>`;
     }
 

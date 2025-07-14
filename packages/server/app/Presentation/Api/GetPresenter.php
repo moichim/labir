@@ -46,6 +46,7 @@ final class GetPresenter extends BaseApiPresenter
         $user = $this->scanner->authorisation->getIdentity();
         $user = $user ? $user["user"] : null;
         $this->storeData("subfolders", $this->scanner->folder->getSubdirectories($path, $user));
+        $this->storeData("breadcrumb", $this->scanner->folder->getBreadcrumb($path));
 
         $this->markSuccess(
             $this->formatMessage("Information about the folder '%s'.", $info["name"])

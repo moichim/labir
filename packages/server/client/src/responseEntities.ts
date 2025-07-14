@@ -30,6 +30,15 @@ export interface ApiEditableEntity {
 
 }
 
+export type BreadcrumbItem = {
+  name: string,
+  slug: string,
+  path: string,
+  protected: boolean,
+  current: boolean,
+  type: "folder" | "server" | "user"
+}
+
 export interface FolderInfo extends ApiEditableEntity {
   entity: "folder";
   api: string;

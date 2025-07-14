@@ -25,6 +25,14 @@ type TagInfo = {
 };
 interface ApiEditableEntity {
 }
+type BreadcrumbItem = {
+    name: string;
+    slug: string;
+    path: string;
+    protected: boolean;
+    current: boolean;
+    type: "folder" | "server" | "user";
+};
 interface FolderInfo extends ApiEditableEntity {
     entity: "folder";
     api: string;
@@ -266,6 +274,7 @@ declare abstract class OperationWithPath<R extends ApiResponseDataType> extends 
 }
 
 type GetInfoDataType = {
+    breadcrumb: BreadcrumbItem[];
     folder: FolderInfo;
     subfolders: false | {
         [index: string]: FolderInfo;
