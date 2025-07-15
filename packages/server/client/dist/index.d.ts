@@ -517,6 +517,12 @@ declare class CreateFolder extends OperationWithPath<CreateDataType> {
     execute(): Promise<ApiResponseType<CreateDataType>>;
 }
 
+type DeleteFolderDataType = {};
+declare class DeleteFolder extends OperationWithPath<DeleteFolderDataType> {
+    init(): this;
+    execute(): Promise<ApiResponseType<DeleteFolderDataType>>;
+}
+
 /** A base operation that needs to have a path specified. */
 declare abstract class OperationWithFile<R extends ApiResponseDataType> extends OperationWithPath<R> {
     setFile(filename: string): this;
@@ -684,6 +690,7 @@ declare class PostRoutesFactory {
     fileClearComments(folderPath: string, filename: string): FileClearComments;
     fileUpdateComment(folderPath: string, filename: string, timestamp: number, message: string): FileUpdateComment;
     fileDeleteComment(folderPath: string, filename: string, timestamp: number): FileDeleteComment;
+    deleteFolder(folderPath: string): DeleteFolder;
 }
 
 declare class Routes {

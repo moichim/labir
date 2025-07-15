@@ -1,5 +1,6 @@
 import { Client } from "../../Client";
 import { CreateFolder } from "../post/CreateFolder";
+import { DeleteFolder } from "../post/DeleteFolder";
 import { FileAddComment } from "../post/FileAddComment";
 import { FileClearComments } from "../post/FileClearComments";
 import { FileDeleteComment } from "../post/FileDeleteComment";
@@ -128,6 +129,14 @@ export class PostRoutesFactory {
             .setPath( folderPath )
             .setFile( filename )
             .setCommentTimestamp( timestamp );
+    }
+
+    public deleteFolder(
+        folderPath: string
+    ): DeleteFolder {
+        return (new DeleteFolder(this.client))
+            .init()
+            .setPath( folderPath );
     }
 
 }

@@ -87,7 +87,7 @@ export class FolderBreadcrumb extends BaseElement {
 
         const icon = this[item.type] || this.folder;
 
-        const clickCallback = this.onFolderClick ? () => this.onFolderClick!(item) : undefined;
+        const clickCallback = this.onFolderClick && item.type === "folder"? () => this.onFolderClick!(item) : undefined;
 
         const classNames = {
             [item.type]: true,

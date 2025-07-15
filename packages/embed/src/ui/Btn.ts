@@ -6,7 +6,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 type BtnVariants = "primary" | "foreground" | "background";
 
-type BtnSizes = "sm" | "md" | "lg";
+type BtnSizes = "sm" | "md" | "lg" | "xl";
 
 @customElement( "thermal-btn" )
 export class ThermalBtn extends BaseElement {
@@ -28,7 +28,9 @@ export class ThermalBtn extends BaseElement {
 
     public static styles = css`
         :host {
-            display: inline-block;
+            display: flex;
+            varrical-align: middle;
+            gap: .5em;
 
             margin: 0;
             padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
@@ -48,6 +50,14 @@ export class ThermalBtn extends BaseElement {
             font-size: calc( var( --thermal-fs ) * .8);
 
             transition: all .2s ease-in-out;
+            flex-grow: 0;
+            width: fit-content;
+        }
+
+        svg,
+        span {
+            vertical-align: middle;
+            display: inline-block;
         }
 
 
@@ -125,7 +135,6 @@ export class ThermalBtn extends BaseElement {
 
         .btn-icon {
             width: 1em;
-            margin-right: .5em;
         }
 
         :host([size="sm"]) {
@@ -135,10 +144,9 @@ export class ThermalBtn extends BaseElement {
             padding: calc( var( --thermal-gap ) * .1 ) calc( var( --thermal-gap ) * .2 );
         }
 
-        :host > span,
-        :host > .btn-icon {
-            display: inline-block;
-            vertical-align: middle;
+        :host([size="xl"]) {
+            font-size: calc( var( --thermal-fs ) * 2);
+            line-height: 1.2;
         }
 
     `;
@@ -158,7 +166,7 @@ export class ThermalBtn extends BaseElement {
         }
 
 
-        return html`${unsafeSVG( icon) }<span><slot></slot></span>`;
+        return html`${unsafeSVG( icon) }<slot></slot>`;
     }
 
 }

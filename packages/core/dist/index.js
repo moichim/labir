@@ -4219,6 +4219,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     container.classList.add("thermalCanvasWrapper");
     container.style.position = "relative";
     container.style.userSelect = "none";
+    container.part = "thermal-canvas-container___";
     return container;
   }
   static createCanvas() {
@@ -4232,6 +4233,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     canvas.style.objectPosition = "top left";
     canvas.style.imageRendering = "pixelated";
     canvas.style.userSelect = "none";
+    canvas.part = "thermal-file-canvas";
     return canvas;
   }
   static createDateLayerInner() {

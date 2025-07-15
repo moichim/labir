@@ -43,6 +43,7 @@ import "./ui/Field";
 import "./ui/Loading";
 import "./ui/Spinner";
 import "./ui/Btn";
+import "./ui/Icon";
 
 
 
@@ -162,6 +163,13 @@ import "./connection/components/server/ServerBreadcrumb";
 import "./connection/components/folder/FolderThumbnail";
 import "./connection/components/folder/FolderBreadcrumb";
 import "./connection/components/folder/FolderFiles";
+import "./connection/components/folder/FolderAddDialog";
+import "./connection/components/folder/FolderDeleteDialog";
+import "./connection/components/folder/FolderUploadDialog";
+import "./connection/components/file/ServerFileDetail";
+import "./connection/components/file/ServerFileHeader";
+import "./connection/components/folder/FolderEditDialog";
+import "./connection/components/folder/FileEditDialog";
 
 
 

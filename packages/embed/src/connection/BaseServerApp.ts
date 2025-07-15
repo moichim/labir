@@ -8,6 +8,7 @@ import { FolderInfo } from "packages/server/client/dist";
 import { currentFrameContext } from "../hierarchy/providers/context/FileContexts";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 
+
 enum STATE {
     LOADING,
     POSTER,
@@ -410,45 +411,120 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
         <registry-provider slug="${this.path}__list" slot="bar-persistent">
             <registry-palette-dropdown></registry-palette-dropdown>
         </registry-provider>
-
-        ${this.files && this.files.length > 0 ? html`<registry-provider slug="${this.path}__list" slot="pre">
-            <registry-histogram interactive="true" expandable="true"></registry-histogram>
-            <registry-range-slider></registry-range-slider>
-        </registry-provider>`
-        : nothing }
         
         <main class="folder-state base-info-content">
 
             <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
         .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-breadcrumb>
 
-            <folder-base-info .info=${this.folder} slot="pre"></folder-base-info>
+            <folder-base-info .info=${this.folder} .parents=${this.breadcrumb} .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} slot="pre">
+    
+                ${this.folder?.may_manage_folders_in ? html`
+                <folder-add-dialog 
+                    .folder=${this.folder}
+                    .onSuccess=${(folder: FolderInfo) => this.initContentFromApi()}
+                ></folder-add-dialog>
+                <folder-edit-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${(folder: FolderInfo) => this.initContentFromApi()}
+                ></folder-edit-dialog>
+                <folder-delete-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${(folder: FolderInfo) => this.initContentFromApi()}
+                ></folder-delete-dialog>
+                
+                ` : nothing}
 
-            ${this.subfolders && this.subfolders.length > 0 ? html`<folder-subfolders .subfolders=${this.subfolders} slot="pre" .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-subfolders>`
+                ${this.folder?.may_manage_files_in ? html`
+                <folder-upload-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${(files: FileInfo[]) => {
+                            this.initContentFromApi();
+                    }}
+                ></folder-upload-dialog>
+
+                <folder-edit-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${(folder: FolderInfo) => this.initContentFromApi()}
+                ></folder-edit-dialog>
+
+                <folder-delete-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${() => {
+
+                        const parents = this.breadcrumb;
+                        if (parents && parents.length > 1) {
+                            const parent = parents[parents.length - 2];
+                            this.setPath(parent.path);
+                        } else {
+                            this.setPath("/");
+                        }
+                        
+                    }}
+                ></folder-delete-dialog>
+
+                
+                ` : nothing}
+            </folder-base-info>
+
+            ${this.subfolders && this.subfolders.length > 0 ? html`<folder-subfolders 
+                    .folder=${this.folder}
+                    .subfolders=${this.subfolders} 
+                    slot="pre" 
+                    .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+                ></folder-subfolders>`
             : nothing}
 
             <folder-files
                 .folder=${this.folder}
                 .files=${this.files}
+                .onFileClick=${(file: FileInfo) => this.setDetailState(file)}
             ></folder-files>
 
         </main>`;
     }
 
     protected renderDetailState(): unknown {
-        return html`<div class="detail-state">
-            <p>Detail state is not implemented in BaseServerApp.</p>
-        </div>`;
+
+
+        const slug = this.folder!.path + this.file!.fileName;
+
+        return html`
+        
+        <registry-provider slug="${slug}" slot="bar-persistent">
+            <registry-palette-dropdown></registry-palette-dropdown>
+        </registry-provider>
+        
+        <main class="folder-state base-info-content">
+
+            <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
+        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-breadcrumb>
+
+            <folder-base-info .info=${this.folder} .parents=${this.breadcrumb} .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} slot="pre">
+            </folder-base-info>
+
+            <server-file-detail
+                .file=${this.file}
+                .folder=${this.folder}
+                .onClose=${() => {
+                    this.initContentFromApi();
+                    this.setFolderState(this.folder!, this.subfolders);
+                }}
+            >
+                ${this.folder?.may_manage_files_in
+                    ? html`<file-edit-dialog
+                    slot="header"
+                    .file=${this.file}
+                    .onSuccess=${(file: FileInfo) => {
+                        this.setDetailState(file);
+                    }}
+                ></file-edit-dialog>`
+                    : nothing}
+
+            
+            </server-file-detail>
+
+        </main>`;
     }
-
-
-
-
-
-
-
-
-
-
 
 }
