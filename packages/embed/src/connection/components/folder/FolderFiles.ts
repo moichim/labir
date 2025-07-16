@@ -5,6 +5,7 @@ import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { FileInfo } from "packages/server/client/dist";
 import { TimeFormat } from "@labir/core";
 import icons from "../../../utils/icons";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 @customElement( "folder-files" )
 export class FolderFiles extends ClientConsumer {
@@ -72,6 +73,10 @@ export class FolderFiles extends ClientConsumer {
         header {
             padding: calc( var(--thermal-gap) * .5 );
             background: var(--thermal-background);
+            display: grid;
+            grid-template-columns: 1fr 2em;
+            grid-template-rows: auto auto;
+            gap: calc(var(--thermal-gap) * 0.5);
 
             .time {
                 font-size: calc( var(--thermal-fs) * 0.8 );
@@ -84,7 +89,31 @@ export class FolderFiles extends ClientConsumer {
                 margin-top: .3em;
             }
 
+            .text {
+                grid-column: 1;
+                grid-row: 1;
+            }
 
+            .icons {
+                grid-column: 2;
+                grid-row: 1;
+                display: flex;
+                justify-content: flex-end;
+                align-items: flex-start;
+                
+                .icon {
+                    width: 1.2em;
+                    min-width: 1.2em;
+                    display: block;
+                    color: var( --thermal-slate );
+                }
+            }
+
+            .actions {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                padding-top: .3em;
+            }
         }
 
         file-canvas {
@@ -109,6 +138,16 @@ export class FolderFiles extends ClientConsumer {
         
         }
 
+        .icons {
+            .icon {
+                width: 1.2em;
+                min-width: 1.2em;
+                display: block;
+                color: var( --thermal-slate );
+                float:right;
+            }
+        }
+
     `;
 
     protected renderFile( file: FileInfo ): TemplateResult {
@@ -129,9 +168,12 @@ export class FolderFiles extends ClientConsumer {
 
                 <header>
 
-                    <div class="time">${time}</div>
+                    <div class="text">
+                        <div class="time">${time}</div>
 
-                    ${label ? html`<h1>${label}</h1>` : nothing }
+                        ${label ? html`<h1>${label}</h1>` : nothing }
+
+                    </div>
 
                     <div class="actions">
                         <thermal-btn
@@ -139,6 +181,10 @@ export class FolderFiles extends ClientConsumer {
                             size="sm"
                             @click=${callback}
                         >Detail</thermal-btn>
+                    </div>
+
+                    <div class="icons">
+                        ${unsafeSVG( this.icon )}
                     </div>
 
                 </header>

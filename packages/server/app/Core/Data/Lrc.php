@@ -663,7 +663,6 @@ final class Lrc
                     throw new \Exception('You can only update your own comment.', 403);
                 }
                 $json['comments'][$i]['message'] = $message;
-                $json['comments'][$i]['timestamp'] = (int)(microtime(true) * 1000);
                 $found = true;
                 break;
             }

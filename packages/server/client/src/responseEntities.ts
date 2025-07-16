@@ -62,6 +62,17 @@ export interface FolderInfo extends ApiEditableEntity {
   };
 }
 
+export type Comment = {
+  message: string
+  timestamp: number
+  by: {
+    name: string
+    login: string
+    institution: string | null
+    description: string | null
+  }
+}
+
 export interface FileInfo extends ApiEditableEntity{
   entity: "file",
   /** URL address of the file itself */
@@ -101,15 +112,7 @@ export interface FileInfo extends ApiEditableEntity{
   /** Storage of the analyses */
   analyses: string[]
   /** Stoage of comments */
-  comments: {
-    message: string,
-    timestamp: number,
-    by: {
-      name: string,
-      institution: string | null,
-      description: string | null
-    }
-  }[]
+  comments: Comment[]
 }
 
 export type TagDefinition = {

@@ -14,9 +14,14 @@ export class FolderThumbnail extends ClientConsumer {
     @property({type: Object})
     onClick?: ( folder: FolderInfo ) => void;
 
-    protected icon = icons.folder.outline("icon");
+    @property({type: Number, reflect: true})
+    subfoldersCount: number = 0;
 
-    protected image = icons.image.micro( "icon-file" );
+    protected folderIconMain = icons.folder.outline("icon");
+
+    protected imageIconMicro = icons.image.micro( "icon-file" );
+
+    protected folderIconMicro = icons.folder.micro( "icon-file" );
 
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -237,10 +242,16 @@ export class FolderThumbnail extends ClientConsumer {
                         <div class="description">${this.folder.description}</div>
                     </div>
                     <div style="text-align: right;">
-                        ${unsafeSVG( this.icon )}
+                        ${unsafeSVG( this.folderIconMain )}
+
                         <div text-align: right;>
-                            ${this.folder.lrc_count > 0 ? html`<span class="count">${this.folder.lrc_count} ${unsafeSVG( this.image )}</span>` : nothing }
+                            ${this.folder.lrc_count > 0 ? html`<span class="count">${this.folder.lrc_count} ${unsafeSVG( this.imageIconMicro )}</span>` : nothing }
                         </div>
+
+                        ${this.subfoldersCount > 0
+                            ? html`<span class="count">${this.subfoldersCount} ${unsafeSVG(this.folderIconMicro)}</span>`
+                            : nothing}
+
                     </div>
                 </div>
                 <div class="header-bottom" @click=${this.handleActionClick}>

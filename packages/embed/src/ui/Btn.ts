@@ -26,6 +26,9 @@ export class ThermalBtn extends BaseElement {
     @property({type: String, reflect: true})
     public disabled: boolean = false;
 
+    @property({type: String, reflect: true})
+    public plain: boolean = false;
+
     public static styles = css`
         :host {
             display: flex;
@@ -147,6 +150,14 @@ export class ThermalBtn extends BaseElement {
         :host([size="xl"]) {
             font-size: calc( var( --thermal-fs ) * 2);
             line-height: 1.2;
+        }
+
+
+
+
+
+        :host([plain="true"]) {
+            border: none !important;
         }
 
     `;

@@ -16,11 +16,14 @@ export class ServerFileDetail extends ClientConsumer {
     @property({type: Function})
     public onClose: () => void = () => {};
 
+    @property({type: Function})
+    public onChange?: (file: FileInfo) => void = () => {};
+
     public static styles?: CSSResultGroup | undefined = css`
 
         .layout {
             display: grid;
-            grid-template-columns: calc( var(--thermal-gap) * 1 ) 1fr 1fr;
+            grid-template-columns: calc( var(--thermal-gap) * 1 ) 1fr 1fr 250px;
             gap: 2em;
             height: 100%;
 
@@ -44,6 +47,10 @@ export class ServerFileDetail extends ClientConsumer {
 
         .section__content {
             grid-column: 3;
+        }
+
+        .section__server {
+            grid-column: 4;
         }
     
     `;
@@ -81,7 +88,19 @@ export class ServerFileDetail extends ClientConsumer {
             </section>
 
             <section class="section section__content">
+
                 <file-analysis-complex></file-analysis-complex>
+            </section>
+
+            <section class="section section__server">
+
+                <file-comments
+                    .file=${this.file}
+                    .folder=${this.folder}
+                    .onChange=${this.onChange}
+                    style="max-height: 400px;"
+                ></file-comments>
+
             </section>
 
         </main>

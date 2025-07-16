@@ -28,6 +28,9 @@ export class ServerFileHeader extends ClientConsumer {
                 display: flex;
                 flex-wrap: no-wrap;
                 gap: var(--thermal-gap);
+
+                color: var(--thermal-foreground);
+                font-size: var(--thermal-fs);
             }
     
     
@@ -41,16 +44,23 @@ export class ServerFileHeader extends ClientConsumer {
                 box-sizing: border-box;
             
             }
+
+            h1 {
+                font-size: 1em;
+                margin: 0;
+                padding: 0;
+                margin-bottom: .5em;
+            }
     
     
             section {
                 display: grid !important;
-                grid-template-columns: 2em 1fr;
+                grid-template-columns: 2em 1fr 1fr 1fr;
                 grid-template-rows: auto auto;
                 gap: var(--thermal-gap);
                 flex-grow: 1;
             }
-    
+
             .icon {
                 grid-row: 1;
                 grid-column: 1;
@@ -58,26 +68,36 @@ export class ServerFileHeader extends ClientConsumer {
                 display: block;
                 color: var(--thermal-slate-light);
             }
-    
-            .content {
+
+            .time-info {
                 grid-row: 1;
                 grid-column: 2;
-                display: flex;
-                gap: var(--thermal-gap);
-                justify-content: space-between;
             }
-    
-            h1 {
-                font-size: var(--thermal-fs);
-                margin: 0;
-                padding: 0;
+
+            .label-info {
+                grid-row: 1;
+                grid-column: 3;
             }
-    
-            .description {
-                font-size: calc(var(--thermal-fs) * 0.8);
-                color: var(--thermal-slate);
+
+            .colophon {
+                grid-row: 1;
+                grid-column: 4;
+                text-align: right;
+
+                strong,
+                span {
+                    display: block;
+                }
+                
+                strong {
+                    font-weight: normal;
+                }
+
+                span {
+                    color: var(--thermal-slate-light);
+                }
             }
-    
+
             .actions {
                 grid-row: 2;
                 grid-column: 1 / -1;
@@ -110,29 +130,6 @@ export class ServerFileHeader extends ClientConsumer {
                 color: var(--thermal-slate-light);
             }
 
-            .colophon {
-                text-align: right;
-
-                strong,
-                span {
-                    display: block;
-                }
-                
-                strong {
-                    font-weight: normal;
-                }
-
-                span {
-                    color: var(--thermal-slate-light);
-                }
-            }
-
-            .label {
-                margin-top: calc(var(--thermal-gap) * 0.5);
-                padding-top: calc(var(--thermal-gap) * 0.5);
-                border-top: 2px dashed var(--thermal-slate-light);
-                display: inline-block;
-            }
         `;
 
     protected renderColophon(): unknown {
@@ -179,41 +176,33 @@ export class ServerFileHeader extends ClientConsumer {
 
         const uploaded = TimeFormat.human( this.file.uploaded );
 
-
-
-
         return html`
-        
         
         ${this.renderUpButton()}
                 
-                <section class="part">
-        
-                    ${unsafeSVG(this.icon)}
-        
-                    <div class="content">
+        <section class="part">
 
-                        <div>
+            ${unsafeSVG(this.icon)}
+
+            <div class="time-info">
+                <h1>${time}</h1>
+                <div class="small slate">${this.file.fileName}</div>
+            </div>
+
+            <div class="label-info">
+                ${this.file.label
+                    ? html`<h1>${this.file.label}</h1>`
+                    : nothing
+                }
+                ${this.file?.description ? html`<div class="small slate">${this.file?.description}</div>` : nothing}
+            </div>
+
+            ${this.renderColophon()}
             
-                            <h1>${time}</h1>
-
-                            ${this.file.label
-                                ? html`<h1 class="label">${this.file.label}</h1>`
-                                :nothing
-                            }
-            
-                            ${this.file?.description ? html`<div class="description">${this.file?.description}</div>` : nothing}
-
-                        </div>
-
-
-                        ${this.renderColophon()}
-                    </div>
-                    
-                    <div class="actions">
-                        <slot></slot>
-                    </div>
-                </section>
+            <div class="actions">
+                <slot></slot>
+            </div>
+        </section>
         
         `;
     }

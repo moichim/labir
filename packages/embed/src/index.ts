@@ -170,6 +170,9 @@ import "./connection/components/file/ServerFileDetail";
 import "./connection/components/file/ServerFileHeader";
 import "./connection/components/folder/FolderEditDialog";
 import "./connection/components/folder/FileEditDialog";
+import "./connection/components/file/FileCommentForm";
+import "./connection/components/file/FileComments";
+import "./connection/components/file/FileComment";
 
 
 

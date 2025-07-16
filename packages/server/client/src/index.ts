@@ -7,7 +7,7 @@ import type { GetCurrentUserTreeDataType } from "./routes/get/GetCurrentUserTree
 import type { LoginDataType } from "./routes/post/Login";
 import type { UpdateFolderDataType } from "./routes/post/UpdateFolder";
 
-import type { ServerInfo, Identity, FolderInfo, FileInfo, TagInfo, TagDefinition, TreeItem } from "./responseEntities";
+import type { ServerInfo, Identity, FolderInfo, FileInfo, TagInfo, TagDefinition, TreeItem, Comment } from "./responseEntities";
 
 export default Client;
 
@@ -26,5 +26,6 @@ export type {
     FileInfo,
     TagInfo,
     TagDefinition,
-    TreeItem
+    TreeItem,
+    Comment
 }

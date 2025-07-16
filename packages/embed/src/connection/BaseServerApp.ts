@@ -510,6 +510,12 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                     this.initContentFromApi();
                     this.setFolderState(this.folder!, this.subfolders);
                 }}
+
+                .onChange=${(file: FileInfo) => {
+                    this.setDetailState(file);
+                    this.requestUpdate();
+                }}
+
             >
                 ${this.folder?.may_manage_files_in
                     ? html`<file-edit-dialog

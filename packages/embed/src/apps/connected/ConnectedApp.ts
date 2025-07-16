@@ -131,7 +131,10 @@ export class ConnectedApp extends BaseServerApp {
     protected render(): unknown {
         return html`
         <manager-provider>
-            <thermal-app label="${this.label}">          
+            <thermal-app 
+                label="${this.label}"
+                showfullscreen="true"
+            >          
 
 
                 ${this.isClientConnected === true
