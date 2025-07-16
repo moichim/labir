@@ -66,7 +66,7 @@ export class ServerFileHeader extends ClientConsumer {
                 grid-column: 1;
                 width: 2em;
                 display: block;
-                color: var(--thermal-slate-light);
+                color: var(--thermal-slate);
             }
 
             .time-info {

@@ -4,7 +4,7 @@ import { css, html, nothing } from "lit";
 import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
-export type BtnVariants = "primary" | "foreground" | "background";
+export type BtnVariants = "primary" | "foreground" | "background" | "default";
 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
@@ -67,7 +67,7 @@ export class ThermalBtn extends BaseElement {
 
 
         :host(:hover) {
-            background-color: var(--thermal-slate);
+            /** background-color: var(--thermal-slate); */
         }
 
 

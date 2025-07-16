@@ -757,22 +757,16 @@ var UpdateFile = class extends OperationWithFile {
     return this;
   }
   async execute() {
-    if (this._clearTags === true) {
-      this.request.addBodyParameter("clearTags", true);
-    } else {
-      if (this._tagsAdd.length > 0)
-        this.request.addBodyParameter("addTags", this._tagsAdd);
-      if (this._tagsRemove.length > 0)
-        this.request.addBodyParameter("removeTags", this._tagsRemove);
-    }
-    if (this._clearAnalyses === true) {
-      this.request.addBodyParameter("clearAnalyses", true);
-    } else {
-      if (this._analysisAdd.length > 0)
-        this.request.addBodyParameter("addAnalyses", this._analysisAdd);
-      if (this._analysisRemove.length > 0)
-        this.request.addBodyParameter("removeAnalyses", this._analysisRemove);
-    }
+    this.request.addBodyParameter("clearTags", this._clearTags);
+    if (this._tagsAdd.length > 0)
+      this.request.addBodyParameter("addTags", this._tagsAdd);
+    if (this._tagsRemove.length > 0)
+      this.request.addBodyParameter("removeTags", this._tagsRemove);
+    this.request.addBodyParameter("clearAnalyses", this._clearAnalyses);
+    if (this._analysisAdd.length > 0)
+      this.request.addBodyParameter("addAnalyses", this._analysisAdd);
+    if (this._analysisRemove.length > 0)
+      this.request.addBodyParameter("removeAnalyses", this._analysisRemove);
     const response = await this.client.fetch(this.request);
     return response;
   }

@@ -55,6 +55,14 @@ export class FileComments extends ClientConsumer {
             font-size: .8em;
             color: var(--thermal-slate);
 
+            &.tiny {
+            
+                height: 40px;
+                text-align: center;
+
+            
+            }
+
 
         }
     
@@ -116,8 +124,12 @@ export class FileComments extends ClientConsumer {
                     `
                 : nothing
             }
-            
-            `;
+
+            ${this.folder && !this.folder.may_manage_files_in
+                ? html`<div class="placeholder  tiny"><span>Nemáte oprávnění komentovat tento soubor</span></div>`
+                : nothing
+            }
+        `;
     }
 
 }

@@ -166,15 +166,17 @@ import "./connection/components/folder/FolderFiles";
 import "./connection/components/folder/FolderAddDialog";
 import "./connection/components/folder/FolderDeleteDialog";
 import "./connection/components/folder/FolderUploadDialog";
+import "./connection/components/folder/FolderEditDialog";
+
 import "./connection/components/file/ServerFileDetail";
 import "./connection/components/file/ServerFileHeader";
-import "./connection/components/folder/FolderEditDialog";
-import "./connection/components/folder/FileEditDialog";
+import "./connection/components/file/FileEditDialog";
 import "./connection/components/file/FileCommentForm";
 import "./connection/components/file/FileComments";
 import "./connection/components/file/FileComment";
 import "./connection/components/file/FileDeleteDialog";
-
+import "./connection/components/file/FileCommentsDialog";
+import "./connection/components/file/FileAnalysisStoreButton";
 
 
 

@@ -141,17 +141,8 @@ export class FolderFiles extends ClientConsumer {
             display: flex;
             align-items: center;
             gap: .25em;
+            width: 100%;
         
-        }
-
-        .icons {
-            .icon {
-                width: 1.2em;
-                min-width: 1.2em;
-                display: block;
-                color: var( --thermal-slate );
-                float:right;
-            }
         }
 
     `;
@@ -168,6 +159,7 @@ export class FolderFiles extends ClientConsumer {
             ? () => this.onFileClick( file )
             : undefined;
 
+
         return html`<article>
 
             <file-provider thermal=${file.url} batch="true">
@@ -182,13 +174,16 @@ export class FolderFiles extends ClientConsumer {
                     </div>
 
                     <div class="actions">
+
                         <thermal-btn
                             variant="primary"
                             size="sm"
                             @click=${callback}
                         >Detail</thermal-btn>
 
-                        <file-edit-dialog 
+                        ${this.folder.may_manage_files_in
+                            ? html`
+                            <file-edit-dialog 
                             .file=${file}
                             .folder=${this.folder}
                             .onSuccess=${this.onChange}
@@ -196,8 +191,25 @@ export class FolderFiles extends ClientConsumer {
                             plain="true"
                             variant="background"
                             size="sm"
-                        ></file-edit-dialog>
+                        ></file-edit-dialog>`
+                        : nothing }
 
+                        ${
+                            this.isLoggedIn || file.comments.length 
+                            ? html`<file-comments-dialog 
+                            .file=${file}
+                            .folder=${this.folder}
+                            .onSuccess=${this.onChange}
+                            label=""
+                            plain="true"
+                            variant="background"
+                            size="sm"
+                            badge="true"
+                        ></file-comments-dialog>`
+                        : nothing }
+
+${this.folder.may_manage_files_in
+                            ? html`
                         <file-delete-dialog 
                             .file=${file}
                             .folder=${this.folder}
@@ -207,6 +219,14 @@ export class FolderFiles extends ClientConsumer {
                             variant="background"
                             size="sm"
                         ></file-delete-dialog>
+                            `
+                            : nothing
+                        }
+
+                        ${file.analyses.length > 0
+                            ? html`<span style="font-size:.6em; color: var(--thermal-slate);align-self:flex-end">${file.analyses.length} analýzy</span>`
+                            : nothing
+                        }
 
                     </div>
 

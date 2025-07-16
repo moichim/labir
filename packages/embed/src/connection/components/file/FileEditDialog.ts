@@ -37,7 +37,6 @@ export class FileEditDialog extends ClientConsumer {
 
     public static styles?: CSSResultGroup = css`
         .content {
-            padding: var(--thermal-gap);
         }
 
         .form-group {
@@ -52,6 +51,7 @@ export class FileEditDialog extends ClientConsumer {
 
         input {
             width: 100%;
+            box-sizing: border-box;
             padding: calc(var(--thermal-gap) * 0.5);
             border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius);
@@ -60,6 +60,7 @@ export class FileEditDialog extends ClientConsumer {
 
         textarea {
             width: 100%;
+            box-sizing: border-box;
             padding: calc(var(--thermal-gap) * 0.5);
             border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius);

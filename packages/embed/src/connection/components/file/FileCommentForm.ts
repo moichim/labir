@@ -66,6 +66,14 @@ export class FileCommentForm extends ClientConsumer {
             display: flex;
             justify-content: flex-end;
         }
+
+        .small {
+            font-size: calc(var(--thermal-fs) * 0.8);
+        }
+
+        .slate {
+            color: var(--thermal-slate);
+        }
     
     `;
 
@@ -171,6 +179,7 @@ export class FileCommentForm extends ClientConsumer {
                         >
                             ${isEditing ? "Upravit komentář" : "Přidat komentář"}
                         </thermal-btn>
+
                     </div>
                 </main>
             </form>

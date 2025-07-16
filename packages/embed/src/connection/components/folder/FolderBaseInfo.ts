@@ -53,7 +53,7 @@ export class FolderBaseInfo extends ClientConsumer {
             grid-column: 1;
             width: 2em;
             display: block;
-            color: var(--thermal-slate-light);
+            color: var(--thermal-slate);
         }
 
         .content {
