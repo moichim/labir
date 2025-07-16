@@ -119,13 +119,14 @@ export class ServerFileDetail extends ClientConsumer {
 
         return html`
 
-        <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
-            <slot name="header"></slot>
-        </server-file-header>
-
             <registry-provider slug=${this.folder.path} batch="true" autoclear="true">
                 <group-provider slug=${slug} batch="true" autoclear="true">
                     <file-provider thermal=${this.file.url} batch="true" autoclear="true">
+
+
+                        <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
+                            <slot name="header"></slot>
+                        </server-file-header>
 
 
                         ${this.renderContent()}
