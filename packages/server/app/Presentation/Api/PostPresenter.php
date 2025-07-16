@@ -507,4 +507,33 @@ final class PostPresenter extends BaseApiPresenter
         $this->respond();
     }
 
+    /**
+     * Smaže soubor včetně souvisejících souborů (JSON, preview, visual).
+     * POST {cesta}?action=deletefile&file={soubor}
+     * Přístup: pouze uživatel s právem mazat soubory ve složce
+     */
+    public function actionFiledelete(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+
+        $lrc = $this->scanner->folder->getFile($path, $file);
+        if (!$lrc) {
+            throw new Exception('File not found.', 404);
+        }
+
+        $lrc->delete();
+        
+        $this->storeData('result', $file);
+        $this->markSuccess(
+            $this->formatMessage(
+                "File '%s' deleted successfully from folder '%s'.",
+                $file,
+                $path
+            )
+        );
+        $this->respond();
+    }
+
 }

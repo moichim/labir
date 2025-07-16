@@ -234,7 +234,7 @@ export class FileAnalysisComplex extends FileConsumer {
     
         .addanalysis {
             padding: var(--thermal-gap);
-            border: 1px solid var(--thermal-slate);
+            border: 1px dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
             display: flex;
             flex-direction: column;
@@ -252,7 +252,7 @@ export class FileAnalysisComplex extends FileConsumer {
 
         .graph-prompt {
             padding: var(--thermal-gap);
-            border: 1px solid var(--thermal-slate);
+            border: 1px dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
             box-sizing: border-box;
             display: flex;

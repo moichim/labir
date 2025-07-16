@@ -4,9 +4,9 @@ import { css, html, nothing } from "lit";
 import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
-type BtnVariants = "primary" | "foreground" | "background";
+export type BtnVariants = "primary" | "foreground" | "background";
 
-type BtnSizes = "sm" | "md" | "lg" | "xl";
+export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
 @customElement( "thermal-btn" )
 export class ThermalBtn extends BaseElement {

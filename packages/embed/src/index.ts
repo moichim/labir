@@ -173,6 +173,7 @@ import "./connection/components/folder/FileEditDialog";
 import "./connection/components/file/FileCommentForm";
 import "./connection/components/file/FileComments";
 import "./connection/components/file/FileComment";
+import "./connection/components/file/FileDeleteDialog";
 
 
 

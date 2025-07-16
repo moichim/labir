@@ -2,11 +2,25 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FileInfo } from "@labir/server";
+import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("file-edit-dialog")
 export class FileEditDialog extends ClientConsumer {
 
-    @property( { type: Object} )
+    @property({ type: String })
+    public label: string = "Upravit soubor";
+
+    @property({ type: String, reflect: false })
+    public variant?: BtnVariants;
+
+    @property({ type: String, reflect: true })
+    public size: BtnSizes = "sm";
+
+    @property({ type: String })
+    public plain: boolean = false;
+
+    @property({ type: Object })
     public file!: FileInfo;
 
     @property({ type: String })
@@ -18,7 +32,7 @@ export class FileEditDialog extends ClientConsumer {
     @property({ type: String })
     private errorMessage: string = "";
 
-    @property({ type: Function})
+    @property({ type: Function })
     public onSuccess?: (file: FileInfo) => void;
 
     public static styles?: CSSResultGroup = css`
@@ -107,7 +121,7 @@ export class FileEditDialog extends ClientConsumer {
     }
 
     protected render(): unknown {
-        
+
         return html`
             <thermal-dialog
                 label="Upravit soubor"
@@ -115,7 +129,12 @@ export class FileEditDialog extends ClientConsumer {
                 button="Uložit změny"
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="edit" iconStyle="micro">Upravit soubor</thermal-btn>
+                    <thermal-btn 
+                        variant=${ifDefined( this.variant ) }
+                        size=${ifDefined( this.size ) }
+                        plain=${ifDefined( this.plain ) }
+                        icon="edit" iconStyle="micro"
+                    >${this.label}</thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">

@@ -19,6 +19,9 @@ export class FolderFiles extends ClientConsumer {
     @property({ type: Function })
     public onFileClick: ( file: FileInfo ) => void = () => {};
 
+    @property({ type: Function })
+    public onChange?: ( file: FileInfo ) => void = () => {};
+
     protected icon = icons.image.outline( "icon" );
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -135,6 +138,9 @@ export class FolderFiles extends ClientConsumer {
         .actions {
         
             padding-top: .3em;
+            display: flex;
+            align-items: center;
+            gap: .25em;
         
         }
 
@@ -181,6 +187,27 @@ export class FolderFiles extends ClientConsumer {
                             size="sm"
                             @click=${callback}
                         >Detail</thermal-btn>
+
+                        <file-edit-dialog 
+                            .file=${file}
+                            .folder=${this.folder}
+                            .onSuccess=${this.onChange}
+                            label=""
+                            plain="true"
+                            variant="background"
+                            size="sm"
+                        ></file-edit-dialog>
+
+                        <file-delete-dialog 
+                            .file=${file}
+                            .folder=${this.folder}
+                            .onDelete=${this.onChange}
+                            label=""
+                            plain="true"
+                            variant="background"
+                            size="sm"
+                        ></file-delete-dialog>
+
                     </div>
 
                     <div class="icons">

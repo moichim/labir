@@ -1,7 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { FolderInfo } from "@labir/server";
-import { css, CSSResultGroup, html } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { FileInfo } from "packages/server/client/dist";
 
 @customElement("server-file-detail")
@@ -47,11 +47,32 @@ export class ServerFileDetail extends ClientConsumer {
 
         .section__content {
             grid-column: 3;
+
+            gap: 1em;
+            display: flex;
+            flex-direction: column;
+            
+            file-analysis-complex {
+                flex-grow: 1;
+            }
+
+
+            .range {
+            
+                display: flex;
+                gap: calc(var(--thermal-gap) * 0.5);
+                align-items: center;
+            
+            }
+
         }
 
         .section__server {
             grid-column: 4;
         }
+
+
+
     
     `;
 
@@ -88,6 +109,17 @@ export class ServerFileDetail extends ClientConsumer {
             </section>
 
             <section class="section section__content">
+
+                <div class="range">
+
+                    <registry-palette-dropdown></registry-palette-dropdown>
+
+                    <registry-range-full-button></registry-range-full-button>
+
+                    <registry-range-auto-button></registry-range-auto-button>
+
+                </div>
+
 
                 <file-analysis-complex></file-analysis-complex>
             </section>

@@ -568,6 +568,31 @@ var CreateFolder = class extends OperationWithPath {
   }
 };
 
+// client/src/routes/OperationWithFile.ts
+var OperationWithFile = class extends OperationWithPath {
+  setFile(filename) {
+    this.request.addQueryParameter("file", filename);
+    return this;
+  }
+};
+
+// client/src/routes/post/DeleteFile.ts
+var DeleteFile = class extends OperationWithFile {
+  init() {
+    this.request.setMethod("POST");
+    this.request.setAction("filedelete");
+    return this;
+  }
+  setLrc(file) {
+    this.request.addFile("lrc", file);
+    return this;
+  }
+  async execute() {
+    const response = await this.client.fetch(this.request);
+    return response;
+  }
+};
+
 // client/src/routes/post/DeleteFolder.ts
 var DeleteFolder = class extends OperationWithPath {
   init() {
@@ -577,14 +602,6 @@ var DeleteFolder = class extends OperationWithPath {
   }
   async execute() {
     return await this.client.fetch(this.request);
-  }
-};
-
-// client/src/routes/OperationWithFile.ts
-var OperationWithFile = class extends OperationWithPath {
-  setFile(filename) {
-    this.request.addQueryParameter("file", filename);
-    return this;
   }
 };
 
@@ -908,6 +925,9 @@ var PostRoutesFactory = class {
   }
   deleteFolder(folderPath) {
     return new DeleteFolder(this.client).init().setPath(folderPath);
+  }
+  deleteFile(folderPath, fileName) {
+    return new DeleteFile(this.client).setPath(folderPath).setFile(fileName).init();
   }
 };
 

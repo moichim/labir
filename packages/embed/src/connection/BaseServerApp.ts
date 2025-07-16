@@ -479,6 +479,10 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                 .folder=${this.folder}
                 .files=${this.files}
                 .onFileClick=${(file: FileInfo) => this.setDetailState(file)}
+                .onChange=${(file: FileInfo) => {
+                    this.initContentFromApi();
+                    this.requestUpdate();
+                }}
             ></folder-files>
 
         </main>`;
@@ -520,12 +524,24 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                 ${this.folder?.may_manage_files_in
                     ? html`<file-edit-dialog
                     slot="header"
+                    variant="primary"
                     .file=${this.file}
                     .onSuccess=${(file: FileInfo) => {
                         this.setDetailState(file);
                     }}
                 ></file-edit-dialog>`
                     : nothing}
+
+
+                ${this.folder?.may_manage_files_in
+                    ? html`<file-delete-dialog
+                        slot="header" 
+                        variant="foreground"
+                        .file=${this.file} 
+                        .folder=${this.folder} 
+                        .onDelete=${() => this.initContentFromApi()}
+                    ></file-delete-dialog>`
+                : nothing}
 
             
             </server-file-detail>

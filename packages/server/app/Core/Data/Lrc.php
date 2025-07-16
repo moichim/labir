@@ -683,5 +683,66 @@ final class Lrc
         $this->writeJson($json);
     }
 
+    /**
+     * Smaže soubor a všechny související soubory (JSON, preview, visual).
+     * @throws \Exception
+     */
+    public function delete(): void
+    {
+        // Zjisti aktuálního uživatele a zkontroluj oprávnění
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity && isset($identity['user']) ? $identity['user'] : null;
+        
+        if (!$this->scanner->access->userMayManageFilesIn($this->path, $user)) {
+            throw new \Exception('You do not have permission to delete files in this folder.', 403);
+        }
+
+        $dir = $this->scanner->getFullPath($this->path);
+        $errors = [];
+
+        // 1. Smaž hlavní LRC soubor
+        $lrcPath = $dir . DIRECTORY_SEPARATOR . $this->fileName;
+        if (is_file($lrcPath)) {
+            if (!@unlink($lrcPath)) {
+                $errors[] = "Failed to delete LRC file: {$this->fileName}";
+            }
+        }
+
+        // 2. Smaž JSON soubor
+        $jsonPath = $this->getJsonPath();
+        if (is_file($jsonPath)) {
+            if (!@unlink($jsonPath)) {
+                $errors[] = "Failed to delete JSON file";
+            }
+        }
+
+        // 3. Smaž preview obrázek
+        if ($this->preview) {
+            $previewFileName = basename(parse_url($this->preview, PHP_URL_PATH));
+            $previewPath = $dir . DIRECTORY_SEPARATOR . $previewFileName;
+            if (is_file($previewPath)) {
+                if (!@unlink($previewPath)) {
+                    $errors[] = "Failed to delete preview image: {$previewFileName}";
+                }
+            }
+        }
+
+        // 4. Smaž visual obrázek
+        if ($this->visual) {
+            $visualFileName = basename(parse_url($this->visual, PHP_URL_PATH));
+            $visualPath = $dir . DIRECTORY_SEPARATOR . $visualFileName;
+            if (is_file($visualPath)) {
+                if (!@unlink($visualPath)) {
+                    $errors[] = "Failed to delete visual image: {$visualFileName}";
+                }
+            }
+        }
+
+        // Pokud nastaly nějaké chyby, vyhoď výjimku
+        if (!empty($errors)) {
+            throw new \Exception('Some files could not be deleted: ' . implode(', ', $errors), 500);
+        }
+    }
+
 
 }

@@ -60,6 +60,7 @@ type Comment = {
     timestamp: number;
     by: {
         name: string;
+        login: string;
         institution: string | null;
         description: string | null;
     };
@@ -518,15 +519,22 @@ declare class CreateFolder extends OperationWithPath<CreateDataType> {
     execute(): Promise<ApiResponseType<CreateDataType>>;
 }
 
+/** A base operation that needs to have a path specified. */
+declare abstract class OperationWithFile<R extends ApiResponseDataType> extends OperationWithPath<R> {
+    setFile(filename: string): this;
+}
+
+type DeleteFileDataType = {};
+declare class DeleteFile extends OperationWithFile<DeleteFileDataType> {
+    init(): this;
+    setLrc(file: File): this;
+    execute(): Promise<ApiResponseType<DeleteFileDataType>>;
+}
+
 type DeleteFolderDataType = {};
 declare class DeleteFolder extends OperationWithPath<DeleteFolderDataType> {
     init(): this;
     execute(): Promise<ApiResponseType<DeleteFolderDataType>>;
-}
-
-/** A base operation that needs to have a path specified. */
-declare abstract class OperationWithFile<R extends ApiResponseDataType> extends OperationWithPath<R> {
-    setFile(filename: string): this;
 }
 
 type FileAddCommentDataType = {
@@ -692,6 +700,7 @@ declare class PostRoutesFactory {
     fileUpdateComment(folderPath: string, filename: string, timestamp: number, message: string): FileUpdateComment;
     fileDeleteComment(folderPath: string, filename: string, timestamp: number): FileDeleteComment;
     deleteFolder(folderPath: string): DeleteFolder;
+    deleteFile(folderPath: string, fileName: string): DeleteFile;
 }
 
 declare class Routes {
