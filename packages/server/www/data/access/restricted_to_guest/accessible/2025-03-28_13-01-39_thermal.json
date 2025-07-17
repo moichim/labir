@@ -1,7 +1,12 @@
 {
     "timestamp": 1743163299890,
-    "analyses": [],
+    "analyses": [
+        "Rectangle 0;rectangle;color:Blue;top:24;left:38;width:93;height:50",
+        "Ellipsis 1;ellipsis;color:Red;top:20;left:61;width:54;height:45"
+    ],
     "uploaded": 1751983411000,
     "tags": [],
-    "comments": []
+    "comments": [],
+    "label": "Popiska souboru, který je velmi velmi velmi dlouhý ale ještě delší a ještě mnohem delší",
+    "description": "P\/rdelka"
 }

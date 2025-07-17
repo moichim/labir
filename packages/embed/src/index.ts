@@ -178,6 +178,8 @@ import "./connection/components/file/FileDeleteDialog";
 import "./connection/components/file/FileCommentsDialog";
 import "./connection/components/file/FileAnalysisStoreButton";
 
+import "./connection/components/file/FileThumbnail";
+
 
 
 

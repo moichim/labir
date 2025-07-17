@@ -1,9 +1,10 @@
 import i18next from "i18next";
-import { LitElement } from "lit";
+import { html, LitElement } from "lit";
 
 import { consume } from "@lit/context";
 import { v4 as uuid } from "uuid";
 import { localeContext } from "../translations/localeContext";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 export abstract class BaseElement extends LitElement {
 
@@ -33,6 +34,10 @@ export abstract class BaseElement extends LitElement {
         i18next.on("languageChanged", (locale) => {
             this._locale = locale;
         })
+    }
+
+    protected i( str: string ): unknown {
+        return html`${unsafeSVG( str )}`;
     }
 
 

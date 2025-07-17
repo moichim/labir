@@ -120,7 +120,7 @@ export class FolderBaseInfo extends ClientConsumer {
         
         <section class="part">
 
-            ${unsafeSVG(this.icon)}
+            ${this.i(this.icon)}
 
             <div class="content">
 

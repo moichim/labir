@@ -1,0 +1,23 @@
+{
+    "timestamp": 1743161792664,
+    "analyses": [
+        "Rectangle 0;rectangle;color:Blue;top:154;left:245;width:551;height:490",
+        "Ellipsis 1;ellipsis;color:Red;top:50;left:437;width:429;height:388",
+        "Rectangle 2;rectangle;color:Lightblue;top:360;left:129;width:376;height:68"
+    ],
+    "uploaded": 1752685902000,
+    "tags": [],
+    "uploadedby": "guest",
+    "comments": [
+        {
+            "message": "Tak a máš to vole. Tady tohle dost bolí.",
+            "timestamp": 1752685923663,
+            "by": "guest"
+        },
+        {
+            "message": "Tak, tohle je dost dost divný.",
+            "timestamp": 1752686216551,
+            "by": "root"
+        }
+    ]
+}

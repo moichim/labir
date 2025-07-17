@@ -24,6 +24,9 @@ export class FolderFiles extends ClientConsumer {
 
     protected icon = icons.image.outline( "icon" );
 
+    @property({type: String})
+    public compact: boolean = false;
+
     public static styles?: CSSResultGroup | undefined = css`
         :host {
             color: var(--thermal-foreground);
@@ -160,88 +163,17 @@ export class FolderFiles extends ClientConsumer {
             : undefined;
 
 
-        return html`<article>
-
-            <file-provider thermal=${file.url} batch="true">
-
-                <header>
-
-                    <div class="text">
-                        <div class="time">${time}</div>
-
-                        ${label ? html`<h1>${label}</h1>` : nothing }
-
-                    </div>
-
-                    <div class="actions">
-
-                        <thermal-btn
-                            variant="primary"
-                            size="sm"
-                            @click=${callback}
-                        >Detail</thermal-btn>
-
-                        ${this.folder.may_manage_files_in
-                            ? html`
-                            <file-edit-dialog 
-                            .file=${file}
-                            .folder=${this.folder}
-                            .onSuccess=${this.onChange}
-                            label=""
-                            plain="true"
-                            variant="background"
-                            size="sm"
-                        ></file-edit-dialog>`
-                        : nothing }
-
-                        ${
-                            this.isLoggedIn || file.comments.length 
-                            ? html`<file-comments-dialog 
-                            .file=${file}
-                            .folder=${this.folder}
-                            .onSuccess=${this.onChange}
-                            label=""
-                            plain="true"
-                            variant="background"
-                            size="sm"
-                            badge="true"
-                        ></file-comments-dialog>`
-                        : nothing }
-
-${this.folder.may_manage_files_in
-                            ? html`
-                        <file-delete-dialog 
-                            .file=${file}
-                            .folder=${this.folder}
-                            .onDelete=${this.onChange}
-                            label=""
-                            plain="true"
-                            variant="background"
-                            size="sm"
-                        ></file-delete-dialog>
-                            `
-                            : nothing
-                        }
-
-                        ${file.analyses.length > 0
-                            ? html`<span style="font-size:.6em; color: var(--thermal-slate);align-self:flex-end">${file.analyses.length} analýzy</span>`
-                            : nothing
-                        }
-
-                    </div>
-
-                    <div class="icons">
-                        ${unsafeSVG( this.icon )}
-                    </div>
-
-                </header>
-
-                <div>
-                    <file-canvas></file-canvas>
-                </div>
-
-            </file-provider>
-        </article>`;
+        return html`
+        
+        <server-file-thumbnail
+            .file=${file}
+            .folder=${this.folder}
+            .onChange=${this.onChange}
+            .onFileClick=${callback}
+            compact=${false}
+        ></server-file-thumbnail>
+        
+        `;
     }
 
     protected render(): unknown {
@@ -256,9 +188,14 @@ ${this.folder.may_manage_files_in
 
         return html`
 
-        <h2 class="list-label">
-            <span><strong>${this.files.length} soubory</strong> ve složce <i>${this.folder.name}</i>:</span>
-        </h2>
+        <div class="bar">
+            <h2 class="list-label">
+                <span><strong>${this.files.length} soubory</strong> ve složce <i>${this.folder.name}</i>:</span>
+            </h2>
+            <div class="display-settings">
+
+            </div>
+        </div>
 
         <registry-provider slug="${slug}" autoclear="true">
             <group-provider slug="${slug}" autoclear="true">

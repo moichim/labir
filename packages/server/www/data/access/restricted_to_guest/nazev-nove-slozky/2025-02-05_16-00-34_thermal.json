@@ -1,0 +1,11 @@
+{
+    "timestamp": 1738771234854,
+    "analyses": [
+        "Rectangle 0;rectangle;color:Blue;top:8;left:31;width:64;height:49",
+        "Ellipsis 1;ellipsis;color:Red;top:35;left:54;width:52;height:55",
+        "Rectangle 2;rectangle;color:Lightblue;top:9;left:40;width:81;height:32"
+    ],
+    "uploaded": 1752686062000,
+    "tags": [],
+    "uploadedby": "guest"
+}

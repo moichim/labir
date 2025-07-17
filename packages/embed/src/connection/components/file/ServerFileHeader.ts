@@ -182,7 +182,7 @@ export class ServerFileHeader extends ClientConsumer {
                 
         <section class="part">
 
-            ${unsafeSVG(this.icon)}
+            ${this.i(this.icon)}
 
             <div class="time-info">
                 <h1>${time}</h1>
