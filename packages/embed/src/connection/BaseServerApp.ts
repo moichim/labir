@@ -1,12 +1,11 @@
-import { provide } from "@lit/context";
-import { BaseAppWithPngExportContext } from "../utils/converters/pngExportContext";
 import Client, { FileInfo, TreeItem } from "@labir/server";
-import { clientContext, currentUserTreeContext, currentUserTreeSetterContext } from "./ClientContext";
-import { property, state } from "lit/decorators.js";
+import { provide } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import { property, state } from "lit/decorators.js";
 import { FolderInfo } from "packages/server/client/dist";
-import { currentFrameContext } from "../hierarchy/providers/context/FileContexts";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
+import { BaseAppWithPngExportContext } from "../utils/converters/pngExportContext";
+import { clientContext, compactContext, compactContextSetter, currentUserTreeContext, currentUserTreeSetterContext, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "./ClientContext";
 
 
 enum STATE {
@@ -101,9 +100,46 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
 
 
+    @property({ type: String, reflect: true })
+    @provide({ context: compactContext })
+    protected compact: boolean = false;
+
+    @provide({ context: compactContextSetter })
+    protected compactSetter: (compact: boolean) => void = (compact: boolean) => {
+        this.compact = compact;
+        this.requestUpdate();
+    };
 
 
+    @property({ type: String, reflect: true })
+    @provide({ context: displayModeContext })
+    protected displayMode: DisplayMode = DisplayMode.GRID;
 
+    @provide({ context: displayModeSetterContext })
+    protected displayModeSetter: (mode: DisplayMode) => void = (mode: DisplayMode) => {
+        this.displayMode = mode;
+        this.requestUpdate();
+    };
+
+    @property({ type: Boolean, reflect: true })
+    @provide({ context: showDiscussionContext })
+    protected showDiscussion: boolean = false;
+
+    @provide({ context: showDiscussionSetterContext })
+    protected showDiscussionSetter: (columns: boolean) => void = (columns: boolean) => {
+        this.showDiscussion = columns;
+        this.requestUpdate();
+    };
+
+    @property({ type: Boolean, reflect: true })
+    @provide({ context: editTagsContext })
+    protected editTags: boolean = false;
+
+    @provide({ context: editTagsSetterContext })
+    protected editTagsSetter: (edit: boolean) => void = (edit: boolean) => {
+        this.editTags = edit;
+        this.requestUpdate();
+    };
 
     /**
      * Inicializace klienta při připojení komponenty
@@ -362,6 +398,10 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
             }
         
         }
+
+        *[slot="pre"] {
+            margin-bottom: var(--thermal-gap);
+        }
     
     `;
 
@@ -412,12 +452,11 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
             <registry-palette-dropdown></registry-palette-dropdown>
         </registry-provider>
         
-        <main class="folder-state base-info-content">
 
-            <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
-        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}></folder-breadcrumb>
+        <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
+        .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)} slot="pre"></folder-breadcrumb>
 
-            <folder-base-info .info=${this.folder} .parents=${this.breadcrumb} .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} slot="pre">
+        <folder-base-info .info=${this.folder} .parents=${this.breadcrumb} .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} slot="pre">
     
                 ${this.folder?.may_manage_folders_in ? html`
                 <folder-add-dialog 
@@ -465,7 +504,21 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
                 
                 ` : nothing}
+
+                ${this.files && this.files.length > 0 ? html`<display-mode-settings
+                    .folder=${this.folder}    
+                ></display-mode-settings>` : nothing}
+
             </folder-base-info>
+
+
+            ${this.files && this.files.length > 0 ? html`<registry-provider slug="${this.path}__list" slot="pre">
+                <registry-histogram expandable="true"></registry-histogram>
+                <registry-range-slider></registry-range-slider>
+                <registry-ticks-bar></registry-ticks-bar>
+            </registry-provider>`
+            : nothing}
+
 
             ${this.subfolders && this.subfolders.length > 0 ? html`<folder-subfolders 
                     .folder=${this.folder}
@@ -480,12 +533,28 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                 .files=${this.files}
                 .onFileClick=${(file: FileInfo) => this.setDetailState(file)}
                 .onChange=${(file: FileInfo) => {
-                    this.initContentFromApi();
+                    // this.initContentFromApi();
+                    if (this._files) {
+                        const idx = this._files.findIndex(f => f.fileName === file.fileName);
+                        if (idx !== -1) {
+                            this._files = [
+                                ...this._files.slice(0, idx),
+                                file,
+                                ...this._files.slice(idx + 1)
+                            ];
+                        }
+                    }
+                    this.requestUpdate();
+                }}
+                .onFileDelete=${(file: FileInfo) => {
+                    if (this._files) {
+                        this._files = this._files.filter(f => f.fileName !== file.fileName);
+                    }
                     this.requestUpdate();
                 }}
             ></folder-files>
 
-        </main>`;
+        `;
     }
 
     protected renderDetailState(): unknown {

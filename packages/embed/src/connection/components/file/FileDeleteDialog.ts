@@ -120,10 +120,9 @@ export class FileDeleteDialog extends ClientConsumer {
 
             <thermal-dialog
                 label="Smazat soubor"
+                button="Ano, smazat"
                 .beforeClose=${async () => {
                 this.error = undefined;
-                console.log("wtf!!!");
-
                 return await this.handleDelete();
             }}
             >

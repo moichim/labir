@@ -6,6 +6,8 @@ import { FolderInfo } from "packages/server/client/dist";
 import { TemplateResult, html, css, CSSResultGroup, nothing, PropertyValues } from "lit";
 import { TimeFormat } from "@labir/core";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { consume } from "@lit/context";
+import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext } from "../../ClientContext";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
@@ -22,8 +24,25 @@ export class FileThumbnail extends ClientConsumer {
     @property({ type: Function })
     public onChange?: (file: FileInfo) => void = () => { };
 
-    @property({ type: String, reflect: true, converter: booleanConverter(false) })
+    @property({ type: Function })
+    public onFileDelete?: (file: FileInfo) => void = () => { };
+
+    @consume({ context: compactContext, subscribe: true })
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
     protected compact: boolean = false;
+
+
+    @property({ type: String, reflect: true })
+    @consume({ context: displayModeContext, subscribe: true })
+    protected displayMode: DisplayMode = DisplayMode.GRID;
+
+    @property({ type: String, reflect: true })
+    @consume({ context: showDiscussionContext, subscribe: true })
+    protected showDiscussion: boolean = false;
+
+    @property({ type: Boolean, reflect: true })
+    @consume({ context: editTagsContext, subscribe: true })
+    public editableTags: boolean = false;
 
     protected icon = icons.image.outline("icon");
 
@@ -31,10 +50,10 @@ export class FileThumbnail extends ClientConsumer {
         if (changedProperties.has('compact')) {
             if (this.compact) {
                 this.classList.add('compact');
-                this.classList.remove( "detailed" );
+                this.classList.remove("detailed");
             } else {
                 this.classList.remove('compact');
-                this.classList.add( "detailed" );
+                this.classList.add("detailed");
             }
         }
     }
@@ -50,7 +69,7 @@ export class FileThumbnail extends ClientConsumer {
         }
 
         return html`
-            <div class="header_text_time">
+            <div class="header_text_time" @click=${() => this.onFileClick(this.file)}>
                 ${time}
             </div>`;
     }
@@ -63,6 +82,18 @@ export class FileThumbnail extends ClientConsumer {
 
         return html`
             <h2><span>${this.file.label}</span></h2>
+        `;
+    }
+
+
+    protected renderDescription(): unknown {
+
+        if (!this.file.description) {
+            return nothing;
+        }
+
+        return html`
+            <p class="description">${this.file.description}</p>
         `;
     }
 
@@ -99,7 +130,7 @@ export class FileThumbnail extends ClientConsumer {
 
     protected renderActionComments(): unknown {
 
-        if (this.file.comments.length > 0 || this.isLoggedIn) {
+        if (this.file.comments.length > 0 || (this.isLoggedIn && this.folder.may_manage_files_in)) {
             return html`<file-comments-dialog 
                 .file=${this.file}
                 .folder=${this.folder}
@@ -125,7 +156,7 @@ export class FileThumbnail extends ClientConsumer {
         return html`<file-delete-dialog 
             .file=${this.file}
             .folder=${this.folder}
-            .onDelete=${this.onChange}
+            .onDelete=${this.onFileDelete}
             label=""
             plain="true"
             variant="background"
@@ -154,11 +185,26 @@ export class FileThumbnail extends ClientConsumer {
             display: block;
             font-size: var(--thermal-fs);
             color: var(--thermal-foreground);
+            height: 100%; /* Přidáno pro výšku */
         }
-
 
         file-provider {
             display: contents;
+        }
+
+        p.description {
+            margin: 0; padding: 0;
+        }
+
+        file-canvas {
+            display: block;
+            flex-grow: 1; /* Přidáno pro vyplnění výšky */
+            min-height: 0; /* Důležité pro správné zkracování */
+        }
+
+        .header_actions_num-analyses {
+            font-size: .6em;
+            color: var(--thermal-slate);
         }
 
         h2 {
@@ -168,13 +214,22 @@ export class FileThumbnail extends ClientConsumer {
             line-height: 1.2;
         }
 
-        :host(.compact) {
+        .header_text {
+            cursor: pointer;
 
+            h2,
+            .header_text_time {
+                transition: color 0.2s ease-in-out;
+            }
+        }
+
+        :host(.compact[displaymode="grid"]) {
             file-edit-dialog,
             file-comments-dialog,
             file-delete-dialog,
             .header_icon,
-            .header_actions_num-analyses {
+            .header_actions_num-analyses,
+            p.description {
                 display: none;
             }
 
@@ -184,7 +239,7 @@ export class FileThumbnail extends ClientConsumer {
                 width: 100%;
                 align-items: center;
                 flex-wrap: nowrap;
-                margin-bottom: .5em;
+                margin-top: .5em;
             }
 
             .header_text {
@@ -192,24 +247,35 @@ export class FileThumbnail extends ClientConsumer {
                 display: flex;
                 align-items: center;
                 gap: .5em;
-                min-width: 0; /* Important for flex item shrinking */
+                min-width: 0;
+
+                cursor: pointer;
+
+                &:hover {
+                    .header_text_time {
+                        color: var(--thermal-primary);
+                    }
+                }
             }
 
             .header_actions {
-                flex-shrink: 0; /* Prevent actions from shrinking */
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                gap: .25em;
+                margin-left: auto; /* Zarovnání doprava */
             }
 
             .header_text_time {
                 white-space: nowrap;
-                flex-shrink: 0; /* Time should not shrink */
+                flex-shrink: 0;
             }
 
             h2 {
-                min-width: 0; /* Allow h2 to shrink */
-                flex-shrink: 1; /* Allow h2 to shrink */
-                overflow: hidden; /* Hide overflow on h2 itself */
+                min-width: 0;
+                flex-shrink: 1;
+                overflow: hidden;
                 font-weight: normal;
-
                 color: var(--thermal-slate);
             }
 
@@ -220,24 +286,42 @@ export class FileThumbnail extends ClientConsumer {
                 white-space: nowrap;
             }
 
+            file-tags {
+                margin-left: auto; /* Tagy vždy doprava */
+            }
         }
 
-        :host(.detailed) {
-
+        :host(.detailed[displaymode="grid"]) {
             border: 1px solid var(--thermal-slate);
-            border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
+            border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
             overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+
+            p.description {
+                display: none;
+                margin: 0; padding: 0;
+            }
+
+            file-canvas {
+                min-height: 0;
+                display: block;
+            }
 
             header {
                 width: 100%;
                 box-sizing: border-box;
                 min-height: 60px;
+                height: auto;
                 background: var(--thermal-background);
                 padding: .5em;
                 display: grid;
                 grid-template-columns: 1fr 1.2em;
-                grid-template-rows: auto auto;
+                grid-template-rows: 1fr 1em;
                 gap: calc(var(--thermal-gap) * 0.5);
+                align-self: stretch;
+                flex-grow: 1;
             }
 
             .header_text {
@@ -246,6 +330,16 @@ export class FileThumbnail extends ClientConsumer {
                 display: flex;
                 flex-direction: column;
                 gap: .25em;
+                align-self: stretch;
+                justify-self: stretch;
+
+                &:hover {
+                    
+                    h2,
+                    .header_text_time {
+                        color: var(--thermal-primary);
+                    }
+                }
             }
 
             .header_icon {
@@ -263,21 +357,111 @@ export class FileThumbnail extends ClientConsumer {
                 display: flex;
                 gap: .25em;
                 align-items: center;
+                height: 1em;
+                justify-content: flex-end; /* Zarovnání doprava */
             }
-
 
             .header_text_time {
                 font-size: .8em;
                 color: var(--thermal-slate-dark);
             }
 
-            .header_actions_num-analyses {
-                font-size: .6em;
-                color: var(--thermal-slate);
+            .file-comments {
+                background: var(--thermal-background);
+                padding: .5em;
+                width: 100%;
+                box-sizing: border-box;
+                file-comments {
+                    border-radius: var(--thermal-radius);
+                    border: 1px solid var(--thermal-slate);
+                    background: var(--thermal-slate-light);
+                    padding: .5em;
+                }
+            }
+
+            file-tags {
+                margin-left: auto; /* Tagy vždy doprava */
             }
 
         }
 
+        :host([displaymode="table"]) {
+            display: table-row;
+            vertical-align: top;
+            border-bottom: .5em solid transparent;
+
+            file-provider {
+                display: contents;
+            }
+
+            main {
+                width: 500px;
+            }
+
+            main,
+            header,
+            file-analysis-table,
+            .file-comments {
+                display: table-cell;
+                vertical-align: top;
+            }
+
+            header {
+                background: var(--thermal-background);
+                border-radius: var(--thermal-radius);
+                box-sizing: border-box;
+                padding: 1em;
+                height: 100%;
+                position: relative;
+
+                padding-bottom: 2em;
+            }
+
+            .header_text {
+                display: flex;
+                flex-direction: column;
+                gap: 1em;
+                min-height: fit-content;
+
+                &:hover {   
+                    h2,
+                    .header_text_time {
+                        color: var(--thermal-primary);
+                    }
+                }
+            }
+
+            .header_icon {
+                display: none;
+            }
+
+            .header_actions {
+                display: flex;
+                gap: .25em;
+                align-items: center;
+                vertical-align: bottom;
+                position: absolute;
+                bottom: 1em;
+                left: 1em;
+                right: 1em;
+                justify-content: flex-end; /* Zarovnání doprava */
+            }
+
+            p.description {
+                font-size: .8em;
+                color: var(--thermal-slate);
+            }
+
+            .file-comments {
+                display: block;
+                height: 100%;
+                width: 300px;
+            }
+
+            file-tags {
+                margin-left: auto; /* Tagy vždy doprava */
+            }
+        }
     `;
 
 
@@ -290,14 +474,24 @@ export class FileThumbnail extends ClientConsumer {
                 batch="true"
                 autoclear="true"
                 role="article"
+                autoHighlight="true"
             >
+
+                <main>
+                    <file-canvas></file-canvas>
+                </main>
+
+
+
                 <header>
 
-                    <div class="header_text">
+                    <div class="header_text" @click=${() => this.onFileClick(this.file)}>
 
                         ${this.renderTime()}
 
                         ${this.renderLabel()}
+
+                        ${this.renderDescription()}
 
                     </div>
 
@@ -311,18 +505,43 @@ export class FileThumbnail extends ClientConsumer {
 
                         ${this.renderActionEdit()}
 
-                        ${this.renderActionComments()}
+                        ${!this.showDiscussion ? this.renderActionComments() : nothing}
 
                         ${this.renderActionDelete()}
 
                         ${this.renderNumAnalyses()}
+
+                        <file-range-propagator></file-range-propagator>
+
+                        <file-tags
+                            .file=${this.file}
+                            .folder=${this.folder}
+                            .onChange=${this.onChange}
+                            inline="true"
+                            .editable="${this.editableTags}"
+                            size="sm"
+                        ></file-tags>
                     </div>
 
                 </header>
 
-                <main>
-                    <file-canvas></file-canvas>
-                </main>
+
+                <file-analysis-table></file-analysis-table>
+
+                
+                ${this.showDiscussion === true
+                ? html`
+                    <div class="file-comments">
+                        <file-comments
+                            .file=${this.file}
+                            .folder=${this.folder}
+                            .onChange=${this.onChange}
+                            style="height: 300px;"
+                        ></file-comments>
+                    </div>`
+                : nothing
+            }
+
 
             </file-provider>
         `;

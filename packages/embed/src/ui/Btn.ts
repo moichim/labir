@@ -11,23 +11,23 @@ export type BtnSizes = "sm" | "md" | "lg" | "xl";
 @customElement( "thermal-btn" )
 export class ThermalBtn extends BaseElement {
 
-    @property({ type: String, reflect: true })
-    public varaiant: BtnVariants = "primary";
+    @property({ type: String, attribute: true, reflect: true })
+    public variant?: BtnVariants;
 
-    @property({ type: String, reflect: true })
-    public size: BtnSizes = "md";
+    @property({ type: String, attribute: true, reflect: true })
+    public size?: BtnSizes;
 
-    @property({type: String, reflect: true})
+    @property({type: String})
     public icon?: string;
 
-    @property({type: String, reflect: true})
+    @property({type: String})
     public iconStyle:string = "outline";
 
-    @property({type: String, reflect: true})
-    public disabled: boolean = false;
+    @property({type: String})
+    public disabled?: boolean;
 
-    @property({type: String, reflect: true})
-    public plain: boolean = false;
+    @property({type: Boolean, attribute: true, reflect: true})
+    public plain?: boolean;
 
     public static styles = css`
         :host {
@@ -55,6 +55,21 @@ export class ThermalBtn extends BaseElement {
             transition: all .2s ease-in-out;
             flex-grow: 0;
             width: fit-content;
+        }
+
+        /* Default styling when no attributes are present */
+        :host(:not([variant])) {
+            background-color: var(--thermal-slate-light);
+            color: var(--thermal-foreground);
+        }
+
+        :host(:not([size])) {
+            font-size: calc( var( --thermal-fs ) * .8);
+            padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
+        }
+
+        :host(:not([plain])) {
+            border: 1px solid var( --thermal-slate );
         }
 
         svg,

@@ -1,6 +1,10 @@
 {
     "timestamp": 1739794416591,
-    "analyses": [],
+    "analyses": [
+        "Rectangle 0;rectangle;color:Blue;top:27;left:34;width:85;height:67"
+    ],
     "uploaded": 1750857577000,
-    "tags": []
+    "tags": [
+        "tag1"
+    ]
 }

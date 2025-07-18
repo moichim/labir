@@ -185,4 +185,17 @@ export class ThermalDialog extends LitElement {
         `
     }
 
+    public async closeFromTheOutside() {
+
+        if ( this.beforeClose ) {
+            const result = await this.beforeClose();
+            if ( result ) {
+                this.setClose();
+            }
+        } else {
+            this.setClose();
+        }
+
+    }
+
 }

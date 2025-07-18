@@ -77,6 +77,7 @@ export class FolderBaseInfo extends ClientConsumer {
             grid-column: 1 / -1;
             display: flex;
             gap: .5em;
+            align-items: center;
         }
 
         .actions:not(:has(*)) {

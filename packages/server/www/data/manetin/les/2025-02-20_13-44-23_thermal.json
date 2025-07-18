@@ -2,5 +2,12 @@
     "timestamp": 1740055463494,
     "analyses": [],
     "uploaded": 1750857576000,
-    "tags": ["tag1"]
+    "tags": [],
+    "comments": [
+        {
+            "message": "Prosím, přidej sem nějaký komentář",
+            "timestamp": 1752836298896,
+            "by": "root"
+        }
+    ]
 }

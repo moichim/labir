@@ -2,5 +2,16 @@
     "timestamp": 1739795230214,
     "analyses": [],
     "uploaded": 1750857576000,
-    "tags": ["tag1", "tag2"]
+    "tags": [
+        "tag2"
+    ],
+    "comments": [
+        {
+            "message": "Tady bych chtěl vidět zobrazený nějaký komentář",
+            "timestamp": 1752836281352,
+            "by": "root"
+        }
+    ],
+    "label": "Ježišmarjá, tohle mi tedy ale vadí!",
+    "description": "Ale což, něco tu bude"
 }

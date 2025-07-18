@@ -1,7 +1,7 @@
 import { customElement, state } from "lit/decorators.js";
 import { Identity } from "packages/server/client/src/responseEntities";
 import { ClientConsumer } from "../ClientConsumer";
-import { html, nothing, TemplateResult } from "lit";
+import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 
 @customElement("labir-user-button")
@@ -18,14 +18,71 @@ export class UserButton extends ClientConsumer {
         });
     }
 
+    public static styles?: CSSResultGroup | undefined = css`
+
+        :host {
+            font-size: var( --thermal-fs );
+            color: var( --thermal-foreground );
+        }
+
+        .login-form {
+            display: flex;
+            gap: 1em;
+            flex-wrap: wrap;
+            width: 100%;
+            box-sizing: border-box;
+            justify-content: stretch;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            padding: 0.5em;
+            border: 1px solid var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            box-sizing: border-box;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .login-error {
+            color: red;
+            padding-top: .5em;
+            font-size: .8em;
+        }
+    `;
+
+
+    protected handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            // Najdeme thermal-dialog v shadowRoot
+            const dialog = this.shadowRoot?.querySelector('thermal-dialog') as ThermalDialog;
+            if (dialog) {
+                // Zavoláme close metodu na dialogu
+                dialog.closeFromTheOutside();
+            }
+        }
+    }
 
     protected renderLoginForm(): TemplateResult {
         return html`
-        <div style="display: flex; gap: 10px; flex-wrap: wrap: width: 100%;">
-            <input type="text" name="login" placeholder="Login" required></input>
-            <input type="password" name="password" placeholder="Heslo" required></input>
+        <div class="login-form">
+            <input 
+                type="text" 
+                name="login" 
+                placeholder="Login" 
+                required
+                @keydown=${this.handleKeyDown}
+            ></input>
+            <input 
+                type="password" 
+                name="password" 
+                placeholder="Heslo" 
+                required
+                @keydown=${this.handleKeyDown}
+            ></input>
         </div>
-        ${this.message ? html`<div style="color: red;">${this.message}</div>` : nothing}
+        ${this.message ? html`<div class="login-error">${this.message}</div>` : nothing}
         `;
     }
 

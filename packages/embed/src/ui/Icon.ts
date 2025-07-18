@@ -9,7 +9,7 @@ export class ThermalIcon extends BaseElement {
 
 
     @property({ type: String, reflect: true })
-    public i?: string;
+    public icon?: string;
 
     @property({ type: String, reflect: true })
     public variant?: string;
@@ -42,15 +42,15 @@ export class ThermalIcon extends BaseElement {
     protected updateIcon(): void {
 
         if (
-            (this.i === undefined || this.i.trim() === "")
+            (this.icon === undefined || this.icon.trim() === "")
             || (this.variant === undefined || this.variant.trim() === "")
         ) {
             this.element = undefined;
             return;
         } else {
 
-            const icon = this.i && this.i.trim() !== ""
-                ? this.i
+            const icon = this.icon && this.icon.trim() !== ""
+                ? this.icon
                 : false;
 
             if (icon && icon in icons) {

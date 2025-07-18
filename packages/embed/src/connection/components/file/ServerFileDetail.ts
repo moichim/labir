@@ -136,6 +136,13 @@ export class ServerFileDetail extends ClientConsumer {
 
             <section class="section section__server">
 
+                <file-tags
+                    .file=${this.file}
+                    .folder=${this.folder}
+                    .onChange=${this.onChange}
+                    .editable="${this.folder.may_manage_files_in}"
+                ></file-tags>
+
                 <file-comments
                     .file=${this.file}
                     .folder=${this.folder}

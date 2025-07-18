@@ -2,5 +2,7 @@
     "timestamp": 1741263225889,
     "analyses": [],
     "uploaded": 1750857577000,
-    "tags": []
+    "tags": [
+        "tag1"
+    ]
 }

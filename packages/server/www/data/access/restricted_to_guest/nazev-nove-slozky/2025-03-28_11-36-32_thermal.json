@@ -10,14 +10,19 @@
     "uploadedby": "guest",
     "comments": [
         {
-            "message": "Tak a máš to vole. Tady tohle dost bolí.",
-            "timestamp": 1752685923663,
-            "by": "guest"
-        },
-        {
             "message": "Tak, tohle je dost dost divný.",
             "timestamp": 1752686216551,
             "by": "root"
+        },
+        {
+            "message": "Tohle je dost divná věc. Tady potřebuji mít termogram něčeho, co se zobrazáí přímo v místě.",
+            "timestamp": 1752827145682,
+            "by": "guest"
+        },
+        {
+            "message": "Ale jak si to představuješ?",
+            "timestamp": 1752827158118,
+            "by": "guest"
         }
     ]
 }

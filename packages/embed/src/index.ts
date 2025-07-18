@@ -34,6 +34,7 @@ Author: ${author}`);
 import "./controls/file/analysis/chart/chart";
 
 // 1. UI components
+import "./ui/Btn";
 import "./ui/Dialog";
 import "./ui/Button";
 import "./ui/Dropdown";
@@ -42,8 +43,8 @@ import "./ui/App";
 import "./ui/Field";
 import "./ui/Loading";
 import "./ui/Spinner";
-import "./ui/Btn";
 import "./ui/Icon";
+import "./ui/Radio";
 
 
 
@@ -167,6 +168,8 @@ import "./connection/components/folder/FolderAddDialog";
 import "./connection/components/folder/FolderDeleteDialog";
 import "./connection/components/folder/FolderUploadDialog";
 import "./connection/components/folder/FolderEditDialog";
+import "./connection/components/folder/CompactToggle";
+import "./connection/components/folder/DisplayMode";
 
 import "./connection/components/file/ServerFileDetail";
 import "./connection/components/file/ServerFileHeader";
@@ -177,7 +180,7 @@ import "./connection/components/file/FileComment";
 import "./connection/components/file/FileDeleteDialog";
 import "./connection/components/file/FileCommentsDialog";
 import "./connection/components/file/FileAnalysisStoreButton";
-
+import "./connection/components/file/FileTags";
 import "./connection/components/file/FileThumbnail";
 
 

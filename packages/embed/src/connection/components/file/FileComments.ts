@@ -89,8 +89,6 @@ export class FileComments extends ClientConsumer {
 
     protected render(): unknown {
 
-        this.log("Rendering file comments for file:", this.file.comments);
-
         return html`
 
             <div class="list">

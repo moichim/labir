@@ -49,6 +49,12 @@ export class LoginForm extends ClientConsumer {
 
     }
 
+    protected handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Enter' && this.mayLogIn) {
+            event.preventDefault();
+            this.doLoginInternal();
+        }
+    }
 
     /** 
      * The main operation that performs the request. 
@@ -149,6 +155,7 @@ export class LoginForm extends ClientConsumer {
                     placeholder="Login" 
                     required 
                     @input=${(event: InputEvent) => this.validateFieldInput(event, "login")}
+                    @keydown=${this.handleKeyDown}
                 ></input>
 
                 <input 
@@ -157,6 +164,7 @@ export class LoginForm extends ClientConsumer {
                     placeholder="Heslo" 
                     required 
                     @input=${(event: InputEvent) => this.validateFieldInput(event, "password")}
+                    @keydown=${this.handleKeyDown}
                 ></input>
 
                 ${this.error

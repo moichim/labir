@@ -2,5 +2,14 @@
     "timestamp": 1744212511057,
     "analyses": [],
     "uploaded": 1750857577000,
-    "tags": []
+    "tags": [
+        "tag1"
+    ],
+    "comments": [
+        {
+            "message": "Tady je nějaká velká divnost",
+            "timestamp": 1752835646403,
+            "by": "root"
+        }
+    ]
 }

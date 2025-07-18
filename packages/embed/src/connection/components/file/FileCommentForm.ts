@@ -130,6 +130,16 @@ export class FileCommentForm extends ClientConsumer {
         this.message = target.value;
     }
 
+    protected handleKeyDown(event: KeyboardEvent): void {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            const canSubmit = this.message.trim().length >= 3;
+            if (canSubmit) {
+                this.handleSubmit(event);
+            }
+        }
+    }
+
     protected mayManage(): boolean {
 
         // Pookud uživatel smí spravovat soubory či složky v dané složce a pokud je zároveň autorem komentáře, může jej spravovat
@@ -164,6 +174,7 @@ export class FileCommentForm extends ClientConsumer {
                         placeholder=${isEditing ? "Upravte komentář..." : "Napište komentář..."}
                         .value=${this.message}
                         @input=${this.handleMessageChange}
+                        @keydown=${this.handleKeyDown}
                         required
                     ></textarea>
                     

@@ -5,13 +5,14 @@ import { classMap } from "lit/directives/class-map.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { BaseElement } from "../hierarchy/BaseElement";
+import { BtnSizes, BtnVariants } from "./Btn";
 
 @customElement("thermal-dropdown")
 export class ThermalDropdown extends BaseElement {
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
-        mode: "open"
+        // mode: "open"
     }
 
     @queryAssignedElements({ slot: 'option' })
@@ -22,36 +23,37 @@ export class ThermalDropdown extends BaseElement {
     protected optionsRef: Ref<HTMLButtonElement> = createRef();
 
     @property({ type: String, reflect: true })
-    open: string = "close";
+    isOpen: string = "close";
 
     @property({ type: String, reflect: true, attribute: true })
     @state()
-    interactive: "on"|"off" = "on";
+    interactive: "on" | "off" = "on";
 
-    @state()
-    @property({
-        type: String,
-        reflect: true,
-        attribute: true
-    })
-    public variant?: string;
+    @property({ type: String, reflect: true})
+    public variant?: BtnVariants;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public size?: BtnSizes;
+
+    @property({ type: String })
+    public plain?: boolean;
 
     setOpen() {
-        this.open = "open";
+        this.isOpen = "open";
     }
 
     setClose() {
-        this.open = "close";
+        this.isOpen = "close";
     }
 
     toggle() {
-        if ( this.interactive === "off" ) {
+        if (this.interactive === "off") {
             return;
         }
-        if (this.open === "open")
-            this.open = "close";
+        if (this.isOpen === "open")
+            this.isOpen = "close";
         else
-            this.open = "open";
+            this.isOpen = "open";
     }
 
     connectedCallback(): void {
@@ -98,7 +100,7 @@ export class ThermalDropdown extends BaseElement {
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
 
-        if (name === "open") {
+        if (name === "isopen") {
             if (value === "open") {
                 this.optionsRef.value?.classList.add("dropdown-options__show");
                 this.dropdownRef.value?.classList.add("dropdown__open");
@@ -213,12 +215,13 @@ export class ThermalDropdown extends BaseElement {
         return html`
 
             <div class="dropdown" ${ref(this.dropdownRef)}>
-
-                <thermal-button 
-                    class="${classMap(invokerClasses)}" 
+                <thermal-btn 
                     ${ref(this.invokerRef)} 
+                    class="${classMap(invokerClasses)}" 
                     @click=${this.toggle.bind(this)} 
-                    variant="${ifDefined( this.variant )}" 
+                    variant=${ifDefined(this.variant)}
+                    size=${ifDefined(this.size)}
+                    ?plain=${this.plain}
                     interactive="${this.interactive === "on" ? "true" : "false"}"
                     part="invoker"
                 >
@@ -227,27 +230,23 @@ export class ThermalDropdown extends BaseElement {
                             <div>Dropdown</div>
                         </slot>
                         <div class="dropdown-invoker-wrapper-icon">
-
-                        ${this.open === "close"
-
-                ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        ${this.isOpen === "close"
+                            ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                             </svg>`
-                : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                             </svg>`
-            }
+                        }
                         </div>
                     </div>
-                </thermal-button>
-
+                </thermal-btn>
                 <div class="clicker" @click=${this.setClose}></div>
                 <div class="dropdown-options" ${ref(this.optionsRef)} >
                     <slot name="option"></slot>
                 </div>
             
             </div>
-        
         `;
 
     }

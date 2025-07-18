@@ -15,10 +15,10 @@ export class FileEditDialog extends ClientConsumer {
     public variant?: BtnVariants;
 
     @property({ type: String, reflect: true })
-    public size: BtnSizes = "sm";
+    public size?: BtnSizes = "sm";
 
     @property({ type: String })
-    public plain: boolean = false;
+    public plain?: boolean;
 
     @property({ type: Object })
     public file!: FileInfo;
