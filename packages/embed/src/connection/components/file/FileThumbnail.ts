@@ -481,8 +481,6 @@ export class FileThumbnail extends ClientConsumer {
                     <file-canvas></file-canvas>
                 </main>
 
-
-
                 <header>
 
                     <div class="header_text" @click=${() => this.onFileClick(this.file)}>
@@ -503,6 +501,11 @@ export class FileThumbnail extends ClientConsumer {
 
                         ${this.renderActionDetail()}
 
+                        <file-range-propagator 
+                            variant="${this.compact ? "default" : "background"}"
+                            .plain="true"
+                        ></file-range-propagator>
+
                         ${this.renderActionEdit()}
 
                         ${!this.showDiscussion ? this.renderActionComments() : nothing}
@@ -510,8 +513,6 @@ export class FileThumbnail extends ClientConsumer {
                         ${this.renderActionDelete()}
 
                         ${this.renderNumAnalyses()}
-
-                        <file-range-propagator></file-range-propagator>
 
                         <file-tags
                             .file=${this.file}

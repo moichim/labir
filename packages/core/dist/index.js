@@ -4219,7 +4219,7 @@ var ThermalDomFactory = class _ThermalDomFactory {
     container.classList.add("thermalCanvasWrapper");
     container.style.position = "relative";
     container.style.userSelect = "none";
-    container.part = "thermal-canvas-container___";
+    container.part = "thermal-canvas-wrapper";
     return container;
   }
   static createCanvas() {
@@ -4460,7 +4460,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   }
   async draw() {
     this.renderCount += 1;
-    console.log("Rendering", this.instance.fileName, this.renderCount);
     const paletteColors = this.getPalette();
     try {
       const analysis = this.instance.analysis.value.map((a) => {

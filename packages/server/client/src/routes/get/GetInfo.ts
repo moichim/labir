@@ -1,4 +1,4 @@
-import { BreadcrumbItem, FolderInfo } from "../../responseEntities";
+import { BreadcrumbItem, FolderInfo, TagDefinition } from "../../responseEntities";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
@@ -7,6 +7,9 @@ export type GetInfoDataType = {
     folder: FolderInfo,
     subfolders: false | {
         [index: string]: FolderInfo
+    },
+    tags: {
+        [index: string]: TagDefinition
     }
 }
 

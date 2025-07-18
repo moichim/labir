@@ -170,6 +170,7 @@ import "./connection/components/folder/FolderUploadDialog";
 import "./connection/components/folder/FolderEditDialog";
 import "./connection/components/folder/CompactToggle";
 import "./connection/components/folder/DisplayMode";
+import "./connection/components/folder/FolderTagsFilter";
 
 import "./connection/components/file/ServerFileDetail";
 import "./connection/components/file/ServerFileHeader";

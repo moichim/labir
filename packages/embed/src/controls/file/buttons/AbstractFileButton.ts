@@ -1,8 +1,19 @@
 import { css, CSSResultGroup, html } from "lit";
+import { property } from "lit/decorators.js";
 import { createRef, ref } from "lit/directives/ref.js";
+import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
 export abstract class AbstractFileButton extends FileConsumer {
+
+    @property({ type: String, reflect: false })
+    public variant?: BtnVariants;
+
+    @property({ type: String, reflect: true })
+    public size?: BtnSizes = "sm";
+
+    @property({ type: Boolean })
+    public plain?: boolean;
 
     protected ref = createRef<HTMLElement>();
 
@@ -14,9 +25,9 @@ export abstract class AbstractFileButton extends FileConsumer {
 
     abstract leave(): void;
 
-    public onInstanceCreated(): void {}
+    public onInstanceCreated(): void { }
 
-    public onFailure(): void {}
+    public onFailure(): void { }
 
     static styles?: CSSResultGroup | undefined = css`
         slot {
@@ -41,7 +52,7 @@ export abstract class AbstractFileButton extends FileConsumer {
     `;
 
     protected render(): unknown {
-            return html`<slot 
+        return html`<slot 
                 @click=${this.action} 
                 @mouseenter=${this.enter}
                 @focus=${this.enter}
@@ -49,8 +60,13 @@ export abstract class AbstractFileButton extends FileConsumer {
                 @blur=${this.leave}
                 ${ref(this.ref)}
             >
-                <button class="default">${this.getDefaultLabel()}</button>
+                <thermal-btn 
+                    variant=${this.variant || "default"}
+                    size=${this.size || "sm"}
+                    plain="${this.plain || false}"
+                    class="default"
+                >${this.getDefaultLabel()}</thermal-btn>
             </slot>`;
-        }
+    }
 
 }

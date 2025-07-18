@@ -154,14 +154,7 @@ export class FolderFiles extends ClientConsumer {
         </div>
         -->
 
-        <registry-provider slug="${slug}" autoclear="true">
             <group-provider slug="${slug}" autoclear="true">
-
-                <registry-histogram expandable="true"></registry-histogram>
-
-                <registry-range-slider></registry-range-slider>
-                <registry-ticks-bar></registry-ticks-bar>
-
 
                 <main class="layout">
 
@@ -174,8 +167,7 @@ export class FolderFiles extends ClientConsumer {
                 </section>
 
                 </main>
-            </group-provider>
-        </registry-provider>`;
+            </group-provider>`;
     }
 
 

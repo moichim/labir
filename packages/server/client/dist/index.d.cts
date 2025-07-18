@@ -281,6 +281,9 @@ type GetInfoDataType = {
     subfolders: false | {
         [index: string]: FolderInfo;
     };
+    tags: {
+        [index: string]: TagDefinition;
+    };
 };
 declare class GetInto extends OperationWithPath<GetInfoDataType> {
     init(): this;

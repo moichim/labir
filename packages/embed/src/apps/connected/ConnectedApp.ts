@@ -129,8 +129,18 @@ export class ConnectedApp extends BaseServerApp {
 
 
     protected render(): unknown {
+
+        const slug = [
+            this.path,
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+            this.folder?.slug || "unknown_folder",
+            this.file?.fileName || "unknown_file",
+        ].join("__");
+
+
         return html`
         <manager-provider>
+            <registry-provider slug="${slug}" autoclear="true">
             <thermal-app 
                 label="${this.label}"
                 showfullscreen="true"
@@ -152,6 +162,7 @@ export class ConnectedApp extends BaseServerApp {
                 </footer>
 
             </thermal-app>
+            </registry-provider>
         </manager-provider>
         `;
     }

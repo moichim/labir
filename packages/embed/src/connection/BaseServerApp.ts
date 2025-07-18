@@ -2,10 +2,10 @@ import Client, { FileInfo, TreeItem } from "@labir/server";
 import { provide } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { property, state } from "lit/decorators.js";
-import { FolderInfo } from "packages/server/client/dist";
+import { FolderInfo, TagDefinition } from "packages/server/client/dist";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { BaseAppWithPngExportContext } from "../utils/converters/pngExportContext";
-import { clientContext, compactContext, compactContextSetter, currentUserTreeContext, currentUserTreeSetterContext, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "./ClientContext";
+import { clientContext, compactContext, compactContextSetter, currentUserTreeContext, currentUserTreeSetterContext, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, tagsFilterContext, tagsFilterSetterContext } from "./ClientContext";
 
 
 enum STATE {
@@ -95,6 +95,11 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     public get files(): FileInfo[] | undefined { return this._files; }
 
     @state()
+    private _tags?: {
+        [index: string]: TagDefinition;
+    }
+
+    @state()
     private _file?: FileInfo;
     public get file(): FileInfo | undefined { return this._file; }
 
@@ -138,6 +143,21 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     @provide({ context: editTagsSetterContext })
     protected editTagsSetter: (edit: boolean) => void = (edit: boolean) => {
         this.editTags = edit;
+        this.requestUpdate();
+    };
+
+
+    @provide({ context: tagsFilterContext })
+    @property({ type: String, reflect: true, converter: {
+        fromAttribute: (value: string) => value.split(",").map(tag => tag.trim()),
+        toAttribute: (value: string[]) => value.join(",")
+    }})
+    public tagsFilter: string[] = [];
+
+    @property({ type: Function })
+    @provide({ context: tagsFilterSetterContext })
+    protected tagsFilterSetter: (tags: string[]) => void = (tags: string[]) => {
+        this.tagsFilter = tags;
         this.requestUpdate();
     };
 
@@ -208,10 +228,17 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
                 if ( result.data.folder.lrc_count > 0 ) {
 
-                    const files = await this.client.routes.get.files(path)
-                        .execute();
+                    const filesRequest = this.client.routes.get.files( path );
 
-                    console.log( files );
+                    if ( this.tagsFilter && this.tagsFilter.length > 0 ) {
+                        this.tagsFilter.forEach( tag => filesRequest.addTag(tag) );
+                    }
+
+                    const files = await filesRequest.execute();
+
+                    console.log( files.data?.tags );
+
+                    this._tags = files.data?.tags ?? {};
 
                     this._files = files.data?.files;
 
@@ -448,9 +475,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
 
         return html`
-        <registry-provider slug="${this.path}__list" slot="bar-persistent">
-            <registry-palette-dropdown></registry-palette-dropdown>
-        </registry-provider>
+        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
         
 
         <folder-breadcrumb .breadcrumb=${this.breadcrumb ?? []} 
@@ -509,14 +534,31 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                     .folder=${this.folder}    
                 ></display-mode-settings>` : nothing}
 
+                <folder-tags-filter
+                    .folder=${this.folder}
+                    .tags=${this._tags}
+                    .onTagClick=${(tag: TagDefinition) => {
+
+                        if ( this.tagsFilter.includes(tag.slug) ) {
+                            this.tagsFilter = this.tagsFilter.filter(t => t !== tag.slug);
+                        } else {
+                            this.tagsFilter.push( tag.slug );
+                        }
+
+                        this.requestUpdate();
+                        this.initContentFromApi();
+
+                    }}>
+                </folder-tags-filter>
+
             </folder-base-info>
 
 
-            ${this.files && this.files.length > 0 ? html`<registry-provider slug="${this.path}__list" slot="pre">
+            ${this.files && this.files.length > 0 ? html`<div slot="pre">
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
-            </registry-provider>`
+            </div>`
             : nothing}
 
 
@@ -554,6 +596,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                 }}
             ></folder-files>
 
+
         `;
     }
 
@@ -588,7 +631,7 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
                     this.setDetailState(file);
                     this.requestUpdate();
                 }}
-
+                style="margin-top: -1em"
             >
                 ${this.folder?.may_manage_files_in
                     ? html`<file-edit-dialog

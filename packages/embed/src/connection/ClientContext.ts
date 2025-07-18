@@ -30,3 +30,7 @@ export const showDiscussionSetterContext = createContext<(columns: boolean) => v
 export const editTagsContext = createContext<boolean>( "edit-tags-context" );
 
 export const editTagsSetterContext = createContext<(edit: boolean) => void>( "edit-tags-setter-context" );
+
+export const tagsFilterContext = createContext<string[]>( "tags-filter-context" );
+
+export const tagsFilterSetterContext = createContext<(tags: string[]) => void>( "tags-filter-setter-context" );
