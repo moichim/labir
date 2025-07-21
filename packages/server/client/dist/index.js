@@ -1,5 +1,15 @@
+// client/src/utils/callbacksManager.ts
+var CallbacksManager = class extends Map {
+  /** @deprecated use set method instead */
+  add(key, callback) {
+    this.set(key, callback);
+  }
+  call(...args) {
+    this.forEach((fn) => fn(...args));
+  }
+};
+
 // client/src/authentication/Auth.ts
-import { CallbacksManager } from "@labir/core";
 var Auth = class {
   constructor(client) {
     this.client = client;
@@ -10,9 +20,9 @@ var Auth = class {
   isLoggedIn() {
     return this.identity !== void 0;
   }
-  login(identity) {
+  login(identity, userFolders) {
     this.identity = identity;
-    this.onIdentity.call(this.identity);
+    this.onIdentity.call(this.identity, userFolders);
   }
   logout() {
     this.identity = void 0;
@@ -222,9 +232,8 @@ var GetConnect = class extends Operation {
   async execute() {
     const response = await this.client.fetch(this.request);
     if (response.success) {
-      const typedResponse = response;
-      if (typedResponse.data.identity !== false) {
-        this.client.auth.login(typedResponse.data.identity);
+      if (response.data.identity !== false) {
+        this.client.auth.login(response.data.identity, response.data.userFolders);
       }
     }
     return response;
@@ -675,8 +684,7 @@ var Login = class extends Operation {
   async execute() {
     const response = await this.client.fetch(this.request);
     if (response.success) {
-      const typedResponse = response;
-      this.client.auth.login(typedResponse.data.login);
+      this.client.auth.login(response.data.login, response.data.usersFolders);
     }
     return response;
   }
@@ -1071,7 +1079,6 @@ var Entities = class {
 };
 
 // client/src/Client.ts
-import { CallbacksManager as CallbacksManager2 } from "@labir/core";
 var Client = class {
   /** 
    * The core server URL ending with a slash */
@@ -1130,10 +1137,10 @@ var Client = class {
    * Needs to be set to `true` before any requests are made (with the exception of the `connect()` route).
    */
   connected = false;
-  onConnection = new CallbacksManager2();
-  onResult = new CallbacksManager2();
+  onConnection = new CallbacksManager();
+  onResult = new CallbacksManager();
   activeRequests = 0;
-  onLoading = new CallbacksManager2();
+  onLoading = new CallbacksManager();
   get loading() {
     return this.activeRequests > 0;
   }

@@ -203,5 +203,31 @@ export const en: Translation = {
     colourpalette: "Colour palette",
     palettehint: "Use the menu to change the colour palette.",
 
-    remotefoldersbrowser: "Remote folders browser"
+    remotefoldersbrowser: "Remote folders browser",
+
+    server: "Server",
+    networklog: "Network Log",
+    editfile: "Edit File",
+    editfolder: "Edit Folder",
+    editcomment: "Edit Comment",
+    user: "User",
+    deletefile: "Delete File",
+    deletefolder: "Delete Folder",
+    deletecomment: "Delete Comment",
+    savecomment: "Save Comment",
+    addcomment: "Add Comment",
+    savechanges: "Save Changes",
+    uploadfile: "Upload File",
+    compactview: "Compact View",
+    showdiscussion: "Show Discussion",
+    edittags: "Edit Tags",
+    connectioninformation: "Connection Information",
+    serverurl: "Server URL",
+    servername: "Server Name",
+    login: "Login",
+    logout: "Logout",
+    password: "Password",
+    logoutmessage: "Are you sure you want to log out?",
+    loginerror: "Unable to log in.",
+    accessibletologgedinusers: "This page is accessible only to logged-in users."
 }

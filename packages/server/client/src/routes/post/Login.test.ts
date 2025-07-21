@@ -17,6 +17,8 @@ describe( "PostLogin", () => {
 
         const response = await login.execute();
 
+        console.log( response.data );
+
         expect( response.success ).toBe( true );
 
         expect( response.data ).toHaveProperty("login");

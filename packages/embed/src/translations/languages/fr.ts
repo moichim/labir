@@ -205,5 +205,32 @@ export const fr: Translation = {
     colourpalette: "Palette",
     palettehint: "Utilisez le menu pour changer le palette.",
 
-    remotefoldersbrowser: "Navigateur de dossiers distants"
+    remotefoldersbrowser: "Navigateur de dossiers distants",
+
+
+    server: "Serveur",
+    networklog: "Journal réseau",
+    editfile: "Modifier le fichier",
+    editfolder: "Modifier le dossier",
+    editcomment: "Modifier le commentaire",
+    user: "Utilisateur",
+    deletefile: "Supprimer le fichier",
+    deletefolder: "Supprimer le dossier",
+    deletecomment: "Supprimer le commentaire",
+    savecomment: "Enregistrer le commentaire",
+    addcomment: "Ajouter un commentaire",
+    savechanges: "Enregistrer les modifications",
+    uploadfile: "Téléverser un fichier",
+    compactview: "Vue compacte",
+    showdiscussion: "Afficher la discussion",
+    edittags: "Modifier les tags",
+    connectioninformation: "Informations de connexion",
+    serverurl: "URL du serveur",
+    servername: "Nom du serveur",
+    login: "Connexion",
+    logout: "Déconnexion",
+    password: "Mot de passe",
+    logoutmessage: "Êtes-vous sûr de vouloir vous déconnecter ?",
+    loginerror: "Impossible de se connecter.",
+    accessibletologgedinusers: "Cette page est accessible uniquement aux utilisateurs connectés."
 }

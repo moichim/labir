@@ -244,6 +244,7 @@ export class FileAnalysisComplex extends FileConsumer {
             box-sizing: border-box;
             width: 100%;
             height: 100%;
+            text-align: center;
         }
 
         .graph {

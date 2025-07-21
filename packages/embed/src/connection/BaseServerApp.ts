@@ -12,6 +12,7 @@ enum STATE {
     LOADING,
     POSTER,
     CUSTOM,
+    USER,
     FOLDER,
     DETAIL
 }
@@ -81,6 +82,9 @@ export abstract class BaseServerApp extends BaseAppWithPngExportContext {
     private _breadcrumb: BreadcrumbItem[] = [];
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
 
+    @state()
+    private _userFolders?: FolderInfo[];
+    public get userFolders(): FolderInfo[] | undefined { return this._userFolders; }
 
     @state()
     private _folder?: FolderInfo;

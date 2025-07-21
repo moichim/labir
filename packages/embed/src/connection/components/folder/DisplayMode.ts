@@ -4,6 +4,8 @@ import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "../../ClientContext";
 import { FolderInfo } from "@labir/server";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement( "display-mode-settings" )
 export class DisplayModeElement extends BaseElement {
@@ -114,19 +116,19 @@ export class DisplayModeElement extends BaseElement {
             ></thermal-btn>
 
             ${this.displayMode === DisplayMode.GRID ? this.renderToggle(
-                "Kompaktní zobrazení",
+                t(T.compactview),
                 this.isCompact,
                 (checked) => this.compactSetter(checked)
             ) : nothing}
 
             ${this.renderToggle(
-                "Zobrazit diskuzi",
+                t(T.showdiscussion),
                 this.showDiscussion,
                 (checked) => this.showDiscussionSetter(checked)
             )}
 
             ${this.folder && this.folder.may_manage_files_in ? this.renderToggle(
-                "Upravit štítky",
+                t(T.edittags),
                 this.editableTags,
                 (checked) => this.editTagsSetter(checked)
             ): nothing}

@@ -5,6 +5,7 @@ import { consume } from "@lit/context";
 import { v4 as uuid } from "uuid";
 import { localeContext } from "../translations/localeContext";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { state } from "lit/decorators.js";
 
 export abstract class BaseElement extends LitElement {
 

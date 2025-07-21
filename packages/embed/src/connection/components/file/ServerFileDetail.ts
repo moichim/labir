@@ -97,6 +97,7 @@ export class ServerFileDetail extends ClientConsumer {
 
                     <registry-histogram expandable="true"></registry-histogram>
                     <registry-range-slider></registry-range-slider>
+                    <registry-ticks-bar></registry-ticks-bar>
 
                 </div>
 
@@ -171,7 +172,6 @@ export class ServerFileDetail extends ClientConsumer {
 
         return html`
 
-            <registry-provider slug=${this.folder.path} batch="true" autoclear="true">
                 <group-provider slug=${slug} batch="true" autoclear="true">
                     <file-provider 
                         thermal=${this.file.url} 
@@ -195,8 +195,7 @@ export class ServerFileDetail extends ClientConsumer {
                         ${this.renderContent()}
 
                     </file-provider>
-                </group-provider>
-            </registry-provider>`;
+                </group-provider>`;
     }
 
 

@@ -1,11 +1,19 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseServerApp } from "../../connection/BaseServerApp";
+import { AppWithRender } from "../../connection/composition/AppWithRender";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { provide } from "@lit/context";
 
 
 
 @customElement("connected-app")
-export class ConnectedApp extends BaseServerApp {
+export class ConnectedApp extends AppWithRender implements IWithlocale {
+
+
+    @provide({ context: localeContext })
+    @property({ reflect: true, converter: localeConverter })
+    locale!: Locales;
 
     
 
@@ -23,30 +31,13 @@ export class ConnectedApp extends BaseServerApp {
 
         super.connectedCallback();
 
+        initLocalesInTopLevelElement(this);
+
         if (this.path === undefined || this.path.trim() === '') {
             this.setError( "Parametr path je vyžadovaný pro správnou funkcionalitu této aplikace." );
         }
 
         this.originalPath = this.path;
-
-
-        this.client.onConnection.set(this.UUID + "_init", async (state) => {
-
-            if (state) {
-
-                this.initContentFromApi();
-
-            }
-
-        });
-
-        this.client.auth.onIdentity.set(this.UUID + "_init", async () => {
-            this.initContentFromApi();
-        });
-
-        this.setLoadingState(
-            "Připojuji se k serveru."
-        );
 
     }
 
@@ -112,16 +103,6 @@ export class ConnectedApp extends BaseServerApp {
             return nothing;
         }
         return html`<div class="error" slot="pre">${this.error}</div>`;
-    }
-
-    protected setPath(
-        value: string
-    ): void {
-
-        this.path = value;
-        this.requestUpdate();
-        this.initContentFromApi();
-
     }
 
 

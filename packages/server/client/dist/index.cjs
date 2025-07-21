@@ -23,21 +23,31 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
+// client/src/utils/callbacksManager.ts
+var CallbacksManager = class extends Map {
+  /** @deprecated use set method instead */
+  add(key, callback) {
+    this.set(key, callback);
+  }
+  call(...args) {
+    this.forEach((fn) => fn(...args));
+  }
+};
+
 // client/src/authentication/Auth.ts
-var import_core = require("@labir/core");
 var Auth = class {
   constructor(client) {
     this.client = client;
   }
   identity;
   session;
-  onIdentity = new import_core.CallbacksManager();
+  onIdentity = new CallbacksManager();
   isLoggedIn() {
     return this.identity !== void 0;
   }
-  login(identity) {
+  login(identity, userFolders) {
     this.identity = identity;
-    this.onIdentity.call(this.identity);
+    this.onIdentity.call(this.identity, userFolders);
   }
   logout() {
     this.identity = void 0;
@@ -247,9 +257,8 @@ var GetConnect = class extends Operation {
   async execute() {
     const response = await this.client.fetch(this.request);
     if (response.success) {
-      const typedResponse = response;
-      if (typedResponse.data.identity !== false) {
-        this.client.auth.login(typedResponse.data.identity);
+      if (response.data.identity !== false) {
+        this.client.auth.login(response.data.identity, response.data.userFolders);
       }
     }
     return response;
@@ -700,8 +709,7 @@ var Login = class extends Operation {
   async execute() {
     const response = await this.client.fetch(this.request);
     if (response.success) {
-      const typedResponse = response;
-      this.client.auth.login(typedResponse.data.login);
+      this.client.auth.login(response.data.login, response.data.usersFolders);
     }
     return response;
   }
@@ -1096,7 +1104,6 @@ var Entities = class {
 };
 
 // client/src/Client.ts
-var import_core2 = require("@labir/core");
 var Client = class {
   /** 
    * The core server URL ending with a slash */
@@ -1155,10 +1162,10 @@ var Client = class {
    * Needs to be set to `true` before any requests are made (with the exception of the `connect()` route).
    */
   connected = false;
-  onConnection = new import_core2.CallbacksManager();
-  onResult = new import_core2.CallbacksManager();
+  onConnection = new CallbacksManager();
+  onResult = new CallbacksManager();
   activeRequests = 0;
-  onLoading = new import_core2.CallbacksManager();
+  onLoading = new CallbacksManager();
   get loading() {
     return this.activeRequests > 0;
   }

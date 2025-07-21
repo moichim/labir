@@ -11,7 +11,7 @@ export class FolderThumbnail extends ClientConsumer {
     @property({type: Object})
     folder!: FolderInfo;
 
-    @property({type: Object})
+    @property({type: Function})
     onClick?: ( folder: FolderInfo ) => void;
 
     @property({type: Number, reflect: true})
@@ -194,7 +194,7 @@ export class FolderThumbnail extends ClientConsumer {
 
     `;
 
-    protected renderLrc( url: string ) {
+    protected renderLrc() {
         const slug = this.folder.path + "__thumb";
         return html`<registry-provider slug="${slug}" class="poster lrc">
             <group-provider slug="${slug}">
@@ -217,7 +217,7 @@ export class FolderThumbnail extends ClientConsumer {
     protected renderPreview(): TemplateResult {
 
         if ( this.folder.thumb && this.folder.thumb.startsWith( "http" ) ) {
-            return this.renderLrc( this.folder.thumb );
+            return this.renderLrc();
         }
 
         return this.renderEmpty();

@@ -8,6 +8,8 @@ import { TimeFormat } from "@labir/core";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { consume } from "@lit/context";
 import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext } from "../../ClientContext";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
@@ -106,7 +108,7 @@ export class FileThumbnail extends ClientConsumer {
             variant=${variant}
             size="sm"
             @click=${() => this.onFileClick(this.file)}
-        >Detail</thermal-btn>`;
+        >${t(T.detail)}</thermal-btn>`;
 
     }
 

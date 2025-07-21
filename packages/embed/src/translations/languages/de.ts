@@ -202,5 +202,31 @@ export const de: Translation = {
     colourpalette: "Farbpalette",
     palettehint: "Dropdown-Menü zum Wechseln der Farbpalette.",
 
-    remotefoldersbrowser: "Browser für Remote-Ordner"
+    remotefoldersbrowser: "Browser für Remote-Ordner",
+
+    server: "Server",
+    networklog: "Netzwerkprotokoll",
+    editfile: "Datei bearbeiten",
+    editfolder: "Ordner bearbeiten",
+    editcomment: "Kommentar bearbeiten",
+    user: "Benutzer",
+    deletefile: "Datei löschen",
+    deletefolder: "Ordner löschen",
+    deletecomment: "Kommentar löschen",
+    savecomment: "Kommentar speichern",
+    addcomment: "Kommentar hinzufügen",
+    savechanges: "Änderungen speichern",
+    uploadfile: "Datei hochladen",
+    compactview: "Kompaktansicht",
+    showdiscussion: "Diskussion anzeigen",
+    edittags: "Tags bearbeiten",
+    connectioninformation: "Verbindungsinformationen",
+    serverurl: "Server-URL",
+    servername: "Servername",
+    login: "Anmelden",
+    logout: "Abmelden",
+    password: "Passwort",
+    logoutmessage: "Möchten Sie sich wirklich abmelden?",
+    loginerror: "Anmeldung nicht möglich.",
+    accessibletologgedinusers: "Diese Seite ist nur für angemeldete Benutzer zugänglich."
 }

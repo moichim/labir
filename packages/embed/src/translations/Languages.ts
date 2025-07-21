@@ -259,7 +259,42 @@ export enum T {
     /** Use the dropdown to change the palette */
     palettehint = "palettehint",
 
-    remotefoldersbrowser = "remotefoldersbrowser"
+    remotefoldersbrowser = "remotefoldersbrowser",
+
+
+
+    /** Server */
+    server = "server",
+    networklog = "networklog",
+    editfile = "editfile",
+    editfolder = "editfolder",
+    editcomment = "editcomment",
+    user = "user",
+    deletefile = "deletefile",
+    deletefolder = "deletefolder",
+    deletecomment = "deletecomment",
+    savecomment = "savecomment",
+    addcomment = "addcomment",
+    savechanges = "savechanges",
+    uploadfile = "uploadfile",
+    compactview = "compactview",
+    showdiscussion = "showdiscussion",
+    edittags = "edittags",
+    connectioninformation = "connectioninformation",
+    serverurl = "serverurl",
+    servername = "servername",
+    login = "login",
+    logout = "logout",
+    logoutmessage = "logoutmessage",
+    loginerror = "logineerror",
+    password = "password",
+    accessibletologgedinusers = "accessibletologgedinusers"
+
+
+
+
+
+
 
 }
 

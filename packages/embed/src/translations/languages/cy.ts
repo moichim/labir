@@ -208,5 +208,35 @@ export const cy: Translation = {
     colourpalette: "Palet lliw",
     palettehint: "Defnyddiwch y gwymplen i newid y palet.",
 
-    remotefoldersbrowser: "Porwr o ffolderi anghysbell"
+    remotefoldersbrowser: "Porwr o ffolderi anghysbell",
+
+
+
+
+    server: "Gweinydd",
+    networklog: "Log rhwydwaith",
+    editfile: "Golygu ffeil",
+    editfolder: "Golygu ffolder",
+    editcomment: "Golygu sylw",
+    user: "Defnyddiwr",
+    deletefile: "Dileu ffeil",
+    deletefolder: "Dileu ffolder",
+    deletecomment: "Dileu sylw",
+    savecomment: "Cadw sylw",
+    addcomment: "Ychwanegu sylw",
+    savechanges: "Cadw newidiadau",
+    uploadfile: "Uwchlwytho ffeil",
+    compactview: "Golwg gryno",
+    showdiscussion: "Dangos trafodaeth",
+    edittags: "Golygu tagiau",
+    connectioninformation: "Gwybodaeth cysylltiad",
+    serverurl: "URL y gweinydd",
+    servername: "Enw'r gweinydd",
+    login: "Mewngofnodi",
+    logout: "Allgofnodi",
+    password: "Cyfrinair",
+    logoutmessage: "Ydych chi’n siŵr eich bod eisiau allgofnodi?",
+    loginerror: "Methu mewngofnodi.",
+    accessibletologgedinusers: "Mae'r dudalen hon ar gael i ddefnyddwyr sydd wedi mewngofnodi yn unig."
+
 }

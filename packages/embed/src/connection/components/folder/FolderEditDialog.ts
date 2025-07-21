@@ -2,6 +2,8 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("folder-edit-dialog")
 export class FolderEditDialog extends ClientConsumer {
@@ -115,17 +117,17 @@ export class FolderEditDialog extends ClientConsumer {
         
         return html`
             <thermal-dialog
-                label="Upravit složku"
+                label="${t(T.editfolder)}"
                 .beforeClose=${() => this.handleSubmit()}
-                button="Uložit změny"
+                button="${t(T.savechanges)}"
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="edit" iconStyle="micro">Upravit složku</thermal-btn>
+                    <thermal-btn size="sm" variant="primary" icon="edit" iconStyle="micro">${t(T.editfolder)}</thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">
                     <div class="form-group">
-                        <label for="folder-name">Název složky:</label>
+                        <label for="folder-name">${t(T.name)}:</label>
                         <input 
                             type="text" 
                             id="folder-name"
@@ -136,7 +138,7 @@ export class FolderEditDialog extends ClientConsumer {
                         />
                     </div>
                     <div class="form-group">
-                        <label for="folder-description">Popis:</label>
+                        <label for="folder-description">${t(T.description)}:</label>
                         <textarea 
                             id="folder-description"
                             .value=${this.folderDescription}

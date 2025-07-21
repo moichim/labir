@@ -3,6 +3,8 @@ import { Identity } from "packages/server/client/src/responseEntities";
 import { ClientConsumer } from "../ClientConsumer";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("labir-user-button")
 export class UserButton extends ClientConsumer {
@@ -77,7 +79,7 @@ export class UserButton extends ClientConsumer {
             <input 
                 type="password" 
                 name="password" 
-                placeholder="Heslo" 
+                placeholder="${t(T.password)}" 
                 required
                 @keydown=${this.handleKeyDown}
             ></input>
@@ -94,19 +96,19 @@ export class UserButton extends ClientConsumer {
 
     render(): TemplateResult {
 
-        const buttonLabel = this.identity?.meta.name ?? this.identity?.meta.login ?? "Přihlásit se";
+        const buttonLabel = this.identity?.meta.name ?? this.identity?.meta.login ?? t(T.login);
 
         const variant = this.isLoggedIn 
             ? "primary" 
             : "default";
 
         const label = this.isLoggedIn 
-            ? "Odhlášení" 
-            : "Přihlášení";
+            ? t(T.logout) 
+            : t(T.login);
 
         const submitLabel = this.isLoggedIn 
-            ? "Odhlásit se" 
-            : "Přihlásit se";
+            ? t(T.logout) 
+            : t(T.login);
 
         const content = this.isLoggedIn 
             ? this.renderUserEditForm() 

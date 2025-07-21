@@ -4,7 +4,7 @@ import { GetConnectDataType } from "./routes/get/GetConnect";
 import { ApiResponseDataType, ApiResponseType } from "./routes/ResponseTypes";
 import { Routes } from "./routes/factories/Routes";
 import { Entities } from "./entities/Entities";
-import { CallbacksManager } from "@labir/core";
+import { CallbacksManager } from "./utils/callbacksManager"
 import { ServerInfo } from "./responseEntities";
 
 /**

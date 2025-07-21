@@ -23,8 +23,7 @@
   "author": "Jan Jáchim <jachim5@gmail.com>",
   "license": "ISC",
   "dependencies": {
-    "uuid": "^9.0.1",
-    "@labir/core": "workspace:*"
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",

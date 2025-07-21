@@ -1,4 +1,11 @@
-import { CallbacksManager } from '@labir/core';
+/**
+ * Manage callbacks on optional property values
+ */
+declare class CallbacksManager<CallbackType extends (...args: any[]) => any> extends Map<string, CallbackType> {
+    /** @deprecated use set method instead */
+    add(key: string, callback: CallbackType): void;
+    call(...args: Parameters<CallbackType>): void;
+}
 
 type ServerInfo = {
     url: string;
@@ -149,10 +156,10 @@ declare class Auth {
     protected readonly client: Client;
     protected identity?: Identity;
     protected session?: string;
-    readonly onIdentity: CallbacksManager<(identity: Identity | undefined) => void>;
+    readonly onIdentity: CallbacksManager<(identity: Identity | undefined, userFolders?: FolderInfo[]) => void>;
     constructor(client: Client);
     isLoggedIn(): boolean;
-    login(identity: Identity): void;
+    login(identity: Identity, userFolders?: FolderInfo[]): void;
     logout(): void;
     setSession(value: string | undefined): void;
     getSession(): string | undefined;
@@ -253,6 +260,7 @@ declare abstract class Operation<R extends ApiResponseDataType> {
 
 type GetConnectDataType = {
     identity: false | Identity;
+    userFolders: FolderInfo[];
 };
 declare class GetConnect extends Operation<GetConnectDataType> {
     init(): this;
@@ -591,6 +599,7 @@ declare class FileUpdateComment extends OperationWithFile<FileUpdateCommentDataT
 
 type LoginDataType = {
     login: Identity;
+    usersFolders: FolderInfo[];
 };
 declare class Login extends Operation<LoginDataType> {
     init(): this;
@@ -899,4 +908,4 @@ declare class Client {
     fetch<R extends ApiResponseDataType>(factory: RequestFactory): Promise<ApiResponseType<R>>;
 }
 
-export { type ApiResponseType, type Comment, type FileInfo, type FolderInfo, type GetCurrentUserTreeDataType, type GetInfoDataType as GetDefaultDataType, type GetFilesDataType, type GetGridDataType, type Identity, type LoginDataType as PostLoginDataType, type UpdateFolderDataType as PostUpdateFolderDataType, type ServerInfo, type TagDefinition, type TagInfo, type TreeItem, Client as default };
+export { type ApiResponseType, type BreadcrumbItem, type Comment, type FileInfo, type FolderInfo, type GetCurrentUserTreeDataType, type GetInfoDataType as GetDefaultDataType, type GetFilesDataType, type GetGridDataType, type Identity, type LoginDataType as PostLoginDataType, type UpdateFolderDataType as PostUpdateFolderDataType, type ServerInfo, type TagDefinition, type TagInfo, type TreeItem, Client as default };

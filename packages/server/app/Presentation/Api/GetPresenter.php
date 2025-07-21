@@ -25,6 +25,28 @@ final class GetPresenter extends BaseApiPresenter
 
         $this->storeData("identity", $identity);
 
+
+        $userFolders = [];
+
+        if ($identity["user"]) {
+
+            $user = $this->scanner->access->getUser($identity["user"] ?? null, true);
+
+            if ($user && $user["access"]) {
+
+                $folder = $this->scanner->folder;
+
+                $userFolders = array_map(function ($path) use ($folder) {
+                    return $folder->getInfo($path);
+                }, $user["access"]);
+            }
+        }
+
+
+
+        $this->storeData("userFolders", $userFolders);
+
+
         $this->markSuccess($message);
         $this->respond();
     }
@@ -203,9 +225,8 @@ final class GetPresenter extends BaseApiPresenter
     public function actionFile(?string $path, ?string $file): void
     {
 
-        if ( $file === null || $file === "" ) {
+        if ($file === null || $file === "") {
             throw new Exception("File parameter is required.", 400);
-
         }
 
         $lrc = $this->scanner->folder->getFile($path, $file);

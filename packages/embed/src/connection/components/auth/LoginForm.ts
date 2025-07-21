@@ -1,6 +1,8 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ClientConsumer } from "../ClientConsumer";
 import { customElement, property, state } from "lit/decorators.js";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("login-form")
 export class LoginForm extends ClientConsumer {
@@ -161,7 +163,7 @@ export class LoginForm extends ClientConsumer {
                 <input 
                     type="password" 
                     name="password" 
-                    placeholder="Heslo" 
+                    placeholder="${t(T.password)}" 
                     required 
                     @input=${(event: InputEvent) => this.validateFieldInput(event, "password")}
                     @keydown=${this.handleKeyDown}
@@ -177,7 +179,7 @@ export class LoginForm extends ClientConsumer {
                     interactive=${this.mayLogIn}
                     variant=${this.mayLogIn ? "primary" : "black"}
                 >
-                    ${this.isLoggingIn ? "Přihlašuji se..." : "Přihlásit se"}
+                    ${this.isLoggingIn ? t(T.login) + "..." : t(T.login)}
                 </thermal-button>
     
             </div>

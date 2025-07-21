@@ -1,13 +1,14 @@
-import { CallbacksManager } from "@labir/core";
+import { CallbacksManager } from "../utils/callbacksManager";
 import { Client } from "../Client";
 import { Identity } from "../responseEntities";
+import { FolderInfo } from "../responseEntities"
 
 export class Auth {
 
     protected identity?: Identity;
     protected session?: string;
 
-    public readonly onIdentity: CallbacksManager<(identity: Identity|undefined) => void> = new CallbacksManager();
+    public readonly onIdentity: CallbacksManager<(identity: Identity|undefined, userFolders?: FolderInfo[]) => void> = new CallbacksManager();
 
     constructor(
         protected readonly client: Client
@@ -20,10 +21,11 @@ export class Auth {
 
 
     public login(
-        identity: Identity
+        identity: Identity,
+        userFolders?: FolderInfo[]
     ): void {
         this.identity = identity;
-        this.onIdentity.call(this.identity);
+        this.onIdentity.call(this.identity, userFolders);
     }
 
     public logout(): void {

@@ -3,6 +3,8 @@ import { ClientConsumer } from "../ClientConsumer";
 import { ServerInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { TimeFormat } from "@labir/core";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 type HistoryItem = {
     timestamp: number;
@@ -296,7 +298,7 @@ export class ServerBar extends ClientConsumer {
         return html`
         <div class="history ${stateClass}" @click=${tableCallback}>
             <div class="history-header" @click=${closeCallback.bind(this)}>
-                <h2>Network log</h2>
+                <h2>${t(T.networklog)}</h2>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon"
                 >
                     <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
