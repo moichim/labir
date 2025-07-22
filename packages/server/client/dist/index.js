@@ -684,7 +684,7 @@ var Login = class extends Operation {
   async execute() {
     const response = await this.client.fetch(this.request);
     if (response.success) {
-      this.client.auth.login(response.data.login, response.data.usersFolders);
+      this.client.auth.login(response.data.login, response.data.userFolders);
     }
     return response;
   }

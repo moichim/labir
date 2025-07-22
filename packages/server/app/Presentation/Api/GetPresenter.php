@@ -33,12 +33,7 @@ final class GetPresenter extends BaseApiPresenter
             $user = $this->scanner->access->getUser($identity["user"] ?? null, true);
 
             if ($user && $user["access"]) {
-
-                $folder = $this->scanner->folder;
-
-                $userFolders = array_map(function ($path) use ($folder) {
-                    return $folder->getInfo($path);
-                }, $user["access"]);
+                $userFolders = $this->scanner->folder->getUserRootFolders($identity["user"]);
             }
         }
 

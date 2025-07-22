@@ -168,7 +168,6 @@ import "./connection/components/folder/FolderAddDialog";
 import "./connection/components/folder/FolderDeleteDialog";
 import "./connection/components/folder/FolderUploadDialog";
 import "./connection/components/folder/FolderEditDialog";
-import "./connection/components/folder/CompactToggle";
 import "./connection/components/folder/DisplayMode";
 import "./connection/components/folder/FolderTagsFilter";
 
@@ -181,9 +180,12 @@ import "./connection/components/file/FileComment";
 import "./connection/components/file/FileDeleteDialog";
 import "./connection/components/file/FileCommentsDialog";
 import "./connection/components/file/FileAnalysisStoreButton";
+import "./connection/components/file/FileAnalysisRestoreButton";
 import "./connection/components/file/FileTags";
 import "./connection/components/file/FileThumbnail";
 
+
+import "./connection/components/user/UserFolders";
 
 
 

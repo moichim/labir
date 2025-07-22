@@ -124,10 +124,19 @@ export class ServerFileDetail extends ClientConsumer {
                         ? html`<file-analysis-store-button
                         .info=${this.file}
                         .folder=${this.folder}
+                        .onChange=${ ( file: FileInfo ) => {
+                            this.onChange?.(file);
+                        } }
                         size="md"
                     ></file-analysis-store-button>`
                         : nothing
                     }
+
+                    <file-analysis-restore-button
+                        .info=${this.file}
+                        .folder=${this.folder}
+                        size="md"
+                    ></file-analysis-restore-button>
 
                 </div>
 
@@ -166,24 +175,33 @@ export class ServerFileDetail extends ClientConsumer {
 
         const slug = this.folder.path + this.file.fileName;
 
+        const [
+            analysis1, 
+            analysis2, 
+            analysis3, 
+            analysis4, 
+            analysis5, 
+            analysis6, 
+            analysis7
+        ] = this.file.analyses;
 
-        this.log( this.file.analyses );
 
 
         return html`
 
                 <group-provider slug=${slug} batch="true" autoclear="true">
+
                     <file-provider 
                         thermal=${this.file.url} 
                         batch="true" 
                         autoclear="true"
-                        analysis1=${ifDefined(this.file.analyses[0])}
-                        analysis2=${ifDefined(this.file.analyses[1])}
-                        analysis3=${ifDefined(this.file.analyses[2])}
-                        analysis4=${ifDefined(this.file.analyses[3])}
-                        analysis5=${ifDefined(this.file.analyses[4])}
-                        analysis6=${ifDefined(this.file.analyses[5])}
-                        analysis7=${ifDefined(this.file.analyses[6])}
+                        analysis1=${ifDefined(analysis1)}
+                        analysis2=${ifDefined(analysis2)}
+                        analysis3=${ifDefined(analysis3)}
+                        analysis4=${ifDefined(analysis4)}
+                        analysis5=${ifDefined(analysis5)}
+                        analysis6=${ifDefined(analysis6)}
+                        analysis7=${ifDefined(analysis7)}
                     >
 
 

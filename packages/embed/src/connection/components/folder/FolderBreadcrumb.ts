@@ -26,27 +26,6 @@ export class FolderBreadcrumb extends ClientConsumer {
     protected folder = icons.folder.micro("icon");
 
 
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        this.log(this.client);
-
-        this.client?.onConnection.set(this.UUID, (connection) => {
-            this.log("Connection established:", connection);
-
-            this.requestUpdate();
-        });
-
-
-        this.client?.auth.onIdentity.set(this.UUID, (identity, userFolders) => {
-
-            this.log("user", identity, "folders", userFolders);
-
-            this.requestUpdate();
-        });
-
-    }
-
     public static styles?: CSSResultGroup | undefined = css`
     
         :host {

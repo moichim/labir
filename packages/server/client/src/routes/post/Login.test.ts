@@ -147,4 +147,57 @@ describe( "PostLogin", () => {
 
     } );
 
+    test("recieves user folders on login for guest", async () => {
+
+        const client = new Client("http://localhost:8080");
+
+        await client.connect();
+
+        const login = client.routes.post.login(
+            "guest",
+            "querty"
+        );
+
+        const response = await login.execute();
+
+        expect(response.success).toBe(true);
+
+        expect(response.data).toHaveProperty("userFolders");
+
+        expect(response.data.userFolders).toBeDefined();
+
+        expect(Array.isArray(response.data.userFolders)).toBe(true);
+
+        expect(response.data.userFolders.length).toBeGreaterThan(0);
+
+    });
+
+
+    test("recieves user folders on login for guest", async () => {
+
+        const client = new Client("http://localhost:8080");
+
+        await client.connect();
+
+        const login = client.routes.post.login(
+            "root",
+            "abcdefghijk"
+        );
+
+        const response = await login.execute();
+
+        console.log( response.data.userFolders );
+
+        expect(response.success).toBe(true);
+
+        expect(response.data).toHaveProperty("userFolders");
+
+        expect(response.data.userFolders).toBeDefined();
+
+        expect(Array.isArray(response.data.userFolders)).toBe(true);
+
+        expect(response.data.userFolders.length).toBeGreaterThan(0);
+
+    });
+
 } );

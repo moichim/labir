@@ -143,16 +143,8 @@ export abstract class AppWithRender extends AppWithContent {
         ${this.renderUserFolders()}
 
         <main>
-            <div class="poster standalone">
-                ${this.userFolders && this.userFolders.length > 0
-                    ? this.userFolders.map(folder => html`
-                        <folder-thumbnail
-                            .folder=${folder}
-                            .onParentClick=${(item: BreadcrumbItem) => this.setPath(item.path)}
-                    ></folder-thumbnail>`)
-                    : nothing
-                }
-            </div>
+
+
         </main>`;
 
     }
@@ -281,23 +273,16 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderUserFolders(): unknown {
 
-
-        this.log( "Rendering user folders", this.userFolders );
-
         if ( this.userFolders && this.userFolders.length > 0 ) {
 
-            return html`
-                <div class="poster standalone">
-                    ${this.userFolders.map(folder => html`
-                        <server-folder-thumbnail
-                            .folder=${folder}
-                            @click=${() => this.setPath(folder.path)}
-                        ></server-folder-thumbnail>
-                    `)}
-                </div>
-            `;
+            return html`<user-folders
+                .folders=${this.userFolders}
+                .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+            ></user-folders>`;
 
         }
+
+        return nothing;
 
     }
 

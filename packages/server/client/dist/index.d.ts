@@ -599,7 +599,7 @@ declare class FileUpdateComment extends OperationWithFile<FileUpdateCommentDataT
 
 type LoginDataType = {
     login: Identity;
-    usersFolders: FolderInfo[];
+    userFolders: FolderInfo[];
 };
 declare class Login extends Operation<LoginDataType> {
     init(): this;

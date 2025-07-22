@@ -4,7 +4,7 @@ import { ApiResponseType } from "../ResponseTypes";
 
 export type LoginDataType = {
     login: Identity,
-    usersFolders: FolderInfo[]
+    userFolders: FolderInfo[]
 }
 
 export class Login extends Operation<LoginDataType> {
@@ -36,7 +36,7 @@ export class Login extends Operation<LoginDataType> {
         if (response.success ) {
 
             // Login the user
-            this.client.auth.login( response.data.login, response.data.usersFolders );
+            this.client.auth.login( response.data.login, response.data.userFolders );
 
         }
 

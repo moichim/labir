@@ -949,4 +949,50 @@ final class Folder
         // Spojí server/user breadcrumb s folder breadcrumb
         return array_merge($breadcrumb, $folderBreadcrumb);
     }
+
+
+    public function getUserRootFolders( string $login ): array {
+
+        $folders = [];
+
+        $user = $this->scanner->access->getUser( $login, true );
+
+        if ( 
+            $user 
+            && is_array( $user ) 
+            && isset( $user["access"] ) 
+            && is_array( $user["access"] )
+        ) {
+
+            foreach ( $user["access"] as $folderPath ) {
+
+                $folderPath = trim( $folderPath, "/" );
+
+                if ( $folderPath === "" ) {
+
+                    $subfolders = $this->getSubdirectories( "/", $login );
+
+
+                    if ( $subfolders && is_array( $subfolders ) ) {
+                        foreach ( $subfolders as $subfolder ) {
+                            $folders[] = $this->getInfo( $subfolder["path"] );
+                        }
+                    }
+
+                } else {
+                    // Získá informace o složce
+                    $folders[] = $this->getInfo( $folderPath );
+                }
+
+            }
+
+        }
+
+        return $folders;
+
+    }
+
+
+
+
 }

@@ -17,6 +17,7 @@ enum STATE {
     DETAIL
 }
 
+/** @deprecated Use composed app instead. */
 export abstract class BaseServerApp extends BaseAppWithPngExportContext {
 
 

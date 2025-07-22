@@ -33,14 +33,9 @@ final class AuthPresenter extends BaseApiPresenter {
             $this->markSuccess( $this->formatMessage( "User '%s' authenticated successfully.", $login["user"] ) );
             $this->storeData( "login", $login );
 
-            $user = $this->scanner->access->getUser( $login["user"], true );
-            $folder = $this->scanner->folder;
+            $userFolders = $this->scanner->folder->getUserRootFolders( $login["user"] );
 
-            $usersFolders = array_map( function($path) use ($folder) {
-                return $folder->getInfo($path);
-            }, $user["access"] ); 
-
-            $this->storeData( "userFolders", $usersFolders );
+            $this->storeData( "userFolders", $userFolders );
 
 
         } else {
