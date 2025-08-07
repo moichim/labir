@@ -1,9 +1,10 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import { css, CSSResultGroup, html, nothing } from "lit";
 import { Comment, FileInfo } from "@labir/server";
-import { TimeFormat } from "@labir/core";
-import { FolderInfo } from "packages/server/client/dist";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { FolderInfo } from "@labir/server";
+import { ClientConsumer } from "../ClientConsumer";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("file-comment-form")
 export class FileCommentForm extends ClientConsumer {
@@ -167,11 +168,15 @@ export class FileCommentForm extends ClientConsumer {
         const canSubmit = this.message.trim().length >= 3;
         const isEditing = !!this.comment;
 
+        const label = isEditing
+            ? t(T.editcomment)
+            : t(T.addcomment);
+
         return html`
             <form >
                 <main>
                     <textarea 
-                        placeholder=${isEditing ? "Upravte komentář..." : "Napište komentář..."}
+                        placeholder=${label}
                         .value=${this.message}
                         @input=${this.handleMessageChange}
                         @keydown=${this.handleKeyDown}
@@ -188,7 +193,7 @@ export class FileCommentForm extends ClientConsumer {
                             ?disabled=${!canSubmit}
                             @click=${this.handleSubmit}
                         >
-                            ${isEditing ? "Upravit komentář" : "Přidat komentář"}
+                            ${label}
                         </thermal-btn>
 
                     </div>

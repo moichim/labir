@@ -6,6 +6,8 @@ import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameCo
 @customElement("file-download-png")
 export class FilePngButton extends AbstractFileButton {
 
+    tooltip: undefined = undefined;
+
     @state()
     @consume({ context: pngExportWidthContext, subscribe: true })
     protected pngWidth!: number;

@@ -4,12 +4,14 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { FileInfo, FolderInfo } from "@labir/server";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("file-delete-dialog")
 export class FileDeleteDialog extends ClientConsumer {
 
     @property({ type: String })
-    public label: string = "Smazat soubor";
+    public label: string = t(T.deletefile);
 
     @property({ type: String, reflect: false })
     public variant?: BtnVariants;
@@ -116,11 +118,13 @@ export class FileDeleteDialog extends ClientConsumer {
             return nothing;
         }
 
+        const label = t(T.deletefile);
+
         return html`
 
             <thermal-dialog
-                label="Smazat soubor"
-                button="Ano, smazat"
+                label=${label}
+                button=${label}
                 .beforeClose=${async () => {
                 this.error = undefined;
                 return await this.handleDelete();
@@ -134,8 +138,9 @@ export class FileDeleteDialog extends ClientConsumer {
                     plain=${ifDefined(this.plain)}
                     icon="trash"
                     iconStyle="micro"
+                    tooltip=${label}
                 >
-                    ${this.label}
+                    
                 </thermal-btn>
 
                 <div slot="content" class="dialog-content">

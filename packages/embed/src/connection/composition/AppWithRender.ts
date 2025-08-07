@@ -4,7 +4,7 @@ import { AppState } from "./AppWithState";
 import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
-import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, showDiscussionContext, showDiscussionSetterContext } from "../ClientContext";
+import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
 
 /** 
  * This layer provides the necessary render methods
@@ -44,6 +44,27 @@ export abstract class AppWithRender extends AppWithContent {
         this.requestUpdate();
     };
 
+    @property({ type: Boolean, reflect: true })
+    @provide( {context: editTagsContext } )
+    protected editableTags: boolean = false;
+
+    @provide({ context: editTagsSetterContext })
+    protected editTagsSetter: (edit: boolean) => void = (edit: boolean) => {
+        this.editableTags = edit;
+        this.requestUpdate();
+    };
+
+
+    @property({ type: Boolean, reflect: true })
+    @provide({context: syncAnalysisContext})
+    protected syncAnalyses: boolean = false;
+
+    @provide({ context: syncAnalysisSetterContext })
+    protected syncAnalysisSetter: (sync: boolean) => void = (sync: boolean) => {
+        this.syncAnalyses = sync;
+        this.log( "syncAnalyses", sync );
+        this.requestUpdate();
+    };
 
 
     static styles?: CSSResultGroup | undefined = css`

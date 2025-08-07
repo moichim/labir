@@ -108,7 +108,7 @@ export class FileThumbnail extends ClientConsumer {
             variant=${variant}
             size="sm"
             @click=${() => this.onFileClick(this.file)}
-        >${t(T.detail)}</thermal-btn>`;
+        >${t(T.detail).toLowerCase()}</thermal-btn>`;
 
     }
 

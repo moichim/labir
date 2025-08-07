@@ -2,6 +2,8 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("folder-delete-dialog")
 export class FolderDeleteDialog extends ClientConsumer {
@@ -83,15 +85,19 @@ export class FolderDeleteDialog extends ClientConsumer {
     }
 
     protected render(): unknown {
+
+        const label = t(T.deletefolder);
         
         return html`
             <thermal-dialog
-                label="Smazat složku"
+                label=${label}
                 .beforeClose=${() => this.handleSubmit()}
-                button="Smazat složku"
+                button=${label}
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="foreground" icon="trash" iconStyle="micro">Smazat složku</thermal-btn>
+                    <thermal-btn size="sm" variant="foreground" icon="trash" iconStyle="micro">
+                        ${label}
+                    </thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">

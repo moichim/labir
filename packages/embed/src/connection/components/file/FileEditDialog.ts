@@ -2,8 +2,10 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FileInfo } from "@labir/server";
-import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
+import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("file-edit-dialog")
 export class FileEditDialog extends ClientConsumer {
@@ -123,9 +125,12 @@ export class FileEditDialog extends ClientConsumer {
 
     protected render(): unknown {
 
+
+        const label = t(T.editfile);
+
         return html`
             <thermal-dialog
-                label="Upravit soubor"
+                label=${label}
                 .beforeClose=${() => this.handleSubmit()}
                 button="Uložit změny"
             >
@@ -135,6 +140,7 @@ export class FileEditDialog extends ClientConsumer {
                         size=${ifDefined( this.size ) }
                         plain=${ifDefined( this.plain ) }
                         icon="edit" iconStyle="micro"
+                        tooltip=${label}
                     >${this.label}</thermal-btn>
                 </slot>
 

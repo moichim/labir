@@ -2,6 +2,8 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("folder-upload-dialog")
 export class FolderUploadDialog extends ClientConsumer {
@@ -112,15 +114,19 @@ export class FolderUploadDialog extends ClientConsumer {
     }
 
     protected render(): unknown {
+
+        const label = t(T.uploadafile);
         
         return html`
             <thermal-dialog
-                label="Nahrát soubor"
+                label=${label}
                 .beforeClose=${() => this.handleSubmit()}
-                button="Nahrát soubor"
+                button=${label}
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="upload" iconStyle="micro">Nahrát soubor</thermal-btn>
+                    <thermal-btn size="sm" variant="primary" icon="upload" iconStyle="micro">
+                        ${label}
+                    </thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">

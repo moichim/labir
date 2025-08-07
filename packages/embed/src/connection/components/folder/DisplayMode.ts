@@ -2,7 +2,7 @@ import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "../../ClientContext";
+import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../../ClientContext";
 import { FolderInfo } from "@labir/server";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";
@@ -39,6 +39,12 @@ export class DisplayModeElement extends BaseElement {
 
     @consume({ context: editTagsSetterContext, subscribe: true })
     protected editTagsSetter: (edit: boolean) => void = () => {};
+
+    @consume({context: syncAnalysisContext, subscribe: true})
+    protected syncAnalysis: boolean = false;
+
+    @consume({context: syncAnalysisSetterContext, subscribe: true})
+    protected syncAnalysisSetter: (sync: boolean) => void = () => {};
 
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -105,6 +111,7 @@ export class DisplayModeElement extends BaseElement {
                     this.compactSetter( false );
                     this.displayModeSetter(DisplayMode.TABLE);
                 }}"
+                tooltip="${t(T.tabledisplay)}"
             ></thermal-btn>
         
             <thermal-btn
@@ -113,6 +120,7 @@ export class DisplayModeElement extends BaseElement {
                 size="sm"
                 variant="${this.displayMode === DisplayMode.GRID ? "foreground" : "default"}"
                 @click="${() => this.displayModeSetter(DisplayMode.GRID)}"
+                tooltip="${t(T.griddisplay)}"
             ></thermal-btn>
 
             ${this.displayMode === DisplayMode.GRID ? this.renderToggle(
@@ -132,6 +140,12 @@ export class DisplayModeElement extends BaseElement {
                 this.editableTags,
                 (checked) => this.editTagsSetter(checked)
             ): nothing}
+
+            ${this.renderToggle(
+                "Synchronizovat analýzy",
+                this.syncAnalysis,
+                (checked) => this.syncAnalysisSetter(checked)
+            )}
 
         `;
     }

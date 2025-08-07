@@ -2,9 +2,11 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup, nothing } from "lit";
 import { FileInfo, FolderInfo } from "@labir/server";
-import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
+import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { TimeFormat } from "@labir/core";
+import { T } from "../../../translations/Languages";
+import { t } from "i18next";
 
 @customElement("file-comments-dialog")
 export class FileCommentsDialog extends ClientConsumer {
@@ -86,9 +88,13 @@ export class FileCommentsDialog extends ClientConsumer {
     `;
 
     protected render(): unknown {
+
+        const label = t(T.comments);
+
+
         return html`
             <thermal-dialog
-                label="Komentáře k souboru"
+                label=${label}
             >
                 <slot name="invoker" slot="invoker">
                     <thermal-btn 
@@ -97,6 +103,7 @@ export class FileCommentsDialog extends ClientConsumer {
                         plain=${ifDefined( this.plain ) }
                         icon="comment" 
                         iconStyle="micro"
+                        tooltip=${label}
                     >${this.label}</thermal-btn>
                 </slot>
 

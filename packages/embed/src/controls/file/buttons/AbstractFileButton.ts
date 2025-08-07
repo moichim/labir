@@ -3,6 +3,7 @@ import { property } from "lit/decorators.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { Instance } from "@labir/core";
 
 export abstract class AbstractFileButton extends FileConsumer {
 
@@ -15,6 +16,8 @@ export abstract class AbstractFileButton extends FileConsumer {
     @property({ type: Boolean })
     public plain?: boolean;
 
+    protected abstract tooltip?: string;
+
     protected ref = createRef<HTMLElement>();
 
     abstract getDefaultLabel(): string;
@@ -25,7 +28,7 @@ export abstract class AbstractFileButton extends FileConsumer {
 
     abstract leave(): void;
 
-    public onInstanceCreated(): void { }
+    public onInstanceCreated(file: Instance): void { }
 
     public onFailure(): void { }
 
@@ -65,6 +68,7 @@ export abstract class AbstractFileButton extends FileConsumer {
                     size=${this.size || "sm"}
                     plain="${this.plain || false}"
                     class="default"
+                    tooltip=${this.tooltip}
                 >${this.getDefaultLabel()}</thermal-btn>
             </slot>`;
     }

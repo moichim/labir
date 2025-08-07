@@ -4,6 +4,8 @@ import { AbstractFileButton } from "./AbstractFileButton";
 @customElement("file-download-lrc")
 export class FileLrcButton extends AbstractFileButton {
 
+    tooltip: undefined = undefined;
+
     enter() {}
     leave() {}
 

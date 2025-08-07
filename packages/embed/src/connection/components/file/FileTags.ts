@@ -3,6 +3,8 @@ import { ClientConsumer } from "../ClientConsumer";
 import { css, html, nothing } from "lit";
 import { FileInfo, FolderInfo, TagDefinition, TagInfo } from "@labir/server";
 import icons from "../../../utils/icons";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 type TagSizes = "sm" | "md";
 
@@ -100,17 +102,27 @@ export class FileTags extends ClientConsumer {
 
         // Vypočítej invert hodnotu pro ikonu
         const iconInvert = has && tag.color && this.getContrastColor(tag.color) === '#FFFFFF' ? 1 : 0;
+        
+        const handleKeydown = (event: KeyboardEvent) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                this.handleTagClick(slug, tag);
+            }
+        };
 
         return html`<button
             class="tag-button ${has ? 'has' : ''}"
-            style="background-color: ${backgroundColor}; color: ${textColor}; --icon-invert: ${iconInvert};"
+            tabindex="${this.editable ? '0' : '-1'}"
             @click=${() => this.handleTagClick(slug, tag)}
+            @keydown=${handleKeydown}
         >
-            ${has
-                ? this.i(this.check)
-                : nothing
-            }
-            <span>${tag.name}</span>
+            <div class="tag-button-content" style="background-color: ${backgroundColor}; color: ${textColor}; --icon-invert: ${iconInvert};">
+                ${has
+                    ? this.i(this.check)
+                    : nothing
+                }
+                <span>${tag.name}</span>
+            </div>
         </button>`;
     }
 
@@ -170,10 +182,23 @@ export class FileTags extends ClientConsumer {
         }
     
         .tag-button {
-            border-radius: 0 var(--thermal-radius) var(--thermal-radius) 0;
-            padding: .5em 1em .5em 2em;
             border: 0;
             cursor: default;
+            background: transparent;
+            padding: 0;
+            transition: all .2s ease-in-out;
+            outline: none;
+        }
+
+        .tag-button:focus,
+        .tag-button:focus-visible {
+            outline: 2px solid var(--thermal-primary, #007bff);
+            outline-offset: 2px;
+        }
+
+        .tag-button-content {
+            border-radius: 0 var(--thermal-radius) var(--thermal-radius) 0;
+            padding: .5em 1em .5em 2em;
             display: flex;
             align-items: center;
             gap: .5em;
@@ -181,6 +206,8 @@ export class FileTags extends ClientConsumer {
 
             /* Simulace trojúhelníka s hladce zakulaceným hrotem */
             clip-path: polygon(1.5em 0%, 100% 0%, 100% 100%, 1.5em 100%, 0.4em 65%, 0.3em 55%, 0.3em 45%, 0.4em 35%);
+
+            transition: all .2s ease-in-out;
         }
 
         /* Editable styling */
@@ -188,7 +215,11 @@ export class FileTags extends ClientConsumer {
             cursor: pointer;
         }
 
-        .tag-button::before {
+        :host([editable="true"]) .tag-button:hover  {
+            filter: drop-shadow(0 0 3px var(--thermal-slate));
+        }
+
+        .tag-button-content::before {
             content: '';
             position: absolute;
             left: 1em;
@@ -202,26 +233,26 @@ export class FileTags extends ClientConsumer {
         }
 
         /* Small size styling */
-        :host([size="sm"]) .tag-button {
+        :host([size="sm"]) .tag-button-content {
             padding: .25em .5em .25em 1em;
             font-size: .7em;
             clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 1em 100%, 0.2em 65%, 0.15em 55%, 0.15em 45%, 0.2em 35%);
         }
 
         /* Hide dot and checkbox in small size */
-        :host([size="sm"]) .tag-button::before {
+        :host([size="sm"]) .tag-button-content::before {
             display: none;
         }
 
-        :host([size="sm"]) .tag-button .icon {
+        :host([size="sm"]) .tag-button-content .icon {
             display: none;
         }
 
-        .tag-button:not(.has):hover {
+        .tag-button:not(.has):hover .tag-button-content {
             color: var(--thermal-foreground) !important;
         }
 
-        .tag-button .icon {
+        .tag-button-content .icon {
             width: 1em;
             height: 1em;
             filter: brightness(0) invert(var(--icon-invert, 0));
@@ -241,9 +272,10 @@ export class FileTags extends ClientConsumer {
         const unassignedTags = Object.entries(allTags).filter(([slug]) => !this.hasTag(slug));
 
         return html`
+
             ${assignedTags.length > 0 ? html`
                 <div class="tag-group">
-                    <div class="tag-group-label">Přiřazené štítky</div>
+                    <div class="tag-group-label">${t(T.assignedtags)}</div>
                     <div class="tag-list">
                         ${assignedTags.map(([slug, info]) => this.renderTagButton(slug, info))}
                     </div>
@@ -252,7 +284,7 @@ export class FileTags extends ClientConsumer {
 
             ${unassignedTags.length > 0 && this.editable? html`
                 <div class="tag-group">
-                    <div class="tag-group-label">Dostupné štítky</div>
+                    <div class="tag-group-label">${t(T.availabletags)}</div>
                     <div class="tag-list">
                         ${unassignedTags.map(([slug, info]) => this.renderTagButton(slug, info))}
                     </div>

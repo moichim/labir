@@ -31,6 +31,13 @@ export const editTagsContext = createContext<boolean>( "edit-tags-context" );
 
 export const editTagsSetterContext = createContext<(edit: boolean) => void>( "edit-tags-setter-context" );
 
+
+export const syncAnalysisContext = createContext<boolean>( "sync-analysis-context-connected" );
+
+export const syncAnalysisSetterContext = createContext<(sync: boolean) => void>( "sync-analysis-setter-context-connected" );
+
+
+
 export const tagsFilterContext = createContext<string[]>( "tags-filter-context" );
 
 export const tagsFilterSetterContext = createContext<(tags: string[]) => void>( "tags-filter-setter-context" );

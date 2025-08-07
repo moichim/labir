@@ -1,6 +1,5 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseServerApp } from "../../connection/BaseServerApp";
 import { AppWithRender } from "../../connection/composition/AppWithRender";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { provide } from "@lit/context";

@@ -1,13 +1,15 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { FolderInfo } from "@labir/server";
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { FileInfo } from "packages/server/client/dist";
 import { TimeFormat } from "@labir/core";
 import icons from "../../../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { consume } from "@lit/context";
-import { DisplayMode, displayModeContext } from "../../ClientContext";
+import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../ClientContext";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
 
 @customElement("folder-files")
 export class FolderFiles extends ClientConsumer {
@@ -36,6 +38,61 @@ export class FolderFiles extends ClientConsumer {
     @property({ type: String, reflect: true })
     @consume({ context: displayModeContext, subscribe: true })
     protected displayMode: DisplayMode = DisplayMode.GRID;
+
+    @consume({ context: syncAnalysisContext, subscribe: true })
+    protected syncAnalyses: boolean = false;
+
+
+    protected groupProviderRef: Ref<GroupProviderElement> = createRef();
+
+
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
+        this.propagateAnalysisSync(this.syncAnalyses);
+
+    }
+
+    protected propagateAnalysisSync(
+        on: boolean
+    ): void {
+
+        const provider = this.groupProviderRef.value;
+
+        if ( provider ) {
+
+            const group = provider.group;
+            const sync = group.analysisSync;
+
+            const hasChanged = on !== sync.value;
+
+            if ( hasChanged ) {
+
+                if ( on ) {
+                    const firstFileWithAnalyses = group.files.value.find( 
+                        instance => instance.analysis.value.length > 0 
+                    ) 
+                    ?? group.files.value[0] 
+                    ?? undefined;
+
+                    if ( firstFileWithAnalyses ) {
+                        sync.turnOn( firstFileWithAnalyses );
+                    }
+
+                }
+                else {
+                    sync.turnOff();
+                }
+
+            }
+
+        }
+
+    }
+
+
+
 
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -154,7 +211,7 @@ export class FolderFiles extends ClientConsumer {
         </div>
         -->
 
-            <group-provider slug="${slug}" autoclear="true">
+            <group-provider slug="${slug}" autoclear="true" ${ref(this.groupProviderRef)}>
 
                 <main class="layout">
 

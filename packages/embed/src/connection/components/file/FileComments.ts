@@ -3,6 +3,8 @@ import { ClientConsumer } from "../ClientConsumer";
 import { FileInfo } from "@labir/server";
 import { FolderInfo } from "packages/server/client/dist";
 import { css, CSSResultGroup, html, nothing } from "lit";
+import { t } from "i18next";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-comments")
 export class FileComments extends ClientConsumer {
@@ -102,7 +104,7 @@ export class FileComments extends ClientConsumer {
                         ></file-comment>
                     `)
                 : html`<div class="placeholder">
-                    <span>Žádné komentáře</span>
+                    <span>${t(T.nocomments)}</span>
                 </div>`
             }
             </div>
