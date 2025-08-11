@@ -3190,7 +3190,9 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       if (a.analysis.key === analysis.key) {
         this.emitOnAssignement(a.slot, void 0);
         this.value.delete(a.slot);
-        this.parent.group.analysisSync.deleteSlot(this.parent, a.slot);
+        if (this.parent.group.analysisSync.value === true) {
+          this.parent.group.analysisSync.deleteSlot(this.parent, a.slot);
+        }
         this.callEffectsAndListeners();
       }
     }
@@ -5792,6 +5794,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     const { serialise } = this.getSlotListeners(instance, slotNumber);
     serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
       this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+        if (f.group.analysisSync.value === false) {
+          return;
+        }
         this.onSlotSync.call(value, slotNumber);
         if (sl === void 0 && value) {
           const analysis = f.slots.createFromSerialized(value, slotNumber);
@@ -5845,7 +5850,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
   recieveSlotSerialized(serialized, slot) {
     this.parent.files.forEveryInstance(
       (instance) => {
-        if (instance === this.currentPointer) {
+        if (instance === this.currentPointer || instance.group.analysisSync.value === false) {
           return;
         }
         if (serialized) {
@@ -5870,6 +5875,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
     const allOtherFiles = this.parent.files.value.filter((file) => file !== instance);
     const map = instance.slots.getSlotMap();
     allOtherFiles.forEach((file) => {
+      if (file.group.analysisSync.value === false) {
+        return;
+      }
       for (const [slt, value] of map) {
         if (value === void 0) {
           file.slots.removeSlotAndAnalysis(slt);
@@ -8444,6 +8452,12 @@ var getPool = async () => {
   }
   return pool3;
 };
+
+// package.json
+var version = "1.2.68";
+
+// src/index.ts
+console.info(version, "@labir/core");
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AbstractAddTool,

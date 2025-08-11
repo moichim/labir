@@ -46,6 +46,10 @@ import { AbstractAddTool } from "./properties/analysis/analysis/internals/Abstra
 
 import { Batch } from "./loading/batch/Batch";
 
+import { version } from "../package.json";
+
+console.info( version, "@labir/core" );
+
 
 export {
 

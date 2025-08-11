@@ -2,7 +2,7 @@
   "name": "@labir/core",
   "version": "1.2.68",
   "description": "Core functionality for thermal image display.",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "type":"module",
@@ -11,7 +11,7 @@
     "url": "https://github.com/moichim/labir"
   },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup",
     "dev": "vite",
     "lint": "eslint src",
     "test": "vitest src",
