@@ -3,7 +3,6 @@ import { ClientConsumer } from "../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import icons from "../../../utils/icons";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 
 @customElement( "folder-base-info" )
@@ -76,7 +75,7 @@ export class FolderBaseInfo extends ClientConsumer {
             grid-row: 2;
             grid-column: 1 / -1;
             display: flex;
-            gap: .5em;
+            gap: 2em;
             align-items: center;
         }
 

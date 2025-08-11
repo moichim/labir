@@ -185,11 +185,15 @@ export abstract class AppWithRender extends AppWithContent {
                 slot="pre"
             >
 
-                ${this.renderFolderCreateSubfolderDialog()}
+                <thermal-slot label="Složka">
 
-                ${this.renderFolderUploadFileDialog()}
+                    ${this.renderFolderCreateSubfolderDialog()}
 
-                ${this.renderFolderManagementButtons()}
+                    ${this.renderFolderUploadFileDialog()}
+
+                    ${this.renderFolderManagementButtons()}
+
+                </thermal-slot>
 
                 ${this.renderDisplayMode()}
 
@@ -333,9 +337,22 @@ export abstract class AppWithRender extends AppWithContent {
             && this.folder
         ) {
 
-            return html`<display-mode-settings
-                .folder=${this.folder}
-            ></display-mode-settings>`;
+            return html`<thermal-slot label="Zobrazení">
+                <display-mode-settings
+                    .folder=${this.folder}
+                ></display-mode-settings>
+            </thermal-slot>
+            <thermal-slot label="Obsah">
+                <editing-mode-settings
+                    .folder=${this.folder}
+                ></editing-mode-settings>
+            </thermal-slot>
+            <thermal-slot label="Analýzy">
+                <analysis-mode-settings
+                    .folder=${this.folder}
+                ></analysis-mode-settings>
+            </thermal-slot>
+            `;
 
         }
 

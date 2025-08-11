@@ -9,6 +9,8 @@ export class FileAnalysisRestoreButton extends AbstractFileAnalysisButton {
 
     public label = "Obnovit analýzy";
 
+    tooltip = "Načíst poslední uložený stav analýz";
+
     @state()
     protected localAnalyses: string[] = [];
 

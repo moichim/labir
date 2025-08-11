@@ -1,12 +1,13 @@
 import { AbstractAddTool, Instance } from "@labir/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { T } from "../../../translations/Languages";
 import { FileAnalysisGraph } from "./FileAnalysisGraph";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 
 
@@ -37,9 +38,43 @@ export class FileAnalysisComplex extends FileConsumer {
     @state()
     protected observer?: ResizeObserver;
 
-    public onInstanceCreated(instance: Instance): void {
+    @state()
+    protected hydrated: boolean = false;
+
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(true) })
+    public showhint: boolean = true;
+
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.hydrate();
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.dehydrate();
+    }
+
+    public onInstanceCreated(): void {
+        this.hydrate();
+    }
+    
+    public onFailure(): void {}
+
+
+    protected hydrate() {
+
+        const instance = this.file;
+
+        if ( !instance || this.hydrated ) {
+            return;
+        }
 
         this.mayHaveGraph = instance.timeline.isSequence;
+
+        if ( instance.analysis.value.length > 0 ) {
+            this.hasAnalysis = true;
+        }
 
         instance.analysis.layers.onAdd.set(this.UUID, (analysis) => {
             if (this.hasAnalysis === false) {
@@ -80,10 +115,19 @@ export class FileAnalysisComplex extends FileConsumer {
             }
         });
 
+        this.hydrated = true;
+    }
+
+    protected dehydrate() {
+
+        const instance = this.file;
+
+        if ( instance ) {
+            instance.analysis.layers.onAdd.delete(this.UUID);
+            instance.analysis.layers.onRemove.delete(this.UUID);
+        }
 
     }
-    
-    public onFailure(): void {}
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
@@ -120,21 +164,25 @@ export class FileAnalysisComplex extends FileConsumer {
             <div class="buttons">
                 ${addTools.map(tool => {
 
-            return html`
-                            <thermal-button @click=${() => {
+            return html`<thermal-button @click=${() => {
                     this.isDrawingAnalysis = true;
                     this.file?.group.tool.selectTool(tool);
                 }}>
-                                <div style="display: flex; align-items: center; gap: 10px">
-                                    <div style="width: 1.5em; display: inline-block;">${unsafeHTML(tool.icon)}</div>
-                                    <div>${t(T[tool.name as keyof typeof T])}</div>
-                                </div>
-                            </thermal-button>
-                        `;
+                    <div style="display: flex; align-items: center; gap: 10px">
+                        <div style="width: 1.5em; display: inline-block;">
+                            ${unsafeHTML(tool.icon)}
+                        </div>
+                        <div>
+                            ${t(T[tool.name as keyof typeof T])}
+                        </div>
+                    </div>
+                </thermal-button>`;
 
         })
             }
             </div>
+
+            <slot></slot>
         
         `;
 
@@ -148,11 +196,15 @@ export class FileAnalysisComplex extends FileConsumer {
 
         return html`<div class="addanalysis">
 
-            <div>
-                <strong>${t(T.analysis)}</strong>
-            </div>
+            ${this.showhint
+                ? html`<div>
+                    <strong>${t(T.analysis)}</strong>
+                </div>
 
-            <div>${t(T.analysishint)}</div>
+                <div>${t(T.analysishint)}</div>`
+                : nothing
+            }
+
 
             ${this.isDrawingAnalysis === true
                 ? this.renderCurrentTooltip()

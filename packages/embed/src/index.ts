@@ -45,6 +45,7 @@ import "./ui/Loading";
 import "./ui/Spinner";
 import "./ui/Icon";
 import "./ui/Radio";
+import "./ui/Slot";
 
 
 
@@ -169,6 +170,8 @@ import "./connection/components/folder/FolderDeleteDialog";
 import "./connection/components/folder/FolderUploadDialog";
 import "./connection/components/folder/FolderEditDialog";
 import "./connection/components/folder/DisplayMode";
+import "./connection/components/folder/EditingMode";
+import "./connection/components/folder/AnalysisMode";
 import "./connection/components/folder/FolderTagsFilter";
 
 import "./connection/components/file/ServerFileDetail";

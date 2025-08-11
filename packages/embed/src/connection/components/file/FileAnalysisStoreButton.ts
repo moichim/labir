@@ -9,18 +9,14 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
     public label = "Uložit analýzy";
 
+    tooltip = "Uložit aktuální stav analýz pro příští načtení";
+
 
     @state()
     protected analyses: string[] = [];
 
     @state()
     protected hasChanged: boolean = false;
-
-    @state()
-    protected isShown: boolean = false;
-
-    @state()
-    protected isInitialised: boolean = false;
 
     @property({type: Function})
     public onChange?: (file: FileInfo) => void;
@@ -61,7 +57,6 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
                 setTimeout( () => {
                     this.hasChanged = false;
-                    this.isInitialised = true;
                 }, 0 );
             
             }
@@ -117,9 +112,6 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
                 this.hasChanged = false;
                 this.onChange?.(result.data.file);
             }
-
-            console.log( result );
-
         }
 
         if ( this.file ) {
@@ -143,26 +135,11 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
             this.variant = "default";
         }
 
-
-        if ( this.hasUpdated && this.analyses.length === 0 && this.isInitialised ) {
-            this.isShown = true;
-            this.label = "Smazat analýzy na serveru";
-        } else if ( this.isInitialised ) {
-            this.label = "Uložit analýzy";
-            if ( this.analyses.length === 0 ) {
-                this.isShown = false;
-            } else {
-                this.isShown = true;
-            }
-        }
+        this.label = "Uložit analýzy";
 
     }
 
     protected render(): unknown {
-
-        if ( !this.isShown  ) {
-            return nothing;
-        }
 
         return super.render();
     }

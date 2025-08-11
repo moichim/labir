@@ -7,15 +7,19 @@ import { TemplateResult, html, css, CSSResultGroup, nothing, PropertyValues } fr
 import { TimeFormat } from "@labir/core";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { consume } from "@lit/context";
-import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext } from "../../ClientContext";
+import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../ClientContext";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
 
     @property({ type: Object })
     public file!: FileInfo;
+
+    protected instanceRef: Ref<FileProviderElement> = createRef();
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -46,7 +50,47 @@ export class FileThumbnail extends ClientConsumer {
     @consume({ context: editTagsContext, subscribe: true })
     public editableTags: boolean = false;
 
+    @consume({ context: syncAnalysisContext, subscribe: true })
+    protected syncAnalyses = false;
+
+    @state()
+    protected hasDisplayedAnalysis: boolean = false;
+
     protected icon = icons.image.outline("icon");
+
+    protected get fileObject() {
+        const ref = this.instanceRef.value;
+        return ref?.file;
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+        this.hydrate();
+        if ( this.instanceRef.value ) {
+
+            this.instanceRef.value.onSuccess.set( this.UUID, () => {
+                this.hydrate();
+            } );
+
+        }
+    }
+
+    protected hydrate() {
+
+        // Read the analysis right away
+        if ( this.fileObject ) {
+            this.hasDisplayedAnalysis = this.fileObject.analysis.value.length > 0;
+            this.fileObject.analysis.addListener( this.UUID, analyses => {
+                this.hasDisplayedAnalysis = analyses.length > 0;
+            } );
+        }
+
+    }
+
+
+    protected dehydrate() {
+        this.fileObject?.analysis.removeListener( this.UUID );
+    }
 
     protected updated(changedProperties: Map<string, any>): void {
         if (changedProperties.has('compact')) {
@@ -58,6 +102,17 @@ export class FileThumbnail extends ClientConsumer {
                 this.classList.add("detailed");
             }
         }
+    }
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.hydrate();
+    }
+
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.dehydrate();
     }
 
     protected renderTime(): unknown {
@@ -168,6 +223,7 @@ export class FileThumbnail extends ClientConsumer {
     }
 
     protected renderNumAnalyses(): unknown {
+
         if (!this.file.analyses || this.file.analyses.length === 0) {
             return nothing;
         }
@@ -177,6 +233,86 @@ export class FileThumbnail extends ClientConsumer {
                 ${this.file.analyses.length} analýzy
             </span>
         `;
+    }
+
+    public restoreAnalyses() {
+
+        const instance = this.instanceRef.value?.file;
+
+        if ( ! instance ) {
+            return;
+        }
+
+        this.file.analyses.forEach( analysis => {
+            instance.slots.createFromSerialized(analysis)?.setSelected();
+        } )
+
+    }
+
+
+    protected renderAnalyses(): unknown {
+
+        let content: unknown = nothing;
+
+        // For grid, display only the table
+        if (this.displayMode === DisplayMode.GRID) {
+            content = html`<file-analysis-table></file-analysis-table>`;
+        }
+
+        // For table, display a complex and store buttons
+        else if (this.displayMode === DisplayMode.TABLE) {
+
+            const hasStoredAnalyses = this.file.analyses.length > 0;
+            let restoreLabel: undefined | string = undefined;
+
+            if (hasStoredAnalyses) {
+                restoreLabel = `Načíst uložené analýzy (${this.file.analyses.length})`;
+            }
+
+
+            content = html`
+
+            <div class="analyses-inner">
+                
+                <file-analysis-complex showhint="false">
+                    ${hasStoredAnalyses ? html`<thermal-btn 
+                        @click=${this.restoreAnalyses.bind(this)}
+                        size="md"
+                        variant="primary"
+                    >
+                        ${restoreLabel}
+                    </thermal-btn>` : nothing}
+                </file-analysis-complex>
+
+                ${this.hasDisplayedAnalysis 
+                    ? html`<aside>
+                    <file-analysis-store-button
+                        size="md"
+                        .info=${this.file}
+                        .folder=${this.folder}
+                        .onChange=${this.onChange}
+                    ></file-analysis-store-button>
+                    <file-analysis-restore-button
+                        variant="primary"
+                        size="md"
+                        .info=${this.file}
+                        .folder=${this.folder}
+                        .onChange=${this.onChange}
+                    ></file-analysis-restore-button>
+                </aside>`
+                : nothing}
+
+            </div>
+            `;
+
+
+        }
+
+
+        return html`<div class="analyses">
+            ${content}
+        </div>`;
+
     }
 
 
@@ -402,7 +538,7 @@ export class FileThumbnail extends ClientConsumer {
 
             main,
             header,
-            file-analysis-table,
+            .analyses,
             .file-comments {
                 display: table-cell;
                 vertical-align: top;
@@ -463,6 +599,37 @@ export class FileThumbnail extends ClientConsumer {
             file-tags {
                 margin-left: auto; /* Tagy vždy doprava */
             }
+
+            .analyses {
+
+                padding: .5em;
+                border-radius: var(--thermal-radius);
+                background: var( --thermal-background );
+
+                .analyses-inner {
+                    height: 100%;
+                    display: flex;
+                    flex-direction: column;
+                    gap: .5em;
+
+                    file-analysis-complex {
+                        flex-grow: 1;
+                    }
+
+                    aside {
+                        display: flex;
+                        gap: .5em;
+                        width: 100%;
+                    }
+                }
+
+                file-analysis-complex {
+                    background: var(--thermal-background);
+                }
+
+            }
+
+
         }
     `;
 
@@ -477,6 +644,7 @@ export class FileThumbnail extends ClientConsumer {
                 autoclear="true"
                 role="article"
                 autoHighlight="true"
+                ${ref(this.instanceRef)}
             >
 
                 <main>
@@ -528,8 +696,7 @@ export class FileThumbnail extends ClientConsumer {
 
                 </header>
 
-
-                <file-analysis-table></file-analysis-table>
+                ${this.renderAnalyses()}
 
                 
                 ${this.showDiscussion === true
