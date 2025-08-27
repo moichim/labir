@@ -215,7 +215,7 @@ final class Lrc
         $this->label = $json["label"] ?? null;
         $this->description = $json["description"] ?? null;
 
-        $this->timestamp = $json["timestamp"];
+        $this->timestamp = $json["timestamp"] ?? 0;
         $this->tags = $json["tags"] ?? [];
         $this->analyses = $json["analyses"] ?? [];
         $this->uploaded = $json["uploaded"] ?? time() * 1000;

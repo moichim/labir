@@ -136,15 +136,15 @@ export class Client {
                 this.onConnection.call(response.colophon.server);
             } else {
                 this.onConnection.call(false);
-                this.onLoading.call( false );
+                this.onLoading.call(false);
             }
 
             return response;
 
         } catch (error) {
 
-            this.onConnection.call( false );
-            this.onLoading.call( false );
+            this.onConnection.call(false);
+            this.onLoading.call(false);
 
             const response: ApiResponseType<GetConnectDataType> = {
                 success: false,
@@ -251,32 +251,46 @@ export class Client {
         // Process the response
         this.processResponse(response);
 
-        const json = await response.json();
+        try {
 
-        json.raw = {
-            request: request,
-            response: response
+            const json = await response.clone().json();
+
+            json.raw = {
+                request: request,
+                response: response
+            }
+
+            // If the response failed completely, throw an error
+            if (!response.ok) {
+                throw new Error("Request was not successfull at all!");
+            }
+
+            this.activeRequests--;
+            if (this.activeRequests === 0) {
+                this.onLoading.call(false);
+            }
+
+            this.onResult.call(
+                json.colophon.time,
+                json.success,
+                json.code,
+                json.message,
+                request.method
+            )
+
+            return json as ApiResponseType<R>;
+
+        } catch (error) {
+
+            const text = await response.clone().text();
+
+            console.error( "API Call ended with an error!", {
+                request: request.url,
+                JSerror: error,
+                responseText: text
+            } );
+
         }
-
-        // If the response failed completely, throw an error
-        if (!response.ok) {
-            throw new Error("Request was not successfull at all!");
-        }
-
-        this.activeRequests--;
-        if (this.activeRequests === 0) {
-            this.onLoading.call(false);
-        }
-
-        this.onResult.call(
-            json.colophon.time,
-            json.success,
-            json.code,
-            json.message,
-            request.method
-        )
-
-        return json as ApiResponseType<R>;
 
     }
 

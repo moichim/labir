@@ -40,7 +40,11 @@ describe("Client", () => {
         expect( client.isConnected() ).toBe( false );
 
         // Try to connect to the server
-        await expect( client.connect() ).rejects.toThrowError( /server is not available|network error/i );
+        const connection = await client.connect();
+
+        // Make sure the connection response is failed
+        expect( connection.success ).toBe( false );
+        expect( connection.code ).toBe(404);
 
         // Check if the client is still not connected
         expect( client.isConnected() ).toBe( false );

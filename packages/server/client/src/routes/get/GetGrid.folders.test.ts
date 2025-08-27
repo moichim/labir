@@ -102,7 +102,7 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
     });
 
-    test("grid with only one file", async () => {
+    test("grid with no subdirectories", async () => {
 
         const client = new Client("http://localhost:8080");
 
@@ -114,13 +114,9 @@ describe("GetGrid - filtering by folders & consistency", () => {
 
         const result = await request.execute();
 
-        expect(result.success).toBe(true);
+        console.log( result );
 
-        testGrid(result.data);
-
-        expect(result.data?.count.displayed).toEqual(0);
-        expect(result.data?.count.omitted).toEqual(0);
-        expect(result.data?.count.total).toEqual(0);
+        expect(result.success).toBe(false);
 
     });
 

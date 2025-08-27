@@ -31,6 +31,7 @@ class Bootstrap
 		$this->initializeEnvironment();
 		$this->setupContainer();
 		// $this->setupTracyForCrossSite();
+		// Debugger::enable();
 		return $this->configurator->createContainer();
 	}
 
@@ -56,6 +57,8 @@ class Bootstrap
 		*/
 		// Zakážeme Tracy úplně, aby se nenastavovaly problematické cookies
 		// $this->configurator->enableTracy($this->rootDir . '/log');
+
+		$this->configurator->enableTracy($this->rootDir . '/log');
 
 		$this->configurator->createRobotLoader()
 			->addDirectory(__DIR__)

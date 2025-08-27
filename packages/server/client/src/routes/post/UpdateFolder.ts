@@ -45,6 +45,14 @@ export class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
         return this;
     }
 
+    public setThumbnail(
+        value: File
+    ): this {
+
+        this.request.addFile( "thumbnail", value );
+        return this;
+    }
+
     public addTag(
         key: string,
         name: string,
