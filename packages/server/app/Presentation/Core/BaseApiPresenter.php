@@ -59,13 +59,15 @@ abstract class BaseApiPresenter extends BasePresenter
         $request = $this->getRequest();
         $params = $request->getParameters();
 
-        $path = $params["path"];
+        if ( array_key_exists("path", $params) ) {
 
-        if ($path === null || $path === "") {
-            // throw new Exception('Path parameter is required.', 400);
-        } else {
-            $this->path = $path;
-            $this->dataPath = $this->getPath($path);
+            $path = $params["path"];
+
+            if ( $path !== null && $path !== "" ) {
+                $this->path = $path;
+                $this->dataPath = $this->getPath( $path );
+            }
+
         }
 
         $this->json["colophon"] = [
