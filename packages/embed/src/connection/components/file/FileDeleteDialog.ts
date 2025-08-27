@@ -140,7 +140,7 @@ export class FileDeleteDialog extends ClientConsumer {
                     iconStyle="micro"
                     tooltip=${label}
                 >
-                    
+                    ${label}
                 </thermal-btn>
 
                 <div slot="content" class="dialog-content">

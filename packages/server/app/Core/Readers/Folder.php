@@ -828,8 +828,8 @@ final class Folder
         foreach ($thumbnailPatterns as $pattern) {
             $thumbnailPath = $fullPath . DIRECTORY_SEPARATOR . $pattern;
             if (is_file($thumbnailPath)) {
-                // Vrať URL k thumbnail souboru
-                return $this->scanner->getFullUrl(trim($path, "/") . "/" . $pattern);
+                // Vrať URL k thumbnail souboru s /data/ segmentem
+                return $this->scanner->getFileUrl(trim($path, "/") . "/" . $pattern);
             }
         }
 

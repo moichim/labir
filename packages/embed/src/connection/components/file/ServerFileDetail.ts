@@ -138,6 +138,17 @@ export class ServerFileDetail extends ClientConsumer {
                         size="md"
                     ></file-analysis-restore-button>
 
+                    ${this.folder.may_manage_files_in ? html`
+                        <file-store-thumbnail
+                        size="md"
+                        variant="background"
+                        .file=${this.file}
+                        .folder=${this.folder}
+                        label="Uložit jako náhledový obrázek složky"
+                        tooltip="Aktuální zobrazení barevné palety, teplotního rozsahho bude použito jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
+                    >WTF?</file-store-thumbnail>
+                    ` : nothing}
+
                 </div>
 
 

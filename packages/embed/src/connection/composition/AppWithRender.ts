@@ -258,7 +258,8 @@ export abstract class AppWithRender extends AppWithContent {
                         .onDelete=${() => this.fetchContent()}
                         slot="header"
                         variant="foreground"
-                    ></file-delete-dialog>`
+                    ></file-delete-dialog>
+                    `
                     : nothing
                 }
 

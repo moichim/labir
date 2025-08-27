@@ -69,6 +69,19 @@ export class FolderThumbnail extends ClientConsumer {
             min-width: 100px; 
             height: 100%;
 
+            &.image {
+            
+                position: relative;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+
+                }
+            
+            }
+
         }
 
         .poster.lrc {
@@ -77,8 +90,9 @@ export class FolderThumbnail extends ClientConsumer {
 
             registry-provider,
             group-provider,
-            file-provider {
-                display: block;
+            file-provider,
+            file-canvas {
+                display: contents;
                 margin: 0;
                 padding: 0;
                 line-height: 0;
@@ -194,12 +208,38 @@ export class FolderThumbnail extends ClientConsumer {
 
     `;
 
-    protected renderLrc() {
+    protected renderThumb() {
+        const thumb = this.folder.thumb;
+
+        if ( thumb && thumb.endsWith( ".lrc" ) ) {
+            return this.renderLrc( thumb );
+        } else if ( thumb && ( thumb.endsWith( ".png" ) || thumb.endsWith( ".jpg" ) || thumb.endsWith( ".jpeg" ) ) ) {
+            return this.renderImage( thumb );
+        }
+
+        return nothing;
+    }
+
+    protected renderImage(
+        url: string
+    ) {
+        // Přidej timestamp pro cache-busting
+        const separator = url.includes('?') ? '&' : '?';
+        const cacheBustingUrl = `${url}${separator}t=${Date.now()}`;
+        
+        return html`<div class="poster image">
+            <img src="${cacheBustingUrl}" alt="Thumbnail of folder ${this.folder.name ?? this.folder.slug}" />
+        </div>`;
+    }
+
+    protected renderLrc(
+        url: string
+    ) {
         const slug = this.folder.path + "__thumb";
         return html`<registry-provider slug="${slug}" class="poster lrc">
             <group-provider slug="${slug}">
                 <file-provider
-                    thermal="${this.folder.thumb}"
+                    thermal="${url}"
                     ms="0"
                 >
                     <file-canvas></file-canvas>    
@@ -214,10 +254,10 @@ export class FolderThumbnail extends ClientConsumer {
         </div>`;
     }
 
-    protected renderPreview(): TemplateResult {
+    protected renderPreview(): unknown {
 
         if ( this.folder.thumb && this.folder.thumb.startsWith( "http" ) ) {
-            return this.renderLrc();
+            return this.renderThumb();
         }
 
         return this.renderEmpty();
