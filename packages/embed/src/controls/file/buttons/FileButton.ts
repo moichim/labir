@@ -5,6 +5,9 @@ import { Instance } from "@labir/core";
 @customElement("file-button")
 export class FileButton extends AbstractFileButton {
 
+
+    tooltip: undefined = undefined;
+
     @property({type: String})
     label!: string;
 

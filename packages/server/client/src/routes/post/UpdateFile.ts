@@ -23,7 +23,7 @@ export class UpdateFile extends OperationWithFile<UpdateFileDataType> {
         return this;
     }
 
-    
+
 
     public setLabel(value: string): this {
         this.request.addBodyParameter("label", value);
@@ -69,30 +69,22 @@ export class UpdateFile extends OperationWithFile<UpdateFileDataType> {
 
     public async execute(): Promise<ApiResponseType<UpdateFileDataType>> {
 
+        this.request.addBodyParameter("clearTags", this._clearTags);
+
         // If tags should be cleared, add it to the request
-        if (this._clearTags === true) {
-            this.request.addBodyParameter("clearTags", true);
-        }
-        // Otherwise, add the tags to be added and removed
-        else {
-            if (this._tagsAdd.length > 0)
-                this.request.addBodyParameter("addTags", this._tagsAdd);
-            if (this._tagsRemove.length > 0)
-                this.request.addBodyParameter("removeTags", this._tagsRemove);
-        }
+        if (this._tagsAdd.length > 0)
+            this.request.addBodyParameter("addTags", this._tagsAdd);
+        if (this._tagsRemove.length > 0)
+            this.request.addBodyParameter("removeTags", this._tagsRemove);
 
 
         // If analyses should be cleared, add it to the request
-        if (this._clearAnalyses === true) {
-            this.request.addBodyParameter("clearAnalyses", true);
-        }
+        this.request.addBodyParameter("clearAnalyses", this._clearAnalyses);
         // Otherwise, add the analyses to be added and removed
-        else {
-            if (this._analysisAdd.length > 0 )
-                this.request.addBodyParameter("addAnalyses", this._analysisAdd);
-            if (this._analysisRemove.length > 0 )
-                this.request.addBodyParameter("removeAnalyses", this._analysisRemove);
-        }
+        if (this._analysisAdd.length > 0)
+            this.request.addBodyParameter("addAnalyses", this._analysisAdd);
+        if (this._analysisRemove.length > 0)
+            this.request.addBodyParameter("removeAnalyses", this._analysisRemove);
 
         const response = await this.client.fetch<UpdateFileDataType>(this.request);
 

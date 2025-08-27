@@ -1,10 +1,13 @@
 import { Client } from "../../Client";
 import { CreateFolder } from "../post/CreateFolder";
+import { DeleteFile } from "../post/DeleteFile";
+import { DeleteFolder } from "../post/DeleteFolder";
 import { FileAddComment } from "../post/FileAddComment";
 import { FileClearComments } from "../post/FileClearComments";
 import { FileDeleteComment } from "../post/FileDeleteComment";
 import { FileUpdateComment } from "../post/FileUpdateComment";
 import { Login } from "../post/Login";
+import { Logout } from "../post/Logout";
 import { MoveFolder } from "../post/MoveFolder";
 import { UpdateFile } from "../post/UpdateFile";
 import { UpdateFolder } from "../post/UpdateFolder";
@@ -24,6 +27,11 @@ export class PostRoutesFactory {
             .init()
             .setUser(login)
             .setPassword(password);
+    }
+
+    public logout(): Logout {
+        return (new Logout(this.client))
+            .init();
     }
 
     public createFolder(
@@ -122,6 +130,24 @@ export class PostRoutesFactory {
             .setPath( folderPath )
             .setFile( filename )
             .setCommentTimestamp( timestamp );
+    }
+
+    public deleteFolder(
+        folderPath: string
+    ): DeleteFolder {
+        return (new DeleteFolder(this.client))
+            .init()
+            .setPath( folderPath );
+    }
+
+    public deleteFile(
+        folderPath: string,
+        fileName: string
+    ): DeleteFile {
+        return (new DeleteFile(this.client))
+            .setPath(folderPath)
+            .setFile( fileName )
+            .init();
     }
 
 }

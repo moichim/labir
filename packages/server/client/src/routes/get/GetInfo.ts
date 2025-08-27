@@ -1,11 +1,15 @@
-import { FolderInfo } from "../../responseEntities";
+import { BreadcrumbItem, FolderInfo, TagDefinition } from "../../responseEntities";
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetInfoDataType = {
+    breadcrumb: BreadcrumbItem[]
     folder: FolderInfo,
     subfolders: false | {
         [index: string]: FolderInfo
+    },
+    tags: {
+        [index: string]: TagDefinition
     }
 }
 

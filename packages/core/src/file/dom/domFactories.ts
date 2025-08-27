@@ -8,6 +8,7 @@ export default class ThermalDomFactory {
         container.style.position = "relative";
         // container.part.add( "thermal-canvas" );
         container.style.userSelect = "none";
+        container.part = "thermal-canvas-wrapper";
         return container;
     }
 
@@ -24,6 +25,7 @@ export default class ThermalDomFactory {
         // canvas.style.cursor = "crosshair";
         //canvas.style.transition = "opacity 300ms ease-in-out";
         canvas.style.userSelect = "none";
+        canvas.part ="thermal-file-canvas";
         return canvas;
     }
 

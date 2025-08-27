@@ -101,7 +101,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
     public async draw(): Promise<boolean> {
 
         this.renderCount += 1;
-        console.log("Rendering", this.instance.fileName, this.renderCount);
 
         const paletteColors = this.getPalette();
 

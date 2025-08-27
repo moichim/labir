@@ -291,13 +291,17 @@ final class Lrc
     }
 
 
+    public function getUrl()
+    {
+        return $this->url;
+    }
 
 
     public function getPath()
     {
         return $this->path;
     }
-    
+
     public function getFileName()
     {
         return $this->fileName;
@@ -532,11 +536,15 @@ final class Lrc
             $json['tags'] = [];
         } else {
             if (isset($params['addTags']) && is_array($params['addTags'])) {
-                $sanitizedTags = array_map(function($t) { return Json::s($t); }, $params['addTags']);
+                $sanitizedTags = array_map(function ($t) {
+                    return Json::s($t);
+                }, $params['addTags']);
                 $json['tags'] = array_values(array_unique(array_merge($json['tags'], $sanitizedTags)));
             }
             if (isset($params['removeTags']) && is_array($params['removeTags'])) {
-                $sanitizedRemoveTags = array_map(function($t) { return Json::s($t); }, $params['removeTags']);
+                $sanitizedRemoveTags = array_map(function ($t) {
+                    return Json::s($t);
+                }, $params['removeTags']);
                 $json['tags'] = array_values(array_diff($json['tags'], $sanitizedRemoveTags));
             }
         }
@@ -546,16 +554,20 @@ final class Lrc
         }
         if (!empty($params['clearAnalyses'])) {
             $json['analyses'] = [];
-        } else {
-            if (isset($params['addAnalyses']) && is_array($params['addAnalyses'])) {
-                $sanitizedAnalyses = array_map(function($a) { return Json::s($a); }, $params['addAnalyses']);
-                $json['analyses'] = array_values(array_unique(array_merge($json['analyses'], $sanitizedAnalyses)));
-            }
-            if (isset($params['removeAnalyses']) && is_array($params['removeAnalyses'])) {
-                $sanitizedRemoveAnalyses = array_map(function($a) { return Json::s($a); }, $params['removeAnalyses']);
-                $json['analyses'] = array_values(array_diff($json['analyses'], $sanitizedRemoveAnalyses));
-            }
         }
+        if (isset($params['addAnalyses']) && is_array($params['addAnalyses'])) {
+            $sanitizedAnalyses = array_map(function ($a) {
+                return Json::s($a);
+            }, $params['addAnalyses']);
+            $json['analyses'] = array_values(array_unique(array_merge($json['analyses'], $sanitizedAnalyses)));
+        }
+        if (isset($params['removeAnalyses']) && is_array($params['removeAnalyses'])) {
+            $sanitizedRemoveAnalyses = array_map(function ($a) {
+                return Json::s($a);
+            }, $params['removeAnalyses']);
+            $json['analyses'] = array_values(array_diff($json['analyses'], $sanitizedRemoveAnalyses));
+        }
+
         $this->writeJson($json);
         // Refresh instance
         $this->tags = $json['tags'];
@@ -659,7 +671,6 @@ final class Lrc
                     throw new \Exception('You can only update your own comment.', 403);
                 }
                 $json['comments'][$i]['message'] = $message;
-                $json['comments'][$i]['timestamp'] = (int)(microtime(true) * 1000);
                 $found = true;
                 break;
             }
@@ -680,5 +691,64 @@ final class Lrc
         $this->writeJson($json);
     }
 
+    /**
+     * Smaže soubor a všechny související soubory (JSON, preview, visual).
+     * @throws \Exception
+     */
+    public function delete(): void
+    {
+        // Zjisti aktuálního uživatele a zkontroluj oprávnění
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity && isset($identity['user']) ? $identity['user'] : null;
 
+        if (!$this->scanner->access->userMayManageFilesIn($this->path, $user)) {
+            throw new \Exception('You do not have permission to delete files in this folder.', 403);
+        }
+
+        $dir = $this->scanner->getFullPath($this->path);
+        $errors = [];
+
+        // 1. Smaž hlavní LRC soubor
+        $lrcPath = $dir . DIRECTORY_SEPARATOR . $this->fileName;
+        if (is_file($lrcPath)) {
+            if (!@unlink($lrcPath)) {
+                $errors[] = "Failed to delete LRC file: {$this->fileName}";
+            }
+        }
+
+        // 2. Smaž JSON soubor
+        $jsonPath = $this->getJsonPath();
+        if (is_file($jsonPath)) {
+            if (!@unlink($jsonPath)) {
+                $errors[] = "Failed to delete JSON file";
+            }
+        }
+
+        // 3. Smaž preview obrázek
+        if ($this->preview) {
+            $previewFileName = basename(parse_url($this->preview, PHP_URL_PATH));
+            $previewPath = $dir . DIRECTORY_SEPARATOR . $previewFileName;
+            if (is_file($previewPath)) {
+                if (!@unlink($previewPath)) {
+                    $errors[] = "Failed to delete preview image: {$previewFileName}";
+                }
+            }
+        }
+
+        // 4. Smaž visual obrázek
+        if ($this->visual) {
+            $visualFileName = basename(parse_url($this->visual, PHP_URL_PATH));
+            $visualPath = $dir . DIRECTORY_SEPARATOR . $visualFileName;
+            if (is_file($visualPath)) {
+                if (!@unlink($visualPath)) {
+                    $errors[] = "Failed to delete visual image: {$visualFileName}";
+                }
+            }
+        }
+
+        // Pokud nastaly nějaké chyby, vyhoď výjimku
+        if (!empty($errors)) {
+            throw new \Exception('Some files could not be deleted: ' . implode(', ', $errors), 500);
+        }
+    }
 }

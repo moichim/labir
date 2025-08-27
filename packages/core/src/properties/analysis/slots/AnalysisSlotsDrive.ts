@@ -170,7 +170,11 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
                 this.value.delete(a.slot);
 
-                this.parent.group.analysisSync.deleteSlot( this.parent, a.slot );
+                // Delete all other analysis in the slot of the group only 
+                // when the synchronisation is on
+                if ( this.parent.group.analysisSync.value === true ) {
+                    this.parent.group.analysisSync.deleteSlot( this.parent, a.slot );
+                }
 
                 this.callEffectsAndListeners();
 

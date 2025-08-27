@@ -160,6 +160,11 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
             
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
 
+                // Abort when synchronisation is off
+                if ( f.group.analysisSync.value === false ) {
+                    return;
+                }
+
                 this.onSlotSync.call(value, slotNumber);
 
                 // Create new slots if not yet existing
@@ -247,7 +252,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         this.parent.files.forEveryInstance(
             instance => {
 
-                if ( instance === this.currentPointer ) {
+                if ( 
+                    instance === this.currentPointer 
+                    || instance.group.analysisSync.value === false
+                ) {
                     return;
                 }
 
@@ -280,6 +288,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         const map = instance.slots.getSlotMap();
 
         allOtherFiles.forEach(file => {
+
+            if ( file.group.analysisSync.value === false ) {
+                return;
+            }
 
             for (const [slt, value] of map) {
 

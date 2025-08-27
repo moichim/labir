@@ -34,6 +34,7 @@ Author: ${author}`);
 import "./controls/file/analysis/chart/chart";
 
 // 1. UI components
+import "./ui/Btn";
 import "./ui/Dialog";
 import "./ui/Button";
 import "./ui/Dropdown";
@@ -41,6 +42,10 @@ import "./ui/Bar";
 import "./ui/App";
 import "./ui/Field";
 import "./ui/Loading";
+import "./ui/Spinner";
+import "./ui/Icon";
+import "./ui/Radio";
+import "./ui/Slot";
 
 
 
@@ -148,8 +153,42 @@ import "./apps/file/FileApp";
 import "./apps/group/GroupApp";
 import "./apps/remote/RemoteBrowser";
 
+import "./apps/connected/ConnectedApp";
+
+// 8. Connection components
+import "./connection/components/auth/UserButton";
+import "./connection/components/server/ServerBar"
+import "./connection/components/folder/FolderBaseInfo";
+import "./connection/components/folder/FolderSubfolders";
+import "./connection/components/auth/LoginForm";
+import "./connection/components/server/ServerBreadcrumb";
+import "./connection/components/folder/FolderThumbnail";
+import "./connection/components/folder/FolderBreadcrumb";
+import "./connection/components/folder/FolderFiles";
+import "./connection/components/folder/FolderAddDialog";
+import "./connection/components/folder/FolderDeleteDialog";
+import "./connection/components/folder/FolderUploadDialog";
+import "./connection/components/folder/FolderEditDialog";
+import "./connection/components/folder/DisplayMode";
+import "./connection/components/folder/EditingMode";
+import "./connection/components/folder/AnalysisMode";
+import "./connection/components/folder/FolderTagsFilter";
+
+import "./connection/components/file/ServerFileDetail";
+import "./connection/components/file/ServerFileHeader";
+import "./connection/components/file/FileEditDialog";
+import "./connection/components/file/FileCommentForm";
+import "./connection/components/file/FileComments";
+import "./connection/components/file/FileComment";
+import "./connection/components/file/FileDeleteDialog";
+import "./connection/components/file/FileCommentsDialog";
+import "./connection/components/file/FileAnalysisStoreButton";
+import "./connection/components/file/FileAnalysisRestoreButton";
+import "./connection/components/file/FileTags";
+import "./connection/components/file/FileThumbnail";
 
 
+import "./connection/components/user/UserFolders";
 
 
 

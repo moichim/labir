@@ -1,10 +1,10 @@
-import { RequestFactory } from "../../request/RequestFactory";
-import { Identity } from "../../responseEntities";
+import { FolderInfo, Identity } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type GetConnectDataType = {
-    identity: false | Identity
+    identity: false | Identity,
+    userFolders: FolderInfo[]
 }
 
 export class GetConnect extends Operation<GetConnectDataType> {
@@ -21,12 +21,9 @@ export class GetConnect extends Operation<GetConnectDataType> {
 
         if (response.success) {
 
-            // If the connection was successful, set the identity in the auth module
-            const typedResponse = response;
-
             // If the identity is not false, login the user
-            if (typedResponse.data.identity !== false) {
-                this.client.auth.login(typedResponse.data.identity);
+            if (response.data.identity !== false) {
+                this.client.auth.login(response.data.identity, response.data.userFolders);
             }
 
         }

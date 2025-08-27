@@ -42,7 +42,7 @@ $id = uniqid("dropin_");
 
 	<?php endif; ?>
 
-	<thermal-dropin-app id="<?= $id; ?>" locale="<?= get_locale(); ?>"><?php if ($statistics):?><thermal-dialog label="<?= __( 'Privacy', 'thermal-display' ); ?>" slot="header">
+	<thermal-dropin-app id="<?= $id; ?>" locale="<?= get_locale(); ?>"><?php if ($statistics):?><thermal-dialog label="<?= __( 'Privacy', 'thermal-display' ); ?>" slot="bar-pre">
 		<thermal-button slot="invoker"><?= __( 'Privacy', 'thermal-display' ); ?></thermal-button>
 		<div slot="content">
 			<p><?= __("This module stores anonymised usage data.", 'thermal-display' ); ?></p>

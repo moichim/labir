@@ -21,16 +21,19 @@
     "isolatedModules": true,
     "declaration": true,
     "noEmit": true,
-    "baseUrl": "./packages",
+    "baseUrl": "../..",
     "paths": {
       "@labir/core": [
-        "core/src"
+        "packages/core/src"
+      ],
+      "@labir/server": [
+        "packages/server/client/src"
       ],
       "@labir/react-bridge": [
-        "react-bridge/src"
+        "packages/react-bridge/src"
       ],
       "@labir/emotion": [
-        "emotion/src"
+        "packages/emotion/src"
       ]
     },
     "types": [

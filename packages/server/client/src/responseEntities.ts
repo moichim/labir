@@ -1,3 +1,10 @@
+export type ServerInfo = {
+  url: string,
+  name?: string,
+  description?: string,
+  version: string
+}
+
 export type Identity = {
 
     user: string,
@@ -23,6 +30,15 @@ export interface ApiEditableEntity {
 
 }
 
+export type BreadcrumbItem = {
+  name: string,
+  slug: string,
+  path: string,
+  protected: boolean,
+  current: boolean,
+  type: "folder" | "server" | "user"
+}
+
 export interface FolderInfo extends ApiEditableEntity {
   entity: "folder";
   api: string;
@@ -30,16 +46,31 @@ export interface FolderInfo extends ApiEditableEntity {
   slug: string;
   name: string;
   description: string | null;
+  thumb: string | null,
   meta: Record<string, any>;
   lrc_count: number;
   protected: boolean;
   may_have_files?: boolean;
+  may_manage_files_in: boolean;
+  may_manage_folders_in: boolean;
+  may_read_folder: boolean;
   own_tags: [] | {
     [index: string]: TagInfo;
   };
   parent_tags: [] | {
     [index: string]: TagInfo;
   };
+}
+
+export type Comment = {
+  message: string
+  timestamp: number
+  by: {
+    name: string
+    login: string
+    institution: string | null
+    description: string | null
+  }
 }
 
 export interface FileInfo extends ApiEditableEntity{
@@ -81,15 +112,7 @@ export interface FileInfo extends ApiEditableEntity{
   /** Storage of the analyses */
   analyses: string[]
   /** Stoage of comments */
-  comments: {
-    message: string,
-    timestamp: number,
-    by: {
-      name: string,
-      institution: string | null,
-      description: string | null
-    }
-  }[]
+  comments: Comment[]
 }
 
 export type TagDefinition = {

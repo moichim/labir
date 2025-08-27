@@ -2,5 +2,9 @@
     "timestamp": 1741867568632,
     "analyses": [],
     "uploaded": 1750857577000,
-    "tags": []
+    "tags": [
+        "tag1"
+    ],
+    "label": "Tento soubor je hezky popsaný a funguje to nádherně",
+    "description": "Ano prosím, máte tady něco, co je potřeba udělat, prosím?"
 }

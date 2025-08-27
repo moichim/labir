@@ -206,5 +206,39 @@ export const cs: Translation = {
     colourpalette: "Barevná paleta",
     palettehint: "Rozbalovací nabídka pro přepínání barevné palety.",
 
-    remotefoldersbrowser: "Prohlížeč vzdálených složek"
+    remotefoldersbrowser: "Prohlížeč vzdálených složek",
+
+
+
+    server: "Server",
+    networklog: "Síťový záznam",
+    editfile: "Upravit soubor",
+    editfolder: "Upravit složku",
+    editcomment: "Upravit komentář",
+    user: "Uživatel",
+    griddisplay: "Zobrazit jako mřížku",
+    tabledisplay: "Zobrazit jako tabulku",
+    deletefile: "Smazat soubor",
+    deletefolder: "Smazat složku",
+    comments: "Komentáře",
+    deletecomment: "Smazat komentář",
+    savecomment: "Uložit komentář",
+    addcomment: "Přidat komentář",
+    nocomments: "Žádné komentáře",
+    savechanges: "Uložit změny",
+    uploadfile: "Nahrát soubor",
+    compactview: "Kompaktní zobrazení",
+    showdiscussion: "Zobrazit diskuzi",
+    edittags: "Upravit štítky",
+    availabletags: "Dostupné štítky",
+    assignedtags: "Přiřazené štítky",
+    connectioninformation: "Informace o připojení",
+    serverurl: "URL serveru",
+    servername: "Název serveru",
+    login: "Přihlášení",
+    logout: "Odhlášení",
+    password: "Heslo",
+    logoutmessage: "Opravdu se chcete odhlásit?",
+    loginerror: "Nelze se přihlásit.",
+    accessibletologgedinusers: "Tato stránka je přístupná pouze přihlášeným uživatelům."
 }

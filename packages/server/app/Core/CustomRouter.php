@@ -32,6 +32,15 @@ class CustomRouter implements Router
 
         $params = $this->parseParams($request->getQuery());
 
+        // All OPTIONS requests are being redirected to the OptionsPresenter
+        if ( $request->isMethod( "OPTIONS" ) ) {
+
+            return [
+                "presenter" => "Options",
+                "action" => "default"
+            ];
+        }
+
         $parameters = [
             "path" => $path,
             "url" => $url->getAbsoluteUrl(),
@@ -41,6 +50,7 @@ class CustomRouter implements Router
         $rootActions = [
             "connect",
             "login",
+            "logout",
             "currentusertree"
         ];
 
@@ -104,7 +114,8 @@ class CustomRouter implements Router
         $action = $params['action'] ?? 'default';
 
         // Speciální případ: login
-        if ($presenter === 'Post' && $action === 'login') {
+        if ($presenter === 'Post' && 
+        ( $action === 'login' || $action === 'logout') ) {
             $presenter = 'Auth';
         }
 

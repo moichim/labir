@@ -1,10 +1,10 @@
-import { RequestFactory } from "../../request/RequestFactory";
-import { Identity } from "../../responseEntities";
+import { FolderInfo, Identity } from "../../responseEntities";
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type LoginDataType = {
-    login: Identity
+    login: Identity,
+    userFolders: FolderInfo[]
 }
 
 export class Login extends Operation<LoginDataType> {
@@ -35,11 +35,8 @@ export class Login extends Operation<LoginDataType> {
 
         if (response.success ) {
 
-            // Retype the response
-            const typedResponse = response;
-
             // Login the user
-            this.client.auth.login( typedResponse.data.login );
+            this.client.auth.login( response.data.login, response.data.userFolders );
 
         }
 

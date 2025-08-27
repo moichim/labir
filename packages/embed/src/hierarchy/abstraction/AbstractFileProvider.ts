@@ -1,10 +1,11 @@
-import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure } from "@labir/core";
+import { AbstractAnalysis, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalRangeOrUndefined } from "@labir/core";
 import { html, PropertyValues } from "lit";
-import { FileMarker } from "../../controls/file/markers/ImageMarker";
 import { GroupConsumer } from "../consumers/GroupConsumer";
 import { analysisList, AnalysisList, currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FailureContext, fileContext, fileCursorContext, FileCursorContext, fileMarkersContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
-import { queryAssignedElements, state } from "lit/decorators.js";
-import { provide } from "@lit/context";
+import { property, queryAssignedElements, state } from "lit/decorators.js";
+import { consume, provide } from "@lit/context";
+import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 export abstract class AbstractFileProvider extends GroupConsumer {
 
@@ -30,7 +31,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @provide({ context: currentFrameContext })
     protected currentFrame?: CurrentFrameContext;
 
-    @provide({context: fileCursorContext})
+    @provide({ context: fileCursorContext })
     protected cursor: FileCursorContext = undefined;
 
     protected cursorSetter = (percent: number | undefined) => {
@@ -65,12 +66,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @state()
     protected mayStop: boolean = true;
 
-    @queryAssignedElements({ slot: "mark", flatten: true })
-    marksQueriedInternally!: FileMarker[];
-
-    @provide({ context: fileMarkersContext })
-    marksProvidedBelow: FileMarker[] = [];
-
     @provide({ context: analysisList })
     analysis: AnalysisList = [];
 
@@ -93,16 +88,16 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     /** Actions taken when loading ends with error */
     public readonly onFailure = new CallbacksManager<(error: ThermalFileFailure) => void>;
 
+    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
+    autoHighlight: boolean = false;
+
+    @consume({ context: registryHighlightContext, subscribe: true })
+    protected highlight?: ThermalRangeOrUndefined;
+
+    @consume({ context: setRegistryHighlightContext, subscribe: true })
+    protected highlightSetter?: (highlight: ThermalRangeOrUndefined) => void;
 
 
-
-    protected firstUpdated(_changedProperties: PropertyValues): void {
-        super.firstUpdated(_changedProperties);
-        this.marksProvidedBelow = this.marksQueriedInternally;
-
-        this.marksProvidedBelow.forEach(mark => console.log(mark.innerHTML));
-        
-    }
 
     public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {
         super.updated(_changedProperties);
@@ -253,6 +248,26 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         // Draw the instance in the end
         // instance.draw();
 
+
+        this.addEventListener("mouseenter", () => {
+
+            if ( this.autoHighlight && this.file && this.highlightSetter ) {
+                this.highlightSetter( {
+                    from: this.file.min,
+                    to: this.file.max
+             } );
+
+            }
+
+        });
+
+
+        this.addEventListener("mouseleave", () => {
+            if (this.autoHighlight && this.highlightSetter) {
+                this.highlightSetter(undefined);
+            }
+        });
+
     }
 
 
@@ -389,7 +404,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     ) {
 
         if (value !== undefined && value !== null && value.trim().length > 0) {
-            if ( instance.slots.hasSlot(index) ) {
+            if (instance.slots.hasSlot(index)) {
 
                 const analysis = instance.slots.getSlot(index);
                 analysis?.recieveSerialized(value);
@@ -401,8 +416,8 @@ export abstract class AbstractFileProvider extends GroupConsumer {
                 analysis?.setSelected(false, true);
             }
 
-            
-            
+
+
         }
 
     }

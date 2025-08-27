@@ -7,6 +7,8 @@ import type { GetCurrentUserTreeDataType } from "./routes/get/GetCurrentUserTree
 import type { LoginDataType } from "./routes/post/Login";
 import type { UpdateFolderDataType } from "./routes/post/UpdateFolder";
 
+import type { ServerInfo, Identity, FolderInfo, FileInfo, TagInfo, TagDefinition, TreeItem, Comment, BreadcrumbItem } from "./responseEntities";
+
 export default Client;
 
 export type {
@@ -16,5 +18,15 @@ export type {
     GetGridDataType,
     GetCurrentUserTreeDataType,
     LoginDataType as PostLoginDataType,
-    UpdateFolderDataType as PostUpdateFolderDataType
+    UpdateFolderDataType as PostUpdateFolderDataType,
+
+    ServerInfo,
+    Identity,
+    FolderInfo,
+    FileInfo,
+    TagInfo,
+    TagDefinition,
+    TreeItem,
+    Comment,
+    BreadcrumbItem
 }

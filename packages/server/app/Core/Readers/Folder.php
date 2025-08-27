@@ -71,6 +71,17 @@ final class Folder
             $may_have_files = isset($access['may_have_files']) ? $access['may_have_files'] : false;
         }
 
+        $identity = $this->scanner->authorisation->getIdentity();
+        $login = $identity ? $identity["user"] : null;
+
+        $may_manage_files_in = $this->scanner->authorisation->isLoggedin()
+            ? $this->scanner->access->userMayManageFilesIn($path, $login)
+            : false;
+
+        $may_manage_folders_in = $this->scanner->authorisation->isLoggedin()
+            ? $this->scanner->access->userMayManageFoldersIn($path, $login)
+            : false;
+
         $info = [
             "entity" => "folder",
             "api" => $this->scanner->getFullUrl($path),
@@ -81,7 +92,11 @@ final class Folder
             "meta" => [],
             "lrc_count" => $this->getFileCount($path),
             "protected" => $protected,
-            "may_have_files" => $may_have_files
+            "may_have_files" => $may_have_files,
+            "may_manage_files_in" => $may_manage_files_in,
+            "may_manage_folders_in" => $may_manage_folders_in,
+            "may_read_folder" => $this->scanner->access->userMayReadFolder($path, $login),
+            "thumb" => $this->getLastLrcThumb($path)
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -672,7 +687,7 @@ final class Folder
             'protected' => $info['protected'],
             'may_have_files' => $info['may_have_files'],
             'metadata' => $info['data'],
-            'subfolders' => $info['subfolders'],
+            'subfolders' => $info['subfolders']
         ];
     }
 
@@ -791,5 +806,193 @@ final class Folder
         // Nahraj vše přes Lrc::upload
         return Lrc::upload($this->scanner, $path, $lrcFile, $visualFile, $previewFile);
     }
+
+    /**
+     * Vrátí URL posledního LRC souboru ve složce nebo null
+     */
+    protected function getLastLrcThumb(string $path): ?string
+    {
+        $fullPath = $this->scanner->getFullPath($path);
+        if (!is_dir($fullPath)) {
+            return null;
+        }
+
+        $lastLrc = null;
+        $lastTimestamp = 0;
+
+        foreach (new FilesystemIterator($fullPath, FilesystemIterator::SKIP_DOTS) as $item) {
+            if (preg_match('/\.lrc$/i', $item->getFileName()) && is_file($fullPath . DIRECTORY_SEPARATOR . $item->getFileName())) {
+                $lrc = Lrc::createIfExists($this->scanner, $path, $item->getFileName());
+                if ($lrc && $lrc->getTimestamp() > $lastTimestamp) {
+                    $lastTimestamp = $lrc->getTimestamp();
+                    $lastLrc = $lrc;
+                }
+            }
+        }
+
+        return $lastLrc ? $lastLrc->getUrl() : null;
+    }
+
+    /**
+     * Vrátí breadcrumb navigaci pro danou složku
+     * Prochází hierarchii nahoru až do kořene nebo dokud má uživatel práva
+     */
+    public function getBreadcrumb(string $path): array
+    {
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        
+        $breadcrumb = [];
+        
+        // Získej server info
+        $serverInfo = $this->scanner->getServerInfo();
+        $serverName = isset($serverInfo['name']) ? $serverInfo['name'] : 'Server';
+        $serverUrl = isset($serverInfo['url']) ? $serverInfo['url'] : '';
+        
+        // Přidej server na začátek
+        $breadcrumb[] = [
+            'name' => $serverName,
+            'slug' => $serverUrl,
+            'path' => '',
+            'type' => 'server',
+            'protected' => false,
+            'current' => false
+        ];
+        
+        // Pokud je uživatel přihlášen, přidej user
+        if ($user !== null) {
+            // Získej informace o uživateli
+            $userData = $this->scanner->access->getUser($user, true);
+            $userName = isset($userData['name']) ? $userData['name'] : $user;
+            
+            $breadcrumb[] = [
+                'name' => $userName,
+                'slug' => $user,
+                'path' => $user,
+                'type' => 'user',
+                'protected' => true,
+                'current' => false
+            ];
+        }
+        
+        $currentPath = trim($path, "/");
+        $folderBreadcrumb = [];
+        $isFirst = true;
+        
+        // Pokud je uživatel přihlášen, najdi nejvyšší složku s explicitním přístupem
+        $stopAtPath = '';
+        if ($user !== null) {
+            $userData = $this->scanner->access->getUser($user, true);
+            if ($userData && isset($userData['access']) && is_array($userData['access'])) {
+                // Najdi nejdelší cestu z user access, která je předkem aktuální cesty
+                foreach ($userData['access'] as $accessPath) {
+                    $accessPath = trim($accessPath, '/');
+                    // Zkontroluj, zda je accessPath předkem currentPath
+                    if ($currentPath === $accessPath || str_starts_with($currentPath . '/', $accessPath . '/')) {
+                        if (strlen($accessPath) > strlen($stopAtPath)) {
+                            $stopAtPath = $accessPath;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Projdi cestu nahoru až do kořene a sestav položky v opačném pořadí
+        while (true) {
+            // Zkontroluj, zda uživatel může číst aktuální složku
+            if (!$this->scanner->access->userMayReadFolder($currentPath, $user)) {
+                break;
+            }
+            
+            // Získej informace o složce
+            $folderInfo = $this->getInfo($currentPath);
+            
+            // Vytvoř breadcrumb položku
+            $breadcrumbItem = [
+                'name' => $folderInfo['name'],
+                'slug' => $folderInfo['slug'],
+                'path' => $folderInfo['path'],
+                'type' => 'folder',
+                'protected' => $folderInfo['protected'],
+                'current' => $isFirst
+            ];
+            
+            // Přidej na začátek pole složek (tím se otočí pořadí)
+            array_unshift($folderBreadcrumb, $breadcrumbItem);
+            
+            $isFirst = false;
+            
+            // Pokud jsme dosáhli nejvyšší složky s explicitním přístupem, ukonči
+            if ($user !== null && $currentPath === $stopAtPath) {
+                break;
+            }
+            
+            // Pokud jsme v kořeni, ukonči
+            if ($currentPath === '' || $currentPath === '.' || $currentPath === '/') {
+                break;
+            }
+            
+            // Přejdi na rodičovskou složku
+            $parentPath = dirname($currentPath);
+            if ($parentPath === '.' || $parentPath === $currentPath) {
+                $currentPath = '';
+            } else {
+                $currentPath = $parentPath;
+            }
+        }
+        
+        // Odstraň kořenovou složku (první položku) z folderBreadcrumb
+        if (!empty($folderBreadcrumb) && $folderBreadcrumb[0]['path'] === '') {
+            array_shift($folderBreadcrumb);
+        }
+        
+        // Spojí server/user breadcrumb s folder breadcrumb
+        return array_merge($breadcrumb, $folderBreadcrumb);
+    }
+
+
+    public function getUserRootFolders( string $login ): array {
+
+        $folders = [];
+
+        $user = $this->scanner->access->getUser( $login, true );
+
+        if ( 
+            $user 
+            && is_array( $user ) 
+            && isset( $user["access"] ) 
+            && is_array( $user["access"] )
+        ) {
+
+            foreach ( $user["access"] as $folderPath ) {
+
+                $folderPath = trim( $folderPath, "/" );
+
+                if ( $folderPath === "" ) {
+
+                    $subfolders = $this->getSubdirectories( "/", $login );
+
+
+                    if ( $subfolders && is_array( $subfolders ) ) {
+                        foreach ( $subfolders as $subfolder ) {
+                            $folders[] = $this->getInfo( $subfolder["path"] );
+                        }
+                    }
+
+                } else {
+                    // Získá informace o složce
+                    $folders[] = $this->getInfo( $folderPath );
+                }
+
+            }
+
+        }
+
+        return $folders;
+
+    }
+
+
+
 
 }
