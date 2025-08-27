@@ -796,6 +796,10 @@ var UpdateFolder = class extends OperationWithPath {
     this.request.addBodyParameter("description", value);
     return this;
   }
+  setThumbnail(value) {
+    this.request.addFile("thumbnail", value);
+    return this;
+  }
   addTag(key, name, description, color) {
     this.tagBuffer[key] = { name };
     if (description !== void 0) this.tagBuffer[key].description = description;
@@ -1254,26 +1258,35 @@ var Client = class {
       throw new Error("Server is not available or network error occurred.");
     }
     this.processResponse(response);
-    const json = await response.json();
-    json.raw = {
-      request,
-      response
-    };
-    if (!response.ok) {
-      throw new Error("Request was not successfull at all!");
+    try {
+      const json = await response.clone().json();
+      json.raw = {
+        request,
+        response
+      };
+      if (!response.ok) {
+        throw new Error("Request was not successfull at all!");
+      }
+      this.activeRequests--;
+      if (this.activeRequests === 0) {
+        this.onLoading.call(false);
+      }
+      this.onResult.call(
+        json.colophon.time,
+        json.success,
+        json.code,
+        json.message,
+        request.method
+      );
+      return json;
+    } catch (error) {
+      const text = await response.clone().text();
+      console.error("API Call ended with an error!", {
+        request: request.url,
+        JSerror: error,
+        responseText: text
+      });
     }
-    this.activeRequests--;
-    if (this.activeRequests === 0) {
-      this.onLoading.call(false);
-    }
-    this.onResult.call(
-      json.colophon.time,
-      json.success,
-      json.code,
-      json.message,
-      request.method
-    );
-    return json;
   }
 };
 
