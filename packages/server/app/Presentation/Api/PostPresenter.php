@@ -134,48 +134,77 @@ final class PostPresenter extends BaseApiPresenter
         // --- 1. Získání slug aktuální složky ---
         $parentSlug = $this->scanner->getBasePath();
         
-        // --- 2. Získání a dekódování requestu ---
+        // --- 2. Získání requestu ---
         $request = $this->getHttpRequest();
-        $requestData = $request->getRawBody();
         $name = null;
         $description = null;
         $meta = [];
         $move = false;
         $addTags = null;
         $removeTags = null;
+        $thumbnailFile = null;
         
-        // --- 3. Zpracování vstupních dat z JSON body ---
-        if (is_string($requestData) && strlen($requestData) > 0) {
-            $data = json_decode($requestData, true);
-            if (is_array($data)) {
-                // Název složky
-                if (isset($data['name']) && is_string($data['name'])) {
-                    $name = $data['name'];
-                }
-                // Popis složky
-                if (isset($data['description']) && is_string($data['description'])) {
-                    $description = $data['description'];
-                }
-                // Metadata
-                if (isset($data['meta'])) {
-                    $meta = is_array($data['meta']) ? $data['meta'] : [];
-                }
-                // Přesun složky (přejmenování)
-                if (isset($data['move']) && $data['move'] === true) {
-                    $move = true;
-                }
-                // Přidání tagů
-                if (isset($data['addTags'])) {
-                    $addTags = $data['addTags'];
-                }
-                // Odebrání tagů
-                if (isset($data['removeTags'])) {
-                    $removeTags = $data['removeTags'];
+        // --- 3. Zpracování nahraného thumbnail souboru ---
+        $thumbnailFile = $request->getFile('thumbnail');
+        
+        // --- 4. Zpracování vstupních dat z POST nebo JSON body ---
+        // Nejprv zkus POST parametry (multipart/form-data)
+        $name = $request->getPost('name');
+        $description = $request->getPost('description');
+        $metaPost = $request->getPost('meta');
+        $movePost = $request->getPost('move');
+        $addTagsPost = $request->getPost('addTags');
+        $removeTagsPost = $request->getPost('removeTags');
+        
+        // Dekóduj JSON stringy z POST
+        if (is_string($metaPost)) {
+            $meta = json_decode($metaPost, true) ?: [];
+        }
+        if (is_string($addTagsPost)) {
+            $addTags = json_decode($addTagsPost, true);
+        }
+        if (is_string($removeTagsPost)) {
+            $removeTags = json_decode($removeTagsPost, true);
+        }
+        if ($movePost === 'true' || $movePost === true) {
+            $move = true;
+        }
+        
+        // Pokud nejsou POST data, zkus JSON body (fallback pro kompatibilitu)
+        if ($name === null && $description === null && empty($meta) && !$move && $addTags === null && $removeTags === null) {
+            $requestData = $request->getRawBody();
+            if (is_string($requestData) && strlen($requestData) > 0) {
+                $data = json_decode($requestData, true);
+                if (is_array($data)) {
+                    // Název složky
+                    if (isset($data['name']) && is_string($data['name'])) {
+                        $name = $data['name'];
+                    }
+                    // Popis složky
+                    if (isset($data['description']) && is_string($data['description'])) {
+                        $description = $data['description'];
+                    }
+                    // Metadata
+                    if (isset($data['meta'])) {
+                        $meta = is_array($data['meta']) ? $data['meta'] : [];
+                    }
+                    // Přesun složky (přejmenování)
+                    if (isset($data['move']) && $data['move'] === true) {
+                        $move = true;
+                    }
+                    // Přidání tagů
+                    if (isset($data['addTags'])) {
+                        $addTags = $data['addTags'];
+                    }
+                    // Odebrání tagů
+                    if (isset($data['removeTags'])) {
+                        $removeTags = $data['removeTags'];
+                    }
                 }
             }
         }
 
-        // --- 4. Zavolání updateFolderContent s předanými parametry ---
+        // --- 5. Zavolání updateFolderContent s předanými parametry ---
         $result = $this->scanner->folder->updateFolderContent(
             $parentSlug, 
             $name, 
@@ -183,7 +212,8 @@ final class PostPresenter extends BaseApiPresenter
             $meta, 
             $move, 
             $addTags, 
-            $removeTags
+            $removeTags,
+            $thumbnailFile
         );
 
         // --- 5. Uložení výsledku a odpověď ---

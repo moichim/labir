@@ -190,6 +190,8 @@ import "./connection/components/file/FileThumbnail";
 
 import "./connection/components/user/UserFolders";
 
+import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
+
 
 
 

@@ -664,6 +664,7 @@ declare class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
     init(): this;
     setName(value: string): this;
     setDescription(value: string): this;
+    setThumbnail(value: File): this;
     addTag(key: string, name: string, description?: string, color?: string): this;
     removeTags(tags: string[]): this;
     setMetadata(value: Record<string, any>): void;

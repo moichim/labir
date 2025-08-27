@@ -293,7 +293,7 @@ describe("UploadFile", () => {
 
         expect( found ).toBe( true );
 
-    })
+    });
 
 
 });

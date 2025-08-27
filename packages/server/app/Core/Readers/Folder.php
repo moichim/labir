@@ -96,7 +96,7 @@ final class Folder
             "may_manage_files_in" => $may_manage_files_in,
             "may_manage_folders_in" => $may_manage_folders_in,
             "may_read_folder" => $this->scanner->access->userMayReadFolder($path, $login),
-            "thumb" => $this->getLastLrcThumb($path)
+            "thumb" => $this->getFolderThumb($path)
         ];
 
         // Zjisti, zda je složka chráněná (přístupná jen přihlášeným)
@@ -471,7 +471,8 @@ final class Folder
         array $meta = [],
         bool $move = false,
         ?array $addTags = null,
-        ?array $removeTags = null
+        ?array $removeTags = null,
+        $thumbnailFile = null
     ): array {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
@@ -544,6 +545,11 @@ final class Folder
             }
         } else {
             $this->writeJson($slug, 'tags', $tags);
+        }
+
+        // --- Zpracování thumbnail souboru ---
+        if ($thumbnailFile !== null && $thumbnailFile->isOk()) {
+            $this->saveThumbnail($slug, $thumbnailFile);
         }
 
         return [
@@ -808,6 +814,30 @@ final class Folder
     }
 
     /**
+     * Vrátí URL thumbnail obrázku složky nebo fallback na LRC soubor
+     */
+    protected function getFolderThumb(string $path): ?string
+    {
+        $fullPath = $this->scanner->getFullPath($path);
+        if (!is_dir($fullPath)) {
+            return null;
+        }
+
+        // Nejdřív hledej _thumb.* soubory
+        $thumbnailPatterns = ['_thumb.png', '_thumb.jpg', '_thumb.jpeg'];
+        foreach ($thumbnailPatterns as $pattern) {
+            $thumbnailPath = $fullPath . DIRECTORY_SEPARATOR . $pattern;
+            if (is_file($thumbnailPath)) {
+                // Vrať URL k thumbnail souboru s /data/ segmentem
+                return $this->scanner->getFileUrl(trim($path, "/") . "/" . $pattern);
+            }
+        }
+
+        // Fallback na LRC thumbnail pokud není vlastní thumbnail
+        return $this->getLastLrcThumb($path);
+    }
+
+    /**
      * Vrátí URL posledního LRC souboru ve složce nebo null
      */
     protected function getLastLrcThumb(string $path): ?string
@@ -992,7 +1022,64 @@ final class Folder
 
     }
 
+    /**
+     * Uloží thumbnail obrázek pro složku
+     */
+    protected function saveThumbnail(string $slug, $file): void
+    {
+        // Ověření, že je to validní nahraný soubor
+        if (!$file || !$file->isOk()) {
+            throw new Exception("Invalid thumbnail file", 400);
+        }
 
+        // Validace typu souboru
+        $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        $fileType = $file->getContentType();
+        if (!in_array($fileType, $allowedTypes)) {
+            throw new Exception("Thumbnail must be PNG or JPEG image", 400);
+        }
 
+        // Validace velikosti (max 5MB)
+        $maxSize = 5 * 1024 * 1024; // 5MB
+        if ($file->getSize() > $maxSize) {
+            throw new Exception("Thumbnail file is too large (max 5MB)", 400);
+        }
+
+        // Určení přípony podle MIME typu
+        $extension = match($fileType) {
+            'image/png' => 'png',
+            'image/jpeg', 'image/jpg' => 'jpg',
+            default => throw new Exception("Unsupported image type", 400)
+        };
+
+        // Cesta k složce
+        $folderPath = $this->scanner->getFullPath($slug);
+        if (!is_dir($folderPath)) {
+            throw new Exception("Folder does not exist", 404);
+        }
+
+        // Smazání starých thumbnail souborů
+        $this->removeExistingThumbnails($folderPath);
+
+        // Uložení nového thumbnail
+        $thumbnailPath = $folderPath . DIRECTORY_SEPARATOR . '_thumb.' . $extension;
+        if (!$file->move($thumbnailPath)) {
+            throw new Exception("Failed to save thumbnail", 500);
+        }
+    }
+
+    /**
+     * Smaže existující thumbnail soubory ze složky
+     */
+    protected function removeExistingThumbnails(string $folderPath): void
+    {
+        $thumbnailPatterns = ['_thumb.png', '_thumb.jpg', '_thumb.jpeg'];
+        foreach ($thumbnailPatterns as $pattern) {
+            $thumbnailPath = $folderPath . DIRECTORY_SEPARATOR . $pattern;
+            if (is_file($thumbnailPath)) {
+                @unlink($thumbnailPath);
+            }
+        }
+    }
 
 }

@@ -276,7 +276,8 @@ describe("PostCreateFolder", () => {
 
         const result = await request.execute();
 
-        createdFolders.push( result.data?.result.info.path || "" );
+
+        createdFolders.push( result.data?.result?.info.path || "" );
 
         expect(result.success).toBe(true);
         const info = result.data!.result.info as FolderInfo;

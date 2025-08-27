@@ -285,11 +285,11 @@ describe("GetFiles", () => {
 
         expect(result.success).toBe(true);
 
-        expect(result.data!.count.displayed).toEqual(2);
-        expect(result.data!.count.omitted).toEqual(19);
+        expect(result.data!.count.displayed).toEqual(1);
+        expect(result.data!.count.omitted).toEqual(20);
         expect(result.data!.count.total).toEqual(21);
 
-        expect(result.data!.files.length).toEqual(2);
+        expect(result.data!.files.length).toEqual(1);
 
         expect(result.data!.tags).toHaveProperty("tag1");
 

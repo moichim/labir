@@ -138,6 +138,10 @@ final class Grid
 
         $directories = $this->scanner->folder->getSubdirectories($this->path, $user);
 
+        if ( $directories === false ) {
+            throw new Exception( "The folder '{$this->path}' does not have any subdirectories.", 500 );
+        }
+
         $all_accessible_directories = $directories;
 
         if (count($this->folders) > 0) {

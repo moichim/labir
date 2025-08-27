@@ -2,6 +2,10 @@ import { describe, expect, test } from "vitest";
 import { Client } from "../../Client";
 import { testFolderInfo } from "../../utils/testFolderInfo";
 import { info } from "console";
+import { File } from "@web-std/file";
+import { readFileSync } from "fs";
+
+import path from "path";
 
 describe( "PostUpdateFolder", () => {
 
@@ -145,6 +149,38 @@ describe( "PostUpdateFolder", () => {
         expect( reverted.success ).toBe( true );
 
         expect( reverted.data?.result.info ).toEqual( info.data?.folder );
+
+    } );
+
+    const PUBLIC_DIR = path.resolve(__dirname, "../../../../../../public");
+
+
+    const loadPublicFile = (fileName: string, mime: string): File => {
+        const filePath = path.join(PUBLIC_DIR, fileName);
+        const fileBuffer = readFileSync(filePath);
+        const fileOriginalName = path.basename(filePath);
+        const file = new File([fileBuffer], fileOriginalName, { type: mime });
+        return file;
+    }
+
+    test( "update folder thumbnail", async () => {
+
+        const client = new Client("http://localhost:8080");
+        await client.connect();
+        await client.routes.post.login( "root", "abcdefghijk" ).execute();
+
+        expect( client.auth.isLoggedIn() ).toBe( true );
+
+        const requestUpload = client.routes.post.updateFolder( "specials/user" );
+
+        const kitten = loadPublicFile("kitten.png", "image/png");
+
+        requestUpload.setThumbnail( kitten );
+
+        const response = await requestUpload.execute();
+
+        expect( response.data.result.info.thumb ).toBeDefined();
+        expect( response.data.result.info.thumb.endsWith( ".png" ) ).toBe( true );
 
     } );
 
