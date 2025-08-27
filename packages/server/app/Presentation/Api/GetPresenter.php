@@ -28,7 +28,7 @@ final class GetPresenter extends BaseApiPresenter
 
         $userFolders = [];
 
-        if ($identity["user"]) {
+        if ($identity && $identity["user"]) {
 
             $user = $this->scanner->access->getUser($identity["user"] ?? null, true);
 

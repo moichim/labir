@@ -50,4 +50,6 @@ Require all granted
 		Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept"
 		Header always set X-Debug-File "lrc-file-accessed"
 	</FilesMatch>
+	
+
 </IfModule>

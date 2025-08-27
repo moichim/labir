@@ -58,6 +58,7 @@ abstract class BaseApiPresenter extends BasePresenter
 
         $request = $this->getRequest();
         $params = $request->getParameters();
+
         $path = $params["path"];
 
         if ($path === null || $path === "") {

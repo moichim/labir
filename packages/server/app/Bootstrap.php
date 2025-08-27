@@ -17,6 +17,9 @@ class Bootstrap
 
 	public function __construct()
 	{
+		// Nastavíme globální cookie parametry co nejdříve
+		$this->configureCookiesGlobally();
+		
 		$this->rootDir = dirname(__DIR__);
 		$this->configurator = new Configurator;
 		$this->configurator->setTempDirectory($this->rootDir . '/temp');
@@ -27,15 +30,32 @@ class Bootstrap
 	{
 		$this->initializeEnvironment();
 		$this->setupContainer();
-		Debugger::enable();
+		// $this->setupTracyForCrossSite();
 		return $this->configurator->createContainer();
 	}
 
 
 	public function initializeEnvironment(): void
 	{
-		// $this->configurator->setDebugMode('secret@23.75.345.200'); // enable for your remote IP
-		$this->configurator->enableTracy($this->rootDir . '/log');
+		/*
+		// Autodetekce prostředí - pokud běžíme na doméně končící na .cz, .com atd., je to produkce
+		$isProduction = isset($_SERVER['HTTP_HOST']) && 
+			(str_contains($_SERVER['HTTP_HOST'], '.cz') || 
+			 str_contains($_SERVER['HTTP_HOST'], '.com') ||
+			 str_contains($_SERVER['HTTP_HOST'], '.org') ||
+			 !str_contains($_SERVER['HTTP_HOST'], 'localhost'));
+			
+		if (!$isProduction) {
+			// Development prostředí
+			$this->configurator->setDebugMode(true);
+		} else {
+			// Produkční prostředí  
+			$this->configurator->setDebugMode(false);
+		}
+		
+		*/
+		// Zakážeme Tracy úplně, aby se nenastavovaly problematické cookies
+		// $this->configurator->enableTracy($this->rootDir . '/log');
 
 		$this->configurator->createRobotLoader()
 			->addDirectory(__DIR__)
@@ -48,5 +68,28 @@ class Bootstrap
 		$configDir = $this->rootDir . '/config';
 		$this->configurator->addConfig($configDir . '/common.neon');
 		$this->configurator->addConfig($configDir . '/services.neon');
+	}
+
+	/**
+	 * Nastavení Tracy pro podporu cross-site requestů
+	 */
+	private function setupTracyForCrossSite(): void
+	{
+		// Úplně zakážeme Tracy, aby se nevytvářely problematické cookies
+		// Pro debugging můžeme použít error_log() nebo jiné nástroje
+		Debugger::enable(Debugger::PRODUCTION);
+	}
+
+	/**
+	 * Konfiguruje globální nastavení cookies pro cross-site kompatibilitu
+	 */
+	private function configureCookiesGlobally(): void
+	{
+		// Nastavíme výchozí cookie parametry pro celou aplikaci
+		if (!headers_sent()) {
+			// ini_set('session.cookie_samesite', 'None');
+			// ini_set('session.cookie_secure', '1');
+			// ini_set('session.cookie_httponly', '1');
+		}
 	}
 }
