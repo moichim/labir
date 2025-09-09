@@ -6,6 +6,9 @@ import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
 @customElement("file-store-thumbnail")
 export class FileStoreAsFolderThumbnailBtn extends AbstractFileAnalysisButton {
 
+    public icon = "image";
+    public iconStyle = "micro";
+
     public onFailure(error: ThermalFileFailure): void {
 
     }

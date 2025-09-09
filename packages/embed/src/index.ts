@@ -94,6 +94,7 @@ import "./controls/registry/TicksBar";
 import "./controls/registry/RangeSlider";
 import "./controls/registry/RangeDisplay";
 import "./controls/registry/Histogram";
+import "./controls/registry/RegistryRangeForm";
 
 
 // 5. Group controls

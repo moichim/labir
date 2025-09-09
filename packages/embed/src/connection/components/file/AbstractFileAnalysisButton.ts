@@ -23,6 +23,12 @@ export abstract class AbstractFileAnalysisButton extends FileConsumer {
     public plain: boolean = false;
 
     @property({ type: String })
+    public icon?: string;
+
+    @property({ type: String })
+    public iconStyle?: string;
+
+    @property({ type: String })
     public tooltip?: string;
 
     @property({ type: Object })
@@ -48,6 +54,8 @@ export abstract class AbstractFileAnalysisButton extends FileConsumer {
             @click=${() => callback()}
             variant=${ifDefined(this.variant)}
             size=${ifDefined(this.size)}
+            icon=${ifDefined(this.icon)}
+            iconStyle=${ifDefined(this.iconStyle)}
             plain=${ifDefined(this.plain)}
             tooltip=${ifDefined(this.tooltip)}
         >${this.label}</thermal-btn>`;

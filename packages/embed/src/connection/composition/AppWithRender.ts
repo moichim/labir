@@ -5,6 +5,9 @@ import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
 import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
 
 /** 
  * This layer provides the necessary render methods
@@ -187,6 +190,8 @@ export abstract class AppWithRender extends AppWithContent {
 
                 <thermal-slot label="Složka">
 
+                    <registry-range-form></registry-range-form>
+
                     ${this.renderFolderCreateSubfolderDialog()}
 
                     ${this.renderFolderUploadFileDialog()}
@@ -220,50 +225,136 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderDetail(): TemplateResult {
 
+        const slug = [
+            this.path,
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+            this.folder?.slug || "unknown_folder",
+            this.file?.fileName || "unknown_file",
+        ].join( "__" );
+
         return html`
-        
-            <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-            ${this.renderBreadcrumb()}
+        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-            <folder-base-info 
-                .info=${this.folder} 
-                .parents=${this.breadcrumb} 
-                .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} 
-                slot="pre"
-            >
-            </folder-base-info>
+        ${this.renderBreadcrumb()}
 
-            <server-file-detail
-                .file=${this.file!}
-                .folder=${this.folder!}
+        <folder-base-info 
+            .info=${this.folder} 
+            .parents=${this.breadcrumb} 
+            .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} 
+            slot="pre"
+        ></folder-base-info>
 
-                .onChange=${(file: FileInfo) => this.setStateFile(file)}
-
-                .onClose=${() => this.setPath(this.folder!.path)}
-
-                style="margin-top: -1em;"
+        <group-provider 
+            slug=${slug}
+            batch="true"
+            autoclear="true"
+            style="display: contents;"
+        >
+            <file-provider
+                thermal="${this.file?.url}"
+                batch="true"
+                autoclear="true"
+                analysis1=${ifDefined(this.file?.analyses[0])}
+                analysis2=${ifDefined(this.file?.analyses[1])}
+                analysis3=${ifDefined(this.file?.analyses[2])}
+                analysis4=${ifDefined(this.file?.analyses[3])}
+                analysis5=${ifDefined(this.file?.analyses[4])}
+                analysis6=${ifDefined(this.file?.analyses[5])}
+                analysis7=${ifDefined(this.file?.analyses[6])}
+                style="display: contents;"
             >
             
-                ${this.folder?.may_manage_files_in
-                    ? html`<file-edit-dialog
-                        .file=${this.file}
-                        .onSuccess=${(file: FileInfo) => this.setStateFile(file)}
-                        slot="header"
-                        variant="primary"
-                    ></file-edit-dialog>
-                    <file-delete-dialog
-                        .file=${this.file}
-                        .folder=${this.folder}
-                        .onDelete=${() => this.fetchContent()}
-                        slot="header"
-                        variant="foreground"
-                    ></file-delete-dialog>
-                    `
-                    : nothing
-                }
+                
 
-            </server-file-detail>
+                <server-file-detail
+                    .file=${this.file!}
+                    .folder=${this.folder!}
+
+                    .onChange=${(file: FileInfo) => this.setStateFile(file)}
+
+                    .onClose=${() => this.setPath(this.folder!.path)}
+
+                    style="margin-top: -1em;"
+                >
+                <thermal-slot label="${t(T.file)}" slot="header">
+                    ${this.folder?.may_manage_files_in
+                        ? html`
+                        
+
+                            <file-edit-dialog
+                                .file=${this.file}
+                                .onSuccess=${(file: FileInfo) => this.setStateFile(file)}
+                                variant="primary"
+                                size="md"
+                            ></file-edit-dialog>
+                            <file-delete-dialog
+                                .file=${this.file}
+                                .folder=${this.folder}
+                                .onDelete=${() => this.fetchContent()}
+                                variant="foreground"
+                                size="md"
+                            ></file-delete-dialog>
+
+                            <file-store-thumbnail
+                                size="md"
+                                variant="default"
+                                .file=${this.file}
+                                .folder=${this.folder}
+                                label="Uložit jako náhledový obrázek složky"
+                                tooltip="Aktuální zobrazení barevné palety, teplotního rozsahho bude použito jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
+                            ></file-store-thumbnail>
+                            
+                        `
+                        : nothing
+                    }
+                        <file-download-dropdown
+                            size="md"
+                            variant="background"
+                        ></file-download-dropdown>
+                    </thermal-slot>
+
+                    <thermal-slot label="${t(T.thermalscale)}" slot="header">
+                        <registry-palette-dropdown></registry-palette-dropdown>
+                        <registry-range-auto-button 
+                            variant="primary" 
+                        ></registry-range-auto-button>
+                        <registry-range-full-button 
+                            variant="primary" 
+                        ></registry-range-full-button>
+                    </thermal-slot>
+
+                    <thermal-slot 
+                        label="${t(T.analyses)}" 
+                        slot="header"
+                    >
+
+                        ${this.folder!.may_manage_files_in
+                        ? html`<file-analysis-store-button
+                            .info=${this.file}
+                            .folder=${this.folder}
+                            .onChange=${ ( file: FileInfo ) => {
+                                this.setStateFile(file);
+                            } }
+                            size="md"
+                        ></file-analysis-store-button>`
+                        : nothing
+                        }
+
+                        <file-analysis-restore-button
+                            .info=${this.file}
+                            .folder=${this.folder}
+                            size="md"
+                        ></file-analysis-restore-button>
+
+                    </thermal-slot>
+
+                </server-file-detail>
+
+            </file-provider>    
+        </group-provider>
+        
+            
         
         `;
 

@@ -138,16 +138,7 @@ export class ServerFileDetail extends ClientConsumer {
                         size="md"
                     ></file-analysis-restore-button>
 
-                    ${this.folder.may_manage_files_in ? html`
-                        <file-store-thumbnail
-                        size="md"
-                        variant="background"
-                        .file=${this.file}
-                        .folder=${this.folder}
-                        label="Uložit jako náhledový obrázek složky"
-                        tooltip="Aktuální zobrazení barevné palety, teplotního rozsahho bude použito jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
-                    >WTF?</file-store-thumbnail>
-                    ` : nothing}
+                    
 
                 </div>
 
@@ -184,36 +175,7 @@ export class ServerFileDetail extends ClientConsumer {
 
     protected render(): unknown {
 
-        const slug = this.folder.path + this.file.fileName;
-
-        const [
-            analysis1, 
-            analysis2, 
-            analysis3, 
-            analysis4, 
-            analysis5, 
-            analysis6, 
-            analysis7
-        ] = this.file.analyses;
-
-
-
         return html`
-
-                <group-provider slug=${slug} batch="true" autoclear="true">
-
-                    <file-provider 
-                        thermal=${this.file.url} 
-                        batch="true" 
-                        autoclear="true"
-                        analysis1=${ifDefined(analysis1)}
-                        analysis2=${ifDefined(analysis2)}
-                        analysis3=${ifDefined(analysis3)}
-                        analysis4=${ifDefined(analysis4)}
-                        analysis5=${ifDefined(analysis5)}
-                        analysis6=${ifDefined(analysis6)}
-                        analysis7=${ifDefined(analysis7)}
-                    >
 
 
                         <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
@@ -223,8 +185,7 @@ export class ServerFileDetail extends ClientConsumer {
 
                         ${this.renderContent()}
 
-                    </file-provider>
-                </group-provider>`;
+`;
     }
 
 

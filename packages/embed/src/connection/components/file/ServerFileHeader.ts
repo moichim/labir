@@ -102,7 +102,7 @@ export class ServerFileHeader extends ClientConsumer {
                 grid-row: 2;
                 grid-column: 1 / -1;
                 display: flex;
-                gap: .5em;
+                gap: 2em;
             }
     
             .actions:not(:has(*)) {
