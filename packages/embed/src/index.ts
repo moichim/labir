@@ -174,6 +174,7 @@ import "./connection/components/folder/DisplayMode";
 import "./connection/components/folder/EditingMode";
 import "./connection/components/folder/AnalysisMode";
 import "./connection/components/folder/FolderTagsFilter";
+import "./connection/components/folder/FolderRemoveAnalyses";
 
 import "./connection/components/file/ServerFileDetail";
 import "./connection/components/file/ServerFileHeader";
@@ -192,6 +193,7 @@ import "./connection/components/file/FileThumbnail";
 import "./connection/components/user/UserFolders";
 
 import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
+import "./connection/components/file/FileAnalysesRemoveButton";
 
 
 

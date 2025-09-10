@@ -2,6 +2,8 @@ import { Translation } from "../Languages";
 
 export const fr: Translation = {
 
+    palette: "Palette",
+
     loading: "Chargement",
     config: "Einstellungen",
 
@@ -106,8 +108,12 @@ export const fr: Translation = {
     exportcontent: "Exporter le contenu",
     numberofcolumns: "Nombre de colonnes",
     thermalscale: "Échelle thermique",
+    thermalrange: "Plage thermique",
     analyses: "Analyses",
     filedate: "Date du fichier",
+
+    folder: "Dossier",
+    folders: "Dossiers",
 
 
     range: "Gamme",

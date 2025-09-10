@@ -124,7 +124,7 @@ export class FolderUploadDialog extends ClientConsumer {
                 button=${label}
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="upload" iconStyle="micro">
+                    <thermal-btn size="md" variant="primary" icon="upload" iconStyle="micro">
                         ${label}
                     </thermal-btn>
                 </slot>

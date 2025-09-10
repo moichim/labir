@@ -1,18 +1,17 @@
-import { consume } from "@lit/context";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
-import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../../ClientContext";
 import { FolderInfo } from "@labir/server";
-import { T } from "../../../translations/Languages";
+import { consume } from "@lit/context";
 import { t } from "i18next";
+import { html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { T } from "../../../translations/Languages";
+import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext } from "../../ClientContext";
 import { AbstractModeBar } from "./AbstractModeBar";
 
-@customElement( "display-mode-settings" )
+@customElement("display-mode-settings")
 export class DisplayModeElement extends AbstractModeBar {
 
 
-    @property({type: Object, reflect: true })
+    @property({ type: Object, reflect: true })
     public folder?: FolderInfo;
 
 
@@ -21,13 +20,13 @@ export class DisplayModeElement extends AbstractModeBar {
 
 
     @consume({ context: displayModeSetterContext, subscribe: true })
-    protected displayModeSetter: (mode: DisplayMode) => void = () => {};
+    protected displayModeSetter: (mode: DisplayMode) => void = () => { };
 
     @consume({ context: compactContext, subscribe: true })
     protected isCompact: boolean = false;
 
     @consume({ context: compactContextSetter, subscribe: true })
-    protected compactSetter: (compact: boolean) => void = () => {};
+    protected compactSetter: (compact: boolean) => void = () => { };
 
 
 
@@ -38,23 +37,23 @@ export class DisplayModeElement extends AbstractModeBar {
             <thermal-btn
                 icon="list"
                 iconStyle="micro"
-                size="sm"
+                size="md"
                 variant="${this.displayMode === DisplayMode.TABLE ? "foreground" : "default"}"
                 @click="${() => {
-                    this.compactSetter( false );
-                    this.displayModeSetter(DisplayMode.TABLE);
-                }}"
+                this.compactSetter(false);
+                this.displayModeSetter(DisplayMode.TABLE);
+            }}"
                 tooltip="${t(T.tabledisplay)}"
-            >Tabulka</thermal-btn>
+            ></thermal-btn>
         
             <thermal-btn
                 icon="grid"
-                iconStyle="micro"
-                size="sm"
+                iconStyle="solid"
+                size="md"
                 variant="${this.displayMode === DisplayMode.GRID ? "foreground" : "default"}"
                 @click="${() => this.displayModeSetter(DisplayMode.GRID)}"
                 tooltip="${t(T.griddisplay)}"
-            >Mřížka</thermal-btn>
+            ></thermal-btn>
 
             ${this.displayMode === DisplayMode.GRID ? this.renderToggle(
                 t(T.compactview),

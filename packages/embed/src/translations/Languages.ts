@@ -47,6 +47,8 @@ export enum T {
 
     showeverything = "showeverything",
 
+    palette = "palette",
+
     /** Description */
     description = "description",
     /** Author */
@@ -149,7 +151,11 @@ export enum T {
     exportdimensions = "exportdimensions",
     exportgroup = "exportgroup",
     thermalscale = "thermalscale",
+    thermalrange = "thermalrange",
     filedate = "filedate",
+
+    folder = "folder",
+    folders = "folders",
 
     showingfolder = "showingfolder",
     showingfolders = "showingfolders",

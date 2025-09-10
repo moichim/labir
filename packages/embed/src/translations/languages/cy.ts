@@ -2,6 +2,8 @@ import { Translation } from "../Languages";
 
 export const cy: Translation = {
 
+    palette: "Palet",
+
     loading: "Llwytho",
     config: "Gosodiadau",
 
@@ -106,8 +108,12 @@ export const cy: Translation = {
     exportcontent: "Allforio'r cynnwys",
     numberofcolumns: "Nifer y colofnau",
     thermalscale: "Graddfa thermol",
+    thermalrange: "Ystod thermol",
     analyses: "Dadansoddiadau",
     filedate: "Dyddiad y ffeil",
+
+    folder: "Ffolder",
+    folders: "Ffolderi",
 
 
     range: "Ystod",

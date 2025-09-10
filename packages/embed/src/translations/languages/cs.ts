@@ -2,6 +2,8 @@ import { Translation } from "../Languages";
 
 export const cs: Translation = {
 
+    palette: "Paleta",
+
     loading: "Načítám",
     config: "Nastavení",
 
@@ -60,7 +62,7 @@ export const cs: Translation = {
 
     numfiles: "{{num}} souborů",
 
-    fileinfo: "O souboru",
+    fileinfo: "Podrobnosti",
     thermalfilename: "Název IR souboru",
     thermalfileurl: "URL IR souboru",
     thermalfiledownload: "Stáhnout IR soubor",
@@ -102,8 +104,12 @@ export const cs: Translation = {
     exportcontent: "Obsah exportu",
     numberofcolumns: "Počet sloupců",
     thermalscale: "Teplotní škála",
+    thermalrange: "Teplotní rozsah",
     analyses: "Analýzy",
     filedate: "File date",
+
+    folder: "Složka",
+    folders: "Složky",
 
 
     range: "Rozsah",

@@ -2,6 +2,8 @@ import { Translation } from "../Languages";
 
 export const en: Translation = {
 
+    palette: "Palette",
+
     layout_simple: "Simple layout",
     layout_advanced: "Evaluation layout",
     layout_nogui: "No GUI",
@@ -104,7 +106,11 @@ export const en: Translation = {
     exportcontent: "Export content",
     numberofcolumns: "Number of columns",
     thermalscale: "Thermal scale",
+    thermalrange: "Thermal range",
     filedate: "File date",
+
+    folder: "Folder",
+    folders: "Folders",
 
     range: "Range",
     info: "Info",

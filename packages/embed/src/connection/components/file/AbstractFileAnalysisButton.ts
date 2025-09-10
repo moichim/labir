@@ -7,11 +7,12 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { clientContext } from "../../ClientContext";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 export abstract class AbstractFileAnalysisButton extends FileConsumer {
 
     @property({ type: String })
-    public label: string = "Tlačítko analýz";
+    public label: string = "";
 
     @property({ type: String, reflect: false })
     public variant?: BtnVariants;
@@ -27,6 +28,9 @@ export abstract class AbstractFileAnalysisButton extends FileConsumer {
 
     @property({ type: String })
     public iconStyle?: string;
+
+    @property({ type: String, converter: booleanConverter(false) })
+    public disabled: boolean = false;
 
     @property({ type: String })
     public tooltip?: string;
@@ -58,6 +62,7 @@ export abstract class AbstractFileAnalysisButton extends FileConsumer {
             iconStyle=${ifDefined(this.iconStyle)}
             plain=${ifDefined(this.plain)}
             tooltip=${ifDefined(this.tooltip)}
+            disabled=${ifDefined(this.disabled ? true : undefined)}
         >${this.label}</thermal-btn>`;
     }
 

@@ -122,7 +122,11 @@ export class FolderAddDialog extends ClientConsumer {
                 button="Přidat podsložku"
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="addfolder" iconStyle="micro">Přidat podsložku</thermal-btn>
+                    <thermal-btn 
+                        size="md" 
+                        variant="primary" 
+                        icon="addfolder" 
+                        iconStyle="micro">Přidat podsložku</thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">

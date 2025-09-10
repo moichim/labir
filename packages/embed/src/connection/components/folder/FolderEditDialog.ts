@@ -122,7 +122,7 @@ export class FolderEditDialog extends ClientConsumer {
                 button="${t(T.savechanges)}"
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="primary" icon="edit" iconStyle="micro">${t(T.editfolder)}</thermal-btn>
+                    <thermal-btn size="md" variant="primary" icon="edit" iconStyle="micro">${t(T.editfolder)}</thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">

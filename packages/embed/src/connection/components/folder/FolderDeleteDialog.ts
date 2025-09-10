@@ -95,7 +95,7 @@ export class FolderDeleteDialog extends ClientConsumer {
                 button=${label}
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="sm" variant="foreground" icon="trash" iconStyle="micro">
+                    <thermal-btn size="md" variant="foreground" icon="trash" iconStyle="micro">
                         ${label}
                     </thermal-btn>
                 </slot>

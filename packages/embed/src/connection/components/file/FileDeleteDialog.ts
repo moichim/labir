@@ -6,9 +6,13 @@ import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 @customElement("file-delete-dialog")
 export class FileDeleteDialog extends ClientConsumer {
+
+    @property({ type: String, converter: booleanConverter(false) })
+    public showLabel: boolean = false;
 
     @property({ type: String })
     public label: string = t(T.deletefile);
@@ -140,7 +144,7 @@ export class FileDeleteDialog extends ClientConsumer {
                     iconStyle="micro"
                     tooltip=${label}
                 >
-                    ${label}
+                    ${this.showLabel ? label : nothing }
                 </thermal-btn>
 
                 <div slot="content" class="dialog-content">

@@ -7,9 +7,12 @@ import { FileInfo } from "@labir/server";
 @customElement( "file-analysis-store-button" )
 export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
-    public label = "Uložit analýzy";
+    public label = "";
 
-    tooltip = "Uložit aktuální stav analýz pro příští načtení";
+    tooltip = "Uložit analýzy na server.";
+
+    public icon = "save";
+    public iconStyle = "micro";
 
 
     @state()
@@ -28,6 +31,8 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
             // Try using the analysis object directly
             if (instance.analysis) {
+
+                this.getCurrentAnalysisState( instance );
 
                 instance.group.analysisSync.turnOn( instance );
 
@@ -56,7 +61,8 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
                 } );
 
                 setTimeout( () => {
-                    this.hasChanged = false;
+                    // this.hasChanged = false;
+                    
                 }, 0 );
             
             }
@@ -129,19 +135,12 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        if (this.hasChanged) {
-            this.variant = "primary";
+        if (this.hasChanged === true) {
+            this.disabled = false;
         } else {
-            this.variant = "default";
+            this.disabled = true;
         }
 
-        this.label = "Uložit analýzy";
-
-    }
-
-    protected render(): unknown {
-
-        return super.render();
     }
     
 }

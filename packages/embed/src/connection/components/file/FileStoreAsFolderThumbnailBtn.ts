@@ -1,5 +1,5 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
-import { html, nothing } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
 
@@ -77,6 +77,17 @@ export class FileStoreAsFolderThumbnailBtn extends AbstractFileAnalysisButton {
         }
 
     }
+
+    static styles = css`
+    
+        :host {
+            
+            display: flex;
+            align-items: stretch;
+            
+        }
+    
+    `;
 
 
     protected render(): unknown {

@@ -1,15 +1,14 @@
-import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import { FolderInfo } from "@labir/server";
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
-import { FileInfo } from "packages/server/client/dist";
 import { TimeFormat } from "@labir/core";
-import icons from "../../../utils/icons";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { FolderInfo } from "@labir/server";
 import { consume } from "@lit/context";
-import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../ClientContext";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
+import { FileInfo } from "packages/server/client/dist";
+import icons from "../../../utils/icons";
+import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../ClientContext";
+import { ClientConsumer } from "../ClientConsumer";
 
 @customElement("folder-files")
 export class FolderFiles extends ClientConsumer {
@@ -21,13 +20,13 @@ export class FolderFiles extends ClientConsumer {
     public files?: FileInfo[];
 
     @property({ type: Function })
-    public onFileClick: (file: FileInfo) => void = () => {};
+    public onFileClick: (file: FileInfo) => void = () => { };
 
     @property({ type: Function })
-    public onChange?: (file: FileInfo) => void = () => {};
+    public onChange?: (file: FileInfo) => void = () => { };
 
-    @property({ type: Function})
-    public onFileDelete?: ( file: FileInfo ) => void = () => {};
+    @property({ type: Function })
+    public onFileDelete?: (file: FileInfo) => void = () => { };
 
     protected icon = icons.image.outline("icon");
 
@@ -60,24 +59,24 @@ export class FolderFiles extends ClientConsumer {
 
         const provider = this.groupProviderRef.value;
 
-        if ( provider ) {
+        if (provider) {
 
             const group = provider.group;
             const sync = group.analysisSync;
 
             const hasChanged = on !== sync.value;
 
-            if ( hasChanged ) {
+            if (hasChanged) {
 
-                if ( on ) {
-                    const firstFileWithAnalyses = group.files.value.find( 
-                        instance => instance.analysis.value.length > 0 
-                    ) 
-                    ?? group.files.value[0] 
-                    ?? undefined;
+                if (on) {
+                    const firstFileWithAnalyses = group.files.value.find(
+                        instance => instance.analysis.value.length > 0
+                    )
+                        ?? group.files.value[0]
+                        ?? undefined;
 
-                    if ( firstFileWithAnalyses ) {
-                        sync.turnOn( firstFileWithAnalyses );
+                    if (firstFileWithAnalyses) {
+                        sync.turnOn(firstFileWithAnalyses);
                     }
 
                 }

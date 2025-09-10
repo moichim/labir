@@ -188,9 +188,8 @@ export abstract class AppWithRender extends AppWithContent {
                 slot="pre"
             >
 
-                <thermal-slot label="Složka">
-
-                    <registry-range-form></registry-range-form>
+                ${this.folder?.may_manage_files_in === true || this.folder?.may_manage_folders_in === true ? html`
+                    <thermal-slot label="${t(T.folder)}">
 
                     ${this.renderFolderCreateSubfolderDialog()}
 
@@ -198,7 +197,11 @@ export abstract class AppWithRender extends AppWithContent {
 
                     ${this.renderFolderManagementButtons()}
 
-                </thermal-slot>
+                </thermal-slot>` : nothing}
+
+                ${this.files && this.files.length > 0 ? html`<thermal-slot label="${t(T.thermalrange)}">
+                    <registry-range-form></registry-range-form>
+                </thermal-slot>` : nothing}
 
                 ${this.renderDisplayMode()}
 
@@ -294,6 +297,7 @@ export abstract class AppWithRender extends AppWithContent {
                                 .onDelete=${() => this.fetchContent()}
                                 variant="foreground"
                                 size="md"
+                                showLabel="true"
                             ></file-delete-dialog>
 
                             <file-store-thumbnail
@@ -301,8 +305,7 @@ export abstract class AppWithRender extends AppWithContent {
                                 variant="default"
                                 .file=${this.file}
                                 .folder=${this.folder}
-                                label="Uložit jako náhledový obrázek složky"
-                                tooltip="Aktuální zobrazení barevné palety, teplotního rozsahho bude použito jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
+                                tooltip="Uložit aktuální zobrazení jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
                             ></file-store-thumbnail>
                             
                         `
@@ -312,17 +315,18 @@ export abstract class AppWithRender extends AppWithContent {
                             size="md"
                             variant="background"
                         ></file-download-dropdown>
+                        <file-info-button></file-info-button>
                     </thermal-slot>
 
-                    <thermal-slot label="${t(T.thermalscale)}" slot="header">
+                    <thermal-slot label="${t(T.palette)}" slot="header">
                         <registry-palette-dropdown></registry-palette-dropdown>
-                        <registry-range-auto-button 
-                            variant="primary" 
-                        ></registry-range-auto-button>
-                        <registry-range-full-button 
-                            variant="primary" 
-                        ></registry-range-full-button>
                     </thermal-slot>
+
+                    <thermal-slot label="${t(T.thermalrange)}" slot="header">
+                        <registry-range-form></registry-range-form>
+                    </thermal-slot>
+
+                    
 
                     <thermal-slot 
                         label="${t(T.analyses)}" 
@@ -341,11 +345,20 @@ export abstract class AppWithRender extends AppWithContent {
                         : nothing
                         }
 
-                        <file-analysis-restore-button
+                        ${this.file?.analyses && this.file.analyses?.length > 0 ? html`<file-analysis-restore-button
                             .info=${this.file}
                             .folder=${this.folder}
                             size="md"
-                        ></file-analysis-restore-button>
+                        ></file-analysis-restore-button>` : nothing}
+
+                        <file-analysis-remove-button
+                            .info=${this.file}
+                            .folder=${this.folder}
+                            .onChange=${ ( file: FileInfo ) => {
+                                this.setStateFile(file);
+                            } }
+                            size="md"
+                        ></file-analysis-remove-button>
 
                     </thermal-slot>
 
@@ -443,6 +456,11 @@ export abstract class AppWithRender extends AppWithContent {
                 <analysis-mode-settings
                     .folder=${this.folder}
                 ></analysis-mode-settings>
+                <folder-remove-analyses
+                    .folder=${this.folder}
+                    .files=${this.files}
+                    .onChange=${(files: FileInfo[]) => this.updateFiles(files)}
+                ></folder-remove-analyses>
             </thermal-slot>
             `;
 

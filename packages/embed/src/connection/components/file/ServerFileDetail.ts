@@ -111,38 +111,6 @@ export class ServerFileDetail extends ClientConsumer {
             </section>
 
             <section class="section section__content">
-
-                <div class="range">
-
-                    <registry-palette-dropdown></registry-palette-dropdown>
-
-                    <registry-range-full-button></registry-range-full-button>
-
-                    <registry-range-auto-button></registry-range-auto-button>
-
-                    ${this.folder.may_manage_files_in
-                        ? html`<file-analysis-store-button
-                        .info=${this.file}
-                        .folder=${this.folder}
-                        .onChange=${ ( file: FileInfo ) => {
-                            this.onChange?.(file);
-                        } }
-                        size="md"
-                    ></file-analysis-store-button>`
-                        : nothing
-                    }
-
-                    <file-analysis-restore-button
-                        .info=${this.file}
-                        .folder=${this.folder}
-                        size="md"
-                    ></file-analysis-restore-button>
-
-                    
-
-                </div>
-
-
                 <file-analysis-complex></file-analysis-complex>
             </section>
 

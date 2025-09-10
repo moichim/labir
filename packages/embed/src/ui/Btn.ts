@@ -48,6 +48,8 @@ export class ThermalBtn extends BaseElement {
         
         // Add keyboard event listener
         this.addEventListener('keydown', this.handleKeydown);
+        // Add click event listener to prevent disabled button clicks
+        this.addEventListener('click', this.handleClick);
         
         if (this.tooltip) {
             this.setupTooltip();
@@ -173,7 +175,18 @@ export class ThermalBtn extends BaseElement {
         }
     };
 
+    private handleClick = (event: MouseEvent) => {
+        // Prevent click if disabled
+        if (this.disabled) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+    };
+
     private handleKeydown = (event: KeyboardEvent) => {
+        // Don't trigger click if disabled
+        if (this.disabled) return;
+        
         // Trigger click on Enter or Space
         if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();
@@ -184,6 +197,7 @@ export class ThermalBtn extends BaseElement {
     disconnectedCallback() {
         super.disconnectedCallback();
         this.removeEventListener('keydown', this.handleKeydown);
+        this.removeEventListener('click', this.handleClick);
         this.removeTooltip();
     }
 
@@ -252,7 +266,6 @@ export class ThermalBtn extends BaseElement {
         :host([disabled="true"]) {
             cursor: not-allowed;
             opacity: 0.6;
-            pointer-events: none;
         }
 
         :host([disabled="true"]:hover) {
