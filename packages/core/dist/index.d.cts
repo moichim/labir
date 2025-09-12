@@ -1043,7 +1043,7 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     /** Array of available colors */
     readonly colors: string[];
     constructor(drive: AnalysisDrive);
-    protected addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
+    addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
     removeAnalysis(key: string): void;
     /** Add a rectangular analysis in the given position and start editing it. */
     createRectFrom(top: number, left: number): RectangleAnalysis;

@@ -24,6 +24,13 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
     @property({type: Function})
     public onChange?: (file: FileInfo) => void;
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        if (this.file) {
+            this.onInstanceCreated( this.file );
+        }
+    }
+
 
     public onInstanceCreated(instance: Instance): void {
 
@@ -34,7 +41,7 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
                 this.getCurrentAnalysisState( instance );
 
-                instance.group.analysisSync.turnOn( instance );
+                // instance.group.analysisSync.turnOn( instance );
 
                 instance.analysis.layers.onRemove.set( this.UUID, () => {
                     this.hasChanged = true;

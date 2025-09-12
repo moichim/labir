@@ -59,7 +59,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     // Adding analysis
 
-    protected addAnalysis(
+    public addAnalysis(
         analysis: AbstractAnalysis,
         slotNumber?: SlotInitialisationValue
     ) {

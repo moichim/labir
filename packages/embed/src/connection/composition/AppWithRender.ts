@@ -70,6 +70,62 @@ export abstract class AppWithRender extends AppWithContent {
     };
 
 
+    /** Get the slug for loading state */
+    protected slugLoading(): string {
+        return "loading";
+    }
+
+    /** Get the slug for poster state */
+    protected slugPoster(): string {
+        return "poster";
+    }
+
+    /** Get the slug for current user overview page */
+    protected slugUser(): string {
+        return [
+            "user",
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+        ].join( "_" );
+    }
+
+    /** Get the slug for a folder */
+    protected slugFolder(
+        folder: FolderInfo,
+        description?: string
+    ): string {
+
+        const segments: string[] = [
+            "folder",
+            folder.slug || "unknown_folder",
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+        ];
+
+        if ( description ) {
+            segments.push( description );
+        }
+
+        return segments.join( "_" );
+    }
+     
+    /** Get the slug for a file detail */
+    protected slugDetail(
+        folder: FolderInfo,
+        file: FileInfo,
+        description?: string
+    ): string {
+        const segments = [
+            "detail",
+            folder.slug || "unknown_folder",
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+            file.fileName || "unknown_file"
+        ];
+        if ( description ) {
+            segments.push( description );
+        }
+        return segments.join( "_" );
+    }
+
+
     static styles?: CSSResultGroup | undefined = css`
     
             :host {
@@ -175,13 +231,22 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolder(): TemplateResult {
 
+        const slug = [
+            "folder",
+            this.folder?.slug || "unknown_folder",
+            this.client?.auth?.getIdentity()?.user || "anonymous",
+        ].join( "__" );
+
         return html`
 
-            <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+
+            
         
             ${this.renderBreadcrumb()}
 
             <folder-base-info
+                slug=${this.slugFolder(this.folder!)}
                 .info=${this.folder}
                 .parents=${this.breadcrumb}
                 .onParentClick=${(folder: FolderInfo) => this.setPath(folder.path)}
@@ -218,6 +283,7 @@ export abstract class AppWithRender extends AppWithContent {
             ${this.renderFolderSubfolders()}
 
             ${this.renderFolderFiles()}
+
         
         `;
 
@@ -249,7 +315,7 @@ export abstract class AppWithRender extends AppWithContent {
         ></folder-base-info>
 
         <group-provider 
-            slug=${slug}
+            slug=${this.slugDetail(this.folder!, this.file!)}
             batch="true"
             autoclear="true"
             style="display: contents;"
@@ -455,6 +521,9 @@ export abstract class AppWithRender extends AppWithContent {
             <thermal-slot label="Analýzy">
                 <analysis-mode-settings
                     .folder=${this.folder}
+                    .files=${this.files}
+                    .onChangeAll=${(files: FileInfo[]) => this.updateFiles(files)}
+                    .onChangeFile=${(file: FileInfo) => this.updateFile(file)}
                 ></analysis-mode-settings>
                 <folder-remove-analyses
                     .folder=${this.folder}
@@ -571,6 +640,7 @@ export abstract class AppWithRender extends AppWithContent {
         ) {
 
             return html`<folder-files
+                slug=${this.slugFolder(this.folder!)}
                 .files=${this.files}
                 .folder=${this.folder}
 

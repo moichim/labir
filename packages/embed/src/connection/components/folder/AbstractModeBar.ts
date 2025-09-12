@@ -1,7 +1,9 @@
 import { css, CSSResultGroup, html } from "lit";
 import { BaseElement } from "../../../hierarchy/BaseElement";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { ClientConsumer } from "../ClientConsumer";
 
-export abstract class AbstractModeBar extends BaseElement {
+export abstract class AbstractModeBar extends ClientConsumer {
 
     public static styles?: CSSResultGroup | undefined = css`
     
@@ -50,6 +52,27 @@ export abstract class AbstractModeBar extends BaseElement {
                 onChange(value);
             }}
         >${label}</thermal-radio>`;
+
+    }
+
+    protected renderToggleButton(
+        active: boolean,
+        onClick: () => void,
+        icon?: string,
+        label?: string,
+        tooltip?: string,
+    ): unknown {
+
+        return html`
+            <thermal-btn
+                variant="${active ? "foreground" : "default"}"
+                @click=${() => onClick()}
+                icon=${ ifDefined( icon ) }
+                iconStyle="micro"
+                tooltip=${ ifDefined( tooltip ) }
+                size="md"
+            ></thermal-btn>
+        `;
 
     }
 

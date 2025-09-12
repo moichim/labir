@@ -4,7 +4,7 @@ import icons from "../../../utils/icons";
 import { FileInfo } from "@labir/server";
 import { FolderInfo } from "packages/server/client/dist";
 import { TemplateResult, html, css, CSSResultGroup, nothing, PropertyValues } from "lit";
-import { TimeFormat } from "@labir/core";
+import { Instance, ThermalGroup, TimeFormat } from "@labir/core";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { consume } from "@lit/context";
 import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../ClientContext";
@@ -12,6 +12,8 @@ import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
+import { fileContext } from "../../../hierarchy/providers/context/FileContexts";
+import { groupContext } from "../../../hierarchy/providers/context/GroupContext";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
@@ -19,7 +21,13 @@ export class FileThumbnail extends ClientConsumer {
     @property({ type: Object })
     public file!: FileInfo;
 
+    @consume({ context: groupContext, subscribe: true })
+    @state()
+    protected group?: ThermalGroup;
+
     protected instanceRef: Ref<FileProviderElement> = createRef();
+
+
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -161,7 +169,7 @@ export class FileThumbnail extends ClientConsumer {
 
         return html`<thermal-btn 
             variant=${variant}
-            size="sm"
+            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
             @click=${() => this.onFileClick(this.file)}
         >${t(T.detail).toLowerCase()}</thermal-btn>`;
 
@@ -224,7 +232,7 @@ export class FileThumbnail extends ClientConsumer {
 
     protected renderNumAnalyses(): unknown {
 
-        if (!this.file.analyses || this.file.analyses.length === 0) {
+        if (!this.file.analyses || this.file.analyses.length === 0 ) {
             return nothing;
         }
 
@@ -275,10 +283,12 @@ export class FileThumbnail extends ClientConsumer {
             <div class="analyses-inner">
                 
                 <file-analysis-complex showhint="false">
-                    ${hasStoredAnalyses ? html`<thermal-btn 
+                    ${hasStoredAnalyses && !this.syncAnalyses ? html`<thermal-btn 
                         @click=${this.restoreAnalyses.bind(this)}
                         size="md"
                         variant="primary"
+                        icon="restore"
+                        iconStyle="outline"
                     >
                         ${restoreLabel}
                     </thermal-btn>` : nothing}
@@ -286,19 +296,67 @@ export class FileThumbnail extends ClientConsumer {
 
                 ${this.hasDisplayedAnalysis 
                     ? html`<aside>
-                    <file-analysis-store-button
-                        size="md"
-                        .info=${this.file}
-                        .folder=${this.folder}
-                        .onChange=${this.onChange}
-                    ></file-analysis-store-button>
+
+                    ${!this.syncAnalyses
+                        ? html`<thermal-btn
+                            icon="link"
+                            iconStyle="micro"
+                            tooltip="Aplikovat tyto analýzy na všechny soubory ve složce"
+                            @click=${() => {
+
+                                // Získej instanci současného souboru
+                                const instance = this.instanceRef.value?.file;
+
+                                if ( !instance || !this.group ) {
+                                    return;
+                                }
+
+                                instance.group.files.value.forEach( otherInstance => {
+
+                                    if ( otherInstance.fileName === instance.fileName ) {
+                                        return;
+                                    }
+
+                                    // Remove all existing analyses
+                                    otherInstance.analysis.value.forEach( analysis => {
+                                        otherInstance.analysis.layers.removeAnalysis( analysis.key );
+                                    });
+
+
+                                    // Copy analyses from the current instance
+                                    instance.analysis.value.forEach( analysis => {
+                                        const a = otherInstance.slots.createFromSerialized( analysis.toSerialized() );
+                                        a?.setSelected();
+                                    } );
+
+                                } );
+
+                            }}
+                        ></thermal-btn>
+                        <file-analysis-remove-button disalbled="false"></file-analysis-remove-button>
+                        `
+                        : nothing
+                    }
+
+                    ${this.folder.may_manage_files_in 
+                        ? html`
+                        <file-analysis-store-button
+                            size="md"
+                            .info=${this.file}
+                            .folder=${this.folder}
+                            .onChange=${this.onChange}
+
+                        ></file-analysis-store-button>` 
+                        : nothing}
+
+
                     <file-analysis-restore-button
-                        variant="primary"
                         size="md"
                         .info=${this.file}
                         .folder=${this.folder}
                         .onChange=${this.onChange}
                     ></file-analysis-restore-button>
+
                 </aside>`
                 : nothing}
 
@@ -674,6 +732,7 @@ export class FileThumbnail extends ClientConsumer {
                         <file-range-propagator 
                             variant="${this.compact ? "default" : "background"}"
                             .plain="true"
+                            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
                         ></file-range-propagator>
 
                         ${this.renderActionEdit()}

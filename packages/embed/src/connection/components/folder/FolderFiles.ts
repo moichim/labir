@@ -13,6 +13,9 @@ import { ClientConsumer } from "../ClientConsumer";
 @customElement("folder-files")
 export class FolderFiles extends ClientConsumer {
 
+    @property({ type: String })
+    public slug!: string;
+
     @property({ type: Object, reflect: false })
     public folder!: FolderInfo;
 
@@ -195,8 +198,6 @@ export class FolderFiles extends ClientConsumer {
 
         }
 
-        const slug = this.folder.path + "__list";
-
         return html`
 
         <!--
@@ -210,7 +211,7 @@ export class FolderFiles extends ClientConsumer {
         </div>
         -->
 
-            <group-provider slug="${slug}" autoclear="true" ${ref(this.groupProviderRef)}>
+            <group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)}>
 
                 <main class="layout">
 

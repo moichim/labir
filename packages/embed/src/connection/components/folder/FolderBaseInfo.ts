@@ -8,6 +8,9 @@ import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 @customElement( "folder-base-info" )
 export class FolderBaseInfo extends ClientConsumer {
 
+    @property({ type: String })
+    public slug!: string;
+
     @property( { type: Object, reflect: false})
     public info?: FolderInfo;
 
@@ -116,6 +119,12 @@ export class FolderBaseInfo extends ClientConsumer {
     protected render(): unknown {
         return html`
 
+        <group-provider
+            slug=${this.slug}
+            autoclear="true"
+            style="display: contents;"
+        >
+
         ${this.renderUpButton()}
         
         <section class="part">
@@ -132,7 +141,9 @@ export class FolderBaseInfo extends ClientConsumer {
             <div class="actions">
                 <slot></slot>
             </div>
-        </section>`;
+        </section>
+        
+        </group-provider>`;
     }
 
 }

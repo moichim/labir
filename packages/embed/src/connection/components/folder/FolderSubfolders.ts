@@ -3,17 +3,17 @@ import { ClientConsumer } from "../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html } from "lit";
 
-@customElement( "folder-subfolders" )
+@customElement("folder-subfolders")
 export class FolderSubfolders extends ClientConsumer {
 
-    @property( { type: Object, reflect: false})
+    @property({ type: Object, reflect: false })
     public subfolders?: FolderInfo[];
 
-    @property( { type: Object, reflect: false})
+    @property({ type: Object, reflect: false })
     public folder!: FolderInfo;
 
     @property({ type: Function })
-    public onFolderClick?: ( folder: FolderInfo ) => void;
+    public onFolderClick?: (folder: FolderInfo) => void;
 
     public static styles?: CSSResultGroup | undefined = css`
         :host {
@@ -40,7 +40,7 @@ export class FolderSubfolders extends ClientConsumer {
         }
     `;
 
-    protected renderSubfolder( info: FolderInfo ): unknown {
+    protected renderSubfolder(info: FolderInfo): unknown {
         return html`<server-folder-thumbnail
             .folder=${info}
             @click=${() => this.onFolderClick && this.onFolderClick(info)}
@@ -58,7 +58,7 @@ export class FolderSubfolders extends ClientConsumer {
 
 
         <section>
-            ${this.subfolders?.map( subfolder => this.renderSubfolder( subfolder ) )}
+            ${this.subfolders?.map(subfolder => this.renderSubfolder(subfolder))}
         </section>`;
     }
 
