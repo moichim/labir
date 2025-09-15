@@ -39,6 +39,8 @@ export abstract class AppWithClientProvider extends AppWithState {
 
     }
 
+    private UUIDClient: string = this.UUID + "__app_with_client";
+
     private async initializeClient(): Promise<void> {
 
         this.setStateLoading(
@@ -52,16 +54,20 @@ export abstract class AppWithClientProvider extends AppWithState {
         this.client = new Client(this.serverUrl);
 
         // Listen to connection events
-        this.client.onConnection.set(this.UUID + "__app_with_client", status => {
+        this.client.onConnection.set(this.UUIDClient, status => {
             this.isClientConnected = status !== false;
             this.requestUpdate();
-            this.log("Client connection status changed:", status);
         });
 
         // Perform the connection
-        const response = await this.client.connect();
+        await this.client.connect();
 
-        this.log( response );
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        this.client.onConnection.delete(this.UUIDClient);
 
     }
 

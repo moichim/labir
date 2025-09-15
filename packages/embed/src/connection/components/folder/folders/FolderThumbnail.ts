@@ -1,8 +1,8 @@
 import { property, customElement } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
-import icons from "../../../utils/icons";
+import icons from "../../../../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 
 @customElement("server-folder-thumbnail")

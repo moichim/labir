@@ -346,6 +346,14 @@ var GetFiles = class extends OperationWithFilters {
 };
 
 // client/src/routes/get/GetGrid.ts
+var GridGrouping = /* @__PURE__ */ ((GridGrouping2) => {
+  GridGrouping2["HOUR"] = "hour";
+  GridGrouping2["DAY"] = "day";
+  GridGrouping2["WEEK"] = "week";
+  GridGrouping2["MONTH"] = "month";
+  GridGrouping2["YEAR"] = "year";
+  return GridGrouping2;
+})(GridGrouping || {});
 var GetGrid = class extends OperationWithFilters {
   folders = [];
   by = "hour" /* HOUR */;
@@ -1293,5 +1301,6 @@ var Client = class {
 // client/src/index.ts
 var index_default = Client;
 export {
+  GridGrouping,
   index_default as default
 };

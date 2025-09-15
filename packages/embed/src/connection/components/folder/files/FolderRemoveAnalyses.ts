@@ -1,10 +1,10 @@
 import { FileInfo, FolderInfo } from "@labir/server";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { customElement, property } from "lit/decorators.js";
 import { html } from "lit";
 import { consume } from "@lit/context";
 import { ThermalGroup } from "@labir/core";
-import { groupContext } from "../../../hierarchy/providers/context/GroupContext";
+import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 
 @customElement("folder-remove-analyses")
 export class FolderRemoveAllAnalyses extends ClientConsumer {

@@ -3,8 +3,8 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { T } from "../../../translations/Languages";
-import { editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "../../ClientContext";
+import { T } from "../../../../translations/Languages";
+import { editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext } from "../../../ClientContext";
 import { AbstractModeBar } from "./AbstractModeBar";
 
 @customElement("editing-mode-settings")

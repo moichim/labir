@@ -1,14 +1,18 @@
-import { state } from "lit/decorators.js";
-import { AppWithClientProvider } from "./AppWithClientProvider";
 import { TemplateResult } from "lit";
+import { state } from "lit/decorators.js";
 import { BaseAppWithPngExportContext } from "../../utils/converters/pngExportContext";
 
 export enum AppState {
-    LOADING,
-    POSTER,
-    USER,
-    FOLDER,
-    DETAIL
+    LOADING = "loading",
+    POSTER = "poster",
+    USER = "user",
+    FOLDER = "folder",
+    DETAIL = "detail"
+}
+
+export enum FolderMode {
+    GRID = "grid",
+    LIST = "list"
 }
 
 
@@ -28,6 +32,9 @@ export abstract class AppWithState extends BaseAppWithPngExportContext {
     @state()
     private _customStateContent?: string | TemplateResult;
     public get customStateContent(): string | TemplateResult | undefined { return this._customStateContent; }
+
+
+
 
     @state()
     private _error?: string;

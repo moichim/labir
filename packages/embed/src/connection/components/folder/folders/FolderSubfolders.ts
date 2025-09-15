@@ -1,5 +1,5 @@
 import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html } from "lit";
 

@@ -9,7 +9,13 @@ import type { UpdateFolderDataType } from "./routes/post/UpdateFolder";
 
 import type { ServerInfo, Identity, FolderInfo, FileInfo, TagInfo, TagDefinition, TreeItem, Comment, BreadcrumbItem } from "./responseEntities";
 
+import { GridGrouping } from "./routes/get/GetGrid";
+
 export default Client;
+
+export {
+    GridGrouping
+}
 
 export type {
     ApiResponseType,

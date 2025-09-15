@@ -1,9 +1,9 @@
 import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
 import { t } from "i18next";
-import { T } from "../../../translations/Languages";
+import { T } from "../../../../translations/Languages";
 
 @customElement("folder-upload-dialog")
 export class FolderUploadDialog extends ClientConsumer {

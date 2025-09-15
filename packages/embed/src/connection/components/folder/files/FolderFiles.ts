@@ -1,14 +1,13 @@
 import { TimeFormat } from "@labir/core";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo, FileInfo } from "@labir/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
-import { FileInfo } from "packages/server/client/dist";
-import icons from "../../../utils/icons";
-import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../ClientContext";
-import { ClientConsumer } from "../ClientConsumer";
+import { GroupProviderElement } from "../../../../hierarchy/providers/GroupProvider";
+import icons from "../../../../utils/icons";
+import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../../ClientContext";
+import { ClientConsumer } from "../../ClientConsumer";
 
 @customElement("folder-files")
 export class FolderFiles extends ClientConsumer {

@@ -1,10 +1,9 @@
-import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import { FolderInfo } from "@labir/server";
-import { TagDefinition } from "packages/server/client/dist";
+import { FolderInfo, TagDefinition } from "@labir/server";
 import { consume } from "@lit/context";
-import { tagsFilterContext, tagsFilterSetterContext } from "../../ClientContext";
-import { html, css, CSSResultGroup, nothing } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
+import { tagsFilterContext, tagsFilterSetterContext } from "../../../ClientContext";
+import { ClientConsumer } from "../../ClientConsumer";
 
 @customElement("folder-tags-filter")
 export class FolderTagsFilter extends ClientConsumer {
@@ -79,14 +78,14 @@ export class FolderTagsFilter extends ClientConsumer {
         if (hex.length === 3) {
             hex = hex.split('').map(c => c + c).join('');
         }
-        
+
         const r = parseInt(hex.substr(0, 2), 16);
         const g = parseInt(hex.substr(2, 2), 16);
         const b = parseInt(hex.substr(4, 2), 16);
-        
+
         // Výpočet jasu podle W3C formulky
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-        
+
         // Pokud je jas > 128, použij černou, jinak bílou
         return brightness > 128 ? '#000000' : '#FFFFFF';
     }
@@ -112,10 +111,10 @@ export class FolderTagsFilter extends ClientConsumer {
 
     protected render(): unknown {
 
-        const tags = this.tags 
+        const tags = this.tags
             && Object
                 .entries(this.tags)
-                .filter(([_, tag]) => tag.count > 0) 
+                .filter(([_, tag]) => tag.count > 0)
             || [];
 
         return tags.length > 0 ? html`

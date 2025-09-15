@@ -1,6 +1,6 @@
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { AppWithContent } from "./AppWithContent";
-import { AppState } from "./AppWithState";
+import { AppState, FolderMode } from "./AppWithState";
 import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
@@ -8,6 +8,8 @@ import { compactContext, compactContextSetter, DisplayMode, displayModeContext, 
 import { ifDefined } from "lit/directives/if-defined.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { createRef, Ref } from "lit/directives/ref.js";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 
 /** 
  * This layer provides the necessary render methods
@@ -15,6 +17,7 @@ import { T } from "../../translations/Languages";
 export abstract class AppWithRender extends AppWithContent {
 
 
+    protected registryElement: Ref<RegistryProviderElement> = createRef();
 
     @property({ type: String, reflect: true })
     @provide({ context: compactContext })
@@ -68,62 +71,6 @@ export abstract class AppWithRender extends AppWithContent {
         this.log( "syncAnalyses", sync );
         this.requestUpdate();
     };
-
-
-    /** Get the slug for loading state */
-    protected slugLoading(): string {
-        return "loading";
-    }
-
-    /** Get the slug for poster state */
-    protected slugPoster(): string {
-        return "poster";
-    }
-
-    /** Get the slug for current user overview page */
-    protected slugUser(): string {
-        return [
-            "user",
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-        ].join( "_" );
-    }
-
-    /** Get the slug for a folder */
-    protected slugFolder(
-        folder: FolderInfo,
-        description?: string
-    ): string {
-
-        const segments: string[] = [
-            "folder",
-            folder.slug || "unknown_folder",
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-        ];
-
-        if ( description ) {
-            segments.push( description );
-        }
-
-        return segments.join( "_" );
-    }
-     
-    /** Get the slug for a file detail */
-    protected slugDetail(
-        folder: FolderInfo,
-        file: FileInfo,
-        description?: string
-    ): string {
-        const segments = [
-            "detail",
-            folder.slug || "unknown_folder",
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-            file.fileName || "unknown_file"
-        ];
-        if ( description ) {
-            segments.push( description );
-        }
-        return segments.join( "_" );
-    }
 
 
     static styles?: CSSResultGroup | undefined = css`
@@ -231,12 +178,6 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolder(): TemplateResult {
 
-        const slug = [
-            "folder",
-            this.folder?.slug || "unknown_folder",
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-        ].join( "__" );
-
         return html`
 
         <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
@@ -246,7 +187,7 @@ export abstract class AppWithRender extends AppWithContent {
             ${this.renderBreadcrumb()}
 
             <folder-base-info
-                slug=${this.slugFolder(this.folder!)}
+                slug=${this.getCurrentSlug()}
                 .info=${this.folder}
                 .parents=${this.breadcrumb}
                 .onParentClick=${(folder: FolderInfo) => this.setPath(folder.path)}
@@ -264,7 +205,11 @@ export abstract class AppWithRender extends AppWithContent {
 
                 </thermal-slot>` : nothing}
 
-                ${this.files && this.files.length > 0 ? html`<thermal-slot label="${t(T.thermalrange)}">
+                ${this.hasSubfolders() ? html`<thermal-slot label="Zobrazení">
+                    <subfolders-mode .folder=${this.folder} .subfolders=${this.subfolders}></subfolders-mode>
+                </thermal-slot>` : nothing}
+
+                ${this.hasFiles() ? html`<thermal-slot label="${t(T.thermalrange)}">
                     <registry-range-form></registry-range-form>
                 </thermal-slot>` : nothing}
 
@@ -273,7 +218,7 @@ export abstract class AppWithRender extends AppWithContent {
             </folder-base-info>
 
 
-            ${this.files && this.files.length > 0 ? html`<div slot="pre">
+            ${this.hasFiles() || this.folderMode === FolderMode.GRID ? html`<div slot="pre">
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
@@ -281,6 +226,8 @@ export abstract class AppWithRender extends AppWithContent {
             : nothing}
 
             ${this.renderFolderSubfolders()}
+
+            ${this.renderFolderGrid()}
 
             ${this.renderFolderFiles()}
 
@@ -293,13 +240,6 @@ export abstract class AppWithRender extends AppWithContent {
 
 
     private renderDetail(): TemplateResult {
-
-        const slug = [
-            this.path,
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-            this.folder?.slug || "unknown_folder",
-            this.file?.fileName || "unknown_file",
-        ].join( "__" );
 
         return html`
 
@@ -315,7 +255,7 @@ export abstract class AppWithRender extends AppWithContent {
         ></folder-base-info>
 
         <group-provider 
-            slug=${this.slugDetail(this.folder!, this.file!)}
+            slug=${this.getCurrentSlug()}
             batch="true"
             autoclear="true"
             style="display: contents;"
@@ -441,20 +381,6 @@ export abstract class AppWithRender extends AppWithContent {
 
 
 
-
-
-
-
-    protected getRegistrySlug(): string {
-
-        return [
-            this.path,
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-            this.folder?.slug || "unknown_folder",
-            this.file?.fileName || "unknown_file",
-        ].join("__");
-
-    }
 
 
 
@@ -616,6 +542,7 @@ export abstract class AppWithRender extends AppWithContent {
         if (
             this.subfolders
             && this.subfolders.length > 0
+            && this.folderMode === FolderMode.LIST
         ) {
 
             return html`<folder-subfolders
@@ -631,6 +558,19 @@ export abstract class AppWithRender extends AppWithContent {
 
     }
 
+    private renderFolderGrid(): unknown {
+
+        if (this.state !== AppState.FOLDER || this.folderMode !== FolderMode.GRID) {
+            return nothing;
+        }
+
+        return html`<subfolders-grid
+            .grid=${this.grid}
+            .slug=${this.getCurrentSlug()}
+        ></subfolders-grid>`;
+
+    }
+
 
     private renderFolderFiles(): unknown {
 
@@ -640,7 +580,7 @@ export abstract class AppWithRender extends AppWithContent {
         ) {
 
             return html`<folder-files
-                slug=${this.slugFolder(this.folder!)}
+                slug=${this.getCurrentSlug()}
                 .files=${this.files}
                 .folder=${this.folder}
 

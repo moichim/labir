@@ -19,6 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // client/src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  GridGrouping: () => GridGrouping,
   default: () => index_default
 });
 module.exports = __toCommonJS(index_exports);
@@ -371,6 +372,14 @@ var GetFiles = class extends OperationWithFilters {
 };
 
 // client/src/routes/get/GetGrid.ts
+var GridGrouping = /* @__PURE__ */ ((GridGrouping2) => {
+  GridGrouping2["HOUR"] = "hour";
+  GridGrouping2["DAY"] = "day";
+  GridGrouping2["WEEK"] = "week";
+  GridGrouping2["MONTH"] = "month";
+  GridGrouping2["YEAR"] = "year";
+  return GridGrouping2;
+})(GridGrouping || {});
 var GetGrid = class extends OperationWithFilters {
   folders = [];
   by = "hour" /* HOUR */;
@@ -1317,3 +1326,7 @@ var Client = class {
 
 // client/src/index.ts
 var index_default = Client;
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  GridGrouping
+});

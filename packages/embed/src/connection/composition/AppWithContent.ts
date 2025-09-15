@@ -1,15 +1,22 @@
 import { html } from "lit";
-import { state } from "lit/decorators.js";
+import { property, state } from "lit/decorators.js";
 import { FileInfo, FolderInfo, TagDefinition } from "packages/server/client/dist";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { AppWithClientProvider } from "./AppWithClientProvider";
-import { AppState } from "./AppWithState";
+import { AppState, FolderMode } from "./AppWithState";
+import { Ref } from "lit/directives/ref.js";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { GetGridDataType, GridGrouping } from "@labir/server";
+import { provide } from "@lit/context";
+import { subfoldersModeContext, subfoldersModeSetterContext, subgildersGridByMode, subgildersGridByModeSetter } from "../ClientContext";
 
 
 /** 
  * This layer handles the content logic & fetching 
  */
 export abstract class AppWithContent extends AppWithClientProvider {
+
+    protected abstract registryElement: Ref<RegistryProviderElement>;
 
     @state()
     private _breadcrumb: BreadcrumbItem[] = [];
@@ -43,6 +50,9 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this._subfolders = subfolders;
         this.requestUpdate();
     }
+
+    @state()
+    protected grid?: GetGridDataType;
 
 
 
@@ -78,8 +88,57 @@ export abstract class AppWithContent extends AppWithClientProvider {
             this.files[fileInList] = file;
         }
 
-        
+
     }
+
+
+    @property({ type: String, reflect: true })
+    @provide({ context: subfoldersModeContext })
+    public folderMode: FolderMode = FolderMode.LIST;
+
+    @state()
+    @provide({ context: subfoldersModeSetterContext })
+    private _folderModeSetter: (mode: FolderMode) => void = (mode: FolderMode) => {
+        this.folderMode = mode;
+        this.requestUpdate();
+
+        if ( this.path && this.folderMode === FolderMode.GRID ) {
+            this.grid = undefined;
+            this.fetchGrid( 
+                this.path, 
+                this.gridFolders, 
+                this.by 
+            );
+        }
+    }
+    public get folderModeSetter(): (mode: FolderMode) => void { return this._folderModeSetter; }
+
+
+    @property({ type: String, reflect: true })
+    @provide( { context: subgildersGridByMode } )
+    public by: GridGrouping = GridGrouping.HOUR;
+
+    @state()
+    @provide( { context: subgildersGridByModeSetter } )
+    private _folderGridBySetter: ( mode: GridGrouping ) => void = ( mode: GridGrouping ) => {
+        this.by = mode;
+        this.requestUpdate();
+        if ( this.path && this.folderMode === FolderMode.GRID ) {
+            this.grid = undefined;
+            this.fetchGrid( 
+                this.path, 
+                this.gridFolders, 
+                this.by 
+            );
+        }
+    }
+
+
+
+    @state()
+    public gridFolders: string[] = [];
+
+    protected UUIDContent: string = this.UUID + "__app_with_content";
 
 
 
@@ -88,9 +147,9 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
 
         // Listen to identity changes
-        this.client.auth.onIdentity.set(this.UUID + "__app_with_content", (identity, userFolders) => {
+        this.client.auth.onIdentity.set(this.UUIDContent, (identity, userFolders) => {
 
-            this.log(  "Identity changed:", identity, userFolders );
+            this.log("Identity changed:", identity, userFolders);
 
             // Store the user folders
             if (identity && userFolders) {
@@ -105,9 +164,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         });
 
         // Listen to the connection state
-        this.client.onConnection.set(this.UUID + "__app_with_content", (state) => {
-
-            console.log("Connection state changed:", state);
+        this.client.onConnection.set(this.UUIDContent, (state) => {
 
             // If the connection is lost, clear the content
             if (state !== false) {
@@ -115,6 +172,69 @@ export abstract class AppWithContent extends AppWithClientProvider {
             }
 
         });
+
+    }
+
+    public disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        // Remove the listeners
+        this.client.auth.onIdentity.delete(this.UUIDContent);
+        this.client.onConnection.delete(this.UUIDContent);
+    }
+
+
+    /**
+     * Retrieve the current slug for the state.
+     * Slug should be usable by the groups of elements displayed in HTML templates
+     */
+    protected getCurrentSlug(
+        message?: string
+    ): string {
+
+
+        const path = this.folder?.path
+            ? this.folder.path.replace(/\//g, "-")
+            : "no-folder";
+
+        const user = this.client.auth.getIdentity()
+            ? this.client.auth.getIdentity()!.user
+            : "guest";
+
+        const buf: string[] = [
+            this.state,
+            path,
+            user
+        ];
+
+        switch (this.state) {
+
+            case AppState.USER:
+            case AppState.LOADING:
+            case AppState.POSTER:
+                break;
+
+            case AppState.FOLDER:
+                buf.push( this.folderMode );
+                buf.push( this.by);
+                break;
+
+            case AppState.DETAIL:
+                if (this.file) {
+                    buf.push(this.file.fileName.replace(/\./g, "-"));
+                } else buf.push("no-file");
+                break;
+
+            default:
+                break;
+
+        }
+
+        if (message && message.trim().length > 0) {
+            buf.push(message.replace(/\s+/g, "-").toLowerCase());
+        }
+
+        return buf.join("_");
 
     }
 
@@ -132,6 +252,29 @@ export abstract class AppWithContent extends AppWithClientProvider {
     }
 
 
+    /** Checks if the current display has any subfolders */
+    protected hasSubfolders(): boolean {
+        return this.folder !== undefined
+            && this.subfolders !== undefined
+            && this.subfolders.length > 0;
+    }
+
+
+    /** Checks if the current display shows files */
+    protected hasFiles(): boolean {
+        return this.folder !== undefined
+            && this.files !== undefined
+            && this.files.length > 0;
+    }
+
+    /** Checks if the current display may have grid mode */
+    protected mayHaveGridMode(): boolean {
+        return this.hasSubfolders()
+            && this.subfolders !== undefined
+            && this.subfolders.filter( subfolder => subfolder.lrc_count > 0 ).length > 0;
+    }
+
+
 
 
 
@@ -141,11 +284,20 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     protected cleanupContent(): void {
 
+        // Clear the registry minmax and range
+        if ( this.registryElement.value ) {
+            const registry = this.registryElement.value.registry;
+            registry.range.reset();
+            registry.minmax.reset();
+            registry.groups.removeAllGroups();
+        }
+
         this._folder = undefined;
         this._subfolders = undefined;
         this._files = undefined;
         this._file = undefined;
         this._tags = undefined;
+        this.grid = undefined;
         this._breadcrumb = [];
 
     }
@@ -238,6 +390,25 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                 } // end of shouldFetchFiles
 
+                // Should we fetch grid of subfolders
+                const shouldFetchGrid = this.mayHaveGridMode()
+                    && this.state === AppState.FOLDER
+                    && this.folderMode === FolderMode.GRID;
+
+                if ( shouldFetchGrid ) {
+
+                    const request = this.client.routes.get.grid( path );
+
+                    const result = await request.execute();
+
+                    if ( result.success ) {
+                        this.grid = result.data;
+
+                        this.log( this.grid );
+                    }
+
+                }
+
             } // end of info.success === true
 
             else {
@@ -266,6 +437,31 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     }
 
+    protected async fetchGrid(
+        path: string,
+        folders: string[],
+        by: GridGrouping
+    ): Promise<void> {
+
+        this.log( path, folders, by );
+
+        const request = this.client.routes.get.grid(path)
+            .setBy( by );
+
+        if ( folders.length > 0 ) {
+            request.setFolders( folders );
+        }
+
+        const result = await request.execute();
+
+        if (result.success) {
+            this.grid = result.data;
+        }
+
+        this.log( this.grid );
+
+    }
+
     protected setStateFolder(
         folder: FolderInfo,
         breadcrumb: BreadcrumbItem[] = [],
@@ -284,7 +480,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         file: FileInfo
     ): void {
 
-        this.updateFile( file );
+        this.updateFile(file);
         this.state = AppState.DETAIL;
         this.requestUpdate();
 

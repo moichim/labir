@@ -2,10 +2,10 @@ import { FileInfo, FolderInfo } from "@labir/server";
 import { consume } from "@lit/context";
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { syncAnalysisContext, syncAnalysisSetterContext } from "../../ClientContext";
+import { syncAnalysisContext, syncAnalysisSetterContext } from "../../../ClientContext";
 import { AbstractModeBar } from "./AbstractModeBar";
 import { ThermalGroup } from "@labir/core";
-import { groupContext } from "../../../hierarchy/providers/context/GroupContext";
+import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 
 @customElement("analysis-mode-settings")
 export class AnalysisModeElement extends AbstractModeBar {

@@ -909,4 +909,4 @@ declare class Client {
     fetch<R extends ApiResponseDataType>(factory: RequestFactory): Promise<ApiResponseType<R>>;
 }
 
-export { type ApiResponseType, type BreadcrumbItem, type Comment, type FileInfo, type FolderInfo, type GetCurrentUserTreeDataType, type GetInfoDataType as GetDefaultDataType, type GetFilesDataType, type GetGridDataType, type Identity, type LoginDataType as PostLoginDataType, type UpdateFolderDataType as PostUpdateFolderDataType, type ServerInfo, type TagDefinition, type TagInfo, type TreeItem, Client as default };
+export { type ApiResponseType, type BreadcrumbItem, type Comment, type FileInfo, type FolderInfo, type GetCurrentUserTreeDataType, type GetInfoDataType as GetDefaultDataType, type GetFilesDataType, type GetGridDataType, GridGrouping, type Identity, type LoginDataType as PostLoginDataType, type UpdateFolderDataType as PostUpdateFolderDataType, type ServerInfo, type TagDefinition, type TagInfo, type TreeItem, Client as default };

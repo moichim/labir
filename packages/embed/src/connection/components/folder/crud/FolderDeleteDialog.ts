@@ -1,8 +1,8 @@
 import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
-import { T } from "../../../translations/Languages";
+import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
 
 @customElement("folder-delete-dialog")

@@ -1,6 +1,7 @@
-import Client, { TreeItem } from "@labir/server"
-import { createContext } from "@lit/context"
+import Client, { GridGrouping, TreeItem } from "@labir/server";
+import { createContext } from "@lit/context";
 import { GetCurrentUserTree } from "packages/server/client/src/routes/get/GetCurrentUserTree";
+import { FolderMode } from "./composition/AppWithState";
 
 export const clientContext = createContext<Client>( "client-context" );
 
@@ -41,3 +42,11 @@ export const syncAnalysisSetterContext = createContext<(sync: boolean) => void>(
 export const tagsFilterContext = createContext<string[]>( "tags-filter-context" );
 
 export const tagsFilterSetterContext = createContext<(tags: string[]) => void>( "tags-filter-setter-context" );
+
+export const subfoldersModeContext = createContext<FolderMode>("subfolders-mode-context");
+
+export const subfoldersModeSetterContext = createContext<(mode: FolderMode) => void>("subfolders-mode-setter-context");
+
+export const subgildersGridByMode = createContext<GridGrouping>("subfolders-grid-by-mode");
+
+export const subgildersGridByModeSetter = createContext<(mode: GridGrouping) => void>("subfolders-grid-by-mode-setter");

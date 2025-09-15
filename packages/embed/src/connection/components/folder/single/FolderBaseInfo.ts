@@ -1,8 +1,8 @@
 import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import icons from "../../../utils/icons";
+import icons from "../../../../utils/icons";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 
 @customElement( "folder-base-info" )

@@ -1,12 +1,10 @@
-import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
-import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
-import icons from "../../../utils/icons";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { classMap } from "lit/directives/class-map.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
+import icons from "../../../../utils/icons";
+import { ClientConsumer } from "../../ClientConsumer";
 
 @customElement("folder-breadcrumb")
 export class FolderBreadcrumb extends ClientConsumer {

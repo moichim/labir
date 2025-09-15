@@ -1,7 +1,6 @@
 import { css, CSSResultGroup, html } from "lit";
-import { BaseElement } from "../../../hierarchy/BaseElement";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { ClientConsumer } from "../ClientConsumer";
+import { ClientConsumer } from "../../ClientConsumer";
 
 export abstract class AbstractModeBar extends ClientConsumer {
 
