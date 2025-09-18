@@ -5,6 +5,7 @@ import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
 import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { Instance, ThermalRangeOrUndefined } from "@labir/core";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 @customElement("file-range-propagator")
 export class FileRangePropagator extends AbstractFileButton {
@@ -13,6 +14,9 @@ export class FileRangePropagator extends AbstractFileButton {
     protected setter?: ( value?: ThermalRangeOrUndefined ) => void;
 
     protected tooltip: string = t(T.range)
+
+    @property({type: String, converter: booleanConverter(false)})
+    public hideLabel: boolean = false;
 
     public onInstanceCreated(file: Instance): void {
         this.tooltip = [
@@ -50,6 +54,7 @@ export class FileRangePropagator extends AbstractFileButton {
     }
 
     getDefaultLabel(): string {
+        if ( this.hideLabel ) return "";
         return t(T.range).toLowerCase();
     }
 

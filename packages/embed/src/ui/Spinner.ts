@@ -8,6 +8,9 @@ export class Spinner extends BaseElement {
     @property({ type: String })
     public message: string = "Loading...";
 
+    @property({ type: String })
+    public color: string = "var(--thermal-primary)";
+
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,
         mode: "open"
@@ -45,7 +48,7 @@ export class Spinner extends BaseElement {
     `;
     protected render() {
         return html`
-            <div class="spinner"></div>
+            <div class="spinner" style="border-color: ${this.color}; border-top-color: transparent;"></div>
             <div class="message">${this.message}</div>
         `;
     }

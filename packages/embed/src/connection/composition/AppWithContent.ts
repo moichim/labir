@@ -91,6 +91,34 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     }
 
+    public propagateFileUpdate(
+        file: FileInfo
+    ): void {
+        if (this._file) {
+            this.updateFile(this._file);
+        }
+
+        if ( this.grid ) {
+            Object.values( this.grid.groups ).forEach( group => {
+
+                Object.values( group.folders ).forEach( folder => {
+
+                    folder.forEach( f => {
+                        if ( 
+                            f.fileName === file.fileName 
+                            && f.url === file.url
+                        ) {
+                            Object.assign( f, file );
+                            this.requestUpdate();
+                        }
+                    } );
+
+                } );
+
+            });
+        }
+    }
+
 
     @property({ type: String, reflect: true })
     @provide({ context: subfoldersModeContext })
@@ -137,6 +165,21 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     @state()
     public gridFolders: string[] = [];
+
+    protected updateGridFolders( folders: string[] ): void {
+
+        if ( this.grid ) {
+            this.grid = undefined;
+        }
+
+        this.gridFolders = folders;
+        this.requestUpdate();
+        this.fetchGrid(
+            this.path,
+            folders,
+            this.by
+        );
+    }
 
     protected UUIDContent: string = this.UUID + "__app_with_content";
 
@@ -217,6 +260,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
             case AppState.FOLDER:
                 buf.push( this.folderMode );
                 buf.push( this.by);
+                buf.push( this.gridFolders.join("-") );
                 break;
 
             case AppState.DETAIL:
@@ -399,15 +443,20 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                     const request = this.client.routes.get.grid( path );
 
+                    if ( this.gridFolders.length > 0 ) {
+                        request.setFolders( this.gridFolders );
+                    }
+
                     const result = await request.execute();
 
                     if ( result.success ) {
                         this.grid = result.data;
 
-                        this.log( this.grid );
+                        this.log( "načtena mřížka", this.grid );
                     }
 
                 }
+
 
             } // end of info.success === true
 
@@ -433,6 +482,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
             } // end of info.success === false
 
+            this.requestUpdate();
+
         } // end ready for fetch
 
     }
@@ -456,10 +507,15 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
         if (result.success) {
             this.grid = result.data;
+            this.requestUpdate();
         }
 
-        this.log( this.grid );
+    }
 
+    protected switchFolderInternal(
+        folder: FolderInfo
+    ): void {
+        this._folder = folder;
     }
 
     protected setStateFolder(
@@ -488,8 +544,10 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     protected setStateUser(): void {
         this.state = AppState.USER;
+        this.folderMode = FolderMode.LIST;
+        this.by = GridGrouping.HOUR;
+        this.gridFolders = [];
         this.cleanupContent();
     }
-
 
 }

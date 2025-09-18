@@ -4,6 +4,7 @@ import { createRef, ref } from "lit/directives/ref.js";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { Instance } from "@labir/core";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export abstract class AbstractFileButton extends FileConsumer {
 
@@ -12,6 +13,12 @@ export abstract class AbstractFileButton extends FileConsumer {
 
     @property({ type: String, reflect: true })
     public size?: BtnSizes = "sm";
+
+    @property({ type: String})
+    public icon?: string;
+
+    @property({type: String})
+    public iconStyle?: string;
 
     @property({ type: Boolean })
     public plain?: boolean;
@@ -69,6 +76,8 @@ export abstract class AbstractFileButton extends FileConsumer {
                     plain="${this.plain || false}"
                     class="default"
                     tooltip=${this.tooltip}
+                    icon=${ifDefined(this.icon)}
+                    iconStyle=${ifDefined(this.iconStyle)}
                 >${this.getDefaultLabel()}</thermal-btn>
             </slot>`;
     }

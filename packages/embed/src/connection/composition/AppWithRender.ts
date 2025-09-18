@@ -206,12 +206,33 @@ export abstract class AppWithRender extends AppWithContent {
                 </thermal-slot>` : nothing}
 
                 ${this.hasSubfolders() ? html`<thermal-slot label="Zobrazení">
-                    <subfolders-mode .folder=${this.folder} .subfolders=${this.subfolders}></subfolders-mode>
+                    <subfolders-mode 
+                        .folder=${this.folder} 
+                        .subfolders=${this.subfolders}
+                        .selectedFolders=${this.gridFolders}
+                        .onSelectionChange=${ (selected: string[]) => this.updateGridFolders(selected) }
+                        .grid=${this.grid}
+                    ></subfolders-mode>
                 </thermal-slot>` : nothing}
+
+                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`
+                <thermal-slot label="${t(T.palette)}">
+                    <registry-palette-dropdown></registry-palette-dropdown>
+                </thermal-slot>
+                <thermal-slot label="${t(T.thermalrange)}">
+                    <registry-range-form></registry-range-form>
+                </thermal-slot>
+                <thermal-slot label="Obsah">
+                <editing-mode-settings
+                    .folder=${this.folder}
+                ></editing-mode-settings>
+            </thermal-slot>
+                ` : nothing}
 
                 ${this.hasFiles() ? html`<thermal-slot label="${t(T.thermalrange)}">
                     <registry-range-form></registry-range-form>
-                </thermal-slot>` : nothing}
+                </thermal-slot>
+                ` : nothing}
 
                 ${this.renderDisplayMode()}
 
@@ -549,7 +570,6 @@ export abstract class AppWithRender extends AppWithContent {
                 .folder=${this.folder}
                 .subfolders=${this.subfolders}
                 .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
-                slot="pre"
             ></folder-subfolders>`;
 
         }
@@ -560,13 +580,33 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolderGrid(): unknown {
 
-        if (this.state !== AppState.FOLDER || this.folderMode !== FolderMode.GRID) {
+        if (this.state !== AppState.FOLDER || this.folderMode !== FolderMode.GRID || !this.hasSubfolders()) {
             return nothing;
         }
 
         return html`<subfolders-grid
             .grid=${this.grid}
             .slug=${this.getCurrentSlug()}
+            .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+            .onFileClick=${(folder: FolderInfo, file: FileInfo) => {
+
+                this.switchFolderInternal(folder);
+
+                this.setStateFile(file);
+    
+            }}
+            .onFileEdit=${(file: FileInfo) => {
+
+                this.propagateFileUpdate(file);
+
+            }}
+            .onChange=${() => this.fetchGrid(
+                this.path,
+                this.gridFolders,
+                this.by
+            )}
+            .selectedFolders=${this.gridFolders}
+            .onSelectionChange=${ (selected: string[]) => this.updateGridFolders(selected) }
         ></subfolders-grid>`;
 
     }
@@ -583,6 +623,7 @@ export abstract class AppWithRender extends AppWithContent {
                 slug=${this.getCurrentSlug()}
                 .files=${this.files}
                 .folder=${this.folder}
+                
 
                 .onFileClick=${(file: FileInfo) => this.setStateFile(file)}
 
@@ -595,6 +636,11 @@ export abstract class AppWithRender extends AppWithContent {
                 }}
 
                 .onChange=${(file: FileInfo) => this.updateFile(file)}
+
+                
+
+                
+
             ></folder-files>`;
 
         }

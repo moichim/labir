@@ -158,20 +158,8 @@ export class FileCanvas extends FileConsumer {
         .loading-loader {
             width: calc( var( --thermal-gap ) * 2);
             aspect-ratio: 1;
-            --c: no-repeat linear-gradient(var(--thermal-background) calc(50% - 10px),#0000 0 calc(50% + 10px),var(--thermal-background) 0);
-            background: 
-                var(--c) 0%   100%,
-                var(--c) 50%  100%,
-                var(--c) 100% 100%;
-            background-size: 20% calc(200% + 20px);
-            animation: loading-animation 1s infinite linear;
         }
-        @keyframes loading-animation {
-            33%  {background-position: 0% 50%,50% 100%,100% 100%}
-            50%  {background-position: 0%  0%,50%  50%,100% 100%}
-            66%  {background-position: 0%  0%,50%   0%,100%  50%}
-            100% {background-position: 0%  0%,50%   0%,100%   0%}
-        }
+        
     `;
 
     protected render(): unknown {
@@ -194,7 +182,9 @@ export class FileCanvas extends FileConsumer {
                 ${ this.loading === true
 
                     ? html`<div class="loading-placeholder">
-                        <div class="loading-loader"></div>
+                        <div class="loading-loader">
+                            <thermal-spinner color="var(--thermal-background)"></thermal-spinner>
+                        </div>
                     </div>`
                     : isError === true 
                         ? html`<div class="error-wrapper">

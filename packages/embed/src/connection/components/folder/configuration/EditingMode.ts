@@ -39,7 +39,7 @@ export class EditingModeElement extends AbstractModeBar {
             (checked) => this.showDiscussionSetter(checked)
         )}
 
-            ${this.folder && this.folder.may_manage_files_in ? this.renderToggle(
+            ${this.folder && this.folder.may_manage_files_in || this.folder?.may_manage_folders_in ? this.renderToggle(
             t(T.edittags),
             this.editableTags,
             (checked) => this.editTagsSetter(checked)

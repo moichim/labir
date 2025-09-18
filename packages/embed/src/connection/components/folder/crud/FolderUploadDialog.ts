@@ -1,9 +1,10 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
-import { html, css, CSSResultGroup } from "lit";
+import { html, css, CSSResultGroup, nothing } from "lit";
 import { FolderInfo } from "@labir/server";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
+import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 
 @customElement("folder-upload-dialog")
 export class FolderUploadDialog extends ClientConsumer {
@@ -12,7 +13,19 @@ export class FolderUploadDialog extends ClientConsumer {
     public folder!: FolderInfo;
 
     @property({ type: String })
+    public label: string = t(T.uploadafile);
+
+    @property({ type: String })
+    public variant: string = "primary";
+
+    @property({ type: String })
     private errorMessage: string = "";
+
+    @property({ type: String, converter: booleanConverter(false) })
+    private plain: boolean = false;
+
+    @property({type: String})
+    public tooltip?: string;
 
     @property({ type: Object })
     private selectedFiles: FileList | null = null;
@@ -115,16 +128,29 @@ export class FolderUploadDialog extends ClientConsumer {
 
     protected render(): unknown {
 
-        const label = t(T.uploadafile);
+        const label = this.label !== undefined
+            ? this.label
+            : t(T.uploadafile);
+
+        if ( ! this.isLoggedIn || !this.folder.may_manage_files_in) {
+            return nothing
+        }
         
         return html`
             <thermal-dialog
-                label=${label}
+                label=${t(T.uploadafile)}
                 .beforeClose=${() => this.handleSubmit()}
-                button=${label}
+                button=${t(T.uploadafile)}
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="md" variant="primary" icon="upload" iconStyle="micro">
+                    <thermal-btn 
+                        size="md" 
+                        variant="${this.variant}" 
+                        plain=${this.plain ? true : false}
+                        icon="upload" 
+                        iconStyle="micro"
+                        tooltip=${this.tooltip ? this.tooltip : t(T.uploadafile)}
+                    >
                         ${label}
                     </thermal-btn>
                 </slot>
