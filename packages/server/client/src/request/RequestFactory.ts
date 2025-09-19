@@ -1,4 +1,3 @@
-import { RequestOptions } from "https";
 import { Client } from "../Client";
 
 type AvailableMethod = "GET" | "POST";
@@ -206,7 +205,6 @@ export class RequestFactory {
         };
         // Pokud by v headers zůstal Content-Type, odstraníme ho (pro jistotu)
         if (finaleOptions.headers && typeof finaleOptions.headers === 'object') {
-            // @ts-ignore
             delete finaleOptions.headers["Content-Type"];
         }
 

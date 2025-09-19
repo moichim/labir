@@ -1,4 +1,3 @@
-import { Operation } from "./Operation";
 import { OperationWithPath } from "./OperationWithPath";
 import { ApiResponseDataType } from "./ResponseTypes";
 

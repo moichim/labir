@@ -283,7 +283,7 @@ var useThermalRegistryHistogramState = (registry, purpose) => {
     return () => registry.histogram.removeListener(purpose);
   }, [registry, value, setValue]);
   const setResolution = (0, import_react6.useMemo)(() => registry.histogram.setResolution.bind(registry.histogram), [registry]);
-  const recalculate = (0, import_react6.useMemo)(() => registry.histogram.recalculateWithCurrentSetting.bind(registry.histogram), [registry]);
+  const recalculate = (0, import_react6.useMemo)(() => registry.histogram.recalculateHistogramBufferInWorker.bind(registry.histogram), [registry]);
   const resolution = (0, import_react6.useMemo)(() => registry.histogram.resolution, [registry.histogram.resolution]);
   (0, import_react6.useEffect)(() => {
     return () => registry.histogram.removeListener(purpose);

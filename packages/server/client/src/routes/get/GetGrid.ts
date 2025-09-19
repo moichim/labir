@@ -1,7 +1,4 @@
-import { RequestFactory } from "../../request/RequestFactory";
 import { FileInfo, FolderInfo, TagsWithContent } from "../../responseEntities";
-import { Operation } from "../Operation";
-import { OperationWithPath } from "../OperationWithPath";
 import { OperationWithFilters } from "../OperationWithPathAndFilters";
 import { ApiResponseType } from "../ResponseTypes";
 
@@ -56,8 +53,8 @@ export class GetGrid extends OperationWithFilters<GetGridDataType> {
     protected by: GridGrouping = GridGrouping.HOUR;
 
     public init(): this {
-        this.request.setMethod( "GET" );
-        this.request.setAction( "grid" );
+        this.request.setMethod("GET");
+        this.request.setAction("grid");
         this.request.addQueryParameter("by", this.by);
         return this;
     }

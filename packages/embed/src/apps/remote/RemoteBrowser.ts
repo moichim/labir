@@ -743,9 +743,11 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
                             <file-label></file-label>
                         </thermal-button>
 
-                        <file-info-button>
-                        </file-info-button>
+                        <file-info-button></file-info-button>
                         <file-download-dropdown></file-download-dropdown>
+
+                        <registry-palette-dropdown></registry-palette-dropdown>
+                        <registry-range-form></registry-range-form>
                     </header>
 
                     <main>

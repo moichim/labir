@@ -18,7 +18,7 @@
     "eslint": "eslint src",
     "test": "vitest",
     "build": "tsup client/src/index.ts --config=tsup.config.ts",
-    "lint": "eslint src"
+    "lint": "eslint client"
   },
   "author": "Jan Jáchim <jachim5@gmail.com>",
   "license": "ISC",

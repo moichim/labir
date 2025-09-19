@@ -5443,7 +5443,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
       wrapper.appendChild(label);
     }
     if (this.list) {
-      let reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
+      const reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
       if (reference) {
         instance.timeline.setRelativeTime(reference?.timeline.currentMs);
       }

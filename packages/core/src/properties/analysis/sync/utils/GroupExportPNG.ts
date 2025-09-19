@@ -135,7 +135,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
         // Build the image
         if (this.list) {
 
-            let reference: Instance | undefined = this.group.files.value.find( i => i.fileName === instance.fileName );
+            const reference: Instance | undefined = this.group.files.value.find( i => i.fileName === instance.fileName );
 
             if ( reference ) {
 

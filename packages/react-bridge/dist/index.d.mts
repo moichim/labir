@@ -189,13 +189,7 @@ type ThermalHistogramStatisticsEntry = {
 declare const useThermalRegistryHistogramState: (registry: ThermalRegistry, purpose: string) => {
     value: ThermalHistogramStatisticsEntry[];
     setResolution: (value: number) => void;
-    recalculate: () => {
-        from: number;
-        to: number;
-        percentage: number;
-        count: number;
-        height: number;
-    }[];
+    recalculate: () => void;
     resolution: number;
 };
 

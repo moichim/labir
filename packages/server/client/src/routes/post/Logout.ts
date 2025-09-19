@@ -1,9 +1,7 @@
 import { Operation } from "../Operation";
 import { ApiResponseType } from "../../routes/ResponseTypes";
 
-export type LogoutDataType = {
-
-}
+export type LogoutDataType = object;
 
 export class Logout extends Operation<LogoutDataType> {
 

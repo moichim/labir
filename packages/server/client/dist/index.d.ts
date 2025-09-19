@@ -222,7 +222,7 @@ declare class RequestFactory {
     getAction(): string | undefined;
 }
 
-type ApiResponseDataType = {};
+type ApiResponseDataType = object;
 /**
  * The response of LabIR server to any request.
  */
@@ -535,14 +535,14 @@ declare abstract class OperationWithFile<R extends ApiResponseDataType> extends 
     setFile(filename: string): this;
 }
 
-type DeleteFileDataType = {};
+type DeleteFileDataType = object;
 declare class DeleteFile extends OperationWithFile<DeleteFileDataType> {
     init(): this;
     setLrc(file: File): this;
     execute(): Promise<ApiResponseType<DeleteFileDataType>>;
 }
 
-type DeleteFolderDataType = {};
+type DeleteFolderDataType = object;
 declare class DeleteFolder extends OperationWithPath<DeleteFolderDataType> {
     init(): this;
     execute(): Promise<ApiResponseType<DeleteFolderDataType>>;
@@ -608,13 +608,13 @@ declare class Login extends Operation<LoginDataType> {
     execute(): Promise<ApiResponseType<LoginDataType>>;
 }
 
-type LogoutDataType = {};
+type LogoutDataType = object;
 declare class Logout extends Operation<LogoutDataType> {
     init(): this;
     execute(): Promise<ApiResponseType<LogoutDataType>>;
 }
 
-type MoveFolderDataType = {};
+type MoveFolderDataType = object;
 declare class MoveFolder extends OperationWithPath<MoveFolderDataType> {
     init(): this;
     setTarget(target: string): this;

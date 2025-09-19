@@ -1,10 +1,7 @@
 import { OperationWithFile } from "../OperationWithFile";
-import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-type DeleteFileDataType = {
-
-}
+type DeleteFileDataType = object;
 
 export class DeleteFile extends OperationWithFile<DeleteFileDataType> {
 

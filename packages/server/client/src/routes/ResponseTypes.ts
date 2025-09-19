@@ -1,6 +1,6 @@
 import { ServerInfo } from "../responseEntities"
 
-export type ApiResponseDataType = {}
+export type ApiResponseDataType = object;
 
 /**
  * The response of LabIR server to any request.

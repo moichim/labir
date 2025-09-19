@@ -1,9 +1,7 @@
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-type DeleteFolderDataType = {
-
-}
+type DeleteFolderDataType = object;
 
 export class DeleteFolder extends OperationWithPath<DeleteFolderDataType> {
 

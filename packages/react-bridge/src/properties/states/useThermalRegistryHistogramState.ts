@@ -37,7 +37,7 @@ export const useThermalRegistryHistogramState = (
     const setResolution = useMemo( () => registry.histogram.setResolution.bind( registry.histogram ), [registry] );
 
     // Expose the recalculation fn
-    const recalculate = useMemo( () => registry.histogram.recalculateWithCurrentSetting.bind( registry.histogram ), [registry] );
+    const recalculate = useMemo( () => registry.histogram.recalculateHistogramBufferInWorker.bind( registry.histogram ), [registry] );
 
     const resolution = useMemo( () => registry.histogram.resolution, [registry.histogram.resolution] );
 

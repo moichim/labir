@@ -1,6 +1,5 @@
 import { FileInfo } from "../../responseEntities";
 import { OperationWithFile } from "../OperationWithFile";
-import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
 export type FileAddCommentDataType = {

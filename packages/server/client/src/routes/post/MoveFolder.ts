@@ -1,9 +1,7 @@
 import { OperationWithPath } from "../OperationWithPath";
 import { ApiResponseType } from "../ResponseTypes";
 
-export type MoveFolderDataType = {
-
-}
+export type MoveFolderDataType = object;
 
 export class MoveFolder extends OperationWithPath<MoveFolderDataType> {
 
