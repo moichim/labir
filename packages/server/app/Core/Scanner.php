@@ -66,6 +66,15 @@ final class Scanner
             }
         }
 
+        $packageFile = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'package.json';
+        if (file_exists($packageFile)) {
+            $json = file_get_contents($packageFile);
+            $data = json_decode($json, true);
+            if (is_array($data)) {
+                $this->serverInfo["version"] = $data["version"] ?? "unknown version";
+            }
+        }
+
         $this->serverInfo["url"] = $this->dataUrl;
     }
 

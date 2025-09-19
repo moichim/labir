@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{block title}My App{/block}</title>
+    <link rel="stylesheet" href="/labir-server.css?server={$version}">
+
+    <script src=" https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js?server={$version}"></script>
+    <link href=" https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.css?server={$version}" rel="stylesheet">
+
+</head>
+<body>
+    <div class="layout">
+        {ifset header}<header>{include header}</header>{/ifset}
+        <main>{include content}</main>
+        <footer>
+            <section>
+                <span>Server name:</span>
+                <strong>{$name}</strong>
+            </section>
+            <section>
+                <span>API version:</span>
+                <strong>{$version}</strong>
+            </section>
+            <section>
+                <span>Info:</span>
+                <strong><a href="https://edu.labir.cz/obsah/software/webova-aplikace/dokumentace/" target="_blank">Documentation</a></strong>
+            </section>
+        </footer>
+    </div>
+</body>
+</html>

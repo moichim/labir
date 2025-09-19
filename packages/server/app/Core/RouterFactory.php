@@ -29,7 +29,11 @@ final class RouterFactory
 
 		$router->add( $labirRouter );
 
-		// $router->addRoute('/api/<path .+>', 'Get:default');
+
+		$router->addRoute('/', 'Display:default');
+
+		
+
 		return $router;
 	}
 }

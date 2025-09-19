@@ -56,25 +56,32 @@ abstract class BaseApiPresenter extends BasePresenter
     {
         parent::startup();
 
+        $serverInfo = $this->scanner->getServerInfo();
+
+        $version = $serverInfo["version"] ?? null;
+
+        if ( $version ) {
+            $this->version = $version;
+        }
+
         $request = $this->getRequest();
         $params = $request->getParameters();
 
-        if ( array_key_exists("path", $params) ) {
+        if (array_key_exists("path", $params)) {
 
             $path = $params["path"];
 
-            if ( $path !== null && $path !== "" ) {
+            if ($path !== null && $path !== "") {
                 $this->path = $path;
-                $this->dataPath = $this->getPath( $path );
+                $this->dataPath = $this->getPath($path);
             }
-
         }
 
         $this->json["colophon"] = [
             "time" => time() * 1000,
             "path" => $this->path,
             "action" => $this->getAction(),
-            "server" => array_merge( $this->scanner->getServerInfo(), [
+            "server" => array_merge($this->scanner->getServerInfo(), [
                 "version" => $this->version
             ])
         ];
@@ -136,7 +143,8 @@ abstract class BaseApiPresenter extends BasePresenter
         return rtrim($this->dataUrl, '/') . '/data/' . ltrim($path, '/\\');
     }
 
-    protected function formatMessage( string $message, ...$subjects ): string {
-        return sprintf( $message, ...$subjects );
+    protected function formatMessage(string $message, ...$subjects): string
+    {
+        return sprintf($message, ...$subjects);
     }
 }
