@@ -7,7 +7,7 @@ describe("Client", () => {
 
         const client = new Client("http://localhost:8080");
 
-        expect( client.getServerUrl() ).toBe( "http://localhost:8080/" );
+        expect( client.getServerUrl() ).toBe( "http://localhost:8080/api/" );
 
     } );
 

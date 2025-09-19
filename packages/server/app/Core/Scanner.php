@@ -25,14 +25,20 @@ final class Scanner
     public Access $access;
     public AuthorisationService $authorisation;
 
+    public Config $config;
+
     protected string $basePath;
 
     protected array $serverInfo = [];
 
     public function __construct(
         IRequest $request,
-        Session $session
+        Session $session,
+        Config $config
     ) {
+
+        $this->config = $config;
+
         $this->request = $request;
         $url = $request->getUrl();
         $this->dataUrl = rtrim($url->getBaseUrl(), '/');
@@ -81,7 +87,7 @@ final class Scanner
     public function getFullUrl(
         string $path
     ) {
-        return $this->dataUrl . "/" . ltrim($path, '/');
+        return $this->dataUrl . rtrim( $this->config->getApiEndpoint(), "/" ) . "/" . ltrim($path, '/');
     }
 
     public function getFileUrl(string $path)

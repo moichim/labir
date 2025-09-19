@@ -1,6 +1,7 @@
 services:
 	- App\Core\Scanner
 	- App\Core\RouterFactory::createRouter(@App\Core\Scanner, @http.request)
+	- App\Core\Config
 
 
 search:

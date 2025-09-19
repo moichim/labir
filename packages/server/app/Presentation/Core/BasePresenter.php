@@ -31,7 +31,7 @@ abstract class BasePresenter extends Presenter
         $allowedOrigins = [
             'http://localhost:8080',
             'http://localhost:3000',
-            'http://localhost:5173', // Vite dev server
+            'http://localhost:5173',
             'https://dev2-edu.labir.cz',
             'https://labir.cz',
             'https://www.labir.cz'

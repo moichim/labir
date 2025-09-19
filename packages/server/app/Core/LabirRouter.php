@@ -14,21 +14,36 @@ use Nette\Http\UrlScript;
  * 
  * Neprobíhá zde žádná validace, pouze se zkontroluje, zda je platná cesta k adresáři (je to první parametr).
  */
-class CustomRouter implements Router
+class LabirRouter implements Router
 {
+
+    protected Config $config;
 
     public function __construct(
         protected Scanner $scanner,
         protected IRequest $request
     ) {
         // Initialization if needed
+        $this->config = $scanner->config;
     }
 
     public function match(IRequest $request): ?array
     {
 
         $url = $request->getUrl();
+        // Tady potřebuji získat path bez leading prefixu /api.
+        // Pokud request nemá prefix, tak tento router by neměl vracet nic a měl by pokračovat další router
         $path = $url->getPath();
+        $apiPrefix = $this->config->getApiEndpoint();
+        if (substr($path, 0, strlen($apiPrefix)) !== $apiPrefix) {
+            return null;
+        }
+        // Remove the /api prefix from the path
+        $path = substr($path, strlen($apiPrefix));
+        // Ensure path starts with a single slash
+        if ($path === '' || $path[0] !== '/') {
+            $path = '/' . ltrim($path, '/');
+        }
 
         $params = $this->parseParams($request->getQuery());
 

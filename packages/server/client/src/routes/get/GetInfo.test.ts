@@ -45,7 +45,7 @@ describe( "GetDefault", () => {
     } );
 
 
-    test( "should be able to see a protected folder once logged in with proper access", async () => {
+    test.only( "should be able to see a protected folder once logged in with proper access", async () => {
 
         const client = new Client("http://localhost:8080");
 
@@ -57,7 +57,9 @@ describe( "GetDefault", () => {
 
         const failed_response = await failed_request.execute();
 
-        expect( failed_response.success ).toBe( false );;
+        console.log( failed_response );
+
+        expect( failed_response.success ).toBe( false );
 
         expect( failed_response ).toHaveProperty("code");
         expect( failed_response ).toHaveProperty("message");

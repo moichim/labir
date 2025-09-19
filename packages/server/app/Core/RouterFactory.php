@@ -7,7 +7,7 @@ namespace App\Core;
 use Nette;
 use Nette\Application\Routers\RouteList;
 use App\Core\Scanner;
-use App\Core\CustomRouter;
+use App\Core\LabirRouter;
 use Nette\Http\Request;
 
 final class RouterFactory
@@ -20,16 +20,16 @@ final class RouterFactory
 	): RouteList
 	{
 
-		$customRouter = new CustomRouter(
+		$labirRouter = new LabirRouter(
 			$scanner,
 			$request
 		);
 
 		$router = new RouteList;
 
-		$router->add( $customRouter );
+		$router->add( $labirRouter );
 
-		$router->addRoute('<path .+>', 'Get:default');
+		// $router->addRoute('/api/<path .+>', 'Get:default');
 		return $router;
 	}
 }

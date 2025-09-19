@@ -98,10 +98,17 @@ export class Client {
     }
 
     constructor(
-        serverUrl: string
+        serverUrl: string,
+        protected readonly apiRoot: string = "/api/"
     ) {
 
-        this.serverUrl = serverUrl.trim();
+        let composedUrl = serverUrl.trim()
+        if (composedUrl.endsWith("/")) {
+            composedUrl = composedUrl.slice(0, -1);
+        }
+        composedUrl += apiRoot.trim();
+
+        this.serverUrl = composedUrl;
         if (!this.serverUrl.endsWith("/")) {
             this.serverUrl += "/";
         }
