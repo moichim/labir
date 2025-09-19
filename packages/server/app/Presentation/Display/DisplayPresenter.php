@@ -21,8 +21,44 @@ final class DisplayPresenter extends BasePresenter
         $this->template->name = $this->scanner->getServerInfo()["name"] ?? "Labir Server";
     }
 
+    private function getValueIfExists(string $key, array $array): ?string
+    {
+        return array_key_exists($key, $array) ? $array[$key] : null;
+    }
+
     public function renderDefault(): void
     {
-        
+
+        $p = [
+            "path",
+            "palette",
+            "displaymode",
+            "foldermode",
+            "by"
+        ];
+
+        $params = $this->request->parameters;
+
+        $properties = array_map(function ($key) use ( $params) {
+
+            $value = $this->getValueIfExists($key, $params);
+
+            if ($value !== null) {
+                return "$key=\"$value\"";
+            } else {
+                return null;
+            }
+        }, $p);
+
+        $properties = array_filter( $properties, function ( $prop ) {
+            return $prop !== null;
+        } );
+
+        $properties = count($properties) > 0
+            ? implode( " ", $properties )
+            : null;
+
+        $this->template->properties = $properties;
+
     }
 }

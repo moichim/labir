@@ -1,5 +1,5 @@
 {
-    "name": "LabIR Server",
+    "name": "LabIR Server Localhost",
     "description": "Popis serveru",
     "endpoint": "/api/"
 }
