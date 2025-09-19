@@ -12,7 +12,8 @@
   },
   "files": [
     "client/dist",
-    "client/src"
+    "package.json",
+    "readme.md"
   ],
   "scripts": {
     "eslint": "eslint src",
