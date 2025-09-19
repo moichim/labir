@@ -43,7 +43,13 @@ final class Scanner
         $url = $request->getUrl();
         $this->dataUrl = rtrim($url->getBaseUrl(), '/');
 
-        $this->basePath = trim($url->getPath(), "/");
+        // Oprava: Odstranit /api prefix stejně jako v routeru
+        $path = $url->getPath();
+        $apiPrefix = $this->config->getApiEndpoint();
+        if (substr($path, 0, strlen($apiPrefix)) === $apiPrefix) {
+            $path = substr($path, strlen($apiPrefix));
+        }
+        $this->basePath = trim($path, "/");
 
         $this->json = new Json($this);
         $this->folder = new Folder($this);
@@ -87,7 +93,7 @@ final class Scanner
     public function getFullUrl(
         string $path
     ) {
-        return $this->dataUrl . rtrim( $this->config->getApiEndpoint(), "/" ) . "/" . ltrim($path, '/');
+        return $this->dataUrl . rtrim($this->config->getApiEndpoint(), "/") . "/" . ltrim($path, '/');
     }
 
     public function getFileUrl(string $path)

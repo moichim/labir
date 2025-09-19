@@ -1092,6 +1092,20 @@ var Entities = class {
 
 // client/src/Client.ts
 var Client = class {
+  constructor(serverUrl, apiRoot = "/api/") {
+    this.apiRoot = apiRoot;
+    let composedUrl = serverUrl.trim();
+    if (composedUrl.endsWith("/")) {
+      composedUrl = composedUrl.slice(0, -1);
+    }
+    composedUrl += apiRoot.trim();
+    this.serverUrl = composedUrl;
+    if (!this.serverUrl.endsWith("/")) {
+      this.serverUrl += "/";
+    }
+    this.auth = new Auth(this);
+    this.routes = new Routes(this);
+  }
   /** 
    * The core server URL ending with a slash */
   serverUrl;
@@ -1155,14 +1169,6 @@ var Client = class {
   onLoading = new CallbacksManager();
   get loading() {
     return this.activeRequests > 0;
-  }
-  constructor(serverUrl) {
-    this.serverUrl = serverUrl.trim();
-    if (!this.serverUrl.endsWith("/")) {
-      this.serverUrl += "/";
-    }
-    this.auth = new Auth(this);
-    this.routes = new Routes(this);
   }
   /** 
    * Tests the availability of the server, establishes the connection and stores the following data crucial for all subsequent requests:

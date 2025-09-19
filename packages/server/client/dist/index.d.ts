@@ -810,6 +810,7 @@ declare class Entities {
  * - otherwise, a standard login request needs to be performed via the `routes.post.login()`
  */
 declare class Client {
+    protected readonly apiRoot: string;
     /**
      * The core server URL ending with a slash */
     protected serverUrl: string;
@@ -870,7 +871,7 @@ declare class Client {
     protected activeRequests: number;
     readonly onLoading: CallbacksManager<(loading: boolean) => void>;
     get loading(): boolean;
-    constructor(serverUrl: string);
+    constructor(serverUrl: string, apiRoot?: string);
     /**
      * Tests the availability of the server, establishes the connection and stores the following data crucial for all subsequent requests:
      * - PHPSESSID is stored in `Auth.setSesson()`
