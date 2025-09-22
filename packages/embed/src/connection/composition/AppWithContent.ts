@@ -120,7 +120,12 @@ export abstract class AppWithContent extends AppWithClientProvider {
     }
 
 
-    @property({ type: String, reflect: true })
+    @property({ type: String, reflect: true, attribute: "folder-mode", converter: {
+        fromAttribute(value: string): FolderMode {
+            if ( value === FolderMode.GRID ) return FolderMode.GRID;
+            return FolderMode.LIST;
+        }
+    } })
     @provide({ context: subfoldersModeContext })
     public folderMode: FolderMode = FolderMode.LIST;
 
@@ -142,7 +147,16 @@ export abstract class AppWithContent extends AppWithClientProvider {
     public get folderModeSetter(): (mode: FolderMode) => void { return this._folderModeSetter; }
 
 
-    @property({ type: String, reflect: true })
+    @property({ type: String, reflect: true, attribute: "grid-grouping", converter: {
+        fromAttribute(value: string): GridGrouping {
+
+            if ( [GridGrouping.DAY, GridGrouping.MONTH, GridGrouping.YEAR, GridGrouping.HOUR].includes(value as GridGrouping) ) {
+                return value as GridGrouping;
+            } 
+
+            return GridGrouping.HOUR;
+
+    } } } )
     @provide( { context: subgildersGridByMode } )
     public by: GridGrouping = GridGrouping.HOUR;
 
@@ -289,6 +303,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         path: string
     ): void {
 
+        this.unsetFileAttribute();
         this.path = path;
         this.requestUpdate();
         this.fetchContent();
@@ -385,17 +400,15 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
             const path = this.path!;
 
-            // fetch the folder info
-            const info = await this
-                .client
-                .routes
-                .get
+            // 1. Fetch the current folder info
+            const info = await this.client.routes.get
                 .info(path)
                 .execute();
 
+            // 2. If successfull, store the folder info and eventually proceed
             if (info.success) {
 
-                // Extract the subfolders from the response
+                // Extract the subfolders from the info response
                 const subfolders = info.data.subfolders
                     ? Object.values(info.data.subfolders)
                     : [];
@@ -408,11 +421,39 @@ export abstract class AppWithContent extends AppWithClientProvider {
                 );
 
 
-                // Should we fetch files in the folder?
-                const shouldFetchFiles = info.data.folder.lrc_count > 0;
+                // 3. decide what to do next
+                // If the fileName is set, try to fetch the file
+                if ( this.fileName !== undefined ) {
 
-                // Eventually fetch files in the folder
-                if (shouldFetchFiles) {
+                    const file = await this.client.routes.get.file(this.path, this.fileName).execute();
+                    // In case the file is fetched, display it
+                    if ( file.success === true && file.data.file ) {
+                        this.setStateFile( file.data.file );
+                    } else {
+                        this.setStatePoster( html`<p>Požadovaný soubor nebyl nalezen.</p>` );
+                    }
+                    
+                }
+                // If not, decide whether to fetch files in the folder or the grid
+                else if ( this.folderMode === FolderMode.GRID && this.hasSubfolders()) {
+
+                    const request = this.client.routes.get.grid( path );
+
+                    if ( this.gridFolders.length > 0 ) {
+                        request.setFolders( this.gridFolders );
+                    }
+
+                    const result = await request.execute();
+
+                    if ( result.success ) {
+                        this.grid = result.data;
+
+                        this.log( "načtena mřížka", this.grid );
+                    }
+
+                } 
+                // If not the grid, fetch the files in the folder
+                else if ( info.data.folder.lrc_count > 0 ) {
 
                     // Perform the fetch
                     const files = await this
@@ -431,29 +472,6 @@ export abstract class AppWithContent extends AppWithClientProvider {
                         this.updateTags(files.data.tags);
 
                     } // end of files.success
-
-                } // end of shouldFetchFiles
-
-                // Should we fetch grid of subfolders
-                const shouldFetchGrid = this.mayHaveGridMode()
-                    && this.state === AppState.FOLDER
-                    && this.folderMode === FolderMode.GRID;
-
-                if ( shouldFetchGrid ) {
-
-                    const request = this.client.routes.get.grid( path );
-
-                    if ( this.gridFolders.length > 0 ) {
-                        request.setFolders( this.gridFolders );
-                    }
-
-                    const result = await request.execute();
-
-                    if ( result.success ) {
-                        this.grid = result.data;
-
-                        this.log( "načtena mřížka", this.grid );
-                    }
 
                 }
 
@@ -527,9 +545,13 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this.updateFolder(folder);
         this.updateBreadcrumb(breadcrumb);
         this.updateSubfolders(subfolders ?? []);
-
         this.state = AppState.FOLDER;
 
+    }
+
+    protected unsetFileAttribute(): void {
+        this.removeAttribute("file-name");
+        this.fileName = undefined;
     }
 
     protected setStateFile(
@@ -538,6 +560,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
         this.updateFile(file);
         this.state = AppState.DETAIL;
+        this.fileName = file.fileName;
+        this.setAttribute("file-name", this.fileName);
         this.requestUpdate();
 
     }

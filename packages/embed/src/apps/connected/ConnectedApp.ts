@@ -128,6 +128,17 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
                 showfullscreen="true"
             >          
 
+                <share-dialog 
+                    slot="close"
+                    .folder=${this.folder}
+                    .folderMode=${this.folderMode}
+                    .displayMode=${this.displayMode}
+                    .by=${this.by}
+                    .file=${this.file}
+                    .compact=${this.compact}
+                    .state=${this.state}
+                    .path=${this.path}
+                ></share-dialog>
 
                 ${this.isClientConnected === true
                     ? html`<labir-user-button slot="close"></labir-user-button>`

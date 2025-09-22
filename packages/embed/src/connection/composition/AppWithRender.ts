@@ -569,7 +569,9 @@ export abstract class AppWithRender extends AppWithContent {
             return html`<folder-subfolders
                 .folder=${this.folder}
                 .subfolders=${this.subfolders}
-                .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+                .onFolderClick=${(folder: FolderInfo) => {
+                    this.setPath(folder.path);
+                }}
             ></folder-subfolders>`;
 
         }
@@ -587,7 +589,9 @@ export abstract class AppWithRender extends AppWithContent {
         return html`<subfolders-grid
             .grid=${this.grid}
             .slug=${this.getCurrentSlug()}
-            .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+            .onFolderClick=${(folder: FolderInfo) => {
+                this.setPath(folder.path);
+            }}
             .onFileClick=${(folder: FolderInfo, file: FileInfo) => {
 
                 this.switchFolderInternal(folder);

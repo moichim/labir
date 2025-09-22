@@ -892,6 +892,11 @@ declare class Client {
      */
     getServerUrl(): string;
     /**
+     * @returns The API root path with slashes (e.g. '/api/')
+     */
+    getApiRoot(): string;
+    getPublicUrl(): string;
+    /**
      * Automatically process every incoming response.
      * - store the session ID in Auth class
      */

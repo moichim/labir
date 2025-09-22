@@ -11,8 +11,8 @@ export enum AppState {
 }
 
 export enum FolderMode {
-    GRID = "grid",
-    LIST = "list"
+    GRID = "grid-files",
+    LIST = "list-subfolders"
 }
 
 

@@ -19,6 +19,8 @@ final class DisplayPresenter extends BasePresenter
         $this->template->version = $this->scanner->getServerInfo()["version"];
 
         $this->template->name = $this->scanner->getServerInfo()["name"] ?? "Labir Server";
+
+        $this->template->baseurl = $this->getHttpRequest()->getUrl()->getBaseUrl();
     }
 
     private function getValueIfExists(string $key, array $array): ?string
@@ -30,11 +32,13 @@ final class DisplayPresenter extends BasePresenter
     {
 
         $p = [
-            "path",
+            "folder-path",
+            "file-name",
             "palette",
-            "displaymode",
-            "foldermode",
-            "by"
+            "display-mode",
+            "folder-mode",
+            "grid-grouping",
+            "compact"
         ];
 
         $params = $this->request->parameters;

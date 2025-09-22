@@ -31,6 +31,18 @@ export default defineConfig({
                 );
 
                 console.log( "@labir/embed build copied into @labir/wordpress" );
+
+                fs.copyFileSync(
+                    path.resolve( "./dist/embed.js" ),
+                    path.resolve( "../server/www/lib/embed.js" )
+                );
+
+                fs.copyFileSync(
+                    path.resolve( "./dist/embed.css" ),
+                    path.resolve( "../server/www/lib/embed.css" )
+                );
+
+                console.log( "@labir/embed build copied into @labir/server" );
             }
         }]
         },

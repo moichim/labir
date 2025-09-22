@@ -10,12 +10,18 @@ import { AppWithState } from "./AppWithState";
  */
 export abstract class AppWithClientProvider extends AppWithState {
 
-    @property({ type: String, reflect: true, attribute: "path" })
+    @property({ type: String, reflect: true, attribute: "folder-path" })
     public path!: string;
     protected originalPath!: string;
 
+    @property({type: String, attribute: "file-name"})
+    public fileName?: string;
+
     @property({ type: String, reflect: true, attribute: "server-url" })
     public serverUrl!: string;
+
+    @property({ type: String, attribute: "server-api-root" })
+    public serverApiRoot!: string;
 
     @provide({ context: clientContext })
     protected client!: Client;
@@ -51,7 +57,7 @@ export abstract class AppWithClientProvider extends AppWithState {
         this.clearError();
 
         // Create the client
-        this.client = new Client(this.serverUrl);
+        this.client = new Client(this.serverUrl, this.serverApiRoot);
 
         // Listen to connection events
         this.client.onConnection.set(this.UUIDClient, status => {

@@ -1259,6 +1259,25 @@ var Client = class {
   getServerUrl() {
     return this.serverUrl;
   }
+  /**
+   * @returns The API root path with slashes (e.g. '/api/')
+   */
+  getApiRoot() {
+    if (this.apiRoot.endsWith("/") && this.apiRoot.startsWith("/")) {
+      return this.apiRoot;
+    } else if (this.apiRoot.endsWith("/")) {
+      return "/" + this.apiRoot;
+    } else if (this.apiRoot.startsWith("/")) {
+      return this.apiRoot + "/";
+    }
+    return "/" + this.apiRoot + "/";
+  }
+  getPublicUrl() {
+    if (this.serverUrl.endsWith(this.apiRoot)) {
+      return this.serverUrl.slice(0, -this.apiRoot.length);
+    }
+    return this.serverUrl;
+  }
   /** 
    * Automatically process every incoming response. 
    * - store the session ID in Auth class
