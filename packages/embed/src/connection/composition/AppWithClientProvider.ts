@@ -11,8 +11,8 @@ import { AppWithState } from "./AppWithState";
 export abstract class AppWithClientProvider extends AppWithState {
 
     @property({ type: String, reflect: true, attribute: "folder-path" })
-    public path!: string;
-    protected originalPath!: string;
+    public path?: string;
+    protected originalPath?: string;
 
     @property({type: String, attribute: "file-name"})
     public fileName?: string;

@@ -22,16 +22,16 @@ export class ShareDialog extends ClientConsumer {
     @property({ type: String })
     public state?: AppState;
 
-    @property({type: String})
+    @property({ type: String })
     public displayMode?: DisplayMode;
 
-    @property({type: String})
+    @property({ type: String })
     public compact?: boolean;
 
-    @property( {type: String} )
+    @property({ type: String })
     public folderMode?: FolderMode;
 
-    @property( {type: String} )
+    @property({ type: String })
     public by?: GridGrouping;
 
     private renderEntity(
@@ -62,8 +62,8 @@ export class ShareDialog extends ClientConsumer {
                 variant="foreground"
                 plain="true"
                 @click=${() => {
-                    navigator.clipboard.writeText(url);
-                }}
+                navigator.clipboard.writeText(url);
+            }}
                 tooltip="Zkopírovat odkaz do schránky"
             ></thermal-btn>
 
@@ -73,8 +73,8 @@ export class ShareDialog extends ClientConsumer {
                 variant="primary"
                 plain="true"
                 @click=${() => {
-                    window.open(url, "_blank");
-                }}
+                window.open(url, "_blank");
+            }}
                 tooltip="Otevřít odkaz v novém okně"
             ></thermal-btn>
 
@@ -83,7 +83,7 @@ export class ShareDialog extends ClientConsumer {
     }
 
     public static styles?: CSSResultGroup | undefined = css
-    `
+        `
         :host {
             font-size: var( --thermal-fs );
             color: var( --thermal-foreground );
@@ -183,23 +183,27 @@ export class ShareDialog extends ClientConsumer {
 
         const segments: Record<string, string> = {};
 
-        segments["folder-path"] = this.path || "";
+        if (this.path) {
+            segments["folder-path"] = this.path;
 
-        if ( 
-            this.state === AppState.FOLDER 
-            && this.folderMode 
-            && this.displayMode
-            && this.by
-            && this.compact !== undefined
-        ) {
-            segments["display-mode"] = this.displayMode;
-            segments["folder-mode"] = this.folderMode;
-            segments["grid-grouping"] = this.by;
-            segments["compact"] = this.compact ? "true" : "false";
-        }
 
-        if ( this.state === AppState.DETAIL && this.file ) {
-            segments["file-name"] = this.file.fileName;
+            if (
+                this.state === AppState.FOLDER
+                && this.folderMode
+                && this.displayMode
+                && this.by
+                && this.compact !== undefined
+            ) {
+                segments["display-mode"] = this.displayMode;
+                segments["folder-mode"] = this.folderMode;
+                segments["grid-grouping"] = this.by;
+                segments["compact"] = this.compact ? "true" : "false";
+            }
+
+            if (this.state === AppState.DETAIL && this.file) {
+                segments["file-name"] = this.file.fileName;
+            }
+
         }
 
         const query = new URLSearchParams(segments).toString();
@@ -210,13 +214,13 @@ export class ShareDialog extends ClientConsumer {
 
     protected render(): unknown {
 
-        if ( 
-            ! this.client 
-            || ! this.client.isConnected()
-            || ! this.path
-            || ! this.state
-            || ! [AppState.FOLDER, AppState.DETAIL]
-                    .includes(this.state)
+        if (
+            !this.client
+            || !this.client.isConnected()
+            || !this.path
+            || !this.state
+            || ![AppState.FOLDER, AppState.DETAIL]
+                .includes(this.state)
         ) {
             return nothing;
         }
@@ -234,23 +238,23 @@ export class ShareDialog extends ClientConsumer {
 
                     <div class="entity-list">
                         ${this.folder ? this.renderEntity(
-                            this.folder.name,
-                            "folder"
-                        ) : nothing }
+            this.folder.name,
+            "folder"
+        ) : nothing}
                         ${this.file ? this.renderEntity(
-                            this.file.fileName,
-                            "image",
-                            true
-                        ) : nothing }
+            this.file.fileName,
+            "image",
+            true
+        ) : nothing}
                     </div>
 
                 </section>
 
                 <section>
                     <h3>Odkaz na server</h3>
-                    ${this.renderLink() }
+                    ${this.renderLink()}
                     <div class="description">Odkaz vede na <strong>${this.client.serverInfo?.name}</strong>, kde tento obsah <strong>${this.folder?.protected ? "uvidí pouze uživatelé s přístupem" : "uvidí kdokoliv"
-                    }</strong>.</div>
+            }</strong>.</div>
                 </section>
 
             </div>

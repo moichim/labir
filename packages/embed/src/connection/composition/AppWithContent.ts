@@ -182,6 +182,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     protected updateGridFolders( folders: string[] ): void {
 
+        if ( ! this.path ) { return; }
+
         if ( this.grid ) {
             this.grid = undefined;
         }
@@ -386,6 +388,11 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     protected async fetchContent(): Promise<void> {
 
+        if ( !this.path ) {
+            this.setStateUser();
+            return;
+        }
+
 
         // Proceed only if all conditions are met
         if (this.checkReadyForData()) {
@@ -398,7 +405,9 @@ export abstract class AppWithContent extends AppWithClientProvider {
             // Clear all existing content
             this.cleanupContent();
 
-            const path = this.path!;
+            if (!this.path) return;
+
+            const path = this.path;
 
             // 1. Fetch the current folder info
             const info = await this.client.routes.get

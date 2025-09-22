@@ -161,6 +161,14 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderUser(): TemplateResult {
 
+        if ( ! this.client.auth.isLoggedIn()) {
+            return html`
+            <div class="poster">
+                <login-form></login-form>
+            </div>
+            `;
+        }
+
         return html`
         
         <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
@@ -604,11 +612,15 @@ export abstract class AppWithRender extends AppWithContent {
                 this.propagateFileUpdate(file);
 
             }}
-            .onChange=${() => this.fetchGrid(
-                this.path,
-                this.gridFolders,
-                this.by
-            )}
+            .onChange=${() => {
+                if ( this.path ) {
+                    this.fetchGrid(
+                        this.path,
+                        this.gridFolders,
+                        this.by
+                    )
+                }
+            }}
             .selectedFolders=${this.gridFolders}
             .onSelectionChange=${ (selected: string[]) => this.updateGridFolders(selected) }
         ></subfolders-grid>`;

@@ -35,7 +35,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
         initLocalesInTopLevelElement(this);
 
         if (this.path === undefined || this.path.trim() === '') {
-            this.setError( "Parametr path je vyžadovaný pro správnou funkcionalitu této aplikace." );
+            // this.setError( "Parametr path je vyžadovaný pro správnou funkcionalitu této aplikace." );
         }
 
         this.originalPath = this.path;
