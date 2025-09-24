@@ -6,9 +6,19 @@ import { T } from "../../../translations/Languages";
 import { FileInfo, FolderInfo, GridGrouping } from "@labir/server";
 import { AppState, FolderMode } from "../../composition/AppWithState";
 import { DisplayMode } from "../../ClientContext";
+import { AvailableThermalPalettes } from "@labir/core";
 
 @customElement("share-dialog")
 export class ShareDialog extends ClientConsumer {
+
+    @property({ type: String })
+    palette?: AvailableThermalPalettes;
+
+    @property({ type: Number })
+    public from?: number;
+
+    @property({ type: Number })
+    public to?: number;
 
     @property({ type: Object })
     public folder?: FolderInfo;
@@ -182,6 +192,18 @@ export class ShareDialog extends ClientConsumer {
         let link = this.client?.getPublicUrl();
 
         const segments: Record<string, string> = {};
+
+        if (this.palette) {
+            segments["palette"] = this.palette;
+        }
+
+        if (this.from !== undefined) {
+            segments["from"] = this.from.toString();
+        }
+
+        if (this.to !== undefined) {
+            segments["to"] = this.to.toString();
+        }
 
         if (this.path) {
             segments["folder-path"] = this.path;

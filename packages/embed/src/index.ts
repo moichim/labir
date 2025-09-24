@@ -177,6 +177,7 @@ import "./connection/components/folder/files/FolderFiles";
 import "./connection/components/folder/files/FolderRemoveAnalyses";
 import "./connection/components/folder/folders/FolderSubfolders";
 import "./connection/components/folder/folders/FolderThumbnail";
+import "./connection/components/folder/folders/FolderRow";
 import "./connection/components/folder/single/FolderBaseInfo";
 import "./connection/components/folder/single/FolderBreadcrumb";
 import "./connection/components/folder/configuration/SubfoldersMode";

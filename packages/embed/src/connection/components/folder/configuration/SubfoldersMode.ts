@@ -45,6 +45,10 @@ export class SubfoldersMode extends AbstractModeBar {
     @property({type: Object})
     public grid?: GetGridDataType;
 
+    protected get mayHaveGrid(): boolean {
+        return this.subfolders?.find( f => f.lrc_count > 0 ) !== undefined;
+    }
+
     static styles?: CSSResultGroup | undefined = [
         super.styles as CSSResultGroup,
         css`
@@ -303,7 +307,18 @@ export class SubfoldersMode extends AbstractModeBar {
             "Seznam složek",
         )}
 
-            ${this.renderToggleButton(
+        ${this.renderToggleButton(
+            this.mode === FolderMode.TABLE,
+            () => {
+                this.setMode(FolderMode.TABLE);
+            },
+            "list",
+            undefined,
+            "Tabulka složek",
+        )}
+
+        ${this.mayHaveGrid 
+            ? this.renderToggleButton(
             this.mode === FolderMode.GRID,
             () => {
                 this.setMode(FolderMode.GRID);
@@ -311,9 +326,9 @@ export class SubfoldersMode extends AbstractModeBar {
             "grid",
             undefined,
             "Mřížka souborů",
-        )}
+        ) : nothing}
 
-            ${this.mode === FolderMode.GRID
+            ${this.mode === FolderMode.GRID && this.mayHaveGrid
                 ? html`<thermal-dropdown>
                         <span slot="invoker">${t(T[`by${this.by}s`])}</span>
                         <div slot="option">

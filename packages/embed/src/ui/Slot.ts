@@ -71,8 +71,6 @@ export class ThermalSlot extends BaseElement {
 
     protected render(): unknown {
 
-        this.log( this.slottedElements );
-
         if ( this.slottedElements.length === 0 ) {
             return nothing;
         }

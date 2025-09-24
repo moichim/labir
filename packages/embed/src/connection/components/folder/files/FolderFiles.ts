@@ -46,6 +46,12 @@ export class FolderFiles extends ClientConsumer {
 
     protected groupProviderRef: Ref<GroupProviderElement> = createRef();
 
+    connectedCallback(): void {
+        super.connectedCallback();
+
+        
+    }
+
 
 
     protected updated(_changedProperties: PropertyValues): void {
@@ -53,6 +59,22 @@ export class FolderFiles extends ClientConsumer {
 
         this.propagateAnalysisSync(this.syncAnalyses);
 
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+
+        // Add listener for processing end to refresh the component
+        this.groupProviderRef.value?.group.registry.onProcessingEnd.set(this.UUID, () => {
+            this.groupProviderRef.value?.group.registry.range.applyMinmax();
+        });
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        // Remove listener for processing end
+        this.groupProviderRef.value?.group.registry.onProcessingEnd.delete(this.UUID);
     }
 
     protected propagateAnalysisSync(
@@ -210,7 +232,7 @@ export class FolderFiles extends ClientConsumer {
         </div>
         -->
 
-            <group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)}>
+            <group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)} batch="true">
 
                 <main class="layout">
 

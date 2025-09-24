@@ -3,12 +3,17 @@ import { provide } from "@lit/context";
 import { property, state } from "lit/decorators.js";
 import { clientContext } from "../ClientContext";
 import { AppWithState } from "./AppWithState";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { Ref } from "lit/directives/ref.js";
 
 
 /**
  * This layer handles the client & connection and the related context logic.
  */
 export abstract class AppWithClientProvider extends AppWithState {
+
+    @state()
+    protected abstract registryElement: Ref<RegistryProviderElement>;
 
     @property({ type: String, reflect: true, attribute: "folder-path" })
     public path?: string;

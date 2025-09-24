@@ -57,7 +57,8 @@ export class SubfoldersGrid extends RegistryConsumer {
 
         // Add listener for processing end to refresh the component
         this.registry.onProcessingEnd.set(this.UUID, () => {
-            this.requestUpdate();
+            this.registry.range.applyMinmax();
+            // this.requestUpdate();
         });
     }
 

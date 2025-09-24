@@ -38,7 +38,9 @@ final class DisplayPresenter extends BasePresenter
             "display-mode",
             "folder-mode",
             "grid-grouping",
-            "compact"
+            "compact",
+            "from",
+            "to",
         ];
 
         $params = $this->request->parameters;

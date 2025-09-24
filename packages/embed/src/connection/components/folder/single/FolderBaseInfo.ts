@@ -123,6 +123,7 @@ export class FolderBaseInfo extends ClientConsumer {
             slug=${this.slug}
             autoclear="true"
             style="display: contents;"
+            batch="true"
         >
 
         ${this.renderUpButton()}

@@ -17,7 +17,15 @@ export class GroupProviderElement extends AbstractGroupProvider {
     @provide({ context: groupContext })
     group!: ThermalGroup;
 
-    @property({ type: Boolean, reflect: true })
+    @property({ type: Boolean })
     autoclear: boolean = false;
 
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        if (this.autoclear === true && this.group && this.registry) {
+            this.registry.groups.removeGroup(this.group.id);
+        }
+    }
 }

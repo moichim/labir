@@ -2,6 +2,7 @@ import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html } from "lit";
+import { FolderMode } from "../../../composition/AppWithState";
 
 @customElement("folder-subfolders")
 export class FolderSubfolders extends ClientConsumer {
@@ -15,17 +16,34 @@ export class FolderSubfolders extends ClientConsumer {
     @property({ type: Function })
     public onFolderClick?: (folder: FolderInfo) => void;
 
+    @property({type: String})
+    public folderMode: FolderMode = FolderMode.LIST;
+
     public static styles?: CSSResultGroup | undefined = css`
         :host {
             color: var(--thermal-foreground);
         }
 
-        section {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 1em;
-            justify-content: start;
+        :host(  [foldermode="list-subfolders"] ) {
+            section {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 1em;
+                justify-content: start;
+            }
         }
+
+        :host(  [foldermode="table-subfolders"] ) {
+            section {
+                display: table;
+                width: 100%;
+                border-collapse: collapse;
+                height: 1px;
+                border: 0;
+            }
+        }
+
+        
 
         .list-label {
 
@@ -41,6 +59,14 @@ export class FolderSubfolders extends ClientConsumer {
     `;
 
     protected renderSubfolder(info: FolderInfo): unknown {
+
+        if ( this.folderMode === FolderMode.TABLE ) {
+            return html`<server-folder-row
+                .folder=${info}
+                @click=${() => this.onFolderClick && this.onFolderClick(info)}
+            ></server-folder-row>`;
+        }
+
         return html`<server-folder-thumbnail
             .folder=${info}
             @click=${() => this.onFolderClick && this.onFolderClick(info)}

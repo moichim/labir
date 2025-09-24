@@ -1,22 +1,18 @@
+import { GetGridDataType, GridGrouping } from "@labir/server";
+import { provide } from "@lit/context";
 import { html } from "lit";
 import { property, state } from "lit/decorators.js";
 import { FileInfo, FolderInfo, TagDefinition } from "packages/server/client/dist";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
+import { subfoldersModeContext, subfoldersModeSetterContext, subgildersGridByMode, subgildersGridByModeSetter } from "../ClientContext";
 import { AppWithClientProvider } from "./AppWithClientProvider";
 import { AppState, FolderMode } from "./AppWithState";
-import { Ref } from "lit/directives/ref.js";
-import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
-import { GetGridDataType, GridGrouping } from "@labir/server";
-import { provide } from "@lit/context";
-import { subfoldersModeContext, subfoldersModeSetterContext, subgildersGridByMode, subgildersGridByModeSetter } from "../ClientContext";
 
 
 /** 
  * This layer handles the content logic & fetching 
  */
 export abstract class AppWithContent extends AppWithClientProvider {
-
-    protected abstract registryElement: Ref<RegistryProviderElement>;
 
     @state()
     private _breadcrumb: BreadcrumbItem[] = [];
@@ -123,11 +119,11 @@ export abstract class AppWithContent extends AppWithClientProvider {
     @property({ type: String, reflect: true, attribute: "folder-mode", converter: {
         fromAttribute(value: string): FolderMode {
             if ( value === FolderMode.GRID ) return FolderMode.GRID;
-            return FolderMode.LIST;
+            return FolderMode.TABLE;
         }
     } })
     @provide({ context: subfoldersModeContext })
-    public folderMode: FolderMode = FolderMode.LIST;
+    public folderMode: FolderMode = FolderMode.TABLE;
 
     @state()
     @provide({ context: subfoldersModeSetterContext })
@@ -298,12 +294,22 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
     }
 
+    protected clearRegistryRange(): void {
+        if ( this.registryElement.value ) {
+            const registry = this.registryElement.value.registry;
+            registry.range.reset();
+            registry.minmax.reset();
+        }
+    }
+
 
 
 
     protected setPath(
         path: string
     ): void {
+
+        this.clearRegistryRange();
 
         this.unsetFileAttribute();
         this.path = path;
@@ -346,12 +352,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
     protected cleanupContent(): void {
 
         // Clear the registry minmax and range
-        if ( this.registryElement.value ) {
-            const registry = this.registryElement.value.registry;
-            registry.range.reset();
-            registry.minmax.reset();
-            registry.groups.removeAllGroups();
-        }
+        this.clearRegistryRange();
 
         this._folder = undefined;
         this._subfolders = undefined;
@@ -421,6 +422,16 @@ export abstract class AppWithContent extends AppWithClientProvider {
                 const subfolders = info.data.subfolders
                     ? Object.values(info.data.subfolders)
                     : [];
+
+                const subfoldersWithFiles = subfolders.filter( sf => sf.lrc_count > 0 ).length;
+
+                if (subfoldersWithFiles === 0 && this.folderMode === FolderMode.GRID) {
+
+                    this.log( "Měl bych upravit folder mode", this.folderMode, subfolders );
+
+                    this.folderMode = FolderMode.TABLE;
+                    this.grid = undefined;
+                }
 
                 // Store and display incoming data
                 this.setStateFolder(
@@ -521,8 +532,6 @@ export abstract class AppWithContent extends AppWithClientProvider {
         by: GridGrouping
     ): Promise<void> {
 
-        this.log( path, folders, by );
-
         const request = this.client.routes.get.grid(path)
             .setBy( by );
 
@@ -551,6 +560,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
         subfolders?: FolderInfo[]
     ): void {
 
+        this.clearRegistryRange();
+
         this.updateFolder(folder);
         this.updateBreadcrumb(breadcrumb);
         this.updateSubfolders(subfolders ?? []);
@@ -566,6 +577,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
     protected setStateFile(
         file: FileInfo
     ): void {
+
+        this.clearRegistryRange();
 
         this.updateFile(file);
         this.state = AppState.DETAIL;

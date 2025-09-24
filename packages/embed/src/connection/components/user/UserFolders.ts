@@ -15,34 +15,36 @@ export class UserFolders extends ClientConsumer {
     public static styles?: CSSResultGroup | undefined = css`
             :host {
                 color: var(--thermal-foreground);
+                
             }
     
-            section {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1em;
-                justify-content: start;
+            table {
+                display: table;
+                width: 100%;
+                border-collapse: collapse;
+                height: 1px;
+                border: 0;
             }
     
             .list-label {
     
-                font-size: calc( var(--thermal-fs) * .8);
-                color: var(--thermal-slate);
+                font-size: .8em;
+                color: var(--thermal-slate-dark);
                 line-height: 1;
                 margin: 0;
                 padding: 0;
                 font-weight: normal;
-                padding-bottom: calc(var(--thermal-gap) * 0.5);
+                padding-bottom: 1em;
             
             }
     `;
 
     protected renderSubfolder(info: FolderInfo): unknown {
-        return html`<server-folder-thumbnail
+        return html`<server-folder-row
                 .folder=${info}
                 @click=${() => this.onFolderClick && this.onFolderClick(info)}
             >
-            </server-folder-thumbnail>`;
+            </server-folder-row>`;
     }
 
     protected render(): unknown {
@@ -63,9 +65,9 @@ export class UserFolders extends ClientConsumer {
             <span><strong>${this.folders?.length} složky</strong> uživatele <i>${name}</i>:</span>
         </h2>
         
-        <section>
+        <table>
             ${this.folders.map((folder) => this.renderSubfolder(folder))}
-        </section>`;
+        </table>`;
     }
 
 

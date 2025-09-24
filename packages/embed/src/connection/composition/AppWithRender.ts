@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { AppWithContent } from "./AppWithContent";
 import { AppState, FolderMode } from "./AppWithState";
 import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
@@ -10,11 +10,21 @@ import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { createRef, Ref } from "lit/directives/ref.js";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { AvailableThermalPalettes } from "@labir/core";
 
 /** 
  * This layer provides the necessary render methods
  */
 export abstract class AppWithRender extends AppWithContent {
+
+    @property({ type: String, reflect: true })
+    public palette?: AvailableThermalPalettes;
+
+    @property({type: Number, reflect: true})
+    public from?: number;
+
+    @property({type: Number, reflect: true})
+    public to?: number;
 
 
     protected registryElement: Ref<RegistryProviderElement> = createRef();
@@ -51,7 +61,7 @@ export abstract class AppWithRender extends AppWithContent {
     };
 
     @property({ type: Boolean, reflect: true })
-    @provide( {context: editTagsContext } )
+    @provide({ context: editTagsContext })
     protected editableTags: boolean = false;
 
     @provide({ context: editTagsSetterContext })
@@ -62,15 +72,48 @@ export abstract class AppWithRender extends AppWithContent {
 
 
     @property({ type: Boolean, reflect: true })
-    @provide({context: syncAnalysisContext})
+    @provide({ context: syncAnalysisContext })
     protected syncAnalyses: boolean = false;
 
     @provide({ context: syncAnalysisSetterContext })
     protected syncAnalysisSetter: (sync: boolean) => void = (sync: boolean) => {
         this.syncAnalyses = sync;
-        this.log( "syncAnalyses", sync );
+        this.log("syncAnalyses", sync);
         this.requestUpdate();
     };
+
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
+            if (this.registryElement.value) {
+
+                const registry = this.registryElement.value.registry;
+
+                registry.manager.palette.addListener(this.UUIDContent, (palette) => {
+                    this.palette = palette;
+                    this.requestUpdate();
+                });
+
+                registry.range.addListener(this.UUIDContent, (range) => {
+                    this.from = range ? range.from : undefined;
+                    this.to = range ? range.to : undefined;
+                    this.requestUpdate();
+                });
+
+            }
+
+
+    }
+
+    public disconnectedCallback(): void {
+        super.disconnectedCallback();
+        if (this.registryElement.value) {
+            const registry = this.registryElement.value.registry;
+            registry.manager.palette.removeListener(this.UUIDContent);
+            registry.range.removeListener(this.UUIDContent);
+        }
+    }
 
 
     static styles?: CSSResultGroup | undefined = css`
@@ -112,6 +155,39 @@ export abstract class AppWithRender extends AppWithContent {
     
             *[slot="pre"] {
                 margin-bottom: var(--thermal-gap);
+            }
+
+            .user-layout {
+            
+                display: grid;
+                grid-template-columns: 1fr 500px;
+                gap: var(--thermal-gap);
+
+
+                .user-layout-info,
+                user-folders {
+                
+                    box-sizing: border-box;
+                    padding: var(--thermal-gap);
+                    border: 1px dashed var(--thermal-slate);
+                    border-radius: var(--thermal-radius);
+                
+                }
+
+                .user-info-field {
+
+                    strong {
+                        font-weight: normal;
+                        font-size: .7em;
+                        color: var(--thermal-slate);
+                        text-transform: uppercase;
+                        margin-bottom: .3em;
+                        display: block;
+                    }
+
+                    margin-bottom: var(--thermal-gap);  
+                }
+
             }
         
         `;
@@ -161,7 +237,7 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderUser(): TemplateResult {
 
-        if ( ! this.client.auth.isLoggedIn()) {
+        if (!this.client.auth.isLoggedIn()) {
             return html`
             <div class="poster">
                 <login-form></login-form>
@@ -218,31 +294,25 @@ export abstract class AppWithRender extends AppWithContent {
                         .folder=${this.folder} 
                         .subfolders=${this.subfolders}
                         .selectedFolders=${this.gridFolders}
-                        .onSelectionChange=${ (selected: string[]) => this.updateGridFolders(selected) }
+                        .onSelectionChange=${(selected: string[]) => this.updateGridFolders(selected)}
                         .grid=${this.grid}
                     ></subfolders-mode>
                 </thermal-slot>` : nothing}
 
-                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`
-                <thermal-slot label="${t(T.palette)}">
+                ${this.hasFiles() || this.folderMode === FolderMode.GRID ? html`<thermal-slot label="${t(T.palette)}">
                     <registry-palette-dropdown></registry-palette-dropdown>
-                </thermal-slot>
-                <thermal-slot label="${t(T.thermalrange)}">
-                    <registry-range-form></registry-range-form>
-                </thermal-slot>
-                <thermal-slot label="Obsah">
-                <editing-mode-settings
-                    .folder=${this.folder}
-                ></editing-mode-settings>
-            </thermal-slot>
-                ` : nothing}
-
-                ${this.hasFiles() ? html`<thermal-slot label="${t(T.thermalrange)}">
+                </thermal-slot><thermal-slot label="${t(T.thermalrange)}">
                     <registry-range-form></registry-range-form>
                 </thermal-slot>
                 ` : nothing}
 
                 ${this.renderDisplayMode()}
+
+                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`<thermal-slot label="Obsah">
+                    <editing-mode-settings
+                        .folder=${this.folder}
+                    ></editing-mode-settings>
+                </thermal-slot>` : nothing}
 
             </folder-base-info>
 
@@ -252,7 +322,7 @@ export abstract class AppWithRender extends AppWithContent {
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
             </div>`
-            : nothing}
+                : nothing}
 
             ${this.renderFolderSubfolders()}
 
@@ -279,7 +349,7 @@ export abstract class AppWithRender extends AppWithContent {
         <folder-base-info 
             .info=${this.folder} 
             .parents=${this.breadcrumb} 
-            .onParentClick=${(item: BreadcrumbItem) => {this.setPath( item.path )}} 
+            .onParentClick=${(item: BreadcrumbItem) => { this.setPath(item.path) }} 
             slot="pre"
         ></folder-base-info>
 
@@ -308,6 +378,8 @@ export abstract class AppWithRender extends AppWithContent {
                 <server-file-detail
                     .file=${this.file!}
                     .folder=${this.folder!}
+                    from=${this.from}
+                    to=${this.to}
 
                     .onChange=${(file: FileInfo) => this.setStateFile(file)}
 
@@ -317,7 +389,7 @@ export abstract class AppWithRender extends AppWithContent {
                 >
                 <thermal-slot label="${t(T.file)}" slot="header">
                     ${this.folder?.may_manage_files_in
-                        ? html`
+                ? html`
                         
 
                             <file-edit-dialog
@@ -344,8 +416,8 @@ export abstract class AppWithRender extends AppWithContent {
                             ></file-store-thumbnail>
                             
                         `
-                        : nothing
-                    }
+                : nothing
+            }
                         <file-download-dropdown
                             size="md"
                             variant="background"
@@ -369,16 +441,16 @@ export abstract class AppWithRender extends AppWithContent {
                     >
 
                         ${this.folder!.may_manage_files_in
-                        ? html`<file-analysis-store-button
+                ? html`<file-analysis-store-button
                             .info=${this.file}
                             .folder=${this.folder}
-                            .onChange=${ ( file: FileInfo ) => {
-                                this.setStateFile(file);
-                            } }
+                            .onChange=${(file: FileInfo) => {
+                        this.setStateFile(file);
+                    }}
                             size="md"
                         ></file-analysis-store-button>`
-                        : nothing
-                        }
+                : nothing
+            }
 
                         ${this.file?.analyses && this.file.analyses?.length > 0 ? html`<file-analysis-restore-button
                             .info=${this.file}
@@ -389,9 +461,9 @@ export abstract class AppWithRender extends AppWithContent {
                         <file-analysis-remove-button
                             .info=${this.file}
                             .folder=${this.folder}
-                            .onChange=${ ( file: FileInfo ) => {
-                                this.setStateFile(file);
-                            } }
+                            .onChange=${(file: FileInfo) => {
+                this.setStateFile(file);
+            }}
                             size="md"
                         ></file-analysis-remove-button>
 
@@ -420,20 +492,44 @@ export abstract class AppWithRender extends AppWithContent {
 
 
 
+    private renderUserInfoField(
+        label: string,
+        value: unknown
+    ): unknown {
+        return html`<section class="user-info-field">
+            <strong>${label}:</strong> <div>${value}</div>
+        </section>`;
+    }
+
 
 
     private renderUserFolders(): unknown {
 
-        if ( this.userFolders && this.userFolders.length > 0 ) {
+        const identity = this.client.auth.getIdentity();
 
-            return html`<user-folders
+        const userName = identity?.meta.name || identity?.user || "Uživatel";
+
+        const login = identity?.user || "unknown";
+
+        return html`<main class="user-layout">
+            <user-folders
                 .folders=${this.userFolders}
                 .onFolderClick=${(folder: FolderInfo) => this.setPath(folder.path)}
-            ></user-folders>`;
+            ></user-folders>
+            <section class="user-layout-info">
 
-        }
+                ${this.renderUserInfoField("Uživatel", userName)}
 
-        return nothing;
+                ${this.renderUserInfoField("Login", login)}
+
+                <thermal-btn
+                    @click=${() => {
+                this.client.auth.logout();
+            }}
+                >${t(T.logout)}</thermal-btn>
+
+            </section>
+            <main>`;
 
     }
 
@@ -457,9 +553,9 @@ export abstract class AppWithRender extends AppWithContent {
      */
     private renderDisplayMode(): unknown {
 
-        if ( 
-            this.files 
-            && this.files.length > 0 
+        if (
+            this.files
+            && this.files.length > 0
             && this.folder
         ) {
 
@@ -529,9 +625,9 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolderCreateSubfolderDialog(): unknown {
 
-        if ( 
-            this.folder 
-            && this.folder.may_manage_folders_in 
+        if (
+            this.folder
+            && this.folder.may_manage_folders_in
         ) {
 
             return html`<folder-add-dialog 
@@ -550,7 +646,7 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolderUploadFileDialog(): unknown {
 
-        if ( this.folder && this.folder.may_manage_files_in ) {
+        if (this.folder && this.folder.may_manage_files_in) {
 
             return html`<folder-upload-dialog
                 .folder=${this.folder}
@@ -571,7 +667,7 @@ export abstract class AppWithRender extends AppWithContent {
         if (
             this.subfolders
             && this.subfolders.length > 0
-            && this.folderMode === FolderMode.LIST
+            && this.folderMode !== FolderMode.GRID
         ) {
 
             return html`<folder-subfolders
@@ -580,6 +676,7 @@ export abstract class AppWithRender extends AppWithContent {
                 .onFolderClick=${(folder: FolderInfo) => {
                     this.setPath(folder.path);
                 }}
+                folderMode=${this.folderMode}
             ></folder-subfolders>`;
 
         }
@@ -605,7 +702,7 @@ export abstract class AppWithRender extends AppWithContent {
                 this.switchFolderInternal(folder);
 
                 this.setStateFile(file);
-    
+
             }}
             .onFileEdit=${(file: FileInfo) => {
 
@@ -613,7 +710,7 @@ export abstract class AppWithRender extends AppWithContent {
 
             }}
             .onChange=${() => {
-                if ( this.path ) {
+                if (this.path) {
                     this.fetchGrid(
                         this.path,
                         this.gridFolders,
@@ -622,7 +719,7 @@ export abstract class AppWithRender extends AppWithContent {
                 }
             }}
             .selectedFolders=${this.gridFolders}
-            .onSelectionChange=${ (selected: string[]) => this.updateGridFolders(selected) }
+            .onSelectionChange=${(selected: string[]) => this.updateGridFolders(selected)}
         ></subfolders-grid>`;
 
     }
@@ -630,9 +727,9 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolderFiles(): unknown {
 
-        if ( 
-            this.files 
-            && this.files.length > 0 
+        if (
+            this.files
+            && this.files.length > 0
         ) {
 
             return html`<folder-files
@@ -644,9 +741,9 @@ export abstract class AppWithRender extends AppWithContent {
                 .onFileClick=${(file: FileInfo) => this.setStateFile(file)}
 
                 .onFileDelete=${(file: FileInfo) => {
-                    if ( this.files ) {
-                        this.updateFiles( 
-                            this.files.filter(f => f.fileName !== file.fileName) 
+                    if (this.files) {
+                        this.updateFiles(
+                            this.files.filter(f => f.fileName !== file.fileName)
                         );
                     }
                 }}

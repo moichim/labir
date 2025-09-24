@@ -1,24 +1,68 @@
+import { ThermalRegistry } from "@labir/core";
+import { FileInfo, FolderInfo } from "@labir/server";
+import { consume } from "@lit/context";
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { registryContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { ClientConsumer } from "../ClientConsumer";
-import { FolderInfo } from "@labir/server";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { FileInfo } from "packages/server/client/dist";
-import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("server-file-detail")
 export class ServerFileDetail extends ClientConsumer {
 
-    @property({type: Object})
+    @property({ type: Object })
     public file!: FileInfo;
 
-    @property({type: Object})
+    @property({ type: Object })
     public folder!: FolderInfo;
 
-    @property({type: Function})
-    public onClose: () => void = () => {};
+    @property({ type: Function })
+    public onClose: () => void = () => { };
 
-    @property({type: Function})
-    public onChange?: (file: FileInfo) => void = () => {};
+    @property({ type: Function })
+    public onChange?: (file: FileInfo) => void = () => { };
+
+    @consume({ context: registryContext, subscribe: true })
+    public registry?: ThermalRegistry;
+
+    @property({ type: Number })
+    public from?: number;
+
+    @property({ type: Number })
+    public to?: number;
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+
+
+        // Add listener for processing end to refresh the component
+        this.registry?.onProcessingEnd.set(this.UUID, () => {
+
+            this.registry?.range.applyMinmax();
+
+            return;
+
+            // this.log( this.from, this.to );
+
+            if ( this.from !== undefined && this.to !== undefined ) {
+                this.registry!.range.imposeRange( {
+                    from: this.from, 
+                    to: this.to 
+                } );
+            } else {
+                this.registry?.range.applyMinmax();
+            }
+
+            
+            // this.requestUpdate();
+        });
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+
+        // Remove listener for processing end
+        this.registry?.onProcessingEnd.delete(this.UUID);
+    }
 
     public static styles?: CSSResultGroup | undefined = css`
 
@@ -145,15 +189,11 @@ export class ServerFileDetail extends ClientConsumer {
 
         return html`
 
+            <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
+                <slot name="header"></slot>
+            </server-file-header>
 
-                        <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
-                            <slot name="header"></slot>
-                        </server-file-header>
-
-
-                        ${this.renderContent()}
-
-`;
+            ${this.renderContent()}`;
     }
 
 

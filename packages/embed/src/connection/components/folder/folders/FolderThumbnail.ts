@@ -1,147 +1,71 @@
-import { property, customElement } from "lit/decorators.js";
-import { ClientConsumer } from "../../ClientConsumer";
-import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
-import icons from "../../../../utils/icons";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { customElement } from "lit/decorators.js";
+import { AbstractFolderThumbnail } from "./AbstractFolderThumbnail";
 
 @customElement("server-folder-thumbnail")
-export class FolderThumbnail extends ClientConsumer {
-
-    @property({type: Object})
-    folder!: FolderInfo;
-
-    @property({type: Function})
-    onClick?: ( folder: FolderInfo ) => void;
-
-    @property({type: Number, reflect: true})
-    subfoldersCount: number = 0;
-
-    protected folderIconMain = icons.folder.outline("icon");
-
-    protected imageIconMicro = icons.image.micro( "icon-file" );
-
-    protected folderIconMicro = icons.folder.micro( "icon-file" );
+export class FolderThumbnail extends AbstractFolderThumbnail {
 
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles: CSSResultGroup = [
+        AbstractFolderThumbnail.styles,
+        css`
 
         :host {
-            font-size: var( --thermal-fs );
-            display: flex;
-        }
-
-        article {
         
-            border: 1px solid var(--thermal-slate);
-            overflow:hidden;
-            border-radius: var(--thermal-radius);
-            display: flex;
+            display: grid;
+            grid-template-columns: 100px 1fr;
 
-            transition: all .2s ease-in-out;
-            width: 100%;
+            border: 1px solid var( --thermal-slate );
+            border-radius: var( --thermal-radius );
+            overflow: hidden;
 
             cursor: pointer;
 
-            &:hover,
-            &:focus {
-                box-shadow: var(--thermal-shadow);
-                border-color: var( --thermal-slate-dark );
-
-                .poster.lrc {
-                    file-canvas {
-                        transform: scale(1.2);
-                    }
-                }
-
-                .poster.empty {
-                    thermal-icon {
-                        transform: scale(1.2);
-                    }
-                }
-            }
-
-        }
-
-        .poster {
-        
-            width: 100px !important;
-            min-width: 100px; 
-            height: 100%;
-
-            &.image {
-            
-                position: relative;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-
-                }
-            
-            }
-
-        }
-
-        .poster.lrc {
-            overflow: hidden;
-            display: block;
-
-            registry-provider,
-            group-provider,
-            file-provider,
-            file-canvas {
-                display: contents;
-                margin: 0;
-                padding: 0;
-                line-height: 0;
-            }
-
-            file-canvas {
-                pointer-events: none;
-                
-                /* Make it behave like a replaced element */
-                display: block;
-                object-fit: cover;
-                object-position: center;
-                overflow: hidden;
-
-                width: 160px;
-                height: 120px;
-                margin: 0;
-                pading: 0;
-                line-height: 0;
-
-                transition: all .2s ease-in-out;
-
-                &::part(file-canvas-container) {
-                    display: block;
-                    height: 100%;
-                    width: 160px !important;
-                    height: 120px !important;
-                    object-fit: cover;
-                    object-position: center;
-                }
-            }
-        }
-
-        thermal-icon {
             transition: all .2s ease-in-out;
+
         }
 
-        .poster.empty {
+        figure.folder-thumbnail.folder-thumbnail_icon {
+        
             background: var( --thermal-slate );
-            color: var( --thermal-slate-light );
-            display: flex;
-            align-items: center;
-            justify-content: center;
+
+            thermal-icon {
+                color: var( --thermal-slate-light );
+            }
+        
+        }
+
+
+        :host(:hover) {
+
+            box-shadow: var( --thermal-shadow );
+            border-color: var( --thermal-slate-dark );
+
+            figure.folder-thumbnail.folder-thumbnail_icon thermal-icon {
+                color: var( --thermal-background );
+                scale: 1.1;
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_lrc {
+            
+                file-canvas::part(file-canvas-container),
+                file-canvas::part(thermal-canvas-wrapper) {
+                    scale: 1.05;
+                }
+            
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_image {
+            
+                img {
+                    scale: 1.05;
+                }
+            
+            }
+            
         }
 
         header {
-            display: flex;
-            flex-direction: row;
-            gap: calc( var(--thermal-gap) * .5 );
             
             box-sizing: border-box;
             width: 100%;
@@ -151,11 +75,18 @@ export class FolderThumbnail extends ClientConsumer {
             background: var( --thermal-background );
 
             .header-top {
-                display: flex;
-                align-items: flex-start;
-                justify-content: space-between;
-                gap: calc( var(--thermal-gap) * .75 );
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: calc( var(--thermal-gap) * .5 );
+
                 width: 100%;
+
+                .header-top-icons {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    color: var( --thermal-slate );
+                }
             }
 
             .header-bottom {
@@ -176,121 +107,48 @@ export class FolderThumbnail extends ClientConsumer {
                 color: var( --thermal-slate );
             }
 
+
+
+            .header-folder-icon {
+                display: block;
+                width: 1.4em;
+            }   
+
         }
 
-        .icon {
-            width: 1.2em;
-            min-width: 1.2em;
-            display: block;
-            color: var( --thermal-slate );
-            float:right;
+        .counter-with-icon {
+            font-size: .8em;
         }
 
-        .icon-file {
-            display: inline;
-            width: 1.3em;
-            line-height: 0.8em;
-            vertical-align: middle;
-        }
-
-        file-canvas {
-            display: block;
-        }
-
-        .count {
-            font-size: calc( var(--thermal-fs) * 0.6 );
-            color: var(--thermal-slate);
-            margin-top: 0.25em;
-            text-align: right;
-            white-space: nowrap;
-            vertical-align: middle;
-        }
-
-    `;
-
-    protected renderThumb() {
-        const thumb = this.folder.thumb;
-
-        if ( thumb && thumb.endsWith( ".lrc" ) ) {
-            return this.renderLrc( thumb );
-        } else if ( thumb && ( thumb.endsWith( ".png" ) || thumb.endsWith( ".jpg" ) || thumb.endsWith( ".jpeg" ) ) ) {
-            return this.renderImage( thumb );
-        }
-
-        return nothing;
-    }
-
-    protected renderImage(
-        url: string
-    ) {
-        // Přidej timestamp pro cache-busting
-        const separator = url.includes('?') ? '&' : '?';
-        const cacheBustingUrl = `${url}${separator}t=${Date.now()}`;
-        
-        return html`<div class="poster image">
-            <img src="${cacheBustingUrl}" alt="Thumbnail of folder ${this.folder.name ?? this.folder.slug}" />
-        </div>`;
-    }
-
-    protected renderLrc(
-        url: string
-    ) {
-        const slug = this.folder.path + "__thumb";
-        return html`<registry-provider slug="${slug}" class="poster lrc">
-            <group-provider slug="${slug}">
-                <file-provider
-                    thermal="${url}"
-                    ms="0"
-                >
-                    <file-canvas></file-canvas>    
-                </file-provider>
-            </group-provider>
-        </registry-provider>`;
-    }
-
-    protected renderEmpty(): TemplateResult {
-        return html`<div class="poster empty">
-            <thermal-icon icon="folder" variant="outline" classes="thumbnail-icon" css="width: 50px;"></thermal-icon>
-        </div>`;
-    }
-
-    protected renderPreview(): unknown {
-
-        if ( this.folder.thumb && this.folder.thumb.startsWith( "http" ) ) {
-            return this.renderThumb();
-        }
-
-        return this.renderEmpty();
-    }
+    `];
 
     protected handleActionClick(event: Event) {
         event.stopPropagation();
     }
 
+    
+
     render(): TemplateResult {
 
         const name = this.folder.name ?? this.folder.slug;
 
-        return html`<article>
+        return html`
 
-            ${this.renderPreview()}
+            ${this.renderThumbnail()}
 
             <header>
                 <div class="header-top">
-                    <div>
+                    <div class="header-top-text">
                         <h2>${name}</h2>
                         <div class="description">${this.folder.description}</div>
                     </div>
-                    <div style="text-align: right;">
-                        ${unsafeSVG( this.folderIconMain )}
+                    <div class="header-top-icons">
 
-                        <div text-align: right;>
-                            ${this.folder.lrc_count > 0 ? html`<span class="count">${this.folder.lrc_count} ${unsafeSVG( this.imageIconMicro )}</span>` : nothing }
-                        </div>
+                        <thermal-icon icon="folder" variant="outline" class="header-folder-icon"></thermal-icon>
+                        
+                        ${this.renderCountWithIcon( this.folder.lrc_count, "image" )}
 
-                        ${this.subfoldersCount > 0
-                            ? html`<span class="count">${this.subfoldersCount} ${unsafeSVG(this.folderIconMicro)}</span>`
-                            : nothing}
+                        ${this.renderCountWithIcon( this.subfoldersCount ?? 0, "folder" )}
 
                     </div>
                 </div>
@@ -299,9 +157,7 @@ export class FolderThumbnail extends ClientConsumer {
                 </div>
             </header>
 
-            
-        
-        </article>`;
+        `;
     }
 
 

@@ -1,10 +1,12 @@
-import { css, CSSResultGroup, html, nothing } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AppWithRender } from "../../connection/composition/AppWithRender";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { ref } from "lit/directives/ref.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 
 
@@ -41,23 +43,6 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
         this.originalPath = this.path;
 
     }
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-    
-
-
     
 
 
@@ -112,17 +97,19 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
 
     protected render(): unknown {
 
-        const slug = [
-            this.path,
-            this.client?.auth?.getIdentity()?.user || "anonymous",
-            this.folder?.slug || "unknown_folder",
-            this.file?.fileName || "unknown_file",
-        ].join("__");
+        const slug = this.getCurrentSlug();
 
 
         return html`
-        <manager-provider>
-            <registry-provider slug="${slug}" autoclear="true">
+        <manager-provider palette=${this.palette}>
+            <registry-provider 
+                slug="${slug}" 
+                autoclear="true" 
+                palette=${this.palette}
+                ${ref(this.registryElement)} 
+                from=${ifDefined( this.from )}
+                to=${ifDefined( this.to )}
+            >
             <thermal-app 
                 label="${this.label}"
                 showfullscreen="true"
@@ -130,6 +117,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
 
                 <share-dialog 
                     slot="close"
+                    .palette=${this.palette}
                     .folder=${this.folder}
                     .folderMode=${this.folderMode}
                     .displayMode=${this.displayMode}
@@ -138,6 +126,8 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
                     .compact=${this.compact}
                     .state=${this.state}
                     .path=${this.path}
+                    .from=${this.from}
+                    .to=${this.to}
                 ></share-dialog>
 
                 ${this.isClientConnected === true

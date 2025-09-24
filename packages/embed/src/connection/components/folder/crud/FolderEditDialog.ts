@@ -24,6 +24,11 @@ export class FolderEditDialog extends ClientConsumer {
     public onSuccess?: (folder: FolderInfo) => void;
 
     public static styles?: CSSResultGroup = css`
+
+        :host {
+            align-self: stretch;
+        }
+
         .content {
             padding: var(--thermal-gap);
         }
@@ -122,7 +127,7 @@ export class FolderEditDialog extends ClientConsumer {
                 button="${t(T.savechanges)}"
             >
                 <slot name="invoker" slot="invoker">
-                    <thermal-btn size="md" variant="primary" icon="edit" iconStyle="micro">${t(T.editfolder)}</thermal-btn>
+                    <thermal-btn size="md" icon="edit" variant="primary" iconStyle="micro" tooltip="${t(T.editfolder)}" style="align-self: stretch;"></thermal-btn>
                 </slot>
 
                 <div class="content" slot="content">
