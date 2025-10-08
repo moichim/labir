@@ -9,7 +9,7 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
 import { ThermalGroup } from "../../utils/multipleFiles/ThermalGroup";
 
@@ -36,7 +36,7 @@ enum STATE {
 }
 
 @customElement("thermal-gallery-app")
-export class GalleryApp extends BaseElement {
+export class GalleryApp extends BaseAppWithPngExportContext {
 
 
     // Presentational attributes

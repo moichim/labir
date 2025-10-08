@@ -11,10 +11,10 @@ import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 import { interactiveAnalysisContext } from "../utils/context";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/converters/pngExportContext";
 
 @customElement("thermal-dropin-app")
-export class DropinAppElement extends BaseElement implements IWithlocale {
+export class DropinAppElement extends BaseAppWithPngExportContext implements IWithlocale {
 
     @state()
     protected dropinRef: Ref<GroupDropin> = createRef();

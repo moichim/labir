@@ -14,7 +14,7 @@ import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 
 enum Layout {
     NOGUI = "nogui",
@@ -47,7 +47,7 @@ const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4"
 
 
 @customElement("thermal-file-app")
-export class FileApp extends BaseElement {
+export class FileApp extends BaseAppWithPngExportContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
 

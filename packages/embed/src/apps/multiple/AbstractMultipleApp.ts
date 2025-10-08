@@ -3,7 +3,7 @@ import { property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { interactiveAnalysisContext } from "../../utils/context";
-import { pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
 import { localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 export type ParsedFileType = {
@@ -13,7 +13,7 @@ export type ParsedFileType = {
     note?: string;
 };
 
-export abstract class AbstractMultipleApp extends BaseElement {
+export abstract class AbstractMultipleApp extends BaseAppWithPngExportContext {
 
     @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })
     showembed: boolean = false;
