@@ -433,7 +433,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-pre">
                     <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
 
-                        <thermal-icon icon="settings" variant="outline" style="width: 1.5em;height: 1.2rem;"></thermal-icon>
+                        <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
 
                         <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.config)}</span>
 
@@ -656,6 +656,12 @@ export class FileApp extends BaseAppWithPngExportContext {
             border: 1px solid var(--thermal-slate);
             white-space: pre-wrap;
         }
+    }
+
+
+    .button-fix {
+        width: calc(var(--thermal-fs) * 1.2);
+        height: calc(var(--thermal-fs) * 1.2);
     }
 
 `;

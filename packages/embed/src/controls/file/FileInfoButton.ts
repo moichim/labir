@@ -130,7 +130,7 @@ export class FileInfoButton extends FileConsumer {
                         tooltip=${t(T.fileinfo)}
                         style="width: var(--thermal-collapsible-width, auto);flex-grow: var(--thermal-collapsible-grow, 0);box-sizing: border-box;"
                     >
-                        <thermal-icon icon="info" variant="mini" style="width: 1.5em;height: 1.2rem;"></thermal-icon>
+                        <thermal-icon icon="info" variant="mini" style="width: calc(var(--thermal-fs) * 1.2);height:calc(var(--thermal-fs) * 1.2);"></thermal-icon>
                         <div style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.fileinfo)}</div>
                     </thermal-btn>
                 </slot>
