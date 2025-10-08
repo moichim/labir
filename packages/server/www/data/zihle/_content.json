@@ -1,6 +1,6 @@
 {
-  "name": "Žihle",
-  "description": "Složka s daty měření pro lokalitu Žihle. Obsahuje podadresáře s jednotlivými sadami měření a souvisejícími daty.",
-  "latitude": 50.027,
-  "longitude": 13.237
+    "name": "Žihle",
+    "description": "Složka s daty měření pro lokalitu Žihle. Obsahuje podadresáře s jednotlivými sadami měření a souvisejícími daty. a bude tady nějaká fakt pekelně pekelně dlouhá popiska a ta bude přes několik řádků.",
+    "latitude": 50.027,
+    "longitude": 13.237
 }

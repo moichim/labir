@@ -172,8 +172,6 @@ export class PngExportPanel extends BaseElement implements IWithPngExportContext
             return;
         }
 
-        this.log( _changedProperties );
-
         const numericalValues = [ "pngFs", "pngWidth" ];
         for ( const key of numericalValues ) {
             if ( _changedProperties.has( key ) ) {
@@ -193,7 +191,7 @@ export class PngExportPanel extends BaseElement implements IWithPngExportContext
     protected render(): unknown {
 
         if ( this.pngFs === undefined || this.pngWidth === undefined || this.pngWidthSetter === undefined || this.pngFsSetter === undefined ) {
-            return nothing;
+            // return nothing;
         }
 
         return html`

@@ -1,6 +1,6 @@
 import { GetGridDataType, GridGrouping } from "@labir/server";
 import { provide } from "@lit/context";
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { FileInfo, FolderInfo, TagDefinition } from "packages/server/client/dist";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
@@ -176,6 +176,17 @@ export abstract class AppWithContent extends AppWithClientProvider {
     @state()
     public gridFolders: string[] = [];
 
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated(_changedProperties);
+
+        this.log( _changedProperties );
+
+        if (  _changedProperties.has("path") ) {
+            this.fetchContent();
+        }
+    }
+
     protected updateGridFolders( folders: string[] ): void {
 
         if ( ! this.path ) { return; }
@@ -314,7 +325,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this.unsetFileAttribute();
         this.path = path;
         this.requestUpdate();
-        this.fetchContent();
+        // this.fetchContent();
 
     }
 

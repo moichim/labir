@@ -83,6 +83,7 @@ import "./controls/manager/GroupToolButtons";
 import "./controls/manager/GroupToolsBar";
 import "./controls/manager/PaletteButtons";
 import "./controls/manager/PaletteDropdown";
+import "./controls/manager/PngExportPanel";
 import "./controls/manager/PngExportSettingDialog";
 import "./controls/manager/SmoothSwitch";
 

@@ -126,7 +126,13 @@ export class FileInfoButton extends FileConsumer {
         return html`
             <thermal-dialog label=${t(T.fileinfo)}>
                 <slot name="invoker" slot="invoker">
-                    <thermal-button>${t(T.fileinfo)}</thermal-button>
+                    <thermal-btn
+                        tooltip=${t(T.fileinfo)}
+                        style="width: var(--thermal-collapsible-width, auto);flex-grow: var(--thermal-collapsible-grow, 0);box-sizing: border-box;"
+                    >
+                        <thermal-icon icon="info" variant="mini" style="width: 1.5em;height: 1.2rem;"></thermal-icon>
+                        <div style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.fileinfo)}</div>
+                    </thermal-btn>
                 </slot>
                 <div slot="content">
 

@@ -1,13 +1,16 @@
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("registry-range-form")
 export class RegistryRangeForm extends RegistryConsumer {
 
+    @property({reflect: true, converter: booleanConverter(true)})
+    public stacked: boolean = false;
 
     @state()
     protected min: number | undefined;
@@ -240,17 +243,35 @@ export class RegistryRangeForm extends RegistryConsumer {
         if (currentValue === undefined) return;
 
         const rounded = Math.round(currentValue);
+        let safeValue = rounded;
+
+        if ( 
+            type === "from" 
+            && rounded < ( this.min! ) 
+        ) {
+            safeValue = Math.ceil( currentValue );
+        }
+
+        if (
+            type === "to"
+            && rounded > ( this.max! )
+        ) {
+            safeValue = Math.floor( currentValue );
+        }
+
+        console.log( rounded, safeValue );
+
         const isValid = type === 'from' 
-            ? this.isValidFromValue(rounded)
-            : this.isValidToValue(rounded);
+            ? this.isValidFromValue(safeValue)
+            : this.isValidToValue(safeValue);
 
         if (isValid) {
             if (type === 'from') {
-                this.inputValues.from = rounded.toFixed(2);
-                this.updateFrom(rounded);
+                this.inputValues.from = safeValue.toFixed(2);
+                this.updateFrom(safeValue);
             } else {
-                this.inputValues.to = rounded.toFixed(2);
-                this.updateTo(rounded);
+                this.inputValues.to = safeValue.toFixed(2);
+                this.updateTo(safeValue);
             }
         }
     }
@@ -331,10 +352,33 @@ export class RegistryRangeForm extends RegistryConsumer {
             font-family: inherit;
             font-style: normal;
             font-size: var(--font-size);
+            display: flex !important;
+            flex-wrap: wrap;
+            flex-direction: var( --thermal-direction, row );
+            gap: .5em;
+        }
+
+        .fields {
+
             display: flex;
             flex-wrap: no-wrap;
             gap: 0em;
+        
         }
+
+        .fields__buttons {
+
+            thermal-btn {
+                min-height: 2em;
+                flex-grow: var(--thermal-collapsible-grow, 0);
+            }
+        
+        }
+
+        .fields__separated {
+            gap: .5em;
+        }
+
 
         .separator {
             width: .5em;
@@ -373,6 +417,8 @@ export class RegistryRangeForm extends RegistryConsumer {
             font-size: .75em;
             height: 2em;
             background: var( --thermal-slate-light );
+
+            border: 1px solid var( --thermal-slate );
 
             opacity: 0;
 
@@ -459,8 +505,6 @@ export class RegistryRangeForm extends RegistryConsumer {
 
             &:hover,
             &:focus {
-                border-top-color: var( --thermal-primary );
-                border-bottom-color: var( --thermal-primary );
                 color: var( --thermal-primary );
             }
 
@@ -656,113 +700,115 @@ export class RegistryRangeForm extends RegistryConsumer {
 
     protected render(): unknown {
         return html`
-        ${this.renderInput(
-            'from',
-            html`<button 
-                class="left"
-                ?disabled=${!this.canSetMin()}
-                @click=${() => this.setMinValue()}
-            >
-                <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-                    <line x1="5" y1="2" x2="5" y2="14" stroke="currentColor" stroke-width="1"/>
-                    <line x1="5" y1="8" x2="10" y2="4" stroke="currentColor" stroke-width="1"/>
-                    <line x1="5" y1="8" x2="10" y2="12" stroke="currentColor" stroke-width="1"/>
-                    <line x1="5" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1"/>
-                </svg>
-            </button>`,
-            undefined
-        )}
-        <div class="separator separator__line"></div>
-        ${this.renderInput(
-            'to',
-            undefined,
-            html`<button 
-                class="right"
-                ?disabled=${!this.canSetMax()}
-                @click=${() => this.setMaxValue()}
-            >
-                <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-                    <line x1="15" y1="2" x2="15" y2="14" stroke="currentColor" stroke-width="1"/>
-                    <line x1="15" y1="8" x2="10" y2="4" stroke="currentColor" stroke-width="1"/>
-                    <line x1="15" y1="8" x2="10" y2="12" stroke="currentColor" stroke-width="1"/>
-                    <line x1="15" y1="8" x2="4" y2="8" stroke="currentColor" stroke-width="1"/>
-                </svg>
-            </button>`
-        )}
+        <div class="fields">
 
-        <div class="separator"></div>
+            ${this.renderInput(
+                'from',
+                html`<button 
+                    class="left"
+                    ?disabled=${!this.canSetMin()}
+                    @click=${() => this.setMinValue()}
+                >
+                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                        <line x1="5" y1="2" x2="5" y2="14" stroke="currentColor" stroke-width="1"/>
+                        <line x1="5" y1="8" x2="10" y2="4" stroke="currentColor" stroke-width="1"/>
+                        <line x1="5" y1="8" x2="10" y2="12" stroke="currentColor" stroke-width="1"/>
+                        <line x1="5" y1="8" x2="16" y2="8" stroke="currentColor" stroke-width="1"/>
+                    </svg>
+                </button>`,
+                undefined
+            )}
+            <div class="separator separator__line"></div>
+            ${this.renderInput(
+                'to',
+                undefined,
+                html`<button 
+                    class="right"
+                    ?disabled=${!this.canSetMax()}
+                    @click=${() => this.setMaxValue()}
+                >
+                    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+                        <line x1="15" y1="2" x2="15" y2="14" stroke="currentColor" stroke-width="1"/>
+                        <line x1="15" y1="8" x2="10" y2="4" stroke="currentColor" stroke-width="1"/>
+                        <line x1="15" y1="8" x2="10" y2="12" stroke="currentColor" stroke-width="1"/>
+                        <line x1="15" y1="8" x2="4" y2="8" stroke="currentColor" stroke-width="1"/>
+                    </svg>
+                </button>`
+            )}
 
-        <thermal-btn
-            tooltip=${t(T.fullrange)}
-            @click=${() => {
-                this.registry.range.applyMinmax();
-            }}
-            style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
-            disabled="${(this.canSetMin() || this.canSetMax()) ? "false" : "true"}"
-        >
-            <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
-                <!-- Levý symbol (min) -->
-                <line x1="3" y1="2" x2="3" y2="14" stroke="currentColor" stroke-width="1"/>
-                <line x1="3" y1="8" x2="8" y2="3" stroke="currentColor" stroke-width="1"/>
-                <line x1="3" y1="8" x2="8" y2="13" stroke="currentColor" stroke-width="1"/>
-                <!-- Spojitá čára se šipkami na koncích -->
-                <line x1="3" y1="8" x2="32" y2="8" stroke="currentColor" stroke-width="1"/>
-                <!-- Pravý symbol (max) -->
-                <line x1="32" y1="2" x2="32" y2="14" stroke="currentColor" stroke-width="1"/>
-                <line x1="32" y1="8" x2="27" y2="3" stroke="currentColor" stroke-width="1"/>
-                <line x1="32" y1="8" x2="27" y2="13" stroke="currentColor" stroke-width="1"/>
-            </svg>
-        </thermal-btn>
-        
-        <div class="separator"></div>
-        
-        <thermal-btn
-            tooltip=${t(T.automaticrange)}
-            @click=${() => {
-                this.registry.range.applyAuto();
-            }}
-            disabled="${this.hasHistogram ? "false" : "true"}"
-            style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
-        >
-            <svg width="56" height="16" viewBox="0 0 56 16" fill="none" style="display: block;">
-                <!-- All bars sorted by X coordinate - background (slate color) -->
-                <rect x="2" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="4" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="6" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="8" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="10" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="12" y="9" width="2" height="5" fill="var(--thermal-slate)"/>
-                <rect x="14" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="16" y="11" width="2" height="3" fill="var(--thermal-slate)"/>
-                <rect x="18" y="6" width="2" height="8" fill="var(--thermal-slate)"/>
-                <rect x="20" y="2" width="2" height="12" fill="var(--thermal-slate)"/>
-                <rect x="22" y="3" width="2" height="11" fill="var(--thermal-slate)"/>
-                <rect x="24" y="1" width="2" height="13" fill="var(--thermal-slate)"/>
-                <rect x="26" y="2" width="2" height="12" fill="var(--thermal-slate)"/>
-                <rect x="28" y="4" width="2" height="10" fill="var(--thermal-slate)"/>
-                <rect x="30" y="8" width="2" height="6" fill="var(--thermal-slate)"/>
-                <rect x="32" y="10" width="2" height="4" fill="var(--thermal-slate)"/>
-                <rect x="34" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="36" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="38" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="40" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="42" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="44" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="46" y="11" width="2" height="3" fill="var(--thermal-slate)"/>
-                <rect x="48" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
-                <rect x="50" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <rect x="52" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
-                <!-- Highlighted section - foreground color (sorted by X) -->
-                <rect x="18" y="6" width="2" height="8" fill="var(--thermal-foreground)"/>
-                <rect x="20" y="2" width="2" height="12" fill="var(--thermal-foreground)"/>
-                <rect x="22" y="3" width="2" height="11" fill="var(--thermal-foreground)"/>
-                <rect x="24" y="1" width="2" height="13" fill="var(--thermal-foreground)"/>
-                <rect x="26" y="2" width="2" height="12" fill="var(--thermal-foreground)"/>
-                <rect x="28" y="4" width="2" height="10" fill="var(--thermal-foreground)"/>
-                <!-- Bottom line with offset -->
-                <line x1="17" y1="15.5" x2="31" y2="15.5" stroke="currentColor" stroke-width="1"/>
-            </svg>
-        </thermal-btn>
+        </div>
+
+        <div class="fields fields__separated fields__buttons">
+            <thermal-btn
+                tooltip=${t(T.fullrange)}
+                @click=${() => {
+                    this.registry.range.applyMinmax();
+                }}
+                style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
+                disabled="${(this.canSetMin() || this.canSetMax()) ? "false" : "true"}"
+            >
+                <svg width="35" height="16" viewBox="0 0 35 16" fill="none" style="display: block;" stroke-linecap="butt" stroke-linejoin="miter">
+                    <!-- Levý symbol (min) -->
+                    <line x1="3" y1="2" x2="3" y2="14" stroke="currentColor" stroke-width="1"/>
+                    <line x1="3" y1="8" x2="8" y2="3" stroke="currentColor" stroke-width="1"/>
+                    <line x1="3" y1="8" x2="8" y2="13" stroke="currentColor" stroke-width="1"/>
+                    <!-- Spojitá čára se šipkami na koncích -->
+                    <line x1="3" y1="8" x2="32" y2="8" stroke="currentColor" stroke-width="1"/>
+                    <!-- Pravý symbol (max) -->
+                    <line x1="32" y1="2" x2="32" y2="14" stroke="currentColor" stroke-width="1"/>
+                    <line x1="32" y1="8" x2="27" y2="3" stroke="currentColor" stroke-width="1"/>
+                    <line x1="32" y1="8" x2="27" y2="13" stroke="currentColor" stroke-width="1"/>
+                </svg>
+            </thermal-btn>
+            
+            <thermal-btn
+                tooltip=${t(T.automaticrange)}
+                @click=${() => {
+                    this.registry.range.applyAuto();
+                }}
+                disabled="${this.hasHistogram ? "false" : "true"}"
+                style="padding: 0 0.5em; display: flex; align-items: center; justify-content: center;"
+            >
+                <svg width="56" height="16" viewBox="0 0 56 16" fill="none" style="display: block;">
+                    <!-- All bars sorted by X coordinate - background (slate color) -->
+                    <rect x="2" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="4" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="6" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="8" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="10" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="12" y="9" width="2" height="5" fill="var(--thermal-slate)"/>
+                    <rect x="14" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="16" y="11" width="2" height="3" fill="var(--thermal-slate)"/>
+                    <rect x="18" y="6" width="2" height="8" fill="var(--thermal-slate)"/>
+                    <rect x="20" y="2" width="2" height="12" fill="var(--thermal-slate)"/>
+                    <rect x="22" y="3" width="2" height="11" fill="var(--thermal-slate)"/>
+                    <rect x="24" y="1" width="2" height="13" fill="var(--thermal-slate)"/>
+                    <rect x="26" y="2" width="2" height="12" fill="var(--thermal-slate)"/>
+                    <rect x="28" y="4" width="2" height="10" fill="var(--thermal-slate)"/>
+                    <rect x="30" y="8" width="2" height="6" fill="var(--thermal-slate)"/>
+                    <rect x="32" y="10" width="2" height="4" fill="var(--thermal-slate)"/>
+                    <rect x="34" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="36" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="38" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="40" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="42" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="44" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="46" y="11" width="2" height="3" fill="var(--thermal-slate)"/>
+                    <rect x="48" y="12" width="2" height="2" fill="var(--thermal-slate)"/>
+                    <rect x="50" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <rect x="52" y="13" width="2" height="1" fill="var(--thermal-slate)"/>
+                    <!-- Highlighted section - foreground color (sorted by X) -->
+                    <rect x="18" y="6" width="2" height="8" fill="var(--thermal-foreground)"/>
+                    <rect x="20" y="2" width="2" height="12" fill="var(--thermal-foreground)"/>
+                    <rect x="22" y="3" width="2" height="11" fill="var(--thermal-foreground)"/>
+                    <rect x="24" y="1" width="2" height="13" fill="var(--thermal-foreground)"/>
+                    <rect x="26" y="2" width="2" height="12" fill="var(--thermal-foreground)"/>
+                    <rect x="28" y="4" width="2" height="10" fill="var(--thermal-foreground)"/>
+                    <!-- Bottom line with offset -->
+                    <line x1="17" y1="15.5" x2="31" y2="15.5" stroke="currentColor" stroke-width="1"/>
+                </svg>
+            </thermal-btn>
+        </div>
 
         `;
     }

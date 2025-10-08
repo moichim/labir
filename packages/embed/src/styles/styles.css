@@ -54,6 +54,11 @@
     --thermal-shadow: 0px 0px 5px var(--thermal-slate-dark);
     --thermal-shadow-none: 0px 0px 0px transparent;
 
+    --thermal-direction: row;
+    --thermal-collapsible-display: none;
+    --thermal-collapsible-grow: 0;
+    --thermal-collapsible-width: 100%;
+
 }
 
 :root {

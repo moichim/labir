@@ -62,7 +62,7 @@ export const cs: Translation = {
 
     numfiles: "{{num}} souborů",
 
-    fileinfo: "Podrobnosti",
+    fileinfo: "Informace o souboru",
     thermalfilename: "Název IR souboru",
     thermalfileurl: "URL IR souboru",
     thermalfiledownload: "Stáhnout IR soubor",

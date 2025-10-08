@@ -143,9 +143,6 @@ export class FileApp extends BaseElement {
     ms: number = 0;
 
 
-
-
-
     @provide({ context: pngExportWidthContext })
     protected pngExportWidth: number = 1200;
 
@@ -407,10 +404,9 @@ export class FileApp extends BaseElement {
 
                 ${cache(html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-                <registry-range-full-button slot="bar-pre"></registry-range-full-button>
-                <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
+                <registry-range-form slot="bar-pre" stacked="false"></registry-range-form>
                 <file-info-button slot="bar-pre"></file-info-button>
-                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+
                 ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
                 `)}
 
@@ -431,20 +427,28 @@ export class FileApp extends BaseElement {
                     </div>
                 </thermal-dialog>` : nothing}
 
-                ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-post">
-                    <thermal-button slot="invoker">
-                        <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                            <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                        </svg>
 
-                    </thermal-button>
+                
+
+                ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-pre">
+                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
+
+                        <thermal-icon icon="settings" variant="outline" style="width: 1.5em;height: 1.2rem;"></thermal-icon>
+
+                        <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.config)}</span>
+
+                    </thermal-btn>
+
                     <div slot="content">
+
                         <table>
-                        <png-export-panel></png-export-panel>
-                        <registry-display-panel></registry-display-panel>
+                            <png-export-panel></png-export-panel>
+                            <registry-display-panel></registry-display-panel>
                         </table>
                     </div>
                 </thermal-dialog> ` )}
+
+                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
                 
     
                 <div class="layout layout__${this.layout}">

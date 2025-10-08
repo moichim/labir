@@ -5,6 +5,7 @@ import { clientContext } from "../ClientContext";
 import { AppWithState } from "./AppWithState";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { Ref } from "lit/directives/ref.js";
+import { PropertyValues } from "lit";
 
 
 /**
