@@ -1,6 +1,6 @@
 {
 	"name": "thermal-display",
-	"version": "1.3.2",
+	"version": "1.3.3",
 	"description": "A Wordpress integration of @labir/embed.",
 	"author": "Jan Jáchim",
 	"private": true,
