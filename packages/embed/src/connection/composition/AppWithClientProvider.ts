@@ -6,6 +6,7 @@ import { AppWithState } from "./AppWithState";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { Ref } from "lit/directives/ref.js";
 import { PropertyValues } from "lit";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 
 /**
@@ -20,7 +21,7 @@ export abstract class AppWithClientProvider extends AppWithState {
     public path?: string;
     protected originalPath?: string;
 
-    @property({type: String, attribute: "file-name"})
+    @property({ type: String, attribute: "file-name" })
     public fileName?: string;
 
     @property({ type: String, reflect: true, attribute: "server-url" })
@@ -28,6 +29,15 @@ export abstract class AppWithClientProvider extends AppWithState {
 
     @property({ type: String, attribute: "server-api-root" })
     public serverApiRoot!: string;
+
+    @property({ type: String, attribute: "auth-url" })
+    public authUrl?: string;
+
+    @property({ type: String, attribute: "auth-token" })
+    public authToken?: string;
+
+    @property({ reflect: true, attribute: "disable-logging", converter: booleanConverter(false) })
+    public disableLogging: boolean = false;
 
     @provide({ context: clientContext })
     protected client!: Client;
@@ -65,10 +75,71 @@ export abstract class AppWithClientProvider extends AppWithState {
         // Create the client
         this.client = new Client(this.serverUrl, this.serverApiRoot);
 
+
         // Listen to connection events
-        this.client.onConnection.set(this.UUIDClient, status => {
+        this.client.onConnection.set(this.UUIDClient, async status => {
             this.isClientConnected = status !== false;
+
+
+
+            if (
+                // Pouze pokud je server OK
+                status
+                // Pouze pokud máme url a token
+                && this.authUrl && this.authToken
+                // Pouze, pokud nejsme přihlášeni
+                // && this.client.auth.isLoggedIn() === false
+            ) {
+
+                this.setStateLoading(
+                    "Přihlašuji se k serveru..."
+                );
+
+                // Pokud jsme přihlášení, tak odhlásit
+                if (this.client.auth.isLoggedIn()) {
+                    await this.client.routes.post.logout().execute();
+                }
+
+
+                // Dotaž identitu uživatele pomocí tokenu
+
+                const request = new Request(
+                    this.authUrl,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify({
+                            token: this.authToken
+                        })
+                    }
+                );
+
+                const response = await fetch(request);
+
+                if (!response.ok) {
+                    this.setError("Nepodařilo se ověřit uživatele.");
+                    return;
+                }
+
+                const body = await response.json();
+
+                if (!body.success) {
+                    this.setError("Nepodařilo se ověřit uživatele.");
+                    return;
+                }
+
+                const user = body.data.user;
+                const pass = body.data.pass;
+
+                await this.client.routes.post.login(user, pass).execute();
+
+            }
+
             this.requestUpdate();
+
         });
 
         // Perform the connection

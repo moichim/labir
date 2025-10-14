@@ -131,7 +131,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
                 ></share-dialog>
 
                 ${this.isClientConnected === true
-                    ? html`<labir-user-button slot="close"></labir-user-button>`
+                    ? html`<labir-user-button slot="close" disable-logging=${this.disableLogging}></labir-user-button>`
                     : nothing}
 
                 ${this.renderError()}

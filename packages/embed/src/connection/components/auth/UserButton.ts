@@ -1,16 +1,20 @@
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { Identity } from "packages/server/client/src/responseEntities";
 import { ClientConsumer } from "../ClientConsumer";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 @customElement("labir-user-button")
 export class UserButton extends ClientConsumer {
 
     @state()
     protected message?: string;
+
+    @property({ reflect: true, attribute: "disable-logging", converter: booleanConverter(false) })
+    public disableLogging: boolean = false;
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -94,24 +98,24 @@ export class UserButton extends ClientConsumer {
         `;
     }
 
-    render(): TemplateResult {
+    render(): unknown {
 
         const buttonLabel = this.identity?.meta.name ?? this.identity?.meta.login ?? t(T.login);
 
-        const variant = this.isLoggedIn 
-            ? "primary" 
+        const variant = this.isLoggedIn
+            ? "primary"
             : "default";
 
-        const label = this.isLoggedIn 
-            ? t(T.logout) 
+        const label = this.isLoggedIn
+            ? t(T.logout)
             : t(T.login);
 
-        const submitLabel = this.isLoggedIn 
-            ? t(T.logout) 
+        const submitLabel = this.isLoggedIn
+            ? t(T.logout)
             : t(T.login);
 
-        const content = this.isLoggedIn 
-            ? this.renderUserEditForm() 
+        const content = this.isLoggedIn
+            ? this.renderUserEditForm()
             : this.renderLoginForm();
 
         const beforeClose = this.isLoggedIn
@@ -161,15 +165,25 @@ export class UserButton extends ClientConsumer {
                 return false;
             };
 
+        // Pokud je vypnuté přihlašování a uživatel je přihlášený, zobraz pouze neaktivní button bez dialogu
+        if ( this.disableLogging === true && this.isLoggedIn === true ) {
+
+            return html`<thermal-btn slot="invoker" variant="background" disabled="true" tooltip="Aktuálně přihlášený uživatel" icon="user" iconStyle="micro">
+                ${buttonLabel}
+            </thermal-btn>`;
+
+        } else if ( this.disableLogging === true && this.isLoggedIn === false ) {
+            return nothing;
+        }
+
+
+        // Standardní login dialog
         return html`
             <thermal-dialog label="${label}" button="${submitLabel}" .beforeClose=${beforeClose}>
 
-                <thermal-button slot="invoker" variant=${variant}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 1em; height: 1em; display: inline-block; vertical-align: middle;">
-                        <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clip-rule="evenodd" />
-                    </svg>
+                <thermal-btn slot="invoker" variant=${variant} icon="user" iconStyle="micro">
                     ${buttonLabel}
-                </thermal-button>
+                </thermal-btn>
 
                 <div slot="content">
                     ${content}

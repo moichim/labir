@@ -12,12 +12,15 @@ export class GetConnect extends Operation<GetConnectDataType> {
     public init(): this {
         this.request.setMethod("GET");
         this.request.setAction("connect");
+
         return this;
     }
 
 
     public async execute(): Promise<ApiResponseType<GetConnectDataType>> {
         const response = await this.client.fetch<GetConnectDataType>(this.request);
+
+        console.log( "Connection", response, this.client.auth.getSession() );
 
         if (response.success) {
 

@@ -20,6 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require( __DIR__ . '/lib/dependencies.php' );
 require( __DIR__ . '/lib/uploads.php' );
+require( __DIR__ . '/lib/wall/entry.php' );
 
 /**
  * Load the textdomain for frontend and backend
@@ -73,8 +74,17 @@ function thermal_display_init_blocks() {
 	register_block_type( __DIR__ . '/build/remoteBrowser' );
 	register_block_type( __DIR__ . '/build/dropin' );
     register_block_type( __DIR__ . '/build/connected' );
+
+    register_block_type( __DIR__ . '/build/wall' );
 }
 add_action( 'init', 'thermal_display_init_blocks' );
+
+
+
+add_action( 'enqueue_block_editor_assets', function() {
+    wp_enqueue_style( 'dashicons' );
+});
+
 
 
 

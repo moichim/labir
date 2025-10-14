@@ -52,7 +52,8 @@ export default function Edit({ attributes, setAttributes }) {
 		displayMode,
 		compact,
 		folderMode,
-		by
+		by,
+		disableLogging
 	} = attributes;
 
 
@@ -131,8 +132,6 @@ export default function Edit({ attributes, setAttributes }) {
 
 		try {
 			const url = new URL(parseUrl);
-
-			console.log(url);
 
 			const attr = {
 				serverUrl: url.origin,
@@ -253,6 +252,15 @@ export default function Edit({ attributes, setAttributes }) {
 
 						</PanelBody>
 						<PanelBody title="Zobrazení">
+
+							<ToggleControl
+								__nextHasNoMarginBottom
+								checked={disableLogging}
+								label="Zakázat přihlašování na server"
+								onChange={(value) => {
+									setAttributes({ disableLogging: value });
+								}}
+							/>
 
 							<SelectControl
 								label="Palette"

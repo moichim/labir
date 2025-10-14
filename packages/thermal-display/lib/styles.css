@@ -2,9 +2,119 @@ apparent-temperature-aat,
 thermal-file-app,
 thermal-group-app,
 thermal-file-file,
-remote-browser
-{
+remote-browser,
+connected-app {
     &:focus {
         outline: 0;
     }
+}
+
+:root {
+
+    --thermal-bar-bg: var(--thermal-background);
+    --thermal-bar-border: var(--thermal-slate);
+
+}
+
+.labir-wall-bar {
+
+    position: fixed;
+    bottom: 0rem;
+    z-index: 9999;
+    width: 100%;
+    box-sizing: border-box;
+
+
+    padding: 1rem;
+
+    background-color: var(--thermal-bar-bg);
+    color: var(--thermal-foreground);
+
+
+    border-top: 1px solid var(--thermal-bar-border);
+
+
+    display: flex;
+    gap: calc( var(--thermal-gap) * 2 );
+
+
+    &::before,
+    &::after {
+
+        content: "";
+        position: absolute;
+        width: var(--thermal-gap);
+        height: var(--thermal-gap);
+        background-color: var(--thermal-slate-light);
+
+        z-index: 999999;
+
+        top: calc(var(--thermal-gap) * -1);
+
+    }
+
+    &::before {
+        left: 0;
+        background: radial-gradient(circle at top right,
+                transparent calc(var(--thermal-gap) - 1px),
+                var(--thermal-bar-border) calc(var(--thermal-gap) - 1px),
+                var(--thermal-bar-border) var(--thermal-gap),
+                var(--thermal-bar-bg) var(--thermal-gap));
+
+    }
+
+    &::after {
+        right: 0;
+        background: radial-gradient(circle at top left,
+                transparent calc(var(--thermal-gap) - 1px),
+                var(--thermal-bar-border) calc(var(--thermal-gap) - 1px),
+                var(--thermal-bar-border) var(--thermal-gap),
+                var(--thermal-bar-bg) var(--thermal-gap));
+
+    }
+
+
+    button {
+
+        background: var(--thermal-primary);
+        color: var(--thermal-background);
+
+        border: 0;
+        border-radius: var(--thermal-radius);
+
+        padding: 0.5em 1em;
+
+        cursor: pointer;
+    }
+
+
+}
+
+.labir-wall-button {
+
+    background: var(--thermal-primary);
+
+}
+
+.labir-wall-slot {
+
+    display: flex;
+    flex-direction: column;
+
+}
+
+.labir-wall-slot-label {
+
+    font-size: small;
+    color: var(--thermal-slate);
+
+}
+
+.labir-wall-logout-form {
+    display: inline-flex;
+    justify-self: flex-end;
+}
+
+.labir-wall-separator {
+    flex-grow: 1;
 }

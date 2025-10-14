@@ -60,7 +60,8 @@ function Edit({
     displayMode,
     compact,
     folderMode,
-    by
+    by,
+    disableLogging
   } = attributes;
   const [parseUrl, setParseUrl] = (0,_wordpress_element__WEBPACK_IMPORTED_MODULE_2__.useState)("");
 
@@ -147,7 +148,6 @@ function Edit({
     }
     try {
       const url = new URL(parseUrl);
-      console.log(url);
       const attr = {
         serverUrl: url.origin
       };
@@ -258,7 +258,16 @@ function Edit({
           })]
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.PanelBody, {
           title: "Zobrazen\xED",
-          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.SelectControl, {
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.ToggleControl, {
+            __nextHasNoMarginBottom: true,
+            checked: disableLogging,
+            label: "Zak\xE1zat p\u0159ihla\u0161ov\xE1n\xED na server",
+            onChange: value => {
+              setAttributes({
+                disableLogging: value
+              });
+            }
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_5__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_1__.SelectControl, {
             label: "Palette",
             value: palette,
             options: [{
@@ -720,7 +729,7 @@ module.exports = window["wp"]["element"];
   \**********************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/connected","version":"0.1.0","title":"LabIR Connected Browser","category":"thermal","icon":"file:./assets/icon.svg","description":"A complex block for displaying the data from a remote LabIR Server.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"serverUrl":{"type":"string","default":"https://dev2-edu.labir.cz"},"apiRoot":{"type":"string","default":"/api"},"path":{"type":"string"},"fileName":{"type":"string"},"palette":{"type":"string","default":"iron"},"displayMode":{"type":"string","default":"grid"},"compact":{"type":"boolean","default":false},"folderMode":{"type":"string","default":"table-subfolders"},"by":{"type":"string","default":"hour"}}}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"thermal-display/connected","version":"0.1.0","title":"LabIR Connected Browser","category":"thermal","icon":"file:./assets/icon.svg","description":"A complex block for displaying the data from a remote LabIR Server.","example":{},"supports":{"interactivity":false,"html":false,"anchor":true,"lock":true,"align":["wide","full"],"spacing":{"padding":true,"margin":true}},"textdomain":"thermal-display","editorScript":"file:./index.js","editorStyle":"file:./index.css","style":"file:./style-index.css","render":"file:./render.php","keywords":["webcomponent","IR Camera","embed","LRC"],"attributes":{"layout":{"type":"object","default":{"type":"constrained"}},"serverUrl":{"type":"string","default":"https://dev2-edu.labir.cz"},"apiRoot":{"type":"string","default":"/api"},"path":{"type":"string"},"fileName":{"type":"string"},"palette":{"type":"string","default":"iron"},"displayMode":{"type":"string","default":"grid"},"compact":{"type":"boolean","default":false},"folderMode":{"type":"string","default":"table-subfolders"},"by":{"type":"string","default":"hour"},"disableLogging":{"type":"boolean","default":false}}}');
 
 /***/ })
 

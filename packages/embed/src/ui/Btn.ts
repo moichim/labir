@@ -4,6 +4,7 @@ import { css, html, nothing } from "lit";
 import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { computePosition, flip, shift, offset, arrow, autoUpdate } from '@floating-ui/dom';
+import { booleanConverter } from "../utils/converters/booleanConverter";
 
 export type BtnVariants = "primary" | "foreground" | "background" | "default";
 
@@ -24,7 +25,7 @@ export class ThermalBtn extends BaseElement {
     @property({type: String})
     public iconStyle:string = "outline";
 
-    @property({type: String})
+    @property({type: String, converter: booleanConverter(false), reflect: true})
     public disabled?: boolean;
 
     @property({type: Boolean, attribute: true, reflect: true})
@@ -232,6 +233,7 @@ export class ThermalBtn extends BaseElement {
             outline: none;
         }
 
+
         :host(:focus),
         :host(:focus-visible) {
             outline: none;
@@ -263,9 +265,16 @@ export class ThermalBtn extends BaseElement {
             /** background-color: var(--thermal-slate); */
         }
 
-        :host([disabled="true"]) {
-            cursor: not-allowed;
-            opacity: 0.6;
+
+        :host([disabled=true]) {
+            cursor: help !important;
+
+            outline: 0 !important;
+
+            button {
+                outline: 0 !important;
+                pointer-events: none;
+            }
         }
 
         :host([disabled="true"]:hover) {

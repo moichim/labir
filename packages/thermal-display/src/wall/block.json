@@ -1,16 +1,14 @@
 {
 	"$schema": "https://schemas.wp.org/trunk/block.json",
 	"apiVersion": 3,
-	"name": "thermal-display/connected",
+	"name": "thermal-display/wall",
 	"version": "0.1.0",
-	"title": "LabIR Connected Browser",
+	"title": "LabIR Server Wall",
 	"category": "thermal",
 	"icon": "file:./assets/icon.svg",
-	"description": "A complex block for displaying the data from a remote LabIR Server.",
+	"description": "Content protected that requires LabIR Server authentication to display",
 	"example": {},
 	"supports": {
-		"interactivity": false,
-		"html": false,
 		"anchor": true,
 		"lock": true,
 		"align": [
@@ -41,43 +39,24 @@
 				"type": "constrained"
 			}
 		},
-		"serverUrl": {
-			"type": "string",
-			"default": "https://dev2-edu.labir.cz"
+		"enabled": {
+			"type": "boolean",
+			"default": false
 		},
-		"apiRoot": {
+		"serverUrl": {
+			"type": "string"
+		},
+		"serverApiRoot": {
 			"type": "string",
 			"default": "/api"
 		},
-		"path": {
-			"type": "string"
-		},
-		"fileName": {
-			"type": "string"
-		},
-		"palette": {
+		"promptTitle": {
 			"type": "string",
-			"default": "iron"
+			"default": "Pro přihlášené"
 		},
-		"displayMode": {
+		"promptText": {
 			"type": "string",
-			"default": "grid"
-		},
-		"compact": {
-			"type": "boolean",
-			"default": false
-		},
-		"folderMode": {
-			"type": "string",
-			"default": "table-subfolders"
-		},
-		"by": {
-			"type": "string",
-			"default": "hour"
-		},
-		"disableLogging": {
-			"type": "boolean",
-			"default": false
+			"default": "Tento obsah je viditelný pouze pro přihlášené uživatele."
 		}
 	}
 }

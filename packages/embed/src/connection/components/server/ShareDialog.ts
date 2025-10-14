@@ -250,7 +250,7 @@ export class ShareDialog extends ClientConsumer {
 
         return html`<thermal-dialog label="${t(T.share)}">
 
-            <thermal-btn slot="invoker" icon="share" iconStyle="mini"></thermal-btn>
+            <thermal-btn slot="invoker" icon="share" iconStyle="mini" tooltip="Sdílet odkaz na tento obsah"></thermal-btn>
 
             <div slot="content">
 

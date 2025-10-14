@@ -25,5 +25,8 @@
 		"lib",
 		"thermal-display.php",
 		"languages"
-	]
+	],
+	"dependencies": {
+		"@wordpress/icons": "^10.32.0"
+	}
 }
