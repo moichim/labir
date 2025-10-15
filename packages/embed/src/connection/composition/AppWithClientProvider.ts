@@ -80,13 +80,11 @@ export abstract class AppWithClientProvider extends AppWithState {
         this.client.onConnection.set(this.UUIDClient, async status => {
             this.isClientConnected = status !== false;
 
-
-
             if (
                 // Pouze pokud je server OK
                 status
                 // Pouze pokud máme url a token
-                && this.authUrl && this.authToken
+                && this.authUrl !== undefined && this.authToken
                 // Pouze, pokud nejsme přihlášeni
                 // && this.client.auth.isLoggedIn() === false
             ) {
@@ -138,7 +136,7 @@ export abstract class AppWithClientProvider extends AppWithState {
 
             }
 
-            this.requestUpdate();
+            //this.requestUpdate();
 
         });
 

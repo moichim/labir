@@ -259,8 +259,6 @@ export class RegistryRangeForm extends RegistryConsumer {
             safeValue = Math.floor( currentValue );
         }
 
-        console.log( rounded, safeValue );
-
         const isValid = type === 'from' 
             ? this.isValidFromValue(safeValue)
             : this.isValidToValue(safeValue);

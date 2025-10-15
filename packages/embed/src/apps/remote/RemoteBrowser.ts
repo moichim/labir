@@ -1152,9 +1152,9 @@ thermal-dropdown.selector::part(invoker) {
         }
 
         return html`
-
-            <registry-range-full-button slot="bar-pre"></registry-range-full-button>
-            <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
+            <div slot="bar-persistent">
+                <registry-range-form stacked="false"></registry-range-form>
+            </div>
 
             ${this.state === STATE.ONE && this.dataOnly !== undefined
                 ? html`<group-provider slug="${this.dataOnly.info.folder}" slot="bar-pre">

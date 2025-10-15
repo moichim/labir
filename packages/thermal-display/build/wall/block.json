@@ -5,7 +5,6 @@
   "version": "0.1.0",
   "title": "LabIR Server Wall",
   "category": "thermal",
-  "icon": "file:./assets/icon.svg",
   "description": "Content protected that requires LabIR Server authentication to display",
   "example": {},
   "supports": {

@@ -265,8 +265,6 @@ export abstract class AppWithRender extends AppWithContent {
         return html`
 
         <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
-            
         
             ${this.renderBreadcrumb()}
 

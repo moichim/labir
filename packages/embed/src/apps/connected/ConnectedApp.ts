@@ -101,7 +101,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
 
 
         return html`
-        <manager-provider palette=${this.palette}>
+        <manager-provider palette=${this.palette} slug="${this.UUID}">
             <registry-provider 
                 slug="${slug}" 
                 autoclear="true" 

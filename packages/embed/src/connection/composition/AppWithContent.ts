@@ -180,8 +180,6 @@ export abstract class AppWithContent extends AppWithClientProvider {
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-        this.log( _changedProperties );
-
         if (  _changedProperties.has("path") ) {
             this.fetchContent();
         }

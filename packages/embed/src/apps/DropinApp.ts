@@ -368,9 +368,8 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
                                 <registry-palette-dropdown slot="bar-pre"></registry-palette-dropdown>
 
-                                <registry-range-full-button slot="bar-pre"></registry-range-full-button>
+                                <registry-range-form stacked="false" slot="bar-pre"></registry-range-form>
 
-                                <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
                                         
                                 ` 
                                 : nothing}
