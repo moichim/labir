@@ -1,10 +1,10 @@
 # Vue 3 binding to @labir/core
 
-This package is experimental. Generally, it should do the same thing for Vue as `@labir/react-bridge` does for React.
+This package is experimental. 
 
-## Work in progress!
+It should do the same thing for Vue as `@labir/react-bridge` does for React - provide basic contexts & hooks that will be used to build UI components in Vue.
 
-So far, we proved the integration of `@labir/core` is possible. It is working well. But Vue is not amongst our current priorities, because we focus on:
+## Status
 
-- React for SPA applications
-- webcomponents for embedding in Wordpress, Moodle & other educational softwares
+Integration working. Development inactive.
+
