@@ -1259,7 +1259,7 @@ thermal-dropdown.selector::part(invoker) {
                 : nothing
             }
 
-            ${this.state === STATE.MAIN && Object.keys(this.folders).length > 1
+            ${this.state === STATE.MAIN && this.enablegrouping && Object.keys(this.folders).length > 1
                 ? html`<thermal-btn slot="bar-pre" @click=${() => {
                     this.actionShowEverything();
                 }} tooltip="Zobrazit všechny soubory v níže uvedených složkách v mřížce podle času">${t(T.showeverything)}</thermal-btn>`
@@ -1269,7 +1269,7 @@ thermal-dropdown.selector::part(invoker) {
             ${this.renderHeader()}
             
             <div slot="pre">
-                ${this.renderInfo()}
+                ${this.enablegrouping ? this.renderInfo() : nothing}
                 ${this.renderHistogram()}
                 ${this.renderTableHeader()}
             </div>

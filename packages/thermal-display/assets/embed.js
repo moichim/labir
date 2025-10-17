@@ -6816,12 +6816,12 @@ In order to be iterable, non-array objects must have a [Symbol.iterator]() metho
 
             ${this.state!==0?h`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>`:w}
 
-            ${this.state===0&&Object.keys(this.folders).length>1?h`<thermal-btn slot="bar-pre" @click=${()=>{this.actionShowEverything()}} tooltip="Zobrazit všechny soubory v níže uvedených složkách v mřížce podle času">${b(v.showeverything)}</thermal-btn>`:w}
+            ${this.state===0&&this.enablegrouping&&Object.keys(this.folders).length>1?h`<thermal-btn slot="bar-pre" @click=${()=>{this.actionShowEverything()}} tooltip="Zobrazit všechny soubory v níže uvedených složkách v mřížce podle času">${b(v.showeverything)}</thermal-btn>`:w}
 
             ${this.renderHeader()}
             
             <div slot="pre">
-                ${this.renderInfo()}
+                ${this.enablegrouping?this.renderInfo():w}
                 ${this.renderHistogram()}
                 ${this.renderTableHeader()}
             </div>
