@@ -50,8 +50,14 @@ export class FileThumbnail extends FileConsumer {
                 overflow: hidden;
                 text-overflow: ellipsis;
                 font-size: var( --thermal-fs-sm );
+
                 file-label {
                     white-space: preserve nowrap;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                    color: var( --thermal-primary );
                 }
             }
 
@@ -74,10 +80,14 @@ export class FileThumbnail extends FileConsumer {
         return html`
 
             <header>
-                <h2><file-label label="${ifDefined(this.label)}" grouping="${ifDefined(this.grouping)}"></file-label></h2>
+                <h2
+                    @click=${() => this.ondetail?.(this.file!)}
+                >
+                    <file-label label="${ifDefined(this.label)}" grouping="${ifDefined(this.grouping)}"></file-label>
+                </h2>
                 <div>
                     <file-opacity-icon></file-opacity-icon>
-                    <file-detail-icon .onaction=${ifDefined(this.ondetail)}></file-detail-icon>
+                    <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file!)}>${t(T.detail).toLocaleLowerCase()}</thermal-btn>
                     <file-range-propagator></file-range-propagator>
                     <file-dropdown label="...">
                         <file-info-button>

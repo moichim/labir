@@ -204,9 +204,16 @@ export class ThermalBtn extends BaseElement {
 
     public static styles = css`
         :host {
-            display: flex;
-            varrical-align: middle;
+            display: inline-flex;
+            align-items: center;
+            flex-grow: 0;
             gap: .5em;
+
+            width: fit-content;
+            box-sizing: border-box;
+
+            vertical-align: middle;
+            
 
             margin: 0;
             padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
@@ -217,7 +224,7 @@ export class ThermalBtn extends BaseElement {
             background-color: var(--thermal-slate-light);
             color: var(--thermal-foreground);
 
-            box-shadow: var( --thermal-shadow-none );
+            box-shadow: none; 
             
             cursor: pointer;
             
@@ -226,8 +233,7 @@ export class ThermalBtn extends BaseElement {
             font-size: calc( var( --thermal-fs ) * .8);
 
             transition: all .2s ease-in-out;
-            flex-grow: 0;
-            width: fit-content;
+            
 
             /* Focus styling */
             outline: none;
@@ -235,9 +241,10 @@ export class ThermalBtn extends BaseElement {
 
 
         :host(:focus),
-        :host(:focus-visible) {
+        :host(:focus-visible),
+        :host(:hover) {
             outline: none;
-            box-shadow: 0 0 0 2px var(--thermal-primary, #007bff);
+            box-shadow: var( --thermal-shadow );
         }
 
         /* Default styling when no attributes are present */
@@ -261,15 +268,13 @@ export class ThermalBtn extends BaseElement {
             display: inline-block;
         }
 
-        :host(:hover) {
-            /** background-color: var(--thermal-slate); */
-        }
 
 
         :host([disabled=true]) {
-            cursor: help !important;
-
+            cursor: not-allowed !important;
+            opacity: .5;
             outline: 0 !important;
+            box-shadow: none !important;
 
             button {
                 outline: 0 !important;
@@ -283,6 +288,11 @@ export class ThermalBtn extends BaseElement {
 
         :host([disabled="false"]:hover) {
             box-shadow: var( --thermal-shadow );
+        }
+
+        :host([interactive="false"]) {
+            box-shadow: none !important;
+            cursor: text !important;
         }
 
         :host([variant="primary"]) {

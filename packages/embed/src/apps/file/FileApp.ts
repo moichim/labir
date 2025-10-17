@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, Instance, TimeFormat } from "@labir/core";
+import { AvailableThermalPalettes, Instance, ThermalManager, TimeFormat } from "@labir/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
@@ -50,6 +50,13 @@ const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4"
 export class FileApp extends BaseAppWithPngExportContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
+
+    public get manager(): ThermalManager {
+        if (!this.fileProviderRef.value) {
+            throw new Error( "Not yet loaded" );
+        }
+        return this.fileProviderRef.value.manager;
+    }
 
 
 
@@ -411,11 +418,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 `)}
 
                 ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="bar-post" class="share">
-                    <thermal-button slot="invoker">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-                            <path d="M12 6a2 2 0 1 0-1.994-1.842L5.323 6.5a2 2 0 1 0 0 3l4.683 2.342a2 2 0 1 0 .67-1.342L5.995 8.158a2.03 2.03 0 0 0 0-.316L10.677 5.5c.353.311.816.5 1.323.5Z" />
-                        </svg>
-                    </thermal-button>
+                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}"></thermal-btn>
                     <div slot="content">
                         <p>${t(T.embedhint)}</p>
                         <h2>1. ${t(T.embedlibrary)} <thermal-button @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js"></script>
@@ -486,7 +489,7 @@ export class FileApp extends BaseAppWithPngExportContext {
     protected renderOneLayoutItem(icon: string, key: string, hasLabel: boolean = false) {
         return html`<div class="layout-item">
         ${unsafeSVG(icon)}
-        ${hasLabel ? html`<span>${t(T[`layout_${key}` as T])}</span>` : nothing}
+        ${hasLabel ? html`<span>${t(T[`layout_${key}` as keyof typeof T])}</span>` : nothing}
     </div>`;
     }
 

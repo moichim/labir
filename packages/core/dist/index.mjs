@@ -8384,7 +8384,7 @@ var getPool = async () => {
 };
 
 // package.json
-var version = "1.2.68";
+var version = "1.3.0";
 
 // src/index.ts
 console.info(version, "@labir/core");

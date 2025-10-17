@@ -159,7 +159,7 @@ export const en: Translation = {
     analysishint: "You may select area in the IR image to see its temperatures.",
     graph: "Graph",
     graphhint1: "Add analysis first to see the graph!",
-    graphhint2: "Click on an analysis <span class='hintbtn'>value</span> to see its graph here!",
+    graphhint2: "Click on an analysis <thermal-btn variant='background' interactive='false' tooltip='You can see them in the table above...'>value</thermal-btn> to see its graph here!",
 
     rectangle: "rectangle",
     ellipsis: "ellipsis",

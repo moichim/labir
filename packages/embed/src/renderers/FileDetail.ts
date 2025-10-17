@@ -3,6 +3,8 @@ import { css, CSSResultGroup, html, nothing } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
 import { booleanConverter } from "../utils/converters/booleanConverter"
+import { t } from "i18next"
+import { T } from "../translations/Languages"
 
 @customElement("file-detail")
 export class FileThumbnail extends FileConsumer {
@@ -48,7 +50,7 @@ export class FileThumbnail extends FileConsumer {
             display: flex;
             gap: 5px;
             margin-bottom: var(--thermal-gap);
-            align-items: center;
+            align-items: stretch;
         }
     
     `;
@@ -58,18 +60,24 @@ export class FileThumbnail extends FileConsumer {
         return html`
 
             <header>
-                <thermal-button variant="foreground" @click=${() => {
-                if (this.onback)
-                    this.onback();
-            }}>x</thermal-button>
+                <thermal-btn 
+                    variant="foreground" 
+                    @click=${() => {
+                        if (this.onback)
+                            this.onback();
+                        }}
+                    tooltip=${t(T.back)}
+                    icon="close"
+                    iconStyle="micro"
+                ></thermal-btn>
 
                 ${this.label !== undefined ? html`
-                    <thermal-button variant="background" interactive="false">${this.label}</thermal-button>
+                    <thermal-btn variant="background" interactive="false">${this.label}</thermal-btn>
                 ` : nothing}
 
-                <thermal-button variant="background" interactive="false">
+                <thermal-btn variant="background" interactive="false">
                     <file-label></file-label>
-                </thermal-button>
+                </thermal-btn>
 
                 <file-info-button></file-info-button>
                 <file-download-dropdown></file-download-dropdown>

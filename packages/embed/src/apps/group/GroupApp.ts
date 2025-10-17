@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, CallbacksManager, ThermalGroup } from "@labir/core";
+import { AvailableThermalPalettes, CallbacksManager, ThermalGroup, ThermalManager } from "@labir/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -21,6 +21,11 @@ enum STATE {
 
 @customElement("thermal-group-app")
 export class GroupElement extends AbstractMultipleApp implements IWithlocale {
+
+
+    public get manager(): ThermalManager {
+        return this.groupRef.value!.group.registry.manager;
+    }
 
     protected groupRef: Ref<GroupProviderElement> = createRef();
 
@@ -204,8 +209,6 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
 
         if (_changedProperties.has("files")) {
-
-            this.log( this.files );
 
             if (this.files && _changedProperties.get("files") !== undefined) {
                 const parsedFiles = this.parseFilesProperty(this.files);
@@ -421,13 +424,11 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                         >
 
                             ${this.loading === false 
-                                ? html`
+                                ? html`                                
 
                                 <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
-                                <registry-range-full-button slot="bar-pre"></registry-range-full-button>
-
-                                <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
+                                
+                                <registry-range-form slot="bar-pre"></registry-range-form>
                                         
 
                                 ${this.state === STATE.GROUP
@@ -462,12 +463,9 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             }
 
                             <thermal-dialog label="${t(T.config)}" slot="close">
-                                <thermal-button slot="invoker" variant="plain">
-                                    <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                        <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                                    </svg>
+                                
+                                <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${t(T.config)}"></thermal-btn>
 
-                                </thermal-button>
                                 <div slot="content">
                                     <table>
                                         <png-export-panel></png-export-panel>

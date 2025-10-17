@@ -164,7 +164,7 @@ export const cy: Translation = {
     analysishint: "Gallwch ddewis ardal yn y ddelwedd IR i weld ei thymhereddau.",
     graph: "Graff",
     graphhint1: "Addio ddadansoddiad yn gyntaf i weld y graff!",
-    graphhint2: "Cliciwch ar <span class='hintbtn'>werth</span> dadansoddiad i weld ei graff yma!",
+    graphhint2: "Cliciwch ar <thermal-btn variant='background' interactive='false'  tooltip='Fe welwch nhw yn y tabl uchod...'>werth</thermal-btn> dadansoddiad i weld ei graff yma!",
 
     rectangle: "petryal",
     ellipsis: "elipsis",

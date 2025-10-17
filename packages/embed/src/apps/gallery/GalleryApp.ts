@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager } from "@labir/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
@@ -37,6 +37,10 @@ enum STATE {
 
 @customElement("thermal-gallery-app")
 export class GalleryApp extends BaseAppWithPngExportContext {
+
+    public get manager(): ThermalManager {
+        return this.registryRef.value!.registry.manager;
+    }
 
 
     // Presentational attributes
@@ -243,7 +247,8 @@ export class GalleryApp extends BaseAppWithPngExportContext {
 
         const groups = preview.map((group, index) => {
             const slug = group.label ?? `group_preview_${index}`;
-            return html`<group-provider slug="${slug}" autoclear="true">
+            return html`<registry-provider slug="${slug}" autoclear="true">
+            <group-provider slug="${slug}" autoclear="true" batch="true">
                 <button class="group-thumbnail" @click="${() => this.actionGroupOpen(group.group)}">
                     <div class="header">
                         <div class="info">
@@ -252,12 +257,8 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                         </div>
                         <div class="button">
                             ${group.group.files.length > 1
-                    ? html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                                </svg>`
-                    : html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                </svg>`
+                    ? html`<thermal-icon icon="folder" variant="outline"></thermal-icon>`
+                    : html`<thermal-icon icon="image" variant="outline"></thermal-icon>`
                 }
                         </div>
                     </div>
@@ -265,7 +266,9 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                         <file-canvas></file-canvas>
                     </file-provider>
                 </button>
-            </group-provider>`;
+            </group-provider>
+            </registry-provider>
+            `;
         });
 
 
@@ -291,13 +294,13 @@ export class GalleryApp extends BaseAppWithPngExportContext {
 
                 <header>
 
-                    <thermal-button variant="foreground" @click="${() => this.actionMainOpen()}">x</thermal-button>
+                    <thermal-btn variant="foreground" @click="${() => this.actionMainOpen()}" tooltip="Zavřít skupinu" icon="close" iconStyle="micro"></thermal-btn>
 
                     <thermal-dropdown>
                         <span slot="invoker">${this.group.label}</span>
                         ${this.structure.filter(group => group.label !== this.group?.label).map(group => {
             return html`<div slot="option">
-                                <thermal-button @click="${() => this.actionGroupOpen(group)}">${group.label}</thermal-button>
+                                <thermal-btn @click="${() => this.actionGroupOpen(group)}">${group.label}</thermal-btn>
                             </div>`;
         })}
                     </thermal-dropdown>
@@ -549,25 +552,24 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                     .onlabel="${() => this.actionMainOpen()}"
                 >
 
-                    ${this.structure !== undefined
+
+                    <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+
+                    ${this.structure !== undefined && this.state !== STATE.MAIN
                 ? html`
+                        <registry-range-form slot="bar-pre"></registry-range-form>
                         <registry-histogram slot="pre" expandable="true"></registry-histogram>
                         <registry-range-slider slot="pre"></registry-range-slider>
                         <registry-ticks-bar slot="pre"></registry-ticks-bar>
                         `
                 : nothing
             }
-                    <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                    
 
-                    <registry-range-full-button slot="bar-pre"></registry-range-full-button>
-                    <registry-range-auto-button slot="bar-pre"></registry-range-auto-button>
+                    <thermal-dialog label="${t(T.config)}" slot="close">
+                            
+                        <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${t(T.config)}"></thermal-btn>
 
-                    <thermal-dialog label="${t(T.config)}" slot="bar-post">
-                        <thermal-button slot="invoker" variant="plain">
-                            <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                            </svg>
-                        </thermal-button>
                         <div slot="content">
                             <table>
                                 <png-export-panel></png-export-panel>

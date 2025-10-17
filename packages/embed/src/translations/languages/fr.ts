@@ -164,7 +164,7 @@ export const fr: Translation = {
     analysishint: "Vous pouvez sélectionner une zone dans l'image IR pour voir ses températures.",
     graph: "Graphique",
     graphhint1: "Ajoutez d'abord une analyse pour voir le graphique !",
-    graphhint2: "Cliquez sur une <span class='hintbtn'>valeur</span> d'analyse pour voir son graphique ici !",
+    graphhint2: "Cliquez sur une <thermal-btn variant='background' interactive='false' tooltip='Vous pouvez les voir dans le tableau ci-dessus...'>valeur</thermal-btn> d'analyse pour voir son graphique ici !",
 
     rectangle: "rectangle",
     ellipsis: "ellipse",

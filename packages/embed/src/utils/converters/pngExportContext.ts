@@ -1,5 +1,6 @@
 import { createContext, provide } from "@lit/context";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractControlledApp } from "../../apps/AbstractControlledApp";
 
 export type ContextSetter<T> = (value: T) => void
 
@@ -59,7 +60,7 @@ export interface IWithPngExportContext {
 
 }
 
-export abstract class BaseAppWithPngExportContext extends BaseElement implements IWithPngExportContext {
+export abstract class BaseAppWithPngExportContext extends AbstractControlledApp implements IWithPngExportContext {
 
     @provide({ context: pngExportWidthContext })
     public pngWidth: number = 1200;

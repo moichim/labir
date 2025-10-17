@@ -255,74 +255,20 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
     protected renderOneFile() {
         return html`
-        ${this.files.map(file => this.renderDetail(file, true))}
-        `;
-    }
-
-    protected renderFileHeader(file: Instance) {
-        return html`
-            <header>
-                <div class="file-label">
-
-                    <thermal-button
-                        @click=${() => file.group.files.removeFile(file)}
-                        variant="foreground"
-                    >x</thermal-button>
-
-                    <file-info-button>
-                        <thermal-button slot="invoker">
-
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5" height="1.5em" style="margin-bottom: -5px;">
-                                <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clip-rule="evenodd" />
-                            </svg>
-
-
-                            ${file.fileName}
-
-                        </thermal-button>
-                    </file-info-button>
-
-                    <file-download-dropdown></file-download-dropdown>
-
-                    <div>${TimeFormat.human(file.timestamp)}</div>
-                </div>
-            </header>
+        ${this.files.map(file => this.renderDetail(file))}
         `;
     }
 
 
     protected renderDetail(
-        file: Instance,
-        expanded: boolean = false
+        file: Instance
     ) {
 
         return html`
             <article class="file">
                 <file-mirror .file="${file}" autoclear="true">
 
-                    ${this.renderFileHeader(file)}
-
-                    ${expanded === true
-                ? html`
-                        <div class="file-expanded">
-                            <div>
-                                <file-canvas></file-canvas>
-                                <file-timeline></file-timeline>
-                            </div>
-                            <div>
-                                <file-analysis-complex></file-analysis-complex>
-                            </div>
-                        </div>
-                        `
-                : html`
-                            <div>
-                                <file-canvas></file-canvas>
-                                <file-timeline></file-timeline>
-                                <file-analysis-overview></file-analysis-overview>
-                                <file-analysis-graph></file-analysis-graph>
-                            </div>
-                        `
-            }
+                    <file-detail .onback=${() => file.group.files.removeFile(file)}></file-detail>
                 
                 </file-mirror>
             </article>
@@ -336,7 +282,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
         <div class="files-multiple">
         ${this.files
                 // .sort((a,b)=> a.timestamp - b.timestamp)
-                .map(file => this.renderDetail(file, false))}
+                .map(file => this.renderDetail(file))}
         </div>
         `;
 
@@ -364,7 +310,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
                             ${this.files.length > 0 
                                 ? html`
-                                <thermal-button slot="bar-pre" @click="${() => this.handleClear()}">${t(T.clear)}</thermal-button>
+                                <thermal-btn slot="bar-pre" @click="${() => this.handleClear()}" tooltip="Odstranit tento soubor a nahrát nový">${t(T.clear)}</thermal-btn>
 
                                 <registry-palette-dropdown slot="bar-pre"></registry-palette-dropdown>
 
@@ -384,11 +330,8 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
                             </div>
 
                             <thermal-dialog label="${t(T.config)}" slot="bar-pre">
-                                <thermal-button slot="invoker">
-                                    <svg style="width: 1em; transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                        <path fill-rule="evenodd" d="M6.455 1.45A.5.5 0 0 1 6.952 1h2.096a.5.5 0 0 1 .497.45l.186 1.858a4.996 4.996 0 0 1 1.466.848l1.703-.769a.5.5 0 0 1 .639.206l1.047 1.814a.5.5 0 0 1-.14.656l-1.517 1.09a5.026 5.026 0 0 1 0 1.694l1.516 1.09a.5.5 0 0 1 .141.656l-1.047 1.814a.5.5 0 0 1-.639.206l-1.703-.768c-.433.36-.928.649-1.466.847l-.186 1.858a.5.5 0 0 1-.497.45H6.952a.5.5 0 0 1-.497-.45l-.186-1.858a4.993 4.993 0 0 1-1.466-.848l-1.703.769a.5.5 0 0 1-.639-.206l-1.047-1.814a.5.5 0 0 1 .14-.656l1.517-1.09a5.033 5.033 0 0 1 0-1.694l-1.516-1.09a.5.5 0 0 1-.141-.656L2.46 3.593a.5.5 0 0 1 .639-.206l1.703.769c.433-.36.928-.65 1.466-.848l.186-1.858Zm-.177 7.567-.022-.037a2 2 0 0 1 3.466-1.997l.022.037a2 2 0 0 1-3.466 1.997Z" clip-rule="evenodd" />
-                                    </svg>
-                                </thermal-button>
+                                <thermal-btn slot="invoker" tooltip="${t(T.config)}" icon="settings" iconStyle="solid">
+                                </thermal-btn>
                                 <div slot="content">
                                     <table>
                                         <png-export-panel></png-export-panel>
