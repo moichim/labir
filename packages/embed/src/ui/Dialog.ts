@@ -166,7 +166,7 @@ export class ThermalDialog extends LitElement {
 
                 <div class="dialog-footer">
                     <slot name="button"></slot>
-                    <thermal-button variant="foreground" @click=${async() => {
+                    <thermal-btn variant="foreground" @click=${async() => {
                         if ( this.beforeClose ) {
                             const result = await this.beforeClose();
                             if ( result ) {
@@ -177,7 +177,7 @@ export class ThermalDialog extends LitElement {
                         }
                     }}>
                         ${this.button}
-                    </thermal-button>
+                    </thermal-btn>
                 </div>
                 
             

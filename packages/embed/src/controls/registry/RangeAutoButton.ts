@@ -12,9 +12,7 @@ export class RegistrySetAutoRangeElement extends RegistryConsumer {
     }
 
     protected render(): unknown {
-        return html`
-            <thermal-button @click=${this.doAction}>${t(T.automaticrange)}</thermal-button>
-        `;
+        return html`<thermal-btn @click=${this.doAction}>${t(T.automaticrange)}</thermal-btn>`;
     }
 
     

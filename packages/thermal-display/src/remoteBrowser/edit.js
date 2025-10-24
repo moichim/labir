@@ -167,8 +167,12 @@ export default function Edit({ attributes, setAttributes }) {
 								value: "jet"
 							},
 							{
-								label: "Grayscale",
-								value: "grayscale"
+								label: "White hot",
+								value: "white_hot"
+							},
+							{
+								label: "Black hot",
+								value: "black_hot"
 							},
 						]}
 

@@ -11,8 +11,11 @@ connected-app {
 
 :root {
 
-    --thermal-bar-bg: var(--thermal-background);
+    --thermal-bar-bg: var(--thermal-slate-light);
     --thermal-bar-border: var(--thermal-slate);
+    --thermal-bar-fs: 1rem;
+    --thermal-bar-gap: calc( var(--thermal-gap) * 2 );
+    --thermal-bar-fs-sm: 0.8rem;
 
 }
 
@@ -35,7 +38,7 @@ connected-app {
 
 
     display: flex;
-    gap: calc( var(--thermal-gap) * 2 );
+    gap: var(--thermal-bar-gap);
 
 
     &::before,
@@ -45,7 +48,7 @@ connected-app {
         position: absolute;
         width: var(--thermal-gap);
         height: var(--thermal-gap);
-        background-color: var(--thermal-slate-light);
+        background-color: var(--thermal-bar-bg);
 
         z-index: 999999;
 
@@ -72,21 +75,6 @@ connected-app {
                 var(--thermal-bar-bg) var(--thermal-gap));
 
     }
-
-
-    button {
-
-        background: var(--thermal-primary);
-        color: var(--thermal-background);
-
-        border: 0;
-        border-radius: var(--thermal-radius);
-
-        padding: 0.5em 1em;
-
-        cursor: pointer;
-    }
-
 
 }
 
@@ -117,4 +105,83 @@ connected-app {
 
 .labir-wall-separator {
     flex-grow: 1;
+}
+
+.labir-wall-actions {
+
+    display: flex;
+    gap: .5rem;
+
+    font-size: var( --thermal-bar-fs );
+
+    button, a {
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .5rem;
+
+        position: relative;
+        box-sizing: border-box;
+
+        border: 1px solid var(--thermal-slate);
+        border-radius: var(--thermal-radius);
+        padding: 0.5em 1em;
+
+        color: var( --thermal-background );
+
+        text-decoration: none;
+        font-size: var( --thermal-bar-fs );
+
+        transition: background-color .3s ease-in-out;
+
+        cursor: pointer;
+
+        .tooltip {
+            position: absolute;
+            background: var( --thermal-bar-bg );
+            border: 1px solid var( --thermal-bar-border );
+            color: var( --thermal-slate-dark );
+            border-radius: var( --thermal-radius ) var(  --thermal-radius ) 0 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 0;
+            box-sizing: border-box;
+
+            padding: .3rem .3rem .8rem .3rem;
+            font-size: var(--thermal-bar-fs-sm);
+            text-align: center;
+            text-transform: uppercase;
+
+            transition: all .3s ease-in-out;
+
+            z-index: -1;
+        }
+
+        &:hover {
+            .tooltip {
+                opacity: 1;
+                top: -1.8rem;
+            }
+        }
+
+        &.primary {
+            background: var(--thermal-primary);
+
+            &:hover {
+                background-color: var(--thermal-primary-dark);
+                border-color: var(--thermal-primary-dark);
+            }
+        }
+
+        &.dark {
+            background: var(--thermal-slate-dark);
+            &:hover {
+                background-color: var(--thermal-foreground);
+            }
+        }
+
+    }
+
 }

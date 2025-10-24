@@ -164,7 +164,7 @@ export class FileAnalysisComplex extends FileConsumer {
             <div class="buttons">
                 ${addTools.map(tool => {
 
-            return html`<thermal-button @click=${() => {
+            return html`<thermal-btn @click=${() => {
                     this.isDrawingAnalysis = true;
                     this.file?.group.tool.selectTool(tool);
                 }}>
@@ -176,7 +176,7 @@ export class FileAnalysisComplex extends FileConsumer {
                             ${t(T[tool.name as keyof typeof T])}
                         </div>
                     </div>
-                </thermal-button>`;
+                </thermal-btn>`;
 
         })
             }
@@ -222,7 +222,9 @@ export class FileAnalysisComplex extends FileConsumer {
         }
 
         if (this.hasGraph === true) {
-            return html`<div class="graph" ${ref(this.graphRef)}>
+            return html`
+            
+            <div class="graph" ${ref(this.graphRef)}>
                 <file-analysis-graph graphWidth=${this.graphWidth} graphHeight=${this.graphHeight}></file-analysis-graph>
             </div>`;
         }

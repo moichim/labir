@@ -124,14 +124,13 @@ export class RangeSliderElement extends RegistryConsumer {
 
             if (slider) {
                 slider.addCSS(`
-                    .tooltip {
-                        font-size: 12px;
-                    }
-                    .pointer-shape {
-                        border-radius: 0;
-                        width: 10px;
-                    }
-                ` );
+.tooltip {
+    font-size: 12px;
+}
+.pointer-shape {
+    border-radius: 0;
+    width: 10px;
+}` );
     
                 slider.addEventListener("change", (event: Event) => {
     
@@ -150,10 +149,7 @@ export class RangeSliderElement extends RegistryConsumer {
                         this.registry.range.imposeRange({ from: this.from, to: this.to });
     
                 });
-    
-                slider.addEventListener("onMouseDown", event => {
-                    this.log(event);
-                });
+
             }
 
         }, 0);
@@ -161,8 +157,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
         this.registry.range.addListener(this.UUID, value => {
             if (value) {
-
-                this.log( "přišla hodnota", value );
 
                 if ( this.from !== undefined && this.to !== undefined ) {
 
@@ -201,97 +195,84 @@ export class RangeSliderElement extends RegistryConsumer {
 
 
     static styles = css`
+.container {
+    height: var( --thermal-gap );
+    padding: calc( var( --thermal-gap ) * .5 );
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-bottom: -6px;
+}
 
-        .container {
-            height: var( --thermal-gap );
-            padding: calc( var( --thermal-gap ) * .5 );
-            padding-top: 0;
-            padding-bottom: 0;
-            margin-bottom: -6px;
-        }
+.loading {
+    .skeleton {
+        background: var( --thermal-slate );
+        height: calc( var( --thermal-fs ) * .9 );
+    }
+    tc-range-slider {
+        display: none;
+    }
+}
 
-        .loading {
-
-            .skeleton {
-                background: var( --thermal-slate );
-                height: calc( var( --thermal-fs ) * .9 );
-            }
-
-            tc-range-slider {
-                display: none;
-            }
-        }
-
-        .ready {
-
-            .skeleton {
-                display: none;
-            }
-
-        }
-    
-    `;
+.ready {
+    .skeleton {
+        display: none;
+    }
+}`;
 
     protected render(): unknown {
 
         if ( this.loading === true ) {
-            return html`<div class="container loading">
-                <div class"skeleton"></div>    
-            </div>`;
+            return html`<div class="container loading"><div class"skeleton"></div></div>`;
         }
 
         return html`
+<div class="container ready">
 
-        <div class="container ready">
+    <div class="skeleton"></div>
 
-            <div class="skeleton"></div>
+    <tc-range-slider 
+${ref(this.sliderRef)}
+slider-width="100%"
+slider-height="15px"
+animate-onclick="false"
+min="${this.min}"
+max="${this.max}"
 
-            <tc-range-slider 
-                ${ref(this.sliderRef)}
-                slider-width="100%"
-                slider-height="15px"
-                animate-onclick="false"
-                min="${this.min}"
-                max="${this.max}"
+value1="${this.from}"
+value2="${this.to}"
 
-                value1="${this.from}"
-                value2="${this.to}"
+slider-radius="0"
 
-                slider-radius="0"
+slider-bg="var( --thermal-slate )"
+slider-bg-hover="var( --thermal-slate )"
+slider-bg-fill="${this.palette.data.gradient}"
+pointer-shadow="0 0 5px var(--thermal-primary)"
+pointer-shadow-hover="0 0 10px var(--thermal-primary)"
+pointer-shadow-hover="0 0 10px var(--thermal-primary)"
 
-                slider-bg="var( --thermal-slate )"
-                slider-bg-hover="var( --thermal-slate )"
-                slider-bg-fill="${this.palette.data.gradient}"
-                pointer-shadow="0 0 5px var(--thermal-primary)"
-                pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-                pointer-shadow-hover="0 0 10px var(--thermal-primary)"
-
-                pointer-border="2px solid var(--thermal-primary)"
-                pointer-border-hover="2px solid var(--thermal-primary)"
-                pointer-border-focus="2px solid var(--thermal-primary)"
-                pointer-bg="${this.palette.data.pixels[0]}"
+pointer-border="2px solid var(--thermal-primary)"
+pointer-border-hover="2px solid var(--thermal-primary)"
+pointer-border-focus="2px solid var(--thermal-primary)"
+pointer-bg="${this.palette.data.pixels[0]}"
                 
-                pointer2-border="2px solid var(--thermal-primary)"
-                pointer2-border-hover="2px solid var(--thermal-primary)"
-                pointer2-border-focus="2px solid var(--thermal-primary)"
-                pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
+pointer2-border="2px solid var(--thermal-primary)"
+pointer2-border-hover="2px solid var(--thermal-primary)"
+pointer2-border-focus="2px solid var(--thermal-primary)"
+pointer2-bg="${this.palette.data.pixels[this.palette.data.pixels.length - 1]}"
                 
-                generate-labels="true"
+generate-labels="true"
 
-                moving-tooltip="true"
-                moving-tooltip-distance-to-pointer="-30"
-                moving-tooltip-width="40"
-                moving-tooltip-height="20"
-                moving-tooltip-bg="var(--thermal-slate-dark)"
-                moving-tooltip-text-color="var(--thermal-background)"
-                
-            ></tc-range-slider>
+moving-tooltip="true"
+moving-tooltip-distance-to-pointer="-30"
+moving-tooltip-width="40"
+moving-tooltip-height="20"
+moving-tooltip-bg="var(--thermal-slate-dark)"
+moving-tooltip-text-color="var(--thermal-background)"            
+    ></tc-range-slider>
 
-        </div>
+</div>
 
-        <slot></slot>
-
-        `;
+<slot></slot>`;
     }
 
 }

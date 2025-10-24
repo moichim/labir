@@ -67,7 +67,8 @@ export default function Edit({ attributes, setAttributes }) {
 		showshare,
 		showlayout,
 		interactiveanalysis,
-		notations
+		notations,
+		advancedpalettes
 	} = attributes;
 
 	const [hasEditor, setHasEditor] = useState(false);
@@ -371,6 +372,13 @@ export default function Edit({ attributes, setAttributes }) {
 
 										</SelectControl>
 
+										<CheckboxControl
+											__nextHasNoMarginBottom
+											checked={advancedpalettes}
+											label="Enable advanced palettes"
+											onChange={(value) => { setAttributes({ advancedpalettes: value }) }}
+										/>
+
 										<SelectControl
 											label="Palette"
 											value={palette}
@@ -384,9 +392,25 @@ export default function Edit({ attributes, setAttributes }) {
 													value: "jet"
 												},
 												{
-													label: "Grayscale",
-													value: "grayscale"
+													label: "White hot",
+													value: "white_hot"
 												},
+												{
+													label: "Black hot",
+													value: "black_hot"
+												},
+												{
+													label: "Lava",
+													value: "lava"
+												},
+												{
+													label: "Rainbow",
+													value: "rainbow"
+												},
+												{
+													label: "Rainbow HC",
+													value: "rainbow_hc"
+												}
 											]}
 
 											onChange={(value) => setAttributes({ palette: value })}
@@ -518,6 +542,7 @@ export default function Edit({ attributes, setAttributes }) {
 										showlayout={showlayout}
 										interactiveanalysis={interactiveanalysis}
 										layout={variant}
+										advanced-palettes={advancedpalettes ? "true" : "false"}
 									>
 
 										{Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry 

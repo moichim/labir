@@ -122,15 +122,94 @@ export class FileAnalysisGraph extends FileConsumer {
         }
     }
 
+    protected downloadSVG = (svgEl: SVGElement, fileName: string) => {
+
+        // Add missing svg attributes
+        if (!svgEl.getAttribute('xmlns')) {
+            svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        }
+
+        // Get the outer HTML of the element
+        const svgData = svgEl.outerHTML;
+
+        // Create blob and URL
+        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        // Create a link and trigger the download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+
+        // Clean up
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    protected downloadPNG = (svgEl: SVGElement, fileName: string) => {
+
+        // Add missing svg attributes
+        if (!svgEl.getAttribute('xmlns')) {
+            svgEl.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        }
+
+        // Get the outer HTML of the element
+        const svgData = svgEl.outerHTML;
+
+        // Create blob and URL
+        const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx?.drawImage(img, 0, 0);
+
+            const pngUrl = canvas.toDataURL('image/png');
+
+            const a = document.createElement('a');
+            a.href = pngUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        img.src = url;
+
+    }
+
     public static styles = css`
 
         :host {
-            // background: white;
+            position: relative;
         }
     
         google-chart {
             width: 100%;
             height: 100%;
+        }
+
+        .download {
+            position: absolute;
+            right: 0;
+            top: 0;
+            display: flex;
+            gap: 0.25em;
+        }
+
+        thermal-icon {
+            width: .8em;
+            height: .8em;
+            vertical-align: middle;
+            margin-top: 1px;
         }
     `;
 
@@ -144,6 +223,8 @@ export class FileAnalysisGraph extends FileConsumer {
 
             <div style="position: relative; background-color: white; border-radius: var(--thermal-radius); height: 100%;">
 
+            
+
             <div style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
             ${this.currentFrame && html`
                 <div style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
@@ -154,7 +235,7 @@ export class FileAnalysisGraph extends FileConsumer {
                 `}
             </div>
         
-            <div ${ref(this.container)} style="height: 100%; ">
+            <div ${ref(this.container)}">
                 ${this.graphs.colors.length > 0
                 ? html`<thermal-chart 
                         ${ref(this.graphRef)}
@@ -178,6 +259,46 @@ export class FileAnalysisGraph extends FileConsumer {
                 : nothing
             }
             </div>
+
+            <div class="download">
+                <thermal-icon icon="download" variant="micro"></thermal-icon>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => {
+                        if ( this.graphRef.value ) {
+                            const svgData = this.graphRef.value.getRef()?.querySelector( 'svg' );
+                            if ( svgData ) {
+                                this.downloadSVG( svgData, "graph.svg" );
+                            }
+                        }
+                    }}
+                    variant="background"
+                    plain="true"
+                    tooltip="Stáhnout graf jako obrázek SVG"
+                >SVG</thermal-btn>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => {
+                        if ( this.graphRef.value ) {
+                            const svgData = this.graphRef.value.getRef()?.querySelector( 'svg' );
+                            if ( svgData ) {
+                                this.downloadPNG( svgData, "graph.png" );
+                            }
+                        }
+                    }}
+                    variant="background"
+                    plain="true"
+                    tooltip="Stáhnout graf jako obrázek PNG"
+                >PNG</thermal-btn>
+                <thermal-btn
+                    size="sm"
+                    @click=${() => this.file?.analysisData.downloadData()}
+                    variant="background"
+                    plain="true"
+                    tooltip="${t(T.downloadgraphdataascsv)}"
+                >CSV</thermal-btn>
+            </div>
+            
 
             
 

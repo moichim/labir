@@ -364,9 +364,9 @@ export class FileAnalysisRow extends BaseElement {
         <td>${this.dimension}</td>
         ${this.interactiveanalysis === true ? html`<td>
             <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
-            <thermal-button @click=${() => {
+            <thermal-btn @click=${() => {
                 this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)
-            }}>${t(T.remove)}</thermal-button>
+            }}>${t(T.remove)}</thermal-btn>
         </td>`
         : nothing }
 

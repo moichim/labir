@@ -3,7 +3,7 @@ import { BaseElement } from "../hierarchy/BaseElement";
 import { css, html, nothing } from "lit";
 import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { computePosition, flip, shift, offset, arrow, autoUpdate } from '@floating-ui/dom';
+import { computePosition, flip, shift, offset, arrow, autoUpdate, Placement } from '@floating-ui/dom';
 import { booleanConverter } from "../utils/converters/booleanConverter";
 
 export type BtnVariants = "primary" | "foreground" | "background" | "default";
@@ -12,6 +12,12 @@ export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
 @customElement( "thermal-btn" )
 export class ThermalBtn extends BaseElement {
+
+    @property({type: String, attribute: "tooltip-placement"})
+    public tooltipPlacement: Placement = "top";
+
+    @property( { type: String } )
+    public pre?: string;
 
     @property({ type: String, attribute: true, reflect: true })
     public variant?: BtnVariants;
@@ -126,7 +132,7 @@ export class ThermalBtn extends BaseElement {
             if (!this.tooltipElement || !this.arrowElement) return;
 
             const { x, y, placement, middlewareData } = await computePosition(this, this.tooltipElement, {
-                placement: 'top',
+                placement: this.tooltipPlacement,
                 middleware: [
                     offset(6),
                     flip(),
@@ -206,6 +212,7 @@ export class ThermalBtn extends BaseElement {
         :host {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             flex-grow: 0;
             gap: .5em;
 
@@ -231,12 +238,23 @@ export class ThermalBtn extends BaseElement {
             text-align: center;
             white-space: nowrap;
             font-size: calc( var( --thermal-fs ) * .8);
+            vertical-align: middle;
 
-            transition: all .2s ease-in-out;
+            transition: all .15s ease-in-out;
             
 
             /* Focus styling */
             outline: none;
+
+
+            --tooltip-bg: var(--thermal-slate-dark, #334155);
+            --tooltip-color: white;
+            --tooltip-padding: 0.5em 0.75em;
+            --tooltip-border-radius: var(--thermal-radius, 4px);
+            --tooltip-font-size: 0.9em;
+            --tooltip-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+
         }
 
 
@@ -347,22 +365,13 @@ export class ThermalBtn extends BaseElement {
         }
 
         /* Global tooltip styles */
-        :host {
-            --tooltip-bg: var(--thermal-slate-dark, #334155);
-            --tooltip-color: white;
-            --tooltip-padding: 0.5rem 0.75rem;
-            --tooltip-border-radius: var(--thermal-radius, 4px);
-            --tooltip-font-size: 0.875rem;
-            --tooltip-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
 
         .thermal-tooltip {
             background-color: var(--tooltip-bg, #334155);
             color: var(--tooltip-color, white);
-            padding: var(--tooltip-padding, 0.5rem 0.75rem);
+            padding: var(--tooltip-padding, 0.5em 0.75em);
             border-radius: var(--tooltip-border-radius, 4px);
-            font-size: var(--tooltip-font-size, 0.875rem);
+            font-size: var(--tooltip-font-size, 1em);
             box-shadow: var(--tooltip-box-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06));
             z-index: 9999;
             pointer-events: none;
@@ -376,6 +385,11 @@ export class ThermalBtn extends BaseElement {
             height: 8px;
             background: inherit;
             transform: rotate(45deg);
+        }
+
+        .prefix {
+            font-weight: bold;
+            padding-right: 0.25em;
         }
 
     `;
@@ -395,7 +409,7 @@ export class ThermalBtn extends BaseElement {
         }
 
 
-        return html`${unsafeSVG( icon) }<slot></slot>`;
+        return html`${unsafeSVG( icon) }${this.pre ? html`<span class="prefix">${this.pre}</span>` : nothing}<slot></slot>`;
     }
 
 }

@@ -134,7 +134,7 @@ export class LoginForm extends ClientConsumer {
             font-size: calc( var( --thermal-fs ) * .8 );
         }
 
-        thermal-button::part(btn) {
+        thermal-btn {
             width: 100%;
         }
 
@@ -174,13 +174,14 @@ export class LoginForm extends ClientConsumer {
                     : nothing
                 }
 
-                <thermal-button
+                <thermal-btn
                     @click=${() => this.doLoginInternal()}
-                    interactive=${this.mayLogIn}
+                    disabled=${!this.mayLogIn}
                     variant=${this.mayLogIn ? "primary" : "black"}
+                    tooltip=${!this.mayLogIn ? "Vyplňte přihlašovací údaje" : undefined}
                 >
                     ${this.isLoggingIn ? t(T.login) + "..." : t(T.login)}
-                </thermal-button>
+                </thermal-btn>
     
             </div>
 

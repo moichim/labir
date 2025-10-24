@@ -69,7 +69,7 @@ export class AppInfoButton extends BaseElement {
     protected render(): unknown {
         return html`
             <thermal-dialog label="Thermal images in the browser">
-                <thermal-button slot="invoker">About</thermal-button>
+                <thermal-btn slot="invoker">About</thermal-btn>
                 <div slot="content">
                     <div class="content">
                         <div class="logo">

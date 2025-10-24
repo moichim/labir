@@ -6,7 +6,10 @@ require_once __DIR__ . '/WallManager.php';
 add_action("wp_footer", function () {
 
     $manager = new WallManager(true);
+    $manager->processHistory();
+    $manager->processLogout();
     $manager->printBar();
+    
 });
 
 

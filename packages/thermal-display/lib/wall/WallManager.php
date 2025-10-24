@@ -14,6 +14,7 @@ class WallManager
     const FORM_LOGOUT = "labir_wall_logout";
 
     const SECURE_CREDENTIALS = "labir_secure_credentials";
+    const HISTORY = "labir_wall_history";
 
     const AUTH_NAMESPACE = "thermal-display/v1";
     const AUTH_ROUTE = "/auth-credentials";
@@ -64,7 +65,18 @@ class WallManager
         $this->message = "Chyba přihlašování: " . $error->getMessage();
     }
 
+    public function processHistory()
+    {
 
+        if (is_page() && has_block('thermal-display/wall')) {
+            // Zpracování historie zde
+            $post = get_post();
+            if ($post) {
+
+                $this->storeHistory($post);
+            }
+        }
+    }
 
 
     // Form management
@@ -127,8 +139,6 @@ class WallManager
 
             // Ulož uživatele do session
             $this->storeUserInTransient($data);
-
-
         } catch (Exception $e) {
             $this->handleException($e);
             return;
@@ -221,6 +231,7 @@ class WallManager
             "institution" => null,
             "description" => null,
             "isRoot" => false,
+            "history" => $this->getHistory()
         ];
 
         $meta = $user["login"]["meta"];
@@ -286,6 +297,23 @@ class WallManager
         return get_transient(WallManager::SECURE_CREDENTIALS)["token"] ?? null;
     }
 
+    public function storeHistory(
+        $post
+    ) {
+        set_transient(WallManager::HISTORY, [
+            "name" => $post->post_title,
+            "url" => $post->guid,
+            "timestamp" => time()
+        ], 12 * HOUR_IN_SECONDS);
+    }
+
+    public function getHistory()
+    {
+
+        return get_transient(WallManager::HISTORY);
+    }
+
+
 
 
     public function debug(
@@ -304,6 +332,13 @@ class WallManager
     {
 
         if ($this->isLoggedIn()) {
+
+
+            $shouldDisplayHistory = true;
+            if (is_page() && has_block('thermal-display/wall')) {
+                $shouldDisplayHistory = false;
+            }
+
             $data = $this->getBarData();
 ?>
             <footer class="labir-wall-bar">
@@ -315,22 +350,54 @@ class WallManager
                     <div class="labir-wall-slot-label"><?= esc_html($data["login"]) ?></div>
                 </div>
 
-                <?php if ($data["institution"]): ?><div class="labir-wall-slot">
-                        <div><?= esc_html($data["institution"]) ?></div>
-                        <div class="labir-wall-slot-label">organizace</div>
-                    </div>
-                <?php endif; ?>
-
                 <?php if ($data["description"]): ?>
                     <div class="labir-wall-slot">
                         <div><?= esc_html($data["description"]) ?></div>
-                        <div class="labir-wall-slot-label"><?= $data["isRoot"] ? "root uživatel" : "běžný uživatel" ?></div>
+                        <div class="labir-wall-slot-label"><?= esc_html($data["institution"]) ?></div>
                     </div>
                 <?php endif; ?>
+
                 <div class="labir-wall-separator"></div>
-                <form method="post" class="labir-wall-logout-form">
-                    <button type="submit" name="<?= WallManager::FORM_LOGOUT; ?>" value="1">Odhlásit</button>
-                </form>
+
+                <div class="labir-wall-actions">
+
+                    <?php if ($shouldDisplayHistory): ?>
+                        <a 
+                            href="<?= esc_url($data["history"]["url"]) ?>"
+                            class="primary"
+                        >
+                            <span class="dashicons dashicons-backup"></span>
+                            <span><?= esc_html($data["history"]["name"]) ?></span>
+                            <div class="tooltip">Zpět, do kurzu</div>
+                        </a>
+                    <?php endif; ?>
+
+                    <a 
+                        href="https://discord.gg/mqXsDQfPwX"
+                        class="dark"
+                        target="_blank"
+                    >
+                        <span class="dashicons dashicons-admin-users"></span>
+                        <span>Discord</span>
+                    </a>
+
+                    <form method="post" class="labir-wall-logout-form">
+                        <button 
+                            type="submit" 
+                            name="<?= WallManager::FORM_LOGOUT; ?>" 
+                            value="1"
+                            class="dark"
+                        >
+                            <span class="dashicons dashicons-unlock"></span>
+                            <span>Odhlásit</span>
+                        </button>
+                    </form>
+
+                </div>
+
+
+
+
             </footer>
 <?php
         }

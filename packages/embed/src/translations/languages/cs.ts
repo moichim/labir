@@ -83,16 +83,16 @@ export const cs: Translation = {
 
 
     download: "Stáhnout",
-    downloadoriginalfiles: "LRC - jednotlivé soubory",
+    downloadoriginalfiles: "- jednotlivé soubory",
     downloadoriginalfileshint: "Stáhnout jednotlivé zdrojové termogramy",
-    downloadoriginalfile: "{{type}} - Původní IR soubor",
-    exportcurrentframeaspng: "PNG - Aktuální snímek jako PNG",
-    convertentiresequencetovideo: "WEBM - Převést celou sekvenci do videa",
-    pngofindividualimages: "PNG - jednotlivé soubory",
+    downloadoriginalfile: "- Původní IR soubor {{type}}",
+    exportcurrentframeaspng: "- Aktuální snímek",
+    convertentiresequencetovideo: "- Převést celou sekvenci do videa",
+    pngofindividualimages: "- jednotlivé soubory",
     pngofindividualimageshint: "Exportovat všechny soubor po jednom, každý do samostatného obrázku.",
-    pngofentiregroup: "PNG - skupina",
+    pngofentiregroup: "- skupina",
     pngofentiregrouphint: "Exportovat celou skupinu do 1 obrázku.",
-    csvofanalysisdata: "CSV - data analýz",
+    csvofanalysisdata: "- data analýz",
     csvofanalysisdatahint: "Tabulka s teplotami v aktuálně nastavených analýzách",
 
     exportimagewidth: "Šířka exportovaných obrázků",

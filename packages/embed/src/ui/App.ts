@@ -355,7 +355,7 @@ export class ThermalAppUiElement extends BaseElement {
                         "cs",
                         "de",
                         "fr",
-                        // "cy",
+                        "cy",
                     ].map( lang => html`
                         <div slot="option">
                             <thermal-btn

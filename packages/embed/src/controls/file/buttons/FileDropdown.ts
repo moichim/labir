@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 
@@ -113,7 +113,7 @@ export class FileDropdown extends BaseElement {
         return html`
             <div class="backdrop" @click=${() => this.collapse() }></div>
             <div class="container">
-                <button class="default" @click=${() => { this.toggle() }}>${this.label ?? "..."}</button>
+                <thermal-btn variant="default" size="sm" icon="ellipsis" iconStyle="micro" @click=${() => { this.toggle() }}>${this.label ?? nothing}</thermal-btn>
                 <nav class="dropdown">
                     <div>
                         <slot></slot>

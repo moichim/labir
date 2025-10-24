@@ -45,37 +45,16 @@ export class FileDownloadButton extends FileConsumer {
     }
 
     static styles = css`
-
-        table {
-            width: 100%;
-        }
-
-        td {
-            padding: calc( var( --thermal-gap ) * .5 ) 0;
-        }
-
-        tr:not(:last-child) {
-            td {
-                border-bottom: 1px solid var( --thermal-slate-light );
-            }
-        }
-
-        small {
-            opacity: .5;
-        }
-
-        .download {
-            width: var( --thermal-fs );
-            display: inline-block;
-            margin-left: var( --thermal-gap );
-            color: var( --thermal-primary );
-            transition: color .2s ease-in-out;
-
-            &:hover {
-                color: var( --thermal-foreground );
-            }
-        }
     
+        thermal-btn {
+
+            width: 100%;
+
+            text-align: left;
+        
+        }
+
+
     `;
 
     protected render(): unknown {
@@ -97,32 +76,48 @@ export class FileDownloadButton extends FileConsumer {
                     </div>
                 </slot>
 
-                    <div slot="option">
-                        <thermal-button @click="${() => window.open(this.file!.thermalUrl)}">${t(T.downloadoriginalfile, { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}</thermal-button>
-                    </div>
+                <thermal-btn 
+                    slot="option"
+                    @click="${() => window.open(this.file!.thermalUrl)}"
+                    pre="LRC"
+                >
+                    ${t(T.downloadoriginalfile, { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}
+                </thermal-btn>
 
-                    <div slot="option">
-                        <thermal-button @click=${() => this.file!.export.downloadPng({
-                width: this.pngWidth,
-                fontSize: this.pngFs,
-                showAnalysis: this.pngAnalyses,
-                showThermalScale: this.pngExportScale,
-                showFileDate: this.pngFileDate,
-                showFileName: this.pngFileName
-            })}>${t(T.exportcurrentframeaspng)}</thermal-button>
-                    </div>
+                <thermal-btn 
+                    slot="option"
+                    @click=${() => this.file!.export.downloadPng({
+                        width: this.pngWidth,
+                        fontSize: this.pngFs,
+                        showAnalysis: this.pngAnalyses,
+                        showThermalScale: this.pngExportScale,
+                        showFileDate: this.pngFileDate,
+                        showFileName: this.pngFileName
+                    })}
+                    pre="PNG"
+                >
+                    ${t(T.exportcurrentframeaspng)}
+                </thermal-btn>
 
                     ${this.file.timeline.isSequence
-                ? html`<div slot="option">
-                            <thermal-button @click="${() => this.file?.recording.recordEntireFile()}">${t(T.convertentiresequencetovideo)}</thermal-button>
-                        </div>`
+                ? html`<thermal-btn 
+                        slot="option"
+                        @click="${() => this.file?.recording.recordEntireFile()}"
+                        pre="WEBM"
+                    >
+                        ${t(T.convertentiresequencetovideo)}
+                    </thermal-btn>`
                 : nothing
             }
 
                     ${this.hasGraphs === true
-                ? html`<div slot="option">
-                            <thermal-button @click=${() => this.file?.analysisData.downloadData()}>${t(T.csvofanalysisdata)}</thermal-button>
-                        </div>`
+                ? html`<thermal-btn 
+                            slot="option"
+                            @click=${() => this.file?.analysisData.downloadData()}
+                            pre="CSV"
+                    >
+                        ${t(T.csvofanalysisdata)}
+                    </thermal-btn>`
                 : nothing
             }
             

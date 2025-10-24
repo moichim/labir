@@ -109,7 +109,7 @@ export class FileAnalysisTable extends FileConsumer {
             text-align: left;
         }
 
-        th, td, button, thermal-button {
+        th, td, button, thermal-btn {
             font-size: var( --thermal-fs-sm );
             font-size: 14px;
         }
@@ -195,7 +195,6 @@ export class FileAnalysisTable extends FileConsumer {
 
             <table>
 
-
                 <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
                 <thead>
@@ -212,10 +211,6 @@ export class FileAnalysisTable extends FileConsumer {
                         >
                             ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing }
                             <span>${t(T.analysis)}</span>
-                            ${this.hasHighlightedData
-                ? html`<button @click=${() => { this.file?.analysisData.downloadData() }} title=${t(T.downloadgraphdataascsv)}>CSV</button>`
-                : nothing
-            }
                         </th>
                         <th>${t(T.avg)}</th>
                         <th>${t(T.min)}</th>

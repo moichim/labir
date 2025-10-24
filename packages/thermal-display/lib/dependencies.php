@@ -59,13 +59,14 @@ if (! function_exists("thermal_display_register_assets")) {
 
 
         wp_register_style(
-            "thermal_display_wp_styles",
+            "wp_thermal_display_core_styles",
             plugin_dir_url(__DIR__) . 'lib/styles.css?v=' . $version,
             array(),
             time()
         );
 
-        wp_enqueue_style("thermal_display_wp_styles");
+        wp_enqueue_style("wp_thermal_display_core_styles");
+        wp_enqueue_style($styles_name);
     }
 
     add_action('init', 'thermal_display_register_assets');
@@ -84,6 +85,9 @@ if (! function_exists("thermal_display_enqueue_frontend_assets")) {
     function thermal_display_enqueue_frontend_assets()
     {
 
+        /** The CSS gets enqueued on all pages because of the wall functionality. */
+        wp_enqueue_style($styles_name);
+
         /** 
          * Need to check whether the current content has blocks from this plugin. 
          * The embed library conflicts somehow with other Wordpress plugins such as Leaflet.
@@ -99,8 +103,6 @@ if (! function_exists("thermal_display_enqueue_frontend_assets")) {
         ) {
             global $styles_name;
             global $scripts_name_cjs;
-
-            wp_enqueue_style($styles_name);
 
             wp_enqueue_script($scripts_name_cjs);
 

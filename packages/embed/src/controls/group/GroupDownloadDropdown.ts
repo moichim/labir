@@ -8,7 +8,9 @@ import { customElement } from "lit/decorators.js";
 export class GroupDownloadDropdown extends GroupConsumer {
 
     static styles?: CSSResultGroup | undefined = css`
-    
+        thermal-btn {
+            text-align: left;
+        }
     `;
 
 
@@ -23,29 +25,41 @@ export class GroupDownloadDropdown extends GroupConsumer {
             
                 <span slot="invoker">${t(T.download)}</span>
             
-                <div slot="option">
-                    <thermal-button @click=${() => this.group.files.downloadAllFiles()}>${t(T.downloadoriginalfiles)}</thermal-button>
-                    <small>${t(T.downloadoriginalfileshint)}</small>
-                </div>
-            
-                <div slot="option">
-                    <thermal-button @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}>${t(T.pngofindividualimages)}</thermal-button>
-                    <small>${t(T.pngofindividualimageshint)}</small>
-                </div>
-            
-                <div slot="option">
-            
-                <thermal-button @click=${() => this.group.analysisSync.png.downloadPng({
-            // columns: this.columns
-        })}>${t(T.pngofentiregroup)}</thermal-button>
-                    <small>${t(T.pngofentiregrouphint)}</small>
-                </div>
-            
-            
-                <div slot="option">
-                    <thermal-button @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}>${t(T.csvofanalysisdata)}</thermal-button>
-                    <small>${t(T.csvofanalysisdatahint)}</small>
-                </div>
+                <thermal-btn 
+                    slot="option" 
+                    pre="LRC" 
+                    @click=${() => this.group.files.downloadAllFiles()}
+                    tooltip=${t(T.downloadoriginalfileshint)}
+                >
+                    ${t(T.downloadoriginalfiles)}
+                </thermal-btn>
+
+                <thermal-btn 
+                    slot="option" 
+                    pre="PNG" 
+                    @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}
+                    tooltip=${t(T.pngofindividualimageshint)}
+                >
+                    ${t(T.pngofindividualimages)}
+                </thermal-btn>
+
+                <thermal-btn 
+                    slot="option"
+                    pre="PNG" 
+                    @click=${() => this.group.analysisSync.png.downloadPng()}
+                    tooltip="${t(T.pngofentiregrouphint)}"
+                >
+                    ${t(T.pngofentiregroup)}
+                </thermal-btn>
+
+                <thermal-btn 
+                    slot="option" 
+                    pre="CSV" 
+                    @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}
+                    tooltip=${t(T.csvofanalysisdatahint)}
+                >
+                    ${t(T.csvofanalysisdata)}
+                </thermal-btn>
             
             </thermal-dropdown>
         

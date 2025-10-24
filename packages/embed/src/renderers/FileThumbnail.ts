@@ -89,7 +89,7 @@ export class FileThumbnail extends FileConsumer {
                     <file-opacity-icon></file-opacity-icon>
                     <thermal-btn size="sm" variant="background" @click=${() => this.ondetail?.(this.file!)}>${t(T.detail).toLocaleLowerCase()}</thermal-btn>
                     <file-range-propagator></file-range-propagator>
-                    <file-dropdown label="...">
+                    <file-dropdown>
                         <file-info-button>
                             <file-button slot="invoker" label=${t(T.info).toLowerCase()}></file-button>
                         </file-info-button>

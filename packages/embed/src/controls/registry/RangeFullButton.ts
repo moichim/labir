@@ -36,16 +36,14 @@ export class RegistrySetAutoRangeElement extends RegistryConsumer {
     }
 
     protected render(): unknown {
-        return html`
-            <thermal-button 
-                ${ref(this.buttonRef)} 
-                @click=${this.doAction} 
-                @mouseenter="${this.mouseenter}" 
-                @mouseleave="${this.mouseleave}"
-                @focus="${this.mouseenter}"
-                @blur="${this.mouseleave}"
-            >${t(T.fullrange)}</thermal-button>
-        `;
+        return html`<thermal-btn 
+    ${ref(this.buttonRef)} 
+    @click=${this.doAction} 
+    @mouseenter="${this.mouseenter}" 
+    @mouseleave="${this.mouseleave}"
+    @focus="${this.mouseenter}"
+    @blur="${this.mouseleave}"
+>${t(T.fullrange)}</thermal-btn>`;
     }
 
     

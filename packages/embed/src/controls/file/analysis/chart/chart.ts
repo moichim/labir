@@ -20,6 +20,7 @@ import {customElement, property} from 'lit/decorators.js';
 
 import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
 import { CallbacksManager } from '@labir/core';
+import { createRef, ref, Ref } from 'lit/directives/ref.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];
 
@@ -350,11 +351,17 @@ export class ThermalChart extends LitElement {
 
   private redrawTimeoutId: number|undefined = undefined;
 
+  protected chartRef: Ref<HTMLDivElement> = createRef();
+
   protected override render() {
     return html`
       <div id="styles"></div>
-      <div id="chartdiv"></div>
+      <div ${ref(this.chartRef)} id="chartdiv"></div>
     `;
+  }
+
+  public getRef() {
+    return this.chartRef.value;
   }
 
   public readonly onWrapper = new CallbacksManager<( wrapper: google.visualisation.ChartWrapper )=>void>();

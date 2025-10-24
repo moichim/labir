@@ -417,18 +417,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
                 `)}
 
-                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="bar-post" class="share">
-                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}"></thermal-btn>
-                    <div slot="content">
-                        <p>${t(T.embedhint)}</p>
-                        <h2>1. ${t(T.embedlibrary)} <thermal-button @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-button></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css&quot;&gt;</pre>
-                        <h2>2. ${t(T.embedcomponent)} <thermal-button @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-button></h2>
-                        <pre>${this.outerHTMLSnapshot}</pre>
-                    </div>
-                </thermal-dialog>` : nothing}
+                
 
 
                 
@@ -472,6 +461,20 @@ export class FileApp extends BaseAppWithPngExportContext {
 
 
                 ${this.layout === Layout.SIMPLE ? html`<aside slot="pre">${this.renderScale()}</aside>` : nothing}
+
+
+                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="bar-pre" class="share">
+                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}" style="align-self:stretch;"></thermal-btn>
+                    <div slot="content">
+                        <p>${t(T.embedhint)}</p>
+                        <h2>1. ${t(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-btn></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>2. ${t(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-btn></h2>
+                        <pre>${this.outerHTMLSnapshot}</pre>
+                    </div>
+                </thermal-dialog>` : nothing}
 
 
             </thermal-app>`;

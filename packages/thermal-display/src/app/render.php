@@ -42,6 +42,7 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			showshare="<?= $attributes["showshare"] ? "true": "false" ?>"
 			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
 			layout="<?= $attributes["variant"]; ?>"
+			advanced-palettes="<?= $attributes["advancedpalettes"] ? "true": "false" ?>"
 		>
 		<?php if ( isset($attributes["notations"]) ):
 			foreach ( $attributes["notations"] as $notation ):	

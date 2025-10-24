@@ -1,11 +1,4 @@
 // src/file/utils/palettes.ts
-var generateGrayscalePalette = () => {
-  const result = [];
-  for (let i = 0; i <= 255; i++) {
-    result.push(`rgb(${i},${i},${i})`);
-  }
-  return result;
-};
 var JET = [
   "rgb( 0, 0, 127 )",
   "rgb( 0, 0, 131)",
@@ -522,7 +515,85 @@ var IRON = [
   "rgb(255, 255, 247 )",
   "rgb(255, 255, 249 )"
 ];
-var GRAYSCALE = generateGrayscalePalette();
+var generatePaletteFromStops = (stops) => {
+  const palette = new Array(256);
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let startStop = sortedStops[0];
+    let endStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        startStop = sortedStops[j];
+        endStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const range = endStop.percent - startStop.percent;
+    const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
+    const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
+    const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
+    const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
+    palette[i] = `rgb(${r},${g},${b})`;
+  }
+  return palette;
+};
+var generateGradientFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
+  return `linear-gradient(90deg, ${gradientStops})`;
+};
+var WHITE_HOT_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var BLACK_HOT_STOPS = [
+  { percent: 0, color: [255, 255, 255] },
+  { percent: 100, color: [0, 0, 0] }
+];
+var LAVA_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 12, color: [30, 78, 149] },
+  { percent: 32, color: [33, 128, 127] },
+  { percent: 41, color: [102, 48, 108] },
+  { percent: 64, color: [233, 37, 37] },
+  { percent: 90, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var ARCTIC_STOPS = [
+  { percent: 0, color: [17, 13, 133] },
+  { percent: 15, color: [23, 50, 248] },
+  { percent: 30, color: [75, 245, 255] },
+  { percent: 55, color: [100, 91, 86] },
+  { percent: 70, color: [239, 86, 28] },
+  { percent: 87, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_STOPS = [
+  { percent: 0, color: [12, 11, 65] },
+  { percent: 23, color: [36, 108, 212] },
+  { percent: 42, color: [100, 255, 30] },
+  { percent: 55, color: [255, 255, 0] },
+  { percent: 80, color: [255, 0, 69] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_HC_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 13, color: [212, 0, 217] },
+  { percent: 25, color: [21, 28, 151] },
+  { percent: 37, color: [55, 230, 255] },
+  { percent: 50, color: [17, 75, 22] },
+  { percent: 62, color: [255, 255, 0] },
+  { percent: 80, color: [119, 0, 11] },
+  { percent: 90, color: [255, 40, 32] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
+var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
+var LAVA = generatePaletteFromStops(LAVA_STOPS);
+var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
+var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
+var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
 var ThermalPalettes = {
   iron: {
     pixels: IRON,
@@ -536,11 +607,41 @@ var ThermalPalettes = {
     gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
     slug: "jet"
   },
-  grayscale: {
-    pixels: GRAYSCALE,
-    name: "Grayscale",
-    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)",
-    slug: "grayscale"
+  white_hot: {
+    pixels: WHITE_HOT,
+    name: "White Hot",
+    gradient: generateGradientFromStops(WHITE_HOT_STOPS),
+    slug: "white_hot"
+  },
+  black_hot: {
+    pixels: BLACK_HOT,
+    name: "Black Hot",
+    gradient: generateGradientFromStops(BLACK_HOT_STOPS),
+    slug: "black_hot"
+  },
+  lava: {
+    pixels: LAVA,
+    name: "Lava",
+    gradient: generateGradientFromStops(LAVA_STOPS),
+    slug: "lava"
+  },
+  arctic: {
+    pixels: ARCTIC,
+    name: "Arctic",
+    gradient: generateGradientFromStops(ARCTIC_STOPS),
+    slug: "arctic"
+  },
+  rainbow: {
+    pixels: RAINBOW,
+    name: "Rainbow",
+    gradient: generateGradientFromStops(RAINBOW_STOPS),
+    slug: "rainbow"
+  },
+  rainbow_hc: {
+    pixels: RAINBOW_HC,
+    name: "Rainbow HC",
+    gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
+    slug: "rainbow_hc"
   }
 };
 
@@ -8403,7 +8504,7 @@ export {
   DropinElementListener,
   EditTool,
   EllipsisAnalysis,
-  GRAYSCALE,
+  WHITE_HOT as GRAYSCALE,
   IRON,
   InspectTool,
   Instance,

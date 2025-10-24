@@ -1,78 +1,43 @@
-import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labir/core";
-import { consume } from "@lit/context";
+import { AvailableThermalPalettes, ThermalPaletteType } from "@labir/core";
 import { t } from "i18next";
 import { css, html } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { customElement } from "lit/decorators.js";
 import { T } from "../../translations/Languages";
-
-
+import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 
 @customElement("registry-palette-buttons")
-export class PaletteButtonsElement extends RegistryConsumer {
-
-    @consume({ context: managerPaletteContext, subscribe: true })
-    @state()
-    value!: ManagerPaletteContext;
-
-    /** Handle user input events */
-    onSelect(palette: AvailableThermalPalettes) {
-        this.registry.palette.setPalette(palette);
-    }
+export class PaletteButtonsElement extends AbstractPaletteSwitch {
 
     static styles = css`
+:host {
+    display: flex;
+    width: content-width;
+    gap: 5px;
+}
 
-    .container {
-        display: flex;
-        width: content-width;
-        gap: 5px;
-    }
+.palette {
+    width: calc( var( --thermal-gap ) * 2 );
+    height: calc( var( --thermal-fs ) * .8 );
+    border-radius: var( --thermal-fs-small );
+}`;
 
-    .button {
-        margin: 0;
-        border: 0;
-        line-height: 0;
-        display: flex;
-        align-items: center;
-        gap: 3px;
-    }
-
-    .palette {
-        width: calc( var( --thermal-gap ) * 2 );
-        height: calc( var( --thermal-fs ) * .8 );
-        border-radius: var( --thermal-fs-small );
-    }
-
-    `;
-
-    protected paletteTemplate(
-        palette: ThermalPaletteType,
-        className?: string
+    private paletteTemplate(
+        palette: ThermalPaletteType
     ) {
-        return html`
-
-            <div class="button ${className}">
-                <span class="palette" style="background:${palette.gradient}"></span>
-                <span>${t(T.palettename, { name: palette.name })}</span>
-            </div>
-        
-        `;
+        return html`<span class="palette" style="background:${palette.gradient}"></span>`;
     }
 
     protected render(): unknown {
-        return html`
-            <div class="container">
-                ${Object.entries(ThermalPalettes).map(([key, palette]) => html`
-                    
-                    <thermal-button @click=${() => this.onSelect(key as AvailableThermalPalettes)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
-                        ${this.paletteTemplate(palette)}
-                    </thermal-button>
-                    
-                `)}
-            </div>
 
-        `;
+
+
+        return this.palettes.map((palette => html`<thermal-btn 
+    @click=${() => this.onSelect(palette.slug as AvailableThermalPalettes)} 
+    variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "default"}"
+    tooltip="${t(T.palettename, { name: palette.name })}"
+>
+    ${this.paletteTemplate(palette)}
+</thermal-btn>`));
     }
 
 }

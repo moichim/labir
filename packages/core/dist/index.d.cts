@@ -16,16 +16,20 @@ type ThermalPaletteType = {
 declare const JET: string[];
 /** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
 declare const IRON: string[];
-/** Pixels of the GRAYSCALE palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
-declare const GRAYSCALE: string[];
-/** Object mapping all available palettes. Keys of this object are extracted to the type `AvailableThermalPalettes` */
+declare const WHITE_HOT: string[];
+/** Object mapping all available palettes. */
 declare const ThermalPalettes: {
     iron: ThermalPaletteType;
     jet: ThermalPaletteType;
-    grayscale: ThermalPaletteType;
+    white_hot: ThermalPaletteType;
+    black_hot: ThermalPaletteType;
+    lava: ThermalPaletteType;
+    arctic: ThermalPaletteType;
+    rainbow: ThermalPaletteType;
+    rainbow_hc: ThermalPaletteType;
 };
 /** Keys of palettes available in `@labir/core`. */
-type AvailableThermalPalettes = "jet" | "iron" | "grayscale";
+type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
 
 type AcceptableDateInput = number | Date;
 declare abstract class TimeUtilsBase {
@@ -1269,7 +1273,12 @@ declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     get availablePalettes(): {
         iron: ThermalPaletteType;
         jet: ThermalPaletteType;
-        grayscale: ThermalPaletteType;
+        white_hot: ThermalPaletteType;
+        black_hot: ThermalPaletteType;
+        lava: ThermalPaletteType;
+        arctic: ThermalPaletteType;
+        rainbow: ThermalPaletteType;
+        rainbow_hc: ThermalPaletteType;
     };
     /** All the current palette properties should be accessed through this property. */
     get currentPalette(): ThermalPaletteType;
@@ -2519,4 +2528,4 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
     getLabelValue: (x: number, y: number, file: Instance) => string;
 }
 
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, Batch, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, Batch, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, WHITE_HOT as GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };

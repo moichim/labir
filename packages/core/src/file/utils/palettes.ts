@@ -10,20 +10,7 @@ export type ThermalPaletteType = {
     slug: AvailableThermalPalettes
 }
 
-/** Generate 256 color strings for the purpose of grayscale palette. */
-const generateGrayscalePalette = () => {
 
-    const result: string[] = [];
-
-    for (let i = 0; i <= 255; i++) {
-
-        result.push(`rgb(${i},${i},${i})`);
-
-    }
-
-    return result;
-
-};
 
 /** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
 export const JET = [
@@ -545,12 +532,122 @@ export const IRON = [
 "rgb(255, 255, 249 )",
 ];
 
+const generateAmberPalette = () => {
+    const result: string[] = [];
+    // Odstíny od světle žluté po tmavě oranžovou
+    for (let i = 0; i <= 255; i++) {
+        // Interpolace mezi žlutou (255, 236, 139) a oranžovou (255, 140, 0)
+        const r = 255;
+        const g = Math.round(236 - (96 * (i / 255))); // 236 -> 140
+        const b = Math.round(139 - (139 * (i / 255))); // 139 -> 0
+        result.push(`rgb(${r},${g},${b})`);
+    }
+    return result;
+};
+
 /** Pixels of the GRAYSCALE palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
-export const GRAYSCALE = generateGrayscalePalette();
+
+type ColorStop = { percent: number; color: [number, number, number] };
+
+const generatePaletteFromStops = (stops: ColorStop[]): string[] => {
+    const palette: string[] = new Array(256);
+    const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+
+    for (let i = 0; i < 256; i++) {
+        const percent = (i / 255) * 100;
+        let startStop: ColorStop = sortedStops[0];
+        let endStop: ColorStop = sortedStops[sortedStops.length - 1];
+
+        for (let j = 0; j < sortedStops.length - 1; j++) {
+            if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+                startStop = sortedStops[j];
+                endStop = sortedStops[j + 1];
+                break;
+            }
+        }
+
+        const range = endStop.percent - startStop.percent;
+        const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
+
+        const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
+        const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
+        const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
+
+        palette[i] = `rgb(${r},${g},${b})`;
+    }
+    return palette;
+};
+
+const generateGradientFromStops = (stops: ColorStop[]): string => {
+    const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+    const gradientStops = sortedStops.map(stop => `rgb(${stop.color.join(',')}) ${stop.percent}%`).join(', ');
+    return `linear-gradient(90deg, ${gradientStops})`;
+};
 
 
+// Definice barevných zastávek
+const WHITE_HOT_STOPS: ColorStop[] = [
+    { percent: 0, color: [0, 0, 0] },
+    { percent: 100, color: [255, 255, 255] }
+];
 
-/** Object mapping all available palettes. Keys of this object are extracted to the type `AvailableThermalPalettes` */
+const BLACK_HOT_STOPS: ColorStop[] = [
+    { percent: 0, color: [255, 255, 255] },
+    { percent: 100, color: [0, 0, 0] }
+];
+
+const LAVA_STOPS: ColorStop[] = [
+    { percent: 0, color: [0, 0, 0] },
+    { percent: 12, color: [30, 78, 149] },
+    { percent: 32, color: [33, 128, 127] },
+    { percent: 41, color: [102, 48, 108] },
+    { percent: 64, color: [233, 37, 37] },
+    { percent: 90, color: [255, 255, 0] },
+    { percent: 100, color: [255, 255, 255] }
+];
+
+const ARCTIC_STOPS: ColorStop[] = [
+    { percent: 0, color: [17, 13, 133] },
+    { percent: 15, color: [23, 50, 248] },
+    { percent: 30, color: [75, 245, 255] },
+    { percent: 55, color: [100, 91, 86] },
+    { percent: 70, color: [239, 86, 28] },
+    { percent: 87, color: [255, 255, 0] },
+    { percent: 100, color: [255, 255, 255] }
+];
+
+const RAINBOW_STOPS: ColorStop[] = [
+    { percent: 0, color: [12, 11, 65] },
+    { percent: 23, color: [36, 108, 212] },
+    { percent: 42, color: [100, 255, 30] },
+    { percent: 55, color: [255, 255, 0] },
+    { percent: 80, color: [255, 0, 69] },
+    { percent: 100, color: [255, 255, 255] }
+];
+
+const RAINBOW_HC_STOPS: ColorStop[] = [
+    { percent: 0, color: [0, 0, 0] },
+    { percent: 13, color: [212, 0, 217] },
+    { percent: 25, color: [21, 28, 151] },
+    { percent: 37, color: [55, 230, 255] },
+    { percent: 50, color: [17, 75, 22] },
+    { percent: 62, color: [255, 255, 0] },
+    { percent: 80, color: [119, 0, 11] },
+    { percent: 90, color: [255, 40, 32] },
+    { percent: 100, color: [255, 255, 255] }
+];
+
+
+// Generování palet
+export const WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
+export const BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
+export const LAVA = generatePaletteFromStops(LAVA_STOPS);
+export const ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
+export const RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
+export const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
+
+
+/** Object mapping all available palettes. */
 export const ThermalPalettes = {
     iron: {
         pixels: IRON,
@@ -564,13 +661,43 @@ export const ThermalPalettes = {
         gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
         slug: "jet"
     } as ThermalPaletteType,
-    grayscale: {
-        pixels: GRAYSCALE,
-        name: "Grayscale",
-        gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(255,255,255,1) 100%)",
-        slug: "grayscale"
+    white_hot: {
+        pixels: WHITE_HOT,
+        name: "White Hot",
+        gradient: generateGradientFromStops(WHITE_HOT_STOPS),
+        slug: "white_hot"
+    } as ThermalPaletteType,
+    black_hot: {
+        pixels: BLACK_HOT,
+        name: "Black Hot",
+        gradient: generateGradientFromStops(BLACK_HOT_STOPS),
+        slug: "black_hot"
+    } as ThermalPaletteType,
+    lava: {
+        pixels: LAVA,
+        name: "Lava",
+        gradient: generateGradientFromStops(LAVA_STOPS),
+        slug: "lava"
+    } as ThermalPaletteType,
+    arctic: {
+        pixels: ARCTIC,
+        name: "Arctic",
+        gradient: generateGradientFromStops(ARCTIC_STOPS),
+        slug: "arctic"
+    } as ThermalPaletteType,
+    rainbow: {
+        pixels: RAINBOW,
+        name: "Rainbow",
+        gradient: generateGradientFromStops(RAINBOW_STOPS),
+        slug: "rainbow"
+    } as ThermalPaletteType,
+    rainbow_hc: {
+        pixels: RAINBOW_HC,
+        name: "Rainbow HC",
+        gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
+        slug: "rainbow_hc"
     } as ThermalPaletteType
-}
+};
 
 /** Keys of palettes available in `@labir/core`. */
-export type AvailableThermalPalettes = "jet"|"iron"|"grayscale";
+export type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";

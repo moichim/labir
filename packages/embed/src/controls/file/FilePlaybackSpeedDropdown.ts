@@ -24,34 +24,8 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
 
     static styles = css`
 
-        table {
+        thermal-btn {
             width: 100%;
-        }
-
-        td {
-            padding: calc( var( --thermal-gap ) * .5 ) 0;
-        }
-
-        tr:not(:last-child) {
-            td {
-                border-bottom: 1px solid var( --thermal-slate-light );
-            }
-        }
-
-        small {
-            opacity: .5;
-        }
-
-        .download {
-            width: var( --thermal-fs );
-            display: inline-block;
-            margin-left: var( --thermal-gap );
-            color: var( --thermal-primary );
-            transition: color .2s ease-in-out;
-
-            &:hover {
-                color: var( --thermal-foreground );
-            }
         }
     
     `;
@@ -62,18 +36,17 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
             return nothing;
         }
 
-        return html`
-
-            <thermal-dropdown variant="foreground" interactive="${this.enabled}">
+        return html`<thermal-dropdown variant="foreground" interactive="${this.enabled}" .tooltip=${t(T.playbackspeed)}>
 
                 <div slot="invoker" class="button">
                 ${this.playbackSpeed}x
                 </div>
 
-                <div slot="option" style="font-size: calc( var(--thermal-fs-sm) * .9);">${t(T.playbackspeed)}</div>
-
-                    ${Object.entries( playbackSpeed ).map( ([key]) => {
-                        return html`<thermal-button slot="option" @click="${(event: MouseEvent) => {
+                ${Object.entries( playbackSpeed ).map( ([key]) => {
+                    return html`<thermal-btn 
+                        slot="option" 
+                        variant="${ this.playbackSpeed.toString() === key ? "background" : "default" }"
+                        @click="${(event: MouseEvent) => {
                         if ( this.file ) {
                             this.file.timeline.playbackSpeed = parseFloat(key) as keyof typeof playbackSpeed;
                         }
@@ -86,13 +59,13 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
                                 target.parentElement.setClose();
                             }
                         }
-                        }}">${key}x</thermal-button>`;
-                    } )}
+                        }}"
+                    >
+                        ${key}x
+                    </thermal-btn>`;
+                } )}
             
-            </thermal-dropdown>
-
-        
-        `
+            </thermal-dropdown>`
     }
 
 }

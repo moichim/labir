@@ -214,20 +214,6 @@ export class PngExportPanel extends BaseElement implements IWithPngExportContext
             ${this.renderSlider( "pngColumns", t(T.exportfilenames), this.pngExportColumns, "sloupců", 1, 5, 1, this.pngExportColumnsSetter.bind(this) )}
         ` )}
 
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-
-        
-        
         `;
     }
 

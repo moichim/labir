@@ -390,7 +390,7 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
             <file-provider thermal="${folder.preview.lrc}" batch="true" autoclear="true">
                 <file-canvas style="pointer-events: none;"></file-canvas>
                 <div class="open-button">
-                    <thermal-button variant="primary">${t(T.open)}</thermal-button>
+                    <thermal-btn variant="primary">${t(T.open)}</thermal-btn>
                 </div>
             </file-provider>
             
@@ -621,7 +621,7 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
     <span slot="invoker">${t(T[`by${this.by}`])}</span>
     ${bys.map(by => html`
     <div slot="option" @click=${() => this.by = by as ApiTimeGrouping}>
-        <thermal-button>${t(T[`by${by}` as keyof typeof T])}</thermal-button>
+        <thermal-btn>${t(T[`by${by}` as keyof typeof T])}</thermal-btn>
     </div>
     ` )}
 </thermal-dropdown>
@@ -647,16 +647,16 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
                     <span slot="invoker">${theOne.name}</span>
 
                     ${theOthers.map(f => html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                        <thermal-button>${f.name}</thermal-button>
+                        <thermal-btn>${f.name}</thermal-btn>
                     </div>`)}
 
                 </thermal-dropdown>`
-                : html`<thermal-button variant="background" interactive="false">${theOne.name}</thermal-button>`;
+                : html`<thermal-btn variant="background" interactive="false">${theOne.name}</thermal-btn>`;
 
             const add = theOthers.length > 0
-                ? theOthers.map((f, i) => html`<thermal-button @click=${() => this.actionToggleFolder(f.folder)}>
+                ? theOthers.map((f, i) => html`<thermal-btn @click=${() => this.actionToggleFolder(f.folder)}>
                     <span class="button-inline-icon">+</span> ${f.name}
-                </thermal-button> ${i !== theOthers.length - 1 ? ` ${t(T.or)} ` : nothing}`)
+                </thermal-btn> ${i !== theOthers.length - 1 ? ` ${t(T.or)} ` : nothing}`)
                 : html`<span>${t(T.remotefoldersbrowseraddfolderhint)}</span>`;
 
             content = html`${t(T.showingfolder)} ${dropdown}. 
@@ -685,23 +685,23 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
             content = html`
 
                 ${t(T.showingfolders)}
-                ${displayed.map((f, i) => html`<thermal-button 
+                ${displayed.map((f, i) => html`<thermal-btn
                     title="${t(T.remove)}" 
                     variant="background"
                     @click=${() => this.actionToggleFolder(f.folder)}
                 >
                     ${f.name} <span class="button-inline-icon">✕</span>
-                </thermal-button>${i !== displayed.length - 1 ? ` ${t(T.and)} ` : nothing}`)}
+                </thermal-btn>${i !== displayed.length - 1 ? ` ${t(T.and)} ` : nothing}`)}
                 ${t(T.groupped)} ${this.renderTimeToggle()}.
             
 
             ${available.length > 0
                     ? html`${t(T.youmayalsoadd)} ${available.map((f, i) => html`
-                    <thermal-button 
+                    <thermal-btn 
                         @click=${() => this.actionToggleFolder(f.folder)}
                     >
                         <span class="button-inline-icon">+</span> ${f.name}
-                    </thermal-button>
+                    </thermal-btn>
                     ${i !== available.length - 1 ? ` ${t(T.or)} ` : nothing}
                 `)}.`
                     : nothing
@@ -738,14 +738,14 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
             <file-provider thermal="${this.detail?.lrc}" visible="${this.detail?.png}" batch="true" autoclear="true">
                 <article class="detail">
                     <header class="detail-header">
-                        <thermal-button @click=${() => this.closeDetail()} variant="foreground">${t(T.close)}</thermal-button>
+                        <thermal-btn @click=${() => this.closeDetail()} variant="foreground">${t(T.close)}</thermal-btn>
 
-                        <thermal-button variant="background" interactive="false">
+                        <thermal-btn variant="background" interactive="false">
                             ${this.detail.folder}
-                        </thermal-button>
-                        <thermal-button variant="background" interactive="false">
+                        </thermal-btn>
+                        <thermal-btn variant="background" interactive="false">
                             <file-label></file-label>
-                        </thermal-button>
+                        </thermal-btn>
 
                         <file-info-button></file-info-button>
                         <file-download-dropdown></file-download-dropdown>
@@ -1035,7 +1035,7 @@ table.affected {
 
     margin-bottom: 1em;
 
-    thermal-button,
+    thermal-btn,
     thermal-dropdown {
         display: inline-block;
     }

@@ -14,28 +14,22 @@ export class SmoothSwitch extends ManagerConsumer {
 
     public static styles = css`
     
-        :host {}
+        :host {
+            display: block;
+        }
 
     `;
 
     protected render(): unknown {
-        return html`
+        return html`<thermal-btn
+    variant=${this.smooth ? "default" : "foreground"}
+    @click=${() => this.manager.smooth.setSmooth(false)}
+>${t(T.pixelated)}</thermal-btn>
 
-            <div>
-
-                <thermal-button
-                    variant=${this.smooth ? "default" : "foreground"}
-                    @click=${() => this.manager.smooth.setSmooth(false)}
-                >${t(T.pixelated)}</thermal-button>
-
-                <thermal-button
-                    variant=${this.smooth ? "foreground" : "default"}
-                    @click=${() => this.manager.smooth.setSmooth(true)}
-                >${t(T.smooth)}</thermal-button>
-
-            </div>
-
-        `;
+<thermal-btn
+    variant=${this.smooth ? "foreground" : "default"}
+    @click=${() => this.manager.smooth.setSmooth(true)}
+>${t(T.smooth)}</thermal-btn>`;
     }
 
 }

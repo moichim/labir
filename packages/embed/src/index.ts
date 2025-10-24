@@ -37,7 +37,6 @@ import "./controls/file/analysis/chart/chart";
 import "./ui/App";
 import "./ui/Bar";
 import "./ui/Btn";
-import "./ui/Button";
 import "./ui/Dialog";
 import "./ui/Dropdown";
 import "./ui/Field";

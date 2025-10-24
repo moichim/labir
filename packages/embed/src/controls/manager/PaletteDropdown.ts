@@ -4,40 +4,27 @@ import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
+import { t } from "i18next";
+import { T } from "../../translations/Languages";
+import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 
 
 
 @customElement("registry-palette-dropdown")
-export class PaletteDropdownElement extends RegistryConsumer {
-
-    @consume({context: managerPaletteContext, subscribe: true})
-    value!: ManagerPaletteContext;
-
-    /** Handle user input events */
-    onSelect( palette: AvailableThermalPalettes ) {
-        this.registry.palette.setPalette( palette );
-    }
+export class PaletteDropdownElement extends AbstractPaletteSwitch {
 
     static styles = css`
-
-    .container {
-        display: flex;
-        width: content-width;
-        gap: 5px;
-    }
-
-    .button {
-        margin: 0;
-        border: 0;
-        line-height: 0;
-    }
 
     .palette {
         display: block;
         width: calc( var( --thermal-gap ) * 2 );
         height: calc( var( --thermal-fs ) * .8 );
-        // height: .9em;
         border-radius: var( --thermal-fs-small );
+    }
+
+    thermal-btn {
+        width: 100%;
+        justify-content: flex-start;
     }
 
     `;
@@ -46,30 +33,19 @@ export class PaletteDropdownElement extends RegistryConsumer {
         palette: ThermalPaletteType,
         className?: string
     ) {
-        return html`
-
-            <div class="button ${className}">
-                <span class="palette" style="background:${palette.gradient}"></span>
-                <!-- <span>${palette.name}</span> -->
-            </div>
-        
-        `;
+        return html`<span class="palette" style="background:${palette.gradient}"></span><span>${palette.name}</span>`;
     }
 
     protected render(): unknown {
         return html`
 
-            <thermal-dropdown variant="foreground">
+            <thermal-dropdown variant="foreground" .tooltip=${t(T.colourpalette)}>
+                    <span slot="invoker" class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
 
-                <div slot="invoker" class="button">
-                    <span class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
-                    <!-- <span>${this.manager.palette.currentPalette.name}</span> -->
-                </div>
-
-                ${Object.entries( ThermalPalettes ).map( ([key,palette]) => html`
-                    <div slot="option"><thermal-button @click=${() => this.onSelect( key as AvailableThermalPalettes )} variant="${palette.name === this.manager.palette.currentPalette.name  ? "background" : "slate"}">
-                        ${this.paletteTemplate( palette )}
-                    </thermal-button></div>
+                ${this.palettes.map( palette => html`
+                    <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug as AvailableThermalPalettes)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
+                        ${this.paletteTemplate(palette)}
+                    </thermal-btn></div>
                 `)}
             
             </thermal-dropdown>

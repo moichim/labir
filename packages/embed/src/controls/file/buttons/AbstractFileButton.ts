@@ -40,46 +40,29 @@ export abstract class AbstractFileButton extends FileConsumer {
     public onFailure(): void { }
 
     static styles?: CSSResultGroup | undefined = css`
-        slot {
-            display: content;
-        }
-
-        button.default {
-            font-size: calc( var(--thermal-fs) * .8 );
-            color: var(--thermal-foreground);
-            border-color: var(--thermal-slate);
-            border-style: solid;
-            border-width: 1px;
-            border-radius: var( --thermal-radius );
-            background-color: var(--thermal-slate-light);
-            white-space: nowrap;
-            &:hover {
-                cursor: pointer;
-                background: var(--thermal-background);
-            }
-        }
-
-    `;
+slot {
+    display: content;
+}`;
 
     protected render(): unknown {
         return html`<slot 
-                @click=${this.action} 
-                @mouseenter=${this.enter}
-                @focus=${this.enter}
-                @mouseleave=${this.leave}
-                @blur=${this.leave}
-                ${ref(this.ref)}
-            >
-                <thermal-btn 
-                    variant=${this.variant || "default"}
-                    size=${this.size || "sm"}
-                    plain="${this.plain || false}"
-                    class="default"
-                    tooltip=${this.tooltip}
-                    icon=${ifDefined(this.icon)}
-                    iconStyle=${ifDefined(this.iconStyle)}
-                >${this.getDefaultLabel()}</thermal-btn>
-            </slot>`;
+    @click=${this.action} 
+    @mouseenter=${this.enter}
+    @focus=${this.enter}
+    @mouseleave=${this.leave}
+    @blur=${this.leave}
+    ${ref(this.ref)}
+>
+    <thermal-btn 
+        variant=${this.variant || "default"}
+        size=${this.size || "sm"}
+        plain="${this.plain || false}"
+        class="default"
+        tooltip=${this.tooltip}
+        icon=${ifDefined(this.icon)}
+        iconStyle=${ifDefined(this.iconStyle)}
+    >${this.getDefaultLabel()}</thermal-btn>
+</slot>`;
     }
 
 }

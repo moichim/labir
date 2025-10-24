@@ -29,7 +29,7 @@ export class FileShareButton extends FileConsumer {
 
         return html`
             <thermal-dialog label="Embed this file">
-                <thermal-button slot="invoker">Embed</thermal-button>
+                <thermal-btn slot="invoker">Embed</thermal-btn>
 
                 
                 <div slot="content">

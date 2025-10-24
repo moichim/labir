@@ -49,6 +49,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"advancedpalettes": {
+			"type": "boolean",
+			"default": false
+		},
 		"showhistogram": {
 			"type": "boolean",
 			"default": true

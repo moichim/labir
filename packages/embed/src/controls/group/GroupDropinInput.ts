@@ -165,11 +165,11 @@ export class GroupDropin extends AbstractGroupDropin {
     return html`
 
 
-            <thermal-button @click="${() => {
+            <thermal-btn @click="${() => {
         if (this.listener) {
           this.listener.openFileDialog(false);
         }
-      }}"><slot>${title}</slot></thermal-button>
+      }}"><slot>${title}</slot></thermal-btn>
 
             <div class="container">
             

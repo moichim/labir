@@ -3,7 +3,7 @@
 // Data types
 
 // Palette
-import { GRAYSCALE, IRON, JET, ThermalPalettes, ThermalPaletteType, AvailableThermalPalettes } from "./file/utils/palettes";
+import { WHITE_HOT, IRON, JET, ThermalPalettes, ThermalPaletteType, AvailableThermalPalettes } from "./file/utils/palettes";
 
 // Utilities - time
 import { TimeFormat } from "./utils/time/formatting";
@@ -64,7 +64,7 @@ export {
     // General utilities
     getPool,
     // Palette
-    GRAYSCALE, InspectTool,
+    WHITE_HOT as GRAYSCALE, InspectTool,
     // File
     Instance, IRON,
     JET,

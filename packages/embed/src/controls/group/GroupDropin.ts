@@ -181,7 +181,7 @@ export class GroupDropin extends AbstractGroupDropin {
 
                     <div class="dropin-content">
                         <div>${t(T.dragorselectfile)}</div>
-                        <thermal-button variant="foreground">${t(T.selectfile)}</thermal-button>
+                        <thermal-btn variant="foreground">${t(T.selectfile)}</thermal-btn>
                     </div>
 
                     <div class="dropin-uploading">

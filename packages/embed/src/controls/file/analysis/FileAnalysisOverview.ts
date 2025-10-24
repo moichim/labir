@@ -110,7 +110,7 @@ export class FileAnalysisTable extends FileConsumer {
             text-align: left;
         }
 
-        th, td, button, thermal-button {
+        th, td, button, thermal-btn {
             font-size: var( --thermal-fs-sm );
             font-size: 14px;
         }
@@ -231,34 +231,6 @@ export class FileAnalysisTable extends FileConsumer {
                 <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
                 <thead>
-
-                    <!--
-
-                    <tr>
-                        <th
-                            class="all ${this.allSelected ? "yes" : "no"} ${interactiveanalysis ? "interactive" : ""}"
-                            @click=${() => {
-                if (this.allSelected)
-                    this.file?.analysis.layers.deselectAll();
-                else
-                    this.file?.analysis.layers.selectAll();
-            }}
-                        >
-                            ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing}
-                            <span>${t(T.analysis)}</span>
-                            ${this.hasHighlightedData
-                ? html`<button @click=${() => { this.file?.analysisData.downloadData() }} title=${t(T.downloadgraphdataascsv)}>CSV</button>`
-                : nothing
-            }
-                        </th>
-                        <th>${t(T.avg)}</th>
-                        <th>${t(T.min)}</th>
-                        <th>${t(T.max)}</th>
-                        <th>${t(T.size)}</th>
-                        ${interactiveanalysis === true ? html`<th></th>` : nothing}
-                    </tr>
-
-                    -->
 
                     ${this.renderHeader()}
                 

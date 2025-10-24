@@ -38,6 +38,9 @@ export class ThermalDropdown extends BaseElement {
     @property({ type: String })
     public plain?: boolean;
 
+    @property({type: String, attribute: true})
+    public tooltip?: string;
+
     setOpen() {
         this.isOpen = "open";
     }
@@ -223,6 +226,7 @@ export class ThermalDropdown extends BaseElement {
                     size=${ifDefined(this.size)}
                     ?plain=${this.plain}
                     interactive="${this.interactive === "on" ? "true" : "false"}"
+                    tooltip="${this.tooltip !== undefined ? this.tooltip : ""}"
                     part="invoker"
                 >
                     <div class="dropdown-invoker-wrapper">

@@ -23,15 +23,15 @@ export class SmoothSwitch extends ManagerConsumer {
 
             <div>
 
-                <thermal-button
+                <thermal-btn
                     variant=${this.smooth ? "default" : "foreground"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(false)}
-                >${t(T.straightlines)}</thermal-button>
+                >${t(T.straightlines)}</thermal-btn>
 
-                <thermal-button
+                <thermal-btn
                     variant=${this.smooth ? "foreground" : "default"}
                     @click=${() => this.manager.graphSmooth.setGraphSmooth(true)}
-                >${t(T.smoothlines)}</thermal-button>
+                >${t(T.smoothlines)}</thermal-btn>
 
             </div>
         `;

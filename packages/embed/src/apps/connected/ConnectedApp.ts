@@ -118,7 +118,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
             <thermal-app 
                 label="${this.label}"
                 showfullscreen="true"
-            >          
+            >
 
                 <share-dialog 
                     slot="close"
