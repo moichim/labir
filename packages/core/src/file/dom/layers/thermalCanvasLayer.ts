@@ -29,7 +29,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
     protected container: HTMLDivElement;
     public readonly canvas: HTMLCanvasElement;
-    protected context: CanvasRenderingContext2D;
 
     // protected offscreen: OffscreenCanvas;
 
@@ -70,12 +69,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
 
-        // this.offscreen = this.canvas.transferControlToOffscreen();
-
-        this.context = this.canvas.getContext("2d")!;
-
-        this.context.imageSmoothingEnabled = false;
-
         this.container.appendChild(this.canvas);
 
         this.opacity = this.instance.group.registry.opacity.value;
@@ -102,8 +95,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
         this.renderCount += 1;
 
-        const paletteColors = this.getPalette();
-
         try {
 
             const analysis: AnalysisExtractDefinition[] = this.instance.analysis.value.map( a => {
@@ -119,20 +110,8 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
             // Transfer it to thread
             const image = await this.pool.exec(async (
-                from: number,
-                to: number,
-                width: number,
-                height: number,
-                pixels: number[],
-                palette: string[],
                 analysis: AnalysisExtractDefinition[]
             ) => {
-
-                const canvas = new OffscreenCanvas(width, height);
-
-                const context = canvas.getContext("2d")!;
-
-                const displayRange = to - from;
 
 
                 const buffer = analysis.map( a => {
@@ -153,109 +132,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
                     }
                 } );
 
-
-                for (let x = 0; x < width; x++) {
-
-                    for (let y = 0; y < height; y++) {
-
-
-                        /**
-                         * Render the HTML to the offcanvas
-                         */
-
-                        const index = x + (y * width);
-
-                        // Clamp temperature to the displayedRange
-                        const rawTemperature = pixels[index];
-                        let temperature = rawTemperature;
-                        if (temperature < from)
-                            temperature = from;
-                        if (temperature > to)
-                            temperature = to;
-
-                        const temperatureRelative = temperature - from;
-                        const temperatureAspect = temperatureRelative / displayRange;
-                        const colorIndex = Math.round(255 * temperatureAspect);
-
-                        const color = palette[colorIndex];
-
-                        context!.fillStyle = color;
-                        context!.fillRect(x, y, 1, 1);
-
-
-                        const isWithin = (x: number, y: number, la: number, ta: number, wa: number, ha: number): boolean => {
-                            const centerX = la + wa / 2;
-                            const centerY = ta + ha / 2;
-                            const normalizedX = (x - centerX) / (wa / 2);
-                            const normalizedY = (y - centerY) / (ha / 2);
-                            return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-                        }
-
-                        /**
-                         * Process the analysis
-                         */
-                        analysis.forEach( (a,index) => {
-
-                            const bufferValue = buffer[index];
-
-                            const [ type, id, top, left, w, h ] = a;
-
-                            id;
-
-                            // Point
-                            if ( type === "point" ) {
-                                if ( x === left && y === top ) {
-                                    bufferValue.avg.value = rawTemperature;
-                                }
-                            }
-
-                            // Rectangle
-                            else if ( type === "rectangle" ) {
-
-                                if ( 
-                                    x >= left 
-                                    && x < left + w 
-                                    && y >= top
-                                    && y < top + h
-                                ) {
-
-                                    if ( rawTemperature < bufferValue.min.value ) {
-                                        bufferValue.min.value = rawTemperature;
-                                    }
-                                    if ( rawTemperature > bufferValue.max.value ) {
-                                        bufferValue.max.value = rawTemperature;
-                                    }
-                                    bufferValue.avg.count = bufferValue.avg.count + 1;
-                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-
-                                }
-
-                            }
-
-                            // Ellipsis
-                            else if ( type === "ellipsis" ) {
-
-                                if ( isWithin(x,y,left,top, width, height ) ) {
-                                    if ( rawTemperature < bufferValue.min.value ) {
-                                        bufferValue.min.value = rawTemperature;
-                                    }
-                                    if ( rawTemperature > bufferValue.max.value ) {
-                                        bufferValue.max.value = rawTemperature;
-                                    }
-
-                                    bufferValue.avg.count = bufferValue.avg.count + 1;
-                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-                                }
-
-                            }
-
-                        } );
-
-
-                    }
-
-                }
-
                 const stats = buffer.map( a => {
                     return {
                         id: a.id,
@@ -267,22 +143,11 @@ export class ThermalCanvasLayer extends AbstractLayer {
                     }
                 } );
 
-                const imageData = context.getImageData(0, 0, width, height);
-
-                const result = await createImageBitmap(imageData);
-
                 return {
-                    image: result,
                     stats
                 };
 
             }, [
-                this.from,
-                this.to,
-                this.width,
-                this.height,
-                this.pixels,
-                paletteColors,
                 analysis
             ], {});
 
@@ -290,9 +155,6 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 const analysis = this.instance.analysis.layers.get( a.id );
                 analysis?.dangerouslySetValues(a.avg, a.min, a.max);
             } );
-
-            // Place it in context
-            this.context.drawImage(image.image, 0, 0);
 
             return true;
 

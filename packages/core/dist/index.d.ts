@@ -11,23 +11,16 @@ type ThermalPaletteType = {
     gradient: string;
     /** The CSS slug */
     slug: AvailableThermalPalettes;
+    /** Float array containing color values for WebGL2 texture */
+    texturePixels: Float32Array;
 };
-/** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
-declare const JET: string[];
-/** Pixels of the IRON palette. Array of 256 strings containing CSS color notation usable in `HTMLCanvasElement`. */
 declare const IRON: string[];
+declare const JET: string[];
 declare const WHITE_HOT: string[];
-/** Object mapping all available palettes. */
 declare const ThermalPalettes: {
-    iron: ThermalPaletteType;
-    jet: ThermalPaletteType;
-    white_hot: ThermalPaletteType;
-    black_hot: ThermalPaletteType;
-    lava: ThermalPaletteType;
-    arctic: ThermalPaletteType;
-    rainbow: ThermalPaletteType;
-    rainbow_hc: ThermalPaletteType;
+    [k: string]: ThermalPaletteType;
 };
+/** Object mapping all available palettes. */
 /** Keys of palettes available in `@labir/core`. */
 type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
 
@@ -1271,14 +1264,7 @@ interface IWithPalette extends IBaseProperty {
 }
 declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     get availablePalettes(): {
-        iron: ThermalPaletteType;
-        jet: ThermalPaletteType;
-        white_hot: ThermalPaletteType;
-        black_hot: ThermalPaletteType;
-        lava: ThermalPaletteType;
-        arctic: ThermalPaletteType;
-        rainbow: ThermalPaletteType;
-        rainbow_hc: ThermalPaletteType;
+        [k: string]: ThermalPaletteType;
     };
     /** All the current palette properties should be accessed through this property. */
     get currentPalette(): ThermalPaletteType;
@@ -2084,7 +2070,6 @@ declare class ThermalCanvasLayer extends AbstractLayer {
     protected get pool(): Pool;
     protected container: HTMLDivElement;
     readonly canvas: HTMLCanvasElement;
-    protected context: CanvasRenderingContext2D;
     protected get width(): number;
     protected get height(): number;
     protected get pixels(): number[];
@@ -2217,6 +2202,37 @@ interface IFileInstance extends IThermalInstance, BaseStructureObject {
     duration: number;
 }
 
+declare abstract class AbstractRenderer {
+    protected readonly file: AbstractFile;
+    /** Canvas musí být vytvořený před inicializací rendereru */
+    protected readonly canvas: HTMLCanvasElement;
+    private _initialised;
+    get initialised(): boolean;
+    protected get registry(): ThermalRegistry;
+    /** Alias vedoucí na šířku syrového termogramu */
+    protected get width(): number;
+    /** Alias vedoucí na výšku syrového termogramu */
+    protected get height(): number;
+    /** Alias vedoucí na současné FROM teplotního rozsahu */
+    protected get from(): number;
+    /** Alias vedoucí na současné TO teplotního rozsahu */
+    protected get to(): number;
+    protected get palette(): string[];
+    constructor(file: AbstractFile, 
+    /** Canvas musí být vytvořený před inicializací rendereru */
+    canvas: HTMLCanvasElement);
+    /** Inicializace rendereru - vytvoření patřičných listenerů či shaderů atd... */
+    init(): Promise<void>;
+    /** Vlastní inicializace je asynchronní a vrací boolean */
+    protected abstract onInit(): Promise<boolean>;
+    /** Vykreslení probíhá pouze pokud je rendererr inicializován */
+    render(): Promise<void>;
+    /** Vykonání vlastního renderu do canvasu */
+    protected abstract executeRender(): Promise<void>;
+    /** Funkce volaná při zničení canvasu */
+    abstract destroy(): Promise<void>;
+}
+
 /** Displayable object for every file type.
  *
  * This class takes care of the display fundamentals.
@@ -2267,6 +2283,8 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     get frameCount(): number;
     protected _dom?: InstanceDOM;
     get dom(): InstanceDOM | undefined;
+    /** Renderer pro vykreslování do canvasu */
+    protected renderer?: AbstractRenderer;
     get hover(): boolean;
     /** @deprecated use DOM object instead */
     get root(): HTMLDivElement | null;
@@ -2310,9 +2328,10 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     };
     abstract hydrateListener(dom: InstanceDOM): void;
     abstract dehydrateListener(dom: InstanceDOM): void;
+    private rendererFactory;
     mountToDom(container: HTMLDivElement): void;
     unmountFromDom(): void;
-    draw(): Promise<boolean | undefined>;
+    draw(): Promise<void>;
     recievePalette(palette: string | number): void;
     /** @deprecated use DOM object instead */
     destroySelfAndBelow(): void;

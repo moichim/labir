@@ -106,7 +106,7 @@ array.map( file => {
             const container = document.createElement( "div" );
             document.body.appendChild( container );
             result.mountToDom( container );
-            result.draw();
+            // result.draw();
 
             const btn = document.createElement( "button" );
 

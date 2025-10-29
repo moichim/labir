@@ -13,6 +13,9 @@ import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
 import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 import { VisibleLayer } from "./dom/layers/VisibleLayer";
+import { AbstractRenderer } from "./render/AbstractRenderer";
+import { CpuRenderer } from "./render/CpuRenderer";
+import { GlRenderer } from "./render/GlRenderer";
 
 /** Displayable object for every file type.
  * 
@@ -77,6 +80,10 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     protected _dom?: InstanceDOM;
     public get dom() { return this._dom; }
+
+
+    /** Renderer pro vykreslování do canvasu */
+    protected renderer?: AbstractRenderer;
 
 
     public get hover() { 
@@ -188,6 +195,17 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         dom: InstanceDOM
     ): void;
 
+    private rendererFactory(
+        canvas: HTMLCanvasElement
+    ): AbstractRenderer {
+        const gl = canvas.getContext('webgl2');
+        if (gl) {
+            return new GlRenderer(this, canvas);
+        } else {
+            return new CpuRenderer(this, canvas);
+        }
+    }
+
 
 
     public mountToDom(container: HTMLDivElement): void {
@@ -202,11 +220,19 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this._dom = new InstanceDOM(this, container);
         
         this._dom.build();
+        
+
+
+        this.renderer = this.rendererFactory( this._dom.canvasLayer!.canvas );
+        this.renderer.init();
+
         this._dom.hydrate();
 
     }
 
     public unmountFromDom(): void {
+
+        this.renderer?.destroy();
 
         if ( this.dom ) {
             this.dom.destroy();
@@ -218,9 +244,15 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public async draw() {
+
+        
     
         if ( this.dom && this.dom.canvasLayer) {
-            return await this.dom.canvasLayer.draw();
+
+            await this.dom.canvasLayer.draw();
+
+            return await this.renderer?.render();
+
         }
     }
 

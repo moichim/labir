@@ -1,520 +1,4 @@
 // src/file/utils/palettes.ts
-var JET = [
-  "rgb( 0, 0, 127 )",
-  "rgb( 0, 0, 131)",
-  "rgb( 0, 0, 135)",
-  "rgb( 0, 0, 139)",
-  "rgb( 0, 0, 143)",
-  "rgb( 0, 0, 147)",
-  "rgb( 0, 0, 151)",
-  "rgb( 0, 0, 155)",
-  "rgb( 0, 0, 159)",
-  "rgb( 0, 0, 163)",
-  "rgb( 0, 0, 167)",
-  "rgb( 0, 0, 171)",
-  "rgb( 0, 0, 175)",
-  "rgb( 0, 0, 179)",
-  "rgb( 0, 0, 183)",
-  "rgb( 0, 0, 187)",
-  "rgb( 0, 0, 191)",
-  "rgb( 0, 0, 195)",
-  "rgb( 0, 0, 199)",
-  "rgb( 0, 0, 203)",
-  "rgb( 0, 0, 207)",
-  "rgb( 0, 0, 211)",
-  "rgb( 0, 0, 215)",
-  "rgb( 0, 0, 219)",
-  "rgb( 0, 0, 223)",
-  "rgb( 0, 0, 227)",
-  "rgb( 0, 0, 231)",
-  "rgb( 0, 0, 235)",
-  "rgb( 0, 0, 239)",
-  "rgb( 0, 0, 243)",
-  "rgb( 0, 0, 247)",
-  "rgb( 0, 0, 251)",
-  "rgb( 0, 0, 255)",
-  "rgb( 0, 4, 255)",
-  "rgb( 0, 8, 255)",
-  "rgb( 0, 12, 255)",
-  "rgb( 0, 16, 255)",
-  "rgb( 0, 20, 255)",
-  "rgb( 0, 24, 255)",
-  "rgb( 0, 28, 255)",
-  "rgb( 0, 32, 255)",
-  "rgb( 0, 36, 255)",
-  "rgb( 0, 40, 255)",
-  "rgb( 0, 44, 255)",
-  "rgb( 0, 48, 255)",
-  "rgb( 0, 52, 255)",
-  "rgb( 0, 56, 255)",
-  "rgb( 0, 60, 255)",
-  "rgb( 0, 64, 255)",
-  "rgb( 0, 68, 255)",
-  "rgb( 0, 72, 255)",
-  "rgb( 0, 76, 255)",
-  "rgb( 0, 80, 255)",
-  "rgb( 0, 84, 255)",
-  "rgb( 0, 88, 255)",
-  "rgb( 0, 92, 255)",
-  "rgb( 0, 96, 255)",
-  "rgb( 0, 100, 255)",
-  "rgb( 0, 104, 255)",
-  "rgb( 0, 108, 255)",
-  "rgb( 0, 112, 255)",
-  "rgb( 0, 116, 255)",
-  "rgb( 0, 120, 255)",
-  "rgb( 0, 124, 255)",
-  "rgb( 0, 128, 255)",
-  "rgb( 0, 132, 255)",
-  "rgb( 0, 136, 255)",
-  "rgb( 0, 140, 255)",
-  "rgb( 0, 144, 255)",
-  "rgb( 0, 148, 255)",
-  "rgb( 0, 152, 255)",
-  "rgb( 0, 156, 255)",
-  "rgb( 0, 160, 255)",
-  "rgb( 0, 164, 255)",
-  "rgb( 0, 168, 255)",
-  "rgb( 0, 172, 255)",
-  "rgb( 0, 176, 255)",
-  "rgb( 0, 180, 255)",
-  "rgb( 0, 184, 255)",
-  "rgb( 0, 188, 255)",
-  "rgb( 0, 192, 255)",
-  "rgb( 0, 196, 255)",
-  "rgb( 0, 200, 255)",
-  "rgb( 0, 204, 255)",
-  "rgb( 0, 208, 255)",
-  "rgb( 0, 212, 255)",
-  "rgb( 0, 216, 255)",
-  "rgb( 0, 220, 255)",
-  "rgb( 0, 224, 255)",
-  "rgb( 0, 228, 255)",
-  "rgb( 0, 232, 255)",
-  "rgb( 0, 236, 255)",
-  "rgb( 0, 240, 255)",
-  "rgb( 0, 244, 255)",
-  "rgb( 0, 248, 255)",
-  "rgb( 0, 252, 255)",
-  "rgb( 1, 255, 253)",
-  "rgb( 5, 255, 249)",
-  "rgb( 9, 255, 245)",
-  "rgb( 13, 255, 241)",
-  "rgb( 17, 255, 237)",
-  "rgb( 21, 255, 233)",
-  "rgb( 25, 255, 229)",
-  "rgb( 29, 255, 225)",
-  "rgb( 33, 255, 221)",
-  "rgb( 37, 255, 217)",
-  "rgb( 41, 255, 213)",
-  "rgb( 45, 255, 209)",
-  "rgb( 49, 255, 205)",
-  "rgb( 53, 255, 201)",
-  "rgb( 57, 255, 197)",
-  "rgb( 61, 255, 193)",
-  "rgb( 65, 255, 189)",
-  "rgb( 69, 255, 185)",
-  "rgb( 73, 255, 181)",
-  "rgb( 77, 255, 177)",
-  "rgb( 81, 255, 173)",
-  "rgb( 85, 255, 169)",
-  "rgb( 89, 255, 165)",
-  "rgb( 93, 255, 161)",
-  "rgb( 97, 255, 157)",
-  "rgb( 101, 255, 153)",
-  "rgb( 105, 255, 149)",
-  "rgb( 109, 255, 145)",
-  "rgb( 113, 255, 141)",
-  "rgb( 117, 255, 137)",
-  "rgb( 121, 255, 133)",
-  "rgb( 125, 255, 129)",
-  "rgb( 129, 255, 125)",
-  "rgb( 133, 255, 121)",
-  "rgb( 137, 255, 117)",
-  "rgb( 141, 255, 113)",
-  "rgb( 145, 255, 109)",
-  "rgb( 149, 255, 105)",
-  "rgb( 153, 255, 101)",
-  "rgb( 157, 255, 97)",
-  "rgb( 161, 255, 93)",
-  "rgb( 165, 255, 89)",
-  "rgb( 169, 255, 85)",
-  "rgb( 173, 255, 81)",
-  "rgb( 177, 255, 77)",
-  "rgb( 181, 255, 73)",
-  "rgb( 185, 255, 69)",
-  "rgb( 189, 255, 65)",
-  "rgb( 193, 255, 61)",
-  "rgb( 197, 255, 57)",
-  "rgb( 201, 255, 53)",
-  "rgb( 205, 255, 49)",
-  "rgb( 209, 255, 45)",
-  "rgb( 213, 255, 41)",
-  "rgb( 217, 255, 37)",
-  "rgb( 221, 255, 33)",
-  "rgb( 225, 255, 29)",
-  "rgb( 229, 255, 25)",
-  "rgb( 233, 255, 21)",
-  "rgb( 237, 255, 17)",
-  "rgb( 241, 255, 13)",
-  "rgb( 245, 255, 9)",
-  "rgb( 249, 255, 5)",
-  "rgb( 253, 255, 1)",
-  "rgb( 255, 252, 1)",
-  "rgb( 255, 248, 1)",
-  "rgb( 255, 244, 1)",
-  "rgb( 255, 240, 1)",
-  "rgb( 255, 236, 1)",
-  "rgb( 255, 232, 1)",
-  "rgb( 255, 228, 1)",
-  "rgb( 255, 224, 1)",
-  "rgb( 255, 220, 1)",
-  "rgb( 255, 216, 1)",
-  "rgb( 255, 212, 1)",
-  "rgb( 255, 208, 1)",
-  "rgb( 255, 204, 1)",
-  "rgb( 255, 200, 1)",
-  "rgb( 255, 196, 1)",
-  "rgb( 255, 192, 1)",
-  "rgb( 255, 188, 1)",
-  "rgb( 255, 184, 1)",
-  "rgb( 255, 180, 1)",
-  "rgb( 255, 176, 1)",
-  "rgb( 255, 172, 1)",
-  "rgb( 255, 168, 1)",
-  "rgb( 255, 164, 1)",
-  "rgb( 255, 160, 1)",
-  "rgb( 255, 156, 1)",
-  "rgb( 255, 152, 1)",
-  "rgb( 255, 148, 1)",
-  "rgb( 255, 144, 1)",
-  "rgb( 255, 140, 1)",
-  "rgb( 255, 136, 1)",
-  "rgb( 255, 132, 1)",
-  "rgb( 255, 128, 1)",
-  "rgb( 255, 124, 1)",
-  "rgb( 255, 120, 1)",
-  "rgb( 255, 116, 1)",
-  "rgb( 255, 112, 1)",
-  "rgb( 255, 108, 1)",
-  "rgb( 255, 104, 1)",
-  "rgb( 255, 100, 1)",
-  "rgb( 255, 96, 1)",
-  "rgb( 255, 92, 1)",
-  "rgb( 255, 88, 1)",
-  "rgb( 255, 84, 1)",
-  "rgb( 255, 80, 1)",
-  "rgb( 255, 76, 1)",
-  "rgb( 255, 72, 1)",
-  "rgb( 255, 68, 1)",
-  "rgb( 255, 64, 1)",
-  "rgb( 255, 60, 1)",
-  "rgb( 255, 56, 1)",
-  "rgb( 255, 52, 1)",
-  "rgb( 255, 48, 1)",
-  "rgb( 255, 44, 1)",
-  "rgb( 255, 40, 1)",
-  "rgb( 255, 36, 1)",
-  "rgb( 255, 32, 1)",
-  "rgb( 255, 28, 1)",
-  "rgb( 255, 24, 1)",
-  "rgb( 255, 20, 1)",
-  "rgb( 255, 16, 1)",
-  "rgb( 255, 12, 1)",
-  "rgb( 255, 8, 1)",
-  "rgb( 255, 4, 1)",
-  "rgb( 255, 0, 1)",
-  "rgb( 251, 0, 1)",
-  "rgb( 247, 0, 1)",
-  "rgb( 243, 0, 1)",
-  "rgb( 239, 0, 1)",
-  "rgb( 235, 0, 1)",
-  "rgb( 231, 0, 1)",
-  "rgb( 227, 0, 1)",
-  "rgb( 223, 0, 1)",
-  "rgb( 219, 0, 1)",
-  "rgb( 215, 0, 1)",
-  "rgb( 211, 0, 1)",
-  "rgb( 207, 0, 1)",
-  "rgb( 203, 0, 1)",
-  "rgb( 199, 0, 1)",
-  "rgb( 195, 0, 1)",
-  "rgb( 191, 0, 1)",
-  "rgb( 187, 0, 1)",
-  "rgb( 183, 0, 1)",
-  "rgb( 179, 0, 1)",
-  "rgb( 175, 0, 1)",
-  "rgb( 171, 0, 1)",
-  "rgb( 167, 0, 1)",
-  "rgb( 163, 0, 1)",
-  "rgb( 159, 0, 1)",
-  "rgb( 155, 0, 1)",
-  "rgb( 151, 0, 1)",
-  "rgb( 147, 0, 1)",
-  "rgb( 143, 0, 1)",
-  "rgb( 139, 0, 1)",
-  "rgb( 135, 0, 1)",
-  "rgb( 131, 0, 1)",
-  "rgb( 127, 0, 1)"
-];
-var IRON = [
-  "rgb( 0, 0, 0 )",
-  "rgb(0, 0, 13 )",
-  "rgb(0, 0, 29 )",
-  "rgb(0, 0, 39 )",
-  "rgb(0, 0, 46 )",
-  "rgb(0, 0, 53 )",
-  "rgb(0, 0, 60 )",
-  "rgb(0, 0, 67 )",
-  "rgb(0, 0, 74 )",
-  "rgb(0, 0, 81 )",
-  "rgb(1, 0, 85 )",
-  "rgb(2, 0, 89 )",
-  "rgb(3, 0, 94 )",
-  "rgb(4, 0, 98 )",
-  "rgb(5, 0, 101 )",
-  "rgb(6, 0, 105 )",
-  "rgb(8, 0, 109 )",
-  "rgb(10, 0, 113 )",
-  "rgb(12, 0, 116 )",
-  "rgb(13, 0, 118 )",
-  "rgb(15, 0, 120 )",
-  "rgb(18, 0, 121 )",
-  "rgb(21, 0, 123 )",
-  "rgb(24, 0, 126 )",
-  "rgb(27, 0, 128 )",
-  "rgb(30, 0, 130 )",
-  "rgb(33, 0, 133 )",
-  "rgb(37, 0, 135 )",
-  "rgb(40, 0, 137 )",
-  "rgb(44, 0, 138 )",
-  "rgb(47, 0, 140 )",
-  "rgb(50, 0, 141 )",
-  "rgb(53, 0, 142 )",
-  "rgb(57, 0, 144 )",
-  "rgb(59, 0, 145 )",
-  "rgb(62, 0, 147 )",
-  "rgb(64, 0, 148 )",
-  "rgb(67, 0, 149 )",
-  "rgb(70, 0, 150 )",
-  "rgb(72, 0, 150 )",
-  "rgb(75, 0, 151 )",
-  "rgb(78, 0, 151 )",
-  "rgb(81, 0, 151 )",
-  "rgb(84, 0, 152 )",
-  "rgb(87, 0, 152 )",
-  "rgb(90, 0, 153 )",
-  "rgb(93, 0, 154 )",
-  "rgb(96, 0, 155 )",
-  "rgb(99, 0, 155 )",
-  "rgb(102, 0, 155 )",
-  "rgb(105, 0, 155 )",
-  "rgb(108, 0, 156 )",
-  "rgb(111, 0, 156 )",
-  "rgb(113, 0, 157 )",
-  "rgb(116, 0, 157 )",
-  "rgb(119, 0, 157 )",
-  "rgb(122, 0, 157 )",
-  "rgb(125, 0, 157 )",
-  "rgb(128, 0, 157 )",
-  "rgb(131, 0, 157 )",
-  "rgb(133, 0, 157 )",
-  "rgb(136, 0, 157 )",
-  "rgb(138, 0, 157 )",
-  "rgb(141, 0, 157 )",
-  "rgb(144, 0, 156 )",
-  "rgb(148, 0, 156 )",
-  "rgb(150, 0, 155 )",
-  "rgb(153, 0, 155 )",
-  "rgb(155, 0, 155 )",
-  "rgb(158, 0, 155 )",
-  "rgb(160, 0, 155 )",
-  "rgb(162, 0, 155 )",
-  "rgb(165, 0, 154 )",
-  "rgb(167, 0, 154 )",
-  "rgb(169, 0, 154 )",
-  "rgb(171, 0, 153 )",
-  "rgb(173, 0, 153 )",
-  "rgb(175, 1, 152 )",
-  "rgb(176, 1, 152 )",
-  "rgb(177, 1, 151 )",
-  "rgb(179, 1, 150 )",
-  "rgb(181, 2, 149 )",
-  "rgb(183, 2, 149 )",
-  "rgb(184, 3, 149 )",
-  "rgb(185, 4, 149 )",
-  "rgb(187, 5, 148 )",
-  "rgb(188, 5, 147 )",
-  "rgb(190, 6, 146 )",
-  "rgb(191, 6, 146 )",
-  "rgb(192, 7, 145 )",
-  "rgb(193, 8, 144 )",
-  "rgb(194, 9, 143 )",
-  "rgb(195, 11, 142 )",
-  "rgb(196, 12, 141 )",
-  "rgb(198, 13, 139 )",
-  "rgb(199, 14, 138 )",
-  "rgb(200, 16, 136 )",
-  "rgb(202, 18, 134 )",
-  "rgb(202, 19, 133 )",
-  "rgb(204, 21, 131 )",
-  "rgb(205, 22, 129 )",
-  "rgb(206, 23, 126 )",
-  "rgb(207, 25, 123 )",
-  "rgb(208, 26, 121 )",
-  "rgb(209, 28, 118 )",
-  "rgb(210, 29, 116 )",
-  "rgb(211, 31, 114 )",
-  "rgb(212, 33, 111 )",
-  "rgb(213, 35, 108 )",
-  "rgb(214, 37, 104 )",
-  "rgb(215, 38, 101 )",
-  "rgb(216, 40, 98 )",
-  "rgb(218, 43, 95 )",
-  "rgb(219, 45, 91 )",
-  "rgb(219, 47, 87 )",
-  "rgb(220, 48, 82 )",
-  "rgb(221, 50, 76 )",
-  "rgb(222, 52, 71 )",
-  "rgb(223, 53, 65 )",
-  "rgb(224, 55, 59 )",
-  "rgb(224, 56, 54 )",
-  "rgb(225, 58, 48 )",
-  "rgb(226, 60, 42 )",
-  "rgb(227, 62, 37 )",
-  "rgb(228, 64, 31 )",
-  "rgb(228, 66, 28 )",
-  "rgb(229, 67, 26 )",
-  "rgb(230, 69, 23 )",
-  "rgb(230, 71, 22 )",
-  "rgb(231, 73, 19 )",
-  "rgb(232, 74, 18 )",
-  "rgb(232, 76, 16 )",
-  "rgb(233, 77, 14 )",
-  "rgb(234, 78, 12 )",
-  "rgb(234, 80, 11 )",
-  "rgb(235, 82, 10 )",
-  "rgb(235, 84, 9 )",
-  "rgb(236, 86, 8 )",
-  "rgb(236, 87, 8 )",
-  "rgb(237, 89, 7 )",
-  "rgb(237, 91, 6 )",
-  "rgb(238, 92, 5 )",
-  "rgb(238, 94, 5 )",
-  "rgb(239, 95, 4 )",
-  "rgb(239, 97, 4 )",
-  "rgb(240, 99, 3 )",
-  "rgb(240, 100, 3 )",
-  "rgb(241, 102, 3 )",
-  "rgb(241, 103, 3 )",
-  "rgb(241, 105, 2 )",
-  "rgb(241, 106, 2 )",
-  "rgb(241, 107, 2 )",
-  "rgb(242, 109, 1 )",
-  "rgb(242, 111, 1 )",
-  "rgb(243, 112, 1 )",
-  "rgb(243, 114, 1 )",
-  "rgb(244, 115, 0 )",
-  "rgb(244, 117, 0 )",
-  "rgb(244, 119, 0 )",
-  "rgb(244, 121, 0 )",
-  "rgb(245, 123, 0 )",
-  "rgb(245, 126, 0 )",
-  "rgb(246, 128, 0 )",
-  "rgb(246, 129, 0 )",
-  "rgb(247, 131, 0 )",
-  "rgb(247, 133, 0 )",
-  "rgb(247, 135, 0 )",
-  "rgb(248, 136, 0 )",
-  "rgb(248, 137, 0 )",
-  "rgb(248, 139, 0 )",
-  "rgb(248, 140, 0 )",
-  "rgb(249, 142, 0 )",
-  "rgb(249, 143, 0 )",
-  "rgb(249, 144, 0 )",
-  "rgb(249, 146, 0 )",
-  "rgb(250, 148, 0 )",
-  "rgb(250, 150, 0 )",
-  "rgb(251, 152, 0 )",
-  "rgb(251, 155, 0 )",
-  "rgb(252, 157, 0 )",
-  "rgb(252, 159, 0 )",
-  "rgb(253, 161, 0 )",
-  "rgb(253, 163, 0 )",
-  "rgb(253, 165, 0 )",
-  "rgb(253, 168, 0 )",
-  "rgb(253, 170, 0 )",
-  "rgb(253, 172, 0 )",
-  "rgb(253, 173, 0 )",
-  "rgb(254, 175, 0 )",
-  "rgb(254, 177, 0 )",
-  "rgb(254, 178, 0 )",
-  "rgb(254, 180, 0 )",
-  "rgb(254, 182, 0 )",
-  "rgb(254, 184, 0 )",
-  "rgb(254, 186, 0 )",
-  "rgb(254, 187, 0 )",
-  "rgb(254, 189, 0 )",
-  "rgb(254, 191, 0 )",
-  "rgb(254, 193, 0 )",
-  "rgb(254, 195, 0 )",
-  "rgb(254, 197, 0 )",
-  "rgb(254, 199, 0 )",
-  "rgb(254, 200, 0 )",
-  "rgb(254, 202, 1 )",
-  "rgb(254, 203, 1 )",
-  "rgb(254, 204, 2 )",
-  "rgb(254, 206, 3 )",
-  "rgb(254, 207, 4 )",
-  "rgb(254, 209, 6 )",
-  "rgb(254, 211, 8 )",
-  "rgb(254, 213, 9 )",
-  "rgb(254, 214, 11 )",
-  "rgb(254, 216, 12 )",
-  "rgb(255, 218, 14 )",
-  "rgb(255, 219, 15 )",
-  "rgb(255, 220, 19 )",
-  "rgb(255, 221, 23 )",
-  "rgb(255, 222, 27 )",
-  "rgb(255, 224, 31 )",
-  "rgb(255, 225, 35 )",
-  "rgb(255, 226, 38 )",
-  "rgb(255, 228, 42 )",
-  "rgb(255, 229, 48 )",
-  "rgb(255, 230, 53 )",
-  "rgb(255, 231, 59 )",
-  "rgb(255, 233, 65 )",
-  "rgb(255, 234, 71 )",
-  "rgb(255, 235, 76 )",
-  "rgb(255, 237, 83 )",
-  "rgb(255, 238, 89 )",
-  "rgb(255, 239, 95 )",
-  "rgb(255, 239, 102 )",
-  "rgb(255, 240, 109 )",
-  "rgb(255, 241, 115 )",
-  "rgb(255, 241, 123 )",
-  "rgb(255, 242, 132 )",
-  "rgb(255, 243, 139 )",
-  "rgb(255, 244, 146 )",
-  "rgb(255, 244, 153 )",
-  "rgb(255, 245, 160 )",
-  "rgb(255, 245, 167 )",
-  "rgb(255, 246, 174 )",
-  "rgb(255, 247, 181 )",
-  "rgb(255, 248, 187 )",
-  "rgb(255, 248, 193 )",
-  "rgb(255, 249, 198 )",
-  "rgb(255, 249, 203 )",
-  "rgb(255, 250, 209 )",
-  "rgb(255, 251, 215 )",
-  "rgb(255, 252, 221 )",
-  "rgb(255, 253, 227 )",
-  "rgb(255, 253, 232 )",
-  "rgb(255, 254, 237 )",
-  "rgb(255, 254, 242 )",
-  "rgb(255, 255, 247 )",
-  "rgb(255, 255, 249 )"
-];
 var generatePaletteFromStops = (stops) => {
   const palette = new Array(256);
   const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
@@ -543,6 +27,47 @@ var generateGradientFromStops = (stops) => {
   const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
   return `linear-gradient(90deg, ${gradientStops})`;
 };
+var generateTextureArrayFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const arr = new Float32Array(256 * 4);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let lowerStop = sortedStops[0];
+    let upperStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        lowerStop = sortedStops[j];
+        upperStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const ratio = (percent - lowerStop.percent) / (upperStop.percent - lowerStop.percent || 1);
+    const r = lowerStop.color[0] + (upperStop.color[0] - lowerStop.color[0]) * ratio;
+    const g = lowerStop.color[1] + (upperStop.color[1] - lowerStop.color[1]) * ratio;
+    const b = lowerStop.color[2] + (upperStop.color[2] - lowerStop.color[2]) * ratio;
+    arr[i * 4] = r / 255;
+    arr[i * 4 + 1] = g / 255;
+    arr[i * 4 + 2] = b / 255;
+    arr[i * 4 + 3] = 1;
+  }
+  return arr;
+};
+var IRON_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 30, color: [10, 12, 77] },
+  { percent: 49, color: [86, 20, 101] },
+  { percent: 64, color: [255, 0, 0] },
+  { percent: 84, color: [249, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var JET_STOPS = [
+  { percent: 0, color: [31, 0, 157] },
+  { percent: 8, color: [0, 5, 255] },
+  { percent: 36, color: [0, 255, 239] },
+  { percent: 66, color: [255, 252, 0] },
+  { percent: 94, color: [255, 2, 0] },
+  { percent: 100, color: [145, 0, 0] }
+];
 var WHITE_HOT_STOPS = [
   { percent: 0, color: [0, 0, 0] },
   { percent: 100, color: [255, 255, 255] }
@@ -588,62 +113,35 @@ var RAINBOW_HC_STOPS = [
   { percent: 90, color: [255, 40, 32] },
   { percent: 100, color: [255, 255, 255] }
 ];
+var IRON = generatePaletteFromStops(IRON_STOPS);
+var JET = generatePaletteFromStops(JET_STOPS);
 var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
 var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
 var LAVA = generatePaletteFromStops(LAVA_STOPS);
 var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
 var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
 var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
-var ThermalPalettes = {
-  iron: {
-    pixels: IRON,
-    name: "IRON",
-    gradient: "linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(10,12,77,1) 30%, rgba(86,20,101,1) 49%, rgba(255,0,0,1) 64%, rgba(249,255,0,1) 84%, rgba(255,255,255,1) 100%)",
-    slug: "iron"
-  },
-  jet: {
-    pixels: JET,
-    name: "JET",
-    gradient: "linear-gradient(90deg, rgba(31,0,157,1) 0%, rgba(0,5,255,1) 8%, rgba(0,255,239,1) 36%, rgba(255,252,0,1) 66%, rgba(255,2,0,1) 94%, rgba(145,0,0,1) 100%)",
-    slug: "jet"
-  },
-  white_hot: {
-    pixels: WHITE_HOT,
-    name: "White Hot",
-    gradient: generateGradientFromStops(WHITE_HOT_STOPS),
-    slug: "white_hot"
-  },
-  black_hot: {
-    pixels: BLACK_HOT,
-    name: "Black Hot",
-    gradient: generateGradientFromStops(BLACK_HOT_STOPS),
-    slug: "black_hot"
-  },
-  lava: {
-    pixels: LAVA,
-    name: "Lava",
-    gradient: generateGradientFromStops(LAVA_STOPS),
-    slug: "lava"
-  },
-  arctic: {
-    pixels: ARCTIC,
-    name: "Arctic",
-    gradient: generateGradientFromStops(ARCTIC_STOPS),
-    slug: "arctic"
-  },
-  rainbow: {
-    pixels: RAINBOW,
-    name: "Rainbow",
-    gradient: generateGradientFromStops(RAINBOW_STOPS),
-    slug: "rainbow"
-  },
-  rainbow_hc: {
-    pixels: RAINBOW_HC,
-    name: "Rainbow HC",
-    gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
-    slug: "rainbow_hc"
-  }
-};
+var PALETTES = [
+  { name: "Iron", stops: IRON_STOPS },
+  { name: "Jet", stops: JET_STOPS },
+  { name: "White Hot", stops: WHITE_HOT_STOPS },
+  { name: "Black Hot", stops: BLACK_HOT_STOPS },
+  { name: "Lava", stops: LAVA_STOPS },
+  { name: "Arctic", stops: ARCTIC_STOPS },
+  { name: "Rainbow", stops: RAINBOW_STOPS },
+  { name: "Rainbow HC", stops: RAINBOW_HC_STOPS }
+];
+var TP = Object.fromEntries(PALETTES.map((pd) => {
+  const slug = pd.name.toLocaleLowerCase().replace(" ", "_");
+  return [slug, {
+    gradient: generateGradientFromStops(pd.stops),
+    pixels: generatePaletteFromStops(pd.stops),
+    texturePixels: generateTextureArrayFromStops(pd.stops),
+    slug,
+    name: pd.name
+  }];
+}));
+var ThermalPalettes = TP;
 
 // src/utils/time/formatting.ts
 import { format, formatISO9075 } from "date-fns";
@@ -4067,6 +3565,389 @@ var FileMeta = class {
   }
 };
 
+// src/file/render/AbstractRenderer.ts
+var AbstractRenderer = class {
+  constructor(file, canvas) {
+    this.file = file;
+    this.canvas = canvas;
+  }
+  _initialised = false;
+  get initialised() {
+    return this._initialised;
+  }
+  get registry() {
+    return this.file.group.registry;
+  }
+  /** Alias vedoucí na šířku syrového termogramu */
+  get width() {
+    return this.file.width;
+  }
+  /** Alias vedoucí na výšku syrového termogramu */
+  get height() {
+    return this.file.height;
+  }
+  /** Alias vedoucí na současné FROM teplotního rozsahu */
+  get from() {
+    if (this.registry.range.value === void 0) {
+      return this.file.min;
+    }
+    return this.registry.range.value.from;
+  }
+  /** Alias vedoucí na současné TO teplotního rozsahu */
+  get to() {
+    if (this.registry.range.value === void 0) {
+      return this.file.max;
+    }
+    return this.registry.range.value.to;
+  }
+  get palette() {
+    return this.registry.palette.currentPalette.pixels;
+  }
+  /** Inicializace rendereru - vytvoření patřičných listenerů či shaderů atd... */
+  async init() {
+    if (this.initialised) {
+      console.warn(`Renderer of ${this.file.id} is already initialised`);
+      return;
+    }
+    const initResult = await this.onInit();
+    if (initResult) {
+      this._initialised = true;
+      await this.render();
+      return;
+    } else {
+      console.warn(`Renderer of ${this.file.id} failed to initialise`);
+    }
+  }
+  /** Vykreslení probíhá pouze pokud je rendererr inicializován */
+  async render() {
+    if (!this.initialised) {
+      console.warn(`Renderer of ${this.file.id} is not initialised`);
+      return;
+    }
+    return await this.executeRender();
+  }
+};
+
+// src/file/render/CpuRenderer.ts
+var CpuRenderer = class extends AbstractRenderer {
+  get pool() {
+    return this.registry.pool;
+  }
+  context;
+  async onInit() {
+    const context = this.canvas.getContext("2d");
+    if (context === null) {
+      return false;
+    }
+    this.context = context;
+    return true;
+  }
+  async executeRender() {
+    const image = await this.pool.exec(
+      // Callback funkce, která se spustí na workeru
+      async (from, to, width, height, pixels, palette) => {
+        const canvas = new OffscreenCanvas(width, height);
+        const context = canvas.getContext("2d");
+        const displayRange = to - from;
+        for (let x = 0; x < width; x++) {
+          for (let y = 0; y < height; y++) {
+            const index = x + y * width;
+            const rawTemperature = pixels[index];
+            let temperature = rawTemperature;
+            if (temperature < from) {
+              temperature = from;
+            }
+            if (temperature > to) {
+              temperature = to;
+            }
+            const temperatureRelative = temperature - from;
+            const temperatureAspect = temperatureRelative / displayRange;
+            const colorIndex = Math.floor((palette.length - 1) * temperatureAspect);
+            const color = palette[colorIndex];
+            context.fillStyle = color;
+            context.fillRect(x, y, 1, 1);
+          }
+        }
+        const imageData = context.getImageData(0, 0, width, height);
+        return await createImageBitmap(imageData);
+      },
+      // Předat do workeru potřebné parametry
+      [
+        this.from,
+        this.to,
+        this.width,
+        this.height,
+        this.file.pixels,
+        this.palette
+      ],
+      {}
+    );
+    this.context.drawImage(image, 0, 0);
+  }
+  async destroy() {
+  }
+};
+
+// src/file/render/GlRenderer.ts
+var GlRenderer = class _GlRenderer extends AbstractRenderer {
+  context;
+  program;
+  fragmentShader;
+  vertexShader;
+  pixelsBuffer;
+  pixelsTexture;
+  paletteBuffer;
+  paletteTexture;
+  vertexBuffer;
+  get listenerIdPalette() {
+    return this.file.id + "_palette";
+  }
+  get listenerIdRange() {
+    return this.file.id + "_range";
+  }
+  get listenerIdPixels() {
+    return this.file.id + "_pixels";
+  }
+  async onInit() {
+    const context = this.canvas.getContext("webgl2");
+    if (context === null) {
+      return false;
+    }
+    this.context = context;
+    this.pixelsBuffer = this.initPixelsBuffer();
+    this.pixelsTexture = this.initPixelsTexture();
+    this.paletteBuffer = this.initPaletteBuffer();
+    this.paletteTexture = this.initPaletteTexture();
+    this.registry.palette.addListener(this.listenerIdPalette, () => {
+      const novaPaleta = this.registry.palette.currentPalette.texturePixels;
+      this.writePaletteTexture(novaPaleta);
+    });
+    this.registry.range.addListener(this.listenerIdRange, () => {
+      const range = this.registry.range.currentRange;
+      const from = range ? range.from : this.file.min;
+      const to = range ? range.to : this.file.max;
+      this.writeRangeUniform(from, to);
+    });
+    this.file.timeline.addListener(this.listenerIdPixels, () => {
+      const novePixely = this.file.pixels;
+      this.writePixelsTexture(novePixely);
+    });
+    this.initGl();
+    const initialRange = this.registry.range.currentRange;
+    const initialFrom = initialRange ? initialRange.from : this.file.min;
+    const initialTo = initialRange ? initialRange.to : this.file.max;
+    this.writeRangeUniform(initialFrom, initialTo);
+    const initialPalette = this.registry.palette.currentPalette.texturePixels;
+    this.writePaletteTexture(initialPalette);
+    this.writePixelsTexture(this.file.pixels);
+    this.context.viewport(0, 0, this.canvas.width, this.canvas.height);
+    return true;
+  }
+  static VERTEX_SHADER = `#version 300 es
+        in vec2 a_position;
+        out vec2 v_uv;
+        void main() {
+            v_uv = ( a_position + 1.0 ) * 0.5;
+            v_uv.y = 1.0 - v_uv.y;  // P\u0159evr\xE1cen\xED Y osy pro spr\xE1vnou orientaci textury
+            gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+    `;
+  static FRAGMENT_SHADER = `#version 300 es
+        precision highp float;
+        in vec2 v_uv;
+        uniform sampler2D u_pixels;
+        uniform sampler2D u_palette;
+        uniform float u_from;
+        uniform float u_to;
+        out vec4 outColor;
+        void main() {
+            float temp = texture(u_pixels, v_uv).r;
+            float t = clamp( (temp - u_from) / (u_to - u_from), 0.0, 1.0 );
+            outColor = texture( u_palette, vec2(t, 0.5) );
+        }
+    `;
+  initGl() {
+    const gl = this.context;
+    this.vertexBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([
+        -1,
+        -1,
+        1,
+        -1,
+        -1,
+        1,
+        1,
+        1
+      ]),
+      gl.STATIC_DRAW
+    );
+    this.vertexShader = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(this.vertexShader, _GlRenderer.VERTEX_SHADER);
+    gl.compileShader(this.vertexShader);
+    this.fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(this.fragmentShader, _GlRenderer.FRAGMENT_SHADER);
+    gl.compileShader(this.fragmentShader);
+    this.program = gl.createProgram();
+    gl.attachShader(this.program, this.vertexShader);
+    gl.attachShader(this.program, this.fragmentShader);
+    gl.linkProgram(this.program);
+    gl.useProgram(this.program);
+    const a_position = gl.getAttribLocation(this.program, "a_position");
+    gl.enableVertexAttribArray(a_position);
+    gl.vertexAttribPointer(a_position, 2, gl.FLOAT, false, 0, 0);
+  }
+  createTexture(width, height, internalFormat, format4, type, initialData) {
+    const texture = this.context.createTexture();
+    this.context.bindTexture(this.context.TEXTURE_2D, texture);
+    this.context.texImage2D(
+      this.context.TEXTURE_2D,
+      0,
+      internalFormat,
+      width,
+      height,
+      0,
+      format4,
+      type,
+      initialData
+    );
+    this.context.texParameteri(
+      this.context.TEXTURE_2D,
+      this.context.TEXTURE_MIN_FILTER,
+      this.context.NEAREST
+    );
+    this.context.texParameteri(
+      this.context.TEXTURE_2D,
+      this.context.TEXTURE_MAG_FILTER,
+      this.context.NEAREST
+    );
+    this.context.texParameteri(
+      this.context.TEXTURE_2D,
+      this.context.TEXTURE_WRAP_S,
+      this.context.CLAMP_TO_EDGE
+    );
+    this.context.texParameteri(
+      this.context.TEXTURE_2D,
+      this.context.TEXTURE_WRAP_T,
+      this.context.CLAMP_TO_EDGE
+    );
+    return texture;
+  }
+  /** Vytvoř buffer, do kterého budu uploadovat hodnoty teplot pro jednotlivé pixely a následně ho budu nahrávat do textury */
+  initPixelsBuffer() {
+    return new Float32Array(this.file.pixels);
+  }
+  /** Inicializuj pixel buffer */
+  initPixelsTexture() {
+    return this.createTexture(
+      this.width,
+      this.height,
+      this.context.R32F,
+      this.context.RED,
+      this.context.FLOAT,
+      this.pixelsBuffer
+    );
+  }
+  writePixelsTexture(pixels) {
+    if (pixels instanceof Float32Array) {
+      this.pixelsBuffer.set(pixels, 0);
+    } else {
+      this.pixelsBuffer.set(pixels, 0);
+    }
+    this.context.bindTexture(this.context.TEXTURE_2D, this.pixelsTexture);
+    this.context.texSubImage2D(
+      this.context.TEXTURE_2D,
+      0,
+      0,
+      0,
+      this.width,
+      this.height,
+      this.context.RED,
+      this.context.FLOAT,
+      this.pixelsBuffer
+    );
+  }
+  /** Inicializuj palette buffer */
+  initPaletteBuffer() {
+    return new Float32Array(256 * 4);
+  }
+  /** Inicializuj palette texture */
+  initPaletteTexture() {
+    return this.createTexture(
+      256,
+      1,
+      this.context.RGBA32F,
+      this.context.RGBA,
+      this.context.FLOAT,
+      this.paletteBuffer
+    );
+  }
+  writePaletteTexture(palettePixels) {
+    if (palettePixels instanceof Float32Array) {
+      this.paletteBuffer.set(palettePixels, 0);
+      this.context.bindTexture(this.context.TEXTURE_2D, this.paletteTexture);
+      this.context.texSubImage2D(
+        this.context.TEXTURE_2D,
+        0,
+        0,
+        0,
+        256,
+        1,
+        this.context.RGBA,
+        this.context.FLOAT,
+        this.paletteBuffer
+      );
+    } else {
+      this.context.bindTexture(this.context.TEXTURE_2D, this.paletteTexture);
+      this.context.texSubImage2D(
+        this.context.TEXTURE_2D,
+        0,
+        0,
+        0,
+        256,
+        1,
+        this.context.RGBA,
+        this.context.UNSIGNED_BYTE,
+        palettePixels
+      );
+    }
+  }
+  /** Nastaví uniformy pro rozsah teplot */
+  writeRangeUniform(from, to) {
+    const gl = this.context;
+    gl.useProgram(this.program);
+    const u_from = gl.getUniformLocation(this.program, "u_from");
+    const u_to = gl.getUniformLocation(this.program, "u_to");
+    gl.uniform1f(u_from, from);
+    gl.uniform1f(u_to, to);
+  }
+  async executeRender() {
+    const gl = this.context;
+    gl.useProgram(this.program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
+    const u_pixels = gl.getUniformLocation(this.program, "u_pixels");
+    const u_palette = gl.getUniformLocation(this.program, "u_palette");
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, this.pixelsTexture);
+    gl.uniform1i(u_pixels, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.paletteTexture);
+    gl.uniform1i(u_palette, 1);
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  async destroy() {
+    this.context.deleteProgram(this.program);
+    this.context.deleteShader(this.vertexShader);
+    this.context.deleteShader(this.fragmentShader);
+    this.context.deleteTexture(this.pixelsTexture);
+    this.context.deleteTexture(this.paletteTexture);
+  }
+};
+
 // src/file/AbstractFile.ts
 var AbstractFile = class extends BaseStructureObject {
   id;
@@ -4140,6 +4021,8 @@ var AbstractFile = class extends BaseStructureObject {
   get dom() {
     return this._dom;
   }
+  /** Renderer pro vykreslování do canvasu */
+  renderer;
   get hover() {
     if (this.dom)
       return this.dom.hover;
@@ -4216,6 +4099,14 @@ var AbstractFile = class extends BaseStructureObject {
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
   }
+  rendererFactory(canvas) {
+    const gl = canvas.getContext("webgl2");
+    if (gl) {
+      return new GlRenderer(this, canvas);
+    } else {
+      return new CpuRenderer(this, canvas);
+    }
+  }
   mountToDom(container) {
     if (this._dom !== void 0) {
       this._dom.destroy();
@@ -4223,9 +4114,12 @@ var AbstractFile = class extends BaseStructureObject {
     }
     this._dom = new InstanceDOM(this, container);
     this._dom.build();
+    this.renderer = this.rendererFactory(this._dom.canvasLayer.canvas);
+    this.renderer.init();
     this._dom.hydrate();
   }
   unmountFromDom() {
+    this.renderer?.destroy();
     if (this.dom) {
       this.dom.destroy();
     }
@@ -4234,7 +4128,8 @@ var AbstractFile = class extends BaseStructureObject {
   }
   async draw() {
     if (this.dom && this.dom.canvasLayer) {
-      return await this.dom.canvasLayer.draw();
+      await this.dom.canvasLayer.draw();
+      return await this.renderer?.render();
     }
   }
   recievePalette(palette) {
@@ -4510,7 +4405,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   }
   container;
   canvas;
-  context;
   // protected offscreen: OffscreenCanvas;
   get width() {
     return this.instance.width;
@@ -4545,8 +4439,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.canvas = ThermalDomFactory.createCanvas();
     this.canvas.width = this.instance.width;
     this.canvas.height = this.instance.height;
-    this.context = this.canvas.getContext("2d");
-    this.context.imageSmoothingEnabled = false;
     this.container.appendChild(this.canvas);
     this.opacity = this.instance.group.registry.opacity.value;
   }
@@ -4563,7 +4455,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   }
   async draw() {
     this.renderCount += 1;
-    const paletteColors = this.getPalette();
     try {
       const analysis = this.instance.analysis.value.map((a) => {
         if (a instanceof PointAnalysis) {
@@ -4571,10 +4462,7 @@ var ThermalCanvasLayer = class extends AbstractLayer {
         }
         return [a.getType(), a.key, a.top, a.left, a.width, a.height];
       });
-      const image = await this.pool.exec(async (from, to, width, height, pixels, palette, analysis2) => {
-        const canvas = new OffscreenCanvas(width, height);
-        const context = canvas.getContext("2d");
-        const displayRange = to - from;
+      const image = await this.pool.exec(async (analysis2) => {
         const buffer = analysis2.map((a) => {
           return {
             id: a[1],
@@ -4592,62 +4480,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             }
           };
         });
-        for (let x = 0; x < width; x++) {
-          for (let y = 0; y < height; y++) {
-            const index = x + y * width;
-            const rawTemperature = pixels[index];
-            let temperature = rawTemperature;
-            if (temperature < from)
-              temperature = from;
-            if (temperature > to)
-              temperature = to;
-            const temperatureRelative = temperature - from;
-            const temperatureAspect = temperatureRelative / displayRange;
-            const colorIndex = Math.round(255 * temperatureAspect);
-            const color = palette[colorIndex];
-            context.fillStyle = color;
-            context.fillRect(x, y, 1, 1);
-            const isWithin = (x2, y2, la, ta, wa, ha) => {
-              const centerX = la + wa / 2;
-              const centerY = ta + ha / 2;
-              const normalizedX = (x2 - centerX) / (wa / 2);
-              const normalizedY = (y2 - centerY) / (ha / 2);
-              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-            };
-            analysis2.forEach((a, index2) => {
-              const bufferValue = buffer[index2];
-              const [type, id, top, left, w, h] = a;
-              id;
-              if (type === "point") {
-                if (x === left && y === top) {
-                  bufferValue.avg.value = rawTemperature;
-                }
-              } else if (type === "rectangle") {
-                if (x >= left && x < left + w && y >= top && y < top + h) {
-                  if (rawTemperature < bufferValue.min.value) {
-                    bufferValue.min.value = rawTemperature;
-                  }
-                  if (rawTemperature > bufferValue.max.value) {
-                    bufferValue.max.value = rawTemperature;
-                  }
-                  bufferValue.avg.count = bufferValue.avg.count + 1;
-                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-                }
-              } else if (type === "ellipsis") {
-                if (isWithin(x, y, left, top, width, height)) {
-                  if (rawTemperature < bufferValue.min.value) {
-                    bufferValue.min.value = rawTemperature;
-                  }
-                  if (rawTemperature > bufferValue.max.value) {
-                    bufferValue.max.value = rawTemperature;
-                  }
-                  bufferValue.avg.count = bufferValue.avg.count + 1;
-                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-                }
-              }
-            });
-          }
-        }
         const stats = buffer.map((a) => {
           return {
             id: a.id,
@@ -4656,26 +4488,16 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             avg: a.type === "point" ? a.avg.value : a.avg.sum / a.avg.count
           };
         });
-        const imageData = context.getImageData(0, 0, width, height);
-        const result = await createImageBitmap(imageData);
         return {
-          image: result,
           stats
         };
       }, [
-        this.from,
-        this.to,
-        this.width,
-        this.height,
-        this.pixels,
-        paletteColors,
         analysis
       ], {});
       image.stats.forEach((a) => {
         const analysis2 = this.instance.analysis.layers.get(a.id);
         analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
       });
-      this.context.drawImage(image.image, 0, 0);
       return true;
     } catch (error) {
       if (error instanceof Error) {
