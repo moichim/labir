@@ -3779,7 +3779,9 @@ var GlRenderer = class _GlRenderer extends AbstractRenderer {
     return this.file.id + "_pixels";
   }
   async onInit() {
-    const context = this.canvas.getContext("webgl2");
+    const context = this.canvas.getContext("webgl2", {
+      preserveDrawingBuffer: true
+    });
     if (context === null) {
       return false;
     }
@@ -4532,7 +4534,8 @@ var ThermalCanvasLayer = class extends AbstractLayer {
         }
         return [a.getType(), a.key, a.top, a.left, a.width, a.height];
       });
-      const image = await this.pool.exec(async (analysis2) => {
+      const image = await this.pool.exec(async (from, to, width, height, pixels, analysis2) => {
+        const displayRange = to - from;
         const buffer = analysis2.map((a) => {
           return {
             id: a[1],
@@ -4550,6 +4553,56 @@ var ThermalCanvasLayer = class extends AbstractLayer {
             }
           };
         });
+        for (let x = 0; x < width; x++) {
+          for (let y = 0; y < height; y++) {
+            const index = x + y * width;
+            const rawTemperature = pixels[index];
+            let temperature = rawTemperature;
+            if (temperature < from)
+              temperature = from;
+            if (temperature > to)
+              temperature = to;
+            const isWithin = (x2, y2, la, ta, wa, ha) => {
+              const centerX = la + wa / 2;
+              const centerY = ta + ha / 2;
+              const normalizedX = (x2 - centerX) / (wa / 2);
+              const normalizedY = (y2 - centerY) / (ha / 2);
+              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+            };
+            analysis2.forEach((a, index2) => {
+              const bufferValue = buffer[index2];
+              const [type, id, top, left, w, h] = a;
+              id;
+              if (type === "point") {
+                if (x === left && y === top) {
+                  bufferValue.avg.value = rawTemperature;
+                }
+              } else if (type === "rectangle") {
+                if (x >= left && x < left + w && y >= top && y < top + h) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              } else if (type === "ellipsis") {
+                if (isWithin(x, y, left, top, width, height)) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              }
+            });
+          }
+        }
         const stats = buffer.map((a) => {
           return {
             id: a.id,
@@ -4562,6 +4615,11 @@ var ThermalCanvasLayer = class extends AbstractLayer {
           stats
         };
       }, [
+        this.from,
+        this.to,
+        this.width,
+        this.height,
+        this.pixels,
         analysis
       ], {});
       image.stats.forEach((a) => {

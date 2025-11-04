@@ -115,54 +115,54 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
                 from=${ifDefined( this.from )}
                 to=${ifDefined( this.to )}
             >
-            <thermal-app 
-                label="${this.label}"
-                showfullscreen="true"
-            >
+                <thermal-app 
+                    label="${this.label}"
+                    showfullscreen="true"
+                >
 
-                <share-dialog 
-                    slot="close"
-                    .palette=${this.palette}
-                    .folder=${this.folder}
-                    .folderMode=${this.folderMode}
-                    .displayMode=${this.displayMode}
-                    .by=${this.by}
-                    .file=${this.file}
-                    .compact=${this.compact}
-                    .state=${this.state}
-                    .path=${this.path}
-                    .from=${this.from}
-                    .to=${this.to}
-                ></share-dialog>
+                    <share-dialog 
+                        slot="close"
+                        .palette=${this.palette}
+                        .folder=${this.folder}
+                        .folderMode=${this.folderMode}
+                        .displayMode=${this.displayMode}
+                        .by=${this.by}
+                        .file=${this.file}
+                        .compact=${this.compact}
+                        .state=${this.state}
+                        .path=${this.path}
+                        .from=${this.from}
+                        .to=${this.to}
+                    ></share-dialog>
 
-                ${this.isClientConnected === true
-                    ? html`<labir-user-button slot="close" disable-logging=${this.disableLogging}></labir-user-button>`
-                    : nothing}
+                    ${this.isClientConnected === true
+                        ? html`<labir-user-button slot="close" disable-logging=${this.disableLogging}></labir-user-button>`
+                        : nothing}
 
-                ${this.renderError()}
+                    ${this.renderError()}
 
-                ${this.renderContent()}
+                    <thermal-dialog label="${t(T.config)}" slot="close">
+                        
+                        <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${t(T.config)}"></thermal-btn>
 
-                <slot></slot>
+                        <div slot="content">
+                            <table>
+                                <png-export-panel></png-export-panel>
+                                <registry-display-panel></registry-display-panel>
+                            </table>
+                        </div>
+                        
+                    </thermal-dialog>
 
-                <footer class="server-footer">
-                    <server-info></server-info>
-                </footer>
+                    <slot></slot>
 
-                <thermal-dialog label="${t(T.config)}" slot="close">
-                    
-                    <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${t(T.config)}"></thermal-btn>
+                    ${this.renderContent()}
 
-                    <div slot="content">
-                        <table>
-                            <png-export-panel></png-export-panel>
-                            <registry-display-panel></registry-display-panel>
-                        </table>
-                    </div>
-                    
-                </thermal-dialog>
+                    <footer class="server-footer">
+                        <server-info></server-info>
+                    </footer>
 
-            </thermal-app>
+                </thermal-app>
             </registry-provider>
         </manager-provider>
         `;

@@ -20,7 +20,6 @@ declare const WHITE_HOT: string[];
 declare const ThermalPalettes: {
     [k: string]: ThermalPaletteType;
 };
-/** Object mapping all available palettes. */
 /** Keys of palettes available in `@labir/core`. */
 type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
 

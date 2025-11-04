@@ -30,7 +30,7 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     protected highlight: ThermalRangeOrUndefined;
 
     @provide( {context: setRegistryHighlightContext} )
-    protected setHighlight = ( value: ThermalRangeOrUndefined ) => {
+    public setHighlight = ( value: ThermalRangeOrUndefined ) => {
         this.highlight = value;
     }
 

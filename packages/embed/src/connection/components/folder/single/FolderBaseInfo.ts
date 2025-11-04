@@ -1,9 +1,11 @@
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labir/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import icons from "../../../../utils/icons";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
+import { consume } from "@lit/context";
+import { lockedBrowsingTo } from "../../../ClientContext";
 
 @customElement( "folder-base-info" )
 export class FolderBaseInfo extends ClientConsumer {
@@ -20,6 +22,10 @@ export class FolderBaseInfo extends ClientConsumer {
     @property({ type: Function })
     public onParentClick?: ( folder: BreadcrumbItem ) => void;
 
+    @state()
+    @consume( {context: lockedBrowsingTo, subscribe: true} )
+    private lockedBrowsingTo?: string;
+
     protected icon = icons.folder.outline( "icon" );
 
     public static styles?: CSSResultGroup | undefined = css`
@@ -27,6 +33,7 @@ export class FolderBaseInfo extends ClientConsumer {
             display: flex;
             flex-wrap: no-wrap;
             gap: var(--thermal-gap);
+            font-size: var(--thermal-fs);
         }
 
 
@@ -46,7 +53,7 @@ export class FolderBaseInfo extends ClientConsumer {
             display: grid !important;
             grid-template-columns: 2em 1fr;
             grid-template-rows: auto auto;
-            gap: var(--thermal-gap);
+            gap: 0 var(--thermal-gap);
             flex-grow: 1;
         }
 
@@ -70,7 +77,7 @@ export class FolderBaseInfo extends ClientConsumer {
         }
 
         .description {
-            font-size: calc(var(--thermal-fs) * 0.8);
+            font-size: .8em;
             color: var(--thermal-slate);
         }
 
@@ -78,8 +85,13 @@ export class FolderBaseInfo extends ClientConsumer {
             grid-row: 2;
             grid-column: 1 / -1;
             display: flex;
-            gap: 2em;
+            flex-wrap: wrap;
+            gap: 0 2em;
             align-items: center;
+
+            slot::slotted(*) {
+                padding-top: 1em;
+            }
         }
 
         .actions:not(:has(*)) {
@@ -106,10 +118,21 @@ export class FolderBaseInfo extends ClientConsumer {
 
         const parent = folders[folders.length - 2];
 
+        if ( this.lockedBrowsingTo && ! parent.path.includes(  this.lockedBrowsingTo ) ) {
+            return nothing;
+        }
+
         const callback = this.onParentClick || (() => {});
 
         return html`
-            <thermal-btn variant="background" @click=${() => callback( parent )} icon="upwards" iconStyle="outline" size="xl">
+            <thermal-btn 
+                variant="background" 
+                @click=${() => callback( parent )} 
+                icon="upwards" 
+                iconStyle="outline" 
+                size="xl"
+                tooltip="Jít o úroveň výš do složky '${parent.name}'."
+            >
             </thermal-btn>
         `;
 
@@ -134,7 +157,9 @@ export class FolderBaseInfo extends ClientConsumer {
 
             <div class="content">
 
-                <h1>${this.info?.name}</h1>
+                <h1>
+                    ${this.info?.name}
+                </h1>
 
                 ${this.info?.description ? html`<div class="description">${this.info?.description}</div>` : nothing}
             </div>

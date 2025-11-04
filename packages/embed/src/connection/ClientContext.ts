@@ -50,3 +50,7 @@ export const subfoldersModeSetterContext = createContext<(mode: FolderMode) => v
 export const subgildersGridByMode = createContext<GridGrouping>("subfolders-grid-by-mode");
 
 export const subgildersGridByModeSetter = createContext<(mode: GridGrouping) => void>("subfolders-grid-by-mode-setter");
+
+export const lockedBrowsingTo = createContext<string|undefined>("locked-location-context");
+
+export const lockedBrowsingToSetter = createContext<(locked: string|undefined) => void>("locked-location-setter-context");

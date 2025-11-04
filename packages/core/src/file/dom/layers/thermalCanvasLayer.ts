@@ -110,8 +110,15 @@ export class ThermalCanvasLayer extends AbstractLayer {
 
             // Transfer it to thread
             const image = await this.pool.exec(async (
+                from: number,
+                to: number,
+                width: number,
+                height: number,
+                pixels: number[],
                 analysis: AnalysisExtractDefinition[]
             ) => {
+
+                const displayRange = to - from;
 
 
                 const buffer = analysis.map( a => {
@@ -132,6 +139,100 @@ export class ThermalCanvasLayer extends AbstractLayer {
                     }
                 } );
 
+
+                for (let x = 0; x < width; x++) {
+
+                    for (let y = 0; y < height; y++) {
+
+
+                        /**
+                         * Render the HTML to the offcanvas
+                         */
+
+                        const index = x + (y * width);
+
+                        // Clamp temperature to the displayedRange
+                        const rawTemperature = pixels[index];
+                        let temperature = rawTemperature;
+                        if (temperature < from)
+                            temperature = from;
+                        if (temperature > to)
+                            temperature = to;
+
+
+                        const isWithin = (x: number, y: number, la: number, ta: number, wa: number, ha: number): boolean => {
+                            const centerX = la + wa / 2;
+                            const centerY = ta + ha / 2;
+                            const normalizedX = (x - centerX) / (wa / 2);
+                            const normalizedY = (y - centerY) / (ha / 2);
+                            return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+                        }
+
+                        /**
+                         * Process the analysis
+                         */
+                        analysis.forEach( (a,index) => {
+
+                            const bufferValue = buffer[index];
+
+                            const [ type, id, top, left, w, h ] = a;
+
+                            id;
+
+                            // Point
+                            if ( type === "point" ) {
+                                if ( x === left && y === top ) {
+                                    bufferValue.avg.value = rawTemperature;
+                                }
+                            }
+
+                            // Rectangle
+                            else if ( type === "rectangle" ) {
+
+                                if ( 
+                                    x >= left 
+                                    && x < left + w 
+                                    && y >= top
+                                    && y < top + h
+                                ) {
+
+                                    if ( rawTemperature < bufferValue.min.value ) {
+                                        bufferValue.min.value = rawTemperature;
+                                    }
+                                    if ( rawTemperature > bufferValue.max.value ) {
+                                        bufferValue.max.value = rawTemperature;
+                                    }
+                                    bufferValue.avg.count = bufferValue.avg.count + 1;
+                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+
+                                }
+
+                            }
+
+                            // Ellipsis
+                            else if ( type === "ellipsis" ) {
+
+                                if ( isWithin(x,y,left,top, width, height ) ) {
+                                    if ( rawTemperature < bufferValue.min.value ) {
+                                        bufferValue.min.value = rawTemperature;
+                                    }
+                                    if ( rawTemperature > bufferValue.max.value ) {
+                                        bufferValue.max.value = rawTemperature;
+                                    }
+
+                                    bufferValue.avg.count = bufferValue.avg.count + 1;
+                                    bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                                }
+
+                            }
+
+                        } );
+
+
+                    }
+
+                }
+
                 const stats = buffer.map( a => {
                     return {
                         id: a.id,
@@ -148,6 +249,11 @@ export class ThermalCanvasLayer extends AbstractLayer {
                 };
 
             }, [
+                this.from,
+                this.to,
+                this.width,
+                this.height,
+                this.pixels,
                 analysis
             ], {});
 

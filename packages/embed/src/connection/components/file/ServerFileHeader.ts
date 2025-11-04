@@ -84,24 +84,30 @@ export class ServerFileHeader extends ClientConsumer {
                 grid-column: 4;
                 text-align: right;
 
-                strong,
-                span {
-                    display: block;
-                }
-                
-                strong {
-                    font-weight: normal;
+                display: flex;
+                justify-content: flex-end;
+                align-items: flex-end;
+                flex-direction: column;
+                gap: .3em;
+
+                thermal-btn {
+                    opacity: .5;
+                    transition: opacity .3s ease-in-out;
+                    cursor: help !important;
+
+                    &:hover,
+                    &:focus {
+                        opacity: 1;
+                    }
                 }
 
-                span {
-                    color: var(--thermal-slate-light);
-                }
             }
 
             .actions {
                 grid-row: 2;
                 grid-column: 1 / -1;
                 display: flex;
+                flex-wrap: wrap;
                 gap: 2em;
             }
     
@@ -139,16 +145,26 @@ export class ServerFileHeader extends ClientConsumer {
 
         return html`
             <div class="colophon small slate">
-                <div>
-                    <span>Nahráno:</span>
-                    <strong>${uploaded}</strong>
-                </div>
+                    <thermal-btn 
+                        variant="breadcrumb"
+                        plain="true"
+                        size="sm"
+                        tooltip="Čas nahrání souboru"
+                        icon="upload"
+                        iconStyle="micro"
+                        interactive="false"
+                    >${uploaded}</thermal-btn>
 
                 ${this.file.uploadedby
-                    ? html`<div>
-                        <span>Uživatel:</span>
-                        <strong>${this.file.uploadedby.name}</strong>
-                    </div>`
+                    ? html`<thermal-btn 
+                            variant="breadcrumb"
+                            plain="true"
+                            size="sm"
+                            tooltip="Nahráno uživatelem"
+                            icon="user"
+                            iconStyle="micro"
+                            interactive="false"
+                        >${this.file.uploadedby.name}</thermal-btn>`
                     : nothing
                 }
             </div>
@@ -159,7 +175,14 @@ export class ServerFileHeader extends ClientConsumer {
     protected renderUpButton(): unknown {
     
             return html`
-                <thermal-btn variant="background" @click=${this.onClose} icon="close" iconStyle="outline" size="xl">
+                <thermal-btn 
+                    variant="background" 
+                    @click=${this.onClose} 
+                    icon="close" 
+                    iconStyle="outline" 
+                    size="xl"
+                    tooltip="Zpět do složky '${this.folder.name}'."
+                >
                 </thermal-btn>
             `;
     

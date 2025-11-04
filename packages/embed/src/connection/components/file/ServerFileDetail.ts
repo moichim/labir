@@ -2,9 +2,11 @@ import { ThermalRegistry } from "@labir/core";
 import { FileInfo, FolderInfo } from "@labir/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { registryContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { ClientConsumer } from "../ClientConsumer";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 
 @customElement("server-file-detail")
 export class ServerFileDetail extends ClientConsumer {
@@ -30,6 +32,11 @@ export class ServerFileDetail extends ClientConsumer {
     @property({ type: Number })
     public to?: number;
 
+    private layoutRef: Ref<HTMLElement> = createRef();
+
+    @property({ type: String, reflect: true, converter: booleanConverter(false) })
+    public collapsed: boolean = false;
+
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
@@ -39,22 +46,28 @@ export class ServerFileDetail extends ClientConsumer {
 
             this.registry?.range.applyMinmax();
 
-            return;
+        });
 
-            // this.log( this.from, this.to );
 
-            if ( this.from !== undefined && this.to !== undefined ) {
-                this.registry!.range.imposeRange( {
-                    from: this.from, 
-                    to: this.to 
-                } );
-            } else {
-                this.registry?.range.applyMinmax();
+        const observer = new ResizeObserver( ( entries ) => {
+
+            const entry = entries[0];
+
+            const width = entry.contentRect.width;
+
+            this.log( width );
+
+            if ( width && width < 900 && this.collapsed === false) {
+                this.collapsed = true;
+            } else if ( width && width >= 900 && this.collapsed === true ) {
+                this.collapsed = false;
             }
 
-            
-            // this.requestUpdate();
-        });
+        } );
+
+        observer.observe( this.layoutRef.value! );
+
+
     }
 
     disconnectedCallback(): void {
@@ -66,14 +79,22 @@ export class ServerFileDetail extends ClientConsumer {
 
     public static styles?: CSSResultGroup | undefined = css`
 
+        :host {
+            font-size: var(--thermal-fs);
+        }
+
         .layout {
             display: grid;
-            grid-template-columns: calc( var(--thermal-gap) * 1 ) 1fr 1fr 250px;
+            grid-template-columns: 1em minmax( 300px, 1fr ) 1fr 250px;
             gap: 2em;
             height: 100%;
 
             padding-top: calc(var(--thermal-gap) * 1);
         }
+
+
+
+
 
         .section {
 
@@ -118,6 +139,30 @@ export class ServerFileDetail extends ClientConsumer {
 
 
 
+
+        :host([collapsed="true"]) .layout {
+            grid-template-columns: 1em 1fr 1fr;
+            grid-template-rows: auto auto;
+
+            .section__image {
+                grid-column: 2 / -1;
+            }
+
+            .section__content {
+                grid-row: 2;
+                grid-column: 2;
+            }
+
+            .section__server {
+
+                grid-row: 2;
+                grid-column: 3;
+            
+            }
+        }
+
+
+
     
     `;
 
@@ -128,7 +173,7 @@ export class ServerFileDetail extends ClientConsumer {
 
         return html`
 
-        <main class="layout">
+        <main class="layout" ${ref(this.layoutRef)}>
 
             <section class="section section__tools">
                 <group-tool-bar></group-tool-bar>

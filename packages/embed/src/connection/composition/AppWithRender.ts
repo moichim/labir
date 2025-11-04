@@ -4,13 +4,14 @@ import { AppState, FolderMode } from "./AppWithState";
 import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
-import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
+import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, locledBrowsingTo, lockedBrowsingTo, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext, lockedBrowsingToSetter } from "../ClientContext";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { createRef, Ref } from "lit/directives/ref.js";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { AvailableThermalPalettes } from "@labir/core";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 /** 
  * This layer provides the necessary render methods
@@ -82,6 +83,15 @@ export abstract class AppWithRender extends AppWithContent {
         this.requestUpdate();
     };
 
+    @property({ type: String, attribute: "locked-location" })
+    @provide({ context: lockedBrowsingTo })
+    protected lockedLocation?: string;
+
+    @provide({ context: lockedBrowsingToSetter })
+    protected lockedLocationSetter: (locked: string|undefined) => void = (locked: string|undefined) => {
+        this.lockedLocation = locked;
+        this.requestUpdate();
+    };
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
@@ -381,7 +391,10 @@ export abstract class AppWithRender extends AppWithContent {
 
                     .onChange=${(file: FileInfo) => this.setStateFile(file)}
 
-                    .onClose=${() => this.setPath(this.folder!.path)}
+                    .onClose=${() => {
+                        this.setPath( this.folder!.path );
+                        this.setStateFolder(this.folder!, this.breadcrumb );
+                    }}
 
                     style="margin-top: -1em;"
                 >
@@ -405,13 +418,14 @@ export abstract class AppWithRender extends AppWithContent {
                                 showLabel="true"
                             ></file-delete-dialog>
 
+                            <!--
                             <file-store-thumbnail
                                 size="md"
                                 variant="default"
-                                .file=${this.file}
                                 .folder=${this.folder}
                                 tooltip="Uložit aktuální zobrazení jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
                             ></file-store-thumbnail>
+                            -->
                             
                         `
                 : nothing
@@ -527,7 +541,7 @@ export abstract class AppWithRender extends AppWithContent {
                 >${t(T.logout)}</thermal-btn>
 
             </section>
-            <main>`;
+        <main>`;
 
     }
 
@@ -697,8 +711,15 @@ export abstract class AppWithRender extends AppWithContent {
             }}
             .onFileClick=${(folder: FolderInfo, file: FileInfo) => {
 
-                this.switchFolderInternal(folder);
-
+                this.setStateFolder(folder, this.breadcrumb, this.subfolders);
+                this.breadcrumb?.push({
+                    name: folder.name,
+                    path: folder.path,
+                    type: "folder",
+                    slug: folder.slug,
+                    protected: false,
+                    current: true
+                })
                 this.setStateFile(file);
 
             }}
@@ -747,13 +768,36 @@ export abstract class AppWithRender extends AppWithContent {
                 }}
 
                 .onChange=${(file: FileInfo) => this.updateFile(file)}
-
-                
-
-                
-
             ></folder-files>`;
 
+        }
+
+        else if ( this.folder && this.folder.may_manage_files_in === true ) {
+
+            const prompt = this.folder.meta.prompt || undefined;
+
+            if ( !prompt ) {
+                return nothing;
+            }
+
+
+            return html`<div class="poster">
+
+                <div style="min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--thermal-gap);">
+
+                ${prompt}
+
+                <folder-upload-dialog
+                    .folder=${this.folder}
+                    .onSuccess=${(files: FileInfo[]) => {
+                        this.fetchContent();
+                    }}
+                    tooltip="Vybrat soubory z disku"
+                ></folder-upload-dialog>
+
+                </div>
+            
+            </div>`;
         }
 
         return nothing;

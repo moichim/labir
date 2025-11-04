@@ -178,37 +178,21 @@ export class FolderFiles extends ClientConsumer {
                 margin: -1em;
             }
             
-        }
-
-        
-
-
-    `;
+        }`;
 
     protected renderFile(file: FileInfo): TemplateResult {
-
-        const label = file.label;
-        const description = file.description;
-
-        const time = TimeFormat.human(file.timestamp);
-
 
         const callback = this.onFileClick !== undefined
             ? () => this.onFileClick(file)
             : undefined;
 
-
-        return html`
-        
-        <server-file-thumbnail
-            .file=${file}
-            .folder=${this.folder}
-            .onChange=${this.onChange}
-            .onFileDelete=${this.onFileDelete}
-            .onFileClick=${callback}
-        ></server-file-thumbnail>
-        
-        `;
+        return html`<server-file-thumbnail
+    .file=${file}
+    .folder=${this.folder}
+    .onChange=${this.onChange}
+    .onFileDelete=${this.onFileDelete}
+    .onFileClick=${callback}
+></server-file-thumbnail>`;
     }
 
     protected render(): unknown {
@@ -219,33 +203,16 @@ export class FolderFiles extends ClientConsumer {
 
         }
 
-        return html`
-
-        <!--
-        <div class="bar">
-            <h2 class="list-label">
-                <span><strong>${this.files.length} soubory</strong> ve složce <i>${this.folder.name}</i>:</span>
-            </h2>
-            <div class="display-settings">
-
-            </div>
-        </div>
-        -->
-
-            <group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)} batch="true">
-
-                <main class="layout">
-
-                <section class="section__tools">
-                    <group-tool-bar></group-tool-bar>
-                </section>
-
-                <section class="section__files">
-                    ${this.files?.map(subfolder => this.renderFile(subfolder))}
-                </section>
-
-                </main>
-            </group-provider>`;
+        return html`<group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)} batch="true">
+    <main class="layout">
+        <section class="section__tools">
+            <group-tool-bar></group-tool-bar>
+        </section>
+        <section class="section__files">
+            ${this.files?.map(subfolder => this.renderFile(subfolder))}
+        </section>
+    </main>
+</group-provider>`;
     }
 
 

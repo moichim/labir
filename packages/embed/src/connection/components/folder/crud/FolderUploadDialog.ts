@@ -145,11 +145,11 @@ export class FolderUploadDialog extends ClientConsumer {
                 <slot name="invoker" slot="invoker">
                     <thermal-btn 
                         size="md" 
-                        variant="${this.variant}" 
+                        .variant=${this.variant}
                         plain=${this.plain ? true : false}
                         icon="upload" 
                         iconStyle="micro"
-                        tooltip=${this.tooltip ? this.tooltip : t(T.uploadafile)}
+                        .tooltip=${this.tooltip ? this.tooltip : ""}
                     >
                         ${label}
                     </thermal-btn>

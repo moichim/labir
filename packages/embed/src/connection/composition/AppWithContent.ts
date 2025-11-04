@@ -14,6 +14,7 @@ import { AppState, FolderMode } from "./AppWithState";
  */
 export abstract class AppWithContent extends AppWithClientProvider {
 
+
     @state()
     private _breadcrumb: BreadcrumbItem[] = [];
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
@@ -308,6 +309,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
             const registry = this.registryElement.value.registry;
             registry.range.reset();
             registry.minmax.reset();
+            this.registryElement.value.setHighlight(undefined);
         }
     }
 
@@ -429,7 +431,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                 // Extract the subfolders from the info response
                 const subfolders = info.data.subfolders
-                    ? Object.values(info.data.subfolders)
+                    ? Object.values(info.data.subfolders).sort( (a, b) => a.name.localeCompare(b.name) )
                     : [];
 
                 const subfoldersWithFiles = subfolders.filter( sf => sf.lrc_count > 0 ).length;
@@ -571,10 +573,16 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
         this.clearRegistryRange();
 
+        this._file = undefined;
+
+        this.folderMode = FolderMode.TABLE;
+
         this.updateFolder(folder);
         this.updateBreadcrumb(breadcrumb);
         this.updateSubfolders(subfolders ?? []);
         this.state = AppState.FOLDER;
+
+        this.requestUpdate();
 
     }
 
@@ -598,6 +606,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
     }
 
     protected setStateUser(): void {
+        this.path = undefined;
         this.state = AppState.USER;
         this.folderMode = FolderMode.LIST;
         this.by = GridGrouping.HOUR;

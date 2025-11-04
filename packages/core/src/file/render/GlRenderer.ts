@@ -30,7 +30,9 @@ export class GlRenderer extends AbstractRenderer {
 
     protected async onInit(): Promise<boolean> {
 
-        const context = this.canvas.getContext("webgl2");
+        const context = this.canvas.getContext("webgl2", {
+            preserveDrawingBuffer: true
+        });
 
         if (context === null) {
             return false;

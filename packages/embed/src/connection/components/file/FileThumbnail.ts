@@ -1,19 +1,18 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import icons from "../../../utils/icons";
+import { ThermalGroup, TimeFormat } from "@labir/core";
 import { FileInfo } from "@labir/server";
-import { FolderInfo } from "packages/server/client/dist";
-import { TemplateResult, html, css, CSSResultGroup, nothing, PropertyValues } from "lit";
-import { Instance, ThermalGroup, TimeFormat } from "@labir/core";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { consume } from "@lit/context";
-import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../ClientContext";
 import { t } from "i18next";
-import { T } from "../../../translations/Languages";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { FolderInfo } from "packages/server/client/dist";
 import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
-import { fileContext } from "../../../hierarchy/providers/context/FileContexts";
 import { groupContext } from "../../../hierarchy/providers/context/GroupContext";
+import { T } from "../../../translations/Languages";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import icons from "../../../utils/icons";
+import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../ClientContext";
+import { ClientConsumer } from "../ClientConsumer";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
@@ -74,11 +73,11 @@ export class FileThumbnail extends ClientConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
         this.hydrate();
-        if ( this.instanceRef.value ) {
+        if (this.instanceRef.value) {
 
-            this.instanceRef.value.onSuccess.set( this.UUID, () => {
+            this.instanceRef.value.onSuccess.set(this.UUID, () => {
                 this.hydrate();
-            } );
+            });
 
         }
     }
@@ -86,18 +85,18 @@ export class FileThumbnail extends ClientConsumer {
     protected hydrate() {
 
         // Read the analysis right away
-        if ( this.fileObject ) {
+        if (this.fileObject) {
             this.hasDisplayedAnalysis = this.fileObject.analysis.value.length > 0;
-            this.fileObject.analysis.addListener( this.UUID, analyses => {
+            this.fileObject.analysis.addListener(this.UUID, analyses => {
                 this.hasDisplayedAnalysis = analyses.length > 0;
-            } );
+            });
         }
 
     }
 
 
     protected dehydrate() {
-        this.fileObject?.analysis.removeListener( this.UUID );
+        this.fileObject?.analysis.removeListener(this.UUID);
     }
 
     protected updated(changedProperties: Map<string, any>): void {
@@ -184,7 +183,9 @@ export class FileThumbnail extends ClientConsumer {
         return html`<file-edit-dialog
             .file=${this.file}
             .folder=${this.folder}
-            .onSuccess=${this.onChange}
+            .onSuccess=${() => {
+                this.onChange?.(this.file!);
+            }}
             label=""
             plain="true"
             variant="background"
@@ -232,7 +233,7 @@ export class FileThumbnail extends ClientConsumer {
 
     protected renderNumAnalyses(): unknown {
 
-        if (!this.file.analyses || this.file.analyses.length === 0 ) {
+        if (!this.file.analyses || this.file.analyses.length === 0) {
             return nothing;
         }
 
@@ -247,13 +248,13 @@ export class FileThumbnail extends ClientConsumer {
 
         const instance = this.instanceRef.value?.file;
 
-        if ( ! instance ) {
+        if (!instance) {
             return;
         }
 
-        this.file.analyses.forEach( analysis => {
+        this.file.analyses.forEach(analysis => {
             instance.slots.createFromSerialized(analysis)?.setSelected();
-        } )
+        })
 
     }
 
@@ -294,60 +295,60 @@ export class FileThumbnail extends ClientConsumer {
                     </thermal-btn>` : nothing}
                 </file-analysis-complex>
 
-                ${this.hasDisplayedAnalysis 
+                ${this.hasDisplayedAnalysis
                     ? html`<aside>
 
                     ${!this.syncAnalyses
-                        ? html`<thermal-btn
+                            ? html`<thermal-btn
                             icon="link"
                             iconStyle="micro"
                             tooltip="Aplikovat tyto analýzy na všechny soubory ve složce"
                             @click=${() => {
 
-                                // Získej instanci současného souboru
-                                const instance = this.instanceRef.value?.file;
+                                    // Získej instanci současného souboru
+                                    const instance = this.instanceRef.value?.file;
 
-                                if ( !instance || !this.group ) {
-                                    return;
-                                }
-
-                                instance.group.files.value.forEach( otherInstance => {
-
-                                    if ( otherInstance.fileName === instance.fileName ) {
+                                    if (!instance || !this.group) {
                                         return;
                                     }
 
-                                    // Remove all existing analyses
-                                    otherInstance.analysis.value.forEach( analysis => {
-                                        otherInstance.analysis.layers.removeAnalysis( analysis.key );
+                                    instance.group.files.value.forEach(otherInstance => {
+
+                                        if (otherInstance.fileName === instance.fileName) {
+                                            return;
+                                        }
+
+                                        // Remove all existing analyses
+                                        otherInstance.analysis.value.forEach(analysis => {
+                                            otherInstance.analysis.layers.removeAnalysis(analysis.key);
+                                        });
+
+
+                                        // Copy analyses from the current instance
+                                        instance.analysis.value.forEach(analysis => {
+                                            const a = otherInstance.slots.createFromSerialized(analysis.toSerialized());
+                                            a?.setSelected();
+                                        });
+
                                     });
 
-
-                                    // Copy analyses from the current instance
-                                    instance.analysis.value.forEach( analysis => {
-                                        const a = otherInstance.slots.createFromSerialized( analysis.toSerialized() );
-                                        a?.setSelected();
-                                    } );
-
-                                } );
-
-                            }}
+                                }}
                         ></thermal-btn>
                         <file-analysis-remove-button disalbled="false"></file-analysis-remove-button>
                         `
-                        : nothing
-                    }
+                            : nothing
+                        }
 
-                    ${this.folder.may_manage_files_in 
-                        ? html`
+                    ${this.folder.may_manage_files_in
+                            ? html`
                         <file-analysis-store-button
                             size="md"
                             .info=${this.file}
                             .folder=${this.folder}
                             .onChange=${this.onChange}
 
-                        ></file-analysis-store-button>` 
-                        : nothing}
+                        ></file-analysis-store-button>`
+                            : nothing}
 
 
                     <file-analysis-restore-button
@@ -358,7 +359,7 @@ export class FileThumbnail extends ClientConsumer {
                     ></file-analysis-restore-button>
 
                 </aside>`
-                : nothing}
+                    : nothing}
 
             </div>
             `;
@@ -609,8 +610,13 @@ export class FileThumbnail extends ClientConsumer {
                 padding: 1em;
                 height: 100%;
                 position: relative;
-
                 padding-bottom: 2em;
+
+                min-width: 220px;
+            }
+
+            file-canvas {
+                min-width: 300px;
             }
 
             .header_text {
@@ -640,7 +646,7 @@ export class FileThumbnail extends ClientConsumer {
                 bottom: 1em;
                 left: 1em;
                 right: 1em;
-                justify-content: flex-end; /* Zarovnání doprava */
+                flex-wrap: wrap;
             }
 
             p.description {
@@ -707,6 +713,7 @@ export class FileThumbnail extends ClientConsumer {
 
                 <main>
                     <file-canvas></file-canvas>
+                    <file-timeline></file-timeline>
                 </main>
 
                 <header>

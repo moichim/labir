@@ -6,7 +6,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { computePosition, flip, shift, offset, arrow, autoUpdate, Placement } from '@floating-ui/dom';
 import { booleanConverter } from "../utils/converters/booleanConverter";
 
-export type BtnVariants = "primary" | "foreground" | "background" | "default";
+export type BtnVariants = "primary" | "foreground" | "background" | "default" | "breadcrumb";
 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
@@ -33,6 +33,9 @@ export class ThermalBtn extends BaseElement {
 
     @property({type: String, converter: booleanConverter(false), reflect: true})
     public disabled?: boolean;
+
+    @property({type: String, converter: booleanConverter(false), reflect: true})
+    public interactive?: boolean;
 
     @property({type: Boolean, attribute: true, reflect: true})
     public plain?: boolean;
@@ -82,7 +85,7 @@ export class ThermalBtn extends BaseElement {
         // Create tooltip element
         this.tooltipElement = document.createElement('div');
         this.tooltipElement.className = 'thermal-tooltip';
-        this.tooltipElement.textContent = this.tooltip;
+        this.tooltipElement.innerHTML = this.tooltip;
         this.tooltipElement.style.position = 'absolute';
         this.tooltipElement.style.top = '0';
         this.tooltipElement.style.left = '0';
@@ -313,6 +316,10 @@ export class ThermalBtn extends BaseElement {
             cursor: text !important;
         }
 
+        :host([interactive="false"]:hover) {
+            color: var(--thermal-foreground) !important;
+        }
+
         :host([variant="primary"]) {
             background-color: var(--thermal-primary);
             color: white;
@@ -343,6 +350,25 @@ export class ThermalBtn extends BaseElement {
         :host([variant="background"][size="sm"]:focus) {
             background-color: var(--thermal-slate-light);
         }
+
+
+        :host([variant="breadcrumb"][size="sm"]) {
+            letter-spacing: 0px;
+            font-size: 1em;
+            padding: 0;
+            background: transparent;
+        }
+
+        :host([variant="breadcrumb"][size="sm"]:hover),
+        :host([variant="breadcrumb"][size="sm"]:focus) {
+            box-shadow: none;
+            color: var(--thermal-primary);
+            slot {
+                text-decoration: underline;
+            }
+        }
+
+
 
         .btn-icon {
             width: 1em;
