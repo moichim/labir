@@ -174,6 +174,7 @@ import "./connection/components/folder/crud/FolderAddDialog";
 import "./connection/components/folder/crud/FolderDeleteDialog";
 import "./connection/components/folder/crud/FolderEditDialog";
 import "./connection/components/folder/crud/FolderUploadDialog";
+import "./connection/components/folder/crud/FolderUploadForm";
 import "./connection/components/folder/files/FolderFiles";
 import "./connection/components/folder/files/FolderRemoveAnalyses";
 import "./connection/components/folder/folders/FolderSubfolders";

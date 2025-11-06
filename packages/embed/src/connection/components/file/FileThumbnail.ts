@@ -13,6 +13,7 @@ import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import icons from "../../../utils/icons";
 import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../ClientContext";
 import { ClientConsumer } from "../ClientConsumer";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("server-file-thumbnail")
 export class FileThumbnail extends ClientConsumer {
@@ -704,6 +705,7 @@ export class FileThumbnail extends ClientConsumer {
         return html`
             <file-provider
                 thermal=${this.file.url}
+                visible=${ifDefined( this.file.visual )}
                 batch="true"
                 autoclear="true"
                 role="article"

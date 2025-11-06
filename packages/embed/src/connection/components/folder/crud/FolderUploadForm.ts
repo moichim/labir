@@ -19,8 +19,8 @@ interface UnmatchedPng {
     url: string;
 }
 
-@customElement("folder-upload-dialog")
-export class FolderUploadDialog extends ClientConsumer {
+@customElement("folder-upload-form")
+export class FolderUploadForm extends ClientConsumer {
 
     @property( { type: Object} )
     public folder!: FolderInfo;
@@ -53,6 +53,43 @@ export class FolderUploadDialog extends ClientConsumer {
     public onSuccess?: (files: File[]) => void;
 
     public static styles?: CSSResultGroup = css`
+
+        :host {
+            font-size: var(--thermal-fs);
+            color: var(--thermal-foreground);
+        }
+
+        .stage {
+
+            border: 1px dashed var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            padding: var(--thermal-gap);
+            box-sizing: border-box;
+
+            .stage-label {
+                font-weight: bold;
+                margin: 0;
+                padding: 0;
+                padding-bottom: .5em;
+                font-size: 1.3em;
+                line-height: 1.2em;
+            }
+
+            .stage-close {
+                float: right;
+            }
+        
+        }
+
+        .stage-preview {
+
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 1em;
+        
+        }
+
+
         .content {
             padding: var(--thermal-gap);
         }
@@ -72,7 +109,7 @@ export class FolderUploadDialog extends ClientConsumer {
             padding: calc(var(--thermal-gap) * 0.5);
             border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
+            box-sizing: border-box;
         }
 
         .file-info {
@@ -162,16 +199,9 @@ export class FolderUploadDialog extends ClientConsumer {
                 &.paired-file-group__header {
 
                     td {
-                        
                         vertical-align: middle;
-
+                        border-radius: var(--thermal-radius);
                         background: var( --thermal-background );
-                        &:first-child {
-                            border-radius: var(--thermal-radius) 0 0 var(--thermal-radius);
-                        }
-                        &:last-child {
-                            border-radius: 0 var(--thermal-radius) var(--thermal-radius) 0;
-                        }
                     }
 
                     thermal-icon {
@@ -196,6 +226,77 @@ export class FolderUploadDialog extends ClientConsumer {
             }
 
         }
+
+
+.file-preview {
+
+    display: grid;
+    grid-template-columns: 5em 1fr;
+    gap: .5em;
+
+    .file-preview__icon,
+    img {
+        
+        max-width: 5em;
+        height: auto;
+    }
+
+    img {
+        display: block;
+    }
+
+}
+
+.file-preview__icon {
+
+    color: var( --thermal-background );
+    background: var( --thermal-slate-dark );
+    border-radius: var( --thermal-radius );
+
+    box-sizing: border-box;
+
+    aspect-ratio: 160 / 120;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    thermal-icon {
+        width: 1.5em;
+        height: 1.5em;
+        display: block;
+    }
+    
+}
+
+.file-preview__empty {
+    .file-preview__icon {
+        background: transparent;
+        color: var( --thermal-slate );
+        border: 1px dashed var( --thermal-slate );
+    }
+}
+
+
+.file-preview__info {
+    display: flex;
+    flex-direction: column;
+    gap: .2em;
+}
+
+.file-preview__info > div {
+    font-size: .7em;
+    color: var( --thermal-slate-dark );
+}
+
+.file-preview__label {
+    font-size: var( --thermal-fs ) !important;
+    color: var( --thermal-foreground );
+}
+
+
+
+
     `;
 
     protected async handleSubmit(): Promise<boolean> {
@@ -306,6 +407,154 @@ export class FolderUploadDialog extends ClientConsumer {
             .map(file => ({ file, url: URL.createObjectURL(file) }));
     }
 
+
+    private get hasFiles(): boolean {
+        return this.pairedFiles.length > 0 || this.unmatchedPngs.length > 0;
+    }
+
+    private get maySubmit(): boolean {
+        return this.pairedFiles.length > 0;
+    }
+
+
+
+
+    private renderDropinArea(): unknown {
+
+        return html`<div class="stage">
+    <label for="file-input" class="stage-label">Vyberte soubory:</label>
+    <input 
+        type="file" 
+        id="file-input"
+        @change=${this.handleFileChange}
+        multiple
+        accept=".lrc,.png"
+    />
+</div>`;
+
+    }
+
+
+
+    private renderFilePreview(
+        label: string,
+        file?: File
+    ): unknown {
+
+        if ( !file ) {
+            return html`<div class="file-preview file-preview__empty">
+    <div class="file-preview__icon">
+        <thermal-icon icon="close" variant="outline"></thermal-icon>
+    </div>    
+    <div class="file-preview__info">
+        <div class="file-preview__label">${label}</div>
+        <div class="file-preview__name">Žádný soubor</div>
+    </div>
+</div>`;
+        }
+
+        const kbsize = (file.size / 1024).toFixed(3);
+
+        const preview = file.name.toLowerCase().endsWith('.png')
+            ? html`<img src=${URL.createObjectURL(file)} alt="File preview" />`
+            : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`;
+
+        return html`<div class="file-preview file-preview__has-file">
+    <div class="file-preview__preview">${preview}</div>
+    <div class="file-preview__info">
+        <div class="file-preview__label">${label}</div>
+        <div class="file-preview__name">${file.name}</div>
+        <div class="file-preview__size">${kbsize} kB</div>
+    </div>
+</div>`;
+
+    }
+
+    
+
+    private renderPairedFileRow( pair: PairedFiles, index: number ): unknown {
+        return html`<tr class="paired-file-group paired-file-group__header">
+    <td colspan="4">${index + 1}. snímek</td>
+</tr>
+<tr class="paired-file-group">
+    <td></td>
+    <td>${this.renderFilePreview( "LRC termogram", pair.lrc )}</td>
+    <td>${this.renderFilePreview( "Snímek ve viditelném spektru", pair.visual )}</td>
+    <td>${this.renderFilePreview( "Printscreen displeje termokamery", pair.preview )}</td>
+</tr>`;
+    }
+
+
+    private renderPairedFiles(): unknown {
+
+        if ( this.pairedFiles.length === 0 ) {
+            return nothing;
+        }
+
+    return html`
+<div class="paired-files">
+
+<h3 class="stage-label">Soubory k uploadu (${this.pairedFiles.length}):</h3>
+
+<table class="paired-files-table">
+<tbody>
+${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
+</tbody>
+</table>
+
+</div>`;
+    }
+
+    private renderUnmatchedFiles(): unknown {
+
+        if ( this.unmatchedPngs.length === 0 ) {
+            return nothing;
+        }
+    return html`<div class="unmatched-files">
+    <h3 class="stage-label">Nespárované obrázky (${this.unmatchedPngs.length}):</h3>
+    <p>Tyto PNG soubory neodpovídají žádnému vybranému LRC souboru a budou při nahrávání ignorovány:</p>
+    ${this.unmatchedPngs.map(item => html`
+        <div class="file-item">${item.file.name}<img src=${item.url} alt="Unmatched file preview" /></div>`)}
+</div>`;
+    }
+
+    private renderErrorMessage(): unknown {
+        if (! this.errorMessage ) {
+            return nothing;
+        }
+        return html`<div class="error">${this.errorMessage}</div>`
+    }
+
+    private renderSubmitButton(): unknown {
+        if ( ! this.hasFiles ) {
+            return nothing
+        }
+
+        return html`<thermal-btn
+    @click=${() => this.handleSubmit()}
+    disabled=${ this.maySubmit ? "false": "true" }
+    .variant=${this.maySubmit ? "primary": "foreground"}
+    size="xl"
+>${this.label}</thermal-btn>`;
+    }
+
+
+    protected renderPreviewAndSubmit(): unknown {
+
+        return html`<div class="stage stage-preview">
+    <div class="stage-preview__files">
+        ${this.renderPairedFiles()}
+        ${this.renderUnmatchedFiles()}
+    </div>
+    <div class="stage-preview__actions">
+        ${this.renderErrorMessage()}
+        ${this.renderSubmitButton()}
+    </div>
+</div>`;
+
+    }
+
+
     protected render(): unknown {
 
         const label = this.label !== undefined
@@ -315,130 +564,14 @@ export class FolderUploadDialog extends ClientConsumer {
         if ( ! this.isLoggedIn || !this.folder.may_manage_files_in) {
             return nothing
         }
-        
+
+
         return html`
-            <thermal-dialog
-                label=${t(T.uploadafile)}
-                .beforeClose=${() => this.handleSubmit()}
-                button=${t(T.uploadafile)}
-            >
-                <slot name="invoker" slot="invoker">
-                    <thermal-btn 
-                        size="md" 
-                        .variant=${this.variant}
-                        plain=${this.plain ? true : false}
-                        icon="upload" 
-                        iconStyle="micro"
-                        .tooltip=${this.tooltip ? this.tooltip : ""}
-                    >
-                        ${label}
-                    </thermal-btn>
-                </slot>
+        
+            ${this.renderDropinArea()}
 
-                <div class="content" slot="content">
-                    <div class="form-group">
-                        <label for="file-input">Vyberte soubory:</label>
-                        <input 
-                            type="file" 
-                            id="file-input"
-                            @change=${this.handleFileChange}
-                            multiple
-                            accept=".lrc,.png"
-                        />
-                    </div>
-
-                    ${this.pairedFiles.length > 0 ? html`
-                        <div class="file-info">
-                            <h3>Zpracovávané soubory:</h3>
-
-                            <table class="paired-files-table">
-                                <tbody>
-                                ${this.pairedFiles.map( (pair, index ) => html`
-
-                                    <tr class="paired-file-group paired-file-group__header">
-
-                                        <td>${index + 1}.</td>
-                                        <td colspan="3">
-                                            <div class="centered">
-                                            
-                                                <thermal-icon
-                                                    icon="document"
-                                                    variant="outline"
-                                                ></thermal-icon>
-
-                                                <span class="file-name">${pair.lrc.name}</span>
-
-                                                <span>${( pair.lrc.size / 1024 / 1024 ).toFixed(3)} MB</span>
-
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="paired-file-group">
-                                        <td></td>
-                                        <td>
-                                            <strong>LRC termogram</strong>
-                                            <span>${( pair.lrc.size / 1024).toFixed(3)} kB</span>
-                                        </td>
-
-                                        <td>
-                                            ${pair.visual 
-                                                ? html`
-                                                    <strong>Snímek ve viditelném spektru</strong>
-                                                    <span>${( pair.visual.size / 1024).toFixed(3)} kB</span>
-                                                <thermal-btn
-                                                    .plain="true"
-                                                    .variant="breadcrumb"
-                                                    tooltip="${pair.visual.name}"
-                                                >
-                                                    <img src=${pair.visualUrl} alt="Visual preview" />
-                                                </thermal-btn>` 
-                                                : 
-                                                '<thermal-icon icon="close" variant="solid"></thermal-icon>'}
-                                        </td>
-
-                                        <td>
-                                            ${pair.preview 
-                                                ? html`
-                                                    <strong>Printescreen displeje termokamery</strong>
-                                                    <span>${( pair.preview.size / 1024).toFixed(3)} kB</span>
-                                                <thermal-btn
-                                                    .plain="true"
-                                                    .variant="breadcrumb"
-                                                    tooltip="${pair.preview.name}"
-                                                >
-                                                    <img src=${pair.previewUrl} alt="Preview" />
-                                                </thermal-btn>` 
-                                                : 
-                                                '<thermal-icon icon="close" variant="solid"></thermal-icon>'}
-                                        </td>
-
-                                    </tr>
-
-                                    ${index === this.pairedFiles.length - 1 ? nothing : html`
-                                        <tr class="spacer-row">
-                                            <td colspan="3"></td>
-                                        </tr>
-                                    `}
-                                `)}
-                                </tbody>
-                            </table>
-
-                        </div>
-                    ` : ''}
-
-                    ${this.unmatchedPngs.length > 0 ? html`
-                        <div class="unmatched-files">
-                            <strong>Nespárované (budou ignorovány):</strong>
-                            ${this.unmatchedPngs.map(item => html`
-                                <div class="file-item">${item.file.name}<img src=${item.url} alt="Unmatched file preview" /></div>
-                            `)}
-                        </div>
-                    ` : ''}
-
-                    ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}
-                </div>
-
-            </thermal-dialog>
+            ${this.renderPreviewAndSubmit()}
+        
         `;
 
     }

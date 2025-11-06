@@ -575,6 +575,7 @@ export abstract class AppWithRender extends AppWithContent {
                 <display-mode-settings
                     .folder=${this.folder}
                 ></display-mode-settings>
+                <registry-opacity-slider></registry-opacity-slider>
             </thermal-slot>
             <thermal-slot label="Obsah">
                 <editing-mode-settings
@@ -777,11 +778,24 @@ export abstract class AppWithRender extends AppWithContent {
             const prompt = this.folder.meta.prompt || undefined;
 
             if ( !prompt ) {
-                return nothing;
+                return html`<folder-upload-form
+                    .folder=${this.folder}
+                    .onSuccess=${(files: FileInfo[]) => {
+                        this.fetchContent();
+                    }}
+                ></folder-upload-form>`;
             }
 
 
-            return html`<div class="poster">
+            return html`
+                <folder-upload-form
+                    .folder=${this.folder}
+                    .onSuccess=${(files: FileInfo[]) => {
+                        this.fetchContent();
+                    }}
+                ></folder-upload-form>
+
+            <div class="poster">
 
                 <div style="min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--thermal-gap);">
 
