@@ -1,10 +1,11 @@
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { html, css, CSSResultGroup, nothing } from "lit";
 import { FolderInfo } from "@labir/server";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
+import { ThermalBtn } from "packages/embed/src/ui/Btn";
 
 interface PairedFiles {
     lrc: File;
@@ -22,11 +23,14 @@ interface UnmatchedPng {
 @customElement("folder-upload-form")
 export class FolderUploadForm extends ClientConsumer {
 
-    @property( { type: Object} )
+    @property({ type: Object })
     public folder!: FolderInfo;
 
     @property({ type: String })
-    public label: string = t(T.uploadafile);
+    public label: string = t(T.upload);
+
+    @property({ type: String })
+    public prompt?: string;
 
     @property({ type: String })
     public variant: string = "primary";
@@ -37,19 +41,19 @@ export class FolderUploadForm extends ClientConsumer {
     @property({ type: String, converter: booleanConverter(false) })
     private plain: boolean = false;
 
-    @property({type: String})
+    @property({ type: String })
     public tooltip?: string;
 
-    @property({ type: Object })
+    @state()
     private selectedFiles: FileList | null = null;
 
-    @property({ type: Array })
+    @state()
     private pairedFiles: PairedFiles[] = [];
 
-    @property({ type: Array })
+    @state()
     private unmatchedPngs: UnmatchedPng[] = [];
 
-    @property({ type: Function})
+    @property({ type: Function })
     public onSuccess?: (files: File[]) => void;
 
     public static styles?: CSSResultGroup = css`
@@ -61,62 +65,103 @@ export class FolderUploadForm extends ClientConsumer {
 
         .stage {
 
-            border: 1px dashed var(--thermal-slate);
+            border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius);
             padding: var(--thermal-gap);
             box-sizing: border-box;
-
-            .stage-label {
-                font-weight: bold;
-                margin: 0;
-                padding: 0;
-                padding-bottom: .5em;
-                font-size: 1.3em;
-                line-height: 1.2em;
-            }
-
-            .stage-close {
-                float: right;
-            }
         
+        }
+
+        .stage-label {
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            padding-bottom: .5em;
+            font-size: 1.3em;
+            line-height: 1.2em;
+        }
+
+        .stage-close {
+            float: right;
         }
 
         .stage-preview {
 
             display: grid;
             grid-template-columns: 1fr 300px;
-            gap: 1em;
+            gap: 3em;
         
         }
 
+        .stage-preview__actions {
 
-        .content {
-            padding: var(--thermal-gap);
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            align-items: stretch;
+            justify-content: stretch;
+        
         }
 
-        .form-group {
-            margin-bottom: var(--thermal-gap);
+        .stage-upload {
+        
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        
         }
 
         label {
             display: block;
-            margin-bottom: calc(var(--thermal-gap) * 0.5);
-            font-weight: bold;
+            width: 100%;
+
+            cursor: pointer;
+
+            div {
+            padding-top: 1em;
+                padding-bottom: 2em;
+                text-align: center;
+            }
         }
 
         input[type="file"] {
             width: 100%;
+            height: 200px;
+
+            cursor: pointer;
+
+            position: relative;
+            
             padding: calc(var(--thermal-gap) * 0.5);
             border: 1px solid var(--thermal-slate);
             border-radius: var(--thermal-radius);
             box-sizing: border-box;
-        }
 
-        .file-info {
-            background: var(--thermal-slate-light);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: calc(var(--thermal-gap) * 0.5);
+            transition: all .3s ease-in-out;
+
+            color: transparent;
+
+            &:hover,
+            &:focus {
+                background: var( --thermal-slate );
+            }
+
+            &::file-selector-button {
+                font-size: var( --thermal-fs );
+                padding: calc(var(--thermal-gap) * 0.5) calc(var(--thermal-gap) * 1);
+                background: var(--thermal-primary);
+                color: var( --thermal-background );
+                border: 1px solid var(--thermal-slate);
+                border-radius: var(--thermal-radius);
+                cursor: pointer;
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+             }
         }
 
         .file-item {
@@ -136,25 +181,7 @@ export class FolderUploadForm extends ClientConsumer {
             margin-bottom: var(--thermal-gap-quarter);
         }
 
-        .sub-file-item {
-            font-size: var(--thermal-fs-sm);
-            margin-left: var(--thermal-gap);
-            color: var(--thermal-slate-dark);
-        }
-
-        .sub-file-item img, .file-item img {
-            max-width: 100px;
-            max-height: 100px;
-            display: block;
-            margin-top: var(--thermal-gap-quarter);
-            border-radius: var(--thermal-radius-sm);
-        }
-
         .unmatched-files {
-            margin-top: var(--thermal-gap);
-            background: var(--thermal-slate-light);
-            padding: var(--thermal-gap-half);
-            border-radius: var(--thermal-radius);
         }
 
         .error {
@@ -321,11 +348,11 @@ export class FolderUploadForm extends ClientConsumer {
                 }
 
                 const result = await upload.execute();
-                
+
                 if (!result?.success) {
                     throw new Error(`Nepodařilo se nahrát soubor ${pair.lrc.name}: ${result?.message}`);
                 }
-                
+
                 return pair.lrc;
             });
 
@@ -421,15 +448,26 @@ export class FolderUploadForm extends ClientConsumer {
 
     private renderDropinArea(): unknown {
 
-        return html`<div class="stage">
-    <label for="file-input" class="stage-label">Vyberte soubory:</label>
-    <input 
-        type="file" 
-        id="file-input"
-        @change=${this.handleFileChange}
-        multiple
-        accept=".lrc,.png"
-    />
+        if (this.hasFiles) {
+            return nothing;
+        }
+
+        return html`<div class="stage_ stage-upload_">
+    <label for="file-input">
+
+        <div>Vyberte či přetáhněte sem LRC soubory a případně odpovídající PNG obrázky.</div>
+        
+        <input 
+            type="file" 
+            id="file-input"
+            @change=${this.handleFileChange}
+            multiple
+            accept=".lrc,.png"
+        />
+
+        
+
+    </label>
 </div>`;
 
     }
@@ -441,7 +479,7 @@ export class FolderUploadForm extends ClientConsumer {
         file?: File
     ): unknown {
 
-        if ( !file ) {
+        if (!file) {
             return html`<div class="file-preview file-preview__empty">
     <div class="file-preview__icon">
         <thermal-icon icon="close" variant="outline"></thermal-icon>
@@ -470,28 +508,28 @@ export class FolderUploadForm extends ClientConsumer {
 
     }
 
-    
 
-    private renderPairedFileRow( pair: PairedFiles, index: number ): unknown {
+
+    private renderPairedFileRow(pair: PairedFiles, index: number): unknown {
         return html`<tr class="paired-file-group paired-file-group__header">
     <td colspan="4">${index + 1}. snímek</td>
 </tr>
 <tr class="paired-file-group">
     <td></td>
-    <td>${this.renderFilePreview( "LRC termogram", pair.lrc )}</td>
-    <td>${this.renderFilePreview( "Snímek ve viditelném spektru", pair.visual )}</td>
-    <td>${this.renderFilePreview( "Printscreen displeje termokamery", pair.preview )}</td>
+    <td>${this.renderFilePreview("LRC termogram", pair.lrc)}</td>
+    <td>${this.renderFilePreview("Snímek ve viditelném spektru", pair.visual)}</td>
+    <td>${this.renderFilePreview("Printscreen displeje termokamery", pair.preview)}</td>
 </tr>`;
     }
 
 
     private renderPairedFiles(): unknown {
 
-        if ( this.pairedFiles.length === 0 ) {
+        if (this.pairedFiles.length === 0) {
             return nothing;
         }
 
-    return html`
+        return html`
 <div class="paired-files">
 
 <h3 class="stage-label">Soubory k uploadu (${this.pairedFiles.length}):</h3>
@@ -507,39 +545,95 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
 
     private renderUnmatchedFiles(): unknown {
 
-        if ( this.unmatchedPngs.length === 0 ) {
+        if (this.unmatchedPngs.length === 0) {
             return nothing;
         }
-    return html`<div class="unmatched-files">
-    <h3 class="stage-label">Nespárované obrázky (${this.unmatchedPngs.length}):</h3>
-    <p>Tyto PNG soubory neodpovídají žádnému vybranému LRC souboru a budou při nahrávání ignorovány:</p>
-    ${this.unmatchedPngs.map(item => html`
-        <div class="file-item">${item.file.name}<img src=${item.url} alt="Unmatched file preview" /></div>`)}
+
+        const titleStart = this.pairedFiles.length === 0
+            ? "Nerozpoznané obrázky"
+            : "Další nerozpoznané obrázky";
+
+        const title = `${titleStart} (${this.unmatchedPngs.length}) nebudou nahrány`;
+
+        const titleElement = this.pairedFiles.length === 0
+            ? html`<h3 class="stage-label">${title}</h3>`
+            : html`<thermal-btn
+        icon="info"
+        iconStyle="outline"
+        size="lg"
+        @click=${(event: MouseEvent) => {
+                    const btn = event.target as ThermalBtn;
+                    const parent = btn.parentElement;
+                    const list = parent?.querySelector(".unmatched-files__list") as HTMLElement;
+                    if (list) {
+                        list.style.display = list.style.display === "none" ? "block" : "none";
+                    }
+                }}
+    >${title}</thermal-btn>`;
+
+        const defaultListStyle = this.pairedFiles.length === 0
+            ? "block"
+            : "none";
+
+        return html`<div class="unmatched-files">
+
+    ${titleElement}
+
+    <div class="unmatched-files__list" style="display: ${defaultListStyle};">
+
+        <table>
+            <tbody>
+            ${this.unmatchedPngs.map(item => html`
+        <tr class="file-item">
+            <td><img src=${item.url} alt="Unmatched file preview" /></td>
+            <td>${item.file.name}</td>
+        </tr>`)}
+            </tbody>
+        </table>
+
+    </div>
+
 </div>`;
     }
 
     private renderErrorMessage(): unknown {
-        if (! this.errorMessage ) {
+        if (!this.errorMessage) {
             return nothing;
         }
         return html`<div class="error">${this.errorMessage}</div>`
     }
 
     private renderSubmitButton(): unknown {
-        if ( ! this.hasFiles ) {
+        if (!this.hasFiles) {
             return nothing
         }
 
-        return html`<thermal-btn
+        return html`
+<thermal-btn
     @click=${() => this.handleSubmit()}
-    disabled=${ this.maySubmit ? "false": "true" }
-    .variant=${this.maySubmit ? "primary": "foreground"}
-    size="xl"
->${this.label}</thermal-btn>`;
+    disabled=${this.maySubmit ? "false" : "true"}
+    .variant=${this.maySubmit ? "primary" : "foreground"}
+    icon="upload"
+    iconStyle="micro"
+    size="lg"
+>${this.label}</thermal-btn>
+<thermal-btn
+    @click=${() => {
+                this.clearFiles();
+            }}
+    .variant="foreground"
+    icon="close"
+    iconStyle="micro"
+    size="lg"
+>Vybrat jiné soubory</thermal-btn>`;
     }
 
 
     protected renderPreviewAndSubmit(): unknown {
+
+        if (!this.hasFiles) {
+            return nothing;
+        }
 
         return html`<div class="stage stage-preview">
     <div class="stage-preview__files">
@@ -561,7 +655,7 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
             ? this.label
             : t(T.uploadafile);
 
-        if ( ! this.isLoggedIn || !this.folder.may_manage_files_in) {
+        if (!this.isLoggedIn || !this.folder.may_manage_files_in) {
             return nothing
         }
 

@@ -1,17 +1,16 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
-import { AppWithContent } from "./AppWithContent";
-import { AppState, FolderMode } from "./AppWithState";
-import { FileInfo, FolderInfo, BreadcrumbItem } from "@labir/server";
+import { AvailableThermalPalettes } from "@labir/core";
+import { BreadcrumbItem, FileInfo, FolderInfo } from "@labir/server";
 import { provide } from "@lit/context";
-import { property } from "lit/decorators.js";
-import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, locledBrowsingTo, lockedBrowsingTo, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext, lockedBrowsingToSetter } from "../ClientContext";
-import { ifDefined } from "lit/directives/if-defined.js";
 import { t } from "i18next";
-import { T } from "../../translations/Languages";
+import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { property } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, Ref } from "lit/directives/ref.js";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
-import { AvailableThermalPalettes } from "@labir/core";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { T } from "../../translations/Languages";
+import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, lockedBrowsingTo, lockedBrowsingToSetter, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
+import { AppWithContent } from "./AppWithContent";
+import { AppState, FolderMode } from "./AppWithState";
 
 /** 
  * This layer provides the necessary render methods
@@ -21,10 +20,10 @@ export abstract class AppWithRender extends AppWithContent {
     @property({ type: String, reflect: true })
     public palette?: AvailableThermalPalettes;
 
-    @property({type: Number, reflect: true})
+    @property({ type: Number, reflect: true })
     public from?: number;
 
-    @property({type: Number, reflect: true})
+    @property({ type: Number, reflect: true })
     public to?: number;
 
 
@@ -88,7 +87,7 @@ export abstract class AppWithRender extends AppWithContent {
     protected lockedLocation?: string;
 
     @provide({ context: lockedBrowsingToSetter })
-    protected lockedLocationSetter: (locked: string|undefined) => void = (locked: string|undefined) => {
+    protected lockedLocationSetter: (locked: string | undefined) => void = (locked: string | undefined) => {
         this.lockedLocation = locked;
         this.requestUpdate();
     };
@@ -96,22 +95,22 @@ export abstract class AppWithRender extends AppWithContent {
     protected updated(_changedProperties: PropertyValues): void {
         super.updated(_changedProperties);
 
-            if (this.registryElement.value) {
+        if (this.registryElement.value) {
 
-                const registry = this.registryElement.value.registry;
+            const registry = this.registryElement.value.registry;
 
-                registry.manager.palette.addListener(this.UUIDContent, (palette) => {
-                    this.palette = palette;
-                    this.requestUpdate();
-                });
+            registry.manager.palette.addListener(this.UUIDContent, (palette) => {
+                this.palette = palette;
+                this.requestUpdate();
+            });
 
-                registry.range.addListener(this.UUIDContent, (range) => {
-                    this.from = range ? range.from : undefined;
-                    this.to = range ? range.to : undefined;
-                    this.requestUpdate();
-                });
+            registry.range.addListener(this.UUIDContent, (range) => {
+                this.from = range ? range.from : undefined;
+                this.to = range ? range.to : undefined;
+                this.requestUpdate();
+            });
 
-            }
+        }
 
 
     }
@@ -392,9 +391,9 @@ export abstract class AppWithRender extends AppWithContent {
                     .onChange=${(file: FileInfo) => this.setStateFile(file)}
 
                     .onClose=${() => {
-                        this.setPath( this.folder!.path );
-                        this.setStateFolder(this.folder!, this.breadcrumb );
-                    }}
+                this.setPath(this.folder!.path);
+                this.setStateFolder(this.folder!, this.breadcrumb);
+            }}
 
                     style="margin-top: -1em;"
                 >
@@ -659,7 +658,7 @@ export abstract class AppWithRender extends AppWithContent {
 
     private renderFolderUploadFileDialog(): unknown {
 
-        if (this.folder && this.folder.may_manage_files_in) {
+        if (this.folder && this.folder.may_manage_files_in && this.files && this.files.length > 0) {
 
             return html`<folder-upload-dialog
                 .folder=${this.folder}
@@ -773,45 +772,18 @@ export abstract class AppWithRender extends AppWithContent {
 
         }
 
-        else if ( this.folder && this.folder.may_manage_files_in === true ) {
+        else if (this.folder && this.folder.may_manage_files_in === true) {
 
             const prompt = this.folder.meta.prompt || undefined;
 
-            if ( !prompt ) {
-                return html`<folder-upload-form
+            return html`<folder-upload-form
                     .folder=${this.folder}
                     .onSuccess=${(files: FileInfo[]) => {
-                        this.fetchContent();
-                    }}
+                    this.fetchContent();
+                }}
+                    prompt=${ifDefined(prompt)}
                 ></folder-upload-form>`;
-            }
 
-
-            return html`
-                <folder-upload-form
-                    .folder=${this.folder}
-                    .onSuccess=${(files: FileInfo[]) => {
-                        this.fetchContent();
-                    }}
-                ></folder-upload-form>
-
-            <div class="poster">
-
-                <div style="min-height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: var(--thermal-gap);">
-
-                ${prompt}
-
-                <folder-upload-dialog
-                    .folder=${this.folder}
-                    .onSuccess=${(files: FileInfo[]) => {
-                        this.fetchContent();
-                    }}
-                    tooltip="Vybrat soubory z disku"
-                ></folder-upload-dialog>
-
-                </div>
-            
-            </div>`;
         }
 
         return nothing;

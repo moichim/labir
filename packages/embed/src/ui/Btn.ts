@@ -381,6 +381,12 @@ export class ThermalBtn extends BaseElement {
             padding: calc( var( --thermal-gap ) * .1 ) calc( var( --thermal-gap ) * .2 );
         }
 
+        :host([size="lg"]) {
+            font-size: calc( var( --thermal-fs ) );
+            line-height: 1.2em;
+            padding: .5em .7;
+        }
+
         :host([size="xl"]) {
             font-size: calc( var( --thermal-fs ) * 2);
             line-height: 1.2;
