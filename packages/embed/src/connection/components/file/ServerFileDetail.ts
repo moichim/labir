@@ -181,7 +181,6 @@ export class ServerFileDetail extends ClientConsumer {
 
             <section class="section section__image">
 
-
                 <div>
 
                     <registry-histogram expandable="true"></registry-histogram>

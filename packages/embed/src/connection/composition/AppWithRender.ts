@@ -444,6 +444,10 @@ export abstract class AppWithRender extends AppWithContent {
                         <registry-range-form></registry-range-form>
                     </thermal-slot>
 
+                    <thermal-slot label="Visible vs. IR" slot="header">
+                        <registry-opacity-slider></registry-opacity-slider>
+                    </thermal-slot>
+
                     
 
                     <thermal-slot 
@@ -743,6 +747,24 @@ export abstract class AppWithRender extends AppWithContent {
 
     }
 
+    private renderUploadForm(): unknown {
+        if (this.folder && this.folder.may_manage_files_in === true) {
+
+            const prompt = this.folder.meta.prompt || undefined;
+
+            return html`<folder-upload-form
+                    .folder=${this.folder}
+                    .onSuccess=${(files: FileInfo[]) => {
+                    this.fetchContent();
+                }}
+                    prompt=${ifDefined(prompt)}
+                ></folder-upload-form>`;
+
+        }
+
+        return nothing;
+    }
+
 
     private renderFolderFiles(): unknown {
 
@@ -768,25 +790,17 @@ export abstract class AppWithRender extends AppWithContent {
                 }}
 
                 .onChange=${(file: FileInfo) => this.updateFile(file)}
-            ></folder-files>`;
+            ></folder-files>
+
+            <br/>
+            
+            ${this.renderUploadForm()}
+            
+            `;
 
         }
 
-        else if (this.folder && this.folder.may_manage_files_in === true) {
-
-            const prompt = this.folder.meta.prompt || undefined;
-
-            return html`<folder-upload-form
-                    .folder=${this.folder}
-                    .onSuccess=${(files: FileInfo[]) => {
-                    this.fetchContent();
-                }}
-                    prompt=${ifDefined(prompt)}
-                ></folder-upload-form>`;
-
-        }
-
-        return nothing;
+        return this.renderUploadForm();
 
     }
 

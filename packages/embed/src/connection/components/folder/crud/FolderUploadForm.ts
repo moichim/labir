@@ -9,6 +9,7 @@ import { ThermalBtn } from "packages/embed/src/ui/Btn";
 
 interface PairedFiles {
     lrc: File;
+    lrcUrl: string;
     visual?: File;
     visualUrl?: string;
     preview?: File;
@@ -35,7 +36,7 @@ export class FolderUploadForm extends ClientConsumer {
     @property({ type: String })
     public variant: string = "primary";
 
-    @property({ type: String })
+    @state()
     private errorMessage: string = "";
 
     @property({ type: String, converter: booleanConverter(false) })
@@ -45,13 +46,19 @@ export class FolderUploadForm extends ClientConsumer {
     public tooltip?: string;
 
     @state()
-    private selectedFiles: FileList | null = null;
+    private allFiles: File[] = [];
 
     @state()
     private pairedFiles: PairedFiles[] = [];
 
     @state()
     private unmatchedPngs: UnmatchedPng[] = [];
+
+    @state()
+    private isDragging = false;
+
+    @state()
+    private infoMessage: string = "";
 
     @property({ type: Function })
     public onSuccess?: (files: File[]) => void;
@@ -69,7 +76,25 @@ export class FolderUploadForm extends ClientConsumer {
             border-radius: var(--thermal-radius);
             padding: var(--thermal-gap);
             box-sizing: border-box;
+            position: relative;
         
+        }
+
+        .drop-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 100, 255, 0.1);
+            border: 2px dashed var(--thermal-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            font-size: var(--thermal-fs-lg);
+            color: var(--thermal-primary);
+            z-index: 10;
         }
 
         .stage-label {
@@ -110,63 +135,69 @@ export class FolderUploadForm extends ClientConsumer {
             flex-direction: column;
             justify-content: center;
             align-items: center;
+
             text-align: center;
+            border: 2px dotted var(--thermal-slate);
+            border-radius: var( --thermal-radius );
+            
+            cursor: pointer;
+
+            transition: all .2s;
+
+            label {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 1em;
+            }
+
+            thermal-button {
+                pointer-events: none;
+            }
         
+        }
+        .stage-upload:hover {
+            border-color: var(--thermal-primary);
+            background: var(--thermal-slate-light);
+            filter: brightness(1.05);
+        }
+
+        .stage-upload--inline {
+            margin-top: var(--thermal-gap);
+            min-height: 120px;
+        }
+
+        /* Highlight only the specific dropzone under drag */
+        .stage-upload.drag-over,
+        .missing-file-dropzone.drag-over {
+            border-color: var(--thermal-primary);
+            background: rgba(0, 100, 255, 0.1);
         }
 
         label {
             display: block;
             width: 100%;
-
             cursor: pointer;
-
-            div {
-            padding-top: 1em;
-                padding-bottom: 2em;
-                text-align: center;
-            }
         }
 
         input[type="file"] {
-            width: 100%;
-            height: 200px;
-
-            cursor: pointer;
-
-            position: relative;
-            
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: 1px solid var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            box-sizing: border-box;
-
-            transition: all .3s ease-in-out;
-
-            color: transparent;
-
-            &:hover,
-            &:focus {
-                background: var( --thermal-slate );
-            }
-
-            &::file-selector-button {
-                font-size: var( --thermal-fs );
-                padding: calc(var(--thermal-gap) * 0.5) calc(var(--thermal-gap) * 1);
-                background: var(--thermal-primary);
-                color: var( --thermal-background );
-                border: 1px solid var(--thermal-slate);
-                border-radius: var(--thermal-radius);
-                cursor: pointer;
-                position: absolute;
-                left: 50%;
-                top: 50%;
-                transform: translate(-50%, -50%);
-             }
+            display: none;
         }
 
         .file-item {
             font-size: calc(var(--thermal-fs) * 0.9);
             margin-bottom: calc(var(--thermal-gap) * 0.25);
+            display: flex;
+            align-items: center;
+            gap: 1em;
+        }
+
+        .file-item img {
+            max-width: 60px;
+            max-height: 60px;
+            border-radius: var(--thermal-radius-sm);
+            object-fit: cover;
         }
 
         .paired-file-group {
@@ -181,7 +212,23 @@ export class FolderUploadForm extends ClientConsumer {
             margin-bottom: var(--thermal-gap-quarter);
         }
 
+        .group-remove-btn {
+
+            user-select: none;
+        }
+        .group-remove-btn:hover { background: var(--thermal-danger); }
+
         .unmatched-files {
+        }
+
+        .info {
+            background: var(--thermal-primary-light, #eef);
+            border: 1px solid var(--thermal-primary, #00f);
+            border-radius: var(--thermal-radius);
+            padding: calc(var(--thermal-gap) * 0.5);
+            margin-top: var(--thermal-gap);
+            color: var(--thermal-primary-dark, #008);
+            font-size: calc(var(--thermal-fs) * 0.9);
         }
 
         .error {
@@ -214,6 +261,7 @@ export class FolderUploadForm extends ClientConsumer {
             
                 td {
                     padding: .5em;
+                    vertical-align: top;
                 }
 
                 .centered {
@@ -260,12 +308,21 @@ export class FolderUploadForm extends ClientConsumer {
     display: grid;
     grid-template-columns: 5em 1fr;
     gap: .5em;
+    position: relative;
 
+    .missing-file-dropzone,
     .file-preview__icon,
     img {
         
         max-width: 5em;
         height: auto;
+    }
+
+    .missing-file-dropzone {
+        aspect-ratio: 160 / 120;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     img {
@@ -321,7 +378,44 @@ export class FolderUploadForm extends ClientConsumer {
     color: var( --thermal-foreground );
 }
 
+.missing-file-dropzone {
+    font-size: var(--thermal-fs-sm);
+    color: var(--thermal-slate-dark);
+    text-align: center;
 
+    border-radius: var(--thermal-radius-sm);
+    border: 2px dotted var(--thermal-slate);
+
+    cursor: pointer;
+    
+    transition: all .2s;
+
+    thermal-icon {
+        display: block;
+        width: 1.5em;
+        height: 1.5em;
+        user-select: none;
+        pointer-events: none;
+    }
+}
+.missing-file-dropzone:hover {
+    border-color: var(--thermal-primary);
+    background: #fff;
+}
+
+.remove-btn {
+    margin-left: auto;
+    cursor: pointer;
+}
+
+.file-remove-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    cursor: pointer;
+    user-select: none;
+    transition: background .15s ease;
+}
 
 
     `;
@@ -362,7 +456,7 @@ export class FolderUploadForm extends ClientConsumer {
                 this.onSuccess(uploadedFiles);
             }
 
-            this.clearFiles();
+            this.clearAllFiles();
             return true;
 
         } catch (error) {
@@ -372,32 +466,101 @@ export class FolderUploadForm extends ClientConsumer {
 
     }
 
-    private handleFileChange(event: Event) {
-        const target = event.target as HTMLInputElement;
-        this.clearFiles();
-        this.selectedFiles = target.files;
+    private addFiles(newFiles: FileList | null) {
+        if (!newFiles || newFiles.length === 0) return;
+
+        const newFilesArray = Array.from(newFiles);
+
+        const hasNewLrc = newFilesArray.some(file => file.name.toLowerCase().endsWith('.lrc'));
+        const hasExistingLrc = this.allFiles.some(file => file.name.toLowerCase().endsWith('.lrc'));
+
+        if (!hasExistingLrc && !hasNewLrc) {
+            this.infoMessage = "Je třeba nahrávat primárně LRC soubory! PNG obrázky jsou jejich volitelný doplněk.";
+            setTimeout(() => { this.infoMessage = ""; }, 5000);
+            return;
+        }
+
+        this.infoMessage = ""; // Clear message if adding valid files
+
+        const uniqueNewFiles = newFilesArray.filter(newFile => 
+            !this.allFiles.some(existingFile => 
+                existingFile.name === newFile.name && existingFile.size === newFile.size
+            )
+        );
+
+        this.allFiles = [...this.allFiles, ...uniqueNewFiles];
         this.pairFiles();
     }
 
-    private clearFiles() {
-        // Revoke old object URLs to prevent memory leaks
+    private handleMainFileChange(event: Event) {
+        const target = event.target as HTMLInputElement;
+        this.addFiles(target.files);
+        target.value = ''; // Reset input to allow selecting the same file again
+    }
+
+    private handleInlineFileChange(event: Event, lrcFile: File, type: 'visual' | 'preview') {
+        const target = event.target as HTMLInputElement;
+        if (target.files && target.files.length > 0) {
+            const originalFile = target.files[0];
+            const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, '');
+            const key = lrcBaseName.includes('_thermal')
+                ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf('_thermal'))
+                : lrcBaseName;
+            
+            const newFileName = type === 'visual'
+                ? `${key}_visual.png`
+                : `${key}_image_thermal.png`;
+
+            const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
+
+            this.addFiles([renamedFile] as any);
+        }
+        target.value = '';
+    }
+
+    private clearAllFiles() {
         this.pairedFiles.forEach(pair => {
+            if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
             if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
             if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
         });
         this.unmatchedPngs.forEach(unmatched => URL.revokeObjectURL(unmatched.url));
 
-        this.selectedFiles = null;
+        this.allFiles = [];
         this.pairedFiles = [];
         this.unmatchedPngs = [];
     }
 
-    private pairFiles() {
-        if (!this.selectedFiles) return;
+    private removePairedGroup(lrcFileToRemove: File) {
+        const groupToRemove = this.pairedFiles.find(p => p.lrc === lrcFileToRemove);
+        if (!groupToRemove) return;
 
-        const files = Array.from(this.selectedFiles);
-        const lrcFiles = files.filter(file => file.name.toLowerCase().endsWith('.lrc'));
-        const pngFiles = files.filter(file => file.name.toLowerCase().endsWith('.png'));
+        const filesToRemove = [groupToRemove.lrc, groupToRemove.visual, groupToRemove.preview].filter(Boolean) as File[];
+        this.allFiles = this.allFiles.filter(f => !filesToRemove.includes(f));
+        this.pairFiles();
+    }
+
+    private removePairedFile(fileToRemove: File) {
+        this.allFiles = this.allFiles.filter(f => f !== fileToRemove);
+        this.pairFiles();
+    }
+
+    private removeUnmatchedPng(pngFileToRemove: File) {
+        this.allFiles = this.allFiles.filter(f => f !== pngFileToRemove);
+        this.pairFiles();
+    }
+
+    private pairFiles() {
+        // First, revoke all existing object URLs to prevent memory leaks
+        this.pairedFiles.forEach(pair => {
+            if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
+            if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
+            if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
+        });
+        this.unmatchedPngs.forEach(unmatched => URL.revokeObjectURL(unmatched.url));
+
+        const lrcFiles = this.allFiles.filter(file => file.name.toLowerCase().endsWith('.lrc'));
+        const pngFiles = this.allFiles.filter(file => file.name.toLowerCase().endsWith('.png'));
 
         const paired: PairedFiles[] = [];
         const usedPngs = new Set<File>();
@@ -411,10 +574,10 @@ export class FolderUploadForm extends ClientConsumer {
             const visualKey = `${key}_visual`;
             const previewKey = `${key}_image_thermal`;
 
-            const visualFile = pngFiles.find(png => png.name.replace(/\.png$/i, '').startsWith(visualKey));
-            const previewFile = pngFiles.find(png => png.name.replace(/\.png$/i, '').startsWith(previewKey));
+            const visualFile = pngFiles.find(png => !usedPngs.has(png) && png.name.replace(/\.png$/i, '').startsWith(visualKey));
+            const previewFile = pngFiles.find(png => !usedPngs.has(png) && png.name.replace(/\.png$/i, '').startsWith(previewKey));
 
-            const pair: PairedFiles = { lrc: lrcFile };
+            const pair: PairedFiles = { lrc: lrcFile, lrcUrl: URL.createObjectURL(lrcFile) };
             if (visualFile) {
                 pair.visual = visualFile;
                 pair.visualUrl = URL.createObjectURL(visualFile);
@@ -434,9 +597,78 @@ export class FolderUploadForm extends ClientConsumer {
             .map(file => ({ file, url: URL.createObjectURL(file) }));
     }
 
+    // --- Drag and Drop Handlers ---
+
+    private handleDragOver(e: DragEvent) {
+        e.preventDefault();
+        this.isDragging = true;
+    }
+
+    private handleDragLeave(e: DragEvent) {
+        e.preventDefault();
+        this.isDragging = false;
+    }
+
+    private handleDrop(e: DragEvent) {
+        e.preventDefault();
+        this.isDragging = false;
+        this.addFiles(e.dataTransfer?.files ?? null);
+    }
+
+    // Dropzone-local highlighting helpers
+    private handleZoneDragOver(e: DragEvent) {
+        e.preventDefault();
+        const el = e.currentTarget as HTMLElement;
+        el.classList.add('drag-over');
+    }
+
+    private handleZoneDragLeave(e: DragEvent) {
+        e.preventDefault();
+        const el = e.currentTarget as HTMLElement;
+        el.classList.remove('drag-over');
+    }
+
+    private handleMainDrop(e: DragEvent) {
+        e.preventDefault();
+        const el = e.currentTarget as HTMLElement;
+        el.classList.remove('drag-over');
+        this.addFiles(e.dataTransfer?.files ?? null);
+    }
+
+    private handleInlineDrop(e: DragEvent, lrcFile: File, type: 'visual' | 'preview') {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent the main drop handler from firing
+        (e.currentTarget as HTMLElement).classList.remove('drag-over');
+        const files = e.dataTransfer?.files;
+        if (files && files.length > 0) {
+            const originalFile = files[0];
+             const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, '');
+            const key = lrcBaseName.includes('_thermal')
+                ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf('_thermal'))
+                : lrcBaseName;
+            
+            const newFileName = type === 'visual'
+                ? `${key}_visual.png`
+                : `${key}_image_thermal.png`;
+
+            const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
+            this.addFiles([renamedFile] as any);
+        }
+    }
+
+    private openFileSelector(id: string) {
+        this.shadowRoot?.getElementById(id)?.click();
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        // Clean up object URLs when the component is removed from the DOM
+        this.clearAllFiles();
+    }
+
 
     private get hasFiles(): boolean {
-        return this.pairedFiles.length > 0 || this.unmatchedPngs.length > 0;
+        return this.allFiles.length > 0;
     }
 
     private get maySubmit(): boolean {
@@ -452,23 +684,31 @@ export class FolderUploadForm extends ClientConsumer {
             return nothing;
         }
 
-        return html`<div class="stage_ stage-upload_">
-    <label for="file-input">
-
-        <div>Vyberte či přetáhněte sem LRC soubory a případně odpovídající PNG obrázky.</div>
-        
-        <input 
-            type="file" 
-            id="file-input"
-            @change=${this.handleFileChange}
-            multiple
-            accept=".lrc,.png"
-        />
-
-        
-
-    </label>
-</div>`;
+        return html`<div 
+            class="stage-upload"
+            @click=${() => this.openFileSelector('main-file-input')}
+            @dragover=${(e: DragEvent) => this.handleZoneDragOver(e)}
+            @dragleave=${(e: DragEvent) => this.handleZoneDragLeave(e)}
+            @drop=${(e: DragEvent) => this.handleMainDrop(e)}
+        >
+            <label for="main-file-input">
+                <div>Vyberte či přetáhněte sem LRC soubory a případně odpovídající PNG obrázky.</div>
+                <thermal-btn
+                    variant="primary"
+                    icon="upload"
+                    iconStyle="micro"
+                >
+                    Vybrat soubory
+                </thermal-btn>
+            </label>
+            <input 
+                type="file" 
+                id="main-file-input"
+                @change=${this.handleMainFileChange}
+                multiple
+                accept=".lrc,.png"
+            />
+        </div>`;
 
     }
 
@@ -476,19 +716,41 @@ export class FolderUploadForm extends ClientConsumer {
 
     private renderFilePreview(
         label: string,
-        file?: File
+        file?: File,
+        lrcFileForContext?: File,
+        type?: 'visual' | 'preview'
     ): unknown {
 
         if (!file) {
-            return html`<div class="file-preview file-preview__empty">
-    <div class="file-preview__icon">
-        <thermal-icon icon="close" variant="outline"></thermal-icon>
-    </div>    
-    <div class="file-preview__info">
-        <div class="file-preview__label">${label}</div>
-        <div class="file-preview__name">Žádný soubor</div>
-    </div>
-</div>`;
+            const inputId = `inline-input-${lrcFileForContext!.name}-${type}`;
+            return html`
+            <div class="file-preview file-preview__has-file">
+                <div class="file-preview__preview">
+                    <div 
+                        class="missing-file-dropzone"
+                        @click=${() => this.openFileSelector(inputId)}
+                        @dragenter=${(e: DragEvent) => this.handleZoneDragOver(e)}
+                        @dragover=${(e: DragEvent) => e.preventDefault()}
+                        @dragleave=${(e: DragEvent) => this.handleZoneDragLeave(e)}
+                        @drop=${(e: DragEvent) => this.handleInlineDrop(e, lrcFileForContext!, type!)}
+                    >
+
+                        <thermal-icon icon="upload" variant="micro"></thermal-icon>
+
+                        <input 
+                            type="file" 
+                            id=${inputId}
+                            @change=${(e: Event) => this.handleInlineFileChange(e, lrcFileForContext!, type!)}
+                            accept=".png"
+                        />
+                    </div>
+                </div>
+                <div class="file-preview__info">
+                    <div class="file-preview__label">${label}</div>
+                    <div class="file-preview__name">Můžete nahrát ${type} obrázek.</div>
+                </div>
+            </div>
+            `;
         }
 
         const kbsize = (file.size / 1024).toFixed(3);
@@ -497,7 +759,19 @@ export class FolderUploadForm extends ClientConsumer {
             ? html`<img src=${URL.createObjectURL(file)} alt="File preview" />`
             : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`;
 
+        const removeButton = (type === 'visual' || type === 'preview') || label.toLowerCase().includes('lrc')
+            ? html`<thermal-btn 
+                class="file-remove-btn" 
+                tooltip="Odstranit" 
+                icon="close"
+                iconStyle="micro"
+                plain="true"
+                .variant="breadcrumb"
+                @click=${() => this.removePairedFile(file)}></thermal-btn>`
+            : nothing;
+
         return html`<div class="file-preview file-preview__has-file">
+    ${removeButton}
     <div class="file-preview__preview">${preview}</div>
     <div class="file-preview__info">
         <div class="file-preview__label">${label}</div>
@@ -511,14 +785,26 @@ export class FolderUploadForm extends ClientConsumer {
 
 
     private renderPairedFileRow(pair: PairedFiles, index: number): unknown {
-        return html`<tr class="paired-file-group paired-file-group__header">
-    <td colspan="4">${index + 1}. snímek</td>
+        return html`
+<tr class="paired-file-group paired-file-group__header">
+    <td colspan="4">
+        <div style="display:flex;align-items:center;gap:1em;">
+            <span>${index + 1}. snímek</span>
+            <thermal-btn 
+            class="group-remove-btn" 
+            tooltip="Odstranit celou skupinu" 
+            icon="close"
+            iconStyle="micro"
+            plain="true"
+            @click=${() => this.removePairedGroup(pair.lrc)}></thermal-btn>
+        </div>
+    </td>
 </tr>
 <tr class="paired-file-group">
     <td></td>
     <td>${this.renderFilePreview("LRC termogram", pair.lrc)}</td>
-    <td>${this.renderFilePreview("Snímek ve viditelném spektru", pair.visual)}</td>
-    <td>${this.renderFilePreview("Printscreen displeje termokamery", pair.preview)}</td>
+    <td>${this.renderFilePreview("Snímek ve viditelném spektru", pair.visual, pair.lrc, 'visual')}</td>
+    <td>${this.renderFilePreview("Printscreen displeje termokamery", pair.preview, pair.lrc, 'preview')}</td>
 </tr>`;
     }
 
@@ -585,8 +871,12 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
             <tbody>
             ${this.unmatchedPngs.map(item => html`
         <tr class="file-item">
-            <td><img src=${item.url} alt="Unmatched file preview" /></td>
+            <td style="position:relative;">
+                <img src=${item.url} alt="Unmatched file preview" />
+                <div class="file-remove-btn" title="Odstranit" @click=${() => this.removeUnmatchedPng(item.file)}>×</div>
+            </td>
             <td>${item.file.name}</td>
+            <td></td>
         </tr>`)}
             </tbody>
         </table>
@@ -609,23 +899,24 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
         }
 
         return html`
-<thermal-btn
-    @click=${() => this.handleSubmit()}
-    disabled=${this.maySubmit ? "false" : "true"}
-    .variant=${this.maySubmit ? "primary" : "foreground"}
-    icon="upload"
-    iconStyle="micro"
-    size="lg"
->${this.label}</thermal-btn>
-<thermal-btn
-    @click=${() => {
-                this.clearFiles();
-            }}
-    .variant="foreground"
-    icon="close"
-    iconStyle="micro"
-    size="lg"
->Vybrat jiné soubory</thermal-btn>`;
+            <div style="display:flex;flex-direction:column;gap:1em;">
+                <thermal-btn
+                    @click=${() => this.handleSubmit()}
+                    disabled=${this.maySubmit ? "false" : "true"}
+                    .variant=${this.maySubmit ? "primary" : "foreground"}
+                    icon="upload"
+                    iconStyle="micro"
+                    size="lg"
+                >${this.label}</thermal-btn>
+                <thermal-btn
+                    @click=${() => { this.clearAllFiles(); }}
+                    .variant="foreground"
+                    icon="close"
+                    iconStyle="micro"
+                    size="lg"
+                >Vybrat jiné soubory</thermal-btn>
+            </div>
+        `;
     }
 
 
@@ -648,6 +939,36 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
 
     }
 
+    private renderBottomDropzone(): unknown {
+        return html`
+            <div 
+                class="stage-upload stage-upload--bottom"
+                style="margin-top:2em;"
+                @click=${() => this.openFileSelector('bottom-file-input')}
+                @dragenter=${(e: DragEvent) => this.handleZoneDragOver(e)}
+                @dragover=${(e: DragEvent) => this.handleZoneDragOver(e)}
+                @dragleave=${(e: DragEvent) => this.handleZoneDragLeave(e)}
+                @drop=${(e: DragEvent) => this.handleMainDrop(e)}
+            >
+                <label for="bottom-file-input">
+                    <div>Přidat další soubory LRC či PNG</div>
+                    <thermal-btn
+                        variant="primary"
+                        icon="upload"
+                        iconStyle="micro"
+                    >Vybrat soubory</thermal-btn>
+                </label>
+                <input 
+                    type="file" 
+                    id="bottom-file-input"
+                    @change=${this.handleMainFileChange}
+                    multiple
+                    accept=".lrc,.png"
+                />
+            </div>
+        `;
+    }
+
 
     protected render(): unknown {
 
@@ -661,11 +982,14 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
 
 
         return html`
-        
-            ${this.renderDropinArea()}
+            <div>
+                ${this.renderDropinArea()}
 
-            ${this.renderPreviewAndSubmit()}
-        
+                ${this.infoMessage ? html`<div class="info">${this.infoMessage}</div>` : ''}
+
+                ${this.renderPreviewAndSubmit()}
+                ${this.hasFiles ? this.renderBottomDropzone() : nothing}
+            </div>
         `;
 
     }
