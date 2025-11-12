@@ -4356,26 +4356,24 @@ var AbstractFile = class extends BaseStructureObject {
     delete this._dom;
     this._dom = void 0;
   }
+  /**
+   * @todo The render needs to be a little delayed. This should be foxed so that the render happens immediately.
+   */
   async draw() {
     if (this.dom && this.dom.canvasLayer) {
+      await Promise.resolve();
       return await this.renderer?.render();
     }
   }
-  recievePalette(palette) {
-    palette;
-    this.draw();
-  }
-  /** @deprecated use DOM object instead */
+  /** Remove the entire DOM structure */
   destroySelfAndBelow() {
     if (this.dom) {
       this.dom.destroy();
     }
   }
-  /** @deprecated use DOM object instead */
+  /** Remove the entire DOM structure */
   removeAllChildren() {
-    if (this.dom) {
-      this.dom.destroy();
-    }
+    this.destroySelfAndBelow();
   }
   getTemperatureAtPoint(x, y) {
     const xx = Math.min(this.meta.width - 1, Math.max(0, x));
@@ -4394,11 +4392,6 @@ var AbstractFile = class extends BaseStructureObject {
       return this.group.registry.palette.currentPalette.pixels[colorIndex];
     }
     return void 0;
-  }
-  recieveRange(value) {
-    if (value !== void 0) {
-      this.draw();
-    }
   }
   reset() {
   }
@@ -7453,7 +7446,7 @@ var PaletteDrive = class extends AbstractProperty {
   /** Any changes to the value should propagate directly to every instance. */
   afterSetEffect(value) {
     this.parent.forEveryRegistry((registry) => {
-      registry.forEveryInstance((instance) => instance.recievePalette(value));
+      registry.forEveryInstance((instance) => instance.draw());
     });
   }
   setPalette(key) {
@@ -7670,7 +7663,7 @@ var RangeDriver = class extends AbstractProperty {
    */
   afterSetEffect(value) {
     if (value)
-      this.parent.forEveryInstance((instance) => instance.recieveRange(value));
+      this.parent.forEveryInstance((instance) => instance.draw());
   }
   /** 
    * Imposes a range to itself and below

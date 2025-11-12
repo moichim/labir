@@ -65,7 +65,7 @@ export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, Therm
     protected afterSetEffect(value: ThermalRangeOrUndefined) {
 
         if (value)
-            this.parent.forEveryInstance(instance => instance.recieveRange(value));
+            this.parent.forEveryInstance(instance => instance.draw());
 
     }
 

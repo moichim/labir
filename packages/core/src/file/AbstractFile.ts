@@ -243,33 +243,31 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     }
 
+    /**
+     * @todo The render needs to be a little delayed. This should be foxed so that the render happens immediately.
+     */
     public async draw() {
     
         if ( this.dom && this.dom.canvasLayer) {
+
+            // The render needs to be delayed one tick to ensure all properties are updated
+            await Promise.resolve();
 
             return await this.renderer?.render();
 
         }
     }
 
-    public recievePalette( palette: string|number ): void {
-        palette;
-        this.draw();
-    }
-
-    /** @deprecated use DOM object instead */
+    /** Remove the entire DOM structure */
     public destroySelfAndBelow() {
-        // this.detachFromDom();
         if ( this.dom ) {
             this.dom.destroy();
         }
     };
 
-    /** @deprecated use DOM object instead */
+    /** Remove the entire DOM structure */
     public removeAllChildren() {
-        if ( this.dom ) {
-            this.dom.destroy();
-        }
+        this.destroySelfAndBelow();
     };
 
 
@@ -306,14 +304,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         }
 
         return undefined;
-    }
-
-    public recieveRange(
-        value: ThermalRangeOrUndefined
-    ) {
-        if (value !== undefined) {
-            this.draw();
-        }
     }
 
     public reset() { }

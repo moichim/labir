@@ -2478,15 +2478,16 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     private rendererFactory;
     mountToDom(container: HTMLDivElement): void;
     unmountFromDom(): void;
+    /**
+     * @todo The render needs to be a little delayed. This should be foxed so that the render happens immediately.
+     */
     draw(): Promise<void>;
-    recievePalette(palette: string | number): void;
-    /** @deprecated use DOM object instead */
+    /** Remove the entire DOM structure */
     destroySelfAndBelow(): void;
-    /** @deprecated use DOM object instead */
+    /** Remove the entire DOM structure */
     removeAllChildren(): void;
     getTemperatureAtPoint(x: number, y: number): number;
     getColorAtPoint(x: number, y: number): string | undefined;
-    recieveRange(value: ThermalRangeOrUndefined): void;
     reset(): void;
     recieveOpacity(value: number): void;
 }

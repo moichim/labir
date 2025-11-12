@@ -36,7 +36,7 @@ export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > 
 
         this.parent.forEveryRegistry( registry => {
 
-            registry.forEveryInstance( instance => instance.recievePalette( value ) );
+            registry.forEveryInstance( instance => instance.draw() );
 
         } );
             
