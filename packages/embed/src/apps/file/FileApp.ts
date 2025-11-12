@@ -341,7 +341,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                             if (slotObject !== undefined) {
                                 slotObject.recieveSerialized(localSlotValue);
                             } else {
-                                this.file.slots.createFromSerialized(localSlotValue, slotNum)
+                                this.file.slots.createAnalysisFromSerialized(localSlotValue, slotNum)
                             }
                         } else {
                             if (this.file.slots.hasSlot(slotNum)) {

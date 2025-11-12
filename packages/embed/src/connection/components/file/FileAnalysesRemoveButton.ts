@@ -26,21 +26,11 @@ export class FileAnalysisRemoveButton extends AbstractFileAnalysisButton {
             // Try using the analysis object directly
             if (instance.analysis) {
 
-                instance.group.analysisSync.turnOn( instance );
+                // instance.group.analysisSync.turnOn( instance );
 
-                instance.analysis.layers.onRemove.set( this.UUID, () => {
-                    this.num = instance.analysis?.layers.size ?? 0;
-                } );
-
-
-                instance.analysis.layers.onAdd.set( this.UUID, () => {
-
-                    this.num = instance.analysis?.layers.size ?? 0;
-
-                } );
-
-                instance.analysis.layers.onRemove.set( this.UUID, () => {
-                    this.num = instance.analysis?.layers.size ?? 0;
+                instance.analysis.layers.onAnySerializableChange.set( this.UUID, () => {
+                    this.num = instance.analysis.layers.size;
+                    this.disabled = this.num === 0;
                 } );
             
             }
@@ -52,31 +42,16 @@ export class FileAnalysisRemoveButton extends AbstractFileAnalysisButton {
     }
 
 
-    protected onClick = async (file: Instance) => {
-
-        
+    protected onClick = async () => {
 
         if ( this.file ) {
-
-            this.file.analysis.value.forEach( value => {
-                this.file?.analysis.layers.removeAnalysis( value.key );
-            } );
-
+            this.file.analysis.layers.removeAllAnalyses();
         }
     }
 
 
     public onFailure(error: ThermalFileFailure): void {
         
-    }
-
-    
-
-    protected updated(_changedProperties: PropertyValues): void {
-        super.updated(_changedProperties);
-
-        this.disabled = this.num === 0;
-
     }
 
 

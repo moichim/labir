@@ -123,6 +123,12 @@ export class Instance extends AbstractFile {
 
         }
 
+        dom.listenerLayer.getLayerRoot().onmouseenter = () => {
+
+            this.group.analysisSync.setCurrentPointer( this );
+
+        }
+
     }
 
     public dehydrateListener(dom: InstanceDOM): void {
@@ -175,8 +181,7 @@ export class Instance extends AbstractFile {
                 this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
             }
 
-            // Recalculate all analysis
-            // this.analysis.value.forEach(analysis => analysis.recalculateValues());
+            this.analysisData.updateAllAnalysesValues();
         }
 
     }

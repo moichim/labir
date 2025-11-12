@@ -79,14 +79,6 @@ export class AnalysisSlot {
         serialized: string
     ) {
 
-        /*
-        console.log( 
-            "recieved serialised", 
-            this._analysis.file.timestamp, 
-            serialized 
-        );
-        */
-
         this.analysis.recievedSerialized(serialized);
 
         /** Serialize again for control */
@@ -97,8 +89,6 @@ export class AnalysisSlot {
             this._serialized = newSerialized;
 
             this.onSerialize.call(this._serialized, this.analysis);
-
-            // this.propagateSerialisationUp( this._serialized );
 
         }
 
@@ -112,6 +102,7 @@ export class AnalysisSlot {
 
         if ( manager ) {
             manager.call( value );
+            this.analysis.file.slots.markAsChanged();
         }
 
     }

@@ -1,8 +1,8 @@
 import { Instance, ThermalFileFailure } from "@labir/core";
-import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
-import { customElement, property, state } from "lit/decorators.js";
-import { nothing, PropertyValues } from "lit";
 import { FileInfo } from "@labir/server";
+import { PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
 
 @customElement( "file-analysis-store-button" )
 export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
@@ -41,36 +41,12 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
                 this.getCurrentAnalysisState( instance );
 
-                // instance.group.analysisSync.turnOn( instance );
-
-                instance.analysis.layers.onRemove.set( this.UUID, () => {
+                const listener = () => {
                     this.hasChanged = true;
                     this.getCurrentAnalysisState( instance );
-                } );
+                }
 
-
-                instance.analysis.layers.onAdd.set( this.UUID, (analysis) => {
-
-                    this.hasChanged = true;
-                    this.getCurrentAnalysisState( instance );
-
-                    analysis.onSerializableChange.set( this.UUID, () => {
-
-                        this.hasChanged = true;
-                        this.getCurrentAnalysisState( instance );
-
-                    } );
-                } );
-
-                instance.analysis.layers.onRemove.set( this.UUID, () => {
-                    this.hasChanged = true;
-                    this.getCurrentAnalysisState( instance );
-                } );
-
-                setTimeout( () => {
-                    // this.hasChanged = false;
-                    
-                }, 0 );
+                instance.analysis.layers.onAnySerializableChange.set( this.UUID, listener.bind( this ) );
             
             }
 
@@ -80,29 +56,29 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
         }
     }
 
-    protected getCurrentAnalysisState(instance: Instance) {
-
-        if (!instance.analysis) return null;
-
-        if (!instance.group.analysisSync) return null;
+    protected getCurrentAnalysisState(instance: Instance): string[] {
 
         const analyses: string[] = [];
 
-
-        instance.analysis.layers.forEach( ( layer, number ) => {
-
-            analyses.push(layer.toSerialized());
-
+        instance.analysis.value.forEach( analysis => {
+            analyses.push( analysis.toSerialized() );
         } );
 
         this.analyses = analyses;
         this.requestUpdate();
 
+        return analyses;
+
     }
 
-    protected onClick = async (file: Instance) => {
+    protected onClick = async () => {
 
-        if ( this.client  ) {
+        // Do nothing if not changed
+        if ( this.hasChanged === false ) {
+            return;
+        }
+
+        if ( this.client ) {
 
             const request = this.client.routes.post.updateFile(
                 this.info.path,
@@ -111,10 +87,12 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
 
             request.clearAnalyses();
 
-            if ( this.analyses.length === 0 ) {
+            const analyses = this.getCurrentAnalysisState( this.file! );
+
+            if ( analyses.length === 0 ) {
                 request.clearAnalyses();
             } else {
-                this.analyses.forEach( item =>
+                analyses.forEach( item =>
                     request.addAnalysis(item)
                  );
             }
@@ -125,10 +103,6 @@ export class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
                 this.hasChanged = false;
                 this.onChange?.(result.data.file);
             }
-        }
-
-        if ( this.file ) {
-            // Get current analysis state when clicke
         }
     }
 

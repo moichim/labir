@@ -3,39 +3,84 @@ import { AreaAnalysisData, PointAnalysisData } from "../../../../loading/workers
 import { AnalysisGraph } from "../../data/graphs/AnalysisGraph";
 import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractPoint } from "./AbstractPoint";
+import { AnalysisSerializableChangeType } from "../storage/AnalysisLayersStorage";
 
 
 type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 
 export abstract class AbstractAnalysis {
 
-    public readonly onSerializableChange = new CallbacksManager<( analysis: AbstractAnalysis, change: string ) => void>
 
-    public abstract recievedSerialized(input: string): void;
-    public abstract toSerialized(): string;
-    protected serializedIsValid( input: string ): boolean {
-        const splitted = input
-            .split( ";" )
-            .map( segment => segment.trim() );
+    /** Return a string representing the type of the analysis */
+    public abstract getType(): string;
 
-        if ( splitted.length < 2 ) {
-            return false;
+    private static LISTENER_PROMOTE_PROPERTIES_CHANGE = "pch";
+    private static LISTENER_PROMOTE_MOVE_RESIZE = "mvr";
+    private static SERIALISABLE_CHANGES = [
+        "name",
+        "color",
+        "min",
+        "max",
+        "avg"
+    ];
+    private static VALID_ANALYSIS_TYPES = ["point","ellipsis","rectangle"]
+
+    public static readonly COLOR_ACTIVE = "yellow";
+    public static readonly COLOR_INACTIVE = "black";
+
+    private _ready: boolean = false;
+    /** Indicating whether the analysis in the state of its creation (by the user's mouse) or if it is already finalised. */
+    public get ready(): boolean { return this._ready; }
+    /** Mark the analysis as ready (finalised) */
+    public setReady() {
+        if (this.ready) {
+            throw new Error("Trying to set ready an analysis that is already ready!");
         }
-
-        if ( ! ["point","ellipsis","rectangle"].includes( splitted[1]) ) {
-            return false;
-        }
-
-        if ( splitted[1] !== this.getType() ) {
-            return false;
-        }
-
-        return true;
+        this._ready = true;
     }
 
 
 
+
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
+    public readonly layerRoot: HTMLDivElement;
+
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    public get renderRoot(): HTMLElement {
+        return this.file.dom!.canvasLayer!.getLayerRoot();
+    }
+
+
+
+    /** 
+     * Map of the analysis control points
+     * - key is the role of the point
+     * - value is the point instance
+     */
+    public readonly points: Map<string, AbstractPoint> = new Map;
+
+    /** Create a new array containing all the points */
+    public get arrayOfPoints() {
+        return Array.from(this.points.values());
+    }
+
+    /** Create a new array containing all the active points */
+    public get arrayOfActivePoints() {
+        return this.arrayOfPoints.filter(point => point.active);
+    }
+
+
+
+    /** Access all the file's analysis layers object. */
+    public get layers() {
+        return this.file.analysis.layers;
+    }
+    
+
+
+    /** Accessor to the related graph control node */
     public abstract get graph(): AnalysisGraph;
+
 
     /** Selection status */
     protected _selected: boolean = false;
@@ -43,22 +88,45 @@ export abstract class AbstractAnalysis {
     public readonly onSelected = new CallbacksManager<AnalysisEvent>;
     public readonly onDeselected = new CallbacksManager<AnalysisEvent>;
 
+    /** 
+     * Actions taken on any change that should trigger serialisation:
+     * - modification of position or dimensions
+     * - change of name or color
+     */
+    public readonly onSerializableChange = new CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>
+
     /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
     public readonly onValues = new CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
 
     /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
     public readonly onMoveOrResize = new CallbacksManager<(analysis: AbstractAnalysis) => void>
 
-    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
-    public readonly layerRoot: HTMLDivElement;
+    /** Actions taken whenever the initial color changes. */
+    public readonly onSetInitialColor = new CallbacksManager<(value: string) => void>;
 
-    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
-    public get renderRoot(): HTMLElement {
-        // return this.file.dom.canvasLayer.getLayerRoot();
-        return this.file.canvasLayer.getLayerRoot()
-    }
+    /** Actions taken whenever the color changes. */
+    public readonly onSetColor = new CallbacksManager<(value: string) => void>;
 
-    public readonly points: Map<string, AbstractPoint> = new Map;
+    /** Actions taken whenever the name changes. */
+    public readonly onSetName = new CallbacksManager<(value: string) => void>;
+
+    
+
+
+    protected _min?: number;
+    protected _max?: number;
+    protected _avg?: number;
+
+    /** The current minimal value of this analysis */
+    public get min() { return this._min; }
+    /** The current maximal value of this analysis */
+    public get max() { return this._max; }
+    /** The current avarage value of this analysis */
+    public get avg() { return this._avg; }
+
+
+
+    
 
     protected _top!: number;
     protected _left!: number;
@@ -91,7 +159,7 @@ export abstract class AbstractAnalysis {
             return;
         }
 
-        if ( value === this.top ) {
+        if (value === this.top) {
             return;
         }
 
@@ -111,8 +179,8 @@ export abstract class AbstractAnalysis {
             shouldEmit = true;
         }
 
-        if ( shouldEmit ) {
-            this.onSerializableChange.call( this, "top" );
+        if (shouldEmit) {
+            this.onSerializableChange.call(this, "top");
         }
 
     }
@@ -123,7 +191,7 @@ export abstract class AbstractAnalysis {
             return;
         }
 
-        if ( value === this.left ) {
+        if (value === this.left) {
             return;
         }
 
@@ -143,37 +211,35 @@ export abstract class AbstractAnalysis {
             shouldEmit = true;
         }
 
-        if ( shouldEmit ) {
-            this.onSerializableChange.call( this, "left" );
+        if (shouldEmit) {
+            this.onSerializableChange.call(this, "left");
         }
 
     }
 
-
     public setWidth(value: number) {
-        if ( value === this.height ) {
+        if (value === this.height) {
             return;
         }
         const val = this.validateWidth(value);
         if (!isNaN(val) && val !== this.width) {
             this._width = val;
             this.onSetWidth(val);
-            this.onSerializableChange.call( this, "width" );
+            this.onSerializableChange.call(this, "width");
         }
     }
 
     public setHeight(value: number) {
-        if ( value === this.height ) {
+        if (value === this.height) {
             return;
         }
         const val = this.validateHeight(value);
         if (!isNaN(val) && val !== this.height) {
             this._height = val;
             this.onSetHeight(val);
-            this.onSerializableChange.call( this, "height" );
+            this.onSerializableChange.call(this, "height");
         }
     }
-
 
     public setBottom(value: number) {
 
@@ -181,7 +247,7 @@ export abstract class AbstractAnalysis {
             return;
         }
 
-        if ( value === this.bottom ) {
+        if (value === this.bottom) {
             return;
         }
 
@@ -203,8 +269,8 @@ export abstract class AbstractAnalysis {
             shouldEmit = true;
         }
 
-        if ( shouldEmit ) {
-            this.onSerializableChange.call( this, "bottom" );
+        if (shouldEmit) {
+            this.onSerializableChange.call(this, "bottom");
         }
 
     }
@@ -215,7 +281,7 @@ export abstract class AbstractAnalysis {
             return;
         }
 
-        if ( value === this.right ) {
+        if (value === this.right) {
             return;
         }
 
@@ -236,56 +302,15 @@ export abstract class AbstractAnalysis {
             shouldEmit = true;
         }
 
-        if ( shouldEmit ) {
-            this.onSerializableChange.call( this, "right" );
+        if (shouldEmit) {
+            this.onSerializableChange.call(this, "right");
         }
 
     }
 
+    
 
-
-    /** Access all the file's analysis layers. */
-    public get layers() {
-        return this.file.analysis.layers;
-    }
-
-    protected _min?: number;
-    public get min() {
-        return this._min;
-    }
-
-    protected _max?: number;
-    public get max() {
-        return this._max;
-    }
-
-    protected _avg?: number;
-    public get avg() {
-        return this._avg;
-    }
-
-    public dangerouslySetValues(
-        avg: number,
-        min: number|undefined = undefined,
-        max: number|undefined = undefined,
-    ) {
-        this._avg = avg;
-        this._min = min;
-        this._max = max;
-
-        this.onValues.call( this.min, this.max, this.avg );
-    }
-
-
-    public get arrayOfPoints() {
-        return Array.from(this.points.values());
-    }
-
-    public get arrayOfActivePoints() {
-        return this.arrayOfPoints.filter(point => point.active);
-    }
-
-    protected _color: string = "black";
+    protected _color: string = AbstractAnalysis.COLOR_INACTIVE;
     public get color() { return this._color; }
     public setColor(value: string) {
         this._color = value;
@@ -293,59 +318,41 @@ export abstract class AbstractAnalysis {
         this.onSetColor.call(value);
     }
     protected abstract setColorCallback(value: string): void;
-    public readonly onSetColor = new CallbacksManager<(value: string) => void>;
+    
 
 
     protected _initialColor: string;
-    public get initialColor() {
-        return this._initialColor;
-    }
-
+    public get initialColor() { return this._initialColor; }
     public setInitialColor(value: string) {
-        if ( value === this.initialColor ) {
+        if (value === this.initialColor) {
             return;
         }
         this._initialColor = value;
         this.onSetInitialColor.call(value);
-        this.onSerializableChange.call( this, "color" );
+        this.onSerializableChange.call(this, "color");
         if (this.selected === true) {
             this.setColor(value);
         }
 
     }
 
-    public readonly onSetInitialColor = new CallbacksManager<(value: string) => void>;
-
-
-    // public readonly initialColor: string;
-    public readonly activeColor = "yellow";
-    public readonly inactiveColor = "black";
-
-    /** @deprecated is moved to GraphObject instead */
-    public get onGraphActivation() {
-        return this.graph.onGraphActivation;
-    }
-
-    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
-    public ready: boolean = false;
+    
 
     public readonly nameInitial: string;
     protected _name: string;
     public get name() { return this._name; }
     public setName(value: string) {
-
-        if ( value === this.name ) {
+        if (value === this.name) {
             return;
         }
-
         this._name = value;
-        this.onSerializableChange.call( this, "name" );
+        this.onSerializableChange.call(this, "name");
         this.onSetName.call(value);
     }
-    public readonly onSetName = new CallbacksManager<(value: string) => void>;
+    
 
 
-    public abstract getType(): string;
+    
 
 
 
@@ -358,7 +365,6 @@ export abstract class AbstractAnalysis {
         this._initialColor = initialColor;
         this.nameInitial = key;
         this._name = key;
-        // this.setInitialColor( initialColor );
 
         // Create the layer root
         this.layerRoot = document.createElement("div");
@@ -374,110 +380,77 @@ export abstract class AbstractAnalysis {
 
         // This callback is absolutely crucial and may never be removed!
         /** @todo what happend if the callback key is set rendomly? I do not want this callback to be overriden anyhow! */
-        this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
-            this.recalculateValues();
-            /** @todo */
-            // ... probably here should be serialisation
-            this.onSerializableChange.call( this, "moveOrResize" );
-        });
+        this.onMoveOrResize.set(
+            AbstractAnalysis.LISTENER_PROMOTE_MOVE_RESIZE,
+            () => {
+                this.recalculateValues();
+                /** @todo */
+                // ... probably here should be serialisation
+                this.onSerializableChange.call(this, "moveOrResize");
 
-        this.onSerializableChange.set( "sync slots", () => {
-            this.file.group.analysisSync.syncSlots( this.file );
-        } );
+                // Trigger the event in the layers storage
+                this.layers.onAnySerializableChange.call(this, AnalysisSerializableChangeType.RESIZEMOVE);
 
-    }
+            });
 
-    public remove() {
-        this.setDeselected();
-        this.renderRoot.removeChild(this.layerRoot);
-    }
+        /** Anytime a seralisable change occures, promote it to the layers storage */
+        this.onSerializableChange.set(
+            AbstractAnalysis.LISTENER_PROMOTE_PROPERTIES_CHANGE,
+            (analysis, change) => {
 
-    /** Selection / Deselection */
+                if (AbstractAnalysis.SERIALISABLE_CHANGES.includes(change)) {
+                    this.layers.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.PROPERTIESCHANGE);
+                }
 
-    public setSelected(
-        exclusive: boolean = false,
-        emitGlobalEvent: boolean = true
-    ) {
-
-        if (this.selected === true) {
-            return;
-        }
-
-        // Internal mechanisms
-        this._selected = true;
-        this.onSelected.call(this);
-        this.setColor(this.initialColor);
-
-        // Eventually disable all other analysis
-        if (exclusive === true) {
-            this.layers.all
-                .filter(analysis => analysis.key !== this.key)
-                .forEach(analysis => {
-                    if (analysis.selected) {
-                        analysis.setDeselected(false);
-                    }
-                })
-        }
-
-        // Call selected listener
-        if (emitGlobalEvent === true) {
-            this.layers.onSelectionChange.call(this.layers.selectedOnly);
-        }
-
-        const slot = this.file.slots.getAnalysisSlot( this );
-
-        if ( slot ) {
-            this.file.group.analysisSync.setSlotSelected( this.file, slot );
-        }
+            });
 
     }
 
-    public setDeselected(emitGlobalEvent: boolean = true) {
 
-        if (this.selected === false) {
-            return;
+
+
+
+
+    // Serialisation
+
+
+
+
+
+
+    /** Recieved a serialized representation of the analysis, parse it and change the internal state accordingly */
+    public abstract recievedSerialized(input: string): void;
+
+    /** Convert the internal state of an analysis to a serialized representation */
+    public abstract toSerialized(): string;
+
+
+    /**
+     * Performs the basic validation of a serialised input string
+     * - correct number of segments?
+     * - correct type of analysis?
+     * - the type matches this analysis instance?
+     */
+    public serializedIsValid( input: string ): boolean {
+        const splitted = input
+            .split( ";" )
+            .map( segment => segment.trim() );
+
+        if ( splitted.length < 2 ) {
+            return false;
         }
 
-        // Internal mechanisms
-        this._selected = false;
-        this.onDeselected.call(this);
-        this.setColor(this.inactiveColor);
-
-        // Deactivate all points
-        this.arrayOfActivePoints.forEach(point => point.deactivate());
-
-        // Eventually call global mechanisms
-        if (emitGlobalEvent === true) {
-            this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+        if ( ! AbstractAnalysis.VALID_ANALYSIS_TYPES.includes( splitted[1]) ) {
+            return false;
         }
 
-        const slot = this.file.slots.getAnalysisSlot( this );
-
-        if ( slot ) {
-            this.file.group.analysisSync.setSlotDeselected( this.file, slot );
+        if ( splitted[1] !== this.getType() ) {
+            return false;
         }
+
+        return true;
     }
 
-
-    /** Detect whether a coordinate is withing the analysis. */
-    public abstract isWithin(x: number, y: number): boolean;
-
-    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
-    public recalculateValues() {
-
-        const { min, max, avg } = this.getValues();
-        this._min = min;
-        this._max = max;
-        this._avg = avg;
-        this.onValues.call(this.min, this.max, this.avg);
-
-    }
-
-    /** Obtain the current values of the analysis using current position and dimensions */
-    protected abstract getValues(): { min?: number, max?: number, avg?: number }
-
-    /** Override this method to get proper analysis data. */
-    public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
 
 
     /** When parsing incoming serialized attribute, look if segments have an exact value */
@@ -514,5 +487,187 @@ export abstract class AbstractAnalysis {
         }
         return parseInt(item.split(":")[1]);
     }
+
+
+
+
+
+
+
+    
+
+    /**
+     * Remove the analysis from the file and from the DOM
+     * - removes from the DOM
+     * - DOES NOT REMOVE THE SLOT
+     * - DOES NOT REMOVE FROM THE STORAGE
+     * @internal Does not remove from broader context, so do not call this method from aywhere else than from the layers storage
+     */
+    public destroyDom() {
+        this.setDeselected();
+        this.renderRoot.removeChild(this.layerRoot);
+    }
+
+    
+    
+
+
+
+
+    // Selection management
+
+
+
+
+    /**
+     * Mark the analysis as selected
+     * => inable its listeners
+     * => change the color of its controls to its current color
+     */
+    public setSelected(
+        exclusive: boolean = false,
+        emitGlobalEvent: boolean = true
+    ) {
+
+        if (this.selected === true) {
+            return;
+        }
+
+        // Internal mechanisms
+        this._selected = true;
+        this.onSelected.call(this);
+        this.setColor(this.initialColor);
+
+        // Eventually disable all other analysis
+        if (exclusive === true) {
+            this.layers.all
+                .filter(analysis => analysis.key !== this.key)
+                .forEach(analysis => {
+                    if (analysis.selected) {
+                        analysis.setDeselected(false);
+                    }
+                })
+        }
+
+        // Call selected listener
+        if (emitGlobalEvent === true) {
+            this.layers.onSelectionChange.call(this.layers.selectedOnly);
+        }
+
+        const slot = this.file.slots.getAnalysisSlot(this);
+
+        if (slot) {
+            this.file.group.analysisSync.setSlotSelected(this.file, slot);
+        }
+
+    }
+
+    /** 
+     * Mark the analysis as deselected
+     * => disable its listeners
+     * => change the color to inactive
+     */
+    public setDeselected(emitGlobalEvent: boolean = true) {
+
+        if (this.selected === false) {
+            return;
+        }
+
+        // Internal mechanisms
+        this._selected = false;
+        this.onDeselected.call(this);
+        this.setColor(AbstractAnalysis.COLOR_INACTIVE);
+
+        // Deactivate all points
+        this.arrayOfActivePoints.forEach(point => point.deactivate());
+
+        // Eventually call global mechanisms
+        if (emitGlobalEvent === true) {
+            this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+        }
+
+        // Synchronise the selection state in the entire group
+        const slot = this.file.slots.getAnalysisSlot(this);
+        if (slot) {
+            this.file.group.analysisSync.setSlotDeselected(this.file, slot);
+        }
+    }
+
+
+
+
+
+
+
+    // Utilities
+
+
+
+
+
+
+
+
+    /** Detect whether a coordinate is withing the analysis. */
+    public abstract isWithin(x: number, y: number): boolean;
+
+
+
+
+
+
+
+
+
+
+
+
+    // Values
+
+
+
+
+
+
+
+
+
+
+    /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
+    public recalculateValues() {
+
+        const { min, max, avg } = this.getValues();
+        this._min = min;
+        this._max = max;
+        this._avg = avg;
+        this.onValues.call(this.min, this.max, this.avg);
+
+    }
+
+    /** Obtain the current values of the analysis using current position and dimensions */
+    protected abstract getValues(): { min?: number, max?: number, avg?: number }
+
+    /** Override this method to get proper analysis data. */
+    public abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
+
+    /**
+     * @deprecated Use with caution! This method forcefully sets the analysis values. The calculation mechanisms should happen elsewhere. Now they happen in the canvas layer wich calculates them upon rendering. That is not good at all!
+     * @internal
+     * @todo Remove this method, move the calculation of values elsewhere from the canvas layer!
+     */
+    public dangerouslySetValues(
+        avg: number,
+        min: number | undefined = undefined,
+        max: number | undefined = undefined,
+    ) {
+        this._avg = avg;
+        this._min = min;
+        this._max = max;
+
+        this.onValues.call(this.min, this.max, this.avg);
+    }
+
+
+    
 
 }

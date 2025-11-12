@@ -351,7 +351,7 @@ var AbstractProperty = class {
 };
 
 // src/properties/analysis/analysis/internals/AbstractAnalysis.ts
-var AbstractAnalysis = class {
+var AbstractAnalysis = class _AbstractAnalysis {
   constructor(key, file, initialColor) {
     this.key = key;
     this.file = file;
@@ -367,27 +367,70 @@ var AbstractAnalysis = class {
     this.layerRoot.style.overflow = "hidden";
     this.layerRoot.id = `analysis_${this.key}`;
     this.renderRoot.appendChild(this.layerRoot);
-    this.onMoveOrResize.set("call recalculate values when a control point moves", () => {
-      this.recalculateValues();
-      this.onSerializableChange.call(this, "moveOrResize");
-    });
-    this.onSerializableChange.set("sync slots", () => {
-      this.file.group.analysisSync.syncSlots(this.file);
-    });
+    this.onMoveOrResize.set(
+      _AbstractAnalysis.LISTENER_PROMOTE_MOVE_RESIZE,
+      () => {
+        this.recalculateValues();
+        this.onSerializableChange.call(this, "moveOrResize");
+        this.layers.onAnySerializableChange.call(this, 2 /* RESIZEMOVE */);
+      }
+    );
+    this.onSerializableChange.set(
+      _AbstractAnalysis.LISTENER_PROMOTE_PROPERTIES_CHANGE,
+      (analysis, change) => {
+        if (_AbstractAnalysis.SERIALISABLE_CHANGES.includes(change)) {
+          this.layers.onAnySerializableChange.call(analysis, 3 /* PROPERTIESCHANGE */);
+        }
+      }
+    );
   }
-  onSerializableChange = new CallbacksManager();
-  serializedIsValid(input) {
-    const splitted = input.split(";").map((segment) => segment.trim());
-    if (splitted.length < 2) {
-      return false;
+  static LISTENER_PROMOTE_PROPERTIES_CHANGE = "pch";
+  static LISTENER_PROMOTE_MOVE_RESIZE = "mvr";
+  static SERIALISABLE_CHANGES = [
+    "name",
+    "color",
+    "min",
+    "max",
+    "avg"
+  ];
+  static VALID_ANALYSIS_TYPES = ["point", "ellipsis", "rectangle"];
+  static COLOR_ACTIVE = "yellow";
+  static COLOR_INACTIVE = "black";
+  _ready = false;
+  /** Indicating whether the analysis in the state of its creation (by the user's mouse) or if it is already finalised. */
+  get ready() {
+    return this._ready;
+  }
+  /** Mark the analysis as ready (finalised) */
+  setReady() {
+    if (this.ready) {
+      throw new Error("Trying to set ready an analysis that is already ready!");
     }
-    if (!["point", "ellipsis", "rectangle"].includes(splitted[1])) {
-      return false;
-    }
-    if (splitted[1] !== this.getType()) {
-      return false;
-    }
-    return true;
+    this._ready = true;
+  }
+  /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
+  layerRoot;
+  /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+  get renderRoot() {
+    return this.file.dom.canvasLayer.getLayerRoot();
+  }
+  /** 
+   * Map of the analysis control points
+   * - key is the role of the point
+   * - value is the point instance
+   */
+  points = /* @__PURE__ */ new Map();
+  /** Create a new array containing all the points */
+  get arrayOfPoints() {
+    return Array.from(this.points.values());
+  }
+  /** Create a new array containing all the active points */
+  get arrayOfActivePoints() {
+    return this.arrayOfPoints.filter((point) => point.active);
+  }
+  /** Access all the file's analysis layers object. */
+  get layers() {
+    return this.file.analysis.layers;
   }
   /** Selection status */
   _selected = false;
@@ -396,17 +439,37 @@ var AbstractAnalysis = class {
   }
   onSelected = new CallbacksManager();
   onDeselected = new CallbacksManager();
+  /** 
+   * Actions taken on any change that should trigger serialisation:
+   * - modification of position or dimensions
+   * - change of name or color
+   */
+  onSerializableChange = new CallbacksManager();
   /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
   onValues = new CallbacksManager();
   /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
   onMoveOrResize = new CallbacksManager();
-  /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
-  layerRoot;
-  /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
-  get renderRoot() {
-    return this.file.canvasLayer.getLayerRoot();
+  /** Actions taken whenever the initial color changes. */
+  onSetInitialColor = new CallbacksManager();
+  /** Actions taken whenever the color changes. */
+  onSetColor = new CallbacksManager();
+  /** Actions taken whenever the name changes. */
+  onSetName = new CallbacksManager();
+  _min;
+  _max;
+  _avg;
+  /** The current minimal value of this analysis */
+  get min() {
+    return this._min;
   }
-  points = /* @__PURE__ */ new Map();
+  /** The current maximal value of this analysis */
+  get max() {
+    return this._max;
+  }
+  /** The current avarage value of this analysis */
+  get avg() {
+    return this._avg;
+  }
   _top;
   _left;
   _width;
@@ -546,35 +609,7 @@ var AbstractAnalysis = class {
       this.onSerializableChange.call(this, "right");
     }
   }
-  /** Access all the file's analysis layers. */
-  get layers() {
-    return this.file.analysis.layers;
-  }
-  _min;
-  get min() {
-    return this._min;
-  }
-  _max;
-  get max() {
-    return this._max;
-  }
-  _avg;
-  get avg() {
-    return this._avg;
-  }
-  dangerouslySetValues(avg, min = void 0, max = void 0) {
-    this._avg = avg;
-    this._min = min;
-    this._max = max;
-    this.onValues.call(this.min, this.max, this.avg);
-  }
-  get arrayOfPoints() {
-    return Array.from(this.points.values());
-  }
-  get arrayOfActivePoints() {
-    return this.arrayOfPoints.filter((point) => point.active);
-  }
-  _color = "black";
+  _color = _AbstractAnalysis.COLOR_INACTIVE;
   get color() {
     return this._color;
   }
@@ -583,7 +618,6 @@ var AbstractAnalysis = class {
     this.setColorCallback(value);
     this.onSetColor.call(value);
   }
-  onSetColor = new CallbacksManager();
   _initialColor;
   get initialColor() {
     return this._initialColor;
@@ -599,16 +633,6 @@ var AbstractAnalysis = class {
       this.setColor(value);
     }
   }
-  onSetInitialColor = new CallbacksManager();
-  // public readonly initialColor: string;
-  activeColor = "yellow";
-  inactiveColor = "black";
-  /** @deprecated is moved to GraphObject instead */
-  get onGraphActivation() {
-    return this.graph.onGraphActivation;
-  }
-  /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
-  ready = false;
   nameInitial;
   _name;
   get name() {
@@ -622,57 +646,24 @@ var AbstractAnalysis = class {
     this.onSerializableChange.call(this, "name");
     this.onSetName.call(value);
   }
-  onSetName = new CallbacksManager();
-  remove() {
-    this.setDeselected();
-    this.renderRoot.removeChild(this.layerRoot);
-  }
-  /** Selection / Deselection */
-  setSelected(exclusive = false, emitGlobalEvent = true) {
-    if (this.selected === true) {
-      return;
+  /**
+   * Performs the basic validation of a serialised input string
+   * - correct number of segments?
+   * - correct type of analysis?
+   * - the type matches this analysis instance?
+   */
+  serializedIsValid(input) {
+    const splitted = input.split(";").map((segment) => segment.trim());
+    if (splitted.length < 2) {
+      return false;
     }
-    this._selected = true;
-    this.onSelected.call(this);
-    this.setColor(this.initialColor);
-    if (exclusive === true) {
-      this.layers.all.filter((analysis) => analysis.key !== this.key).forEach((analysis) => {
-        if (analysis.selected) {
-          analysis.setDeselected(false);
-        }
-      });
+    if (!_AbstractAnalysis.VALID_ANALYSIS_TYPES.includes(splitted[1])) {
+      return false;
     }
-    if (emitGlobalEvent === true) {
-      this.layers.onSelectionChange.call(this.layers.selectedOnly);
+    if (splitted[1] !== this.getType()) {
+      return false;
     }
-    const slot = this.file.slots.getAnalysisSlot(this);
-    if (slot) {
-      this.file.group.analysisSync.setSlotSelected(this.file, slot);
-    }
-  }
-  setDeselected(emitGlobalEvent = true) {
-    if (this.selected === false) {
-      return;
-    }
-    this._selected = false;
-    this.onDeselected.call(this);
-    this.setColor(this.inactiveColor);
-    this.arrayOfActivePoints.forEach((point) => point.deactivate());
-    if (emitGlobalEvent === true) {
-      this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
-    }
-    const slot = this.file.slots.getAnalysisSlot(this);
-    if (slot) {
-      this.file.group.analysisSync.setSlotDeselected(this.file, slot);
-    }
-  }
-  /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
-  recalculateValues() {
-    const { min, max, avg } = this.getValues();
-    this._min = min;
-    this._max = max;
-    this._avg = avg;
-    this.onValues.call(this.min, this.max, this.avg);
+    return true;
   }
   /** When parsing incoming serialized attribute, look if segments have an exact value */
   static serializedSegmentsHasExact(segments, lookup) {
@@ -696,6 +687,86 @@ var AbstractAnalysis = class {
       return void 0;
     }
     return parseInt(item.split(":")[1]);
+  }
+  /**
+   * Remove the analysis from the file and from the DOM
+   * - removes from the DOM
+   * - DOES NOT REMOVE THE SLOT
+   * - DOES NOT REMOVE FROM THE STORAGE
+   * @internal Does not remove from broader context, so do not call this method from aywhere else than from the layers storage
+   */
+  destroyDom() {
+    this.setDeselected();
+    this.renderRoot.removeChild(this.layerRoot);
+  }
+  // Selection management
+  /**
+   * Mark the analysis as selected
+   * => inable its listeners
+   * => change the color of its controls to its current color
+   */
+  setSelected(exclusive = false, emitGlobalEvent = true) {
+    if (this.selected === true) {
+      return;
+    }
+    this._selected = true;
+    this.onSelected.call(this);
+    this.setColor(this.initialColor);
+    if (exclusive === true) {
+      this.layers.all.filter((analysis) => analysis.key !== this.key).forEach((analysis) => {
+        if (analysis.selected) {
+          analysis.setDeselected(false);
+        }
+      });
+    }
+    if (emitGlobalEvent === true) {
+      this.layers.onSelectionChange.call(this.layers.selectedOnly);
+    }
+    const slot = this.file.slots.getAnalysisSlot(this);
+    if (slot) {
+      this.file.group.analysisSync.setSlotSelected(this.file, slot);
+    }
+  }
+  /** 
+   * Mark the analysis as deselected
+   * => disable its listeners
+   * => change the color to inactive
+   */
+  setDeselected(emitGlobalEvent = true) {
+    if (this.selected === false) {
+      return;
+    }
+    this._selected = false;
+    this.onDeselected.call(this);
+    this.setColor(_AbstractAnalysis.COLOR_INACTIVE);
+    this.arrayOfActivePoints.forEach((point) => point.deactivate());
+    if (emitGlobalEvent === true) {
+      this.file.analysis.layers.onSelectionChange.call(this.file.analysis.layers.selectedOnly);
+    }
+    const slot = this.file.slots.getAnalysisSlot(this);
+    if (slot) {
+      this.file.group.analysisSync.setSlotDeselected(this.file, slot);
+    }
+  }
+  // Values
+  /** Recalculate the analysis' values from the current position and dimensions. Called whenever the analysis is resized or whenever file's `pixels` change. */
+  recalculateValues() {
+    const { min, max, avg } = this.getValues();
+    this._min = min;
+    this._max = max;
+    this._avg = avg;
+    this.onValues.call(this.min, this.max, this.avg);
+  }
+  /**
+   * @deprecated Use with caution! This method forcefully sets the analysis values. The calculation mechanisms should happen elsewhere. Now they happen in the canvas layer wich calculates them upon rendering. That is not good at all!
+   * @internal
+   * @todo Remove this method, move the calculation of values elsewhere from the canvas layer!
+   */
+  dangerouslySetValues(avg, min = void 0, max = void 0) {
+    this._avg = avg;
+    this._min = min;
+    this._max = max;
+    this.onValues.call(this.min, this.max, this.avg);
   }
 };
 
@@ -818,10 +889,10 @@ var AbstractPoint = class {
     return this.analysis.initialColor;
   }
   get activeColor() {
-    return this.analysis.activeColor;
+    return PointAnalysis.COLOR_ACTIVE;
   }
   get inactiveColor() {
-    return this.analysis.inactiveColor;
+    return PointAnalysis.COLOR_INACTIVE;
   }
   _active = false;
   get active() {
@@ -2091,18 +2162,41 @@ var AnalysisLayersStorage = class extends Map {
   }
   /** Array of all layers ordered from oldest to the newest */
   layers = [];
+  /** Get the slots driver */
   get slots() {
     return this.drive.parent.slots;
   }
-  /** Fired whenever an analysis is added */
+  /** Array of all analysis ordered from the oldest to the newest. */
+  get all() {
+    return this.layers;
+  }
+  /** Array of all active analysis ordered from the oldest to the newest. */
+  get selectedOnly() {
+    return this.all.filter((analysis) => analysis.selected === true);
+  }
+  /** Fired whenever an analysis is added @deprecated */
   onAdd = new CallbacksManager();
-  /** Fired whenever an analysis is removed */
+  /** Fired whenever an analysis is removed @deprecated */
   onRemove = new CallbacksManager();
   /** Fired whenever the selection list changes */
   onSelectionChange = new CallbacksManager();
+  /** Fired whenever a serialisable change occurs:
+   * - added
+   * - removed
+   * - moved/resized
+   * - updated 
+   */
+  onAnySerializableChange = new CallbacksManager();
   /** Array of available colors */
   colors = availableAnalysisColors;
   // Adding analysis
+  /**
+   * Internal method for adding analyses
+   * - adds it locally
+   * - assign its slot if needed
+   * - update the layers container
+   * - call the analysis add function
+   */
   addAnalysis(analysis, slotNumber) {
     if (this.has(analysis.key)) {
       this.removeAnalysis(analysis.key);
@@ -2112,26 +2206,42 @@ var AnalysisLayersStorage = class extends Map {
     this.layers = [...this.layers, analysis];
     const slotNum = slotNumber === true ? this.slots.getNextFreeSlotNumber() : slotNumber === false ? void 0 : slotNumber;
     if (slotNum !== void 0) {
-      this.slots.assignSlot(slotNum, analysis);
+      this.slots.assignAnalysisToSlot(slotNum, analysis);
     }
     this.onAdd.call(analysis, this.all);
+    this.onAnySerializableChange.call(analysis, 0 /* ADD */);
     this.drive.dangerouslySetValueFromStorage(this.all);
     return this;
   }
+  /**
+   * Removes an analysis by its key
+   * - removes the assigned slot
+   * - updates the layers container
+   * - call the analysis remove function
+   */
   removeAnalysis(key) {
     if (this.has(key)) {
       const analysis = this.get(key);
       if (analysis) {
         this.slots.unassignAnalysisFromItsSlot(analysis);
-        analysis.remove();
+        analysis.destroyDom();
         this.delete(key);
         this.layers = this.layers.filter((analysis2) => analysis2.key !== key);
         this.drive.dangerouslySetValueFromStorage(this.all);
         this.onRemove.call(key);
+        this.onAnySerializableChange.call(analysis, 1 /* REMOVE */);
       }
     }
   }
-  /** Add a rectangular analysis in the given position and start editing it. */
+  /** This is the proper way to remove all analyses */
+  removeAllAnalyses() {
+    this.forEach((analysis) => {
+      this.removeAnalysis(analysis.key);
+    });
+  }
+  /** 
+   * Create a rectangular analysis in the given position and start editing it. 
+   */
   createRectFrom(top, left) {
     const newAnalysis = RectangleAnalysis.startAddingAtPoint(
       this.getNextName("Rectangle"),
@@ -2143,7 +2253,9 @@ var AnalysisLayersStorage = class extends Map {
     this.addAnalysis(newAnalysis, false);
     return newAnalysis;
   }
-  /** Build an ellyptical analysis at the given position. */
+  /** 
+   * Place an ellyptical analysis at the given position, providing optionally its color & slot number
+   */
   placeRectAt(name, top, left, right, bottom, color, slotNumber) {
     const newAnalysis = RectangleAnalysis.build(
       name,
@@ -2154,11 +2266,13 @@ var AnalysisLayersStorage = class extends Map {
       right,
       bottom
     );
-    newAnalysis.ready = true;
+    newAnalysis.setReady();
     this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
-  /** Add an ellyptical analysis in the given position and start editing it */
+  /** 
+   * Create an ellyptical analysis in the given position and start editing it 
+   */
   createEllipsisFrom(top, left) {
     const newAnalysis = EllipsisAnalysis.startAddingAtPoint(
       this.getNextName("Ellipsis"),
@@ -2170,7 +2284,9 @@ var AnalysisLayersStorage = class extends Map {
     this.addAnalysis(newAnalysis, false);
     return newAnalysis;
   }
-  /** Build an ellyptical analysis at the given position. */
+  /** 
+   * Build an ellyptical analysis at the given position. 
+   */
   placeEllipsisAt(name, top, left, right, bottom, color, slotNumber) {
     const newAnalysis = EllipsisAnalysis.build(
       name,
@@ -2181,10 +2297,14 @@ var AnalysisLayersStorage = class extends Map {
       right,
       bottom
     );
-    newAnalysis.ready = true;
+    newAnalysis.setReady();
     this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
+  /**
+   * Create a new point analysis at the given position
+   * @returns 
+   */
   createPointAt(top, left) {
     const newAnalysis = PointAnalysis.addAtPoint(
       this.getNextName("Point"),
@@ -2196,6 +2316,9 @@ var AnalysisLayersStorage = class extends Map {
     this.addAnalysis(newAnalysis, true);
     return newAnalysis;
   }
+  /** 
+   * Build a point analysis at the given position, providing optionally its color & slot number 
+   */
   placePointAt(name, top, left, color, slotNumber) {
     const newAnalysis = PointAnalysis.addAtPoint(
       name,
@@ -2204,10 +2327,13 @@ var AnalysisLayersStorage = class extends Map {
       top,
       left
     );
-    newAnalysis.ready = true;
+    newAnalysis.setReady();
     this.addAnalysis(newAnalysis, slotNumber);
     return newAnalysis;
   }
+  /**
+   * Mark all analyses as selected
+   */
   selectAll() {
     this.all.filter((analysis) => {
       if (analysis.selected === false) {
@@ -2216,20 +2342,14 @@ var AnalysisLayersStorage = class extends Map {
     });
     this.onSelectionChange.call(this.selectedOnly);
   }
+  /**
+   * Mark all analyses as deselected
+   */
   deselectAll() {
     this.selectedOnly.forEach((analysis) => {
       analysis.setDeselected(false);
     });
     this.onSelectionChange.call(this.selectedOnly);
-  }
-  /** Accessors */
-  /** Array of all analysis ordered from the oldest to the newest. */
-  get all() {
-    return this.layers;
-  }
-  /** Array of all active analysis ordered from the oldest to the newest. */
-  get selectedOnly() {
-    return this.all.filter((analysis) => analysis.selected === true);
   }
   /** Get color for the next analysis */
   getNextColor() {
@@ -2323,7 +2443,9 @@ var AnalysisDrive = class extends AbstractProperty {
       left: x
     };
   }
-  /** Activate listeners for the current drive on the file's listener layer. */
+  /** 
+   * Activate the DOM listeners for the current drive on the file's listener layer. 
+   */
   activateListeners(container) {
     this.listener = container;
     this.bindedPointerMoveListener = (event) => {
@@ -2561,6 +2683,105 @@ var AnalysisDataState = class extends AbstractProperty {
     const csv = generateCsv(csvConfig)(data);
     download(csvConfig)(csv);
   }
+  async updateAllAnalysesValues() {
+    const instance = this.parent;
+    try {
+      const analysis = instance.analysis.value.map((a) => {
+        if (a instanceof PointAnalysis) {
+          return [a.getType(), a.key, a.top, a.left, 1, 1];
+        }
+        return [a.getType(), a.key, a.top, a.left, a.width, a.height];
+      });
+      const stats = await instance.pool.exec(async (width, height, pixels, analysis2) => {
+        const buffer = analysis2.map((a) => {
+          return {
+            id: a[1],
+            type: a[0],
+            min: {
+              value: Infinity
+            },
+            max: {
+              value: -Infinity
+            },
+            avg: {
+              value: 0,
+              sum: 0,
+              count: 0
+            }
+          };
+        });
+        for (let x = 0; x < width; x++) {
+          for (let y = 0; y < height; y++) {
+            const index = x + y * width;
+            const rawTemperature = pixels[index];
+            const isWithin = (x2, y2, la, ta, wa, ha) => {
+              const centerX = la + wa / 2;
+              const centerY = ta + ha / 2;
+              const normalizedX = (x2 - centerX) / (wa / 2);
+              const normalizedY = (y2 - centerY) / (ha / 2);
+              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+            };
+            analysis2.forEach((a, index2) => {
+              const bufferValue = buffer[index2];
+              const [type, id, top, left, w, h] = a;
+              id;
+              if (type === "point") {
+                if (x === left && y === top) {
+                  bufferValue.avg.value = rawTemperature;
+                }
+              } else if (type === "rectangle") {
+                if (x >= left && x < left + w && y >= top && y < top + h) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              } else if (type === "ellipsis") {
+                if (isWithin(x, y, left, top, width, height)) {
+                  if (rawTemperature < bufferValue.min.value) {
+                    bufferValue.min.value = rawTemperature;
+                  }
+                  if (rawTemperature > bufferValue.max.value) {
+                    bufferValue.max.value = rawTemperature;
+                  }
+                  bufferValue.avg.count = bufferValue.avg.count + 1;
+                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
+                }
+              }
+            });
+          }
+        }
+        const stats2 = buffer.map((a) => {
+          return {
+            id: a.id,
+            min: a.min.value !== Infinity ? a.min.value : void 0,
+            max: a.max.value !== -Infinity ? a.max.value : void 0,
+            avg: a.type === "point" ? a.avg.value : a.avg.sum / a.avg.count
+          };
+        });
+        return {
+          stats: stats2
+        };
+      }, [
+        instance.width,
+        instance.height,
+        instance.pixels,
+        analysis
+      ], {});
+      stats.stats.forEach((a) => {
+        const analysis2 = instance.analysis.layers.get(a.id);
+        analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(error);
+      }
+    }
+  }
 };
 
 // src/properties/analysis/slots/AnalysisSlot.ts
@@ -2624,6 +2845,7 @@ var AnalysisSlot = class {
     const manager = this.analysis.file.slots.getOnSerializeManager(this.slot);
     if (manager) {
       manager.call(value);
+      this.analysis.file.slots.markAsChanged();
     }
   }
 };
@@ -2631,10 +2853,19 @@ var AnalysisSlot = class {
 // src/properties/analysis/slots/AnalysisSlotsDrive.ts
 var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   static MAX_SLOTS = 7;
-  /** @deprecated Use particular assignement slot instead */
-  onSlotInit = new CallbacksManager();
-  /** @deprecated Use particular assignement slot instead */
-  onSlotRemove = new CallbacksManager();
+  /** Callback called every time any slot changes */
+  onAnySlotChanged = new CallbacksManager();
+  _onAnySlotChangedTimeout;
+  /** Mark the status as changed and emit the event in the folowing subsequent tick */
+  markAsChanged() {
+    if (this._onAnySlotChangedTimeout) {
+      clearTimeout(this._onAnySlotChangedTimeout);
+    }
+    this._onAnySlotChangedTimeout = setTimeout(() => {
+      this.onAnySlotChanged.call();
+      this._onAnySlotChangedTimeout = void 0;
+    }, 0);
+  }
   onSlot1Assignement = new CallbacksManager();
   onSlot2Assignement = new CallbacksManager();
   onSlot3Assignement = new CallbacksManager();
@@ -2649,13 +2880,18 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
   onSlot5Serialize = new CallbacksManager();
   onSlot6Serialize = new CallbacksManager();
   onSlot7Serialize = new CallbacksManager();
-  /** Calculate the next free slot */
+  /** 
+   * Calculate the next free slot number 
+   */
   getNextFreeSlotNumber() {
     for (let i = 1; i <= _AnalysisSlotsState.MAX_SLOTS; i++) {
       if (!this.hasSlot(i)) return i;
     }
   }
-  assignSlot(slot, analysis) {
+  /**
+   * Assign an analysis to a given slot number
+   */
+  assignAnalysisToSlot(slot, analysis) {
     const existingSlot = this.getSlot(slot);
     if (existingSlot !== void 0) {
       this.removeSlotAndAnalysis(slot);
@@ -2670,17 +2906,23 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     const serialisationManager = this.getOnSerializeManager(slot);
     if (assignementManager) assignementManager.call(value);
     if (serialisationManager) serialisationManager.call(value.serialized);
-    this.onSlotInit.call(slot, value);
     this.callEffectsAndListeners();
     return value;
   }
+  /** Does this instance have an analyasis on the given slot number? */
   hasSlot(slot) {
     return this.value.has(slot);
   }
+  /** Get a slot control object by its number */
   getSlot(slot) {
     return this.value.get(slot);
   }
-  getSlotMap() {
+  /**
+   * Calculate a full map of slots including empty ones as undefined values
+   * 
+   * The value of this drive contains only assigned slots, therefore this method contains the entire map of slots from 1 to 7. Beware, this operation is expensive since it creates a new map object and should not be used often.
+   */
+  getFullSlotsMap() {
     const map = /* @__PURE__ */ new Map();
     [1, 2, 3, 4, 5, 6, 7].forEach((number) => {
       if (this.hasSlot(number)) {
@@ -2691,6 +2933,9 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     });
     return map;
   }
+  /** 
+   * Get the number of the slot assigned to a given analysis 
+   */
   getAnalysisSlot(analysis) {
     for (const a of this.value.values()) {
       if (a.analysis.key === analysis.key) {
@@ -2727,9 +2972,9 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     }
   }
   /** 
-   * Create an analysis from a serialized state 
+   * Create an analysis from a serialized state on a given slot
    */
-  createFromSerialized(serialized, slotNumber) {
+  createAnalysisFromSerialized(serialized, slotNumber) {
     const splitted = serialized.split(";").map((segment) => segment.trim());
     if (splitted.length < 2) {
       return;
@@ -2786,9 +3031,9 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
       } else if (slotNumber === true) {
         const nextFreeSlot = this.getNextFreeSlotNumber();
         if (nextFreeSlot !== void 0)
-          this.assignSlot(nextFreeSlot, analysis);
+          this.assignAnalysisToSlot(nextFreeSlot, analysis);
       } else if (slotNumber !== void 0) {
-        this.assignSlot(slotNumber, analysis);
+        this.assignAnalysisToSlot(slotNumber, analysis);
       }
       return analysis;
     }
@@ -2812,20 +3057,6 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
     if (assignement) assignement.call(value);
     const serialization = this.getOnSerializeManager(slot);
     if (serialization) serialization.call(value ? value.serialized : void 0);
-    if (value) {
-      this.onSlotInit.call(slot, value);
-    } else {
-      this.onSlotRemove.call(slot);
-    }
-  }
-  /** 
-   * Whenever a slit serializes call the particular manager 
-   */
-  emitSerializedValue(slot, value) {
-    const manager = this.getOnSerializeManager(slot);
-    if (manager) {
-      manager.call(value);
-    }
   }
   /**
    * Get a callback manager that is triggered upon a slot serialisation
@@ -2863,14 +3094,11 @@ var AnalysisSlotsState = class _AnalysisSlotsState extends AbstractProperty {
    * Call a function on every existing slot skipping empty slots. 
    */
   forEveryExistingSlot(fn) {
-    const forSlot = (num) => {
-      const slot = this.getSlot(num);
-      if (slot) {
-        fn(slot, num);
-      }
-    };
     for (let i = 1; i <= 7; i++) {
-      forSlot(i);
+      const slot = this.getSlot(i);
+      if (slot) {
+        fn(slot, i);
+      }
     }
   }
 };
@@ -4130,7 +4358,6 @@ var AbstractFile = class extends BaseStructureObject {
   }
   async draw() {
     if (this.dom && this.dom.canvasLayer) {
-      await this.dom.canvasLayer.draw();
       return await this.renderer?.render();
     }
   }
@@ -4401,33 +4628,16 @@ var VisibleLayer = class extends AbstractLayer {
 
 // src/file/dom/layers/thermalCanvasLayer.ts
 var ThermalCanvasLayer = class extends AbstractLayer {
-  renderCount = 0;
-  get pool() {
-    return this.instance.pool;
-  }
   container;
   canvas;
-  // protected offscreen: OffscreenCanvas;
-  get width() {
-    return this.instance.width;
-  }
-  get height() {
-    return this.instance.height;
-  }
-  get pixels() {
-    return this.instance.pixels;
-  }
-  get from() {
-    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.from : this.instance.min;
-  }
-  get to() {
-    return this.instance.group.registry.range.currentRange ? this.instance.group.registry.range.currentRange.to : this.instance.max;
-  }
   _opacity = 1;
   get opacity() {
     return this._opacity;
   }
   set opacity(value) {
+    if (this.instance.visibleUrl === null || this.instance.visibleUrl === void 0 || this.instance.visibleUrl.trim().length === 0) {
+      return;
+    }
     this._opacity = Math.max(Math.min(value, 1), 0);
     if (this._opacity !== 1)
       this.canvas.style.opacity = this._opacity.toString();
@@ -4450,129 +4660,6 @@ var ThermalCanvasLayer = class extends AbstractLayer {
   onDestroy() {
     this.canvas.remove();
     this.container.remove();
-  }
-  /** Returns an array of 255 RGB colors */
-  getPalette() {
-    return this.instance.group.registry.palette.currentPalette.pixels;
-  }
-  async draw() {
-    this.renderCount += 1;
-    try {
-      const analysis = this.instance.analysis.value.map((a) => {
-        if (a instanceof PointAnalysis) {
-          return [a.getType(), a.key, a.top, a.left, 1, 1];
-        }
-        return [a.getType(), a.key, a.top, a.left, a.width, a.height];
-      });
-      const image = await this.pool.exec(async (from, to, width, height, pixels, analysis2) => {
-        const displayRange = to - from;
-        const buffer = analysis2.map((a) => {
-          return {
-            id: a[1],
-            type: a[0],
-            min: {
-              value: Infinity
-            },
-            max: {
-              value: -Infinity
-            },
-            avg: {
-              value: 0,
-              sum: 0,
-              count: 0
-            }
-          };
-        });
-        for (let x = 0; x < width; x++) {
-          for (let y = 0; y < height; y++) {
-            const index = x + y * width;
-            const rawTemperature = pixels[index];
-            let temperature = rawTemperature;
-            if (temperature < from)
-              temperature = from;
-            if (temperature > to)
-              temperature = to;
-            const isWithin = (x2, y2, la, ta, wa, ha) => {
-              const centerX = la + wa / 2;
-              const centerY = ta + ha / 2;
-              const normalizedX = (x2 - centerX) / (wa / 2);
-              const normalizedY = (y2 - centerY) / (ha / 2);
-              return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-            };
-            analysis2.forEach((a, index2) => {
-              const bufferValue = buffer[index2];
-              const [type, id, top, left, w, h] = a;
-              id;
-              if (type === "point") {
-                if (x === left && y === top) {
-                  bufferValue.avg.value = rawTemperature;
-                }
-              } else if (type === "rectangle") {
-                if (x >= left && x < left + w && y >= top && y < top + h) {
-                  if (rawTemperature < bufferValue.min.value) {
-                    bufferValue.min.value = rawTemperature;
-                  }
-                  if (rawTemperature > bufferValue.max.value) {
-                    bufferValue.max.value = rawTemperature;
-                  }
-                  bufferValue.avg.count = bufferValue.avg.count + 1;
-                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-                }
-              } else if (type === "ellipsis") {
-                if (isWithin(x, y, left, top, width, height)) {
-                  if (rawTemperature < bufferValue.min.value) {
-                    bufferValue.min.value = rawTemperature;
-                  }
-                  if (rawTemperature > bufferValue.max.value) {
-                    bufferValue.max.value = rawTemperature;
-                  }
-                  bufferValue.avg.count = bufferValue.avg.count + 1;
-                  bufferValue.avg.sum = bufferValue.avg.sum + rawTemperature;
-                }
-              }
-            });
-          }
-        }
-        const stats = buffer.map((a) => {
-          return {
-            id: a.id,
-            min: a.min.value !== Infinity ? a.min.value : void 0,
-            max: a.max.value !== -Infinity ? a.max.value : void 0,
-            avg: a.type === "point" ? a.avg.value : a.avg.sum / a.avg.count
-          };
-        });
-        return {
-          stats
-        };
-      }, [
-        this.from,
-        this.to,
-        this.width,
-        this.height,
-        this.pixels,
-        analysis
-      ], {});
-      image.stats.forEach((a) => {
-        const analysis2 = this.instance.analysis.layers.get(a.id);
-        analysis2?.dangerouslySetValues(a.avg, a.min, a.max);
-      });
-      return true;
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === "OffscreenCanvas is not defined") {
-          return false;
-        }
-        console.error(error);
-      }
-    }
-    return false;
-  }
-  exportAsPng() {
-    const image = this.canvas.toDataURL();
-    const link = document.createElement("a");
-    link.download = this.instance.fileName.replace(".lrc", "_exported.png");
-    link.href = image;
-    link.click();
   }
 };
 
@@ -5031,7 +5118,7 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
         table.appendChild(header);
         this.container.appendChild(table);
         this.file.slots.forEveryExistingSlot((slot, number) => {
-          const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
+          const localAnalysis = this.localInstance?.slots.createAnalysisFromSerialized(slot.serialized, number);
           if (localAnalysis) {
             const row = document.createElement("tr");
             const name = this.createElementWithText(
@@ -5159,6 +5246,9 @@ var Instance = class _Instance extends AbstractFile {
       dom.setHover(false);
       dom.parent.group.cursorPosition.recieveCursorPosition(void 0);
     };
+    dom.listenerLayer.getLayerRoot().onmouseenter = () => {
+      this.group.analysisSync.setCurrentPointer(this);
+    };
   }
   dehydrateListener(dom) {
     dom.parent.analysis.deactivateListeners();
@@ -5185,6 +5275,7 @@ var Instance = class _Instance extends AbstractFile {
         const label = this.group.tool.value.getLabelValue(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, this);
         this.dom.cursorLayer?.setLabel(this.group.cursorPosition.value.x, this.group.cursorPosition.value.y, label);
       }
+      this.analysisData.updateAllAnalysesValues();
     }
   }
   getPixelsForHistogram() {
@@ -5456,7 +5547,7 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
           table.appendChild(header);
           wrapper.appendChild(table);
           referenceInstance.slots.forEveryExistingSlot((slot, number) => {
-            const localAnalysis = instance.slots.createFromSerialized(slot.serialized, number);
+            const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
             if (localAnalysis) {
               const row = document.createElement("tr");
               const name = this.createElementWithText(
@@ -5597,31 +5688,61 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
 
 // src/properties/analysis/sync/analysisSync.ts
 var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
+  static LISTENER_KEY = "__analysis__sync";
+  /** Event that is triggered every time a slot is synchronised & serialised */
   onSlotSync = new CallbacksManager();
+  _currentPointer;
+  /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
+  get currentPointer() {
+    return this._currentPointer;
+  }
+  _csv;
+  /** Lazy loaded CSV export object. */
+  get csv() {
+    if (!this._csv) {
+      this._csv = new GroupExportCSV(this);
+    }
+    return this._csv;
+  }
+  _png;
+  /** Lazy loaded PNG export object. */
+  get png() {
+    if (!this._png) {
+      this._png = new GroupExportPNG(this);
+    }
+    return this._png;
+  }
   validate(value) {
     return value;
   }
   afterSetEffect() {
   }
+  /**
+   * Enable analysis synchronisation for the group
+   */
   turnOn(instance) {
     this.value = true;
     this.setCurrentPointer(instance);
-    this.syncSlots(instance);
   }
+  /**
+   * Disable the synchronisation analysis for the group
+   */
   turnOff() {
     this.value = false;
     this.setCurrentPointer(void 0);
   }
-  _currentPointer;
-  get currentPointer() {
-    return this._currentPointer;
-  }
+  /**
+   * Iterate  over all exsting slot in the current pointer instance
+   */
   forEveryExistingSlot(fn) {
     if (this._currentPointer === void 0) {
       return;
     }
     this._currentPointer.slots.forEveryExistingSlot(fn);
   }
+  /**
+   * Set a given instance as the current ponter for synchronisation
+   */
   setCurrentPointer(instance) {
     if (instance === void 0 && this._currentPointer) {
       this.endSyncingSlot(this._currentPointer, 1);
@@ -5700,7 +5821,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       };
     }
   }
-  static LISTENER_KEY = "__analysis__sync";
+  /**
+   * Interrnal method to start synchronisation of a given slot number on the given instance
+   */
   startSyncingSlot(instance, slotNumber) {
     const { serialise } = this.getSlotListeners(instance, slotNumber);
     serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
@@ -5710,7 +5833,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
         }
         this.onSlotSync.call(value, slotNumber);
         if (sl === void 0 && value) {
-          const analysis = f.slots.createFromSerialized(value, slotNumber);
+          const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
           analysis?.setSelected();
         } else if (sl !== void 0 && value) {
           sl.recieveSerialized(value);
@@ -5721,6 +5844,9 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       });
     });
   }
+  /**
+   * Internal method to end synchronisation of a given slot number on the given instance
+   */
   endSyncingSlot(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, () => {
       const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
@@ -5728,36 +5854,46 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
     });
   }
+  /**
+   * Deletes a slot and analysis from all instances in the group except the provided one
+   */
   deleteSlot(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, (slot) => {
       slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
     });
   }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
   setSlotSelected(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, (slot) => {
       slot?.analysis.setSelected(false);
     });
   }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
   setSlotDeselected(instance, slotNumber) {
     this.forEveryOtherSlot(instance, slotNumber, (slot) => {
       slot?.analysis.setDeselected();
     });
   }
-  /**
-   * Get array of files excludint the one provided
-   */
-  allExceptOne(instance) {
-    return this.parent.files.value.filter((file) => file !== instance);
-  }
   /** 
    * Execute a given function on all files slot 
    */
   forEveryOtherSlot(instance, slotNumber, fn) {
-    this.allExceptOne(instance).forEach((file) => {
-      const item = file.slots.getSlot(slotNumber);
-      fn(item, file);
+    this.parent.files.forEveryInstance((file) => {
+      if (file === instance) {
+        return;
+      }
+      const slot = file.slots.getSlot(slotNumber);
+      fn(slot, file);
     });
   }
+  /**
+   * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
+   * @deprecated Used only by old webcomponents and perhaps unnecessary
+   */
   recieveSlotSerialized(serialized, slot) {
     this.parent.files.forEveryInstance(
       (instance) => {
@@ -5769,7 +5905,7 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
           if (sl) {
             sl.recieveSerialized(serialized);
           } else {
-            instance.slots.createFromSerialized(serialized, slot);
+            instance.slots.createAnalysisFromSerialized(serialized, slot);
           }
         } else {
           instance.slots.removeSlotAndAnalysis(slot);
@@ -5777,51 +5913,36 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
       }
     );
   }
-  /** @deprecated Should sync individual slots only. This method synces all slots at once. */
-  syncSlots(instance) {
-    if (this.value === false) {
-      return;
-    }
-    this.setCurrentPointer(instance);
-    const allOtherFiles = this.parent.files.value.filter((file) => file !== instance);
-    const map = instance.slots.getSlotMap();
-    allOtherFiles.forEach((file) => {
-      if (file.group.analysisSync.value === false) {
+  /**
+   * Take an instance and copy its value in one slot to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyOneSlotToAllInstances(instance, slotNumber) {
+    this.parent.files.forEveryInstance((otherInstance) => {
+      if (otherInstance === instance) {
         return;
       }
-      for (const [slt, value] of map) {
-        if (value === void 0) {
-          file.slots.removeSlotAndAnalysis(slt);
-        } else {
-          const existingSerialized = file.slots.getSlot(slt)?.serialized;
-          const newSerialized = value.serialized;
-          if (existingSerialized !== newSerialized) {
-            if (file.slots.hasSlot(slt)) {
-              file.slots.getSlot(slt)?.recieveSerialized(newSerialized);
-            } else {
-              const slot = file.slots.createFromSerialized(newSerialized, slt);
-              slot?.setSelected(false);
-            }
-          }
-        }
+      if (otherInstance.slots.hasSlot(slotNumber)) {
+        otherInstance.slots.removeSlotAndAnalysis(slotNumber);
       }
+      const slot = instance.slots.getSlot(slotNumber);
+      const serialized = slot?.serialized;
+      if (!serialized) {
+        return;
+      }
+      otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
     });
   }
-  _csv;
-  /** Lazy loaded CSV export object. */
-  get csv() {
-    if (!this._csv) {
-      this._csv = new GroupExportCSV(this);
-    }
-    return this._csv;
-  }
-  _png;
-  /** Lazy loaded PNG export object. */
-  get png() {
-    if (!this._png) {
-      this._png = new GroupExportPNG(this);
-    }
-    return this._png;
+  /** 
+   * Copy the entire analysis state from one instance to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyAllSlotsToAllInstances(instance) {
+    [1, 2, 3, 4, 5, 6, 7].forEach((slotNumber) => {
+      this.copyOneSlotToAllInstances(instance, slotNumber);
+    });
   }
 };
 
@@ -6159,7 +6280,6 @@ var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
     } else {
       this.value = void 0;
     }
-    console.log("P\u0159epo\u010D\xEDtal jsem data", this.value);
   }
   turnOn() {
     this.parent.files.forEveryInstance((instance) => {
@@ -6176,13 +6296,6 @@ var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
   turnOff() {
     this.parent.files.forEveryInstance((instance) => {
       instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
-    });
-  }
-  _wtf() {
-    this.parent.files.forEveryInstance((instance) => {
-      instance.analysis.layers.forEach((analysis) => {
-        analysis.graph.setAvgActivation(true);
-      });
     });
   }
   validate(value) {
@@ -8012,14 +8125,14 @@ var AddEllipsisTool = class extends AbstractAddTool {
     }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
+    point.analysis.setReady();
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     } else {
       if (point.analysis.file.slots.value.size <= AnalysisSlotsState.MAX_SLOTS) {
         const slot = point.analysis.file.slots.getNextFreeSlotNumber();
         if (slot !== void 0) {
-          point.file.slots.assignSlot(slot, point.analysis);
+          point.file.slots.assignAnalysisToSlot(slot, point.analysis);
         }
       }
     }
@@ -8073,13 +8186,13 @@ var AddRectangleTool = class extends AbstractAddTool {
     }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
+    point.analysis.setReady();
     if (point.analysis.width <= 0 || point.analysis.height <= 0) {
       point.analysis.layers.removeAnalysis(point.analysis.key);
     } else {
       const slot = point.analysis.file.slots.getNextFreeSlotNumber();
       if (slot !== void 0) {
-        point.file.slots.assignSlot(slot, point.analysis);
+        point.file.slots.assignAnalysisToSlot(slot, point.analysis);
       }
     }
   }
@@ -8132,7 +8245,7 @@ var AddPointTool = class extends AbstractAddTool {
     }
     point.deactivate();
     point.analysis.file.group.tool.selectTool("edit");
-    point.analysis.ready = true;
+    point.analysis.setReady();
     point.analysis.onMoveOrResize.call(point.analysis);
   }
   onPointMove() {

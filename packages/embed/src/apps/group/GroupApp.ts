@@ -220,15 +220,13 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
         }
 
-        if (_changedProperties.has("analysis1")) {
-            this.group.analysisSync.recieveSlotSerialized(this.analysis1, 1);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis2, 2);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis3, 3);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis4, 4);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis5, 5);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis6, 6);
-            this.group.analysisSync.recieveSlotSerialized(this.analysis7, 7);
-        }
+        if (_changedProperties.has("analysis1")) { this.group.analysisSync.recieveSlotSerialized(this.analysis1, 1); }
+        if (_changedProperties.has("analysis2")) { this.group.analysisSync.recieveSlotSerialized(this.analysis2, 2); }
+        if (_changedProperties.has("analysis3")) { this.group.analysisSync.recieveSlotSerialized(this.analysis3, 3); }
+        if (_changedProperties.has("analysis4")) { this.group.analysisSync.recieveSlotSerialized(this.analysis4, 4); }
+        if (_changedProperties.has("analysis5")) { this.group.analysisSync.recieveSlotSerialized(this.analysis5, 5); }
+        if (_changedProperties.has("analysis6")) { this.group.analysisSync.recieveSlotSerialized(this.analysis6, 6); }
+        if (_changedProperties.has("analysis7")) { this.group.analysisSync.recieveSlotSerialized(this.analysis7, 7); }
     }
 
     protected scrollToComponent() {

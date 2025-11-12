@@ -100,7 +100,7 @@ export abstract class AppWithRender extends AppWithContent {
             const registry = this.registryElement.value.registry;
 
             registry.manager.palette.addListener(this.UUIDContent, (palette) => {
-                this.palette = palette;
+                this.palette = palette as unknown as AvailableThermalPalettes;
                 this.requestUpdate();
             });
 
@@ -460,7 +460,7 @@ export abstract class AppWithRender extends AppWithContent {
                             .info=${this.file}
                             .folder=${this.folder}
                             .onChange=${(file: FileInfo) => {
-                        this.setStateFile(file);
+                        this.updateFile(file);
                     }}
                             size="md"
                         ></file-analysis-store-button>`

@@ -188,7 +188,7 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
                     referenceInstance.slots.forEveryExistingSlot((slot, number) => {
 
                         // Transpose the analysis to temporary instance
-                        const localAnalysis = instance.slots.createFromSerialized(slot.serialized, number);
+                        const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
 
                         if (localAnalysis) {
 

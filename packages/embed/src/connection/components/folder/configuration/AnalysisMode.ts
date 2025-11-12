@@ -76,7 +76,7 @@ export class AnalysisModeElement extends AbstractModeBar {
 
                                     def.analyses.forEach( analysis => {
 
-                                        const a = instance.slots.createFromSerialized( analysis );
+                                        const a = instance.slots.createAnalysisFromSerialized( analysis );
 
                                         a?.setSelected();
 

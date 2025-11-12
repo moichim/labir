@@ -73,10 +73,13 @@ export abstract class AppWithContent extends AppWithClientProvider {
     @state()
     private _file?: FileInfo;
     public get file(): FileInfo | undefined { return this._file; }
-    public updateFile(file: FileInfo): void {
-        this._file = file;
 
-        this.requestUpdate();
+    /** Update the file both in the displayed file and in the subfolders file */
+    public updateFile(file: FileInfo): void {
+
+        if ( this._file ) {
+            this._file = file;
+        }
 
         // Upon updating the file, try to update it in the list of files as well
         const fileInList = this.files?.findIndex(f => f.fileName === file.fileName) ?? -1;
@@ -84,6 +87,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
         if (fileInList !== -1 && this.files) {
             this.files[fileInList] = file;
         }
+
+        this.requestUpdate();
 
 
     }
@@ -596,6 +601,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
     ): void {
 
         this.clearRegistryRange();
+
+        this._file = file;
 
         this.updateFile(file);
         this.state = AppState.DETAIL;

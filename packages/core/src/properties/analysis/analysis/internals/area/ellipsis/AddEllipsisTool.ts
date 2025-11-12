@@ -49,7 +49,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
 
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
-        point.analysis.ready = true;
+        point.analysis.setReady();
 
         if (point.analysis.width <= 0 || point.analysis.height <= 0) {
             point.analysis.layers.removeAnalysis(point.analysis.key);
@@ -57,7 +57,7 @@ export class AddEllipsisTool extends AbstractAddTool implements ITool {
             if ( point.analysis.file.slots.value.size <= AnalysisSlotsState.MAX_SLOTS ) {
                 const slot = point.analysis.file.slots.getNextFreeSlotNumber();
                 if ( slot !== undefined ) {
-                    point.file.slots.assignSlot( slot, point.analysis );
+                    point.file.slots.assignAnalysisToSlot( slot, point.analysis );
                 }
             }
         }

@@ -81,9 +81,6 @@ const buildExportPngButton = () => {
 
     const dn2 = document.createElement( "button" );
     dn2.innerHTML = "Togle analysis";
-    dn2.addEventListener("click", () => {
-        group.analysisGraph._wtf();
-    } );
     document.body.appendChild( dn2 );
 
 

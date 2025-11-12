@@ -11,6 +11,22 @@ type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalys
 type AnalysisRemovedCallback = (key: string) => void;
 type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
 
+/** What kind of change occured with the given analysis? */
+export enum AnalysisSerializableChangeType {
+    /** The analysis was added */
+    ADD = 0,
+    /** The analysis was removed */
+    REMOVE = 1,
+    /** The analysis was resized or moved */
+    RESIZEMOVE = 2,
+    /** Other properties of the analysis were changed */
+    PROPERTIESCHANGE = 3,
+    /** Graph visibility changes */
+    GRAPH = 4
+}
+
+type AnySerializableChangeCallback = ( analysis: AbstractAnalysis, change: AnalysisSerializableChangeType ) => void;
+
 export type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | "analysis5" | "analysis6" | "analysis7";
 export type SlotNumber = 1|2|3|4|5|6|7;
 
@@ -34,17 +50,38 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     /** Array of all layers ordered from oldest to the newest */
     protected layers: Array<AbstractAnalysis> = [];
 
+
+    /** Get the slots driver */
     protected get slots() {return this.drive.parent.slots;}
 
 
-    /** Fired whenever an analysis is added */
+    /** Array of all analysis ordered from the oldest to the newest. */
+    public get all() {
+        return this.layers;
+    }
+
+    /** Array of all active analysis ordered from the oldest to the newest. */
+    public get selectedOnly() {
+        return this.all.filter(analysis => analysis.selected === true);
+    }
+
+
+    /** Fired whenever an analysis is added @deprecated */
     public readonly onAdd = new CallbacksManager<AnalysisAddedCallback>();
 
-    /** Fired whenever an analysis is removed */
+    /** Fired whenever an analysis is removed @deprecated */
     public readonly onRemove = new CallbacksManager<AnalysisRemovedCallback>();
 
     /** Fired whenever the selection list changes */
     public readonly onSelectionChange = new CallbacksManager<SelectionChangeEvent>();
+
+    /** Fired whenever a serialisable change occurs:
+     * - added
+     * - removed
+     * - moved/resized
+     * - updated 
+     */
+    public readonly onAnySerializableChange = new CallbacksManager<AnySerializableChangeCallback>();
 
 
     /** Array of available colors */
@@ -59,7 +96,14 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     // Adding analysis
 
-    public addAnalysis(
+    /**
+     * Internal method for adding analyses
+     * - adds it locally
+     * - assign its slot if needed
+     * - update the layers container
+     * - call the analysis add function
+     */
+    private addAnalysis(
         analysis: AbstractAnalysis,
         slotNumber?: SlotInitialisationValue
     ) {
@@ -89,12 +133,13 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
         if ( slotNum !== undefined ) {
 
-            this.slots.assignSlot( slotNum, analysis );
+            this.slots.assignAnalysisToSlot( slotNum, analysis );
 
         }
 
         // Call callbacks
         this.onAdd.call(analysis, this.all);
+        this.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.ADD);
         this.drive.dangerouslySetValueFromStorage(this.all);
 
 
@@ -103,7 +148,13 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    removeAnalysis(key: string) {
+    /**
+     * Removes an analysis by its key
+     * - removes the assigned slot
+     * - updates the layers container
+     * - call the analysis remove function
+     */
+    public removeAnalysis(key: string) {
         if (this.has(key)) {
 
             const analysis = this.get( key );
@@ -115,7 +166,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
                 
 
                 // Call the analysis's remove fn
-                analysis.remove();
+                analysis.destroyDom();
 
                 // Delete here
                 this.delete( key );
@@ -128,17 +179,26 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
                 // Call the callback
                 this.onRemove.call(key);
+                this.onAnySerializableChange.call(analysis, AnalysisSerializableChangeType.REMOVE);
 
             }
-
-            
         }
+    }
+
+
+    /** This is the proper way to remove all analyses */
+    public removeAllAnalyses() {
+        this.forEach(analysis => {
+            this.removeAnalysis(analysis.key);
+        });
     }
 
 
 
 
-    /** Add a rectangular analysis in the given position and start editing it. */
+    /** 
+     * Create a rectangular analysis in the given position and start editing it. 
+     */
     public createRectFrom(top: number, left: number) {
 
         const newAnalysis = RectangleAnalysis.startAddingAtPoint(
@@ -156,7 +216,9 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    /** Build an ellyptical analysis at the given position. */
+    /** 
+     * Place an ellyptical analysis at the given position, providing optionally its color & slot number
+     */
     public placeRectAt(
         name: string,
         top: number,
@@ -177,7 +239,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             bottom
         );
 
-        newAnalysis.ready = true;
+        newAnalysis.setReady();
 
         this.addAnalysis(newAnalysis, slotNumber);
 
@@ -185,7 +247,9 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    /** Add an ellyptical analysis in the given position and start editing it */
+    /** 
+     * Create an ellyptical analysis in the given position and start editing it 
+     */
     public createEllipsisFrom(
         top: number,
         left: number
@@ -206,7 +270,9 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-    /** Build an ellyptical analysis at the given position. */
+    /** 
+     * Build an ellyptical analysis at the given position. 
+     */
     public placeEllipsisAt(
         name: string,
         top: number,
@@ -226,7 +292,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             bottom
         );
 
-        newAnalysis.ready = true;
+        newAnalysis.setReady();
 
         this.addAnalysis(newAnalysis, slotNumber);
 
@@ -234,6 +300,10 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
+    /**
+     * Create a new point analysis at the given position
+     * @returns 
+     */
     public createPointAt(
         top: number,
         left: number
@@ -253,6 +323,9 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
     }
 
+    /** 
+     * Build a point analysis at the given position, providing optionally its color & slot number 
+     */
     public placePointAt(
         name: string,
         top: number,
@@ -268,7 +341,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
             left
         );
 
-        newAnalysis.ready = true;
+        newAnalysis.setReady();
 
         this.addAnalysis(newAnalysis,slotNumber);
 
@@ -276,8 +349,10 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     }
 
 
-
-    selectAll() {
+    /**
+     * Mark all analyses as selected
+     */
+    public selectAll() {
         // Select unselected analysis without any emission
         this.all.filter(analysis => {
             if (analysis.selected === false) {
@@ -288,7 +363,10 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
         this.onSelectionChange.call(this.selectedOnly);
     }
 
-    deselectAll() {
+    /**
+     * Mark all analyses as deselected
+     */
+    public deselectAll() {
 
         // Deselect all selected
         this.selectedOnly.forEach(analysis => {
@@ -302,23 +380,12 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
 
-    /** Accessors */
-
-
-    /** Array of all analysis ordered from the oldest to the newest. */
-    public get all() {
-        return this.layers;
-    }
-
-    /** Array of all active analysis ordered from the oldest to the newest. */
-    public get selectedOnly() {
-        return this.all.filter(analysis => analysis.selected === true);
-    }
+    
 
 
 
     /** Get color for the next analysis */
-    protected getNextColor() {
+    private getNextColor() {
 
         const usedColors = this.all.map(analysis => analysis.initialColor);
 
@@ -334,7 +401,7 @@ export class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
 
 
     /** Get name for the next analysis */
-    protected getNextName(type: string) {
+    private getNextName(type: string) {
         return `${type} ${this.all.length}`;
     }
 

@@ -182,7 +182,7 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
                 this.file.slots.forEveryExistingSlot((slot, number) => {
 
-                    const localAnalysis = this.localInstance?.slots.createFromSerialized(slot.serialized, number);
+                    const localAnalysis = this.localInstance?.slots.createAnalysisFromSerialized(slot.serialized, number);
 
                     if (localAnalysis) {
 

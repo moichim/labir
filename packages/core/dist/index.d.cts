@@ -476,25 +476,67 @@ type AnalysisEvent = (analysis: AbstractAnalysis) => void;
 declare abstract class AbstractAnalysis {
     readonly key: string;
     readonly file: Instance;
-    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
-    abstract recievedSerialized(input: string): void;
-    abstract toSerialized(): string;
-    protected serializedIsValid(input: string): boolean;
+    /** Return a string representing the type of the analysis */
+    abstract getType(): string;
+    private static LISTENER_PROMOTE_PROPERTIES_CHANGE;
+    private static LISTENER_PROMOTE_MOVE_RESIZE;
+    private static SERIALISABLE_CHANGES;
+    private static VALID_ANALYSIS_TYPES;
+    static readonly COLOR_ACTIVE = "yellow";
+    static readonly COLOR_INACTIVE = "black";
+    private _ready;
+    /** Indicating whether the analysis in the state of its creation (by the user's mouse) or if it is already finalised. */
+    get ready(): boolean;
+    /** Mark the analysis as ready (finalised) */
+    setReady(): void;
+    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
+    readonly layerRoot: HTMLDivElement;
+    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
+    get renderRoot(): HTMLElement;
+    /**
+     * Map of the analysis control points
+     * - key is the role of the point
+     * - value is the point instance
+     */
+    readonly points: Map<string, AbstractPoint>;
+    /** Create a new array containing all the points */
+    get arrayOfPoints(): AbstractPoint[];
+    /** Create a new array containing all the active points */
+    get arrayOfActivePoints(): AbstractPoint[];
+    /** Access all the file's analysis layers object. */
+    get layers(): AnalysisLayersStorage;
+    /** Accessor to the related graph control node */
     abstract get graph(): AnalysisGraph;
     /** Selection status */
     protected _selected: boolean;
     get selected(): boolean;
     readonly onSelected: CallbacksManager<AnalysisEvent>;
     readonly onDeselected: CallbacksManager<AnalysisEvent>;
+    /**
+     * Actions taken on any change that should trigger serialisation:
+     * - modification of position or dimensions
+     * - change of name or color
+     */
+    readonly onSerializableChange: CallbacksManager<(analysis: AbstractAnalysis, change: string) => void>;
     /** Actions taken when the value changes. Called internally by `this.recalculateValues()` */
     readonly onValues: CallbacksManager<(min?: number, max?: number, avg?: number) => void>;
     /** Actions taken when the analysis moves or resizes anyhow. This is very much important and it is called from the edit tool. */
     readonly onMoveOrResize: CallbacksManager<(analysis: AbstractAnalysis) => void>;
-    /** The main DOM element of this analysis. Is placed in `this.renderRoot` */
-    readonly layerRoot: HTMLDivElement;
-    /** Alias of the file's canvasLayer root. The analysis DOM will be placed here. */
-    get renderRoot(): HTMLElement;
-    readonly points: Map<string, AbstractPoint>;
+    /** Actions taken whenever the initial color changes. */
+    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
+    /** Actions taken whenever the color changes. */
+    readonly onSetColor: CallbacksManager<(value: string) => void>;
+    /** Actions taken whenever the name changes. */
+    readonly onSetName: CallbacksManager<(value: string) => void>;
+    protected _min?: number;
+    protected _max?: number;
+    protected _avg?: number;
+    /** The current minimal value of this analysis */
+    get min(): number | undefined;
+    /** The current maximal value of this analysis */
+    get max(): number | undefined;
+    /** The current avarage value of this analysis */
+    get avg(): number | undefined;
     protected _top: number;
     protected _left: number;
     protected _width: number;
@@ -529,42 +571,54 @@ declare abstract class AbstractAnalysis {
     setHeight(value: number): void;
     setBottom(value: number): void;
     setRight(value: number): void;
-    /** Access all the file's analysis layers. */
-    get layers(): AnalysisLayersStorage;
-    protected _min?: number;
-    get min(): number | undefined;
-    protected _max?: number;
-    get max(): number | undefined;
-    protected _avg?: number;
-    get avg(): number | undefined;
-    dangerouslySetValues(avg: number, min?: number | undefined, max?: number | undefined): void;
-    get arrayOfPoints(): AbstractPoint[];
-    get arrayOfActivePoints(): AbstractPoint[];
     protected _color: string;
     get color(): string;
     setColor(value: string): void;
     protected abstract setColorCallback(value: string): void;
-    readonly onSetColor: CallbacksManager<(value: string) => void>;
     protected _initialColor: string;
     get initialColor(): string;
     setInitialColor(value: string): void;
-    readonly onSetInitialColor: CallbacksManager<(value: string) => void>;
-    readonly activeColor = "yellow";
-    readonly inactiveColor = "black";
-    /** @deprecated is moved to GraphObject instead */
-    get onGraphActivation(): CallbacksManager<(min: boolean, max: boolean, avg: boolean) => void>;
-    /** Indicated whether the analysis is in the state of initial creation (using mouse drag) or if it is already finalized. */
-    ready: boolean;
     readonly nameInitial: string;
     protected _name: string;
     get name(): string;
     setName(value: string): void;
-    readonly onSetName: CallbacksManager<(value: string) => void>;
-    abstract getType(): string;
     constructor(key: string, file: Instance, initialColor: string);
-    remove(): void;
-    /** Selection / Deselection */
+    /** Recieved a serialized representation of the analysis, parse it and change the internal state accordingly */
+    abstract recievedSerialized(input: string): void;
+    /** Convert the internal state of an analysis to a serialized representation */
+    abstract toSerialized(): string;
+    /**
+     * Performs the basic validation of a serialised input string
+     * - correct number of segments?
+     * - correct type of analysis?
+     * - the type matches this analysis instance?
+     */
+    serializedIsValid(input: string): boolean;
+    /** When parsing incoming serialized attribute, look if segments have an exact value */
+    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
+    /** When parsing incooming serialized attribute, try to extract it by its key as string */
+    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
+    /** When parsing incooming serialized attribute, try to extract it by its key as number */
+    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
+    /**
+     * Remove the analysis from the file and from the DOM
+     * - removes from the DOM
+     * - DOES NOT REMOVE THE SLOT
+     * - DOES NOT REMOVE FROM THE STORAGE
+     * @internal Does not remove from broader context, so do not call this method from aywhere else than from the layers storage
+     */
+    destroyDom(): void;
+    /**
+     * Mark the analysis as selected
+     * => inable its listeners
+     * => change the color of its controls to its current color
+     */
     setSelected(exclusive?: boolean, emitGlobalEvent?: boolean): void;
+    /**
+     * Mark the analysis as deselected
+     * => disable its listeners
+     * => change the color to inactive
+     */
     setDeselected(emitGlobalEvent?: boolean): void;
     /** Detect whether a coordinate is withing the analysis. */
     abstract isWithin(x: number, y: number): boolean;
@@ -578,12 +632,12 @@ declare abstract class AbstractAnalysis {
     };
     /** Override this method to get proper analysis data. */
     abstract getAnalysisData(): Promise<PointAnalysisData | AreaAnalysisData>;
-    /** When parsing incoming serialized attribute, look if segments have an exact value */
-    static serializedSegmentsHasExact(segments: string[], lookup: string): boolean;
-    /** When parsing incooming serialized attribute, try to extract it by its key as string */
-    static serializedGetStringValueByKey(segments: string[], key: string): string | undefined;
-    /** When parsing incooming serialized attribute, try to extract it by its key as number */
-    static serializedGetNumericalValueByKey(segments: string[], key: string): number | undefined;
+    /**
+     * @deprecated Use with caution! This method forcefully sets the analysis values. The calculation mechanisms should happen elsewhere. Now they happen in the canvas layer wich calculates them upon rendering. That is not good at all!
+     * @internal
+     * @todo Remove this method, move the calculation of values elsewhere from the canvas layer!
+     */
+    dangerouslySetValues(avg: number, min?: number | undefined, max?: number | undefined): void;
 }
 
 /**
@@ -628,11 +682,12 @@ type SlotInitialisationValue = number | true | false;
  * Value of this property is a map.
  */
 declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
-    static MAX_SLOTS: number;
-    /** @deprecated Use particular assignement slot instead */
-    readonly onSlotInit: CallbacksManager<(number: number, slot: AnalysisSlot) => void>;
-    /** @deprecated Use particular assignement slot instead */
-    readonly onSlotRemove: CallbacksManager<(number: number) => void>;
+    static readonly MAX_SLOTS = 7;
+    /** Callback called every time any slot changes */
+    readonly onAnySlotChanged: CallbacksManager<() => void>;
+    private _onAnySlotChangedTimeout?;
+    /** Mark the status as changed and emit the event in the folowing subsequent tick */
+    markAsChanged(): void;
     readonly onSlot1Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
     readonly onSlot2Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
     readonly onSlot3Assignement: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
@@ -647,12 +702,27 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
     readonly onSlot5Serialize: CallbacksManager<(value: string | undefined) => void>;
     readonly onSlot6Serialize: CallbacksManager<(value: string | undefined) => void>;
     readonly onSlot7Serialize: CallbacksManager<(value: string | undefined) => void>;
-    /** Calculate the next free slot */
+    /**
+     * Calculate the next free slot number
+     */
     getNextFreeSlotNumber(): number | undefined;
-    assignSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    /**
+     * Assign an analysis to a given slot number
+     */
+    assignAnalysisToSlot(slot: number, analysis: AbstractAnalysis): AnalysisSlot;
+    /** Does this instance have an analyasis on the given slot number? */
     hasSlot(slot: number): boolean;
+    /** Get a slot control object by its number */
     getSlot(slot: number): AnalysisSlot | undefined;
-    getSlotMap(): Map<number, AnalysisSlot | undefined>;
+    /**
+     * Calculate a full map of slots including empty ones as undefined values
+     *
+     * The value of this drive contains only assigned slots, therefore this method contains the entire map of slots from 1 to 7. Beware, this operation is expensive since it creates a new map object and should not be used often.
+     */
+    getFullSlotsMap(): Map<number, AnalysisSlot | undefined>;
+    /**
+     * Get the number of the slot assigned to a given analysis
+     */
     getAnalysisSlot(analysis: AbstractAnalysis): number | undefined;
     /**
      * Completely remove the slot and also the corresponding analysis
@@ -663,9 +733,11 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
      */
     unassignAnalysisFromItsSlot(analysis: AbstractAnalysis): void;
     /**
-     * Create an analysis from a serialized state
+     * Create an analysis from a serialized state on a given slot
      */
-    createFromSerialized(serialized: string, slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
+    createAnalysisFromSerialized(serialized: string, 
+    /** If a slot number is provided, assign the analysis to this particular slot */
+    slotNumber?: SlotInitialisationValue): AbstractAnalysis | undefined;
     protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
     protected afterSetEffect(): void;
     /**
@@ -677,17 +749,13 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
      */
     private emitOnAssignement;
     /**
-     * Whenever a slit serializes call the particular manager
-     */
-    private emitSerializedValue;
-    /**
      * Get a callback manager that is triggered upon a slot serialisation
      */
     getOnSerializeManager(slot: number): CallbacksManager<(value: string | undefined) => void> | undefined;
     /**
      * Get a callback manager that is triggered whenever a slot is assigned
      */
-    getOnAssignementManager(slot: number): CallbacksManager<(slot: AnalysisSlot | undefined) => void> | undefined;
+    private getOnAssignementManager;
     /**
      * Get value of a given slot
      */
@@ -791,11 +859,10 @@ declare class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instanc
     protected validate(value: AbstractAnalysis[]): AbstractAnalysis[];
     protected afterSetEffect(): void;
     /** Calculate the top/left position from a `MouseEvent` */
-    protected getRelativePosition(event: MouseEvent): {
-        top: number;
-        left: number;
-    };
-    /** Activate listeners for the current drive on the file's listener layer. */
+    private getRelativePosition;
+    /**
+     * Activate the DOM listeners for the current drive on the file's listener layer.
+     */
     activateListeners(container: HTMLDivElement): void;
     /** Remove all listeners from the file's listener layer */
     deactivateListeners(): void;
@@ -1022,6 +1089,20 @@ declare class RectangleAnalysis extends AbstractAreaAnalysis {
 type AnalysisAddedCallback = (analysis: AbstractAnalysis, layers: AbstractAnalysis[]) => void;
 type AnalysisRemovedCallback = (key: string) => void;
 type SelectionChangeEvent = (selectedAnalysis: AbstractAnalysis[]) => void;
+/** What kind of change occured with the given analysis? */
+declare enum AnalysisSerializableChangeType {
+    /** The analysis was added */
+    ADD = 0,
+    /** The analysis was removed */
+    REMOVE = 1,
+    /** The analysis was resized or moved */
+    RESIZEMOVE = 2,
+    /** Other properties of the analysis were changed */
+    PROPERTIESCHANGE = 3,
+    /** Graph visibility changes */
+    GRAPH = 4
+}
+type AnySerializableChangeCallback = (analysis: AbstractAnalysis, change: AnalysisSerializableChangeType) => void;
 type SlotUnion = "analysis1" | "analysis2" | "analysis3" | "analysis4" | "analysis5" | "analysis6" | "analysis7";
 type SlotNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 declare const availableAnalysisColors: string[];
@@ -1029,39 +1110,82 @@ declare class AnalysisLayersStorage extends Map<string, AbstractAnalysis> {
     readonly drive: AnalysisDrive;
     /** Array of all layers ordered from oldest to the newest */
     protected layers: Array<AbstractAnalysis>;
+    /** Get the slots driver */
     protected get slots(): AnalysisSlotsState;
-    /** Fired whenever an analysis is added */
-    readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
-    /** Fired whenever an analysis is removed */
-    readonly onRemove: CallbacksManager<AnalysisRemovedCallback>;
-    /** Fired whenever the selection list changes */
-    readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
-    /** Array of available colors */
-    readonly colors: string[];
-    constructor(drive: AnalysisDrive);
-    addAnalysis(analysis: AbstractAnalysis, slotNumber?: SlotInitialisationValue): this;
-    removeAnalysis(key: string): void;
-    /** Add a rectangular analysis in the given position and start editing it. */
-    createRectFrom(top: number, left: number): RectangleAnalysis;
-    /** Build an ellyptical analysis at the given position. */
-    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): RectangleAnalysis;
-    /** Add an ellyptical analysis in the given position and start editing it */
-    createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
-    /** Build an ellyptical analysis at the given position. */
-    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): EllipsisAnalysis;
-    createPointAt(top: number, left: number): PointAnalysis;
-    placePointAt(name: string, top: number, left: number, color?: string, slotNumber?: SlotInitialisationValue): PointAnalysis;
-    selectAll(): void;
-    deselectAll(): void;
-    /** Accessors */
     /** Array of all analysis ordered from the oldest to the newest. */
     get all(): AbstractAnalysis[];
     /** Array of all active analysis ordered from the oldest to the newest. */
     get selectedOnly(): AbstractAnalysis[];
+    /** Fired whenever an analysis is added @deprecated */
+    readonly onAdd: CallbacksManager<AnalysisAddedCallback>;
+    /** Fired whenever an analysis is removed @deprecated */
+    readonly onRemove: CallbacksManager<AnalysisRemovedCallback>;
+    /** Fired whenever the selection list changes */
+    readonly onSelectionChange: CallbacksManager<SelectionChangeEvent>;
+    /** Fired whenever a serialisable change occurs:
+     * - added
+     * - removed
+     * - moved/resized
+     * - updated
+     */
+    readonly onAnySerializableChange: CallbacksManager<AnySerializableChangeCallback>;
+    /** Array of available colors */
+    readonly colors: string[];
+    constructor(drive: AnalysisDrive);
+    /**
+     * Internal method for adding analyses
+     * - adds it locally
+     * - assign its slot if needed
+     * - update the layers container
+     * - call the analysis add function
+     */
+    private addAnalysis;
+    /**
+     * Removes an analysis by its key
+     * - removes the assigned slot
+     * - updates the layers container
+     * - call the analysis remove function
+     */
+    removeAnalysis(key: string): void;
+    /** This is the proper way to remove all analyses */
+    removeAllAnalyses(): void;
+    /**
+     * Create a rectangular analysis in the given position and start editing it.
+     */
+    createRectFrom(top: number, left: number): RectangleAnalysis;
+    /**
+     * Place an ellyptical analysis at the given position, providing optionally its color & slot number
+     */
+    placeRectAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): RectangleAnalysis;
+    /**
+     * Create an ellyptical analysis in the given position and start editing it
+     */
+    createEllipsisFrom(top: number, left: number): EllipsisAnalysis;
+    /**
+     * Build an ellyptical analysis at the given position.
+     */
+    placeEllipsisAt(name: string, top: number, left: number, right: number, bottom: number, color?: string, slotNumber?: SlotInitialisationValue): EllipsisAnalysis;
+    /**
+     * Create a new point analysis at the given position
+     * @returns
+     */
+    createPointAt(top: number, left: number): PointAnalysis;
+    /**
+     * Build a point analysis at the given position, providing optionally its color & slot number
+     */
+    placePointAt(name: string, top: number, left: number, color?: string, slotNumber?: SlotInitialisationValue): PointAnalysis;
+    /**
+     * Mark all analyses as selected
+     */
+    selectAll(): void;
+    /**
+     * Mark all analyses as deselected
+     */
+    deselectAll(): void;
     /** Get color for the next analysis */
-    protected getNextColor(): string;
+    private getNextColor;
     /** Get name for the next analysis */
-    protected getNextName(type: string): string;
+    private getNextName;
 }
 
 declare class AnalysisGraphsStorage {
@@ -1111,6 +1235,7 @@ declare class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue,
     dangerouslyUpdateValue(value: AnalysisDataStateValue): void;
     /** Assamble the current analysis data and download them as CSV directly. */
     downloadData(): void;
+    updateAllAnalysesValues(): Promise<void>;
 }
 
 /** The cursor position coordinates */
@@ -1183,7 +1308,6 @@ declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataO
     protected calculateData(): void;
     turnOn(): void;
     turnOff(): void;
-    _wtf(): void;
     protected validate(value: ThermalGraphGroupDataOrUndefined): ThermalGraphGroupDataOrUndefined;
     protected afterSetEffect(): void;
 }
@@ -1574,43 +1698,78 @@ interface IWithAnalysisSync extends IBaseProperty {
     analysisSync: AnalysisSyncDrive;
 }
 declare class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
+    static readonly LISTENER_KEY = "__analysis__sync";
+    /** Event that is triggered every time a slot is synchronised & serialised */
     readonly onSlotSync: CallbacksManager<(serialized: string | undefined, slot: number) => void>;
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    turnOn(instance: Instance): void;
-    turnOff(): void;
     protected _currentPointer?: Instance;
+    /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
     get currentPointer(): Instance | undefined;
-    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
-    protected setCurrentPointer(instance?: Instance): void;
-    protected getSlotListeners(instance: Instance, slotNumber: number): {
-        slot: AnalysisSlot | undefined;
-        serialise: CallbacksManager<(value: string | undefined) => void>;
-        assign: CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
-    } | undefined;
-    static LISTENER_KEY: string;
-    startSyncingSlot(instance: Instance, slotNumber: number): void;
-    endSyncingSlot(instance: Instance, slotNumber: number): void;
-    deleteSlot(instance: Instance, slotNumber: number): void;
-    setSlotSelected(instance: Instance, slotNumber: number): void;
-    setSlotDeselected(instance: Instance, slotNumber: number): void;
-    /**
-     * Get array of files excludint the one provided
-     */
-    protected allExceptOne(instance: Instance): Instance[];
-    /**
-     * Execute a given function on all files slot
-     */
-    protected forEveryOtherSlot(instance: Instance, slotNumber: number, fn: (slot: AnalysisSlot | undefined, file: Instance) => void): void;
-    recieveSlotSerialized(serialized: string | undefined, slot: number): void;
-    /** @deprecated Should sync individual slots only. This method synces all slots at once. */
-    syncSlots(instance: Instance): void;
     protected _csv?: GroupExportCSV;
     /** Lazy loaded CSV export object. */
     get csv(): GroupExportCSV;
     protected _png?: GroupExportPNG;
     /** Lazy loaded PNG export object. */
     get png(): GroupExportPNG;
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    /**
+     * Enable analysis synchronisation for the group
+     */
+    turnOn(instance: Instance): void;
+    /**
+     * Disable the synchronisation analysis for the group
+     */
+    turnOff(): void;
+    /**
+     * Iterate  over all exsting slot in the current pointer instance
+     */
+    forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void): void;
+    /**
+     * Set a given instance as the current ponter for synchronisation
+     */
+    setCurrentPointer(instance?: Instance): void;
+    private getSlotListeners;
+    /**
+     * Interrnal method to start synchronisation of a given slot number on the given instance
+     */
+    private startSyncingSlot;
+    /**
+     * Internal method to end synchronisation of a given slot number on the given instance
+     */
+    private endSyncingSlot;
+    /**
+     * Deletes a slot and analysis from all instances in the group except the provided one
+     */
+    deleteSlot(instance: Instance, slotNumber: number): void;
+    /**
+     * A method for synchronising selection state across all instances of the group
+     */
+    setSlotSelected(instance: Instance, slotNumber: number): void;
+    /**
+     * A method for synchronising selection state across all instances of the group
+     */
+    setSlotDeselected(instance: Instance, slotNumber: number): void;
+    /**
+     * Execute a given function on all files slot
+     */
+    private forEveryOtherSlot;
+    /**
+     * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
+     * @deprecated Used only by old webcomponents and perhaps unnecessary
+     */
+    recieveSlotSerialized(serialized: string | undefined, slot: number): void;
+    /**
+     * Take an instance and copy its value in one slot to all other instances in the group
+     *
+     * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+     */
+    copyOneSlotToAllInstances(instance: Instance, slotNumber: number): void;
+    /**
+     * Copy the entire analysis state from one instance to all other instances in the group
+     *
+     * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+     */
+    copyAllSlotsToAllInstances(instance: Instance): void;
 }
 
 interface IWithFiles extends IBaseProperty {
@@ -2065,25 +2224,14 @@ declare abstract class AbstractLayer {
 
 /** Displays the canvas and renders it */
 declare class ThermalCanvasLayer extends AbstractLayer {
-    protected renderCount: number;
-    protected get pool(): Pool;
-    protected container: HTMLDivElement;
+    private container;
     readonly canvas: HTMLCanvasElement;
-    protected get width(): number;
-    protected get height(): number;
-    protected get pixels(): number[];
-    protected get from(): number;
-    protected get to(): number;
-    protected _opacity: number;
+    private _opacity;
     get opacity(): number;
     set opacity(value: number);
     constructor(instance: Instance);
     getLayerRoot(): HTMLElement;
     protected onDestroy(): void;
-    /** Returns an array of 255 RGB colors */
-    protected getPalette(): string[];
-    draw(): Promise<boolean>;
-    exportAsPng(): void;
 }
 
 /** Displays the cursor pointer and its value */

@@ -81,8 +81,6 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
             this.value = undefined;
         }
 
-        console.log( "Přepočítal jsem data", this.value );
-
     }
 
 
@@ -115,18 +113,6 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
         });
     }
 
-    public _wtf() {
-
-        this.parent.files.forEveryInstance( instance => {
-
-            instance.analysis.layers.forEach( analysis => {
-                analysis.graph.setAvgActivation( true );
-            } );
-
-        });
-
-    }
-
 
 
 
@@ -134,21 +120,8 @@ export class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataOr
 
     protected validate(value: ThermalGraphGroupDataOrUndefined): ThermalGraphGroupDataOrUndefined {
         return value;
-        // throw new Error("Method not implemented.");
     }
-    protected afterSetEffect(): void {
-        /*
-        // throw new Error("Method not implemented.");
-        console.log( "Přepočítal jsem grafí data", value.colors);
 
-        if ( value !== undefined ) {
-            value.data.forEach( value => console.log(value) );
-        }
-
-        // console.log( value.slice(1) );
-
-        */
-
-    }
+    protected afterSetEffect(): void {}
 
 }

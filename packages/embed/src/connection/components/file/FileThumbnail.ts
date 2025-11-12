@@ -254,7 +254,7 @@ export class FileThumbnail extends ClientConsumer {
         }
 
         this.file.analyses.forEach(analysis => {
-            instance.slots.createFromSerialized(analysis)?.setSelected();
+            instance.slots.createAnalysisFromSerialized(analysis)?.setSelected();
         })
 
     }
@@ -313,25 +313,9 @@ export class FileThumbnail extends ClientConsumer {
                                         return;
                                     }
 
-                                    instance.group.files.value.forEach(otherInstance => {
+                                    instance.group.analysisSync.setCurrentPointer( instance );
 
-                                        if (otherInstance.fileName === instance.fileName) {
-                                            return;
-                                        }
-
-                                        // Remove all existing analyses
-                                        otherInstance.analysis.value.forEach(analysis => {
-                                            otherInstance.analysis.layers.removeAnalysis(analysis.key);
-                                        });
-
-
-                                        // Copy analyses from the current instance
-                                        instance.analysis.value.forEach(analysis => {
-                                            const a = otherInstance.slots.createFromSerialized(analysis.toSerialized());
-                                            a?.setSelected();
-                                        });
-
-                                    });
+                                    instance.group.analysisSync.copyAllSlotsToAllInstances( instance );
 
                                 }}
                         ></thermal-btn>
@@ -702,10 +686,15 @@ export class FileThumbnail extends ClientConsumer {
 
 
     protected render(): TemplateResult {
+
+        const visibleUrl = this.file.visual
+            ? this.file.visual
+            : undefined;
+
         return html`
             <file-provider
                 thermal=${this.file.url}
-                visible=${ifDefined( this.file.visual )}
+                visible=${ ifDefined(visibleUrl) }
                 batch="true"
                 autoclear="true"
                 role="article"

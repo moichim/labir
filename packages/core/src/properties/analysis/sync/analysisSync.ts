@@ -1,6 +1,6 @@
 import { Instance } from "../../../file/instance";
 import { ThermalGroup } from "../../../hierarchy/ThermalGroup";
-import { IBaseProperty, AbstractProperty } from "../../abstractProperty";
+import { AbstractProperty, IBaseProperty } from "../../abstractProperty";
 import { CallbacksManager } from "../../callbacksManager";
 import { AnalysisSlot } from "../slots/AnalysisSlot";
 import { GroupExportCSV } from "./utils/GroupExportCSV";
@@ -14,30 +14,66 @@ export interface IWithAnalysisSync extends IBaseProperty {
 export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
 
-    public readonly onSlotSync = new CallbacksManager<(serialized: string | undefined, slot: number) => void>
+    public static readonly LISTENER_KEY = "__analysis__sync";
+
+
+    /** Event that is triggered every time a slot is synchronised & serialised */
+    public readonly onSlotSync = new CallbacksManager<(serialized: string | undefined, slot: number) => void>;
+
+
+    protected _currentPointer?: Instance;
+    /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
+    public get currentPointer() { return this._currentPointer; }
+
+
+    protected _csv?: GroupExportCSV;
+    /** Lazy loaded CSV export object. */
+    public get csv() {
+        if (!this._csv) {
+            this._csv = new GroupExportCSV(this);
+        }
+        return this._csv;
+    }
+
+
+    protected _png?: GroupExportPNG;
+    /** Lazy loaded PNG export object. */
+    public get png() {
+        if (!this._png) {
+            this._png = new GroupExportPNG(this);
+        }
+        return this._png;
+    }
+
 
     protected validate(value: boolean): boolean {
         return value;
     }
+
     protected afterSetEffect(): void {
     }
 
+    /**
+     * Enable analysis synchronisation for the group
+     */
     public turnOn(
         instance: Instance
     ) {
         this.value = true;
         this.setCurrentPointer(instance);
-        this.syncSlots(instance);
     }
 
+    /**
+     * Disable the synchronisation analysis for the group
+     */
     public turnOff() {
         this.value = false;
         this.setCurrentPointer(undefined);
     }
 
-    protected _currentPointer?: Instance;
-    public get currentPointer() { return this._currentPointer; }
-
+    /**
+     * Iterate  over all exsting slot in the current pointer instance
+     */
     public forEveryExistingSlot(fn: (slot: AnalysisSlot, num: number) => void) {
         if (this._currentPointer === undefined) {
             return;
@@ -47,18 +83,21 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     }
 
-    protected setCurrentPointer(
+    /**
+     * Set a given instance as the current ponter for synchronisation
+     */
+    public setCurrentPointer(
         instance?: Instance
     ) {
 
-        if ( instance === undefined && this._currentPointer) {
-            this.endSyncingSlot( this._currentPointer, 1 );
-            this.endSyncingSlot( this._currentPointer, 2 );
-            this.endSyncingSlot( this._currentPointer, 3 );
-            this.endSyncingSlot( this._currentPointer, 4 );
-            this.endSyncingSlot( this._currentPointer, 5 );
-            this.endSyncingSlot( this._currentPointer, 6 );
-            this.endSyncingSlot( this._currentPointer, 7 );
+        if (instance === undefined && this._currentPointer) {
+            this.endSyncingSlot(this._currentPointer, 1);
+            this.endSyncingSlot(this._currentPointer, 2);
+            this.endSyncingSlot(this._currentPointer, 3);
+            this.endSyncingSlot(this._currentPointer, 4);
+            this.endSyncingSlot(this._currentPointer, 5);
+            this.endSyncingSlot(this._currentPointer, 6);
+            this.endSyncingSlot(this._currentPointer, 7);
         }
 
 
@@ -99,10 +138,10 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     }
 
-    protected getSlotListeners(instance: Instance, slotNumber: number) {
+    private getSlotListeners(instance: Instance, slotNumber: number) {
 
 
-        const slot = instance.slots.getSlot( slotNumber );
+        const slot = instance.slots.getSlot(slotNumber);
 
         if (slotNumber === 1) {
             return {
@@ -149,19 +188,22 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         }
     }
 
-    static LISTENER_KEY = "__analysis__sync";
 
 
-    public startSyncingSlot(instance: Instance, slotNumber: number) {
-        
+
+    /**
+     * Interrnal method to start synchronisation of a given slot number on the given instance
+     */
+    private startSyncingSlot(instance: Instance, slotNumber: number) {
+
         const { serialise } = this.getSlotListeners(instance, slotNumber)!;
 
         serialise.set(AnalysisSyncDrive.LISTENER_KEY, value => {
-            
+
             this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
 
                 // Abort when synchronisation is off
-                if ( f.group.analysisSync.value === false ) {
+                if (f.group.analysisSync.value === false) {
                     return;
                 }
 
@@ -169,7 +211,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
                 // Create new slots if not yet existing
                 if (sl === undefined && value) {
-                    const analysis = f.slots.createFromSerialized(value, slotNumber);
+                    const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
                     analysis?.setSelected();
                 }
                 // Update existing slots
@@ -186,7 +228,11 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     }
 
-    public endSyncingSlot(instance: Instance, slotNumber: number) {
+
+    /**
+     * Internal method to end synchronisation of a given slot number on the given instance
+     */
+    private endSyncingSlot(instance: Instance, slotNumber: number) {
 
         this.forEveryOtherSlot(instance, slotNumber, () => {
             const { assign, serialise } = this.getSlotListeners(instance, slotNumber)!;
@@ -198,52 +244,66 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
     }
 
-    deleteSlot(instance: Instance, slotNumber: number) {
+    /**
+     * Deletes a slot and analysis from all instances in the group except the provided one
+     */
+    public deleteSlot(instance: Instance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
         });
     }
 
-    setSlotSelected(instance: Instance, slotNumber: number) {
+    /**
+     * A method for synchronising selection state across all instances of the group 
+     */
+    public setSlotSelected(instance: Instance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.setSelected(false);
         });
     }
 
-    setSlotDeselected(instance: Instance, slotNumber: number) {
+
+    /**
+     * A method for synchronising selection state across all instances of the group 
+     */
+    public setSlotDeselected(instance: Instance, slotNumber: number) {
         this.forEveryOtherSlot(instance, slotNumber, slot => {
             slot?.analysis.setDeselected();
         });
-    }
-
-    /**
-     * Get array of files excludint the one provided
-     */
-    protected allExceptOne(
-        instance: Instance
-    ) {
-        return this.parent.files.value.filter(file => file !== instance);
     }
 
 
     /** 
      * Execute a given function on all files slot 
      */
-    protected forEveryOtherSlot(
+    private forEveryOtherSlot(
         instance: Instance,
         slotNumber: number,
         fn: (slot: AnalysisSlot | undefined, file: Instance) => void
     ) {
-        this.allExceptOne(instance).forEach(file => {
 
-            const item = file.slots.getSlot(slotNumber);
+        this.parent.files.forEveryInstance( file => {
+            
+            // Do nothing with the provided instance
+            if ( file === instance ) {
+                return;
+            }
 
-            fn(item, file);
+            // Get the slot from the other instance
+            const slot = file.slots.getSlot( slotNumber );
 
-        });
+            // Call the callback on the slot
+            fn( slot, file );
+
+        } );
+
     }
 
 
+    /**
+     * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
+     * @deprecated Used only by old webcomponents and perhaps unnecessary
+     */
     public recieveSlotSerialized(
         serialized: string | undefined,
         slot: number
@@ -252,8 +312,8 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         this.parent.files.forEveryInstance(
             instance => {
 
-                if ( 
-                    instance === this.currentPointer 
+                if (
+                    instance === this.currentPointer
                     || instance.group.analysisSync.value === false
                 ) {
                     return;
@@ -264,7 +324,7 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
                     if (sl) {
                         sl.recieveSerialized(serialized);
                     } else {
-                        instance.slots.createFromSerialized(serialized, slot);
+                        instance.slots.createAnalysisFromSerialized(serialized, slot);
                     }
                 } else {
                     instance.slots.removeSlotAndAnalysis(slot);
@@ -274,73 +334,59 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         );
     }
 
-    /** @deprecated Should sync individual slots only. This method synces all slots at once. */
-    public syncSlots(instance: Instance) {
 
-        if (this.value === false) {
-            return;
-        }
+    /**
+     * Take an instance and copy its value in one slot to all other instances in the group 
+     * 
+     * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+     */
+    public copyOneSlotToAllInstances(
+        instance: Instance,
+        slotNumber: number
+    ): void {
 
-        this.setCurrentPointer(instance);
+        // Iterate all instances of the group
+        this.parent.files.forEveryInstance(otherInstance => {
 
-        const allOtherFiles = this.parent.files.value.filter(file => file !== instance);
-
-        const map = instance.slots.getSlotMap();
-
-        allOtherFiles.forEach(file => {
-
-            if ( file.group.analysisSync.value === false ) {
+            // Skip the source instance
+            if (otherInstance === instance) {
                 return;
             }
 
-            for (const [slt, value] of map) {
-
-                if (value === undefined) {
-                    file.slots.removeSlotAndAnalysis(slt);
-                } else {
-
-                    const existingSerialized = file.slots.getSlot(slt)?.serialized;
-                    const newSerialized = value.serialized;
-
-                    if (existingSerialized !== newSerialized) {
-
-                        if (file.slots.hasSlot(slt)) {
-                            file.slots.getSlot(slt)?.recieveSerialized(newSerialized);
-                        } else {
-                            const slot = file.slots.createFromSerialized(newSerialized, slt);
-                            slot?.setSelected(false);
-                        }
-
-                    }
-
-
-                }
-
+            // If there is something in the slot, remove it first
+            if (otherInstance.slots.hasSlot(slotNumber)) {
+                otherInstance.slots.removeSlotAndAnalysis(slotNumber);
             }
+
+            const slot = instance.slots.getSlot(slotNumber);
+            const serialized = slot?.serialized;
+
+            // If there is no serialised data in the source instance slot, skip
+            if (!serialized) {
+                return;
+            }
+
+            // Create a new analysis from the serialised data
+            otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
 
         });
 
-
-
     }
 
 
-    protected _csv?: GroupExportCSV;
-    /** Lazy loaded CSV export object. */
-    public get csv() {
-        if (!this._csv) {
-            this._csv = new GroupExportCSV(this);
-        }
-        return this._csv;
-    }
+    /** 
+     * Copy the entire analysis state from one instance to all other instances in the group 
+     * 
+     * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+     */
+    public copyAllSlotsToAllInstances(
+        instance: Instance
+    ): void {
 
-    protected _png?: GroupExportPNG;
-    /** Lazy loaded PNG export object. */
-    public get png() {
-        if (!this._png) {
-            this._png = new GroupExportPNG(this);
-        }
-        return this._png;
+        [1, 2, 3, 4, 5, 6, 7].forEach(slotNumber => {
+            this.copyOneSlotToAllInstances(instance, slotNumber);
+        });
+
     }
 
 }

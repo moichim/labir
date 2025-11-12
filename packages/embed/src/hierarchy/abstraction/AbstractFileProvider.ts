@@ -373,7 +373,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
                         || oldValue?.trim().length > 0
                     )
                 ) {
-                    const analysis = this.file.slots.createFromSerialized(newValue, index);
+                    const analysis = this.file.slots.createAnalysisFromSerialized(newValue, index);
                     analysis?.setSelected(false, true);
                 }
                 // If the slot ceased to exist
@@ -412,7 +412,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
 
             } else {
-                const analysis = instance.slots.createFromSerialized(value, index);
+                const analysis = instance.slots.createAnalysisFromSerialized(value, index);
                 analysis?.setSelected(false, true);
             }
 

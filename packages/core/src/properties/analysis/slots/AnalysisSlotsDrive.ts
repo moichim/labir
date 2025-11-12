@@ -18,12 +18,23 @@ export type SlotInitialisationValue = number | true | false;
  */
 export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Instance> {
 
-    static MAX_SLOTS = 7;
+    public static readonly MAX_SLOTS = 7;
 
-    /** @deprecated Use particular assignement slot instead */
-    public readonly onSlotInit = new CallbacksManager<(number: number, slot: AnalysisSlot) => void>
-    /** @deprecated Use particular assignement slot instead */
-    public readonly onSlotRemove = new CallbacksManager<(number: number) => void>
+    /** Callback called every time any slot changes */
+    public readonly onAnySlotChanged = new CallbacksManager<() => void>( );
+
+    private _onAnySlotChangedTimeout?: ReturnType<typeof setTimeout>;
+
+    /** Mark the status as changed and emit the event in the folowing subsequent tick */
+    public markAsChanged() {
+        if ( this._onAnySlotChangedTimeout ) {
+            clearTimeout( this._onAnySlotChangedTimeout );
+        }
+        this._onAnySlotChangedTimeout = setTimeout( () => {
+            this.onAnySlotChanged.call();
+            this._onAnySlotChangedTimeout = undefined;
+        }, 0 );
+    }
 
     public readonly onSlot1Assignement = new CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
     public readonly onSlot2Assignement = new CallbacksManager<(slot: AnalysisSlot | undefined) => void>;
@@ -43,8 +54,10 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     public readonly onSlot6Serialize = new CallbacksManager<(value: string | undefined) => void>;
     public readonly onSlot7Serialize = new CallbacksManager<(value: string | undefined) => void>;
 
-    /** Calculate the next free slot */
-    getNextFreeSlotNumber(): number | undefined {
+    /** 
+     * Calculate the next free slot number 
+     */
+    public getNextFreeSlotNumber(): number | undefined {
 
         for (let i = 1; i <= AnalysisSlotsState.MAX_SLOTS; i++) {
             if (!this.hasSlot(i)) return i;
@@ -52,8 +65,10 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
     }
 
-
-    assignSlot(
+    /**
+     * Assign an analysis to a given slot number
+     */
+    public assignAnalysisToSlot(
         slot: number,
         analysis: AbstractAnalysis
     ): AnalysisSlot {
@@ -81,26 +96,32 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         if (assignementManager) assignementManager.call(value);
         if (serialisationManager) serialisationManager.call(value.serialized);
 
-        this.onSlotInit.call(slot, value);
-
         this.callEffectsAndListeners();
 
         return value;
     }
 
-    hasSlot(
+    /** Does this instance have an analyasis on the given slot number? */
+    public hasSlot(
         slot: number
     ): boolean {
         return this.value.has(slot);
     }
 
-    getSlot(
+
+    /** Get a slot control object by its number */
+    public getSlot(
         slot: number
     ): AnalysisSlot | undefined {
         return this.value.get(slot);
     }
 
-    public getSlotMap() {
+    /**
+     * Calculate a full map of slots including empty ones as undefined values
+     * 
+     * The value of this drive contains only assigned slots, therefore this method contains the entire map of slots from 1 to 7. Beware, this operation is expensive since it creates a new map object and should not be used often.
+     */
+    public getFullSlotsMap() {
         const map = new Map<number,AnalysisSlot|undefined>();
 
         [1,2,3,4,5,6,7].forEach( number => {
@@ -117,7 +138,10 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     }
 
 
-    getAnalysisSlot(
+    /** 
+     * Get the number of the slot assigned to a given analysis 
+     */
+    public getAnalysisSlot(
         analysis: AbstractAnalysis
     ): number | undefined {
 
@@ -133,7 +157,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     /**
      * Completely remove the slot and also the corresponding analysis
      */
-    removeSlotAndAnalysis(
+    public removeSlotAndAnalysis(
         slot: number
     ) {
 
@@ -158,7 +182,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     /**
      * Remove a slot that is assigned to a given analysis, but keep the analysis 
      */
-    unassignAnalysisFromItsSlot(
+    public unassignAnalysisFromItsSlot(
         analysis: AbstractAnalysis
     ) {
 
@@ -186,10 +210,11 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
 
     /** 
-     * Create an analysis from a serialized state 
+     * Create an analysis from a serialized state on a given slot
      */
-    public createFromSerialized(
+    public createAnalysisFromSerialized(
         serialized: string,
+        /** If a slot number is provided, assign the analysis to this particular slot */
         slotNumber?: SlotInitialisationValue
     ): AbstractAnalysis | undefined {
 
@@ -294,10 +319,10 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
                 const nextFreeSlot = this.getNextFreeSlotNumber();
 
                 if (nextFreeSlot !== undefined ) 
-                    this.assignSlot( nextFreeSlot, analysis );
+                    this.assignAnalysisToSlot( nextFreeSlot, analysis );
 
             } else if ( slotNumber !== undefined ) {
-                this.assignSlot( slotNumber, analysis );
+                this.assignAnalysisToSlot( slotNumber, analysis );
             }
 
             return analysis;
@@ -340,29 +365,6 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         const serialization = this.getOnSerializeManager(slot);
         if (serialization) serialization.call(value ? value.serialized : undefined);
 
-        // Call general callback
-        if (value) {
-            this.onSlotInit.call(slot, value);
-        } else {
-            this.onSlotRemove.call(slot);
-        }
-
-    }
-
-
-    /** 
-     * Whenever a slit serializes call the particular manager 
-     */
-    private emitSerializedValue(
-        slot: number,
-        value: string | undefined
-    ) {
-
-        const manager = this.getOnSerializeManager(slot);
-        if (manager) {
-            manager.call(value);
-        }
-
     }
 
 
@@ -383,7 +385,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
     /**
      * Get a callback manager that is triggered whenever a slot is assigned
      */
-    public getOnAssignementManager(slot: number) {
+    private getOnAssignementManager(slot: number) {
         if (slot === 1) return this.onSlot1Assignement;
         else if (slot === 2) return this.onSlot2Assignement;
         else if (slot === 3) return this.onSlot3Assignement;
@@ -409,15 +411,12 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
      */
     public forEveryExistingSlot( fn: (slot:AnalysisSlot, num: number)=>void ) {
 
-        const forSlot = ( num: number ) => {
-            const slot = this.getSlot( num );
-            if ( slot ) {
-                fn( slot, num );
-            }
-        }
-
         for ( let i = 1; i <= 7; i++ ) {
-            forSlot( i );
+
+            const slot = this.getSlot( i );
+            if ( slot ) {
+                fn( slot, i );
+            }
         }
 
     }

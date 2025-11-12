@@ -1,5 +1,6 @@
 import { CallbacksManager } from "../../../callbacksManager";
 import { AbstractAnalysis } from "./AbstractAnalysis";
+import { PointAnalysis } from "./point/PointAnalysis";
 
 
 export enum PointPlacement {
@@ -181,10 +182,10 @@ export abstract class AbstractPoint {
         return this.analysis.initialColor;
     }
     public get activeColor() {
-        return this.analysis.activeColor;
+        return PointAnalysis.COLOR_ACTIVE;
     };
     public get inactiveColor() {
-        return this.analysis.inactiveColor;
+        return PointAnalysis.COLOR_INACTIVE;
     };
 
 

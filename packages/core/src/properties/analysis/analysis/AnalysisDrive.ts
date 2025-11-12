@@ -50,7 +50,7 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
 
 
     /** Calculate the top/left position from a `MouseEvent` */
-    protected getRelativePosition(event: MouseEvent) {
+    private getRelativePosition(event: MouseEvent) {
 
         if ( ! this.listener ) {
             return {
@@ -78,8 +78,10 @@ export class AnalysisDrive extends AbstractProperty<AbstractAnalysis[], Instance
 
     }
 
-    /** Activate listeners for the current drive on the file's listener layer. */
-    activateListeners( container: HTMLDivElement ) {
+    /** 
+     * Activate the DOM listeners for the current drive on the file's listener layer. 
+     */
+    public activateListeners( container: HTMLDivElement ) {
 
         this.listener = container;
 

@@ -180,8 +180,6 @@ export class FolderBreadcrumb extends ClientConsumer {
                 continue;
             }
 
-            this.log(lockedLocation, item.path);
-
             if (lockedLocation !== undefined && !item.path.includes(lockedLocation)) {
                 continue;
             }

@@ -46,7 +46,7 @@ export class AddPointTool extends AbstractAddTool implements ITool {
 
         point.deactivate();
         point.analysis.file.group.tool.selectTool("edit");
-        point.analysis.ready = true;
+        point.analysis.setReady();
         point.analysis.onMoveOrResize.call( point.analysis );
     }
 

@@ -20,7 +20,7 @@ describe("AnalysisSlotsDrive", () => {
         expect(analysis).not.toBeUndefined();
 
         // Assign it to an empty slot
-        instance.slots.assignSlot(1, analysis);
+        instance.slots.assignAnalysisToSlot(1, analysis);
         expect(instance.slots.hasSlot(1)).toEqual(true);
 
         // Clear an occupied slot
@@ -33,12 +33,12 @@ describe("AnalysisSlotsDrive", () => {
         const analysis3 = instance.analysis.layers.placeRectAt("sth test", 15, 13, 100, 100);
 
         // Assign a slot
-        instance.slots.assignSlot(2, analysis2);
+        instance.slots.assignAnalysisToSlot(2, analysis2);
         expect(instance.slots.hasSlot(2)).toEqual(true);
         expect(instance.slots.getSlot(2)?.analysis.name).toEqual(analysis2.name);
 
         // Replace that slot
-        instance.slots.assignSlot(2, analysis3);
+        instance.slots.assignAnalysisToSlot(2, analysis3);
         // The name should correspond
         expect(instance.slots.getSlot(2)?.analysis.name).toEqual(analysis3.name);
         // The old analysis should be removed
@@ -57,7 +57,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placeRectAt("Testovací analýza", 10, 10, 100, 100);
 
-        const slot = instance.slots.assignSlot(1, analysis);
+        const slot = instance.slots.assignAnalysisToSlot(1, analysis);
 
         // Check if the analysis is assigned properly
         expect(instance.analysis.value.length).toEqual(1);
@@ -309,7 +309,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placePointAt("something", 10, 10, "olive");
 
-        const slot = instance.slots.assignSlot(1, analysis);
+        const slot = instance.slots.assignAnalysisToSlot(1, analysis);
 
         // Check initial properties
         expect(slot.analysis.left).toEqual(10);
@@ -384,7 +384,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placeEllipsisAt("something", 10, 10, 100, 100, "olive");
 
-        const slot = instance.slots.assignSlot(1, analysis);
+        const slot = instance.slots.assignAnalysisToSlot(1, analysis);
 
         // Check initial properties
         expect(analysis.left).toEqual(10);
@@ -435,7 +435,7 @@ describe("AnalysisSlotsDrive", () => {
 
         const analysis = instance.analysis.layers.placePointAt("something", 10, 10, "olive");
 
-        const slot = instance.slots.assignSlot(1, analysis);
+        const slot = instance.slots.assignAnalysisToSlot(1, analysis);
 
         // Check initial properties
         expect(analysis.left).toEqual(10);
@@ -700,7 +700,7 @@ describe("AnalysisSlotsDrive", () => {
         expect(slot1?.analysis).toEqual(analysis);
 
         // Reassign analysis
-        slots.assignSlot(2, analysis);
+        slots.assignAnalysisToSlot(2, analysis);
 
         expect(layers.all.length).toEqual(1);
         expect(slots.value.size).toEqual(1);
@@ -712,7 +712,7 @@ describe("AnalysisSlotsDrive", () => {
         expect(serialized2).toContain(analysis.key);
 
         // Assign back
-        slots.assignSlot(1, analysis);
+        slots.assignAnalysisToSlot(1, analysis);
 
         expect(layers.all.length).toEqual(1);
         expect(slots.value.size).toEqual(1);
