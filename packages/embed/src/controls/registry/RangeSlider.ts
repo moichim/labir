@@ -101,7 +101,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
         // Initialise the slider
         if ( _changedProperties.has("loading") && this.loading === false ) {
-            this.log("should initialise now");
             this.initialiseSlider();
         }
 

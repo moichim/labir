@@ -6,6 +6,8 @@ import icons from "../../../../utils/icons";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { consume } from "@lit/context";
 import { lockedBrowsingTo } from "../../../ClientContext";
+import { ThermalGroup } from "@labir/core";
+import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
 
 @customElement( "folder-base-info" )
 export class FolderBaseInfo extends ClientConsumer {
@@ -25,6 +27,14 @@ export class FolderBaseInfo extends ClientConsumer {
     @state()
     @consume( {context: lockedBrowsingTo, subscribe: true} )
     private lockedBrowsingTo?: string;
+
+    public get group(): ThermalGroup | undefined {
+
+        const provider = this.renderRoot.querySelector( "group-provider" ) as GroupProviderElement;
+
+        return provider?.group;
+
+    }
 
     protected icon = icons.folder.outline( "icon" );
 

@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes } from "@labir/core";
+import { AvailableThermalPalettes, ThermalGroup } from "@labir/core";
 import { BreadcrumbItem, FileInfo, FolderInfo } from "@labir/server";
 import { provide } from "@lit/context";
 import { t } from "i18next";
@@ -11,6 +11,7 @@ import { T } from "../../translations/Languages";
 import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, lockedBrowsingTo, lockedBrowsingToSetter, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
 import { AppWithContent } from "./AppWithContent";
 import { AppState, FolderMode } from "./AppWithState";
+import { FolderBaseInfo } from "../components/folder/single/FolderBaseInfo";
 
 /** 
  * This layer provides the necessary render methods
@@ -269,6 +270,11 @@ export abstract class AppWithRender extends AppWithContent {
 
     }
 
+    private getGroup(): ThermalGroup | undefined {
+        const base = this.renderRoot.querySelector( "folder-base-info" ) as FolderBaseInfo;
+        return base?.group;
+    }
+
     private renderFolder(): TemplateResult {
 
         return html`
@@ -290,13 +296,13 @@ export abstract class AppWithRender extends AppWithContent {
 
                     ${this.renderFolderCreateSubfolderDialog()}
 
-                    ${this.renderFolderUploadFileDialog()}
-
                     ${this.renderFolderManagementButtons()}
+
+                    ${this.renderFolderDownloadDropdown()}
 
                 </thermal-slot>` : nothing}
 
-                ${this.hasSubfolders() ? html`<thermal-slot label="Zobrazení">
+                ${this.hasSubfolders() ? html`<thermal-slot label="${t(T.display)}">
                     <subfolders-mode 
                         .folder=${this.folder} 
                         .subfolders=${this.subfolders}
@@ -315,7 +321,7 @@ export abstract class AppWithRender extends AppWithContent {
 
                 ${this.renderDisplayMode()}
 
-                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`<thermal-slot label="Obsah">
+                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`<thermal-slot label="${t(T.content)}">
                     <editing-mode-settings
                         .folder=${this.folder}
                     ></editing-mode-settings>
@@ -340,6 +346,51 @@ export abstract class AppWithRender extends AppWithContent {
         
         `;
 
+    }
+
+
+    private renderFolderDownloadDropdown(): unknown {
+        if ( this.files && this.files.length > 0 ) {
+            
+            return html`<thermal-dropdown>
+    <span slot="invoker">${t(T.download)}</span>
+
+
+    <thermal-btn
+        slot="option"
+        pre="LRC" 
+        tooltip=${t(T.downloadoriginalfileshint)}
+        @click=${() => {
+            this.getGroup()?.files.downloadAllFiles();
+        }}
+    >
+        ${t(T.downloadoriginalfiles)}
+    </thermal-btn>
+
+    <thermal-btn 
+        slot="option" 
+        pre="PNG" 
+        @click=${() => this.getGroup()?.forEveryInstance(instance => instance.export.downloadPng())}
+         tooltip=${t(T.pngofindividualimageshint)}
+    >
+        ${t(T.pngofindividualimages)}
+    </thermal-btn>
+
+    <thermal-btn 
+        slot="option"
+        pre="PNG" 
+        @click=${() => this.getGroup()?.analysisSync.png.downloadPng()}
+        tooltip="${t(T.pngofentiregrouphint)}"
+    >
+        ${t(T.pngofentiregroup)}
+    </thermal-btn>
+
+</thermal-dropdown>`;        
+
+
+        }
+
+        return nothing;
     }
 
 
@@ -574,18 +625,18 @@ export abstract class AppWithRender extends AppWithContent {
             && this.folder
         ) {
 
-            return html`<thermal-slot label="Zobrazení">
+            return html`<thermal-slot label="${t(T.display)}">
                 <display-mode-settings
                     .folder=${this.folder}
                 ></display-mode-settings>
                 <registry-opacity-slider></registry-opacity-slider>
             </thermal-slot>
-            <thermal-slot label="Obsah">
+            <thermal-slot label="${t(T.content)}">
                 <editing-mode-settings
                     .folder=${this.folder}
                 ></editing-mode-settings>
             </thermal-slot>
-            <thermal-slot label="Analýzy">
+            <thermal-slot label="${t(T.analyses)}">
                 <analysis-mode-settings
                     .folder=${this.folder}
                     .files=${this.files}
@@ -624,13 +675,26 @@ export abstract class AppWithRender extends AppWithContent {
                 .folder=${this.folder}
                 .onSuccess=${(folder: FolderInfo) => {
                     this.setPath(folder.path);
+                    this.updateFolder(folder);
                 }}
+                icon="edit"
+                iconStyle="micro"
+                variant="primary"
+                tooltip=${t(T.editfolder)}
+                label=${t(T.edit)}
             ></folder-edit-dialog>
             <folder-delete-dialog
                 .folder=${this.folder}
                 .onSuccess=${(folder: FolderInfo) => {
-                    this.setPath(folder.path);
+                    // Remove the last segment from the path
+                    const newPath = folder!.path.split("/").slice(0, -1).join("/");
+                    this.setPath(newPath);
                 }}
+                tooltip=${t(T.deletefolder)}
+                label=${t(T.delete)}
+                variant="foreground"
+                icon="trash"
+                iconStyle="micro"
             ></folder-delete-dialog>`;
 
         }
@@ -648,9 +712,14 @@ export abstract class AppWithRender extends AppWithContent {
 
             return html`<folder-add-dialog 
                 .folder=${this.folder}
-                .onSuccess=${(folder: FolderInfo) => {
+                .onSuccess=${() => {
                     this.fetchContent();
                 }}
+                icon="addfolder"
+                iconStyle="micro"
+                variant="primary"
+                tooltip=${t(T.createsubfolder)}
+                label=${t(T.createfolder)}
             ></folder-add-dialog>`;
 
         }

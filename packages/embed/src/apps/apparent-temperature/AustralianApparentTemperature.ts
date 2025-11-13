@@ -37,6 +37,7 @@ const converters = {
         }
     },
 };
+
 @customElement("apparent-temperature-aat")
 export class AustralianApparentTemperature extends BaseElement implements IWithlocale {
 
@@ -192,7 +193,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         }
     }
 
-    protected shouldUpdate(_changedProperties: PropertyValues): boolean {
+    protected shouldUpdate(_changedProperties: PropertyValues<AustralianApparentTemperature>): boolean {
 
         super.shouldUpdate(_changedProperties);
 
@@ -218,13 +219,14 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         return true;
     }
 
-    protected updated(_changedProperties: PropertyValues<AustralianApparentTemperature>): void {
-        super.updated(_changedProperties);
+    public willUpdate(_changedProperties: PropertyValues<AustralianApparentTemperature>): void {
+        super.willUpdate(_changedProperties);
 
         // Listen to values change
         this.processValueChange(_changedProperties, "t");
         this.processValueChange(_changedProperties, "v");
         this.processValueChange(_changedProperties, "ha");
+
 
         // Propagate the VUNITS change to the DOM
         if (_changedProperties.has("vunits")) {
@@ -235,7 +237,6 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
             }
 
         }
-
     }
 
 

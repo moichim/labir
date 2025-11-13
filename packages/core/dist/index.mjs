@@ -5912,19 +5912,24 @@ var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
    * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
    */
   copyOneSlotToAllInstances(instance, slotNumber) {
+    this.setCurrentPointer(instance);
+    const slot = instance.slots.getSlot(slotNumber);
+    const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
+    console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
     this.parent.files.forEveryInstance((otherInstance) => {
       if (otherInstance === instance) {
+        console.log("Skipping source instance", otherInstance);
         return;
       }
       if (otherInstance.slots.hasSlot(slotNumber)) {
         otherInstance.slots.removeSlotAndAnalysis(slotNumber);
       }
-      const slot = instance.slots.getSlot(slotNumber);
-      const serialized = slot?.serialized;
       if (!serialized) {
         return;
       }
-      otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
+      const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
+      console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
+      analysis?.setSelected();
     });
   }
   /** 
@@ -6862,7 +6867,6 @@ var rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
 
 // src/loading/workers/parsers/lrc/jobs/histogram.ts
 var registryHistogram = async (files) => {
-  console.log("Reading histogram");
   let pixels = [];
   const readFile = async (file) => {
     const headerView = new DataView(file.slice(0, 25));
@@ -8398,7 +8402,6 @@ var ToolDrive = class extends AbstractProperty {
 
 // src/hierarchy/ThermalManager.ts
 var isChromium = "chrome" in window;
-console.log("is chromium", isChromium);
 var options = isChromium ? {
   maxWorkers: 4
 } : {};

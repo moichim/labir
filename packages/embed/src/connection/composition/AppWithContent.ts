@@ -219,8 +219,6 @@ export abstract class AppWithContent extends AppWithClientProvider {
         // Listen to identity changes
         this.client.auth.onIdentity.set(this.UUIDContent, (identity, userFolders) => {
 
-            this.log("Identity changed:", identity, userFolders);
-
             // Store the user folders
             if (identity && userFolders) {
                 this.updateUserFolders(userFolders);

@@ -1,6 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { css, html, nothing } from "lit";
+import { ref } from "lit/directives/ref.js";
 import icons from "../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { computePosition, flip, shift, offset, arrow, autoUpdate, Placement } from '@floating-ui/dom';
@@ -49,76 +50,52 @@ export class ThermalBtn extends BaseElement {
     private tooltipElement?: HTMLElement;
     private arrowElement?: HTMLElement;
     private cleanupAutoUpdate?: () => void;
+    private tooltipContainer?: HTMLElement;
 
     protected firstUpdated() {
         // Ensure element is focusable
         if (!this.hasAttribute('tabindex')) {
             this.setAttribute('tabindex', '0');
         }
-        
         // Add keyboard event listener
         this.addEventListener('keydown', this.handleKeydown);
         // Add click event listener to prevent disabled button clicks
         this.addEventListener('click', this.handleClick);
-        
+        // Tooltip will be rendered in render(), not in body
         if (this.tooltip) {
-            this.setupTooltip();
+            this.addEventListener('mouseenter', this.showTooltip);
+            this.addEventListener('mouseleave', this.hideTooltip);
+            this.addEventListener('focus', this.showTooltip);
+            this.addEventListener('blur', this.hideTooltip);
         }
     }
 
     protected updated(changedProperties: Map<string | number | symbol, unknown>) {
+        // Tooltip rendering is handled in render()
         if (changedProperties.has('tooltip')) {
-            if (this.tooltip && !this.tooltipElement) {
-                this.setupTooltip();
-            } else if (!this.tooltip && this.tooltipElement) {
-                this.removeTooltip();
-            } else if (this.tooltip && this.tooltipElement) {
-                // Update existing tooltip content
-                this.tooltipElement.textContent = this.tooltip;
+            if (this.tooltip) {
+                this.addEventListener('mouseenter', this.showTooltip);
+                this.addEventListener('mouseleave', this.hideTooltip);
+                this.addEventListener('focus', this.showTooltip);
+                this.addEventListener('blur', this.hideTooltip);
+            } else {
+                this.removeEventListener('mouseenter', this.showTooltip);
+                this.removeEventListener('mouseleave', this.hideTooltip);
+                this.removeEventListener('focus', this.showTooltip);
+                this.removeEventListener('blur', this.hideTooltip);
             }
         }
     }
 
-    private setupTooltip() {
-        if (!this.tooltip) return;
-
-        // Create tooltip element
-        this.tooltipElement = document.createElement('div');
-        this.tooltipElement.className = 'thermal-tooltip';
-        this.tooltipElement.innerHTML = this.tooltip;
-        this.tooltipElement.style.position = 'absolute';
-        this.tooltipElement.style.top = '0';
-        this.tooltipElement.style.left = '0';
-        this.tooltipElement.style.visibility = 'hidden';
-        this.tooltipElement.style.opacity = '0';
-        this.tooltipElement.style.transition = 'opacity 0.2s ease-in-out';
-
-        // Create arrow element
-        this.arrowElement = document.createElement('div');
-        this.arrowElement.className = 'thermal-tooltip-arrow';
-        this.tooltipElement.appendChild(this.arrowElement);
-
-        document.body.appendChild(this.tooltipElement);
-
-        // Add event listeners
-        this.addEventListener('mouseenter', this.showTooltip);
-        this.addEventListener('mouseleave', this.hideTooltip);
-        this.addEventListener('focus', this.showTooltip);
-        this.addEventListener('blur', this.hideTooltip);
-    }
+    // Tooltip setup is now handled in render()
 
     private removeTooltip() {
-        if (this.tooltipElement) {
-            document.body.removeChild(this.tooltipElement);
-            this.tooltipElement = undefined;
-            this.arrowElement = undefined;
-        }
-        
+        this.tooltipElement = undefined;
+        this.arrowElement = undefined;
         if (this.cleanupAutoUpdate) {
             this.cleanupAutoUpdate();
             this.cleanupAutoUpdate = undefined;
         }
-
         this.removeEventListener('mouseenter', this.showTooltip);
         this.removeEventListener('mouseleave', this.hideTooltip);
         this.removeEventListener('focus', this.showTooltip);
@@ -127,13 +104,10 @@ export class ThermalBtn extends BaseElement {
 
     private showTooltip = async () => {
         if (!this.tooltipElement || !this.arrowElement) return;
-
         this.tooltipElement.style.visibility = 'visible';
         this.tooltipElement.style.opacity = '1';
-
         const updatePosition = async () => {
             if (!this.tooltipElement || !this.arrowElement) return;
-
             const { x, y, placement, middlewareData } = await computePosition(this, this.tooltipElement, {
                 placement: this.tooltipPlacement,
                 middleware: [
@@ -143,23 +117,19 @@ export class ThermalBtn extends BaseElement {
                     arrow({ element: this.arrowElement })
                 ]
             });
-
             Object.assign(this.tooltipElement.style, {
                 left: `${x}px`,
                 top: `${y}px`,
             });
-
             // Position arrow
             const { x: arrowX, y: arrowY } = middlewareData.arrow || {};
             const side = placement.split('-')[0];
-
             const staticSide = {
                 top: 'bottom',
                 right: 'left',
                 bottom: 'top',
                 left: 'right',
             }[side];
-
             Object.assign(this.arrowElement.style, {
                 left: arrowX != null ? `${arrowX}px` : '',
                 top: arrowY != null ? `${arrowY}px` : '',
@@ -168,17 +138,14 @@ export class ThermalBtn extends BaseElement {
                 [staticSide as string]: '-4px',
             });
         };
-
         updatePosition();
         this.cleanupAutoUpdate = autoUpdate(this, this.tooltipElement, updatePosition);
     };
 
     private hideTooltip = () => {
         if (!this.tooltipElement) return;
-
         this.tooltipElement.style.opacity = '0';
         this.tooltipElement.style.visibility = 'hidden';
-
         if (this.cleanupAutoUpdate) {
             this.cleanupAutoUpdate();
             this.cleanupAutoUpdate = undefined;
@@ -205,10 +172,10 @@ export class ThermalBtn extends BaseElement {
     };
 
     disconnectedCallback() {
-        super.disconnectedCallback();
-        this.removeEventListener('keydown', this.handleKeydown);
-        this.removeEventListener('click', this.handleClick);
-        this.removeTooltip();
+    super.disconnectedCallback();
+    this.removeEventListener('keydown', this.handleKeydown);
+    this.removeEventListener('click', this.handleClick);
+    this.removeTooltip();
     }
 
     public static styles = css`
@@ -223,7 +190,7 @@ export class ThermalBtn extends BaseElement {
             box-sizing: border-box;
 
             vertical-align: middle;
-            
+            position: relative;
 
             margin: 0;
             padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
@@ -244,11 +211,9 @@ export class ThermalBtn extends BaseElement {
             vertical-align: middle;
 
             transition: all .15s ease-in-out;
-            
 
             /* Focus styling */
             outline: none;
-
 
             --tooltip-bg: var(--thermal-slate-dark, #334155);
             --tooltip-color: white;
@@ -256,8 +221,6 @@ export class ThermalBtn extends BaseElement {
             --tooltip-border-radius: var(--thermal-radius, 4px);
             --tooltip-font-size: 0.9em;
             --tooltip-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
-
         }
 
 
@@ -407,8 +370,8 @@ export class ThermalBtn extends BaseElement {
             box-shadow: var(--tooltip-box-shadow, 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06));
             z-index: 9999;
             pointer-events: none;
-            max-width: 200px;
             word-wrap: break-word;
+            font-size: calc( var( --thermal-fs ) * 0.8 );
         }
 
         .thermal-tooltip-arrow {
@@ -427,21 +390,35 @@ export class ThermalBtn extends BaseElement {
     `;
 
     protected render(): unknown {
-
         let icon: typeof nothing | string = nothing;
-
-        if ( this.icon as keyof typeof icons in icons ) {
-
-            let i = icons[ this.icon as keyof typeof icons ];
-
-            if (  this.iconStyle in i ) {
-                icon = i[ this.iconStyle as keyof typeof i ]("btn-icon");
+        if (this.icon && this.icon in icons) {
+            const i = icons[this.icon as keyof typeof icons];
+            if (typeof i[this.iconStyle as keyof typeof i] === 'function') {
+                icon = (i[this.iconStyle as keyof typeof i] as Function)("btn-icon");
             }
-
         }
-
-
-        return html`${unsafeSVG( icon) }${this.pre ? html`<span class="prefix">${this.pre}</span>` : nothing}<slot></slot>`;
+        // Tooltip rendering
+        let tooltipHtml: unknown = nothing;
+        if (this.tooltip) {
+            tooltipHtml = html`
+                <div
+                    class="thermal-tooltip"
+                    style="position: absolute; top: 0; left: 0; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out;"
+                    @mouseenter=${this.showTooltip}
+                    @mouseleave=${this.hideTooltip}
+                    @focus=${this.showTooltip}
+                    @blur=${this.hideTooltip}
+                    ${ref((el: Element | undefined) => { this.tooltipElement = el as HTMLElement; })}
+                >
+                    ${this.tooltip}
+                    <div class="thermal-tooltip-arrow" ${ref((el: Element | undefined) => { this.arrowElement = el as HTMLElement; })}></div>
+                </div>
+            `;
+        }
+        return html`
+            ${unsafeSVG(icon)}${this.pre ? html`<span class="prefix">${this.pre}</span>` : nothing}<slot></slot>
+            ${tooltipHtml}
+        `;
     }
 
 }

@@ -22,6 +22,7 @@ export enum T {
     embedlibrary = "embedlibrary",
     embedcomponent = "embedcomponent",
     copy = "copy",
+    create = "create",
 
     remotefoldersbrowseraddfolderhint = "remotefoldersbrowseraddfolderhint",
 
@@ -300,10 +301,19 @@ export enum T {
     logoutmessage = "logoutmessage",
     loginerror = "logineerror",
     password = "password",
-    accessibletologgedinusers = "accessibletologgedinusers"
+    accessibletologgedinusers = "accessibletologgedinusers",
 
 
-
+    display = "display",
+    content = "content",
+    syncanalyses = "syncanalyses",
+    overviewofyourfolders = "overviewofyourfolders",
+    uploadedby = "uploadedby",
+    uploadeddat = "uploadeddat",
+    createfolder = "createfolder",
+    subfolder = "subfolder",
+    createsubfolder = "createsubfolder",
+    delete = "delete"
 
 
 

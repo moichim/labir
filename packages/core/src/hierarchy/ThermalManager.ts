@@ -18,9 +18,7 @@ export type ThermalManagerOptions = {
     palette?: AvailableThermalPalettes
 }
 
-const isChromium = "chrome" in window;//window.CSS && window.CSS.supports && window.CSS.supports('(-webkit-appearance:none)');
-
-console.log( "is chromium", isChromium );
+const isChromium = "chrome" in window;
 
 const options: workerpool.WorkerPoolOptions = isChromium
     ? {

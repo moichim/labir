@@ -70,7 +70,7 @@ export class ThermalAppUiElement extends BaseElement {
         });
 
         i18next.on("languageChanged", () => {
-            this.log( "languageChanged", this.language, i18next.language );
+            // this.log( "languageChanged", this.language, i18next.language );
             this.language = i18next.language;
         });
 

@@ -20,8 +20,6 @@ export class GetConnect extends Operation<GetConnectDataType> {
     public async execute(): Promise<ApiResponseType<GetConnectDataType>> {
         const response = await this.client.fetch<GetConnectDataType>(this.request);
 
-        console.log( "Connection", response, this.client.auth.getSession() );
-
         if (response.success) {
 
             // If the identity is not false, login the user

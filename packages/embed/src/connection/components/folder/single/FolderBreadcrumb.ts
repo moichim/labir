@@ -8,6 +8,8 @@ import { ClientConsumer } from "../../ClientConsumer";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { consume } from "@lit/context";
 import { lockedBrowsingTo } from "../../../ClientContext";
+import { t } from "i18next";
+import { T } from "../../../../translations/Languages";
 
 
 
@@ -149,7 +151,7 @@ export class FolderBreadcrumb extends ClientConsumer {
 
             // Pokud je odemčená lokace, přidáme funkci pro přechod na uživatelovo přehled
             if (!lockedLocation) {
-                userItem.tooltip = "Přehled Vašich složek";
+                userItem.tooltip = t(T.overviewofyourfolders);
                 userItem.onClick = () => {
                     this.onUserClick?.();
                 };

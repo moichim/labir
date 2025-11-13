@@ -257,7 +257,6 @@ var GetConnect = class extends Operation {
   }
   async execute() {
     const response = await this.client.fetch(this.request);
-    console.log("Connection", response, this.client.auth.getSession());
     if (response.success) {
       if (response.data.identity !== false) {
         this.client.auth.login(response.data.identity, response.data.userFolders);

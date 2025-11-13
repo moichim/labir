@@ -4,23 +4,22 @@ import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
+import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
 @customElement("folder-delete-dialog")
-export class FolderDeleteDialog extends ClientConsumer {
+export class FolderDeleteDialog extends AbstractFolderDialog {
 
-    @property( { type: Object} )
-    public folder!: FolderInfo;
+    protected closeLabel: string = T.deletefolder;
 
-    @property({ type: Function})
+    protected dialogLabel: string = T.deletefolder;
+
+    @property({ type: Function })
     public onSuccess?: (folder: FolderInfo) => void;
 
     @property({ type: String })
     private errorMessage: string = "";
 
     public static styles?: CSSResultGroup = css`
-        .content {
-            padding: var(--thermal-gap);
-        }
 
         .warning {
             background: var(--thermal-danger-light, #fee);
@@ -60,7 +59,7 @@ export class FolderDeleteDialog extends ClientConsumer {
         }
     `;
 
-    protected async handleSubmit(): Promise<boolean> {
+    protected async beforeClose(): Promise<boolean> {
 
         // Clear previous error
         this.errorMessage = "";
@@ -84,38 +83,25 @@ export class FolderDeleteDialog extends ClientConsumer {
 
     }
 
-    protected render(): unknown {
-
-        const label = t(T.deletefolder);
-        
-        return html`
-            <thermal-dialog
-                label=${label}
-                .beforeClose=${() => this.handleSubmit()}
-                button=${label}
-            >
-                <slot name="invoker" slot="invoker">
-                    <thermal-btn size="md" variant="foreground" icon="trash" iconStyle="micro" tooltip=${label}></thermal-btn>
-                </slot>
-
-                <div class="content" slot="content">
-                    <div class="warning">
-                        <strong>Upozornění:</strong> Tato akce je nevratná. Složka a veškerý její obsah bude trvale smazán.
-                    </div>
-
-                    <p>Opravdu chcete smazat následující složku?</p>
-
-                    <div class="folder-info">
-                        <div class="folder-name">${this.folder.name || this.folder.slug}</div>
-                        ${this.folder.description ? html`<div class="folder-description">${this.folder.description}</div>` : ''}
-                        ${this.folder.lrc_count > 0 ? html`<div class="folder-description">Obsahuje ${this.folder.lrc_count} souborů</div>` : ''}
-                    </div>
-                    
-                    ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}
-                </div>
-
-            </thermal-dialog>
-        `;
-
+    protected override renderContent(): unknown {
+        return html`<div class="warning">
+    <strong>Upozornění:</strong> Tato akce je nevratná. Složka a veškerý její obsah bude trvale smazán.
+</div>
+<p>Opravdu chcete smazat následující složku?</p>
+<div class="folder-info">
+<div class="folder-name">${this.folder.name || this.folder.slug}</div>
+${this.folder.description ? html`<div class="folder-description">${this.folder.description}</div>` : ''}
+${this.folder.lrc_count > 0 ? html`<div class="folder-description">Obsahuje ${this.folder.lrc_count} souborů</div>` : ''}
+</div>
+${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}
+</div>`;
     }
+
+    protected override renderButtons(): unknown {
+        return html`<thermal-btn
+    @click=${() => this.close()}
+    slot="button"    
+>${t(T.back)}</thermal-btn>`;
+    }
+
 }

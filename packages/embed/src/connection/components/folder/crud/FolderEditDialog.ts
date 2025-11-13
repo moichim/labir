@@ -1,23 +1,24 @@
-import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../../ClientConsumer";
-import { html, css, CSSResultGroup } from "lit";
 import { FolderInfo } from "@labir/server";
 import { t } from "i18next";
+import { css, CSSResultGroup, html } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
+import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
 @customElement("folder-edit-dialog")
-export class FolderEditDialog extends ClientConsumer {
+export class FolderEditDialog extends AbstractFolderDialog {
 
-    @property( { type: Object} )
-    public folder!: FolderInfo;
+    protected closeLabel: string = T.savechanges;
 
-    @property({ type: String })
+    protected dialogLabel: string = T.editfolder;
+
+    @state()
     private folderName: string = "";
 
-    @property({ type: String })
+    @state()
     private folderDescription: string = "";
 
-    @property({ type: String })
+    @state()
     private errorMessage: string = "";
 
     @property({ type: Function})
@@ -29,8 +30,13 @@ export class FolderEditDialog extends ClientConsumer {
             align-self: stretch;
         }
 
-        .content {
-            padding: var(--thermal-gap);
+        input,
+        label,
+        textarea,
+        .form-group,
+        .content,        
+        .error {
+            box-sizing: border-box;
         }
 
         .form-group {
@@ -77,7 +83,7 @@ export class FolderEditDialog extends ClientConsumer {
         this.folderDescription = this.folder.description || "";
     }
 
-    protected async handleSubmit(): Promise<boolean> {
+    protected async beforeClose(): Promise<boolean> {
 
         if (!this.folderName.trim()) {
             this.errorMessage = "Název složky je povinný";
@@ -118,45 +124,37 @@ export class FolderEditDialog extends ClientConsumer {
         this.folderDescription = target.value;
     }
 
-    protected render(): unknown {
-        
-        return html`
-            <thermal-dialog
-                label="${t(T.editfolder)}"
-                .beforeClose=${() => this.handleSubmit()}
-                button="${t(T.savechanges)}"
-            >
-                <slot name="invoker" slot="invoker">
-                    <thermal-btn size="md" icon="edit" variant="primary" iconStyle="micro" tooltip="${t(T.editfolder)}" style="align-self: stretch;"></thermal-btn>
-                </slot>
 
-                <div class="content" slot="content">
-                    <div class="form-group">
-                        <label for="folder-name">${t(T.name)}:</label>
-                        <input 
-                            type="text" 
-                            id="folder-name"
-                            .value=${this.folderName}
-                            @input=${this.handleInputChange}
-                            placeholder="Zadejte název složky"
-                            required
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="folder-description">${t(T.description)}:</label>
-                        <textarea 
-                            id="folder-description"
-                            .value=${this.folderDescription}
-                            @input=${this.handleDescriptionChange}
-                            placeholder="Zadejte popis složky (volitelné)"
-                            rows="3"
-                        ></textarea>
-                    </div>
-                    ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}
-                </div>
-
-            </thermal-dialog>
-        `;
-
+    protected renderContent(): unknown {
+        return html`<div class="form-group">
+    <label for="folder-name">${t(T.name)}:</label>
+    <input 
+        type="text" 
+        id="folder-name"
+        .value=${this.folderName}
+        @input=${this.handleInputChange}
+        placeholder="Zadejte název složky"
+        required
+    />
+</div>
+<div class="form-group">
+    <label for="folder-description">${t(T.description)}:</label>
+    <textarea 
+        id="folder-description"
+        .value=${this.folderDescription}
+        @input=${this.handleDescriptionChange}
+        placeholder="Zadejte popis složky (volitelné)"
+        rows="3"
+    ></textarea>
+</div>
+${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`;
     }
+
+    protected override renderButtons(): unknown {
+        return html`<thermal-btn
+    @click=${() => this.close()}
+    slot="button"    
+>${t(T.back)}</thermal-btn>`;
+    }
+
 }

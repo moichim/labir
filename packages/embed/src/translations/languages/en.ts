@@ -1,6 +1,17 @@
 import { Translation } from "../Languages";
 
 export const en: Translation = {
+    delete: "Delete",
+    create: "Create",
+    createfolder: "Create a folder",
+    createsubfolder: "Create a subfolder",
+    subfolder: "Subfolder",
+    display: "Display",
+    syncanalyses: "Synchronise analyses",
+    uploadedby: "Uploaded by",
+    uploadeddat: "Uploaded at",
+    overviewofyourfolders: "Overview of your folders",
+    content: "Content",
 
     palette: "Palette",
 

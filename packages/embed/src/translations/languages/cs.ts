@@ -1,6 +1,17 @@
 import { Translation } from "../Languages";
 
 export const cs: Translation = {
+    delete: "Smazat",
+    create: "Vytvořit",
+    createfolder: "Vytvořit složku",
+    createsubfolder: "Vytvořit podsložku",
+    subfolder: "Podsložka",
+    display: "Zobrazení",
+    syncanalyses: "Synchronizovat analýzy",
+    uploadedby: "Nahráno uživatelem",
+    uploadeddat: "Nahráno dne",
+    overviewofyourfolders: "Přehled vašich složek",
+    content: "Obsah",
 
     palette: "Paleta",
 

@@ -6,6 +6,8 @@ import { syncAnalysisContext, syncAnalysisSetterContext } from "../../../ClientC
 import { AbstractModeBar } from "./AbstractModeBar";
 import { ThermalGroup } from "@labir/core";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
+import { t } from "i18next";
+import { T } from "../../../../translations/Languages";
 
 @customElement("analysis-mode-settings")
 export class AnalysisModeElement extends AbstractModeBar {
@@ -39,7 +41,7 @@ export class AnalysisModeElement extends AbstractModeBar {
         return html`
 
             ${this.renderToggle(
-            "Synchronizovat analýzy",
+            t(T.syncanalyses),
             this.syncAnalysis,
             (checked) => {
                 // Remove all analyses first

@@ -64,14 +64,12 @@ export class FileCanvas extends FileConsumer {
 
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        this.log("unmount");
         if (this.file !== undefined) {
             this.file.unmountFromDom();
             this.parentFileProviderElement?.onSuccess.delete(this.UUID);
             this.parentFileProviderElement?.onInstanceCreated.delete(this.UUID);
             this.parentFileProviderElement?.onLoadingStart.delete(this.UUID);
             this.parentFileProviderElement?.onFailure.delete(this.UUID);
-            // this.container.value?.classList.remove();
         }
     }
 

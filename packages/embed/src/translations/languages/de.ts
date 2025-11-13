@@ -2,6 +2,18 @@ import { Translation } from "../Languages";
 
 export const de: Translation = {
 
+    delete: "Löschen",
+    create: "Erstellen",
+    createfolder: "Einen Ordner erstellen",
+    createsubfolder: "Einen Unterordner erstellen",
+    subfolder: "Unterordner",
+    display: "Anzeige",
+    syncanalyses: "Analysen synchronisieren",
+    uploadedby: "Hochgeladen von",
+    uploadeddat: "Hochgeladen am",
+    overviewofyourfolders: "Übersicht Ihrer Ordner",
+    content: "Inhalt",
+
     palette: "Palette",
 
     loading: "Loading",

@@ -6,7 +6,7 @@ export const registryHistogram: IParserObject["registryHistogram"] = async (
     files: ArrayBuffer[]
 ) => {
 
-    console.log( "Reading histogram" );
+    // console.log( "Reading histogram" );
 
     let pixels: number[] = [];
 

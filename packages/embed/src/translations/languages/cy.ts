@@ -2,6 +2,18 @@ import { Translation } from "../Languages";
 
 export const cy: Translation = {
 
+    delete: "Dileu",
+    create: "Creu",
+    createfolder: "Creu ffolder",
+    createsubfolder: "Creu is-ffolder",
+    subfolder: "Is-ffolder",
+    display: "Arddangos",
+    syncanalyses: "Cydamseru dadansoddiadau",
+    uploadedby: "Wedi'i lwytho i fyny gan",
+    uploadeddat: "Wedi'i lwytho i fyny ar",
+    overviewofyourfolders: "Trosolwg o'ch ffolderi",
+    content: "Cynnwys",
+
     palette: "Palet",
 
     loading: "Llwytho",

@@ -48,7 +48,7 @@ import { Batch } from "./loading/batch/Batch";
 
 import { version } from "../package.json";
 
-console.info( version, "@labir/core" );
+console.info(version, "@labir/core");
 
 
 export {
@@ -56,9 +56,9 @@ export {
     Batch,
 
     // Analysis
-    AbstractAnalysis, AbstractFileResult,AbstractAddTool,
+    AbstractAnalysis, AbstractFileResult, AbstractAddTool,
     // Analysis
-    AbstractTool, AddEllipsisTool, AddRectangleTool, AvailableThermalPalettes, CallbacksManager,
+    AbstractTool, AddEllipsisTool, AddRectangleTool, CallbacksManager,
     // Points
     CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis,
     // General utilities
@@ -68,29 +68,42 @@ export {
     // File
     Instance, IRON,
     JET,
-    PaletteId, ParsedTimelineFrame, playbackSpeed, PlaybackSpeeds, PointAnalysis, RectangleAnalysis, supportedFileTypes, ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader,
+    playbackSpeed, PointAnalysis, RectangleAnalysis, supportedFileTypes, ThermalFileFailure, ThermalFileReader,
     // Group
     ThermalGroup,
     // Manager
     ThermalManager,
-    ThermalManagerOptions, ThermalMinmaxOrUndefined, ThermalPalettes, ThermalPaletteType,
+    ThermalPalettes,
     // Core datatypes
-    ThermalRangeOrUndefined,
+
     // Registry
     ThermalRegistry,
-    ThermalRegistryOptions, ThermalTool,
+
     // Utils - Time
     TimeFormat, TimePeriod, TimeRound,
 
-    AnalysisDataStateValue,
+
     AbstractAreaAnalysis,
     AnalysisGraph,
     supportedFileTypesInputProperty,
     availableAnalysisColors,
-    SlotUnion,
-    SlotNumber
-    
+
+
 };
+
+export type {
+    SlotUnion,
+    SlotNumber,
+    AnalysisDataStateValue,
+    ThermalRegistryOptions, ThermalTool,
+    ThermalRangeOrUndefined,
+    ThermalPaletteType,
+    ThermalManagerOptions, ThermalMinmaxOrUndefined,
+    ThermalCursorPositionOrUndefined,
+    PlaybackSpeeds,
+    PaletteId, ParsedTimelineFrame,
+    AvailableThermalPalettes,
+}
 
 
 

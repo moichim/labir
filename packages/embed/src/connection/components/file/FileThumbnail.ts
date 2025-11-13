@@ -313,9 +313,7 @@ export class FileThumbnail extends ClientConsumer {
                                         return;
                                     }
 
-                                    instance.group.analysisSync.setCurrentPointer( instance );
-
-                                    instance.group.analysisSync.copyAllSlotsToAllInstances( instance );
+                                    this.group.analysisSync.copyAllSlotsToAllInstances( instance );
 
                                 }}
                         ></thermal-btn>

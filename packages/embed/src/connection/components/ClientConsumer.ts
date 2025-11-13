@@ -99,7 +99,7 @@ export abstract class ClientConsumer extends BaseElement {
                 this._isClientConnected = status !== undefined;
                 
                 this._isClientConnecting = false;
-                console.log( status );
+
                 this._serverInfo = status !== false
                     ? status
                     : undefined;
