@@ -1,4 +1,4 @@
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { groupContext } from "../providers/context/GroupContext";
 import { RegistryConsumer } from "./RegistryConsumer";

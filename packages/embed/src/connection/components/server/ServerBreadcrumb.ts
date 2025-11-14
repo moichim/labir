@@ -1,7 +1,7 @@
 import { consume } from "@lit/context";
 import { ClientConsumer } from "../ClientConsumer";
 import { currentUserTreeContext, currentUserTreeSetterContext } from "../../ClientContext";
-import { TreeItem } from "@labir/server";
+import { TreeItem } from "@labirthermal/server";
 import { customElement, property, state } from "lit/decorators.js";
 import { css, html, nothing, PropertyValues, TemplateResult } from "lit";
 

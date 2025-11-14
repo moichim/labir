@@ -1,5 +1,4 @@
-import { TimeFormat } from "@labir/core";
-import { FolderInfo, FileInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";

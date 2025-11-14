@@ -1,4 +1,4 @@
-import type { ThermalRegistry } from "@labir/core";
+import type { ThermalRegistry } from "@labirthermal/core";
 import { ref } from "vue";
 import { useProvidedRegistry } from "../structure/provided/useProvidedRegistry";
 

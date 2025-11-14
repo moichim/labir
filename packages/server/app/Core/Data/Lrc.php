@@ -424,7 +424,7 @@ final class Lrc
 
         $bigIntTime = unpack('P', $binaryData)[1];
 
-        // Konstanty převzaté z @labir/api
+        // Konstanty převzaté z @labirthermal/server-simple
         $UnixEpoch = 62135596800000;
         $TicksPerMillisecond = 10000;
         $TicksPerDay = 24 * 60 * 60 * 1000 * $TicksPerMillisecond;

@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { useEffect, useMemo, useState } from "react";
 
 export type ThermalHistogramStatisticsEntry = {

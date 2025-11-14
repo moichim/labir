@@ -1,7 +1,7 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { FileInfo, FolderInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { T } from "../../../translations/Languages";

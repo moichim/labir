@@ -1,5 +1,5 @@
-import { ThermalGroup, TimeFormat } from "@labir/core";
-import { FileInfo } from "@labir/server";
+import { ThermalGroup, TimeFormat } from "@labirthermal/core";
+import { FileInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";

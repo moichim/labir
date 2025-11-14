@@ -1,6 +1,6 @@
 import { property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
 import { css, CSSResultGroup, html } from "lit";
 import { t } from "i18next";

@@ -1,6 +1,5 @@
 import { Instance } from "../../../../file/instance";
 import { AbstractPoint } from "../../analysis/internals/AbstractPoint";
-import { AnalysisSerializableChangeType } from "../../analysis/storage/AnalysisLayersStorage";
 import { AbstractTool, ITool } from "./AbstractTool";
 
 export class EditTool extends AbstractTool implements ITool {

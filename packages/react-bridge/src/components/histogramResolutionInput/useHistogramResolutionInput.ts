@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";
 import { useThermalRegistryHistogramState } from "../../properties/states/useThermalRegistryHistogramState";
 import { useCallback, useEffect, useState } from "react";

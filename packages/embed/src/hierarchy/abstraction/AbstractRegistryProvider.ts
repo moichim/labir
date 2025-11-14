@@ -1,7 +1,7 @@
 import { html, PropertyValues } from "lit";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
 import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
-import { ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalRangeOrUndefined } from "@labirthermal/core";
 import { provide } from "@lit/context";
 
 export abstract class AbstractRegistryProvider extends ManagerConsumer {

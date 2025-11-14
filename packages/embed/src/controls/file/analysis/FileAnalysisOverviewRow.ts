@@ -1,6 +1,6 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis } from "@labir/core";
+import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, html, nothing, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";

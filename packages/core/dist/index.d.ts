@@ -20,7 +20,7 @@ declare const WHITE_HOT: string[];
 declare const ThermalPalettes: {
     [k: string]: ThermalPaletteType;
 };
-/** Keys of palettes available in `@labir/core`. */
+/** Keys of palettes available in `@labirthermal/core`. */
 type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
 
 type AcceptableDateInput = number | Date;

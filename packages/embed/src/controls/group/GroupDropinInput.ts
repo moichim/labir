@@ -1,6 +1,6 @@
 import { customElement, state } from "lit/decorators.js";
 
-import { DropinElementListener, ThermalFileReader } from "@labir/core";
+import { DropinElementListener, ThermalFileReader } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, PropertyValues } from "lit";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';

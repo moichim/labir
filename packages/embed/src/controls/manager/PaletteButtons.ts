@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalPaletteType } from "@labir/core";
+import { AvailableThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";

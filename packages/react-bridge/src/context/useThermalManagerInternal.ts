@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalManager, ThermalManagerOptions } from "@labir/core";
+import { ThermalManager, ThermalManagerOptions } from "@labirthermal/core";
 import { useMemo } from "react";
 import Pool from "workerpool/types/Pool";
 

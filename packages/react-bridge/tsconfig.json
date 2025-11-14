@@ -16,7 +16,7 @@
       "jsx": "preserve",
       "baseUrl": "./packages",
       "paths": {
-        "@labir/core": [ "core/src" ]
+        "@labirthermal/core": [ "core/src" ]
       }
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

@@ -2,7 +2,7 @@ import { provide } from "vue";
 import { useProvidedManager } from "../provided/useProvidedManager";
 import { useDefineManager, type UseManagerType } from "./useDefineManager";
 import { Structure } from "../structure";
-import { ThermalFileReader } from "@labir/core";
+import { ThermalFileReader } from "@labirthermal/core";
 
 export type UseRegistryType = ReturnType<typeof useDefineRegistry>
 

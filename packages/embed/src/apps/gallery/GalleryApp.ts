@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalManager } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";

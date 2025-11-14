@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRangeOrUndefined, ThermalRegistry } from "@labir/core";
+import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { useThermalRegistryMinmaxState } from "../../../properties/states/useThermalRegistryMinmaxState";
 import { useThermalRegistryRangeDrive } from "../../../properties/drives/useThermalRegistryRangeDrive";
 import { useCallback, useEffect, useMemo, useState } from "react";

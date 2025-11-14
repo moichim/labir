@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";
 import { useThermalRegistryOpacityDrive } from "../../properties/drives/useThermalRegistryOpacityDrive";
 import { ChangeEventHandler } from "react";

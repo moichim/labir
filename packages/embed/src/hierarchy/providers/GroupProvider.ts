@@ -1,4 +1,4 @@
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractGroupProvider } from "../abstraction/AbstractGroupProvider";

@@ -1,4 +1,4 @@
-import { ThermalManager } from "@labir/core";
+import { ThermalManager } from "@labirthermal/core";
 import { ThermalFileElement } from "./components/single/thermalFileElement";
 
 declare global {

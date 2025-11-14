@@ -1,4 +1,4 @@
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { registryContext } from "../providers/context/RegistryContext";
 import { ManagerConsumer } from "./ManagerConsumer";

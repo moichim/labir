@@ -1,7 +1,7 @@
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { T } from "../../translations/Languages";
 import { ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";

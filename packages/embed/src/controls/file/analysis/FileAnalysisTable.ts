@@ -1,4 +1,4 @@
-import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labir/core";
+import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";

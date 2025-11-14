@@ -1,10 +1,10 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
-import { FileInfo, FolderInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import icons from "../../../utils/icons";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { TimeFormat } from "@labir/core";
+import { TimeFormat } from "@labirthermal/core";
 
 @customElement("server-file-header")
 export class ServerFileHeader extends ClientConsumer {

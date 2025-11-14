@@ -1,4 +1,4 @@
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
 import { html, PropertyValues } from "lit";

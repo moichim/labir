@@ -23,13 +23,13 @@
     "noEmit": true,
     "baseUrl": "../..",
     "paths": {
-      "@labir/core": [
+      "@labirthermal/core": [
         "packages/core/src"
       ],
-      "@labir/server": [
+      "@labirthermal/server": [
         "packages/server/client/src"
       ],
-      "@labir/react-bridge": [
+      "@labirthermal/react-bridge": [
         "packages/react-bridge/src"
       ],
       "@labir/emotion": [

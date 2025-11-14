@@ -1,15 +1,15 @@
 import { consume } from "@lit/context";
-import { PropertyValues, css, html, nothing } from "lit";
+import { PropertyValues, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
-import "../../../node_modules/toolcool-range-slider/src/plugins/moving-tooltip-plugin";
 import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
+import "../../../node_modules/toolcool-range-slider/src/plugins/moving-tooltip-plugin";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
-import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
 
 
 

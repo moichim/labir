@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalMinmaxOrUndefined, ThermalRegistry } from "@labir/core";
+import { ThermalMinmaxOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { useEffect, useState } from "react";
 
 export const useThermalRegistryMinmaxState = (

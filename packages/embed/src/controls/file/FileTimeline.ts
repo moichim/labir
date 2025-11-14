@@ -1,4 +1,4 @@
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
 import { css, html, nothing, PropertyValues } from "lit";

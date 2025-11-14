@@ -1,4 +1,4 @@
-import { ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalRangeOrUndefined } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html } from "lit";

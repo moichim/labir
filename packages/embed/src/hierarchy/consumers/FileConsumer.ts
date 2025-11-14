@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
+import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";

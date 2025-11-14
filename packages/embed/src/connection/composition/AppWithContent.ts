@@ -1,4 +1,4 @@
-import { GetGridDataType, GridGrouping } from "@labir/server";
+import { GetGridDataType, GridGrouping } from "@labirthermal/server";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";

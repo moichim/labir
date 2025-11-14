@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, CallbacksManager, ThermalGroup, ThermalManager } from "@labir/core";
+import { AvailableThermalPalettes, CallbacksManager, ThermalGroup, ThermalManager } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -57,7 +57,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
     @queryAssignedElements({ flatten: true })
     public entries!: Array<Element>;
 
-    /** Internal key from which an isolated hierarchy of @labir/core components will be created. */
+    /** Internal key from which an isolated hierarchy of @labirthermal/core components will be created. */
     @property({ type: String, reflect: true })
     public slug: string = Math.random().toFixed(5);
 

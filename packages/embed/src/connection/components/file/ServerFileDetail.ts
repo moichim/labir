@@ -1,5 +1,5 @@
-import { ThermalRegistry } from "@labir/core";
-import { FileInfo, FolderInfo } from "@labir/server";
+import { ThermalRegistry } from "@labirthermal/core";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

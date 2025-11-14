@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRegistry, ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalRegistry, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { useEffect, useMemo, useState } from "react";
 
 export const useThermalRegistryRangeDrive = (

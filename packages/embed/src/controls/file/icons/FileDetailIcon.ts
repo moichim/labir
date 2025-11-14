@@ -3,7 +3,7 @@ import { AbstractFileIcon } from "./AbstractFileIcon";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { customElement, property } from "lit/decorators.js";
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 
 @customElement("file-detail-icon")
 export class FileDetailIcon extends AbstractFileIcon {

@@ -48,7 +48,7 @@ import { Batch } from "./loading/batch/Batch";
 
 import { version } from "../package.json";
 
-console.info(version, "@labir/core");
+console.info(version, "@labirthermal/core");
 
 
 export {

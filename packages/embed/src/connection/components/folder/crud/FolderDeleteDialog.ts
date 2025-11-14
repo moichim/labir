@@ -1,7 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { html, css, CSSResultGroup } from "lit";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";

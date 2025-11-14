@@ -1,6 +1,6 @@
 "use client";
 
-import { Instance, ThermalGroup } from "@labir/core";
+import { Instance, ThermalGroup } from "@labirthermal/core";
 import { useEffect, useState } from "react";
 
 export const useThermalGroupInstancesState = (

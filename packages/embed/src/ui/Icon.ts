@@ -1,8 +1,11 @@
-import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
-import icons, { icon } from "../utils/icons";
 import { html, nothing, PropertyValues } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { BaseElement } from "../hierarchy/BaseElement";
+import icons from "../utils/icons";
+
+// Define the type for the icon factory functions
+type IconFactory = Record<string, (classes?: string, css?: string) => string>;
 
 @customElement("thermal-icon")
 export class ThermalIcon extends BaseElement {
@@ -52,17 +55,13 @@ export class ThermalIcon extends BaseElement {
             const icon = this.icon && this.icon.trim() !== ""
                 ? this.icon
                 : false;
+            const factory = icons[icon as keyof typeof icons] as IconFactory;
 
-            if (icon && icon in icons) {
+            if (factory) {
 
-                const factory = icons[icon as keyof typeof icons];
-
-                if (factory) {
-
-                    if (this.variant in factory) {
-                        this.element = factory[this.variant as keyof typeof factory](this.classes, this.css);
-                    }
-
+                if (this.variant in factory) {
+                    const fn = factory[this.variant] as (classes?: string, css?: string) => string;
+                    this.element = fn(this.classes, this.css);
                 }
 
             }

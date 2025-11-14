@@ -1,7 +1,7 @@
 "use client";
 
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { useEffect, useState } from "react";
 
 export const useThermalRegistryLoadingState = (

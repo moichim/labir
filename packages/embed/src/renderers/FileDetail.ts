@@ -1,4 +1,4 @@
-import { ApiTimeGrouping } from "@labir/api"
+import { ApiTimeGrouping } from "@labirthermal/server-simple"
 import { css, CSSResultGroup, html, nothing } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { FileConsumer } from "../hierarchy/consumers/FileConsumer"

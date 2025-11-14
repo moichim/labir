@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { useCallback } from "react";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";
 import { useThermalRegistryRangeDrive } from "../../properties/drives/useThermalRegistryRangeDrive";

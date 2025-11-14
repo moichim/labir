@@ -2,7 +2,7 @@
 
 import { MouseEventHandler, useMemo } from "react"
 import { ThermalInstanceEventHandler } from "./thermalInstance";
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 
 /** Memoise the thermal instance callback. */
 export const useInstanceListener = (

@@ -32,7 +32,7 @@ export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > 
     }
 
     /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId) {
+    protected afterSetEffect() {
 
         this.parent.forEveryRegistry( registry => {
 

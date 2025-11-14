@@ -1,10 +1,10 @@
+import { Instance } from "@labirthermal/core";
 import { css, CSSResultGroup, html } from "lit";
 import { property } from "lit/decorators.js";
-import { createRef, ref } from "lit/directives/ref.js";
-import { BtnSizes, BtnVariants } from "../../../ui/Btn";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { Instance } from "@labir/core";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { createRef, ref } from "lit/directives/ref.js";
+import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 
 export abstract class AbstractFileButton extends FileConsumer {
 

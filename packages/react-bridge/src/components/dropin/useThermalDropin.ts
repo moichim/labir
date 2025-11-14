@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalFileReader, ThermalRegistry } from "@labir/core";
+import { ThermalFileReader, ThermalRegistry } from "@labirthermal/core";
 import { useDropzone } from "react-dropzone";
 import { useThermalGroupInstancesState } from "../../properties/lists/useThermalGroupInstancesState";
 import { useThermalObjectPurpose } from "../../context/useThermalObjectPurpose";

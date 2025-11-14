@@ -2,22 +2,22 @@ import { BaseStructureObject } from "../base/BaseStructureObject";
 import { ThermalGroup } from "../hierarchy/ThermalGroup";
 import { ParsedFileBaseInfo } from "../loading/workers/parsers/structure";
 import { AnalysisDrive } from "../properties/analysis/analysis/AnalysisDrive";
-import { ThermalRangeOrUndefined } from "../properties/scale/RangeDriver";
 import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { FileMeta } from "./utils/FileMeta";
-import { IFileInstance } from "./IFileInstance";
 import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
 import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
 import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 import { VisibleLayer } from "./dom/layers/VisibleLayer";
+import { IFileInstance } from "./IFileInstance";
 import { AbstractRenderer } from "./render/AbstractRenderer";
 import { CpuRenderer } from "./render/CpuRenderer";
 import { GlRenderer } from "./render/GlRenderer";
+import { FileMeta } from "./utils/FileMeta";
 
-/** Displayable object for every file type.
+/** 
+ * Displayable object for every file type.
  * 
  * This class takes care of the display fundamentals.
  * 

@@ -1,6 +1,6 @@
 import { customElement, state } from "lit/decorators.js";
 
-import { ThermalFileReader } from "@labir/core";
+import { ThermalFileReader } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, PropertyValues } from "lit";
 import { classMap } from "lit/directives/class-map.js";

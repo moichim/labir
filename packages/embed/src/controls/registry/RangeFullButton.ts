@@ -4,7 +4,7 @@ import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
-import { ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalRangeOrUndefined } from "@labirthermal/core";
 import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { consume } from "@lit/context";
 

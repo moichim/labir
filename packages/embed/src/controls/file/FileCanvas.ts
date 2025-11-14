@@ -1,4 +1,4 @@
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";

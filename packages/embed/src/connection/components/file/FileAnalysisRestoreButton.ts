@@ -1,5 +1,5 @@
-import { Instance } from "@labir/core";
-import { FileInfo } from "@labir/server";
+import { Instance } from "@labirthermal/core";
+import { FileInfo } from "@labirthermal/server";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
 

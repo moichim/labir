@@ -1,4 +1,4 @@
-import { AnalysisDataStateValue, Instance } from "@labir/core";
+import { AnalysisDataStateValue, Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

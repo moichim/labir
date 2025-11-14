@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
+import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";

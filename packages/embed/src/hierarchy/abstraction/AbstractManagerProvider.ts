@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { BaseElement } from "../BaseElement";

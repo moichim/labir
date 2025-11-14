@@ -20,7 +20,7 @@ if (! function_exists("thermal_display_register_assets")) {
     /**
      * Register assets
      * 
-     * Uses @labir/embed package copied to the plugins's assets folder.
+     * Uses @labirthermal/webcomponents package copied to the plugins's assets folder.
      * Once registered, styles may be enqueued separately on frontend and backend
      */
     function thermal_display_register_assets()

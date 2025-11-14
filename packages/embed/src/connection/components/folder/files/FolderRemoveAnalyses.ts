@@ -1,9 +1,9 @@
-import { FileInfo, FolderInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { ClientConsumer } from "../../ClientConsumer";
 import { customElement, property } from "lit/decorators.js";
 import { html } from "lit";
 import { consume } from "@lit/context";
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 
 @customElement("folder-remove-analyses")

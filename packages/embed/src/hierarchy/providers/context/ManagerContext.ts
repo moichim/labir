@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalPaletteType, ThermalTool } from "@labir/core";
+import { AvailableThermalPalettes, ThermalManager, ThermalPaletteType, ThermalTool } from "@labirthermal/core";
 import { createContext } from "@lit/context";
 
 export type ManagerContext = ThermalManager;

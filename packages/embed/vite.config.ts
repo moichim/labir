@@ -30,7 +30,7 @@ export default defineConfig({
                     path.resolve( "../thermal-display/assets/embed.css" )
                 );
 
-                console.log( "@labir/embed build copied into @labir/wordpress" );
+                console.log( "@labirthermal/webcomponents build copied into @labir/wordpress" );
 
                 fs.copyFileSync(
                     path.resolve( "./dist/embed.js" ),
@@ -42,7 +42,7 @@ export default defineConfig({
                     path.resolve( "../server/www/lib/embed.css" )
                 );
 
-                console.log( "@labir/embed build copied into @labir/server" );
+                console.log( "@labirthermal/webcomponents build copied into @labirthermal/server" );
             }
         }]
         },

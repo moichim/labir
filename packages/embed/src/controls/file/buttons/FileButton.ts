@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileButton } from "./AbstractFileButton";
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 
 @customElement("file-button")
 export class FileButton extends AbstractFileButton {

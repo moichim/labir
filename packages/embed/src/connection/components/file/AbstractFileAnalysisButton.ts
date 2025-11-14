@@ -1,5 +1,5 @@
-import { Instance } from "@labir/core";
-import Client, { FileInfo, FolderInfo } from "@labir/server";
+import { Instance } from "@labirthermal/core";
+import Client, { FileInfo, FolderInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { html } from "lit";
 import { property } from "lit/decorators.js";

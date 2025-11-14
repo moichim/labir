@@ -1,4 +1,4 @@
-import { AbstractAnalysis, AbstractAreaAnalysis } from "@labir/core";
+import { AbstractAnalysis, AbstractAreaAnalysis } from "@labirthermal/core";
 import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";

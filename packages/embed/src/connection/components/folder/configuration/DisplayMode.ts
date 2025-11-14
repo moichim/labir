@@ -1,4 +1,4 @@
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html, nothing } from "lit";

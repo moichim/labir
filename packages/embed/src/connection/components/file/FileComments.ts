@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
-import { FileInfo } from "@labir/server";
+import { FileInfo } from "@labirthermal/server";
 import { FolderInfo } from "packages/server/client/dist";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";

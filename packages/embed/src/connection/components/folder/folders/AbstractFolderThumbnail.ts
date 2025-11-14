@@ -1,6 +1,6 @@
 import { property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 
 export class AbstractFolderThumbnail extends ClientConsumer {

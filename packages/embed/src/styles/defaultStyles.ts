@@ -4,7 +4,7 @@ import { DARK_MODE_CLASS } from "./mode";
 
 export const appendStyles = () => {
     const styles = document.createElement("link");
-    styles.href = "https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.css"
+    styles.href = "https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents/dist/embed.css"
     document.head.appendChild( styles );
 }
 

@@ -3,7 +3,7 @@ import { Client } from "packages/server/client/src/Client";
 import { clientContext } from "../ClientContext";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { state } from "lit/decorators.js";
-import { Identity, ServerInfo } from "@labir/server";
+import { Identity, ServerInfo } from "@labirthermal/server";
 
 export abstract class ClientConsumer extends BaseElement {
 

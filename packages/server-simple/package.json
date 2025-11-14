@@ -1,0 +1,14 @@
+{
+    "name": "@labirthermal/server-simple",
+    "private": true,
+    "version": "1.3.0",
+    "description": "Balíček obsahující definice typů",
+    "main": "src/index.d.ts",
+    "types": "src/index.d.ts",
+    "keywords": [
+        "types",
+        "typescript"
+    ],
+    "author": "Tvé jméno",
+    "license": "MIT"
+}

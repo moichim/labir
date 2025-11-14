@@ -1,5 +1,4 @@
 import { createContext, provide } from "@lit/context";
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { AbstractControlledApp } from "../../apps/AbstractControlledApp";
 
 export type ContextSetter<T> = (value: T) => void

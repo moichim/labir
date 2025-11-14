@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalCursorPositionOrUndefined, ThermalGroup } from "@labir/core";
+import { ThermalCursorPositionOrUndefined, ThermalGroup } from "@labirthermal/core";
 import { useEffect, useMemo, useState } from "react";
 
 export const useThermalGroupCursorPositionDrive = (

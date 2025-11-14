@@ -1,15 +1,13 @@
+import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
-import icons from "../../../../utils/icons";
-import { ClientConsumer } from "../../ClientConsumer";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { consume } from "@lit/context";
-import { lockedBrowsingTo } from "../../../ClientContext";
-import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
+import icons from "../../../../utils/icons";
+import { lockedBrowsingTo } from "../../../ClientContext";
+import { ClientConsumer } from "../../ClientConsumer";
 
 
 

@@ -1,12 +1,12 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import icons from "../../../../utils/icons";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { consume } from "@lit/context";
 import { lockedBrowsingTo } from "../../../ClientContext";
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
 
 @customElement( "folder-base-info" )

@@ -1,4 +1,4 @@
-import { ThermalCursorPositionOrUndefined, ThermalGroup } from "@labir/core";
+import { ThermalCursorPositionOrUndefined, ThermalGroup } from "@labirthermal/core";
 import { createContext } from "@lit/context";
 
 export type GroupContext = ThermalGroup;

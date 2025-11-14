@@ -1,4 +1,4 @@
-import { Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from "@labir/core";
+import { Instance, PlaybackSpeeds, ThermalFileFailure, ThermalFileReader } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";

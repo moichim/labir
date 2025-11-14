@@ -1,4 +1,4 @@
-import { playbackSpeed, PlaybackSpeeds } from "@labir/core";
+import { playbackSpeed, PlaybackSpeeds } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

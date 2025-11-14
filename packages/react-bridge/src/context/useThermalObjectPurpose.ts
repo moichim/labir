@@ -1,4 +1,4 @@
-import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labir/core";
+import { ThermalRegistry, ThermalGroup, ThermalManager, Instance } from "@labirthermal/core";
 import { useMemo } from "react";
 import { v4 as uuidv4 } from 'uuid';
 

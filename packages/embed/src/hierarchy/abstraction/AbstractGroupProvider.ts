@@ -1,4 +1,4 @@
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { html } from "lit";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
 

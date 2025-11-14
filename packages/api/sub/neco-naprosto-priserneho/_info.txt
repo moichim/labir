@@ -1,2 +1,0 @@
-name: Něco naprosto příšerného
-description: Popiska první složky

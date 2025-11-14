@@ -1,4 +1,3 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
 import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
@@ -38,7 +37,7 @@ export class FileShareButton extends FileConsumer {
 
                     <code>
 &lt;!-- -Load the JS library (only once, preferrably in the head) -&gt;
-&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents/dist/embed.min.js&quot;&gt;&lt;/script&gt;
 
 &lt;!-- The file itself may be placed anywhere in the body --&gt;
 &lt;thermal-file-app url=&quot;${this.file.thermalUrl}&quot;&gt;&lt;/thermal-file-app&gt;

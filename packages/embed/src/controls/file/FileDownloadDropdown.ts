@@ -1,4 +1,4 @@
-import { Instance } from "@labir/core";
+import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";

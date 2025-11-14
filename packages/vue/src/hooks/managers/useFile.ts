@@ -1,4 +1,4 @@
-import { ThermalFileReader, type AbstractFile } from "@labir/core";
+import { ThermalFileReader, type AbstractFile } from "@labirthermal/core";
 import { shallowRef } from "vue";
 import { useProvidedOrNewGroup } from "../structure/providedOrNew/useProvidedOrNewGroup";
 

@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, Instance, ThermalManager, TimeFormat } from "@labir/core";
+import { AvailableThermalPalettes, Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
@@ -191,7 +191,7 @@ export class FileApp extends BaseAppWithPngExportContext {
 
     }
 
-    /** Listen to changes in @labir/core and reflect them to the webcomponent state */
+    /** Listen to changes in @labirthermal/core and reflect them to the webcomponent state */
     protected hydrateInternalListeners() {
 
         if (this.fileProviderRef.value) {
@@ -467,10 +467,10 @@ export class FileApp extends BaseAppWithPngExportContext {
                     <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}" style="align-self:stretch;"></thermal-btn>
                     <div slot="content">
                         <p>${t(T.embedhint)}</p>
-                        <h2>1. ${t(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-btn></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labir/embed@${version}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>1. ${t(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-btn></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css&quot;&gt;</pre>
                         <h2>2. ${t(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-btn></h2>
                         <pre>${this.outerHTMLSnapshot}</pre>
                     </div>

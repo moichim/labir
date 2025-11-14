@@ -1,5 +1,5 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
-import { FileInfo } from "@labir/server";
+import { Instance, ThermalFileFailure } from "@labirthermal/core";
+import { FileInfo } from "@labirthermal/server";
 import { PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";

@@ -1,7 +1,7 @@
-import { Comment, FileInfo } from "@labir/server";
+import { Comment, FileInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { ClientConsumer } from "../ClientConsumer";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";

@@ -1,4 +1,4 @@
-import { AbstractAnalysis, PointAnalysis } from "@labir/core";
+import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref } from "lit/directives/ref.js";

@@ -1,4 +1,4 @@
-import type { ThermalManager } from "@labir/core"
+import type { ThermalManager } from "@labirthermal/core"
 
 declare global {
     interface Window {

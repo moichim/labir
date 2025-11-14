@@ -1,4 +1,4 @@
-import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labir/core";
+import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labirthermal/core";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
 import { GroupElement } from "../GroupApp";
 import { ParsedFileType } from "../../multiple/AbstractMultipleApp";

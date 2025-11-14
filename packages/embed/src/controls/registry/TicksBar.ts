@@ -1,4 +1,4 @@
-import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValueMap } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

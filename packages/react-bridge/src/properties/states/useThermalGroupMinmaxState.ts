@@ -1,6 +1,6 @@
 "use client";
 
-import { ThermalGroup, ThermalMinmaxOrUndefined } from "@labir/core";
+import { ThermalGroup, ThermalMinmaxOrUndefined } from "@labirthermal/core";
 import { useEffect, useState } from "react";
 
 export const useThermalGroupMinmaxState = (

@@ -1,5 +1,5 @@
-import * as _labir_core from '@labir/core';
-import { ThermalRegistry, Instance, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labir/core';
+import * as _labir_core from '@labirthermal/core';
+import { ThermalRegistry, Instance, ThermalPaletteType, ThermalRangeOrUndefined, ThermalManager, ThermalManagerOptions, ThermalGroup, ThermalRegistryOptions, ThermalCursorPositionOrUndefined, ThermalMinmaxOrUndefined } from '@labirthermal/core';
 import React$1, { MouseEvent, ChangeEventHandler } from 'react';
 import * as react_dropzone from 'react-dropzone';
 import Pool from 'workerpool/types/Pool';

@@ -31,7 +31,7 @@ export default defineConfig({
                     path.resolve( "../thermal-display/assets/embed.css" )
                 );
 
-                console.log( "@labir/embed build:esm copied into @labir/wordpress" );
+                console.log( "@labirthermal/webcomponents build:esm copied into @labir/wordpress" );
             }
         }]
         },

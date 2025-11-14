@@ -1,6 +1,6 @@
 import { css, html, nothing, PropertyValueMap } from "lit";
 
-import { ThermalRegistry } from "@labir/core";
+import { ThermalRegistry } from "@labirthermal/core";
 import { customElement, property, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { booleanConverter } from "../../utils/converters/booleanConverter";

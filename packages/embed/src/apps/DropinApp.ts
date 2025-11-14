@@ -1,4 +1,4 @@
-import { Instance, TimeFormat } from "@labir/core";
+import { Instance, TimeFormat } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";

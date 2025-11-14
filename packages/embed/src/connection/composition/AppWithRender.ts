@@ -1,5 +1,5 @@
-import { AvailableThermalPalettes, ThermalGroup } from "@labir/core";
-import { BreadcrumbItem, FileInfo, FolderInfo } from "@labir/server";
+import { AvailableThermalPalettes, ThermalGroup } from "@labirthermal/core";
+import { BreadcrumbItem, FileInfo, FolderInfo } from "@labirthermal/server";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
@@ -9,9 +9,9 @@ import { createRef, Ref } from "lit/directives/ref.js";
 import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
 import { T } from "../../translations/Languages";
 import { compactContext, compactContextSetter, DisplayMode, displayModeContext, displayModeSetterContext, editTagsContext, editTagsSetterContext, lockedBrowsingTo, lockedBrowsingToSetter, showDiscussionContext, showDiscussionSetterContext, syncAnalysisContext, syncAnalysisSetterContext } from "../ClientContext";
+import { FolderBaseInfo } from "../components/folder/single/FolderBaseInfo";
 import { AppWithContent } from "./AppWithContent";
 import { AppState, FolderMode } from "./AppWithState";
-import { FolderBaseInfo } from "../components/folder/single/FolderBaseInfo";
 
 /** 
  * This layer provides the necessary render methods
@@ -735,7 +735,7 @@ export abstract class AppWithRender extends AppWithContent {
 
             return html`<folder-upload-dialog
                 .folder=${this.folder}
-                .onSuccess=${(files: FileInfo[]) => {
+                .onSuccess=${() => {
                     this.fetchContent();
                 }}
             ></folder-upload-dialog>`;
@@ -823,7 +823,7 @@ export abstract class AppWithRender extends AppWithContent {
 
             return html`<folder-upload-form
                     .folder=${this.folder}
-                    .onSuccess=${(files: FileInfo[]) => {
+                    .onSuccess=${() => {
                     this.fetchContent();
                 }}
                     prompt=${ifDefined(prompt)}

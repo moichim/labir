@@ -1,7 +1,7 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { css, html, nothing } from "lit";
-import { FileInfo, FolderInfo, TagDefinition, TagInfo } from "@labir/server";
+import { FileInfo, FolderInfo, TagDefinition, TagInfo } from "@labirthermal/server";
 import icons from "../../../utils/icons";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";

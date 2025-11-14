@@ -1,5 +1,5 @@
 {
-  "name": "@labir/vue",
+  "name": "@labirthermal/vue-bridge",
   "version": "1.3.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@labir/core": "workspace:*",
+    "@labirthermal/core": "workspace:*",
     "vue": "^3.4.21",
     "workerpool": "^9.1.3"
   },

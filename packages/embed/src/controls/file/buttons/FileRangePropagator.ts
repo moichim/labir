@@ -4,7 +4,7 @@ import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
 import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
-import { Instance, ThermalRangeOrUndefined } from "@labir/core";
+import { Instance, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
 @customElement("file-range-propagator")

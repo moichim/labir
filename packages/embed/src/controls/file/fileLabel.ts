@@ -1,9 +1,9 @@
-import { TimeFormat } from "@labir/core";
+import { TimeFormat } from "@labirthermal/core";
 import { css, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { format } from "date-fns";
-import { ApiTimeGrouping } from "@labir/api";
+import { ApiTimeGrouping } from "@labirthermal/server-simple";
 
 @customElement("file-label")
 export class FileCanvas extends FileConsumer {

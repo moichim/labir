@@ -1,4 +1,4 @@
-import { AnalysisDataStateValue } from "@labir/core";
+import { AnalysisDataStateValue } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";

@@ -1,8 +1,8 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { Comment, FileInfo } from "@labir/server";
-import { TimeFormat } from "@labir/core";
+import { Comment, FileInfo } from "@labirthermal/server";
+import { TimeFormat } from "@labirthermal/core";
 import { FolderInfo } from "packages/server/client/dist";
 import icons from "packages/embed/src/utils/icons";
 

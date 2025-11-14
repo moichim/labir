@@ -1,6 +1,6 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../../hierarchy/BaseElement";
-import { AbstractAnalysis, availableAnalysisColors } from "@labir/core";
+import { AbstractAnalysis, availableAnalysisColors } from "@labirthermal/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import {map} from 'lit/directives/map.js';
 

@@ -1,4 +1,4 @@
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -90,24 +90,29 @@ export class FolderEditDialog extends AbstractFolderDialog {
             return false;
         }
 
+        if ( !this.client ) {
+            this.errorMessage = "Klient není dostupný";
+            return false;
+        }
+
         // Clear previous error
         this.errorMessage = "";
 
         const result = await this
             .client
-            ?.routes
+            .routes
             .post
             .updateFolder(this.folder.path)
             .setName(this.folderName.trim())
             .setDescription(this.folderDescription.trim())
             .execute()!;
 
-        if (result?.success) {
+        if (result.success) {
             if (this.onSuccess) {
                 this.onSuccess(result.data!.result.info);
             }
         } else {
-            this.errorMessage = result?.message || "Nepodařilo se upravit složku";
+            this.errorMessage = result.message || "Nepodařilo se upravit složku";
         }
 
         return result?.success;

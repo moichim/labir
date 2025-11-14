@@ -1,5 +1,5 @@
-import { ApiTimeGrouping } from "@labir/api"
-import { Instance } from "@labir/core"
+import { ApiTimeGrouping } from "@labirthermal/server-simple"
+import { Instance } from "@labirthermal/core"
 import { t } from "i18next"
 import { css, CSSResultGroup, html } from "lit"
 import { customElement, property } from "lit/decorators.js"

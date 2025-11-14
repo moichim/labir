@@ -1,10 +1,7 @@
-import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labir/core";
-import { consume } from "@lit/context";
+import { AvailableThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
-import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 

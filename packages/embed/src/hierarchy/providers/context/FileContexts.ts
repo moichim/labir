@@ -1,4 +1,4 @@
-import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labir/core";
+import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { createContext } from "@lit/context";
 import { FileMarker } from "../../../controls/file/markers/ImageMarker";
 import { AbstractFileProvider } from "../../abstraction/AbstractFileProvider";

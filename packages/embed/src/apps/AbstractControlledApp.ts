@@ -1,4 +1,4 @@
-import { ThermalManager } from "@labir/core";
+import { ThermalManager } from "@labirthermal/core";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { createContext, provide } from "@lit/context";
 import { property } from "lit/decorators.js";

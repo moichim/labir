@@ -1,2 +1,0 @@
-name: Ulice jižnám směrem
-description: Popiska první složky

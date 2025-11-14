@@ -1,4 +1,4 @@
-import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis, ThermalRangeOrUndefined } from "@labir/core";
+import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";

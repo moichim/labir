@@ -18,7 +18,7 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
-import { Instance } from '@labir/core';
+import { Instance } from '@labirthermal/core';
 import { GroupConsumer } from '../../hierarchy/consumers/GroupConsumer';
 
 import '@google-web-components/google-chart';

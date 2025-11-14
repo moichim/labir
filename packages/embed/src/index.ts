@@ -27,7 +27,7 @@ appendStyles();
 
 
 // Log the start info
-console.info(`@labir/embed ${version}
+console.info(`@labirthermal/webcomponents ${version}
 Author: ${author}`);
 
 // 0. External components

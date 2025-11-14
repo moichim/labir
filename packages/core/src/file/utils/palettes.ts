@@ -197,5 +197,5 @@ const TP = Object.fromEntries(PALETTES.map(pd => {
 
 export const ThermalPalettes = TP;
 
-/** Keys of palettes available in `@labir/core`. */
+/** Keys of palettes available in `@labirthermal/core`. */
 export type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";

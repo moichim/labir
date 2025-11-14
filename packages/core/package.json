@@ -1,5 +1,5 @@
 {
-  "name": "@labir/core",
+  "name": "@labirthermal/core",
   "version": "1.3.0",
   "description": "Core functionality for thermal image display.",
   "main": "dist/index.cjs",

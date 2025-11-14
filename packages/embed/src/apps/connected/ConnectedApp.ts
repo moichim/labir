@@ -7,7 +7,7 @@ import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { ThermalManager } from "@labir/core";
+import { ThermalManager } from "@labirthermal/core";
 
 
 

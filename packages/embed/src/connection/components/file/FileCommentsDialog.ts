@@ -1,10 +1,10 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../ClientConsumer";
 import { html, css, CSSResultGroup, nothing } from "lit";
-import { FileInfo, FolderInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { TimeFormat } from "@labir/core";
+import { TimeFormat } from "@labirthermal/core";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";
 

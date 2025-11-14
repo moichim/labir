@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useThermalContext } from "./thermalManagerContext";
-import { ThermalRegistryOptions } from "@labir/core";
+import { ThermalRegistryOptions } from "@labirthermal/core";
 
 /** 
  * Creates and stores a registry instance.  

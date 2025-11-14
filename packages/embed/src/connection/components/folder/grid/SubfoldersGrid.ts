@@ -1,5 +1,5 @@
-import { TimeFormat } from "@labir/core";
-import { FileInfo, FolderInfo, GetGridDataType } from "@labir/server";
+import { TimeFormat } from "@labirthermal/core";
+import { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -163,7 +163,7 @@ export class SubfoldersGrid extends RegistryConsumer {
             style="display: contents;"
         >
 
-            ${this.renderBodyRowCellHeader(item.label, item.from, item.to)}
+            ${this.renderBodyRowCellHeader(item.label)}
 
             <tr>
                 ${folders.map(folder => this.renderBodyRowCellBody(folder))}
@@ -173,7 +173,7 @@ export class SubfoldersGrid extends RegistryConsumer {
         `;
     }
 
-    private renderBodyRowCellHeader(label: string, from: number, to: number): unknown {
+    private renderBodyRowCellHeader(label: string): unknown {
 
         const groupSlug = this.slug + label;
 
@@ -183,7 +183,7 @@ export class SubfoldersGrid extends RegistryConsumer {
 
         let tooltip: string = "";
 
-        let click = () => {
+        const click = () => {
             if (minmax) {
 
                 this.registry.range.imposeRange({
@@ -194,7 +194,7 @@ export class SubfoldersGrid extends RegistryConsumer {
             }
         }
 
-        let mouseenter = () => {
+        const mouseenter = () => {
             if (this.setHighlight && minmax) {
                 this.setHighlight({
                     from: minmax.min,
@@ -203,7 +203,7 @@ export class SubfoldersGrid extends RegistryConsumer {
             }
         }
 
-        let mouseleave = () => {
+        const mouseleave = () => {
             if (this.setHighlight) {
                 this.setHighlight(undefined);
             }
@@ -239,9 +239,9 @@ export class SubfoldersGrid extends RegistryConsumer {
         files: FileInfo[]
     ): unknown {
 
-        if (this.grid === undefined || files.length === 0) return html`<td></td>`;
+        if (this.grid || files.length === 0) return html`<td></td>`;
 
-        const folder = this.grid?.header[files[0].folder]!;
+        const folder = this.grid!.header[files[0].folder]!;
 
         return html`
             <td class="folder-content cell">

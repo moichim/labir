@@ -1,7 +1,7 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { html, css, CSSResultGroup, nothing } from "lit";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";

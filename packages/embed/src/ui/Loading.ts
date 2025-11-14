@@ -1,6 +1,6 @@
+import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 
 @customElement( "thermal-loading" )
 export class Loading extends BaseElement {

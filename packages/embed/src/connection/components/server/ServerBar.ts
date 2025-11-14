@@ -1,10 +1,10 @@
-import { customElement, query, state } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import { ServerInfo } from "@labir/server";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { TimeFormat } from "@labir/core";
+import { TimeFormat } from "@labirthermal/core";
+import { ServerInfo } from "@labirthermal/server";
 import { t } from "i18next";
+import { css, CSSResultGroup, html } from "lit";
+import { customElement, query, state } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
+import { ClientConsumer } from "../ClientConsumer";
 
 type HistoryItem = {
     timestamp: number;

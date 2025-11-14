@@ -52,7 +52,7 @@ $id = uniqid("dropin_");
 				<li><?= __("to know what kind of files do our users work with", 'thermal-display' ); ?></li>
 				<li><?= __("from which locations do our users access our app", 'thermal-display' ); ?></li>
 			</ul>
-			<p><?= __("These information help us develop the <code>thermal-dropin-app</code> webcomponent and other parts of the <code>@labir/embed</code> library.", 'thermal-display' ); ?></p>
+			<p><?= __("These information help us develop the <code>thermal-dropin-app</code> webcomponent and other parts of the <code>@labirthermal/webcomponents</code> library.", 'thermal-display' ); ?></p>
 			<p><strong><?= __("Where are the data stored?", 'thermal-display' ); ?></strong></p>
 			<p><?php printf( __( 'The data are stored on the domain <a href="%1$s" target="_blank">%1$s</a> and are being viewed only by administrators of this particular website.', 'thermal-display' ), get_site_url() ); ?></p>
 			<p><strong><?= __("What data are being stored?", 'thermal-display' ); ?></strong></p>

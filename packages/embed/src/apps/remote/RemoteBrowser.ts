@@ -1,5 +1,5 @@
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderInfoBase, QueryBuilder } from "@labir/api";
-import { AvailableThermalPalettes, ThermalManager } from "@labir/core";
+import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderInfoBase, QueryBuilder } from "@labirthermal/server-simple";
+import { AvailableThermalPalettes, ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
 import { cs, cy, de, enGB, fr } from "date-fns/locale";

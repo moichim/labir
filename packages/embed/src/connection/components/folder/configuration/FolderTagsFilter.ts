@@ -1,4 +1,4 @@
-import { FolderInfo, TagDefinition } from "@labir/server";
+import { FolderInfo, TagDefinition } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";

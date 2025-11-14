@@ -1,7 +1,7 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
-import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labir/core";
+import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";

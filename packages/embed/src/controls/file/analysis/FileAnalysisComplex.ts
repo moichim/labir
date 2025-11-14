@@ -1,4 +1,4 @@
-import { AbstractAddTool, Instance } from "@labir/core";
+import { AbstractAddTool } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -6,8 +6,8 @@ import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { T } from "../../../translations/Languages";
-import { FileAnalysisGraph } from "./FileAnalysisGraph";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { FileAnalysisGraph } from "./FileAnalysisGraph";
 
 
 

@@ -1,8 +1,8 @@
-import { Instance, ThermalFileFailure } from "@labir/core";
+import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { AbstractFileAnalysisButton } from "./AbstractFileAnalysisButton";
 import { customElement, property, state } from "lit/decorators.js";
 import { css, nothing, PropertyValues } from "lit";
-import { FileInfo } from "@labir/server";
+import { FileInfo } from "@labirthermal/server";
 
 @customElement( "file-analysis-remove-button" )
 export class FileAnalysisRemoveButton extends AbstractFileAnalysisButton {

@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
-import { FolderInfo } from "@labir/server";
+import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html } from "lit";
 import { FolderMode } from "../../../composition/AppWithState";
 

@@ -1,12 +1,12 @@
-import { customElement, property } from "lit/decorators.js";
-import { ClientConsumer } from "../ClientConsumer";
-import { css, CSSResultGroup, html, nothing } from "lit";
+import { AvailableThermalPalettes } from "@labirthermal/core";
+import { FileInfo, FolderInfo, GridGrouping } from "@labirthermal/server";
 import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
-import { FileInfo, FolderInfo, GridGrouping } from "@labir/server";
-import { AppState, FolderMode } from "../../composition/AppWithState";
 import { DisplayMode } from "../../ClientContext";
-import { AvailableThermalPalettes } from "@labir/core";
+import { AppState, FolderMode } from "../../composition/AppWithState";
+import { ClientConsumer } from "../ClientConsumer";
 
 @customElement("share-dialog")
 export class ShareDialog extends ClientConsumer {

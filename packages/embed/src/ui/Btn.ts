@@ -50,7 +50,6 @@ export class ThermalBtn extends BaseElement {
     private tooltipElement?: HTMLElement;
     private arrowElement?: HTMLElement;
     private cleanupAutoUpdate?: () => void;
-    private tooltipContainer?: HTMLElement;
 
     protected firstUpdated() {
         // Ensure element is focusable
@@ -394,7 +393,7 @@ export class ThermalBtn extends BaseElement {
         if (this.icon && this.icon in icons) {
             const i = icons[this.icon as keyof typeof icons];
             if (typeof i[this.iconStyle as keyof typeof i] === 'function') {
-                icon = (i[this.iconStyle as keyof typeof i] as Function)("btn-icon");
+                icon = (i[this.iconStyle as keyof typeof i] as CallableFunction)("btn-icon");
             }
         }
         // Tooltip rendering

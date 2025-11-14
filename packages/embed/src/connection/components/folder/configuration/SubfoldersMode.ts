@@ -1,4 +1,4 @@
-import { FolderInfo, GetGridDataType, GridGrouping } from "@labir/server";
+import { FolderInfo, GetGridDataType, GridGrouping } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

@@ -1,12 +1,11 @@
-import Client from "@labir/server";
+import Client from "@labirthermal/server";
 import { provide } from "@lit/context";
 import { property, state } from "lit/decorators.js";
+import { Ref } from "lit/directives/ref.js";
+import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { clientContext } from "../ClientContext";
 import { AppWithState } from "./AppWithState";
-import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
-import { Ref } from "lit/directives/ref.js";
-import { PropertyValues } from "lit";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 
 /**

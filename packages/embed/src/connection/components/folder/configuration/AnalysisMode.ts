@@ -1,10 +1,10 @@
-import { FileInfo, FolderInfo } from "@labir/server";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { syncAnalysisContext, syncAnalysisSetterContext } from "../../../ClientContext";
 import { AbstractModeBar } from "./AbstractModeBar";
-import { ThermalGroup } from "@labir/core";
+import { ThermalGroup } from "@labirthermal/core";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";

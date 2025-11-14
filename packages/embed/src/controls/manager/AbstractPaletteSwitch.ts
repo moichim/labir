@@ -1,10 +1,10 @@
-import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labir/core";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
 import { consume } from "@lit/context";
+import { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { advancedPalettesContext } from "../../apps/AbstractControlledApp";
+import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
-import { PropertyValues } from "lit";
 
 export abstract class AbstractPaletteSwitch extends RegistryConsumer {
 

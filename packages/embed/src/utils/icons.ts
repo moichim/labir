@@ -364,7 +364,7 @@ const createIcons = () => {
         for (const variant in iconVariants) {
             // Vytvoření funkce pro každou kombinaci ikona-varianta
             result[iconKey][variant] = (className?: string, styles?: string) => {
-                return icon(iconName as keyof typeof svg, variant as any, className, styles);
+                return icon(iconName as keyof typeof svg, variant as unknown as keyof typeof svg[typeof iconKey], className, styles);
             };
         }
     }

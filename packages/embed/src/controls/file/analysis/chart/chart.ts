@@ -19,7 +19,7 @@ import {html, css, LitElement} from 'lit';
 import {customElement, property} from 'lit/decorators.js';
 
 import {createChartWrapper, dataTable, DataTableLike} from './loader.js';
-import { CallbacksManager } from '@labir/core';
+import { CallbacksManager } from '@labirthermal/core';
 import { createRef, ref, Ref } from 'lit/directives/ref.js';
 
 const DEFAULT_EVENTS = ['ready', 'select'];

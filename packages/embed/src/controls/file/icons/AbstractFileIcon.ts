@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, html } from "lit";
+import { html } from "lit";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 
 export abstract class AbstractFileIcon extends FileConsumer {

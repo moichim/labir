@@ -1,4 +1,4 @@
-import { ThermalRangeOrUndefined, ThermalRegistry } from "@labir/core";
+import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { createContext } from "@lit/context";
 
 export type RegistryContext = ThermalRegistry;

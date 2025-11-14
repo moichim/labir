@@ -1,2 +1,0 @@
-name: Neštěstí, jeje, to je hanba!
-description: Jujx, to je popiska ale tak je přísná!

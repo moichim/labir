@@ -1,4 +1,4 @@
-import { ThermalManager, ThermalTool } from "@labir/core";
+import { ThermalManager, ThermalTool } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";

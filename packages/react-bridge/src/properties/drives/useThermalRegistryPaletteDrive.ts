@@ -1,6 +1,6 @@
 "use client";
 
-import { PaletteId, ThermalPaletteType, ThermalPalettes } from "@labir/core";
+import { PaletteId, ThermalPaletteType, ThermalPalettes } from "@labirthermal/core";
 import { useEffect, useMemo, useState } from "react";
 import { useThermalContext } from "../../context/thermalManagerContext";
 
