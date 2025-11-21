@@ -1,6 +1,6 @@
 {
   "name": "@labirthermal/react-bridge",
-  "version": "1.3.0",
+  "version": "1.3.4",
   "description": "A react bridge for @labirthermal/core. Contains hooks and context, but not the components.",
   "private": true,
   "main": "index.js",

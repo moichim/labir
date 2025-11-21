@@ -1,7 +1,7 @@
 {
     "name": "@labirthermal/server-simple",
     "private": true,
-    "version": "1.3.0",
+    "version": "1.3.4",
     "description": "Balíček obsahující definice typů",
     "main": "src/index.d.ts",
     "types": "src/index.d.ts",

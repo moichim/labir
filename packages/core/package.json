@@ -1,6 +1,6 @@
 {
   "name": "@labirthermal/core",
-  "version": "1.3.0",
+  "version": "1.3.4",
   "description": "Core functionality for thermal image display.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
