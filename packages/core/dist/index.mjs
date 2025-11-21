@@ -3762,37 +3762,6 @@ var InstanceDOM = class _InstanceDOM {
   }
 };
 
-// src/file/utils/FileMeta.ts
-var FileMeta = class {
-  _current;
-  get current() {
-    return this._current;
-  }
-  _onChange;
-  /** 
-   * Lazyloaded callback manager that is triggered whenever the value changes 
-   */
-  get onChange() {
-    if (!this._onChange) {
-      this._onChange = new CallbacksManager();
-    }
-    return this._onChange;
-  }
-  get width() {
-    return this.current.width;
-  }
-  get height() {
-    return this.current.height;
-  }
-  constructor(baseInfo2) {
-    this._current = baseInfo2;
-  }
-  set(value) {
-    this._current = value;
-    this.onChange.call(this.current);
-  }
-};
-
 // src/file/render/AbstractRenderer.ts
 var AbstractRenderer = class {
   constructor(file, canvas) {
@@ -4175,6 +4144,37 @@ var GlRenderer = class _GlRenderer extends AbstractRenderer {
     this.context.deleteShader(this.fragmentShader);
     this.context.deleteTexture(this.pixelsTexture);
     this.context.deleteTexture(this.paletteTexture);
+  }
+};
+
+// src/file/utils/FileMeta.ts
+var FileMeta = class {
+  _current;
+  get current() {
+    return this._current;
+  }
+  _onChange;
+  /** 
+   * Lazyloaded callback manager that is triggered whenever the value changes 
+   */
+  get onChange() {
+    if (!this._onChange) {
+      this._onChange = new CallbacksManager();
+    }
+    return this._onChange;
+  }
+  get width() {
+    return this.current.width;
+  }
+  get height() {
+    return this.current.height;
+  }
+  constructor(baseInfo2) {
+    this._current = baseInfo2;
+  }
+  set(value) {
+    this._current = value;
+    this.onChange.call(this.current);
   }
 };
 
@@ -7448,7 +7448,7 @@ var PaletteDrive = class extends AbstractProperty {
     return value;
   }
   /** Any changes to the value should propagate directly to every instance. */
-  afterSetEffect(value) {
+  afterSetEffect() {
     this.parent.forEveryRegistry((registry) => {
       registry.forEveryInstance((instance) => instance.draw());
     });
@@ -8477,7 +8477,7 @@ var getPool = async () => {
 var version = "1.3.0";
 
 // src/index.ts
-console.info(version, "@labir/core");
+console.info(version, "@labirthermal/core");
 export {
   AbstractAddTool,
   AbstractAnalysis,

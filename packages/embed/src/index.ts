@@ -27,8 +27,7 @@ appendStyles();
 
 
 // Log the start info
-console.info(`@labirthermal/webcomponents ${version}
-Author: ${author}`);
+console.info("@labirthermal/webcomponents", version);
 
 // 0. External components
 import "./controls/file/analysis/chart/chart";

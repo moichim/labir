@@ -1395,7 +1395,7 @@ declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
     get currentPixels(): string[];
     protected validate(value: PaletteId): PaletteId;
     /** Any changes to the value should propagate directly to every instance. */
-    protected afterSetEffect(value: PaletteId): void;
+    protected afterSetEffect(): void;
     setPalette(key: PaletteId): void;
 }
 
@@ -2321,25 +2321,6 @@ declare class InstanceDOM {
     dehydrate(): void;
 }
 
-/**
- * The file metadata = Parsed file base info.
- *
- * Stored here as a separate class. Purpose: separation of concern & provide listener on change.
- */
-declare class FileMeta {
-    private _current;
-    get current(): ParsedFileBaseInfo;
-    protected _onChange?: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
-    /**
-     * Lazyloaded callback manager that is triggered whenever the value changes
-     */
-    get onChange(): CallbacksManager<(value: ParsedFileBaseInfo) => void>;
-    get width(): number;
-    get height(): number;
-    constructor(baseInfo: ParsedFileBaseInfo);
-    set(value: ParsedFileBaseInfo): void;
-}
-
 /** Define properties for a file */
 interface IFileInstance extends IThermalInstance, BaseStructureObject {
     root: HTMLDivElement | null;
@@ -2380,7 +2361,27 @@ declare abstract class AbstractRenderer {
     abstract destroy(): Promise<void>;
 }
 
-/** Displayable object for every file type.
+/**
+ * The file metadata = Parsed file base info.
+ *
+ * Stored here as a separate class. Purpose: separation of concern & provide listener on change.
+ */
+declare class FileMeta {
+    private _current;
+    get current(): ParsedFileBaseInfo;
+    protected _onChange?: CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    /**
+     * Lazyloaded callback manager that is triggered whenever the value changes
+     */
+    get onChange(): CallbacksManager<(value: ParsedFileBaseInfo) => void>;
+    get width(): number;
+    get height(): number;
+    constructor(baseInfo: ParsedFileBaseInfo);
+    set(value: ParsedFileBaseInfo): void;
+}
+
+/**
+ * Displayable object for every file type.
  *
  * This class takes care of the display fundamentals.
  *

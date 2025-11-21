@@ -17,7 +17,7 @@
     "test": "vitest src",
     "coverage": "vitest src --coverage"
   },
-  "author": "Jan Jáchim <jachim5@gmail.com>",
+  "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.30.1",

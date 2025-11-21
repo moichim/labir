@@ -18,7 +18,7 @@
     "serve": "serve dist/",
     "lint": "eslint src"
   },
-  "author": "Jan Jáchim <jachim5@gmail.com>",
+  "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
   "license": "ISC",
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",

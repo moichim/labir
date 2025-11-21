@@ -21,7 +21,7 @@
     "build": "tsup client/src/index.ts --config=tsup.config.ts",
     "lint": "eslint client"
   },
-  "author": "Jan Jáchim <jachim5@gmail.com>",
+  "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
   "license": "ISC",
   "dependencies": {
     "uuid": "^9.0.1"
