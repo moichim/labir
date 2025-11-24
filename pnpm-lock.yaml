@@ -117,6 +117,9 @@ importers:
       lit:
         specifier: ^3.2.1
         version: 3.2.1
+      lit-code:
+        specifier: ^0.1.12
+        version: 0.1.12
       lit-i18n:
         specifier: ^4.1.0
         version: 4.1.0(i18next@24.2.2(typescript@5.4.5))(lit-html@3.2.1)
@@ -1929,6 +1932,9 @@ packages:
 
   '@lit/context@1.1.3':
     resolution: {integrity: sha512-Auh37F4S0PZM93HTDfZWs97mmzaQ7M3vnTc9YvxAGyP3UItSK/8Fs0vTOGT+njuvOwbKio/l8Cx/zWL4vkutpQ==}
+
+  '@lit/reactive-element@1.6.3':
+    resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
 
   '@lit/reactive-element@2.0.4':
     resolution: {integrity: sha512-GFn91inaUa2oHLak8awSIigYz0cU0Payr1rcFsrkf5OJ5eSPxElyZfKh0f2p9FsTiZWXQdWGJeXZICEfXXYSXQ==}
@@ -6916,8 +6922,17 @@ packages:
       enquirer:
         optional: true
 
+  lit-code@0.1.12:
+    resolution: {integrity: sha512-7Z50u6BhLccxsefLvsQA3j+Ne4SJFf77v9nVg5EzdxJMs+If7yDYN4/jiGrNDtOWxkWxFGDelff/LFZyLge/OA==}
+
+  lit-element@3.3.3:
+    resolution: {integrity: sha512-XbeRxmTHubXENkV4h8RIPyr8lXc+Ff28rkcQzw3G6up2xg5E8Zu1IgOWIwBLEQsu3cOVFqdYwiVi0hv0SlpqUA==}
+
   lit-element@4.1.1:
     resolution: {integrity: sha512-HO9Tkkh34QkTeUmEdNYhMT8hzLid7YlMlATSi1q4q17HE5d9mrrEHJ/o8O2D0cMi182zK1F3v7x0PWFjrhXFew==}
+
+  lit-html@2.8.0:
+    resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
 
   lit-html@3.2.1:
     resolution: {integrity: sha512-qI/3lziaPMSKsrwlxH/xMgikhQ0EGOX2ICU73Bi/YHFvz2j/yMCIrw4+puF2IpQ4+upd3EWbvnHM9+PnJn48YA==}
@@ -6927,6 +6942,9 @@ packages:
     peerDependencies:
       i18next: '>=21.3.3'
       lit-html: '>=2.0.1'
+
+  lit@2.8.0:
+    resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
 
   lit@3.2.1:
     resolution: {integrity: sha512-1BBa1E/z0O9ye5fZprPtdqnc0BFzxIxTTOO/tQFmyC/hj1O3jL4TfmLBw0WEwjAokdLwpclkvGgDJwTIh0/22w==}
@@ -12222,6 +12240,10 @@ snapshots:
   '@lit/context@1.1.3':
     dependencies:
       '@lit/reactive-element': 2.0.4
+
+  '@lit/reactive-element@1.6.3':
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.3.0
 
   '@lit/reactive-element@2.0.4':
     dependencies:
@@ -18364,11 +18386,25 @@ snapshots:
     optionalDependencies:
       enquirer: 2.3.6
 
+  lit-code@0.1.12:
+    dependencies:
+      lit: 2.8.0
+
+  lit-element@3.3.3:
+    dependencies:
+      '@lit-labs/ssr-dom-shim': 1.3.0
+      '@lit/reactive-element': 1.6.3
+      lit-html: 2.8.0
+
   lit-element@4.1.1:
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.3.0
       '@lit/reactive-element': 2.0.4
       lit-html: 3.2.1
+
+  lit-html@2.8.0:
+    dependencies:
+      '@types/trusted-types': 2.0.7
 
   lit-html@3.2.1:
     dependencies:
@@ -18378,6 +18414,12 @@ snapshots:
     dependencies:
       i18next: 24.2.2(typescript@5.4.5)
       lit-html: 3.2.1
+
+  lit@2.8.0:
+    dependencies:
+      '@lit/reactive-element': 1.6.3
+      lit-element: 3.3.3
+      lit-html: 2.8.0
 
   lit@3.2.1:
     dependencies:

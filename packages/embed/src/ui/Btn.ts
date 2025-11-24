@@ -305,7 +305,7 @@ export class ThermalBtn extends BaseElement {
             color: var(--thermal-foreground);
         }
         :host([variant="background"]:hover) {
-
+            box-shadow: none;
         }
 
         :host([variant="background"][size="sm"]:hover),
@@ -328,6 +328,14 @@ export class ThermalBtn extends BaseElement {
             slot {
                 text-decoration: underline;
             }
+        }
+
+
+        :host([variant="plain"]) {
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
         }
 
 

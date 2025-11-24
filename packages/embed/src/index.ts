@@ -45,6 +45,7 @@ import "./ui/Radio";
 import "./ui/Slot";
 import "./ui/Spinner";
 import "./ui/Dropin";
+import "./ui/Playground";
 
 
 
@@ -208,7 +209,9 @@ import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 import "./connection/components/server/ShareDialog";
 
 
-
+setTimeout( () => {
+    window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));
+}, 0);
 
 
 

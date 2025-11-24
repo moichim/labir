@@ -8544,10 +8544,10 @@ var getPool = async () => {
 };
 
 // package.json
-var version = "1.3.0";
+var version = "1.3.4";
 
 // src/index.ts
-console.info(version, "@labirthermal/core");
+console.info("@labirthermal/core", version);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   AbstractAddTool,

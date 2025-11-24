@@ -12,7 +12,33 @@
 
 <body style="padding: 1rem; background: #ffffff">
 
+  <script>
 
+    window.addEventListener("labirthermal-webcomponents-loaded", () => {
+      console.log("LabIR Thermal Webcomponents loaded");
+      console.log( document.querySelectorAll( "thermal-file-app" ) );
+    });
+
+  </script>
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+
+<playground-element
+  title="Toto je titulek!"
+  subtitle="LabIR Embed Package Playground"
+  style="--playground-foreground: navy;
+  --playground-background: rgb(228, 228, 188);"
+>
+  <code slot="code"><p>Prasátko</p>
+<button onclick="alert('WAS??')">Něco vytiskni</button></code>
+</playground-element>
+
+  <!--
   <h1>Connected App</h1>
 
   <p>New API integration.</p>
@@ -45,6 +71,7 @@
     <thermal-file lrc="/nosorozec_02.lrc" label="Nosorožec 2"></thermal-file>
 </thermal-group-app>
 
+-->
 
   <!--
 
@@ -100,7 +127,7 @@
 -->
 
 
-
+<!--
 
   <h1>Dropin App</h1>
 
@@ -144,6 +171,7 @@
     </thermal-group>
   </thermal-gallery-app>
 
+-->
 
   <script type="module" src="/index.ts"></script>
 
