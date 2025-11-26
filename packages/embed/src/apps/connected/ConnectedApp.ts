@@ -118,6 +118,10 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
                 <thermal-app 
                     label="${this.label}"
                     showfullscreen="true"
+                    labelTooltip=${ifDefined(this.labelTooltip)}
+                    labelIcon=${ifDefined(this.labelIcon)}
+                    labelIconStyle=${ifDefined(this.labelIconStyle)}
+                    labelVariant=${ifDefined(this.labelVariant)}
                 >
 
                     <share-dialog 

@@ -18,6 +18,18 @@ import { AppState, FolderMode } from "./AppWithState";
  */
 export abstract class AppWithRender extends AppWithContent {
 
+    @property({ type: String, attribute: "label-tooltip" })
+    public labelTooltip?: string;
+
+    @property({ type: String, attribute: "label-icon" })
+    public labelIcon?: string;
+
+    @property({ type: String, attribute: "label-icon-style" })
+    public labelIconStyle?: string;
+
+    @property({ type: String, attribute: "label-variant" })
+    public labelVariant?: string;
+
     @property({ type: String, reflect: true })
     public palette?: AvailableThermalPalettes;
 
@@ -94,6 +106,7 @@ export abstract class AppWithRender extends AppWithContent {
     };
 
     protected updated(_changedProperties: PropertyValues): void {
+
         super.updated(_changedProperties);
 
         if (this.registryElement.value) {

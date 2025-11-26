@@ -32,13 +32,13 @@ export class ThermalBtn extends BaseElement {
     @property({type: String})
     public iconStyle:string = "outline";
 
-    @property({type: String, converter: booleanConverter(false), reflect: true})
+    @property({type: String, converter: booleanConverter(false)})
     public disabled?: boolean;
 
-    @property({type: String, converter: booleanConverter(false), reflect: true})
+    @property({type: String, converter: booleanConverter(false)})
     public interactive?: boolean;
 
-    @property({type: Boolean, attribute: true, reflect: true})
+    @property({type: Boolean, attribute: true})
     public plain?: boolean;
 
     @property({type: String})
@@ -178,48 +178,88 @@ export class ThermalBtn extends BaseElement {
     }
 
     public static styles = css`
+
+        :host {
+
+            font-family: var( --thermal-font-family );
+            font-size: calc( var( --thermal-fs ) * .8);
+            line-height: var( --thermal-line-height );
+        
+            --color: var( --thermal-foreground );
+            --color-hover: var( --color );
+
+            --bg: var( --thermal-slate-light );
+            --bg-hover: var( --bg );
+
+            --border-width: 1px;
+            --border-style: solid;
+            --border-color: var( --thermal-slate );
+            --border-color-hover: var( --border-color );
+
+            --radius: var(--thermal-radius);
+            
+            --shadow: none;
+            --shadow-hover: var( --thermal-shadow );
+            
+            --padding: .5em .7em;
+            --icon-size: 1em;
+            --gap: .5em;
+            --opacity: 1;
+            --letter-spacing: normal;
+
+            --cursor: pointer;
+            --transition-duration: .15s;
+
+            --tooltip-bg: var(--thermal-foreground, black);
+            --tooltip-color: var( --thermal-background, white);
+            --tooltip-padding: 0.5em 0.75em;
+            --tooltip-border-radius: var(--thermal-radius, 4px);
+            --tooltip-font-size: 0.9em;
+            --tooltip-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+        }
+
+
+
         :host {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             flex-grow: 0;
-            gap: .5em;
-
-            width: fit-content;
-            box-sizing: border-box;
-
+            gap: var(--gap);
             vertical-align: middle;
+            
             position: relative;
 
             margin: 0;
-            padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
+            padding: var(--padding);
+            width: fit-content;
+            box-sizing: border-box;
 
-            border: 1px solid var( --thermal-slate );
-            border-radius: var(--thermal-radius);
+            border-width: var( --border-width );
+            border-style: var( --border-style );
+            border-color: var( --border-color );
+            border-radius: var( --radius );
             
-            background-color: var(--thermal-slate-light);
-            color: var(--thermal-foreground);
+            background-color: var(--bg);
+            color: var(--color);
 
-            box-shadow: none; 
+            box-shadow: var( --shadow ); 
             
-            cursor: pointer;
+            cursor: var( --cursor );
+            opacity: var( --opacity );
             
+            --letter-spacing: var( --letter-spacing );
             text-align: center;
             white-space: nowrap;
-            font-size: calc( var( --thermal-fs ) * .8);
             vertical-align: middle;
 
-            transition: all .15s ease-in-out;
+            transition: all var(--transition-duration) ease-in-out;
 
             /* Focus styling */
             outline: none;
 
-            --tooltip-bg: var(--thermal-slate-dark, #334155);
-            --tooltip-color: white;
-            --tooltip-padding: 0.5em 0.75em;
-            --tooltip-border-radius: var(--thermal-radius, 4px);
-            --tooltip-font-size: 0.9em;
-            --tooltip-box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            
         }
 
 
@@ -227,22 +267,10 @@ export class ThermalBtn extends BaseElement {
         :host(:focus-visible),
         :host(:hover) {
             outline: none;
-            box-shadow: var( --thermal-shadow );
-        }
-
-        /* Default styling when no attributes are present */
-        :host(:not([variant])) {
-            background-color: var(--thermal-slate-light);
-            color: var(--thermal-foreground);
-        }
-
-        :host(:not([size])) {
-            font-size: calc( var( --thermal-fs ) * .8);
-            padding: calc( var( --thermal-gap ) * .3 ) calc( var( --thermal-gap ) * .5 );
-        }
-
-        :host(:not([plain])) {
-            border: 1px solid var( --thermal-slate );
+            box-shadow: var( --shadow-hover );
+            background-color: var(--bg-hover);
+            color: var(--color-hover);
+            border-color: var( --border-color-hover );
         }
 
         svg,
@@ -253,11 +281,18 @@ export class ThermalBtn extends BaseElement {
 
 
 
-        :host([disabled=true]) {
-            cursor: not-allowed !important;
-            opacity: .5;
-            outline: 0 !important;
-            box-shadow: none !important;
+        :host([disabled=true]),
+        :host([disabled="true"])
+        :host([disabled="true"]:hover),
+        :host([disabled="true"]:focus) {
+
+            
+            color: color-mix(in srgb, var(--color) 50%, transparent);
+            background: color-mix(in srgb, var(--bg) 50%, transparent);
+            border-color: color-mix(in srgb, var(--border-color) 50%, transparent);
+            --cursor: not-allowed;
+            --shadow: none;
+            --shadow-hover: none;
 
             button {
                 outline: 0 !important;
@@ -265,78 +300,127 @@ export class ThermalBtn extends BaseElement {
             }
         }
 
-        :host([disabled="true"]:hover) {
-            
-        }
 
-        :host([disabled="false"]:hover) {
-            box-shadow: var( --thermal-shadow );
-        }
-
-        :host([interactive="false"]) {
-            box-shadow: none !important;
-            cursor: text !important;
-        }
-
-        :host([interactive="false"]:hover) {
-            color: var(--thermal-foreground) !important;
-        }
-
-        :host([variant="primary"]) {
-            background-color: var(--thermal-primary);
-            color: white;
-        }
-
-        :host([variant="primary"]:hover) {
-            background-color: var(--thermal-primary-dark, #0056b3);
-        }
-
-        :host([variant="foreground"]) {
-            background-color: var(--thermal-foreground);
-            color: var(--thermal-background);
-        }
-
-        :host([variant="foreground"]:hover) {
-            background-color: var(--thermal-foreground-dark, #333);
-        }
-
-        :host([variant="background"]) {
-            background-color: var(--thermal-background);
-            color: var(--thermal-foreground);
-        }
-        :host([variant="background"]:hover) {
-            box-shadow: none;
-        }
-
-        :host([variant="background"][size="sm"]:hover),
-        :host([variant="background"][size="sm"]:focus) {
-            background-color: var(--thermal-slate-light);
+        :host([interactive="false"]),
+        :host([interactive=false]),
+        :host([interactive="false"]:hover),
+        :host([interactive=false]:hover),
+        :host([interactive="false"]:focus),
+        :host([interactive=false]:focus) {
+            --shadow-hover: none;
+            --cursor: text;
+            --color-hover: var( --color );
+            --bg-hover: var( --bg );
         }
 
 
-        :host([variant="breadcrumb"][size="sm"]) {
-            letter-spacing: 0px;
+
+
+
+        :host([size="sm"]),
+        :host([size=sm]) {
+            --padding: .1em .2em;
+            line-height: 1.2;
+            --letter-spacing: 0.5px;
+            font-size: .7em;
+        }
+
+        :host([size="lg"]),
+        :host([size=lg]) {
+            --padding: .5em .7em;
+            line-height: 1.2;
             font-size: 1em;
-            padding: 0;
-            background: transparent;
         }
 
-        :host([variant="breadcrumb"][size="sm"]:hover),
-        :host([variant="breadcrumb"][size="sm"]:focus) {
-            box-shadow: none;
-            color: var(--thermal-primary);
-            slot {
-                text-decoration: underline;
-            }
+        :host([size="xl"]),
+        :host([size=xl]) {
+            line-height: 1.2;
+            font-size: 2em;
         }
 
-
-        :host([variant="plain"]) {
-            background: transparent !important;
-            box-shadow: none !important;
+        :host([plain="true"]),
+        :host([plain=true]) {
+            --border-color: transparent;
+            --border-color-hover: transparent;
+            --border-width: 0px;
             border: none !important;
-            padding: 0 !important;
         }
+
+
+
+
+
+
+
+        :host([variant="primary"]),
+        :host([variant=primary]) {
+            
+            --color: var( --thermal-background );
+            --color-hover: var( --thermal-background );
+            
+            --bg: var( --thermal-primary );
+            --bg-hover: var( --thermal-primary-dark );
+
+            --border-color: var( --thermal-slate );
+            
+            --shadow: none;
+            --shadow-hover: var( --thermal-shadow );
+
+        }
+
+        :host([variant="foreground"]),
+        :host([variant=foreground]) {
+
+            --color: var( --thermal-background );
+            --color-hover: var( --thermal-background );
+            
+            --bg: var( --thermal-foreground );
+            --bg-hover: var( --thermal-slate-dark );
+
+            --border-color: var( --thermal-slate );
+            
+            --shadow: none;
+            --shadow-hover: var( --thermal-shadow );
+        }
+
+
+        :host([variant="background"]),
+        :host([variant=background]) {
+
+            --color: var( --thermal-foreground );
+            --color-hover: var( --thermal-foreground );
+            
+            --bg: var( --thermal-background );
+            --bg-hover: var( --bg );
+
+            --border-color: var( --thermal-slate );
+            
+            --shadow: none;
+            --shadow-hover: var( --thermal-shadow );
+        }
+
+
+
+        :host([variant="text"]),
+        :host([variant=text]) {
+
+            --bg: transparent;
+            --bg-hover: transparent;
+
+            --border-color: transparent;
+            --border-color-hover: transparent;
+
+            --border-width: 0px;
+            border: none !important;
+
+            --shadow: none;
+            --shadow-hover: none;
+
+            --padding: 0px;
+            --letter-spacing: normal;
+        }
+
+        
 
 
 
@@ -344,27 +428,6 @@ export class ThermalBtn extends BaseElement {
             width: 1em;
         }
 
-        :host([size="sm"]) {
-            font-size: calc( var( --thermal-fs ) * .7);
-            line-height: 1.2;
-            letter-spacing: 0.5px;
-            padding: calc( var( --thermal-gap ) * .1 ) calc( var( --thermal-gap ) * .2 );
-        }
-
-        :host([size="lg"]) {
-            font-size: calc( var( --thermal-fs ) );
-            line-height: 1.2em;
-            padding: .5em .7;
-        }
-
-        :host([size="xl"]) {
-            font-size: calc( var( --thermal-fs ) * 2);
-            line-height: 1.2;
-        }
-
-        :host([plain="true"]) {
-            border: none !important;
-        }
 
         /* Global tooltip styles */
 

@@ -138,7 +138,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this.requestUpdate();
 
         if ( this.path && this.folderMode === FolderMode.GRID ) {
-            this.grid = undefined;
+            this.updateGrid(undefined)  ;
             this.fetchGrid( 
                 this.path, 
                 this.gridFolders, 
@@ -168,7 +168,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this.by = mode;
         this.requestUpdate();
         if ( this.path && this.folderMode === FolderMode.GRID ) {
-            this.grid = undefined;
+            this.updateGrid(undefined);
             this.fetchGrid( 
                 this.path, 
                 this.gridFolders, 
@@ -196,7 +196,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         if ( ! this.path ) { return; }
 
         if ( this.grid ) {
-            this.grid = undefined;
+            this.updateGrid(undefined);
         }
 
         this.gridFolders = folders;
@@ -373,7 +373,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this._files = undefined;
         this._file = undefined;
         this._tags = undefined;
-        this.grid = undefined;
+        this.updateGrid(undefined);
         this._breadcrumb = [];
 
     }
@@ -444,7 +444,7 @@ export abstract class AppWithContent extends AppWithClientProvider {
                     this.log( "Měl bych upravit folder mode", this.folderMode, subfolders );
 
                     this.folderMode = FolderMode.TABLE;
-                    this.grid = undefined;
+                    this.updateGrid(undefined);
                 }
 
                 // Store and display incoming data
@@ -479,8 +479,10 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                     const result = await request.execute();
 
+                    this.log( "fetched grid", result );
+
                     if ( result.success ) {
-                        this.grid = result.data;
+                        this.updateGrid(result.data);
 
                         this.log( "načtena mřížka", this.grid );
                     }
@@ -555,11 +557,19 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
         const result = await request.execute();
 
+        this.log( "fetched grid", result );
+
         if (result.success) {
-            this.grid = result.data;
-            this.requestUpdate();
+            this.updateGrid(result.data);
         }
 
+    }
+
+    protected updateGrid(
+        data?: GetGridDataType
+    ): void {
+        this.grid = data;
+        this.requestUpdate();
     }
 
     protected switchFolderInternal(

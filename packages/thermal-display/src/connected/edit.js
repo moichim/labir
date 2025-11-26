@@ -53,7 +53,14 @@ export default function Edit({ attributes, setAttributes }) {
 		compact,
 		folderMode,
 		by,
-		disableLogging
+		disableLogging,
+		replaceWithLogin,
+		pathLock,
+		label,
+		labelTooltip,
+		labelIcon,
+		labelIconStyle,
+		labelVariant
 	} = attributes;
 
 
@@ -75,6 +82,10 @@ export default function Edit({ attributes, setAttributes }) {
 
 	const display = useMemo(() => {
 
+		const replacement = replaceWithLogin 
+			? <Tip><strong>'{replaceWithLogin}'</strong> bude v cestě ke složce nahrazeno loginem uživatele aktuálně přihlášeného k LabIR Serveru.</Tip> 
+			: undefined;
+
 		if (!path) {
 			return <>
 				<Badge
@@ -86,6 +97,7 @@ export default function Edit({ attributes, setAttributes }) {
 					Přihlašovací stránka k serveru
 				</Badge>
 				<Tip>Není vyplněná cesta ke složce. Po přihlášení bude uživatel procházet všechny své soubory.</Tip>
+				{replacement}
 			</>
 		}
 
@@ -98,6 +110,7 @@ export default function Edit({ attributes, setAttributes }) {
 				>
 					{path}
 				</Badge>
+				{replacement}
 			</>
 		}
 
@@ -118,11 +131,12 @@ export default function Edit({ attributes, setAttributes }) {
 				>
 					{fileName}
 				</Badge>
-
+				{replacement}
 			</>
 		</>
 
-	}, [path, fileName]);
+	}, [path, fileName, replaceWithLogin]);
+
 
 	const parse = useCallback(() => {
 
@@ -221,12 +235,33 @@ export default function Edit({ attributes, setAttributes }) {
 							/>
 
 							<TextControl
+								label="Zamknout cestu ke složce na"
+								help="Prohlížeč neumožní uživatele vidět obsah nad tuto cestu."
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								onChange={(value) => setAttributes({ pathLock: value })}
+								value={pathLock}
+								required
+								type="string"
+							/>
+
+							<TextControl
 								label="File name"
 								help="If a folder is provided in the path, specify the file name to display."
 								__next40pxDefaultSize
 								__nextHasNoMarginBottom
 								onChange={(value) => setAttributes({ fileName: value })}
 								value={fileName}
+								type="string"
+							/>
+
+							<TextControl
+								label="Nahradit přihlašovacím jménem"
+								help="Pokud je tento blok zobrazen v zamčené sekci, v cestě bude uvedený text nahrazen přihlašovacím jménem uživatele."
+								__next40pxDefaultSize
+								__nextHasNoMarginBottom
+								onChange={(value) => setAttributes({ replaceWithLogin: value })}
+								value={replaceWithLogin}
 								type="string"
 							/>
 
@@ -251,7 +286,7 @@ export default function Edit({ attributes, setAttributes }) {
 							</BaseControl>
 
 						</PanelBody>
-						<PanelBody title="Zobrazení">
+						<PanelBody title="Zobrazení" initialOpen={false}>
 
 							<ToggleControl
 								__nextHasNoMarginBottom
@@ -368,6 +403,59 @@ export default function Edit({ attributes, setAttributes }) {
 					</>
 				}
 
+				<PanelBody title="Popiska" initialOpen={false}>
+
+					<TextControl
+						label="Text popisky"
+						help="Zadejte text, který se zobrazí jako popiska nad zobrazením."
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={(value) => setAttributes({ label: value })}
+						value={label}
+						type="string"
+					/>
+
+					<TextControl
+						label="Tooltip popisky"
+						help="Zadejte text, který se zobrazí v tooltipu popisky."
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={(value) => setAttributes({ labelTooltip: value })}
+						value={labelTooltip}
+						type="string"
+					/>
+
+					<TextControl
+						label="Ikona popisky (interní identifikátor ikony)"
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={(value) => setAttributes({ labelIcon: value })}
+						value={labelIcon}
+						type="string"
+					/>
+
+					<TextControl
+						label="Styl ikony popisky (interní styl ikony)"
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={(value) => setAttributes({ labelIconStyle: value })}
+						value={labelIconStyle}
+						type="string"
+					/>
+
+					<TextControl
+						label="Variant ikony popisky (interní varianta ikony)"
+						__next40pxDefaultSize
+						__nextHasNoMarginBottom
+						onChange={(value) => setAttributes({ labelVariant: value })}
+						value={labelVariant}
+						type="string"
+					/>
+
+					
+
+				</PanelBody>
+
 				<PanelBody title="Server" initialOpen={false}>
 
 					<TextControl
@@ -420,9 +508,16 @@ export default function Edit({ attributes, setAttributes }) {
 									file-name={fileName}
 									palette={palette}
 									displaymode={displayMode}
+									disable-logging={disableLogging ? "true" : "false"}
 									folder-mode={folderMode}
 									grid-grouping={by}
 									compact={compact ? "true" : "false"}
+									locked-location={pathLock}
+									label={label}
+									label-tooltip={labelTooltip}
+									label-icon={labelIcon}
+									label-icon-style={labelIconStyle}
+									label-variant={labelVariant}
 								></connected-app>
 
 								<div className="thermal__content-editor__wrapper">

@@ -154,6 +154,8 @@ export class SubfoldersGrid extends RegistryConsumer {
 
         const folders = Object.values(item.folders);
 
+        this.log(item.label, folders);
+
         return html`
 
         <group-provider
@@ -165,7 +167,7 @@ export class SubfoldersGrid extends RegistryConsumer {
 
             ${this.renderBodyRowCellHeader(item.label)}
 
-            <tr>
+            <tr class="group-row__body">
                 ${folders.map(folder => this.renderBodyRowCellBody(folder))}
             </tr>
 
@@ -213,43 +215,41 @@ export class SubfoldersGrid extends RegistryConsumer {
             tooltip = `${minmax.min.toFixed(2)} - ${minmax.max.toFixed(2)} °C`
         }
 
-        return html`<tr>
-            <td class="group-header cell" colspan="${this.columnCount}">
-                <div class="group-separator"></div>
-                <div class="cell-inner">
+        return html`<tr class="group-row__header">
+    <td class="group-header cell" colspan="${this.columnCount}">
+        <div class="group-separator"></div>
+        <div class="cell-inner">
 
-                    <thermal-btn
-                        class="cell-button"
-                        tooltip=${tooltip}
-                        @click=${click.bind(this)}
-                        @mouseleave=${mouseleave.bind(this)}
-                        @mouseenter=${mouseenter.bind(this)}
-                    >${label}</thermal-btn>
+            <thermal-btn
+                class="cell-button"
+                tooltip=${tooltip}
+                @click=${click.bind(this)}
+                @mouseleave=${mouseleave.bind(this)}
+                @mouseenter=${mouseenter.bind(this)}
+            >${label}</thermal-btn>
 
-                    <div style="display: inline-block; text-align: left;">
-                        <group-download-dropdown></group-download-dropdown>
-                    </div>
+            <div style="display: inline-block; text-align: left;">
+                <group-download-dropdown></group-download-dropdown>
+            </div>
 
-                </div>
-            </td>
-        </tr>`;
+        </div>
+    </td>
+</tr>`;
     }
 
     private renderBodyRowCellBody(
         files: FileInfo[]
     ): unknown {
 
-        if (this.grid || files.length === 0) return html`<td></td>`;
+        if (!this.grid || files.length === 0) return html`<td></td>`;
 
         const folder = this.grid!.header[files[0].folder]!;
 
-        return html`
-            <td class="folder-content cell">
-                <div class="cell-inner">
-                    ${files.map(file => this.renderBodyRowCellBodyFile(folder, file))}
-                </div>
-            </td>
-        `;
+        return html`<td class="folder-content cell">
+    <div class="cell-inner">
+        ${files.map(file => this.renderBodyRowCellBodyFile(folder, file))}
+    </div>
+</td>`;
 
     }
 

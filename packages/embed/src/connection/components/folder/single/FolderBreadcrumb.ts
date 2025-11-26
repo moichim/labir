@@ -57,15 +57,18 @@ export class FolderBreadcrumb extends ClientConsumer {
         }
 
         .item {
-            opacity: .5;
+            --color: var( --thermal-slate );
+            --color-hover: var( --thermal-foreground );
         }
 
         .interactive {
-            opacity: .7;
+            --color: var( --thermal-slate-dark );
+            --color-hover: var( --thermal-primary );
         }
 
         .current {
-            opacity: .7;
+            --color: var( --thermal-slate-dark );
+            --cursor: help;
             text-decoration: underline;
         }
     
@@ -91,9 +94,7 @@ export class FolderBreadcrumb extends ClientConsumer {
         <thermal-btn 
             class="${classMap(classNames)}"
             @click=${item.onClick?.bind(this)}
-            size="sm"
-            plain="true"
-            variant="breadcrumb"
+            variant="text"
             icon="${item.icon}"
             iconStyle="${item.iconStyle}"
             interactive=${isInteractive ? "true" : "false"}

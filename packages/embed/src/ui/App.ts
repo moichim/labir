@@ -6,6 +6,7 @@ import { BaseElement } from "../hierarchy/BaseElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { ifDefined } from "lit/directives/if-defined.js";
+import { classMap } from "lit/directives/class-map.js";
 
 const isChromium = "chrome" in window;
 
@@ -44,6 +45,18 @@ export class ThermalAppUiElement extends BaseElement {
 
     @property()
     label?: string;
+
+    @property()
+    labelIcon?: string;
+    
+    @property()
+    labelIconStyle?: string;
+
+    @property()
+    labelTooltip?: string;
+
+    @property()
+    labelVariant: string = "foreground";
 
     @property({type: Object})
     onlabel?: () => void;
@@ -296,6 +309,30 @@ export class ThermalAppUiElement extends BaseElement {
 
 
 
+    private renderLabel(): unknown {
+
+        const interactive = this.onlabel !== undefined;
+
+        const interactiveProp = interactive ? "true" : "false";
+
+        const slotInner = this.label
+            ? html`<thermal-btn
+    variant="${this.labelVariant}"
+    interactive=${interactiveProp}
+    icon=${ifDefined(this.labelIcon)}
+    iconStyle=${ifDefined(this.labelIconStyle)}
+    tooltip=${ifDefined(this.labelTooltip)}
+    @click=${ifDefined(this.onlabel)}
+>${this.label}</thermal-btn>`
+            : nothing;
+
+        return html`
+    <slot name="label">
+        ${slotInner}
+    </slot>`;
+
+    } 
+
 
 
     protected render(): unknown {
@@ -315,12 +352,7 @@ export class ThermalAppUiElement extends BaseElement {
             
             <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
 
-                <slot name="label">
-                    ${this.label
-                        ? html`<thermal-btn variant="foreground" interactive="${this.onlabel !== undefined}" @click=${ifDefined(this.onlabel)}>${this.label}</thermal-btn>`
-                        : nothing
-                    }
-                </slot>
+                ${ this.renderLabel() }
 
                 <slot name="bar-persistent"></slot>
 

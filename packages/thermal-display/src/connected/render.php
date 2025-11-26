@@ -16,6 +16,18 @@ $authToken = $manager->getAuthToken();
 // Připrav si údaje pro vykreslení
 $isLoggedIn = $manager->isLoggedIn();
 
+// Prepare the folder path
+$folder = esc_attr( $attributes["path"] );
+$lockedLocation = esc_attr( $attributes["pathLock"] );
+$replaceWithLogin = esc_attr( $attributes["replaceWithLogin"] );
+
+if ( $replaceWithLogin && $isLoggedIn ) {
+	$identity = $manager->getUserFromTransient();
+	$user = $identity["login"]["user"];
+	$folder = str_replace( $replaceWithLogin, $user, $folder );
+	$lockedLocation = str_replace( $replaceWithLogin, $user, $lockedLocation );
+}
+
 
 ?>
 
@@ -24,7 +36,8 @@ $isLoggedIn = $manager->isLoggedIn();
 	<connected-app
 		server-url="<?= esc_attr($attributes["serverUrl"]); ?>"
 		api-root="<?= esc_attr($attributes["apiRoot"]); ?>"
-		folder-path="<?= esc_attr($attributes["path"]); ?>"
+		folder-path="<?= $folder; ?>"
+		locked-location="<?= $lockedLocation; ?>"
 		<?php if ($attributes["fileName"]) : ?>file-name="<?= esc_attr($attributes["fileName"]); ?>" <?php endif; ?>
 		palette="<?= esc_attr($attributes["palette"]); ?>"
 		displaymode="<?= esc_attr($attributes["displayMode"]); ?>"
@@ -32,6 +45,12 @@ $isLoggedIn = $manager->isLoggedIn();
 		grid-grouping="<?= esc_attr($attributes["by"]); ?>"
 		<?= $authUrl && $authToken ? 'auth-url="' . esc_attr($authUrl) . '" auth-token="' . esc_attr($authToken) . '"' : "" ?>
 		<?= $attributes["disableLogging"] ? 'disable-logging="true"' : "" ?>
+
+		<?= $attributes["label"] ? "label='" . esc_attr($attributes["label"]) . "'" : "" ?>
+		<?= $attributes["labelTooltip"] ? "label-tooltip='" . esc_attr($attributes["labelTooltip"]) . "'" : "" ?>
+		<?= $attributes["labelIcon"] ? "label-icon='" . esc_attr($attributes["labelIcon"]) . "'" : "" ?>
+		<?= $attributes["labelIconStyle"] ? "label-icon-style='" . esc_attr($attributes["labelIconStyle"]) . "'" : "" ?>
+		<?= $attributes["labelVariant"] ? "label-variant='" . esc_attr($attributes["labelVariant"]) . "'" : "" ?>
 	></connected-app>
 
 </div>

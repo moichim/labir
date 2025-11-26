@@ -30,6 +30,7 @@
 
 <playground-element
   title="Toto je titulek!"
+  
   subtitle="LabIR Embed Package Playground"
   style="--playground-foreground: navy;
   --playground-background: rgb(228, 228, 188);"
@@ -38,12 +39,16 @@
 <button onclick="alert('WAS??')">Něco vytiskni</button></code>
 </playground-element>
 
-  <!--
   <h1>Connected App</h1>
 
   <p>New API integration.</p>
 
-  <connected-app server-url="https://dev2-edu.labir.cz" server-api-root="/api/" label="Název projektu" folder-path="mikroklima/ucitel/pokusy" advanced-palettes="true" show-discussion="true"
+  <connected-app server-url="https://dev2-edu.labir.cz" server-api-root="/api/" label="Název projektu" 
+  labelTooltip="Tooltip k titulku"
+  labelIcon="info"
+  labelIconStyle="solid"
+  labelVariant="primary"
+  folder-path="mikroklima/ucitel/pokusy" advanced-palettes="true" show-discussion="true"
     displaymode="table" by="year" folder-mode="table" palette="rainbow"></connected-app>
 
 
