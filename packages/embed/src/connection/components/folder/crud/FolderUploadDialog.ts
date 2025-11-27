@@ -60,11 +60,26 @@ export class FolderUploadDialog extends ClientConsumer {
     public onSuccess?: (files: File[]) => void;
 
     public static styles?: CSSResultGroup = css`
+
+        :host {
+            font-size: var(--thermal-fs);
+            color: var(--thermal-foreground);
+        }
+
         .content {
-            padding: var(--thermal-gap);
             position: relative;
-            min-width: 800px;
             box-sizing: border-box;
+        }
+
+        .stage-label {
+
+            small {
+                font-size: 1em;
+                font-weight: normal;
+                display: inline-block;
+                opacity: .5;
+            }
+        
         }
 
         .stage-upload {
@@ -79,40 +94,181 @@ export class FolderUploadDialog extends ClientConsumer {
             cursor: pointer;
             transition: all .2s;
             padding: var(--thermal-gap);
+            label {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1em;
+                cursor: pointer;
+            }
         }
-        .stage-upload:hover { border-color: var(--thermal-primary); background: var(--thermal-slate-light); }
-        .stage-upload.drag-over { border-color: var(--thermal-primary); background: rgba(0,100,255,.1); }
+        .stage-upload:hover,
+        .stage-upload.drag-over { 
+            border-color: var(--thermal-primary); 
+            background: var(--thermal-background); 
+        }
 
-        input[type="file"] { display: none; }
+        input[type="file"] { 
+            display: none; 
+        }
 
-        .paired-files-table { width: 100%; border-collapse: collapse; }
-        .paired-files-table td { padding: .5em; vertical-align: top; }
-        .paired-files-table td:not(:first-child) { width: calc(100% / 3); }
+        .paired-files-table { 
+            width: 100%; 
+            max-width: 100%;
+            overflow-x: auto;
+            border-collapse: collapse; 
+        }
+        .paired-files-table td { 
+            padding: .5em; 
+            vertical-align: top; 
+        }
+        .paired-files-table td:not(:first-child) { 
+            width: calc(100% / 3); 
+        }
 
-        .paired-file-group__header td { background: var(--thermal-background); border-radius: var(--thermal-radius); }
+        .paired-file-group {
+        }
 
-        .file-preview { display: grid; grid-template-columns: 5em 1fr; gap: .5em; position: relative; }
-        .file-preview img, .file-preview .file-preview__icon { max-width: 5em; height: auto; display: block; }
-        .file-preview__icon { background: var(--thermal-slate-dark); color: var(--thermal-background); border-radius: var(--thermal-radius); aspect-ratio: 160 / 120; display: flex; align-items: center; justify-content: center; }
-        .file-preview__info { display: flex; flex-direction: column; gap: .2em; }
-        .file-preview__label { font-size: var(--thermal-fs); font-weight: 500; }
-        .file-remove-btn { position: absolute; top: 4px; right: 4px; cursor: pointer; }
+        .paired-file-group__header td { 
+            background: var(--thermal-background); 
+            border-radius: var(--thermal-radius); 
+        }
 
-        .missing-file-dropzone { aspect-ratio: 160 / 120; display: flex; align-items: center; justify-content: center; border: 2px dotted var(--thermal-slate); border-radius: var(--thermal-radius-sm); cursor: pointer; transition: all .2s; font-size: var(--thermal-fs-sm); color: var(--thermal-slate-dark); text-align: center; }
-        .missing-file-dropzone.drag-over, .missing-file-dropzone:hover { border-color: var(--thermal-primary); background: #fff; }
+        .file-preview { 
+            display: grid; 
+            grid-template-columns: 5em 1fr; 
+            gap: .5em; 
+            position: relative; 
+        }
 
-        .file-remove-btn thermal-btn, .group-remove-btn thermal-btn { pointer-events: auto; }
+        .file-preview img, 
+        .file-preview .file-preview__icon { 
+            max-width: 5em; 
+            height: auto; 
+            display: block; 
+        }
+        .file-preview__icon { 
+            background: var(--thermal-slate-dark); 
+            color: var(--thermal-background); 
+            border-radius: var(--thermal-radius); 
+            aspect-ratio: 160 / 120; 
 
-        .group-header { display: flex; align-items: center; gap: 1em; }
+            display: flex !important; 
+            align-items: center; 
+            justify-content: center; 
 
-        .unmatched-files { margin-top: var(--thermal-gap); }
-        .file-remove-overlay { position: absolute; top: 4px; right: 4px; }
+            thermal-icon {
+                display: block;
+                width: 2em;
+                height: 2em;
+            }
+        }
+        .file-preview__info { 
+            display: flex; 
+            flex-direction: column; 
+            gap: .2em; 
+            font-size: .8em;
 
-        .bottom-dropzone-wrapper { margin-top: 2em; }
+            & > *:not(.file-preview__label) {
+                opacity: .5;
+            }
+        }
+        .file-preview__label { 
+            font-size: 1.2em; 
+            font-weight: 500; 
+        }
+        .file-remove-btn { 
+            position: absolute; 
+            top: 4px; 
+            right: 4px; 
+            cursor: pointer; 
+        }
 
-        .info, .error { border-radius: var(--thermal-radius); padding: calc(var(--thermal-gap) * .5); margin-top: var(--thermal-gap); font-size: calc(var(--thermal-fs) * .9); }
-        .info { background: var(--thermal-primary-light,#eef); border:1px solid var(--thermal-primary,#00f); color: var(--thermal-primary-dark,#008); }
-        .error { background: var(--thermal-danger-light,#fee); border:1px solid var(--thermal-danger,#f00); color: var(--thermal-danger-dark,#800); }
+        .missing-file-dropzone { 
+            aspect-ratio: 160 / 120; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 2px dotted var(--thermal-slate); 
+            border-radius: var(--thermal-radius-sm); 
+            cursor: pointer; 
+            transition: all .2s; 
+            font-size: var(--thermal-fs-sm); 
+            color: var(--thermal-slate-dark); 
+            text-align: center; 
+
+            thermal-icon {
+                display: block;
+                width: 1em;
+                height: 1em;
+            }
+        }
+        .missing-file-dropzone.drag-over, 
+        .missing-file-dropzone:hover { 
+            border-color: var(--thermal-primary); 
+            background: #fff; 
+        }
+
+        .file-remove-btn thermal-btn, 
+        .group-remove-btn thermal-btn { 
+            pointer-events: auto; 
+        }
+
+        .group-header { 
+            display: flex; 
+            align-items: center; 
+            gap: 1em; 
+        }
+
+        .unmatched-files { 
+            margin-top: var(--thermal-gap);
+
+            thermal-expandable {
+                --font-size: .9em;
+            }
+
+            h2 {
+                margin: 0;
+                font-size: 1em;
+            }
+
+            p:last-child,
+            li::last-child {
+                margin-bottom: 0;
+            }
+
+            table {
+                img {
+                    width: 5em;
+                    height: auto;
+                }
+                td {
+                    padding-right: .5em;
+                }
+            }
+
+        }
+
+        .bottom-dropzone-wrapper { 
+            margin-top: 2em; 
+        }
+
+        .info, .error { 
+            border-radius: var(--thermal-radius); 
+            padding: calc(var(--thermal-gap) * .5); 
+            margin-top: var(--thermal-gap); 
+            font-size: calc(var(--thermal-fs) * .9); 
+        }
+        .info { 
+            background: var(--thermal-primary-light,#eef); 
+            border:1px solid var(--thermal-primary,#00f); 
+            color: var(--thermal-primary-dark,#008); 
+        }
+        .error { 
+            background: var(--thermal-danger-light,#fee); 
+            border:1px solid var(--thermal-danger,#f00); 
+            color: var(--thermal-danger-dark,#800); 
+        }
     `;
 
     protected async handleSubmit(): Promise<boolean> {
@@ -314,9 +470,9 @@ export class FolderUploadDialog extends ClientConsumer {
         if (!this.isLoggedIn || !this.folder.may_manage_files_in) return nothing;
 
         return html`<thermal-dialog
-            label=${t(T.uploadafile)}
+            .label="${this.tooltip ? this.tooltip : this.label}"
             .beforeClose=${() => this.handleSubmit()}
-            button=${t(T.uploadafile)}
+            button=${t(T.upload)}
         >
             <slot name="invoker" slot="invoker">
                 <thermal-btn 
@@ -335,6 +491,13 @@ export class FolderUploadDialog extends ClientConsumer {
                 ${this.pairedFiles.length + this.unmatchedPngs.length > 0 ? this.renderBottomDropzone() : nothing}
                 ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : nothing}
             </div>
+            ${this.pairedFiles.length > 0 
+                ? html`<thermal-btn
+                    slot="button"
+                    @click=${() => this.clearAllFiles()}
+                >Zrušit výběr</thermal-btn>`
+                : nothing
+            }
         </thermal-dialog>`;
     }
 
@@ -358,8 +521,16 @@ export class FolderUploadDialog extends ClientConsumer {
 
     private renderPreview() {
         if (this.pairedFiles.length === 0 && this.unmatchedPngs.length === 0) return nothing;
+        const lrcCount = this.pairedFiles.length;
+
+        const pngCount = this.pairedFiles.reduce( (state, current) => {
+            return state + (current.visual ? 1 : 0) + (current.preview ? 1 : 0);
+        }, 0 );
+
+        let titleSuffix = `${lrcCount}x LRC`;
+        if (pngCount > 0) titleSuffix +=` + ${pngCount}x PNG`;
         return html`<div class="paired-files">
-            <h3 class="stage-label">Soubory k uploadu (${this.pairedFiles.length})</h3>
+            <h3 class="stage-label">Soubory k uploadu <small>${titleSuffix}</small></h3>
             ${this.renderPairedTable()}
             ${this.renderUnmatchedFiles()}
         </div>`;
@@ -377,7 +548,7 @@ export class FolderUploadDialog extends ClientConsumer {
             <td colspan="4">
                 <div class="group-header">
                     <span>${index + 1}. snímek</span>
-                    <thermal-btn plain="true" icon="close" iconStyle="micro" tooltip="Odstranit celou skupinu" @click=${() => this.removePairedGroup(pair.lrc)}></thermal-btn>
+                    <thermal-btn variant="default" plain="true" icon="close" iconStyle="micro" tooltip="Odstranit celou skupinu" @click=${() => this.removePairedGroup(pair.lrc)}></thermal-btn>
                 </div>
             </td>
         </tr>
@@ -406,7 +577,7 @@ export class FolderUploadDialog extends ClientConsumer {
                 </div>
                 <div class="file-preview__info">
                     <div class="file-preview__label">${label}</div>
-                    <div class="file-preview__name">Chybí ${type} obrázek.</div>
+                    <div class="file-preview__name">Volitelně nahrajte ${type} obrázek.</div>
                 </div>
             </div>`;
         }
@@ -417,7 +588,7 @@ export class FolderUploadDialog extends ClientConsumer {
             : (isImg ? html`<div class="file-preview__icon"><thermal-icon icon="image" variant="outline"></thermal-icon></div>`
                      : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`);
         const removable = (type === 'visual' || type === 'preview') || label.toLowerCase().includes('lrc');
-        const removeBtn = removable ? html`<thermal-btn class="file-remove-btn" plain="true" icon="close" iconStyle="micro" tooltip="Odstranit" @click=${() => this.removePairedFile(file)}></thermal-btn>` : nothing;
+        const removeBtn = removable ? html`<thermal-btn class="file-remove-btn" variant="background" plain="true" size="sm" icon="close" iconStyle="micro" tooltip="${t(T.remove)}" @click=${() => this.removePairedFile(file)}></thermal-btn>` : nothing;
         return html`<div class="file-preview file-preview__has-file">
             ${removeBtn}
             <div class="file-preview__preview">${preview}</div>
@@ -431,20 +602,60 @@ export class FolderUploadDialog extends ClientConsumer {
 
     private renderUnmatchedFiles() {
         if (this.unmatchedPngs.length === 0) return nothing;
-        const titleStart = this.pairedFiles.length === 0 ? 'Nerozpoznané obrázky' : 'Další nerozpoznané obrázky';
+        const titleStart = this.pairedFiles.length === 0 ? 'Nerozpoznané obrázky' : 'Další nespárované obrázky';
         const title = `${titleStart} (${this.unmatchedPngs.length}) nebudou nahrány`;
         return html`<div class="unmatched-files">
-            <h3 class="stage-label">${title}</h3>
-            <table><tbody>
-                ${this.unmatchedPngs.map(u => html`<tr class="file-item">
-                    <td style="position:relative;">
-                        <img src=${u.url} alt="Unmatched file preview" />
-                        <thermal-btn class="file-remove-overlay" plain="true" icon="close" iconStyle="micro" tooltip="Odstranit" @click=${() => this.removeUnmatchedPng(u.file)}></thermal-btn>
-                    </td>
-                    <td>${u.file.name}</td>
-                    <td></td>
-                </tr>`)}
-            </tbody></table>
+
+            <thermal-expandable
+                label="${title}"
+                variantExpanded="foreground"
+                closeIcon="true"
+                icon="info"
+                iconStyle="outline"
+                tooltip="Obrázky PNG, které se nám dle jejich jména nepodařilo spárovat s žádným LRC souborem"
+            >
+
+                <table><tbody>
+                    ${this.unmatchedPngs.map(u => html`<tr class="file-item">
+                        <td>
+                            <thermal-btn 
+                                variant="background"
+                                plain="true" 
+                                icon="close" 
+                                iconStyle="micro" 
+                                tooltip="${t(T.remove)}" 
+                                @click=${() => this.removeUnmatchedPng(u.file)}></thermal-btn>
+                        </td>
+                        <td>
+                            <img src=${u.url} alt="Unmatched file preview" />
+                        </td>
+                        <td>${u.file.name}</td>
+                    </tr>`)}
+                </tbody></table>
+
+                <thermal-tip
+                    variant="info"
+                    style="--font-size: 1em; margin-top: 1em;"
+                >
+                    <h2>Jak párujeme soubory</h2>
+                    <p>Termokamery TIMI Edu od roku 2024 ukládají soubory v tomto formátu:</p>
+                    <ul>
+                        <li><strong>[datum]_thermal.lrc</strong> - klíčový termogram, který potřebujeme</li>
+                        <li><strong>[datum]_visual.png</strong> - snímek ve viditelném spektru (volitelný)</li>
+                        <li><strong>[datum]_image_thermal.png</strong> - printscreen displeje termokamery (volitelný, v online aplikaci nemá žádné užití)</li>
+                    </ul>
+                    <p>Co jsme schopni spárovat:</p>
+                    <ul>
+                        <li><strong>[datum]</strong>_cokolivdalsiho<strong>_thermal</strong>_neco<strong>.lrc</strong></li>
+                        <li><strong>[datum]</strong>_neco_jineho<strong>_visible.png</strong></li>
+                        <li><strong>[datum]</strong>_zase_neco_jineho_<strong>_image_thermal</strong> (1)<strong>.png</strong></li>
+                    </ul>
+                    <p>Pokud jsou Vaše soubory pojmenovány jinak, můžete k LRC snímkům přiřadit PNG soubory ručně v tabulce výše.</p>
+                </thermal-tip>
+            
+            </thermal-expandable>
+
+            
         </div>`;
     }
 

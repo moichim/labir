@@ -104,6 +104,13 @@ export class FolderUploadForm extends ClientConsumer {
             padding-bottom: .5em;
             font-size: 1.3em;
             line-height: 1.2em;
+
+            small {
+                font-size: 1em;
+                display: inline-block;
+                opacity: .5;
+                font-weight: normal;
+            }
         }
 
         .stage-close {
@@ -159,8 +166,7 @@ export class FolderUploadForm extends ClientConsumer {
         }
         .stage-upload:hover {
             border-color: var(--thermal-primary);
-            background: var(--thermal-slate-light);
-            filter: brightness(1.05);
+            background: var(--thermal-background);
         }
 
         .stage-upload--inline {
@@ -219,6 +225,23 @@ export class FolderUploadForm extends ClientConsumer {
         .group-remove-btn:hover { background: var(--thermal-danger); }
 
         .unmatched-files {
+
+            margin-top: var(--thermal-gap);
+
+            thermal-expandable {
+                --font-size: .9em;
+            }
+
+            h2 {
+                margin: 0;
+                font-size: 1em;
+            }
+
+            p:last-child,
+            li::last-child {
+                margin-bottom: 0;
+            }
+
         }
 
         .info {
@@ -815,10 +838,19 @@ export class FolderUploadForm extends ClientConsumer {
             return nothing;
         }
 
+        const lrcCount = this.pairedFiles.length;
+
+        const pngCount = this.pairedFiles.reduce( (state, current) => {
+            return state + (current.visual ? 1 : 0) + (current.preview ? 1 : 0);
+        }, 0 );
+
+        let titleSuffix = `${lrcCount}x LRC`;
+        if (pngCount > 0) titleSuffix +=` + ${pngCount}x PNG`;
+
         return html`
 <div class="paired-files">
 
-<h3 class="stage-label">Soubory k uploadu (${this.pairedFiles.length}):</h3>
+<h3 class="stage-label">Soubory k uploadu <small>${titleSuffix}</h3>
 
 <table class="paired-files-table">
 <tbody>
@@ -836,52 +868,60 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
         }
 
         const titleStart = this.pairedFiles.length === 0
-            ? "Nerozpoznané obrázky"
-            : "Další nerozpoznané obrázky";
+            ? "Nespárované obrázky"
+            : "Další nespárované obrázky";
 
         const title = `${titleStart} (${this.unmatchedPngs.length}) nebudou nahrány`;
 
-        const titleElement = this.pairedFiles.length === 0
-            ? html`<h3 class="stage-label">${title}</h3>`
-            : html`<thermal-btn
-        icon="info"
-        iconStyle="outline"
-        size="lg"
-        @click=${(event: MouseEvent) => {
-                    const btn = event.target as ThermalBtn;
-                    const parent = btn.parentElement;
-                    const list = parent?.querySelector(".unmatched-files__list") as HTMLElement;
-                    if (list) {
-                        list.style.display = list.style.display === "none" ? "block" : "none";
-                    }
-                }}
-    >${title}</thermal-btn>`;
-
-        const defaultListStyle = this.pairedFiles.length === 0
-            ? "block"
-            : "none";
-
         return html`<div class="unmatched-files">
 
-    ${titleElement}
+    <thermal-expandable
+        label="${title}"
+        icon="info"
+        iconStyle="outline"
+        variantExpanded="foreground"
+        closeIcon="true"
+    >
 
-    <div class="unmatched-files__list" style="display: ${defaultListStyle};">
+        <div class="unmatched-files__list">
 
-        <table>
-            <tbody>
-            ${this.unmatchedPngs.map(item => html`
-        <tr class="file-item">
-            <td style="position:relative;">
-                <img src=${item.url} alt="Unmatched file preview" />
-                <div class="file-remove-btn" title="Odstranit" @click=${() => this.removeUnmatchedPng(item.file)}>×</div>
-            </td>
-            <td>${item.file.name}</td>
-            <td></td>
-        </tr>`)}
-            </tbody>
-        </table>
+            <table>
+                <tbody>
+                ${this.unmatchedPngs.map(item => html`
+            <tr class="file-item">
+                <td>
+                    <thermal-btn tooltip="${t(T.remove)}" plain="true" variant="background" icon="close" iconStyle="micro" @click=${() => this.removeUnmatchedPng(item.file)}></thermal-btn>
+                </td>
+                <td style="position:relative;">
+                    <img src=${item.url} alt="Unmatched file preview" />
+                </td>
+                <td>${item.file.name}</td>
+            </tr>`)}
+                </tbody>
+            </table>
 
-    </div>
+            <thermal-tip
+                variant="info"
+                style="--font-size: 1em; margin-top: 1em;"
+            >
+                <h2>Jak párujeme soubory</h2>
+                <p>Termokamery TIMI Edu od roku 2024 ukládají soubory v tomto formátu:</p>
+                <ul>
+                    <li><strong>[datum]_thermal.lrc</strong> - klíčový termogram, který potřebujeme</li>
+                    <li><strong>[datum]_visual.png</strong> - snímek ve viditelném spektru (volitelný)</li>
+                    <li><strong>[datum]_image_thermal.png</strong> - printscreen displeje termokamery (volitelný, v online aplikaci nemá žádné užití)</li>
+                </ul>
+                <p>Co jsme schopni spárovat:</p>
+                <ul>
+                    <li><strong>[datum]</strong>_cokolivdalsiho<strong>_thermal</strong>_neco<strong>.lrc</strong></li>
+                    <li><strong>[datum]</strong>_neco_jineho<strong>_visible.png</strong></li>
+                    <li><strong>[datum]</strong>_zase_neco_jineho_<strong>_image_thermal</strong> (1)<strong>.png</strong></li>
+                </ul>
+                <p>Pokud jsou Vaše soubory pojmenovány jinak, můžete k LRC snímkům přiřadit PNG soubory ručně v tabulce výše.</p>
+            </thermal-tip>
+
+        </div>
+    </thermal-expandable>
 
 </div>`;
     }

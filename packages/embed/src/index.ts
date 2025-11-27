@@ -45,6 +45,8 @@ import "./ui/Radio";
 import "./ui/Slot";
 import "./ui/Spinner";
 import "./ui/Dropin";
+import "./ui/Expandable";
+import "./ui/Tip";
 import "./ui/Playground";
 
 
