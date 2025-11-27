@@ -163,6 +163,11 @@ export class FolderUploadDialog extends ClientConsumer {
                 height: 2em;
             }
         }
+
+        .file-preview__preview {
+            position: relative;
+        }
+    
         .file-preview__info { 
             display: flex; 
             flex-direction: column; 
@@ -177,11 +182,19 @@ export class FolderUploadDialog extends ClientConsumer {
             font-size: 1.2em; 
             font-weight: 500; 
         }
+        .file-preview__name {
+            max-width: 10em; /* nebo jiná vhodná šířka */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: block;
+        }
         .file-remove-btn { 
             position: absolute; 
-            top: 4px; 
-            right: 4px; 
-            cursor: pointer; 
+            top: -4px; 
+            left: -4px; 
+            cursor: pointer;
+            --padding: .3em;
         }
 
         .missing-file-dropzone { 
@@ -588,10 +601,9 @@ export class FolderUploadDialog extends ClientConsumer {
             : (isImg ? html`<div class="file-preview__icon"><thermal-icon icon="image" variant="outline"></thermal-icon></div>`
                      : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`);
         const removable = (type === 'visual' || type === 'preview') || label.toLowerCase().includes('lrc');
-        const removeBtn = removable ? html`<thermal-btn class="file-remove-btn" variant="background" plain="true" size="sm" icon="close" iconStyle="micro" tooltip="${t(T.remove)}" @click=${() => this.removePairedFile(file)}></thermal-btn>` : nothing;
+        const removeBtn = removable ? html`<thermal-btn class="file-remove-btn" variant="primary" plain="true" size="sm" icon="close" iconStyle="micro" tooltip="${t(T.remove)}" @click=${() => this.removePairedFile(file)}></thermal-btn>` : nothing;
         return html`<div class="file-preview file-preview__has-file">
-            ${removeBtn}
-            <div class="file-preview__preview">${preview}</div>
+            <div class="file-preview__preview">${preview}${removeBtn}</div>
             <div class="file-preview__info">
                 <div class="file-preview__label">${label}</div>
                 <div class="file-preview__name">${file.name}</div>
