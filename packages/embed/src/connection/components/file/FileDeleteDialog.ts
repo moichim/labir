@@ -51,7 +51,7 @@ export class FileDeleteDialog extends ClientConsumer {
 
         .warning {
             background: var(--thermal-danger-light, #fee);
-            border: 1px solid var(--thermal-danger, #f00);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
             border-radius: var(--thermal-radius);
             padding: var(--thermal-gap);
             margin-bottom: var(--thermal-gap);
@@ -78,7 +78,7 @@ export class FileDeleteDialog extends ClientConsumer {
 
         .error {
             background: var(--thermal-danger-light, #fee);
-            border: 1px solid var(--thermal-danger, #f00);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
             border-radius: var(--thermal-radius);
             padding: calc(var(--thermal-gap) * 0.5);
             margin-top: var(--thermal-gap);

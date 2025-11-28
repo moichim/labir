@@ -129,7 +129,7 @@ export class FileCanvas extends FileConsumer {
             height: 100%;
 
             border: 2px dashed currentcolor;
-            border-radius: calc( var( --thermal-radius ) * 2 );
+            border-radius: var( --thermal-radius );
 
             padding: var( --thermal-gap );
 

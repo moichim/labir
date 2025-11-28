@@ -7,8 +7,8 @@ import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { classMap } from "lit/directives/class-map.js";
-
-const isChromium = "chrome" in window;
+import { map } from "lit/directives/map.js";
+import { cache } from "lit/directives/cache.js";
 
 @customElement("thermal-app")
 export class ThermalAppUiElement extends BaseElement {
@@ -184,6 +184,7 @@ export class ThermalAppUiElement extends BaseElement {
             font-weight: normal;
             font-size: var( --thermal-fs );
             line-height: 1em;
+            color: var( --thermal-foreground );
         }
 
         .dark {
@@ -194,7 +195,7 @@ export class ThermalAppUiElement extends BaseElement {
 
             padding: calc( var( --thermal-gap ) / 3 );
             background-color: var( --thermal-slate-light );
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );    
             position: relative;        
 
@@ -237,11 +238,6 @@ export class ThermalAppUiElement extends BaseElement {
             }
         }
 
-        .app-fullscreen-button {
-            svg {
-                width: 1em;
-            }
-        }
 
         .credits {
 
@@ -273,7 +269,6 @@ export class ThermalAppUiElement extends BaseElement {
 
         .has-content {
             margin-top: calc( var(--thermal-gap) * .5);
-            color: var( --thermal-foreground );
             &::before {
                 opacity: .5;
                 font-size: calc( var(--thermal-fs-sm) * 0.8 );
@@ -288,21 +283,6 @@ export class ThermalAppUiElement extends BaseElement {
             z-index: 9999;
             background: var(--thermal-slate-light);
             background: linear-gradient(var(--thermal-slate-light) calc(100% - 10px), transparent);
-        }
-
-        footer.chromium {
-            color: var(--thermal-foreground);
-            font-size: 12px;
-            opacity: .5;
-            display: flex;
-            gap: 5px;
-            margin-top: 10px;
-            svg {
-                width: 1em;
-            }
-            a {
-                color: var(--thermal-foreground);
-            }
         }
     
     `;
@@ -331,143 +311,127 @@ export class ThermalAppUiElement extends BaseElement {
         ${slotInner}
     </slot>`;
 
-    } 
+    }
+
+
+    private renderCreditField(label: string, value?: string): unknown {
+        if ( value === undefined || value.trim().length === 0 ) return nothing;
+        return html`<div>
+    <div class="credits-field">${label}:</div>
+    <div class="credit-value">${value}</div>
+</div>`;
+    }
+
+    private renderCredits(): unknown {
+
+        if ( this.author || this.license || this.recorded ) {
+
+            return html`<div class="credits">
+    ${this.renderCreditField(t(T.recordedat), this.recorded)}
+    ${this.renderCreditField(t(T.author), this.author)}
+    ${this.renderCreditField(t(T.license), this.license)}
+</div>`;
+
+        }
+
+        return nothing;
+
+    }
+
+    private static readonly languages = [
+        "en",
+        "cs",
+        "de",
+        "fr",
+        "cy",
+    ];
+
+    private renderLanguageSwitcher(): unknown {
+
+        return html`<thermal-dropdown>
+    <span slot="invoker">${this.language.toUpperCase()}</span>
+    ${cache( map( ThermalAppUiElement.languages, lang => html`<div slot="option">
+        <thermal-btn
+            @click=${() => {
+                i18next.changeLanguage( lang );
+                this.language = lang;
+            }}
+        >${languagesObject[lang].flag} ${languagesObject[lang].name}</thermal-btn>
+    </div>` ) )}
+</thermal-dropdown>`;
+
+    }
+
+    private renderFullscreenButton(): unknown {
+
+        if ( this.showfullscreen === false ) {
+            return nothing;
+        }
+
+        return html`<thermal-btn
+    class="app-fullscreen-button"
+    @click=${this.toggleFullscreen.bind(this)}
+    icon=${this.fullscreen === "on" ? "smaller" : "bigger"}
+    iconStyle="mini"
+    tooltip=${this.fullscreen === "on" ? t(T.close) : "Fullscreen"}
+></thermal-btn>`;
+
+    }
 
 
 
     protected render(): unknown {
 
-        const showChromiumWarning = isChromium === true && this.chromiumwarning === true;
+        return html`<div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
 
-        const fullscreenIcon = this.fullscreen === "on" ? "smaller" : "bigger";
-        const fullscreenTooltip = this.fullscreen === "on"
-            ? t(T.close)
-            : "Fullscreen";
+    <header ${ref(this.headerRef)} class="app-header">
 
-        return html`
+        <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
 
-    <div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
+            ${ this.renderLabel() }
 
-        <header ${ref(this.headerRef)} class="app-header">
-            
-            <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
+            <slot name="bar-persistent"></slot>
 
-                ${ this.renderLabel() }
+            <div class="bar-content">
 
-                <slot name="bar-persistent"></slot>
+                <thermal-bar>
 
-                <div class="bar-content">
+                    <slot name="bar-pre"></slot>
+                    <div class="bar-separator"></div>
+                    <slot name="bar-post"></slot>
 
-                    <thermal-bar>
-
-                        <slot name="bar-pre"></slot>
-
-                        <div class="bar-separator"></div>
-
-                        <slot name="bar-post"></slot>
-
-                    </thermal-bar>
-                
-                </div>
-
-                <slot name="close"></slot>
-
-                
-                ${ this.showfullscreen === true ? html`
-                    <thermal-btn class="app-fullscreen-button" @click=${this.toggleFullscreen.bind(this)} icon=${fullscreenIcon} iconStyle="mini" tooltip=${fullscreenTooltip}>
-                    </thermal-btn>
-                ` : nothing }
-
-                <thermal-dropdown>
-
-                    <span slot="invoker">${this.language.toUpperCase()}</span>
-
-                    ${[
-                        "en",
-                        "cs",
-                        "de",
-                        "fr",
-                        "cy",
-                    ].map( lang => html`
-                        <div slot="option">
-                            <thermal-btn
-                                @click=${() => {
-                                    i18next.changeLanguage( lang );
-                                    this.language = lang;
-                                }}
-                            >${languagesObject[lang].flag} ${languagesObject[lang].name}</thermal-btn>
-                        </div>
-                    ` )}
-                </thermal-dropdown>
+                </thermal-bar>
                 
             </div>
 
-        ${this.preElements.length >= 0 ? html`
-            <div class="pre" class="pre">
-                <slot name="pre"></slot>
-            </div> 
-        ` : ""}
+            <slot name="close"></slot>
 
-        </header>
+            ${this.renderFullscreenButton()}
 
+            ${this.renderLanguageSwitcher()}
 
-            <div class="content" part="app-content" ${ref(this.contentRef)}>
-                <slot></slot>
-            </div>
+        </div>
 
-            <div class="post">
-                <slot name="post"></slot>
-            </div>
+        ${this.preElements.length >= 0 ? html`<div class="pre" class="pre">
+            <slot name="pre"></slot>
+        </div>` : ""}
 
-            ${this.author || this.license || this.recorded 
-                ? html`<div class="credits">
+    </header>
 
-                    ${this.recorded 
-                        ? html`<div>
-                            <div class="credits-field">${t(T.recordedat)}:</div>
-                            <div class="credit-value">${this.recorded}</div>
-                        </div>`
-                        : nothing
-                    }
-
-                    ${this.author 
-                        ? html`<div>
-                            <div class="credits-field">${t(T.author)}:</div>
-                            <div class="credit-value">${this.author}</div>
-                        </div>`
-                        : nothing
-                    }
-
-                    ${this.license 
-                        ? html`<div>
-                            <div class="credits-field">${t(T.license)}:</div>
-                            <div class="credit-value">${this.license}</div>
-                        </div>`
-                        : nothing
-                    }
-
-                </div>`
-                : nothing
-            }
-
-            <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
-                <slot name="content"></slot>
-            </div>
-
-            ${showChromiumWarning === true 
-                ? html`<footer class="chromium">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                </svg>
-
-                    <span>Chromium-based browsers provide a slightly worse performance during the playback. Consider using <a href="https://mozilla.org/firefox" target="_blank">Firefox</a>.</span>
-                </footer>`
-                : nothing
-            }
-
+    <div class="content" part="app-content" ${ref(this.contentRef)}>
+        <slot></slot>
     </div>
-        
-        `
+
+    <div class="post">
+        <slot name="post"></slot>
+    </div>
+
+    ${this.renderCredits()}
+
+    <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
+        <slot name="content"></slot>
+    </div>
+</div>`
     }
 
 }

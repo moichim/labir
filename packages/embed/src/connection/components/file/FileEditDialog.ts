@@ -55,7 +55,7 @@ export class FileEditDialog extends ClientConsumer {
             width: 100%;
             box-sizing: border-box;
             padding: calc(var(--thermal-gap) * 0.5);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             font-size: var(--thermal-fs);
         }
@@ -64,7 +64,7 @@ export class FileEditDialog extends ClientConsumer {
             width: 100%;
             box-sizing: border-box;
             padding: calc(var(--thermal-gap) * 0.5);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             font-size: var(--thermal-fs);
             font-family: inherit;
@@ -73,7 +73,7 @@ export class FileEditDialog extends ClientConsumer {
 
         .error {
             background: var(--thermal-danger-light, #fee);
-            border: 1px solid var(--thermal-danger, #f00);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
             border-radius: var(--thermal-radius);
             padding: calc(var(--thermal-gap) * 0.5);
             margin-top: var(--thermal-gap);

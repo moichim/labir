@@ -10,19 +10,18 @@ export const appendStyles = () => {
 
 const version = pversion.toString().replaceAll(".", "-");
 const getStylesheetId = (scope: string) => {
-    return `thermal__${scope}__${version}`;
+    return `labirthermal__${scope}__${version}`;
 }
 
-/*
+
 const cssStyleIsAppended = (scope: string) => {
     const element = document.getElementById(getStylesheetId(scope));
     return element !== null;
 }
-    */
 
 const appendHeadCss = (scope: string, styles: string) => {
 
-    // if (!cssStyleIsAppended(scope)) {
+    if (!cssStyleIsAppended(scope)) {
 
         const element = document.createElement("style");
         element.setAttribute("id", getStylesheetId(scope));
@@ -30,7 +29,7 @@ const appendHeadCss = (scope: string, styles: string) => {
 
         document.head.appendChild(element);
 
-    // }
+    }
 
 }
 
@@ -93,6 +92,9 @@ export const addInlineStyles = () => {
             /** Shadows */
             --thermal-shadow: 0px 0px 5px var( --thermal-slate-dark );
             --thermal-shadow-none: 0px 0px 0px transparent;
+
+            --thermal-border-width: 1px;
+            --thermal-border-style: solid;
         
         }
 
@@ -147,6 +149,65 @@ export const addInlineStyles = () => {
             
         ` );
 
+    appendHeadCss( "solarizedSkin", `*[skin="solarized"] {
+--thermal-foreground: #cef0faff;
+--thermal-background: #1d5766ff;
+
+--thermal-slate-dark: #39aaa1ff;
+--thermal-slate: #27888bff;
+--thermal-slate-light: #073642;
+
+--thermal-primary-dark: #defdffff;
+--thermal-primary: #9de9f3ff;
+--thermal-primary-light: #67bcddff;
+}` );
+
+    appendHeadCss( "systemSkin", `*[skin="system"] {
+--thermal-foreground: buttontext;
+--thermal-background: field;
+        
+--thermal-slate: ButtonBorder;
+--thermal-slate-dark: GrayText;
+--thermal-slate-light: ButtonFace;
+
+--thermal-primary: accentcolor;
+--thermal-primary-dark: linktext;
+--thermal-primary-light: selecteditem;
+}` );
+
+    appendHeadCss( "darkSkin", `*[skin="dark"] {
+--thermal-primary: aqua;
+--thermal-foreground: white;
+--thermal-background: black;
+
+--thermal-primary-light: var( --thermal-primary-base-dark );
+--thermal-primary-dark: var( --thermal-primary-base-light );
+
+--thermal-slate-light: var( --thermal-slate-base-dark );
+--thermal-slate-dark: var( --thermal-slate-base-light );
+}` );
+
+    appendHeadCss( "darkHC", `*[skin="darkhc"] {
+--thermal-foreground: black;
+--thermal-background: white;
+        
+--thermal-slate: gray;
+--thermal-slate-dark: #454545;
+--thermal-slate-light: lightgray;
+
+--thermal-primary: blue;
+--thermal-primary-dark: navy;
+--thermal-primary-light: lightblue;
+
+}` );
+
+    appendHeadCss( "narrowCorners", `*[corners="narrow"] {
+--thermal-radius: 0px;
+` );
+
+    appendHeadCss( "lineStyles", `*[lines="big"] {
+--thermal-border-width: 3px;
+` );
 
 }
 

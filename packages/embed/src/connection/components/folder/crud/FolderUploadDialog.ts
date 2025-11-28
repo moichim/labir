@@ -203,7 +203,7 @@ export class FolderUploadDialog extends ClientConsumer {
             align-items: center; 
             justify-content: center; 
             border: 2px dotted var(--thermal-slate); 
-            border-radius: var(--thermal-radius-sm); 
+            border-radius: var(--thermal-radius); 
             cursor: pointer; 
             transition: all .2s; 
             font-size: var(--thermal-fs-sm); 
@@ -274,12 +274,12 @@ export class FolderUploadDialog extends ClientConsumer {
         }
         .info { 
             background: var(--thermal-primary-light,#eef); 
-            border:1px solid var(--thermal-primary,#00f); 
+            border:1px var(--thermal-border-style)var(--thermal-primary,#00f); 
             color: var(--thermal-primary-dark,#008); 
         }
         .error { 
             background: var(--thermal-danger-light,#fee); 
-            border:1px solid var(--thermal-danger,#f00); 
+            border:1px var(--thermal-border-style)var(--thermal-danger,#f00); 
             color: var(--thermal-danger-dark,#800); 
         }
     `;

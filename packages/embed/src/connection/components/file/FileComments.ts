@@ -51,7 +51,7 @@ export class FileComments extends ClientConsumer {
             justify-content: center;
             align-items: center;
 
-            border: 1px dashed var(--thermal-slate);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
 
             font-size: .8em;

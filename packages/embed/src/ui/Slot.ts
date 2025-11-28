@@ -46,7 +46,7 @@ export class ThermalSlot extends BaseElement {
             &::after {
                 content: "";
                 flex: 1;
-                height: 1px;
+                height: var(--thermal-border-width);
                 background: var(--thermal-slate-light);
             }
 
@@ -61,6 +61,9 @@ export class ThermalSlot extends BaseElement {
         :host(:hover) {
             h3 {
                 color: var(--thermal-foreground);
+                &::after {
+                    background: var(--thermal-slate);
+                }
             }
 
 

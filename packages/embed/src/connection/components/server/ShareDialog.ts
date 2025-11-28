@@ -129,7 +129,7 @@ export class ShareDialog extends ClientConsumer {
             padding: 1.5em .5em .5em .5em;
             margin-top: 2em;
 
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
 
             position: relative;
@@ -146,7 +146,7 @@ export class ShareDialog extends ClientConsumer {
                margin: 0;
 
                border-radius: var( --thermal-radius );
-               border: 1px solid var( --thermal-slate );
+               border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
 
                background: var( --thermal-slate-light );
 

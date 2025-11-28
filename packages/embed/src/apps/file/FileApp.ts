@@ -227,7 +227,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 /** Palette changes */
                 instance.group.registry.manager.palette.addListener(this.UUID + "mirror_changes", value => {
                     if (this.palette !== value) {
-                        this.palette = value;
+                        this.palette = value as AvailableThermalPalettes;
                     }
                 });
 
@@ -640,7 +640,7 @@ export class FileApp extends BaseAppWithPngExportContext {
 
             .thermogram {
                 padding: var(--thermal-gap);
-                border: 1px solid var(--thermal-slate);
+                border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                 border-radius: var(--thermal-radius);
                 background: var(--thermal-background);
             }
@@ -659,7 +659,7 @@ export class FileApp extends BaseAppWithPngExportContext {
             border-radius: var(--thermal-radius);
             background: var(--thermal-background);
             color: var(--thermal-foreground);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             white-space: pre-wrap;
         }
     }

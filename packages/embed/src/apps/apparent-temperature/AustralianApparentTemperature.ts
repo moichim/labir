@@ -285,19 +285,25 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
             width: 120px;
             text-align: right;
             border: 0;
-            border-bottom: 1px solid var( --thermal-slate-light );
+            border-bottom: 1px var(--thermal-border-style)var( --thermal-slate-light );
+            background: transparent;
+            color: var( --thermal-foreground );
 
             -moz-appearance: textfield;
 
             &:focus {
                 outline: 0;
-                border-bottom: 1px solid var( --thermal-primary );
+                border-bottom: 1px var(--thermal-border-style)var( --thermal-primary );
             }
         
         }
 
         select, option, input {
             font-size: var(--thermal-fs);
+            color: var( --thermal-foreground );
+            background: var( --thermal-background );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate-light );
+            border-radius: var( --thermal-radius );
         }
 
 
@@ -305,7 +311,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         .result {
 
             padding: calc(var(--thermal-gap) * .7);
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             text-align: center;
 
@@ -331,7 +337,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         .tabindex {
             border-radius: var( --thermal-radius );
             &:focus {
-                outline: 3px solid var(--thermal-primary);
+                outline: 3px var(--thermal-border-style)var(--thermal-primary);
             }
         }
 
@@ -447,7 +453,11 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
     protected render() {
         return html`
-            <thermal-app label=${t(T.apparenttemperature)} author="LabIR Edu" license="CC BY-SA 4.0">
+            <thermal-app 
+                label=${t(T.apparenttemperature)} 
+                author="LabIR Edu" 
+                license="CC BY-SA 4.0"
+            >
 
                 <thermal-dialog label=${t(T.info)} slot="bar-pre">
                     <thermal-btn slot="invoker">${t(T.info)}</thermal-btn>

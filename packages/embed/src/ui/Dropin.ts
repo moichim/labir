@@ -19,7 +19,7 @@ export class Dropin extends BaseElement {
 
             
 
-            border: 1px var(--thermal-slate) solid;
+            border: var(--thermal-border-width) var(--thermal-slate)var(--thermal-border-style);
             border-radius: var(--thermal-radius);
 
             transition: all .5s ease-in-out;

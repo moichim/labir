@@ -129,7 +129,7 @@ export class ServerBar extends ClientConsumer {
 
         .history.expanded {
 
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             overflow: hidden;
 

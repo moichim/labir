@@ -1,6 +1,6 @@
-import { author, version } from "../package.json";
+import { version } from "../package.json";
 
-import "./styles/styles.css";
+// import "./styles/styles.css";
 
 import "./translations/i18n";
 
@@ -19,11 +19,9 @@ import { initialiseMode } from "./styles/mode";
 initialiseMode();
 
 // Append default styles
-import { appendStyles } from "./styles/defaultStyles";
+import { addInlineStyles } from "./styles/defaultStyles";
 
-// addInlineStyles();
-
-appendStyles();
+addInlineStyles();
 
 
 // Log the start info
@@ -38,16 +36,16 @@ import "./ui/Bar";
 import "./ui/Btn";
 import "./ui/Dialog";
 import "./ui/Dropdown";
+import "./ui/Dropin";
+import "./ui/Expandable";
 import "./ui/Field";
 import "./ui/Icon";
 import "./ui/Loading";
+import "./ui/Playground";
 import "./ui/Radio";
 import "./ui/Slot";
 import "./ui/Spinner";
-import "./ui/Dropin";
-import "./ui/Expandable";
 import "./ui/Tip";
-import "./ui/Playground";
 
 
 
@@ -172,6 +170,7 @@ import "./connection/components/folder/configuration/AnalysisMode";
 import "./connection/components/folder/configuration/DisplayMode";
 import "./connection/components/folder/configuration/EditingMode";
 import "./connection/components/folder/configuration/FolderTagsFilter";
+import "./connection/components/folder/configuration/SubfoldersMode";
 import "./connection/components/folder/crud/FolderAddDialog";
 import "./connection/components/folder/crud/FolderDeleteDialog";
 import "./connection/components/folder/crud/FolderEditDialog";
@@ -179,13 +178,12 @@ import "./connection/components/folder/crud/FolderUploadDialog";
 import "./connection/components/folder/crud/FolderUploadForm";
 import "./connection/components/folder/files/FolderFiles";
 import "./connection/components/folder/files/FolderRemoveAnalyses";
+import "./connection/components/folder/folders/FolderRow";
 import "./connection/components/folder/folders/FolderSubfolders";
 import "./connection/components/folder/folders/FolderThumbnail";
-import "./connection/components/folder/folders/FolderRow";
+import "./connection/components/folder/grid/SubfoldersGrid";
 import "./connection/components/folder/single/FolderBaseInfo";
 import "./connection/components/folder/single/FolderBreadcrumb";
-import "./connection/components/folder/configuration/SubfoldersMode";
-import "./connection/components/folder/grid/SubfoldersGrid";
 
 // 8.2 File related components
 

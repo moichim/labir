@@ -156,7 +156,7 @@ export class ThermalDropdown extends BaseElement {
             
             padding: 5px 10px;
 
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
 
             background-color: var( --thermal-slate-light );

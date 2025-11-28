@@ -395,7 +395,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
             width: 100%;
 
             border-radius: var(--thermal-radius);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
 
             background: var(--thermal-slate-light);
             color: var(--thermal-foreground);
@@ -459,7 +459,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                     background: var(--thermal-background);
                     padding: var(--thermal-gap);
                     border-radius: var(--thermal-radius);
-                    border: 1px solid var(--thermal-slate);
+                    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                 }
             }
         
@@ -470,7 +470,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                     width: 100%;
                     box-sizing: border-box;
                     padding: var(--thermal-gap);
-                    border: 1px solid var(--thermal-slate);
+                    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                     border-radius: var(--thermal-radius);
 
                     header {
@@ -480,7 +480,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                     }
 
                     .group-description {
-                        border: 1px solid var(--thermal-slate);
+                        border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                         border-radius: var(--thermal-radius);
                         padding: var(--thermal-gap);
                         box-sizing: border-box;

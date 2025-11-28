@@ -76,7 +76,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
             background-color: #bf8f8f;    
 
             border-radius: var(--thermal-radius);
-            border: 1px solid var(--thermal-slate-dark);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate-dark);
 
             box-sizing: border-box;
             width: 100%;

@@ -98,7 +98,7 @@ export class FileAnalysisTable extends FileConsumer {
             min-width: 100%;
             border-collapse: collapse;
             color: var( --thermal-foreground );
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             td, th {
                 padding: calc( var( --thermal-fs ) * .5 )
@@ -124,7 +124,7 @@ export class FileAnalysisTable extends FileConsumer {
         }
 
         file-analysis-table-row:not(:last-child) {
-            border-bottom: 1px dotted var( --thermal-foreground );
+            border-bottom: var(--thermal-border-width) dotted var( --thermal-foreground );
         }
 
         file-analysis-table-row[selected] {
@@ -149,7 +149,7 @@ export class FileAnalysisTable extends FileConsumer {
                 width: 10px;
                 height: 10px;
                 border-radius: 50%;
-                border: 1px solid var( --thermal-slate );
+                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             }
 
             &.yes u {

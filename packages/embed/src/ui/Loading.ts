@@ -37,7 +37,7 @@ export class Loading extends BaseElement {
             width: 100%;
             min-height: 300px;
 
-            border: 1px dashed var(--thermal-slate);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
             
             box-sizing: border-box;

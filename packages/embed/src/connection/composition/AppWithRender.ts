@@ -162,7 +162,7 @@ export abstract class AppWithRender extends AppWithContent {
     
                 padding: var(--thermal-gap);
     
-                border: 1px dashed var(--thermal-slate);
+                border: var(--thermal-border-width) dashed var(--thermal-slate);
                 border-radius: var(--thermal-radius);
     
                 display: flex;
@@ -192,7 +192,7 @@ export abstract class AppWithRender extends AppWithContent {
                 
                     box-sizing: border-box;
                     padding: var(--thermal-gap);
-                    border: 1px dashed var(--thermal-slate);
+                    border: var(--thermal-border-width) dashed var(--thermal-slate);
                     border-radius: var(--thermal-radius);
                 
                 }

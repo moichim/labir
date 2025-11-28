@@ -95,8 +95,8 @@ export class SubfoldersMode extends AbstractModeBar {
 
             margin-bottom:.25em;
 
-            border-top: 5px solid var(--thermal-slate-light);
-            border-bottom: 5px solid var(--thermal-slate-light);
+            border-top: 5px var(--thermal-border-style)var(--thermal-slate-light);
+            border-bottom: 5px var(--thermal-border-style)var(--thermal-slate-light);
 
             &:first-child {
                 width: 1em;

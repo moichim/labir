@@ -70,9 +70,10 @@ export class ThermalDialog extends LitElement {
         .dialog {
             background: var( --thermal-slate-light );
             color: var( --thermal-foreground );
+            border-style: var( --thermal-border-style );
             border-radius: var( --thermal-radius );
             border-color: var( --thermal-slate );
-            border-width: 1px;
+            border-width: var(--thermal-border-width);
             padding: calc( var( --thermal-gap ) * 1.5 );
             font-size: var( --thermal-fs-small );
 

@@ -28,7 +28,7 @@ export class Tip extends BaseElement {
     color: var(--color);
     background: var(--background);
     
-    border: 1px solid var(--border-color);
+    border: var(--thermal-border-width) var(--thermal-border-style) var(--border-color);
     border-radius: var(--radius);
 
     width: 100%;

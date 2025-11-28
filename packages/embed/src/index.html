@@ -42,6 +42,7 @@
   <button onclick="alert('Ahoj!')">Klikni na mě!</button>
 </thermal-expandable>
 
+<!--
 <playground-element
   title="Toto je titulek!"
   
@@ -53,6 +54,8 @@
 <button onclick="alert('WAS??')">Něco vytiskni</button></code>
 </playground-element>
 
+-->
+
   <h1>Connected App</h1>
 
   <p>New API integration.</p>
@@ -63,7 +66,8 @@
   labelIconStyle="solid"
   labelVariant="primary"
   folder-path="mikroklima/ucitel/projekt" advanced-palettes="true" show-discussion="true"
-    displaymode="table" by="year" folder-mode="table" palette="rainbow"></connected-app>
+    displaymode="table" by="year" folder-mode="table" palette="rainbow"
+    skin="solarized" corners="narrow_" lines="big"></connected-app>
 
 
   <h1>Thermal File App</h1>
@@ -72,13 +76,18 @@
     palette="jet" layout="advanced" analysis1="Analýza A;rectangle;color:Blue;top:14;left:8;width:65;height:31"
     analysis2="Analýza B;ellipsis;color:Green;top:34;left:102;width:34;height:47;avg;min" opacity="1" showscale="true" showshare="true"
     showhistogram="true" showlayout="false" interactiveanalysis="true" locale="cs"
-    showfullscreen="false"></thermal-file-app>
+    showfullscreen="false"
+  skin="darkhc"
+  ></thermal-file-app>
 
 
   <h1>Thermal Group App</h1>
 
   <thermal-group-app
     label="Skupina obrázků"
+    skin="solarized"
+    lines="big"
+    corners="narrow"
   >
     <thermal-file lrc="/soustruh.lrc" label="Soustruh"></thermal-file>
     <thermal-file lrc="/testing_sequence.lrc" label="Testing Sequence"></thermal-file>
@@ -90,7 +99,6 @@
     <thermal-file lrc="/nosorozec_02.lrc" label="Nosorožec 2"></thermal-file>
 </thermal-group-app>
 
--->
 
   <!--
 
@@ -146,25 +154,25 @@
 -->
 
 
-<!--
+
 
   <h1>Dropin App</h1>
 
-  <thermal-dropin-app>
-    <button slot="bar-pre">Jedeš</button>
+  <thermal-dropin-app skin="dark" lines="big_" corners="narrow_" style="--thermal-primary: red;">
+    <thermal-btn slot="bar-pre">Jedeš</thermal-btn>
   </thermal-dropin-app>
 
 
   <h1>Apparent Temperature</h1>
 
-  <apparent-temperature-aat></apparent-temperature-aat>
+  <apparent-temperature-aat skin="dark" lines="big_" corners="narrow_"></apparent-temperature-aat>
 
 
 
 
   <h1>Gallery</h1>
 
-  <thermal-gallery-app>
+  <thermal-gallery-app skin="solarized" lines="big" corners="narrow">
     <thermal-group label="1. skupina">
       <thermal-file lrc="/soustruh.lrc"></thermal-file>
       <thermal-file lrc="/testing_sequence.lrc"></thermal-file>
@@ -190,7 +198,6 @@
     </thermal-group>
   </thermal-gallery-app>
 
--->
 
   <script type="module" src="/index.ts"></script>
 

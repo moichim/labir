@@ -28,7 +28,7 @@ export class FileInfoButton extends FileConsumer {
 
         tr:not(:last-child) {
             td {
-                border-bottom: 1px solid var( --thermal-slate );
+                border-bottom: var(--thermal-border-width) solid var( --thermal-slate );
             }
         }
 

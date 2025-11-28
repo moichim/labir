@@ -294,7 +294,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
         }
 
         .group__bordered {
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             margin-top: calc( var( --thermal-gap ) * .5 );
             background-color: color-mix(in srgb, var( --thermal-slate-light ), #fff);
@@ -354,8 +354,8 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             padding: var(--thermal-gap);
             background: var(--thermal-background);
             box-sizing: border-box;
-            border-radius: var(--thermal-gap);
-            border: 1px solid var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             width: 100%;
         }
 

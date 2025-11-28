@@ -52,7 +52,7 @@ export class FileCommentForm extends ClientConsumer {
             padding: .5em;
             resize: vertical;
 
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
 
             font-family: inherit;

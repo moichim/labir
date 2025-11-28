@@ -222,7 +222,7 @@ export class FileAnalysisRow extends BaseElement {
         }
 
         .may button {
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             cursor: pointer;
 
@@ -261,7 +261,7 @@ export class FileAnalysisRow extends BaseElement {
                 width: 10px;
                 height: 10px;
                 border-radius: 50%;
-                border: 1px solid var( --thermal-slate );
+                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             }
             b {
                 width: 1em;

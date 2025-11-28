@@ -28,7 +28,7 @@ export class FolderRow extends AbstractFolderThumbnail {
                 min-width: 1em;
                 position: relative;
 
-                border-bottom: .5em solid transparent;
+                border-bottom: .5em var(--thermal-border-style)transparent;
 
                 background: var(--thermal-background);
             

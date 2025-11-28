@@ -386,7 +386,7 @@ export class RegistryRangeForm extends RegistryConsumer {
                 &::after {
                     content: "";
                     display: block;
-                    height: 1px;
+                    height: var(--thermal-border-width);
                     width: 100%;
                     background: var( --thermal-slate );
                 }
@@ -416,7 +416,7 @@ export class RegistryRangeForm extends RegistryConsumer {
             height: 2em;
             background: var( --thermal-slate-light );
 
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
 
             opacity: 0;
 
@@ -464,8 +464,8 @@ export class RegistryRangeForm extends RegistryConsumer {
         .input-group input {
 
             border: 0;
-            border-top: 1px solid var( --thermal-slate );
-            border-bottom: 1px solid var( --thermal-slate );
+            border-top: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
+            border-bottom: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
 
             color: var( --thermal-foreground );
             background: var( --thermal-background );
@@ -530,11 +530,11 @@ export class RegistryRangeForm extends RegistryConsumer {
             justify-content: center;
 
             &.left {
-                border-right: 1px solid var( --thermal-slate-light );
+                border-right: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
             }
 
             &.right {
-                border-left: 1px solid var( --thermal-slate-light );
+                border-left: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
             }
 
             &:hover,
@@ -554,12 +554,12 @@ export class RegistryRangeForm extends RegistryConsumer {
             }
 
             &:first-child {
-                border-left: 1px solid var( --thermal-slate );
+                border-left: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
                 border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
             }
 
             &:last-child {
-                border-right: 1px solid var( --thermal-slate );
+                border-right: var(--thermal-border-width)var(--thermal-border-style) var( --thermal-slate );
                 border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
             }
 

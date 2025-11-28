@@ -837,7 +837,7 @@ h1, h2, h3, h4, h5 {
         overflow: hidden;
 
         border-radius: var(--thermal-radius);
-        border: 1px solid var( --thermal-slate );
+        border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
 
         background: var(--thermal-background);
         color: var(--thermal-foreground);
@@ -963,9 +963,9 @@ table.affected {
     }
 
     .cell-label {
-        border-left: 1px solid var(--thermal-slate);
-        border-right: 1px solid var(--thermal-slate);
-        border-top: 1px solid var(--thermal-slate);
+        border-left: 1px var(--thermal-border-style)var(--thermal-slate);
+        border-right: 1px var(--thermal-border-style)var(--thermal-slate);
+        border-top: 1px var(--thermal-border-style)var(--thermal-slate);
         padding: var(--table-gap);
         font-weight: bold;
         > div {
@@ -979,14 +979,14 @@ table.affected {
 
     .cell-content {
 
-        border-bottom: 1px solid var(--thermal-slate);
+        border-bottom: 1px var(--thermal-border-style)var(--thermal-slate);
 
         &:first-child {
-            border-left: 1px solid var(--thermal-slate);
+            border-left: 1px var(--thermal-border-style)var(--thermal-slate);
         }
 
         &:last-child {
-            border-right: 1px solid var(--thermal-slate);
+            border-right: 1px var(--thermal-border-style)var(--thermal-slate);
         }
 
         .file {
@@ -1029,7 +1029,7 @@ table.affected {
 .info {
 
     padding: var(--thermal-gap);
-    border: 1px solid var(--thermal-slate);
+    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
     border-radius: var(--thermal-radius);
     background-color: var(--thermal-slate-light);
 
@@ -1057,7 +1057,7 @@ thermal-dropdown.selector::part(invoker) {
     .detail {
         padding: var(--thermal-gap);
         border-radius: var(--thermal-radius);
-        border: 1px solid var( --thermal-slate );
+        border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
         background-color: var(--thermal-background);
         box-sizing: border-box;
         width: 100%;
@@ -1090,7 +1090,7 @@ thermal-dropdown.selector::part(invoker) {
         align-items: center;
         justify-content: center;
         width: 100%;
-        border: 1px solid var(--thermal-slate);
+        border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
         border-radius: var(--thermal-radius);
         box-sizing: border-box;
         padding: var(--thermal-gap);

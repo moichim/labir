@@ -80,7 +80,7 @@ export class GroupAnalysisSyncButton extends GroupConsumer {
             width: .8em;
             height: .8em;
             border-radius: 50%;
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             position: relative;
             overflow: hidden;
         }

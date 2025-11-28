@@ -72,7 +72,7 @@ export class FolderUploadForm extends ClientConsumer {
 
         .stage {
 
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             padding: var(--thermal-gap);
             box-sizing: border-box;
@@ -202,7 +202,7 @@ export class FolderUploadForm extends ClientConsumer {
         .file-item img {
             max-width: 60px;
             max-height: 60px;
-            border-radius: var(--thermal-radius-sm);
+            border-radius: var(--thermal-radius);
             object-fit: cover;
         }
 
@@ -246,7 +246,7 @@ export class FolderUploadForm extends ClientConsumer {
 
         .info {
             background: var(--thermal-primary-light, #eef);
-            border: 1px solid var(--thermal-primary, #00f);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-primary, #00f);
             border-radius: var(--thermal-radius);
             padding: calc(var(--thermal-gap) * 0.5);
             margin-top: var(--thermal-gap);
@@ -256,7 +256,7 @@ export class FolderUploadForm extends ClientConsumer {
 
         .error {
             background: var(--thermal-danger-light, #fee);
-            border: 1px solid var(--thermal-danger, #f00);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
             border-radius: var(--thermal-radius);
             padding: calc(var(--thermal-gap) * 0.5);
             margin-top: var(--thermal-gap);
@@ -380,7 +380,7 @@ export class FolderUploadForm extends ClientConsumer {
     .file-preview__icon {
         background: transparent;
         color: var( --thermal-slate );
-        border: 1px dashed var( --thermal-slate );
+        border: var(--thermal-border-width) dashed var( --thermal-slate );
     }
 }
 
@@ -406,7 +406,7 @@ export class FolderUploadForm extends ClientConsumer {
     color: var(--thermal-slate-dark);
     text-align: center;
 
-    border-radius: var(--thermal-radius-sm);
+    border-radius: var(--thermal-radius);
     border: 2px dotted var(--thermal-slate);
 
     cursor: pointer;

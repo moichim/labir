@@ -170,7 +170,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
         }
 
         .file {
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             padding: var(--thermal-gap);
             background: var(--thermal-background);

@@ -43,7 +43,7 @@ export class UserButton extends ClientConsumer {
         input[type="text"],
         input[type="password"] {
             padding: 0.5em;
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             box-sizing: border-box;
             flex: 1;

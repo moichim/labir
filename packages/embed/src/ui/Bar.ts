@@ -26,14 +26,14 @@ export class ThermalBar extends LitElement {
         .ruler-item {}
 
         .ruler-item__current {
-            border: 1px solid transparent;
+            border: var(--thermal-border-width) var(--thermal-border-style) transparent;
             height: 0;
             margin-top: -1px;
             content: "";
         }
 
         .ruler-item__content {
-            border: 1px solid red;
+            border: var(--thermal-border-width) var(--thermal-border-style) red;
             position: absolute;
             display: none;
         }

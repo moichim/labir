@@ -191,8 +191,8 @@ export class ThermalBtn extends BaseElement {
             --bg: var( --thermal-slate-light );
             --bg-hover: var( --bg );
 
-            --border-width: 1px;
-            --border-style: solid;
+            --border-width: var(--thermal-border-width);
+            --border-style: var(--thermal-border-style);
             --border-color: var( --thermal-slate );
             --border-color-hover: var( --border-color );
 

@@ -52,7 +52,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
         input {
             width: 100%;
             padding: calc(var(--thermal-gap) * 0.5);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             font-size: var(--thermal-fs);
         }
@@ -60,7 +60,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
         textarea {
             width: 100%;
             padding: calc(var(--thermal-gap) * 0.5);
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: var(--thermal-radius);
             font-size: var(--thermal-fs);
             font-family: inherit;
@@ -69,7 +69,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
 
         .error {
             background: var(--thermal-danger-light, #fee);
-            border: 1px solid var(--thermal-danger, #f00);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
             border-radius: var(--thermal-radius);
             padding: calc(var(--thermal-gap) * 0.5);
             margin-top: var(--thermal-gap);

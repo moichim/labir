@@ -74,7 +74,7 @@ export class GroupDropin extends AbstractGroupDropin {
             aspect-ratio: 4 / 3;
             max-height: 700px;
             transition: background .5s ease-in-out;
-            border: 1px solid var( --thermal-slate-dark );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             border-radius: var( --thermal-radius );
             cursor: pointer;
             background: var( --thermal-slate );

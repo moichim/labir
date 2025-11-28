@@ -72,7 +72,7 @@ aside.content {
     box-sizing: border-box;
 
     background: var(--background);
-    border: 1px solid var(--border-color);
+    border: var(--thermal-border-width) var(--thermal-border-style) var(--border-color);
     border-radius: var(--border-radius);
     padding: var(--padding);
     box-shadow: var(--box-shadow);

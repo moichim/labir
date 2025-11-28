@@ -88,7 +88,7 @@ export class FileAnalysisList extends FileConsumer {
         
             overflow: hidden;
             border-radius: var( --thermal-radius );
-            border: 1px solid var( --thermal-slate );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
             margin-top: calc( var( --thermal-gap ) / 3 );
             color: var( --thermal-foreground );
         
@@ -110,11 +110,11 @@ export class FileAnalysisList extends FileConsumer {
         }
 
         .container table file-analysis-row {
-            border-bottom: 1px var( --thermal-foreground ) dotted;
+            border-bottom: var(--thermal-border-width) var( --thermal-foreground ) dotted;
         }
 
         .container table file-analysis-row:first-child {
-            border-top: 1px var( --thermal-foreground ) dotted;
+            border-top: var(--thermal-border-width) var( --thermal-foreground ) dotted;
         }
 
         .selected {
@@ -143,7 +143,7 @@ export class FileAnalysisList extends FileConsumer {
 
         google.charts {
            border-radius: var( --thermal-radius );
-                border: 1px solid var( --thermal-slate );
+                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
         }
     `;
 

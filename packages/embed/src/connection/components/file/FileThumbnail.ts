@@ -472,7 +472,7 @@ export class FileThumbnail extends ClientConsumer {
         }
 
         :host(.detailed[displaymode="grid"]) {
-            border: 1px solid var(--thermal-slate);
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
             overflow: hidden;
 
@@ -553,7 +553,7 @@ export class FileThumbnail extends ClientConsumer {
                 box-sizing: border-box;
                 file-comments {
                     border-radius: var(--thermal-radius);
-                    border: 1px solid var(--thermal-slate);
+                    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                     background: var(--thermal-slate-light);
                     padding: .5em;
                 }
@@ -568,7 +568,7 @@ export class FileThumbnail extends ClientConsumer {
         :host([displaymode="table"]) {
             display: table-row;
             vertical-align: top;
-            border-bottom: .5em solid transparent;
+            border-bottom: .5em var(--thermal-border-style)transparent;
 
             file-provider {
                 display: contents;

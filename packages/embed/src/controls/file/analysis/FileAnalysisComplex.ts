@@ -288,7 +288,7 @@ export class FileAnalysisComplex extends FileConsumer {
     
         .addanalysis {
             padding: var(--thermal-gap);
-            border: 1px dashed var(--thermal-slate);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
             display: flex;
             flex-direction: column;
@@ -307,7 +307,7 @@ export class FileAnalysisComplex extends FileConsumer {
 
         .graph-prompt {
             padding: var(--thermal-gap);
-            border: 1px dashed var(--thermal-slate);
+            border: var(--thermal-border-width) dashed var(--thermal-slate);
             border-radius: var(--thermal-radius);
             box-sizing: border-box;
             display: flex;
@@ -322,7 +322,7 @@ export class FileAnalysisComplex extends FileConsumer {
                 display: inline-block;
                 padding: 5px;
                 margin: 0 5px;
-                border: 1px solid var(--thermal-slate);
+                border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
                 border-radius: 5px;
             }
         }

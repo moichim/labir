@@ -504,7 +504,7 @@ export class SubfoldersGrid extends RegistryConsumer {
 
                 border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
 
-                border-top: 1px double var(--thermal-slate);
+                border-top: var(--thermal-border-width) var(--thermal-border-style)var(--thermal-slate);
                 
                 z-index: 0;
                 

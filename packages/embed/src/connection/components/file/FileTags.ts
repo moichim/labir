@@ -192,7 +192,7 @@ export class FileTags extends ClientConsumer {
 
         .tag-button:focus,
         .tag-button:focus-visible {
-            outline: 2px solid var(--thermal-primary, #007bff);
+            outline: 2px var(--thermal-border-style)var(--thermal-primary, #007bff);
             outline-offset: 2px;
         }
 
