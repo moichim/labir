@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 
 import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import './editor.scss';
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -184,6 +185,8 @@ export default function Edit({ attributes, setAttributes }) {
 						onChange={(value) => setAttributes({ palette: value })}
 					/>
 
+					<AppearencePanel {...attributes} setter={setAttributes} />
+
 
 
 				</PanelBody>
@@ -215,6 +218,9 @@ export default function Edit({ attributes, setAttributes }) {
 						style={{
 							pointerEvents: "none"
 						}}
+						skin={attributes.skin}
+						lines={attributes.lines}
+						corners={attributes.corners}
 					></remote-grid-app>
 				}
 

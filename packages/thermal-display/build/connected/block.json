@@ -100,6 +100,18 @@
     "labelVariant": {
       "type": "string",
       "default": "foreground"
+    },
+    "skin": {
+      "type": "string",
+      "default": "default"
+    },
+    "lines": {
+      "type": "string",
+      "default": "default"
+    },
+    "corners": {
+      "type": "string",
+      "default": "default"
     }
   }
 }

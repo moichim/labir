@@ -23,6 +23,9 @@
 			<?php if ( labir_aat_value_exists( $v ) ): echo " v='{$v}'"; endif; ?>
 			<?php if ( labir_aat_value_exists( $ha ) ): echo " ha='{$ha}'"; endif; ?>
 			vunits="<?= $attributes["vunits"];?>"
+			skin="<?= $attributes["skin"]; ?>"
+			lines="<?= $attributes["lines"]; ?>"
+			corners="<?= $attributes["corners"]; ?>"
 		></apparent-temperature-aat>
 
 </div>

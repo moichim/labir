@@ -19,6 +19,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 
 import './editor.scss';
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 
 
 const Badge = (props) => {
@@ -397,7 +398,7 @@ export default function Edit({ attributes, setAttributes }) {
 								}}
 							/>}
 
-
+							<AppearencePanel {...attributes} setter={setAttributes} />
 
 						</PanelBody>
 					</>
@@ -518,6 +519,9 @@ export default function Edit({ attributes, setAttributes }) {
 									label-icon={labelIcon}
 									label-icon-style={labelIconStyle}
 									label-variant={labelVariant}
+									skin={attributes.skin}
+									lines={attributes.lines}
+									corners={attributes.corners}
 								></connected-app>
 
 								<div className="thermal__content-editor__wrapper">

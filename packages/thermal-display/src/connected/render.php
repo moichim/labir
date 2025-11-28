@@ -51,6 +51,9 @@ if ( $replaceWithLogin && $isLoggedIn ) {
 		<?= $attributes["labelIcon"] ? "label-icon='" . esc_attr($attributes["labelIcon"]) . "'" : "" ?>
 		<?= $attributes["labelIconStyle"] ? "label-icon-style='" . esc_attr($attributes["labelIconStyle"]) . "'" : "" ?>
 		<?= $attributes["labelVariant"] ? "label-variant='" . esc_attr($attributes["labelVariant"]) . "'" : "" ?>
+		skin="<?= $attributes["skin"]; ?>"
+		lines="<?= $attributes["lines"]; ?>"
+		corners="<?= $attributes["corners"]; ?>"
 	></connected-app>
 
 </div>

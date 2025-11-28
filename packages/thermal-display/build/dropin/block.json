@@ -43,6 +43,18 @@
     "statistics": {
       "type": "boolean",
       "default": "false"
+    },
+    "skin": {
+      "type": "string",
+      "default": "default"
+    },
+    "lines": {
+      "type": "string",
+      "default": "default"
+    },
+    "corners": {
+      "type": "string",
+      "default": "default"
     }
   }
 }

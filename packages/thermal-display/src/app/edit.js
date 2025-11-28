@@ -26,6 +26,7 @@ import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
 import { useNotations } from '../utils/notationEditor/useNotations';
 import { EditorModal } from '../utils/editor/EditorModal';
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -490,6 +491,8 @@ export default function Edit({ attributes, setAttributes }) {
 											onChange={(value) => { setAttributes({ interactiveanalysis: value }) }}
 										/>
 
+										<AppearencePanel {...attributes} setter={setAttributes} />
+
 
 									</file-provider>
 								</group-provider>
@@ -543,6 +546,9 @@ export default function Edit({ attributes, setAttributes }) {
 										interactiveanalysis={interactiveanalysis}
 										layout={variant}
 										advanced-palettes={advancedpalettes ? "true" : "false"}
+										skin={attributes.skin}
+										lines={attributes.lines}
+										corners={attributes.corners}
 									>
 
 										{Object.values(notations).length > 0 && Object.values(notations).map(notation => <notation-entry 

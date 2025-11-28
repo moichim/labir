@@ -30,6 +30,9 @@
 			<?php if ( labir_remoteBrowser_attr_exists( $license ) ): echo " license='{$license}'"; endif; ?>
 			<?php if ( labir_remoteBrowser_attr_exists( $label ) ): echo " label='{$label}'"; endif; ?>
 			enablegrouping="<?= $attributes["enablegrouping"] ? 'true' : 'false'; ?>"
+			skin="<?= $attributes["skin"]; ?>"
+			lines="<?= $attributes["lines"]; ?>"
+			corners="<?= $attributes["corners"]; ?>"
 		></remote-browser-app>
 
 </div>

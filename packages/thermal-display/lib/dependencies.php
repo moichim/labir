@@ -32,15 +32,6 @@ if (! function_exists("thermal_display_register_assets")) {
         global $version;
         global $dev;
 
-        wp_register_style(
-            $styles_name,
-            plugin_dir_url(__DIR__) . 'assets/embed.css?v=' . $version,
-            array(),
-            time()
-        );
-
-
-
         wp_register_script(
             $scripts_name_cjs,
             plugin_dir_url(__DIR__) . 'assets/embed.js?v=' . $version,
@@ -84,9 +75,6 @@ if (! function_exists("thermal_display_enqueue_frontend_assets")) {
      */
     function thermal_display_enqueue_frontend_assets()
     {
-
-        /** The CSS gets enqueued on all pages because of the wall functionality. */
-        wp_enqueue_style($styles_name);
 
         /** 
          * Need to check whether the current content has blocks from this plugin. 

@@ -8,6 +8,7 @@ import {
 
 import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import './editor.scss';
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -56,6 +57,9 @@ export default function Edit({ attributes, setAttributes }) {
 						</div>}
 					/>
 				</PanelBody>
+				<PanelBody title="Appearence">
+					<AppearencePanel {...attributes} setter={setAttributes} />
+				</PanelBody>
 			</InspectorControls>
 
 
@@ -72,7 +76,12 @@ export default function Edit({ attributes, setAttributes }) {
 						<div className="thermal__content-editor__container">
 							<div>
 
-								<thermal-dropin-app style={{pointerEvents: "none"}}></thermal-dropin-app>
+								<thermal-dropin-app 
+									style={{pointerEvents: "none"}} 
+									skin={attributes.skin}
+									lines={attributes.lines}
+									corners={attributes.corners}
+								></thermal-dropin-app>
 
 								<div className="thermal__content-editor__wrapper">
 									<div>Edit parameters in the sidebar.</div>

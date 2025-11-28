@@ -130,7 +130,20 @@
 		"notations": {
 			"type":"object",
 			"default": {}
+		},
+		"skin": {
+			"type": "string",
+			"default": "default"
+		},
+		"lines": {
+			"type":"string",
+			"default": "default"
+		},
+		"corners": {
+			"type":"string",
+			"default": "default"
 		}
+
 		
 	}
 }

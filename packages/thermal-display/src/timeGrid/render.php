@@ -24,6 +24,9 @@
 			<?php if ( labir_aat_value_exists( $subfolder ) ): echo " subfolder='{$subfolder}'"; endif; ?>
 			<?php if ( labir_aat_value_exists( $by ) ): echo " by='{$by}'"; endif; ?>
 			<?php if ( labir_aat_value_exists( $palette ) ): echo " palette='{$palette}'"; endif; ?>
+			skin="<?= $attributes["skin"]; ?>"
+			lines="<?= $attributes["lines"]; ?>"
+			corners="<?= $attributes["corners"]; ?>"
 		></remote-grid-app>
 
 </div>

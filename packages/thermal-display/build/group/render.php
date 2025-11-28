@@ -43,6 +43,9 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			showabout="<?= $attributes["showabout"] ? "true": "false" ?>"
 			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
 			preservetime="<?= $attributes["preservetime"] ? "true" : "false" ?>"
+			skin="<?= $attributes["skin"]; ?>"
+			lines="<?= $attributes["lines"]; ?>"
+			corners="<?= $attributes["corners"]; ?>"
 		></thermal-group-app>
 
 </div>

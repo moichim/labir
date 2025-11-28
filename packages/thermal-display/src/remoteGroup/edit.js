@@ -1,14 +1,14 @@
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
-	PanelBody,
-	Tooltip,
-	TextControl,
 	Button,
+	PanelBody,
+	Placeholder,
 	SelectControl,
-	Placeholder
+	TextControl
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import './editor.scss';
 
@@ -185,8 +185,10 @@ export default function Edit({ attributes, setAttributes }) {
 						onChange={(value) => setAttributes({ palette: value })}
 					/>
 
+				</PanelBody>
 
-
+				<PanelBody title="Appearence">
+					<AppearencePanel {...attributes} setter={setAttributes} />
 				</PanelBody>
 
 			</InspectorControls>
@@ -216,6 +218,9 @@ export default function Edit({ attributes, setAttributes }) {
 						style={{
 							pointerEvents: "none"
 						}}
+						skin={attributes.skin}
+						lines={attributes.lines}
+						corners={attributes.corners}
 					></remote-folder-app>
 				}
 

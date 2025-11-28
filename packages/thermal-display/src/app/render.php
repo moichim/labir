@@ -43,6 +43,9 @@ if ( !function_exists( "analysis_is_set" ) ) {
 			interactiveanalysis="<?= $attributes["interactiveanalysis"] ? "true": "false" ?>"
 			layout="<?= $attributes["variant"]; ?>"
 			advanced-palettes="<?= $attributes["advancedpalettes"] ? "true": "false" ?>"
+			skin="<?= $attributes["skin"]; ?>"
+			lines="<?= $attributes["lines"]; ?>"
+			corners="<?= $attributes["corners"]; ?>"
 		>
 		<?php if ( isset($attributes["notations"]) ):
 			foreach ( $attributes["notations"] as $notation ):	

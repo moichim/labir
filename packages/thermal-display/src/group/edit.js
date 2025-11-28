@@ -25,6 +25,7 @@ import { useRegisterIframeScript } from '../utils/useRegisterIframeScript';
 import { AnalysisEditorModal } from '../utils/analysisEditor/AnalysisEditorModal';
 import { AnalysisEditorTrigger } from '../utils/analysisEditor/AnalysisEditorTrigger';
 import { useFiles } from './hooks/useFiles';
+import { AppearencePanel } from '../utils/appearence/AppearencePanel';
 
 /**
  * The edit function describes the structure of your block in the context of the
@@ -347,6 +348,8 @@ export default function EditGroup({ attributes, setAttributes }) {
 							onChange={(value) => { setAttributes({ preservetime: value }) }}
 						/>
 
+						<AppearencePanel {...attributes} setter={setAttributes} />
+
 					</PanelBody>
 
 				</InspectorControls>
@@ -380,6 +383,9 @@ export default function EditGroup({ attributes, setAttributes }) {
 							showhistogram={showhistogram}
 							interactiveanalysis={interactiveanalysis}
 							preservetime={preservetime}
+							skin={attributes.skin}
+							lines={attributes.lines}
+							corners={attributes.corners}
 						></thermal-group-app>
 					</Tooltip>
 					: <Placeholder

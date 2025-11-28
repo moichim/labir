@@ -210,7 +210,7 @@ export class FileAnalysisTable extends FileConsumer {
             }}
                         >
                             ${interactiveanalysis ? html`<u aria-hidden="true"></u>` : nothing }
-                            <span>${t(T.analysis)}</span>
+                            <thermal-btn variant="text" tooltip="${this.allSelected ? "Deaktivovat všechny" : "Aktivovat všechny"}" tooltip-placement="right">${t(T.analysis)}</thermal-btn>
                         </th>
                         <th>${t(T.avg)}</th>
                         <th>${t(T.min)}</th>
