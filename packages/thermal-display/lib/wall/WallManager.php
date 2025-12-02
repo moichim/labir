@@ -40,16 +40,55 @@ class WallManager
 
 
 
+    // --- new helper methods for session storage (kept private) ---
+	private function setSessionValue(string $key, $value, ?int $ttl = null)
+	{
+		// pokud je null, smažeme hodnotu ze session
+		if ($value === null) {
+			if (isset($_SESSION[$key])) {
+				unset($_SESSION[$key]);
+			}
+			return;
+		}
+
+		$expires = $ttl ? time() + $ttl : null;
+		$_SESSION[$key] = [
+			'value' => $value,
+			'expires' => $expires
+		];
+	}
+
+	private function getSessionValue(string $key)
+	{
+		if (!isset($_SESSION[$key])) {
+			return null;
+		}
+
+		$entry = $_SESSION[$key];
+
+		// validace expirace
+		if (!empty($entry['expires']) && time() > $entry['expires']) {
+			unset($_SESSION[$key]);
+			return null;
+		}
+
+		return $entry['value'] ?? null;
+	}
+	// --- end helper methods ---
+
+
     // Session management
 
     public function getUserFromTransient()
     {
-        return get_transient(WallManager::USER);
+        // ...existing code...
+        return $this->getSessionValue(WallManager::USER);
     }
 
     public function storeUserInTransient($user)
     {
-        set_transient(WallManager::USER, $user, 12 * HOUR_IN_SECONDS);
+        // TTL is 12 hours like before
+        $this->setSessionValue(WallManager::USER, $user, 12 * HOUR_IN_SECONDS);
     }
 
     public function isLoggedIn()
@@ -128,14 +167,13 @@ class WallManager
                 throw new Exception("Nepodařilo se přihlásit.");
             }
 
-            // Ulož transient pro následné dotazování identity
+            // Ulož credentials pro následné dotazování identity do session
             $this->registerAuthTransient(
                 $post_body["user"],
                 $post_body["password"]
             );
 
             header("Location: " . $_SERVER['REQUEST_URI']);
-
 
             // Ulož uživatele do session
             $this->storeUserInTransient($data);
@@ -208,8 +246,9 @@ class WallManager
 
     public function logout()
     {
+        // odstraníme z session data
         $this->storeUserInTransient(null);
-        set_transient(WallManager::SECURE_CREDENTIALS, null);
+        $this->setSessionValue(WallManager::SECURE_CREDENTIALS, null);
     }
 
 
@@ -255,7 +294,7 @@ class WallManager
         string $user,
         string $pass
     ) {
-        set_transient(WallManager::SECURE_CREDENTIALS, [
+        $this->setSessionValue(WallManager::SECURE_CREDENTIALS, [
             "user" => $user,
             "pass" => $pass,
             "token" => base64_encode($user . ":" . $pass),
@@ -271,7 +310,7 @@ class WallManager
     public function getAuthTransient()
     {
 
-        $data = get_transient(WallManager::SECURE_CREDENTIALS);
+        $data = $this->getSessionValue(WallManager::SECURE_CREDENTIALS);
 
         if (! $data) {
             return null;
@@ -283,7 +322,8 @@ class WallManager
             throw new Exception("Bylo manipulováno s IP adresou!");
         }
 
-        set_transient(WallManager::SECURE_CREDENTIALS, null);
+        // smazání po čtení
+        $this->setSessionValue(WallManager::SECURE_CREDENTIALS, null);
 
         return $data;
     }
@@ -293,14 +333,14 @@ class WallManager
      */
     public function getAuthToken()
     {
-
-        return get_transient(WallManager::SECURE_CREDENTIALS)["token"] ?? null;
+        $data = $this->getSessionValue(WallManager::SECURE_CREDENTIALS);
+        return $data["token"] ?? null;
     }
 
     public function storeHistory(
         $post
     ) {
-        set_transient(WallManager::HISTORY, [
+        $this->setSessionValue(WallManager::HISTORY, [
             "name" => $post->post_title,
             "url" => $post->guid,
             "timestamp" => time()
@@ -309,10 +349,8 @@ class WallManager
 
     public function getHistory()
     {
-
-        return get_transient(WallManager::HISTORY);
+        return $this->getSessionValue(WallManager::HISTORY);
     }
-
 
 
 
