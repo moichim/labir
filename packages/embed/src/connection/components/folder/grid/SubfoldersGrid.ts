@@ -117,7 +117,6 @@ export class SubfoldersGrid extends RegistryConsumer {
                         plain="true"
                         tooltip="Nahrát do složky '${folder.name}'"
                         .onSuccess=${() => {
-                this.log("uploaded");
                 this.onChange?.();
             }}
                     ></folder-upload-dialog>

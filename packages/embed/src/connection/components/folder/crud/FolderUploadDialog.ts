@@ -690,4 +690,19 @@ export class FolderUploadDialog extends ClientConsumer {
     }
 
     // (Legacy helpers removed in favor of unified preview functions.)
+
+    protected shouldRenderDialog(): boolean {
+
+        if (
+            ! this.isLoggedIn
+            || ! this.identity
+            || ! this.folder
+            || ! this.folder.may_manage_files_in
+        ) {
+            return false;
+        }
+
+        return true;
+
+    }
 }

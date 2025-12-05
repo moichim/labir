@@ -152,5 +152,31 @@ ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`
     >${t(T.back)}</thermal-btn>`;
         }
 
+    protected shouldRenderDialog(): boolean {
+
+        // Do not display until connected and logged in
+        if (
+            ! this.isClientConnected
+            || ! this.identity
+            || ! this.isLoggedIn
+            || ! this.folder
+        ) {
+            return false;
+        }
+
+        // For the root user, display whenever the folder cannot accept folders
+        if (
+            this.identity.meta.is_root
+            && ! this.folder.may_have_files === false
+        ) {
+            return true;
+        }
+
+        // For all other users, show only if they have permission to manage folders in this folder
+
+        return this.folder.may_manage_folders_in;
+
+    }
+
 
 }

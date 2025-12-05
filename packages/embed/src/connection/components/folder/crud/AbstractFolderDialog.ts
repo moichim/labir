@@ -2,7 +2,7 @@ import { property, state } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labirthermal/server";
 import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
-import { css, CSSResultGroup, html } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -76,7 +76,14 @@ export abstract class AbstractFolderDialog extends ClientConsumer {
     
     `;
 
+    protected abstract shouldRenderDialog(): boolean;
+
     protected render(): unknown {
+
+        if ( !this.shouldRenderDialog() ) {
+            return nothing;
+        }
+
         return html`<thermal-dialog
     label=${t(this.dialogLabel)}
     button=${t(this.closeLabel)}

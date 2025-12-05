@@ -15,7 +15,7 @@ export type Identity = {
         name: string,
         description: string | null,
         institution: string | null,
-        access: string[]
+        is_root: boolean
     }
 
 }

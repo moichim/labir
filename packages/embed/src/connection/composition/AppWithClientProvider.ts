@@ -42,6 +42,12 @@ export abstract class AppWithClientProvider extends AppWithState {
     protected client!: Client;
 
     @state()
+    protected isLoggedIn: boolean = false;
+
+    @state()
+    protected isRoot: boolean = false;
+
+    @state()
     protected isClientConnected: boolean = false;
 
     connectedCallback(): void {
@@ -139,8 +145,22 @@ export abstract class AppWithClientProvider extends AppWithState {
 
         });
 
+        this.client.auth.onIdentity.set(this.UUIDClient, identity => {
+
+            if (identity !== undefined) {
+                this.isLoggedIn = true;
+                this.isRoot = identity.meta.is_root;
+            } else {
+                this.isLoggedIn = false;
+                this.isRoot = false;
+            }
+
+        } );
+
         // Perform the connection
         await this.client.connect();
+
+
 
     }
 

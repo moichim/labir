@@ -91,7 +91,6 @@ export abstract class AppWithRender extends AppWithContent {
     @provide({ context: syncAnalysisSetterContext })
     protected syncAnalysisSetter: (sync: boolean) => void = (sync: boolean) => {
         this.syncAnalyses = sync;
-        this.log("syncAnalyses", sync);
         this.requestUpdate();
     };
 
@@ -220,6 +219,8 @@ export abstract class AppWithRender extends AppWithContent {
 
     protected renderContent(): TemplateResult {
 
+        this.log( this.grid );
+
         switch (this.state) {
             case AppState.LOADING:
                 return this.renderLoading();
@@ -261,59 +262,44 @@ export abstract class AppWithRender extends AppWithContent {
     private renderUser(): TemplateResult {
 
         if (!this.client.auth.isLoggedIn()) {
-            return html`
-            <div class="poster">
-                <login-form></login-form>
-            </div>
-            `;
+            return html`<div class="poster">
+    <login-form></login-form>
+</div>`;
         }
 
-        return html`
-        
-        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-        
-        ${this.renderBreadcrumb()}
-
-        ${this.renderUserFolders()}
-
-        <main>
-
-
-        </main>`;
+        return html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+${this.renderBreadcrumb()}
+${this.renderUserFolders()}
+`;
 
     }
 
     private getGroup(): ThermalGroup | undefined {
-        const base = this.renderRoot.querySelector( "folder-base-info" ) as FolderBaseInfo;
+        const base = this.renderRoot.querySelector("folder-base-info") as FolderBaseInfo;
         return base?.group;
     }
 
     private renderFolder(): TemplateResult {
 
-        return html`
+        return html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-        
-            ${this.renderBreadcrumb()}
+${this.renderBreadcrumb()}
 
-            <folder-base-info
-                slug=${this.getCurrentSlug()}
-                .info=${this.folder}
-                .parents=${this.breadcrumb}
-                .onParentClick=${(folder: FolderInfo) => this.setPath(folder.path)}
-                slot="pre"
-            >
+<folder-base-info
+    slug=${this.getCurrentSlug()}
+    .info=${this.folder}
+    .parents=${this.breadcrumb}
+    .onParentClick=${(folder: FolderInfo) => this.setPath(folder.path)}
+    slot="pre"
+>
+    ${this.folder?.may_manage_files_in || this.folder?.may_manage_folders_in || ( this.folder && this.folder.lrc_count > 0  )
 
-                ${this.folder?.may_manage_files_in === true || this.folder?.may_manage_folders_in === true ? html`
-                    <thermal-slot label="${t(T.folder)}">
-
-                    ${this.renderFolderCreateSubfolderDialog()}
-
-                    ${this.renderFolderManagementButtons()}
-
-                    ${this.renderFolderDownloadDropdown()}
-
-                </thermal-slot>` : nothing}
+        ? html`<thermal-slot label="${t(T.folder)}">
+    ${this.renderFolderManagementButtons()}
+    ${this.renderFolderDownloadDropdown()}
+</thermal-slot>`
+        : nothing
+    }
 
                 ${this.hasSubfolders() ? html`<thermal-slot label="${t(T.display)}">
                     <subfolders-mode 
@@ -334,13 +320,13 @@ export abstract class AppWithRender extends AppWithContent {
 
                 ${this.renderDisplayMode()}
 
-                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID ? html`<thermal-slot label="${t(T.content)}">
+                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID && this.isLoggedIn ? html`<thermal-slot label="${t(T.content)}">
                     <editing-mode-settings
                         .folder=${this.folder}
                     ></editing-mode-settings>
                 </thermal-slot>` : nothing}
 
-            </folder-base-info>
+</folder-base-info>
 
 
             ${this.hasFiles() || this.folderMode === FolderMode.GRID ? html`<div slot="pre">
@@ -363,8 +349,8 @@ export abstract class AppWithRender extends AppWithContent {
 
 
     private renderFolderDownloadDropdown(): unknown {
-        if ( this.files && this.files.length > 0 ) {
-            
+        if (this.files && this.files.length > 0) {
+
             return html`<thermal-dropdown>
     <span slot="invoker">${t(T.download)}</span>
 
@@ -374,8 +360,8 @@ export abstract class AppWithRender extends AppWithContent {
         pre="LRC" 
         tooltip=${t(T.downloadoriginalfileshint)}
         @click=${() => {
-            this.getGroup()?.files.downloadAllFiles();
-        }}
+                    this.getGroup()?.files.downloadAllFiles();
+                }}
     >
         ${t(T.downloadoriginalfiles)}
     </thermal-btn>
@@ -398,7 +384,7 @@ export abstract class AppWithRender extends AppWithContent {
         ${t(T.pngofentiregroup)}
     </thermal-btn>
 
-</thermal-dropdown>`;        
+</thermal-dropdown>`;
 
 
         }
@@ -676,86 +662,57 @@ export abstract class AppWithRender extends AppWithContent {
      */
     private renderFolderManagementButtons(): unknown {
 
-        if (
-            this.folder
-            && (
-                this.folder.may_manage_folders_in
-                || this.folder.may_manage_files_in
-            )
-        ) {
-
-            return html`<folder-edit-dialog
-                .folder=${this.folder}
-                .onSuccess=${(folder: FolderInfo) => {
-                    this.setPath(folder.path);
-                    this.updateFolder(folder);
-                }}
-                icon="edit"
-                iconStyle="micro"
-                variant="primary"
-                tooltip=${t(T.editfolder)}
-                label=${t(T.edit)}
-            ></folder-edit-dialog>
-            <folder-delete-dialog
-                .folder=${this.folder}
-                .onSuccess=${(folder: FolderInfo) => {
-                    // Remove the last segment from the path
-                    const newPath = folder!.path.split("/").slice(0, -1).join("/");
-                    this.setPath(newPath);
-                }}
-                tooltip=${t(T.deletefolder)}
-                label=${t(T.delete)}
-                variant="foreground"
-                icon="trash"
-                iconStyle="micro"
-            ></folder-delete-dialog>`;
-
-        }
-
-        return nothing;
+        return html`
+<folder-add-dialog 
+    .folder=${this.folder}
+    .onSuccess=${() => { this.fetchContent(); }}
+    icon="addfolder"
+    iconStyle="micro"
+    variant="primary"
+    tooltip=${t(T.createsubfolder)}
+    label=${t(T.createfolder)}
+></folder-add-dialog>
+<folder-edit-dialog
+    .folder=${this.folder}
+    .onSuccess=${(folder: FolderInfo) => {
+        this.setPath(folder.path);
+        this.updateFolder(folder);
+    }}
+    icon="edit"
+    iconStyle="micro"
+    variant="primary"
+    tooltip=${t(T.editfolder)}
+    label=${t(T.edit)}
+></folder-edit-dialog>
+<folder-delete-dialog
+    .folder=${this.folder}
+    .onSuccess=${(folder: FolderInfo) => {
+        // Remove the last segment from the path
+        const newPath = folder!.path.split("/").slice(0, -1).join("/");
+        this.setPath(newPath);
+    }}
+    tooltip=${t(T.deletefolder)}
+    label=${t(T.delete)}
+    variant="foreground"
+    icon="trash"
+    iconStyle="micro"
+></folder-delete-dialog>`;
 
     }
 
     private renderFolderCreateSubfolderDialog(): unknown {
 
-        if (
-            this.folder
-            && this.folder.may_manage_folders_in
-        ) {
-
-            return html`<folder-add-dialog 
-                .folder=${this.folder}
-                .onSuccess=${() => {
-                    this.fetchContent();
-                }}
-                icon="addfolder"
-                iconStyle="micro"
-                variant="primary"
-                tooltip=${t(T.createsubfolder)}
-                label=${t(T.createfolder)}
-            ></folder-add-dialog>`;
-
-        }
-
         return nothing;
 
-
-    }
-
-    private renderFolderUploadFileDialog(): unknown {
-
-        if (this.folder && this.folder.may_manage_files_in && this.files && this.files.length > 0) {
-
-            return html`<folder-upload-dialog
-                .folder=${this.folder}
-                .onSuccess=${() => {
-                    this.fetchContent();
-                }}
-            ></folder-upload-dialog>`;
-
-        }
-
-        return nothing;
+    return html`<folder-add-dialog 
+    .folder=${this.folder}
+    .onSuccess=${() => { this.fetchContent(); }}
+    icon="addfolder"
+    iconStyle="micro"
+    variant="primary"
+    tooltip=${t(T.createsubfolder)}
+    label=${t(T.createfolder)}
+></folder-add-dialog>`;
 
     }
 

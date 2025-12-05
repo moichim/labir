@@ -22,7 +22,7 @@ type Identity = {
         name: string;
         description: string | null;
         institution: string | null;
-        access: string[];
+        is_root: boolean;
     };
 };
 type TagInfo = {
@@ -853,7 +853,7 @@ declare class Client {
      * Note:
      * - upon creation of the `Client` instance, the route `connect` needs to be called
      * - after connection to the server, other requests are available
-     * @package `@labir/server`
+     * @package `@labirthermal/server`
      */
     readonly routes: Routes;
     /**

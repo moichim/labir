@@ -328,9 +328,25 @@ export abstract class AppWithContent extends AppWithClientProvider {
         this.unsetFileAttribute();
         this.path = path;
         this.requestUpdate();
-        // this.fetchContent();
 
     }
+
+
+
+    protected mayDeleteFolder(
+        folder: FolderInfo
+    ): boolean {
+
+        this.log( "Checking permissions to delete folder:" );
+        this.log("mayDeleteFolder", folder);
+        this.log( "subfolders", this.subfolders );
+
+        return this.client.auth.isLoggedIn()
+            && folder.may_manage_folders_in === true
+    }
+
+
+
 
 
     /** Checks if the current display has any subfolders */
@@ -441,10 +457,9 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                 if (subfoldersWithFiles === 0 && this.folderMode === FolderMode.GRID) {
 
-                    this.log( "Měl bych upravit folder mode", this.folderMode, subfolders );
-
                     this.folderMode = FolderMode.TABLE;
                     this.updateGrid(undefined);
+
                 }
 
                 // Store and display incoming data
@@ -479,12 +494,8 @@ export abstract class AppWithContent extends AppWithClientProvider {
 
                     const result = await request.execute();
 
-                    this.log( "fetched grid", result );
-
                     if ( result.success ) {
                         this.updateGrid(result.data);
-
-                        this.log( "načtena mřížka", this.grid );
                     }
 
                 } 
@@ -556,8 +567,6 @@ export abstract class AppWithContent extends AppWithClientProvider {
         }
 
         const result = await request.execute();
-
-        this.log( "fetched grid", result );
 
         if (result.success) {
             this.updateGrid(result.data);

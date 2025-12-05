@@ -1150,7 +1150,7 @@ var Client = class {
    * Note:
    * - upon creation of the `Client` instance, the route `connect` needs to be called
    * - after connection to the server, other requests are available
-   * @package `@labir/server`
+   * @package `@labirthermal/server`
    */
   routes;
   /**
