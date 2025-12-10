@@ -208,6 +208,11 @@ import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 
+import "./connection/controllers/test/Controller";
+import "./connection/controllers/test/Consumer";
+import "./connection/controllers/components/FolderEditDialogNew";
+import "./connection/controllers/components/LoginFormNew";
+
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

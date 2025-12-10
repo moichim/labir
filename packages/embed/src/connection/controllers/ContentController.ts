@@ -33,10 +33,24 @@ export class ContentController<
     public get grid(): GetGridDataType | undefined { return this._grid; }
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
 
-    /** Event called whenever loading starts */
-    public readonly onLoadingStarted: CallbacksManager<() => void> = new CallbacksManager();
-    /** Event called whenever loading finishes */
-    public readonly onLoadingFinished: CallbacksManager<() => void> = new CallbacksManager();
+
+    public readonly onFolderUpdate: CallbacksManager<( folder?: FolderInfo ) => void> = new CallbacksManager();
+    public readonly onSubfoldersUpdate: CallbacksManager<( subfolders?: FolderInfo[] ) => void> = new CallbacksManager();
+    public readonly onFilesUpdate: CallbacksManager<( files?: FileInfo[] ) => void> = new CallbacksManager();
+    public readonly onFileUpdate: CallbacksManager<( file?: FileInfo ) => void> = new CallbacksManager();
+    public readonly onGridUpdate: CallbacksManager<( grid?: GetGridDataType ) => void> = new CallbacksManager();
+    public readonly onBreadcrumbUpdate: CallbacksManager<( breadcrumb?: BreadcrumbItem[] ) => void> = new CallbacksManager();
+
+
+    private _isLoading: boolean = false;
+    public get isLoading(): boolean { return this._isLoading; }
+
+    private _whatIsLoading?: string;
+    public get whatIsLoading(): string | undefined { return this._whatIsLoading; }
+
+    /** Triggered whenever loading status changes */
+    public readonly onLoadingChange: CallbacksManager<( isLoading: boolean, whatIsLoading?: string ) => void> = new CallbacksManager();
+
 
     
 
@@ -63,6 +77,27 @@ export class ContentController<
 
     }
 
+    private loadingStart( what?: string ): void {
+        if ( what ) {
+            this._whatIsLoading = what;
+            this.host.requestUpdate();
+        }
+        if ( ! this._isLoading ) {
+            this._isLoading = true
+            this.onLoadingChange.call( true, what );
+            this.host.requestUpdate();
+        }
+    }
+
+    private loadingEnded(): void {
+        if ( this._isLoading ) {
+            this._isLoading = false;
+            this._whatIsLoading = undefined;
+            this.onLoadingChange.call( false );
+            this.host.requestUpdate();
+        }
+    }
+
 
 
     /** Set the current folder state. Intended for API calls, but can be used by routers & buttons as well. This method tries to modify the current folder path property */
@@ -86,6 +121,9 @@ export class ContentController<
         if ( this.host.folderPath !== folder?.path ) {
             this.host.folderPath = folder?.path;
         }
+
+        this.onFolderUpdate.call( this._folder! );
+
         this.host.requestUpdate();
     }
 
@@ -95,6 +133,7 @@ export class ContentController<
     ): void {
         if (this._subfolders === subfolders) return;
         this._subfolders = subfolders || [];
+        this.onSubfoldersUpdate.call( this._subfolders );
         this.host.requestUpdate();
     }
 
@@ -104,6 +143,7 @@ export class ContentController<
     ): void {
         if (this._files === files) return;
         this._files = files;
+        this.onFilesUpdate.call( this._files );
         this.host.requestUpdate();
     }
 
@@ -129,6 +169,8 @@ export class ContentController<
             this.host.fileName = this.file.fileName;
         }
 
+        this.onFileUpdate.call( this._file );
+
         // Call the update on the host
         this.host.requestUpdate();
 
@@ -140,6 +182,7 @@ export class ContentController<
     ): void {
         if (this._grid === grid) return;
         this._grid = grid;
+        this.onGridUpdate.call( this._grid );
         this.host.requestUpdate();
     }
 
@@ -158,22 +201,31 @@ export class ContentController<
         // if the current folder is defined and matches, update it
         if ( this.folder && this.folder.path === folder.path ) {
             Object.assign( this.folder, folder );
+            this.onFolderUpdate.call( this._folder );
         }
 
         // Iterate over current subfolders and update the all matching ones
         if ( this.subfolders ) {
 
+            let hasChanged = false;
+
             this.subfolders.forEach( subfolder => {
                 if ( subfolder.path === folder.path ) {
                     Object.assign( subfolder, folder );
+                    hasChanged = true;
                 };
             } );
+
+            if ( hasChanged ) {
+                this.onSubfoldersUpdate.call( this._subfolders );
+            }
 
         }
 
         // Try to find the folder in the current grid and update it as well
         if ( this.grid && this.grid.folder && this.grid.folder.path !== folder.path ) {
             Object.assign( this.grid.folder, folder );
+            this.onGridUpdate.call( this._grid );
         }
 
         // Look into the grid header as well
@@ -183,6 +235,7 @@ export class ContentController<
             && this.grid.header[folder.slug] !== undefined
         ) {
             Object.assign( this.grid.header[folder.slug], folder );
+            this.onGridUpdate.call( this._grid );
         }
 
         // Try to look in the all subdirectories of the grid
@@ -295,7 +348,9 @@ export class ContentController<
 
         this.purgeContentState();
 
-        this.onLoadingStarted.call();
+        this.loadingStart(
+            "Načítání obsahu..."
+        );
 
 
         // If it is a grid, do fetch the grid data only and do nothing else
@@ -322,7 +377,7 @@ export class ContentController<
 
         }
 
-        this.onLoadingFinished.call();
+        this.loadingEnded();
 
         this.host.requestUpdate();
 

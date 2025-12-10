@@ -12,6 +12,17 @@
 
 <body style="padding: 1rem; background: #ffffff">
 
+  <controller-app 
+    server-url="https://termogram.labir.cz" 
+    server-api-root="/api/"
+    folder-path="/mikroklima"
+    skin="solarized"
+    corners="narrow"
+  >
+    <login-form-new></login-form-new>
+    <test-consumer></test-consumer>
+  </controller-app>
+
   <script>
 
     window.addEventListener("labirthermal-webcomponents-loaded", () => {
@@ -28,6 +39,7 @@
 <br />
 <br />
 
+<!--
 <thermal-expandable
   label="Podrobnosti"
   style="--spacing: 5px;--border-color:transparent; --padding: .5em;"
@@ -41,7 +53,7 @@
   Tady je nějaká prasečina
   <button onclick="alert('Ahoj!')">Klikni na mě!</button>
 </thermal-expandable>
-
+-->
 <!--
 <playground-element
   title="Toto je titulek!"
@@ -69,6 +81,7 @@
     displaymode="table" by="year" folder-mode="table" palette="rainbow"
     skin="solarized" corners="narrow_" lines="big_"></connected-app>
 
+<!--
 
   <h1>Thermal File App</h1>
 
@@ -99,7 +112,7 @@
     <thermal-file lrc="/nosorozec_02.lrc" label="Nosorožec 2"></thermal-file>
 </thermal-group-app>
 
-
+-->
   <!--
 
   <h1>Thermal File App</h1>
@@ -168,7 +181,7 @@
   <apparent-temperature-aat skin="dark" lines="big_" corners="narrow_"></apparent-temperature-aat>
 
 
-
+<!--
 
   <h1>Gallery</h1>
 
@@ -197,6 +210,8 @@
       <thermal-file lrc="/kudlanka.lrc"></thermal-file>
     </thermal-group>
   </thermal-gallery-app>
+
+  -->
 
 
   <script type="module" src="/index.ts"></script>
