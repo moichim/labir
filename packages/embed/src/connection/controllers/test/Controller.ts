@@ -19,14 +19,14 @@ export class ControllerApp extends ConnectedAppBase {
 
         super.connectedCallback();
 
-        this.log( this );
+        this.log(this);
 
     }
 
 
 
     public get manager(): ThermalManager {
-        if ( !this.managerProviderRef.value ) {
+        if (!this.managerProviderRef.value) {
             throw new Error("Method not implemented.");
         }
         return this.managerProviderRef.value.manager;
@@ -35,20 +35,19 @@ export class ControllerApp extends ConnectedAppBase {
 
     protected render(): unknown {
 
-        return html`<manager-provider 
-    slug="${this.UUID}" 
-    ${ref(this.managerProviderRef)}
-    style="display: contents;"
->
-    <thermal-app label="Turek od okurek">
+        const content = html`
         <slot></slot>
-        <p>Server URL: ${ this.serverUrl }</p>
-        <p>API Root: ${ this.serverApiRoot }</p>
+        <p>Server URL: ${this.serverUrl}</p>
+        <p>API Root: ${this.serverApiRoot}</p>
         <p>${this.client.isLoggedIn}</p>
-        <p>Folder Name: ${ this.content.folder?.name }</p>
-    </thermal-app>
-</manager-provider>`;
+        <p>Folder Name: ${this.content.folder?.name}</p>`;
 
+        const layout = this.renderBrowserLayout(
+            html`<h1>Controller App</h1>`,
+            content
+        )
+
+        return this.renderAppWithInternals(layout);
     }
 
 }

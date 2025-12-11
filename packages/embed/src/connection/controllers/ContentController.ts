@@ -1,30 +1,43 @@
 import { CallbacksManager } from "@labirthermal/core";
 import { BreadcrumbItem, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { ReactiveController } from "lit";
-import { FileInfo } from "packages/server/client/dist";
+import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
+import { BaseElement } from "../../hierarchy/BaseElement";
 
-export interface AppWithContentController<T extends AppWithClientController> extends AppWithClientController {
+export interface AppWithContentController extends AppWithClientController {
 
+    /** The main parameter indicating the current folder path */
     folderPath?: string;
+
+    /** The main parameter indicating the current file name */
     fileName?: string;
 
-    client: ClientController<T>
+    /** The view is locked to a specific path */
+    lockedPath?: string;
+
+    client: ClientController
 
 }
 
-export class ContentController<
-    T extends AppWithClientController
-> implements ReactiveController {
+/**
+ * This controller takes care of the entire content state management:
+ * - fetching data from the server
+ * - updates everywhere
+ * - loading state (separate from the client controller who has a loading state of its own)
+ */
+export class ContentController implements ReactiveController {
 
-    host: AppWithContentController<T>;
+    host: AppWithContentController;
 
+    
     private _folder?: FolderInfo;
     private _subfolders: FolderInfo[] = [];
     private _files?: FileInfo[];
     private _file?: FileInfo;
     private _grid?: GetGridDataType;
     private _breadcrumb?: BreadcrumbItem[];
+    private _tree: TreeItem[] = [];
 
     public get folder(): FolderInfo | undefined { return this._folder; }
     public get subfolders(): FolderInfo[] { return this._subfolders; }
@@ -32,6 +45,7 @@ export class ContentController<
     public get file(): FileInfo | undefined { return this._file; }
     public get grid(): GetGridDataType | undefined { return this._grid; }
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
+    public get tree(): TreeItem[] { return this._tree; }
 
 
     public readonly onFolderUpdate: CallbacksManager<( folder?: FolderInfo ) => void> = new CallbacksManager();
@@ -40,6 +54,7 @@ export class ContentController<
     public readonly onFileUpdate: CallbacksManager<( file?: FileInfo ) => void> = new CallbacksManager();
     public readonly onGridUpdate: CallbacksManager<( grid?: GetGridDataType ) => void> = new CallbacksManager();
     public readonly onBreadcrumbUpdate: CallbacksManager<( breadcrumb?: BreadcrumbItem[] ) => void> = new CallbacksManager();
+    public readonly onTree: CallbacksManager<( tree?: TreeItem[] ) => void> = new CallbacksManager();
 
 
     private _isLoading: boolean = false;
@@ -55,7 +70,7 @@ export class ContentController<
     
 
     constructor(
-        host: AppWithContentController<T>
+        host: AppWithContentController
     ) {
         this.host = host;
         host.addController(this);
@@ -183,6 +198,15 @@ export class ContentController<
         if (this._grid === grid) return;
         this._grid = grid;
         this.onGridUpdate.call( this._grid );
+        this.host.requestUpdate();
+    }
+
+    private dangerouslySetTree(
+        tree: TreeItem[]
+    ): void {
+        if ( this._tree === tree ) return;
+        this._tree = tree;
+        this.onTree.call( this._tree );
         this.host.requestUpdate();
     }
 
@@ -451,6 +475,141 @@ export class ContentController<
         }
 
     }
+
+    /** Fetch the complete tree for the given user */
+    public async fetchUserTree(): Promise<void> {
+
+        const response = await this.host.apiClient.routes.get.currentUserTree().execute();
+
+        const tree = response.data?.tree || [];
+
+        this.dangerouslySetTree( tree );
+
+    }
+
+    public subscribeToFolderUpdates(
+        element: BaseElement
+    ): void {
+
+        this.onFolderUpdate.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+
+    }
+
+    public subscribeToFileUpdates(
+        element: BaseElement
+    ): void {
+        this.onFileUpdate.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToFilesUpdates(
+        element: BaseElement
+    ): void {
+        this.onFilesUpdate.set(
+            element.UUID,
+            ( files?: FileInfo[] ) => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToSubfoldersUpdates(
+        element: BaseElement
+    ): void {
+        this.onSubfoldersUpdate.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToBreadcrumbUpdates(
+        element: BaseElement
+    ): void {
+        this.onBreadcrumbUpdate.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToGridUpdates(
+        element: BaseElement
+    ): void {
+        this.onGridUpdate.set(
+            element.UUID,
+            ( grid?: GetGridDataType ) => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToTreeUpdates(
+        element: BaseElement
+    ): void {
+        this.onTree.set(
+            element.UUID,
+            ( tree?: TreeItem[] ) => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToContentLoading(): void {
+        this.onLoadingChange.set(
+            this.host.UUID,
+            () => {
+                this.host.requestUpdate();
+            }
+        );
+    }
+
+    public unsubscribeFromAll(
+        element: BaseElement
+    ): void {
+        this.onFolderUpdate.delete( element.UUID );
+        this.onSubfoldersUpdate.delete( element.UUID );
+        this.onFilesUpdate.delete( element.UUID );
+        this.onFileUpdate.delete( element.UUID );
+        this.onGridUpdate.delete( element.UUID );
+        this.onBreadcrumbUpdate.delete( element.UUID );
+        this.onTree.delete( element.UUID );
+    }
+
+    public getRegistrySlug(): string {
+
+        const items = [
+            this.host.UUID
+        ];
+
+        if ( this.folder !== undefined ) {
+            items.push( this.folder.path );
+        }
+
+        if ( this.file !== undefined ) {
+            items.push( this.file.fileName );
+        }
+
+        if ( this.grid !== undefined ) {
+            items.push( "grid" );
+        }
+
+        return items.join("__");
+
+    }
+
+    
 
 
 

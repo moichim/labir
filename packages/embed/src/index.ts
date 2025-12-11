@@ -212,6 +212,9 @@ import "./connection/controllers/test/Controller";
 import "./connection/controllers/test/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
 import "./connection/controllers/components/LoginFormNew";
+import "./connection/controllers/components/folder/FolderBaseInfoNew";
+import "./connection/controllers/components/folder/FolderSubfoldersNew";
+import "./connection/controllers/components/folder/FolderFilesNew";
 
 
 setTimeout( () => {

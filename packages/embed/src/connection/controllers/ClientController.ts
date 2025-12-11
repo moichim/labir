@@ -9,9 +9,9 @@ import { should } from "vitest";
 export interface AppWithClientController extends BaseElement {
     /** URL Address of the webserver */
     serverUrl: string;
-    /** API root path of the server */
+    /** API root path of the server. */
     serverApiRoot: string;
-    /** The main client instance */
+    /** The main client instance*/
     apiClient: Client;
     /** Authentication url */
     authUrl?: string;
@@ -19,9 +19,9 @@ export interface AppWithClientController extends BaseElement {
     authToken?: string;
 }
 
-export class ClientController<T extends AppWithClientController> implements ReactiveController {
+export class ClientController implements ReactiveController {
 
-    host: T;
+    host: AppWithClientController;
 
     // Internal states
 
@@ -61,13 +61,15 @@ export class ClientController<T extends AppWithClientController> implements Reac
      */
     public readonly onReadyForContentRequests = new CallbacksManager<() => void>();
 
+    public readonly onServerInfoUpdate = new CallbacksManager<() => void>();
+
     
 
     /** Unique identificator for the purpose of event listeners */
     private UUID: string;
 
     constructor(
-        host: T
+        host: AppWithClientController
     ) {
 
         this.host = host;
@@ -270,6 +272,39 @@ export class ClientController<T extends AppWithClientController> implements Reac
         if (this._serverInfo === value) return;
         this._serverInfo = value;
         this.host.requestUpdate();
+    }
+
+    public subscribeToIdentityChanges(
+        element: BaseElement
+    ): void {
+        this.onIdentity.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToLoadingChanges(
+        element: BaseElement
+    ): void {
+        this.onLoadingChange.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToServerInfoUpdates(
+        element: BaseElement
+    ): void {
+        this.onServerInfoUpdate.set(
+            element.UUID,
+            () => {
+                element.requestUpdate();
+            }
+        );
     }
 
 }

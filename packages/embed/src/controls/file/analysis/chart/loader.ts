@@ -16,6 +16,7 @@
  */
 
 import {trustedResourceUrl} from 'safevalues';
+
 import {safeScriptEl} from 'safevalues/dom';
 
 /**
@@ -36,9 +37,7 @@ const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
     if (!loaderScript) {
       // If the loader is not present, add it.
       loaderScript = document.createElement('script');
-      safeScriptEl.setSrc(
-          loaderScript,
-          trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
+      safeScriptEl.setSrc(loaderScript, trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
       document.head.appendChild(loaderScript);
     }
     loaderScript.addEventListener('load', resolve as () => void);

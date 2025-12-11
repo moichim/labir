@@ -88,6 +88,9 @@ class Bootstrap
 	 */
 	private function configureCookiesGlobally(): void
 	{
+
+		// ini_set('session.cookie_samesite', 'None');
+
 		// Nastavíme výchozí cookie parametry pro celou aplikaci
 		if (!headers_sent()) {
 			// ini_set('session.cookie_samesite', 'None');

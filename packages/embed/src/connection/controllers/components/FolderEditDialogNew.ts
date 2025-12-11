@@ -80,8 +80,8 @@ export class FolderEditDialog extends AbstractFolderDialog {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.subscribeToFolderUpdates();
-        this.subscribeToIdentityChanges();
+        this.client.subscribeToIdentityChanges(this);
+        this.content.subscribeToFolderUpdates(this);
     }
 
     protected firstUpdated() {
@@ -192,7 +192,6 @@ ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`
         // For other users, show only if they may manage folders in this folder
         return this.folder.may_manage_folders_in || this.folder.may_manage_files_in;
 
-        return true;
     }
 
 }
