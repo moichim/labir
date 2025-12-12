@@ -1,15 +1,11 @@
-import { FileInfo, FolderInfo } from "@labirthermal/server";
-import { consume } from "@lit/context";
-import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
+import { FileInfo } from "@labirthermal/server";
+import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { GroupProviderElement } from "../../../../hierarchy/providers/GroupProvider";
-import icons from "../../../../utils/icons";
-import { DisplayMode, displayModeContext, syncAnalysisContext } from "../../../ClientContext";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import icons from "../../../../../utils/icons";
+import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
 
-@customElement("folder-files-new")
-export class FolderFiles extends ControlledConsumer {
+@customElement("connected-file-list")
+export class ConnectedFolderFileList extends ControlledConsumer {
 
 
     @property({ type: Function })

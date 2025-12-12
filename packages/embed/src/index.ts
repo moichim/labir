@@ -208,13 +208,15 @@ import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 
-import "./connection/controllers/test/Controller";
-import "./connection/controllers/test/Consumer";
+import "./connection/controllers/apps/ConnectedBrowserApp";
+import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
 import "./connection/controllers/components/LoginFormNew";
-import "./connection/controllers/components/folder/FolderBaseInfoNew";
-import "./connection/controllers/components/folder/FolderSubfoldersNew";
-import "./connection/controllers/components/folder/FolderFilesNew";
+import "./connection/controllers/components/folder/ConnectedFolderHeader";
+import "./connection/controllers/components/folder/listing/ConnectedSubfolderList";
+import "./connection/controllers/components/folder/listing/ConnetcedFileList";
+import "./connection/controllers/components/folder/ConnectedUploadForm";
+import "./connection/controllers/components/ConnectedUserButton";
 
 
 setTimeout( () => {

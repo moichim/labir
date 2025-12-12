@@ -55,6 +55,8 @@ export class ClientController implements ReactiveController {
         isRoot?: boolean
     ) => void> = new CallbacksManager();
 
+    private _hasCalledReadyForContentRequests: boolean = false;
+
     /** Callbacks that needs will be triggered after the client is ready for content requests:
      * - after connection
      * - after the eventual login
@@ -100,8 +102,8 @@ export class ClientController implements ReactiveController {
                 await this.initialLogin();
 
                 if ( !shouldLogin ) {
-                    this.onReadyForContentRequests.call();
                     this.onIdentity.call( this.identity, this.isRoot );
+                    this.callReadyForContentRequestsIfNotAllready();
                 }
 
                 this.host
@@ -129,7 +131,7 @@ export class ClientController implements ReactiveController {
                 }
 
                 if ( shouldLogin ) {
-                    this.onReadyForContentRequests.call();
+                    this.callReadyForContentRequestsIfNotAllready();
                 }
 
                 this.onIdentity.call( this.identity, this.isRoot );
@@ -227,6 +229,7 @@ export class ClientController implements ReactiveController {
         this._isLoading = false;
         this._whatIsLoading = undefined;
         this._loadingError = undefined;
+        this._isLoggedIn = true;
         this.onLoadingChange.call( false );
         this.host.requestUpdate();
     }
@@ -273,6 +276,21 @@ export class ClientController implements ReactiveController {
         this._serverInfo = value;
         this.host.requestUpdate();
     }
+
+
+    /**
+     * This event will be called once, when the client is connected and logged in eventually.
+     * It is used by other controllers who will then fire their content requests.
+     */
+    private callReadyForContentRequestsIfNotAllready(): void {
+        if ( this._hasCalledReadyForContentRequests ) return;
+
+        this._hasCalledReadyForContentRequests = true;
+        this.onReadyForContentRequests.call();
+    }
+
+
+
 
     public subscribeToIdentityChanges(
         element: BaseElement

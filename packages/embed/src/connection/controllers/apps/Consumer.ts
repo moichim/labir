@@ -66,12 +66,11 @@ export class Consumer extends ControlledConsumer {
             ></folder-files-new>
 
 
-            <folder-subfolders-new
+            <connected-subfolder-list
                 .onFolderClick=${ ( folder: FolderInfo ) => {
                     this.display.navigateToFolderAndLoad( folder.path );
                 } }
-            ></folder-subfolders-new>
-
+            ></connected-subfolder-list>
             ${this.content.folder
                 ? html`<folder-edit-dialog-new 
                     .folder=${ this.content.folder }

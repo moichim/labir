@@ -1,25 +1,25 @@
-import { customElement, property } from "lit/decorators.js";
 import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html } from "lit";
-import { FolderMode } from "../../../composition/AppWithState";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { customElement, property } from "lit/decorators.js";
+import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { FolderListDisplayMode } from "../../../DisplayController";
 
-@customElement("folder-subfolders-new")
-export class FolderSubfolders extends ControlledConsumer {
+@customElement("connected-subfolder-list")
+export class ConnectedFolderFileList extends ControlledConsumer {
 
 
     @property({ type: Function })
     public onFolderClick?: (folder: FolderInfo) => void;
 
-    @property({type: String})
-    public folderMode: FolderMode = FolderMode.LIST;
+    @property({ type: String })
+    public folderMode: FolderListDisplayMode = FolderListDisplayMode.GRID;
 
     public static styles?: CSSResultGroup | undefined = css`
         :host {
             color: var(--thermal-foreground);
         }
 
-        :host(  [foldermode="list-subfolders"] ) {
+        :host( [foldermode="asList"] ) {
             section {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -28,7 +28,7 @@ export class FolderSubfolders extends ControlledConsumer {
             }
         }
 
-        :host(  [foldermode="table-subfolders"] ) {
+        :host( [foldermode="asTable"] ) {
             section {
                 display: table;
                 width: 100%;
@@ -55,13 +55,13 @@ export class FolderSubfolders extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.content.subscribeToFolderUpdates( this );
-        this.content.subscribeToSubfoldersUpdates( this );
+        this.content.subscribeToFolderUpdates(this);
+        this.content.subscribeToSubfoldersUpdates(this);
     }
 
     protected renderSubfolder(info: FolderInfo): unknown {
 
-        if ( this.folderMode === FolderMode.TABLE ) {
+        if (this.folderMode === FolderListDisplayMode.TABLE) {
             return html`<server-folder-row
                 .folder=${info}
                 @click=${() => this.onFolderClick && this.onFolderClick(info)}

@@ -3,9 +3,10 @@ import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
 import { t } from "i18next";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { Identity } from "packages/server/client/dist";
 
-@customElement("login-form-new")
-export class LoginForm extends ControlledConsumer {
+@customElement("connected-login-form")
+export class ConnectedLoginForm extends ControlledConsumer {
 
     @property({ type: String, reflect: true })
     public prompt?: string;
@@ -18,6 +19,11 @@ export class LoginForm extends ControlledConsumer {
 
     @state()
     protected isLoggingIn: boolean = false;
+
+    @property({ type: Function })
+    public onLoginSuccess?: (
+        identity: Identity
+    ) => void;
 
     protected get mayLogIn(): boolean {
         return this.client.isClientConnected
@@ -35,8 +41,8 @@ export class LoginForm extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.subscribeToClientloadingChanges();
-        this.subscribeToIdentityChanges();
+        this.client.subscribeToLoadingChanges( this );
+        this.client.subscribeToIdentityChanges( this );
     }
 
     private valueIsNotEmpty(value: string | undefined): boolean {
@@ -100,6 +106,8 @@ export class LoginForm extends ControlledConsumer {
             this.requestUpdate();
             return;
         }
+
+        this.onLoginSuccess?.( this.client!.identity! );
 
     }
 

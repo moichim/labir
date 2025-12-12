@@ -9,7 +9,7 @@ import { lockedBrowsingTo } from "../../../ClientContext";
 import { ThermalGroup } from "@labirthermal/core";
 import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
 
-@customElement( "folder-base-info-new" )
+@customElement( "connected-folder-header" )
 export class FolderBaseInfo extends ControlledConsumer {
 
 

@@ -409,7 +409,7 @@ export class ContentController implements ReactiveController {
 
 
     /** Request and update a folder information, storing also all subfolders */
-    private async fetchFolder(
+    public async fetchFolder(
         folderPath: string
     ): Promise<void> {
 
@@ -425,7 +425,7 @@ export class ContentController implements ReactiveController {
     }
 
     /** Request all files in a folder */
-    private async fetchFiles(
+    public async fetchFiles(
         folderPath: string
     ): Promise<void> {
 
@@ -456,7 +456,7 @@ export class ContentController implements ReactiveController {
     }
 
     /** Fetch information about a file */
-    private async fetchFile(
+    public async fetchFile(
         folderPath: string,
         fileName: string
     ): Promise<void> {

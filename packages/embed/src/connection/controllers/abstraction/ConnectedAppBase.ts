@@ -7,11 +7,14 @@ import { provide } from "@lit/context";
 import { ControlledClientContext, ControlledContentContext, DisplayControllerContext } from "../controllerContexts";
 import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { html, nothing } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
 
 export abstract class ConnectedAppBase extends BaseAppWithPngExportContext implements AppWithClientController, AppWithContentController, AppWithDisplayController {
+
+    /** Name of the listener event called upon initialisation of the connected app */
+    public static readonly INITIALISATION_LISTENER = "connected-app-initialisation";
 
     @state()
     apiClient!: Client;
@@ -97,6 +100,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
     })
     public displayComments: boolean = true;
 
+    /** The crucial variable for routing the display */
     @state()
     public appState: DisplayState = DisplayState.LOADING;
 
@@ -139,40 +143,22 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
     public labelVariant?: string;
 
 
-
-
-
-    connectedCallback(): void {
-
-        if (this.serverUrl === undefined || this.serverUrl.length === 0) {
-            throw new Error("The 'server-url' attribute is required but was not provided.");
-        }
-
-        this.apiClient = new Client(
-            this.serverUrl,
-            this.serverApiRoot
-        );
-
-        super.connectedCallback();
-
-        this.client.onReadyForContentRequests.add(this.UUID, () => {
-            this.log("Teď bych měl dostat prvnotní obsah asi");
-            this.content.fetchAllContentByState(
-                this.folderPath!
-            )
-        });
-
-    }
-
+    /** States that have the registry around */
     private static readonly  STATES_WITH_REGISTRY = [
         DisplayState.FOLDER,
         DisplayState.FILE
     ];
 
+    /**
+     * Should we render the Registry provider around the content?
+     */
     private get hasRegistryProvider(): boolean {
         return ConnectedAppBase.STATES_WITH_REGISTRY.includes( this.appState );
     }
 
+    /**
+     * Should we render the Group provider around the content?
+     */
     private get hasGroupProvider(): boolean {
 
         if ( 
@@ -189,6 +175,77 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
     }
 
+    public static styles?: CSSResultGroup | undefined = css`
+    
+        :host {
+            display: block;
+            width: 100%;
+            color: var(--thermal-foreground);
+            font-size: var(--thermal-fs);
+        }
+
+        .inspector {
+            display: grid;
+            grid-template-columns: 2em 1fr;
+            gap: var(--thermal-gap);
+            width: 100%;
+        }
+
+        .inspector__tools {
+
+            group-tool-bar {
+                position: sticky;
+                top: 0px;
+                z-index: 99;
+            }
+
+        }
+    
+    `;
+
+
+
+
+
+    connectedCallback(): void {
+
+        if (this.serverUrl === undefined || this.serverUrl.length === 0) {
+            throw new Error("The 'server-url' attribute is required but was not provided.");
+        }
+
+        this.apiClient = new Client(
+            this.serverUrl,
+            this.serverApiRoot
+        );
+
+        super.connectedCallback();
+
+        /** This is very important - call this before the client is ready */
+        this.setupInitialStateBeforeClientIsRead();
+
+        this.client.onReadyForContentRequests.add(ConnectedAppBase.INITIALISATION_LISTENER, async () => {
+
+
+            this.log( "Client is ready for content requests, now initialise the app content" );
+
+            await this.initialiseContentAfterClientReady();
+
+            this.log( "The content is now ready" );
+
+        });
+
+    }
+
+
+
+
+
+
+
+    
+    /**
+     * Renders the app wrapped in all necessary providers of internal context
+     */
     protected renderAppWithInternals(
         innerContent: unknown
     ): unknown {
@@ -201,7 +258,26 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             labelIconStyle=${ifDefined(this.labelIconStyle)}
             labelVariant=${ifDefined(this.labelVariant)}
         >
+            <thermal-btn 
+                slot="close" 
+                icon="reload"
+                iconStyle="micro"
+                tooltip="Reload the current view"
+                @click=${() => {
+                    this.display.reloadCurrentState();
+                }}
+            ></thermal-btn>
+
+            <connected-user-button slot="close"></connected-user-button>
+
+            <slot name="pre" slot="pre"></slot>
+
+            <slot name="before-content"></slot>
+
             ${ innerContent }
+            
+            <slot name="after-content"></slot>
+
         </thermal-app>`;
 
         const fileBlock = this.content.file !== undefined && this.content.file.url !== undefined
@@ -255,35 +331,54 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             slug=${this.UUID}
             style="display: contents;"
         >
-
             ${ registryBlock }
-
-
         </manager-provider>`;
     }
 
+
+    /**
+     * Renders the inspector layout with header, content and tools 
+     * @returns 
+     */
     protected renderBrowserLayout(
         header: unknown,
         content: unknown
     ): unknown {
 
 
-        return html`<main class="">
-            ${ header }
-            <section class="section__content">
-                
-                <aside class="section__sidebar">
-                    <group-tool-bar></group-tool-bar>
-                </aside>
+        return html`
 
-                <aside>
-                    ${ content }
-                </aside>
-                
+        <!-- Draw the header content into the various slots -->
+        ${ header }
+
+        <div slot="pre">
+            <registry-histogram expandable="true"></registry-histogram>
+            <registry-range-slider></registry-range-slider>
+            <registry-ticks-bar></registry-ticks-bar>
+        </div>
+        
+        <!-- The inspector goes to the content slot of the thermal-app -->
+        <main class="inspector">
+
+            <section class="inspector__tools">
+                <group-tool-bar></group-tool-bar>
+            </section>
+            
+            <section class="inspector__content">
+                ${ content }
             </section>
         </main>`;
 
     }
+
+
+    /** This method is used to setup the absolutely initial state of the application before any initialisation of the client takes place. */
+    protected abstract setupInitialStateBeforeClientIsRead(): void;
+
+    /** 
+     * This method is used for the initial content requests after the client is ready & logged in. It is called only once, in the same time as `this.client.onReadyForContentRequests`
+     */
+    protected abstract initialiseContentAfterClientReady(): Promise<void>;
 
 
 }

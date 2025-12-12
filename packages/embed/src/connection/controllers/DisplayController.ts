@@ -6,10 +6,12 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 
 export enum DisplayState {
     LOADING,
-    ERROR,
+    ARBITRARY,
     USER,
     FOLDER,
-    FILE
+    FILE,
+    LOGIN,
+    ERROR
 }
 
 /** Which way should we display list of folders? */
@@ -57,6 +59,8 @@ export class DisplayController implements ReactiveController {
 
     host: AppWithDisplayController;
 
+    private _arbitraryContent?: unknown;
+
     private _slug: string = "";
 
     /** Identificator for current internals based on the current state 
@@ -64,10 +68,17 @@ export class DisplayController implements ReactiveController {
     */
     public get slug(): string { return this._slug; }
 
+    /** The content that is being used for various messages & stuff */
+    public get arbitraryContent(): unknown { return this._arbitraryContent; }
+    /** The current state of the application - its main router */
     public get appState(): DisplayState { return this.host.appState; }
+    /** Which way should we display list of folders? The setting is in the host element */
     public get folderListDisplayMode(): FolderListDisplayMode { return this.host.folderListDisplayMode; }
+    /** Which way should we display lists of files? The setting is in the host element */
     public get fileDisplayMode(): FileListDisplayMode { return this.host.fileDisplayMode; }
+    /** Whether tags are editable. The setting is in the host element. */
     public get editTags(): boolean { return this.host.editTags; }
+    /** Whether comments are displayed. The setting is in the host element. */
     public get displayComments(): boolean { return this.host.displayComments; }
 
     private readonly onAppModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
@@ -80,7 +91,9 @@ export class DisplayController implements ReactiveController {
 
     private readonly onDisplayCommentsUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
-    private readonly onNavigate: CallbacksManager<() => void > = new CallbacksManager();
+    private readonly onNavigate: CallbacksManager<() => void> = new CallbacksManager();
+
+    private readonly onArbitraryContentUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
     constructor(
         host: AppWithDisplayController
@@ -89,13 +102,13 @@ export class DisplayController implements ReactiveController {
         host.addController(this);
     }
 
-    hostConnected(): void {}
+    hostConnected(): void { }
 
-    hostDisconnected(): void {}
+    hostDisconnected(): void { }
 
-    hostUpdate(): void {}
+    hostUpdate(): void { }
 
-    hostUpdated(): void {}
+    hostUpdated(): void { }
 
     private refreshSlugOnNavigate(): void {
         this._slug = this.host.content.getRegistrySlug();
@@ -103,7 +116,20 @@ export class DisplayController implements ReactiveController {
         this.host.requestUpdate();
     }
 
-    async navigateToFolderAndLoad(
+
+    public navigateToLoadingState(
+        whatIsLoading?: unknown
+    ): void {
+
+        this.setArbitraryContent(whatIsLoading);
+
+        this.setAppMode(DisplayState.LOADING);
+
+    }
+
+
+
+    public async navigateToFolderAndLoad(
         targetFolderPath: string
     ): Promise<void> {
 
@@ -113,17 +139,17 @@ export class DisplayController implements ReactiveController {
             this.host.folderListDisplayMode === FolderListDisplayMode.GRID,
         );
 
-        if ( this.host.folderPath !== targetFolderPath ) {
+        if (this.host.folderPath !== targetFolderPath) {
 
         } else {
-            this.setAppMode( DisplayState.FOLDER );
+            this.setAppMode(DisplayState.FOLDER);
         }
 
         this.refreshSlugOnNavigate();
 
     }
 
-    async navigateToPreloadedFile(
+    public async navigateToPreloadedFile(
         parentFolder: FolderInfo,
         file: FileInfo
     ): Promise<void> {
@@ -141,9 +167,47 @@ export class DisplayController implements ReactiveController {
             file
         );
 
-        this.setAppMode( DisplayState.FILE );
+        this.setAppMode(DisplayState.FILE);
 
         this.refreshSlugOnNavigate();
+
+    }
+
+    public async navigateToFileAndLoad(
+        targetFolderPath: string,
+        targetFileName: string
+    ): Promise<void> {
+
+        this.navigateToLoadingState("Načítám soubor");
+
+        await this.host.content.fetchFolder(
+            targetFolderPath
+        );
+
+        if (this.host.content.folder === undefined) {
+            this.navigateToErrorState(
+                "Nemáte oprávnění k zobrazení této složky, nebo neexistuje."
+            );
+            return;
+        }
+
+        await this.host.content.fetchFile(
+            targetFolderPath,
+            targetFileName
+        );
+
+        if (this.host.content.file === undefined) {
+
+            if (this.host.content.file === undefined) {
+                this.navigateToErrorState(
+                    "Nemáte oprávnění k zobrazení tohoto souboru, nebo neexistuje."
+                );
+                return;
+            }
+
+        }
+
+        this.setAppMode(DisplayState.FILE);
 
     }
 
@@ -151,15 +215,85 @@ export class DisplayController implements ReactiveController {
 
     }
 
+    async navigateToErrorState(
+        errorContent?: unknown
+    ): Promise<void> {
+        this.setArbitraryContent(errorContent);
+        this.setAppMode(DisplayState.ERROR);
+    }
+
+    public navigateToLoginState(): void {
+        this.setAppMode(DisplayState.LOGIN);
+    }
+
+    /** Will take the current parameters of the application, load it and set the required app state */
+    public async reloadCurrentState(): Promise<void> {
+
+        this.host.log( "Načítám obsah__" );
+
+        // this.navigateToLoadingState("Načítám obsah");
+
+        // Načítáme soubor, pokud jsou vyplněné parametry
+        if (this.host.folderPath !== undefined && this.host.fileName !== undefined) {
+
+            await this.navigateToFileAndLoad(
+                this.host.folderPath,
+                this.host.fileName
+            );
+            return;
+
+        }
+        // Načítám složku, pokud je vyplněná
+        else if ( this.host.folderPath !== undefined ) {
+
+            await this.navigateToFolderAndLoad(
+                this.host.folderPath
+            );
+            return;
+
+        } if ( this.host.client.isLoggedIn ) {
+
+            await this.navigateToUserFoldersAndLoad();
+            return;
+
+        }
+
+        this.host.log( "Mám tady toto" );
+
+        this.navigateToLoginState();
+
+    }
 
 
 
-    /** Setup the internal display mode state */
+
+
+
+
+
+    // Internal setters
+
+
+    /** Setup initial values, trying to avoid any rerenders */
+    public initialiseWithoutUpdate(
+        state: DisplayState,
+        arbitraryContent?: unknown
+    ): void {
+        if (state === this.host.appState) {
+            this.host.appState = state;
+        }
+        this._arbitraryContent = arbitraryContent;
+    }
+
+
+    /** 
+     * Setup the internal display mode state and triger all events
+     */
     private setAppMode(
         mode: DisplayState
     ): void {
 
-        if ( mode !== this.host.appState ) {
+        if (mode !== this.host.appState) {
             this.host.appState = mode;
             this.onAppModeUpdate.call();
             this.host.requestUpdate();
@@ -172,7 +306,7 @@ export class DisplayController implements ReactiveController {
         mode: FileListDisplayMode
     ): void {
 
-        if ( mode !== this.host.fileDisplayMode ) {
+        if (mode !== this.host.fileDisplayMode) {
             this.host.fileDisplayMode = mode;
             this.onFileDisplayModeUpdate.call();
             this.host.requestUpdate();
@@ -185,13 +319,42 @@ export class DisplayController implements ReactiveController {
         mode: FolderListDisplayMode
     ): void {
 
-        if ( mode !== this.host.folderListDisplayMode ) {
+        if (mode !== this.host.folderListDisplayMode) {
             this.host.folderListDisplayMode = mode;
             this.onFolderDisplayModeUpdate.call();
             this.host.requestUpdate();
-        
         }
     }
+
+    public setArbitraryContent(
+        content: unknown
+    ): void {
+        this._arbitraryContent = content;
+        this.onArbitraryContentUpdate.call();
+        this.host.requestUpdate();
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // Subscribers
 
     /** The given element will request update whenever the app mode changes */
     public subscribeToAppMode(
@@ -262,11 +425,11 @@ export class DisplayController implements ReactiveController {
     public unsubscribeFromAll(
         element: BaseElement
     ): void {
-        this.onAppModeUpdate.delete( element.UUID );
-        this.onFolderDisplayModeUpdate.delete( element.UUID );
-        this.onFileDisplayModeUpdate.delete( element.UUID );
-        this.onEditTagsUpdate.delete( element.UUID );
-        this.onDisplayCommentsUpdate.delete( element.UUID );
+        this.onAppModeUpdate.delete(element.UUID);
+        this.onFolderDisplayModeUpdate.delete(element.UUID);
+        this.onFileDisplayModeUpdate.delete(element.UUID);
+        this.onEditTagsUpdate.delete(element.UUID);
+        this.onDisplayCommentsUpdate.delete(element.UUID);
     }
 
 
@@ -277,7 +440,7 @@ export class DisplayController implements ReactiveController {
     public canHaveGrid(
         subfolders: FolderInfo[]
     ): boolean {
-        return subfolders.some( f => f.lrc_count > 0 );
+        return subfolders.some(f => f.lrc_count > 0);
     }
 
 
@@ -302,7 +465,7 @@ export class DisplayController implements ReactiveController {
     public canDeleteFolder(
         folder: FolderInfo
     ): boolean {
-        if ( this.host.client.isRoot ) {
+        if (this.host.client.isRoot) {
             return true;
         }
 
@@ -323,7 +486,7 @@ export class DisplayController implements ReactiveController {
      */
     public canTurnOnComments(): boolean {
 
-        if ( this.host.client.isRoot ) {
+        if (this.host.client.isRoot) {
             return true;
         }
 
@@ -340,11 +503,11 @@ export class DisplayController implements ReactiveController {
         folder: FolderInfo
     ): boolean {
 
-        if ( this.host.client.isLoggedIn === false ) {
+        if (this.host.client.isLoggedIn === false) {
             return false;
         }
 
-        if ( this.host.client.isRoot ) {
+        if (this.host.client.isRoot) {
             return true;
         }
 
