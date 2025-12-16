@@ -6,7 +6,7 @@ import { createRef } from "lit/directives/ref.js";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { ConnectedAppBase } from "../abstraction/ConnectedAppBase";
 import { DisplayState } from "../DisplayController";
-import { FileInfo, FolderInfo, Identity } from "@labirthermal/server";
+import { BreadcrumbItem, FileInfo, FolderInfo, Identity } from "@labirthermal/server";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -44,7 +44,24 @@ export class ControllerApp extends ConnectedAppBase {
 
     protected renderStateFolder(): unknown {
         
-        const header = html`<connected-folder-header slot="pre"></connected-folder-header>`;
+        const header = html`
+        <connected-breadcrumb 
+            slot="pre" 
+            .onFolderClick=${(folder: BreadcrumbItem) => {
+                this.display.navigateToFolderAndLoad( folder.path );
+            }}
+            .onUserClick=${() => {
+                this.display.navigateToUserFoldersAndLoad();
+            }}
+        ></connected-breadcrumb>
+        <connected-folder-header 
+            slot="pre"
+            .onParentClick=${(parent: BreadcrumbItem) => {
+                this.display.navigateToFolderAndLoad( parent.path );
+            }}
+        >
+            <connected-config-subfolder-mode></connected-config-subfolder-mode>    
+        </connected-folder-header>`;
 
         let content_: unknown = nothing;
 
@@ -91,7 +108,7 @@ export class ControllerApp extends ConnectedAppBase {
                     .onFolderClick=${ ( folder: FolderInfo ) => {
                         this.display.navigateToFolderAndLoad( folder.path );
                     } }
-                    .folderMode=${ this.display.folderListDisplayMode }
+                    folderMode=${ this.display.folderListDisplayMode }
                 ></connected-subfolder-list>`;
 
                 content_ = [
@@ -172,9 +189,9 @@ export class ControllerApp extends ConnectedAppBase {
             "Načítám obsah"
         );
 
-        this.log( "Načítám obsah" );
-
         await this.display.reloadCurrentState();
+
+        this.log( "Obsah byl načten...." );
 
         
     }

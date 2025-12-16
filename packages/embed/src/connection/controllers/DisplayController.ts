@@ -110,6 +110,8 @@ export class DisplayController implements ReactiveController {
 
     hostUpdated(): void { }
 
+
+    /** A callback that is necessary for any navigation calls. */
     private refreshSlugOnNavigate(): void {
         this._slug = this.host.content.getRegistrySlug();
         this.onNavigate.call();
@@ -133,19 +135,60 @@ export class DisplayController implements ReactiveController {
         targetFolderPath: string
     ): Promise<void> {
 
-        await this.host.content.fetchAllContentByState(
-            targetFolderPath,
-            undefined,
-            this.host.folderListDisplayMode === FolderListDisplayMode.GRID,
-        );
+        this.navigateToLoadingState("Načítám složku");
 
-        if (this.host.folderPath !== targetFolderPath) {
+        try {
 
-        } else {
+            await this.host.content.fetchFolder(
+                targetFolderPath
+            );
+
+            // Try to display the grid if necessary
+            if ( this.folderListDisplayMode === FolderListDisplayMode.GRID ) {
+
+                // If the grid can be displayed, fetch it
+                if ( this.canHaveGrid( this.host.content.subfolders ) ) {
+
+                    await this.host.content.fetchGridData(
+                        targetFolderPath
+                    );
+
+                    this.setAppMode(DisplayState.FOLDER);
+
+                    this.refreshSlugOnNavigate();
+
+                    return;
+
+                }
+
+                // If the grid can not be displayed, switch to the list mode
+                else {
+
+                    this.setFolderDisplayMode( FolderListDisplayMode.LIST );
+
+                }
+
+            }
+
+            // Fetch the folder files and display them
+            await this.host.content.fetchFiles(
+                targetFolderPath
+            );
+
             this.setAppMode(DisplayState.FOLDER);
-        }
 
-        this.refreshSlugOnNavigate();
+
+        } catch (error) {
+
+            this.navigateToErrorState(
+                (error as Error).message
+            );
+
+        } finally {
+
+            this.refreshSlugOnNavigate();
+
+        }
 
     }
 
@@ -180,39 +223,41 @@ export class DisplayController implements ReactiveController {
 
         this.navigateToLoadingState("Načítám soubor");
 
-        await this.host.content.fetchFolder(
-            targetFolderPath
-        );
+        try {
 
-        if (this.host.content.folder === undefined) {
-            this.navigateToErrorState(
-                "Nemáte oprávnění k zobrazení této složky, nebo neexistuje."
-            );
-            return;
-        }
+            // If the folder is not already loaded, load it
+            if ( targetFolderPath !== this.host.content.folder?.path ) {
 
-        await this.host.content.fetchFile(
-            targetFolderPath,
-            targetFileName
-        );
-
-        if (this.host.content.file === undefined) {
-
-            if (this.host.content.file === undefined) {
-                this.navigateToErrorState(
-                    "Nemáte oprávnění k zobrazení tohoto souboru, nebo neexistuje."
+                await this.host.content.fetchFolder(
+                    targetFolderPath
                 );
-                return;
+
             }
 
-        }
+            await this.host.content.fetchFile(
+                targetFolderPath,
+                targetFileName
+            );
 
-        this.setAppMode(DisplayState.FILE);
+            this.setAppMode(DisplayState.FILE);
+
+
+
+        } catch ( error ) {
+
+            this.navigateToErrorState(
+                ( error as Error ).message
+            );
+
+        } finally {
+            this.refreshSlugOnNavigate();
+        }
 
     }
 
     async navigateToUserFoldersAndLoad(): Promise<void> {
-
+        this.setAppMode( DisplayState.USER );
+        this.refreshSlugOnNavigate();
     }
 
     async navigateToErrorState(
@@ -229,12 +274,16 @@ export class DisplayController implements ReactiveController {
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
 
-        this.host.log( "Načítám obsah__" );
+        this.host.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
 
         // this.navigateToLoadingState("Načítám obsah");
 
         // Načítáme soubor, pokud jsou vyplněné parametry
         if (this.host.folderPath !== undefined && this.host.fileName !== undefined) {
+
+            /** Načítám složku i soubor */
+
+            this.host.log("Načítám soubor a složku");
 
             await this.navigateToFileAndLoad(
                 this.host.folderPath,
@@ -244,21 +293,25 @@ export class DisplayController implements ReactiveController {
 
         }
         // Načítám složku, pokud je vyplněná
-        else if ( this.host.folderPath !== undefined ) {
+        else if (this.host.folderPath !== undefined) {
+
+            this.host.log("Načítám pouze složku");
 
             await this.navigateToFolderAndLoad(
                 this.host.folderPath
             );
             return;
 
-        } if ( this.host.client.isLoggedIn ) {
+        } if (this.host.client.isLoggedIn) {
+
+            this.host.log("Načítám uživatelovu složku");
 
             await this.navigateToUserFoldersAndLoad();
             return;
 
         }
 
-        this.host.log( "Mám tady toto" );
+        this.host.log("Mám tady toto");
 
         this.navigateToLoginState();
 

@@ -1,5 +1,5 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { BreadcrumbItem, FolderInfo, GetGridDataType } from "@labirthermal/server";
+import { ApiResponseType, BreadcrumbItem, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { ReactiveController } from "lit";
 import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
@@ -18,6 +18,13 @@ export interface AppWithContentController extends AppWithClientController {
 
     client: ClientController
 
+}
+
+/** The response object that is being returned by fetch requests */
+type ContentControllerResponse = {
+    code: number,
+    message: string,
+    success: boolean
 }
 
 /**
@@ -210,6 +217,18 @@ export class ContentController implements ReactiveController {
         this.host.requestUpdate();
     }
 
+    private dangerouslySetBreadcrumb(
+        breadcrumb: BreadcrumbItem[] | undefined
+    ): void {
+
+        this.host.log( "Breadcrumb se změnil", breadcrumb );
+
+        this._breadcrumb = breadcrumb;
+        this.onBreadcrumbUpdate.call( this._breadcrumb );
+        this.host.requestUpdate();
+
+    }
+
     /** 
      * Update the information about the folder wherever it is:
      * - in the main folder state if the path matches
@@ -363,6 +382,7 @@ export class ContentController implements ReactiveController {
 
     /** 
      * Performs the entire fetch cascade based on the provided parameters 
+     * @deprecated Use undividual methods instead!!!
      */
     public async fetchAllContentByState(
         folderPath: string,
@@ -407,6 +427,23 @@ export class ContentController implements ReactiveController {
 
     }
 
+    private throwIfNot200(
+        response: ApiResponseType
+    ): void {
+
+        if ( response.success === false || response.code !== 200 ) {
+            throw new Error(
+                response.message,
+                {
+                    cause: {
+                        code: response.code
+                    }
+                }
+            )
+        }
+
+    }
+
 
     /** Request and update a folder information, storing also all subfolders */
     public async fetchFolder(
@@ -417,9 +454,13 @@ export class ContentController implements ReactiveController {
             .info( folderPath )
             .execute();
 
+        this.throwIfNot200(result);
+
         if ( result.success ) {
+            // Store loaded data right away
             this.dangerouslySetFolder( result.data.folder );
             this.dangerouslySetSubfolders( Object.values( result.data.subfolders ) );
+            this.dangerouslySetBreadcrumb( result.data.breadcrumb );
         }
 
     }
@@ -433,6 +474,8 @@ export class ContentController implements ReactiveController {
             .files(folderPath)
             .execute();
 
+        this.throwIfNot200(result);
+
         if ( result.success ) {
             this.dangerouslySetFiles( Object.values( result.data.files ) );
         }
@@ -440,7 +483,7 @@ export class ContentController implements ReactiveController {
     }
 
     /** Request the grid data for a folder */
-    private async fetchGridData(
+    public async fetchGridData(
         folderPath: string
     ): Promise<void> {
 
@@ -448,9 +491,13 @@ export class ContentController implements ReactiveController {
             .grid(folderPath)
             .execute();
 
+        this.throwIfNot200(result);
+
         if ( result.success ) {
             this.dangerouslySetFolder( result.data.folder );
             this.dangerouslySetGridState( result.data );
+        } else {
+            this.dangerouslySetGridState( undefined );
         }
 
     }
@@ -467,6 +514,8 @@ export class ContentController implements ReactiveController {
                 fileName
             )
             .execute();
+
+        this.throwIfNot200(result);
         
         if ( result.success ) {
 
@@ -480,6 +529,8 @@ export class ContentController implements ReactiveController {
     public async fetchUserTree(): Promise<void> {
 
         const response = await this.host.apiClient.routes.get.currentUserTree().execute();
+
+        this.throwIfNot200(response);
 
         const tree = response.data?.tree || [];
 

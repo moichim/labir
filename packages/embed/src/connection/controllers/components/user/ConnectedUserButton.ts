@@ -1,12 +1,12 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { Identity } from "packages/server/client/src/responseEntities";
-import { ClientConsumer } from "../../components/ClientConsumer";
+import { ClientConsumer } from "../../../components/ClientConsumer";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { T } from "../../../translations/Languages";
+import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { booleanConverter } from "../../../../utils/converters/booleanConverter";
+import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 
 @customElement("connected-user-button")
 export class UserButton extends ControlledConsumer {

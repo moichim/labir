@@ -1,8 +1,8 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { T } from "../../../translations/Languages";
+import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
-import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 import { Identity } from "packages/server/client/dist";
 
 @customElement("connected-login-form")

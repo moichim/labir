@@ -211,12 +211,14 @@ import "./connection/components/server/ShareDialog";
 import "./connection/controllers/apps/ConnectedBrowserApp";
 import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
-import "./connection/controllers/components/LoginFormNew";
+import "./connection/controllers/components/user/LoginFormNew";
 import "./connection/controllers/components/folder/ConnectedFolderHeader";
 import "./connection/controllers/components/folder/listing/ConnectedSubfolderList";
 import "./connection/controllers/components/folder/listing/ConnetcedFileList";
 import "./connection/controllers/components/folder/ConnectedUploadForm";
-import "./connection/controllers/components/ConnectedUserButton";
+import "./connection/controllers/components/user/ConnectedUserButton";
+import "./connection/controllers/components/ConnectedBreadcrumb";
+import "./connection/controllers/components/configuration/ConnectedConfigSubfolderMode";
 
 
 setTimeout( () => {

@@ -1,20 +1,14 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { FolderInfo } from "@labirthermal/server";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import icons from "../../../../utils/icons";
-import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { consume } from "@lit/context";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
+import icons from "../../../../utils/icons";
 import { lockedBrowsingTo } from "../../../ClientContext";
-import { ThermalGroup } from "@labirthermal/core";
-import { GroupProviderElement } from "packages/embed/src/hierarchy/providers/GroupProvider";
+import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 
 @customElement( "connected-folder-header" )
 export class FolderBaseInfo extends ControlledConsumer {
 
-
-    @property({ type: Object})
-    public parents?: BreadcrumbItem[];
 
     @property({ type: Function })
     public onParentClick?: ( folder: BreadcrumbItem ) => void;
@@ -105,16 +99,17 @@ export class FolderBaseInfo extends ControlledConsumer {
         super.connectedCallback();
         this.client.subscribeToIdentityChanges(this);
         this.content.subscribeToFolderUpdates(this);
+        this.content.subscribeToBreadcrumbUpdates(this);
     }
 
 
     protected renderUpButton(): unknown {
 
-        if ( !this.parents || this.parents.length === 0 ) {
+        if ( !this.content.breadcrumb || this.content.breadcrumb.length === 0 ) {
             return nothing;
         }
 
-        const folders = this.parents.filter( item => item.type === "folder" );
+        const folders = this.content.breadcrumb.filter( item => item.type === "folder" );
         if ( folders.length <= 1 ) {
             return nothing;
         }
