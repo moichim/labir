@@ -41,7 +41,6 @@ final class GetPresenter extends BaseApiPresenter
 
         $this->storeData("userFolders", $userFolders);
 
-
         $this->markSuccess($message);
         $this->respond();
     }

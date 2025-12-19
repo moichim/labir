@@ -41,40 +41,40 @@ class WallManager
 
 
     // --- new helper methods for session storage (kept private) ---
-	private function setSessionValue(string $key, $value, ?int $ttl = null)
-	{
-		// pokud je null, smažeme hodnotu ze session
-		if ($value === null) {
-			if (isset($_SESSION[$key])) {
-				unset($_SESSION[$key]);
-			}
-			return;
-		}
+    private function setSessionValue(string $key, $value, ?int $ttl = null)
+    {
+        // pokud je null, smažeme hodnotu ze session
+        if ($value === null) {
+            if (isset($_SESSION[$key])) {
+                unset($_SESSION[$key]);
+            }
+            return;
+        }
 
-		$expires = $ttl ? time() + $ttl : null;
-		$_SESSION[$key] = [
-			'value' => $value,
-			'expires' => $expires
-		];
-	}
+        $expires = $ttl ? time() + $ttl : null;
+        $_SESSION[$key] = [
+            'value' => $value,
+            'expires' => $expires
+        ];
+    }
 
-	private function getSessionValue(string $key)
-	{
-		if (!isset($_SESSION[$key])) {
-			return null;
-		}
+    private function getSessionValue(string $key)
+    {
+        if (!isset($_SESSION[$key])) {
+            return null;
+        }
 
-		$entry = $_SESSION[$key];
+        $entry = $_SESSION[$key];
 
-		// validace expirace
-		if (!empty($entry['expires']) && time() > $entry['expires']) {
-			unset($_SESSION[$key]);
-			return null;
-		}
+        // validace expirace
+        if (!empty($entry['expires']) && time() > $entry['expires']) {
+            unset($_SESSION[$key]);
+            return null;
+        }
 
-		return $entry['value'] ?? null;
-	}
-	// --- end helper methods ---
+        return $entry['value'] ?? null;
+    }
+    // --- end helper methods ---
 
 
     // Session management
@@ -379,64 +379,44 @@ class WallManager
 
             $data = $this->getBarData();
 ?>
-            <footer class="labir-wall-bar">
+<footer class="labir-wall-bar">
 
-                <span class="dashicons dashicons-admin-users"></span>
+    <section class="labir-wall-section">
 
-                <div class="labir-wall-slot">
-                    <div><strong><?= esc_html($data["name"]) ?></strong></div>
-                    <div class="labir-wall-slot-label"><?= esc_html($data["login"]) ?></div>
-                </div>
+        <div class="labir-wall-item">
 
-                <?php if ($data["description"]): ?>
-                    <div class="labir-wall-slot">
-                        <div><?= esc_html($data["description"]) ?></div>
-                        <div class="labir-wall-slot-label"><?= esc_html($data["institution"]) ?></div>
-                    </div>
-                <?php endif; ?>
-
-                <div class="labir-wall-separator"></div>
-
-                <div class="labir-wall-actions">
-
-                    <?php if ($shouldDisplayHistory): ?>
-                        <a 
-                            href="<?= esc_url($data["history"]["url"]) ?>"
-                            class="primary"
-                        >
-                            <span class="dashicons dashicons-backup"></span>
-                            <span><?= esc_html($data["history"]["name"]) ?></span>
-                            <div class="tooltip">Zpět, do kurzu</div>
-                        </a>
-                    <?php endif; ?>
-
-                    <a 
-                        href="https://discord.gg/mqXsDQfPwX"
-                        class="dark"
-                        target="_blank"
-                    >
                         <span class="dashicons dashicons-admin-users"></span>
-                        <span>Discord</span>
-                    </a>
 
-                    <form method="post" class="labir-wall-logout-form">
-                        <button 
-                            type="submit" 
-                            name="<?= WallManager::FORM_LOGOUT; ?>" 
-                            value="1"
-                            class="dark"
-                        >
-                            <span class="dashicons dashicons-unlock"></span>
-                            <span>Odhlásit</span>
-                        </button>
-                    </form>
+                        <div><strong><?= esc_html($data["name"]) ?></strong></div>
 
-                </div>
+        </div>
 
+    </section>
 
+    <form method="post" class="labir-wall-section">
 
+        <a
+            href="https://discord.gg/mqXsDQfPwX"
+            class="labir-wall-item labir-wall-item__active"
+            target="_blank"
+        >
+            <span class="dashicons dashicons-admin-users"></span>
+            <span>Discord</span>
+        </a>
+        
+        <button
+                type="submit"
+                name="<?= WallManager::FORM_LOGOUT; ?>"
+                value="1"
+                class="labir-wall-item labir-wall-item__active"
+        >
+            <span class="dashicons dashicons-unlock"></span>
+            <span>Odhlásit</span>
+        </button>
 
-            </footer>
+    </form>
+
+</footer>
 <?php
         }
     }

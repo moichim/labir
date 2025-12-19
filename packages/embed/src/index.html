@@ -5,12 +5,30 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>@labir/embed</title>
+  <title>@labirthermal/embed</title>
   <style>
   </style>
 </head>
 
 <body style="padding: 1rem; background: #ffffff">
+
+
+  
+  <connected-browser-app
+    server-url="https://termogram.labir.cz" 
+    server-api-root="/api/"
+    folder-path="mikroklima/root/projekt/zaber_b"
+    corners="narrow"
+    label="Test"
+    label-variant="background"
+    label-icon="folder"
+    label-icon-style="micro"
+    label-tooltip="Toto je tooltip k labelu"
+  >
+  </connected-browser-app>
+
+
+<!--
 
   <script>
 
@@ -28,6 +46,7 @@
 <br />
 <br />
 
+
 <thermal-expandable
   label="Podrobnosti"
   style="--spacing: 5px;--border-color:transparent; --padding: .5em;"
@@ -41,7 +60,7 @@
   Tady je nějaká prasečina
   <button onclick="alert('Ahoj!')">Klikni na mě!</button>
 </thermal-expandable>
-
+-->
 <!--
 <playground-element
   title="Toto je titulek!"
@@ -54,7 +73,7 @@
 <button onclick="alert('WAS??')">Něco vytiskni</button></code>
 </playground-element>
 
--->
+
 
   <h1>Connected App</h1>
 
@@ -65,10 +84,13 @@
   labelIcon="info"
   labelIconStyle="solid"
   labelVariant="primary"
-  folder-path="mikroklima/ucitel/projekt" advanced-palettes="true" show-discussion="true"
+   advanced-palettes="true" show-discussion="true"
     displaymode="table" by="year" folder-mode="table" palette="rainbow"
-    skin="solarized" corners="narrow_" lines="big_"></connected-app>
+></connected-app>
 
+-->
+
+<!--
 
   <h1>Thermal File App</h1>
 
@@ -99,7 +121,7 @@
     <thermal-file lrc="/nosorozec_02.lrc" label="Nosorožec 2"></thermal-file>
 </thermal-group-app>
 
-
+-->
   <!--
 
   <h1>Thermal File App</h1>
@@ -168,7 +190,7 @@
   <apparent-temperature-aat skin="dark" lines="big_" corners="narrow_"></apparent-temperature-aat>
 
 
-
+<!--
 
   <h1>Gallery</h1>
 
@@ -197,6 +219,8 @@
       <thermal-file lrc="/kudlanka.lrc"></thermal-file>
     </thermal-group>
   </thermal-gallery-app>
+
+  -->
 
 
   <script type="module" src="/index.ts"></script>
