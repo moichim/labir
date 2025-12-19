@@ -16,6 +16,12 @@ export abstract class BaseElement extends LitElement {
         return this._UUID;
     };
 
+    public getUUID(
+        msg: string
+    ): string {
+        return this.UUID + "_" + msg;
+    }
+
     log( ...args: unknown[] ) {
         console.log( this.tagName, this.UUID.substring(0,5), ...args );
     }

@@ -193,7 +193,17 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
         ${index > 0 ? html`<span>/</span>` : nothing}
         <thermal-btn 
             class="${classMap(classNames)}"
-            @click=${item.onClick?.bind(this)}
+            @contextmenu=${(e: MouseEvent) => {
+                if ( item.tooltip ) {
+                    e.preventDefault();
+                    navigator.clipboard.writeText( item.tooltip );
+                }
+            }}
+            @click=${() => {
+                if ( item.onClick ) {
+                    item.onClick();
+                }
+            }}
             variant="text"
             icon="${item.icon}"
             iconStyle="${item.iconStyle}"

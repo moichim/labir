@@ -86,6 +86,14 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
     @property({
         type: Boolean,
+        attribute: "files-compact",
+        reflect: true,
+        converter: booleanConverter(false)
+    })
+    public fileDisplayCompact: boolean = false;
+
+    @property({
+        type: Boolean,
         attribute: "edit-tags",
         converter: booleanConverter(false),
         reflect: true
@@ -98,7 +106,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
         converter: booleanConverter(true),
         reflect: true
     })
-    public displayComments: boolean = true;
+    public displayComments: boolean = false;
 
     /** The crucial variable for routing the display */
     @state()

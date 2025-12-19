@@ -3,28 +3,64 @@ import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import icons from "../../../../../utils/icons";
 import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { FileListDisplayMode } from "../../../DisplayController";
+import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
 
 @customElement("connected-file-list")
 export class ConnectedFolderFileList extends ControlledConsumer {
 
-
-    @property({ type: Function })
+    @property({ 
+        type: Function 
+    })
     public onFileClick: (file: FileInfo) => void = () => { };
 
-    @property({ type: Function })
+    @property({ 
+        type: Function 
+    })
     public onChange?: (file: FileInfo) => void = () => { };
 
-    @property({ type: Function })
+    @property({ 
+        type: Function 
+    })
     public onFileDelete?: (file: FileInfo) => void = () => { };
 
     protected icon = icons.image.outline("icon");
 
-    @property({ type: String })
+    @property({ 
+        type: String, 
+        reflect: true, 
+        converter: booleanConverter( false ) 
+    })
     public compact: boolean = false;
+
+    @property({ 
+        type: String, 
+        reflect: true, 
+        attribute: "display-mode" 
+    })
+    public displayMode!: FileListDisplayMode;
+
+
+    @property({ 
+        type: String, 
+        reflect: true,
+        converter: booleanConverter( false ),
+        attribute: "show-discussion"
+    })
+    public showDiscussion: boolean = false;
+
+    @property({ 
+        type: Boolean, 
+        reflect: true,
+        converter: booleanConverter( false ),
+        attribute: "editable-tags"
+    })
+    public editableTags: boolean = false;
 
 
 
     public static styles?: CSSResultGroup | undefined = css`
+
         :host {
             color: var(--thermal-foreground);
             font-size: var(--thermal-fs);
@@ -34,7 +70,7 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             width: 100%;
         }
 
-        :host([displaymode="grid"]) {
+        :host([display-mode="asGrid"]) {
             grid-column: 2;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -42,12 +78,14 @@ export class ConnectedFolderFileList extends ControlledConsumer {
         
         }
 
-        :host([displaymode="table"]) {
+        :host([display-mode="asTable"]) {
             grid-column: 2;
             display: table;
             border-spacing: 1em;
             margin: -1em;
-        }`;
+        }
+
+        `;
 
 
 
@@ -56,6 +94,7 @@ export class ConnectedFolderFileList extends ControlledConsumer {
         super.connectedCallback();
         this.content.subscribeToFolderUpdates( this );
         this.content.subscribeToFilesUpdates( this );
+        this.display.subscribeToDisplayCompact( this );
     }
 
 
@@ -65,27 +104,26 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             ? () => this.onFileClick(file)
             : undefined;
 
-        return html`<server-file-thumbnail
+        return html`<connected-file-thumbnail
     .file=${file}
     .folder=${this.content.folder}
-    .onChange=${this.onChange}
     .onFileDelete=${this.onFileDelete}
     .onFileClick=${callback}
-></server-file-thumbnail>`;
+    display-mode=${this.displayMode}
+    compact=${ this.compact ? "true" : "false" }
+    show-discussion=${ this.showDiscussion ? "true" : "false" }
+    editable-tags=${ this.editableTags ? "true" : "false" }
+></connected-file-thumbnail>`;
+
     }
 
     protected render(): unknown {
 
-
         if (this.content.files === undefined || this.content.files.length === 0) {
             return nothing;
-
         }
 
-        return html`
-        <section class="section__files">
-            ${this.content.files?.map(subfolder => this.renderFile(subfolder))}
-        </section>`;
+        return html`${this.content.files?.map(subfolder => this.renderFile(subfolder))}`;
     }
 
 

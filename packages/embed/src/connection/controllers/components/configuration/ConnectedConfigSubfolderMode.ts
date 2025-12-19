@@ -2,21 +2,10 @@ import { css, CSSResultGroup, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 import { FolderListDisplayMode } from "../../DisplayController";
+import { AbstractConfigElement } from "./AbstractConfigElement";
 
 @customElement("connected-config-subfolder-mode")
-export class ConnectedConfigSubfolderMode extends ControlledConsumer {
-
-    static styles?: CSSResultGroup | undefined = css`
-
-        :host {
-            font-size: var(--thermal-fs);
-        }
-
-        thermal-dropdown thermal-btn {
-            display: block;
-        }
-    
-    `;
+export class ConnectedConfigSubfolderMode extends AbstractConfigElement {
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -24,24 +13,6 @@ export class ConnectedConfigSubfolderMode extends ControlledConsumer {
         this.content.subscribeToSubfoldersUpdates(this);
         this.display.subscribeToFolderDisplayMode(this);
         
-    }
-
-    protected renderToggleButton(
-        active: boolean,
-        onClick: () => void,
-        icon: string,
-        iconStyle: string,
-        tooltip: string
-    ) {
-
-        return html`<thermal-btn
-            variant=${active ? "foreground" : "default"}
-            @click=${onClick}
-            icon=${icon}
-            iconStyle=${iconStyle}
-            tooltip=${tooltip}
-        ></thermal-btn>`;
-
     }
 
 

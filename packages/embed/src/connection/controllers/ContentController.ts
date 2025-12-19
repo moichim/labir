@@ -175,7 +175,7 @@ export class ContentController implements ReactiveController {
     ): void {
 
         // Do nothing if the object is identical
-        if (this._file === file) return;
+        // if (this._file === file) return;
 
         // If both variables are defined, merge the both objects
         if ( this.file && file ) {
@@ -190,6 +190,25 @@ export class ContentController implements ReactiveController {
         if ( this.file ) {
             this.host.fileName = this.file.fileName;
         }
+
+
+        if ( this.files && this.files.length > 0 ) {
+
+            let hasChanged = false;
+
+            this.files.forEach( currentFile => {
+                if ( currentFile.url === file?.url ) {
+                    Object.assign( currentFile, file );
+                    hasChanged = true;
+                }
+            } );
+
+            if ( hasChanged ) {
+                this.onFilesUpdate.call( this._files );
+            }
+
+        }
+
 
         this.onFileUpdate.call( this._file );
 
@@ -325,6 +344,7 @@ export class ContentController implements ReactiveController {
             this.files.forEach( currentFile => {
                 if ( currentFile.url === file.url ) {
                     Object.assign( currentFile, file );
+                    this.onFilesUpdate.call();
                 }} 
             );
         }
@@ -537,6 +557,83 @@ export class ContentController implements ReactiveController {
         this.dangerouslySetTree( tree );
 
     }
+
+
+
+    public async fetchDeleteFile(
+        folderPath: string,
+        fileName: string
+    ): Promise<void> {
+
+        const result = await this.host.apiClient.routes.post.deleteFile(
+            folderPath,
+            fileName
+        ).execute();
+
+        this.throwIfNot200(result);
+
+        // Delete the file from the current state if necessary
+        if ( 
+            this.file 
+            && this.file.path === folderPath
+            && this.file.fileName === fileName
+        ) {
+            this.dangerouslySetFileState( undefined );
+        }
+
+        // Delete the file from the list of files if necessary
+        if ( 
+            this.files 
+            && this.files.length > 0 
+        ) {
+            const newFiles = this.files.filter( f => {
+
+                if ( f.path.includes( folderPath ) || folderPath.includes( f.path ) ) {
+                    return f.fileName !== fileName;
+                }
+                return true;
+            });
+            this.dangerouslySetFiles( newFiles );
+        }
+
+        // Delete the file from the grid if necessary
+        if ( 
+            this.grid
+        ) {
+
+            let hasChanged = false;
+
+            Object.entries( this.grid.groups ).forEach( ( [groupKey, group] ) => {
+
+                Object.entries( group.folders ).forEach( ([folderKey, folder]) => {
+                    const newFiles = folder.filter( f => {
+                        if ( f.path === folderPath ) {
+                            return f.fileName !== fileName;
+                        }
+                        return true;
+                    } );
+
+                    if ( newFiles.length !== folder.length ) {
+                        hasChanged = true;
+                        this.grid!.groups[groupKey].folders[folderKey] = newFiles;
+                    }
+
+                } );
+
+            } );
+
+            if ( hasChanged ) {
+                this.host.requestUpdate();
+            }
+
+        }
+
+
+
+    }
+
+
+
 
     public subscribeToFolderUpdates(
         element: BaseElement

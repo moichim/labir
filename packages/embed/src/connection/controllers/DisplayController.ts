@@ -48,6 +48,9 @@ export interface AppWithDisplayController extends AppWithContentController {
     /** @property Reflected from the inside */
     fileDisplayMode: FileListDisplayMode;
 
+    /** @property Compact list */
+    fileDisplayCompact: boolean;
+
     /** @property Reflected from the inside */
     editTags: boolean;
 
@@ -56,6 +59,8 @@ export interface AppWithDisplayController extends AppWithContentController {
 }
 
 export class DisplayController implements ReactiveController {
+
+    private static readonly LISTENER_ID = "DisplayController";
 
     host: AppWithDisplayController;
 
@@ -76,6 +81,8 @@ export class DisplayController implements ReactiveController {
     public get folderListDisplayMode(): FolderListDisplayMode { return this.host.folderListDisplayMode; }
     /** Which way should we display lists of files? The setting is in the host element */
     public get fileDisplayMode(): FileListDisplayMode { return this.host.fileDisplayMode; }
+    /** Are the displayed files in the list compact or not? */
+    public get fileDisplayCompact(): boolean { return this.host.fileDisplayCompact; }
     /** Whether tags are editable. The setting is in the host element. */
     public get editTags(): boolean { return this.host.editTags; }
     /** Whether comments are displayed. The setting is in the host element. */
@@ -86,6 +93,8 @@ export class DisplayController implements ReactiveController {
     private readonly onFolderDisplayModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
     private readonly onFileDisplayModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
+
+    private readonly onFileDisplayCompactUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
     private readonly onEditTagsUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
@@ -367,6 +376,39 @@ export class DisplayController implements ReactiveController {
 
     }
 
+    public setFilesCompact(
+        value: boolean
+    ): void {
+
+        this.host.log( "Nastavuji compact na", value, "z", this.host.fileDisplayCompact );
+
+        if ( value !== this.host.fileDisplayCompact ) {
+            this.host.fileDisplayCompact = value;
+            this.onFileDisplayCompactUpdate.call();
+            this.host.requestUpdate();
+        }
+    }
+
+    public setEditTags(
+        value: boolean
+    ): void {
+        if ( this.host.editTags !== value ) {
+            this.host.editTags = value;
+            this.onEditTagsUpdate.call();
+            this.host.requestUpdate();
+        }
+    }
+
+    public setDisplayComments(
+        value: boolean
+    ): void {
+        if ( this.host.displayComments !== value ) {
+            this.host.displayComments = value;
+            this.onDisplayCommentsUpdate.call();
+            this.host.requestUpdate();
+        }
+    }
+
     /** Public display internal  folder display setter */
     public setFolderDisplayMode(
         mode: FolderListDisplayMode
@@ -405,8 +447,6 @@ export class DisplayController implements ReactiveController {
 
 
 
-
-
     // Subscribers
 
     /** The given element will request update whenever the app mode changes */
@@ -415,7 +455,7 @@ export class DisplayController implements ReactiveController {
     ): void {
 
         this.onAppModeUpdate.set(
-            element.UUID,
+            element.getUUID( DisplayController.LISTENER_ID ),
             () => {
                 element.requestUpdate();
             }
@@ -429,7 +469,7 @@ export class DisplayController implements ReactiveController {
     ): void {
 
         this.onFolderDisplayModeUpdate.set(
-            element.UUID,
+            element.getUUID( DisplayController.LISTENER_ID ),
             () => {
                 element.requestUpdate();
             }
@@ -443,7 +483,7 @@ export class DisplayController implements ReactiveController {
     ): void {
 
         this.onFileDisplayModeUpdate.set(
-            element.UUID,
+            element.getUUID( DisplayController.LISTENER_ID ),
             () => {
                 element.requestUpdate();
             }
@@ -455,7 +495,7 @@ export class DisplayController implements ReactiveController {
         element: BaseElement
     ): void {
         this.onEditTagsUpdate.set(
-            element.UUID,
+            element.getUUID( DisplayController.LISTENER_ID ),
             () => {
                 element.requestUpdate();
             }
@@ -466,7 +506,18 @@ export class DisplayController implements ReactiveController {
         element: BaseElement
     ): void {
         this.onDisplayCommentsUpdate.set(
-            element.UUID,
+            element.getUUID( DisplayController.LISTENER_ID ),
+            () => {
+                element.requestUpdate();
+            }
+        );
+    }
+
+    public subscribeToDisplayCompact(
+        element: BaseElement
+    ): void {
+        this.onFileDisplayCompactUpdate.set(
+            element.getUUID( DisplayController.LISTENER_ID ),
             () => {
                 element.requestUpdate();
             }
@@ -478,11 +529,16 @@ export class DisplayController implements ReactiveController {
     public unsubscribeFromAll(
         element: BaseElement
     ): void {
-        this.onAppModeUpdate.delete(element.UUID);
-        this.onFolderDisplayModeUpdate.delete(element.UUID);
-        this.onFileDisplayModeUpdate.delete(element.UUID);
-        this.onEditTagsUpdate.delete(element.UUID);
-        this.onDisplayCommentsUpdate.delete(element.UUID);
+
+        const UUID = element.getUUID( DisplayController.LISTENER_ID );
+
+        this.onAppModeUpdate.delete(UUID);
+        this.onFolderDisplayModeUpdate.delete(UUID);
+        this.onFileDisplayModeUpdate.delete(UUID);
+        this.onFileDisplayCompactUpdate.delete(UUID);
+        this.onEditTagsUpdate.delete(UUID);
+        this.onDisplayCommentsUpdate.delete(UUID);
+
     }
 
 

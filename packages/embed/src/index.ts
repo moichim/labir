@@ -219,6 +219,15 @@ import "./connection/controllers/components/folder/ConnectedUploadForm";
 import "./connection/controllers/components/user/ConnectedUserButton";
 import "./connection/controllers/components/ConnectedBreadcrumb";
 import "./connection/controllers/components/configuration/ConnectedConfigSubfolderMode";
+import "./connection/controllers/components/configuration/ConnectedConfigFileDisplayMode";
+import "./connection/controllers/components/file/ConnectedFileThumbnail";
+import "./connection/controllers/components/configuration/ConnectedConfigFileContentMode";
+import "./connection/controllers/components/file/ConnectedFileEditDialog";
+import "./connection/controllers/components/file/ConnectedFileDeleteDialog";
+import "./connection/controllers/components/file/ConnectedFileTags";
+import "./connection/controllers/components/file/comments/ConnectedFileComment";
+import "./connection/controllers/components/file/comments/ConnectedFileComments";
+import "./connection/controllers/components/file/comments/ControlledFileCommentForm";
 
 
 setTimeout( () => {

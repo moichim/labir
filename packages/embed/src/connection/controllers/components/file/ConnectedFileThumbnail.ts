@@ -15,8 +15,9 @@ import { compactContext, DisplayMode, displayModeContext, editTagsContext, showD
 
 import { ifDefined } from "lit/directives/if-defined.js";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { FileListDisplayMode } from "../../DisplayController";
 
-@customElement("server-file-thumbnail-new")
+@customElement("connected-file-thumbnail")
 export class FileThumbnail extends ControlledConsumer {
 
     @property({ type: Object })
@@ -30,33 +31,50 @@ export class FileThumbnail extends ControlledConsumer {
 
 
 
-    @property({ type: Object })
+    @property({ 
+        type: Object 
+    })
     public folder!: FolderInfo;
 
-    @property({ type: Function })
+    @property({ 
+        type: Function 
+    })
     public onFileClick: (file: FileInfo) => void = () => { };
 
-    @property({ type: Function })
-    public onChange?: (file: FileInfo) => void = () => { };
-
-    @property({ type: Function })
+    @property({ 
+        type: Function 
+    })
     public onFileDelete?: (file: FileInfo) => void = () => { };
 
-    @consume({ context: compactContext, subscribe: true })
-    @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
-    protected compact: boolean = false;
+    @property({ 
+        type: Boolean, 
+        reflect: true, 
+        converter: booleanConverter(false) 
+    })
+    public compact: boolean = false;
 
+    @property({ 
+        type: String, 
+        reflect: true, 
+        attribute: "display-mode" 
+    })
+    protected displayMode: FileListDisplayMode = FileListDisplayMode.GRID;
+    
 
-    @property({ type: String, reflect: true })
-    @consume({ context: displayModeContext, subscribe: true })
-    protected displayMode: DisplayMode = DisplayMode.GRID;
+    @property({ 
+        type: String, 
+        reflect: true,
+        converter: booleanConverter( false ),
+        attribute: "show-discussion"
+    })
+    public showDiscussion: boolean = false;
 
-    @property({ type: String, reflect: true })
-    @consume({ context: showDiscussionContext, subscribe: true })
-    protected showDiscussion: boolean = false;
-
-    @property({ type: Boolean, reflect: true })
-    @consume({ context: editTagsContext, subscribe: true })
+    @property({ 
+        type: Boolean, 
+        reflect: true,
+        converter: booleanConverter( false ),
+        attribute: "editable-tags"
+    })
     public editableTags: boolean = false;
 
     @consume({ context: syncAnalysisContext, subscribe: true })
@@ -170,7 +188,7 @@ export class FileThumbnail extends ControlledConsumer {
 
         return html`<thermal-btn 
             variant=${variant}
-            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
+            size="${this.displayMode === FileListDisplayMode.TABLE ? "md" : "sm"}"
             @click=${() => this.onFileClick(this.file)}
         >${t(T.detail).toLowerCase()}</thermal-btn>`;
 
@@ -182,17 +200,14 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
-        return html`<file-edit-dialog
+        return html`<connected-file-edit-dialog
             .file=${this.file}
             .folder=${this.folder}
-            .onSuccess=${() => {
-                this.onChange?.(this.file!);
-            }}
             label=""
             plain="true"
             variant="background"
             size="sm"
-        ></file-edit-dialog>`;
+        ></connected-file-edit-dialog>`;
 
     }
 
@@ -202,7 +217,6 @@ export class FileThumbnail extends ControlledConsumer {
             return html`<file-comments-dialog 
                 .file=${this.file}
                 .folder=${this.folder}
-                .onSuccess=${this.onChange}
                 label=""
                 plain="true"
                 variant="background"
@@ -221,7 +235,7 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
-        return html`<file-delete-dialog 
+        return html`<connected-file-delete-dialog 
             .file=${this.file}
             .folder=${this.folder}
             .onDelete=${this.onFileDelete}
@@ -229,7 +243,7 @@ export class FileThumbnail extends ControlledConsumer {
             plain="true"
             variant="background"
             size="sm"
-        ></file-delete-dialog>`;
+        ></connected-file-delete-dialog>`;
 
     }
 
@@ -266,12 +280,12 @@ export class FileThumbnail extends ControlledConsumer {
         let content: unknown = nothing;
 
         // For grid, display only the table
-        if (this.displayMode === DisplayMode.GRID) {
+        if (this.displayMode === FileListDisplayMode.GRID) {
             content = html`<file-analysis-table></file-analysis-table>`;
         }
 
         // For table, display a complex and store buttons
-        else if (this.displayMode === DisplayMode.TABLE) {
+        else if (this.displayMode === FileListDisplayMode.TABLE) {
 
             const hasStoredAnalyses = this.file.analyses.length > 0;
             let restoreLabel: undefined | string = undefined;
@@ -329,7 +343,6 @@ export class FileThumbnail extends ControlledConsumer {
                             size="md"
                             .info=${this.file}
                             .folder=${this.folder}
-                            .onChange=${this.onChange}
 
                         ></file-analysis-store-button>`
                             : nothing}
@@ -339,7 +352,6 @@ export class FileThumbnail extends ControlledConsumer {
                         size="md"
                         .info=${this.file}
                         .folder=${this.folder}
-                        .onChange=${this.onChange}
                     ></file-analysis-restore-button>
 
                 </aside>`
@@ -404,7 +416,8 @@ export class FileThumbnail extends ControlledConsumer {
             }
         }
 
-        :host(.compact[displaymode="grid"]) {
+        :host([display-mode="asGrid"][compact="true"]) {
+
             file-edit-dialog,
             file-comments-dialog,
             file-delete-dialog,
@@ -472,7 +485,8 @@ export class FileThumbnail extends ControlledConsumer {
             }
         }
 
-        :host(.detailed[displaymode="grid"]) {
+        :host(.detailed[display-mode="asGrid"]) {
+
             border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
             overflow: hidden;
@@ -566,7 +580,7 @@ export class FileThumbnail extends ControlledConsumer {
 
         }
 
-        :host([displaymode="table"]) {
+        :host([display-mode="asTable"]) {
             display: table-row;
             vertical-align: top;
             border-bottom: .5em var(--thermal-border-style)transparent;
@@ -729,7 +743,7 @@ export class FileThumbnail extends ControlledConsumer {
                         <file-range-propagator 
                             variant="${this.compact ? "default" : "background"}"
                             .plain="true"
-                            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
+                            size="${this.displayMode === FileListDisplayMode.TABLE ? "md" : "sm"}"
                         ></file-range-propagator>
 
                         ${this.renderActionEdit()}
@@ -740,14 +754,13 @@ export class FileThumbnail extends ControlledConsumer {
 
                         ${this.renderNumAnalyses()}
 
-                        <file-tags
+                        <connected-file-tags
                             .file=${this.file}
                             .folder=${this.folder}
-                            .onChange=${this.onChange}
                             inline="true"
                             .editable="${this.editableTags}"
                             size="sm"
-                        ></file-tags>
+                        ></connected-file-tags>
                     </div>
 
                 </header>
@@ -761,7 +774,6 @@ export class FileThumbnail extends ControlledConsumer {
                         <file-comments
                             .file=${this.file}
                             .folder=${this.folder}
-                            .onChange=${this.onChange}
                             style="height: 300px;"
                         ></file-comments>
                     </div>`

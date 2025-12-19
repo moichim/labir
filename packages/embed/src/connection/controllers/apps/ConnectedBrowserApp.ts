@@ -60,7 +60,9 @@ export class ControllerApp extends ConnectedAppBase {
                 this.display.navigateToFolderAndLoad( parent.path );
             }}
         >
-            <connected-config-subfolder-mode></connected-config-subfolder-mode>    
+            <connected-config-subfolder-mode></connected-config-subfolder-mode>
+            <connected-config-file-display-mode></connected-config-file-display-mode> 
+            <connected-config-file-content-mode></connected-config-file-content-mode>
         </connected-folder-header>`;
 
         let content_: unknown = nothing;
@@ -75,6 +77,10 @@ export class ControllerApp extends ConnectedAppBase {
                 if ( this.content.files && this.content.files.length > 0 ) {
 
                     const fileBrowser = html`<connected-file-list
+                        display-mode=${ this.display.fileDisplayMode }
+                        compact=${ this.display.fileDisplayCompact ? "true" : "false" }
+                        show-discussion=${ this.display.displayComments ? "true" : "false" }
+                        editable-tags=${ this.display.editTags ? "true" : "false" }
                         .onFileClick=${ ( file: FileInfo ) => {
                             this.display.navigateToFileAndLoad( this.content.folder!.path, file.fileName );
                         } }
@@ -128,42 +134,6 @@ export class ControllerApp extends ConnectedAppBase {
             content_
         );
 
-        
-
-
-
-        // Pokud složka má mít soubory a nějaké má, zobrazíme je v prohlížecím layoutu
-
-        // Pokud složka má mít soubory, ale žádné nemá a uživatel smí spravovat soubory, zobrazíme upload layout
-
-        // Pokud složka má mít soubory, ale žádné nemá a uživatel nemůže upravovat tuto složku, zobrazíme pouze informaci o prádzné složce
-
-        // Pokud složka nemá mít soubory a má se zobrazit jako mřížka, zobraz mřížku
-
-        // V ostatních případech zobrazíme seznam podsložek
-
-
-
-        let content: unknown = nothing;
-
-        if ( this.content.folder?.may_have_files ) {
-            content = html`<connected-file-list
-                .onFileClick=${ (file: FileInfo) => {
-                    this.display.navigateToFileAndLoad( this.content.folder!.path, file.fileName );
-                } }
-            ></connected-file-list>`;
-        } else {
-            content = html`<connected-subfolder-list
-                .onFolderClick=${ (folder: FolderInfo) => {
-                    this.display.navigateToFolderAndLoad( folder.path );
-                } }
-                .folderMode=${ this.display.folderListDisplayMode }
-            ></connected-subfolder-list>`;
-        }
-        
-        return this.renderAppWithInternals( 
-            this.renderBrowserLayout( header, content )
-        );
     }
 
     protected renderStateFile(): unknown {
@@ -201,6 +171,7 @@ export class ControllerApp extends ConnectedAppBase {
     protected render(): unknown {
 
         const stateContent = ( () => {
+
             switch ( this.display.appState ) {
                 case DisplayState.LOADING: return this.renderStateLoading();
                 case DisplayState.LOGIN: return this.renderStateLogin();
@@ -209,6 +180,7 @@ export class ControllerApp extends ConnectedAppBase {
                 case DisplayState.USER: return this.renderStateUser();
                 default: return html`<p>Unknown state</p>`;
             }
+
         } )();
 
         const cachedStateContent = cache( stateContent );
