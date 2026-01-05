@@ -111,7 +111,17 @@ export class DisplayController implements ReactiveController {
         host.addController(this);
     }
 
-    hostConnected(): void { }
+    hostConnected(): void {
+
+        this.host.client.onIdentity.set(
+            DisplayController.LISTENER_ID, () => {
+                this.reloadCurrentState().catch( error => {
+                    this.host.log("Chyba při načítání po změně identity uživatele:", error);
+                } );
+            }
+        );
+
+    }
 
     hostDisconnected(): void { }
 

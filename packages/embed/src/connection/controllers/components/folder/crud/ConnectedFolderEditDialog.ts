@@ -1,16 +1,14 @@
 import { FolderInfo } from "@labirthermal/server";
-import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { T } from "../../../translations/Languages";
-import { AbstractFolderDialog } from "./folder/crud/AbstractFolderDialog";
+import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
-@customElement("folder-edit-dialog-new")
+@customElement("connected-folder-edit-dialog")
 export class FolderEditDialog extends AbstractFolderDialog {
 
-    protected closeLabel: string = T.savechanges;
+    protected closeLabel: string = "savechanges";
 
-    protected dialogLabel: string = T.editfolder;
+    protected dialogLabel: string = "editfolder";
 
     @state()
     private folderName: string = "";
@@ -78,12 +76,6 @@ export class FolderEditDialog extends AbstractFolderDialog {
         }
     `;
 
-    connectedCallback(): void {
-        super.connectedCallback();
-        this.client.subscribeToIdentityChanges(this);
-        this.content.subscribeToFolderUpdates(this);
-    }
-
     protected firstUpdated() {
         this.folderName = this.folder.name || this.folder.slug;
         this.folderDescription = this.folder.description || "";
@@ -111,14 +103,11 @@ export class FolderEditDialog extends AbstractFolderDialog {
             .post
             .updateFolder(this.folder.path)
             .setName(this.folderName.trim())
+            
             .setDescription(this.folderDescription.trim())
             .execute()!;
 
         if (result.success) {
-            if ( result.data.result.info ) {
-                this.content.updateFolderState(result.data!.result.info);
-            }
-        
             if (this.onSuccess) {
                 this.onSuccess(result.data!.result.info);
             }
@@ -130,7 +119,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
 
     }
 
-    private handleInputChange(event: Event) {
+    private handleTitleChange(event: Event) {
         const target = event.target as HTMLInputElement;
         this.folderName = target.value;
     }
@@ -143,18 +132,18 @@ export class FolderEditDialog extends AbstractFolderDialog {
 
     protected renderContent(): unknown {
         return html`<div class="form-group">
-    <label for="folder-name">${t(T.name)}:</label>
+    <label for="folder-name">${this.t("name")}:</label>
     <input 
         type="text" 
         id="folder-name"
         .value=${this.folderName}
-        @input=${this.handleInputChange}
+        @input=${this.handleTitleChange}
         placeholder="Zadejte název složky"
         required
     />
 </div>
 <div class="form-group">
-    <label for="folder-description">${t(T.description)}:</label>
+    <label for="folder-description">${this.t("description")}:</label>
     <textarea 
         id="folder-description"
         .value=${this.folderDescription}
@@ -170,14 +159,15 @@ ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`
         return html`<thermal-btn
     @click=${() => this.close()}
     slot="button"    
->${t(T.back)}</thermal-btn>`;
+>${this.t("back")}</thermal-btn>`;
     }
 
     protected shouldRenderDialog(): boolean {
 
         // Do not display until connected and logged in
         if ( 
-            ! this.client.identity 
+            ! this.client.isClientConnected 
+            || ! this.client.identity 
             || ! this.client.isLoggedIn
             || ! this.folder
         ) {
@@ -185,13 +175,12 @@ ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`
         }
 
         // For root, display allways
-        if ( this.client.isRoot ) {
+        if ( this.client.identity.meta.is_root ) {
             return true;
         }
 
         // For other users, show only if they may manage folders in this folder
         return this.folder.may_manage_folders_in || this.folder.may_manage_files_in;
-
     }
 
 }

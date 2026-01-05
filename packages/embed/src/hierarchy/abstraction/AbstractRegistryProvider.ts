@@ -1,7 +1,7 @@
 import { html, PropertyValues } from "lit";
 import { ManagerConsumer } from "../consumers/ManagerConsumer";
 import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
-import { ThermalRangeOrUndefined } from "@labirthermal/core";
+import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
 
 export abstract class AbstractRegistryProvider extends ManagerConsumer {
@@ -34,22 +34,65 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
         this.highlight = value;
     }
 
-
-    connectedCallback(): void {
-
-        super.connectedCallback();
-
-        const registry = this.manager.addOrGetRegistry(this.slug);
-
-        this.registry = registry;
-
-        // Set the fixed range if necessary
+    protected createRegistry( slug: string ): ThermalRegistry {
+        // Create
+        const registry = this.manager.addOrGetRegistry(slug);
+        // Set the palette
+        registry.palette.setPalette( this.manager.palette.value );
+        // Set the range if necessary
         if (this.from !== undefined && this.to !== undefined) {
             this.registry.range.imposeRange({
                 from: this.from,
                 to: this.to
             });
         }
+        // Return
+        return registry;
+    }
+
+    protected hydrateRegistry( registry: ThermalRegistry ): void {
+
+        // Bind opacity to the element property
+        registry.opacity.addListener(this.UUIDRegistryListeners, value => {
+            this.opacity = value;
+        });
+
+        // Bind minmax changes to the element state
+        registry.minmax.addListener(this.UUIDRegistryListeners, value => {
+            if (value === undefined) {
+                this.min = undefined;
+                this.max = undefined;
+            } else {
+                this.min = value.min;
+                this.max = value.max;
+            }
+        });
+
+        // Bind range changes to the element property
+        registry.range.addListener(this.UUIDRegistryListeners, value => {
+
+            if (value === undefined) {
+                this.from = undefined;
+                this.to = undefined;
+            } else {
+                this.from = value.from;
+                this.to = value.to;
+            }
+        });
+
+        // Bind loading changes to the element property
+        registry.loading.addListener(this.UUIDRegistryListeners, value => {
+            this.loading = value;
+        });
+
+    }
+
+
+    connectedCallback(): void {
+
+        super.connectedCallback();
+
+        this.registry = this.createRegistry(this.slug);
 
     }
 
@@ -66,38 +109,7 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        // Bind opacity to the element property
-        this.registry.opacity.addListener(this.UUIDRegistryListeners, value => {
-            this.opacity = value;
-        });
-
-        // Bind minmax changes to the element state
-        this.registry.minmax.addListener(this.UUIDRegistryListeners, value => {
-            if (value === undefined) {
-                this.min = undefined;
-                this.max = undefined;
-            } else {
-                this.min = value.min;
-                this.max = value.max;
-            }
-        });
-
-        // Bind range changes to the element property
-        this.registry.range.addListener(this.UUIDRegistryListeners, value => {
-
-            if (value === undefined) {
-                this.from = undefined;
-                this.to = undefined;
-            } else {
-                this.from = value.from;
-                this.to = value.to;
-            }
-        });
-
-        // Bind loading changes to the element property
-        this.registry.loading.addListener(this.UUIDRegistryListeners, value => {
-            this.loading = value;
-        });
+        this.hydrateRegistry(this.registry);
 
 
     }

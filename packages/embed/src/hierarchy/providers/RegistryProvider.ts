@@ -37,7 +37,40 @@ export class RegistryProviderElement extends AbstractRegistryProvider {
     @property({ type: String, reflect: true, attribute: true })
     public loading: boolean = false;
 
-    @property({type: Boolean, reflect: true})
+    @property({ type: Boolean, reflect: true })
     public autoclear: boolean = false;
+
+    updated(changedProperties: Map<string | number | symbol, unknown>): void {
+        super.updated(changedProperties);
+
+        // Refresh the registry of the slug changed
+        if (
+            changedProperties.has("slug") === true
+            && changedProperties.get("slug") !== this.slug
+        ) {
+
+
+            // this.log( changedProperties.get("slug"), "->", this.slug );
+
+            // Remove the existing registry if necessary
+            if (this.registry !== undefined) {
+
+                if (this.autoclear === true) {
+
+                    // this.log( "removing registry" );
+
+                    // this.manager.removeRegistry(this.registry.id);
+
+                }
+
+                // Create the new registry
+                // this.registry = this.createRegistry(this.slug);
+
+                // Hydrate
+                // this.hydrateRegistry(this.registry);
+            }
+
+        }
+    }
 
 }

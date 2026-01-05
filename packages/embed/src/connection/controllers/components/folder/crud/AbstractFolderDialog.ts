@@ -3,11 +3,11 @@ import { FolderInfo } from "@labirthermal/server";
 import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";
-import { T } from "../../../translations/Languages";
+import { T } from "../../../../../translations/Languages";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
-import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
 
 /** A base class for all dialogs related to folder CRUD operations. */
 export abstract class AbstractFolderDialog extends ControlledConsumer {
@@ -97,7 +97,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
         .variant=${ifDefined( this.variant )}
         .size=${ifDefined( this.size )}
         .plain=${ifDefined( this.plain )}
-        .disabled=${ifDefined( this.disabled )}
+        .disabled=${this.disabled === true ? "true" : "false"}
         .interactive=${ifDefined( this.interactive )}
         .tooltip=${ifDefined( this.tooltip )}
     >

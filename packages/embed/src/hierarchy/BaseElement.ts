@@ -1,9 +1,10 @@
 import { consume } from "@lit/context";
-import i18next from "i18next";
+import i18next, { t } from "i18next";
 import { html, LitElement } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { v4 as uuid } from "uuid";
 import { localeContext } from "../translations/localeContext";
+import { T } from "../translations/Languages";
 
 export abstract class BaseElement extends LitElement {
 
@@ -43,6 +44,11 @@ export abstract class BaseElement extends LitElement {
 
     protected i( str: string ): unknown {
         return html`${unsafeSVG( str )}`;
+    }
+
+    /** Returns a translated string */
+    protected t( key: keyof typeof T): string {
+        return t( T[key] );
     }
 
 

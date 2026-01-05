@@ -152,7 +152,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
 
     /** States that have the registry around */
-    private static readonly  STATES_WITH_REGISTRY = [
+    private static readonly STATES_WITH_REGISTRY = [
         DisplayState.FOLDER,
         DisplayState.FILE
     ];
@@ -195,6 +195,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
         .inspector {
             display: grid;
             grid-template-columns: 2em 1fr;
+            grid-template-rows: auto;
             gap: var(--thermal-gap);
             width: 100%;
         }

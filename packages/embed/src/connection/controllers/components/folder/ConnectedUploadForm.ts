@@ -2,10 +2,8 @@ import { FolderInfo } from "@labirthermal/server";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { ThermalBtn } from "packages/embed/src/ui/Btn";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
-import { ClientConsumer } from "../../../components/ClientConsumer";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 
 interface PairedFiles {

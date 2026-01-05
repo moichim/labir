@@ -228,7 +228,9 @@ import "./connection/controllers/components/file/ConnectedFileTags";
 import "./connection/controllers/components/file/comments/ConnectedFileComment";
 import "./connection/controllers/components/file/comments/ConnectedFileComments";
 import "./connection/controllers/components/file/comments/ControlledFileCommentForm";
-
+import "./connection/controllers/components/folder/crud/ConnectedFolderEditDialog";
+import "./connection/controllers/components/folder/crud/ConnectedFolderDeleteDialog";
+import "./connection/controllers/components/folder/crud/ConnectedFolderCreateDialog";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

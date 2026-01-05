@@ -65,7 +65,6 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             color: var(--thermal-foreground);
             font-size: var(--thermal-fs);
             gap: 2em;
-            height: 100%;
             position: relative;
             width: 100%;
         }
