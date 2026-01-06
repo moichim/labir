@@ -472,7 +472,8 @@ final class Folder
         bool $move = false,
         ?array $addTags = null,
         ?array $removeTags = null,
-        $thumbnailFile = null
+        $thumbnailFile = null,
+        ?array $access = null
     ): array {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
@@ -550,6 +551,27 @@ final class Folder
         // --- Zpracování thumbnail souboru ---
         if ($thumbnailFile !== null && $thumbnailFile->isOk()) {
             $this->saveThumbnail($slug, $thumbnailFile);
+        }
+
+        // --- Zpracování access nastavení (merge) ---
+        if ($access !== null && is_array($access) && !empty($access)) {
+            $allowedKeys = ['show', 'may_have_files'];
+            $filteredAccess = [];
+            foreach ($access as $key => $value) {
+                if (in_array($key, $allowedKeys, true) && is_bool($value)) {
+                    $filteredAccess[$key] = $value;
+                }
+            }
+            if (!empty($filteredAccess)) {
+                $accessJsonPath = $fullPath . DIRECTORY_SEPARATOR . '_access.json';
+                // Načti existující access, pokud existuje, a slouč s novými hodnotami
+                $existingAccess = is_file($accessJsonPath) ? ($this->scanner->json->read($accessJsonPath) ?? []) : [];
+                if (!is_array($existingAccess)) {
+                    $existingAccess = [];
+                }
+                $mergedAccess = array_merge($existingAccess, $filteredAccess);
+                $this->scanner->json->write($accessJsonPath, $mergedAccess);
+            }
         }
 
         return [

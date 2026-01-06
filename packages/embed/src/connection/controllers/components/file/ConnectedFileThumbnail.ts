@@ -18,7 +18,7 @@ import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 import { FileListDisplayMode } from "../../DisplayController";
 
 @customElement("connected-file-thumbnail")
-export class FileThumbnail extends ControlledConsumer {
+export class ConnectedFileThumbnail extends ControlledConsumer {
 
     @property({ type: Object })
     public file!: FileInfo;

@@ -24,6 +24,8 @@ export class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
 
     protected tagBuffer: TagUpdateObject = {};
 
+    protected accessBuffer: { show?: boolean; may_have_files?: boolean } = {};
+
     public init(): this {
         this.request.setMethod("POST");
         this.request.setAction("update");
@@ -79,8 +81,30 @@ export class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
         this.request.addBodyParameter("meta", value);
     }
 
+    /**
+     * Nastaví access.may_have_files (zda složka může obsahovat soubory)
+     */
+    public setMayHaveFiles(mayHaveFiles: boolean): this {
+        this.accessBuffer.may_have_files = mayHaveFiles;
+        return this;
+    }
+
+    /**
+     * Nastaví access.show (viditelnost složky)
+     */
+    public setShow(show: boolean): this {
+        this.accessBuffer.show = show;
+        return this;
+    }
+
 
     public async execute(): Promise<ApiResponseType<UpdateFolderDataType>> {
+
+
+        // Přidej access, pokud je nastaven
+        if (Object.keys(this.accessBuffer).length > 0) {
+            this.request.addBodyParameter("access", this.accessBuffer);
+        }
 
         const response = await this.client.fetch<UpdateFolderDataType>(this.request);
 

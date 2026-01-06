@@ -791,6 +791,7 @@ var UpdateFile = class extends OperationWithFile {
 // client/src/routes/post/UpdateFolder.ts
 var UpdateFolder = class extends OperationWithPath {
   tagBuffer = {};
+  accessBuffer = {};
   init() {
     this.request.setMethod("POST");
     this.request.setAction("update");
@@ -822,7 +823,24 @@ var UpdateFolder = class extends OperationWithPath {
   setMetadata(value) {
     this.request.addBodyParameter("meta", value);
   }
+  /**
+   * Nastaví access.may_have_files (zda složka může obsahovat soubory)
+   */
+  setMayHaveFiles(mayHaveFiles) {
+    this.accessBuffer.may_have_files = mayHaveFiles;
+    return this;
+  }
+  /**
+   * Nastaví access.show (viditelnost složky)
+   */
+  setShow(show) {
+    this.accessBuffer.show = show;
+    return this;
+  }
   async execute() {
+    if (Object.keys(this.accessBuffer).length > 0) {
+      this.request.addBodyParameter("access", this.accessBuffer);
+    }
     const response = await this.client.fetch(this.request);
     return response;
   }

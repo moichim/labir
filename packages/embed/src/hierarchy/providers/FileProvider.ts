@@ -88,6 +88,10 @@ export class FileProviderElement extends AbstractFileProvider {
     /** Load the file and call all necessary callbacks */
     public async load() {
 
+        if ( this.thermal === undefined || this.thermal.length === 0 ) {
+            return;
+        }
+
         const result = this.batch === true
             ? this.loadAsync()
             : this.loadSync();
@@ -163,7 +167,6 @@ export class FileProviderElement extends AbstractFileProvider {
             this.visible,
             this.group,
             this.asyncLoadCallback.bind(this)
-
         )
 
         return result;
@@ -223,8 +226,14 @@ export class FileProviderElement extends AbstractFileProvider {
 
         super.connectedCallback();
 
-        this.load();
+        // this.load();
 
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+
+        this.load();
     }
 
 
@@ -232,15 +241,11 @@ export class FileProviderElement extends AbstractFileProvider {
         super.updated(_changedProperties);
 
         if (_changedProperties.has("thermal")) {
-            const oldUrl = _changedProperties.get("thermal");
 
-            if (oldUrl) {
-                this.group.files.removeFile(oldUrl);
-                this.file = undefined;
+            this.log( _changedProperties.get("thermal"), "->", this.thermal );
+            
+            this.redraw();
 
-                this.load();
-
-            }
 
         }
 

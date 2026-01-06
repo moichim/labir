@@ -1,5 +1,5 @@
 import { FolderInfo } from "@labirthermal/server";
-import { css, CSSResultGroup, html } from "lit";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
@@ -9,6 +9,9 @@ export class FolderEditDialog extends AbstractFolderDialog {
     protected closeLabel: string = "savechanges";
 
     protected dialogLabel: string = "editfolder";
+
+    @property({ type: Number, reflect: true })
+    public subfolderCount: number = 0;
 
     @state()
     private folderName: string = "";
@@ -21,6 +24,9 @@ export class FolderEditDialog extends AbstractFolderDialog {
 
     @property({ type: Function})
     public onSuccess?: (folder: FolderInfo) => void;
+
+     @state()
+    private mayHaveFiles: boolean = true;
 
     public static styles?: CSSResultGroup = css`
 
@@ -96,16 +102,21 @@ export class FolderEditDialog extends AbstractFolderDialog {
         // Clear previous error
         this.errorMessage = "";
 
-        const result = await this
-            .client
-            .api
-            .routes
-            .post
+        const request = this.client.api.routes.post
             .updateFolder(this.folder.path)
             .setName(this.folderName.trim())
-            
-            .setDescription(this.folderDescription.trim())
-            .execute()!;
+            .setDescription(this.folderDescription.trim());
+
+        if ( this.mayChange() ) {
+            request.setMayHaveFiles( this.mayHaveFiles );
+            this.log("Mělo by se nastavit také access, ale to asi ještě není v API hotové.");
+        }
+
+
+
+        const result = await request.execute();
+
+        this.log( result.raw.request );
 
         if (result.success) {
             if (this.onSuccess) {
@@ -127,6 +138,59 @@ export class FolderEditDialog extends AbstractFolderDialog {
     private handleDescriptionChange(event: Event) {
         const target = event.target as HTMLTextAreaElement;
         this.folderDescription = target.value;
+    }
+
+    private mayChange(): boolean {
+        return (
+            this.folder.may_have_files === true
+            && this.folder.lrc_count === 0
+        )
+        ||
+        (
+            this.folder.may_have_files === false
+            && this.subfolderCount === 0
+        );
+    }
+
+
+    protected renderContentMode(): unknown {
+
+            let mayChange = this.mayChange();
+            let changeToFilesNotice = "Tato složka bude moci obsahovat soubory";
+            let changeToFoldersNotice = "Tato složka bude moci obsahovat podsložky";
+            let labelSupplement: unknown = ":";
+
+            if (
+                mayChange === false
+            ){
+                changeToFilesNotice = changeToFoldersNotice = "Toto nastavení lze menit pouze u prázdných složek."
+                labelSupplement = this.mayHaveFiles ? " soubory" : " podsložky";
+            }
+
+    
+            return html`<div class="form-group">
+        <label for="folder-may-have-files">Určeno pro${labelSupplement}</label>
+        <div>
+            ${this.renderToggleButton(
+                !this.mayHaveFiles,
+                () => this.mayHaveFiles = false,
+                "Podsložky",
+                changeToFoldersNotice,
+                "folder",
+                "micro",
+                !mayChange
+            )}
+            ${this.renderToggleButton(
+                this.mayHaveFiles,
+                () => this.mayHaveFiles = true,
+                "Soubory",
+                changeToFilesNotice,
+                "image",
+                "micro",
+                !mayChange
+            )}
+        </div>
+    <div>`;
     }
 
 
@@ -152,6 +216,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
         rows="3"
     ></textarea>
 </div>
+${this.renderContentMode()}
 ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`;
     }
 

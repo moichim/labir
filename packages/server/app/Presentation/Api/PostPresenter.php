@@ -143,6 +143,7 @@ final class PostPresenter extends BaseApiPresenter
         $addTags = null;
         $removeTags = null;
         $thumbnailFile = null;
+        $access = null;
         
         // --- 3. Zpracování nahraného thumbnail souboru ---
         $thumbnailFile = $request->getFile('thumbnail');
@@ -155,6 +156,7 @@ final class PostPresenter extends BaseApiPresenter
         $movePost = $request->getPost('move');
         $addTagsPost = $request->getPost('addTags');
         $removeTagsPost = $request->getPost('removeTags');
+        $accessPost = $request->getPost('access');
         
         // Dekóduj JSON stringy z POST
         if (is_string($metaPost)) {
@@ -169,9 +171,12 @@ final class PostPresenter extends BaseApiPresenter
         if ($movePost === 'true' || $movePost === true) {
             $move = true;
         }
+        if (is_string($accessPost)) {
+            $access = json_decode($accessPost, true);
+        }
         
         // Pokud nejsou POST data, zkus JSON body (fallback pro kompatibilitu)
-        if ($name === null && $description === null && empty($meta) && !$move && $addTags === null && $removeTags === null) {
+        if ($name === null && $description === null && empty($meta) && !$move && $addTags === null && $removeTags === null && $access === null) {
             $requestData = $request->getRawBody();
             if (is_string($requestData) && strlen($requestData) > 0) {
                 $data = json_decode($requestData, true);
@@ -200,6 +205,10 @@ final class PostPresenter extends BaseApiPresenter
                     if (isset($data['removeTags'])) {
                         $removeTags = $data['removeTags'];
                     }
+                    // Access nastavení (sloučení s existujícím)
+                    if (isset($data['access']) && is_array($data['access'])) {
+                        $access = $data['access'];
+                    }
                 }
             }
         }
@@ -213,7 +222,8 @@ final class PostPresenter extends BaseApiPresenter
             $move, 
             $addTags, 
             $removeTags,
-            $thumbnailFile
+            $thumbnailFile,
+            $access
         );
 
         // --- 5. Uložení výsledku a odpověď ---

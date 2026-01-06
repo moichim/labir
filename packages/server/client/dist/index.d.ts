@@ -661,6 +661,10 @@ type UpdateFolderDataType = {
 };
 declare class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
     protected tagBuffer: TagUpdateObject;
+    protected accessBuffer: {
+        show?: boolean;
+        may_have_files?: boolean;
+    };
     init(): this;
     setName(value: string): this;
     setDescription(value: string): this;
@@ -668,6 +672,14 @@ declare class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
     addTag(key: string, name: string, description?: string, color?: string): this;
     removeTags(tags: string[]): this;
     setMetadata(value: Record<string, any>): void;
+    /**
+     * Nastaví access.may_have_files (zda složka může obsahovat soubory)
+     */
+    setMayHaveFiles(mayHaveFiles: boolean): this;
+    /**
+     * Nastaví access.show (viditelnost složky)
+     */
+    setShow(show: boolean): this;
     execute(): Promise<ApiResponseType<UpdateFolderDataType>>;
 }
 

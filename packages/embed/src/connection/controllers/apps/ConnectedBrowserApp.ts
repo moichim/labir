@@ -1,6 +1,6 @@
 import { ThermalManager } from "@labirthermal/core";
 import { BreadcrumbItem, FileInfo, FolderInfo, Identity } from "@labirthermal/server";
-import { html, nothing } from "lit";
+import { html, nothing, TemplateResult } from "lit";
 import { customElement } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
 import { createRef } from "lit/directives/ref.js";
@@ -109,8 +109,6 @@ export class ControllerApp extends ConnectedAppBase {
         content: unknown
     ): unknown {
 
-        this.log("Rendering action slot", content);
-
         if (
             content === nothing
             || content === undefined
@@ -141,6 +139,7 @@ export class ControllerApp extends ConnectedAppBase {
     }
 
     private renderHelperFolderHeaderEditButton(): unknown {
+
         if (
             this.content.folder
             && (
@@ -149,16 +148,28 @@ export class ControllerApp extends ConnectedAppBase {
             )
         ) {
 
-            const mayDelete = this.client.isRoot === true
-                || (
-                    this.content.folder.may_have_files === true
-                    // && this.content.folder.lrc_count === 0
-                );
+            let mayDelete = false;
+            let deleteLabel = this.t("deletefolder");
 
-            const deleteLabel = mayDelete
-                ? this.t("deletefolder")
-                : "Složka nelze smazat dokud obsahuje soubory";
+            if ( this.client.isRoot === true ) {
+                mayDelete = true;
+            } else if ( this.client.isLoggedIn === true ) {
 
+                if ( this.content.folder.may_have_files === true ) {
+                    if ( this.content.folder.lrc_count === 0 ) {
+                        mayDelete = true;
+                    } else {
+                        deleteLabel = `Složka '${this.content.folder.name}' nelze smazat dokud obsahuje soubory.`;
+                    }
+                } else if ( this.content.folder.may_have_files === false ) {
+                    if ( this.content.subfolders.length === 0 ) {
+                        mayDelete = true;
+                    } else {
+                        deleteLabel = `Složka '${this.content.folder.name}' nelze smazat dokud obsahuje podsložky.`;
+                    }
+                }
+
+            }
 
 
             return html`
@@ -170,6 +181,7 @@ export class ControllerApp extends ConnectedAppBase {
                     tooltip=${this.t("editfolder")}
                     icon="edit"
                     iconStyle="micro"
+                    .subfolderCount=${this.content.subfolders.length}
                 ></connected-folder-edit-dialog>
                 <connected-folder-delete-dialog
                     .folder=${this.content.folder}
@@ -180,7 +192,7 @@ export class ControllerApp extends ConnectedAppBase {
                     tooltip=${deleteLabel}
                     icon="trash"
                     iconStyle="micro"
-                    disabled=${mayDelete ? "false" : "true"}
+                    .disabled=${!mayDelete}
                 ></connected-folder-delete-dialog>`;
         }
 
@@ -190,27 +202,35 @@ export class ControllerApp extends ConnectedAppBase {
     /** Render a folder's files */
     protected renderStateFolderFiles(): unknown {
 
+        const hasFiles = this.content.files !== undefined && this.content.files.length > 0;
+
         const edit = [
-            this.renderHelperFolderHeaderEditButton(),
-            html`<group-download-dropdown></group-download-dropdown>`
+            this.renderHelperFolderHeaderEditButton()
         ];
+
+        if ( hasFiles === true ) {
+            edit.push(html`<group-download-dropdown></group-download-dropdown>`);
+        }
 
         const actions: unknown[] = [
             this.renderActionsSlot(
                 "folder",
                 edit
-            ),
-            this.renderActionsSlot(
+            ),            
+        ];
+
+        if ( hasFiles ) {
+            actions.push(this.renderActionsSlot(
                 "display",
                 html`<connected-config-file-display-mode></connected-config-file-display-mode>
                 <registry-opacity-slider></registry-opacity-slider>`
-            ),
-            this.renderActionsSlot(
+            ));
+            actions.push(this.renderActionsSlot(
                 "thermalscale",
                 html`<registry-palette-dropdown></registry-palette-dropdown>
                 <registry-range-form></registry-range-form>`
-            )
-        ];
+            ));
+        }
 
         const header = this.renderFolderHeader(actions);
 
@@ -296,13 +316,109 @@ export class ControllerApp extends ConnectedAppBase {
 
     /** Render a folder's grid of files */
     protected renderStateFolderGrid(): unknown {
+
+        const header: unknown[] = [];
+
+        const display: unknown[] = [];
+        const data: unknown[] = [];
+        const sidebar: unknown[] = [];
+
+        const content = html`<div class=""></div>`;
+
+
+
+
         return html`Grid view`;
     }
 
     // File displays
 
+    private singleUnknownIsNotEmpty( content: unknown ): boolean {
+
+        if ( 
+            content === nothing 
+            || content === undefined 
+            || content === null 
+        ) {
+            return false;
+        }
+
+        if ( typeof content === "string" ) {
+            return content.trim() !== "";
+        }
+
+        if ( Array.isArray( content ) ) {
+            return content.some( c => this.singleUnknownIsNotEmpty( c ) );
+        }
+
+        return true;
+
+    }
+
+    private renderContainerIfArrayNotEmpty(
+        content: unknown,
+        containerElement: string,
+        containerClasses?: string
+    ): unknown {
+
+        if ( this.singleUnknownIsNotEmpty( content ) === false ) {
+            return nothing;
+        }
+
+        return html`<div
+            class=${containerClasses || ""}
+        >
+            ${content}
+        </div>`;
+
+    }
+
     protected renderStateFile(): unknown {
-        return this.renderAppWithInternals(html`state`);
+
+
+        const header: unknown[] = [];
+
+        const display: unknown[] = [
+            html`<registry-histogram expandable="true"></registry-histogram>
+            <registry-range-slider></registry-range-slider>
+            <registry-ticks-bar></registry-ticks-bar>
+            <file-canvas></file-canvas>
+            <file-timeline></file-timeline>`
+        ];
+        const data: unknown[] = [
+            html`<file-analysis-complex></file-analysis-complex>`
+        ];
+        const sidebar: unknown[] = [];
+
+        const displayContent = this.renderContainerIfArrayNotEmpty(
+            display,
+            "section",
+            "section__image"
+        );
+
+        const dataContent = this.renderContainerIfArrayNotEmpty(
+            data,
+            "section",
+            "section__content"
+        );
+
+        const sidebarContent = this.renderContainerIfArrayNotEmpty(
+            sidebar,
+            "section",
+            "section__server"
+        );
+
+        const allContent = [sidebarContent, displayContent, dataContent];
+
+        const content = html`<div class="layout">${allContent}</div>`;
+
+        const contentBrowserLayout = this.renderBrowserLayout(
+            header,
+            content
+        );
+
+
+        return this.renderAppWithInternals(contentBrowserLayout);
     }
 
     // User displays
@@ -350,7 +466,7 @@ export class ControllerApp extends ConnectedAppBase {
 
         })();
 
-        const cachedStateContent = cache(stateContent);
+        const cachedStateContent = cache( stateContent );
 
         return cachedStateContent;
 

@@ -10,6 +10,10 @@ import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
+import {live} from 'lit/directives/live.js';
+	
+
+import {keyed} from 'lit/directives/keyed.js';
 
 export abstract class ConnectedAppBase extends BaseAppWithPngExportContext implements AppWithClientController, AppWithContentController, AppWithDisplayController {
 
@@ -289,20 +293,20 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
         </thermal-app>`;
 
-        const fileBlock = this.content.file !== undefined && this.content.file.url !== undefined
-            ? cache( html`
+        const fileBlock = true
+            ? keyed( this.display.slug, html`
                 <file-provider
-                    thermal=${ this.content.file.url }
-                    visual=${ ifDefined( this.content.file.visual ) }
+                    thermal=${ ifDefined(this.content.file?.url) }
+                    visual=${ ifDefined( this.content.file?.visual ) }
                     batch="true"
                     autoclear="true"
-                    analysis1=${ ifDefined( this.content.file.analyses[0] ) }
-                    analysis2=${ ifDefined( this.content.file.analyses[1] ) }
-                    analysis3=${ ifDefined( this.content.file.analyses[2] ) }
-                    analysis4=${ ifDefined( this.content.file.analyses[3] ) }
-                    analysis5=${ ifDefined( this.content.file.analyses[4] ) }
-                    analysis6=${ ifDefined( this.content.file.analyses[5] ) }
-                    analysis7=${ ifDefined( this.content.file.analyses[6] ) }
+                    analysis1=${ ifDefined( this.content.file?.analyses[0] ) }
+                    analysis2=${ ifDefined( this.content.file?.analyses[1] ) }
+                    analysis3=${ ifDefined( this.content.file?.analyses[2] ) }
+                    analysis4=${ ifDefined( this.content.file?.analyses[3] ) }
+                    analysis5=${ ifDefined( this.content.file?.analyses[4] ) }
+                    analysis6=${ ifDefined( this.content.file?.analyses[5] ) }
+                    analysis7=${ ifDefined( this.content.file?.analyses[6] ) }
                 >
                     ${ thermalApp }
                 </file-provider>
@@ -310,8 +314,8 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             : thermalApp;
 
 
-        const groupBlock = this.hasGroupProvider
-            ? cache( html`
+        const groupBlock = true
+            ? html`
                 <group-provider
                     slug=${ this.display.slug }
                     batch="true"
@@ -319,19 +323,19 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
                 >
                     ${ fileBlock }
                 </group-provider>
-            ` )
+            `
             : fileBlock;
 
 
-        const registryBlock = this.hasRegistryProvider
-            ? cache( html`
+        const registryBlock = true
+            ? html`
                 <registry-provider
                     slug=${ this.display.slug }
                     autoclear="true"
                 >
                     ${ groupBlock }
                 </registry-provider>
-            ` )
+            `
             : groupBlock;
 
 

@@ -112,7 +112,11 @@ export class ThermalBar extends LitElement {
             }
 
         } );
-        this.observer.observe( this.drawerRef.value! );
+
+        if (this.observer && this.drawerRef.value ) {
+            this.observer.observe( this.drawerRef.value );
+        }
+        
 
     }
 
@@ -121,7 +125,10 @@ export class ThermalBar extends LitElement {
         if ( this.drawerRef.value ) {
             this.observer.unobserve( this.drawerRef.value );
         }
-        this.observer.disconnect();
+        if ( this.observer ) {
+            this.observer.disconnect();
+        }
+        
     }
 
 

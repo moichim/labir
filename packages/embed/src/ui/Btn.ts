@@ -420,12 +420,8 @@ export class ThermalBtn extends BaseElement {
             --letter-spacing: normal;
         }
 
-        
-
-
-
         .btn-icon {
-            width: 1em;
+            width: 1.3em;
         }
 
 

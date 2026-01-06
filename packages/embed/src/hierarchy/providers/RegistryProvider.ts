@@ -59,15 +59,15 @@ export class RegistryProviderElement extends AbstractRegistryProvider {
 
                     // this.log( "removing registry" );
 
-                    // this.manager.removeRegistry(this.registry.id);
+                    this.manager.removeRegistry(this.registry.id);
 
                 }
 
                 // Create the new registry
-                // this.registry = this.createRegistry(this.slug);
+                this.registry = this.createRegistry(this.slug);
 
                 // Hydrate
-                // this.hydrateRegistry(this.registry);
+                this.hydrateRegistry(this.registry);
             }
 
         }

@@ -78,10 +78,31 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
 
     protected abstract shouldRenderDialog(): boolean;
 
+    protected renderToggleButton(
+        value: boolean,
+        onClick: () => void,
+        label: string,
+        tooltip: string,
+        icon: string,
+        iconStyle: string,
+        disabled: boolean = false
+    ): unknown {
+
+        return html`<thermal-btn
+    .tooltip=${tooltip}
+    icon=${icon}
+    iconStyle=${iconStyle}
+    variant=${value ? "foreground" : "default"}
+    @click=${onClick}
+    disabled=${disabled === true ? "true" : "false"}
+>${label}</thermal-btn>`;
+
+    }
+
     protected render(): unknown {
 
         if ( !this.shouldRenderDialog() ) {
-            return nothing;
+            // return nothing;
         }
 
         return html`<thermal-dialog
@@ -97,7 +118,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
         .variant=${ifDefined( this.variant )}
         .size=${ifDefined( this.size )}
         .plain=${ifDefined( this.plain )}
-        .disabled=${this.disabled === true ? "true" : "false"}
+        disabled=${this.disabled === true ? "true" : "false"}
         .interactive=${ifDefined( this.interactive )}
         .tooltip=${ifDefined( this.tooltip )}
     >

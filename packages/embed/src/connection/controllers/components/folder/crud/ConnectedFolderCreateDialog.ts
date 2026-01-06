@@ -116,24 +116,7 @@ export class FolderAddDialog extends AbstractFolderDialog {
         this.folderDescription = target.value;
     }
 
-    private renderToggleButton(
-        value: boolean,
-        onClick: () => void,
-        label: string,
-        tooltip: string,
-        icon: string,
-        iconStyle: string
-    ): unknown {
-
-        return html`<thermal-btn
-    .tooltip=${tooltip}
-    icon=${icon}
-    iconStyle=${iconStyle}
-    variant=${value ? "foreground" : "default"}
-    @click=${onClick}
->${label}</thermal-btn>`;
-
-    }
+    
 
     protected renderContentMode(): unknown {
 

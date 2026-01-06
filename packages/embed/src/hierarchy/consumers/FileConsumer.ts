@@ -7,8 +7,8 @@ import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
 
-    @consume({ context: fileProviderContext, subscribe: true })
     @state()
+    @consume({ context: fileProviderContext, subscribe: true })
     protected parentFileProviderElement?: AbstractFileProvider;
 
     public getUUID() {
