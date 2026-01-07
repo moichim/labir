@@ -97,6 +97,9 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @consume({ context: setRegistryHighlightContext, subscribe: true })
     protected highlightSetter?: (highlight: ThermalRangeOrUndefined) => void;
 
+    @property({type: Boolean})
+    public autoclear: boolean = false;
+
 
 
     public updated(_changedProperties: PropertyValues<AbstractFileProvider>): void {

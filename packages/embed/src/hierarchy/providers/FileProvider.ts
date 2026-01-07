@@ -88,7 +88,7 @@ export class FileProviderElement extends AbstractFileProvider {
     /** Load the file and call all necessary callbacks */
     public async load() {
 
-        if ( this.thermal === undefined || this.thermal.length === 0 ) {
+        if ( this.thermal === undefined || this.thermal.length === 0 || this.loading ) {
             return;
         }
 
@@ -226,7 +226,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
         super.connectedCallback();
 
-        // this.load();
+        this.load();
 
     }
 
@@ -252,6 +252,34 @@ export class FileProviderElement extends AbstractFileProvider {
 
 
 
+    }
+
+    public disconnectedCallback(): void {
+        
+
+        if ( this.autoclear ) {
+
+            if ( this.file ) {
+                this.file.unmountFromDom();
+
+                this.ready = false;
+                this.loading = false;
+
+                this.duration = undefined;
+                this.currentFrame = undefined;
+                this.analysis = [];
+
+                this.file.group.files.removeFile(this.file);
+
+                this.file = undefined;
+
+            }
+
+        }
+
+
+        super.disconnectedCallback();
+        
     }
 
 

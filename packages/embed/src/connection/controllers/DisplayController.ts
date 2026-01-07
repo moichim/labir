@@ -132,7 +132,7 @@ export class DisplayController implements ReactiveController {
 
     /** A callback that is necessary for any navigation calls. */
     private refreshSlugOnNavigate(): void {
-        this._slug = this.host.content.getRegistrySlug();
+        this._slug = this.host.content.getRegistrySlug() + "__" + (Date.now()).toString();
         this.onNavigate.call();
         this.host.requestUpdate();
     }

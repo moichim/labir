@@ -177,7 +177,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             this.appState === DisplayState.FILE 
             || ( 
                 this.appState === DisplayState.FOLDER 
-                && this.folderListDisplayMode !== FolderListDisplayMode.GRID
+                || this.folderListDisplayMode === FolderListDisplayMode.GRID
             )
         ) {
             return true;
@@ -263,7 +263,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
         innerContent: unknown
     ): unknown {
 
-        const thermalApp = html`<thermal-app
+        const thermalApp = cache( html`<thermal-app
             label=${ifDefined(this.label)}
             showfullscreen="true"
             labelTooltip=${ifDefined(this.labelTooltip)}
@@ -291,15 +291,24 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             
             <slot name="after-content"></slot>
 
-        </thermal-app>`;
+        </thermal-app>` );
 
-        const fileBlock = true
-            ? keyed( this.display.slug, html`
+        const slugBase = this.display.slug;
+
+        const registrySlug = this.hasRegistryProvider
+            ? slugBase + "__registry"
+            : undefined;
+
+        const groupSlug = this.hasGroupProvider
+            ? slugBase + "__group"
+            : undefined;
+
+        const fileBlock = this.content.file 
+            ? cache( html`
                 <file-provider
                     thermal=${ ifDefined(this.content.file?.url) }
                     visual=${ ifDefined( this.content.file?.visual ) }
                     batch="true"
-                    autoclear="true"
                     analysis1=${ ifDefined( this.content.file?.analyses[0] ) }
                     analysis2=${ ifDefined( this.content.file?.analyses[1] ) }
                     analysis3=${ ifDefined( this.content.file?.analyses[2] ) }
@@ -314,28 +323,28 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             : thermalApp;
 
 
-        const groupBlock = true
-            ? html`
+        const groupBlock = this.hasGroupProvider
+            ? cache(html`
                 <group-provider
-                    slug=${ this.display.slug }
+                    slug=${ slugBase }
                     batch="true"
                     autoclear="true"
                 >
                     ${ fileBlock }
                 </group-provider>
-            `
+            ` )
             : fileBlock;
 
 
-        const registryBlock = true
-            ? html`
+        const registryBlock = this.hasRegistryProvider
+            ? cache( html`
                 <registry-provider
-                    slug=${ this.display.slug }
+                    slug=${ slugBase }
                     autoclear="true"
                 >
                     ${ groupBlock }
                 </registry-provider>
-            `
+            ` )
             : groupBlock;
 
 
