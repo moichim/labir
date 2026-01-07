@@ -8,6 +8,7 @@ import { T } from "packages/embed/src/translations/Languages";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { ConnectedAppBase } from "../abstraction/ConnectedAppBase";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
+import { connectedFileDetail } from "./directives/ConnectedFileDetail";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -302,7 +303,40 @@ export class ControllerApp extends ConnectedAppBase {
     // File displays
 
     protected renderStateFile(): unknown {
-        return this.renderAppWithInternals(html`state`);
+
+        const file = this.content.file;
+
+        if (!file) {
+            return this.renderAppWithInternals(html`<p>File not found</p>`);
+        }
+
+        const header: unknown = [];
+
+        const display: unknown = [
+            html`display`
+        ];
+
+        const analyses: unknown = [
+            html`analyses`
+        ];
+
+        const sidebar: unknown = [
+            html`sidebar`
+        ];
+
+        const columns = [
+            this.wrapContentIfNotEmpty(display, "display"),
+            this.wrapContentIfNotEmpty(analyses, "analyses"),
+            this.wrapContentIfNotEmpty(sidebar, "sidebar")
+        ];
+
+        const content = this.wrapContentIfNotEmpty( columns, "layout" );
+
+
+        const dir = connectedFileDetail( this );
+
+
+        return this.renderAppWithInternals(dir);
     }
 
     // User displays

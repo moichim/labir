@@ -10,6 +10,7 @@ import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
+import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
 
 export abstract class ConnectedAppBase extends BaseAppWithPngExportContext implements AppWithClientController, AppWithContentController, AppWithDisplayController {
 
@@ -191,6 +192,8 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             color: var(--thermal-foreground);
             font-size: var(--thermal-fs);
         }
+
+        ${AbstractLayoutDirective.styles}
 
         .inspector {
             display: grid;
@@ -388,6 +391,47 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
      * This method is used for the initial content requests after the client is ready & logged in. It is called only once, in the same time as `this.client.onReadyForContentRequests`
      */
     protected abstract initialiseContentAfterClientReady(): Promise<void>;
+
+
+    /** Checks whether a given template output is not empty */
+    protected unknownIsNotEmpty(
+        value: unknown
+    ): boolean {
+
+        if (
+            value === nothing
+            || value === undefined
+            || value === null
+        ) {
+            return false;
+        }
+
+        if (  typeof value === "string" && ( value as string ).trim().length === 0 ) {
+            return false;
+        }
+
+        if ( Array.isArray( value ) && value.length > 0 ) {
+            return ! value.some( ( item ) => this.unknownIsNotEmpty( item ) );
+        }
+
+        return true;
+
+    }
+
+    protected wrapContentIfNotEmpty(
+        content: unknown,
+        classes: string
+    ): unknown {
+
+        if ( ! this.unknownIsNotEmpty( content ) ) {
+            return nothing;
+        }
+
+        return html`<div class=${ classes }>
+            ${ content }
+        </div>`;
+
+    }
 
 
 }

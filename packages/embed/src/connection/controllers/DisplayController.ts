@@ -158,6 +158,8 @@ export class DisplayController implements ReactiveController {
 
         try {
 
+            this.host.content.dangerouslySetFileState(undefined);
+
             await this.host.content.fetchFolder(
                 targetFolderPath
             );

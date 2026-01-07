@@ -189,6 +189,8 @@ export class ContentController implements ReactiveController {
         // Update the fileName property of the host component
         if ( this.file ) {
             this.host.fileName = this.file.fileName;
+        } else {
+            this.host.fileName = undefined;
         }
 
 
