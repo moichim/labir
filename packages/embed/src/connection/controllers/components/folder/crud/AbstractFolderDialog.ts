@@ -97,7 +97,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
         .variant=${ifDefined( this.variant )}
         .size=${ifDefined( this.size )}
         .plain=${ifDefined( this.plain )}
-        .disabled=${this.disabled === true ? "true" : "false"}
+        disabled=${ this.disabled ? "true" : "false" }
         .interactive=${ifDefined( this.interactive )}
         .tooltip=${ifDefined( this.tooltip )}
     >

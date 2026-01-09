@@ -30,6 +30,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                     pre="LRC" 
                     @click=${() => this.group.files.downloadAllFiles()}
                     tooltip=${t(T.downloadoriginalfileshint)}
+                    tooltip-placement="right"
                 >
                     ${t(T.downloadoriginalfiles)}
                 </thermal-btn>
@@ -39,6 +40,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                     pre="PNG" 
                     @click=${() => this.group.forEveryInstance(instance => instance.export.downloadPng())}
                     tooltip=${t(T.pngofindividualimageshint)}
+                    tooltip-placement="right"
                 >
                     ${t(T.pngofindividualimages)}
                 </thermal-btn>
@@ -48,6 +50,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                     pre="PNG" 
                     @click=${() => this.group.analysisSync.png.downloadPng()}
                     tooltip="${t(T.pngofentiregrouphint)}"
+                    tooltip-placement="right"
                 >
                     ${t(T.pngofentiregroup)}
                 </thermal-btn>
@@ -57,6 +60,7 @@ export class GroupDownloadDropdown extends GroupConsumer {
                     pre="CSV" 
                     @click=${() => { this.group.analysisSync.csv.downloadAsCsv() }}
                     tooltip=${t(T.csvofanalysisdatahint)}
+                    tooltip-placement="right"
                 >
                     ${t(T.csvofanalysisdata)}
                 </thermal-btn>

@@ -1,7 +1,8 @@
-import { nothing, Part } from "lit";
+import { html, nothing, Part } from "lit";
 import { Directive } from "lit/directive.js";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
+import { DirectiveHelpers } from "./DirectiveHelpers";
 
 export abstract class AbstractConnectedDirective extends Directive {
 
@@ -17,29 +18,16 @@ export abstract class AbstractConnectedDirective extends Directive {
 
     protected unknownContainsSomething( content: unknown ): boolean {
 
-        if ( 
-            content === nothing
-            || content === null 
-            || content === undefined 
-        ) {
-            return false;
-        }
+        return DirectiveHelpers.unknownContainsSomething( content );
 
-        if ( typeof content === "string" && content.trim().length === 0 ) {
-            return false;
-        }
+    }
 
-        if ( Array.isArray( content ) ) {
-
-            if ( content.length === 0 ) {
-                return false;
-            } else if ( ! content.some( item => this.unknownContainsSomething( item ) ) ) {
-                return false;
-            }
-
-        }
-
-        return true;
+    protected renderThermalScale(): unknown {
+        return html`<div>
+        <registry-histogram expandable="true"></registry-histogram>
+        <registry-range-slider></registry-range-slider>
+        <registry-ticks-bar></registry-ticks-bar>
+    </div>`;
     }
 
 }

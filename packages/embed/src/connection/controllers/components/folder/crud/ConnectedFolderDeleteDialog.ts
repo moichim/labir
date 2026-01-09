@@ -83,27 +83,7 @@ export class FolderDeleteDialog extends AbstractFolderDialog {
 
     protected shouldRenderDialog(): boolean {
 
-        // Do not display until connected and logged in
-        if ( 
-            ! this.client.isClientConnected 
-            || ! this.client.identity 
-            || ! this.client.isLoggedIn
-            || ! this.folder
-        ) {
-            return false;
-        }
-
-        // If root, allways display
-        if ( this.client.identity.meta.is_root ) {
-            return true;
-        }
-
-        // For all other users, show on these conditions
-        // 1. user must have manage_folders_in permission
-        // 2. the folder needs to be the end of a path (no subfolders)
-        // 3. the folder needs to be able to contain files
-        // All of those should be satisified with the permission may_manage_files_in
-        return this.folder.may_manage_files_in;
+        return true;
 
     }
 

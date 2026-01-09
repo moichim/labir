@@ -11,7 +11,7 @@ export class ConnectedFileHeader extends ControlledConsumer {
 :host {
     display: flex;
     flex-wrap: no-wrap;
-    gap: var(--thermal-gap);
+    gap: .5em;
 
     color: var(--thermal-foreground);
     font-size: var(--thermal-fs);

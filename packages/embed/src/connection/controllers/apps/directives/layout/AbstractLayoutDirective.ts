@@ -18,6 +18,7 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
             
             width: 100%;
             position: relative;
+            padding-top: .5em;
 
             &.cLayout__content--with-toolbar {
                 display: grid;
@@ -80,6 +81,23 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
             </div>
         </div>`;
 
+    }
+
+    protected renderThermalScaleSlot(): unknown {
+        return html`<thermal-slot
+            label=${this.t("thermalscale")}
+        >
+            <registry-palette-dropdown></registry-palette-dropdown>
+            <registry-range-form></registry-range-form>
+        </thermal-slot>`;
+    }
+
+    protected renderLoading(
+        message: string
+    ): unknown {
+        return html`<thermal-loading
+            .message=${ message }
+        ></thermal-loading>`;
     }
 
 }

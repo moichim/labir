@@ -292,6 +292,18 @@ export class DisplayController implements ReactiveController {
         this.setAppMode(DisplayState.LOGIN);
     }
 
+    public async navigateToFolderParentAndLoad(
+        originalFolderPath: string
+    ): Promise<void> {
+        // Rodič se získá z cesty odstraněním posledního segmentu
+        
+        /** @todo */
+
+        return;
+        // const parentPath = this.host.content.getParentFolderPath( originalFolderPath );
+        // return this.navigateToFolderAndLoad( parentPath );
+    }
+
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
 

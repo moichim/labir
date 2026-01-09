@@ -1,5 +1,5 @@
 import { ThermalManager } from "@labirthermal/core";
-import { BreadcrumbItem, FileInfo, FolderInfo, Identity } from "@labirthermal/server";
+import { BreadcrumbItem, FolderInfo, Identity } from "@labirthermal/server";
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
@@ -8,7 +8,9 @@ import { T } from "packages/embed/src/translations/Languages";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { ConnectedAppBase } from "../abstraction/ConnectedAppBase";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
-import { connectedFileDetail } from "./directives/ConnectedFileDetail";
+import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
+import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
+import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -191,56 +193,7 @@ export class ControllerApp extends ConnectedAppBase {
     /** Render a folder's files */
     protected renderStateFolderFiles(): unknown {
 
-        const edit = [
-            this.renderHelperFolderHeaderEditButton(),
-            html`<group-download-dropdown></group-download-dropdown>`
-        ];
-
-        const actions: unknown[] = [
-            this.renderActionsSlot(
-                "folder",
-                edit
-            ),
-            this.renderActionsSlot(
-                "display",
-                html`<connected-config-file-display-mode></connected-config-file-display-mode>
-                <registry-opacity-slider></registry-opacity-slider>`
-            ),
-            this.renderActionsSlot(
-                "thermalscale",
-                html`<registry-palette-dropdown></registry-palette-dropdown>
-                <registry-range-form></registry-range-form>`
-            )
-        ];
-
-        const header = this.renderFolderHeader(actions);
-
-        const fileList = html`<connected-file-list
-            display-mode=${this.display.fileDisplayMode}
-            compact=${this.display.fileDisplayCompact ? "true" : "false"}
-            show-discussion=${this.display.displayComments ? "true" : "false"}
-            editable-tags=${this.display.editTags ? "true" : "false"}
-            .onFileClick=${(file: FileInfo) => {
-                this.display.navigateToFileAndLoad(this.content.folder!.path, file.fileName);
-            }}
-        ></connected-file-list>
-        <connected-upload-form
-            .folder=${this.content.folder}
-            .onSuccess=${() => {
-                this.display.reloadCurrentState();
-            }}
-        ></connected-upload-form>`;
-
-        if (this.content.files === undefined || this.content.files.length === 0) {
-
-            return [header, fileList];
-
-        }
-
-        return this.renderBrowserLayout(
-            header,
-            fileList
-        );
+        return connectedFolderFiles(this);
 
     }
 
@@ -248,6 +201,8 @@ export class ControllerApp extends ConnectedAppBase {
 
     /** Render a folder's subfolders */
     protected renderStateFolderSubfolders(): unknown {
+
+        return connectedFolderSubfolders(this);
 
         const create = this.content.folder && this.content.folder.may_manage_folders_in ? html`<connected-folder-create-dialog
             .folder=${this.content.folder}
@@ -304,37 +259,7 @@ export class ControllerApp extends ConnectedAppBase {
 
     protected renderStateFile(): unknown {
 
-        const file = this.content.file;
-
-        if (!file) {
-            return this.renderAppWithInternals(html`<p>File not found</p>`);
-        }
-
-        const header: unknown = [];
-
-        const display: unknown = [
-            html`display`
-        ];
-
-        const analyses: unknown = [
-            html`analyses`
-        ];
-
-        const sidebar: unknown = [
-            html`sidebar`
-        ];
-
-        const columns = [
-            this.wrapContentIfNotEmpty(display, "display"),
-            this.wrapContentIfNotEmpty(analyses, "analyses"),
-            this.wrapContentIfNotEmpty(sidebar, "sidebar")
-        ];
-
-        const content = this.wrapContentIfNotEmpty( columns, "layout" );
-
-
         const dir = connectedFileDetail( this );
-
 
         return this.renderAppWithInternals(dir);
     }

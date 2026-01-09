@@ -1,12 +1,19 @@
 import { html } from "lit";
 import { directive } from "lit/directive.js";
-import { ConnectedAppBase } from "../../abstraction/ConnectedAppBase";
-import { AbstractLayoutDirective } from "./layout/AbstractLayoutDirective";
+import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { FolderInfo } from "@labirthermal/server";
-import { slotOrNothing } from "./SlotOrNothing";
+import { slotOrNothing } from "../SlotOrNothing";
 
 class ConnectedFileDetail extends AbstractLayoutDirective {
     render(app: ConnectedAppBase): unknown {
+
+        if ( 
+            app.content.folder === undefined 
+            || app.content.file === undefined
+        ) {
+            return this.renderLoading( "Loading file details..." );
+        }
 
         const thermalScale = slotOrNothing( 
             "thermalscale", 

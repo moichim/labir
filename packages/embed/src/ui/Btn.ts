@@ -171,10 +171,10 @@ export class ThermalBtn extends BaseElement {
     };
 
     disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListener('keydown', this.handleKeydown);
-    this.removeEventListener('click', this.handleClick);
-    this.removeTooltip();
+        super.disconnectedCallback();
+        this.removeEventListener('keydown', this.handleKeydown);
+        this.removeEventListener('click', this.handleClick);
+        this.removeTooltip();
     }
 
     public static styles = css`
@@ -425,7 +425,7 @@ export class ThermalBtn extends BaseElement {
 
 
         .btn-icon {
-            width: 1em;
+            width: 1.3em;
         }
 
 
