@@ -95,9 +95,20 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
     protected renderLoading(
         message: string
     ): unknown {
-        return html`<thermal-loading
+        return html`<thermal-poster
             .message=${ message }
-        ></thermal-loading>`;
+        ></thermal-poster>`;
+    }
+
+    protected renderError(
+        message: string
+    ): unknown {
+        return html`<thermal-poster
+            .message=${ message }
+            icon="warning"
+            iconStyle="outline"
+            .loading=${ false }
+        ></thermal-poster>`;
     }
 
 }

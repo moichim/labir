@@ -600,7 +600,7 @@ export class SubfoldersGrid extends RegistryConsumer {
                 
                     ${this.renderBody(this.grid?.groups ?? [])}
                 </table>`
-                : html`<thermal-loading message="Načítám mřížku"></thermal-loading>`
+                : html`<thermal-poster message="Načítám mřížku"></thermal-poster>`
             }
         
         `;

@@ -233,7 +233,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
     protected renderMain() {
 
         if (this.structure === undefined) {
-            return html`<thermal-loading label="Načítám data"></thermal-loading>`;
+            return html`<thermal-poster label="Načítám data"></thermal-poster>`;
         }
 
         const preview = this.structure.map(group => {
@@ -284,7 +284,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
     protected renderGroup() {
 
         if (this.structure === undefined || this.group === undefined) {
-            return html`<thermal-loading></thermal-loading`;
+            return html`<thermal-poster></thermal-poster>`;
         }
 
         return this.renderBrowser(html`
@@ -350,7 +350,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
     protected renderFile() {
 
         if (this.structure === undefined || this.group === undefined || this.file === undefined) {
-            return html`<thermal-loading></thermal-loading`;
+            return html`<thermal-poster></thermal-poster>`;
         }
 
         return this.renderBrowser(html`<group-provider slug="${this.file.lrc}" autoclear="true">

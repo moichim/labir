@@ -11,6 +11,7 @@ import { DisplayState, FolderListDisplayMode } from "../DisplayController";
 import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
 import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
+import { userFolders } from "./directives/layout/UserFoldersDirective";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -41,9 +42,9 @@ export class ControllerApp extends ConnectedAppBase {
     }
 
     protected renderStateLoading(): unknown {
-        return this.renderAppWithInternals(html`<thermal-loading
+        return this.renderAppWithInternals(html`<thermal-poster
                 .message=${this.display.arbitraryContent}
-            ></thermal-loading>` );
+            ></thermal-poster>` );
     }
 
     private renderBreadcrumb(): unknown {
@@ -204,50 +205,6 @@ export class ControllerApp extends ConnectedAppBase {
 
         return connectedFolderSubfolders(this);
 
-        const create = this.content.folder && this.content.folder.may_manage_folders_in ? html`<connected-folder-create-dialog
-            .folder=${this.content.folder}
-            .onSuccess=${(folder: FolderInfo) => {
-                this.display.reloadCurrentState();
-            }}
-            tooltip=${this.t("createfolder")}
-            icon="addfolder"
-            iconStyle="micro"
-            variant="primary"
-        ></connected-folder-create-dialog>`
-            : undefined;
-
-        const editButtons = this.renderHelperFolderHeaderEditButton();
-
-        const edit = create
-            ? [create, editButtons]
-            : [editButtons];
-
-        const actions: unknown[] = [
-            this.renderActionsSlot(
-                "folder",
-                edit
-            ),
-            this.renderActionsSlot(
-                "display",
-                html`<connected-config-subfolder-mode></connected-config-subfolder-mode>
-                <registry-palette-dropdown></registry-palette-dropdown>`
-            )
-        ];
-
-        const header = this.renderFolderHeader(actions);
-
-        const subfolderList = html`<connected-subfolder-list
-                    .onFolderClick=${(folder: FolderInfo) => {
-                this.display.navigateToFolderAndLoad(folder.path);
-            }}
-                    folderMode=${this.display.folderListDisplayMode}
-                ></connected-subfolder-list>`;
-
-        return [
-            header,
-            subfolderList
-        ];
-
     }
 
     /** Render a folder's grid of files */
@@ -267,7 +224,7 @@ export class ControllerApp extends ConnectedAppBase {
     // User displays
 
     protected renderStateUser(): unknown {
-        return this.renderAppWithInternals(html`user`);
+        return this.renderAppWithInternals(userFolders(this));
     }
 
 

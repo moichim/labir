@@ -488,7 +488,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             ` : nothing }
 
                             ${this.loading === true 
-                                ? html`<thermal-loading message="${t(T.loading)}"></thermal-loading>`
+                                ? html`<thermal-poster message="${t(T.loading)}"></thermal-poster>`
                                 : html`<div class="app-content">
 
                                     <slot></slot>

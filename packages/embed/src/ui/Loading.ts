@@ -2,11 +2,20 @@ import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../hierarchy/BaseElement";
 
-@customElement( "thermal-loading" )
+@customElement( "thermal-poster" )
 export class Loading extends BaseElement {
 
     @state()
     protected loaded: boolean = false;
+
+    @property({type: Boolean, reflect: true})
+    public loading: boolean = true;
+
+    @property({type: String})
+    public icon?: string;
+
+    @property({type: String})
+    public iconStyle?: string;
 
     @property({type: String})
     public message?: string;
@@ -30,10 +39,12 @@ export class Loading extends BaseElement {
     public static styles?: CSSResultGroup | undefined = css`
     
         :host {
+            font-size: var(--thermal-fs);
             display: flex;
-            
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            gap: .5em;
             width: 100%;
             min-height: 300px;
 
@@ -50,6 +61,27 @@ export class Loading extends BaseElement {
     `;
 
     protected render(): unknown {
+
+        const content = [];
+
+        if ( this.loading ) {
+            content.push(html`<thermal-spinner style="display: block"></thermal-spinner>`);
+        } else {
+            if ( 
+                true
+                // this.icon && this.iconStyle 
+            ) {
+                content.push(html`<thermal-icon icon="${this.icon}" variant="${this.iconStyle}" style="height: 2em; aspect-ratio: 1 / 1; display: block;"></thermal-icon>`);
+            }
+
+            if ( this.message ) {
+                content.push(html`<div>${this.message}</div>`);
+            }
+        }
+
+        return content;
+
+
         return html`
             <thermal-spinner message=${this.message} style="display: block"></thermal-spinner>
         `;
