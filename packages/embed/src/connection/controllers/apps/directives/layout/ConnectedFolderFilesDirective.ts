@@ -72,6 +72,7 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
 
     }
 
+
     private renderDisplaySlot(
         app: ConnectedAppBase
     ): unknown {
@@ -97,7 +98,6 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
         )
 
     }
-
 
 
     private renderFolderHeader(
@@ -141,6 +141,7 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
         return this.renderHeader(content);
 
     }
+
 
     private renderFileList(
         app: ConnectedAppBase

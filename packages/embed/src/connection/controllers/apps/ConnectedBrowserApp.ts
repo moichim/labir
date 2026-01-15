@@ -12,6 +12,7 @@ import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDire
 import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 import { userFolders } from "./directives/layout/UserFoldersDirective";
+import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDirective";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -209,7 +210,7 @@ export class ControllerApp extends ConnectedAppBase {
 
     /** Render a folder's grid of files */
     protected renderStateFolderGrid(): unknown {
-        return html`Grid view`;
+        return connectedFolderGrid(this);
     }
 
     // File displays
@@ -243,8 +244,6 @@ export class ControllerApp extends ConnectedAppBase {
         );
 
         await this.display.reloadCurrentState();
-
-        this.log("Obsah byl načten....");
 
 
     }

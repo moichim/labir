@@ -48,7 +48,7 @@ export class RangeSliderElement extends RegistryConsumer {
     protected initialised: boolean = false;
 
     @state()
-    @consume({context: loadingContext, subscribe: true})
+    @consume({ context: loadingContext, subscribe: true })
     protected loading: boolean = false;
 
     protected getClassName(): string {
@@ -57,7 +57,6 @@ export class RangeSliderElement extends RegistryConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-
     }
 
     disconnectedCallback(): void {
@@ -65,6 +64,22 @@ export class RangeSliderElement extends RegistryConsumer {
         this.registry.range.removeListener(this.UUID);
         this.registry.minmax.removeListener(this.UUID);
         this.initialised = false;
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+        this.registry.minmax.addListener(this.UUID, value => {
+
+            // this.registry.range.applyMinmax();
+
+            if (this.registry.range.value) {
+                this.registry.range.imposeRange({
+                    from: this.registry.range.value.from,
+                    to: this.registry.range.value.to
+                });
+            }
+
+        });
     }
 
     protected willUpdate(_changedProperties: PropertyValues): void {
@@ -100,11 +115,11 @@ export class RangeSliderElement extends RegistryConsumer {
         super.updated(_changedProperties);
 
         // Initialise the slider
-        if ( _changedProperties.has("loading") && this.loading === false ) {
+        if (_changedProperties.has("loading") && this.loading === false) {
             this.initialiseSlider();
         }
 
-        
+
 
     }
 
@@ -117,7 +132,7 @@ export class RangeSliderElement extends RegistryConsumer {
         this.initialised = true;
 
         // The main functionality needs to be deferred, since the component is rendered in the next tick
-        setTimeout( () => {
+        setTimeout(() => {
 
             const slider = this.sliderRef.value;
 
@@ -130,23 +145,23 @@ export class RangeSliderElement extends RegistryConsumer {
     border-radius: 0;
     width: 10px;
 }` );
-    
+
                 slider.addEventListener("change", (event: Event) => {
-    
+
                     const evt = event as CustomEvent;
                     const detail = evt.detail as { value1: number, value2: number };
-    
+
                     this.from = detail.value1;
                     this.to = detail.value2;
-    
+
                 });
-    
-    
+
+
                 slider.addEventListener("onMouseUp", () => {
-    
+
                     if (this.from !== undefined && this.to !== undefined)
                         this.registry.range.imposeRange({ from: this.from, to: this.to });
-    
+
                 });
 
             }
@@ -157,13 +172,13 @@ export class RangeSliderElement extends RegistryConsumer {
         this.registry.range.addListener(this.UUID, value => {
             if (value) {
 
-                if ( this.from !== undefined && this.to !== undefined ) {
+                if (this.from !== undefined && this.to !== undefined) {
 
                     // If new min is larger the existing max
-                    if ( this.max! < value.from ) {
+                    if (this.max! < value.from) {
                         this.to = value.to;
                         this.from = value.from;
-                    } 
+                    }
                     // If new max is smaller than existing min
                     else {
                         this.from = value.from;
@@ -177,14 +192,14 @@ export class RangeSliderElement extends RegistryConsumer {
 
                 // Set the values the hard way to the component - in case their setting is somehow not working in the component itself
 
-                if ( this.sliderRef.value ) {
+                if (this.sliderRef.value) {
 
-                    if ( value.from && this.from ) {
-                        this.sliderRef.value.setAttribute(  "value1", this.from.toString() );
+                    if (value.from && this.from) {
+                        this.sliderRef.value.setAttribute("value1", this.from.toString());
                     }
-        
-                    if ( value.to && this.to ) {
-                        this.sliderRef.value.setAttribute(  "value2", this.to.toString() );
+
+                    if (value.to && this.to) {
+                        this.sliderRef.value.setAttribute("value2", this.to.toString());
                     }
                 }
 
@@ -220,7 +235,7 @@ export class RangeSliderElement extends RegistryConsumer {
 
     protected render(): unknown {
 
-        if ( this.loading === true ) {
+        if (this.loading === true) {
             return html`<div class="container loading"><div class"skeleton"></div></div>`;
         }
 

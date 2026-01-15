@@ -121,7 +121,10 @@ export class ThermalBar extends LitElement {
         if ( this.drawerRef.value ) {
             this.observer.unobserve( this.drawerRef.value );
         }
-        this.observer.disconnect();
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+        
     }
 
 

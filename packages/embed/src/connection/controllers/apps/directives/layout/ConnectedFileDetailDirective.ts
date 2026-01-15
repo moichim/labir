@@ -23,6 +23,25 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
         const fileOperations = [];
 
+        if ( app.content.folder.may_manage_files_in ) {
+            fileOperations.push( html`<connected-file-edit-dialog
+                .file=${ app.content.file }
+                variant="primary"
+                size="md"
+                .label=${undefined}
+            ></connected-file-edit-dialog>` );
+
+            fileOperations.push( html`<connected-file-delete-dialog
+                .file=${ app.content.file }
+                .folder=${ app.content.folder }
+                variant="foreground"
+                size="md"
+                .label=${undefined}
+                ></connected-file-delete-dialog>` );
+        }
+
+        fileOperations.push( html`<file-info-button></file-info-button>` );
+
         fileOperations.push( html`<file-download-dropdown></file-download-dropdown>` );
 
         const file = slotOrNothing(

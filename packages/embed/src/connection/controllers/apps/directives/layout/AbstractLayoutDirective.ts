@@ -29,14 +29,18 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
         }
 
         .clayout__content__toolbar {
-            position: sticky;
-            top: 300px;
+            position: relative;
+            & > * {
+                position: sticky;
+                top: 0px;
+            }
         }
 
         .clayout__content__inner {
             width: 100%;
             display: grid;
             gap: 1em;
+            position: relative;
         }
     
     `;

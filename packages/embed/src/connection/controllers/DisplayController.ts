@@ -185,7 +185,7 @@ export class DisplayController implements ReactiveController {
                 // If the grid can not be displayed, switch to the list mode
                 else {
 
-                    this.setFolderDisplayMode( FolderListDisplayMode.LIST );
+                    this.setFolderListDisplayMode( FolderListDisplayMode.LIST );
 
                 }
 
@@ -388,7 +388,7 @@ export class DisplayController implements ReactiveController {
     }
 
     /** Setup the internal file display mode state */
-    public setFileDisplayMode(
+    public setFileListDisplayMode(
         mode: FileListDisplayMode
     ): void {
 
@@ -434,14 +434,30 @@ export class DisplayController implements ReactiveController {
     }
 
     /** Public display internal  folder display setter */
-    public setFolderDisplayMode(
+    public setFolderListDisplayMode(
         mode: FolderListDisplayMode
     ): void {
 
         if (mode !== this.host.folderListDisplayMode) {
             this.host.folderListDisplayMode = mode;
             this.onFolderDisplayModeUpdate.call();
+
+            // If we should have grid here, start fetching it
+            if ( mode === FolderListDisplayMode.GRID && this.host.folderPath) {
+
+                this.host.content.fetchGridData(
+                    this.host.folderPath
+                );
+
+            }
+
+            // otherwise make sure the grid in the content is empty
+            else {
+                this.host.content.dangerouslySetGridState( undefined )
+            }
+
             this.host.requestUpdate();
+
         }
     }
 

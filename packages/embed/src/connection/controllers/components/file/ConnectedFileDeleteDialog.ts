@@ -94,10 +94,12 @@ export class FileDeleteDialog extends ControlledConsumer {
 
         try {
 
-            const result = await this.content.fetchDeleteFile(
+            await this.content.fetchDeleteFile(
                 this.folder.path,
                 this.file.fileName
             );
+
+            await this.display.reloadCurrentState();
 
             return true;
 

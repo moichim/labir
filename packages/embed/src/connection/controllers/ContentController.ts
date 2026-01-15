@@ -242,8 +242,6 @@ export class ContentController implements ReactiveController {
         breadcrumb: BreadcrumbItem[] | undefined
     ): void {
 
-        this.host.log( "Breadcrumb se změnil", breadcrumb );
-
         this._breadcrumb = breadcrumb;
         this.onBreadcrumbUpdate.call( this._breadcrumb );
         this.host.requestUpdate();
@@ -509,9 +507,15 @@ export class ContentController implements ReactiveController {
         folderPath: string
     ): Promise<void> {
 
+        this.host.log( "Started fetching grid", folderPath );
+
         const result = await this.host.apiClient.routes.get
             .grid(folderPath)
             .execute();
+
+        this.host.requestUpdate();
+
+        this.host.log( "Response", result );
 
         this.throwIfNot200(result);
 
@@ -567,12 +571,16 @@ export class ContentController implements ReactiveController {
         fileName: string
     ): Promise<void> {
 
+        this.host.log( "Stav před mazáním:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
+
         const result = await this.host.apiClient.routes.post.deleteFile(
             folderPath,
             fileName
         ).execute();
 
         this.throwIfNot200(result);
+
+        this.host.log( "Stav kbezprostředně po mazání:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
 
         // Delete the file from the current state if necessary
         if ( 

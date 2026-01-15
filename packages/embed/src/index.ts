@@ -232,6 +232,7 @@ import "./connection/controllers/components/folder/crud/ConnectedFolderEditDialo
 import "./connection/controllers/components/folder/crud/ConnectedFolderDeleteDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderCreateDialog";
 import "./connection/controllers/components/file/ConnectedFileHeader"
+import "./connection/controllers/components/folder/listing/ConnectedSubfoldersGrid";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));
