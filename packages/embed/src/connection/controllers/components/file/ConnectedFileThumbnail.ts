@@ -134,6 +134,12 @@ export class FileThumbnail extends ControlledConsumer {
     connectedCallback(): void {
         super.connectedCallback();
         this.hydrate();
+
+        this.display.subscribeToDisplayComments( this );
+        this.display.subscribeToEditTags( this );
+        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
+        this.content.subscribeToFolderUpdates( this );
     }
 
 

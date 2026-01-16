@@ -13,6 +13,7 @@ import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDi
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 import { userFolders } from "./directives/layout/UserFoldersDirective";
 import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDirective";
+import { DisplayModeElement } from "../../components/folder/configuration/DisplayMode";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -46,32 +47,6 @@ export class ControllerApp extends ConnectedAppBase {
         return this.renderAppWithInternals(html`<thermal-poster
                 .message=${this.display.arbitraryContent}
             ></thermal-poster>` );
-    }
-
-    private renderBreadcrumb(): unknown {
-        return html`<connected-breadcrumb 
-            slot="pre" 
-            .onFolderClick=${(folder: BreadcrumbItem) => {
-                this.display.navigateToFolderAndLoad(folder.path);
-            }}
-            .onUserClick=${() => {
-                this.display.navigateToUserFoldersAndLoad();
-            }}
-        ></connected-breadcrumb>`;
-    }
-
-    private renderFolderHeader(
-        actions: unknown
-    ): unknown {
-        return html`${this.renderBreadcrumb()}
-        <connected-folder-header 
-            slot="pre"
-            .onParentClick=${(parent: BreadcrumbItem) => {
-                this.display.navigateToFolderAndLoad(parent.path);
-            }}
-        >
-            ${actions}
-        </connected-folder-header>`;
     }
 
 
@@ -108,104 +83,16 @@ export class ControllerApp extends ConnectedAppBase {
 
     }
 
-    /** Helper - render one slot in the actions */
-    private renderActionsSlot(
-        labelTranslationSlug: keyof typeof T,
-        content: unknown
-    ): unknown {
-
-        this.log("Rendering action slot", content);
-
-        if (
-            content === nothing
-            || content === undefined
-            || content === null
-            || (
-                Array.isArray(content)
-                && (
-                    content.length === 0
-                    ||
-                    !content.some(c => (
-                        c !== nothing
-                        || c !== undefined
-                        || c !== null
-
-                    ))
-                )
-            )
-        ) {
-            this.log("No content in action slot, skipping");
-            return nothing;
-        }
-
-        return html`
-            <thermal-slot
-                label=${this.t(labelTranslationSlug)}
-            >${content}</thermal-slot>
-        `;
-    }
-
-    private renderHelperFolderHeaderEditButton(): unknown {
-        if (
-            this.content.folder
-            && (
-                this.content.folder.may_manage_folders_in
-                || this.content.folder.may_manage_files_in
-            )
-        ) {
-
-            const mayDelete = this.client.isRoot === true
-                || (
-                    this.content.folder.may_have_files === true
-                    // && this.content.folder.lrc_count === 0
-                );
-
-            const deleteLabel = mayDelete
-                ? this.t("deletefolder")
-                : "Složka nelze smazat dokud obsahuje soubory";
-
-
-
-            return html`
-                <connected-folder-edit-dialog
-                    .folder=${this.content.folder}
-                    .onSuccess=${(folder: FolderInfo) => {
-                    this.content.updateFolderState(folder);
-                }}
-                    tooltip=${this.t("editfolder")}
-                    icon="edit"
-                    iconStyle="micro"
-                ></connected-folder-edit-dialog>
-                <connected-folder-delete-dialog
-                    .folder=${this.content.folder}
-                    .onSuccess=${(folder: FolderInfo) => {
-                    this.log("Folder smazán, naviguji zpět");
-                    this.display.navigateToFolderAndLoad(folder.path.substring(0, folder.path.lastIndexOf("/")));
-                }}
-                    tooltip=${deleteLabel}
-                    icon="trash"
-                    iconStyle="micro"
-                    disabled=${mayDelete ? "false" : "true"}
-                ></connected-folder-delete-dialog>`;
-        }
-
-        return nothing;
-    }
-
     /** Render a folder's files */
     protected renderStateFolderFiles(): unknown {
-
         return connectedFolderFiles(this);
-
     }
 
 
 
     /** Render a folder's subfolders */
     protected renderStateFolderSubfolders(): unknown {
-
         return connectedFolderSubfolders(this);
-
     }
 
     /** Render a folder's grid of files */
@@ -216,9 +103,7 @@ export class ControllerApp extends ConnectedAppBase {
     // File displays
 
     protected renderStateFile(): unknown {
-
         const dir = connectedFileDetail( this );
-
         return this.renderAppWithInternals(dir);
     }
 
@@ -260,6 +145,12 @@ export class ControllerApp extends ConnectedAppBase {
                 case DisplayState.FOLDER: return this.renderStateFolder();
                 case DisplayState.FILE: return this.renderStateFile();
                 case DisplayState.USER: return this.renderStateUser();
+                case DisplayState.ARBITRARY: return this.renderAppWithInternals(html`<thermal-poster
+                    .message=${this.display.arbitraryContent}
+                ></thermal-poster>`);
+                case DisplayState.ERROR: return this.renderAppWithInternals(html`<thermal-error
+                    .message=${this.display.arbitraryContent}
+                ></thermal-error>`);
                 default: return html`<p>Unknown state</p>`;
             }
 
@@ -267,7 +158,10 @@ export class ControllerApp extends ConnectedAppBase {
 
         const cachedStateContent = cache(stateContent);
 
-        return cachedStateContent;
+        return [
+            // this.display.appState,
+            cachedStateContent
+        ];
 
     }
 

@@ -1,87 +1,181 @@
-import { html } from "lit";
+import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
 import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { FolderInfo } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
+import { DirectiveHelpers } from "../DirectiveHelpers";
 
 class ConnectedFileDetail extends AbstractLayoutDirective {
-    render(app: ConnectedAppBase): unknown {
 
-        if ( 
-            app.content.folder === undefined 
-            || app.content.file === undefined
-        ) {
-            return this.renderLoading( "Loading file details..." );
+
+    private renderFileHeaderFileSlot(
+        app: ConnectedAppBase
+    ): unknown {
+
+        if (app.content.folder === undefined) {
+            return nothing;
         }
-
-        const thermalScale = slotOrNothing( 
-            "thermalscale", 
-            html`<registry-palette-dropdown></registry-palette-dropdown>
-            <registry-range-form></registry-range-form>` 
-        );
 
         const fileOperations = [];
 
-        if ( app.content.folder.may_manage_files_in ) {
-            fileOperations.push( html`<connected-file-edit-dialog
-                .file=${ app.content.file }
+        if (app.content.folder.may_manage_files_in) {
+            fileOperations.push(html`<connected-file-edit-dialog
+                .file=${app.content.file}
                 variant="primary"
                 size="md"
                 .label=${undefined}
             ></connected-file-edit-dialog>` );
 
-            fileOperations.push( html`<connected-file-delete-dialog
-                .file=${ app.content.file }
-                .folder=${ app.content.folder }
+            fileOperations.push(html`<connected-file-delete-dialog
+                .file=${app.content.file}
+                .folder=${app.content.folder}
                 variant="foreground"
                 size="md"
                 .label=${undefined}
                 ></connected-file-delete-dialog>` );
         }
 
-        fileOperations.push( html`<file-info-button></file-info-button>` );
+        fileOperations.push(html`<file-info-button></file-info-button>`);
 
-        fileOperations.push( html`<file-download-dropdown></file-download-dropdown>` );
+        fileOperations.push(html`<file-download-dropdown></file-download-dropdown>`);
 
-        const file = slotOrNothing(
+        return slotOrNothing(
             "file",
             fileOperations
         );
 
+    }
 
-        const header = this.renderHeader( html`
 
-            ${ this.renderBreadcrumb( app ) }
+    private renderFileHeader(
+        app: ConnectedAppBase
+    ): unknown {
 
-            <connected-folder-header
-                .onParentClick=${ ( folder: FolderInfo ) => app.display.navigateToFolderAndLoad( folder.path ) }
-            ></connected-folder-header>
+        const slots = [
 
-            <connected-file-header>
-                ${ file }
-                ${ thermalScale }
-            </connected-file-header>
+            this.renderFileHeaderFileSlot(app),
 
-        ` );
+            slotOrNothing(
+                "thermalscale",
+                html`<registry-palette-dropdown></registry-palette-dropdown>
+                <registry-range-form></registry-range-form>`
+            )
 
-        const content = this.renderContent( 
-            true, 
-            "1fr 1fr", 
-            undefined, 
+        ];
+
+        const display: unknown[] = [];
+
+        if (app.content.folder && DirectiveHelpers.userMayEditFile(app.client, app.content.folder)) {
+            display.push(html`<connected-config-file-content-mode></connected-config-file-content-mode>`);
+        }
+
+        display.push(html`<registry-opacity-slider></registry-opacity-slider>`);
+
+        slots.push(
+            slotOrNothing(
+                "display",
+                display
+            )
+        );
+
+        if (
+            true
+            || (
+                app.content.file !== undefined
+                && app.content.file!.tags.length > 0
+            )
+        ) {
+
+            const tags = slotOrNothing(
+                "edit",
+                html`<connected-file-tags
+                .file=${app.content.file}
+                .folder=${app.content.folder}
+                editable=${app.display.editTags ? "true" : "false"}
+                inline=${true}
+                size="sm"
+            ></connected-file-tags>`
+            );
+
+            slots.push(tags);
+
+        }
+
+        return this.renderHeader([
+            this.renderBreadcrumb(app),
+
+            html`<connected-folder-header
+                .onParentClick=${(folder: FolderInfo) => app.display.navigateToFolderAndLoad(folder.path)}
+            ></connected-folder-header>`,
+
+            html`<connected-file-header>
+                ${slots}
+            </connected-file-header>`
+        ]);
+
+    }
+
+
+
+
+    private renderFileDetailContent(
+        app: ConnectedAppBase
+    ): unknown {
+
+        const content: unknown[] = [
+
             html`<div>
                 <registry-histogram expandable="true"></registry-histogram>
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
                 <file-canvas></file-canvas>
-            </div>
-            <div>
+            </div>`,
+
+            html`<div>
                 <file-analysis-complex></file-analysis-complex>
             </div>`
 
+        ];
+
+        let gridTemplateColumns = "1fr 1fr";
+
+        if (app.display.displayComments) {
+            gridTemplateColumns = "1fr 1fr 200px";
+            content.push(html`<div>
+                <connected-file-comments
+                    .file=${app.content.file}
+                    .folder=${app.content.folder}
+                ></connected-file-comments>
+            </div>` );
+        }
+
+        return this.renderContent(
+            true,
+            gridTemplateColumns,
+            undefined,
+            content
         );
 
-        return [header, content];
+    }
+
+
+
+
+
+    render(app: ConnectedAppBase): unknown {
+
+        if (
+            app.content.folder === undefined
+            || app.content.file === undefined
+        ) {
+            return this.renderLoading("Loading file details...");
+        }
+
+        const h = this.renderFileHeader(app);
+        const c = this.renderFileDetailContent(app);
+
+        return [h, c];
 
     }
 

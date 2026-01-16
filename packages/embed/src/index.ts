@@ -149,6 +149,11 @@ import "./controls/file/notation/NotationProvider";
 import "./controls/file/notation/NotationTimeline";
 
 
+
+
+import "./controls/registry/ConfigDialog";
+
+
 // 7. Complex apps go last
 import "./apps/DropinApp";
 import "./apps/file/FileApp";
@@ -215,7 +220,7 @@ import "./connection/controllers/components/user/LoginFormNew";
 import "./connection/controllers/components/folder/ConnectedFolderHeader";
 import "./connection/controllers/components/folder/listing/ConnectedSubfolderList";
 import "./connection/controllers/components/folder/listing/ConnetcedFileList";
-import "./connection/controllers/components/folder/ConnectedUploadForm";
+import "./connection/controllers/components/folder/upload/ConnectedUploadForm";
 import "./connection/controllers/components/user/ConnectedUserButton";
 import "./connection/controllers/components/ConnectedBreadcrumb";
 import "./connection/controllers/components/configuration/ConnectedConfigSubfolderMode";
@@ -233,6 +238,7 @@ import "./connection/controllers/components/folder/crud/ConnectedFolderDeleteDia
 import "./connection/controllers/components/folder/crud/ConnectedFolderCreateDialog";
 import "./connection/controllers/components/file/ConnectedFileHeader"
 import "./connection/controllers/components/folder/listing/ConnectedSubfoldersGrid";
+import "./connection/controllers/components/folder/upload/ConnectedUploadDialog";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

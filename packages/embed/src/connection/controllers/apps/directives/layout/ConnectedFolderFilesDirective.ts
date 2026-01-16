@@ -88,6 +88,7 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
 
         const content: unknown[] = [
             html`<connected-config-file-display-mode></connected-config-file-display-mode>`,
+            html`<connected-config-file-content-mode></connected-config-file-content-mode>`
         ];
 
         content.push(html`<registry-opacity-slider></registry-opacity-slider>`);
@@ -167,6 +168,9 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
             content.push(html`<connected-file-list
                 compact=${app.display.fileDisplayCompact}
                 display-mode=${app.display.fileDisplayMode}
+                editable-tags=${app.display.editTags}
+                show-discussion=${app.display.displayComments}
+                
                 .onFileClick=${(file: FileInfo) => app.display.navigateToFileAndLoad(file.path, file.fileName)}
             ></connected-file-list>` );
         }

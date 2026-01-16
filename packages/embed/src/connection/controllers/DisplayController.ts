@@ -589,7 +589,11 @@ export class DisplayController implements ReactiveController {
     public canHaveGrid(
         subfolders: FolderInfo[]
     ): boolean {
-        return subfolders.some(f => f.lrc_count > 0);
+
+        const foldersWithFiles = subfolders.filter( f => f.lrc_count > 0 );
+
+        return foldersWithFiles.length > 1;
+
     }
 
 

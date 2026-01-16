@@ -282,6 +282,23 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
             <connected-user-button slot="close"></connected-user-button>
 
+            <thermal-dialog
+                label="Nastavení aplikace"
+                slot="close"
+            >
+                <thermal-btn 
+                    slot="invoker"
+                    icon="settings"
+                    iconStyle="solid"
+                    tooltip=${this.t( "config" )}
+                ></thermal-btn>
+
+                <div slot="content">
+                    <png-export-panel></png-export-panel>
+                    <registry-display-panel></registry-display-panel>
+                </div>
+            </thermal-dialog>
+
             <slot name="pre" slot="pre"></slot>
 
             <slot name="before-content"></slot>
