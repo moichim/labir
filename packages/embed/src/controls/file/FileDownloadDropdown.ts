@@ -6,6 +6,9 @@ import { customElement, state } from "lit/decorators.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
 import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { ThermalDialog } from "../../ui/Dialog";
+import { ThermalDropdown } from "../../ui/Dropdown";
 
 @customElement("file-download-dropdown")
 export class FileDownloadButton extends FileConsumer {
@@ -35,6 +38,9 @@ export class FileDownloadButton extends FileConsumer {
     @state()
     protected hasGraphs: boolean = false;
 
+    protected recordingGraphRef: Ref<ThermalDialog> = createRef();
+    protected dropdownRef: Ref<ThermalDropdown> = createRef();
+
     public onInstanceCreated(instance: Instance): void {
         instance.analysisData.onGraphsPresence.set(this.UUID, value => {
             this.hasGraphs = value;
@@ -44,19 +50,6 @@ export class FileDownloadButton extends FileConsumer {
         // throw new Error("Method not implemented.");
     }
 
-    static styles = css`
-    
-        thermal-btn {
-
-            width: 100%;
-
-            text-align: left;
-        
-        }
-
-
-    `;
-
     protected render(): unknown {
 
         if (this.file === undefined) {
@@ -65,7 +58,7 @@ export class FileDownloadButton extends FileConsumer {
 
         return html`
 
-            <thermal-dropdown variant="foreground" >
+            <thermal-dropdown ${ref(this.dropdownRef)} class="download">
 
                 <slot name="invoker" slot="invoker">
                     <div class="button">
@@ -102,13 +95,18 @@ export class FileDownloadButton extends FileConsumer {
                     ${this.file.timeline.isSequence
                 ? html`<thermal-btn 
                         slot="option"
-                        @click="${() => this.file?.recording.recordEntireFile()}"
-                        pre="WEBM"
+                        @click="${() => {
+                            this.recordingGraphRef.value?.setOpen();
+                            this.dropdownRef.value?.setClose();
+                        }}"
+                        pre="Video"
                     >
                         ${t(T.convertentiresequencetovideo)}
                     </thermal-btn>`
                 : nothing
             }
+
+
 
                     ${this.hasGraphs === true
                 ? html`<thermal-btn 
@@ -122,6 +120,60 @@ export class FileDownloadButton extends FileConsumer {
             }
             
             </thermal-dropdown>
+
+            <thermal-dialog 
+                ${ref(this.recordingGraphRef)}
+                label="Export souboru do videa"
+                button="Začít nahrávat"
+                .beforeClose=${ async () => {
+                    this.file?.recording.recordEntireFile();
+                    return true;
+                }}
+            >
+
+                <div slot="content">
+
+                    <p>Export probíhá tak, že sekvenci ve Vašem prohlížeči přehrajeme a zaznamenáme do video souboru.</p>
+
+                    <p>Součástí exportu <i>nejsou analýzy ani teplotní škála</i>.</p>
+
+                    <p><strong>Při nahrávání bude použito aktuální nastavení:</strong></p>
+
+                    <table>
+
+                        <tr>
+                            <td>Barevná paleta</td>
+                            <td>
+                                <registry-palette-dropdown></registry-palette-dropdown>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Teplotní rozsah</td>
+                            <td>
+                                <registry-range-form></registry-range-form>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Rychlost přehrávání</td>
+                            <td>
+                                <file-playback-speed-dropdown></file-playback-speed-dropdown>
+                            </td>
+                        </tr>
+
+                    </table>
+
+                    <p>Chcete zahájit nahrávání?</p>
+
+
+                </div>
+
+                <thermal-btn slot="button" @click=${() => this.dropdownRef.value?.setClose()}>
+                    Zrušit
+                </thermal-btn>
+
+            </thermal-dialog>
 
         
         `

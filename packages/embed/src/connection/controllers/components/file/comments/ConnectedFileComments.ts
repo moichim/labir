@@ -69,7 +69,9 @@ export class FileComments extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
+        this.client.subscribeToIdentityChanges( this );
         this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
     }
 
     protected firstUpdated(): void {

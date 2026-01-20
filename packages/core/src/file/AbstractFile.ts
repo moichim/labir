@@ -41,7 +41,11 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public readonly thermalUrl: string;
-    public readonly visibleUrl?: string;
+
+    private _visibleUrl?: string;
+    public get visibleUrl(): string | undefined {
+        return this._visibleUrl;
+    }
     public readonly fileName: string;
 
     signature: string = "unknown";
@@ -86,8 +90,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     protected renderer?: AbstractRenderer;
 
 
-    public get hover() { 
-        if ( this.dom )
+    public get hover() {
+        if (this.dom)
             return this.dom.hover;
         return false;
     }
@@ -96,7 +100,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     // DOM root
     /** @deprecated use DOM object instead */
     public get root(): HTMLDivElement | null {
-        if ( this.dom ) {
+        if (this.dom) {
             return this.dom.root;
         }
         return null;
@@ -104,9 +108,9 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     // DOM layers
     /** @deprecated use DOM object instead */
-    public get canvasLayer() { return this.dom!.canvasLayer!;}
+    public get canvasLayer() { return this.dom!.canvasLayer!; }
     /** @deprecated use DOM object instead */
-    public get visibleLayer() {return this.dom!.visibleLayer!}
+    public get visibleLayer() { return this.dom!.visibleLayer! }
     /** @deprecated use DOM object instead */
     public get cursorLayer() { return this.dom!.cursorLayer! };
     /** @deprecated use DOM object instead */
@@ -136,6 +140,9 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     /** @deprecated use DOM object instead */
     protected set built(value: boolean) { this._built = value; }
 
+    private _preferWebGl: boolean = true;
+    public get preferWebGl() { return this._preferWebGl; }
+
 
     private _pixels: number[];
     public get pixels() { return this._pixels; }
@@ -162,7 +169,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this.meta = new FileMeta(baseInfo);
 
         this.thermalUrl = thermalUrl;
-        this.visibleUrl = visibleUrl;
+        this._visibleUrl = visibleUrl;
         this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
 
         this.horizontalLimit = (this.width / 4) * 3;
@@ -171,6 +178,32 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         this._pixels = initialPixels;
 
     }
+
+
+    /** 
+     * Hotfix - remove the visible file
+     * @used in FilePngExport - the PNG files are not being included in the PNG export. Since the data are transferred all to the export, I need to remove the visible file here.
+     * @todo 
+     */
+    public removeVisibleFile(): this {
+        this._visibleUrl = undefined;
+        return this;
+    }
+
+    /**
+     * Hotfix - set renderer preference to WebGl.
+     * - true = prefer WebGl, 
+     * - false = prefer CPU
+     * This needs to be set before calling `mountToDom()` which creates the renderer.
+     */
+    public setPreferWebGl(
+        value: boolean
+    ): this {
+        this._preferWebGl = value;
+        return this;
+    }
+
+
 
     public abstract buildServices(): ThisType<AbstractFile>;
 
@@ -195,15 +228,29 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         dom: InstanceDOM
     ): void;
 
+
+
+
+
+
+
     private rendererFactory(
         canvas: HTMLCanvasElement
     ): AbstractRenderer {
-        const gl = canvas.getContext('webgl2');
-        if (gl) {
-            return new GlRenderer(this, canvas);
-        } else {
-            return new CpuRenderer(this, canvas);
+
+        // If WebGL is preferred, try to return the renderer
+        if (this._preferWebGl === true) {
+            
+            // Check if WebGL2 is available
+            const gl = canvas.getContext('webgl2');
+            if (gl) {
+                return new GlRenderer(this, canvas);
+            }
+
         }
+
+        // Return the CPU renderer as fallback
+        return new CpuRenderer(this, canvas);
     }
 
 
@@ -211,19 +258,19 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     public mountToDom(container: HTMLDivElement): void {
 
         // Delete any existing DOM binding
-        if ( this._dom !== undefined ) {
+        if (this._dom !== undefined) {
             this._dom.destroy();
             this._dom = undefined;
         }
 
         // Append a new DOM binding
         this._dom = new InstanceDOM(this, container);
-        
+
         this._dom.build();
-        
 
 
-        this.renderer = this.rendererFactory( this._dom.canvasLayer!.canvas );
+
+        this.renderer = this.rendererFactory(this._dom.canvasLayer!.canvas);
         this.renderer.init();
 
         this._dom.hydrate();
@@ -234,7 +281,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
         this.renderer?.destroy();
 
-        if ( this.dom ) {
+        if (this.dom) {
             this.dom.destroy();
         }
 
@@ -247,8 +294,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
      * @todo The render needs to be a little delayed. This should be foxed so that the render happens immediately.
      */
     public async draw() {
-    
-        if ( this.dom && this.dom.canvasLayer) {
+
+        if (this.dom && this.dom.canvasLayer) {
 
             // The render needs to be delayed one tick to ensure all properties are updated
             await Promise.resolve();
@@ -260,7 +307,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     /** Remove the entire DOM structure */
     public destroySelfAndBelow() {
-        if ( this.dom ) {
+        if (this.dom) {
             this.dom.destroy();
         }
     };
@@ -277,8 +324,8 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
         y: number
     ): number {
 
-        const xx = Math.min( this.meta.width - 1, Math.max( 0, x ) );
-        const yy = Math.min( this.meta.height - 1, Math.max( 0, y ) )
+        const xx = Math.min(this.meta.width - 1, Math.max(0, x));
+        const yy = Math.min(this.meta.height - 1, Math.max(0, y))
 
 
         const index = (yy * this.width) + xx;
@@ -310,7 +357,7 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     public recieveOpacity(value: number) {
 
-        if ( this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
+        if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
             this.dom.canvasLayer.opacity = value;
         }
     }

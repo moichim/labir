@@ -114,6 +114,7 @@ export class ThermalDialog extends LitElement {
             width: 100%;
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             gap: 10px;
 
         }

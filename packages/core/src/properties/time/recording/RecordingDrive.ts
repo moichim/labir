@@ -13,6 +13,7 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
     protected stream?: MediaStream;
     protected recorder?: MediaRecorder;
     protected mimeType?: string;
+    protected fileExt?: string;
 
     protected _isRecording: boolean = false;
     protected _mayStop: boolean = true;
@@ -109,18 +110,25 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
         const stream = this.parent.canvasLayer.canvas.captureStream(25);
 
-        const types = [
-            "video/mp4",
-            "video/webm;codecs=h264",
-            "video/webm;codecs=vp8",
-            "video/webm;codecs=daala",
-            "video/webm",
+
+        const tp: { mime: string, ext: string }[] = [
+            { mime: "video/webm;codecs=vp9", ext: "webm" },
+            { mime: "video/webm;codecs=vp8", ext: "webm" },
+            { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+            { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+            { mime: "video/webm", ext: "webm" },
+            { mime: "video/mp4;codecs=h264", ext: "mp4" },
+            { mime: "video/mp4", ext: "mp4" }
         ];
 
-        types.forEach(type => {
-            if (this.mimeType === undefined && MediaRecorder.isTypeSupported(type))
-                this.mimeType = type;
-        });
+        for ( const t of tp ) {
+
+            if ( MediaRecorder.isTypeSupported( t.mime ) ) {
+                this.mimeType = t.mime;
+                this.fileExt = t.ext;
+            }
+
+        }
 
         const options: MediaRecorderOptions = {
             mimeType: this.mimeType
@@ -136,6 +144,25 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
     }
 
+    private createRecordingFileName() {
+
+
+        const originalFileName = this.parent.fileName;
+        
+        const segments = [
+            "from_" + this.parent.group.registry.range.value!.from.toFixed(2),
+            "to_" + this.parent.group.registry.range.value!.to.toFixed(2),
+        ].join("__");
+
+        const extension = this.fileExt ? this.fileExt : "webm";
+
+        const replaceWithText = "__" + segments + "." + extension;
+
+        return originalFileName.replace( /\.lrc$/i, replaceWithText );
+
+
+    }
+
     protected download() {
         const blob = new Blob(this.recordedChunks, {
             type: this.mimeType
@@ -145,12 +172,17 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
         a.style.display = "none";
         a.href = url;
-        a.download = this.parent.fileName
+        a.download = this.createRecordingFileName();
+        /**
+         * this.parent.fileName
         .replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value!.from.toFixed(2)}_to-${this.parent.group.registry.range.value!.to.toFixed(2)}.webm`);
+        */
         document.body.appendChild(a);
 
         a.click();
         window.URL.revokeObjectURL(url);
+
+        document.body.removeChild(a);
     }
 
     protected clearRecording() {

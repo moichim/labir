@@ -36,7 +36,7 @@ export class PaletteDropdownElement extends AbstractPaletteSwitch {
     protected render(): unknown {
         return html`
 
-            <thermal-dropdown variant="foreground" .tooltip=${t(T.colourpalette)}>
+            <thermal-dropdown .tooltip=${t(T.colourpalette)}>
                     <span slot="invoker" class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
 
                 ${this.palettes.map( palette => html`

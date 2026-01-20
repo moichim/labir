@@ -35,6 +35,9 @@ importers:
       workerpool:
         specifier: ^9.3.3
         version: 9.3.4
+      zip-slim:
+        specifier: ^1.1.5
+        version: 1.1.5
     devDependencies:
       '@eslint/js':
         specifier: ^9.30.1
@@ -10224,6 +10227,9 @@ packages:
   yoctocolors-cjs@2.1.2:
     resolution: {integrity: sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==}
     engines: {node: '>=18'}
+
+  zip-slim@1.1.5:
+    resolution: {integrity: sha512-bf/GYkeOWaierHEE0TMS4Ep8ikqpbDPfLOAsExZZ9PHapJNH2RQLTtZAYYWVb8BRNb9z1edkE/Ba9BLkMIfbdA==}
 
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
@@ -22719,6 +22725,8 @@ snapshots:
   yocto-queue@1.2.2: {}
 
   yoctocolors-cjs@2.1.2: {}
+
+  zip-slim@1.1.5: {}
 
   zod@3.23.8: {}
 

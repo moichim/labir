@@ -79,6 +79,9 @@ export class FilePngExport extends AbstractPngExport<FileExportPngParams, FileEx
 
         this.localInstance = await this.file.reader.createInstance(group);
 
+        /** @todo Hotfix - remove visible files */
+        this.localInstance.removeVisibleFile();
+
         const relativeTime = this.file.timeline.currentStep.relative;
 
         if (relativeTime !== 0) {

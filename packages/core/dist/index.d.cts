@@ -1946,6 +1946,7 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
     protected stream?: MediaStream;
     protected recorder?: MediaRecorder;
     protected mimeType?: string;
+    protected fileExt?: string;
     protected _isRecording: boolean;
     protected _mayStop: boolean;
     get mayStop(): boolean;
@@ -1963,6 +1964,7 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
         recorder: MediaRecorder;
         options: MediaRecorderOptions;
     };
+    private createRecordingFileName;
     protected download(): void;
     protected clearRecording(): void;
 }
@@ -2396,7 +2398,8 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     readonly group: ThermalGroup;
     get pool(): Pool;
     readonly thermalUrl: string;
-    readonly visibleUrl?: string;
+    private _visibleUrl?;
+    get visibleUrl(): string | undefined;
     readonly fileName: string;
     signature: string;
     version: number;
@@ -2460,11 +2463,26 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     get built(): boolean;
     /** @deprecated use DOM object instead */
     protected set built(value: boolean);
+    private _preferWebGl;
+    get preferWebGl(): boolean;
     private _pixels;
     get pixels(): number[];
     setPixels(value: number[]): void;
     abstract getPixelsForHistogram(): number[];
     constructor(group: ThermalGroup, baseInfo: ParsedFileBaseInfo, initialPixels: number[], thermalUrl: string, visibleUrl?: string);
+    /**
+     * Hotfix - remove the visible file
+     * @used in FilePngExport - the PNG files are not being included in the PNG export. Since the data are transferred all to the export, I need to remove the visible file here.
+     * @todo
+     */
+    removeVisibleFile(): this;
+    /**
+     * Hotfix - set renderer preference to WebGl.
+     * - true = prefer WebGl,
+     * - false = prefer CPU
+     * This needs to be set before calling `mountToDom()` which creates the renderer.
+     */
+    setPreferWebGl(value: boolean): this;
     abstract buildServices(): ThisType<AbstractFile>;
     protected abstract onSetPixels(value: number[]): void;
     protected abstract formatId(thermalUrl: string): string;

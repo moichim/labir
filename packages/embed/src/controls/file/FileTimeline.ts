@@ -318,7 +318,45 @@ export class TimelineElement extends FileConsumer {
 
 
 
+    private renderControls(
+        file: Instance,
+        disabled: string,
+        playButtonClasses: { [key: string]: boolean }
+    ): unknown {
 
+        return html`<nav class="controls">
+
+    <thermal-btn 
+        disabled="${disabled}"
+        @click=${() => {
+            file.timeline.prev();
+        }}
+    >${t(T.prev)}</thermal-btn>
+
+
+    <thermal-btn 
+        class="${classMap(playButtonClasses)}" 
+        @click=${this.handlePlayButtonClick.bind(this)}
+        icon="${this.playing ? "pause" : "play"}"
+        iconStyle="solid"
+        disabled="${disabled}"
+    ></thermal-btn>
+
+    <thermal-btn 
+        @click=${() => file.timeline.next()}
+        disabled="${disabled}"
+    >${t(T.next)}</thermal-btn>
+
+    <thermal-btn 
+        @click=${()=>file.timeline.setRelativeTime(0)}
+        disabled="${disabled}"
+    >${t(T.back)}</thermal-btn>
+
+    <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
+
+</nav>`
+
+    }
 
 
     protected render(): unknown {
@@ -356,128 +394,74 @@ export class TimelineElement extends FileConsumer {
             ...mayClasses
         }
 
+        const disabled = this.mayStop ? "false" : "true";
+
         return html`
-            <div class="${classMap(containerClasses)}" ${ref(this.containerRef)}>
+<section class="${classMap(containerClasses)}" ${ref(this.containerRef)}>
 
+    <aside class="ticks-horizontal-indent">
 
-                ${file !== undefined
+        <notation-timeline></notation-timeline>
 
-                ? html`
+        <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
 
-                        <div class="ticks-horizontal-indent">
+            <div 
+                class="timeline-bar" 
+                @click=${this.handleBarClick}
+                @mouseenter=${this.handleBarEnter.bind(this)}
+                @mousemove=${this.handleBarHover} 
+                @mouseleave=${this.handleBarMouseLeave.bind(this)}
+            >
+                <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
+                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
+                </div>
 
-                            <notation-timeline></notation-timeline>
-
-
-                            <div class="${classMap(barClasses)}"  ${ref(this.timelineRef)}>
-
-                                <div 
-                                    class="timeline-bar" 
-                                    @click=${this.handleBarClick}
-                                    @mouseenter=${this.handleBarEnter.bind(this)}
-                                    @mousemove=${this.handleBarHover} 
-                                    @mouseleave=${this.handleBarMouseLeave.bind(this)}
-                                >
-                                    <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
-                                </div>
-
-                            </div>
-
-
-                            ${(this.currentFrame)
-                        ? renderTicks(
-                            file.duration,
-                            this.ticks,
-                            this.currentFrame.ms,
-                            this.pointerMs
-                        )
-                        : nothing
-                    }
-
-                            
-
-
-                            ${this.hasPlayButton === true
-                        ? html`
-
-                                    <div class="controls">
-
-                                        <thermal-btn @click=${() => {
-                                file.timeline.prev();
-                            }}>${t(T.prev)}</thermal-btn>
-
-
-                                        <thermal-btn 
-                                            class="${classMap(playButtonClasses)}" 
-                                            @click=${this.handlePlayButtonClick.bind(this)}
-                                            icon="${this.playing ? "pause" : "play"}"
-                                            iconStyle="solid"
-                                        ></thermal-btn>
-
-                                    <thermal-btn @click=${() => {
-                                file.timeline.next();
-                            }}>${t(T.next)}</thermal-btn>
-
-                                    <thermal-btn @click=${()=>file.timeline.setRelativeTime(0)}>${t(T.back)}</thermal-btn>
-
-                                    <file-playback-speed-dropdown enabled="${this.mayStop ? "on" : "off"}" class="item"></file-playback-speed-dropdown>
-
-                                ${isChromium === true
-                                    ? html`<thermal-dialog label="Performance">
-
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentcolor" class="chrome" slot="invoker">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                        </svg>
-
-                                        <div slot="content" style="max-width: 500px;">
-
-                                            <p>Your browser is based on Chromium and might have slightly worse performance during playback.</p>
-
-                                            <p>Consider using <a href="https://mozilla.org/firefox" target="_blank">Firefox</a>.</p>
-
-                                            <p style="opacity: .5">Reason of lagging in Chromium is its aggressive resources optimisation. Firefox will enable you to use more of your system's power.</p>
-                                        
-                                        </div>
-
-                                    </thermal-dialog>`
-                                    : nothing}
-
-                                </div>
-
-                                `
-                        : nothing
-                    }
-
-                            
-                        </div>
-                    `
-                : nothing
-            }
-
-            
-            
             </div>
 
-            ${this.currentFrame !== undefined && this.hasInfo === true
-                ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
-                        <div>
-                            <span class="label">${t(T.date)}:</span> 
-                            <span class="inline">${format(this.currentFrame.absolute, "d. L. y")}</span>
-                        </div>
-                        <div>
-                            <span class="label">${t(T.time)}:</span> 
-                            <span class="inline">${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
-                        </div>
-                        <div>
-                            <span class="label">${t(T.frame)}:</span> 
-                            <span class="inline">${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
-                        </div>
-                    </div>`
-                : nothing
-            }
 
-          `;
+${(this.currentFrame)
+    ? renderTicks(
+        file.duration,
+        this.ticks,
+        this.currentFrame.ms,
+        this.pointerMs
+    )
+: nothing }
+
+
+${this.hasPlayButton === true
+    ? this.renderControls(
+        file,
+        disabled,
+        playButtonClasses
+    )
+: nothing }
+
+        </div>
+
+    </aside>
+
+</section>
+
+
+
+${this.currentFrame !== undefined && this.hasInfo === true
+    ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
+        <div>
+            <span class="label">${t(T.date)}:</span> 
+            <span class="inline">${format(this.currentFrame.absolute, "d. L. y")}</span>
+        </div>
+        <div>
+            <span class="label">${t(T.time)}:</span> 
+            <span class="inline">${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
+        </div>
+        <div>
+            <span class="label">${t(T.frame)}:</span> 
+            <span class="inline">${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
+        </div>
+    </div>`
+: nothing }
+    `;
     }
 }
 

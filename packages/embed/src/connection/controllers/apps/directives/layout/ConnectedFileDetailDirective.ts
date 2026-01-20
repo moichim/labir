@@ -30,7 +30,6 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
             fileOperations.push(html`<connected-file-delete-dialog
                 .file=${app.content.file}
                 .folder=${app.content.folder}
-                variant="foreground"
                 size="md"
                 .label=${undefined}
                 ></connected-file-delete-dialog>` );
@@ -130,6 +129,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
                 <registry-range-slider></registry-range-slider>
                 <registry-ticks-bar></registry-ticks-bar>
                 <file-canvas></file-canvas>
+                <file-timeline></file-timeline>
             </div>`,
 
             html`<div>

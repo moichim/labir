@@ -3546,6 +3546,7 @@ var RecordingDrive = class extends AbstractProperty {
   stream;
   recorder;
   mimeType;
+  fileExt;
   _isRecording = false;
   _mayStop = true;
   get mayStop() {
@@ -3611,17 +3612,21 @@ var RecordingDrive = class extends AbstractProperty {
       throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
     }
     const stream = this.parent.canvasLayer.canvas.captureStream(25);
-    const types = [
-      "video/mp4",
-      "video/webm;codecs=h264",
-      "video/webm;codecs=vp8",
-      "video/webm;codecs=daala",
-      "video/webm"
+    const tp = [
+      { mime: "video/webm;codecs=vp9", ext: "webm" },
+      { mime: "video/webm;codecs=vp8", ext: "webm" },
+      { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+      { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+      { mime: "video/webm", ext: "webm" },
+      { mime: "video/mp4;codecs=h264", ext: "mp4" },
+      { mime: "video/mp4", ext: "mp4" }
     ];
-    types.forEach((type) => {
-      if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
-        this.mimeType = type;
-    });
+    for (const t of tp) {
+      if (MediaRecorder.isTypeSupported(t.mime)) {
+        this.mimeType = t.mime;
+        this.fileExt = t.ext;
+      }
+    }
     const options2 = {
       mimeType: this.mimeType
     };
@@ -3632,6 +3637,16 @@ var RecordingDrive = class extends AbstractProperty {
       options: options2
     };
   }
+  createRecordingFileName() {
+    const originalFileName = this.parent.fileName;
+    const segments = [
+      "from_" + this.parent.group.registry.range.value.from.toFixed(2),
+      "to_" + this.parent.group.registry.range.value.to.toFixed(2)
+    ].join("__");
+    const extension = this.fileExt ? this.fileExt : "webm";
+    const replaceWithText = "__" + segments + "." + extension;
+    return originalFileName.replace(/\.lrc$/i, replaceWithText);
+  }
   download() {
     const blob = new Blob(this.recordedChunks, {
       type: this.mimeType
@@ -3640,10 +3655,11 @@ var RecordingDrive = class extends AbstractProperty {
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = url;
-    a.download = this.parent.fileName.replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value.from.toFixed(2)}_to-${this.parent.group.registry.range.value.to.toFixed(2)}.webm`);
+    a.download = this.createRecordingFileName();
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
   clearRecording() {
     if (this.recorder) {
@@ -4260,7 +4276,10 @@ var AbstractFile = class extends BaseStructureObject {
     return this.group.registry.manager.pool;
   }
   thermalUrl;
-  visibleUrl;
+  _visibleUrl;
+  get visibleUrl() {
+    return this._visibleUrl;
+  }
   fileName;
   signature = "unknown";
   version = -1;
@@ -4379,6 +4398,10 @@ var AbstractFile = class extends BaseStructureObject {
   set built(value) {
     this._built = value;
   }
+  _preferWebGl = true;
+  get preferWebGl() {
+    return this._preferWebGl;
+  }
   _pixels;
   get pixels() {
     return this._pixels;
@@ -4393,19 +4416,39 @@ var AbstractFile = class extends BaseStructureObject {
     this.id = this.formatId(thermalUrl);
     this.meta = new FileMeta(baseInfo2);
     this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
+    this._visibleUrl = visibleUrl;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
   }
+  /** 
+   * Hotfix - remove the visible file
+   * @used in FilePngExport - the PNG files are not being included in the PNG export. Since the data are transferred all to the export, I need to remove the visible file here.
+   * @todo 
+   */
+  removeVisibleFile() {
+    this._visibleUrl = void 0;
+    return this;
+  }
+  /**
+   * Hotfix - set renderer preference to WebGl.
+   * - true = prefer WebGl, 
+   * - false = prefer CPU
+   * This needs to be set before calling `mountToDom()` which creates the renderer.
+   */
+  setPreferWebGl(value) {
+    this._preferWebGl = value;
+    return this;
+  }
   rendererFactory(canvas) {
-    const gl = canvas.getContext("webgl2");
-    if (gl) {
-      return new GlRenderer(this, canvas);
-    } else {
-      return new CpuRenderer(this, canvas);
+    if (this._preferWebGl === true) {
+      const gl = canvas.getContext("webgl2");
+      if (gl) {
+        return new GlRenderer(this, canvas);
+      }
     }
+    return new CpuRenderer(this, canvas);
   }
   mountToDom(container) {
     if (this._dom !== void 0) {
@@ -5114,6 +5157,7 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
     manager.palette.setPalette(this.file.group.registry.manager.palette.value);
     registry.range.imposeRange(this.file.group.registry.range.value);
     this.localInstance = await this.file.reader.createInstance(group);
+    this.localInstance.removeVisibleFile();
     const relativeTime = this.file.timeline.currentStep.relative;
     if (relativeTime !== 0) {
       this.localInstance.timeline.setRelativeTime(relativeTime);
@@ -5583,6 +5627,8 @@ var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
         instance.timeline.setRelativeTime(reference?.timeline.currentMs);
       }
       this.list.appendChild(container);
+      instance.removeVisibleFile();
+      instance.setPreferWebGl(false);
       instance.mountToDom(wrapper);
       instance.draw();
       if (instance.dom && instance.dom.visibleLayer) {
@@ -6034,6 +6080,7 @@ var CursorPositionDrive = class extends AbstractProperty {
 };
 
 // src/properties/lists/filesState.ts
+var import_zip_slim = require("zip-slim");
 var FilesState = class extends AbstractProperty {
   _map = /* @__PURE__ */ new Map();
   get map() {
@@ -6084,11 +6131,24 @@ var FilesState = class extends AbstractProperty {
     this.value.forEach((instance) => fn(instance));
   }
   downloadAllFiles() {
+    const files = [];
     this.forEveryInstance((instance) => {
+      const blob = new Blob([instance.reader.buffer], { type: "application/octet-stream" });
+      const file = new File(
+        [blob],
+        instance.fileName,
+        { type: "application/octet-stream" }
+      );
+      files.push(file);
+    });
+    (0, import_zip_slim.zip)(files, true).then((result) => {
       const link = document.createElement("a");
-      link.download = instance.fileName;
-      link.href = instance.thermalUrl;
+      link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
+      link.href = URL.createObjectURL(result);
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
+      link.remove();
     });
   }
 };

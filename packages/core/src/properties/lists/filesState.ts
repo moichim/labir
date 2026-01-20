@@ -2,6 +2,8 @@ import { Instance } from "../../file/instance";
 import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
+import { zip } from "zip-slim"
+
 
 export interface IWithFiles extends IBaseProperty {
     files: FilesState
@@ -81,14 +83,38 @@ export class FilesState extends AbstractProperty<Instance[], ThermalGroup> {
     }
 
     public downloadAllFiles() {
+
+        const files: File[] = [];
+
+
         this.forEveryInstance( instance => {
 
-            const link = document.createElement( "a" );
-            link.download = instance.fileName;
-            link.href = instance.thermalUrl;
-            link.click();
+            const blob = new Blob( [ instance.reader.buffer ], { type: "application/octet-stream" } );
+
+            const file = new File(
+                [ blob ],
+                instance.fileName,
+                { type: "application/octet-stream" }
+            );
+
+            files.push( file );
 
         } );
+
+
+        zip( files, true ).then( (result) => {
+
+            const link = document.createElement( "a" );
+            link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
+            link.href = URL.createObjectURL( result );
+            document.body.appendChild( link );
+            link.click();
+            document.body.removeChild( link );
+            link.remove();
+
+        } );
+
+
     }
 
 
