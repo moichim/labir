@@ -5,6 +5,9 @@ import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
 import { BaseElement } from "../../hierarchy/BaseElement";
 
+/** 
+ * Public parameters of an application
+ */
 export interface AppWithContentController extends AppWithClientController {
 
     /** The main parameter indicating the current folder path */
@@ -18,13 +21,6 @@ export interface AppWithContentController extends AppWithClientController {
 
     client: ClientController
 
-}
-
-/** The response object that is being returned by fetch requests */
-type ContentControllerResponse = {
-    code: number,
-    message: string,
-    success: boolean
 }
 
 /**

@@ -4,15 +4,21 @@ import { BaseAppWithPngExportContext } from "../../../utils/converters/pngExport
 import { AppWithClientController, ClientController } from "../ClientController";
 import { AppWithContentController, ContentController } from "../ContentController";
 import { provide } from "@lit/context";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, SelectionControllerContext } from "../controllerContexts";
 import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
 import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
+import { AppWithSelectionController, SelectionController } from "../SelectionController";
 
-export abstract class ConnectedAppBase extends BaseAppWithPngExportContext implements AppWithClientController, AppWithContentController, AppWithDisplayController {
+export abstract class ConnectedAppBase extends BaseAppWithPngExportContext 
+    implements 
+        AppWithClientController, 
+        AppWithContentController, 
+        AppWithDisplayController,
+        AppWithSelectionController {
 
     /** Name of the listener event called upon initialisation of the connected app */
     public static readonly INITIALISATION_LISTENER = "connected-app-initialisation";
@@ -28,8 +34,19 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
     @provide({ context: ControlledContentContext })
     public readonly content = new ContentController(this);
 
+    /** The settings controller for display parameters */
     @provide({ context: DisplayControllerContext })
     public readonly display = new DisplayController(this);
+
+    @provide( { context: SelectionControllerContext } )
+    public readonly selection: SelectionController = new SelectionController(this);
+
+    @property({
+        type: String,
+        reflect: true,
+        attribute: "selected-files"
+    })
+    public readonly selectedFiles?: string | undefined;
 
     @property({
         type: String,
