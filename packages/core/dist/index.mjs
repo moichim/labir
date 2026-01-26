@@ -3537,11 +3537,8 @@ var RecordingDrive = class extends AbstractProperty {
     this.parent.timeline.play();
     this.start();
   }
-  initRecording() {
-    if (this.stream || this.recorder) {
-      throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
-    }
-    const stream = this.parent.canvasLayer.canvas.captureStream(25);
+  getOutputMimeType() {
+    let value = void 0;
     const tp = [
       { mime: "video/webm;codecs=vp9", ext: "webm" },
       { mime: "video/webm;codecs=vp8", ext: "webm" },
@@ -3553,10 +3550,22 @@ var RecordingDrive = class extends AbstractProperty {
     ];
     for (const t of tp) {
       if (MediaRecorder.isTypeSupported(t.mime)) {
-        this.mimeType = t.mime;
-        this.fileExt = t.ext;
+        value = t;
       }
     }
+    return value;
+  }
+  initRecording() {
+    if (this.stream || this.recorder) {
+      throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
+    }
+    const stream = this.parent.canvasLayer.canvas.captureStream(25);
+    const output = this.getOutputMimeType();
+    if (output === void 0) {
+      throw new Error("No supported mime type found for MediaRecorder!");
+    }
+    this.mimeType = output.mime;
+    this.fileExt = output.ext;
     const options2 = {
       mimeType: this.mimeType
     };
@@ -4331,6 +4340,17 @@ var AbstractFile = class extends BaseStructureObject {
   _preferWebGl = true;
   get preferWebGl() {
     return this._preferWebGl;
+  }
+  switchToCPURenderer() {
+    if (this.renderer instanceof CpuRenderer) {
+      return;
+    }
+    this.renderer?.destroy();
+    const container = this.dom?.root;
+    this.unmountFromDom();
+    this.mountToDom(container);
+    this.renderer = new CpuRenderer(this, this.dom.canvasLayer.canvas);
+    this.renderer.init();
   }
   _pixels;
   get pixels() {

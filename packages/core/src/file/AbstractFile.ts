@@ -143,6 +143,26 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     private _preferWebGl: boolean = true;
     public get preferWebGl() { return this._preferWebGl; }
 
+    public switchToCPURenderer(): void {
+
+        if ( this.renderer instanceof CpuRenderer ) {
+            return;
+        }
+
+        this.renderer?.destroy();
+
+        const container = this.dom?.root;
+
+        this.unmountFromDom();
+
+        this.mountToDom( container! );
+
+        this.renderer = new CpuRenderer(this, this.dom!.canvasLayer!.canvas);
+
+        this.renderer.init();
+
+    }
+
 
     private _pixels: number[];
     public get pixels() { return this._pixels; }

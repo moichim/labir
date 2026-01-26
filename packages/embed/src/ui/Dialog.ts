@@ -1,6 +1,6 @@
 import { t } from "i18next";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { LitElement, css, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
 
@@ -31,16 +31,25 @@ export class ThermalDialog extends LitElement {
 
     }
 
+    @state()
+    private _open: boolean = false;
+
+    public get open(): boolean {
+        return this._open;
+    }
+
     setClose() {
         this.dialogRef.value?.close();
         window.document.body.style.removeProperty("overflow-y");
         window.document.body.style.removeProperty( "height" );
+        this._open = false;
     }
 
     setOpen() {
         this.dialogRef.value?.showModal();
         window.document.body.style.overflowY = "hidden";
         window.document.body.style.height = "100vh";
+        this._open = true;
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
@@ -89,7 +98,6 @@ export class ThermalDialog extends LitElement {
 
             @media ( min-width: 600px ) {
                 min-width: 450px;
-                max-width: 700px;
             }
         }
 
@@ -163,7 +171,7 @@ export class ThermalDialog extends LitElement {
                 </header>
                 	
                 <div class="dialog-content">
-                    <slot name="content"></slot>
+                    ${this._open ? html`<slot name="content"></slot>` : nothing}
                 </div>
 
                 <div class="dialog-footer">

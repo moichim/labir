@@ -39,6 +39,8 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
         fileOperations.push(html`<file-download-dropdown></file-download-dropdown>`);
 
+        fileOperations.push(html`<file-video-export-button></file-video-export-button>`);
+
         return slotOrNothing(
             "file",
             fileOperations

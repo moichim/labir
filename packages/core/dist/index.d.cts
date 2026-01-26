@@ -1959,6 +1959,10 @@ declare class RecordingDrive extends AbstractProperty<boolean, Instance> {
     end(): void;
     /** Records the entire file from start to the end. */
     recordEntireFile(): Promise<void>;
+    getOutputMimeType(): {
+        mime: string;
+        ext: string;
+    } | undefined;
     protected initRecording(): {
         stream: MediaStream;
         recorder: MediaRecorder;
@@ -2465,6 +2469,7 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
     protected set built(value: boolean);
     private _preferWebGl;
     get preferWebGl(): boolean;
+    switchToCPURenderer(): void;
     private _pixels;
     get pixels(): number[];
     setPixels(value: number[]): void;

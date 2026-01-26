@@ -102,7 +102,8 @@ export class FileDownloadButton extends FileConsumer {
                         pre="Video"
                     >
                         ${t(T.convertentiresequencetovideo)}
-                    </thermal-btn>`
+                    </thermal-btn>
+                    <file-video-export-button label="video" slot="option"></file-video-export-button>`
                 : nothing
             }
 

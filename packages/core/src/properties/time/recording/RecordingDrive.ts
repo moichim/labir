@@ -102,14 +102,13 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
 
     }
 
-    protected initRecording() {
 
-        if (this.stream || this.recorder) {
-            throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
-        }
+    public getOutputMimeType() {
 
-        const stream = this.parent.canvasLayer.canvas.captureStream(25);
-
+        let value: {
+            mime: string,
+            ext: string
+        } | undefined = undefined;
 
         const tp: { mime: string, ext: string }[] = [
             { mime: "video/webm;codecs=vp9", ext: "webm" },
@@ -124,11 +123,32 @@ export class RecordingDrive extends AbstractProperty<boolean, Instance> {
         for ( const t of tp ) {
 
             if ( MediaRecorder.isTypeSupported( t.mime ) ) {
-                this.mimeType = t.mime;
-                this.fileExt = t.ext;
+                value = t;
             }
 
         }
+
+        return value;
+
+    }
+
+
+    protected initRecording() {
+
+        if (this.stream || this.recorder) {
+            throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
+        }
+
+        const stream = this.parent.canvasLayer.canvas.captureStream(25);
+
+        const output = this.getOutputMimeType();
+
+        if (output === undefined) {
+            throw new Error("No supported mime type found for MediaRecorder!");
+        }
+
+        this.mimeType = output.mime;
+        this.fileExt = output.ext;
 
         const options: MediaRecorderOptions = {
             mimeType: this.mimeType

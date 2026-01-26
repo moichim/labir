@@ -3,6 +3,7 @@ import { ManagerConsumer } from "../consumers/ManagerConsumer";
 import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
+import { property } from "lit/decorators.js";
 
 export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
@@ -25,6 +26,9 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     public loading: boolean = false;
 
     public autoclear: boolean = false;
+
+    @property({ type: Boolean, reflect: true })
+    public forceNew: boolean = false;
 
     @provide( {context: registryHighlightContext} )
     protected highlight: ThermalRangeOrUndefined;

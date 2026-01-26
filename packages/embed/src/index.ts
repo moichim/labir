@@ -27,6 +27,22 @@ addInlineStyles();
 // Log the start info
 console.info("@labirthermal/webcomponents", version);
 
+declare interface RestrictionTarget {}
+declare var RestrictionTarget: {
+    fromElement?: (el: Element) => Promise<RestrictionTarget>;
+    fromRect?: (x: number, y: number, width: number, height: number) => Promise<RestrictionTarget>;
+};
+
+declare interface CropTarget {}
+declare var CropTarget: {
+    fromElement?: (el: Element) => Promise<CropTarget>;
+    fromRect?: (x: number, y: number, width: number, height: number) => Promise<CropTarget>;
+};
+
+declare interface MediaStreamTrack {
+    restrictTo?: (target: RestrictionTarget | CropTarget) => Promise<void> | void;
+}
+
 // 0. External components
 import "./controls/file/analysis/chart/chart";
 
@@ -147,6 +163,7 @@ import "./controls/file/notation/NotationContent";
 import "./controls/file/notation/NotationEntry";
 import "./controls/file/notation/NotationProvider";
 import "./controls/file/notation/NotationTimeline";
+import "./controls/file/FileVideoExport";
 
 
 
