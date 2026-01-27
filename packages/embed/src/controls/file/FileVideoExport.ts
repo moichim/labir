@@ -13,6 +13,7 @@ import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 import { ThermalFileReader } from "packages/core/dist";
 import { VideoDomExport } from "./video/VideoDomExport";
+import { VideoRecorder } from "./video/VideoRecorder";
 
 @customElement("file-video-export-button")
 export class FileVideoExport extends FileConsumer {
@@ -217,9 +218,18 @@ export class FileVideoExport extends FileConsumer {
     }
 
 
-
+    private recorder?: VideoRecorder;
 
     protected async startRecording(): Promise<void> {
+
+        this.recorder = new VideoRecorder(
+            this.innerInstance!,
+            this.exportElement!
+        );
+
+        await this.recorder.capture();
+
+        /*
 
         if ( this.isRecording ) {
             this.log( "Už nahrávám" );
@@ -241,6 +251,8 @@ export class FileVideoExport extends FileConsumer {
 
         this.isRecording = false;
         this.recordingPhase = -1;
+
+        */
 
     }
 
