@@ -82,12 +82,18 @@ export class VideoRecorder {
             format: new Mp4OutputFormat()
         });
 
+        const getSupportedVideoCodecs = output.format.getSupportedVideoCodecs();
+
+        console.log(  "Supported video codecs:", getSupportedVideoCodecs );
+
         const codec = await getFirstEncodableVideoCodec(
             output.format.getSupportedVideoCodecs() 
         );
 
+        console.log( "selected codec:", codec );
+
         const source = new VideoSampleSource({
-            codec: codec!,
+            codec: "vp9",//codec!,
             bitrate: QUALITY_VERY_HIGH
         });
 
@@ -151,13 +157,30 @@ export class VideoRecorder {
 
     public async capture(): Promise<void> {
 
+        const start = performance.now();
+
         const storage = new VideoRecorderStorage(this.file);
 
         await this.recordFrames( storage );
 
+        const mid = performance.now();
+        console.log( "Recording time:", mid - start, "ms", ( new Date() ).setTime( mid - start ) );
+
         await this.composeVideo( storage );
 
+        const end = performance.now();
+        console.log( "Composing time:", end - mid, "ms", ( new Date() ).setTime( end - mid ) );
+
         await storage.clear();
+
+        const clear = performance.now();
+
+        const recordTime = clear - start;
+        console.log( "Clear time:", clear - end, "ms", ( new Date() ).setTime( clear - end ) );
+        console.log( "Total time:", recordTime, "ms", ( new Date() ).setTime( recordTime ) );
+
+
+
 
 
         /*

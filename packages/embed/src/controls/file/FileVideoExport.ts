@@ -12,8 +12,7 @@ import { classMap } from "lit/directives/class-map.js";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
 import { ThermalFileReader } from "packages/core/dist";
-import { VideoDomExport } from "./video/VideoDomExport";
-import { VideoRecorder } from "./video/VideoRecorder";
+import { VideoRecorder } from "./video/internals/VideoRecorder";
 
 @customElement("file-video-export-button")
 export class FileVideoExport extends FileConsumer {
@@ -106,9 +105,6 @@ export class FileVideoExport extends FileConsumer {
     public get innerInstance(): Instance | undefined {
         return this.fileProviderRef.value?.file;
     }
-
-    /** The object encapsulating the entire export process */
-    private export: VideoDomExport = new VideoDomExport( this );
 
 
 
@@ -228,31 +224,6 @@ export class FileVideoExport extends FileConsumer {
         );
 
         await this.recorder.capture();
-
-        /*
-
-        if ( this.isRecording ) {
-            this.log( "Už nahrávám" );
-            return;
-        }
-
-        this.isRecording = true;
-        this.recordingPhase = 0;
-
-        await this.export.performRecordingDom();
-
-        this.recordingPhase = 1;
-
-        await this.export.performCanvasAnimation();
-
-        this.recordingPhase = 2;
-
-        await this.export.performFileDownload();
-
-        this.isRecording = false;
-        this.recordingPhase = -1;
-
-        */
 
     }
 

@@ -1,5 +1,5 @@
 import { Instance } from "@labirthermal/core";
-import { FileVideoExport } from "../FileVideoExport";
+import { FileVideoExport } from "../../FileVideoExport";
 
 import { set, createStore, UseStore, get, clear } from 'idb-keyval'
 
@@ -13,9 +13,6 @@ export type VideoExportFrameRecord = {
 export class VideoRecorderStorage {
 
     private static readonly STORE_NAME = "frame";
-
-    // mutex promise: resolved = volno, pending = někdo zapisuje
-    private writeLock: Promise<void> = Promise.resolve();
 
     private readonly storedIndicies: number[] = [];
 
