@@ -51,6 +51,10 @@ export abstract class FileConsumer extends GroupConsumer {
 
         if (this.parentFileProviderElement) {
 
+            if ( this.parentFileProviderElement.file ) {
+                this.onInstanceCreated( this.parentFileProviderElement.file );
+            }
+
             // INTERNAL CALLBACKS - ASSIGNEMENT TO LOCAL PROPERTIES
 
             this.parentFileProviderElement.onSuccess.set(

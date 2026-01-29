@@ -166,6 +166,9 @@ import "./controls/file/notation/NotationTimeline";
 import "./controls/file/FileVideoExport";
 
 
+import "./controls/file/video/FileVideoExportPanel";
+
+
 
 
 import "./controls/registry/ConfigDialog";

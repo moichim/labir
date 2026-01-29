@@ -3,6 +3,7 @@ import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
+import { booleanConverter } from "../utils/converters/booleanConverter";
 
 @customElement( "thermal-dialog" )
 export class ThermalDialog extends LitElement {
@@ -18,6 +19,14 @@ export class ThermalDialog extends LitElement {
     protected dialogRef: Ref<HTMLDialogElement> = createRef();
     protected closeButtonRef: Ref<HTMLButtonElement> = createRef();
     protected invokerRef: Ref<HTMLSlotElement> = createRef();
+
+    @property({
+        type: Boolean, 
+        reflect: true, 
+        converter: booleanConverter( false ),
+        attribute: "is-fullscreen"
+    })
+    public isFullscreen: boolean = false;
 
     @property( {type: String, reflect: true} )
     public label?: string;
@@ -144,6 +153,11 @@ export class ThermalDialog extends LitElement {
                 color: var( --thermal-primary );
             }
         
+        }
+
+        :host([is-fullscreen="true"]) .dialog {
+            width: 100vw;
+            height: 100vh;
         }
 
         
