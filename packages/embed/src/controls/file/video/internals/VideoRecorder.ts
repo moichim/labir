@@ -2,16 +2,25 @@ import { Instance } from "@labirthermal/core";
 import { toBlob } from "html-to-image";
 import { BufferTarget, getFirstEncodableVideoCodec, Mp4OutputFormat, Output, QUALITY_VERY_HIGH, VideoSample, VideoSampleSource } from "mediabunny";
 import { VideoRecorderStorage } from "./VideoRecorderStorage";
+import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 
 export class VideoRecorder {
 
     private muxingCanvas?: OffscreenCanvas;
     private muxingContext?: OffscreenCanvasRenderingContext2D;
 
+    private readonly file: Instance;
+    private readonly exportedElement: HTMLElement;
+
     constructor(
-        private readonly file: Instance,
-        private readonly exportedElement: HTMLElement
-    ) { }
+
+        private readonly app: AbstractSingleVideoExport
+    ) {
+
+        this.file = app.innerFile!;
+        this.exportedElement = app.exportedElement!;
+
+    }
 
     private getMuxingCanvas(): OffscreenCanvas {
 
@@ -52,7 +61,7 @@ export class VideoRecorder {
                 this.exportedElement,
                 
                 {
-                    quality: 0.85,
+                    quality: this.app.renderProps.jpegQuality,
                     type: "image/jpeg",
                 }
                 
@@ -94,7 +103,7 @@ export class VideoRecorder {
 
         const source = new VideoSampleSource({
             codec: "vp9",//codec!,
-            bitrate: QUALITY_VERY_HIGH
+            bitrate: this.app.renderProps.mp4Quality
         });
 
         output.addVideoTrack( source );

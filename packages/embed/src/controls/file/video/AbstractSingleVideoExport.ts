@@ -9,6 +9,7 @@ import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
 import { interactiveAnalysisContext } from "../../../utils/context";
 import { provide } from "@lit/context";
+import { VideoRecorder } from "./internals/VideoRecorder";
 
 export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
 
@@ -72,11 +73,11 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
         exportFrameWidth: 1200,
         exportFramePadding: 15,
-        exportFrameGap: 10,
+        exportFrameGap: 30,
         exportGraphHeight: 300,
 
         fileName: "exported-video",
-        jpegQuality: 0.92,
+        jpegQuality: 92,
         mp4Quality: QUALITY_VERY_HIGH,
 
         skin: VideoExportSkin.LIGHT
@@ -232,6 +233,15 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
                 ${this.renderWrappedWithFileProvider(content)}
             </group-provider>
         </registry-provider>`;
+
+    }
+
+    public async record(): Promise<void> {
+
+        const recorder = new VideoRecorder( this );
+
+        await recorder.capture();
+
 
     }
 
