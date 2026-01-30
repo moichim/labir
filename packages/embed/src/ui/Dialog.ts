@@ -31,14 +31,10 @@ export class ThermalDialog extends LitElement {
     @property( {type: String, reflect: true} )
     public label?: string;
 
-    @property( { type: Object, reflect: true } )
+    @property( { 
+        type: Object
+    } )
     public beforeClose?: () => Promise<boolean>;
-
-    constructor() {
-        
-        super();
-
-    }
 
     @state()
     private _open: boolean = false;
@@ -47,17 +43,28 @@ export class ThermalDialog extends LitElement {
         return this._open;
     }
 
+    @property({
+        type: Object
+    })
+    public onCloseEveryTime?: () => void;
+
     setClose() {
         this.dialogRef.value?.close();
         window.document.body.style.removeProperty("overflow-y");
         window.document.body.style.removeProperty( "height" );
+        this.removeAttribute("open");
         this._open = false;
+
+        if ( this.onCloseEveryTime ) {
+            this.onCloseEveryTime();
+        }
     }
 
     setOpen() {
         this.dialogRef.value?.showModal();
         window.document.body.style.overflowY = "hidden";
         window.document.body.style.height = "100vh";
+        this.setAttribute("open", "true");
         this._open = true;
     }
 
@@ -100,6 +107,7 @@ export class ThermalDialog extends LitElement {
             }
 
             min-width: 150px;
+            box-sizing: border-box;
 
             @media ( min-width: 300px ) {
                 min-width: 250px;
@@ -155,9 +163,16 @@ export class ThermalDialog extends LitElement {
         
         }
 
-        :host([is-fullscreen="true"]) .dialog {
+        :host([is-fullscreen="true"][open]) .dialog {
             width: 100vw;
             height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+
+            .dialog-content {
+                overflow: auto;
+            }
         }
 
         

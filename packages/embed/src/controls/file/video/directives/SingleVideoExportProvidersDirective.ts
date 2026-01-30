@@ -6,10 +6,10 @@ import { ref } from "lit/directives/ref.js";
 import { exportConfigDirective } from "./SingleVideoExportConfigDirective";
 import { exportLayoutDirective } from "./SingleVideoExportLayoutDirective";
 
-class SingleVideoExportDirective {
+class SingleVideoExportDirective extends Directive {
 
 
-    protected static renderWrappedWithFileProvider(
+    protected renderWrappedWithFileProvider(
         app: AbstractSingleVideoExport,
         content: unknown,
     ): unknown {
@@ -37,11 +37,10 @@ class SingleVideoExportDirective {
             </file-provider>`;
     }
 
-    protected static renderWrappedWithNestedProviders(
+    protected renderWrappedWithNestedProviders(
         app: AbstractSingleVideoExport,
+        content: unknown
     ): unknown {
-
-        app.log( "rendering app", app.registry );
 
         const registry = app.registry;
         const group = app.group;
@@ -50,16 +49,10 @@ class SingleVideoExportDirective {
             return nothing;
         }
 
-        const palette = registry.palette.value;
-        const from = registry.range.value?.from ?? undefined;
-        const to = registry.range.value?.to ?? undefined;
-
-        return html`<registry-provider
+        return html`
+        <registry-provider
                 slug=${app.slug}
                 autoclear="true"
-                palette=${palette}
-                from=${ifDefined(from)}
-                to=${ifDefined(to)}
                 style="display: contents;"
                 .forceNew=${true}
             >
@@ -68,10 +61,7 @@ class SingleVideoExportDirective {
                     autoclear="true"
                     style="display: contents;"
                 >
-                    ${this.renderWrappedWithFileProvider(app, html`
-                        ${/* exportConfigDirective(app) */ nothing}
-                        ${/* exportLayoutDirective(app.exportedDivRef, app.renderProps) */ nothing}
-                    `)}
+                    ${this.renderWrappedWithFileProvider(app, content )}
                 </group-provider>
             </registry-provider>`;
 
@@ -79,13 +69,13 @@ class SingleVideoExportDirective {
 
 
 
-    public static render(element: AbstractSingleVideoExport): unknown {
+    public render(element: AbstractSingleVideoExport, content: unknown): unknown {
 
-        return this.renderWrappedWithNestedProviders(element);
+        return this.renderWrappedWithNestedProviders( element, content );
     }
 
 
 
 }
 
-export const singleVideoProviders = SingleVideoExportDirective.render.bind(SingleVideoExportDirective);
+export const singleVideoProviders = directive(SingleVideoExportDirective);

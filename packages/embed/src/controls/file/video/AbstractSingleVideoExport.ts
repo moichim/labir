@@ -1,12 +1,14 @@
 import { Instance } from "@labirthermal/core";
-import { html, nothing } from "lit";
-import { state } from "lit/decorators.js";
+import { html, nothing, PropertyValues } from "lit";
+import { property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { Quality, QUALITY_VERY_HIGH } from "mediabunny";
 import { ISingleVideoExportElement, RecordingPhase, SingleVideoRenderProps, VideoExportSkin } from "./ISingleVideoExportElement";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
 import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
+import { interactiveAnalysisContext } from "../../../utils/context";
+import { provide } from "@lit/context";
 
 export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
 
@@ -33,6 +35,9 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
     public get exportedElement(): HTMLElement | undefined {
         return this.exportedDivRef.value;
     }
+
+    @provide({ context: interactiveAnalysisContext })
+    private interactiveanalysis: boolean = false;
 
     @state() public analysis1?: string;
     @state() public analysis2?: string;
@@ -68,6 +73,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         exportFrameWidth: 1200,
         exportFramePadding: 15,
         exportFrameGap: 10,
+        exportGraphHeight: 300,
 
         fileName: "exported-video",
         jpegQuality: 0.92,
@@ -88,6 +94,25 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
     public setHasAnalysis(value: boolean): void {
         this.renderProps.hasAnalysis = value;
+
+        if ( value && this.file) {
+            this.analysis1 = this.file.slots.getSlot(0)?.serialized ?? undefined;
+            this.analysis2 = this.file.slots.getSlot(1)?.serialized ?? undefined;
+            this.analysis3 = this.file.slots.getSlot(2)?.serialized ?? undefined;
+            this.analysis4 = this.file.slots.getSlot(3)?.serialized ?? undefined;
+            this.analysis5 = this.file.slots.getSlot(4)?.serialized ?? undefined;
+            this.analysis6 = this.file.slots.getSlot(5)?.serialized ?? undefined;
+            this.analysis7 = this.file.slots.getSlot(6)?.serialized ?? undefined;
+        } else {
+            this.analysis1 = undefined;
+            this.analysis2 = undefined;
+            this.analysis3 = undefined;
+            this.analysis4 = undefined;
+            this.analysis5 = undefined;
+            this.analysis6 = undefined;
+            this.analysis7 = undefined;
+        }
+
         this.requestUpdate();
     }
 
@@ -116,6 +141,11 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         this.requestUpdate();
     }
 
+    public setExportGraphHeight(value: number): void {
+        this.renderProps.exportGraphHeight = value;
+        this.requestUpdate();
+    }
+
     public setFileName(value: string): void {
         this.renderProps.fileName = value;
         this.requestUpdate();
@@ -134,6 +164,10 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
     public setSkin(value: VideoExportSkin): void {
         this.renderProps.skin = value;
         this.requestUpdate();
+    }
+
+    protected updated(_changedProperties: PropertyValues): void {
+        super.updated( _changedProperties );
     }
 
     

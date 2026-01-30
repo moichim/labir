@@ -39,6 +39,8 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     }
 
     protected createRegistry( slug: string ): ThermalRegistry {
+
+        this.log( "manager", this.manager );
         // Create
         const registry = this.manager.addOrGetRegistry(slug);
         // Set the palette
@@ -55,6 +57,8 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     }
 
     protected hydrateRegistry( registry: ThermalRegistry ): void {
+
+        this.log( "registry", registry );
 
         // Bind opacity to the element property
         registry.opacity.addListener(this.UUIDRegistryListeners, value => {

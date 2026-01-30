@@ -5,35 +5,27 @@ import {StyleInfo, styleMap} from 'lit/directives/style-map.js';
 import { ref, Ref } from "lit/directives/ref.js";
 import { SingleVideoRenderProps } from "../ISingleVideoExportElement";
 
-export class SingleVideoExportLayoutDirective {
+export class SingleVideoExportLayoutDirective extends Directive {
 
 
-    private static renderHistogram(
+    private renderHistogram(
         props: SingleVideoRenderProps
     ): unknown {
-        if ( ! props.hasHistogram ) {
-            return nothing;
-        }
-
-        return html`<registry-histogram></registry-histogram>`;
+        return html`<registry-histogram style="display: ${props.hasHistogram ? 'block' : 'none'};"></registry-histogram>`;
     }
 
-    private static renderThermalScale(
+    private renderThermalScale(
         props: SingleVideoRenderProps
     ): unknown {
 
-        if ( ! props.hasThermalScale ) {
-            return nothing;
-        }
-
-        return html`<div>
+        return html`<div style="display: ${props.hasThermalScale ? 'block' : 'none'};">
             <registry-range-slider></registry-range-slider>
             <registry-ticks-bar></registry-ticks-bar>
         </div>`;
 
     }
     
-    private static renderAnalyses(
+    private renderAnalyses(
         props: SingleVideoRenderProps
     ): unknown {
 
@@ -41,14 +33,23 @@ export class SingleVideoExportLayoutDirective {
             return nothing;
         }
 
+        const width = ( props.exportFrameWidth / 2 ) - ( props.exportFramePadding * 2 ) - props.exportFrameGap;
+        const height = props.exportGraphHeight;
+
         return html`<div class="export-element-content--analyses">
             <!-- Analysis content here -->
-            <file-analysis-complex></file-analysis-complex>
+            <file-analysis-display></file-analysis-display>
+            <file-analysis-graph 
+                graphWidth=${width} 
+                graphHeight=${height}
+                .hasDownloads=${false}
+                style="height: ${height}px; width: ${width}px; display: block;"
+            ></file-analysis-graph>
         </div>`;
 
     }
 
-    private static renderMainContent(
+    private renderMainContent(
         props: SingleVideoRenderProps
     ): unknown {
 
@@ -175,6 +176,16 @@ export class SingleVideoExportLayoutDirective {
                 display: grid;
                 box-sizing: border-box;
                 background-color: var( --thermal-export-bg );
+
+                .export-element-content--analyses {
+
+                    display: grid;
+                    gap: 1em;
+                    grid-template-columns: 100%;
+                    grid-template-rows: 1fr auto;
+                
+                }
+
             }
 
 
@@ -248,7 +259,7 @@ export class SingleVideoExportLayoutDirective {
     
     `;
     
-    static render(
+    render(
         reference: Ref<HTMLDivElement>,
         props: SingleVideoRenderProps
     ): unknown {
@@ -323,4 +334,4 @@ export class SingleVideoExportLayoutDirective {
 
 }
 
-export const exportLayoutDirective = SingleVideoExportLayoutDirective.render.bind(SingleVideoExportLayoutDirective);
+export const exportLayoutDirective = directive( SingleVideoExportLayoutDirective );

@@ -145,6 +145,7 @@ import "./controls/file/analysis/FileAnalysisOverview";
 import "./controls/file/analysis/FileAnalysisOverviewRow";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
+import "./controls/file/analysis/FileAnalysisDisplay";
 // File buttons
 import "./controls/file/buttons/FileButton";
 import "./controls/file/buttons/FileDropdown";

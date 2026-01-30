@@ -18,6 +18,7 @@ export type SingleVideoRenderProps = {
     exportFrameWidth: number,
     exportFramePadding: number,
     exportFrameGap: number,
+    exportGraphHeight: number,
 
     fileName: string,
     jpegQuality: number,
@@ -55,6 +56,7 @@ export interface ISingleVideoExportElement {
     setExportFrameWidth( value: number ): void;
     setExportFramePadding( value: number ): void;
     setExportFrameGap( value: number ): void;
+    setExportGraphHeight( value: number ): void;
     
     setFileName( value: string ): void;
     setJpegQuality( value: number ): void;

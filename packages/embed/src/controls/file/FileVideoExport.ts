@@ -6,7 +6,7 @@ import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { BtnSizes, BtnVariants } from "../../ui/Btn";
 import { ThermalDialog } from "../../ui/Dialog";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import {when} from 'lit/directives/when.js';
 
 @customElement("file-video-export-button")
 export class FileVideoExport extends BaseElement {
@@ -54,23 +54,25 @@ export class FileVideoExport extends BaseElement {
 
     public renderDialog(): unknown {
 
-        const content = this.isOpen === true
-            ? html`<file-video-export-panel></file-video-export-panel>`
-            : nothing;
+        const cnt = when(
+            this.isOpen,
+            () => html`<file-video-export-panel></file-video-export-panel>`,
+            () => nothing
+        );
 
         return html`<thermal-dialog
             ${ref(this.dialogRef)}
             label="Export videa"
             is-fullscreen="true"
-            .beforeClose=${() => {
+            .onCloseEveryTime=${() => {
                 this.isOpen = false;
                 return true;
             }}
         >
 
-            <div slot="content">
+            <div slot="content" style="height: 100%;">
                 
-                ${content}
+                ${cnt}
 
             </div>
         
@@ -82,10 +84,7 @@ export class FileVideoExport extends BaseElement {
         return html`<thermal-btn
             @click=${() => {
                 this.dialogRef.value?.setOpen();
-                setTimeout( () => {
-                    this.log("Otevírám dialog", this.dialogRef.value);
-                    this.isOpen = true;
-                }, 1000 );
+                this.isOpen = true;
             }}
             variant=${this.variant || "default"}
             size=${this.size || "md"}

@@ -3,9 +3,9 @@ import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 import { css, html } from "lit";
 import { slotOrNothing } from "../../../../connection/controllers/apps/directives/SlotOrNothing";
 
-export class SingleVideoExportConfigDirective {
+export class SingleVideoExportConfigDirective extends Directive {
 
-    private static renderRadio(
+    private renderRadio(
         label: string,
         checked: boolean,
         onChange: ( value: boolean ) => void
@@ -16,7 +16,7 @@ export class SingleVideoExportConfigDirective {
         >${label}</thermal-radio>`;
     }
 
-    private static renderDropdown(
+    private renderDropdown(
         value: string,
         options: string[],
         onChange: ( value: string ) => void
@@ -34,7 +34,7 @@ export class SingleVideoExportConfigDirective {
 
     }
 
-    private static renderConfigHeader(
+    private renderConfigHeader(
         element: AbstractSingleVideoExport
     ): unknown {
 
@@ -95,7 +95,7 @@ export class SingleVideoExportConfigDirective {
 
     }
 
-    private static  renderExportButton(
+    private  renderExportButton(
         element: AbstractSingleVideoExport
     ): unknown {
 
@@ -122,7 +122,10 @@ export class SingleVideoExportConfigDirective {
             .export-bar-part--config {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 1em;
+                gap: 1em 2em;
+
+                background: var( --thermal-background );
+                padding: 1em;
 
                 thermal-slot {
                     box-sizing: border-box;
@@ -138,7 +141,7 @@ export class SingleVideoExportConfigDirective {
     `;
 
 
-    static render( element: AbstractSingleVideoExport ): unknown {
+    public render( element: AbstractSingleVideoExport ): unknown {
         
         return html`<div class="export-bar">
 
@@ -156,4 +159,4 @@ export class SingleVideoExportConfigDirective {
 
 }
 
-export const exportConfigDirective = SingleVideoExportConfigDirective.render.bind(SingleVideoExportConfigDirective);
+export const exportConfigDirective = directive( SingleVideoExportConfigDirective );

@@ -17,10 +17,13 @@ export class FileAnalysisGraph extends FileConsumer {
     protected hydrated: boolean = false;
 
     @property({reflect: true})
-    protected graphWidth: number = 0;
+    public graphWidth: number = 0;
 
     @property({reflect: true})
-    protected graphHeight: number = 0;
+    public graphHeight: number = 0;
+
+    @property({ type: Boolean, reflect: true })
+    public hasDownloads: boolean = true;
 
     container: Ref<HTMLDivElement> = createRef();
 
@@ -260,7 +263,24 @@ export class FileAnalysisGraph extends FileConsumer {
             }
             </div>
 
-            <div class="download">
+            ${this.renderDownloads()}
+            
+
+            
+
+            </div>
+        
+        `
+    }
+
+
+    private renderDownloads() {
+
+        if ( !this.hasDownloads ) {
+            return nothing;
+        }
+
+        return html`<div class="download">
                 <thermal-icon icon="download" variant="micro"></thermal-icon>
                 <thermal-btn
                     size="sm"
@@ -297,14 +317,9 @@ export class FileAnalysisGraph extends FileConsumer {
                     plain="true"
                     tooltip="${t(T.downloadgraphdataascsv)}"
                 >CSV</thermal-btn>
-            </div>
-            
+            </div>`;
 
-            
 
-            </div>
-        
-        `
     }
 
 }
