@@ -40,7 +40,7 @@ if (! function_exists("thermal_display_register_assets")) {
         );
 
 
-        wp_register_script(
+        wp_register_script_module(
             $scripts_name_es,
             plugin_dir_url(__DIR__) . 'assets/embed.esm.js?v=' . $version,
             array(),
@@ -91,8 +91,8 @@ if (! function_exists("thermal_display_enqueue_frontend_assets")) {
         ) {
             global $styles_name;
             global $scripts_name_cjs;
-
-            wp_enqueue_script($scripts_name_cjs);
+            global $scripts_name_es;
+            wp_enqueue_script_module($scripts_name_es);
 
             wp_enqueue_style("thermal_display_wp_styles");
         }

@@ -1,17 +1,15 @@
 import { Instance, ThermalFileFailure } from "@labirthermal/core";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "../../ui/Dialog";
 import { customElement, property, state } from "lit/decorators.js";
-import { BtnSizes, BtnVariants } from "../../ui/Btn";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { slotOrNothing } from "../../connection/controllers/apps/directives/SlotOrNothing";
 import { cache } from "lit/directives/cache.js";
 import { classMap } from "lit/directives/class-map.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { slotOrNothing } from "../../connection/controllers/apps/directives/SlotOrNothing";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
-import { toPng, toJpeg, toBlob, toPixelData, toSvg } from 'html-to-image';
-import { ThermalFileReader } from "packages/core/dist";
+import { BtnSizes, BtnVariants } from "../../ui/Btn";
+import { ThermalDialog } from "../../ui/Dialog";
 import { VideoRecorder } from "./video/internals/VideoRecorder";
 
 @customElement("file-video-export-button")

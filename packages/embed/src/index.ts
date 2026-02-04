@@ -226,7 +226,6 @@ import "./connection/components/file/ServerFileHeader";
 import "./connection/components/user/UserFolders";
 
 import "./connection/components/file/FileAnalysesRemoveButton";
-import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 

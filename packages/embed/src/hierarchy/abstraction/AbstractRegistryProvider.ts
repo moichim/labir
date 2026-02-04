@@ -45,7 +45,7 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
         registry.palette.setPalette( this.manager.palette.value );
         // Set the range if necessary
         if (this.from !== undefined && this.to !== undefined) {
-            this.registry.range.imposeRange({
+            registry.range.imposeRange({
                 from: this.from,
                 to: this.to
             });
@@ -98,6 +98,8 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
         this.registry = this.createRegistry(this.slug);
 
+        
+
     }
 
     disconnectedCallback(): void {
@@ -113,8 +115,8 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
+        
         this.hydrateRegistry(this.registry);
-
 
     }
 

@@ -466,15 +466,6 @@ ${this.renderBreadcrumb()}
                                 size="md"
                                 showLabel="true"
                             ></file-delete-dialog>
-
-                            <!--
-                            <file-store-thumbnail
-                                size="md"
-                                variant="default"
-                                .folder=${this.folder}
-                                tooltip="Uložit aktuální zobrazení jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
-                            ></file-store-thumbnail>
-                            -->
                             
                         `
                 : nothing

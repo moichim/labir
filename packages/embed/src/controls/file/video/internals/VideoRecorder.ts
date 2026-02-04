@@ -1,5 +1,4 @@
 import { Instance } from "@labirthermal/core";
-import { toBlob } from "html-to-image";
 import { BufferTarget, getFirstEncodableVideoCodec, Mp4OutputFormat, Output, QUALITY_VERY_HIGH, VideoSample, VideoSampleSource } from "mediabunny";
 import { VideoRecorderStorage } from "./VideoRecorderStorage";
 
@@ -41,24 +40,43 @@ export class VideoRecorder {
         storage: VideoRecorderStorage
     ): Promise<void> {
 
+        const canvas = document.createElement( "canvas" ) as HTMLCanvasElement;
+        canvas.width = this.exportedElement.clientWidth;
+        canvas.height = this.exportedElement.clientHeight;
+
         for (const frame of this.file.timeline.frames) {
 
             await this.file.timeline.setRelativeTime(frame.relative);
 
             await this.file.draw();
 
+            /*
+
+            await html2canvas(
+                this.exportedElement,
+                {
+                    canvas: canvas,
+                }
+            );
+            */
+
+            const blb = await canvas.toBlob(
+                () => {}
+            );
+
             // Convert the html to a blob
-            const blob = await toBlob(
+            /*
+            const blob = await domtoimage.toBlob(
                 this.exportedElement,
                 
                 {
                     quality: 0.85,
-                    type: "image/jpeg",
                 }
                 
             );
+            
 
-            if (blob) {
+            if (false) {
 
                 await storage.put(
                     frame.index,
@@ -67,6 +85,8 @@ export class VideoRecorder {
                 );
 
             }
+
+            */
 
         }
 
