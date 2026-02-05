@@ -10,12 +10,6 @@ import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 export const DYNAMIC_CONTENT_ATTRIBUTE = "data-video-dynamic";
 
 /**
- * Atribut pro označení canvas elementů, které se mají kopírovat.
- * Pixel data z originálního canvasu budou zkopírována do klonu.
- */
-export const DYNAMIC_CANVAS_ATTRIBUTE = "data-video-canvas";
-
-/**
  * Atribut pro označení SVG elementů, které se mění mezi framy.
  * Celý innerHTML SVG bude aktualizován z originálu.
  */
@@ -26,6 +20,19 @@ export const DYNAMIC_SVG_ATTRIBUTE = "data-video-svg";
  * Inline styly budou aktualizovány z originálu.
  */
 export const DYNAMIC_STYLE_ATTRIBUTE = "data-video-style";
+
+/**
+ * Atribut pro označení elementů, které se mají kompletně překreslit při každém framu.
+ * Element včetně jeho stylů a potomků bude znovu naklonován z originálu.
+ * Použij pro elementy, které jsou vytvářeny asynchronně nebo se dynamicky mění.
+ */
+export const DYNAMIC_RERENDER_ATTRIBUTE = "data-video-rerender";
+
+/**
+ * Atribut pro označení elementů, které nemají být zahrnuty do exportu.
+ * Tyto elementy budou odstraněny z klonu před exportem.
+ */
+export const IGNORE_ATTRIBUTE = "data-video-ignore";
 
 export class VideoRecorder {
 
@@ -57,6 +64,9 @@ export class VideoRecorder {
 
     /** Mapování: originální SVG -> klonované SVG (pro aktualizaci innerHTML) */
     private dynamicSvgMap: Map<SVGElement, SVGElement> = new Map();
+
+    /** Mapování: originální element -> klonovaný element (pro kompletní překreslení) */
+    private rerenderMap: Map<Element, Element> = new Map();
 
     /** Mapování: originální element -> klonovaný element (pro aktualizaci stylů) */
     private dynamicStyleMap: Map<HTMLElement, HTMLElement> = new Map();
@@ -122,13 +132,17 @@ export class VideoRecorder {
         console.log("[VideoRecorder] Flattening custom elements...");
         this.flattenCustomElements(element, clone);
 
+        // 3. Odstraň elementy s data-video-ignore (po flatteningu, aby se našly i v shadow DOM)
+        console.log("[VideoRecorder] Removing ignored elements...");
+        this.removeIgnoredElements(clone);
+
         console.log( clone );
 
         // 3. Embeduj obrázky jako data URI
         console.log("[VideoRecorder] Embedding images...");
         await this.embedImages(clone);
 
-        // 4. Vytvoř mapování canvasů
+        // 4. Vytvoř mapování canvasů (všechny canvasy automaticky)
         console.log("[VideoRecorder] Mapping canvases...");
         this.createCanvasMap(element, clone);
 
@@ -143,6 +157,10 @@ export class VideoRecorder {
         // 5.2 Vytvoř mapování elementů s dynamickými styly
         console.log("[VideoRecorder] Mapping dynamic style elements...");
         this.createDynamicStyleMap(element, clone);
+
+        // 5.3 Vytvoř mapování elementů pro kompletní překreslení
+        console.log("[VideoRecorder] Mapping rerender elements...");
+        this.createRerenderMap(element, clone);
 
         // 6. Připrav SVG wrapper
         console.log("[VideoRecorder] Creating SVG wrapper...");
@@ -166,7 +184,20 @@ export class VideoRecorder {
         this.preparedSvgWrapper = svg;
         this.preparedClone = clone;
 
-        console.log("[VideoRecorder] Export prepared. Canvas count:", this.canvasToImageMap.size, "Dynamic elements:", this.dynamicElementMap.size);
+        console.log("[VideoRecorder] Export prepared. Canvas count:", this.canvasToImageMap.size, "Dynamic elements:", this.dynamicElementMap.size, "Rerender elements:", this.rerenderMap.size);
+    }
+
+    /**
+     * Odstraní elementy s atributem data-video-ignore z klonu.
+     * Tyto elementy nebudou zahrnuty do exportu.
+     */
+    private removeIgnoredElements(clone: Element): void {
+        const ignored = clone.querySelectorAll(`[${IGNORE_ATTRIBUTE}]`);
+        console.log("[VideoRecorder] Removing ignored elements:", ignored.length);
+        
+        for (const el of ignored) {
+            el.parentNode?.removeChild(el);
+        }
     }
 
     /**
@@ -241,11 +272,13 @@ export class VideoRecorder {
      */
     private flattenCustomElements(original: Element, clone: Element): void {
 
-        // Nejdřív označ všechny canvasy v originálu indexem
-        const originalCanvases = original.querySelectorAll("canvas");
+        // Nejdřív označ všechny canvasy v originálu indexem (včetně shadow DOM!)
+        const originalCanvases = this.querySelectorAllDeep(original, "canvas");
         originalCanvases.forEach((canvas, index) => {
             canvas.setAttribute("data-canvas-index", String(index));
         });
+        
+        console.log("[VideoRecorder] Marked canvases with index (including shadow DOM):", originalCanvases.length);
 
         // Najdi všechny custom elementy v originálu (mají pomlčku v názvu)
         const originalElements = Array.from(original.querySelectorAll("*"));
@@ -392,10 +425,10 @@ export class VideoRecorder {
 
         this.canvasToImageMap.clear();
 
-        // Najdi všechny canvasy v originálu (ty mají data-canvas-index z flattenCustomElements)
-        const originalCanvases = original.querySelectorAll("canvas");
+        // Najdi všechny canvasy v originálu včetně shadow DOM
+        const originalCanvases = this.querySelectorAllDeep(original, "canvas");
         
-        // Najdi všechny canvasy v klonu (mohou být v jiné struktuře po zploštění)
+        // Najdi všechny canvasy v klonu (po zploštění už jsou v normálním DOM)
         const cloneCanvases = clone.querySelectorAll("canvas");
 
         console.log("[VideoRecorder] Found canvases in original:", originalCanvases.length);
@@ -508,6 +541,24 @@ export class VideoRecorder {
     }
 
     /**
+     * Vytvoří mapování pro elementy, které se mají kompletně překreslit při každém framu.
+     * Hledá elementy s atributem DYNAMIC_RERENDER_ATTRIBUTE včetně shadow DOM.
+     */
+    private createRerenderMap(original: Element, clone: Element): void {
+
+        this.rerenderMap.clear();
+
+        const originalRerender = this.querySelectorAllDeep(original, `[${DYNAMIC_RERENDER_ATTRIBUTE}]`);
+        const cloneRerender = clone.querySelectorAll(`[${DYNAMIC_RERENDER_ATTRIBUTE}]`);
+
+        console.log("[VideoRecorder] Found rerender elements (including shadow DOM):", originalRerender.length);
+
+        for (let i = 0; i < originalRerender.length && i < cloneRerender.length; i++) {
+            this.rerenderMap.set(originalRerender[i], cloneRerender[i]);
+        }
+    }
+
+    /**
      * querySelector pro celý DOM strom včetně shadow DOM
      */
     private querySelectorAllDeep(root: Element, selector: string): Element[] {
@@ -563,6 +614,7 @@ export class VideoRecorder {
      * 2. Aktualizuje textContent dynamických elementů
      * 3. Aktualizuje innerHTML dynamických SVG
      * 4. Aktualizuje inline styly dynamických elementů
+     * 5. Kompletně překreslí rerender elementy
      * 
      * Toto je MNOHEM rychlejší než klonování celého DOM!
      */
@@ -600,6 +652,52 @@ export class VideoRecorder {
             const cloneStyle = cloneEl.getAttribute("style") || "";
             if (cloneStyle !== origStyle) {
                 cloneEl.setAttribute("style", origStyle);
+            }
+        }
+
+        // 5. Kompletně překresli rerender elementy (včetně stylů a potomků)
+        for (const [origEl, cloneEl] of this.rerenderMap) {
+            this.rerenderElement(origEl, cloneEl);
+        }
+    }
+
+    /**
+     * Kompletně překreslí element - znovu naklonuje obsah z originálu
+     * včetně všech stylů a potomků.
+     */
+    private rerenderElement(original: Element, clone: Element): void {
+        
+        // Pokud je to custom element, musíme zpracovat shadow DOM
+        if (original instanceof HTMLElement && original.tagName.includes("-")) {
+            // Custom element - zpracuj shadow DOM
+            if (original.shadowRoot) {
+                // Vymaž obsah klonu
+                while (clone.firstChild) {
+                    clone.removeChild(clone.firstChild);
+                }
+                
+                // Znovu naklonuj obsah shadow DOM
+                for (const child of original.shadowRoot.children) {
+                    if (child.tagName !== "STYLE") {
+                        const childClone = child.cloneNode(true) as Element;
+                        this.inlineStylesRecursive(child, childClone);
+                        clone.appendChild(childClone);
+                    }
+                }
+            }
+        } else {
+            // Standardní element - nahraď innerHTML a styly
+            if (clone.innerHTML !== original.innerHTML) {
+                clone.innerHTML = original.innerHTML;
+            }
+            
+            // Aktualizuj inline styly
+            if (original instanceof HTMLElement && clone instanceof HTMLElement) {
+                const origStyle = original.getAttribute("style") || "";
+                clone.setAttribute("style", origStyle);
+                
+                // Znovu inlinuj computed styles
+                this.inlineStylesRecursive(original, clone);
             }
         }
     }
@@ -782,6 +880,7 @@ export class VideoRecorder {
         this.dynamicElementMap.clear();
         this.dynamicSvgMap.clear();
         this.dynamicStyleMap.clear();
+        this.rerenderMap.clear();
         this.muxingCanvas = undefined;
         this.muxingContext = undefined;
     }

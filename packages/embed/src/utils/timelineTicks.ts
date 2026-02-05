@@ -148,6 +148,7 @@ export const renderPointer = (
     return html`<div 
         class="indicator-cursor indicator-cursor__${type}"
         style="left: ${percent}%;"
+        data-video-rerender
     >
         <div class="indicator-cursor-arrow"></div>
         <div class="indicator-cursor-label">${label}</div>

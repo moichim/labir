@@ -187,7 +187,7 @@ export class FileAnalysisDisplay extends FileConsumer {
 
             <table>
 
-                <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
+                <caption data-video-ignore>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
                 <thead>
 

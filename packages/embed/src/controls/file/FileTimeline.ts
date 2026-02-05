@@ -412,8 +412,8 @@ export class TimelineElement extends FileConsumer {
                 @mousemove=${this.handleBarHover} 
                 @mouseleave=${this.handleBarMouseLeave.bind(this)}
             >
-                <div class="bar" data-video-style style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                    ${this.cursor ? html`<div class="pointer" data-video-style style="left: ${this.cursor.percentage}%"></div>` : ""}
+                <div class="bar" data-video-rerender style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
+                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
                 </div>
 
             </div>

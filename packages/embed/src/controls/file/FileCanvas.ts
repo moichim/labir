@@ -13,6 +13,9 @@ export class FileCanvas extends FileConsumer {
 
     public container: Ref<HTMLDivElement> = createRef();
 
+    @property({ type: Boolean, attribute: "prefers-gpu" })
+    public prefersGpu: boolean = true;
+
     @property({converter: booleanConverter(false)})
     public norender: boolean = false;
 
@@ -36,6 +39,13 @@ export class FileCanvas extends FileConsumer {
             this.remountInstance( oldFileValue, this.file );
 
         }
+
+        if ( _changedProperties.has("prefers-gpu") ) {
+            if ( this.file ) {
+                this.file.setPreferWebGl( this.prefersGpu );
+                this.file.draw();
+            }
+        }
     }
 
 
@@ -58,6 +68,7 @@ export class FileCanvas extends FileConsumer {
         // Mount the new instance to the DOM
         if ( nextInstance !== undefined && this.container.value ) {
             nextInstance.mountToDom( this.container.value );
+            nextInstance.setPreferWebGl( this.prefersGpu );
             nextInstance.draw();
         }
 

@@ -60,7 +60,9 @@ export class SingleVideoExportLayoutDirective extends Directive {
 
 
         const content: unknown[] = [
-            html`<file-canvas></file-canvas>`,
+            html`<file-canvas
+                .prefers-gpu=${false}
+            ></file-canvas>`,
         ];
 
         if ( props.hasTimeline ) {
