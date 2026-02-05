@@ -21,7 +21,6 @@ export type SingleVideoRenderProps = {
     exportGraphHeight: number,
 
     fileName: string,
-    jpegQuality: number,
     mp4Quality: Quality,
 
     skin: VideoExportSkin
@@ -59,7 +58,6 @@ export interface ISingleVideoExportElement {
     setExportGraphHeight( value: number ): void;
     
     setFileName( value: string ): void;
-    setJpegQuality( value: number ): void;
     setMp4Quality( value: Quality ): void;
     setSkin( value: VideoExportSkin ): void;
 

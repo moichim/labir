@@ -18,6 +18,37 @@ export class SingleVideoExportConfigDirective extends Directive {
         >${label}</thermal-radio>`;
     }
 
+    private renderText(
+        label: string,
+        suffix: string,
+        value: string,
+        onChange: (value: string) => void
+    ): unknown {
+        return html`<div class="export-config-number">
+
+            <div class="export-config-number--label">
+                <label>${label}</label>
+            </div>
+
+            <div class="export-config-number--value">
+
+                <div class="">
+                    <input
+                        type="text"
+                        .value=${value}
+                        @input=${(event: InputEvent) => {
+                            const target = event.target as HTMLInputElement;
+                            onChange(target.value);
+                        }}
+                    />
+                    <span class="unit">${suffix}</span>
+                </div>
+
+            </div>
+
+        </div>`;
+    }
+
     private renderDropdown(
         value: string,
         options: string[],
@@ -183,16 +214,14 @@ export class SingleVideoExportConfigDirective extends Directive {
             )
         );
 
+        // Název souboru
         slots.push(
-            this.renderNumber(
-                "JPEG Kvalita",
-                "%",
-                element.renderProps.jpegQuality,
-                element.setJpegQuality.bind(element),
-                30,
-                100,
-                1
-            ),
+            this.renderText(
+                "Název souboru",
+                ".mp4",
+                element.renderProps.fileName,
+                element.setFileName.bind(element)
+            )
         );
 
         const options = [

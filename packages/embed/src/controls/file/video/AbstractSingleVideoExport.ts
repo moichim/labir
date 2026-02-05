@@ -77,7 +77,6 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         exportGraphHeight: 300,
 
         fileName: "exported-video",
-        jpegQuality: 92,
         mp4Quality: QUALITY_VERY_HIGH,
 
         skin: VideoExportSkin.LIGHT
@@ -152,11 +151,6 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         this.requestUpdate();
     }
 
-    public setJpegQuality(value: number): void {
-        this.renderProps.jpegQuality = value;
-        this.requestUpdate();
-    }
-
     public setMp4Quality(value: Quality): void {
         this.renderProps.mp4Quality = value;
         this.requestUpdate();
@@ -169,6 +163,15 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
     protected updated(_changedProperties: PropertyValues): void {
         super.updated( _changedProperties );
+        
+        // Nastav výchozí název souboru z .lrc souboru
+        if (_changedProperties.has("file") && this.file) {
+            const lrcFileName = this.file.fileName;
+            // Odstraň .lrc příponu
+            const baseName = lrcFileName.replace(/\.lrc$/i, "");
+            this.renderProps.fileName = baseName;
+            this.requestUpdate();
+        }
     }
 
     

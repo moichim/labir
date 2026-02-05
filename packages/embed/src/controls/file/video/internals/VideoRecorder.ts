@@ -967,7 +967,11 @@ export class VideoRecorder {
             const blobUrl = URL.createObjectURL(videoBlob);
             const a = document.createElement("a");
             a.href = blobUrl;
-            a.download = this.app.renderProps.fileName || "exported-video.mp4";
+            
+            // Název souboru s .mp4 příponou
+            const baseName = this.app.renderProps.fileName || "exported-video";
+            a.download = baseName.endsWith(".mp4") ? baseName : `${baseName}.mp4`;
+            
             a.click();
             a.remove();
             
