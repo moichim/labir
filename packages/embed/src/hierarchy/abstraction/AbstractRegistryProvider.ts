@@ -40,14 +40,13 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
     protected createRegistry( slug: string ): ThermalRegistry {
 
-        this.log( "manager", this.manager );
         // Create
         const registry = this.manager.addOrGetRegistry(slug);
         // Set the palette
         registry.palette.setPalette( this.manager.palette.value );
         // Set the range if necessary
         if (this.from !== undefined && this.to !== undefined) {
-            this.registry.range.imposeRange({
+            registry.range.imposeRange({
                 from: this.from,
                 to: this.to
             });
@@ -57,8 +56,6 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     }
 
     protected hydrateRegistry( registry: ThermalRegistry ): void {
-
-        this.log( "registry", registry );
 
         // Bind opacity to the element property
         registry.opacity.addListener(this.UUIDRegistryListeners, value => {

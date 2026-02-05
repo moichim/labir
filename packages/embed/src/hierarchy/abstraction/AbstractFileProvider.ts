@@ -22,6 +22,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     public loading: boolean = false;
 
     @provide({ context: loadedContext })
+    @state()
     protected ready = false;
 
     @provide({ context: durationContext })
@@ -29,6 +30,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     protected duration?: DurationContext;
 
     @provide({ context: currentFrameContext })
+    @state()
     protected currentFrame?: CurrentFrameContext;
 
     @provide({ context: fileCursorContext })
@@ -62,12 +64,12 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @provide({ context: playingContext })
     public playing: boolean = false;
 
-    @provide({ context: mayStopContext })
     @state()
+    @provide({ context: mayStopContext })
     protected mayStop: boolean = true;
 
-    @provide({ context: analysisList })
-    analysis: AnalysisList = [];
+    /** List of all analyses taken from the `Instance.analysis.layers.all` */
+    @provide({ context: analysisList }) private analyses: AnalysisList = [];
 
 
     public analysis1?: string;
@@ -89,7 +91,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     public readonly onFailure = new CallbacksManager<(error: ThermalFileFailure) => void>;
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(false) })
-    autoHighlight: boolean = false;
+    public autoHighlight: boolean = false;
 
     @consume({ context: registryHighlightContext, subscribe: true })
     protected highlight?: ThermalRangeOrUndefined;
@@ -195,7 +197,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
             absolute: instance.timeline.currentStep.absolute
         }
 
-        this.analysis = instance.analysis.layers.all;
+        this.analyses = instance.analysis.layers.all;
 
 
         // Project properties to cthe core
@@ -228,7 +230,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
         this.mayStopCallback = value => { this.mayStop = value; }
 
-        this.analysisCallback = value => { this.analysis = value; }
+        this.analysisCallback = value => { this.analyses = value; }
 
 
         // Bind listeners
@@ -286,7 +288,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         // Set default values
         this.duration = undefined;
         this.currentFrame = undefined;
-        this.analysis = [];
+        this.analyses = [];
 
         // Remove all listeners
         instance.timeline.callbacksPlay.delete(this.UUID);

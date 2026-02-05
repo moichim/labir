@@ -16,53 +16,55 @@ export class FileCanvas extends FileConsumer {
     @property({converter: booleanConverter(false)})
     public norender: boolean = false;
 
-    getContainer(): HTMLDivElement|undefined {
-        return this.container.value;
-    }
-
     public onInstanceCreated(instance: Instance): void {
 
-        const container = this.getContainer();
-
-        if ( container !== undefined ) {
-            instance.mountToDom( container );
-            if (this.norender === false) {
-                instance.draw();
-            }
-            
-        } else {
-            throw new Error( "Error mounting the instance to the canvas!" );
-        }
+        // Mount the incoming instance to the DOM
+        this.remountInstance( undefined, instance );
     }
 
-    public onFailure(): void {
-        // throw new Error("Method not implemented.");
-    }
+    public onFailure(): void {}
 
     protected updated(_changedProperties: PropertyValues): void {
+
         super.updated(_changedProperties);
+
+        // Whenever the file context changes in this component, unmount any previous instance and mount the new one
         if ( _changedProperties.has("file") ) {
 
-            // this.log("changed_properties",_changedProperties, this.file);
+            const oldFileValue = _changedProperties.get( "file" ) as Instance | undefined;
 
-            const oldFile = _changedProperties.get( "file" ) as Instance;
-            const newFile = this.file;
-
-            if (
-                oldFile === undefined
-                && newFile !== undefined
-                && this.container.value
-                && this.file
-                && this.file.dom?.built === false
-            ) {
-                this.file.mountToDom( this.container.value );
-                this.file.draw();
-            }
+            this.remountInstance( oldFileValue, this.file );
 
         }
     }
 
-    disconnectedCallback(): void {
+
+    /** Any mounting or unmounting of instances to the DOM */
+    private remountInstance(
+        previousInstance?: Instance,
+        nextInstance?: Instance
+    ) {
+
+        // Do nothing if the instances are the same
+        if ( previousInstance === nextInstance ) {
+            return;
+        }
+
+        // Remove the old instance of the DOM if any
+        if ( previousInstance !== undefined ) {
+            previousInstance.unmountFromDom();
+        }
+
+        // Mount the new instance to the DOM
+        if ( nextInstance !== undefined && this.container.value ) {
+            nextInstance.mountToDom( this.container.value );
+            nextInstance.draw();
+        }
+
+
+    }
+
+    public disconnectedCallback(): void {
         super.disconnectedCallback();
         if (this.file !== undefined) {
             this.file.unmountFromDom();
@@ -73,19 +75,22 @@ export class FileCanvas extends FileConsumer {
         }
     }
 
-    static styles = css`
+    public static readonly styles = css`
 
         :host {
-            display: inline-block;
+            display: block;
             width: 100%;
+            font-size: var( --thermal-fs );
+        }
+
+        :host,
+        .canvas-container {
+            box-sizing: border-box;
         }
 
         .canvas-container {
 
             max-width: 100vw;
-            /** max-height: 100vh; */
-
-            aspect-ratio: 4 / 3;
             width: 100%;
 
             background-color: var( --thermal-slate );
@@ -93,30 +98,38 @@ export class FileCanvas extends FileConsumer {
 
             transition: color .3s ease-in-out, background-color .3s ease-in-out;
 
-        }
+            &.is-loading {
 
-        .is-loaded {
+                aspect-ratio: 4 / 3;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+            }
+
+            &.is-loaded {
         
+            }
+
+            &.is-success {
+
+            }
+
+            &.is-error {
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: var( --thermal-gap );
+                box-sizing: border-box;
+            }
+
         }
 
-        .is-loading {
         
-        }
-
-        .is-success {
-
-        }
-
-        .is-error {
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: var( --thermal-gap );
-            box-sizing: border-box;
-        }
 
         .error-wrapper {
+
             display: flex;
             gap: calc( var( --thermal-gap ) * 0.5 );
             flex-wrap: wrap;
@@ -133,32 +146,55 @@ export class FileCanvas extends FileConsumer {
 
             padding: var( --thermal-gap );
 
-        }
+            thermal-icon {
+                width: 2em;
+                height: 2em;
+            }
 
-        .error-icon {
-            width: calc( var( --thermal-fs ) * 2 );
-        }
+            .error-message {
+                font-size: small;
+                opacity: .5;
+            }
 
-        .error-message {
-            font-size: small;
-            opacity: .5;    
         }
-
-
-        .loading-placeholder {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            /* background: var( --thermal-slate ); */
-        }
-        .loading-loader {
-            width: calc( var( --thermal-gap ) * 2);
-            aspect-ratio: 1;
-        }
-        
     `;
+
+    private renderPlaceholder() {
+
+        if ( this.loading === false ) {
+            return nothing;
+        }
+
+        return html`<div class="file-canvas-loading">
+    <thermal-spinner color="var(--thermal-background)"></thermal-spinner>
+</div>`;
+
+    }
+
+    private renderError() {
+
+        if ( this.failure === undefined ) {
+            return nothing;
+        }
+
+        return html`<div class="error-wrapper">
+    <thermal-icon 
+        icon="warning"
+        variant="outline"
+    ></thermal-icon>
+
+    <div class="error-title">
+        ${t(T.fileloadingerror)}
+    </div>
+    <div class="error-url">
+        ${this.failure?.thermalUrl}
+    </div>
+    <div class="error-message">
+        ${this.failure?.message}
+    </div>
+</div>`;
+
+    }
 
     protected render(): unknown {
 
@@ -174,42 +210,10 @@ export class FileCanvas extends FileConsumer {
             "is-error": isError
         }
 
-        return html`
-            <div ${ref(this.container)} class=${classMap(classes)} part="file-canvas-container">
-            
-                ${ this.loading === true
-
-                    ? html`<div class="loading-placeholder">
-                        <div class="loading-loader">
-                            <thermal-spinner color="var(--thermal-background)"></thermal-spinner>
-                        </div>
-                    </div>`
-                    : isError === true 
-                        ? html`<div class="error-wrapper">
-                            <div class="error-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
-                                </svg>
-                            </div>
-
-                            <div class="error-title">
-                                ${t(T.fileloadingerror)}
-                            </div>
-
-                            <div class="error-url">
-                                ${this.failure?.thermalUrl}
-                            </div>
-                            <div class="error-message">
-                                ${this.failure?.message}
-                            </div>
-                        </div>`
-                        : nothing
-
-                }
-            
-            </div>
-        
-        `;
+        return html`<div ${ref(this.container)} class=${classMap(classes)} part="file-canvas-container">
+    ${this.renderPlaceholder()}
+    ${this.renderError()}
+</div>`;
     }
 
 }

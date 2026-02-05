@@ -3,6 +3,7 @@ import { AppWithContentController, ContentController } from "./ContentController
 import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { CallbacksManager } from "@labirthermal/core";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
 export enum DisplayState {
     LOADING,
@@ -58,7 +59,7 @@ export interface AppWithDisplayController extends AppWithContentController {
     displayComments: boolean;
 }
 
-export class DisplayController implements ReactiveController {
+export class DisplayController extends AbstractConnectedController implements ReactiveController {
 
     private static readonly LISTENER_ID = "DisplayController";
 
@@ -107,6 +108,7 @@ export class DisplayController implements ReactiveController {
     constructor(
         host: AppWithDisplayController
     ) {
+        super();
         this.host = host;
         host.addController(this);
     }
@@ -116,7 +118,7 @@ export class DisplayController implements ReactiveController {
         this.host.client.onIdentity.set(
             DisplayController.LISTENER_ID, () => {
                 this.reloadCurrentState().catch( error => {
-                    this.host.log("Chyba při načítání po změně identity uživatele:", error);
+                    this.log("Chyba při načítání po změně identity uživatele:", error);
                 } );
             }
         );
@@ -218,7 +220,7 @@ export class DisplayController implements ReactiveController {
         file: FileInfo
     ): Promise<void> {
 
-        this.host.log(
+        this.log(
             "Nastavuji se na soubor:",
             file
         );
@@ -307,7 +309,7 @@ export class DisplayController implements ReactiveController {
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
 
-        this.host.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
+        this.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
 
         // this.navigateToLoadingState("Načítám obsah");
 
@@ -316,7 +318,7 @@ export class DisplayController implements ReactiveController {
 
             /** Načítám složku i soubor */
 
-            this.host.log("Načítám soubor a složku");
+            this.log("Načítám soubor a složku");
 
             await this.navigateToFileAndLoad(
                 this.host.folderPath,
@@ -328,7 +330,7 @@ export class DisplayController implements ReactiveController {
         // Načítám složku, pokud je vyplněná
         else if (this.host.folderPath !== undefined) {
 
-            this.host.log("Načítám pouze složku");
+            this.log("Načítám pouze složku");
 
             await this.navigateToFolderAndLoad(
                 this.host.folderPath
@@ -337,14 +339,14 @@ export class DisplayController implements ReactiveController {
 
         } if (this.host.client.isLoggedIn) {
 
-            this.host.log("Načítám uživatelovu složku");
+            this.log("Načítám uživatelovu složku");
 
             await this.navigateToUserFoldersAndLoad();
             return;
 
         }
 
-        this.host.log("Mám tady toto");
+        this.log("Mám tady toto");
 
         this.navigateToLoginState();
 
@@ -404,7 +406,7 @@ export class DisplayController implements ReactiveController {
         value: boolean
     ): void {
 
-        this.host.log( "Nastavuji compact na", value, "z", this.host.fileDisplayCompact );
+        this.log( "Nastavuji compact na", value, "z", this.host.fileDisplayCompact );
 
         if ( value !== this.host.fileDisplayCompact ) {
             this.host.fileDisplayCompact = value;

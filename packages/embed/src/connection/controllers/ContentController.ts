@@ -4,6 +4,7 @@ import { ReactiveController } from "lit";
 import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** 
  * Public parameters of an application
@@ -29,7 +30,7 @@ export interface AppWithContentController extends AppWithClientController {
  * - updates everywhere
  * - loading state (separate from the client controller who has a loading state of its own)
  */
-export class ContentController implements ReactiveController {
+export class ContentController extends AbstractConnectedController implements ReactiveController {
 
     host: AppWithContentController;
 
@@ -75,6 +76,7 @@ export class ContentController implements ReactiveController {
     constructor(
         host: AppWithContentController
     ) {
+        super();
         this.host = host;
         host.addController(this);
     }
@@ -503,7 +505,7 @@ export class ContentController implements ReactiveController {
         folderPath: string
     ): Promise<void> {
 
-        this.host.log( "Started fetching grid", folderPath );
+        this.log( "Started fetching grid", folderPath );
 
         const result = await this.host.apiClient.routes.get
             .grid(folderPath)
@@ -511,7 +513,7 @@ export class ContentController implements ReactiveController {
 
         this.host.requestUpdate();
 
-        this.host.log( "Response", result );
+        this.log( "Response", result );
 
         this.throwIfNot200(result);
 
@@ -567,7 +569,7 @@ export class ContentController implements ReactiveController {
         fileName: string
     ): Promise<void> {
 
-        this.host.log( "Stav před mazáním:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
+        this.log( "Stav před mazáním:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
 
         const result = await this.host.apiClient.routes.post.deleteFile(
             folderPath,
@@ -576,7 +578,7 @@ export class ContentController implements ReactiveController {
 
         this.throwIfNot200(result);
 
-        this.host.log( "Stav kbezprostředně po mazání:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
+        this.log( "Stav kbezprostředně po mazání:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
 
         // Delete the file from the current state if necessary
         if ( 

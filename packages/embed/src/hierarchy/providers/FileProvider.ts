@@ -48,7 +48,7 @@ export class FileProviderElement extends AbstractFileProvider {
         }
 
     })
-    public batch?: boolean;
+    public batch: boolean = true;
 
     @property({
         type: String,
@@ -85,7 +85,9 @@ export class FileProviderElement extends AbstractFileProvider {
     @property({ type: String, reflect: true, attribute: true })
     public analysis7?: string;
 
-    /** Load the file and call all necessary callbacks */
+    /** 
+     * Load the file and call all necessary callbacks
+     */
     public async load() {
 
         const result = this.batch === true
@@ -96,6 +98,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+
+    /** 
+     * @deprecated Use the batch loader instead.
+     */
     public async loadSync() {
 
         this.loading = true;
@@ -151,6 +157,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+    /**
+     * Register new load request to the registry batch loader 
+     * 
+     */
     public loadAsync() {
 
         this.loading = true;
@@ -182,7 +192,11 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
-    public async asyncLoadCallback(
+    /**
+     * 
+     * @param result A crucial method called every time a loading ends
+     */
+    private async asyncLoadCallback(
         result: Instance | ThermalFileFailure
     ) {
 
@@ -223,8 +237,14 @@ export class FileProviderElement extends AbstractFileProvider {
 
         super.connectedCallback();
 
-        this.load();
+        // this.load();
 
+    }
+
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
+
+        this.load();
     }
 
 
@@ -243,9 +263,6 @@ export class FileProviderElement extends AbstractFileProvider {
             }
 
         }
-
-
-
 
     }
 

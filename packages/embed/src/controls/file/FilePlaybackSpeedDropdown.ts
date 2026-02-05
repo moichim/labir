@@ -22,7 +22,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
 
     public onFailure(): void {}
 
-    static styles = css`
+    public static readonly styles = css`
 
         thermal-btn {
             width: 100%;
@@ -35,8 +35,6 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
         if ( this.file === undefined ) {
             return nothing;
         }
-
-        this.log( this.enabled );
 
         return html`<thermal-dropdown interactive="${this.enabled}" .tooltip=${t(T.playbackspeed)}>
 

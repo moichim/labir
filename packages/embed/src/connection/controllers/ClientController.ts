@@ -3,6 +3,7 @@ import Client from "@labirthermal/server";
 import { ReactiveController } from "lit";
 import { Identity, ServerInfo } from "packages/server/client/dist";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** Public properties for application elements using ClientController */
 export interface AppWithClientController extends BaseElement {
@@ -21,7 +22,7 @@ export interface AppWithClientController extends BaseElement {
 /** 
  * Basic reactive controller for applications connected to the API 
  */
-export class ClientController implements ReactiveController {
+export class ClientController extends AbstractConnectedController implements ReactiveController {
 
     host: AppWithClientController;
 
@@ -75,6 +76,8 @@ export class ClientController implements ReactiveController {
     constructor(
         host: AppWithClientController
     ) {
+
+        super();
 
         this.host = host;
 

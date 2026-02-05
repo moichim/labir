@@ -66,9 +66,13 @@ export class ThermalDropdown extends BaseElement {
         super.disconnectedCallback();
     }
 
-    placeOptions() {
+    private placeOptions() {
 
-        computePosition(this.invokerRef.value!, this.optionsRef.value!, {
+        if ( ! this.invokerRef.value || ! this.optionsRef.value ) {
+            return;
+        }
+
+        computePosition(this.invokerRef.value, this.optionsRef.value, {
             middleware: [offset(2), flip(), inline(), shift()],
             placement: "bottom-start",
             strategy: "fixed"
@@ -86,7 +90,10 @@ export class ThermalDropdown extends BaseElement {
 
     protected updated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
         super.updated(_changedProperties);
-        this.placeOptions();
+        if ( _changedProperties.has("isOpen") ) {
+            this.placeOptions();
+        }
+        
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
@@ -219,8 +226,6 @@ export class ThermalDropdown extends BaseElement {
         const disabled = this.interactive === "off"
             ? "true"
             : "false";
-
-        this.log( disabled );
 
         return html`
 
