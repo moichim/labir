@@ -14,7 +14,7 @@ import { VideoRecorder } from "./internals/VideoRecorder";
 export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
 
     public innerFileProviderRef: Ref<FileProviderElement> = createRef();
-    public exportedDivRef: Ref<HTMLDivElement> = createRef();
+    public exportedDivRef: Ref<HTMLElement> = createRef();
 
     public get slug(): string {
         return [

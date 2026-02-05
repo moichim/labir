@@ -7,6 +7,11 @@ import { SingleVideoRenderProps } from "../ISingleVideoExportElement";
 
 export class SingleVideoExportLayoutDirective extends Directive {
 
+    /** Aktuální výška vnitřního obsahu */
+    private innerHeight: number = 0;
+
+    private observer?: ResizeObserver;
+
 
     private renderHistogram(
         props: SingleVideoRenderProps
@@ -68,7 +73,7 @@ export class SingleVideoExportLayoutDirective extends Directive {
 
     }
 
-    public static styles = css`
+    public static readonly styles = css`
     
         .export-element {
 
@@ -258,13 +263,45 @@ export class SingleVideoExportLayoutDirective extends Directive {
         }
     
     `;
+
+    private initObserver( 
+        svgElement: HTMLElement
+    ): void {
+
+        if ( this.observer ) {
+            return;
+        }
+
+        const contentElement = svgElement?.querySelector(".export-element-content");
+
+        if ( ! contentElement ) {
+            return;
+        }
+
+        this.observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+
+                this.innerHeight = entry.borderBoxSize[0].blockSize;
+                
+                // Aktualizuj SVG výšku
+                svgElement.setAttribute("height", String(this.innerHeight));
+            }
+        });
+
+        this.observer.observe(contentElement);
+
+    }
     
     render(
-        reference: Ref<HTMLDivElement>,
+        reference: Ref<HTMLElement>,
         props: SingleVideoRenderProps
     ): unknown {
-        
-        const classes = {
+
+        if ( reference.value ) {
+            this.initObserver( reference.value );
+        }
+
+        const mainClasses = {
 
             "export-element": true,
 
@@ -299,7 +336,7 @@ export class SingleVideoExportLayoutDirective extends Directive {
 
         return html`<!-- The main content rendered through the SingleVideoExportLayoutDirective -->
         <main
-            class=${classMap(classes)}
+            class=${classMap(mainClasses)}
             style=${styleMap(containerStyle)}
         >
             <b class="crop crop-t crop-l"></b>
@@ -307,19 +344,19 @@ export class SingleVideoExportLayoutDirective extends Directive {
             <b class="crop crop-b crop-l"></b>
             <b class="crop crop-b crop-r"></b>
 
-            <section 
-                ${ref(reference)}
-                class="export-element-content" 
-                style=${styleMap(contentStyle)}
-            >
+                    <section 
+                        ${ref(reference)}
+                        class="export-element-content" 
+                        style=${styleMap(contentStyle)}
+                    >
 
-                <div class="export-element-content--main">
-                    ${ mainContent }
-                </div>
+                        <div class="export-element-content--main">
+                            ${ mainContent }
+                        </div>
 
-                ${analyses}
+                        ${analyses}
 
-            </section>
+                    </section>
 
             <aside class="export-overlay">
                 <span>

@@ -412,8 +412,8 @@ export class TimelineElement extends FileConsumer {
                 @mousemove=${this.handleBarHover} 
                 @mouseleave=${this.handleBarMouseLeave.bind(this)}
             >
-                <div class="bar" style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
+                <div class="bar" data-video-style style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
+                    ${this.cursor ? html`<div class="pointer" data-video-style style="left: ${this.cursor.percentage}%"></div>` : ""}
                 </div>
 
             </div>
@@ -449,15 +449,15 @@ ${this.currentFrame !== undefined && this.hasInfo === true
     ? html`<div class="small real ${this.collapsed ? "collapsed" : ""}">
         <div>
             <span class="label">${t(T.date)}:</span> 
-            <span class="inline">${format(this.currentFrame.absolute, "d. L. y")}</span>
+            <span class="inline" data-video-dynamic>${format(this.currentFrame.absolute, "d. L. y")}</span>
         </div>
         <div>
             <span class="label">${t(T.time)}:</span> 
-            <span class="inline">${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
+            <span class="inline" data-video-dynamic>${format(this.currentFrame.absolute, "H'h' mm'm' ss:SSS")}</span>
         </div>
         <div>
             <span class="label">${t(T.frame)}:</span> 
-            <span class="inline">${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
+            <span class="inline" data-video-dynamic>${this.currentFrame.index + 1} / ${this.file?.frameCount}</span>
         </div>
     </div>`
 : nothing }

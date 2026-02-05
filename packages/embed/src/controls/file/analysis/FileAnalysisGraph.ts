@@ -228,13 +228,13 @@ export class FileAnalysisGraph extends FileConsumer {
 
             
 
-            <div style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
+            <div data-video-style style="position: absolute; top:${this.shadowTop}px; left: ${this.shadowLeft}px; width: ${this.shadowWidth}px; height: ${this.shadowHeight}px;">
             ${this.currentFrame && html`
-                <div style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
+                <div data-video-style style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
             `}
 
                 ${this.cursor && html`
-                    <div style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
+                    <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
                 `}
             </div>
         
@@ -242,6 +242,7 @@ export class FileAnalysisGraph extends FileConsumer {
                 ${this.graphs.colors.length > 0
                 ? html`<thermal-chart 
                         ${ref(this.graphRef)}
+                        data-video-svg
                         type="line" 
                         .data=${this.graphs.values} 
                         .options=${{

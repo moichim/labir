@@ -262,7 +262,7 @@ export class FileAnalysisDisplay extends FileConsumer {
 
         return html`
             <td>
-                <span style=${styleMap(style)}>
+                <span style=${styleMap(style)} data-video-dynamic>
                     ${valueDisplay}
                 </span>
             </td>

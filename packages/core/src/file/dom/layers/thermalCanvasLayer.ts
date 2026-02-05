@@ -41,6 +41,7 @@ export class ThermalCanvasLayer extends AbstractLayer {
         this.canvas = ThermalDomFactory.createCanvas();
         this.canvas.width = this.instance.width;
         this.canvas.height = this.instance.height;
+        this.canvas.setAttribute("data-video-canvas", "");
 
         this.container.appendChild(this.canvas);
 
