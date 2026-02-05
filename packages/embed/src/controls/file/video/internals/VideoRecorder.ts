@@ -1,6 +1,5 @@
 import { Instance } from "@labirthermal/core";
-import { BufferTarget, getFirstEncodableVideoCodec, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
-import { VideoRecorderStorage } from "./VideoRecorderStorage";
+import { BufferTarget, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
 import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 
 /**
@@ -97,6 +96,9 @@ export class VideoRecorder {
         if (this.muxingContext) return this.muxingContext;
         if (this.muxingCanvas === undefined) this.getMuxingCanvas();
         this.muxingContext = this.muxingCanvas!.getContext("2d", { alpha: false })!;
+        
+        // Vypni interpolaci - zachovej pixelovaný vzhled
+        this.muxingContext.imageSmoothingEnabled = false;
 
         return this.muxingContext;
     }
@@ -456,6 +458,10 @@ export class VideoRecorder {
             img.style.width = cloneCanvas.style.width || `${origCanvasEl.width}px`;
             img.style.height = cloneCanvas.style.height || `${origCanvasEl.height}px`;
             img.style.display = "block";
+            
+            // Zachovej pixelovaný vzhled - žádná interpolace
+            img.style.imageRendering = "pixelated";
+            
             img.setAttribute("data-canvas-index", index);
             
             // Inicializuj s aktuálním obsahem canvasu
@@ -771,24 +777,105 @@ export class VideoRecorder {
     }
 
     // =======================================================================
-    // RASTERIZACE — převod SVG na JPEG blob
+    // HLAVNÍ METODA PRO ZÁZNAM A ENKÓDOVÁNÍ FRAMŮ
     // =======================================================================
 
     /**
-     * Rasterizuje připravené SVG na JPEG blob.
-     * Používá Blob URL pro načtení SVG a pak kreslí na canvas.
+     * Hlavní metoda pro export videa.
+     * Kombinuje rasterizaci a enkódování do jednoho průchodu.
+     * Framy se posílají přímo do encoderu bez mezitřídy do IndexedDB.
      */
-    private async rasterize(): Promise<Blob | null> {
+    private async recordAndEncode(): Promise<Blob> {
+
+        // === PŘÍPRAVA EXPORTU ===
+        await this.prepareExport();
+
+        // === PŘÍPRAVA ENCODERU ===
+        const output = new Output({
+            target: new BufferTarget(),
+            format: new Mp4OutputFormat()
+        });
+
+        console.log("[VideoRecorder] Supported video codecs:", output.format.getSupportedVideoCodecs());
+
+        const source = new VideoSampleSource({
+            codec: "vp9",
+            bitrate: this.app.renderProps.mp4Quality
+        });
+
+        output.addVideoTrack(source);
+        output.start();
+
+        const totalFrames = this.file.timeline.frames.length;
+        console.log("[VideoRecorder] Starting recording & encoding. Total frames:", totalFrames);
+
+        let frameCount = 0;
+
+        // === HLAVNÍ SMYČKA - RASTERIZACE + ENKÓDOVÁNÍ ===
+        for (const frame of this.file.timeline.frames) {
+
+            // 1. Nastav čas a překresli thermal data
+            await this.file.timeline.setRelativeTime(frame.relative);
+            await this.file.draw();
+
+            // 2. Aktualizuj dynamický obsah v klonu
+            this.updateDynamicContent();
+
+            // 3. Rasterizuj do muxing canvasu (přímo, bez JPEG mezikroku)
+            const success = await this.rasterizeToCanvas();
+
+            if (!success) {
+                console.warn("[VideoRecorder] Failed to rasterize frame:", frame.index);
+                continue;
+            }
+
+            // 4. Vytvoř VideoFrame přímo z canvasu a pošli do encoderu
+            const videoFrame = new VideoFrame(
+                this.getMuxingCanvas(),
+                {
+                    timestamp: frame.relative * 1000 // ms → μs
+                }
+            );
+
+            const sample = new VideoSample(videoFrame);
+
+            await source.add(sample, {
+                keyFrame: frameCount % 30 === 0 // Keyframe každých 30 framů
+            });
+
+            videoFrame.close();
+            sample.close();
+
+            frameCount++;
+            if (frameCount % 10 === 0) {
+                console.log(`[VideoRecorder] Progress: ${frameCount}/${totalFrames} frames`);
+            }
+        }
+
+        console.log("[VideoRecorder] Recording & encoding complete.");
+
+        // === FINALIZACE ===
+        source.close();
+        await output.finalize();
+
+        return new Blob([output.target.buffer!], { type: "video/mp4" });
+    }
+
+    /**
+     * Rasterizuje připravené SVG přímo do muxing canvasu.
+     * Vrací true při úspěchu, false při chybě.
+     */
+    private async rasterizeToCanvas(): Promise<boolean> {
 
         if (!this.preparedSvgWrapper) {
             console.error("[VideoRecorder] SVG wrapper not prepared!");
-            return null;
+            return false;
         }
 
         // Serializuj SVG
         const serialized = new XMLSerializer().serializeToString(this.preparedSvgWrapper);
         
-        // Vytvoř Blob URL místo data URI (může pomoci s některými prohlížeči)
+        // Vytvoř Blob URL
         const svgBlob = new Blob([serialized], { type: "image/svg+xml;charset=utf-8" });
         const blobUrl = URL.createObjectURL(svgBlob);
 
@@ -806,7 +893,7 @@ export class VideoRecorder {
                 img.src = blobUrl;
             });
 
-            // Nakresli na canvas
+            // Nakresli na muxing canvas
             const canvas = this.getMuxingCanvas();
             canvas.width = this.exportWidth;
             canvas.height = this.exportHeight;
@@ -815,184 +902,82 @@ export class VideoRecorder {
             ctx.clearRect(0, 0, this.exportWidth, this.exportHeight);
             ctx.drawImage(img, 0, 0);
 
-            // Převeď na JPEG blob
-            return canvas.convertToBlob({
-                type: "image/jpeg",
-                quality: this.app.renderProps.jpegQuality
-            });
+            return true;
 
+        } catch (e) {
+            console.error("[VideoRecorder] Rasterization error:", e);
+            return false;
         } finally {
-            // Uvolni Blob URL
             URL.revokeObjectURL(blobUrl);
         }
     }
 
-    // =======================================================================
-    // HLAVNÍ METODA PRO ZÁZNAM FRAMŮ
-    // =======================================================================
-
-    private async recordFrames(
-        storage: VideoRecorderStorage
-    ): Promise<void> {
-
-        // === PŘÍPRAVA (pouze jednou!) ===
-        await this.prepareExport();
-
-        const totalFrames = this.file.timeline.frames.length;
-        console.log("[VideoRecorder] Starting frame recording. Total frames:", totalFrames);
-
-        let frameCount = 0;
-
-        for (const frame of this.file.timeline.frames) {
-
-            // Nastav čas a překresli thermal data
-            await this.file.timeline.setRelativeTime(frame.relative);
-            await this.file.draw();
-
-            // === AKTUALIZACE (pouze dynamický obsah!) ===
-            this.updateDynamicContent();
-
-            // === RASTERIZACE ===
-            const blob = await this.rasterize();
-
-            if (blob) {
-                await storage.put(frame.index, frame.relative, blob);
-            } else {
-                console.warn("[VideoRecorder] Failed to rasterize frame:", frame.index);
-            }
-
-            frameCount++;
-            if (frameCount % 10 === 0) {
-                console.log(`[VideoRecorder] Progress: ${frameCount}/${totalFrames} frames`);
-            }
-        }
-
-        console.log("[VideoRecorder] Frame recording complete.");
-    }
-
     /**
-     * Vyčistí připravené struktury po dokončení exportu
+     * Vyčistí připravené struktury po dokončení exportu.
+     * Důležité pro uvolnění paměti a možnost opakovaného exportu.
      */
     private cleanup(): void {
-        this.preparedSvgWrapper = undefined;
-        this.preparedClone = undefined;
+        
+        // Odstraň data-canvas-index atributy z originálních canvasů
+        for (const origCanvas of this.canvasToImageMap.keys()) {
+            origCanvas.removeAttribute("data-canvas-index");
+        }
+        
+        // Odstraň data-dynamic-index atributy z originálních elementů
+        for (const origEl of this.dynamicElementMap.keys()) {
+            origEl.removeAttribute("data-dynamic-index");
+        }
+        
+        // Vyčisti všechny mapy (uvolní reference)
         this.canvasToImageMap.clear();
         this.dynamicElementMap.clear();
         this.dynamicSvgMap.clear();
         this.dynamicStyleMap.clear();
         this.rerenderMap.clear();
+        
+        // Uvolni SVG wrapper a klon (GC je sebere)
+        this.preparedSvgWrapper = undefined;
+        this.preparedClone = undefined;
+        
+        // Uvolni muxing canvas
         this.muxingCanvas = undefined;
         this.muxingContext = undefined;
+        
+        // Reset rozměrů
+        this.exportWidth = 0;
+        this.exportHeight = 0;
+        
+        console.log("[VideoRecorder] Cleanup complete.");
     }
 
-
-    private async composeVideo(
-        storage: VideoRecorderStorage
-    ): Promise<void> {
-
-        const output = new Output({
-            target: new BufferTarget(), // stored in memory
-            format: new Mp4OutputFormat()
-        });
-
-        const getSupportedVideoCodecs = output.format.getSupportedVideoCodecs();
-
-        console.log("Supported video codecs:", getSupportedVideoCodecs);
-
-        const codec = await getFirstEncodableVideoCodec(
-            output.format.getSupportedVideoCodecs()
-        );
-
-        console.log("selected codec:", codec);
-
-        const source = new VideoSampleSource({
-            codec: "vp9",//codec!,
-            bitrate: this.app.renderProps.mp4Quality
-        });
-
-        output.addVideoTrack(source);
-
-        output.start();
-
-        const canvas = this.getMuxingCanvas();
-        const width = canvas.width;
-        const height = canvas.height;
-
-        const context = this.getMuxingContext();
-
-        await storage.forEveryRecord(async (record) => {
-
-            const blob = new Blob([record.buffer], { type: record.type });
-
-            const bitmap = await createImageBitmap(blob);
-            context.clearRect(0, 0, width, height);
-            context.drawImage(bitmap, 0, 0);
-
-            const videoFrame = new VideoFrame(
-                canvas,
-                {
-                    timestamp: record.timeInRelativeMs * 1000
-                }
-            );
-
-            const sample = new VideoSample(
-                videoFrame
-            );
-
-            await source.add(sample, {
-                keyFrame: true
-            });
-
-            videoFrame.close();
-            sample.close();
-            bitmap.close();
-
-        });
-
-        source.close();
-
-        await output.finalize();
-
-        const blob = new Blob([output.target.buffer!], { type: "video/mp4" });
-
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "exported-video.mp4";
-        a.click();
-        a.remove();
-
-
-
-    }
-
-
-
-
+    /**
+     * Hlavní veřejná metoda pro spuštění exportu videa.
+     */
     public async capture(): Promise<void> {
 
         const start = performance.now();
 
-        const storage = new VideoRecorderStorage(this.file);
-
         try {
-            await this.recordFrames(storage);
-
-            const mid = performance.now();
-            console.log("[VideoRecorder] Recording time:", mid - start, "ms");
-
-            await this.composeVideo(storage);
+            const videoBlob = await this.recordAndEncode();
 
             const end = performance.now();
-            console.log("[VideoRecorder] Composing time:", end - mid, "ms");
+            console.log("[VideoRecorder] Total export time:", end - start, "ms");
 
-            await storage.clear();
-
-            const clear = performance.now();
-            console.log("[VideoRecorder] Clear time:", clear - end, "ms");
-            console.log("[VideoRecorder] Total time:", clear - start, "ms");
+            // Stáhni video
+            const blobUrl = URL.createObjectURL(videoBlob);
+            const a = document.createElement("a");
+            a.href = blobUrl;
+            a.download = this.app.renderProps.fileName || "exported-video.mp4";
+            a.click();
+            a.remove();
+            
+            // Uvolni blob URL po kliknutí (s malým zpožděním pro jistotu)
+            setTimeout(() => {
+                URL.revokeObjectURL(blobUrl);
+                console.log("[VideoRecorder] Video blob URL revoked.");
+            }, 1000);
 
         } finally {
-            // Vždy vyčisti připravené struktury
             this.cleanup();
         }
     }
