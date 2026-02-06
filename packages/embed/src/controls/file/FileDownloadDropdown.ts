@@ -93,17 +93,8 @@ export class FileDownloadButton extends FileConsumer {
                 </thermal-btn>
 
                     ${this.file.timeline.isSequence
-                ? html`<thermal-btn 
-                        slot="option"
-                        @click="${() => {
-                            this.recordingGraphRef.value?.setOpen();
-                            this.dropdownRef.value?.setClose();
-                        }}"
-                        pre="Video"
-                    >
-                        ${t(T.convertentiresequencetovideo)}
-                    </thermal-btn>
-                    <file-video-export-button label="video" slot="option"></file-video-export-button>`
+                ? html`
+                    <file-video-export-button pre="mp4" label="Převeďte celou sekvenci do videa" slot="option"></file-video-export-button>`
                 : nothing
             }
 

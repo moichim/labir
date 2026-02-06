@@ -179,6 +179,8 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
 
                 background: var( --thermal-slate );
 
+                border-radius: var( --thermal-radius );
+
                 & > * {
                 
                 }
@@ -196,6 +198,8 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                     flex-direction: column;
                     align-items: flex-end;
                     gap: 0.5em;
+
+                    
 
                     & > * {
                         background: var( --thermal-slate-light );

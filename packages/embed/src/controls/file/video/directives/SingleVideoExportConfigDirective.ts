@@ -306,6 +306,8 @@ export class SingleVideoExportConfigDirective extends Directive {
                 background: var( --thermal-background );
                 padding: 1em;
 
+                border-radius: var( --thermal-radius );
+
                 thermal-slot {
                     box-sizing: border-box;
                 }
