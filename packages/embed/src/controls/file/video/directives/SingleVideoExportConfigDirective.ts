@@ -24,13 +24,13 @@ export class SingleVideoExportConfigDirective extends Directive {
         value: string,
         onChange: (value: string) => void
     ): unknown {
-        return html`<div class="export-config-number">
+        return html`<div class="export-config-field export-config-field--text">
 
-            <div class="export-config-number--label">
+            <div class="export-config-field--label">
                 <label>${label}</label>
             </div>
 
-            <div class="export-config-number--value">
+            <div class="export-config-field--value">
 
                 <div class="">
                     <input
@@ -76,13 +76,13 @@ export class SingleVideoExportConfigDirective extends Directive {
         max?: number,
         step?: number
     ): unknown {
-        return html`<div class="export-config-number">
+        return html`<div class="export-config-field">
 
-            <div class="export-config-number--label">
+            <div class="export-config-field--label">
                 <label>${label}</label>
             </div>
 
-            <div class="export-config-number--value">
+            <div class="export-config-field--value">
 
                 <div class="">
                     <input
@@ -315,11 +315,11 @@ export class SingleVideoExportConfigDirective extends Directive {
             }
         
 
-            .export-config-number {
+            .export-config-field {
 
                 &:hover,
                 &:focus-within {
-                    .export-config-number--label {
+                    .export-config-field--label {
                         color: var( --thermal-foreground );
                         &::after {
                             background: var( --thermal-foreground );
@@ -327,7 +327,7 @@ export class SingleVideoExportConfigDirective extends Directive {
                     }
                 }
                 
-                .export-config-number--label {
+                .export-config-field--label {
 
                     margin: 0px 0px 0.5em;
                     padding: 0px;
@@ -348,14 +348,13 @@ export class SingleVideoExportConfigDirective extends Directive {
 
                 }
 
-                .export-config-number--value {
+                .export-config-field--value {
 
                     input {
                         border: var( --thermal-slate-light ) solid 1px;
                         text-align: right;
                         font-family: var( --thermal-ff );
                         padding: .3em .1em .3em .3em;
-
                         width: 5em;
                         display: inline-block;
                     }
@@ -364,6 +363,13 @@ export class SingleVideoExportConfigDirective extends Directive {
                         font-size: 0.7em;
                     }
 
+                }
+
+                &.export-config-field--text {
+                    .export-config-field--value input {
+                        width: 300px;
+                        text-align: left;
+                    }
                 }
             
             }
