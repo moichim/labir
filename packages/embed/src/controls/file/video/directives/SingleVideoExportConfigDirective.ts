@@ -295,10 +295,6 @@ export class SingleVideoExportConfigDirective extends Directive {
 
             width: 100%;
 
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 1em;
-
             .export-bar-part {
             }
 
@@ -321,7 +317,7 @@ export class SingleVideoExportConfigDirective extends Directive {
 
             .export-config-number {
 
-                 &:hover,
+                &:hover,
                 &:focus-within {
                     .export-config-number--label {
                         color: var( --thermal-foreground );
@@ -384,10 +380,6 @@ export class SingleVideoExportConfigDirective extends Directive {
 
             <div class="export-bar-part export-bar-part--config">
                 ${this.renderConfigHeader(element)}
-            </div>
-
-            <div class="export-bar-part export-bar-part--actions">
-                ${this.renderExportButton(element)}
             </div>
         
         </div>`;

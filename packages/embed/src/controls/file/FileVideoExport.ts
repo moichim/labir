@@ -7,6 +7,7 @@ import { BaseElement } from "../../hierarchy/BaseElement";
 import { BtnSizes, BtnVariants } from "../../ui/Btn";
 import { ThermalDialog } from "../../ui/Dialog";
 import {when} from 'lit/directives/when.js';
+import { FileVideoExportPanel } from "./video/FileVideoExportPanel";
 
 @customElement("file-video-export-button")
 export class FileVideoExport extends BaseElement {
@@ -36,6 +37,7 @@ export class FileVideoExport extends BaseElement {
     public pre?: String;
 
     private dialogRef: Ref<ThermalDialog> = createRef();
+    private panelRef?: Ref<FileVideoExportPanel> = createRef();
 
     protected slug: string = this.UUID + "__file-export";
 
@@ -56,7 +58,7 @@ export class FileVideoExport extends BaseElement {
 
         const cnt = when(
             this.isOpen,
-            () => html`<file-video-export-panel></file-video-export-panel>`,
+            () => html`<file-video-export-panel ${ref(this.panelRef)}></file-video-export-panel>`,
             () => nothing
         );
 
@@ -75,6 +77,17 @@ export class FileVideoExport extends BaseElement {
                 ${cnt}
 
             </div>
+
+            <thermal-btn
+                variant="primary"
+                slot="button"
+                @click=${() => {
+
+                    if ( this.panelRef?.value ) {
+                        ( this.panelRef?.value as FileVideoExportPanel).record();
+                    }
+                }}
+            >Exportovat video</thermal-btn>
         
         </thermal-dialog>`;
 

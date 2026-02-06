@@ -3,7 +3,8 @@ import { directive, Directive } from "lit/directive.js";
 import { classMap } from "lit/directives/class-map.js";
 import {StyleInfo, styleMap} from 'lit/directives/style-map.js';
 import { ref, Ref } from "lit/directives/ref.js";
-import { SingleVideoRenderProps } from "../ISingleVideoExportElement";
+import { RecordingPhase, SingleVideoRenderProps } from "../ISingleVideoExportElement";
+import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
 
 export class SingleVideoExportLayoutDirective extends Directive {
 
@@ -113,24 +114,27 @@ export class SingleVideoExportLayoutDirective extends Directive {
                     right: 0;
                 }
 
+                --thermal-export-crop-border-width: 3px;
+                --thermal-export-border-color: var( --thermal-background );
+
                 &.crop-t.crop-l {
-                    border-bottom: 1px solid var(--thermal-slate);
-                    border-right: 1px solid var(--thermal-slate);
+                    border-bottom: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-right: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
                 }
 
                 &.crop-t.crop-r {
-                    border-bottom: 1px solid var(--thermal-slate);
-                    border-left: 1px solid var(--thermal-slate);
+                    border-bottom: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-left: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
                 }
 
                 &.crop-b.crop-l {
-                    border-top: 1px solid var(--thermal-slate);
-                    border-right: 1px solid var(--thermal-slate);
+                    border-top: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-right: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
                 }
 
                 &.crop-b.crop-r {
-                    border-top: 1px solid var(--thermal-slate);
-                    border-left: 1px solid var(--thermal-slate);
+                    border-top: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
+                    border-left: var(--thermal-export-crop-border-width) solid var(--thermal-export-border-color);
                 }
             }
 
@@ -153,7 +157,12 @@ export class SingleVideoExportLayoutDirective extends Directive {
                 align-items: stretch;
                 justify-content: stretch;
 
+                
+
                 span {
+
+                    font-size: 3em;
+                    font-weight: normal !important;
 
                     width: 100%;
                     padding: 1em;
@@ -295,9 +304,11 @@ export class SingleVideoExportLayoutDirective extends Directive {
     }
     
     render(
-        reference: Ref<HTMLElement>,
-        props: SingleVideoRenderProps
+        app: AbstractSingleVideoExport
     ): unknown {
+
+        const reference = app.exportedDivRef;
+        const props = app.renderProps;
 
         if ( reference.value ) {
             this.initObserver( reference.value );
@@ -318,8 +329,13 @@ export class SingleVideoExportLayoutDirective extends Directive {
 
         }
 
+        // Při exportu použij vždy scale 1
+        const isExporting = app.recordingPhase !== RecordingPhase.IDLE;
+        const effectiveScale = isExporting ? 1 : props.previewScale;
+
         const containerStyle: StyleInfo = {
-            width: `calc( ${props.exportFrameWidth}px + var( --thermal-crop ) * 2 )`
+            width: `calc( ${props.exportFrameWidth}px + var( --thermal-crop ) * 2 )`,
+            scale: String( effectiveScale )
         };
 
         const contentStyle: StyleInfo = {
@@ -346,27 +362,29 @@ export class SingleVideoExportLayoutDirective extends Directive {
             <b class="crop crop-b crop-l"></b>
             <b class="crop crop-b crop-r"></b>
 
-                    <section 
-                        ${ref(reference)}
-                        class="export-element-content" 
-                        style=${styleMap(contentStyle)}
-                    >
+            <section 
+                ${ref(reference)}
+                class="export-element-content" 
+                style=${styleMap(contentStyle)}
+            >
 
-                        <div class="export-element-content--main">
-                            ${ mainContent }
-                        </div>
+                <div class="export-element-content--main">
+                    ${ mainContent }
+                </div>
 
-                        ${analyses}
+                ${analyses}
 
-                    </section>
+            </section>
 
             <aside class="export-overlay">
                 <span>
-                    <strong>Náhled videa</strong>
+                    <strong>Náhled</strong>
                 </span>
             </aside>
 
-        </main>`;
+        </main>
+        
+        `;
 
 
     }

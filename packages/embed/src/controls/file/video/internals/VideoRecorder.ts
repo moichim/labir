@@ -1,6 +1,7 @@
 import { Instance } from "@labirthermal/core";
 import { BufferTarget, Mp4OutputFormat, Output, VideoSample, VideoSampleSource } from "mediabunny";
 import { AbstractSingleVideoExport } from "../AbstractSingleVideoExport";
+import { RecordingPhase } from "../ISingleVideoExportElement";
 
 /**
  * Atribut pro označení dynamických elementů, které se mění mezi framy.
@@ -787,6 +788,8 @@ export class VideoRecorder {
      */
     private async recordAndEncode(): Promise<Blob> {
 
+        this.app.setRecordingPhase( RecordingPhase.RECORDING );
+
         // === PŘÍPRAVA EXPORTU ===
         await this.prepareExport();
 
@@ -850,13 +853,22 @@ export class VideoRecorder {
             if (frameCount % 10 === 0) {
                 console.log(`[VideoRecorder] Progress: ${frameCount}/${totalFrames} frames`);
             }
+
+            const percent = (frameCount / totalFrames) * 100;
+
+            this.app.setRecordingPhaseProgress( percent );
+
         }
+
+        this.app.setRecordingPhase( RecordingPhase.ENCODING );
 
         console.log("[VideoRecorder] Recording & encoding complete.");
 
         // === FINALIZACE ===
         source.close();
         await output.finalize();
+
+        this.app.setRecordingPhase( RecordingPhase.IDLE );
 
         return new Blob([output.target.buffer!], { type: "video/mp4" });
     }
@@ -953,7 +965,16 @@ export class VideoRecorder {
     /**
      * Hlavní veřejná metoda pro spuštění exportu videa.
      */
-    public async capture(): Promise<void> {
+    public async captureVideo(): Promise<void> {
+
+        // Store the initial preview scale
+        const initialScale = this.app.renderProps.previewScale;
+
+        // Set the scale to 1 for export
+        this.app.setPreviewScale(1);
+
+        // Allow scale change to take effect
+        await Promise.resolve(); 
 
         const start = performance.now();
 
@@ -983,6 +1004,7 @@ export class VideoRecorder {
 
         } finally {
             this.cleanup();
+            this.app.setPreviewScale(initialScale);
         }
     }
 

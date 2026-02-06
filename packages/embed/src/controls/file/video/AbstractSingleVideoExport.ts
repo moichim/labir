@@ -79,17 +79,40 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         fileName: "exported-video",
         mp4Quality: QUALITY_VERY_HIGH,
 
-        skin: VideoExportSkin.LIGHT
+        skin: VideoExportSkin.LIGHT,
+
+        previewScale: 0.45,
+        autoScale: true,
+    }
+
+    /** Voláno při změně vlastností ovlivňujících layout exportu.
+     *  Lze přepsat v potomcích pro reakci na změny (např. přepočet autoScale).
+     */
+    protected onLayoutAffectingPropertyChanged(): void {
+        // Prázdná implementace - přepíše se v potomcích
     }
 
     public setHasHistogram(value: boolean): void {
         this.renderProps.hasHistogram = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setHasThermalScale(value: boolean): void {
         this.renderProps.hasThermalScale = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
+    }
+
+    public setPreviewScale(value: number): void {
+        this.renderProps.previewScale = value;
+        this.requestUpdate();
+    }
+
+    public setAutoScale(value: boolean): void {
+        this.renderProps.autoScale = value;
+        this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setHasAnalysis(value: boolean): void {
@@ -114,36 +137,43 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         }
 
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setHasTimeline(value: boolean): void {
         this.renderProps.hasTimeline = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setIsVertical(value: boolean): void {
         this.renderProps.isVertical = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setExportFramePadding(value: number): void {
         this.renderProps.exportFramePadding = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setExportFrameGap(value: number): void {
         this.renderProps.exportFrameGap = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setExportFrameWidth(value: number): void {
         this.renderProps.exportFrameWidth = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setExportGraphHeight(value: number): void {
         this.renderProps.exportGraphHeight = value;
         this.requestUpdate();
+        this.onLayoutAffectingPropertyChanged();
     }
 
     public setFileName(value: string): void {
@@ -243,7 +273,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
         const recorder = new VideoRecorder( this );
 
-        await recorder.capture();
+        await recorder.captureVideo();
 
 
     }

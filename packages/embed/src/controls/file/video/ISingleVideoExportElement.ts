@@ -15,6 +15,9 @@ export type SingleVideoRenderProps = {
     hasTimeline: boolean,
     isVertical: boolean,
 
+    previewScale: number;
+    autoScale: boolean;
+
     exportFrameWidth: number,
     exportFramePadding: number,
     exportFrameGap: number,
@@ -60,5 +63,8 @@ export interface ISingleVideoExportElement {
     setFileName( value: string ): void;
     setMp4Quality( value: Quality ): void;
     setSkin( value: VideoExportSkin ): void;
+
+    setPreviewScale( value: number ): void;
+    setAutoScale( value: boolean ): void;
 
 }
