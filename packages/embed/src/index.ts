@@ -92,6 +92,9 @@ import "./hierarchy/mirrors/GroupMirror";
 import "./hierarchy/mirrors/ManagerMirror";
 import "./hierarchy/mirrors/RegistryMirror";
 
+// 2.2. FileCopy
+import "./hierarchy/providers/FileCopy";
+
 
 // 3. Manager controls
 import "./controls/manager/GraphSmoothSwitch";

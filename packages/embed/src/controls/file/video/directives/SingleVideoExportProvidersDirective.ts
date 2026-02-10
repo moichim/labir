@@ -50,20 +50,12 @@ class SingleVideoExportDirective extends Directive {
         }
 
         return html`
-        <registry-provider
-                slug=${app.slug}
-                autoclear="true"
-                style="display: contents;"
-                .forceNew=${true}
-            >
-                <group-provider
-                    slug=${app.slug}
-                    autoclear="true"
-                    style="display: contents;"
-                >
-                    ${this.renderWrappedWithFileProvider(app, content )}
-                </group-provider>
-            </registry-provider>`;
+
+        <file-copy .originalFile=${app.outerFile}>
+                ${this.renderWrappedWithFileProvider(app, content )}
+        </file-copy>
+            
+            `;
 
     }
 

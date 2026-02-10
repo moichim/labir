@@ -4778,6 +4778,8 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.canvas.width = this.instance.width;
     this.canvas.height = this.instance.height;
     this.canvas.setAttribute("data-video-canvas", "");
+    this.canvas.setAttribute("crossorigin", "anonymous");
+    this.canvas.setAttribute("crossOrigin", "Anonymous");
     this.container.appendChild(this.canvas);
     this.opacity = this.instance.group.registry.opacity.value;
   }

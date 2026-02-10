@@ -139,11 +139,14 @@ export class VideoRecorder {
         console.log("[VideoRecorder] Removing ignored elements...");
         this.removeIgnoredElements(clone);
 
-        console.log( clone );
-
         // 3. Embeduj obrázky jako data URI
         console.log("[VideoRecorder] Embedding images...");
         await this.embedImages(clone);
+
+        // 3.5. Odstran Lit komentare a oprav xmlns
+        console.log("[VideoRecorder] Cleaning up clone...");
+        this.removeLitComments(clone);
+        this.ensureXmlnsAttributes(clone);
 
         // 4. Vytvoř mapování canvasů (všechny canvasy automaticky)
         console.log("[VideoRecorder] Mapping canvases...");
@@ -402,6 +405,35 @@ export class VideoRecorder {
             }
         }
 
+        // background / background-image
+        const bgElements = element.querySelectorAll<HTMLElement>("*");
+        for (const el of bgElements) {
+            const bg = el.style.background || "";
+            const bgImg = el.style.backgroundImage || "";
+            const combined = [bg, bgImg].filter(Boolean).join(" ");
+            if (!combined.includes("url(")) continue;
+
+            const urls = Array.from(combined.matchAll(/url\((['"]?)(.*?)\1\)/g))
+                .map(m => m[2])
+                .filter(u => u && !u.startsWith("data:"));
+
+            if (urls.length === 0) continue;
+
+            imagePromises.push((async () => {
+                let newBg = bg;
+                let newBgImg = bgImg;
+
+                for (const url of urls) {
+                    const dataUri = await this.fetchAsDataUri(url);
+                    newBg = newBg.replaceAll(url, dataUri);
+                    newBgImg = newBgImg.replaceAll(url, dataUri);
+                }
+
+                if (bg) el.style.background = newBg;
+                if (bgImg) el.style.backgroundImage = newBgImg;
+            })().catch(e => console.warn("[VideoRecorder] Failed to embed background:", e)));
+        }
+
         await Promise.all(imagePromises);
     }
 
@@ -466,13 +498,17 @@ export class VideoRecorder {
             img.setAttribute("data-canvas-index", index);
             
             // Inicializuj s aktuálním obsahem canvasu
+            // Diagnostic: check if canvas is tainted before getting dataURL
             try {
                 const dataUrl = this.getCanvasDataUrl(origCanvasEl);
                 if (dataUrl) {
                     img.src = dataUrl;
+                    console.log(`[VideoRecorder] Canvas ${index} converted to data URL (${dataUrl.length} chars)`);
+                } else {
+                    console.warn(`[VideoRecorder][taint] Canvas ${index} returned null dataURL - possibly tainted!`, origCanvasEl);
                 }
             } catch (e) {
-                console.warn("[VideoRecorder] Failed to get canvas data:", e);
+                console.warn(`[VideoRecorder][taint] Canvas ${index} TAINTED - cannot get dataURL:`, e, origCanvasEl);
             }
             
             // Nahraď canvas za img v klonu
@@ -709,6 +745,58 @@ export class VideoRecorder {
         }
     }
 
+
+
+    /**
+     * Odstraní Lit framework komentáře z klonu.
+     * Tyto komentáře mohou způsobovat problémy v SVG foreignObject.
+     */
+    private removeLitComments(element: Element): void {
+        const walker = document.createTreeWalker(
+            element,
+            NodeFilter.SHOW_COMMENT,
+            null
+        );
+        
+        const commentsToRemove: Comment[] = [];
+        let node: Comment | null;
+        
+        while ((node = walker.nextNode() as Comment | null)) {
+            // Lit používá komentáře jako ?lit$, <!---->  atd.
+            commentsToRemove.push(node);
+        }
+        
+        for (const comment of commentsToRemove) {
+            comment.parentNode?.removeChild(comment);
+        }
+    }
+
+    /**
+     * Zkontroluje a opraví xmlns atributy v klonu pro foreignObject.
+     * Všechny HTML elementy musí mít xmlns="http://www.w3.org/1999/xhtml"
+     */
+    private ensureXmlnsAttributes(element: Element): void {
+        const XHTML_NS = "http://www.w3.org/1999/xhtml";
+        
+        const checkAndFix = (el: Element) => {
+            if (el instanceof HTMLElement) {
+                const currentXmlns = el.getAttribute("xmlns");
+                
+                if (!currentXmlns || currentXmlns !== XHTML_NS) {
+                    el.setAttribute("xmlns", XHTML_NS);
+                }
+            }
+            
+            for (const child of el.children) {
+                checkAndFix(child);
+            }
+        };
+        
+        checkAndFix(element);
+    }
+
+
+
     /**
      * Získá data URL z canvasu - podporuje i WebGL kontexty
      */
@@ -721,16 +809,26 @@ export class VideoRecorder {
 
         if (webgl2 || webgl) {
             // WebGL canvas - musíme číst pixels a překreslit na 2D canvas
-            return this.webglCanvasToDataUrl(canvas, webgl2 || webgl!);
+            try {
+                return this.webglCanvasToDataUrl(canvas, webgl2 || webgl!);
+            } catch (e) {
+                console.warn("[VideoRecorder] WebGL canvas unreadable:", e);
+                return null;
+            }
         } else if (ctx2d) {
             // Standardní 2D canvas
-            return canvas.toDataURL("image/png");
+            try {
+                return canvas.toDataURL("image/png");
+            } catch (e) {
+                console.warn("[VideoRecorder] 2D canvas unreadable:", e);
+                return null;
+            }
         } else {
             // Zkus přímo toDataURL (může fungovat pro některé případy)
             try {
                 return canvas.toDataURL("image/png");
             } catch (e) {
-                console.warn("[VideoRecorder] Cannot get canvas data:", e);
+                console.warn("[VideoRecorder] Canvas unreadable:", e);
                 return null;
             }
         }
@@ -887,13 +985,14 @@ export class VideoRecorder {
         // Serializuj SVG
         const serialized = new XMLSerializer().serializeToString(this.preparedSvgWrapper);
         
-        // Vytvoř Blob URL
-        const svgBlob = new Blob([serialized], { type: "image/svg+xml;charset=utf-8" });
-        const blobUrl = URL.createObjectURL(svgBlob);
+        // Vytvoř data: URL místo Blob URL (může obejít některé security checky)
+        const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(serialized)}`;
 
         try {
-            // Načti jako Image
-            const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+            // Načti jako Image s data: URL
+            let imageToDraw: HTMLImageElement;
+            
+            imageToDraw = await new Promise<HTMLImageElement>((resolve, reject) => {
                 const img = new Image();
                 img.width = this.exportWidth;
                 img.height = this.exportHeight;
@@ -902,7 +1001,7 @@ export class VideoRecorder {
                     console.error("[VideoRecorder] Image load error:", e);
                     reject(new Error(`Failed to load SVG image`));
                 };
-                img.src = blobUrl;
+                img.src = dataUrl;
             });
 
             // Nakresli na muxing canvas
@@ -912,15 +1011,13 @@ export class VideoRecorder {
 
             const ctx = this.getMuxingContext();
             ctx.clearRect(0, 0, this.exportWidth, this.exportHeight);
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(imageToDraw, 0, 0);
 
             return true;
 
         } catch (e) {
             console.error("[VideoRecorder] Rasterization error:", e);
             return false;
-        } finally {
-            URL.revokeObjectURL(blobUrl);
         }
     }
 
