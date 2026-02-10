@@ -6591,7 +6591,6 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   /** Create copy of the self so that the */
   cloneForInstance() {
-    return this;
     return new _ThermalFileReader(
       this.service,
       this.buffer,

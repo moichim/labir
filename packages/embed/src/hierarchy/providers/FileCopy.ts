@@ -1,13 +1,12 @@
-import { Instance } from "@labirthermal/core";
+import { Instance, PlaybackSpeeds, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { consume, provide } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileContext, fileProviderContext } from "./context/FileContexts";
+import { fileContext, fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
 import { GroupProviderElement } from "./GroupProvider";
 import { RegistryProviderElement } from "./RegistryProvider";
-import { ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 
 @customElement("file-copy")
 export class FileCopyElement extends AbstractFileProvider {
@@ -19,20 +18,55 @@ export class FileCopyElement extends AbstractFileProvider {
     @consume({ context: fileContext, subscribe: true })
     private originalFile?: Instance;
 
-    private registryRef: Ref<RegistryProviderElement> = createRef();
-    private groupRef: Ref<GroupProviderElement> = createRef();
 
-    private get slug() { return "file-copy__" + this.UUID };
+
+
+    @property({ type: Number, reflect: true, attribute: true })
+    @provide({ context: fileMsContext })
+    public ms: number = 0;
+
+    @property({ type: Number, reflect: true, attribute: true })
+    @provide({ context: playbackSpeedContext })
+    public speed?: PlaybackSpeeds = 1;
+
+
+    @property({ type: String, reflect: true, attribute: true })
+    @provide({ context: recordingContext })
+    public recording: boolean = false;
+
+    @property({ type: String, reflect: true, attribute: true })
+    @provide({ context: playingContext })
+    public playing: boolean = false;
+
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis1?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis2?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis3?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis4?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis5?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis6?: string;
+
+    @property({ type: String, reflect: true, attribute: true })
+    public analysis7?: string;
+
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        if (this.originalFile && this.groupRef.value && this.registryRef.value) {
+        if (this.originalFile) {;
 
-            const group = this.groupRef.value!.group;
-            const registry = this.registryRef.value!.registry;
-
-            this.processFileCopy(this.originalFile!, group, registry);
+            this.processFileCopy(this.originalFile!);
 
         }
 
@@ -40,37 +74,97 @@ export class FileCopyElement extends AbstractFileProvider {
     }
 
     private async processFileCopy(
-        originalFile: Instance,
-        localGroup: ThermalGroup,
-        localRegistry: ThermalRegistry
+        originalFile: Instance
     ) {
+
+        const originalRange = originalFile.group.registry.range.value;
 
 
         const originalGroup = originalFile.group;
         const originalRegistry = originalGroup.registry;
 
-        this.log("processing file copy", {
-            file: this.originalFile,
-            groupRef: this.groupRef.value,
-            registryRef: this.registryRef.value,
-        });
+        // localRegistryProvider.setAttribute( "palette", originalRegistry.palette.value.toString() );
+
+        // localRegistry.palette.setPalette( originalRegistry.palette.value );
+
+        if ( originalRegistry.range.value ) {
+
+            // localRegistryProvider.setAttribute( "from", originalRegistry.range.value.from.toString() );
+            // localRegistryProvider.setAttribute( "to", originalRegistry.range.value.to.toString() );
+
+            // localRegistry.range.imposeRange( originalRegistry.range.value );
+            
+
+        }
 
         // Migrate the registry properties
-        localRegistry.palette.setPalette(originalRegistry.palette.value);
-        localRegistry.range.imposeRange(originalRegistry.range.value);
+        // localRegistryProvider.palette.setPalette(originalRegistry.palette.value);
+        // localRegistryProvider.range.imposeRange(originalRegistry.range.value);
 
         // Create the copy of the file
 
-        const copiedFile = await originalFile.reader.createInstance(localGroup);
+        const copiedFile = await originalFile.reader.createInstance(this.group);
 
-        copiedFile.setPreferWebGl( false );
+        // copiedFile.setPreferWebGl( false );
 
-        localRegistry.postLoadedProcessing();
+        copiedFile.group.registry.postLoadedProcessing();
+
+
+        if (  originalRange ) {
+            copiedFile.group.registry.range.imposeRange( originalRange );
+        }
+        
+
+        this.onSuccess.call( copiedFile );
 
         this.recieveInstance(copiedFile);
 
-        copiedFile.switchToCPURenderer();
+        
 
+        setTimeout(() => {
+            try {
+                
+                copiedFile.draw();
+            } catch (e) {
+                console.warn("[file-copy] redraw failed for copied instance", e);
+            }
+
+        }, 0);
+
+        // copiedFile.switchToCPURenderer();
+
+    }
+
+    private syncSlot(index: number)
+    {
+
+        if ( this.originalFile === undefined || this.file === undefined ) {
+            console.warn( "cannot sync slot for file copy, original or copy is missing" );
+            return;
+        }
+
+            const originalSlot = this.originalFile.slots.getSlot(index);
+
+            const serialized = originalSlot?.serialized;
+
+            if ( serialized ) {
+                this.file.slots.createAnalysisFromSerialized( serialized, index );
+            }
+            
+
+    }
+
+
+    public copyAnalysesFromParent() {
+
+        for(  let i = 0; i < 7; i++ ) {
+            this.syncSlot(i);
+        }
+
+    }
+
+    public clearAnalyses() {
+        this.file?.analysis.layers.removeAllAnalyses();
     }
 
     static styles?: CSSResultGroup | undefined = css`
@@ -85,19 +179,7 @@ export class FileCopyElement extends AbstractFileProvider {
 
 
     protected render(): unknown {
-        return html`<registry-provider
-            ${ref(this.registryRef)}
-            slug=${this.slug}
-            autoclear="true"
-        >
-            <group-provider
-                ${ref(this.groupRef)}
-                slug=${this.slug}
-                autoclear="true"
-            >
-                ${this.ready ? html`<slot></slot>` : nothing}
-            </group-provider>
-        </registry-provider>`;
+        return html`${this.ready ? html`<slot></slot>` : nothing}`;
     }
 
 

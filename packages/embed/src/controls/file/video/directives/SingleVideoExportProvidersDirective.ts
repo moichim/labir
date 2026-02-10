@@ -20,7 +20,7 @@ class SingleVideoExportDirective extends Directive {
         }
 
         return html`<file-provider
-                ${ref(app.innerFileProviderRef)}
+                ${ref(app.fileCopyElementRef)}
                 thermal=${file.thermalUrl}
                 autoclear="true"
                 analysis1=${ifDefined(app.analysis1)}
@@ -49,13 +49,19 @@ class SingleVideoExportDirective extends Directive {
             return nothing;
         }
 
-        return html`
-
-        <file-copy .originalFile=${app.outerFile}>
-                ${this.renderWrappedWithFileProvider(app, content )}
-        </file-copy>
-            
-            `;
+        return html`<registry-provider 
+            slug="${app.slug}"
+            style="display: contents;"
+        >
+            <group-provider 
+                slug=${app.slug}
+                style="display: contents;"
+            >
+                <file-copy .originalFile=${app.outerFile} ${ref(app.fileCopyElementRef)}>
+                    ${content}
+                </file-copy>
+            </group-provider>
+        </registry-provider>`;
 
     }
 

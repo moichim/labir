@@ -68,7 +68,7 @@ export class ThermalFileReader extends AbstractFileResult {
     protected cloneForInstance(): ThermalFileReader {
 
         /** @todo Until the filters are implemented properly, there is no need of copying the buffer.*/
-        return this;
+        // return this;
 
 
         return new ThermalFileReader( 

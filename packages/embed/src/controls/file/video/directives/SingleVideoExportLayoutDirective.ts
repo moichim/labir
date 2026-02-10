@@ -248,6 +248,12 @@ export class SingleVideoExportLayoutDirective extends Directive {
             &.skin-light {
                 --thermal-export-bg: white;
                 --thermal-export-fg: black;
+                --thermal-slate: var( --thermal-slate-base );
+                --thermal-slate-dark: var( --thermal-slate-base-dark );
+                --thermal-slate-light: var( --thermal-slate-base-light );
+                --thermal-foreground: black;
+                --thermal-background: white;
+                --thermal-primary: var( --thermal-primary-base );
             }
 
             &.skin-dark {

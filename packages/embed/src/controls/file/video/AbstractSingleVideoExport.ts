@@ -10,10 +10,11 @@ import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
 import { interactiveAnalysisContext } from "../../../utils/context";
 import { provide } from "@lit/context";
 import { VideoRecorder } from "./internals/VideoRecorder";
+import { FileCopyElement } from "packages/embed/src/hierarchy/providers/FileCopy";
 
 export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
 
-    public innerFileProviderRef: Ref<FileProviderElement> = createRef();
+    public fileCopyElementRef: Ref<FileCopyElement> = createRef();
     public exportedDivRef: Ref<HTMLElement> = createRef();
 
     public get slug(): string {
@@ -30,7 +31,7 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
 
     public get innerFile(): Instance | undefined {
-        return this.innerFileProviderRef.value?.file;
+        return this.fileCopyElementRef.value?.file;
     }
 
     public get exportedElement(): HTMLElement | undefined {
@@ -119,6 +120,10 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         this.renderProps.hasAnalysis = value;
 
         if ( value && this.file) {
+
+
+            this.fileCopyElementRef.value?.copyAnalysesFromParent();
+
             this.analysis1 = this.file.slots.getSlot(0)?.serialized ?? undefined;
             this.analysis2 = this.file.slots.getSlot(1)?.serialized ?? undefined;
             this.analysis3 = this.file.slots.getSlot(2)?.serialized ?? undefined;
@@ -127,6 +132,9 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
             this.analysis6 = this.file.slots.getSlot(5)?.serialized ?? undefined;
             this.analysis7 = this.file.slots.getSlot(6)?.serialized ?? undefined;
         } else {
+
+            this.fileCopyElementRef.value?.clearAnalyses();
+
             this.analysis1 = undefined;
             this.analysis2 = undefined;
             this.analysis3 = undefined;
@@ -204,70 +212,6 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
         }
     }
 
-    
-
-    protected renderWrappedWithFileProvider(
-        content: unknown,
-    ): unknown {
-        const file = this.file;
-
-        if ( !file ) {
-            return nothing;
-        }
-
-        return html`<file-provider
-            ${ref(this.innerFileProviderRef)}
-            thermal=${file.thermalUrl}
-            batch="true"
-            autoclear="true"
-            analysis1=${ifDefined(this.analysis1)}
-            analysis2=${ifDefined(this.analysis2)}
-            analysis3=${ifDefined(this.analysis3)}
-            analysis4=${ifDefined(this.analysis4)}
-            analysis5=${ifDefined(this.analysis5)}
-            analysis6=${ifDefined(this.analysis6)}
-            analysis7=${ifDefined(this.analysis7)}
-            style="display: contents;"
-            keepInitialHistogram="true"
-        >
-            ${content}
-        </file-provider>`;
-    }
-
-    protected renderWrappedWithNestedProviders(
-        content: unknown,
-    ): unknown {
-
-        const registry = this.registry;
-        const group = this.group;
-
-        if ( !registry || !group ) {
-            return nothing;
-        }
-
-        const palette = registry.palette.value;
-        const from = registry.range.value?.from ?? undefined;
-        const to = registry.range.value?.to ?? undefined;
-
-        return html`<registry-provider
-            slug=${this.slug}
-            autoclear="true"
-            palette=${palette}
-            from=${ifDefined(from)}
-            to=${ifDefined(to)}
-            style="display: contents;"
-        >
-            <group-provider
-                slug=${this.slug}
-                autoclear="true"
-                batch="true"
-                style="display: contents;"
-            >
-                ${this.renderWrappedWithFileProvider(content)}
-            </group-provider>
-        </registry-provider>`;
-
-    }
 
     public async record(): Promise<void> {
 
