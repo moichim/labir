@@ -8,6 +8,7 @@ import { singleVideoProviders } from "./directives/SingleVideoExportProvidersDir
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { RecordingPhase } from "./ISingleVideoExportElement";
 import {nothing} from "lit";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-video-export-panel")
 export class FileVideoExportPanel extends AbstractSingleVideoExport {
@@ -28,8 +29,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
     @state() private exportRealHeight: number = 0;
 
     public onInstanceCreated(instance: Instance): void {
-        // throw new Error("Method not implemented.");
-        this.log( "Načetl jsem to", instance );
+        this.parentHasAnalyses = instance.analysis.value.length > 0;
     }
     public onFailure(error: ThermalFileFailure): void {
         // throw new Error("Method not implemented.");
@@ -339,10 +339,10 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
             return nothing;
         }
 
-        let message = "Enkóduji video soubor...";
+        let message = this.t( T.exportencodingfile );
 
         if ( this.recordingPhase === RecordingPhase.RECORDING ) {
-            message = `Zaznamenávám snímky... ${this.recordingPhaseProgress.toFixed(2)}%`;
+            message = `${this.t( T.exportrecordingframes )} ${this.recordingPhaseProgress.toFixed(2)}%`;
         }
 
         return html`<div
@@ -355,8 +355,7 @@ export class FileVideoExportPanel extends AbstractSingleVideoExport {
                     .message=${message}
                 ></thermal-spinner>
 
-                <div>Nezavírejte toto okno!</div>
-                <div>Soubor se stáhne automaticky</div>
+                <div>${this.t(T.exportdonotclosewindowhint)}</div>
 
             </div>
             

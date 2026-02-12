@@ -261,6 +261,29 @@ export const cy: Translation = {
     password: "Cyfrinair",
     logoutmessage: "Ydych chi’n siŵr eich bod eisiau allgofnodi?",
     loginerror: "Methu mewngofnodi.",
-    accessibletologgedinusers: "Mae'r dudalen hon ar gael i ddefnyddwyr sydd wedi mewngofnodi yn unig."
+    accessibletologgedinusers: "Mae'r dudalen hon ar gael i ddefnyddwyr sydd wedi mewngofnodi yn unig.",
+
+    export: "Allforio",
+    exportvideo: "Allforio fideo",
+    exportpng: "Allforio delwedd",
+
+    exportdonotclosewindowhint: "Peidiwch â chau'r ffenestr hon, bydd y ffeil yn cael ei lawrlwytho'n awtomatig.",
+    exportencodingfile: "Wrthi'n amgodio'r ffeil fideo...",
+    exportrecordingframes: "Wrthi'n cofnodi fframiau...",
+
+    histogram: "Histogram",
+    timeline: "Llinell amser",
+
+    exportwidth: "Lled",
+    exportmargin: "Ymylon",
+    exportgap: "Bwlch",
+    exportgrahpheight: "Uchder y graff",
+    videoquality: "Ansawdd fideo",
+    imagecompression: "Cywasgu delwedd",
+
+    theme: "Thema",
+    light: "Golau",
+    dark: "Tywyll",
+
 
 }

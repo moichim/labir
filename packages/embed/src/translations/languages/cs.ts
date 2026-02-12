@@ -257,5 +257,28 @@ export const cs: Translation = {
     password: "Heslo",
     logoutmessage: "Opravdu se chcete odhlásit?",
     loginerror: "Nelze se přihlásit.",
-    accessibletologgedinusers: "Tato stránka je přístupná pouze přihlášeným uživatelům."
+    accessibletologgedinusers: "Tato stránka je přístupná pouze přihlášeným uživatelům.",
+
+
+    export: "Export",
+    exportvideo: "Exportovat video",
+    exportpng: "Exportovat obrázek",
+
+    exportdonotclosewindowhint: "Nezavírejte toto okno, soubor se stáhne automaticky.",
+    exportencodingfile: "Enkóduji video soubor...",
+    exportrecordingframes: "Zaznamenávám snímky...",
+
+    histogram: "Histogram",
+    timeline: "Časová osa",
+
+    exportwidth: "Šířka ",
+    exportmargin: "Okraje",
+    exportgap: "Mezera",
+    exportgrahpheight: "Výška grafu",
+    videoquality: "Kvalita videa",
+    imagecompression: "Komprese obrázku",
+
+    theme: "Motiv",
+    light: "Světlý",
+    dark: "Tmavý",
 }

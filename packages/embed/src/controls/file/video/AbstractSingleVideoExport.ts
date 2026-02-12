@@ -41,6 +41,8 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
     @provide({ context: interactiveAnalysisContext })
     private interactiveanalysis: boolean = false;
 
+    @property({ type: Boolean, reflect: true}) public parentHasAnalyses: boolean = false;
+
     @state() public analysis1?: string;
     @state() public analysis2?: string;
     @state() public analysis3?: string;

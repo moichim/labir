@@ -47,7 +47,7 @@ export abstract class BaseElement extends LitElement {
     }
 
     /** Returns a translated string */
-    protected t( key: keyof typeof T): string {
+    public t( key: keyof typeof T): string {
         return t( T[key] );
     }
 

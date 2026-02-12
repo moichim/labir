@@ -252,5 +252,27 @@ export const en: Translation = {
     password: "Password",
     logoutmessage: "Are you sure you want to log out?",
     loginerror: "Unable to log in.",
-    accessibletologgedinusers: "This page is accessible only to logged-in users."
+    accessibletologgedinusers: "This page is accessible only to logged-in users.",
+
+    export: "Export",
+    exportvideo: "Export Video",
+    exportpng: "Export Image",
+
+    exportdonotclosewindowhint: "Do not close this window, the file will download automatically.",
+    exportencodingfile: "Encoding video file...",
+    exportrecordingframes: "Recording frames...",
+
+    histogram: "Histogram",
+    timeline: "Timeline",
+
+    exportwidth: "Width",
+    exportmargin: "Margins",
+    exportgap: "Gap",
+    exportgrahpheight: "Graph height",
+    videoquality: "Video quality",
+    imagecompression: "Image compression",
+
+    theme: "Theme",
+    light: "Light",
+    dark: "Dark",
 }

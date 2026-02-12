@@ -4,6 +4,7 @@ import { css, html } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { slotOrNothing } from "../../../../connection/controllers/apps/directives/SlotOrNothing";
 import { Quality, QUALITY_HIGH, QUALITY_LOW, QUALITY_MEDIUM, QUALITY_VERY_HIGH, QUALITY_VERY_LOW } from "mediabunny";
+import { T } from "../../../../translations/Languages";
 
 export class SingleVideoExportConfigDirective extends Directive {
 
@@ -37,9 +38,9 @@ export class SingleVideoExportConfigDirective extends Directive {
                         type="text"
                         .value=${value}
                         @input=${(event: InputEvent) => {
-                            const target = event.target as HTMLInputElement;
-                            onChange(target.value);
-                        }}
+                const target = event.target as HTMLInputElement;
+                onChange(target.value);
+            }}
                     />
                     <span class="unit">${suffix}</span>
                 </div>
@@ -117,10 +118,14 @@ export class SingleVideoExportConfigDirective extends Directive {
         element: AbstractSingleVideoExport
     ): unknown {
 
+
+        const isSequence = element.innerFile?.timeline.isSequence;
+        const hasAnalyses = element.parentHasAnalyses;
+
         const slots: unknown[] = [];
 
         const thermalScale: unknown[] = [
-            html`<registry-palette-dropdown></registry-palette-dropdown>`,
+            html`<registry-palette-dropdown ></registry-palette-dropdown>`,
             html`<registry-range-form></registry-range-form>`
         ];
 
@@ -128,47 +133,65 @@ export class SingleVideoExportConfigDirective extends Directive {
 
         const components: unknown[] = [
             this.renderRadio(
-                "Histogram",
+                element.t(T.histogram),
                 element.renderProps.hasHistogram,
                 element.setHasHistogram.bind(element)
             ),
             this.renderRadio(
-                "Thermal Scale",
+                element.t(T.thermalscale),
                 element.renderProps.hasThermalScale,
                 element.setHasThermalScale.bind(element)
             ),
-            this.renderRadio(
-                "Analysis",
-                element.renderProps.hasAnalysis,
-                element.setHasAnalysis.bind(element)
-            ),
-            this.renderRadio(
-                "Timeline",
-                element.renderProps.hasTimeline,
-                element.setHasTimeline.bind(element)
-            )
+
         ];
 
-        slots.push(slotOrNothing("config", components));
+        if (hasAnalyses) {
+            components.push(
+                this.renderRadio(
+                    element.t(T.analysis),
+                    element.renderProps.hasAnalysis,
+                    element.setHasAnalysis.bind(element)
+                )
+            );
+        }
 
-        const appearance: unknown[] = [
-            this.renderRadio(
-                "Is Vertical",
-                element.renderProps.isVertical,
-                element.setIsVertical.bind(element)
-            ),
+        if ( isSequence ) {
+            components.push(
+                this.renderRadio(
+                    element.t(T.timeline),
+                    element.renderProps.hasTimeline,
+                    element.setHasTimeline.bind(element)
+                )
+            );
+        }
+
+        slots.push(slotOrNothing("exportcontent", components));
+
+        const appearance: unknown[] = [];
+
+        if (hasAnalyses && element.renderProps.hasAnalysis) {
+            appearance.push(
+                this.renderRadio(
+                    "Is Vertical",
+                    element.renderProps.isVertical,
+                    element.setIsVertical.bind(element)
+                ),
+            );
+        }
+
+        appearance.push(
             this.renderDropdown(
                 element.renderProps.skin,
                 ["light", "dark", "solarized"],
                 (value: string) => element.setSkin(value as any)
-            ),
-        ];
+            )
+        );
 
         slots.push(slotOrNothing("display", appearance));
 
         slots.push(
             this.renderNumber(
-                "Šírka videa",
+                element.t(T.exportwidth),
                 "px",
                 element.renderProps.exportFrameWidth,
                 element.setExportFrameWidth.bind(element),
@@ -180,7 +203,7 @@ export class SingleVideoExportConfigDirective extends Directive {
 
         slots.push(
             this.renderNumber(
-                "Okraje videa",
+                element.t(T.exportmargin),
                 "px",
                 element.renderProps.exportFramePadding,
                 element.setExportFramePadding.bind(element),
@@ -190,102 +213,106 @@ export class SingleVideoExportConfigDirective extends Directive {
             )
         );
 
-        slots.push(
-            this.renderNumber(
-                "Mezera",
-                "px",
-                element.renderProps.exportFrameGap,
-                element.setExportFrameGap.bind(element),
-                0,
-                100,
-                1
-            )
-        );
 
-        slots.push(
-            this.renderNumber(
-                "Výška grafu",
-                "px",
-                element.renderProps.exportGraphHeight,
-                element.setExportGraphHeight.bind(element),
-                200,
-                700,
-                1
-            )
-        );
+        if (hasAnalyses && element.renderProps.hasAnalysis) {
+
+            slots.push(
+                this.renderNumber(
+                    element.t(T.exportgap),
+                    "px",
+                    element.renderProps.exportFrameGap,
+                    element.setExportFrameGap.bind(element),
+                    0,
+                    100,
+                    1
+                )
+            );
+
+            slots.push(
+                this.renderNumber(
+                    element.t(T.exportgrahpheight),
+                    "px",
+                    element.renderProps.exportGraphHeight,
+                    element.setExportGraphHeight.bind(element),
+                    200,
+                    700,
+                    1
+                )
+            );
+
+        }
+
+
+        const ext = isSequence ? ".mp4 / .png" : ".png"
+
 
         // Název souboru
         slots.push(
             this.renderText(
-                "Název souboru",
-                ".mp4",
+                element.t(T.name),
+                ext,
                 element.renderProps.fileName,
                 element.setFileName.bind(element)
             )
         );
 
-        const options = [
-            {
-                label: "Velmi vysoká",
-                value: QUALITY_VERY_HIGH
-            },
-            {
-                label: "Vysoká",
-                value: QUALITY_HIGH
-            },
-            {
-                label: "Střední",
-                value: QUALITY_MEDIUM
-            },
-            {
-                label: "Nízká",
-                value: QUALITY_LOW
-            },
-            {
-                label: "Velmi nízká",
-                value: QUALITY_VERY_LOW
-            }
-        ];
 
-        const choices = options.map( option => option.label );
-        const setter = (label: string) => {
-            const found = options.find( o => o.label === label );
-            if ( found ) {
-                element.setMp4Quality( found.value );
-                console.log(found.value);
+        if (isSequence) {
+
+            const options = [
+                {
+                    label: "VERY_HIGH",
+                    value: QUALITY_VERY_HIGH
+                },
+                {
+                    label: "HIGH",
+                    value: QUALITY_HIGH
+                },
+                {
+                    label: "MEDIUM",
+                    value: QUALITY_MEDIUM
+                },
+                {
+                    label: "LOW",
+                    value: QUALITY_LOW
+                },
+                {
+                    label: "VERY_LOW",
+                    value: QUALITY_VERY_LOW
+                }
+            ];
+
+            const choices = options.map(option => option.label);
+            const setter = (label: string) => {
+                const found = options.find(o => o.label === label);
+                if (found) {
+                    element.setMp4Quality(found.value);
+                    console.log(found.value);
+                }
             }
+
+            const value = options.find(o => o.value === element.renderProps.mp4Quality)?.label ?? "UNKNOWN";
+
+            const output: unknown[] = [
+
+                this.renderDropdown(
+                    value,
+                    choices,
+                    setter.bind(this)
+                )
+
+            ];
+
+            slots.push(slotOrNothing(T.videoquality, output));
+
         }
 
-        const value = options.find( o => o.value === element.renderProps.mp4Quality )?.label ?? "Neznámá";
 
-        const output: unknown[] = [
-
-            this.renderDropdown(
-                value,
-                choices,
-                setter.bind(this)
-            )
-
-        ];
-
-        slots.push( slotOrNothing( "file", output ) );
 
 
 
 
         return slots;
-
-    }
-
-    private renderExportButton(
-        element: AbstractSingleVideoExport
-    ): unknown {
-
-        return html`<thermal-btn
-            variant="primary"
-            size="lg"
-            @click=${element.record.bind(element)}
-        >Export</thermal-btn>`;
 
     }
 
@@ -369,7 +396,7 @@ export class SingleVideoExportConfigDirective extends Directive {
 
                 &.export-config-field--text {
                     .export-config-field--value input {
-                        width: 300px;
+                        width: 200px;
                         text-align: left;
                     }
                 }

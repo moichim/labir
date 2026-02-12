@@ -8,9 +8,11 @@ import { BtnSizes, BtnVariants } from "../../ui/Btn";
 import { ThermalDialog } from "../../ui/Dialog";
 import {when} from 'lit/directives/when.js';
 import { FileVideoExportPanel } from "./video/FileVideoExportPanel";
+import { T } from "../../translations/Languages";
+import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 
 @customElement("file-video-export-button")
-export class FileVideoExport extends BaseElement {
+export class FileVideoExport extends FileConsumer {
 
     @property({ type: String, reflect: true })
     public variant?: BtnVariants;
@@ -64,7 +66,7 @@ export class FileVideoExport extends BaseElement {
 
         return html`<thermal-dialog
             ${ref(this.dialogRef)}
-            label="Export videa"
+            label="${this.t("export")}"
             is-fullscreen="true"
             .onCloseEveryTime=${() => {
                 this.isOpen = false;
@@ -73,23 +75,67 @@ export class FileVideoExport extends BaseElement {
         >
 
             <div slot="content" style="height: 100%;">
-                
                 ${cnt}
-
             </div>
 
-            <thermal-btn
+            ${this.renderCurrentFrameExportButton()}
+
+            ${this.renderVideoExportButton()}
+        
+        </thermal-dialog>`;
+
+    }
+
+    private renderVideoExportButton(): unknown {
+
+        if ( 
+            ! this.file 
+            || (
+                this.file 
+                && this.file.timeline.isSequence === false 
+            )
+        ) {
+            return nothing;
+        }
+
+        return html`<thermal-btn
                 variant="primary"
                 slot="button"
+                icon="download"
+                iconStyle="micro"
                 @click=${() => {
-
                     if ( this.panelRef?.value ) {
                         ( this.panelRef?.value as FileVideoExportPanel).record();
                     }
                 }}
-            >Exportovat video</thermal-btn>
-        
-        </thermal-dialog>`;
+            >${this.t(T.exportvideo)} (MP4)</thermal-btn>`;
+
+    }
+
+    private renderCurrentFrameExportButton(): unknown {
+
+        if ( 
+            ! this.file
+        ) {
+            return nothing;
+        }
+
+        const label = this.file.timeline.isSequence
+            ? "Současný snímek"
+            : this.t( T.exportpng );
+
+        return html`<thermal-btn
+                variant="primary"
+                slot="button"
+                icon="download"
+                iconStyle="micro"
+                @click=${() => {
+                    if ( this.panelRef?.value ) {
+                        // ( this.panelRef?.value as FileVideoExportPanel).recordCurrentFrame();
+                    }
+                }}
+            >${label} (PNG)</thermal-btn>`;
+
 
     }
 
