@@ -1105,4 +1105,53 @@ export class VideoRecorder {
         }
     }
 
+    /**
+     * Hlavní metoda pro export současného snímku jako PNG
+     */
+    public async captureCurrentFrameAsPng(): Promise<void> {
+
+        const initialScale = this.app.renderProps.previewScale;
+
+        await Promise.resolve();
+
+        
+
+        try {
+
+            await this.prepareExport();
+
+            await this.file.draw();
+
+            this.updateDynamicContent();
+
+            await this.rasterizeToCanvas();
+
+            const canvas = this.getMuxingCanvas();
+
+            const blob = await canvas.convertToBlob({ type: "image/png" });
+        
+            if (blob) {
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = blobUrl;
+                const baseName = this.app.renderProps.fileName || "exported-frame";
+
+                const finalName = [baseName, "frame", this.file.timeline.currentFrameIndex + 1].join("_");
+                a.download = finalName.endsWith(".png") ? baseName : `${finalName}.png`;
+                a.click();
+                a.remove();
+                setTimeout(() => {
+                    URL.revokeObjectURL(blobUrl);
+                    console.log("[VideoRecorder] PNG blob URL revoked.");
+                }, 1000);
+            }
+
+        } finally {
+            this.cleanup();
+            this.app.setPreviewScale(initialScale);
+        }
+
+
+    }
+
 }

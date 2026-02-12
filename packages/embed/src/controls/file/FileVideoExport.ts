@@ -131,7 +131,7 @@ export class FileVideoExport extends FileConsumer {
                 iconStyle="micro"
                 @click=${() => {
                     if ( this.panelRef?.value ) {
-                        // ( this.panelRef?.value as FileVideoExportPanel).recordCurrentFrame();
+                        ( this.panelRef?.value as FileVideoExportPanel).currentFrame();
                     }
                 }}
             >${label} (PNG)</thermal-btn>`;
@@ -152,6 +152,7 @@ export class FileVideoExport extends FileConsumer {
             iconStyle=${ifDefined(this.iconStyle)}
             tooltip=${ifDefined(this.tooltip)}
             pre=${ifDefined(this.pre)}
+            style="width: 100%; justify-content: flex-start;"
         >
             ${this.label}
         </thermal-btn>`;

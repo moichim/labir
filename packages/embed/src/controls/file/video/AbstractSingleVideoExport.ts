@@ -224,6 +224,12 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
 
     }
 
+    public async currentFrame(): Promise<void> {
+
+        const recorder = new VideoRecorder( this );
+        await recorder.captureCurrentFrameAsPng();
+    }
+
 
 
 
