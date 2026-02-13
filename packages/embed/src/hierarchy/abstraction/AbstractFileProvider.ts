@@ -253,11 +253,12 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
         this.addEventListener("mouseenter", () => {
 
-            if ( this.autoHighlight && this.file && this.highlightSetter ) {
-                this.highlightSetter( {
+            if (this.autoHighlight && this.file && this.highlightSetter) {
+
+                this.highlightSetter({
                     from: this.file.min,
                     to: this.file.max
-             } );
+                });
 
             }
 
@@ -322,10 +323,9 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     /**
      * Initialise slots & their listeners
      */
-    protected handleLoaded(
+    protected initAnalysesSync(
         instance: Instance
     ) {
-
         // listen to changes
         instance.slots.onSlot1Serialize.set(this.UUID, value => this.analysis1 = value);
         instance.slots.onSlot2Serialize.set(this.UUID, value => this.analysis2 = value);

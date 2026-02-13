@@ -6,6 +6,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { BaseElement } from "../../../hierarchy/BaseElement";
 import { setRegistryHighlightContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../../translations/Languages";
+import { classMap } from "lit/directives/class-map.js";
 
 @customElement("file-analysis-table-row")
 export class FileAnalysisRow extends BaseElement {
@@ -181,36 +182,7 @@ export class FileAnalysisRow extends BaseElement {
     }
 
 
-    protected renderCell(
-        value: number | undefined,
-        may: boolean,
-        active: boolean,
-        clickFn: () => void
-    ): unknown {
-
-
-        const bg = active ? this.color : "white";
-
-        return html`
-            <td class="${may ? "may" : "mayNot"} ${active ? "active" : "inactive"}">
-
-                ${may
-                ? html`
-                        <thermal-btn
-                            size="md"
-                            @click=${clickFn}
-                            style="background-color: ${bg};"
-                            tooltip="${active ? "Skrýt v grafu" : "Zobrazit graf"}"
-                        >
-                            <span style="">${this.valueOrNothing(value)}</span>
-                        </thermal-btn>
-                    `
-                : this.valueOrNothing(value)
-            }
-
-            </td>
-        `;
-    }
+    
 
 
 
@@ -219,6 +191,8 @@ export class FileAnalysisRow extends BaseElement {
         :host {
             display: table-row;
             white-space: nowrap;
+            margin: 0;
+            padding: 0;
         }
 
         button, td {
@@ -285,15 +259,137 @@ export class FileAnalysisRow extends BaseElement {
         }
 
         .edit-buttons {
-            display: flex;
-            gap: 5px;
+            
         }
 
     `;
 
+    private renderFirstCell(): unknown {
+
+        const classes = {
+            name: true,
+            selected: this.selected,
+            interactive: this.interactiveanalysis
+        };
+
+        const u = this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing;
+
+        return html`<td
+            class=${ classMap( classes ) }
+            @click=${ () => {
+
+                if ( !this.interactiveanalysis === false ) {
+                    return;
+                }
+
+                if ( this.selected ) { 
+                    this.analysis.setDeselected(true); 
+                } else {
+                    this.analysis.setSelected(false, true);
+                }
+
+            } }
+        >
+            ${u}
+            <b aria-hidden="true" style="background-color: ${this.color}"></b>
+            <span>${this.analysis.name}</span>
+        </td>`;
+
+    }
+
+
+
+    protected renderCell(
+        value: number | undefined,
+        may: boolean,
+        active: boolean,
+        clickFn: () => void
+    ): unknown {
+
+
+        const bg = active ? this.color : "white";
+
+        return html`
+            <td class="${may ? "may" : "mayNot"} ${active ? "active" : "inactive"}">
+
+                ${may
+                ? html`
+                        <thermal-btn
+                            size="md"
+                            @click=${clickFn}
+                            style="background-color: ${bg};"
+                            tooltip="${active ? "Skrýt v grafu" : "Zobrazit graf"}"
+                        >
+                            <span style="">${this.valueOrNothing(value)}</span>
+                        </thermal-btn>
+                    `
+                : this.valueOrNothing(value)
+            }
+
+            </td>
+        `;
+    }
+
+    private renderLastCell(): unknown {
+
+        if ( this.interactiveanalysis === false ) {
+            return nothing;
+        }
+
+        return html`<td>
+            <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
+            <thermal-btn
+                icon="trash"
+                iconStyle="micro"
+                tooltip="${t(T.delete)} ${this.analysis.name}"
+                @click=${() => this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)}
+            ></thermal-btn>
+        </td>`;
+
+    }
+
 
 
     protected render(): unknown {
+
+
+        return [
+            // The first cell
+            this.renderFirstCell(),
+
+            this.renderCell(
+                this.value.avg,
+                this.may.avg,
+                this.graph.avg,
+                () => {
+                    this.analysis.graph.setAvgActivation(!this.graph.avg);
+                }
+            ),
+
+            this.renderCell(
+                this.value.min,
+                this.may.min,
+                this.graph.min,
+                () => {
+                    this.analysis.graph.setMinActivation(!this.graph.min);
+                }
+            ),
+
+            this.renderCell(
+                this.value.max,
+                this.may.max,
+                this.graph.max,
+                () => {
+                    this.analysis.graph.setMaxActivation(!this.graph.max);
+                }
+            ),
+
+            html`<td>${this.dimension}</td>`,
+            
+            this.renderLastCell()
+        ];
+
+
         return html`
         
         <td 
@@ -338,16 +434,8 @@ export class FileAnalysisRow extends BaseElement {
                 }
             )}
         <td>${this.dimension}</td>
-        ${this.interactiveanalysis === true ? html`<td class="edit-buttons">
-            <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
 
-            <thermal-btn @click=${() => {
-                this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)
-            }} icon="trash" iconStyle="micro" variant="danger" size="md" tooltip="${t(T.remove)} ${this.analysis.name}">
-            </thermal-btn>
-        
-        </td>`
-        : nothing }
+        <td> ahoj</td>
         
         `;
     }

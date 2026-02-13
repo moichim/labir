@@ -92,6 +92,12 @@ export class ThermalDialog extends LitElement {
     
     static styles = css`
 
+        :host {
+
+            display: contents;
+
+        }
+
         .dialog {
             background: var( --thermal-slate-light );
             color: var( --thermal-foreground );

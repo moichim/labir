@@ -282,8 +282,7 @@ export class FileAnalysisComplex extends FileConsumer {
         }
 
         .analysis {
-            max-width: 100%;
-            overflow-y: auto;
+            min-width: 0;
         }
     
         .addanalysis {
@@ -336,7 +335,6 @@ export class FileAnalysisComplex extends FileConsumer {
         }
 
         file-analysis-table {
-            overflow-y: auto;
         }
     
     `;

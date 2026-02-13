@@ -7,6 +7,7 @@ import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { is } from "date-fns/locale";
 
 @customElement("file-canvas")
 export class FileCanvas extends FileConsumer {
@@ -16,32 +17,39 @@ export class FileCanvas extends FileConsumer {
     @property({ type: Boolean, attribute: "prefers-gpu" })
     public prefersGpu: boolean = true;
 
-    @property({converter: booleanConverter(false)})
+    @property({ converter: booleanConverter(false) })
     public norender: boolean = false;
 
     public onInstanceCreated(instance: Instance): void {
 
         // Mount the incoming instance to the DOM
-        this.remountInstance( undefined, instance );
+        this.remountInstance(undefined, instance);
     }
 
-    public onFailure(): void {}
+    public onFailure(): void { }
 
     protected updated(_changedProperties: PropertyValues): void {
 
         super.updated(_changedProperties);
 
         // Whenever the file context changes in this component, unmount any previous instance and mount the new one
-        if ( _changedProperties.has("file") ) {
+        if (_changedProperties.has("file")) {
 
-            const oldFileValue = _changedProperties.get( "file" ) as Instance | undefined;
+            const isFirstAttempt = _changedProperties.get("file") === undefined
+                && this.file !== undefined;
 
-            this.remountInstance( oldFileValue, this.file );
+            if (!isFirstAttempt) {
+
+                const oldFileValue = _changedProperties.get("file") as Instance | undefined;
+
+                this.remountInstance(oldFileValue, this.file);
+
+            }
 
         }
 
-        if ( _changedProperties.has("prefers-gpu") ) {
-            if ( this.file ) {
+        if (_changedProperties.has("prefers-gpu")) {
+            if (this.file) {
                 this.file.setPreferWebGl( this.prefersGpu );
                 this.file.draw();
             }
@@ -56,18 +64,18 @@ export class FileCanvas extends FileConsumer {
     ) {
 
         // Do nothing if the instances are the same
-        if ( previousInstance === nextInstance ) {
+        if (previousInstance === nextInstance) {
             return;
         }
 
         // Remove the old instance of the DOM if any
-        if ( previousInstance !== undefined ) {
+        if (previousInstance !== undefined) {
             previousInstance.unmountFromDom();
         }
 
         // Mount the new instance to the DOM
-        if ( nextInstance !== undefined && this.container.value ) {
-            nextInstance.mountToDom( this.container.value );
+        if (nextInstance !== undefined && this.container.value) {
+            nextInstance.mountToDom(this.container.value);
             nextInstance.setPreferWebGl( this.prefersGpu );
             nextInstance.draw();
         }
@@ -171,7 +179,7 @@ export class FileCanvas extends FileConsumer {
 
     private renderPlaceholder() {
 
-        if ( this.loading === false ) {
+        if (this.loading === false) {
             return nothing;
         }
 
@@ -183,7 +191,7 @@ export class FileCanvas extends FileConsumer {
 
     private renderError() {
 
-        if ( this.failure === undefined ) {
+        if (this.failure === undefined) {
             return nothing;
         }
 

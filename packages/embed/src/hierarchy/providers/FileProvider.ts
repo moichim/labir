@@ -125,13 +125,15 @@ export class FileProviderElement extends AbstractFileProvider {
                         // Call all callbacks
                         this.onSuccess.call(instance);
 
-                        this.handleLoaded(instance);
+                        
 
                         instance.group.registry.postLoadedProcessing();
 
                         this.loading = false;
 
                         this.recieveInstance(instance);
+
+                        this.initAnalysesSync(instance);
 
                         return instance;
 
@@ -182,8 +184,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
 
     public async redraw() {
+
         this.loading = true;
         this.onLoadingStart.call();
+
         if (this.file) {
             this.removeInstance(this.file);
         }
@@ -211,7 +215,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
             this.onSuccess.call(result);
 
-            this.handleLoaded(result);
+            this.initAnalysesSync(result);
 
             this.loading = false;
 
@@ -231,29 +235,25 @@ export class FileProviderElement extends AbstractFileProvider {
 
 
 
-
-    /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
-    connectedCallback(): void {
-
-        super.connectedCallback();
-
-        // this.load();
-
-    }
-
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
 
-        this.load();
+        if ( this.registry ) {
+            this.load();
+        }
     }
 
 
     public updated(_changedProperties: PropertyValues<FileProviderElement>): void {
         super.updated(_changedProperties);
 
+
+        // Detect changes of the main thermal URL parameter
         if (_changedProperties.has("thermal")) {
+
             const oldUrl = _changedProperties.get("thermal");
 
+            // Reload only when the thermal URL parameter changed, not on the first load when it was undefined
             if (oldUrl) {
                 this.group.files.removeFile(oldUrl);
                 this.file = undefined;
