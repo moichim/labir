@@ -373,7 +373,9 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
 
 
 
-        return html`<manager-provider
+        return html`
+        <connected-provider slot="close"></connected-provider>
+        <manager-provider
             slug=${this.UUID}
             style="display: contents;"
         >

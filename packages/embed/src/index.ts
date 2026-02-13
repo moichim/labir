@@ -237,6 +237,9 @@ import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 
+
+import "./connection/controllers/abstraction/ConnectedProvider";
+
 import "./connection/controllers/apps/ConnectedBrowserApp";
 import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";

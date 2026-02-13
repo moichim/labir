@@ -105,6 +105,8 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     private readonly onArbitraryContentUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
+    private readonly onRecreateContext: CallbacksManager<() => void> = new CallbacksManager();
+
     constructor(
         host: AppWithDisplayController
     ) {
@@ -136,6 +138,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     private refreshSlugOnNavigate(): void {
         this._slug = this.host.content.getRegistrySlug();
         this.onNavigate.call();
+        this.onRecreateContext.call();
         this.host.requestUpdate();
     }
 
@@ -451,6 +454,8 @@ export class DisplayController extends AbstractConnectedController implements Re
                     this.host.folderPath
                 );
 
+                this.onRecreateContext.call();
+
             }
 
             // otherwise make sure the grid in the content is empty
@@ -566,6 +571,31 @@ export class DisplayController extends AbstractConnectedController implements Re
         );
     }
 
+    public subscribeToNavigate(
+        element: BaseElement,
+        callback?: () => void
+    ): void {
+        this.onNavigate.set(
+            element.getUUID( DisplayController.LISTENER_ID ),
+            () => {
+                callback?.();
+            }
+        );
+    }
+
+
+    public subscribeOnRecrteateContext(
+        element: BaseElement,
+        callback: () => void
+    ): void {
+        this.onRecreateContext.set(
+            element.getUUID( DisplayController.LISTENER_ID ),
+            () => {
+                callback();
+            }
+        );
+    }
+
 
     /** Unsubscribe the element from all display mode changes */
     public unsubscribeFromAll(
@@ -580,7 +610,8 @@ export class DisplayController extends AbstractConnectedController implements Re
         this.onFileDisplayCompactUpdate.delete(UUID);
         this.onEditTagsUpdate.delete(UUID);
         this.onDisplayCommentsUpdate.delete(UUID);
-
+        this.onNavigate.delete(UUID);
+        this.onRecreateContext.delete(UUID);
     }
 
 

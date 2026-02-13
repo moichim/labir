@@ -234,7 +234,6 @@ export class ClientController extends AbstractConnectedController implements Rea
         this._isLoading = false;
         this._whatIsLoading = undefined;
         this._loadingError = undefined;
-        this._isLoggedIn = true;
         this.onLoadingChange.call( false );
         this.host.requestUpdate();
     }
