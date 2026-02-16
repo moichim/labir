@@ -24,10 +24,6 @@ export class TimelineElement extends FileConsumer {
     @state()
     protected currentFrame?: CurrentFrameContext;
 
-    @consume({ context: durationContext, subscribe: true })
-    @state()
-    protected duration?: DurationContext;
-
     @consume({ context: mayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;

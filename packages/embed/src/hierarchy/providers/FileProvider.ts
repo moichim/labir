@@ -24,10 +24,6 @@ export class FileProviderElement extends AbstractFileProvider {
     protected providedSelf: FileProviderElement = this;
 
     @property({ type: String, reflect: true, attribute: true })
-    @provide({ context: recordingContext })
-    public recording: boolean = false;
-
-    @property({ type: String, reflect: true, attribute: true })
     @provide({ context: playingContext })
     public playing: boolean = false;
 

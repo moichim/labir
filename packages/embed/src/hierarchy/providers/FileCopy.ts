@@ -18,21 +18,9 @@ export class FileCopyElement extends AbstractFileProvider {
     @consume({ context: fileContext, subscribe: true })
     private originalFile?: Instance;
 
-
-
-
-    @property({ type: Number, reflect: true, attribute: true })
-    @provide({ context: fileMsContext })
-    public ms: number = 0;
-
     @property({ type: Number, reflect: true, attribute: true })
     @provide({ context: playbackSpeedContext })
     public speed?: PlaybackSpeeds = 1;
-
-
-    @property({ type: String, reflect: true, attribute: true })
-    @provide({ context: recordingContext })
-    public recording: boolean = false;
 
     @property({ type: String, reflect: true, attribute: true })
     @provide({ context: playingContext })

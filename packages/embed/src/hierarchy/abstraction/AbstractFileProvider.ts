@@ -4,7 +4,7 @@ import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { GroupConsumer } from "../consumers/GroupConsumer";
-import { analysisList, AnalysisList, currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
+import { analysisList, AnalysisList, currentFrameContext, CurrentFrameContext, FailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
 import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 
 export abstract class AbstractFileProvider extends GroupConsumer {
@@ -24,10 +24,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @provide({ context: loadedContext })
     @state()
     protected ready = false;
-
-    @provide({ context: durationContext })
-    @state()
-    protected duration?: DurationContext;
 
     @provide({ context: currentFrameContext })
     @state()
@@ -57,9 +53,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
     @provide({ context: playbackSpeedContext })
     public speed?: PlaybackSpeeds = 1;
-
-    @provide({ context: recordingContext })
-    public recording: boolean = false;
 
     @provide({ context: playingContext })
     public playing: boolean = false;
@@ -105,8 +98,8 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         super.updated(_changedProperties);
 
         if (_changedProperties.has("ms")) {
-            if (this.file && this.duration && this.currentFrame) {
-                const newMs = Math.min(this.duration.ms, Math.max(0, this.ms));
+            if (this.file && this.file.duration && this.currentFrame) {
+                const newMs = Math.min(this.file.duration, Math.max(0, this.ms));
                 if (newMs !== this.currentFrame.ms) {
                     this.file.timeline.setRelativeTime(newMs);
                 }
@@ -137,7 +130,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
             }
         }
 
-
         this.handleAnalysisUpdate(1, _changedProperties);
         this.handleAnalysisUpdate(2, _changedProperties);
         this.handleAnalysisUpdate(3, _changedProperties);
@@ -148,23 +140,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
     }
 
-
-    attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-        super.attributeChangedCallback(name, _old, value);
-
-        // Recording
-        if (name === "recording") {
-            if (this.file) {
-                if (this.recording === true && value === "false") {
-                    this.file.recording.end();
-                }
-                else if (this.recording === false && value === "true") {
-                    this.file.recording.start();
-                }
-            }
-        }
-
-    }
 
 
     public readonly onInstanceCreated = new CallbacksManager<(instance: Instance) => void>();
@@ -183,11 +158,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         this.ready = true;
 
         // Update internal state
-
-        this.duration = {
-            ms: instance.timeline.duration,
-            time: instance.timeline.formatDuration(instance.timeline.duration)
-        }
 
         this.currentFrame = {
             ms: instance.timeline.currentMs,
@@ -226,8 +196,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
 
         this.playbackSpeedCallback = value => { this.speed = value };
 
-        this.recordingCallback = value => { this.recording = value; }
-
         this.mayStopCallback = value => { this.mayStop = value; }
 
         this.analysisCallback = value => { this.analyses = value; }
@@ -241,7 +209,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         instance.timeline.callbacksEnd.add(this.UUID, this.stopCallback);
         instance.timeline.callbacksChangeFrame.add(this.UUID, this.currentFrameChangeCallback);
         instance.timeline.callbackdPlaybackSpeed.add(this.UUID, this.playbackSpeedCallback);
-        instance.recording.addListener(this.UUID, this.recordingCallback);
         instance.recording.callbackMayStop.add(this.UUID, this.mayStopCallback);
         instance.analysis.addListener(this.UUID, this.analysisCallback);
 
@@ -287,7 +254,6 @@ export abstract class AbstractFileProvider extends GroupConsumer {
         this.ready = false;
 
         // Set default values
-        this.duration = undefined;
         this.currentFrame = undefined;
         this.analyses = [];
 

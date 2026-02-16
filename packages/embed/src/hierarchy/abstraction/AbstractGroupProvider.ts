@@ -1,31 +1,22 @@
 import { ThermalGroup } from "@labirthermal/core";
 import { html } from "lit";
 import { RegistryConsumer } from "../consumers/RegistryConsumer";
+import { GroupProviderController } from "../controllers/GroupController";
+import { groupContext } from "../providers/context/GroupContext";
+import { provide } from "@lit/context";
+import { property } from "lit/decorators.js";
 
 export abstract class AbstractGroupProvider extends RegistryConsumer {
 
-    protected UUIDGroupListeners = this.UUID + "__group-listener";
-
     public slug!: string;
 
-    group!: ThermalGroup;
+    @provide({ context: groupContext })
+    public group!: ThermalGroup;
 
-    public autoclear: boolean = false;
+    @property({ type: Boolean })
+    autoclear: boolean = false;
 
-    connectedCallback(): void {
-        super.connectedCallback();
-
-        this.group = this.registry.groups.addOrGetGroup(this.slug);
-
-    }
-
-    disconnectedCallback(): void {
-        super.disconnectedCallback();
-
-        if (this.autoclear === true && this.group !== undefined) {
-            this.registry.groups.removeGroup(this.group.id);
-        }
-    }
+    private controller: GroupProviderController = new GroupProviderController(this);
 
     protected render(): unknown {
         return html`<slot></slot>`;

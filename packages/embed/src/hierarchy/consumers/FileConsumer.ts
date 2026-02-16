@@ -31,10 +31,6 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected failure?: ThermalFileFailure;
 
-    @consume({ context: recordingContext, subscribe: true })
-    @state()
-    protected recording: boolean = false;
-
 
 
     connectedCallback(): void {
