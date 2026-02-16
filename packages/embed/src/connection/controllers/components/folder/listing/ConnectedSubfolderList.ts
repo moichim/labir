@@ -11,15 +11,17 @@ export class ConnectedFolderFileList extends ControlledConsumer {
     @property({ type: Function })
     public onFolderClick?: (folder: FolderInfo) => void;
 
-    @property({ type: String })
+    @property({ type: String, attribute: "folder-mode" })
     public folderMode: FolderListDisplayMode = FolderListDisplayMode.GRID;
 
     public static styles?: CSSResultGroup | undefined = css`
         :host {
             color: var(--thermal-foreground);
+            display: block;
+            width: 100%;
         }
 
-        :host( [foldermode="asList"] ) {
+        :host( [folder-mode="asList"] ) {
             section {
                 display: grid;
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -28,7 +30,7 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             }
         }
 
-        :host( [foldermode="asTable"] ) {
+        :host( [folder-mode="asTable"] ) {
             section {
                 display: table;
                 width: 100%;

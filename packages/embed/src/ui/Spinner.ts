@@ -1,4 +1,4 @@
-import { css, html, LitElement } from "lit";
+import { css, html, LitElement, nothing } from "lit";
 import { BaseElement } from "../hierarchy/BaseElement";
 import { customElement, property } from "lit/decorators.js";
 
@@ -6,7 +6,7 @@ import { customElement, property } from "lit/decorators.js";
 export class Spinner extends BaseElement {
 
     @property({ type: String })
-    public message: string = "Loading...";
+    public message?: string;
 
     @property({ type: String })
     public color: string = "var(--thermal-primary)";
@@ -49,7 +49,7 @@ export class Spinner extends BaseElement {
     protected render() {
         return html`
             <div class="spinner" style="border-color: ${this.color}; border-top-color: transparent;"></div>
-            <div class="message">${this.message}</div>
+            ${this.message ? html`<div class="message">${this.message}</div>` : nothing}
         `;
     }
 

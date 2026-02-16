@@ -3,6 +3,7 @@ import { ManagerConsumer } from "../consumers/ManagerConsumer";
 import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
+import { property } from "lit/decorators.js";
 
 export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
@@ -26,6 +27,9 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
 
     public autoclear: boolean = false;
 
+    @property({ type: Boolean, reflect: true })
+    public forceNew: boolean = false;
+
     @provide( {context: registryHighlightContext} )
     protected highlight: ThermalRangeOrUndefined;
 
@@ -35,13 +39,14 @@ export abstract class AbstractRegistryProvider extends ManagerConsumer {
     }
 
     protected createRegistry( slug: string ): ThermalRegistry {
+
         // Create
         const registry = this.manager.addOrGetRegistry(slug);
         // Set the palette
         registry.palette.setPalette( this.manager.palette.value );
         // Set the range if necessary
         if (this.from !== undefined && this.to !== undefined) {
-            this.registry.range.imposeRange({
+            registry.range.imposeRange({
                 from: this.from,
                 to: this.to
             });

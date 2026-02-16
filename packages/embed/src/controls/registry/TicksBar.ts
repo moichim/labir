@@ -219,7 +219,7 @@ export class TicksElement extends RegistryConsumer {
 
             <div class="container ${this.minmax !== undefined ? "ready" : "loading"} placement-${this.placement}" ${ref(this.containerRef)}>
 
-                <div class="skeleton"></div>
+                <div class="skeleton" data-video-ignore></div>
 
                 <div class="ticks" ${ref(this.ticksRef)}>
 

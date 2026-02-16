@@ -21,6 +21,8 @@ export class UserButton extends ControlledConsumer {
         super.connectedCallback();
 
         this.client.subscribeToIdentityChanges(this);
+        this.client.subscribeToLoadingChanges(this);
+
 
         this.client.api.auth.onIdentity.set(this.UUID, (identity) => {
             this.message = undefined;
@@ -60,6 +62,71 @@ export class UserButton extends ControlledConsumer {
         }
     `;
 
+    private async doLogout(): Promise<boolean> {
+
+        const result = await this.client?.api.routes.post.logout().execute();
+        this.client?.api.auth.logout();
+        return result && result.success;
+
+    }
+
+    private async doLogin(): Promise<boolean> {
+
+        this.message = undefined;
+
+        // Najdeme thermal-dialog v shadowRoot
+        const dialog = this.shadowRoot?.querySelector('thermal-dialog');
+        // Najdeme slot s obsahem ve shadowRoot thermal-dialogu
+        const dialogShadow = (dialog as ThermalDialog)?.shadowRoot;
+        const contentSlot = dialogShadow?.querySelector('slot[name="content"]') as HTMLSlotElement;
+
+        if (contentSlot) {
+            // Získáme elementy vložené do slotu
+            const assigned = contentSlot.assignedElements({ flatten: true });
+            // Najdeme první div (váš <div slot="content">)
+            const contentDiv = assigned.find(el => el.tagName === "DIV");
+            if (contentDiv) {
+                const loginInput = contentDiv.querySelector('input[name="login"]') as HTMLInputElement;
+                const passwordInput = contentDiv.querySelector('input[name="password"]') as HTMLInputElement;
+
+                if (loginInput && passwordInput) {
+                    const login = loginInput.value;
+                    const password = passwordInput.value;
+
+                    if (login && password) {
+                        const result = await this.client?.api.routes.post.login(login, password).execute();
+
+                        if (result && result.success) {
+                            this.message = "Přihlášení proběhlo úspěšně";
+                        } else {
+                            this.message = "Přihlášení se nezdařilo";
+                        }
+
+                        return result && result.success;
+                    }
+                }
+            }
+        }
+
+        return false;
+
+    }
+
+    private async handleBeforeClose(): Promise<boolean> {
+
+
+        if (this.client.isLoggedIn) {
+
+            return await this.doLogout();
+
+        }
+
+        return await this.doLogin();
+
+
+
+    }
+
 
     protected handleKeyDown(event: KeyboardEvent): void {
         if (event.key === 'Enter') {
@@ -95,19 +162,57 @@ export class UserButton extends ControlledConsumer {
         `;
     }
 
-    protected renderUserEditForm(): TemplateResult {
+    protected renderUserLogoutNotice(): TemplateResult {
         return html`
             Opravdu se chcete odhlásit?
         `;
     }
 
-    render(): unknown {
+
+    private renderTriggerButton(): unknown {
 
         const buttonLabel = this.client.identity?.meta.name ?? this.client.identity?.meta.login ?? t(T.login);
-
         const variant = this.client.isLoggedIn
             ? "primary"
             : "default";
+
+        return html`<thermal-btn 
+            slot="invoker" 
+            variant=${variant} 
+            icon="user" 
+            iconStyle="micro"
+        >
+            ${buttonLabel}
+        </thermal-btn>`;
+
+    }
+
+    private renderFallbackButton(): unknown {
+
+        if (this.client.isLoggedIn === false) {
+            return nothing;
+        }
+
+        const userName = this.client.identity?.meta.name ?? this.client.identity?.meta.login;
+
+        if (!userName === undefined) {
+            return nothing;
+        }
+
+        return html`<thermal-btn 
+        slot="invoker" 
+        variant="background" 
+        disabled="true" 
+        tooltip="Aktuálně přihlášený uživatel" 
+        icon="user" 
+        iconStyle="micro"
+    >
+        ${userName}
+    </thermal-btn>`;
+
+    }
+
+    private renderDialog(): unknown {
 
         const label = this.client.isLoggedIn
             ? t(T.logout)
@@ -117,76 +222,19 @@ export class UserButton extends ControlledConsumer {
             ? t(T.logout)
             : t(T.login);
 
-        const content = this.client.isLoggedIn
-            ? this.renderUserEditForm()
+        const content = this.client.isLoggedIn === true
+            ? this.renderUserLogoutNotice()
             : this.renderLoginForm();
-
-        const beforeClose = this.client.isLoggedIn
-            ? async () => {
-                const result = await this.client?.api.routes.post.logout().execute();
-                this.client?.api.auth.logout();
-                return result && result.success;
-            }
-            : async () => {
-
-                this.message = undefined;
-
-                // Najdeme thermal-dialog v shadowRoot
-                const dialog = this.shadowRoot?.querySelector('thermal-dialog');
-                // Najdeme slot s obsahem ve shadowRoot thermal-dialogu
-                const dialogShadow = (dialog as ThermalDialog)?.shadowRoot;
-                const contentSlot = dialogShadow?.querySelector('slot[name="content"]') as HTMLSlotElement;
-
-                if (contentSlot) {
-                    // Získáme elementy vložené do slotu
-                    const assigned = contentSlot.assignedElements({ flatten: true });
-                    // Najdeme první div (váš <div slot="content">)
-                    const contentDiv = assigned.find(el => el.tagName === "DIV");
-                    if (contentDiv) {
-                        const loginInput = contentDiv.querySelector('input[name="login"]') as HTMLInputElement;
-                        const passwordInput = contentDiv.querySelector('input[name="password"]') as HTMLInputElement;
-
-                        if (loginInput && passwordInput) {
-                            const login = loginInput.value;
-                            const password = passwordInput.value;
-
-                            if (login && password) {
-                                const result = await this.client?.api.routes.post.login(login, password).execute();
-
-                                if (result && result.success) {
-                                    this.message = "Přihlášení proběhlo úspěšně";
-                                } else {
-                                    this.message = "Přihlášení se nezdařilo";
-                                }
-
-                                return result && result.success;
-                            }
-                        }
-                    }
-                }
-
-                return false;
-            };
-
-        // Pokud je vypnuté přihlašování a uživatel je přihlášený, zobraz pouze neaktivní button bez dialogu
-        if ( this.disableLogging === true && this.client.isLoggedIn === true ) {
-
-            return html`<thermal-btn slot="invoker" variant="background" disabled="true" tooltip="Aktuálně přihlášený uživatel" icon="user" iconStyle="micro">
-                ${buttonLabel}
-            </thermal-btn>`;
-
-        } else if ( this.disableLogging === true && this.client.isLoggedIn === false ) {
-            return nothing;
-        }
-
 
         // Standardní login dialog
         return html`
-            <thermal-dialog label="${label}" button="${submitLabel}" .beforeClose=${beforeClose}>
+            <thermal-dialog 
+                label="${label}" 
+                button="${submitLabel}" 
+                .beforeClose=${this.handleBeforeClose.bind( this )}
+            >
 
-                <thermal-btn slot="invoker" variant=${variant} icon="user" iconStyle="micro">
-                    ${buttonLabel}
-                </thermal-btn>
+                ${this.renderTriggerButton()}
 
                 <div slot="content">
                     ${content}
@@ -194,6 +242,35 @@ export class UserButton extends ControlledConsumer {
 
             </thermal-dialog>
         `;
+
+
+    }
+
+
+
+
+
+    render(): unknown {
+
+
+        // In case the user is logged out and logging is disabled, show nothing
+        if (this.disableLogging === true && this.client.isLoggedIn === false) {
+
+            return nothing;
+
+        }
+
+        // In case the user is logged in but logging is disabled, show a fallback button displaying the username
+        else if (this.disableLogging === true && this.client.isLoggedIn === true) {
+
+            return this.renderFallbackButton();
+
+        }
+
+        // In all other cases, show the standard loin/logout dialogue
+        return this.renderDialog();
+
+
     }
 
 }

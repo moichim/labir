@@ -148,7 +148,6 @@ export enum T {
     exportgroupname = "exportgroupname",
     exportfilenames = "exportfilenames",
     numberofcolumns = "numberofcolumns",
-    exportcontent = "exportcontent",
     exportdimensions = "exportdimensions",
     exportgroup = "exportgroup",
     thermalscale = "thermalscale",
@@ -313,10 +312,31 @@ export enum T {
     createfolder = "createfolder",
     subfolder = "subfolder",
     createsubfolder = "createsubfolder",
-    delete = "delete"
+    delete = "delete",
 
+    export = "export",
+    
+    exportcontent = "exportcontent",
+    histogram = "histogram",
+    timeline = "timeline",
+    
+    exportwidth = "exportwidth",
+    exportmargin = "exportmargin",
+    exportgap = "exportgap",
+    exportgrahpheight = "exportgrahpheight",
+    imagecompression = "imagecompression",
+    videoquality = "videoquality",
+    exportvideo = "exportvideo",
+    exportpng = "exportpng",
 
+    exportrecordingframes = "exportrecordingframes",
+    exportencodingfile = "exportencodingfile",
 
+    exportdonotclosewindowhint = "exportdonotclosewindowhint",
+
+    theme = "theme",
+    light = "light",
+    dark = "dark",
 
 }
 

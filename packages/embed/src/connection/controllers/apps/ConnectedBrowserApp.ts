@@ -1,5 +1,5 @@
 import { ThermalManager } from "@labirthermal/core";
-import { BreadcrumbItem, FileInfo, FolderInfo, Identity } from "@labirthermal/server";
+import { BreadcrumbItem, FolderInfo, Identity } from "@labirthermal/server";
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { cache } from "lit/directives/cache.js";
@@ -8,6 +8,12 @@ import { T } from "packages/embed/src/translations/Languages";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { ConnectedAppBase } from "../abstraction/ConnectedAppBase";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
+import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
+import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
+import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
+import { userFolders } from "./directives/layout/UserFoldersDirective";
+import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDirective";
+import { DisplayModeElement } from "../../components/folder/configuration/DisplayMode";
 
 @customElement("connected-browser-app")
 export class ControllerApp extends ConnectedAppBase {
@@ -38,35 +44,9 @@ export class ControllerApp extends ConnectedAppBase {
     }
 
     protected renderStateLoading(): unknown {
-        return this.renderAppWithInternals(html`<thermal-loading
+        return this.renderAppWithInternals(html`<thermal-poster
                 .message=${this.display.arbitraryContent}
-            ></thermal-loading>` );
-    }
-
-    private renderBreadcrumb(): unknown {
-        return html`<connected-breadcrumb 
-            slot="pre" 
-            .onFolderClick=${(folder: BreadcrumbItem) => {
-                this.display.navigateToFolderAndLoad(folder.path);
-            }}
-            .onUserClick=${() => {
-                this.display.navigateToUserFoldersAndLoad();
-            }}
-        ></connected-breadcrumb>`;
-    }
-
-    private renderFolderHeader(
-        actions: unknown
-    ): unknown {
-        return html`${this.renderBreadcrumb()}
-        <connected-folder-header 
-            slot="pre"
-            .onParentClick=${(parent: BreadcrumbItem) => {
-                this.display.navigateToFolderAndLoad(parent.path);
-            }}
-        >
-            ${actions}
-        </connected-folder-header>`;
+            ></thermal-poster>` );
     }
 
 
@@ -103,212 +83,34 @@ export class ControllerApp extends ConnectedAppBase {
 
     }
 
-    /** Helper - render one slot in the actions */
-    private renderActionsSlot(
-        labelTranslationSlug: keyof typeof T,
-        content: unknown
-    ): unknown {
-
-        this.log("Rendering action slot", content);
-
-        if (
-            content === nothing
-            || content === undefined
-            || content === null
-            || (
-                Array.isArray(content)
-                && (
-                    content.length === 0
-                    ||
-                    !content.some(c => (
-                        c !== nothing
-                        || c !== undefined
-                        || c !== null
-
-                    ))
-                )
-            )
-        ) {
-            this.log("No content in action slot, skipping");
-            return nothing;
-        }
-
-        return html`
-            <thermal-slot
-                label=${this.t(labelTranslationSlug)}
-            >${content}</thermal-slot>
-        `;
-    }
-
-    private renderHelperFolderHeaderEditButton(): unknown {
-        if (
-            this.content.folder
-            && (
-                this.content.folder.may_manage_folders_in
-                || this.content.folder.may_manage_files_in
-            )
-        ) {
-
-            const mayDelete = this.client.isRoot === true
-                || (
-                    this.content.folder.may_have_files === true
-                    // && this.content.folder.lrc_count === 0
-                );
-
-            const deleteLabel = mayDelete
-                ? this.t("deletefolder")
-                : "Složka nelze smazat dokud obsahuje soubory";
-
-
-
-            return html`
-                <connected-folder-edit-dialog
-                    .folder=${this.content.folder}
-                    .onSuccess=${(folder: FolderInfo) => {
-                    this.content.updateFolderState(folder);
-                }}
-                    tooltip=${this.t("editfolder")}
-                    icon="edit"
-                    iconStyle="micro"
-                ></connected-folder-edit-dialog>
-                <connected-folder-delete-dialog
-                    .folder=${this.content.folder}
-                    .onSuccess=${(folder: FolderInfo) => {
-                    this.log("Folder smazán, naviguji zpět");
-                    this.display.navigateToFolderAndLoad(folder.path.substring(0, folder.path.lastIndexOf("/")));
-                }}
-                    tooltip=${deleteLabel}
-                    icon="trash"
-                    iconStyle="micro"
-                    disabled=${mayDelete ? "false" : "true"}
-                ></connected-folder-delete-dialog>`;
-        }
-
-        return nothing;
-    }
-
     /** Render a folder's files */
     protected renderStateFolderFiles(): unknown {
-
-        const edit = [
-            this.renderHelperFolderHeaderEditButton(),
-            html`<group-download-dropdown></group-download-dropdown>`
-        ];
-
-        const actions: unknown[] = [
-            this.renderActionsSlot(
-                "folder",
-                edit
-            ),
-            this.renderActionsSlot(
-                "display",
-                html`<connected-config-file-display-mode></connected-config-file-display-mode>
-                <registry-opacity-slider></registry-opacity-slider>`
-            ),
-            this.renderActionsSlot(
-                "thermalscale",
-                html`<registry-palette-dropdown></registry-palette-dropdown>
-                <registry-range-form></registry-range-form>`
-            )
-        ];
-
-        const header = this.renderFolderHeader(actions);
-
-        const fileList = html`<connected-file-list
-            display-mode=${this.display.fileDisplayMode}
-            compact=${this.display.fileDisplayCompact ? "true" : "false"}
-            show-discussion=${this.display.displayComments ? "true" : "false"}
-            editable-tags=${this.display.editTags ? "true" : "false"}
-            .onFileClick=${(file: FileInfo) => {
-                this.display.navigateToFileAndLoad(this.content.folder!.path, file.fileName);
-            }}
-        ></connected-file-list>
-        <connected-upload-form
-            .folder=${this.content.folder}
-            .onSuccess=${() => {
-                this.display.reloadCurrentState();
-            }}
-        ></connected-upload-form>`;
-
-        if (this.content.files === undefined || this.content.files.length === 0) {
-
-            return [header, fileList];
-
-        }
-
-        return this.renderBrowserLayout(
-            header,
-            fileList
-        );
-
+        return connectedFolderFiles(this);
     }
 
 
 
     /** Render a folder's subfolders */
     protected renderStateFolderSubfolders(): unknown {
-
-        const create = this.content.folder && this.content.folder.may_manage_folders_in ? html`<connected-folder-create-dialog
-            .folder=${this.content.folder}
-            .onSuccess=${(folder: FolderInfo) => {
-                this.display.reloadCurrentState();
-            }}
-            tooltip=${this.t("createfolder")}
-            icon="addfolder"
-            iconStyle="micro"
-            variant="primary"
-        ></connected-folder-create-dialog>`
-            : undefined;
-
-        const editButtons = this.renderHelperFolderHeaderEditButton();
-
-        const edit = create
-            ? [create, editButtons]
-            : [editButtons];
-
-        const actions: unknown[] = [
-            this.renderActionsSlot(
-                "folder",
-                edit
-            ),
-            this.renderActionsSlot(
-                "display",
-                html`<connected-config-subfolder-mode></connected-config-subfolder-mode>
-                <registry-palette-dropdown></registry-palette-dropdown>`
-            )
-        ];
-
-        const header = this.renderFolderHeader(actions);
-
-        const subfolderList = html`<connected-subfolder-list
-                    .onFolderClick=${(folder: FolderInfo) => {
-                this.display.navigateToFolderAndLoad(folder.path);
-            }}
-                    folderMode=${this.display.folderListDisplayMode}
-                ></connected-subfolder-list>`;
-
-        return [
-            header,
-            subfolderList
-        ];
-
+        return connectedFolderSubfolders(this);
     }
 
     /** Render a folder's grid of files */
     protected renderStateFolderGrid(): unknown {
-        return html`Grid view`;
+        return connectedFolderGrid(this);
     }
 
     // File displays
 
     protected renderStateFile(): unknown {
-        return this.renderAppWithInternals(html`state`);
+        const dir = connectedFileDetail( this );
+        return this.renderAppWithInternals(dir);
     }
 
     // User displays
 
     protected renderStateUser(): unknown {
-        return this.renderAppWithInternals(html`user`);
+        return this.renderAppWithInternals(userFolders(this));
     }
 
 
@@ -328,8 +130,6 @@ export class ControllerApp extends ConnectedAppBase {
 
         await this.display.reloadCurrentState();
 
-        this.log("Obsah byl načten....");
-
 
     }
 
@@ -345,6 +145,12 @@ export class ControllerApp extends ConnectedAppBase {
                 case DisplayState.FOLDER: return this.renderStateFolder();
                 case DisplayState.FILE: return this.renderStateFile();
                 case DisplayState.USER: return this.renderStateUser();
+                case DisplayState.ARBITRARY: return this.renderAppWithInternals(html`<thermal-poster
+                    .message=${this.display.arbitraryContent}
+                ></thermal-poster>`);
+                case DisplayState.ERROR: return this.renderAppWithInternals(html`<thermal-error
+                    .message=${this.display.arbitraryContent}
+                ></thermal-error>`);
                 default: return html`<p>Unknown state</p>`;
             }
 
@@ -352,7 +158,10 @@ export class ControllerApp extends ConnectedAppBase {
 
         const cachedStateContent = cache(stateContent);
 
-        return cachedStateContent;
+        return [
+            // this.display.appState,
+            cachedStateContent
+        ];
 
     }
 

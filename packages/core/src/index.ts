@@ -1,110 +1,82 @@
-// Core structure
-
-// Data types
-
-// Palette
-import { WHITE_HOT, IRON, JET, ThermalPalettes, ThermalPaletteType, AvailableThermalPalettes } from "./file/utils/palettes";
-
-// Utilities - time
-import { TimeFormat } from "./utils/time/formatting";
-import { TimePeriod } from "./utils/time/periods";
-import { TimeRound } from "./utils/time/rounding";
-import { Instance } from "./file/instance";
-import { ThermalGroup } from "./hierarchy/ThermalGroup";
-import { ThermalManager, ThermalManagerOptions } from "./hierarchy/ThermalManager";
-import { ThermalRegistry, ThermalRegistryOptions } from "./hierarchy/ThermalRegistry";
-import { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
-import { ThermalFileReader } from "./loading/workers/ThermalFileReader";
-import { AbstractFileResult } from "./loading/workers/AbstractFileResult";
-import { DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
-import { supportedFileTypes, supportedFileTypesInputProperty } from "./loading/workers/parsers";
-import { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
-import { CallbacksManager } from "./properties/callbacksManager";
-import { playbackSpeed, PlaybackSpeeds } from "./properties/time/playback/TimelineDrive";
-import { getPool } from "./utils/pool";
-
-import { ThermalMinmaxOrUndefined } from "./properties/scale/abstractMinmaxProperty";
-import { ThermalRangeOrUndefined } from "./properties/scale/RangeDriver";
-import { ThermalCursorPositionOrUndefined } from "./properties/cursor/CursorPositionDrive";
-import { AnalysisDataStateValue } from "./properties/analysis/data/AnalysisDataState";
-import { AbstractAreaAnalysis } from "./properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
-import { AnalysisGraph } from "./properties/analysis/data/graphs/AnalysisGraph";
-import { availableAnalysisColors, SlotNumber, SlotUnion } from "./properties/analysis/analysis/storage/AnalysisLayersStorage";
-import { ThermalTool } from "./properties/analysis/tool/ToolDrive";
-import { InspectTool } from "./properties/analysis/tool/internals/InspectTool";
-import { AbstractTool } from "./properties/analysis/tool/internals/AbstractTool";
-import { EditTool } from "./properties/analysis/tool/internals/EditTool";
-import { AbstractAnalysis } from "./properties/analysis/analysis/internals/AbstractAnalysis";
-import { AddEllipsisTool } from "./properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool";
-import { AddRectangleTool } from "./properties/analysis/analysis/internals/area/rectangle/AddRectangleTool";
-import { EllipsisAnalysis } from "./properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis";
-import { CornerPoint } from "./properties/analysis/analysis/internals/area/CornerPoint";
-import { PointAnalysis } from "./properties/analysis/analysis/internals/point/PointAnalysis";
-import { RectangleAnalysis } from "./properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis";
-import { PaletteId } from "./properties/scale/PaletteDrive";
-import { AbstractAddTool } from "./properties/analysis/analysis/internals/AbstractAddTool";
-
-import { Batch } from "./loading/batch/Batch";
-
 import { version } from "../package.json";
 
-console.info( "@labirthermal/core", version );
+console.info("@labirthermal/core", version);
 
 
+// The callback manager is a crucial class
+export { CallbacksManager } from "./properties/callbacksManager";
+
+// Pool related exports
+export { getPool } from "./utils/pool";
+
+// Core hierarchy classes
+
+// Manager
+export { ThermalManager } from "./hierarchy/ThermalManager";
+export type { ThermalManagerOptions } from "./hierarchy/ThermalManager";
+
+// Registry
+export { ThermalRegistry } from "./hierarchy/ThermalRegistry";
+export type { ThermalRegistryOptions } from "./hierarchy/ThermalRegistry";
+export type { ThermalMinmaxOrUndefined } from "./properties/scale/abstractMinmaxProperty";
+export type { ThermalRangeOrUndefined } from "./properties/scale/RangeDriver";
+export { Batch } from "./loading/batch/Batch";
+export { supportedFileTypes, supportedFileTypesInputProperty } from "./loading/workers/parsers";
+export{ DropinElementListener } from "./loading/workers/dropin/DropinElementManager";
+
+// Group
+export { ThermalGroup } from "./hierarchy/ThermalGroup";
+export type { ThermalCursorPositionOrUndefined } from "./properties/cursor/CursorPositionDrive";
+
+// Instance
+export { AbstractFileResult } from "./loading/workers/AbstractFileResult";
+export { ThermalFileFailure } from "./loading/workers/ThermalFileFailure";
+export { ThermalFileReader } from "./loading/workers/ThermalFileReader";
+export { Instance } from "./file/instance";
+
+
+// Playback related exports
+export type { PlaybackSpeeds } from "./properties/time/playback/TimelineDrive";
+export { playbackSpeed } from "./properties/time/playback/TimelineDrive";
+export type { ParsedTimelineFrame } from "./loading/workers/parsers/structure";
+
+
+
+
+
+// Analysis related exports
 export {
+    availableAnalysisColors
+} from "./properties/analysis/analysis/storage/AnalysisLayersStorage";
+export { AnalysisGraph } from "./properties/analysis/data/graphs/AnalysisGraph";
+export { AbstractAnalysis } from "./properties/analysis/analysis/internals/AbstractAnalysis";
+export { AbstractAreaAnalysis } from "./properties/analysis/analysis/internals/area/AbstractAreaAnalysis";
+export type { AnalysisDataStateValue } from "./properties/analysis/data/AnalysisDataState";
 
-    Batch,
-
-    // Analysis
-    AbstractAnalysis, AbstractFileResult, AbstractAddTool,
-    // Analysis
-    AbstractTool, AddEllipsisTool, AddRectangleTool, CallbacksManager,
-    // Points
-    CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis,
-    // General utilities
-    getPool,
-    // Palette
-    WHITE_HOT as GRAYSCALE, InspectTool,
-    // File
-    Instance, IRON,
-    JET,
-    playbackSpeed, PointAnalysis, RectangleAnalysis, supportedFileTypes, ThermalFileFailure, ThermalFileReader,
-    // Group
-    ThermalGroup,
-    // Manager
-    ThermalManager,
-    ThermalPalettes,
-    // Core datatypes
-
-    // Registry
-    ThermalRegistry,
-
-    // Utils - Time
-    TimeFormat, TimePeriod, TimeRound,
+// Slot related exports
+export type { SlotNumber, SlotUnion } from "./properties/analysis/analysis/storage/AnalysisLayersStorage";
 
 
-    AbstractAreaAnalysis,
-    AnalysisGraph,
-    supportedFileTypesInputProperty,
-    availableAnalysisColors,
+// Tool related exports
+export { AbstractTool } from "./properties/analysis/tool/internals/AbstractTool";
+export { AbstractAddTool } from "./properties/analysis/analysis/internals/AbstractAddTool";
+export { AddEllipsisTool } from "./properties/analysis/analysis/internals/area/ellipsis/AddEllipsisTool";
+export { EllipsisAnalysis } from "./properties/analysis/analysis/internals/area/ellipsis/EllipsisAnalysis";
+export { RectangleAnalysis } from "./properties/analysis/analysis/internals/area/rectangle/RectangleAnalysis";
+export { PointAnalysis } from "./properties/analysis/analysis/internals/point/PointAnalysis";
+export { AddRectangleTool } from "./properties/analysis/analysis/internals/area/rectangle/AddRectangleTool";
+export { EditTool } from "./properties/analysis/tool/internals/EditTool";
+export { InspectTool } from "./properties/analysis/tool/internals/InspectTool";
+export type { ThermalTool } from "./properties/analysis/tool/ToolDrive";
 
+// Palette related exports
+export { ThermalPalettes } from "./properties/scale/palettes";
+export type { AvailableThermalPalette, ThermalPaletteType } from "./properties/scale/palettes";
 
-};
-
-export type {
-    SlotUnion,
-    SlotNumber,
-    AnalysisDataStateValue,
-    ThermalRegistryOptions, ThermalTool,
-    ThermalRangeOrUndefined,
-    ThermalPaletteType,
-    ThermalManagerOptions, ThermalMinmaxOrUndefined,
-    ThermalCursorPositionOrUndefined,
-    PlaybackSpeeds,
-    PaletteId, ParsedTimelineFrame,
-    AvailableThermalPalettes,
-}
-
+// Time related exports
+export { TimeFormat } from "./utils/time/formatting";
+export { TimePeriod } from "./utils/time/periods";
+export { TimeRound } from "./utils/time/rounding";
 
 
 

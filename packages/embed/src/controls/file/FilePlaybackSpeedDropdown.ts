@@ -12,17 +12,17 @@ import { T } from "../../translations/Languages";
 export class FilePlaybackSpeedDropdown extends FileConsumer {
 
     @property({type: String, reflect: true})
-    enabled: "on"|"off" = "on";
+    public enabled: "on"|"off" = "on";
 
-    @consume({context: playbackSpeedContext, subscribe: true})
     @state()
+    @consume({context: playbackSpeedContext, subscribe: true})
     protected playbackSpeed: PlaybackSpeeds = 1;
     
     public onInstanceCreated(): void {}
 
     public onFailure(): void {}
 
-    static styles = css`
+    public static readonly styles = css`
 
         thermal-btn {
             width: 100%;
@@ -36,7 +36,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
             return nothing;
         }
 
-        return html`<thermal-dropdown variant="foreground" interactive="${this.enabled}" .tooltip=${t(T.playbackspeed)}>
+        return html`<thermal-dropdown interactive="${this.enabled}" .tooltip=${t(T.playbackspeed)}>
 
                 <div slot="invoker" class="button">
                 ${this.playbackSpeed}x

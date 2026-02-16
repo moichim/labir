@@ -2,9 +2,9 @@ import { FolderInfo } from "@labirthermal/server";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { T } from "../../../../translations/Languages";
-import { booleanConverter } from "../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { T } from "../../../../../translations/Languages";
+import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
+import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
 
 interface PairedFiles {
     lrc: File;

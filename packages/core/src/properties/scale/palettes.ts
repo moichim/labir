@@ -7,8 +7,7 @@ export type ThermalPaletteType = {
     /** A CSS gradient representing the color scale in the UI. */
     gradient: string,
     /** The CSS slug */
-    slug: AvailableThermalPalettes,
-
+    slug: AvailableThermalPalette,
     /** Float array containing color values for WebGL2 texture */
     texturePixels: Float32Array,
 }
@@ -160,42 +159,79 @@ const RAINBOW_HC_STOPS: ColorStop[] = [
 
 
 // Generování palet
-export const IRON = generatePaletteFromStops(IRON_STOPS);
-export const JET = generatePaletteFromStops(JET_STOPS);
-export const WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
-export const BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
-export const LAVA = generatePaletteFromStops(LAVA_STOPS);
-export const ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
-export const RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
-export const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
+const IRON = generatePaletteFromStops(IRON_STOPS);
+const JET = generatePaletteFromStops(JET_STOPS);
+const WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
+const BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
+const LAVA = generatePaletteFromStops(LAVA_STOPS);
+const ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
+const RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
+const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
 
 
-const PALETTES = [
-    { name: "Iron", stops: IRON_STOPS },
-    { name: "Jet", stops: JET_STOPS },
-    { name: "White Hot", stops: WHITE_HOT_STOPS },
-    { name: "Black Hot", stops: BLACK_HOT_STOPS },
-    { name: "Lava", stops: LAVA_STOPS },
-    { name: "Arctic", stops: ARCTIC_STOPS },
-    { name: "Rainbow", stops: RAINBOW_STOPS },
-    { name: "Rainbow HC", stops: RAINBOW_HC_STOPS }
-];
-
-const TP = Object.fromEntries(PALETTES.map(pd => {
-
-    const slug = pd.name.toLocaleLowerCase().replace(" ", "_");
-
-    return [slug as AvailableThermalPalettes, {
-        gradient: generateGradientFromStops(pd.stops),
-        pixels: generatePaletteFromStops(pd.stops),
-        texturePixels: generateTextureArrayFromStops(pd.stops),
-        slug,
-        name: pd.name
-    } as ThermalPaletteType];
-
-}));
-
-export const ThermalPalettes = TP;
+const PALETTES = {
+    iron: {
+        name: "Iron",
+        gradient: generateGradientFromStops(IRON_STOPS),
+        pixels: IRON,
+        texturePixels: generateTextureArrayFromStops(IRON_STOPS),
+        slug: "iron"
+    },
+    jet: {
+        name: "Jet",
+        gradient: generateGradientFromStops(JET_STOPS),
+        pixels: JET,
+        texturePixels: generateTextureArrayFromStops(JET_STOPS),
+        slug: "jet"
+    },
+    white_hot: {
+        name: "White Hot",
+        gradient: generateGradientFromStops(WHITE_HOT_STOPS),
+        pixels: WHITE_HOT,
+        texturePixels: generateTextureArrayFromStops(WHITE_HOT_STOPS),
+        slug: "white_hot"
+    },
+    black_hot: {
+        name: "Black Hot",
+        gradient: generateGradientFromStops(BLACK_HOT_STOPS),
+        pixels: BLACK_HOT,
+        texturePixels: generateTextureArrayFromStops(BLACK_HOT_STOPS),
+        slug: "black_hot"
+    },
+    lava: {
+        name: "Lava",
+        gradient: generateGradientFromStops(LAVA_STOPS),
+        pixels: LAVA,
+        texturePixels: generateTextureArrayFromStops(LAVA_STOPS),
+        slug: "lava"
+    },
+    arctic: {
+        name: "Arctic",
+        gradient: generateGradientFromStops(ARCTIC_STOPS),
+        pixels: ARCTIC,
+        texturePixels: generateTextureArrayFromStops(ARCTIC_STOPS),
+        slug: "arctic"
+    },
+    rainbow: {
+        name: "Rainbow",
+        gradient: generateGradientFromStops(RAINBOW_STOPS),
+        pixels: RAINBOW,
+        texturePixels: generateTextureArrayFromStops(RAINBOW_STOPS),
+        slug: "rainbow"
+    },
+    rainbow_hc: {
+        name: "Rainbow HC",
+        gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
+        pixels: RAINBOW_HC,
+        texturePixels: generateTextureArrayFromStops(RAINBOW_HC_STOPS),
+        slug: "rainbow_hc"
+    }
+} as const;
 
 /** Keys of palettes available in `@labirthermal/core`. */
-export type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
+export type AvailableThermalPalette = keyof typeof PALETTES;
+
+/** Palette definitions available in `@labirthermal/core`. */
+export const ThermalPalettes = PALETTES as Record<AvailableThermalPalette, ThermalPaletteType>;
+
+export const defaultPaletteKey: AvailableThermalPalette = "jet";

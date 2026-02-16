@@ -23,11 +23,10 @@ export class ThermalDropdown extends BaseElement {
     protected optionsRef: Ref<HTMLButtonElement> = createRef();
 
     @property({ type: String, reflect: true })
-    isOpen: string = "close";
+    public isOpen: string = "close";
 
     @property({ type: String, reflect: true, attribute: true })
-    @state()
-    interactive: "on" | "off" = "on";
+    public interactive: "on" | "off" = "on";
 
     @property({ type: String, reflect: true})
     public variant?: BtnVariants;
@@ -67,9 +66,13 @@ export class ThermalDropdown extends BaseElement {
         super.disconnectedCallback();
     }
 
-    placeOptions() {
+    private placeOptions() {
 
-        computePosition(this.invokerRef.value!, this.optionsRef.value!, {
+        if ( ! this.invokerRef.value || ! this.optionsRef.value ) {
+            return;
+        }
+
+        computePosition(this.invokerRef.value, this.optionsRef.value, {
             middleware: [offset(2), flip(), inline(), shift()],
             placement: "bottom-start",
             strategy: "fixed"
@@ -87,7 +90,10 @@ export class ThermalDropdown extends BaseElement {
 
     protected updated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
         super.updated(_changedProperties);
-        this.placeOptions();
+        if ( _changedProperties.has("isOpen") ) {
+            this.placeOptions();
+        }
+        
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
@@ -102,6 +108,8 @@ export class ThermalDropdown extends BaseElement {
 
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
+
+        super.attributeChangedCallback(name, _old, value);
 
         if (name === "isopen") {
             if (value === "open") {
@@ -215,6 +223,10 @@ export class ThermalDropdown extends BaseElement {
             mayNot: this.interactive === "off"
         };
 
+        const disabled = this.interactive === "off"
+            ? "true"
+            : "false";
+
         return html`
 
             <div class="dropdown" ${ref(this.dropdownRef)}>
@@ -225,7 +237,7 @@ export class ThermalDropdown extends BaseElement {
                     variant=${ifDefined(this.variant)}
                     size=${ifDefined(this.size)}
                     ?plain=${this.plain}
-                    interactive="${this.interactive === "on" ? "true" : "false"}"
+                    disabled=${disabled}
                     tooltip="${this.tooltip !== undefined ? this.tooltip : ""}"
                     part="invoker"
                 >

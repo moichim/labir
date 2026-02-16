@@ -4,14 +4,21 @@ import { BaseAppWithPngExportContext } from "../../../utils/converters/pngExport
 import { AppWithClientController, ClientController } from "../ClientController";
 import { AppWithContentController, ContentController } from "../ContentController";
 import { provide } from "@lit/context";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, SelectionControllerContext } from "../controllerContexts";
 import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
+import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
+import { AppWithSelectionController, SelectionController } from "../SelectionController";
 
-export abstract class ConnectedAppBase extends BaseAppWithPngExportContext implements AppWithClientController, AppWithContentController, AppWithDisplayController {
+export abstract class ConnectedAppBase extends BaseAppWithPngExportContext 
+    implements 
+        AppWithClientController, 
+        AppWithContentController, 
+        AppWithDisplayController,
+        AppWithSelectionController {
 
     /** Name of the listener event called upon initialisation of the connected app */
     public static readonly INITIALISATION_LISTENER = "connected-app-initialisation";
@@ -27,8 +34,19 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
     @provide({ context: ControlledContentContext })
     public readonly content = new ContentController(this);
 
+    /** The settings controller for display parameters */
     @provide({ context: DisplayControllerContext })
     public readonly display = new DisplayController(this);
+
+    @provide( { context: SelectionControllerContext } )
+    public readonly selection: SelectionController = new SelectionController(this);
+
+    @property({
+        type: String,
+        reflect: true,
+        attribute: "selected-files"
+    })
+    public readonly selectedFiles?: string | undefined;
 
     @property({
         type: String,
@@ -192,6 +210,8 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
             font-size: var(--thermal-fs);
         }
 
+        ${AbstractLayoutDirective.styles}
+
         .inspector {
             display: grid;
             grid-template-columns: 2em 1fr;
@@ -279,6 +299,23 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
             <connected-user-button slot="close"></connected-user-button>
 
+            <thermal-dialog
+                label="Nastavení aplikace"
+                slot="close"
+            >
+                <thermal-btn 
+                    slot="invoker"
+                    icon="settings"
+                    iconStyle="solid"
+                    tooltip=${this.t( "config" )}
+                ></thermal-btn>
+
+                <div slot="content">
+                    <png-export-panel></png-export-panel>
+                    <registry-display-panel></registry-display-panel>
+                </div>
+            </thermal-dialog>
+
             <slot name="pre" slot="pre"></slot>
 
             <slot name="before-content"></slot>
@@ -336,7 +373,9 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
 
 
 
-        return html`<manager-provider
+        return html`
+        <connected-provider slot="close"></connected-provider>
+        <manager-provider
             slug=${this.UUID}
             style="display: contents;"
         >
@@ -388,6 +427,47 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext imple
      * This method is used for the initial content requests after the client is ready & logged in. It is called only once, in the same time as `this.client.onReadyForContentRequests`
      */
     protected abstract initialiseContentAfterClientReady(): Promise<void>;
+
+
+    /** Checks whether a given template output is not empty */
+    protected unknownIsNotEmpty(
+        value: unknown
+    ): boolean {
+
+        if (
+            value === nothing
+            || value === undefined
+            || value === null
+        ) {
+            return false;
+        }
+
+        if (  typeof value === "string" && ( value as string ).trim().length === 0 ) {
+            return false;
+        }
+
+        if ( Array.isArray( value ) && value.length > 0 ) {
+            return ! value.some( ( item ) => this.unknownIsNotEmpty( item ) );
+        }
+
+        return true;
+
+    }
+
+    protected wrapContentIfNotEmpty(
+        content: unknown,
+        classes: string
+    ): unknown {
+
+        if ( ! this.unknownIsNotEmpty( content ) ) {
+            return nothing;
+        }
+
+        return html`<div class=${ classes }>
+            ${ content }
+        </div>`;
+
+    }
 
 
 }

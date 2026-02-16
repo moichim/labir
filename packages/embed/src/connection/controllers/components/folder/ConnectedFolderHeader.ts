@@ -23,8 +23,8 @@ export class FolderBaseInfo extends ControlledConsumer {
         :host {
             display: flex;
             flex-wrap: no-wrap;
-            gap: var(--thermal-gap);
             font-size: var(--thermal-fs);
+            gap: .5em;
         }
 
 

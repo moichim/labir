@@ -67,6 +67,13 @@ export class FileComments extends ControlledConsumer {
     
     `;
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.client.subscribeToIdentityChanges( this );
+        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
+    }
+
     protected firstUpdated(): void {
         // Use timeout to ensure DOM is fully rendered before scrolling
         setTimeout(() => this.scrollToBottom(), 0);
@@ -108,13 +115,17 @@ export class FileComments extends ControlledConsumer {
             ${this.folder && this.folder.may_manage_files_in
                 ? html`
                     <div class="form-container">
-                        <file-comment-form 
+                        <controlled-file-comment-form 
                             .file=${this.file} 
                             .folder=${this.folder} 
                             .onChange=${() => {
+
+                                this.requestUpdate();
+
+                                // this.content.updateFileState(file);
                                 setTimeout( () => this.scrollToBottom(), 0 );
                             }}>
-                        </file-comment-form>
+                        </controlled-file-comment-form>
                     </div>
                     `
                 : nothing

@@ -23,6 +23,7 @@ type Identity = {
         description: string | null;
         institution: string | null;
         is_root: boolean;
+        email: string;
     };
 };
 type TagInfo = {

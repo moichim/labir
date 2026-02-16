@@ -27,6 +27,22 @@ addInlineStyles();
 // Log the start info
 console.info("@labirthermal/webcomponents", version);
 
+declare interface RestrictionTarget {}
+declare var RestrictionTarget: {
+    fromElement?: (el: Element) => Promise<RestrictionTarget>;
+    fromRect?: (x: number, y: number, width: number, height: number) => Promise<RestrictionTarget>;
+};
+
+declare interface CropTarget {}
+declare var CropTarget: {
+    fromElement?: (el: Element) => Promise<CropTarget>;
+    fromRect?: (x: number, y: number, width: number, height: number) => Promise<CropTarget>;
+};
+
+declare interface MediaStreamTrack {
+    restrictTo?: (target: RestrictionTarget | CropTarget) => Promise<void> | void;
+}
+
 // 0. External components
 import "./controls/file/analysis/chart/chart";
 
@@ -75,6 +91,9 @@ import "./hierarchy/mirrors/FileMirror";
 import "./hierarchy/mirrors/GroupMirror";
 import "./hierarchy/mirrors/ManagerMirror";
 import "./hierarchy/mirrors/RegistryMirror";
+
+// 2.2. FileCopy
+import "./hierarchy/providers/FileCopy";
 
 
 // 3. Manager controls
@@ -129,6 +148,7 @@ import "./controls/file/analysis/FileAnalysisOverview";
 import "./controls/file/analysis/FileAnalysisOverviewRow";
 import "./controls/file/analysis/FileAnalysisRow";
 import "./controls/file/analysis/FileAnalysisTable";
+import "./controls/file/analysis/FileAnalysisDisplay";
 // File buttons
 import "./controls/file/buttons/FileButton";
 import "./controls/file/buttons/FileDropdown";
@@ -147,6 +167,15 @@ import "./controls/file/notation/NotationContent";
 import "./controls/file/notation/NotationEntry";
 import "./controls/file/notation/NotationProvider";
 import "./controls/file/notation/NotationTimeline";
+import "./controls/file/FileVideoExport";
+
+
+import "./controls/file/video/FileVideoExportPanel";
+
+
+
+
+import "./controls/registry/ConfigDialog";
 
 
 // 7. Complex apps go last
@@ -208,6 +237,9 @@ import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 
+
+import "./connection/controllers/abstraction/ConnectedProvider";
+
 import "./connection/controllers/apps/ConnectedBrowserApp";
 import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
@@ -215,7 +247,7 @@ import "./connection/controllers/components/user/LoginFormNew";
 import "./connection/controllers/components/folder/ConnectedFolderHeader";
 import "./connection/controllers/components/folder/listing/ConnectedSubfolderList";
 import "./connection/controllers/components/folder/listing/ConnetcedFileList";
-import "./connection/controllers/components/folder/ConnectedUploadForm";
+import "./connection/controllers/components/folder/upload/ConnectedUploadForm";
 import "./connection/controllers/components/user/ConnectedUserButton";
 import "./connection/controllers/components/ConnectedBreadcrumb";
 import "./connection/controllers/components/configuration/ConnectedConfigSubfolderMode";
@@ -231,6 +263,9 @@ import "./connection/controllers/components/file/comments/ControlledFileCommentF
 import "./connection/controllers/components/folder/crud/ConnectedFolderEditDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderDeleteDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderCreateDialog";
+import "./connection/controllers/components/file/ConnectedFileHeader"
+import "./connection/controllers/components/folder/listing/ConnectedSubfoldersGrid";
+import "./connection/controllers/components/folder/upload/ConnectedUploadDialog";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

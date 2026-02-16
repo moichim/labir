@@ -21,14 +21,14 @@ export class ConnectedConfigFileMode extends AbstractConfigElement {
         const items = [
             this.renderToggleButton(
                 this.display.fileDisplayMode === FileListDisplayMode.TABLE,
-                () => this.display.setFileDisplayMode(FileListDisplayMode.TABLE),
+                () => this.display.setFileListDisplayMode(FileListDisplayMode.TABLE),
                 "list",
                 "solid",
                 "Tabulka souborů"
             ),
             this.renderToggleButton(
                 this.display.fileDisplayMode === FileListDisplayMode.GRID,
-                () => this.display.setFileDisplayMode(FileListDisplayMode.GRID),
+                () => this.display.setFileListDisplayMode(FileListDisplayMode.GRID),
                 "grid",
                 "solid",
                 "Mřížka souborů"

@@ -21,14 +21,14 @@ export class ConnectedConfigSubfolderMode extends AbstractConfigElement {
         const items = [
             this.renderToggleButton(
                 this.display.folderListDisplayMode === FolderListDisplayMode.LIST,
-                () => this.display.setFolderDisplayMode(FolderListDisplayMode.LIST),
+                () => this.display.setFolderListDisplayMode(FolderListDisplayMode.LIST),
                 "folder",
                 "micro",
                 "Seznam složek"
             ),
             this.renderToggleButton(
                 this.display.folderListDisplayMode === FolderListDisplayMode.TABLE,
-                () => this.display.setFolderDisplayMode(FolderListDisplayMode.TABLE),
+                () => this.display.setFolderListDisplayMode(FolderListDisplayMode.TABLE),
                 "list",
                 "solid",
                 "Tabulka složek"
@@ -40,7 +40,7 @@ export class ConnectedConfigSubfolderMode extends AbstractConfigElement {
             items.push(
                 this.renderToggleButton(
                     this.display.folderListDisplayMode === FolderListDisplayMode.GRID,
-                    () => this.display.setFolderDisplayMode(FolderListDisplayMode.GRID),
+                    () => this.display.setFolderListDisplayMode(FolderListDisplayMode.GRID),
                     "grid",
                     "solid",
                     "Mřížka složek"

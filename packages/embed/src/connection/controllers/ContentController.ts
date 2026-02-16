@@ -4,7 +4,11 @@ import { ReactiveController } from "lit";
 import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
+/** 
+ * Public parameters of an application
+ */
 export interface AppWithContentController extends AppWithClientController {
 
     /** The main parameter indicating the current folder path */
@@ -20,20 +24,13 @@ export interface AppWithContentController extends AppWithClientController {
 
 }
 
-/** The response object that is being returned by fetch requests */
-type ContentControllerResponse = {
-    code: number,
-    message: string,
-    success: boolean
-}
-
 /**
  * This controller takes care of the entire content state management:
  * - fetching data from the server
  * - updates everywhere
  * - loading state (separate from the client controller who has a loading state of its own)
  */
-export class ContentController implements ReactiveController {
+export class ContentController extends AbstractConnectedController implements ReactiveController {
 
     host: AppWithContentController;
 
@@ -79,6 +76,7 @@ export class ContentController implements ReactiveController {
     constructor(
         host: AppWithContentController
     ) {
+        super();
         this.host = host;
         host.addController(this);
     }
@@ -189,6 +187,8 @@ export class ContentController implements ReactiveController {
         // Update the fileName property of the host component
         if ( this.file ) {
             this.host.fileName = this.file.fileName;
+        } else {
+            this.host.fileName = undefined;
         }
 
 
@@ -239,8 +239,6 @@ export class ContentController implements ReactiveController {
     private dangerouslySetBreadcrumb(
         breadcrumb: BreadcrumbItem[] | undefined
     ): void {
-
-        this.host.log( "Breadcrumb se změnil", breadcrumb );
 
         this._breadcrumb = breadcrumb;
         this.onBreadcrumbUpdate.call( this._breadcrumb );
@@ -507,9 +505,15 @@ export class ContentController implements ReactiveController {
         folderPath: string
     ): Promise<void> {
 
+        this.log( "Started fetching grid", folderPath );
+
         const result = await this.host.apiClient.routes.get
             .grid(folderPath)
             .execute();
+
+        this.host.requestUpdate();
+
+        this.log( "Response", result );
 
         this.throwIfNot200(result);
 
@@ -565,12 +569,16 @@ export class ContentController implements ReactiveController {
         fileName: string
     ): Promise<void> {
 
+        this.log( "Stav před mazáním:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
+
         const result = await this.host.apiClient.routes.post.deleteFile(
             folderPath,
             fileName
         ).execute();
 
         this.throwIfNot200(result);
+
+        this.log( "Stav kbezprostředně po mazání:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
 
         // Delete the file from the current state if necessary
         if ( 

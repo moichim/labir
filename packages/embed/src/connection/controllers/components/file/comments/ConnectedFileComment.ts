@@ -107,6 +107,9 @@ export class FileComment extends ControlledConsumer {
         super.connectedCallback();
 
         this.client.subscribeToIdentityChanges( this );
+        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
+        this.content.subscribeToFolderUpdates( this );
 
     }
 

@@ -94,6 +94,8 @@ export class ConnectedFolderFileList extends ControlledConsumer {
         this.content.subscribeToFolderUpdates( this );
         this.content.subscribeToFilesUpdates( this );
         this.display.subscribeToDisplayCompact( this );
+        this.display.subscribeToEditTags( this );
+        this.display.subscribeToDisplayComments( this );
     }
 
 

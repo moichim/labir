@@ -4,7 +4,7 @@ import * as workerpool from "workerpool";
 import Pool from "workerpool/types/Pool";
 import { BaseStructureObject } from "../base/BaseStructureObject";
 import { Instance } from "../file/instance";
-import { AvailableThermalPalettes } from "../file/utils/palettes";
+import { AvailableThermalPalette } from "../properties/scale/palettes";
 import { FilterContainer } from "../filters/FilterContainer";
 import { FilesService } from "../loading/workers/FilesService";
 import { GraphSmoothDrive } from "../properties/display/GraphSmoothDrive";
@@ -15,7 +15,7 @@ import { ToolDrive } from "../properties/analysis/tool/ToolDrive";
 import { InspectTool } from "../properties/analysis/tool/internals/InspectTool";
 
 export type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes
+    palette?: AvailableThermalPalette
 }
 
 const isChromium = "chrome" in window;

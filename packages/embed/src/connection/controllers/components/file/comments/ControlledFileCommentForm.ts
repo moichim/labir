@@ -27,6 +27,13 @@ export class FileCommentForm extends ControlledConsumer {
     @state()
     protected message: string = "";
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.client.subscribeToIdentityChanges( this );
+        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
+    }
+
     // Initialize message from existing comment when component updates
     protected updated(changedProperties: Map<string | number | symbol, unknown>): void {
         if (changedProperties.has('comment') && this.comment && !this.message) {
@@ -81,8 +88,6 @@ export class FileCommentForm extends ControlledConsumer {
     protected async handleSubmit(event: Event): Promise<void> {
 
         event.preventDefault();
-
-        console.log("Submit message");
 
         if (this.client && this.message.trim().length >= 3) {
 

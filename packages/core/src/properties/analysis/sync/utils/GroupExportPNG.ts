@@ -146,6 +146,14 @@ export class GroupExportPNG extends AbstractPngExport<GroupExportPNGParams, Grou
 
 
             this.list.appendChild(container);
+
+            // HOTFIX: Remove the visible file from the instance
+            instance.removeVisibleFile();
+
+            // HOTFIX: Turn off webgl preference for the export
+            // In case of large groups, webgl execeeds limit of canvases
+            instance.setPreferWebGl( false );
+
             instance.mountToDom(wrapper);
             instance.draw();
 

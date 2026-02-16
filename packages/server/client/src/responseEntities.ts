@@ -15,7 +15,8 @@ export type Identity = {
         name: string,
         description: string | null,
         institution: string | null,
-        is_root: boolean
+        is_root: boolean,
+        email: string
     }
 
 }

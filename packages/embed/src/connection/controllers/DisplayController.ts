@@ -3,6 +3,7 @@ import { AppWithContentController, ContentController } from "./ContentController
 import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { CallbacksManager } from "@labirthermal/core";
 import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
 export enum DisplayState {
     LOADING,
@@ -58,7 +59,7 @@ export interface AppWithDisplayController extends AppWithContentController {
     displayComments: boolean;
 }
 
-export class DisplayController implements ReactiveController {
+export class DisplayController extends AbstractConnectedController implements ReactiveController {
 
     private static readonly LISTENER_ID = "DisplayController";
 
@@ -104,9 +105,12 @@ export class DisplayController implements ReactiveController {
 
     private readonly onArbitraryContentUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
+    private readonly onRecreateContext: CallbacksManager<() => void> = new CallbacksManager();
+
     constructor(
         host: AppWithDisplayController
     ) {
+        super();
         this.host = host;
         host.addController(this);
     }
@@ -116,7 +120,7 @@ export class DisplayController implements ReactiveController {
         this.host.client.onIdentity.set(
             DisplayController.LISTENER_ID, () => {
                 this.reloadCurrentState().catch( error => {
-                    this.host.log("Chyba při načítání po změně identity uživatele:", error);
+                    this.log("Chyba při načítání po změně identity uživatele:", error);
                 } );
             }
         );
@@ -134,6 +138,7 @@ export class DisplayController implements ReactiveController {
     private refreshSlugOnNavigate(): void {
         this._slug = this.host.content.getRegistrySlug();
         this.onNavigate.call();
+        this.onRecreateContext.call();
         this.host.requestUpdate();
     }
 
@@ -157,6 +162,8 @@ export class DisplayController implements ReactiveController {
         this.navigateToLoadingState("Načítám složku");
 
         try {
+
+            this.host.content.dangerouslySetFileState(undefined);
 
             await this.host.content.fetchFolder(
                 targetFolderPath
@@ -183,7 +190,7 @@ export class DisplayController implements ReactiveController {
                 // If the grid can not be displayed, switch to the list mode
                 else {
 
-                    this.setFolderDisplayMode( FolderListDisplayMode.LIST );
+                    this.setFolderListDisplayMode( FolderListDisplayMode.LIST );
 
                 }
 
@@ -216,7 +223,7 @@ export class DisplayController implements ReactiveController {
         file: FileInfo
     ): Promise<void> {
 
-        this.host.log(
+        this.log(
             "Nastavuji se na soubor:",
             file
         );
@@ -290,10 +297,22 @@ export class DisplayController implements ReactiveController {
         this.setAppMode(DisplayState.LOGIN);
     }
 
+    public async navigateToFolderParentAndLoad(
+        originalFolderPath: string
+    ): Promise<void> {
+        // Rodič se získá z cesty odstraněním posledního segmentu
+        
+        /** @todo */
+
+        return;
+        // const parentPath = this.host.content.getParentFolderPath( originalFolderPath );
+        // return this.navigateToFolderAndLoad( parentPath );
+    }
+
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
 
-        this.host.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
+        this.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
 
         // this.navigateToLoadingState("Načítám obsah");
 
@@ -302,7 +321,7 @@ export class DisplayController implements ReactiveController {
 
             /** Načítám složku i soubor */
 
-            this.host.log("Načítám soubor a složku");
+            this.log("Načítám soubor a složku");
 
             await this.navigateToFileAndLoad(
                 this.host.folderPath,
@@ -314,7 +333,7 @@ export class DisplayController implements ReactiveController {
         // Načítám složku, pokud je vyplněná
         else if (this.host.folderPath !== undefined) {
 
-            this.host.log("Načítám pouze složku");
+            this.log("Načítám pouze složku");
 
             await this.navigateToFolderAndLoad(
                 this.host.folderPath
@@ -323,14 +342,14 @@ export class DisplayController implements ReactiveController {
 
         } if (this.host.client.isLoggedIn) {
 
-            this.host.log("Načítám uživatelovu složku");
+            this.log("Načítám uživatelovu složku");
 
             await this.navigateToUserFoldersAndLoad();
             return;
 
         }
 
-        this.host.log("Mám tady toto");
+        this.log("Mám tady toto");
 
         this.navigateToLoginState();
 
@@ -374,7 +393,7 @@ export class DisplayController implements ReactiveController {
     }
 
     /** Setup the internal file display mode state */
-    public setFileDisplayMode(
+    public setFileListDisplayMode(
         mode: FileListDisplayMode
     ): void {
 
@@ -390,7 +409,7 @@ export class DisplayController implements ReactiveController {
         value: boolean
     ): void {
 
-        this.host.log( "Nastavuji compact na", value, "z", this.host.fileDisplayCompact );
+        this.log( "Nastavuji compact na", value, "z", this.host.fileDisplayCompact );
 
         if ( value !== this.host.fileDisplayCompact ) {
             this.host.fileDisplayCompact = value;
@@ -420,14 +439,32 @@ export class DisplayController implements ReactiveController {
     }
 
     /** Public display internal  folder display setter */
-    public setFolderDisplayMode(
+    public setFolderListDisplayMode(
         mode: FolderListDisplayMode
     ): void {
 
         if (mode !== this.host.folderListDisplayMode) {
             this.host.folderListDisplayMode = mode;
             this.onFolderDisplayModeUpdate.call();
+
+            // If we should have grid here, start fetching it
+            if ( mode === FolderListDisplayMode.GRID && this.host.folderPath) {
+
+                this.host.content.fetchGridData(
+                    this.host.folderPath
+                );
+
+                this.onRecreateContext.call();
+
+            }
+
+            // otherwise make sure the grid in the content is empty
+            else {
+                this.host.content.dangerouslySetGridState( undefined )
+            }
+
             this.host.requestUpdate();
+
         }
     }
 
@@ -534,6 +571,31 @@ export class DisplayController implements ReactiveController {
         );
     }
 
+    public subscribeToNavigate(
+        element: BaseElement,
+        callback?: () => void
+    ): void {
+        this.onNavigate.set(
+            element.getUUID( DisplayController.LISTENER_ID ),
+            () => {
+                callback?.();
+            }
+        );
+    }
+
+
+    public subscribeOnRecrteateContext(
+        element: BaseElement,
+        callback: () => void
+    ): void {
+        this.onRecreateContext.set(
+            element.getUUID( DisplayController.LISTENER_ID ),
+            () => {
+                callback();
+            }
+        );
+    }
+
 
     /** Unsubscribe the element from all display mode changes */
     public unsubscribeFromAll(
@@ -548,7 +610,8 @@ export class DisplayController implements ReactiveController {
         this.onFileDisplayCompactUpdate.delete(UUID);
         this.onEditTagsUpdate.delete(UUID);
         this.onDisplayCommentsUpdate.delete(UUID);
-
+        this.onNavigate.delete(UUID);
+        this.onRecreateContext.delete(UUID);
     }
 
 
@@ -559,7 +622,11 @@ export class DisplayController implements ReactiveController {
     public canHaveGrid(
         subfolders: FolderInfo[]
     ): boolean {
-        return subfolders.some(f => f.lrc_count > 0);
+
+        const foldersWithFiles = subfolders.filter( f => f.lrc_count > 0 );
+
+        return foldersWithFiles.length > 1;
+
     }
 
 

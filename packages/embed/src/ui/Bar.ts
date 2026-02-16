@@ -81,47 +81,65 @@ export class ThermalBar extends LitElement {
     connectedCallback(): void {
 
         super.connectedCallback();
-        
+
     }
 
     protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void {
-        super.firstUpdated( _changedProperties );
+        super.firstUpdated(_changedProperties);
 
-        this.observer = new ResizeObserver( ( entries ) => {
-
-            // if the bar is not collapsed, store the content width
-            if ( this.collapsed === false ) {
-                const contentWidth = this.contentRef.value!.clientWidth;
-                this.lastContentWidth = contentWidth;
-            }
-
-            const entry = entries[0];
-
-            // If content is larger, expand it
-            if ( this.lastContentWidth < entry.contentRect.width ) {
-                if ( this.collapsed ) {
-                    this.collapsed = false;
-                }
-            }
-
-            // If content is smaller, collapse it
-            else {
-                if ( this.collapsed === false ) {
-                    this.collapsed = true;
-                }
-            }
-
-        } );
-        this.observer.observe( this.drawerRef.value! );
+        this.hydrateObserver();
 
     }
 
+
+    private hydrateObserver() {
+
+        if (this.drawerRef.value && this.observer === undefined) {
+
+            this.observer = new ResizeObserver((entries) => {
+
+                // if the bar is not collapsed, store the content width
+                if (this.collapsed === false) {
+                    const contentWidth = this.contentRef.value!.clientWidth;
+                    this.lastContentWidth = contentWidth;
+                }
+
+                const entry = entries[0];
+
+                // If content is larger, expand it
+                if (this.lastContentWidth < entry.contentRect.width) {
+                    if (this.collapsed) {
+                        this.collapsed = false;
+                    }
+                }
+
+                // If content is smaller, collapse it
+                else {
+                    if (this.collapsed === false) {
+                        this.collapsed = true;
+                    }
+                }
+
+            });
+
+
+            this.observer.observe(this.drawerRef.value);
+
+
+        }
+
+    }
+
+
     disconnectedCallback(): void {
         super.disconnectedCallback();
-        if ( this.drawerRef.value ) {
-            this.observer.unobserve( this.drawerRef.value );
+        if (this.drawerRef.value) {
+            this.observer.unobserve(this.drawerRef.value);
         }
-        this.observer.disconnect();
+        if (this.observer) {
+            this.observer.disconnect();
+        }
+
     }
 
 
@@ -154,7 +172,7 @@ export class ThermalBar extends LitElement {
 
                     <slot slot="option" stacked="true"></slot>
                 </thermal-dropdown>
-            ` : nothing }
+            ` : nothing}
         
         `;
     }

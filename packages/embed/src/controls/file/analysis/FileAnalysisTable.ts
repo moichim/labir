@@ -13,8 +13,6 @@ import { booleanConverter } from "../../../utils/converters/booleanConverter";
 @customElement("file-analysis-table")
 export class FileAnalysisTable extends FileConsumer {
 
-    protected container: Ref<HTMLDivElement> = createRef();
-
     @consume({ context: interactiveAnalysisContext, subscribe: true })
     interactiveanalysis: boolean = false;
 
@@ -88,18 +86,43 @@ export class FileAnalysisTable extends FileConsumer {
 
     public static styles = css`
     
-        .overflow {
-            overflow-x:auto;
+        :host {
+
+            display: block;
             width: 100%;
+            min-width: 0;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+
+            margin: 0;
+            padding: 0;
+
+            position: relative;
+
+            box-sizing: border-box;
+        
         }
 
         table {
+
             display: table;
+
             min-width: 100%;
+            
+            position: relative;
+
+            table-layout: fixed;
+
+            
+            margin: 0;
+            padding: 0;
+            
             border-collapse: collapse;
+
             color: var( --thermal-foreground );
             border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );
+            box-sizing: border-box;
+
             td, th {
                 padding: calc( var( --thermal-fs ) * .5 )
             }
@@ -173,11 +196,20 @@ export class FileAnalysisTable extends FileConsumer {
 
         }
 
-        
-
-
-
     `;
+
+    private renderTableRows(): unknown {
+
+        if ( this.analysis.length === 0 || this.file === undefined) {
+            return nothing;
+        }
+
+        return this.analysis.map( analysis => html`<file-analysis-table-row
+            .analysis=${analysis}
+            interactiveanalysis=${this.interactiveanalysis === true || this.forceinteractiveanalysis === true}
+        ></file-analysis-table-row>`);
+
+    }
 
 
 
@@ -191,11 +223,7 @@ export class FileAnalysisTable extends FileConsumer {
 
         return html`
 
-        <div class="overflow" ${ref(this.container)}>
-
             <table>
-
-                <caption>Table of analysis currently set on the file ${this.file.fileName}.</caption>
 
                 <thead>
 
@@ -216,27 +244,14 @@ export class FileAnalysisTable extends FileConsumer {
                         <th>${t(T.min)}</th>
                         <th>${t(T.max)}</th>
                         <th>${t(T.size)}</th>
-                        ${interactiveanalysis === true ? html`<th></th>` : nothing}
+                        <th></th>
                     </tr>
                 
                 </thead>
 
-                <tbody>
+                <tbody>${this.renderTableRows()}</tbody>
 
-                    ${this.analysis.map(
-                analysis => html`
-                            <file-analysis-table-row
-                                .analysis=${analysis}
-                                interactiveanalysis=${interactiveanalysis}
-                            ></file-analysis-table-row>
-                        `
-            )}
-                
-                </tbody>
-
-                </table>
-
-            </div>
+            </table>
             
         `;
     }

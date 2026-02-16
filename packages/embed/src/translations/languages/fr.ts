@@ -256,5 +256,28 @@ export const fr: Translation = {
     password: "Mot de passe",
     logoutmessage: "Êtes-vous sûr de vouloir vous déconnecter ?",
     loginerror: "Impossible de se connecter.",
-    accessibletologgedinusers: "Cette page est accessible uniquement aux utilisateurs connectés."
+    accessibletologgedinusers: "Cette page est accessible uniquement aux utilisateurs connectés.",
+
+    export: "Exporter",
+    exportvideo: "Exporter la vidéo",
+    exportpng: "Exporter l'image",
+
+    exportdonotclosewindowhint: "Ne fermez pas cette fenêtre, le fichier sera téléchargé automatiquement.",
+    exportencodingfile: "Encodage du fichier vidéo...",
+    exportrecordingframes: "Enregistrement des images...",
+
+    histogram: "Histogramme",
+    timeline: "Chronologie",
+
+    exportwidth: "Largeur",
+    exportmargin: "Marges",
+    exportgap: "Espace",
+    exportgrahpheight: "Hauteur du graphique",
+    videoquality: "Qualité vidéo",
+    imagecompression: "Compression d'image",
+
+    theme: "Thème",
+    light: "Clair",
+    dark: "Sombre",
+
 }

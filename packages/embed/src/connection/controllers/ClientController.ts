@@ -1,11 +1,11 @@
-import { ReactiveController, ReactiveControllerHost } from "lit";
-import { AppWithRender } from "../composition/AppWithRender";
+import { CallbacksManager } from "@labirthermal/core";
 import Client from "@labirthermal/server";
+import { ReactiveController } from "lit";
 import { Identity, ServerInfo } from "packages/server/client/dist";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { CallbacksManager } from "@labirthermal/core";
-import { should } from "vitest";
+import { AbstractConnectedController } from "./AbstractConnectedController";
 
+/** Public properties for application elements using ClientController */
 export interface AppWithClientController extends BaseElement {
     /** URL Address of the webserver */
     serverUrl: string;
@@ -19,7 +19,10 @@ export interface AppWithClientController extends BaseElement {
     authToken?: string;
 }
 
-export class ClientController implements ReactiveController {
+/** 
+ * Basic reactive controller for applications connected to the API 
+ */
+export class ClientController extends AbstractConnectedController implements ReactiveController {
 
     host: AppWithClientController;
 
@@ -73,6 +76,8 @@ export class ClientController implements ReactiveController {
     constructor(
         host: AppWithClientController
     ) {
+
+        super();
 
         this.host = host;
 
@@ -229,7 +234,6 @@ export class ClientController implements ReactiveController {
         this._isLoading = false;
         this._whatIsLoading = undefined;
         this._loadingError = undefined;
-        this._isLoggedIn = true;
         this.onLoadingChange.call( false );
         this.host.requestUpdate();
     }

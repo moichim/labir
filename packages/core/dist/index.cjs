@@ -40,15 +40,11 @@ __export(index_exports, {
   AnalysisGraph: () => AnalysisGraph,
   Batch: () => Batch,
   CallbacksManager: () => CallbacksManager,
-  CornerPoint: () => CornerPoint,
   DropinElementListener: () => DropinElementListener,
   EditTool: () => EditTool,
   EllipsisAnalysis: () => EllipsisAnalysis,
-  GRAYSCALE: () => WHITE_HOT,
-  IRON: () => IRON,
   InspectTool: () => InspectTool,
   Instance: () => Instance,
-  JET: () => JET,
   PointAnalysis: () => PointAnalysis,
   RectangleAnalysis: () => RectangleAnalysis,
   ThermalFileFailure: () => ThermalFileFailure,
@@ -68,267 +64,8 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
-// src/file/utils/palettes.ts
-var generatePaletteFromStops = (stops) => {
-  const palette = new Array(256);
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  for (let i = 0; i < 256; i++) {
-    const percent = i / 255 * 100;
-    let startStop = sortedStops[0];
-    let endStop = sortedStops[sortedStops.length - 1];
-    for (let j = 0; j < sortedStops.length - 1; j++) {
-      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
-        startStop = sortedStops[j];
-        endStop = sortedStops[j + 1];
-        break;
-      }
-    }
-    const range = endStop.percent - startStop.percent;
-    const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
-    const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
-    const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
-    const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
-    palette[i] = `rgb(${r},${g},${b})`;
-  }
-  return palette;
-};
-var generateGradientFromStops = (stops) => {
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
-  return `linear-gradient(90deg, ${gradientStops})`;
-};
-var generateTextureArrayFromStops = (stops) => {
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  const arr = new Float32Array(256 * 4);
-  for (let i = 0; i < 256; i++) {
-    const percent = i / 255 * 100;
-    let lowerStop = sortedStops[0];
-    let upperStop = sortedStops[sortedStops.length - 1];
-    for (let j = 0; j < sortedStops.length - 1; j++) {
-      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
-        lowerStop = sortedStops[j];
-        upperStop = sortedStops[j + 1];
-        break;
-      }
-    }
-    const ratio = (percent - lowerStop.percent) / (upperStop.percent - lowerStop.percent || 1);
-    const r = lowerStop.color[0] + (upperStop.color[0] - lowerStop.color[0]) * ratio;
-    const g = lowerStop.color[1] + (upperStop.color[1] - lowerStop.color[1]) * ratio;
-    const b = lowerStop.color[2] + (upperStop.color[2] - lowerStop.color[2]) * ratio;
-    arr[i * 4] = r / 255;
-    arr[i * 4 + 1] = g / 255;
-    arr[i * 4 + 2] = b / 255;
-    arr[i * 4 + 3] = 1;
-  }
-  return arr;
-};
-var IRON_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 30, color: [10, 12, 77] },
-  { percent: 49, color: [86, 20, 101] },
-  { percent: 64, color: [255, 0, 0] },
-  { percent: 84, color: [249, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var JET_STOPS = [
-  { percent: 0, color: [31, 0, 157] },
-  { percent: 8, color: [0, 5, 255] },
-  { percent: 36, color: [0, 255, 239] },
-  { percent: 66, color: [255, 252, 0] },
-  { percent: 94, color: [255, 2, 0] },
-  { percent: 100, color: [145, 0, 0] }
-];
-var WHITE_HOT_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var BLACK_HOT_STOPS = [
-  { percent: 0, color: [255, 255, 255] },
-  { percent: 100, color: [0, 0, 0] }
-];
-var LAVA_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 12, color: [30, 78, 149] },
-  { percent: 32, color: [33, 128, 127] },
-  { percent: 41, color: [102, 48, 108] },
-  { percent: 64, color: [233, 37, 37] },
-  { percent: 90, color: [255, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var ARCTIC_STOPS = [
-  { percent: 0, color: [17, 13, 133] },
-  { percent: 15, color: [23, 50, 248] },
-  { percent: 30, color: [75, 245, 255] },
-  { percent: 55, color: [100, 91, 86] },
-  { percent: 70, color: [239, 86, 28] },
-  { percent: 87, color: [255, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var RAINBOW_STOPS = [
-  { percent: 0, color: [12, 11, 65] },
-  { percent: 23, color: [36, 108, 212] },
-  { percent: 42, color: [100, 255, 30] },
-  { percent: 55, color: [255, 255, 0] },
-  { percent: 80, color: [255, 0, 69] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var RAINBOW_HC_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 13, color: [212, 0, 217] },
-  { percent: 25, color: [21, 28, 151] },
-  { percent: 37, color: [55, 230, 255] },
-  { percent: 50, color: [17, 75, 22] },
-  { percent: 62, color: [255, 255, 0] },
-  { percent: 80, color: [119, 0, 11] },
-  { percent: 90, color: [255, 40, 32] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var IRON = generatePaletteFromStops(IRON_STOPS);
-var JET = generatePaletteFromStops(JET_STOPS);
-var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
-var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
-var LAVA = generatePaletteFromStops(LAVA_STOPS);
-var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
-var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
-var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
-var PALETTES = [
-  { name: "Iron", stops: IRON_STOPS },
-  { name: "Jet", stops: JET_STOPS },
-  { name: "White Hot", stops: WHITE_HOT_STOPS },
-  { name: "Black Hot", stops: BLACK_HOT_STOPS },
-  { name: "Lava", stops: LAVA_STOPS },
-  { name: "Arctic", stops: ARCTIC_STOPS },
-  { name: "Rainbow", stops: RAINBOW_STOPS },
-  { name: "Rainbow HC", stops: RAINBOW_HC_STOPS }
-];
-var TP = Object.fromEntries(PALETTES.map((pd) => {
-  const slug = pd.name.toLocaleLowerCase().replace(" ", "_");
-  return [slug, {
-    gradient: generateGradientFromStops(pd.stops),
-    pixels: generatePaletteFromStops(pd.stops),
-    texturePixels: generateTextureArrayFromStops(pd.stops),
-    slug,
-    name: pd.name
-  }];
-}));
-var ThermalPalettes = TP;
-
-// src/utils/time/formatting.ts
-var import_date_fns = require("date-fns");
-
-// src/utils/time/base.ts
-var TimeUtilsBase = class {
-  /** Convert an input to a date object */
-  static inputToDate = (value) => {
-    if (typeof value === "number") {
-      const d = /* @__PURE__ */ new Date();
-      d.setTime(value);
-      return d;
-    }
-    return value;
-  };
-};
-
-// src/utils/time/formatting.ts
-var TimeFormat = class _TimeFormat extends TimeUtilsBase {
-  /** YYYY-MM-DD */
-  static isoDate = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value, { representation: "date" });
-  };
-  /** HH:MM:SS */
-  static isoTime = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value, { representation: "time" });
-  };
-  /** YYYY-MM-DD HH:MM:SS */
-  static isoComplete = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value);
-  };
-  /** HH:mm */
-  static humanTime = (value, showSeconds = false) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
-  };
-  /** j. M. ???? (y) */
-  static humanDate = (value, includeYear = false) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.format)(value, includeYear ? "d. M." : "d. M. yyyy");
-  };
-  /** Range */
-  static humanRangeDates(from, to) {
-    from = _TimeFormat.inputToDate(from);
-    to = _TimeFormat.inputToDate(to);
-    if (from.getUTCDate() === to.getUTCDate()) {
-      return _TimeFormat.humanDate(from);
-    }
-    return [
-      _TimeFormat.humanDate(from),
-      _TimeFormat.humanDate(to)
-    ].join(" - ");
-  }
-  static human(date) {
-    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
-  }
-};
-
-// src/utils/time/periods.ts
-var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
-  TimePeriod2["HOUR"] = "jednu hodinu";
-  TimePeriod2["DAY"] = "jeden den";
-  TimePeriod2["WEEK"] = "jeden t\xFDden";
-  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
-  TimePeriod2["YEAR"] = "jeden rok";
-  return TimePeriod2;
-})(TimePeriod || {});
-
-// src/utils/time/rounding.ts
-var import_date_fns2 = require("date-fns");
-var TimeRound = class _TimeRound extends TimeUtilsBase {
-  static down = (value, roundTo) => {
-    if (roundTo === "jednu hodinu" /* HOUR */)
-      return (0, import_date_fns2.startOfHour)(value);
-    else if (roundTo === "jeden den" /* DAY */)
-      return (0, import_date_fns2.startOfDay)(value);
-    else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return (0, import_date_fns2.startOfWeek)(value);
-    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return (0, import_date_fns2.startOfMonth)(value);
-    return (0, import_date_fns2.startOfYear)(value);
-  };
-  static up = (value, roundTo) => {
-    if (roundTo === "jednu hodinu" /* HOUR */)
-      return (0, import_date_fns2.endOfHour)(value);
-    else if (roundTo === "jeden den" /* DAY */)
-      return (0, import_date_fns2.endOfDay)(value);
-    else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return (0, import_date_fns2.endOfWeek)(value);
-    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return (0, import_date_fns2.endOfMonth)(value);
-    return (0, import_date_fns2.endOfYear)(value);
-  };
-  static pick = (value, period) => {
-    return [
-      _TimeRound.down(value, period),
-      _TimeRound.up(value, period)
-    ];
-  };
-  static modify = (value, amount, period) => {
-    switch (period) {
-      case "jednu hodinu" /* HOUR */:
-        return (0, import_date_fns2.addHours)(value, amount);
-      case "jeden den" /* DAY */:
-        return (0, import_date_fns2.addDays)(value, amount);
-      case "jeden t\xFDden" /* WEEK */:
-        return (0, import_date_fns2.addDays)(value, amount * 7);
-      case "jeden m\u011Bs\xEDc" /* MONTH */:
-        return (0, import_date_fns2.addMonths)(value, amount);
-      case "jeden rok" /* YEAR */:
-        return (0, import_date_fns2.addYears)(value, amount);
-    }
-  };
-};
+// package.json
+var version = "1.3.4";
 
 // src/properties/callbacksManager.ts
 var CallbacksManager = class extends Map {
@@ -339,6 +76,25 @@ var CallbacksManager = class extends Map {
   call(...args) {
     this.forEach((fn) => fn(...args));
   }
+};
+
+// src/utils/pool.ts
+var workerpool = __toESM(require("workerpool"), 1);
+var pool2 = void 0;
+var getPool = async () => {
+  if (!pool2) {
+    pool2 = workerpool.pool({
+      maxWorkers: 6
+    });
+  }
+  return pool2;
+};
+
+// src/hierarchy/ThermalManager.ts
+var workerpool2 = __toESM(require("workerpool"), 1);
+
+// src/base/BaseStructureObject.ts
+var BaseStructureObject = class {
 };
 
 // src/filters/FilterContainer.ts
@@ -379,6 +135,38 @@ var FilterContainer = class {
     });
   }
   getFiltersArray() {
+  }
+};
+
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+  }
+};
+
+// src/loading/workers/ThermalFileFailure.ts
+var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
+  constructor(thermalUrl, code, message) {
+    super(thermalUrl);
+    this.code = code;
+    this.message = message;
+  }
+  isSuccess() {
+    return false;
+  }
+  static fromError(error) {
+    return new _ThermalFileFailure(error.url, error.code, error.message);
+  }
+};
+
+// src/loading/workers/errors.ts
+var FileLoadingError = class extends Error {
+  constructor(code, url, message) {
+    super(message);
+    this.code = code;
+    this.url = url;
   }
 };
 
@@ -2568,7 +2356,7 @@ var AnalysisDrive = class extends AbstractProperty {
 var import_export_to_csv = require("export-to-csv");
 
 // src/properties/analysis/data/graphs/AnalysisGraphsStorage.ts
-var import_date_fns3 = require("date-fns");
+var import_date_fns = require("date-fns");
 var AnalysisGraphsStorage = class {
   constructor(drive) {
     this.drive = drive;
@@ -2689,8 +2477,8 @@ var AnalysisGraphsStorage = class {
             const timestamp_relative = parseInt(key);
             const timestamp_absolute = timestamp_relative + graph.analysis.file.timestamp;
             dataBuffer[key] = {
-              [header[0].key]: (0, import_date_fns3.format)(timestamp_relative, "m:ss:SSS") + " ",
-              [header[1].key]: (0, import_date_fns3.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
+              [header[0].key]: (0, import_date_fns.format)(timestamp_relative, "m:ss:SSS") + " ",
+              [header[1].key]: (0, import_date_fns.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
               [header[2].key]: timestamp_relative,
               [header[3].key]: timestamp_absolute
             };
@@ -3196,7 +2984,7 @@ var CursorValueDrive = class extends AbstractProperty {
 };
 
 // src/properties/time/playback/TimelineDrive.ts
-var import_date_fns4 = require("date-fns");
+var import_date_fns2 = require("date-fns");
 
 // src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
@@ -3417,7 +3205,7 @@ var TimelineDrive = class extends AbstractProperty {
   formatDuration(ms) {
     const date = /* @__PURE__ */ new Date(0);
     date.setMilliseconds(ms);
-    return (0, import_date_fns4.format)(date, "mm:ss:SSS");
+    return (0, import_date_fns2.format)(date, "mm:ss:SSS");
   }
   next() {
     const next = this.findNextRelative(this.value);
@@ -3546,6 +3334,7 @@ var RecordingDrive = class extends AbstractProperty {
   stream;
   recorder;
   mimeType;
+  fileExt;
   _isRecording = false;
   _mayStop = true;
   get mayStop() {
@@ -3606,22 +3395,35 @@ var RecordingDrive = class extends AbstractProperty {
     this.parent.timeline.play();
     this.start();
   }
+  getOutputMimeType() {
+    let value = void 0;
+    const tp = [
+      { mime: "video/webm;codecs=vp9", ext: "webm" },
+      { mime: "video/webm;codecs=vp8", ext: "webm" },
+      { mime: "video/webm;codecs=vp9,opus", ext: "webm" },
+      { mime: "video/webm;codecs=vp8,opus", ext: "webm" },
+      { mime: "video/webm", ext: "webm" },
+      { mime: "video/mp4;codecs=h264", ext: "mp4" },
+      { mime: "video/mp4", ext: "mp4" }
+    ];
+    for (const t of tp) {
+      if (MediaRecorder.isTypeSupported(t.mime)) {
+        value = t;
+      }
+    }
+    return value;
+  }
   initRecording() {
     if (this.stream || this.recorder) {
       throw new Error("Recording was already initialised! Can not initialise it again until it stops!");
     }
     const stream = this.parent.canvasLayer.canvas.captureStream(25);
-    const types = [
-      "video/mp4",
-      "video/webm;codecs=h264",
-      "video/webm;codecs=vp8",
-      "video/webm;codecs=daala",
-      "video/webm"
-    ];
-    types.forEach((type) => {
-      if (this.mimeType === void 0 && MediaRecorder.isTypeSupported(type))
-        this.mimeType = type;
-    });
+    const output = this.getOutputMimeType();
+    if (output === void 0) {
+      throw new Error("No supported mime type found for MediaRecorder!");
+    }
+    this.mimeType = output.mime;
+    this.fileExt = output.ext;
     const options2 = {
       mimeType: this.mimeType
     };
@@ -3632,6 +3434,16 @@ var RecordingDrive = class extends AbstractProperty {
       options: options2
     };
   }
+  createRecordingFileName() {
+    const originalFileName = this.parent.fileName;
+    const segments = [
+      "from_" + this.parent.group.registry.range.value.from.toFixed(2),
+      "to_" + this.parent.group.registry.range.value.to.toFixed(2)
+    ].join("__");
+    const extension = this.fileExt ? this.fileExt : "webm";
+    const replaceWithText = "__" + segments + "." + extension;
+    return originalFileName.replace(/\.lrc$/i, replaceWithText);
+  }
   download() {
     const blob = new Blob(this.recordedChunks, {
       type: this.mimeType
@@ -3640,10 +3452,11 @@ var RecordingDrive = class extends AbstractProperty {
     const a = document.createElement("a");
     a.style.display = "none";
     a.href = url;
-    a.download = this.parent.fileName.replace(".lrc", `__${this.parent.group.registry.palette.value}__from-${this.parent.group.registry.range.value.from.toFixed(2)}_to-${this.parent.group.registry.range.value.to.toFixed(2)}.webm`);
+    a.download = this.createRecordingFileName();
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
   clearRecording() {
     if (this.recorder) {
@@ -3659,10 +3472,6 @@ var RecordingDrive = class extends AbstractProperty {
     this.value = false;
     this.mimeType = void 0;
   }
-};
-
-// src/base/BaseStructureObject.ts
-var BaseStructureObject = class {
 };
 
 // src/file/dom/InstanceDom.ts
@@ -4260,7 +4069,10 @@ var AbstractFile = class extends BaseStructureObject {
     return this.group.registry.manager.pool;
   }
   thermalUrl;
-  visibleUrl;
+  _visibleUrl;
+  get visibleUrl() {
+    return this._visibleUrl;
+  }
   fileName;
   signature = "unknown";
   version = -1;
@@ -4379,6 +4191,21 @@ var AbstractFile = class extends BaseStructureObject {
   set built(value) {
     this._built = value;
   }
+  _preferWebGl = true;
+  get preferWebGl() {
+    return this._preferWebGl;
+  }
+  switchToCPURenderer() {
+    if (this.renderer instanceof CpuRenderer) {
+      return;
+    }
+    this.renderer?.destroy();
+    const container = this.dom?.root;
+    this.unmountFromDom();
+    this.mountToDom(container);
+    this.renderer = new CpuRenderer(this, this.dom.canvasLayer.canvas);
+    this.renderer.init();
+  }
   _pixels;
   get pixels() {
     return this._pixels;
@@ -4393,19 +4220,39 @@ var AbstractFile = class extends BaseStructureObject {
     this.id = this.formatId(thermalUrl);
     this.meta = new FileMeta(baseInfo2);
     this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
+    this._visibleUrl = visibleUrl;
     this.fileName = this.thermalUrl.substring(this.thermalUrl.lastIndexOf("/") + 1);
     this.horizontalLimit = this.width / 4 * 3;
     this.verticalLimit = this.height / 4 * 3;
     this._pixels = initialPixels;
   }
+  /** 
+   * Hotfix - remove the visible file
+   * @used in FilePngExport - the PNG files are not being included in the PNG export. Since the data are transferred all to the export, I need to remove the visible file here.
+   * @todo 
+   */
+  removeVisibleFile() {
+    this._visibleUrl = void 0;
+    return this;
+  }
+  /**
+   * Hotfix - set renderer preference to WebGl.
+   * - true = prefer WebGl, 
+   * - false = prefer CPU
+   * This needs to be set before calling `mountToDom()` which creates the renderer.
+   */
+  setPreferWebGl(value) {
+    this._preferWebGl = value;
+    return this;
+  }
   rendererFactory(canvas) {
-    const gl = canvas.getContext("webgl2");
-    if (gl) {
-      return new GlRenderer(this, canvas);
-    } else {
-      return new CpuRenderer(this, canvas);
+    if (this._preferWebGl === true) {
+      const gl = canvas.getContext("webgl2");
+      if (gl) {
+        return new GlRenderer(this, canvas);
+      }
     }
+    return new CpuRenderer(this, canvas);
   }
   mountToDom(container) {
     if (this._dom !== void 0) {
@@ -4714,6 +4561,9 @@ var ThermalCanvasLayer = class extends AbstractLayer {
     this.canvas = ThermalDomFactory.createCanvas();
     this.canvas.width = this.instance.width;
     this.canvas.height = this.instance.height;
+    this.canvas.setAttribute("data-video-canvas", "");
+    this.canvas.setAttribute("crossorigin", "anonymous");
+    this.canvas.setAttribute("crossOrigin", "Anonymous");
     this.container.appendChild(this.canvas);
     this.opacity = this.instance.group.registry.opacity.value;
   }
@@ -5067,6 +4917,66 @@ var AbstractPngExport = class _AbstractPngExport {
   }
 };
 
+// src/utils/time/formatting.ts
+var import_date_fns3 = require("date-fns");
+
+// src/utils/time/base.ts
+var TimeUtilsBase = class {
+  /** Convert an input to a date object */
+  static inputToDate = (value) => {
+    if (typeof value === "number") {
+      const d = /* @__PURE__ */ new Date();
+      d.setTime(value);
+      return d;
+    }
+    return value;
+  };
+};
+
+// src/utils/time/formatting.ts
+var TimeFormat = class _TimeFormat extends TimeUtilsBase {
+  /** YYYY-MM-DD */
+  static isoDate = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value, { representation: "date" });
+  };
+  /** HH:MM:SS */
+  static isoTime = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value, { representation: "time" });
+  };
+  /** YYYY-MM-DD HH:MM:SS */
+  static isoComplete = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value);
+  };
+  /** HH:mm */
+  static humanTime = (value, showSeconds = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
+  };
+  /** j. M. ???? (y) */
+  static humanDate = (value, includeYear = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.format)(value, includeYear ? "d. M." : "d. M. yyyy");
+  };
+  /** Range */
+  static humanRangeDates(from, to) {
+    from = _TimeFormat.inputToDate(from);
+    to = _TimeFormat.inputToDate(to);
+    if (from.getUTCDate() === to.getUTCDate()) {
+      return _TimeFormat.humanDate(from);
+    }
+    return [
+      _TimeFormat.humanDate(from),
+      _TimeFormat.humanDate(to)
+    ].join(" - ");
+  }
+  static human(date) {
+    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
+  }
+};
+
 // src/file/utils/FilePngExport.ts
 var FilePngExport = class _FilePngExport extends AbstractPngExport {
   constructor(file) {
@@ -5114,6 +5024,7 @@ var FilePngExport = class _FilePngExport extends AbstractPngExport {
     manager.palette.setPalette(this.file.group.registry.manager.palette.value);
     registry.range.imposeRange(this.file.group.registry.range.value);
     this.localInstance = await this.file.reader.createInstance(group);
+    this.localInstance.removeVisibleFile();
     const relativeTime = this.file.timeline.currentStep.relative;
     if (relativeTime !== 0) {
       this.localInstance.timeline.setRelativeTime(relativeTime);
@@ -5400,1074 +5311,6 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
-// src/properties/analysis/sync/utils/GroupExportCSV.ts
-var import_export_to_csv2 = require("export-to-csv");
-var GroupExportCSV = class {
-  constructor(drive) {
-    this.drive = drive;
-  }
-  formatAnalysisDisplayName(analysis, scope) {
-    const nameBase = `${analysis.name} (${analysis.getType()}, ${analysis.initialColor}})`;
-    if (analysis instanceof AbstractAreaAnalysis && scope) {
-      return nameBase + " " + scope.toUpperCase();
-    }
-    return nameBase;
-  }
-  formatAnalysisKey(analysis, scope) {
-    const keyBase = analysis.key;
-    if (analysis instanceof AbstractAreaAnalysis && scope) {
-      return keyBase + "_" + scope;
-    }
-    return keyBase;
-  }
-  formatFrameSlotValue(slot, scope) {
-    if (slot.analysis instanceof AbstractAreaAnalysis && scope) {
-      let value = slot.analysis.avg;
-      if (scope === "min") value = slot.analysis.min;
-      if (scope === "max") value = slot.analysis.max;
-      return {
-        key: this.formatAnalysisKey(slot.analysis, scope),
-        value: value.toString()
-      };
-    }
-    return {
-      key: this.formatAnalysisKey(slot.analysis),
-      value: slot.analysis.avg.toString()
-    };
-  }
-  /** Assamble the export header and data */
-  getData() {
-    const header = [
-      { key: "file", displayLabel: "File name" },
-      { key: "timestamp", displayLabel: "Frame time" },
-      { key: "frame", displayLabel: "Frame ID" }
-    ];
-    this.drive.forEveryExistingSlot((slot) => {
-      if (slot.analysis instanceof AbstractAreaAnalysis) {
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "min"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "min")
-        });
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "max"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "max")
-        });
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "avg"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "avg")
-        });
-      } else {
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis)
-        });
-      }
-    });
-    const data = [];
-    this.drive.parent.files.value.sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    }).forEach((file) => {
-      const row = {
-        file: file.fileName,
-        timestamp: TimeFormat.human(file.timeline.currentStep.absolute),
-        frame: file.timeline.currentStep.index
-      };
-      file.slots.forEveryExistingSlot((slot) => {
-        if (slot.analysis instanceof AbstractAreaAnalysis) {
-          const min = this.formatFrameSlotValue(slot, "min");
-          const max = this.formatFrameSlotValue(slot, "max");
-          const avg = this.formatFrameSlotValue(slot, "avg");
-          row[min.key] = min.value;
-          row[max.key] = max.value;
-          row[avg.key] = avg.value;
-        } else {
-          const avg = this.formatFrameSlotValue(slot);
-          row[avg.key] = avg.value;
-        }
-      });
-      data.push(row);
-    });
-    return {
-      header,
-      data
-    };
-  }
-  downloadAsCsv() {
-    const group = this.drive.parent;
-    const groupIdentificator = group.name ?? group.id ?? group.hash;
-    const { header, data } = this.getData();
-    const csvConfig = (0, import_export_to_csv2.mkConfig)({
-      fieldSeparator: ";",
-      filename: `group_${groupIdentificator}`,
-      columnHeaders: header
-    });
-    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
-    (0, import_export_to_csv2.download)(csvConfig)(csv);
-  }
-};
-
-// src/properties/analysis/sync/utils/GroupExportPNG.ts
-var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
-  constructor(drive) {
-    super();
-    this.drive = drive;
-  }
-  static DEFAULT_PROPS = {
-    fileName: "export.png",
-    columns: 3,
-    width: 1600,
-    showAnalysis: true,
-    showFileDate: true,
-    showFileName: false,
-    showThermalScale: true,
-    license: void 0,
-    textColor: "black",
-    fontSize: 12,
-    showGroupName: true,
-    backgroundColor: "white"
-  };
-  /** Alias to the group this exporter is attached to */
-  get group() {
-    return this.drive.parent;
-  }
-  /** Temporary local group is used to build a mirror of images. */
-  localGroup;
-  /** The header element with title, description and other stuff */
-  header;
-  /** Images are mounted to this DIV */
-  list;
-  /** @deprecated not needed anymore */
-  buildHeader() {
-    return document.createElement("div");
-  }
-  buildList() {
-    const element = document.createElement("div");
-    element.style.boxSizing = "border-box";
-    element.style.width = "100%";
-    element.style.display = "flex";
-    element.style.flexWrap = "wrap";
-    return element;
-  }
-  buildInstance(instance, width, showAnalysis, showFileDate, showFileName, fontSize) {
-    const container = document.createElement("div");
-    container.style.width = width.toString() + "%";
-    container.style.padding = _GroupExportPNG.GAP_SMALL;
-    container.style.boxSizing = "border-box";
-    const wrapper = document.createElement("div");
-    container.appendChild(wrapper);
-    if (showFileDate || showFileName) {
-      const label = document.createElement("div");
-      if (showFileDate) {
-        const date = this.createElementWithText(
-          "div",
-          `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
-          fontSize,
-          "bold"
-        );
-        label.appendChild(date);
-      }
-      if (showFileName) {
-        const fileName = this.createElementWithText(
-          "div",
-          showFileDate ? " - " + instance.fileName : instance.fileName,
-          _GroupExportPNG.FONT_SIZE_SMALL,
-          showFileDate ? "normal" : "bold"
-        );
-        label.appendChild(fileName);
-      }
-      wrapper.appendChild(label);
-    }
-    if (this.list) {
-      const reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
-      if (reference) {
-        instance.timeline.setRelativeTime(reference?.timeline.currentMs);
-      }
-      this.list.appendChild(container);
-      instance.mountToDom(wrapper);
-      instance.draw();
-      if (instance.dom && instance.dom.visibleLayer) {
-        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
-      }
-      if (showAnalysis) {
-        const referenceInstance = reference;
-        if (referenceInstance && referenceInstance.analysis.value.length > 0) {
-          const table = document.createElement("table");
-          table.style.width = "100%";
-          table.style.borderCollapse = "collapse";
-          const header = document.createElement("tr");
-          ["", "AVG", "MIN", "MAX"].forEach((string) => {
-            const el = this.createElementWithText(
-              "th",
-              string,
-              fontSize,
-              void 0,
-              _GroupExportPNG.COLOR_GRAY
-            );
-            el.style.padding = _GroupExportPNG.GAP_SMALL + "px";
-            el.style.textAlign = "left";
-            header.appendChild(el);
-          });
-          table.appendChild(header);
-          wrapper.appendChild(table);
-          referenceInstance.slots.forEveryExistingSlot((slot, number) => {
-            const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
-            if (localAnalysis) {
-              const row = document.createElement("tr");
-              const name = this.createElementWithText(
-                "td",
-                slot.analysis.name,
-                fontSize,
-                void 0,
-                slot.analysis.initialColor
-              );
-              name.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
-              name.style.padding = `${_GroupExportPNG.GAP_SMALL}px 0px ${_GroupExportPNG.GAP_SMALL} 0px`;
-              row.appendChild(name);
-              const createAndAppendValue = (color, value) => {
-                const td = this.createElementWithText(
-                  "td",
-                  value ? value.toFixed(3) + " \xB0C" : "",
-                  fontSize,
-                  void 0
-                );
-                td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
-                td.style.paddingTop = `${_GroupExportPNG.GAP_SMALL}px`;
-                td.style.paddingBottom = `${_GroupExportPNG.GAP_SMALL}px`;
-                row.appendChild(td);
-              };
-              if (slot.analysis instanceof AbstractAreaAnalysis) {
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
-              } else if (slot.analysis instanceof PointAnalysis) {
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                createAndAppendValue(slot.analysis.initialColor);
-                createAndAppendValue(slot.analysis.initialColor);
-              }
-              table.appendChild(row);
-            }
-          });
-        }
-      }
-    }
-  }
-  onBuildDom() {
-    this.header = this.buildHeader();
-    this.list = this.buildList();
-    this.container?.appendChild(this.header);
-    this.container?.appendChild(this.list);
-  }
-  beforeDomRemoved() {
-    if (this.localGroup) {
-      this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
-      this.localGroup.files.removeAllInstances();
-    }
-  }
-  afterDomRemoved() {
-    delete this.header;
-    delete this.list;
-    delete this.localGroup;
-  }
-  onDownload(params) {
-    const registryId = Math.random().toFixed();
-    const manager = this.group.registry.manager;
-    const registry = manager.addOrGetRegistry(registryId);
-    const group = registry.groups.addOrGetGroup(this.group.id);
-    if (params.showGroupName && this.header) {
-      const label = params.label ? params.label : this.group.label;
-      this.header.appendChild(
-        this.createElementWithText(
-          "div",
-          label,
-          params.fontSize.toString() + "px",
-          "bold"
-        )
-      );
-      this.header.style.paddingBottom = _GroupExportPNG.GAP_BASE;
-    }
-    if (params.showThermalScale) {
-      this.list?.appendChild(this.buildHorizontalScale(
-        this.list,
-        this.group.registry.minmax.value.min,
-        this.group.registry.minmax.value.max,
-        this.group.registry.range.value.from,
-        this.group.registry.range.value.to,
-        this.group.registry.palette.currentPalette.gradient,
-        "gray",
-        "black"
-      ));
-    }
-    this.localGroup = group;
-    manager.palette.setPalette(this.group.registry.manager.palette.value);
-    registry.range.imposeRange(this.group.registry.range.value);
-    const imagesThermalUrls = this.group.files.sortedFiles.map((file) => file.thermalUrl);
-    let batch = void 0;
-    imagesThermalUrls.forEach((url) => {
-      batch = registry.batch.request(url, void 0, group, async () => {
-      });
-    });
-    batch.onResolve.set("temporary export listener", (results) => {
-      const width = 100 / params.columns;
-      results.forEach((result) => {
-        if (result instanceof Instance) {
-          this.buildInstance(
-            result,
-            width,
-            params.showAnalysis,
-            params.showFileDate,
-            params.showFileName,
-            params.fontSize.toString() + "px"
-          );
-        }
-      });
-      setTimeout(() => {
-        if (this.container) {
-          this.downloadImage(
-            params.fileName,
-            this.container
-          );
-        }
-      }, 2e3);
-    });
-  }
-  /**
-   * Take provided parameters and combine them with defaults and add filename.
-   */
-  getFinalParams(params) {
-    const fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
-    if (params === void 0) {
-      return {
-        ..._GroupExportPNG.DEFAULT_PROPS,
-        fileName
-      };
-    }
-    return {
-      ..._GroupExportPNG.DEFAULT_PROPS,
-      ...params,
-      fileName
-    };
-  }
-};
-
-// src/properties/analysis/sync/analysisSync.ts
-var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
-  static LISTENER_KEY = "__analysis__sync";
-  /** Event that is triggered every time a slot is synchronised & serialised */
-  onSlotSync = new CallbacksManager();
-  _currentPointer;
-  /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
-  get currentPointer() {
-    return this._currentPointer;
-  }
-  _csv;
-  /** Lazy loaded CSV export object. */
-  get csv() {
-    if (!this._csv) {
-      this._csv = new GroupExportCSV(this);
-    }
-    return this._csv;
-  }
-  _png;
-  /** Lazy loaded PNG export object. */
-  get png() {
-    if (!this._png) {
-      this._png = new GroupExportPNG(this);
-    }
-    return this._png;
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /**
-   * Enable analysis synchronisation for the group
-   */
-  turnOn(instance) {
-    this.value = true;
-    this.setCurrentPointer(instance);
-  }
-  /**
-   * Disable the synchronisation analysis for the group
-   */
-  turnOff() {
-    this.value = false;
-    this.setCurrentPointer(void 0);
-  }
-  /**
-   * Iterate  over all exsting slot in the current pointer instance
-   */
-  forEveryExistingSlot(fn) {
-    if (this._currentPointer === void 0) {
-      return;
-    }
-    this._currentPointer.slots.forEveryExistingSlot(fn);
-  }
-  /**
-   * Set a given instance as the current ponter for synchronisation
-   */
-  setCurrentPointer(instance) {
-    if (instance === void 0 && this._currentPointer) {
-      this.endSyncingSlot(this._currentPointer, 1);
-      this.endSyncingSlot(this._currentPointer, 2);
-      this.endSyncingSlot(this._currentPointer, 3);
-      this.endSyncingSlot(this._currentPointer, 4);
-      this.endSyncingSlot(this._currentPointer, 5);
-      this.endSyncingSlot(this._currentPointer, 6);
-      this.endSyncingSlot(this._currentPointer, 7);
-    }
-    if (instance !== this._currentPointer) {
-      if (this._currentPointer !== void 0) {
-        this.endSyncingSlot(this._currentPointer, 1);
-        this.endSyncingSlot(this._currentPointer, 2);
-        this.endSyncingSlot(this._currentPointer, 3);
-        this.endSyncingSlot(this._currentPointer, 4);
-        this.endSyncingSlot(this._currentPointer, 5);
-        this.endSyncingSlot(this._currentPointer, 6);
-        this.endSyncingSlot(this._currentPointer, 7);
-      }
-      this._currentPointer = instance;
-      if (this._currentPointer !== void 0) {
-        this.startSyncingSlot(this._currentPointer, 1);
-        this.startSyncingSlot(this._currentPointer, 2);
-        this.startSyncingSlot(this._currentPointer, 3);
-        this.startSyncingSlot(this._currentPointer, 4);
-        this.startSyncingSlot(this._currentPointer, 5);
-        this.startSyncingSlot(this._currentPointer, 6);
-        this.startSyncingSlot(this._currentPointer, 7);
-      }
-    }
-  }
-  getSlotListeners(instance, slotNumber) {
-    const slot = instance.slots.getSlot(slotNumber);
-    if (slotNumber === 1) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot1Serialize,
-        assign: instance.slots.onSlot1Assignement
-      };
-    } else if (slotNumber === 2) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot2Serialize,
-        assign: instance.slots.onSlot2Assignement
-      };
-    } else if (slotNumber === 3) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot3Serialize,
-        assign: instance.slots.onSlot3Assignement
-      };
-    } else if (slotNumber === 4) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot4Serialize,
-        assign: instance.slots.onSlot4Assignement
-      };
-    } else if (slotNumber === 5) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot5Serialize,
-        assign: instance.slots.onSlot5Assignement
-      };
-    } else if (slotNumber === 6) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot6Serialize,
-        assign: instance.slots.onSlot6Assignement
-      };
-    } else if (slotNumber === 7) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot7Serialize,
-        assign: instance.slots.onSlot7Assignement
-      };
-    }
-  }
-  /**
-   * Interrnal method to start synchronisation of a given slot number on the given instance
-   */
-  startSyncingSlot(instance, slotNumber) {
-    const { serialise } = this.getSlotListeners(instance, slotNumber);
-    serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
-      this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
-        if (f.group.analysisSync.value === false) {
-          return;
-        }
-        this.onSlotSync.call(value, slotNumber);
-        if (sl === void 0 && value) {
-          const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
-          analysis?.setSelected();
-        } else if (sl !== void 0 && value) {
-          sl.recieveSerialized(value);
-          this.onSlotSync.call(sl ? sl.serialized : void 0, slotNumber);
-        } else if (sl !== void 0 && value === void 0) {
-          sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
-        }
-      });
-    });
-  }
-  /**
-   * Internal method to end synchronisation of a given slot number on the given instance
-   */
-  endSyncingSlot(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, () => {
-      const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
-      assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
-      serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
-    });
-  }
-  /**
-   * Deletes a slot and analysis from all instances in the group except the provided one
-   */
-  deleteSlot(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
-    });
-  }
-  /**
-   * A method for synchronising selection state across all instances of the group 
-   */
-  setSlotSelected(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setSelected(false);
-    });
-  }
-  /**
-   * A method for synchronising selection state across all instances of the group 
-   */
-  setSlotDeselected(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setDeselected();
-    });
-  }
-  /** 
-   * Execute a given function on all files slot 
-   */
-  forEveryOtherSlot(instance, slotNumber, fn) {
-    this.parent.files.forEveryInstance((file) => {
-      if (file === instance) {
-        return;
-      }
-      const slot = file.slots.getSlot(slotNumber);
-      fn(slot, file);
-    });
-  }
-  /**
-   * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
-   * @deprecated Used only by old webcomponents and perhaps unnecessary
-   */
-  recieveSlotSerialized(serialized, slot) {
-    this.parent.files.forEveryInstance(
-      (instance) => {
-        if (instance === this.currentPointer || instance.group.analysisSync.value === false) {
-          return;
-        }
-        if (serialized) {
-          const sl = instance.slots.getSlot(slot);
-          if (sl) {
-            sl.recieveSerialized(serialized);
-          } else {
-            instance.slots.createAnalysisFromSerialized(serialized, slot);
-          }
-        } else {
-          instance.slots.removeSlotAndAnalysis(slot);
-        }
-      }
-    );
-  }
-  /**
-   * Take an instance and copy its value in one slot to all other instances in the group 
-   * 
-   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
-   */
-  copyOneSlotToAllInstances(instance, slotNumber) {
-    this.setCurrentPointer(instance);
-    const slot = instance.slots.getSlot(slotNumber);
-    const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
-    console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
-    this.parent.files.forEveryInstance((otherInstance) => {
-      if (otherInstance === instance) {
-        console.log("Skipping source instance", otherInstance);
-        return;
-      }
-      if (otherInstance.slots.hasSlot(slotNumber)) {
-        otherInstance.slots.removeSlotAndAnalysis(slotNumber);
-      }
-      if (!serialized) {
-        return;
-      }
-      const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
-      console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
-      analysis?.setSelected();
-    });
-  }
-  /** 
-   * Copy the entire analysis state from one instance to all other instances in the group 
-   * 
-   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
-   */
-  copyAllSlotsToAllInstances(instance) {
-    [1, 2, 3, 4, 5, 6, 7].forEach((slotNumber) => {
-      this.copyOneSlotToAllInstances(instance, slotNumber);
-    });
-  }
-};
-
-// src/properties/cursor/CursorPositionDrive.ts
-var CursorPositionDrive = class extends AbstractProperty {
-  _hover = this.value !== void 0;
-  get hover() {
-    return this._hover;
-  }
-  validate(value) {
-    return value;
-  }
-  // After the position changes, update the hover & project the position in all instances
-  afterSetEffect(value) {
-    this._hover = this.value !== void 0;
-    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-  }
-  recieveCursorPosition(position) {
-    this.value = position;
-  }
-};
-
-// src/properties/lists/filesState.ts
-var FilesState = class extends AbstractProperty {
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value.sort((a, b) => a.timestamp - b.timestamp);
-  }
-  /** Array of all files sorted by timestamp from the earliest to the latest. */
-  get sortedFiles() {
-    return this.value.sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    });
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
-  }
-  addFile(file) {
-    if (!this._map.has(file.thermalUrl)) {
-      this.value = [...this.value, file];
-      return file;
-    } else {
-      return this._map.get(file.thermalUrl);
-    }
-  }
-  removeFile(file) {
-    const entry = file instanceof Instance ? file : this.map.get(file);
-    if (entry) {
-      entry.unmountFromDom();
-      this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
-    }
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-  downloadAllFiles() {
-    this.forEveryInstance((instance) => {
-      const link = document.createElement("a");
-      link.download = instance.fileName;
-      link.href = instance.thermalUrl;
-      link.click();
-    });
-  }
-};
-
-// src/properties/scale/abstractMinmaxProperty.ts
-var AbstractMinmaxProperty = class extends AbstractProperty {
-  /** Get the current distance between min and max */
-  get distanceInCelsius() {
-    if (this.value === void 0) {
-      return void 0;
-    }
-    return Math.abs(this.value.min - this.value.max);
-  }
-};
-
-// src/properties/scale/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
-  }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.files.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
-  }
-};
-
-// src/properties/time/group/GroupPlayback.ts
-var GroupPlayback = class extends AbstractProperty {
-  _hasAnyPlayback = false;
-  /** Does this group include any sequence? */
-  get hasAnyPlayback() {
-    return this._hasAnyPlayback;
-  }
-  set hasAnyPlayback(value) {
-    if (this._hasAnyPlayback !== value) {
-      this._hasAnyPlayback = value;
-      this.onHasAnyCallback.call(value);
-    }
-  }
-  onHasAnyCallback = new CallbacksManager();
-  recalculateHasAnyPlayback(instances) {
-    let temporaryHas = false;
-    instances.forEach((i) => {
-      if (i.timeline.isSequence) {
-        temporaryHas = true;
-      }
-    });
-    this.hasAnyPlayback = temporaryHas;
-  }
-  _playing = false;
-  get playing() {
-    return this._playing;
-  }
-  set playing(value) {
-    if (this._playing !== value) {
-      this._playing = value;
-      this.onPlayingStatusChange.call(this._playing);
-    }
-  }
-  onPlayingStatusChange = new CallbacksManager();
-  /** Internal pointer holding the current loop iteration*/
-  loopStep = 0;
-  /** Internal setTimeout for playback. */
-  loopTimer;
-  _loopInterval = 20;
-  /** Interval upon which the main loop triggers. In MS. */
-  get loopInterval() {
-    return this._loopInterval;
-  }
-  /** @deprecated The playback interval should not change during playback */
-  setLoopInterval(value) {
-    this._loopInterval = Math.round(value);
-    this.onLoopIntervalChanged.call(this._loopInterval);
-  }
-  /** @deprecated The loop playback should not change during playback */
-  onLoopIntervalChanged = new CallbacksManager();
-  _duration = 0;
-  get duration() {
-    return this._duration;
-  }
-  set duration(value) {
-    if (value !== this._duration) {
-      this._duration = value;
-      this.onDurationChanged.call(this._duration);
-    }
-  }
-  onDurationChanged = new CallbacksManager();
-  recalculateDuration(instances) {
-    let temporaryDuration = 0;
-    instances.forEach((instance) => {
-      if (instance.timeline.duration > temporaryDuration) {
-        temporaryDuration = instance.timeline.duration;
-      }
-    });
-    this.duration = temporaryDuration;
-  }
-  UUID = this.parent.id + "__listener";
-  constructor(parent, initial) {
-    super(parent, initial);
-    this.recalculateDuration(this.parent.files.value);
-    this.recalculateHasAnyPlayback(this.parent.files.value);
-    this.parent.registry.batch.onBatchComplete.set(
-      this.UUID,
-      (results) => {
-        const instances = results.filter((res) => res instanceof Instance);
-        this.recalculateDuration(instances);
-        this.recalculateHasAnyPlayback(instances);
-        const newVal = this.value;
-        this.value = newVal;
-      }
-    );
-  }
-  validate(value) {
-    return Math.min(Math.max(value, 0), this.duration);
-  }
-  afterSetEffect(value) {
-    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
-  }
-  /** Set time value by percent. The actual MS is calculated depending on the duration. */
-  setValueByPercent(percent) {
-    const ms = this.percentToMs(percent);
-    if (ms !== this.value) {
-      this.value = ms;
-      this.loopStep = Math.floor(this.duration / this.value);
-      if (this.playing) {
-        this.createTimerStep(true);
-      }
-    }
-  }
-  /** Set the time value by MS. */
-  setValueByRelativeMs(relativeMs) {
-    this.value = relativeMs;
-    this.loopStep = Math.floor(this.duration / this.value);
-    if (this.playing) {
-      this.createTimerStep(true);
-    }
-  }
-  /** Convert percent value to relative time in MS */
-  percentToMs(percent) {
-    return Math.floor(this.duration * (percent / 100));
-  }
-  /** Convert relative time in MS to percent value */
-  msToPercent(ms) {
-    return ms / this.duration * 100;
-  }
-  /**
-   * The main method that shall create a timer leading to the next step.
-   * 
-   * It might be called recursively to ensure fluent playback.
-   */
-  createTimerStep(recursive = false) {
-    if (this.duration === void 0 || this.playing === false) {
-      return;
-    }
-    const nextStep = this.loopStep + 1;
-    const nextValue = nextStep * this.loopInterval;
-    this.loopStep = nextStep;
-    if (nextValue <= this.duration) {
-      if (this.loopTimer) {
-        clearTimeout(this.loopTimer);
-      }
-      this.loopTimer = setTimeout(() => {
-        this.createTimerStep(recursive);
-        this.value = nextValue;
-      }, this.loopInterval);
-    } else {
-      this.playing = false;
-    }
-  }
-  /**
-   * Play the entire group
-   */
-  play() {
-    if (this.playing === false) {
-      this.playing = true;
-      this.createTimerStep(true);
-    }
-  }
-  /**
-   * Stop the entire group
-   */
-  stop() {
-    if (this.playing === true) {
-      this.playing = false;
-      if (this.loopTimer) {
-        clearTimeout(this.loopTimer);
-      }
-    }
-  }
-  /**
-   * Set the MS value to 0
-   */
-  reset() {
-    if (this.value !== 0) {
-      this.value = 0;
-      this.loopStep = 0;
-    }
-  }
-};
-
-// src/properties/analysis/group/AnalysisGroupGraph.ts
-var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
-  static LISTENER_ID = "AnalysisGroupGraph";
-  constructor(parent) {
-    super(parent, void 0);
-  }
-  timeout;
-  calculateData() {
-    let colors = [];
-    let header = [];
-    const data = [];
-    const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
-    const firstRow = orderedFiles[0].analysisData.value.values[0];
-    header = firstRow;
-    colors = orderedFiles[0].analysisData.value.colors;
-    this.parent.files.forEveryInstance((instance) => {
-      const row = [
-        new Date(instance.timestamp)
-      ];
-      instance.analysis.value.forEach(async (analysis) => {
-        if (analysis.graph.state.MIN === true && analysis.min) {
-          row.push(analysis.min);
-        }
-        if (analysis.graph.state.MAX === true && analysis.max) {
-          row.push(analysis.max);
-        }
-        if (analysis.graph.state.AVG === true && analysis.avg) {
-          row.push(analysis.avg);
-        }
-      });
-      if (row.length > 1) {
-        data.push(row);
-      }
-    });
-    if (colors.length > 0) {
-      this.value = {
-        colors,
-        data: [header, ...data]
-      };
-    } else {
-      this.value = void 0;
-    }
-  }
-  turnOn() {
-    this.parent.files.forEveryInstance((instance) => {
-      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, () => {
-        if (this.timeout !== void 0) {
-          clearTimeout(this.timeout);
-        }
-        this.timeout = setTimeout(() => {
-          this.calculateData();
-        }, 0);
-      });
-    });
-  }
-  turnOff() {
-    this.parent.files.forEveryInstance((instance) => {
-      instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
-    });
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-};
-
-// src/hierarchy/ThermalGroup.ts
-var ThermalGroup = class extends BaseStructureObject {
-  constructor(registry, id, name, description) {
-    super();
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
-  }
-  hash = Math.random();
-  /** Human readable label = name or id or hasn */
-  get label() {
-    return this.name ?? this.id ?? this.hash;
-  }
-  get pool() {
-    return this.registry.manager.pool;
-  }
-  minmax = new MinmaxGroupProperty(this, void 0);
-  /** Tool drive from above */
-  get tool() {
-    return this.registry.manager.tool;
-  }
-  files = new FilesState(this, []);
-  cursorPosition = new CursorPositionDrive(this, void 0);
-  analysisSync = new AnalysisSyncDrive(this, false);
-  analysisGraph = new AnalysisGroupGraph(this);
-  _playback;
-  get playback() {
-    if (!this._playback) {
-      this._playback = new GroupPlayback(this, 0);
-    }
-    return this._playback;
-  }
-  /** Iteration */
-  forEveryInstance = (fn) => {
-    this.files.value.forEach((instance) => fn(instance));
-  };
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.files.removeAllInstances();
-  }
-  reset() {
-    this.files.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-    this.analysisSync.reset();
-  }
-  filters = new FilterContainer(this);
-  getInstances() {
-    return this.files.value;
-  }
-  startBatch(id) {
-    return this.registry.batch.getBatchById(id);
-  }
-};
-
-// src/hierarchy/ThermalManager.ts
-var workerpool = __toESM(require("workerpool"), 1);
-
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-  }
-};
-
-// src/loading/workers/ThermalFileFailure.ts
-var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
-  constructor(thermalUrl, code, message) {
-    super(thermalUrl);
-    this.code = code;
-    this.message = message;
-  }
-  isSuccess() {
-    return false;
-  }
-  static fromError(error) {
-    return new _ThermalFileFailure(error.url, error.code, error.message);
-  }
-};
-
-// src/loading/workers/errors.ts
-var FileLoadingError = class extends Error {
-  constructor(code, url, message) {
-    super(message);
-    this.code = code;
-    this.url = url;
-  }
-};
-
 // src/loading/workers/ThermalFileReader.ts
 var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
@@ -6508,7 +5351,6 @@ var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   }
   /** Create copy of the self so that the */
   cloneForInstance() {
-    return this;
     return new _ThermalFileReader(
       this.service,
       this.buffer,
@@ -7501,6 +6343,190 @@ var GraphSmoothDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/scale/palettes.ts
+var generatePaletteFromStops = (stops) => {
+  const palette = new Array(256);
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let startStop = sortedStops[0];
+    let endStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        startStop = sortedStops[j];
+        endStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const range = endStop.percent - startStop.percent;
+    const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
+    const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
+    const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
+    const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
+    palette[i] = `rgb(${r},${g},${b})`;
+  }
+  return palette;
+};
+var generateGradientFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
+  return `linear-gradient(90deg, ${gradientStops})`;
+};
+var generateTextureArrayFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const arr = new Float32Array(256 * 4);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let lowerStop = sortedStops[0];
+    let upperStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        lowerStop = sortedStops[j];
+        upperStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const ratio = (percent - lowerStop.percent) / (upperStop.percent - lowerStop.percent || 1);
+    const r = lowerStop.color[0] + (upperStop.color[0] - lowerStop.color[0]) * ratio;
+    const g = lowerStop.color[1] + (upperStop.color[1] - lowerStop.color[1]) * ratio;
+    const b = lowerStop.color[2] + (upperStop.color[2] - lowerStop.color[2]) * ratio;
+    arr[i * 4] = r / 255;
+    arr[i * 4 + 1] = g / 255;
+    arr[i * 4 + 2] = b / 255;
+    arr[i * 4 + 3] = 1;
+  }
+  return arr;
+};
+var IRON_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 30, color: [10, 12, 77] },
+  { percent: 49, color: [86, 20, 101] },
+  { percent: 64, color: [255, 0, 0] },
+  { percent: 84, color: [249, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var JET_STOPS = [
+  { percent: 0, color: [31, 0, 157] },
+  { percent: 8, color: [0, 5, 255] },
+  { percent: 36, color: [0, 255, 239] },
+  { percent: 66, color: [255, 252, 0] },
+  { percent: 94, color: [255, 2, 0] },
+  { percent: 100, color: [145, 0, 0] }
+];
+var WHITE_HOT_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var BLACK_HOT_STOPS = [
+  { percent: 0, color: [255, 255, 255] },
+  { percent: 100, color: [0, 0, 0] }
+];
+var LAVA_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 12, color: [30, 78, 149] },
+  { percent: 32, color: [33, 128, 127] },
+  { percent: 41, color: [102, 48, 108] },
+  { percent: 64, color: [233, 37, 37] },
+  { percent: 90, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var ARCTIC_STOPS = [
+  { percent: 0, color: [17, 13, 133] },
+  { percent: 15, color: [23, 50, 248] },
+  { percent: 30, color: [75, 245, 255] },
+  { percent: 55, color: [100, 91, 86] },
+  { percent: 70, color: [239, 86, 28] },
+  { percent: 87, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_STOPS = [
+  { percent: 0, color: [12, 11, 65] },
+  { percent: 23, color: [36, 108, 212] },
+  { percent: 42, color: [100, 255, 30] },
+  { percent: 55, color: [255, 255, 0] },
+  { percent: 80, color: [255, 0, 69] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_HC_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 13, color: [212, 0, 217] },
+  { percent: 25, color: [21, 28, 151] },
+  { percent: 37, color: [55, 230, 255] },
+  { percent: 50, color: [17, 75, 22] },
+  { percent: 62, color: [255, 255, 0] },
+  { percent: 80, color: [119, 0, 11] },
+  { percent: 90, color: [255, 40, 32] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var IRON = generatePaletteFromStops(IRON_STOPS);
+var JET = generatePaletteFromStops(JET_STOPS);
+var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
+var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
+var LAVA = generatePaletteFromStops(LAVA_STOPS);
+var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
+var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
+var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
+var PALETTES = {
+  iron: {
+    name: "Iron",
+    gradient: generateGradientFromStops(IRON_STOPS),
+    pixels: IRON,
+    texturePixels: generateTextureArrayFromStops(IRON_STOPS),
+    slug: "iron"
+  },
+  jet: {
+    name: "Jet",
+    gradient: generateGradientFromStops(JET_STOPS),
+    pixels: JET,
+    texturePixels: generateTextureArrayFromStops(JET_STOPS),
+    slug: "jet"
+  },
+  white_hot: {
+    name: "White Hot",
+    gradient: generateGradientFromStops(WHITE_HOT_STOPS),
+    pixels: WHITE_HOT,
+    texturePixels: generateTextureArrayFromStops(WHITE_HOT_STOPS),
+    slug: "white_hot"
+  },
+  black_hot: {
+    name: "Black Hot",
+    gradient: generateGradientFromStops(BLACK_HOT_STOPS),
+    pixels: BLACK_HOT,
+    texturePixels: generateTextureArrayFromStops(BLACK_HOT_STOPS),
+    slug: "black_hot"
+  },
+  lava: {
+    name: "Lava",
+    gradient: generateGradientFromStops(LAVA_STOPS),
+    pixels: LAVA,
+    texturePixels: generateTextureArrayFromStops(LAVA_STOPS),
+    slug: "lava"
+  },
+  arctic: {
+    name: "Arctic",
+    gradient: generateGradientFromStops(ARCTIC_STOPS),
+    pixels: ARCTIC,
+    texturePixels: generateTextureArrayFromStops(ARCTIC_STOPS),
+    slug: "arctic"
+  },
+  rainbow: {
+    name: "Rainbow",
+    gradient: generateGradientFromStops(RAINBOW_STOPS),
+    pixels: RAINBOW,
+    texturePixels: generateTextureArrayFromStops(RAINBOW_STOPS),
+    slug: "rainbow"
+  },
+  rainbow_hc: {
+    name: "Rainbow HC",
+    gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
+    pixels: RAINBOW_HC,
+    texturePixels: generateTextureArrayFromStops(RAINBOW_HC_STOPS),
+    slug: "rainbow_hc"
+  }
+};
+var ThermalPalettes = PALETTES;
+var defaultPaletteKey = "jet";
+
 // src/properties/scale/PaletteDrive.ts
 var PaletteDrive = class extends AbstractProperty {
   get availablePalettes() {
@@ -7509,10 +6535,6 @@ var PaletteDrive = class extends AbstractProperty {
   /** All the current palette properties should be accessed through this property. */
   get currentPalette() {
     return this.availablePalettes[this.value];
-  }
-  /** @deprecated Should not be used at all. Use `currentPalette` instead */
-  get currentPixels() {
-    return this.currentPalette.pixels;
   }
   validate(value) {
     return value;
@@ -7523,8 +6545,21 @@ var PaletteDrive = class extends AbstractProperty {
       registry.forEveryInstance((instance) => instance.draw());
     });
   }
+  /** Set a palette value and propagate the change to all instances. */
   setPalette(key) {
     this.value = key;
+  }
+  /** Takes any string input and converts it to a valid AvailableThermalPalettes key */
+  sanitizeInputKey(input) {
+    if (input === null || input === void 0) {
+      return defaultPaletteKey;
+    }
+    const f = this.availablePalettes[input];
+    if (f) {
+      return f.slug;
+    } else {
+      return defaultPaletteKey;
+    }
   }
 };
 
@@ -7775,6 +6810,1055 @@ var RangeDriver = class extends AbstractProperty {
       };
       this.imposeRange(newRange);
     }
+  }
+};
+
+// src/properties/analysis/sync/utils/GroupExportCSV.ts
+var import_export_to_csv2 = require("export-to-csv");
+var GroupExportCSV = class {
+  constructor(drive) {
+    this.drive = drive;
+  }
+  formatAnalysisDisplayName(analysis, scope) {
+    const nameBase = `${analysis.name} (${analysis.getType()}, ${analysis.initialColor}})`;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return nameBase + " " + scope.toUpperCase();
+    }
+    return nameBase;
+  }
+  formatAnalysisKey(analysis, scope) {
+    const keyBase = analysis.key;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return keyBase + "_" + scope;
+    }
+    return keyBase;
+  }
+  formatFrameSlotValue(slot, scope) {
+    if (slot.analysis instanceof AbstractAreaAnalysis && scope) {
+      let value = slot.analysis.avg;
+      if (scope === "min") value = slot.analysis.min;
+      if (scope === "max") value = slot.analysis.max;
+      return {
+        key: this.formatAnalysisKey(slot.analysis, scope),
+        value: value.toString()
+      };
+    }
+    return {
+      key: this.formatAnalysisKey(slot.analysis),
+      value: slot.analysis.avg.toString()
+    };
+  }
+  /** Assamble the export header and data */
+  getData() {
+    const header = [
+      { key: "file", displayLabel: "File name" },
+      { key: "timestamp", displayLabel: "Frame time" },
+      { key: "frame", displayLabel: "Frame ID" }
+    ];
+    this.drive.forEveryExistingSlot((slot) => {
+      if (slot.analysis instanceof AbstractAreaAnalysis) {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "min"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "min")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "max"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "max")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "avg"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "avg")
+        });
+      } else {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis)
+        });
+      }
+    });
+    const data = [];
+    this.drive.parent.files.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    }).forEach((file) => {
+      const row = {
+        file: file.fileName,
+        timestamp: TimeFormat.human(file.timeline.currentStep.absolute),
+        frame: file.timeline.currentStep.index
+      };
+      file.slots.forEveryExistingSlot((slot) => {
+        if (slot.analysis instanceof AbstractAreaAnalysis) {
+          const min = this.formatFrameSlotValue(slot, "min");
+          const max = this.formatFrameSlotValue(slot, "max");
+          const avg = this.formatFrameSlotValue(slot, "avg");
+          row[min.key] = min.value;
+          row[max.key] = max.value;
+          row[avg.key] = avg.value;
+        } else {
+          const avg = this.formatFrameSlotValue(slot);
+          row[avg.key] = avg.value;
+        }
+      });
+      data.push(row);
+    });
+    return {
+      header,
+      data
+    };
+  }
+  downloadAsCsv() {
+    const group = this.drive.parent;
+    const groupIdentificator = group.name ?? group.id ?? group.hash;
+    const { header, data } = this.getData();
+    const csvConfig = (0, import_export_to_csv2.mkConfig)({
+      fieldSeparator: ";",
+      filename: `group_${groupIdentificator}`,
+      columnHeaders: header
+    });
+    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv2.download)(csvConfig)(csv);
+  }
+};
+
+// src/properties/analysis/sync/utils/GroupExportPNG.ts
+var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
+  constructor(drive) {
+    super();
+    this.drive = drive;
+  }
+  static DEFAULT_PROPS = {
+    fileName: "export.png",
+    columns: 3,
+    width: 1600,
+    showAnalysis: true,
+    showFileDate: true,
+    showFileName: false,
+    showThermalScale: true,
+    license: void 0,
+    textColor: "black",
+    fontSize: 12,
+    showGroupName: true,
+    backgroundColor: "white"
+  };
+  /** Alias to the group this exporter is attached to */
+  get group() {
+    return this.drive.parent;
+  }
+  /** Temporary local group is used to build a mirror of images. */
+  localGroup;
+  /** The header element with title, description and other stuff */
+  header;
+  /** Images are mounted to this DIV */
+  list;
+  /** @deprecated not needed anymore */
+  buildHeader() {
+    return document.createElement("div");
+  }
+  buildList() {
+    const element = document.createElement("div");
+    element.style.boxSizing = "border-box";
+    element.style.width = "100%";
+    element.style.display = "flex";
+    element.style.flexWrap = "wrap";
+    return element;
+  }
+  buildInstance(instance, width, showAnalysis, showFileDate, showFileName, fontSize) {
+    const container = document.createElement("div");
+    container.style.width = width.toString() + "%";
+    container.style.padding = _GroupExportPNG.GAP_SMALL;
+    container.style.boxSizing = "border-box";
+    const wrapper = document.createElement("div");
+    container.appendChild(wrapper);
+    if (showFileDate || showFileName) {
+      const label = document.createElement("div");
+      if (showFileDate) {
+        const date = this.createElementWithText(
+          "div",
+          `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
+          fontSize,
+          "bold"
+        );
+        label.appendChild(date);
+      }
+      if (showFileName) {
+        const fileName = this.createElementWithText(
+          "div",
+          showFileDate ? " - " + instance.fileName : instance.fileName,
+          _GroupExportPNG.FONT_SIZE_SMALL,
+          showFileDate ? "normal" : "bold"
+        );
+        label.appendChild(fileName);
+      }
+      wrapper.appendChild(label);
+    }
+    if (this.list) {
+      const reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
+      if (reference) {
+        instance.timeline.setRelativeTime(reference?.timeline.currentMs);
+      }
+      this.list.appendChild(container);
+      instance.removeVisibleFile();
+      instance.setPreferWebGl(false);
+      instance.mountToDom(wrapper);
+      instance.draw();
+      if (instance.dom && instance.dom.visibleLayer) {
+        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+      }
+      if (showAnalysis) {
+        const referenceInstance = reference;
+        if (referenceInstance && referenceInstance.analysis.value.length > 0) {
+          const table = document.createElement("table");
+          table.style.width = "100%";
+          table.style.borderCollapse = "collapse";
+          const header = document.createElement("tr");
+          ["", "AVG", "MIN", "MAX"].forEach((string) => {
+            const el = this.createElementWithText(
+              "th",
+              string,
+              fontSize,
+              void 0,
+              _GroupExportPNG.COLOR_GRAY
+            );
+            el.style.padding = _GroupExportPNG.GAP_SMALL + "px";
+            el.style.textAlign = "left";
+            header.appendChild(el);
+          });
+          table.appendChild(header);
+          wrapper.appendChild(table);
+          referenceInstance.slots.forEveryExistingSlot((slot, number) => {
+            const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
+            if (localAnalysis) {
+              const row = document.createElement("tr");
+              const name = this.createElementWithText(
+                "td",
+                slot.analysis.name,
+                fontSize,
+                void 0,
+                slot.analysis.initialColor
+              );
+              name.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+              name.style.padding = `${_GroupExportPNG.GAP_SMALL}px 0px ${_GroupExportPNG.GAP_SMALL} 0px`;
+              row.appendChild(name);
+              const createAndAppendValue = (color, value) => {
+                const td = this.createElementWithText(
+                  "td",
+                  value ? value.toFixed(3) + " \xB0C" : "",
+                  fontSize,
+                  void 0
+                );
+                td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+                td.style.paddingTop = `${_GroupExportPNG.GAP_SMALL}px`;
+                td.style.paddingBottom = `${_GroupExportPNG.GAP_SMALL}px`;
+                row.appendChild(td);
+              };
+              if (slot.analysis instanceof AbstractAreaAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+              } else if (slot.analysis instanceof PointAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor);
+                createAndAppendValue(slot.analysis.initialColor);
+              }
+              table.appendChild(row);
+            }
+          });
+        }
+      }
+    }
+  }
+  onBuildDom() {
+    this.header = this.buildHeader();
+    this.list = this.buildList();
+    this.container?.appendChild(this.header);
+    this.container?.appendChild(this.list);
+  }
+  beforeDomRemoved() {
+    if (this.localGroup) {
+      this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
+      this.localGroup.files.removeAllInstances();
+    }
+  }
+  afterDomRemoved() {
+    delete this.header;
+    delete this.list;
+    delete this.localGroup;
+  }
+  onDownload(params) {
+    const registryId = Math.random().toFixed();
+    const manager = this.group.registry.manager;
+    const registry = manager.addOrGetRegistry(registryId);
+    const group = registry.groups.addOrGetGroup(this.group.id);
+    if (params.showGroupName && this.header) {
+      const label = params.label ? params.label : this.group.label;
+      this.header.appendChild(
+        this.createElementWithText(
+          "div",
+          label,
+          params.fontSize.toString() + "px",
+          "bold"
+        )
+      );
+      this.header.style.paddingBottom = _GroupExportPNG.GAP_BASE;
+    }
+    if (params.showThermalScale) {
+      this.list?.appendChild(this.buildHorizontalScale(
+        this.list,
+        this.group.registry.minmax.value.min,
+        this.group.registry.minmax.value.max,
+        this.group.registry.range.value.from,
+        this.group.registry.range.value.to,
+        this.group.registry.palette.currentPalette.gradient,
+        "gray",
+        "black"
+      ));
+    }
+    this.localGroup = group;
+    manager.palette.setPalette(this.group.registry.manager.palette.value);
+    registry.range.imposeRange(this.group.registry.range.value);
+    const imagesThermalUrls = this.group.files.sortedFiles.map((file) => file.thermalUrl);
+    let batch = void 0;
+    imagesThermalUrls.forEach((url) => {
+      batch = registry.batch.request(url, void 0, group, async () => {
+      });
+    });
+    batch.onResolve.set("temporary export listener", (results) => {
+      const width = 100 / params.columns;
+      results.forEach((result) => {
+        if (result instanceof Instance) {
+          this.buildInstance(
+            result,
+            width,
+            params.showAnalysis,
+            params.showFileDate,
+            params.showFileName,
+            params.fontSize.toString() + "px"
+          );
+        }
+      });
+      setTimeout(() => {
+        if (this.container) {
+          this.downloadImage(
+            params.fileName,
+            this.container
+          );
+        }
+      }, 2e3);
+    });
+  }
+  /**
+   * Take provided parameters and combine them with defaults and add filename.
+   */
+  getFinalParams(params) {
+    const fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
+    if (params === void 0) {
+      return {
+        ..._GroupExportPNG.DEFAULT_PROPS,
+        fileName
+      };
+    }
+    return {
+      ..._GroupExportPNG.DEFAULT_PROPS,
+      ...params,
+      fileName
+    };
+  }
+};
+
+// src/properties/analysis/sync/analysisSync.ts
+var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
+  static LISTENER_KEY = "__analysis__sync";
+  /** Event that is triggered every time a slot is synchronised & serialised */
+  onSlotSync = new CallbacksManager();
+  _currentPointer;
+  /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
+  get currentPointer() {
+    return this._currentPointer;
+  }
+  _csv;
+  /** Lazy loaded CSV export object. */
+  get csv() {
+    if (!this._csv) {
+      this._csv = new GroupExportCSV(this);
+    }
+    return this._csv;
+  }
+  _png;
+  /** Lazy loaded PNG export object. */
+  get png() {
+    if (!this._png) {
+      this._png = new GroupExportPNG(this);
+    }
+    return this._png;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /**
+   * Enable analysis synchronisation for the group
+   */
+  turnOn(instance) {
+    this.value = true;
+    this.setCurrentPointer(instance);
+  }
+  /**
+   * Disable the synchronisation analysis for the group
+   */
+  turnOff() {
+    this.value = false;
+    this.setCurrentPointer(void 0);
+  }
+  /**
+   * Iterate  over all exsting slot in the current pointer instance
+   */
+  forEveryExistingSlot(fn) {
+    if (this._currentPointer === void 0) {
+      return;
+    }
+    this._currentPointer.slots.forEveryExistingSlot(fn);
+  }
+  /**
+   * Set a given instance as the current ponter for synchronisation
+   */
+  setCurrentPointer(instance) {
+    if (instance === void 0 && this._currentPointer) {
+      this.endSyncingSlot(this._currentPointer, 1);
+      this.endSyncingSlot(this._currentPointer, 2);
+      this.endSyncingSlot(this._currentPointer, 3);
+      this.endSyncingSlot(this._currentPointer, 4);
+      this.endSyncingSlot(this._currentPointer, 5);
+      this.endSyncingSlot(this._currentPointer, 6);
+      this.endSyncingSlot(this._currentPointer, 7);
+    }
+    if (instance !== this._currentPointer) {
+      if (this._currentPointer !== void 0) {
+        this.endSyncingSlot(this._currentPointer, 1);
+        this.endSyncingSlot(this._currentPointer, 2);
+        this.endSyncingSlot(this._currentPointer, 3);
+        this.endSyncingSlot(this._currentPointer, 4);
+        this.endSyncingSlot(this._currentPointer, 5);
+        this.endSyncingSlot(this._currentPointer, 6);
+        this.endSyncingSlot(this._currentPointer, 7);
+      }
+      this._currentPointer = instance;
+      if (this._currentPointer !== void 0) {
+        this.startSyncingSlot(this._currentPointer, 1);
+        this.startSyncingSlot(this._currentPointer, 2);
+        this.startSyncingSlot(this._currentPointer, 3);
+        this.startSyncingSlot(this._currentPointer, 4);
+        this.startSyncingSlot(this._currentPointer, 5);
+        this.startSyncingSlot(this._currentPointer, 6);
+        this.startSyncingSlot(this._currentPointer, 7);
+      }
+    }
+  }
+  getSlotListeners(instance, slotNumber) {
+    const slot = instance.slots.getSlot(slotNumber);
+    if (slotNumber === 1) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot1Serialize,
+        assign: instance.slots.onSlot1Assignement
+      };
+    } else if (slotNumber === 2) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot2Serialize,
+        assign: instance.slots.onSlot2Assignement
+      };
+    } else if (slotNumber === 3) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot3Serialize,
+        assign: instance.slots.onSlot3Assignement
+      };
+    } else if (slotNumber === 4) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot4Serialize,
+        assign: instance.slots.onSlot4Assignement
+      };
+    } else if (slotNumber === 5) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot5Serialize,
+        assign: instance.slots.onSlot5Assignement
+      };
+    } else if (slotNumber === 6) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot6Serialize,
+        assign: instance.slots.onSlot6Assignement
+      };
+    } else if (slotNumber === 7) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot7Serialize,
+        assign: instance.slots.onSlot7Assignement
+      };
+    }
+  }
+  /**
+   * Interrnal method to start synchronisation of a given slot number on the given instance
+   */
+  startSyncingSlot(instance, slotNumber) {
+    const { serialise } = this.getSlotListeners(instance, slotNumber);
+    serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
+      this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+        if (f.group.analysisSync.value === false) {
+          return;
+        }
+        this.onSlotSync.call(value, slotNumber);
+        if (sl === void 0 && value) {
+          const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
+          analysis?.setSelected();
+        } else if (sl !== void 0 && value) {
+          sl.recieveSerialized(value);
+          this.onSlotSync.call(sl ? sl.serialized : void 0, slotNumber);
+        } else if (sl !== void 0 && value === void 0) {
+          sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+        }
+      });
+    });
+  }
+  /**
+   * Internal method to end synchronisation of a given slot number on the given instance
+   */
+  endSyncingSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, () => {
+      const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
+      assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
+      serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
+    });
+  }
+  /**
+   * Deletes a slot and analysis from all instances in the group except the provided one
+   */
+  deleteSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+    });
+  }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
+  setSlotSelected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setSelected(false);
+    });
+  }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
+  setSlotDeselected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setDeselected();
+    });
+  }
+  /** 
+   * Execute a given function on all files slot 
+   */
+  forEveryOtherSlot(instance, slotNumber, fn) {
+    this.parent.files.forEveryInstance((file) => {
+      if (file === instance) {
+        return;
+      }
+      const slot = file.slots.getSlot(slotNumber);
+      fn(slot, file);
+    });
+  }
+  /**
+   * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
+   * @deprecated Used only by old webcomponents and perhaps unnecessary
+   */
+  recieveSlotSerialized(serialized, slot) {
+    this.parent.files.forEveryInstance(
+      (instance) => {
+        if (instance === this.currentPointer || instance.group.analysisSync.value === false) {
+          return;
+        }
+        if (serialized) {
+          const sl = instance.slots.getSlot(slot);
+          if (sl) {
+            sl.recieveSerialized(serialized);
+          } else {
+            instance.slots.createAnalysisFromSerialized(serialized, slot);
+          }
+        } else {
+          instance.slots.removeSlotAndAnalysis(slot);
+        }
+      }
+    );
+  }
+  /**
+   * Take an instance and copy its value in one slot to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyOneSlotToAllInstances(instance, slotNumber) {
+    this.setCurrentPointer(instance);
+    const slot = instance.slots.getSlot(slotNumber);
+    const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
+    console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
+    this.parent.files.forEveryInstance((otherInstance) => {
+      if (otherInstance === instance) {
+        console.log("Skipping source instance", otherInstance);
+        return;
+      }
+      if (otherInstance.slots.hasSlot(slotNumber)) {
+        otherInstance.slots.removeSlotAndAnalysis(slotNumber);
+      }
+      if (!serialized) {
+        return;
+      }
+      const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
+      console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
+      analysis?.setSelected();
+    });
+  }
+  /** 
+   * Copy the entire analysis state from one instance to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyAllSlotsToAllInstances(instance) {
+    [1, 2, 3, 4, 5, 6, 7].forEach((slotNumber) => {
+      this.copyOneSlotToAllInstances(instance, slotNumber);
+    });
+  }
+};
+
+// src/properties/cursor/CursorPositionDrive.ts
+var CursorPositionDrive = class extends AbstractProperty {
+  _hover = this.value !== void 0;
+  get hover() {
+    return this._hover;
+  }
+  validate(value) {
+    return value;
+  }
+  // After the position changes, update the hover & project the position in all instances
+  afterSetEffect(value) {
+    this._hover = this.value !== void 0;
+    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
+  }
+  recieveCursorPosition(position) {
+    this.value = position;
+  }
+};
+
+// src/properties/lists/filesState.ts
+var import_zip_slim = require("zip-slim");
+var FilesState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value.sort((a, b) => a.timestamp - b.timestamp);
+  }
+  /** Array of all files sorted by timestamp from the earliest to the latest. */
+  get sortedFiles() {
+    return this.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
+  }
+  addFile(file) {
+    if (!this._map.has(file.thermalUrl)) {
+      this.value = [...this.value, file];
+      return file;
+    } else {
+      return this._map.get(file.thermalUrl);
+    }
+  }
+  removeFile(file) {
+    const entry = file instanceof Instance ? file : this.map.get(file);
+    if (entry) {
+      entry.unmountFromDom();
+      this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
+    }
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+  downloadAllFiles() {
+    const files = [];
+    this.forEveryInstance((instance) => {
+      const blob = new Blob([instance.reader.buffer], { type: "application/octet-stream" });
+      const file = new File(
+        [blob],
+        instance.fileName,
+        { type: "application/octet-stream" }
+      );
+      files.push(file);
+    });
+    (0, import_zip_slim.zip)(files, true).then((result) => {
+      const link = document.createElement("a");
+      link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
+      link.href = URL.createObjectURL(result);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      link.remove();
+    });
+  }
+};
+
+// src/properties/scale/abstractMinmaxProperty.ts
+var AbstractMinmaxProperty = class extends AbstractProperty {
+  /** Get the current distance between min and max */
+  get distanceInCelsius() {
+    if (this.value === void 0) {
+      return void 0;
+    }
+    return Math.abs(this.value.min - this.value.max);
+  }
+};
+
+// src/properties/scale/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.files.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/properties/time/group/GroupPlayback.ts
+var GroupPlayback = class extends AbstractProperty {
+  _hasAnyPlayback = false;
+  /** Does this group include any sequence? */
+  get hasAnyPlayback() {
+    return this._hasAnyPlayback;
+  }
+  set hasAnyPlayback(value) {
+    if (this._hasAnyPlayback !== value) {
+      this._hasAnyPlayback = value;
+      this.onHasAnyCallback.call(value);
+    }
+  }
+  onHasAnyCallback = new CallbacksManager();
+  recalculateHasAnyPlayback(instances) {
+    let temporaryHas = false;
+    instances.forEach((i) => {
+      if (i.timeline.isSequence) {
+        temporaryHas = true;
+      }
+    });
+    this.hasAnyPlayback = temporaryHas;
+  }
+  _playing = false;
+  get playing() {
+    return this._playing;
+  }
+  set playing(value) {
+    if (this._playing !== value) {
+      this._playing = value;
+      this.onPlayingStatusChange.call(this._playing);
+    }
+  }
+  onPlayingStatusChange = new CallbacksManager();
+  /** Internal pointer holding the current loop iteration*/
+  loopStep = 0;
+  /** Internal setTimeout for playback. */
+  loopTimer;
+  _loopInterval = 20;
+  /** Interval upon which the main loop triggers. In MS. */
+  get loopInterval() {
+    return this._loopInterval;
+  }
+  /** @deprecated The playback interval should not change during playback */
+  setLoopInterval(value) {
+    this._loopInterval = Math.round(value);
+    this.onLoopIntervalChanged.call(this._loopInterval);
+  }
+  /** @deprecated The loop playback should not change during playback */
+  onLoopIntervalChanged = new CallbacksManager();
+  _duration = 0;
+  get duration() {
+    return this._duration;
+  }
+  set duration(value) {
+    if (value !== this._duration) {
+      this._duration = value;
+      this.onDurationChanged.call(this._duration);
+    }
+  }
+  onDurationChanged = new CallbacksManager();
+  recalculateDuration(instances) {
+    let temporaryDuration = 0;
+    instances.forEach((instance) => {
+      if (instance.timeline.duration > temporaryDuration) {
+        temporaryDuration = instance.timeline.duration;
+      }
+    });
+    this.duration = temporaryDuration;
+  }
+  UUID = this.parent.id + "__listener";
+  constructor(parent, initial) {
+    super(parent, initial);
+    this.recalculateDuration(this.parent.files.value);
+    this.recalculateHasAnyPlayback(this.parent.files.value);
+    this.parent.registry.batch.onBatchComplete.set(
+      this.UUID,
+      (results) => {
+        const instances = results.filter((res) => res instanceof Instance);
+        this.recalculateDuration(instances);
+        this.recalculateHasAnyPlayback(instances);
+        const newVal = this.value;
+        this.value = newVal;
+      }
+    );
+  }
+  validate(value) {
+    return Math.min(Math.max(value, 0), this.duration);
+  }
+  afterSetEffect(value) {
+    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
+  }
+  /** Set time value by percent. The actual MS is calculated depending on the duration. */
+  setValueByPercent(percent) {
+    const ms = this.percentToMs(percent);
+    if (ms !== this.value) {
+      this.value = ms;
+      this.loopStep = Math.floor(this.duration / this.value);
+      if (this.playing) {
+        this.createTimerStep(true);
+      }
+    }
+  }
+  /** Set the time value by MS. */
+  setValueByRelativeMs(relativeMs) {
+    this.value = relativeMs;
+    this.loopStep = Math.floor(this.duration / this.value);
+    if (this.playing) {
+      this.createTimerStep(true);
+    }
+  }
+  /** Convert percent value to relative time in MS */
+  percentToMs(percent) {
+    return Math.floor(this.duration * (percent / 100));
+  }
+  /** Convert relative time in MS to percent value */
+  msToPercent(ms) {
+    return ms / this.duration * 100;
+  }
+  /**
+   * The main method that shall create a timer leading to the next step.
+   * 
+   * It might be called recursively to ensure fluent playback.
+   */
+  createTimerStep(recursive = false) {
+    if (this.duration === void 0 || this.playing === false) {
+      return;
+    }
+    const nextStep = this.loopStep + 1;
+    const nextValue = nextStep * this.loopInterval;
+    this.loopStep = nextStep;
+    if (nextValue <= this.duration) {
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+      this.loopTimer = setTimeout(() => {
+        this.createTimerStep(recursive);
+        this.value = nextValue;
+      }, this.loopInterval);
+    } else {
+      this.playing = false;
+    }
+  }
+  /**
+   * Play the entire group
+   */
+  play() {
+    if (this.playing === false) {
+      this.playing = true;
+      this.createTimerStep(true);
+    }
+  }
+  /**
+   * Stop the entire group
+   */
+  stop() {
+    if (this.playing === true) {
+      this.playing = false;
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+    }
+  }
+  /**
+   * Set the MS value to 0
+   */
+  reset() {
+    if (this.value !== 0) {
+      this.value = 0;
+      this.loopStep = 0;
+    }
+  }
+};
+
+// src/properties/analysis/group/AnalysisGroupGraph.ts
+var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
+  static LISTENER_ID = "AnalysisGroupGraph";
+  constructor(parent) {
+    super(parent, void 0);
+  }
+  timeout;
+  calculateData() {
+    let colors = [];
+    let header = [];
+    const data = [];
+    const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
+    const firstRow = orderedFiles[0].analysisData.value.values[0];
+    header = firstRow;
+    colors = orderedFiles[0].analysisData.value.colors;
+    this.parent.files.forEveryInstance((instance) => {
+      const row = [
+        new Date(instance.timestamp)
+      ];
+      instance.analysis.value.forEach(async (analysis) => {
+        if (analysis.graph.state.MIN === true && analysis.min) {
+          row.push(analysis.min);
+        }
+        if (analysis.graph.state.MAX === true && analysis.max) {
+          row.push(analysis.max);
+        }
+        if (analysis.graph.state.AVG === true && analysis.avg) {
+          row.push(analysis.avg);
+        }
+      });
+      if (row.length > 1) {
+        data.push(row);
+      }
+    });
+    if (colors.length > 0) {
+      this.value = {
+        colors,
+        data: [header, ...data]
+      };
+    } else {
+      this.value = void 0;
+    }
+  }
+  turnOn() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, () => {
+        if (this.timeout !== void 0) {
+          clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+          this.calculateData();
+        }, 0);
+      });
+    });
+  }
+  turnOff() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
+    });
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+};
+
+// src/hierarchy/ThermalGroup.ts
+var ThermalGroup = class extends BaseStructureObject {
+  constructor(registry, id, name, description) {
+    super();
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+  hash = Math.random();
+  /** Human readable label = name or id or hasn */
+  get label() {
+    return this.name ?? this.id ?? this.hash;
+  }
+  get pool() {
+    return this.registry.manager.pool;
+  }
+  minmax = new MinmaxGroupProperty(this, void 0);
+  /** Tool drive from above */
+  get tool() {
+    return this.registry.manager.tool;
+  }
+  files = new FilesState(this, []);
+  cursorPosition = new CursorPositionDrive(this, void 0);
+  analysisSync = new AnalysisSyncDrive(this, false);
+  analysisGraph = new AnalysisGroupGraph(this);
+  _playback;
+  get playback() {
+    if (!this._playback) {
+      this._playback = new GroupPlayback(this, 0);
+    }
+    return this._playback;
+  }
+  /** Iteration */
+  forEveryInstance = (fn) => {
+    this.files.value.forEach((instance) => fn(instance));
+  };
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.files.removeAllInstances();
+  }
+  reset() {
+    this.files.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+    this.analysisSync.reset();
+  }
+  filters = new FilterContainer(this);
+  getInstances() {
+    return this.files.value;
+  }
+  startBatch(id) {
+    return this.registry.batch.getBatchById(id);
   }
 };
 
@@ -8475,7 +8559,7 @@ var isChromium = "chrome" in window;
 var options = isChromium ? {
   maxWorkers: 4
 } : {};
-var globalPool = workerpool.pool(options);
+var globalPool = workerpool2.pool(options);
 var ThermalManager = class extends BaseStructureObject {
   id;
   /** Service for creation of loading and caching the files. */
@@ -8531,20 +8615,62 @@ var ThermalManager = class extends BaseStructureObject {
   }
 };
 
-// src/utils/pool.ts
-var workerpool2 = __toESM(require("workerpool"), 1);
-var pool3 = void 0;
-var getPool = async () => {
-  if (!pool3) {
-    pool3 = workerpool2.pool({
-      maxWorkers: 6
-    });
-  }
-  return pool3;
-};
+// src/utils/time/periods.ts
+var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
+  TimePeriod2["HOUR"] = "jednu hodinu";
+  TimePeriod2["DAY"] = "jeden den";
+  TimePeriod2["WEEK"] = "jeden t\xFDden";
+  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
+  TimePeriod2["YEAR"] = "jeden rok";
+  return TimePeriod2;
+})(TimePeriod || {});
 
-// package.json
-var version = "1.3.4";
+// src/utils/time/rounding.ts
+var import_date_fns4 = require("date-fns");
+var TimeRound = class _TimeRound extends TimeUtilsBase {
+  static down = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return (0, import_date_fns4.startOfHour)(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return (0, import_date_fns4.startOfDay)(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return (0, import_date_fns4.startOfWeek)(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return (0, import_date_fns4.startOfMonth)(value);
+    return (0, import_date_fns4.startOfYear)(value);
+  };
+  static up = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return (0, import_date_fns4.endOfHour)(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return (0, import_date_fns4.endOfDay)(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return (0, import_date_fns4.endOfWeek)(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return (0, import_date_fns4.endOfMonth)(value);
+    return (0, import_date_fns4.endOfYear)(value);
+  };
+  static pick = (value, period) => {
+    return [
+      _TimeRound.down(value, period),
+      _TimeRound.up(value, period)
+    ];
+  };
+  static modify = (value, amount, period) => {
+    switch (period) {
+      case "jednu hodinu" /* HOUR */:
+        return (0, import_date_fns4.addHours)(value, amount);
+      case "jeden den" /* DAY */:
+        return (0, import_date_fns4.addDays)(value, amount);
+      case "jeden t\xFDden" /* WEEK */:
+        return (0, import_date_fns4.addDays)(value, amount * 7);
+      case "jeden m\u011Bs\xEDc" /* MONTH */:
+        return (0, import_date_fns4.addMonths)(value, amount);
+      case "jeden rok" /* YEAR */:
+        return (0, import_date_fns4.addYears)(value, amount);
+    }
+  };
+};
 
 // src/index.ts
 console.info("@labirthermal/core", version);
@@ -8560,15 +8686,11 @@ console.info("@labirthermal/core", version);
   AnalysisGraph,
   Batch,
   CallbacksManager,
-  CornerPoint,
   DropinElementListener,
   EditTool,
   EllipsisAnalysis,
-  GRAYSCALE,
-  IRON,
   InspectTool,
   Instance,
-  JET,
   PointAnalysis,
   RectangleAnalysis,
   ThermalFileFailure,

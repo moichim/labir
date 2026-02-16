@@ -48,7 +48,7 @@ export class FileProviderElement extends AbstractFileProvider {
         }
 
     })
-    public batch?: boolean;
+    public batch: boolean = true;
 
     @property({
         type: String,
@@ -85,7 +85,9 @@ export class FileProviderElement extends AbstractFileProvider {
     @property({ type: String, reflect: true, attribute: true })
     public analysis7?: string;
 
-    /** Load the file and call all necessary callbacks */
+    /** 
+     * Load the file and call all necessary callbacks
+     */
     public async load() {
 
         const result = this.batch === true
@@ -96,6 +98,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+
+    /** 
+     * @deprecated Use the batch loader instead.
+     */
     public async loadSync() {
 
         this.loading = true;
@@ -119,13 +125,15 @@ export class FileProviderElement extends AbstractFileProvider {
                         // Call all callbacks
                         this.onSuccess.call(instance);
 
-                        this.handleLoaded(instance);
+                        
 
                         instance.group.registry.postLoadedProcessing();
 
                         this.loading = false;
 
                         this.recieveInstance(instance);
+
+                        this.initAnalysesSync(instance);
 
                         return instance;
 
@@ -151,6 +159,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
+    /**
+     * Register new load request to the registry batch loader 
+     * 
+     */
     public loadAsync() {
 
         this.loading = true;
@@ -172,8 +184,10 @@ export class FileProviderElement extends AbstractFileProvider {
 
 
     public async redraw() {
+
         this.loading = true;
         this.onLoadingStart.call();
+
         if (this.file) {
             this.removeInstance(this.file);
         }
@@ -182,7 +196,11 @@ export class FileProviderElement extends AbstractFileProvider {
 
     }
 
-    public async asyncLoadCallback(
+    /**
+     * 
+     * @param result A crucial method called every time a loading ends
+     */
+    private async asyncLoadCallback(
         result: Instance | ThermalFileFailure
     ) {
 
@@ -197,7 +215,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
             this.onSuccess.call(result);
 
-            this.handleLoaded(result);
+            this.initAnalysesSync(result);
 
             this.loading = false;
 
@@ -217,23 +235,25 @@ export class FileProviderElement extends AbstractFileProvider {
 
 
 
+    protected firstUpdated(_changedProperties: PropertyValues): void {
+        super.firstUpdated(_changedProperties);
 
-    /** @deprecated This should be moved in load!! Callbacks need not to be registered here. */
-    connectedCallback(): void {
-
-        super.connectedCallback();
-
-        this.load();
-
+        if ( this.registry ) {
+            this.load();
+        }
     }
 
 
     public updated(_changedProperties: PropertyValues<FileProviderElement>): void {
         super.updated(_changedProperties);
 
+
+        // Detect changes of the main thermal URL parameter
         if (_changedProperties.has("thermal")) {
+
             const oldUrl = _changedProperties.get("thermal");
 
+            // Reload only when the thermal URL parameter changed, not on the first load when it was undefined
             if (oldUrl) {
                 this.group.files.removeFile(oldUrl);
                 this.file = undefined;
@@ -243,9 +263,6 @@ export class FileProviderElement extends AbstractFileProvider {
             }
 
         }
-
-
-
 
     }
 

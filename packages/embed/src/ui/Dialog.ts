@@ -1,8 +1,9 @@
 import { t } from "i18next";
-import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { LitElement, css, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { T } from "../translations/Languages";
+import { booleanConverter } from "../utils/converters/booleanConverter";
 
 @customElement( "thermal-dialog" )
 export class ThermalDialog extends LitElement {
@@ -19,28 +20,52 @@ export class ThermalDialog extends LitElement {
     protected closeButtonRef: Ref<HTMLButtonElement> = createRef();
     protected invokerRef: Ref<HTMLSlotElement> = createRef();
 
+    @property({
+        type: Boolean, 
+        reflect: true, 
+        converter: booleanConverter( false ),
+        attribute: "is-fullscreen"
+    })
+    public isFullscreen: boolean = false;
+
     @property( {type: String, reflect: true} )
     public label?: string;
 
-    @property( { type: Object, reflect: true } )
+    @property( { 
+        type: Object
+    } )
     public beforeClose?: () => Promise<boolean>;
 
-    constructor() {
-        
-        super();
+    @state()
+    private _open: boolean = false;
 
+    public get open(): boolean {
+        return this._open;
     }
+
+    @property({
+        type: Object
+    })
+    public onCloseEveryTime?: () => void;
 
     setClose() {
         this.dialogRef.value?.close();
         window.document.body.style.removeProperty("overflow-y");
         window.document.body.style.removeProperty( "height" );
+        this.removeAttribute("open");
+        this._open = false;
+
+        if ( this.onCloseEveryTime ) {
+            this.onCloseEveryTime();
+        }
     }
 
     setOpen() {
         this.dialogRef.value?.showModal();
         window.document.body.style.overflowY = "hidden";
         window.document.body.style.height = "100vh";
+        this.setAttribute("open", "true");
+        this._open = true;
     }
 
     attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
@@ -67,6 +92,12 @@ export class ThermalDialog extends LitElement {
     
     static styles = css`
 
+        :host {
+
+            display: contents;
+
+        }
+
         .dialog {
             background: var( --thermal-slate-light );
             color: var( --thermal-foreground );
@@ -82,6 +113,7 @@ export class ThermalDialog extends LitElement {
             }
 
             min-width: 150px;
+            box-sizing: border-box;
 
             @media ( min-width: 300px ) {
                 min-width: 250px;
@@ -89,7 +121,6 @@ export class ThermalDialog extends LitElement {
 
             @media ( min-width: 600px ) {
                 min-width: 450px;
-                max-width: 700px;
             }
         }
 
@@ -114,6 +145,7 @@ export class ThermalDialog extends LitElement {
             width: 100%;
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             gap: 10px;
 
         }
@@ -135,6 +167,18 @@ export class ThermalDialog extends LitElement {
                 color: var( --thermal-primary );
             }
         
+        }
+
+        :host([is-fullscreen="true"][open]) .dialog {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+
+            .dialog-content {
+                overflow: auto;
+            }
         }
 
         
@@ -162,7 +206,7 @@ export class ThermalDialog extends LitElement {
                 </header>
                 	
                 <div class="dialog-content">
-                    <slot name="content"></slot>
+                    ${this._open ? html`<slot name="content"></slot>` : nothing}
                 </div>
 
                 <div class="dialog-footer">

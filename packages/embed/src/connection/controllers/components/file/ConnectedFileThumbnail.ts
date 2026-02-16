@@ -20,8 +20,7 @@ import { FileListDisplayMode } from "../../DisplayController";
 @customElement("connected-file-thumbnail")
 export class FileThumbnail extends ControlledConsumer {
 
-    @property({ type: Object })
-    public file!: FileInfo;
+    
 
     @consume({ context: groupContext, subscribe: true })
     @state()
@@ -30,6 +29,8 @@ export class FileThumbnail extends ControlledConsumer {
     protected instanceRef: Ref<FileProviderElement> = createRef();
 
 
+    @property({ type: Object })
+    public file!: FileInfo;
 
     @property({ 
         type: Object 
@@ -92,6 +93,8 @@ export class FileThumbnail extends ControlledConsumer {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
+        this.content.subscribeToFilesUpdates( this );
+        this.client.subscribeToIdentityChanges( this );
         this.hydrate();
         if (this.instanceRef.value) {
 
@@ -134,6 +137,12 @@ export class FileThumbnail extends ControlledConsumer {
     connectedCallback(): void {
         super.connectedCallback();
         this.hydrate();
+
+        this.display.subscribeToDisplayComments( this );
+        this.display.subscribeToEditTags( this );
+        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFilesUpdates( this );
+        this.content.subscribeToFolderUpdates( this );
     }
 
 

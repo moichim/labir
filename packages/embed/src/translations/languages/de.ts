@@ -252,5 +252,29 @@ export const de: Translation = {
     password: "Passwort",
     logoutmessage: "Möchten Sie sich wirklich abmelden?",
     loginerror: "Anmeldung nicht möglich.",
-    accessibletologgedinusers: "Diese Seite ist nur für angemeldete Benutzer zugänglich."
+    accessibletologgedinusers: "Diese Seite ist nur für angemeldete Benutzer zugänglich.",
+
+
+    export: "Export",
+    exportvideo: "Video exportieren",
+    exportpng: "Bild exportieren",
+
+    exportdonotclosewindowhint: "Schließen Sie dieses Fenster nicht, die Datei wird automatisch heruntergeladen.",
+    exportencodingfile: "Videodatei wird kodiert...",
+    exportrecordingframes: "Frames werden aufgezeichnet...",
+
+    histogram: "Histogramm",
+    timeline: "Zeitleiste",
+
+    exportwidth: "Breite",
+    exportmargin: "Ränder",
+    exportgap: "Abstand",
+    exportgrahpheight: "Grafikhöhe",
+    videoquality: "Videoqualität",
+    imagecompression: "Bildkompression",
+
+    theme: "Design",
+    light: "Hell",
+    dark: "Dunkel",
+
 }
