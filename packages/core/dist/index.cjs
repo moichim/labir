@@ -44,11 +44,8 @@ __export(index_exports, {
   DropinElementListener: () => DropinElementListener,
   EditTool: () => EditTool,
   EllipsisAnalysis: () => EllipsisAnalysis,
-  GRAYSCALE: () => WHITE_HOT,
-  IRON: () => IRON,
   InspectTool: () => InspectTool,
   Instance: () => Instance,
-  JET: () => JET,
   PointAnalysis: () => PointAnalysis,
   RectangleAnalysis: () => RectangleAnalysis,
   ThermalFileFailure: () => ThermalFileFailure,
@@ -67,268 +64,6 @@ __export(index_exports, {
   supportedFileTypesInputProperty: () => supportedFileTypesInputProperty
 });
 module.exports = __toCommonJS(index_exports);
-
-// src/file/utils/palettes.ts
-var generatePaletteFromStops = (stops) => {
-  const palette = new Array(256);
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  for (let i = 0; i < 256; i++) {
-    const percent = i / 255 * 100;
-    let startStop = sortedStops[0];
-    let endStop = sortedStops[sortedStops.length - 1];
-    for (let j = 0; j < sortedStops.length - 1; j++) {
-      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
-        startStop = sortedStops[j];
-        endStop = sortedStops[j + 1];
-        break;
-      }
-    }
-    const range = endStop.percent - startStop.percent;
-    const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
-    const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
-    const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
-    const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
-    palette[i] = `rgb(${r},${g},${b})`;
-  }
-  return palette;
-};
-var generateGradientFromStops = (stops) => {
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
-  return `linear-gradient(90deg, ${gradientStops})`;
-};
-var generateTextureArrayFromStops = (stops) => {
-  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
-  const arr = new Float32Array(256 * 4);
-  for (let i = 0; i < 256; i++) {
-    const percent = i / 255 * 100;
-    let lowerStop = sortedStops[0];
-    let upperStop = sortedStops[sortedStops.length - 1];
-    for (let j = 0; j < sortedStops.length - 1; j++) {
-      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
-        lowerStop = sortedStops[j];
-        upperStop = sortedStops[j + 1];
-        break;
-      }
-    }
-    const ratio = (percent - lowerStop.percent) / (upperStop.percent - lowerStop.percent || 1);
-    const r = lowerStop.color[0] + (upperStop.color[0] - lowerStop.color[0]) * ratio;
-    const g = lowerStop.color[1] + (upperStop.color[1] - lowerStop.color[1]) * ratio;
-    const b = lowerStop.color[2] + (upperStop.color[2] - lowerStop.color[2]) * ratio;
-    arr[i * 4] = r / 255;
-    arr[i * 4 + 1] = g / 255;
-    arr[i * 4 + 2] = b / 255;
-    arr[i * 4 + 3] = 1;
-  }
-  return arr;
-};
-var IRON_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 30, color: [10, 12, 77] },
-  { percent: 49, color: [86, 20, 101] },
-  { percent: 64, color: [255, 0, 0] },
-  { percent: 84, color: [249, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var JET_STOPS = [
-  { percent: 0, color: [31, 0, 157] },
-  { percent: 8, color: [0, 5, 255] },
-  { percent: 36, color: [0, 255, 239] },
-  { percent: 66, color: [255, 252, 0] },
-  { percent: 94, color: [255, 2, 0] },
-  { percent: 100, color: [145, 0, 0] }
-];
-var WHITE_HOT_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var BLACK_HOT_STOPS = [
-  { percent: 0, color: [255, 255, 255] },
-  { percent: 100, color: [0, 0, 0] }
-];
-var LAVA_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 12, color: [30, 78, 149] },
-  { percent: 32, color: [33, 128, 127] },
-  { percent: 41, color: [102, 48, 108] },
-  { percent: 64, color: [233, 37, 37] },
-  { percent: 90, color: [255, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var ARCTIC_STOPS = [
-  { percent: 0, color: [17, 13, 133] },
-  { percent: 15, color: [23, 50, 248] },
-  { percent: 30, color: [75, 245, 255] },
-  { percent: 55, color: [100, 91, 86] },
-  { percent: 70, color: [239, 86, 28] },
-  { percent: 87, color: [255, 255, 0] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var RAINBOW_STOPS = [
-  { percent: 0, color: [12, 11, 65] },
-  { percent: 23, color: [36, 108, 212] },
-  { percent: 42, color: [100, 255, 30] },
-  { percent: 55, color: [255, 255, 0] },
-  { percent: 80, color: [255, 0, 69] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var RAINBOW_HC_STOPS = [
-  { percent: 0, color: [0, 0, 0] },
-  { percent: 13, color: [212, 0, 217] },
-  { percent: 25, color: [21, 28, 151] },
-  { percent: 37, color: [55, 230, 255] },
-  { percent: 50, color: [17, 75, 22] },
-  { percent: 62, color: [255, 255, 0] },
-  { percent: 80, color: [119, 0, 11] },
-  { percent: 90, color: [255, 40, 32] },
-  { percent: 100, color: [255, 255, 255] }
-];
-var IRON = generatePaletteFromStops(IRON_STOPS);
-var JET = generatePaletteFromStops(JET_STOPS);
-var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
-var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
-var LAVA = generatePaletteFromStops(LAVA_STOPS);
-var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
-var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
-var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
-var PALETTES = [
-  { name: "Iron", stops: IRON_STOPS },
-  { name: "Jet", stops: JET_STOPS },
-  { name: "White Hot", stops: WHITE_HOT_STOPS },
-  { name: "Black Hot", stops: BLACK_HOT_STOPS },
-  { name: "Lava", stops: LAVA_STOPS },
-  { name: "Arctic", stops: ARCTIC_STOPS },
-  { name: "Rainbow", stops: RAINBOW_STOPS },
-  { name: "Rainbow HC", stops: RAINBOW_HC_STOPS }
-];
-var TP = Object.fromEntries(PALETTES.map((pd) => {
-  const slug = pd.name.toLocaleLowerCase().replace(" ", "_");
-  return [slug, {
-    gradient: generateGradientFromStops(pd.stops),
-    pixels: generatePaletteFromStops(pd.stops),
-    texturePixels: generateTextureArrayFromStops(pd.stops),
-    slug,
-    name: pd.name
-  }];
-}));
-var ThermalPalettes = TP;
-
-// src/utils/time/formatting.ts
-var import_date_fns = require("date-fns");
-
-// src/utils/time/base.ts
-var TimeUtilsBase = class {
-  /** Convert an input to a date object */
-  static inputToDate = (value) => {
-    if (typeof value === "number") {
-      const d = /* @__PURE__ */ new Date();
-      d.setTime(value);
-      return d;
-    }
-    return value;
-  };
-};
-
-// src/utils/time/formatting.ts
-var TimeFormat = class _TimeFormat extends TimeUtilsBase {
-  /** YYYY-MM-DD */
-  static isoDate = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value, { representation: "date" });
-  };
-  /** HH:MM:SS */
-  static isoTime = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value, { representation: "time" });
-  };
-  /** YYYY-MM-DD HH:MM:SS */
-  static isoComplete = (value) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.formatISO9075)(value);
-  };
-  /** HH:mm */
-  static humanTime = (value, showSeconds = false) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
-  };
-  /** j. M. ???? (y) */
-  static humanDate = (value, includeYear = false) => {
-    value = _TimeFormat.inputToDate(value);
-    return (0, import_date_fns.format)(value, includeYear ? "d. M." : "d. M. yyyy");
-  };
-  /** Range */
-  static humanRangeDates(from, to) {
-    from = _TimeFormat.inputToDate(from);
-    to = _TimeFormat.inputToDate(to);
-    if (from.getUTCDate() === to.getUTCDate()) {
-      return _TimeFormat.humanDate(from);
-    }
-    return [
-      _TimeFormat.humanDate(from),
-      _TimeFormat.humanDate(to)
-    ].join(" - ");
-  }
-  static human(date) {
-    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
-  }
-};
-
-// src/utils/time/periods.ts
-var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
-  TimePeriod2["HOUR"] = "jednu hodinu";
-  TimePeriod2["DAY"] = "jeden den";
-  TimePeriod2["WEEK"] = "jeden t\xFDden";
-  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
-  TimePeriod2["YEAR"] = "jeden rok";
-  return TimePeriod2;
-})(TimePeriod || {});
-
-// src/utils/time/rounding.ts
-var import_date_fns2 = require("date-fns");
-var TimeRound = class _TimeRound extends TimeUtilsBase {
-  static down = (value, roundTo) => {
-    if (roundTo === "jednu hodinu" /* HOUR */)
-      return (0, import_date_fns2.startOfHour)(value);
-    else if (roundTo === "jeden den" /* DAY */)
-      return (0, import_date_fns2.startOfDay)(value);
-    else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return (0, import_date_fns2.startOfWeek)(value);
-    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return (0, import_date_fns2.startOfMonth)(value);
-    return (0, import_date_fns2.startOfYear)(value);
-  };
-  static up = (value, roundTo) => {
-    if (roundTo === "jednu hodinu" /* HOUR */)
-      return (0, import_date_fns2.endOfHour)(value);
-    else if (roundTo === "jeden den" /* DAY */)
-      return (0, import_date_fns2.endOfDay)(value);
-    else if (roundTo === "jeden t\xFDden" /* WEEK */)
-      return (0, import_date_fns2.endOfWeek)(value);
-    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
-      return (0, import_date_fns2.endOfMonth)(value);
-    return (0, import_date_fns2.endOfYear)(value);
-  };
-  static pick = (value, period) => {
-    return [
-      _TimeRound.down(value, period),
-      _TimeRound.up(value, period)
-    ];
-  };
-  static modify = (value, amount, period) => {
-    switch (period) {
-      case "jednu hodinu" /* HOUR */:
-        return (0, import_date_fns2.addHours)(value, amount);
-      case "jeden den" /* DAY */:
-        return (0, import_date_fns2.addDays)(value, amount);
-      case "jeden t\xFDden" /* WEEK */:
-        return (0, import_date_fns2.addDays)(value, amount * 7);
-      case "jeden m\u011Bs\xEDc" /* MONTH */:
-        return (0, import_date_fns2.addMonths)(value, amount);
-      case "jeden rok" /* YEAR */:
-        return (0, import_date_fns2.addYears)(value, amount);
-    }
-  };
-};
 
 // src/properties/callbacksManager.ts
 var CallbacksManager = class extends Map {
@@ -2568,7 +2303,7 @@ var AnalysisDrive = class extends AbstractProperty {
 var import_export_to_csv = require("export-to-csv");
 
 // src/properties/analysis/data/graphs/AnalysisGraphsStorage.ts
-var import_date_fns3 = require("date-fns");
+var import_date_fns = require("date-fns");
 var AnalysisGraphsStorage = class {
   constructor(drive) {
     this.drive = drive;
@@ -2689,8 +2424,8 @@ var AnalysisGraphsStorage = class {
             const timestamp_relative = parseInt(key);
             const timestamp_absolute = timestamp_relative + graph.analysis.file.timestamp;
             dataBuffer[key] = {
-              [header[0].key]: (0, import_date_fns3.format)(timestamp_relative, "m:ss:SSS") + " ",
-              [header[1].key]: (0, import_date_fns3.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
+              [header[0].key]: (0, import_date_fns.format)(timestamp_relative, "m:ss:SSS") + " ",
+              [header[1].key]: (0, import_date_fns.format)(timestamp_absolute, "d. M.y m:ss:SSS") + " ",
               [header[2].key]: timestamp_relative,
               [header[3].key]: timestamp_absolute
             };
@@ -3196,7 +2931,7 @@ var CursorValueDrive = class extends AbstractProperty {
 };
 
 // src/properties/time/playback/TimelineDrive.ts
-var import_date_fns4 = require("date-fns");
+var import_date_fns2 = require("date-fns");
 
 // src/properties/time/playback/internals/FrameBuffer.ts
 var FrameBuffer = class {
@@ -3417,7 +3152,7 @@ var TimelineDrive = class extends AbstractProperty {
   formatDuration(ms) {
     const date = /* @__PURE__ */ new Date(0);
     date.setMilliseconds(ms);
-    return (0, import_date_fns4.format)(date, "mm:ss:SSS");
+    return (0, import_date_fns2.format)(date, "mm:ss:SSS");
   }
   next() {
     const next = this.findNextRelative(this.value);
@@ -5130,6 +4865,66 @@ var AbstractPngExport = class _AbstractPngExport {
     buildTick(toClamped, true, "white", text);
     box.appendChild(ticks);
     return box;
+  }
+};
+
+// src/utils/time/formatting.ts
+var import_date_fns3 = require("date-fns");
+
+// src/utils/time/base.ts
+var TimeUtilsBase = class {
+  /** Convert an input to a date object */
+  static inputToDate = (value) => {
+    if (typeof value === "number") {
+      const d = /* @__PURE__ */ new Date();
+      d.setTime(value);
+      return d;
+    }
+    return value;
+  };
+};
+
+// src/utils/time/formatting.ts
+var TimeFormat = class _TimeFormat extends TimeUtilsBase {
+  /** YYYY-MM-DD */
+  static isoDate = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value, { representation: "date" });
+  };
+  /** HH:MM:SS */
+  static isoTime = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value, { representation: "time" });
+  };
+  /** YYYY-MM-DD HH:MM:SS */
+  static isoComplete = (value) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.formatISO9075)(value);
+  };
+  /** HH:mm */
+  static humanTime = (value, showSeconds = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.format)(value, showSeconds ? "HH:mm:ss" : "HH:mm");
+  };
+  /** j. M. ???? (y) */
+  static humanDate = (value, includeYear = false) => {
+    value = _TimeFormat.inputToDate(value);
+    return (0, import_date_fns3.format)(value, includeYear ? "d. M." : "d. M. yyyy");
+  };
+  /** Range */
+  static humanRangeDates(from, to) {
+    from = _TimeFormat.inputToDate(from);
+    to = _TimeFormat.inputToDate(to);
+    if (from.getUTCDate() === to.getUTCDate()) {
+      return _TimeFormat.humanDate(from);
+    }
+    return [
+      _TimeFormat.humanDate(from),
+      _TimeFormat.humanDate(to)
+    ].join(" - ");
+  }
+  static human(date) {
+    return `${_TimeFormat.humanDate(date)} ${_TimeFormat.humanTime(date, true)} `;
   }
 };
 
@@ -7583,6 +7378,190 @@ var GraphSmoothDrive = class extends AbstractProperty {
   }
 };
 
+// src/properties/scale/palettes.ts
+var generatePaletteFromStops = (stops) => {
+  const palette = new Array(256);
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let startStop = sortedStops[0];
+    let endStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        startStop = sortedStops[j];
+        endStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const range = endStop.percent - startStop.percent;
+    const rangePercent = range === 0 ? 0 : (percent - startStop.percent) / range;
+    const r = Math.round(startStop.color[0] + rangePercent * (endStop.color[0] - startStop.color[0]));
+    const g = Math.round(startStop.color[1] + rangePercent * (endStop.color[1] - startStop.color[1]));
+    const b = Math.round(startStop.color[2] + rangePercent * (endStop.color[2] - startStop.color[2]));
+    palette[i] = `rgb(${r},${g},${b})`;
+  }
+  return palette;
+};
+var generateGradientFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const gradientStops = sortedStops.map((stop) => `rgb(${stop.color.join(",")}) ${stop.percent}%`).join(", ");
+  return `linear-gradient(90deg, ${gradientStops})`;
+};
+var generateTextureArrayFromStops = (stops) => {
+  const sortedStops = [...stops].sort((a, b) => a.percent - b.percent);
+  const arr = new Float32Array(256 * 4);
+  for (let i = 0; i < 256; i++) {
+    const percent = i / 255 * 100;
+    let lowerStop = sortedStops[0];
+    let upperStop = sortedStops[sortedStops.length - 1];
+    for (let j = 0; j < sortedStops.length - 1; j++) {
+      if (percent >= sortedStops[j].percent && percent <= sortedStops[j + 1].percent) {
+        lowerStop = sortedStops[j];
+        upperStop = sortedStops[j + 1];
+        break;
+      }
+    }
+    const ratio = (percent - lowerStop.percent) / (upperStop.percent - lowerStop.percent || 1);
+    const r = lowerStop.color[0] + (upperStop.color[0] - lowerStop.color[0]) * ratio;
+    const g = lowerStop.color[1] + (upperStop.color[1] - lowerStop.color[1]) * ratio;
+    const b = lowerStop.color[2] + (upperStop.color[2] - lowerStop.color[2]) * ratio;
+    arr[i * 4] = r / 255;
+    arr[i * 4 + 1] = g / 255;
+    arr[i * 4 + 2] = b / 255;
+    arr[i * 4 + 3] = 1;
+  }
+  return arr;
+};
+var IRON_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 30, color: [10, 12, 77] },
+  { percent: 49, color: [86, 20, 101] },
+  { percent: 64, color: [255, 0, 0] },
+  { percent: 84, color: [249, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var JET_STOPS = [
+  { percent: 0, color: [31, 0, 157] },
+  { percent: 8, color: [0, 5, 255] },
+  { percent: 36, color: [0, 255, 239] },
+  { percent: 66, color: [255, 252, 0] },
+  { percent: 94, color: [255, 2, 0] },
+  { percent: 100, color: [145, 0, 0] }
+];
+var WHITE_HOT_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var BLACK_HOT_STOPS = [
+  { percent: 0, color: [255, 255, 255] },
+  { percent: 100, color: [0, 0, 0] }
+];
+var LAVA_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 12, color: [30, 78, 149] },
+  { percent: 32, color: [33, 128, 127] },
+  { percent: 41, color: [102, 48, 108] },
+  { percent: 64, color: [233, 37, 37] },
+  { percent: 90, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var ARCTIC_STOPS = [
+  { percent: 0, color: [17, 13, 133] },
+  { percent: 15, color: [23, 50, 248] },
+  { percent: 30, color: [75, 245, 255] },
+  { percent: 55, color: [100, 91, 86] },
+  { percent: 70, color: [239, 86, 28] },
+  { percent: 87, color: [255, 255, 0] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_STOPS = [
+  { percent: 0, color: [12, 11, 65] },
+  { percent: 23, color: [36, 108, 212] },
+  { percent: 42, color: [100, 255, 30] },
+  { percent: 55, color: [255, 255, 0] },
+  { percent: 80, color: [255, 0, 69] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var RAINBOW_HC_STOPS = [
+  { percent: 0, color: [0, 0, 0] },
+  { percent: 13, color: [212, 0, 217] },
+  { percent: 25, color: [21, 28, 151] },
+  { percent: 37, color: [55, 230, 255] },
+  { percent: 50, color: [17, 75, 22] },
+  { percent: 62, color: [255, 255, 0] },
+  { percent: 80, color: [119, 0, 11] },
+  { percent: 90, color: [255, 40, 32] },
+  { percent: 100, color: [255, 255, 255] }
+];
+var IRON = generatePaletteFromStops(IRON_STOPS);
+var JET = generatePaletteFromStops(JET_STOPS);
+var WHITE_HOT = generatePaletteFromStops(WHITE_HOT_STOPS);
+var BLACK_HOT = generatePaletteFromStops(BLACK_HOT_STOPS);
+var LAVA = generatePaletteFromStops(LAVA_STOPS);
+var ARCTIC = generatePaletteFromStops(ARCTIC_STOPS);
+var RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
+var RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
+var PALETTES = {
+  iron: {
+    name: "Iron",
+    gradient: generateGradientFromStops(IRON_STOPS),
+    pixels: IRON,
+    texturePixels: generateTextureArrayFromStops(IRON_STOPS),
+    slug: "iron"
+  },
+  jet: {
+    name: "Jet",
+    gradient: generateGradientFromStops(JET_STOPS),
+    pixels: JET,
+    texturePixels: generateTextureArrayFromStops(JET_STOPS),
+    slug: "jet"
+  },
+  white_hot: {
+    name: "White Hot",
+    gradient: generateGradientFromStops(WHITE_HOT_STOPS),
+    pixels: WHITE_HOT,
+    texturePixels: generateTextureArrayFromStops(WHITE_HOT_STOPS),
+    slug: "white_hot"
+  },
+  black_hot: {
+    name: "Black Hot",
+    gradient: generateGradientFromStops(BLACK_HOT_STOPS),
+    pixels: BLACK_HOT,
+    texturePixels: generateTextureArrayFromStops(BLACK_HOT_STOPS),
+    slug: "black_hot"
+  },
+  lava: {
+    name: "Lava",
+    gradient: generateGradientFromStops(LAVA_STOPS),
+    pixels: LAVA,
+    texturePixels: generateTextureArrayFromStops(LAVA_STOPS),
+    slug: "lava"
+  },
+  arctic: {
+    name: "Arctic",
+    gradient: generateGradientFromStops(ARCTIC_STOPS),
+    pixels: ARCTIC,
+    texturePixels: generateTextureArrayFromStops(ARCTIC_STOPS),
+    slug: "arctic"
+  },
+  rainbow: {
+    name: "Rainbow",
+    gradient: generateGradientFromStops(RAINBOW_STOPS),
+    pixels: RAINBOW,
+    texturePixels: generateTextureArrayFromStops(RAINBOW_STOPS),
+    slug: "rainbow"
+  },
+  rainbow_hc: {
+    name: "Rainbow HC",
+    gradient: generateGradientFromStops(RAINBOW_HC_STOPS),
+    pixels: RAINBOW_HC,
+    texturePixels: generateTextureArrayFromStops(RAINBOW_HC_STOPS),
+    slug: "rainbow_hc"
+  }
+};
+var ThermalPalettes = PALETTES;
+var defaultPaletteKey = "jet";
+
 // src/properties/scale/PaletteDrive.ts
 var PaletteDrive = class extends AbstractProperty {
   get availablePalettes() {
@@ -7591,10 +7570,6 @@ var PaletteDrive = class extends AbstractProperty {
   /** All the current palette properties should be accessed through this property. */
   get currentPalette() {
     return this.availablePalettes[this.value];
-  }
-  /** @deprecated Should not be used at all. Use `currentPalette` instead */
-  get currentPixels() {
-    return this.currentPalette.pixels;
   }
   validate(value) {
     return value;
@@ -7605,8 +7580,21 @@ var PaletteDrive = class extends AbstractProperty {
       registry.forEveryInstance((instance) => instance.draw());
     });
   }
+  /** Set a palette value and propagate the change to all instances. */
   setPalette(key) {
     this.value = key;
+  }
+  /** Takes any string input and converts it to a valid AvailableThermalPalettes key */
+  sanitizeInputKey(input) {
+    if (input === null || input === void 0) {
+      return defaultPaletteKey;
+    }
+    const f = this.availablePalettes[input];
+    if (f) {
+      return f.slug;
+    } else {
+      return defaultPaletteKey;
+    }
   }
 };
 
@@ -8625,6 +8613,63 @@ var getPool = async () => {
   return pool3;
 };
 
+// src/utils/time/periods.ts
+var TimePeriod = /* @__PURE__ */ ((TimePeriod2) => {
+  TimePeriod2["HOUR"] = "jednu hodinu";
+  TimePeriod2["DAY"] = "jeden den";
+  TimePeriod2["WEEK"] = "jeden t\xFDden";
+  TimePeriod2["MONTH"] = "jeden m\u011Bs\xEDc";
+  TimePeriod2["YEAR"] = "jeden rok";
+  return TimePeriod2;
+})(TimePeriod || {});
+
+// src/utils/time/rounding.ts
+var import_date_fns4 = require("date-fns");
+var TimeRound = class _TimeRound extends TimeUtilsBase {
+  static down = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return (0, import_date_fns4.startOfHour)(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return (0, import_date_fns4.startOfDay)(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return (0, import_date_fns4.startOfWeek)(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return (0, import_date_fns4.startOfMonth)(value);
+    return (0, import_date_fns4.startOfYear)(value);
+  };
+  static up = (value, roundTo) => {
+    if (roundTo === "jednu hodinu" /* HOUR */)
+      return (0, import_date_fns4.endOfHour)(value);
+    else if (roundTo === "jeden den" /* DAY */)
+      return (0, import_date_fns4.endOfDay)(value);
+    else if (roundTo === "jeden t\xFDden" /* WEEK */)
+      return (0, import_date_fns4.endOfWeek)(value);
+    else if (roundTo === "jeden m\u011Bs\xEDc" /* MONTH */)
+      return (0, import_date_fns4.endOfMonth)(value);
+    return (0, import_date_fns4.endOfYear)(value);
+  };
+  static pick = (value, period) => {
+    return [
+      _TimeRound.down(value, period),
+      _TimeRound.up(value, period)
+    ];
+  };
+  static modify = (value, amount, period) => {
+    switch (period) {
+      case "jednu hodinu" /* HOUR */:
+        return (0, import_date_fns4.addHours)(value, amount);
+      case "jeden den" /* DAY */:
+        return (0, import_date_fns4.addDays)(value, amount);
+      case "jeden t\xFDden" /* WEEK */:
+        return (0, import_date_fns4.addDays)(value, amount * 7);
+      case "jeden m\u011Bs\xEDc" /* MONTH */:
+        return (0, import_date_fns4.addMonths)(value, amount);
+      case "jeden rok" /* YEAR */:
+        return (0, import_date_fns4.addYears)(value, amount);
+    }
+  };
+};
+
 // package.json
 var version = "1.3.4";
 
@@ -8646,11 +8691,8 @@ console.info("@labirthermal/core", version);
   DropinElementListener,
   EditTool,
   EllipsisAnalysis,
-  GRAYSCALE,
-  IRON,
   InspectTool,
   Instance,
-  JET,
   PointAnalysis,
   RectangleAnalysis,
   ThermalFileFailure,

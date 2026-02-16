@@ -1,68 +1,6 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
 
-/** Definition of a palette containing its name, gradient and pixels value. */
-type ThermalPaletteType = {
-    /** Actial pixels that shall be ised for drawings of thermograms. */
-    pixels: string[];
-    /** Human-readable name of the palette. */
-    name: string;
-    /** A CSS gradient representing the color scale in the UI. */
-    gradient: string;
-    /** The CSS slug */
-    slug: AvailableThermalPalettes;
-    /** Float array containing color values for WebGL2 texture */
-    texturePixels: Float32Array;
-};
-declare const IRON: string[];
-declare const JET: string[];
-declare const WHITE_HOT: string[];
-declare const ThermalPalettes: {
-    [k: string]: ThermalPaletteType;
-};
-/** Keys of palettes available in `@labirthermal/core`. */
-type AvailableThermalPalettes = "jet" | "iron" | "white_hot" | "black_hot" | "lava" | "arctic" | "rainbow" | "rainbow_hc";
-
-type AcceptableDateInput = number | Date;
-declare abstract class TimeUtilsBase {
-    /** Convert an input to a date object */
-    static inputToDate: (value: AcceptableDateInput) => Date;
-}
-
-/** Utility class for time formatting in the LabIR ecosystem. */
-declare class TimeFormat extends TimeUtilsBase {
-    /** YYYY-MM-DD */
-    static isoDate: (value: AcceptableDateInput) => string;
-    /** HH:MM:SS */
-    static isoTime: (value: AcceptableDateInput) => string;
-    /** YYYY-MM-DD HH:MM:SS */
-    static isoComplete: (value: AcceptableDateInput) => string;
-    /** HH:mm */
-    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
-    /** j. M. ???? (y) */
-    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
-    /** Range */
-    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
-    static human(date: AcceptableDateInput): string;
-}
-
-/** Defined time periods used in the LabIR ecosystem. */
-declare enum TimePeriod {
-    HOUR = "jednu hodinu",
-    DAY = "jeden den",
-    WEEK = "jeden t\u00FDden",
-    MONTH = "jeden m\u011Bs\u00EDc",
-    YEAR = "jeden rok"
-}
-
-/** Utility class for time rounding in the LabIR ecosystem. */
-declare class TimeRound extends TimeUtilsBase {
-    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
-    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
-}
-
 /**
  * Manage callbacks on optional property values
  */
@@ -90,6 +28,82 @@ declare abstract class AbstractFilter<T extends AbstractFilterParameters = Abstr
 declare abstract class BaseStructureObject {
     abstract getInstances(): Instance[];
 }
+
+/** Definition of a palette containing its name, gradient and pixels value. */
+type ThermalPaletteType = {
+    /** Actial pixels that shall be ised for drawings of thermograms. */
+    pixels: string[];
+    /** Human-readable name of the palette. */
+    name: string;
+    /** A CSS gradient representing the color scale in the UI. */
+    gradient: string;
+    /** The CSS slug */
+    slug: AvailableThermalPalette;
+    /** Float array containing color values for WebGL2 texture */
+    texturePixels: Float32Array;
+};
+declare const PALETTES: {
+    readonly iron: {
+        readonly name: "Iron";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "iron";
+    };
+    readonly jet: {
+        readonly name: "Jet";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "jet";
+    };
+    readonly white_hot: {
+        readonly name: "White Hot";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "white_hot";
+    };
+    readonly black_hot: {
+        readonly name: "Black Hot";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "black_hot";
+    };
+    readonly lava: {
+        readonly name: "Lava";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "lava";
+    };
+    readonly arctic: {
+        readonly name: "Arctic";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "arctic";
+    };
+    readonly rainbow: {
+        readonly name: "Rainbow";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "rainbow";
+    };
+    readonly rainbow_hc: {
+        readonly name: "Rainbow HC";
+        readonly gradient: string;
+        readonly pixels: string[];
+        readonly texturePixels: Float32Array<ArrayBufferLike>;
+        readonly slug: "rainbow_hc";
+    };
+};
+/** Keys of palettes available in `@labirthermal/core`. */
+type AvailableThermalPalette = keyof typeof PALETTES;
+/** Palette definitions available in `@labirthermal/core`. */
+declare const ThermalPalettes: Record<AvailableThermalPalette, ThermalPaletteType>;
 
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 declare abstract class AbstractFileResult {
@@ -1355,7 +1369,7 @@ declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
 }
 
 type ThermalManagerOptions = {
-    palette?: AvailableThermalPalettes;
+    palette?: AvailableThermalPalette;
 };
 declare class ThermalManager extends BaseStructureObject {
     readonly id: number;
@@ -1380,23 +1394,20 @@ declare class ThermalManager extends BaseStructureObject {
     forEveryInstance(callback: (instance: Instance) => void): void;
 }
 
-/** @deprecated Should use `AvailableThermalPalettes` instead. */
-type PaletteId = keyof typeof ThermalPalettes;
 interface IWithPalette extends IBaseProperty {
     palette: PaletteDrive;
 }
-declare class PaletteDrive extends AbstractProperty<PaletteId, ThermalManager> {
-    get availablePalettes(): {
-        [k: string]: ThermalPaletteType;
-    };
+declare class PaletteDrive extends AbstractProperty<AvailableThermalPalette, ThermalManager> {
+    private get availablePalettes();
     /** All the current palette properties should be accessed through this property. */
     get currentPalette(): ThermalPaletteType;
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    get currentPixels(): string[];
-    protected validate(value: PaletteId): PaletteId;
+    protected validate(value: AvailableThermalPalette): AvailableThermalPalette;
     /** Any changes to the value should propagate directly to every instance. */
     protected afterSetEffect(): void;
-    setPalette(key: PaletteId): void;
+    /** Set a palette value and propagate the change to all instances. */
+    setPalette(key: AvailableThermalPalette): void;
+    /** Takes any string input and converts it to a valid AvailableThermalPalettes key */
+    sanitizeInputKey(input: string | null | undefined): AvailableThermalPalette;
 }
 
 /** Codes of errors */
@@ -2647,38 +2658,44 @@ declare const supportedFileTypesInputProperty: string;
 
 declare const getPool: () => Promise<Pool__default>;
 
-declare class InspectTool extends AbstractTool implements ITool {
-    readonly key = "inspect";
-    readonly name: string;
-    readonly description: string;
-    readonly icon: string;
-    protected onActivate(): void;
-    protected onDeactivate(): void;
-    onCanvasClick(): void;
-    onCanvasLeave(): void;
-    onPointEnter(): void;
-    onPointLeave(): void;
-    onPointMove(): void;
-    onPointDown(): void;
-    onPointUp(): void;
-    getLabelValue: (x: number, y: number, file: Instance) => string;
+type AcceptableDateInput = number | Date;
+declare abstract class TimeUtilsBase {
+    /** Convert an input to a date object */
+    static inputToDate: (value: AcceptableDateInput) => Date;
 }
 
-declare class EditTool extends AbstractTool implements ITool {
-    readonly key = "edit";
-    readonly name = "editanalysis";
-    readonly description = "dragcornersofselectedanalysis";
-    readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
-    onActivate(): void;
-    protected onDeactivate(): void;
-    onCanvasLeave(): void;
-    onCanvasClick(): void;
-    onPointEnter(point: AbstractPoint): void;
-    onPointLeave(point: AbstractPoint): void;
-    onPointMove(point: AbstractPoint, top: number, left: number): void;
-    onPointDown(point: AbstractPoint): void;
-    onPointUp(point: AbstractPoint): void;
-    getLabelValue(x: number, y: number, file: Instance): string;
+/** Utility class for time formatting in the LabIR ecosystem. */
+declare class TimeFormat extends TimeUtilsBase {
+    /** YYYY-MM-DD */
+    static isoDate: (value: AcceptableDateInput) => string;
+    /** HH:MM:SS */
+    static isoTime: (value: AcceptableDateInput) => string;
+    /** YYYY-MM-DD HH:MM:SS */
+    static isoComplete: (value: AcceptableDateInput) => string;
+    /** HH:mm */
+    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
+    /** j. M. ???? (y) */
+    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
+    /** Range */
+    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
+    static human(date: AcceptableDateInput): string;
+}
+
+/** Defined time periods used in the LabIR ecosystem. */
+declare enum TimePeriod {
+    HOUR = "jednu hodinu",
+    DAY = "jeden den",
+    WEEK = "jeden t\u00FDden",
+    MONTH = "jeden m\u011Bs\u00EDc",
+    YEAR = "jeden rok"
+}
+
+/** Utility class for time rounding in the LabIR ecosystem. */
+declare class TimeRound extends TimeUtilsBase {
+    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
+    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
 }
 
 /** Tool for analysis addition */
@@ -2719,4 +2736,38 @@ declare class AddRectangleTool extends AbstractAddTool implements ITool {
     getLabelValue: (x: number, y: number, file: Instance) => string;
 }
 
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalettes, Batch, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, WHITE_HOT as GRAYSCALE, IRON, InspectTool, Instance, JET, type PaletteId, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+declare class EditTool extends AbstractTool implements ITool {
+    readonly key = "edit";
+    readonly name = "editanalysis";
+    readonly description = "dragcornersofselectedanalysis";
+    readonly icon = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg class=\"thermal-tool-icon\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 64 64\">\n  <polygon points=\"34 17.03 34 -.02 30 -.02 30 17.03 17 17.03 17 32 0 32 0 36 17 36 17 47 46.97 47 46.97 17.03 34 17.03\" fill=\"currentcolor\"/>\n</svg>";
+    onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasLeave(): void;
+    onCanvasClick(): void;
+    onPointEnter(point: AbstractPoint): void;
+    onPointLeave(point: AbstractPoint): void;
+    onPointMove(point: AbstractPoint, top: number, left: number): void;
+    onPointDown(point: AbstractPoint): void;
+    onPointUp(point: AbstractPoint): void;
+    getLabelValue(x: number, y: number, file: Instance): string;
+}
+
+declare class InspectTool extends AbstractTool implements ITool {
+    readonly key = "inspect";
+    readonly name: string;
+    readonly description: string;
+    readonly icon: string;
+    protected onActivate(): void;
+    protected onDeactivate(): void;
+    onCanvasClick(): void;
+    onCanvasLeave(): void;
+    onPointEnter(): void;
+    onPointLeave(): void;
+    onPointMove(): void;
+    onPointDown(): void;
+    onPointUp(): void;
+    getLabelValue: (x: number, y: number, file: Instance) => string;
+}
+
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalette, Batch, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };

@@ -1,18 +1,15 @@
 
-import { ThermalPalettes } from "../../file/utils/palettes";
+import { AvailableThermalPalette, defaultPaletteKey, ThermalPalettes } from "./palettes";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { AbstractProperty, IBaseProperty } from "../abstractProperty";
-
-/** @deprecated Should use `AvailableThermalPalettes` instead. */
-export type PaletteId = keyof typeof ThermalPalettes;
 
 export interface IWithPalette extends IBaseProperty {
     palette: PaletteDrive
 }
 
-export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > {
+export class PaletteDrive extends AbstractProperty< AvailableThermalPalette, ThermalManager > {
 
-    public get availablePalettes() {
+    private get availablePalettes() {
         return ThermalPalettes;
     }
 
@@ -21,13 +18,8 @@ export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > 
         return this.availablePalettes[ this.value ];
     }
 
-    /** @deprecated Should not be used at all. Use `currentPalette` instead */
-    public get currentPixels() {
-        return this.currentPalette.pixels;
-    }
-
     
-    protected validate(value: PaletteId): PaletteId {
+    protected validate(value: AvailableThermalPalette): AvailableThermalPalette {
         return value;
     }
 
@@ -42,8 +34,31 @@ export class PaletteDrive extends AbstractProperty< PaletteId, ThermalManager > 
             
     }
 
-    public setPalette( key: PaletteId ) {
+    /** Set a palette value and propagate the change to all instances. */
+    public setPalette( key: AvailableThermalPalette ) {
         this.value = key;
+    }
+
+    /** Takes any string input and converts it to a valid AvailableThermalPalettes key */
+    public sanitizeInputKey(
+        input: string | null | undefined 
+    ): AvailableThermalPalette {
+
+        if ( input === null || input === undefined ) {
+            return defaultPaletteKey;
+        }
+
+        // Try to find a matching palette
+        const f = this.availablePalettes[ input as AvailableThermalPalette ];
+
+        if ( f ) {
+            return f.slug;
+        } else {
+            // If no match was found, return the default palette key
+            return defaultPaletteKey;
+        }
+
+
     }
 
 }
