@@ -40,7 +40,6 @@ __export(index_exports, {
   AnalysisGraph: () => AnalysisGraph,
   Batch: () => Batch,
   CallbacksManager: () => CallbacksManager,
-  CornerPoint: () => CornerPoint,
   DropinElementListener: () => DropinElementListener,
   EditTool: () => EditTool,
   EllipsisAnalysis: () => EllipsisAnalysis,
@@ -65,6 +64,9 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
+// package.json
+var version = "1.3.4";
+
 // src/properties/callbacksManager.ts
 var CallbacksManager = class extends Map {
   /** @deprecated use set method instead */
@@ -74,6 +76,25 @@ var CallbacksManager = class extends Map {
   call(...args) {
     this.forEach((fn) => fn(...args));
   }
+};
+
+// src/utils/pool.ts
+var workerpool = __toESM(require("workerpool"), 1);
+var pool2 = void 0;
+var getPool = async () => {
+  if (!pool2) {
+    pool2 = workerpool.pool({
+      maxWorkers: 6
+    });
+  }
+  return pool2;
+};
+
+// src/hierarchy/ThermalManager.ts
+var workerpool2 = __toESM(require("workerpool"), 1);
+
+// src/base/BaseStructureObject.ts
+var BaseStructureObject = class {
 };
 
 // src/filters/FilterContainer.ts
@@ -114,6 +135,38 @@ var FilterContainer = class {
     });
   }
   getFiltersArray() {
+  }
+};
+
+// src/loading/workers/AbstractFileResult.ts
+var AbstractFileResult = class {
+  constructor(thermalUrl, visibleUrl) {
+    this.thermalUrl = thermalUrl;
+    this.visibleUrl = visibleUrl;
+  }
+};
+
+// src/loading/workers/ThermalFileFailure.ts
+var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
+  constructor(thermalUrl, code, message) {
+    super(thermalUrl);
+    this.code = code;
+    this.message = message;
+  }
+  isSuccess() {
+    return false;
+  }
+  static fromError(error) {
+    return new _ThermalFileFailure(error.url, error.code, error.message);
+  }
+};
+
+// src/loading/workers/errors.ts
+var FileLoadingError = class extends Error {
+  constructor(code, url, message) {
+    super(message);
+    this.code = code;
+    this.url = url;
   }
 };
 
@@ -3421,10 +3474,6 @@ var RecordingDrive = class extends AbstractProperty {
   }
 };
 
-// src/base/BaseStructureObject.ts
-var BaseStructureObject = class {
-};
-
 // src/file/dom/InstanceDom.ts
 var InstanceDOM = class _InstanceDOM {
   constructor(parent, root) {
@@ -5262,1090 +5311,6 @@ var Instance = class _Instance extends AbstractFile {
   }
 };
 
-// src/properties/analysis/sync/utils/GroupExportCSV.ts
-var import_export_to_csv2 = require("export-to-csv");
-var GroupExportCSV = class {
-  constructor(drive) {
-    this.drive = drive;
-  }
-  formatAnalysisDisplayName(analysis, scope) {
-    const nameBase = `${analysis.name} (${analysis.getType()}, ${analysis.initialColor}})`;
-    if (analysis instanceof AbstractAreaAnalysis && scope) {
-      return nameBase + " " + scope.toUpperCase();
-    }
-    return nameBase;
-  }
-  formatAnalysisKey(analysis, scope) {
-    const keyBase = analysis.key;
-    if (analysis instanceof AbstractAreaAnalysis && scope) {
-      return keyBase + "_" + scope;
-    }
-    return keyBase;
-  }
-  formatFrameSlotValue(slot, scope) {
-    if (slot.analysis instanceof AbstractAreaAnalysis && scope) {
-      let value = slot.analysis.avg;
-      if (scope === "min") value = slot.analysis.min;
-      if (scope === "max") value = slot.analysis.max;
-      return {
-        key: this.formatAnalysisKey(slot.analysis, scope),
-        value: value.toString()
-      };
-    }
-    return {
-      key: this.formatAnalysisKey(slot.analysis),
-      value: slot.analysis.avg.toString()
-    };
-  }
-  /** Assamble the export header and data */
-  getData() {
-    const header = [
-      { key: "file", displayLabel: "File name" },
-      { key: "timestamp", displayLabel: "Frame time" },
-      { key: "frame", displayLabel: "Frame ID" }
-    ];
-    this.drive.forEveryExistingSlot((slot) => {
-      if (slot.analysis instanceof AbstractAreaAnalysis) {
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "min"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "min")
-        });
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "max"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "max")
-        });
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis, "avg"),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "avg")
-        });
-      } else {
-        header.push({
-          key: this.formatAnalysisKey(slot.analysis),
-          displayLabel: this.formatAnalysisDisplayName(slot.analysis)
-        });
-      }
-    });
-    const data = [];
-    this.drive.parent.files.value.sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    }).forEach((file) => {
-      const row = {
-        file: file.fileName,
-        timestamp: TimeFormat.human(file.timeline.currentStep.absolute),
-        frame: file.timeline.currentStep.index
-      };
-      file.slots.forEveryExistingSlot((slot) => {
-        if (slot.analysis instanceof AbstractAreaAnalysis) {
-          const min = this.formatFrameSlotValue(slot, "min");
-          const max = this.formatFrameSlotValue(slot, "max");
-          const avg = this.formatFrameSlotValue(slot, "avg");
-          row[min.key] = min.value;
-          row[max.key] = max.value;
-          row[avg.key] = avg.value;
-        } else {
-          const avg = this.formatFrameSlotValue(slot);
-          row[avg.key] = avg.value;
-        }
-      });
-      data.push(row);
-    });
-    return {
-      header,
-      data
-    };
-  }
-  downloadAsCsv() {
-    const group = this.drive.parent;
-    const groupIdentificator = group.name ?? group.id ?? group.hash;
-    const { header, data } = this.getData();
-    const csvConfig = (0, import_export_to_csv2.mkConfig)({
-      fieldSeparator: ";",
-      filename: `group_${groupIdentificator}`,
-      columnHeaders: header
-    });
-    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
-    (0, import_export_to_csv2.download)(csvConfig)(csv);
-  }
-};
-
-// src/properties/analysis/sync/utils/GroupExportPNG.ts
-var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
-  constructor(drive) {
-    super();
-    this.drive = drive;
-  }
-  static DEFAULT_PROPS = {
-    fileName: "export.png",
-    columns: 3,
-    width: 1600,
-    showAnalysis: true,
-    showFileDate: true,
-    showFileName: false,
-    showThermalScale: true,
-    license: void 0,
-    textColor: "black",
-    fontSize: 12,
-    showGroupName: true,
-    backgroundColor: "white"
-  };
-  /** Alias to the group this exporter is attached to */
-  get group() {
-    return this.drive.parent;
-  }
-  /** Temporary local group is used to build a mirror of images. */
-  localGroup;
-  /** The header element with title, description and other stuff */
-  header;
-  /** Images are mounted to this DIV */
-  list;
-  /** @deprecated not needed anymore */
-  buildHeader() {
-    return document.createElement("div");
-  }
-  buildList() {
-    const element = document.createElement("div");
-    element.style.boxSizing = "border-box";
-    element.style.width = "100%";
-    element.style.display = "flex";
-    element.style.flexWrap = "wrap";
-    return element;
-  }
-  buildInstance(instance, width, showAnalysis, showFileDate, showFileName, fontSize) {
-    const container = document.createElement("div");
-    container.style.width = width.toString() + "%";
-    container.style.padding = _GroupExportPNG.GAP_SMALL;
-    container.style.boxSizing = "border-box";
-    const wrapper = document.createElement("div");
-    container.appendChild(wrapper);
-    if (showFileDate || showFileName) {
-      const label = document.createElement("div");
-      if (showFileDate) {
-        const date = this.createElementWithText(
-          "div",
-          `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
-          fontSize,
-          "bold"
-        );
-        label.appendChild(date);
-      }
-      if (showFileName) {
-        const fileName = this.createElementWithText(
-          "div",
-          showFileDate ? " - " + instance.fileName : instance.fileName,
-          _GroupExportPNG.FONT_SIZE_SMALL,
-          showFileDate ? "normal" : "bold"
-        );
-        label.appendChild(fileName);
-      }
-      wrapper.appendChild(label);
-    }
-    if (this.list) {
-      const reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
-      if (reference) {
-        instance.timeline.setRelativeTime(reference?.timeline.currentMs);
-      }
-      this.list.appendChild(container);
-      instance.removeVisibleFile();
-      instance.setPreferWebGl(false);
-      instance.mountToDom(wrapper);
-      instance.draw();
-      if (instance.dom && instance.dom.visibleLayer) {
-        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
-      }
-      if (showAnalysis) {
-        const referenceInstance = reference;
-        if (referenceInstance && referenceInstance.analysis.value.length > 0) {
-          const table = document.createElement("table");
-          table.style.width = "100%";
-          table.style.borderCollapse = "collapse";
-          const header = document.createElement("tr");
-          ["", "AVG", "MIN", "MAX"].forEach((string) => {
-            const el = this.createElementWithText(
-              "th",
-              string,
-              fontSize,
-              void 0,
-              _GroupExportPNG.COLOR_GRAY
-            );
-            el.style.padding = _GroupExportPNG.GAP_SMALL + "px";
-            el.style.textAlign = "left";
-            header.appendChild(el);
-          });
-          table.appendChild(header);
-          wrapper.appendChild(table);
-          referenceInstance.slots.forEveryExistingSlot((slot, number) => {
-            const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
-            if (localAnalysis) {
-              const row = document.createElement("tr");
-              const name = this.createElementWithText(
-                "td",
-                slot.analysis.name,
-                fontSize,
-                void 0,
-                slot.analysis.initialColor
-              );
-              name.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
-              name.style.padding = `${_GroupExportPNG.GAP_SMALL}px 0px ${_GroupExportPNG.GAP_SMALL} 0px`;
-              row.appendChild(name);
-              const createAndAppendValue = (color, value) => {
-                const td = this.createElementWithText(
-                  "td",
-                  value ? value.toFixed(3) + " \xB0C" : "",
-                  fontSize,
-                  void 0
-                );
-                td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
-                td.style.paddingTop = `${_GroupExportPNG.GAP_SMALL}px`;
-                td.style.paddingBottom = `${_GroupExportPNG.GAP_SMALL}px`;
-                row.appendChild(td);
-              };
-              if (slot.analysis instanceof AbstractAreaAnalysis) {
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
-              } else if (slot.analysis instanceof PointAnalysis) {
-                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
-                createAndAppendValue(slot.analysis.initialColor);
-                createAndAppendValue(slot.analysis.initialColor);
-              }
-              table.appendChild(row);
-            }
-          });
-        }
-      }
-    }
-  }
-  onBuildDom() {
-    this.header = this.buildHeader();
-    this.list = this.buildList();
-    this.container?.appendChild(this.header);
-    this.container?.appendChild(this.list);
-  }
-  beforeDomRemoved() {
-    if (this.localGroup) {
-      this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
-      this.localGroup.files.removeAllInstances();
-    }
-  }
-  afterDomRemoved() {
-    delete this.header;
-    delete this.list;
-    delete this.localGroup;
-  }
-  onDownload(params) {
-    const registryId = Math.random().toFixed();
-    const manager = this.group.registry.manager;
-    const registry = manager.addOrGetRegistry(registryId);
-    const group = registry.groups.addOrGetGroup(this.group.id);
-    if (params.showGroupName && this.header) {
-      const label = params.label ? params.label : this.group.label;
-      this.header.appendChild(
-        this.createElementWithText(
-          "div",
-          label,
-          params.fontSize.toString() + "px",
-          "bold"
-        )
-      );
-      this.header.style.paddingBottom = _GroupExportPNG.GAP_BASE;
-    }
-    if (params.showThermalScale) {
-      this.list?.appendChild(this.buildHorizontalScale(
-        this.list,
-        this.group.registry.minmax.value.min,
-        this.group.registry.minmax.value.max,
-        this.group.registry.range.value.from,
-        this.group.registry.range.value.to,
-        this.group.registry.palette.currentPalette.gradient,
-        "gray",
-        "black"
-      ));
-    }
-    this.localGroup = group;
-    manager.palette.setPalette(this.group.registry.manager.palette.value);
-    registry.range.imposeRange(this.group.registry.range.value);
-    const imagesThermalUrls = this.group.files.sortedFiles.map((file) => file.thermalUrl);
-    let batch = void 0;
-    imagesThermalUrls.forEach((url) => {
-      batch = registry.batch.request(url, void 0, group, async () => {
-      });
-    });
-    batch.onResolve.set("temporary export listener", (results) => {
-      const width = 100 / params.columns;
-      results.forEach((result) => {
-        if (result instanceof Instance) {
-          this.buildInstance(
-            result,
-            width,
-            params.showAnalysis,
-            params.showFileDate,
-            params.showFileName,
-            params.fontSize.toString() + "px"
-          );
-        }
-      });
-      setTimeout(() => {
-        if (this.container) {
-          this.downloadImage(
-            params.fileName,
-            this.container
-          );
-        }
-      }, 2e3);
-    });
-  }
-  /**
-   * Take provided parameters and combine them with defaults and add filename.
-   */
-  getFinalParams(params) {
-    const fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
-    if (params === void 0) {
-      return {
-        ..._GroupExportPNG.DEFAULT_PROPS,
-        fileName
-      };
-    }
-    return {
-      ..._GroupExportPNG.DEFAULT_PROPS,
-      ...params,
-      fileName
-    };
-  }
-};
-
-// src/properties/analysis/sync/analysisSync.ts
-var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
-  static LISTENER_KEY = "__analysis__sync";
-  /** Event that is triggered every time a slot is synchronised & serialised */
-  onSlotSync = new CallbacksManager();
-  _currentPointer;
-  /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
-  get currentPointer() {
-    return this._currentPointer;
-  }
-  _csv;
-  /** Lazy loaded CSV export object. */
-  get csv() {
-    if (!this._csv) {
-      this._csv = new GroupExportCSV(this);
-    }
-    return this._csv;
-  }
-  _png;
-  /** Lazy loaded PNG export object. */
-  get png() {
-    if (!this._png) {
-      this._png = new GroupExportPNG(this);
-    }
-    return this._png;
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /**
-   * Enable analysis synchronisation for the group
-   */
-  turnOn(instance) {
-    this.value = true;
-    this.setCurrentPointer(instance);
-  }
-  /**
-   * Disable the synchronisation analysis for the group
-   */
-  turnOff() {
-    this.value = false;
-    this.setCurrentPointer(void 0);
-  }
-  /**
-   * Iterate  over all exsting slot in the current pointer instance
-   */
-  forEveryExistingSlot(fn) {
-    if (this._currentPointer === void 0) {
-      return;
-    }
-    this._currentPointer.slots.forEveryExistingSlot(fn);
-  }
-  /**
-   * Set a given instance as the current ponter for synchronisation
-   */
-  setCurrentPointer(instance) {
-    if (instance === void 0 && this._currentPointer) {
-      this.endSyncingSlot(this._currentPointer, 1);
-      this.endSyncingSlot(this._currentPointer, 2);
-      this.endSyncingSlot(this._currentPointer, 3);
-      this.endSyncingSlot(this._currentPointer, 4);
-      this.endSyncingSlot(this._currentPointer, 5);
-      this.endSyncingSlot(this._currentPointer, 6);
-      this.endSyncingSlot(this._currentPointer, 7);
-    }
-    if (instance !== this._currentPointer) {
-      if (this._currentPointer !== void 0) {
-        this.endSyncingSlot(this._currentPointer, 1);
-        this.endSyncingSlot(this._currentPointer, 2);
-        this.endSyncingSlot(this._currentPointer, 3);
-        this.endSyncingSlot(this._currentPointer, 4);
-        this.endSyncingSlot(this._currentPointer, 5);
-        this.endSyncingSlot(this._currentPointer, 6);
-        this.endSyncingSlot(this._currentPointer, 7);
-      }
-      this._currentPointer = instance;
-      if (this._currentPointer !== void 0) {
-        this.startSyncingSlot(this._currentPointer, 1);
-        this.startSyncingSlot(this._currentPointer, 2);
-        this.startSyncingSlot(this._currentPointer, 3);
-        this.startSyncingSlot(this._currentPointer, 4);
-        this.startSyncingSlot(this._currentPointer, 5);
-        this.startSyncingSlot(this._currentPointer, 6);
-        this.startSyncingSlot(this._currentPointer, 7);
-      }
-    }
-  }
-  getSlotListeners(instance, slotNumber) {
-    const slot = instance.slots.getSlot(slotNumber);
-    if (slotNumber === 1) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot1Serialize,
-        assign: instance.slots.onSlot1Assignement
-      };
-    } else if (slotNumber === 2) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot2Serialize,
-        assign: instance.slots.onSlot2Assignement
-      };
-    } else if (slotNumber === 3) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot3Serialize,
-        assign: instance.slots.onSlot3Assignement
-      };
-    } else if (slotNumber === 4) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot4Serialize,
-        assign: instance.slots.onSlot4Assignement
-      };
-    } else if (slotNumber === 5) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot5Serialize,
-        assign: instance.slots.onSlot5Assignement
-      };
-    } else if (slotNumber === 6) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot6Serialize,
-        assign: instance.slots.onSlot6Assignement
-      };
-    } else if (slotNumber === 7) {
-      return {
-        slot,
-        serialise: instance.slots.onSlot7Serialize,
-        assign: instance.slots.onSlot7Assignement
-      };
-    }
-  }
-  /**
-   * Interrnal method to start synchronisation of a given slot number on the given instance
-   */
-  startSyncingSlot(instance, slotNumber) {
-    const { serialise } = this.getSlotListeners(instance, slotNumber);
-    serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
-      this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
-        if (f.group.analysisSync.value === false) {
-          return;
-        }
-        this.onSlotSync.call(value, slotNumber);
-        if (sl === void 0 && value) {
-          const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
-          analysis?.setSelected();
-        } else if (sl !== void 0 && value) {
-          sl.recieveSerialized(value);
-          this.onSlotSync.call(sl ? sl.serialized : void 0, slotNumber);
-        } else if (sl !== void 0 && value === void 0) {
-          sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
-        }
-      });
-    });
-  }
-  /**
-   * Internal method to end synchronisation of a given slot number on the given instance
-   */
-  endSyncingSlot(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, () => {
-      const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
-      assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
-      serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
-    });
-  }
-  /**
-   * Deletes a slot and analysis from all instances in the group except the provided one
-   */
-  deleteSlot(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
-    });
-  }
-  /**
-   * A method for synchronising selection state across all instances of the group 
-   */
-  setSlotSelected(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setSelected(false);
-    });
-  }
-  /**
-   * A method for synchronising selection state across all instances of the group 
-   */
-  setSlotDeselected(instance, slotNumber) {
-    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
-      slot?.analysis.setDeselected();
-    });
-  }
-  /** 
-   * Execute a given function on all files slot 
-   */
-  forEveryOtherSlot(instance, slotNumber, fn) {
-    this.parent.files.forEveryInstance((file) => {
-      if (file === instance) {
-        return;
-      }
-      const slot = file.slots.getSlot(slotNumber);
-      fn(slot, file);
-    });
-  }
-  /**
-   * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
-   * @deprecated Used only by old webcomponents and perhaps unnecessary
-   */
-  recieveSlotSerialized(serialized, slot) {
-    this.parent.files.forEveryInstance(
-      (instance) => {
-        if (instance === this.currentPointer || instance.group.analysisSync.value === false) {
-          return;
-        }
-        if (serialized) {
-          const sl = instance.slots.getSlot(slot);
-          if (sl) {
-            sl.recieveSerialized(serialized);
-          } else {
-            instance.slots.createAnalysisFromSerialized(serialized, slot);
-          }
-        } else {
-          instance.slots.removeSlotAndAnalysis(slot);
-        }
-      }
-    );
-  }
-  /**
-   * Take an instance and copy its value in one slot to all other instances in the group 
-   * 
-   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
-   */
-  copyOneSlotToAllInstances(instance, slotNumber) {
-    this.setCurrentPointer(instance);
-    const slot = instance.slots.getSlot(slotNumber);
-    const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
-    console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
-    this.parent.files.forEveryInstance((otherInstance) => {
-      if (otherInstance === instance) {
-        console.log("Skipping source instance", otherInstance);
-        return;
-      }
-      if (otherInstance.slots.hasSlot(slotNumber)) {
-        otherInstance.slots.removeSlotAndAnalysis(slotNumber);
-      }
-      if (!serialized) {
-        return;
-      }
-      const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
-      console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
-      analysis?.setSelected();
-    });
-  }
-  /** 
-   * Copy the entire analysis state from one instance to all other instances in the group 
-   * 
-   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
-   */
-  copyAllSlotsToAllInstances(instance) {
-    [1, 2, 3, 4, 5, 6, 7].forEach((slotNumber) => {
-      this.copyOneSlotToAllInstances(instance, slotNumber);
-    });
-  }
-};
-
-// src/properties/cursor/CursorPositionDrive.ts
-var CursorPositionDrive = class extends AbstractProperty {
-  _hover = this.value !== void 0;
-  get hover() {
-    return this._hover;
-  }
-  validate(value) {
-    return value;
-  }
-  // After the position changes, update the hover & project the position in all instances
-  afterSetEffect(value) {
-    this._hover = this.value !== void 0;
-    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
-  }
-  recieveCursorPosition(position) {
-    this.value = position;
-  }
-};
-
-// src/properties/lists/filesState.ts
-var import_zip_slim = require("zip-slim");
-var FilesState = class extends AbstractProperty {
-  _map = /* @__PURE__ */ new Map();
-  get map() {
-    return this._map;
-  }
-  validate(value) {
-    return value.sort((a, b) => a.timestamp - b.timestamp);
-  }
-  /** Array of all files sorted by timestamp from the earliest to the latest. */
-  get sortedFiles() {
-    return this.value.sort((a, b) => {
-      return a.timestamp - b.timestamp;
-    });
-  }
-  /**
-   * Whenever the instances change, recreate the index
-   */
-  afterSetEffect(value) {
-    this.map.clear();
-    value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
-  }
-  addFile(file) {
-    if (!this._map.has(file.thermalUrl)) {
-      this.value = [...this.value, file];
-      return file;
-    } else {
-      return this._map.get(file.thermalUrl);
-    }
-  }
-  removeFile(file) {
-    const entry = file instanceof Instance ? file : this.map.get(file);
-    if (entry) {
-      entry.unmountFromDom();
-      this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
-    }
-  }
-  /**
-   * Removal
-   */
-  removeAllInstances() {
-    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
-    this.value = [];
-  }
-  /** 
-   * Iteration through all instances
-   */
-  forEveryInstance(fn) {
-    this.value.forEach((instance) => fn(instance));
-  }
-  downloadAllFiles() {
-    const files = [];
-    this.forEveryInstance((instance) => {
-      const blob = new Blob([instance.reader.buffer], { type: "application/octet-stream" });
-      const file = new File(
-        [blob],
-        instance.fileName,
-        { type: "application/octet-stream" }
-      );
-      files.push(file);
-    });
-    (0, import_zip_slim.zip)(files, true).then((result) => {
-      const link = document.createElement("a");
-      link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
-      link.href = URL.createObjectURL(result);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      link.remove();
-    });
-  }
-};
-
-// src/properties/scale/abstractMinmaxProperty.ts
-var AbstractMinmaxProperty = class extends AbstractProperty {
-  /** Get the current distance between min and max */
-  get distanceInCelsius() {
-    if (this.value === void 0) {
-      return void 0;
-    }
-    return Math.abs(this.value.min - this.value.max);
-  }
-};
-
-// src/properties/scale/MinmaxGroupProperty.ts
-var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-  /** Call this method once all instances are created */
-  recalculateFromInstances() {
-    this.value = this._getMinmaxFromInstances();
-    return this.value;
-  }
-  _getMinmaxFromInstances() {
-    const instances = this.parent.files.value;
-    if (instances.length === 0)
-      return void 0;
-    return instances.reduce((state, current) => {
-      if (current.min < state.min || current.max > state.max) {
-        return {
-          min: current.min < state.min ? current.min : state.min,
-          max: current.max > state.max ? current.max : state.max
-        };
-      }
-      return state;
-    }, { min: Infinity, max: -Infinity });
-  }
-};
-
-// src/properties/time/group/GroupPlayback.ts
-var GroupPlayback = class extends AbstractProperty {
-  _hasAnyPlayback = false;
-  /** Does this group include any sequence? */
-  get hasAnyPlayback() {
-    return this._hasAnyPlayback;
-  }
-  set hasAnyPlayback(value) {
-    if (this._hasAnyPlayback !== value) {
-      this._hasAnyPlayback = value;
-      this.onHasAnyCallback.call(value);
-    }
-  }
-  onHasAnyCallback = new CallbacksManager();
-  recalculateHasAnyPlayback(instances) {
-    let temporaryHas = false;
-    instances.forEach((i) => {
-      if (i.timeline.isSequence) {
-        temporaryHas = true;
-      }
-    });
-    this.hasAnyPlayback = temporaryHas;
-  }
-  _playing = false;
-  get playing() {
-    return this._playing;
-  }
-  set playing(value) {
-    if (this._playing !== value) {
-      this._playing = value;
-      this.onPlayingStatusChange.call(this._playing);
-    }
-  }
-  onPlayingStatusChange = new CallbacksManager();
-  /** Internal pointer holding the current loop iteration*/
-  loopStep = 0;
-  /** Internal setTimeout for playback. */
-  loopTimer;
-  _loopInterval = 20;
-  /** Interval upon which the main loop triggers. In MS. */
-  get loopInterval() {
-    return this._loopInterval;
-  }
-  /** @deprecated The playback interval should not change during playback */
-  setLoopInterval(value) {
-    this._loopInterval = Math.round(value);
-    this.onLoopIntervalChanged.call(this._loopInterval);
-  }
-  /** @deprecated The loop playback should not change during playback */
-  onLoopIntervalChanged = new CallbacksManager();
-  _duration = 0;
-  get duration() {
-    return this._duration;
-  }
-  set duration(value) {
-    if (value !== this._duration) {
-      this._duration = value;
-      this.onDurationChanged.call(this._duration);
-    }
-  }
-  onDurationChanged = new CallbacksManager();
-  recalculateDuration(instances) {
-    let temporaryDuration = 0;
-    instances.forEach((instance) => {
-      if (instance.timeline.duration > temporaryDuration) {
-        temporaryDuration = instance.timeline.duration;
-      }
-    });
-    this.duration = temporaryDuration;
-  }
-  UUID = this.parent.id + "__listener";
-  constructor(parent, initial) {
-    super(parent, initial);
-    this.recalculateDuration(this.parent.files.value);
-    this.recalculateHasAnyPlayback(this.parent.files.value);
-    this.parent.registry.batch.onBatchComplete.set(
-      this.UUID,
-      (results) => {
-        const instances = results.filter((res) => res instanceof Instance);
-        this.recalculateDuration(instances);
-        this.recalculateHasAnyPlayback(instances);
-        const newVal = this.value;
-        this.value = newVal;
-      }
-    );
-  }
-  validate(value) {
-    return Math.min(Math.max(value, 0), this.duration);
-  }
-  afterSetEffect(value) {
-    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
-  }
-  /** Set time value by percent. The actual MS is calculated depending on the duration. */
-  setValueByPercent(percent) {
-    const ms = this.percentToMs(percent);
-    if (ms !== this.value) {
-      this.value = ms;
-      this.loopStep = Math.floor(this.duration / this.value);
-      if (this.playing) {
-        this.createTimerStep(true);
-      }
-    }
-  }
-  /** Set the time value by MS. */
-  setValueByRelativeMs(relativeMs) {
-    this.value = relativeMs;
-    this.loopStep = Math.floor(this.duration / this.value);
-    if (this.playing) {
-      this.createTimerStep(true);
-    }
-  }
-  /** Convert percent value to relative time in MS */
-  percentToMs(percent) {
-    return Math.floor(this.duration * (percent / 100));
-  }
-  /** Convert relative time in MS to percent value */
-  msToPercent(ms) {
-    return ms / this.duration * 100;
-  }
-  /**
-   * The main method that shall create a timer leading to the next step.
-   * 
-   * It might be called recursively to ensure fluent playback.
-   */
-  createTimerStep(recursive = false) {
-    if (this.duration === void 0 || this.playing === false) {
-      return;
-    }
-    const nextStep = this.loopStep + 1;
-    const nextValue = nextStep * this.loopInterval;
-    this.loopStep = nextStep;
-    if (nextValue <= this.duration) {
-      if (this.loopTimer) {
-        clearTimeout(this.loopTimer);
-      }
-      this.loopTimer = setTimeout(() => {
-        this.createTimerStep(recursive);
-        this.value = nextValue;
-      }, this.loopInterval);
-    } else {
-      this.playing = false;
-    }
-  }
-  /**
-   * Play the entire group
-   */
-  play() {
-    if (this.playing === false) {
-      this.playing = true;
-      this.createTimerStep(true);
-    }
-  }
-  /**
-   * Stop the entire group
-   */
-  stop() {
-    if (this.playing === true) {
-      this.playing = false;
-      if (this.loopTimer) {
-        clearTimeout(this.loopTimer);
-      }
-    }
-  }
-  /**
-   * Set the MS value to 0
-   */
-  reset() {
-    if (this.value !== 0) {
-      this.value = 0;
-      this.loopStep = 0;
-    }
-  }
-};
-
-// src/properties/analysis/group/AnalysisGroupGraph.ts
-var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
-  static LISTENER_ID = "AnalysisGroupGraph";
-  constructor(parent) {
-    super(parent, void 0);
-  }
-  timeout;
-  calculateData() {
-    let colors = [];
-    let header = [];
-    const data = [];
-    const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
-    const firstRow = orderedFiles[0].analysisData.value.values[0];
-    header = firstRow;
-    colors = orderedFiles[0].analysisData.value.colors;
-    this.parent.files.forEveryInstance((instance) => {
-      const row = [
-        new Date(instance.timestamp)
-      ];
-      instance.analysis.value.forEach(async (analysis) => {
-        if (analysis.graph.state.MIN === true && analysis.min) {
-          row.push(analysis.min);
-        }
-        if (analysis.graph.state.MAX === true && analysis.max) {
-          row.push(analysis.max);
-        }
-        if (analysis.graph.state.AVG === true && analysis.avg) {
-          row.push(analysis.avg);
-        }
-      });
-      if (row.length > 1) {
-        data.push(row);
-      }
-    });
-    if (colors.length > 0) {
-      this.value = {
-        colors,
-        data: [header, ...data]
-      };
-    } else {
-      this.value = void 0;
-    }
-  }
-  turnOn() {
-    this.parent.files.forEveryInstance((instance) => {
-      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, () => {
-        if (this.timeout !== void 0) {
-          clearTimeout(this.timeout);
-        }
-        this.timeout = setTimeout(() => {
-          this.calculateData();
-        }, 0);
-      });
-    });
-  }
-  turnOff() {
-    this.parent.files.forEveryInstance((instance) => {
-      instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
-    });
-  }
-  validate(value) {
-    return value;
-  }
-  afterSetEffect() {
-  }
-};
-
-// src/hierarchy/ThermalGroup.ts
-var ThermalGroup = class extends BaseStructureObject {
-  constructor(registry, id, name, description) {
-    super();
-    this.registry = registry;
-    this.id = id;
-    this.name = name;
-    this.description = description;
-  }
-  hash = Math.random();
-  /** Human readable label = name or id or hasn */
-  get label() {
-    return this.name ?? this.id ?? this.hash;
-  }
-  get pool() {
-    return this.registry.manager.pool;
-  }
-  minmax = new MinmaxGroupProperty(this, void 0);
-  /** Tool drive from above */
-  get tool() {
-    return this.registry.manager.tool;
-  }
-  files = new FilesState(this, []);
-  cursorPosition = new CursorPositionDrive(this, void 0);
-  analysisSync = new AnalysisSyncDrive(this, false);
-  analysisGraph = new AnalysisGroupGraph(this);
-  _playback;
-  get playback() {
-    if (!this._playback) {
-      this._playback = new GroupPlayback(this, 0);
-    }
-    return this._playback;
-  }
-  /** Iteration */
-  forEveryInstance = (fn) => {
-    this.files.value.forEach((instance) => fn(instance));
-  };
-  /** Remove all instances, reset the minmax */
-  destroySelfAndBelow() {
-    this.removeAllChildren();
-    this.minmax.reset();
-  }
-  removeAllChildren() {
-    this.files.removeAllInstances();
-  }
-  reset() {
-    this.files.reset();
-    this.minmax.reset();
-    this.cursorPosition.reset();
-    this.analysisSync.reset();
-  }
-  filters = new FilterContainer(this);
-  getInstances() {
-    return this.files.value;
-  }
-  startBatch(id) {
-    return this.registry.batch.getBatchById(id);
-  }
-};
-
-// src/hierarchy/ThermalManager.ts
-var workerpool = __toESM(require("workerpool"), 1);
-
-// src/loading/workers/AbstractFileResult.ts
-var AbstractFileResult = class {
-  constructor(thermalUrl, visibleUrl) {
-    this.thermalUrl = thermalUrl;
-    this.visibleUrl = visibleUrl;
-  }
-};
-
-// src/loading/workers/ThermalFileFailure.ts
-var ThermalFileFailure = class _ThermalFileFailure extends AbstractFileResult {
-  constructor(thermalUrl, code, message) {
-    super(thermalUrl);
-    this.code = code;
-    this.message = message;
-  }
-  isSuccess() {
-    return false;
-  }
-  static fromError(error) {
-    return new _ThermalFileFailure(error.url, error.code, error.message);
-  }
-};
-
-// src/loading/workers/errors.ts
-var FileLoadingError = class extends Error {
-  constructor(code, url, message) {
-    super(message);
-    this.code = code;
-    this.url = url;
-  }
-};
-
 // src/loading/workers/ThermalFileReader.ts
 var ThermalFileReader = class _ThermalFileReader extends AbstractFileResult {
   constructor(service, buffer, parser2, thermalUrl, visibleUrl, preserveOriginalBuffer) {
@@ -7848,6 +6813,1055 @@ var RangeDriver = class extends AbstractProperty {
   }
 };
 
+// src/properties/analysis/sync/utils/GroupExportCSV.ts
+var import_export_to_csv2 = require("export-to-csv");
+var GroupExportCSV = class {
+  constructor(drive) {
+    this.drive = drive;
+  }
+  formatAnalysisDisplayName(analysis, scope) {
+    const nameBase = `${analysis.name} (${analysis.getType()}, ${analysis.initialColor}})`;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return nameBase + " " + scope.toUpperCase();
+    }
+    return nameBase;
+  }
+  formatAnalysisKey(analysis, scope) {
+    const keyBase = analysis.key;
+    if (analysis instanceof AbstractAreaAnalysis && scope) {
+      return keyBase + "_" + scope;
+    }
+    return keyBase;
+  }
+  formatFrameSlotValue(slot, scope) {
+    if (slot.analysis instanceof AbstractAreaAnalysis && scope) {
+      let value = slot.analysis.avg;
+      if (scope === "min") value = slot.analysis.min;
+      if (scope === "max") value = slot.analysis.max;
+      return {
+        key: this.formatAnalysisKey(slot.analysis, scope),
+        value: value.toString()
+      };
+    }
+    return {
+      key: this.formatAnalysisKey(slot.analysis),
+      value: slot.analysis.avg.toString()
+    };
+  }
+  /** Assamble the export header and data */
+  getData() {
+    const header = [
+      { key: "file", displayLabel: "File name" },
+      { key: "timestamp", displayLabel: "Frame time" },
+      { key: "frame", displayLabel: "Frame ID" }
+    ];
+    this.drive.forEveryExistingSlot((slot) => {
+      if (slot.analysis instanceof AbstractAreaAnalysis) {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "min"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "min")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "max"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "max")
+        });
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis, "avg"),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis, "avg")
+        });
+      } else {
+        header.push({
+          key: this.formatAnalysisKey(slot.analysis),
+          displayLabel: this.formatAnalysisDisplayName(slot.analysis)
+        });
+      }
+    });
+    const data = [];
+    this.drive.parent.files.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    }).forEach((file) => {
+      const row = {
+        file: file.fileName,
+        timestamp: TimeFormat.human(file.timeline.currentStep.absolute),
+        frame: file.timeline.currentStep.index
+      };
+      file.slots.forEveryExistingSlot((slot) => {
+        if (slot.analysis instanceof AbstractAreaAnalysis) {
+          const min = this.formatFrameSlotValue(slot, "min");
+          const max = this.formatFrameSlotValue(slot, "max");
+          const avg = this.formatFrameSlotValue(slot, "avg");
+          row[min.key] = min.value;
+          row[max.key] = max.value;
+          row[avg.key] = avg.value;
+        } else {
+          const avg = this.formatFrameSlotValue(slot);
+          row[avg.key] = avg.value;
+        }
+      });
+      data.push(row);
+    });
+    return {
+      header,
+      data
+    };
+  }
+  downloadAsCsv() {
+    const group = this.drive.parent;
+    const groupIdentificator = group.name ?? group.id ?? group.hash;
+    const { header, data } = this.getData();
+    const csvConfig = (0, import_export_to_csv2.mkConfig)({
+      fieldSeparator: ";",
+      filename: `group_${groupIdentificator}`,
+      columnHeaders: header
+    });
+    const csv = (0, import_export_to_csv2.generateCsv)(csvConfig)(data);
+    (0, import_export_to_csv2.download)(csvConfig)(csv);
+  }
+};
+
+// src/properties/analysis/sync/utils/GroupExportPNG.ts
+var GroupExportPNG = class _GroupExportPNG extends AbstractPngExport {
+  constructor(drive) {
+    super();
+    this.drive = drive;
+  }
+  static DEFAULT_PROPS = {
+    fileName: "export.png",
+    columns: 3,
+    width: 1600,
+    showAnalysis: true,
+    showFileDate: true,
+    showFileName: false,
+    showThermalScale: true,
+    license: void 0,
+    textColor: "black",
+    fontSize: 12,
+    showGroupName: true,
+    backgroundColor: "white"
+  };
+  /** Alias to the group this exporter is attached to */
+  get group() {
+    return this.drive.parent;
+  }
+  /** Temporary local group is used to build a mirror of images. */
+  localGroup;
+  /** The header element with title, description and other stuff */
+  header;
+  /** Images are mounted to this DIV */
+  list;
+  /** @deprecated not needed anymore */
+  buildHeader() {
+    return document.createElement("div");
+  }
+  buildList() {
+    const element = document.createElement("div");
+    element.style.boxSizing = "border-box";
+    element.style.width = "100%";
+    element.style.display = "flex";
+    element.style.flexWrap = "wrap";
+    return element;
+  }
+  buildInstance(instance, width, showAnalysis, showFileDate, showFileName, fontSize) {
+    const container = document.createElement("div");
+    container.style.width = width.toString() + "%";
+    container.style.padding = _GroupExportPNG.GAP_SMALL;
+    container.style.boxSizing = "border-box";
+    const wrapper = document.createElement("div");
+    container.appendChild(wrapper);
+    if (showFileDate || showFileName) {
+      const label = document.createElement("div");
+      if (showFileDate) {
+        const date = this.createElementWithText(
+          "div",
+          `${TimeFormat.human(instance.timeline.currentStep.absolute)}`,
+          fontSize,
+          "bold"
+        );
+        label.appendChild(date);
+      }
+      if (showFileName) {
+        const fileName = this.createElementWithText(
+          "div",
+          showFileDate ? " - " + instance.fileName : instance.fileName,
+          _GroupExportPNG.FONT_SIZE_SMALL,
+          showFileDate ? "normal" : "bold"
+        );
+        label.appendChild(fileName);
+      }
+      wrapper.appendChild(label);
+    }
+    if (this.list) {
+      const reference = this.group.files.value.find((i) => i.fileName === instance.fileName);
+      if (reference) {
+        instance.timeline.setRelativeTime(reference?.timeline.currentMs);
+      }
+      this.list.appendChild(container);
+      instance.removeVisibleFile();
+      instance.setPreferWebGl(false);
+      instance.mountToDom(wrapper);
+      instance.draw();
+      if (instance.dom && instance.dom.visibleLayer) {
+        instance.dom.visibleLayer.getLayerRoot().style.display = "none";
+      }
+      if (showAnalysis) {
+        const referenceInstance = reference;
+        if (referenceInstance && referenceInstance.analysis.value.length > 0) {
+          const table = document.createElement("table");
+          table.style.width = "100%";
+          table.style.borderCollapse = "collapse";
+          const header = document.createElement("tr");
+          ["", "AVG", "MIN", "MAX"].forEach((string) => {
+            const el = this.createElementWithText(
+              "th",
+              string,
+              fontSize,
+              void 0,
+              _GroupExportPNG.COLOR_GRAY
+            );
+            el.style.padding = _GroupExportPNG.GAP_SMALL + "px";
+            el.style.textAlign = "left";
+            header.appendChild(el);
+          });
+          table.appendChild(header);
+          wrapper.appendChild(table);
+          referenceInstance.slots.forEveryExistingSlot((slot, number) => {
+            const localAnalysis = instance.slots.createAnalysisFromSerialized(slot.serialized, number);
+            if (localAnalysis) {
+              const row = document.createElement("tr");
+              const name = this.createElementWithText(
+                "td",
+                slot.analysis.name,
+                fontSize,
+                void 0,
+                slot.analysis.initialColor
+              );
+              name.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+              name.style.padding = `${_GroupExportPNG.GAP_SMALL}px 0px ${_GroupExportPNG.GAP_SMALL} 0px`;
+              row.appendChild(name);
+              const createAndAppendValue = (color, value) => {
+                const td = this.createElementWithText(
+                  "td",
+                  value ? value.toFixed(3) + " \xB0C" : "",
+                  fontSize,
+                  void 0
+                );
+                td.style.borderTop = `1px solid ${_GroupExportPNG.COLOR_LIGHT}`;
+                td.style.paddingTop = `${_GroupExportPNG.GAP_SMALL}px`;
+                td.style.paddingBottom = `${_GroupExportPNG.GAP_SMALL}px`;
+                row.appendChild(td);
+              };
+              if (slot.analysis instanceof AbstractAreaAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.min);
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.max);
+              } else if (slot.analysis instanceof PointAnalysis) {
+                createAndAppendValue(slot.analysis.initialColor, localAnalysis.avg);
+                createAndAppendValue(slot.analysis.initialColor);
+                createAndAppendValue(slot.analysis.initialColor);
+              }
+              table.appendChild(row);
+            }
+          });
+        }
+      }
+    }
+  }
+  onBuildDom() {
+    this.header = this.buildHeader();
+    this.list = this.buildList();
+    this.container?.appendChild(this.header);
+    this.container?.appendChild(this.list);
+  }
+  beforeDomRemoved() {
+    if (this.localGroup) {
+      this.localGroup.files.forEveryInstance((instance) => instance.unmountFromDom());
+      this.localGroup.files.removeAllInstances();
+    }
+  }
+  afterDomRemoved() {
+    delete this.header;
+    delete this.list;
+    delete this.localGroup;
+  }
+  onDownload(params) {
+    const registryId = Math.random().toFixed();
+    const manager = this.group.registry.manager;
+    const registry = manager.addOrGetRegistry(registryId);
+    const group = registry.groups.addOrGetGroup(this.group.id);
+    if (params.showGroupName && this.header) {
+      const label = params.label ? params.label : this.group.label;
+      this.header.appendChild(
+        this.createElementWithText(
+          "div",
+          label,
+          params.fontSize.toString() + "px",
+          "bold"
+        )
+      );
+      this.header.style.paddingBottom = _GroupExportPNG.GAP_BASE;
+    }
+    if (params.showThermalScale) {
+      this.list?.appendChild(this.buildHorizontalScale(
+        this.list,
+        this.group.registry.minmax.value.min,
+        this.group.registry.minmax.value.max,
+        this.group.registry.range.value.from,
+        this.group.registry.range.value.to,
+        this.group.registry.palette.currentPalette.gradient,
+        "gray",
+        "black"
+      ));
+    }
+    this.localGroup = group;
+    manager.palette.setPalette(this.group.registry.manager.palette.value);
+    registry.range.imposeRange(this.group.registry.range.value);
+    const imagesThermalUrls = this.group.files.sortedFiles.map((file) => file.thermalUrl);
+    let batch = void 0;
+    imagesThermalUrls.forEach((url) => {
+      batch = registry.batch.request(url, void 0, group, async () => {
+      });
+    });
+    batch.onResolve.set("temporary export listener", (results) => {
+      const width = 100 / params.columns;
+      results.forEach((result) => {
+        if (result instanceof Instance) {
+          this.buildInstance(
+            result,
+            width,
+            params.showAnalysis,
+            params.showFileDate,
+            params.showFileName,
+            params.fontSize.toString() + "px"
+          );
+        }
+      });
+      setTimeout(() => {
+        if (this.container) {
+          this.downloadImage(
+            params.fileName,
+            this.container
+          );
+        }
+      }, 2e3);
+    });
+  }
+  /**
+   * Take provided parameters and combine them with defaults and add filename.
+   */
+  getFinalParams(params) {
+    const fileName = params?.fileName ? params.fileName : `group__${this.group.label}__export`;
+    if (params === void 0) {
+      return {
+        ..._GroupExportPNG.DEFAULT_PROPS,
+        fileName
+      };
+    }
+    return {
+      ..._GroupExportPNG.DEFAULT_PROPS,
+      ...params,
+      fileName
+    };
+  }
+};
+
+// src/properties/analysis/sync/analysisSync.ts
+var AnalysisSyncDrive = class _AnalysisSyncDrive extends AbstractProperty {
+  static LISTENER_KEY = "__analysis__sync";
+  /** Event that is triggered every time a slot is synchronised & serialised */
+  onSlotSync = new CallbacksManager();
+  _currentPointer;
+  /** The synchronisation happens every time on the basis of one instance that projects its analyses to other instances in the group. The currentPointer should be set often times - by user events such as hover, click etc.. */
+  get currentPointer() {
+    return this._currentPointer;
+  }
+  _csv;
+  /** Lazy loaded CSV export object. */
+  get csv() {
+    if (!this._csv) {
+      this._csv = new GroupExportCSV(this);
+    }
+    return this._csv;
+  }
+  _png;
+  /** Lazy loaded PNG export object. */
+  get png() {
+    if (!this._png) {
+      this._png = new GroupExportPNG(this);
+    }
+    return this._png;
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /**
+   * Enable analysis synchronisation for the group
+   */
+  turnOn(instance) {
+    this.value = true;
+    this.setCurrentPointer(instance);
+  }
+  /**
+   * Disable the synchronisation analysis for the group
+   */
+  turnOff() {
+    this.value = false;
+    this.setCurrentPointer(void 0);
+  }
+  /**
+   * Iterate  over all exsting slot in the current pointer instance
+   */
+  forEveryExistingSlot(fn) {
+    if (this._currentPointer === void 0) {
+      return;
+    }
+    this._currentPointer.slots.forEveryExistingSlot(fn);
+  }
+  /**
+   * Set a given instance as the current ponter for synchronisation
+   */
+  setCurrentPointer(instance) {
+    if (instance === void 0 && this._currentPointer) {
+      this.endSyncingSlot(this._currentPointer, 1);
+      this.endSyncingSlot(this._currentPointer, 2);
+      this.endSyncingSlot(this._currentPointer, 3);
+      this.endSyncingSlot(this._currentPointer, 4);
+      this.endSyncingSlot(this._currentPointer, 5);
+      this.endSyncingSlot(this._currentPointer, 6);
+      this.endSyncingSlot(this._currentPointer, 7);
+    }
+    if (instance !== this._currentPointer) {
+      if (this._currentPointer !== void 0) {
+        this.endSyncingSlot(this._currentPointer, 1);
+        this.endSyncingSlot(this._currentPointer, 2);
+        this.endSyncingSlot(this._currentPointer, 3);
+        this.endSyncingSlot(this._currentPointer, 4);
+        this.endSyncingSlot(this._currentPointer, 5);
+        this.endSyncingSlot(this._currentPointer, 6);
+        this.endSyncingSlot(this._currentPointer, 7);
+      }
+      this._currentPointer = instance;
+      if (this._currentPointer !== void 0) {
+        this.startSyncingSlot(this._currentPointer, 1);
+        this.startSyncingSlot(this._currentPointer, 2);
+        this.startSyncingSlot(this._currentPointer, 3);
+        this.startSyncingSlot(this._currentPointer, 4);
+        this.startSyncingSlot(this._currentPointer, 5);
+        this.startSyncingSlot(this._currentPointer, 6);
+        this.startSyncingSlot(this._currentPointer, 7);
+      }
+    }
+  }
+  getSlotListeners(instance, slotNumber) {
+    const slot = instance.slots.getSlot(slotNumber);
+    if (slotNumber === 1) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot1Serialize,
+        assign: instance.slots.onSlot1Assignement
+      };
+    } else if (slotNumber === 2) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot2Serialize,
+        assign: instance.slots.onSlot2Assignement
+      };
+    } else if (slotNumber === 3) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot3Serialize,
+        assign: instance.slots.onSlot3Assignement
+      };
+    } else if (slotNumber === 4) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot4Serialize,
+        assign: instance.slots.onSlot4Assignement
+      };
+    } else if (slotNumber === 5) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot5Serialize,
+        assign: instance.slots.onSlot5Assignement
+      };
+    } else if (slotNumber === 6) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot6Serialize,
+        assign: instance.slots.onSlot6Assignement
+      };
+    } else if (slotNumber === 7) {
+      return {
+        slot,
+        serialise: instance.slots.onSlot7Serialize,
+        assign: instance.slots.onSlot7Assignement
+      };
+    }
+  }
+  /**
+   * Interrnal method to start synchronisation of a given slot number on the given instance
+   */
+  startSyncingSlot(instance, slotNumber) {
+    const { serialise } = this.getSlotListeners(instance, slotNumber);
+    serialise.set(_AnalysisSyncDrive.LISTENER_KEY, (value) => {
+      this.forEveryOtherSlot(instance, slotNumber, (sl, f) => {
+        if (f.group.analysisSync.value === false) {
+          return;
+        }
+        this.onSlotSync.call(value, slotNumber);
+        if (sl === void 0 && value) {
+          const analysis = f.slots.createAnalysisFromSerialized(value, slotNumber);
+          analysis?.setSelected();
+        } else if (sl !== void 0 && value) {
+          sl.recieveSerialized(value);
+          this.onSlotSync.call(sl ? sl.serialized : void 0, slotNumber);
+        } else if (sl !== void 0 && value === void 0) {
+          sl.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+        }
+      });
+    });
+  }
+  /**
+   * Internal method to end synchronisation of a given slot number on the given instance
+   */
+  endSyncingSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, () => {
+      const { assign, serialise } = this.getSlotListeners(instance, slotNumber);
+      assign.delete(_AnalysisSyncDrive.LISTENER_KEY);
+      serialise.delete(_AnalysisSyncDrive.LISTENER_KEY);
+    });
+  }
+  /**
+   * Deletes a slot and analysis from all instances in the group except the provided one
+   */
+  deleteSlot(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.file.slots.removeSlotAndAnalysis(slotNumber);
+    });
+  }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
+  setSlotSelected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setSelected(false);
+    });
+  }
+  /**
+   * A method for synchronising selection state across all instances of the group 
+   */
+  setSlotDeselected(instance, slotNumber) {
+    this.forEveryOtherSlot(instance, slotNumber, (slot) => {
+      slot?.analysis.setDeselected();
+    });
+  }
+  /** 
+   * Execute a given function on all files slot 
+   */
+  forEveryOtherSlot(instance, slotNumber, fn) {
+    this.parent.files.forEveryInstance((file) => {
+      if (file === instance) {
+        return;
+      }
+      const slot = file.slots.getSlot(slotNumber);
+      fn(slot, file);
+    });
+  }
+  /**
+   * Recieve a serialised value from somewhere and propagate it to all instances in the group except the current pointer
+   * @deprecated Used only by old webcomponents and perhaps unnecessary
+   */
+  recieveSlotSerialized(serialized, slot) {
+    this.parent.files.forEveryInstance(
+      (instance) => {
+        if (instance === this.currentPointer || instance.group.analysisSync.value === false) {
+          return;
+        }
+        if (serialized) {
+          const sl = instance.slots.getSlot(slot);
+          if (sl) {
+            sl.recieveSerialized(serialized);
+          } else {
+            instance.slots.createAnalysisFromSerialized(serialized, slot);
+          }
+        } else {
+          instance.slots.removeSlotAndAnalysis(slot);
+        }
+      }
+    );
+  }
+  /**
+   * Take an instance and copy its value in one slot to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyOneSlotToAllInstances(instance, slotNumber) {
+    this.setCurrentPointer(instance);
+    const slot = instance.slots.getSlot(slotNumber);
+    const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
+    console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
+    this.parent.files.forEveryInstance((otherInstance) => {
+      if (otherInstance === instance) {
+        console.log("Skipping source instance", otherInstance);
+        return;
+      }
+      if (otherInstance.slots.hasSlot(slotNumber)) {
+        otherInstance.slots.removeSlotAndAnalysis(slotNumber);
+      }
+      if (!serialized) {
+        return;
+      }
+      const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
+      console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
+      analysis?.setSelected();
+    });
+  }
+  /** 
+   * Copy the entire analysis state from one instance to all other instances in the group 
+   * 
+   * - this action deletes any existing slots in the affected instances and creates new ones from the serialised data
+   */
+  copyAllSlotsToAllInstances(instance) {
+    [1, 2, 3, 4, 5, 6, 7].forEach((slotNumber) => {
+      this.copyOneSlotToAllInstances(instance, slotNumber);
+    });
+  }
+};
+
+// src/properties/cursor/CursorPositionDrive.ts
+var CursorPositionDrive = class extends AbstractProperty {
+  _hover = this.value !== void 0;
+  get hover() {
+    return this._hover;
+  }
+  validate(value) {
+    return value;
+  }
+  // After the position changes, update the hover & project the position in all instances
+  afterSetEffect(value) {
+    this._hover = this.value !== void 0;
+    this.parent.files.forEveryInstance((instance) => instance.recieveCursorPosition(value));
+  }
+  recieveCursorPosition(position) {
+    this.value = position;
+  }
+};
+
+// src/properties/lists/filesState.ts
+var import_zip_slim = require("zip-slim");
+var FilesState = class extends AbstractProperty {
+  _map = /* @__PURE__ */ new Map();
+  get map() {
+    return this._map;
+  }
+  validate(value) {
+    return value.sort((a, b) => a.timestamp - b.timestamp);
+  }
+  /** Array of all files sorted by timestamp from the earliest to the latest. */
+  get sortedFiles() {
+    return this.value.sort((a, b) => {
+      return a.timestamp - b.timestamp;
+    });
+  }
+  /**
+   * Whenever the instances change, recreate the index
+   */
+  afterSetEffect(value) {
+    this.map.clear();
+    value.forEach((instance) => this._map.set(instance.thermalUrl, instance));
+  }
+  addFile(file) {
+    if (!this._map.has(file.thermalUrl)) {
+      this.value = [...this.value, file];
+      return file;
+    } else {
+      return this._map.get(file.thermalUrl);
+    }
+  }
+  removeFile(file) {
+    const entry = file instanceof Instance ? file : this.map.get(file);
+    if (entry) {
+      entry.unmountFromDom();
+      this.value = this.value.filter((e) => e.thermalUrl !== entry.thermalUrl);
+    }
+  }
+  /**
+   * Removal
+   */
+  removeAllInstances() {
+    this.forEveryInstance((instance) => instance.destroySelfAndBelow());
+    this.value = [];
+  }
+  /** 
+   * Iteration through all instances
+   */
+  forEveryInstance(fn) {
+    this.value.forEach((instance) => fn(instance));
+  }
+  downloadAllFiles() {
+    const files = [];
+    this.forEveryInstance((instance) => {
+      const blob = new Blob([instance.reader.buffer], { type: "application/octet-stream" });
+      const file = new File(
+        [blob],
+        instance.fileName,
+        { type: "application/octet-stream" }
+      );
+      files.push(file);
+    });
+    (0, import_zip_slim.zip)(files, true).then((result) => {
+      const link = document.createElement("a");
+      link.download = `${this.parent.name || this.parent.id || "thermal_group"}_files.zip`;
+      link.href = URL.createObjectURL(result);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      link.remove();
+    });
+  }
+};
+
+// src/properties/scale/abstractMinmaxProperty.ts
+var AbstractMinmaxProperty = class extends AbstractProperty {
+  /** Get the current distance between min and max */
+  get distanceInCelsius() {
+    if (this.value === void 0) {
+      return void 0;
+    }
+    return Math.abs(this.value.min - this.value.max);
+  }
+};
+
+// src/properties/scale/MinmaxGroupProperty.ts
+var MinmaxGroupProperty = class extends AbstractMinmaxProperty {
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+  /** Call this method once all instances are created */
+  recalculateFromInstances() {
+    this.value = this._getMinmaxFromInstances();
+    return this.value;
+  }
+  _getMinmaxFromInstances() {
+    const instances = this.parent.files.value;
+    if (instances.length === 0)
+      return void 0;
+    return instances.reduce((state, current) => {
+      if (current.min < state.min || current.max > state.max) {
+        return {
+          min: current.min < state.min ? current.min : state.min,
+          max: current.max > state.max ? current.max : state.max
+        };
+      }
+      return state;
+    }, { min: Infinity, max: -Infinity });
+  }
+};
+
+// src/properties/time/group/GroupPlayback.ts
+var GroupPlayback = class extends AbstractProperty {
+  _hasAnyPlayback = false;
+  /** Does this group include any sequence? */
+  get hasAnyPlayback() {
+    return this._hasAnyPlayback;
+  }
+  set hasAnyPlayback(value) {
+    if (this._hasAnyPlayback !== value) {
+      this._hasAnyPlayback = value;
+      this.onHasAnyCallback.call(value);
+    }
+  }
+  onHasAnyCallback = new CallbacksManager();
+  recalculateHasAnyPlayback(instances) {
+    let temporaryHas = false;
+    instances.forEach((i) => {
+      if (i.timeline.isSequence) {
+        temporaryHas = true;
+      }
+    });
+    this.hasAnyPlayback = temporaryHas;
+  }
+  _playing = false;
+  get playing() {
+    return this._playing;
+  }
+  set playing(value) {
+    if (this._playing !== value) {
+      this._playing = value;
+      this.onPlayingStatusChange.call(this._playing);
+    }
+  }
+  onPlayingStatusChange = new CallbacksManager();
+  /** Internal pointer holding the current loop iteration*/
+  loopStep = 0;
+  /** Internal setTimeout for playback. */
+  loopTimer;
+  _loopInterval = 20;
+  /** Interval upon which the main loop triggers. In MS. */
+  get loopInterval() {
+    return this._loopInterval;
+  }
+  /** @deprecated The playback interval should not change during playback */
+  setLoopInterval(value) {
+    this._loopInterval = Math.round(value);
+    this.onLoopIntervalChanged.call(this._loopInterval);
+  }
+  /** @deprecated The loop playback should not change during playback */
+  onLoopIntervalChanged = new CallbacksManager();
+  _duration = 0;
+  get duration() {
+    return this._duration;
+  }
+  set duration(value) {
+    if (value !== this._duration) {
+      this._duration = value;
+      this.onDurationChanged.call(this._duration);
+    }
+  }
+  onDurationChanged = new CallbacksManager();
+  recalculateDuration(instances) {
+    let temporaryDuration = 0;
+    instances.forEach((instance) => {
+      if (instance.timeline.duration > temporaryDuration) {
+        temporaryDuration = instance.timeline.duration;
+      }
+    });
+    this.duration = temporaryDuration;
+  }
+  UUID = this.parent.id + "__listener";
+  constructor(parent, initial) {
+    super(parent, initial);
+    this.recalculateDuration(this.parent.files.value);
+    this.recalculateHasAnyPlayback(this.parent.files.value);
+    this.parent.registry.batch.onBatchComplete.set(
+      this.UUID,
+      (results) => {
+        const instances = results.filter((res) => res instanceof Instance);
+        this.recalculateDuration(instances);
+        this.recalculateHasAnyPlayback(instances);
+        const newVal = this.value;
+        this.value = newVal;
+      }
+    );
+  }
+  validate(value) {
+    return Math.min(Math.max(value, 0), this.duration);
+  }
+  afterSetEffect(value) {
+    this.parent.files.forEveryInstance((instance) => instance.timeline.setRelativeTime(value));
+  }
+  /** Set time value by percent. The actual MS is calculated depending on the duration. */
+  setValueByPercent(percent) {
+    const ms = this.percentToMs(percent);
+    if (ms !== this.value) {
+      this.value = ms;
+      this.loopStep = Math.floor(this.duration / this.value);
+      if (this.playing) {
+        this.createTimerStep(true);
+      }
+    }
+  }
+  /** Set the time value by MS. */
+  setValueByRelativeMs(relativeMs) {
+    this.value = relativeMs;
+    this.loopStep = Math.floor(this.duration / this.value);
+    if (this.playing) {
+      this.createTimerStep(true);
+    }
+  }
+  /** Convert percent value to relative time in MS */
+  percentToMs(percent) {
+    return Math.floor(this.duration * (percent / 100));
+  }
+  /** Convert relative time in MS to percent value */
+  msToPercent(ms) {
+    return ms / this.duration * 100;
+  }
+  /**
+   * The main method that shall create a timer leading to the next step.
+   * 
+   * It might be called recursively to ensure fluent playback.
+   */
+  createTimerStep(recursive = false) {
+    if (this.duration === void 0 || this.playing === false) {
+      return;
+    }
+    const nextStep = this.loopStep + 1;
+    const nextValue = nextStep * this.loopInterval;
+    this.loopStep = nextStep;
+    if (nextValue <= this.duration) {
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+      this.loopTimer = setTimeout(() => {
+        this.createTimerStep(recursive);
+        this.value = nextValue;
+      }, this.loopInterval);
+    } else {
+      this.playing = false;
+    }
+  }
+  /**
+   * Play the entire group
+   */
+  play() {
+    if (this.playing === false) {
+      this.playing = true;
+      this.createTimerStep(true);
+    }
+  }
+  /**
+   * Stop the entire group
+   */
+  stop() {
+    if (this.playing === true) {
+      this.playing = false;
+      if (this.loopTimer) {
+        clearTimeout(this.loopTimer);
+      }
+    }
+  }
+  /**
+   * Set the MS value to 0
+   */
+  reset() {
+    if (this.value !== 0) {
+      this.value = 0;
+      this.loopStep = 0;
+    }
+  }
+};
+
+// src/properties/analysis/group/AnalysisGroupGraph.ts
+var AnalysisGroupGraph = class _AnalysisGroupGraph extends AbstractProperty {
+  static LISTENER_ID = "AnalysisGroupGraph";
+  constructor(parent) {
+    super(parent, void 0);
+  }
+  timeout;
+  calculateData() {
+    let colors = [];
+    let header = [];
+    const data = [];
+    const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
+    const firstRow = orderedFiles[0].analysisData.value.values[0];
+    header = firstRow;
+    colors = orderedFiles[0].analysisData.value.colors;
+    this.parent.files.forEveryInstance((instance) => {
+      const row = [
+        new Date(instance.timestamp)
+      ];
+      instance.analysis.value.forEach(async (analysis) => {
+        if (analysis.graph.state.MIN === true && analysis.min) {
+          row.push(analysis.min);
+        }
+        if (analysis.graph.state.MAX === true && analysis.max) {
+          row.push(analysis.max);
+        }
+        if (analysis.graph.state.AVG === true && analysis.avg) {
+          row.push(analysis.avg);
+        }
+      });
+      if (row.length > 1) {
+        data.push(row);
+      }
+    });
+    if (colors.length > 0) {
+      this.value = {
+        colors,
+        data: [header, ...data]
+      };
+    } else {
+      this.value = void 0;
+    }
+  }
+  turnOn() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.addListener(_AnalysisGroupGraph.LISTENER_ID, () => {
+        if (this.timeout !== void 0) {
+          clearTimeout(this.timeout);
+        }
+        this.timeout = setTimeout(() => {
+          this.calculateData();
+        }, 0);
+      });
+    });
+  }
+  turnOff() {
+    this.parent.files.forEveryInstance((instance) => {
+      instance.analysisData.removeListener(_AnalysisGroupGraph.LISTENER_ID);
+    });
+  }
+  validate(value) {
+    return value;
+  }
+  afterSetEffect() {
+  }
+};
+
+// src/hierarchy/ThermalGroup.ts
+var ThermalGroup = class extends BaseStructureObject {
+  constructor(registry, id, name, description) {
+    super();
+    this.registry = registry;
+    this.id = id;
+    this.name = name;
+    this.description = description;
+  }
+  hash = Math.random();
+  /** Human readable label = name or id or hasn */
+  get label() {
+    return this.name ?? this.id ?? this.hash;
+  }
+  get pool() {
+    return this.registry.manager.pool;
+  }
+  minmax = new MinmaxGroupProperty(this, void 0);
+  /** Tool drive from above */
+  get tool() {
+    return this.registry.manager.tool;
+  }
+  files = new FilesState(this, []);
+  cursorPosition = new CursorPositionDrive(this, void 0);
+  analysisSync = new AnalysisSyncDrive(this, false);
+  analysisGraph = new AnalysisGroupGraph(this);
+  _playback;
+  get playback() {
+    if (!this._playback) {
+      this._playback = new GroupPlayback(this, 0);
+    }
+    return this._playback;
+  }
+  /** Iteration */
+  forEveryInstance = (fn) => {
+    this.files.value.forEach((instance) => fn(instance));
+  };
+  /** Remove all instances, reset the minmax */
+  destroySelfAndBelow() {
+    this.removeAllChildren();
+    this.minmax.reset();
+  }
+  removeAllChildren() {
+    this.files.removeAllInstances();
+  }
+  reset() {
+    this.files.reset();
+    this.minmax.reset();
+    this.cursorPosition.reset();
+    this.analysisSync.reset();
+  }
+  filters = new FilterContainer(this);
+  getInstances() {
+    return this.files.value;
+  }
+  startBatch(id) {
+    return this.registry.batch.getBatchById(id);
+  }
+};
+
 // src/properties/lists/GroupsState.ts
 var GroupsState = class extends AbstractProperty {
   _map = /* @__PURE__ */ new Map();
@@ -8545,7 +8559,7 @@ var isChromium = "chrome" in window;
 var options = isChromium ? {
   maxWorkers: 4
 } : {};
-var globalPool = workerpool.pool(options);
+var globalPool = workerpool2.pool(options);
 var ThermalManager = class extends BaseStructureObject {
   id;
   /** Service for creation of loading and caching the files. */
@@ -8599,18 +8613,6 @@ var ThermalManager = class extends BaseStructureObject {
   forEveryInstance(callback) {
     this.forEveryRegistry((registry) => registry.forEveryInstance(callback));
   }
-};
-
-// src/utils/pool.ts
-var workerpool2 = __toESM(require("workerpool"), 1);
-var pool3 = void 0;
-var getPool = async () => {
-  if (!pool3) {
-    pool3 = workerpool2.pool({
-      maxWorkers: 6
-    });
-  }
-  return pool3;
 };
 
 // src/utils/time/periods.ts
@@ -8670,9 +8672,6 @@ var TimeRound = class _TimeRound extends TimeUtilsBase {
   };
 };
 
-// package.json
-var version = "1.3.4";
-
 // src/index.ts
 console.info("@labirthermal/core", version);
 // Annotate the CommonJS export names for ESM import in node:
@@ -8687,7 +8686,6 @@ console.info("@labirthermal/core", version);
   AnalysisGraph,
   Batch,
   CallbacksManager,
-  CornerPoint,
   DropinElementListener,
   EditTool,
   EllipsisAnalysis,

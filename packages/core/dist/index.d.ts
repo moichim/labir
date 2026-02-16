@@ -10,6 +10,8 @@ declare class CallbacksManager<CallbackType extends (...args: any[]) => any> ext
     call(...args: Parameters<CallbackType>): void;
 }
 
+declare const getPool: () => Promise<Pool__default>;
+
 type AbstractFilterParameters = {
     key: number;
     text: string;
@@ -23,10 +25,6 @@ declare abstract class AbstractFilter<T extends AbstractFilterParameters = Abstr
     protected parameterChanged(): void;
     protected abstract getParameters(): T;
     abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
-}
-
-declare abstract class BaseStructureObject {
-    abstract getInstances(): Instance[];
 }
 
 /** Definition of a palette containing its name, gradient and pixels value. */
@@ -104,136 +102,6 @@ declare const PALETTES: {
 type AvailableThermalPalette = keyof typeof PALETTES;
 /** Palette definitions available in `@labirthermal/core`. */
 declare const ThermalPalettes: Record<AvailableThermalPalette, ThermalPaletteType>;
-
-/** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
-declare abstract class AbstractFileResult {
-    readonly thermalUrl: string;
-    readonly visibleUrl?: string | undefined;
-    constructor(thermalUrl: string, visibleUrl?: string | undefined);
-    /** @deprecated to identify success, use `instanceof` */
-    abstract isSuccess(): boolean;
-}
-
-/**
- * Internal member of `FilesService`
- * - `FileService` members may listen to resolving of this object
- * - `load()` method effcently handles the fetch and processing of the file
- */
-declare class FileRequest {
-    protected readonly service: FilesService;
-    readonly thermalUrl: string;
-    readonly visibleUrl?: string | undefined;
-    protected constructor(service: FilesService, thermalUrl: string, visibleUrl?: string | undefined);
-    static fromUrl(service: FilesService, thermalUrl: string, visibleUrl?: string): FileRequest;
-    /**
-     * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
-     */
-    response?: Promise<AbstractFileResult>;
-    /**
-     * Fetch a file, process the response and return the promise
-     * - the promise is stored internally
-     * - if the request is already loading/processing, any subsequent calls use the stored promise object
-     */
-    load(): Promise<AbstractFileResult>;
-    /**
-     * Process the raw response:
-     * - decide if the file exists
-     * - assign parser to the file
-     * - create the service
-     */
-    protected processResponse(response: Response): Promise<AbstractFileResult>;
-    /**
-     * Actions taken on the `AbstractFileResult` object
-     * @todo because there are no side effects, this method might appear redundant
-     */
-    protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
-}
-
-/** Turn any element into a dropzone! */
-declare class DropinElementListener {
-    readonly service: FilesService;
-    readonly element: HTMLElement;
-    protected _hover: boolean;
-    get hover(): boolean;
-    readonly onMouseEnter: CallbacksManager<() => void>;
-    readonly onMouseLeave: CallbacksManager<() => void>;
-    readonly onDrop: CallbacksManager<() => void>;
-    readonly onProcessingEnd: CallbacksManager<(results: AbstractFileResult[], event: Event | DragEvent) => void>;
-    /** An invissible input element */
-    input?: HTMLInputElement;
-    protected hydrated: boolean;
-    protected multiple: boolean;
-    protected bindedEnterListener: DropinElementListener["handleEnter"];
-    protected bindedLeaveListener: DropinElementListener["handleLeave"];
-    protected bindedDropListener: DropinElementListener["handleDrop"];
-    protected bindedInputChangeListener: DropinElementListener["handleInputChange"];
-    protected bindedDragoverListener: DropinElementListener["handleDragover"];
-    protected bindedClickListener: DropinElementListener["handleClick"];
-    protected constructor(service: FilesService, element: HTMLElement, multiple?: boolean);
-    static listenOnElement(service: FilesService, element: HTMLElement, multiple?: boolean): DropinElementListener;
-    /** Bind all event listeners to the provided element */
-    hydrate(): void;
-    /** Remove all event listeners from the element */
-    dehydrate(): void;
-    handleClick(event: PointerEvent): void;
-    handleDragover(event: DragEvent): void;
-    protected handleFiles(files: File[]): Promise<AbstractFileResult[]>;
-    handleDrop(event: DragEvent): Promise<{
-        results: AbstractFileResult[];
-        event: DragEvent;
-    }>;
-    handleInputChange(event: Event): Promise<{
-        results: AbstractFileResult[];
-        event: Event;
-    }>;
-    handleEnter(): void;
-    handleLeave(): void;
-    /** Build the internal input */
-    protected getInput(): HTMLInputElement;
-    openFileDialog(multiple?: boolean): void;
-}
-
-/**
- * A singleton instance handling file loading
- */
-declare class FilesService {
-    readonly manager: ThermalManager;
-    get pool(): Pool__default;
-    constructor(manager: ThermalManager);
-    static isolatedInstance(pool: Pool__default, registryName?: string): {
-        service: FilesService;
-        registry: ThermalRegistry;
-    };
-    /** Map of peoding requesta */
-    protected readonly requestsByUrl: Map<string, FileRequest>;
-    /** Number of currently pending requests */
-    get requestsCount(): number;
-    /** Is an URL currently pending? */
-    fileIsPending(url: string): boolean;
-    /** Cache of loaded files */
-    protected readonly cacheByUrl: Map<string, AbstractFileResult>;
-    /** Number of cached results */
-    get cachedServicesCount(): number;
-    /** Is the URL already in the cache? */
-    fileIsInCache(url: string): boolean;
-    /** Process a file obrained from anywhere */
-    loadUploadedFile(file: File): Promise<AbstractFileResult>;
-    /** Create a dropzone listener on a HTML element */
-    handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
-    /** Load a file from URL, eventually using already cached result */
-    loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
-    loadFiles(files: {
-        lrc: string;
-        png?: string;
-        callback?: (result: AbstractFileResult) => void;
-        group: ThermalGroup;
-    }[]): Promise<{
-        lrc: string;
-        png?: string;
-        callback?: (result: AbstractFileResult) => void;
-        group: ThermalGroup;
-    }[]>;
-}
 
 interface ThermalMinmaxType {
     min: number;
@@ -1354,46 +1222,6 @@ declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes
     clearAllListeners(): void;
 }
 
-/** Controls image smoothing */
-declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(): void;
-    setGraphSmooth(value: boolean): void;
-}
-
-/** Controls image smoothing */
-declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
-    protected validate(value: boolean): boolean;
-    protected afterSetEffect(value: boolean): void;
-    setSmooth(value: boolean): void;
-}
-
-type ThermalManagerOptions = {
-    palette?: AvailableThermalPalette;
-};
-declare class ThermalManager extends BaseStructureObject {
-    readonly id: number;
-    /** Service for creation of loading and caching the files. */
-    readonly service: FilesService;
-    /** Index of existing registries */
-    readonly registries: {
-        [index: string]: ThermalRegistry;
-    };
-    /** A palette is common to all registries within the manager */
-    readonly palette: PaletteDrive;
-    readonly smooth: SmoothDrive;
-    readonly graphSmooth: GraphSmoothDrive;
-    readonly tool: ToolDrive;
-    readonly pool: Pool__default;
-    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
-    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
-    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
-    removeRegistry(id: string): void;
-    readonly filters: FilterContainer;
-    getInstances(): Instance[];
-    forEveryInstance(callback: (instance: Instance) => void): void;
-}
-
 interface IWithPalette extends IBaseProperty {
     palette: PaletteDrive;
 }
@@ -1408,6 +1236,136 @@ declare class PaletteDrive extends AbstractProperty<AvailableThermalPalette, The
     setPalette(key: AvailableThermalPalette): void;
     /** Takes any string input and converts it to a valid AvailableThermalPalettes key */
     sanitizeInputKey(input: string | null | undefined): AvailableThermalPalette;
+}
+
+/** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
+declare abstract class AbstractFileResult {
+    readonly thermalUrl: string;
+    readonly visibleUrl?: string | undefined;
+    constructor(thermalUrl: string, visibleUrl?: string | undefined);
+    /** @deprecated to identify success, use `instanceof` */
+    abstract isSuccess(): boolean;
+}
+
+/**
+ * Internal member of `FilesService`
+ * - `FileService` members may listen to resolving of this object
+ * - `load()` method effcently handles the fetch and processing of the file
+ */
+declare class FileRequest {
+    protected readonly service: FilesService;
+    readonly thermalUrl: string;
+    readonly visibleUrl?: string | undefined;
+    protected constructor(service: FilesService, thermalUrl: string, visibleUrl?: string | undefined);
+    static fromUrl(service: FilesService, thermalUrl: string, visibleUrl?: string): FileRequest;
+    /**
+     * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
+     */
+    response?: Promise<AbstractFileResult>;
+    /**
+     * Fetch a file, process the response and return the promise
+     * - the promise is stored internally
+     * - if the request is already loading/processing, any subsequent calls use the stored promise object
+     */
+    load(): Promise<AbstractFileResult>;
+    /**
+     * Process the raw response:
+     * - decide if the file exists
+     * - assign parser to the file
+     * - create the service
+     */
+    protected processResponse(response: Response): Promise<AbstractFileResult>;
+    /**
+     * Actions taken on the `AbstractFileResult` object
+     * @todo because there are no side effects, this method might appear redundant
+     */
+    protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
+}
+
+/** Turn any element into a dropzone! */
+declare class DropinElementListener {
+    readonly service: FilesService;
+    readonly element: HTMLElement;
+    protected _hover: boolean;
+    get hover(): boolean;
+    readonly onMouseEnter: CallbacksManager<() => void>;
+    readonly onMouseLeave: CallbacksManager<() => void>;
+    readonly onDrop: CallbacksManager<() => void>;
+    readonly onProcessingEnd: CallbacksManager<(results: AbstractFileResult[], event: Event | DragEvent) => void>;
+    /** An invissible input element */
+    input?: HTMLInputElement;
+    protected hydrated: boolean;
+    protected multiple: boolean;
+    protected bindedEnterListener: DropinElementListener["handleEnter"];
+    protected bindedLeaveListener: DropinElementListener["handleLeave"];
+    protected bindedDropListener: DropinElementListener["handleDrop"];
+    protected bindedInputChangeListener: DropinElementListener["handleInputChange"];
+    protected bindedDragoverListener: DropinElementListener["handleDragover"];
+    protected bindedClickListener: DropinElementListener["handleClick"];
+    protected constructor(service: FilesService, element: HTMLElement, multiple?: boolean);
+    static listenOnElement(service: FilesService, element: HTMLElement, multiple?: boolean): DropinElementListener;
+    /** Bind all event listeners to the provided element */
+    hydrate(): void;
+    /** Remove all event listeners from the element */
+    dehydrate(): void;
+    handleClick(event: PointerEvent): void;
+    handleDragover(event: DragEvent): void;
+    protected handleFiles(files: File[]): Promise<AbstractFileResult[]>;
+    handleDrop(event: DragEvent): Promise<{
+        results: AbstractFileResult[];
+        event: DragEvent;
+    }>;
+    handleInputChange(event: Event): Promise<{
+        results: AbstractFileResult[];
+        event: Event;
+    }>;
+    handleEnter(): void;
+    handleLeave(): void;
+    /** Build the internal input */
+    protected getInput(): HTMLInputElement;
+    openFileDialog(multiple?: boolean): void;
+}
+
+/**
+ * A singleton instance handling file loading
+ */
+declare class FilesService {
+    readonly manager: ThermalManager;
+    get pool(): Pool__default;
+    constructor(manager: ThermalManager);
+    static isolatedInstance(pool: Pool__default, registryName?: string): {
+        service: FilesService;
+        registry: ThermalRegistry;
+    };
+    /** Map of peoding requesta */
+    protected readonly requestsByUrl: Map<string, FileRequest>;
+    /** Number of currently pending requests */
+    get requestsCount(): number;
+    /** Is an URL currently pending? */
+    fileIsPending(url: string): boolean;
+    /** Cache of loaded files */
+    protected readonly cacheByUrl: Map<string, AbstractFileResult>;
+    /** Number of cached results */
+    get cachedServicesCount(): number;
+    /** Is the URL already in the cache? */
+    fileIsInCache(url: string): boolean;
+    /** Process a file obrained from anywhere */
+    loadUploadedFile(file: File): Promise<AbstractFileResult>;
+    /** Create a dropzone listener on a HTML element */
+    handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
+    /** Load a file from URL, eventually using already cached result */
+    loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
+    loadFiles(files: {
+        lrc: string;
+        png?: string;
+        callback?: (result: AbstractFileResult) => void;
+        group: ThermalGroup;
+    }[]): Promise<{
+        lrc: string;
+        png?: string;
+        callback?: (result: AbstractFileResult) => void;
+        group: ThermalGroup;
+    }[]>;
 }
 
 /** Codes of errors */
@@ -2033,7 +1991,7 @@ declare class ThermalRegistry extends BaseStructureObject implements IThermalReg
         [index: string]: ThermalFileRequest[];
     }): Promise<(false | Instance)[][]>;
     /** Load the registry with only one file. @deprecated */
-    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<Instance | ThermalFileFailure>;
+    loadFullOneFile(file: ThermalFileRequest, groupId: string): Promise<ThermalFileFailure | Instance>;
     private _batch?;
     get batch(): BatchLoader;
     /** @deprecated use batch member class instead */
@@ -2647,6 +2605,50 @@ declare class Instance extends AbstractFile {
     applyAllAvailableFilters(): Promise<void>;
 }
 
+declare abstract class BaseStructureObject {
+    abstract getInstances(): Instance[];
+}
+
+/** Controls image smoothing */
+declare class GraphSmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(): void;
+    setGraphSmooth(value: boolean): void;
+}
+
+/** Controls image smoothing */
+declare class SmoothDrive extends AbstractProperty<boolean, ThermalManager> {
+    protected validate(value: boolean): boolean;
+    protected afterSetEffect(value: boolean): void;
+    setSmooth(value: boolean): void;
+}
+
+type ThermalManagerOptions = {
+    palette?: AvailableThermalPalette;
+};
+declare class ThermalManager extends BaseStructureObject {
+    readonly id: number;
+    /** Service for creation of loading and caching the files. */
+    readonly service: FilesService;
+    /** Index of existing registries */
+    readonly registries: {
+        [index: string]: ThermalRegistry;
+    };
+    /** A palette is common to all registries within the manager */
+    readonly palette: PaletteDrive;
+    readonly smooth: SmoothDrive;
+    readonly graphSmooth: GraphSmoothDrive;
+    readonly tool: ToolDrive;
+    readonly pool: Pool__default;
+    constructor(pool?: Pool__default, options?: ThermalManagerOptions);
+    forEveryRegistry(fn: ((registry: ThermalRegistry) => void)): void;
+    addOrGetRegistry(id: string, options?: ThermalRegistryOptions): ThermalRegistry;
+    removeRegistry(id: string): void;
+    readonly filters: FilterContainer;
+    getInstances(): Instance[];
+    forEveryInstance(callback: (instance: Instance) => void): void;
+}
+
 /**
  * Array of all supported file types and extensions
  * - this is only for the purpose of display!
@@ -2655,48 +2657,6 @@ declare class Instance extends AbstractFile {
  */
 declare const supportedFileTypes: IParserObject["extensions"][];
 declare const supportedFileTypesInputProperty: string;
-
-declare const getPool: () => Promise<Pool__default>;
-
-type AcceptableDateInput = number | Date;
-declare abstract class TimeUtilsBase {
-    /** Convert an input to a date object */
-    static inputToDate: (value: AcceptableDateInput) => Date;
-}
-
-/** Utility class for time formatting in the LabIR ecosystem. */
-declare class TimeFormat extends TimeUtilsBase {
-    /** YYYY-MM-DD */
-    static isoDate: (value: AcceptableDateInput) => string;
-    /** HH:MM:SS */
-    static isoTime: (value: AcceptableDateInput) => string;
-    /** YYYY-MM-DD HH:MM:SS */
-    static isoComplete: (value: AcceptableDateInput) => string;
-    /** HH:mm */
-    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
-    /** j. M. ???? (y) */
-    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
-    /** Range */
-    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
-    static human(date: AcceptableDateInput): string;
-}
-
-/** Defined time periods used in the LabIR ecosystem. */
-declare enum TimePeriod {
-    HOUR = "jednu hodinu",
-    DAY = "jeden den",
-    WEEK = "jeden t\u00FDden",
-    MONTH = "jeden m\u011Bs\u00EDc",
-    YEAR = "jeden rok"
-}
-
-/** Utility class for time rounding in the LabIR ecosystem. */
-declare class TimeRound extends TimeUtilsBase {
-    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
-    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
-    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
-}
 
 /** Tool for analysis addition */
 declare abstract class AbstractAddTool extends AbstractTool {
@@ -2770,4 +2730,44 @@ declare class InspectTool extends AbstractTool implements ITool {
     getLabelValue: (x: number, y: number, file: Instance) => string;
 }
 
-export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalette, Batch, CallbacksManager, CornerPoint, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
+type AcceptableDateInput = number | Date;
+declare abstract class TimeUtilsBase {
+    /** Convert an input to a date object */
+    static inputToDate: (value: AcceptableDateInput) => Date;
+}
+
+/** Utility class for time formatting in the LabIR ecosystem. */
+declare class TimeFormat extends TimeUtilsBase {
+    /** YYYY-MM-DD */
+    static isoDate: (value: AcceptableDateInput) => string;
+    /** HH:MM:SS */
+    static isoTime: (value: AcceptableDateInput) => string;
+    /** YYYY-MM-DD HH:MM:SS */
+    static isoComplete: (value: AcceptableDateInput) => string;
+    /** HH:mm */
+    static humanTime: (value: AcceptableDateInput, showSeconds?: boolean) => string;
+    /** j. M. ???? (y) */
+    static humanDate: (value: AcceptableDateInput, includeYear?: boolean) => string;
+    /** Range */
+    static humanRangeDates(from: AcceptableDateInput, to: AcceptableDateInput): string;
+    static human(date: AcceptableDateInput): string;
+}
+
+/** Defined time periods used in the LabIR ecosystem. */
+declare enum TimePeriod {
+    HOUR = "jednu hodinu",
+    DAY = "jeden den",
+    WEEK = "jeden t\u00FDden",
+    MONTH = "jeden m\u011Bs\u00EDc",
+    YEAR = "jeden rok"
+}
+
+/** Utility class for time rounding in the LabIR ecosystem. */
+declare class TimeRound extends TimeUtilsBase {
+    static down: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static up: (value: AcceptableDateInput, roundTo: TimePeriod) => Date;
+    static pick: (value: AcceptableDateInput, period: TimePeriod) => Date[];
+    static modify: (value: AcceptableDateInput, amount: number, period: TimePeriod) => Date;
+}
+
+export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalette, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty };
