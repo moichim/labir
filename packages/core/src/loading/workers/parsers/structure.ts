@@ -4,7 +4,8 @@ export type ParsedTimelineFrame = {
     index: number,
     absolute: number,
     relative: number,
-    offset: number
+    offset: number,
+    percentage: number
 }
 
 /** 

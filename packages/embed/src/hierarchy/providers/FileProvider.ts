@@ -4,7 +4,7 @@ import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { fileProviderContext, playbackSpeedContext, playingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
@@ -13,7 +13,6 @@ export class FileProviderElement extends AbstractFileProvider {
     keepinitialhistogram: boolean = false;
 
     @property({ type: Number, reflect: true, attribute: true })
-    @provide({ context: fileMsContext })
     public ms: number = 0;
 
     @property({ type: Number, reflect: true, attribute: true })
@@ -129,7 +128,7 @@ export class FileProviderElement extends AbstractFileProvider {
 
                         this.recieveInstance(instance);
 
-                        this.initAnalysesSync(instance);
+                        // this.initAnalysesSync(instance);
 
                         return instance;
 
@@ -211,7 +210,9 @@ export class FileProviderElement extends AbstractFileProvider {
 
             this.onSuccess.call(result);
 
-            this.initAnalysesSync(result);
+            // this.initAnalysesSync(result);
+
+            this.controller.attributesToInternalState( result );
 
             this.loading = false;
 

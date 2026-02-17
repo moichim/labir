@@ -1,7 +1,6 @@
-import { ThermalManager, ThermalManagerOptions } from "@labirthermal/core";
+import { ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labirthermal/core";
 import { PropertyValues, ReactiveController, ReactiveControllerHost } from "lit";
 import { ManagerPaletteContext } from "../providers/context/ManagerContext";
-import { AvailableThermalPalette, ThermalPalettes, ThermalTool } from "@labirthermal/core";
 import { createOrGetManager, removeManager } from "../providers/getters";
 
 export interface ComponentWithManagerProvider extends ReactiveControllerHost{

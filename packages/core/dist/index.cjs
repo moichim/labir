@@ -5517,7 +5517,8 @@ var baseInfo = async (entireFileBuffer) => {
       relative,
       // isNaN( relativeTime ) ? 0 : relativeTime,
       offset: isNaN(offset) ? 0 : offset,
-      index
+      index,
+      percentage: relative / (timestamps[timestamps.length - 1] - timelineStart) * 100
     });
   });
   const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;

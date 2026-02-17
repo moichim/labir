@@ -168,7 +168,6 @@ export const renderTicks = (
         ? pointerMs / duration * 100
         : undefined;
 
-
     return html`<div class="ticks">
         
         ${ticks.map( renderTick )}

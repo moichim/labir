@@ -135,7 +135,7 @@ import "./controls/file/fileLabel";
 import "./controls/file/FilePlaybackSpeedDropdown";
 import "./controls/file/FileShareButton";
 import "./controls/file/FileTimeline";
-import "./controls/file/FileVideo";
+// import "./controls/file/FileVideo";
 // File analysis
 import "./controls/file/analysis/edit/analysisColor";
 import "./controls/file/analysis/edit/analysisName";

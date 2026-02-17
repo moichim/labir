@@ -168,7 +168,8 @@ export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
             absolute: t,
             relative: relative, // isNaN( relativeTime ) ? 0 : relativeTime,
             offset: isNaN(offset) ? 0 : offset,
-            index
+            index,
+            percentage: relative / (timestamps[timestamps.length - 1] - timelineStart) * 100
         });
 
     });

@@ -1,6 +1,5 @@
 import { ThermalRegistry, ThermalManager } from "@labirthermal/core";
 import { PropertyValues, ReactiveController, ReactiveControllerHost } from "lit";
-import { _ } from "vitest/dist/chunks/reporters.d.BFLkQcL6";
 
 export interface ComponentWithRegistryProvider extends ReactiveControllerHost {
 

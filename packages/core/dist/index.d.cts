@@ -121,6 +121,7 @@ type ParsedTimelineFrame = {
     absolute: number;
     relative: number;
     offset: number;
+    percentage: number;
 };
 /**
  * Every file needs to have this information

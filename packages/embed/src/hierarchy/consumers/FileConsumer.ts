@@ -2,7 +2,8 @@ import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { FailureContext, fileContext, fileProviderContext, loadingContext, recordingContext } from "../providers/context/FileContexts";
+import { FileContextProviderContext, FileProviderController } from "../controllers/FileController";
+import { FailureContext, fileContext, fileProviderContext, loadingContext } from "../providers/context/FileContexts";
 import { GroupConsumer } from "./GroupConsumer";
 
 export abstract class FileConsumer extends GroupConsumer {
@@ -31,13 +32,28 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected failure?: ThermalFileFailure;
 
+    @consume( { context: FileContextProviderContext, subscribe: true } )
+    protected controller?: FileProviderController;
+
 
 
     connectedCallback(): void {
 
         super.connectedCallback();
 
-        this.hookCallbacks();
+        if ( this.controller ) {
+            this.controller.registerConsumer(
+                this,
+                instance => {
+                    if ( instance ) {
+                        this.onInstanceCreated( instance );
+                    }
+                },
+                failure => {}
+            )
+        }
+
+        // this.hookCallbacks();
 
     }
 

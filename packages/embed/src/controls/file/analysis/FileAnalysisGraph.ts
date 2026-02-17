@@ -1,14 +1,15 @@
 import { AnalysisDataStateValue, Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, currentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
-import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
-import { ThermalChart } from "./chart/chart";
-import { t } from "i18next";
+import { managerGraphFunctionContext } from "../../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../../translations/Languages";
+import { ThermalChart } from "./chart/chart";
+
+type ParsedTimelineFrame = Instance["timeline"]["currentStep"];
 
 @customElement("file-analysis-graph")
 export class FileAnalysisGraph extends FileConsumer {
@@ -35,14 +36,8 @@ export class FileAnalysisGraph extends FileConsumer {
         colors: []
     }
 
-    @consume({context: currentFrameContext, subscribe: true})
-    protected currentFrame?: CurrentFrameContext;
-
-    @consume({ context: fileCursorContext, subscribe: true })
-    protected cursor: FileCursorContext;
-
-    @consume({ context: fileCursorSetterContext, subscribe: true })
-    protected cursorSetter?: FileCursorSetterContext;
+    @state()
+    protected currentFrame?: ParsedTimelineFrame;
 
     @state()
     protected shadowLeft: number = 0;
@@ -70,6 +65,19 @@ export class FileAnalysisGraph extends FileConsumer {
         instance.analysisData.addListener(this.UUID, (value) => {
             this.graphs = value;
         });
+
+
+
+        // Make the current frame synchronised with the file's internal state
+        this.currentFrame = instance.timeline.currentStep;
+
+        instance.timeline.callbacksChangeFrame.set(
+            this.UUID,
+            frame => {
+                // this.requestUpdate();
+                this.currentFrame = frame;
+            }
+        );
 
         
 
@@ -232,10 +240,6 @@ export class FileAnalysisGraph extends FileConsumer {
             ${this.currentFrame && html`
                 <div data-video-style style="position: absolute; height: 100%; background-color: #eee; left: 0px; width: ${this.currentFrame.percentage}%"></div>
             `}
-
-                ${this.cursor && html`
-                    <div data-video-style style="position: absolute; height: 100%; width: 1px; background-color: black; left: ${this.cursor.percentage}%"></div>
-                `}
             </div>
         
             <div ${ref(this.container)}">

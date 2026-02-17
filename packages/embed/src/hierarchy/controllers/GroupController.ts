@@ -1,6 +1,5 @@
 import { ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { ReactiveController, ReactiveControllerHost } from "lit";
-import { ComponentWithManagerProvider } from "./ManagerController";
 
 export interface ConponentWithGroupProvider extends ReactiveControllerHost {
 

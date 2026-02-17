@@ -7,6 +7,7 @@ import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
 
 @customElement("connected-user-button")
 export class UserButton extends ControlledConsumer {
@@ -16,6 +17,8 @@ export class UserButton extends ControlledConsumer {
 
     @property({ reflect: true, attribute: "disable-logging", converter: booleanConverter(false) })
     public disableLogging: boolean = false;
+
+    private dialogRef: Ref<ThermalDialog> = createRef();
 
     connectedCallback(): void {
         super.connectedCallback();
@@ -66,7 +69,14 @@ export class UserButton extends ControlledConsumer {
 
         const result = await this.client?.api.routes.post.logout().execute();
         this.client?.api.auth.logout();
-        return result && result.success;
+        const value = result && result.success;
+
+        if ( value ) {
+            this.dialogRef.value?.setClose();
+            this.log( "Do logout" );
+        }
+
+        return value;
 
     }
 
@@ -102,7 +112,14 @@ export class UserButton extends ControlledConsumer {
                             this.message = "Přihlášení se nezdařilo";
                         }
 
-                        return result && result.success;
+                        const value = result && result.success;
+
+                        if ( value ) {
+                            this.dialogRef.value?.setClose();
+                            this.log( "Do login" );
+                        }
+
+                        return value;
                     }
                 }
             }
@@ -115,15 +132,10 @@ export class UserButton extends ControlledConsumer {
     private async handleBeforeClose(): Promise<boolean> {
 
 
-        if (this.client.isLoggedIn) {
-
-            return await this.doLogout();
-
-        }
-
-        return await this.doLogin();
-
-
+        const result = this.client.isLoggedIn
+            ? await this.doLogout()
+            : await this.doLogin();
+        return result;
 
     }
 
@@ -229,6 +241,7 @@ export class UserButton extends ControlledConsumer {
         // Standardní login dialog
         return html`
             <thermal-dialog 
+                ${ref(this.dialogRef)}
                 label="${label}" 
                 button="${submitLabel}" 
                 .beforeClose=${this.handleBeforeClose.bind( this )}

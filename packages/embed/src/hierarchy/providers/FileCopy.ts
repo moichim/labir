@@ -1,12 +1,9 @@
-import { Instance, PlaybackSpeeds, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
+import { Instance, PlaybackSpeeds } from "@labirthermal/core";
 import { consume, provide } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileContext, fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
-import { GroupProviderElement } from "./GroupProvider";
-import { RegistryProviderElement } from "./RegistryProvider";
+import { fileContext, fileProviderContext, playbackSpeedContext, playingContext } from "./context/FileContexts";
 
 @customElement("file-copy")
 export class FileCopyElement extends AbstractFileProvider {

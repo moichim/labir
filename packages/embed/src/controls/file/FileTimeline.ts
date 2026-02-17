@@ -1,17 +1,19 @@
 import { Instance } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { format } from "date-fns";
+import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
-import { t } from "i18next";
+import { mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
 const isChromium = "chrome" in window;
+
+type ParsedTimelineFrame = Instance["timeline"]["currentStep"];
 
 @customElement("file-timeline")
 export class TimelineElement extends FileConsumer {
@@ -20,19 +22,12 @@ export class TimelineElement extends FileConsumer {
     @state()
     protected playing: boolean = false;
 
-    @consume({ context: currentFrameContext, subscribe: true })
     @state()
-    protected currentFrame?: CurrentFrameContext;
+    protected currentFrame?: ParsedTimelineFrame;
 
     @consume({ context: mayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;
-
-    @consume({ context: fileCursorContext, subscribe: true })
-    protected cursor: FileCursorContext;
-
-    @consume({ context: fileCursorSetterContext, subscribe: true })
-    protected cursorSetter?: FileCursorSetterContext;
 
 
     protected timelineRef: Ref<HTMLDivElement> = createRef()
@@ -61,12 +56,27 @@ export class TimelineElement extends FileConsumer {
     @state()
     protected pointerMs?: number;
 
+    
     public onInstanceCreated(instance: Instance): void {
         if (this.containerRef.value) {
             this.ticks = calculateTicks(this.containerRef.value.clientWidth, instance.duration);
         }
 
+        // Make the current frame synchronised with the file's internal state
+        this.currentFrame = instance.timeline.currentStep;
+
+        instance.timeline.callbacksChangeFrame.set(
+            this.UUID,
+            frame => {
+                // this.requestUpdate();
+                this.currentFrame = frame;
+            }
+        );
+
     }
+
+
+
     public onFailure(
         // error: ThermalFileFailure
     ): void {
@@ -167,9 +177,6 @@ export class TimelineElement extends FileConsumer {
             this.pointerMs = eventValues.ms;
         }
 
-        if (this.cursorSetter && eventValues) {
-            this.cursorSetter(eventValues.percent);
-        }
     }
 
     handleBarHover(event: MouseEvent) {
@@ -181,16 +188,9 @@ export class TimelineElement extends FileConsumer {
         if (eventValues) {
             this.pointerMs = eventValues.ms;
         }
-
-        if (this.cursorSetter && eventValues) {
-            this.cursorSetter(eventValues.percent);
-        }
     }
 
     handleBarMouseLeave() {
-        if (this.cursorSetter) {
-            this.cursorSetter(undefined);
-        }
         this.pointerMs = undefined;
     }
 
@@ -409,7 +409,6 @@ export class TimelineElement extends FileConsumer {
                 @mouseleave=${this.handleBarMouseLeave.bind(this)}
             >
                 <div class="bar" data-video-rerender style="width: ${this.currentFrame ? this.currentFrame.percentage : 0}%" ${ref(this.barRef)}></div>
-                    ${this.cursor ? html`<div class="pointer" style="left: ${this.cursor.percentage}%"></div>` : ""}
                 </div>
 
             </div>
@@ -419,7 +418,7 @@ ${(this.currentFrame)
     ? renderTicks(
         file.duration,
         this.ticks,
-        this.currentFrame.ms,
+        this.currentFrame.relative,
         this.pointerMs
     )
 : nothing }
