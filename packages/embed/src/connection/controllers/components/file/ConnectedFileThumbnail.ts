@@ -95,6 +95,7 @@ export class FileThumbnail extends ControlledConsumer {
         super.firstUpdated(_changedProperties);
         this.content.subscribeToFilesUpdates( this );
         this.client.subscribeToIdentityChanges( this );
+        this.content.subscribeToFilesUpdates( this );
         this.hydrate();
         if (this.instanceRef.value) {
 
@@ -223,15 +224,28 @@ export class FileThumbnail extends ControlledConsumer {
     protected renderActionComments(): unknown {
 
         if (this.file.comments.length > 0 || (this.client.isLoggedIn && this.folder.may_manage_files_in)) {
-            return html`<file-comments-dialog 
-                .file=${this.file}
-                .folder=${this.folder}
-                label=""
-                plain="true"
-                variant="background"
-                size="sm"
-                badge="true"
-            ></file-comments-dialog>`;
+            return html`
+            <thermal-dialog
+                label="${t(T.comments)}"
+                
+            >
+                <thermal-btn 
+                    slot="invoker"
+                    size="sm"
+                    variant="background"
+                    icon="comment"
+                    iconStyle="micro"
+                    plain="true"
+                    badge=${ifDefined( this.file.comments.length > 0 ? "red": undefined )}
+                ></thermal-btn>
+                <div slot="content">
+                    <connected-file-comments
+                        .file=${this.file}
+                        .folder=${this.folder}
+                        style="height: 400px; width: 400px;"
+                    ></connected-file-comments>
+                </div>
+            </thermal-dialog>`;
         }
 
         return nothing;
@@ -314,7 +328,7 @@ export class FileThumbnail extends ControlledConsumer {
                         size="md"
                         variant="primary"
                         icon="restore"
-                        iconStyle="outline"
+                        iconStyle="micro"
                     >
                         ${restoreLabel}
                     </thermal-btn>` : nothing}
@@ -323,45 +337,7 @@ export class FileThumbnail extends ControlledConsumer {
                 ${this.hasDisplayedAnalysis
                     ? html`<aside>
 
-                    ${!this.syncAnalyses
-                            ? html`<thermal-btn
-                            icon="link"
-                            iconStyle="micro"
-                            tooltip="Aplikovat tyto analýzy na všechny soubory ve složce"
-                            @click=${() => {
-
-                                    // Získej instanci současného souboru
-                                    const instance = this.instanceRef.value?.file;
-
-                                    if (!instance || !this.group) {
-                                        return;
-                                    }
-
-                                    this.group.analysisSync.copyAllSlotsToAllInstances( instance );
-
-                                }}
-                        ></thermal-btn>
-                        <file-analysis-remove-button disalbled="false"></file-analysis-remove-button>
-                        `
-                            : nothing
-                        }
-
-                    ${this.folder.may_manage_files_in
-                            ? html`
-                        <file-analysis-store-button
-                            size="md"
-                            .info=${this.file}
-                            .folder=${this.folder}
-
-                        ></file-analysis-store-button>`
-                            : nothing}
-
-
-                    <file-analysis-restore-button
-                        size="md"
-                        .info=${this.file}
-                        .folder=${this.folder}
-                    ></file-analysis-restore-button>
+                        <connected-file-analysis-buttons .info=${this.file} .enableCopyToAll=${this.content.files && this.content.files.length > 0}></connected-file-analysis-buttons>
 
                 </aside>`
                     : nothing}
@@ -679,12 +655,13 @@ export class FileThumbnail extends ControlledConsumer {
 
                 .analyses-inner {
                     height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    gap: .5em;
+                    width: 100%;
+                    
 
                     file-analysis-complex {
                         flex-grow: 1;
+                        align-self: stretch;
+                        display: block;
                     }
 
                     aside {
@@ -726,7 +703,6 @@ export class FileThumbnail extends ControlledConsumer {
 
                 <main>
                     <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
                 </main>
 
                 <header>
@@ -780,11 +756,11 @@ export class FileThumbnail extends ControlledConsumer {
                 ${this.showDiscussion === true
                 ? html`
                     <div class="file-comments">
-                        <file-comments
+                        <connected-file-comments
                             .file=${this.file}
                             .folder=${this.folder}
                             style="height: 300px;"
-                        ></file-comments>
+                        ></connected-file-comments>
                     </div>`
                 : nothing
             }

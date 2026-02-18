@@ -151,17 +151,16 @@ export class ControllerApp extends ConnectedAppBase {
                 case DisplayState.ERROR: return this.renderAppWithInternals(html`<thermal-error
                     .message=${this.display.arbitraryContent}
                 ></thermal-error>`);
-                default: return html`<p>Unknown state</p>`;
+                default: return this.renderAppWithInternals(html`<thermal-poster
+                    .message=${this.display.arbitraryContent}
+                ></thermal-poster>`);;
             }
 
         })();
 
-        const cachedStateContent = cache(stateContent);
+        const cachedStateContent = stateContent;
 
-        return [
-            // this.display.appState,
-            cachedStateContent
-        ];
+        return cachedStateContent;
 
     }
 

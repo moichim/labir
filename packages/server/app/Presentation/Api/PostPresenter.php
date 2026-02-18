@@ -143,6 +143,7 @@ final class PostPresenter extends BaseApiPresenter
         $addTags = null;
         $removeTags = null;
         $thumbnailFile = null;
+        $mayHaveFiles = null;
         
         // --- 3. Zpracování nahraného thumbnail souboru ---
         $thumbnailFile = $request->getFile('thumbnail');
@@ -168,6 +169,12 @@ final class PostPresenter extends BaseApiPresenter
         }
         if ($movePost === 'true' || $movePost === true) {
             $move = true;
+        }
+        $mayHaveFilesPost = $request->getPost('mayHaveFiles');
+        if ($mayHaveFilesPost === 'true' || $mayHaveFilesPost === true) {
+            $mayHaveFiles = true;
+        } elseif ($mayHaveFilesPost === 'false' || $mayHaveFilesPost === false) {
+            $mayHaveFiles = false;
         }
         
         // Pokud nejsou POST data, zkus JSON body (fallback pro kompatibilitu)
@@ -200,6 +207,10 @@ final class PostPresenter extends BaseApiPresenter
                     if (isset($data['removeTags'])) {
                         $removeTags = $data['removeTags'];
                     }
+                    // Přepnutí režimu složky (soubory / podsložky)
+                    if (isset($data['mayHaveFiles']) && is_bool($data['mayHaveFiles'])) {
+                        $mayHaveFiles = $data['mayHaveFiles'];
+                    }
                 }
             }
         }
@@ -213,7 +224,8 @@ final class PostPresenter extends BaseApiPresenter
             $move, 
             $addTags, 
             $removeTags,
-            $thumbnailFile
+            $thumbnailFile,
+            $mayHaveFiles
         );
 
         // --- 5. Uložení výsledku a odpověď ---

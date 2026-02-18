@@ -47,6 +47,9 @@ export class ThermalBtn extends BaseElement {
     @property({type: Number, reflect: true})
     public tabindex: number = 0;
 
+    @property({type: String, attribute: "badge", reflect: true})
+    public badge?: string;
+
     private tooltipElement?: HTMLElement;
     private arrowElement?: HTMLElement;
     private cleanupAutoUpdate?: () => void;
@@ -457,7 +460,24 @@ export class ThermalBtn extends BaseElement {
             padding-right: 0.25em;
         }
 
+        .badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: .5em;
+            height: .5em;
+            background: red;
+            border-radius: 50%;
+        }
+
     `;
+
+    private renderBadge(): unknown {
+        if ( !this.badge ) {
+            return nothing;
+        }
+        return html`<span class="badge" style="background-color: ${this.badge}"></span>`;
+    }
 
     protected render(): unknown {
         let icon: typeof nothing | string = nothing;
@@ -488,6 +508,7 @@ export class ThermalBtn extends BaseElement {
         return html`
             ${unsafeSVG(icon)}${this.pre ? html`<span class="prefix">${this.pre}</span>` : nothing}<slot></slot>
             ${tooltipHtml}
+            ${this.renderBadge()}
         `;
     }
 

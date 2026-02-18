@@ -12,6 +12,8 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
 import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
 import { AppWithSelectionController, SelectionController } from "../SelectionController";
+import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 
 export abstract class ConnectedAppBase extends BaseAppWithPngExportContext 
     implements 
@@ -229,12 +231,31 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
             }
 
         }
+
+        :host(.fullscreen) {
+        
+            thermal-app {
+                display: block;
+                height: 100vh;
+                overflow: auto;
+                
+            
+            }
+
+        }
     
     `;
 
 
 
 
+
+    /** Handle fullscreen changes from the browser (e.g. Escape key) to keep CSS class in sync */
+    private _handleFullscreenChange = (): void => {
+        if (!document.fullscreenElement && this.classList.contains("fullscreen")) {
+            this.classList.remove("fullscreen");
+        }
+    };
 
     connectedCallback(): void {
 
@@ -248,6 +269,8 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
         );
 
         super.connectedCallback();
+
+        document.addEventListener("fullscreenchange", this._handleFullscreenChange);
 
         /** This is very important - call this before the client is ready */
         this.setupInitialStateBeforeClientIsRead();
@@ -265,10 +288,23 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
 
     }
 
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        document.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+    }
 
 
 
 
+    protected toggleFullscreen(): void {
+        if ( this.classList.contains( "fullscreen" ) ) {
+            this.classList.remove( "fullscreen" );
+            document.exitFullscreen();
+        } else {
+            this.requestFullscreen();
+            this.classList.add( "fullscreen" );
+        }
+    }
 
 
     
@@ -281,7 +317,6 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
 
         const thermalApp = html`<thermal-app
             label=${ifDefined(this.label)}
-            showfullscreen="true"
             labelTooltip=${ifDefined(this.labelTooltip)}
             labelIcon=${ifDefined(this.labelIcon)}
             labelIconStyle=${ifDefined(this.labelIconStyle)}
@@ -316,6 +351,17 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
                 </div>
             </thermal-dialog>
 
+            ${cache( html`<thermal-btn
+                slot="close"
+                icon="bigger"
+                iconStyle="mini"
+                @click=${() => {
+
+                    this.toggleFullscreen();
+
+                }}
+            ></thermal-btn>` ) }
+
             <slot name="pre" slot="pre"></slot>
 
             <slot name="before-content"></slot>
@@ -327,7 +373,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
         </thermal-app>`;
 
         const fileBlock = this.content.file !== undefined && this.content.file.url !== undefined
-            ? cache( html`
+            ? html`
                 <file-provider
                     thermal=${ this.content.file.url }
                     visual=${ ifDefined( this.content.file.visual ) }
@@ -340,41 +386,43 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
                     analysis5=${ ifDefined( this.content.file.analyses[4] ) }
                     analysis6=${ ifDefined( this.content.file.analyses[5] ) }
                     analysis7=${ ifDefined( this.content.file.analyses[6] ) }
+                    style="display: contents;"
                 >
                     ${ thermalApp }
                 </file-provider>
-            ` )
+            ` 
             : thermalApp;
 
 
         const groupBlock = this.hasGroupProvider
-            ? cache( html`
+            ?  html`
                 <group-provider
                     slug=${ this.display.slug }
                     batch="true"
                     autoclear="true"
+                    style="display: contents;"
                 >
                     ${ fileBlock }
                 </group-provider>
-            ` )
+            `
             : fileBlock;
 
 
         const registryBlock = this.hasRegistryProvider
-            ? cache( html`
+            ?  html`
                 <registry-provider
                     slug=${ this.display.slug }
                     autoclear="true"
+                    style="display: contents;"
                 >
                     ${ groupBlock }
                 </registry-provider>
-            ` )
+            `
             : groupBlock;
 
 
 
         return html`
-        <connected-provider slot="close"></connected-provider>
         <manager-provider
             slug=${this.UUID}
             style="display: contents;"

@@ -275,4 +275,7 @@ export const en: Translation = {
     theme: "Theme",
     light: "Light",
     dark: "Dark",
+
+    foldermayhavefiles: "Folder for files",
+    foldermayhavesubfolders: "Folder for subfolders",
 }

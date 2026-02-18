@@ -1,6 +1,5 @@
 import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "@labirthermal/core";
 import { createContext } from "@lit/context";
-import { FileMarker } from "../../../controls/file/markers/ImageMarker";
 import { AbstractFileProvider } from "../../abstraction/AbstractFileProvider";
 
 type FileContext = Instance;
@@ -88,8 +87,3 @@ export const mayStopContext = createContext<MayStopContext>( "mayStop" );
 
 export type AnalysisList = AbstractAnalysis[];
 export const analysisList = createContext<AnalysisList>( "analysislist" );
-
-
-
-type FileMarkersContext = FileMarker[];
-export const fileMarkersContext = createContext<FileMarkersContext>( "file-markers-context" );

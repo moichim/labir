@@ -42,6 +42,44 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
             gap: 1em;
             position: relative;
         }
+
+        .cLayout__user_folders_list {
+            display: flex;
+            flex-direction: column;
+            gap: .5em;
+        }
+
+        .cLayout--user_folders {
+
+            margin-top: 1em;
+        
+            display: grid;
+            gap: 1em;
+
+            grid-template-columns: 1fr 200px;
+            grid-template-rows: auto;
+
+            dl {
+                dt {
+                    
+                }
+                dd {
+                    margin-left: 0;
+                    font-weight: bold;
+                    margin-bottom: 1em;
+                }
+            }
+
+            h2,
+            dt {
+                margin-bottom: .25em;
+                font-size: .8em;
+                color: var(--thermal-slate-dark);
+                text-transform: uppercase;
+                font-weight: normal;
+            }
+        
+        }
     
     `;
 

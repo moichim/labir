@@ -78,6 +78,10 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
             )
         );
 
+        slots.push(
+            html`<connected-file-analysis-buttons .info=${app.content.file}></connected-file-analysis-buttons>`
+        );
+
         if (
             true
             || (

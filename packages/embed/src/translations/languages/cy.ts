@@ -285,5 +285,8 @@ export const cy: Translation = {
     light: "Golau",
     dark: "Tywyll",
 
+    foldermayhavefiles: "Ffolder ar gyfer ffeiliau",
+    foldermayhavesubfolders: "Ffolder ar gyfer is-ffolderi",
+
 
 }

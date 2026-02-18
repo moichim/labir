@@ -281,4 +281,7 @@ export const cs: Translation = {
     theme: "Motiv",
     light: "Světlý",
     dark: "Tmavý",
+
+    foldermayhavefiles: "Složka pro soubory",
+    foldermayhavesubfolders: "Složka pro podsložky",
 }

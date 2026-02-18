@@ -11,38 +11,55 @@ class UserFoldersDirective extends AbstractLayoutDirective {
     ): unknown {
 
         const rows: string[][] = [
-            [ this.t("login"), identity.meta.login ],
+            [ "Login", identity.meta.login ],
+            [ this.t("user"), identity.meta.name || "-" ],
             [ "Email", identity.meta.email || "-" ],
-            [ "institution", identity.meta.institution || "-" ],
+            [ "Instituce", identity.meta.institution || "-" ],
             // [ "createdat", new Date( identity.meta.createdAt ).toLocaleString() ],
         ];
 
 
-        return html`<table>
-            <tbody>
-        ${rows.map(row => this.renderTr(...row))}
-            </tbody>
-        </table>`;
+        return html`<div>
+            <dl>
+                ${rows.map(row => this.renderDef(...row))}
+            </dl>
+        
+            <p>Pro změnu hesla kontaktujte administrátora serveru.</p>
+        </div>`;
     }
 
     render(
         app: ConnectedAppBase
     ): unknown {
 
-        console.log( app.client.identity )
+        const inner: unknown[] = [];
 
-        const content = [];
+        const list: unknown[] = [];
+
+        app.content.userFolders.forEach( folder => {
+            list.push( html`<server-folder-thumbnail
+                .folder=${folder}
+                @click=${ () => app.display.navigateToFolderAndLoad( folder.path ) }
+            ></server-folder-thumbnail>` );
+        } );
+
+        inner.push( html`<div class="cLayout__user_folders_list">
+            <h2>Máte přístup ke ${app.content.userFolders.length} složkám:</h2>
+            ${list}
+        </div>` );
 
         if ( app.client.identity ) {
-            content.push( this.renderUserDetail(
+            inner.push( this.renderUserDetail(
                     app.client.identity
             ) );
         }
 
-        content.push( this.renderBreadcrumb( app ) );
-        content.push( this.renderError( "User folders" ) );
+        const layout = html`${this.renderBreadcrumb( app )}
+        <div class="cLayout cLayout--user_folders">
+            ${inner}
+        </div>`;
 
-        return content;
+        return layout;
     }
 }
 

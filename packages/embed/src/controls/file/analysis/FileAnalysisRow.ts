@@ -15,7 +15,7 @@ export class FileAnalysisRow extends BaseElement {
     public analysis!: AbstractAnalysis;
 
     @property({type: Boolean})
-    public interactiveanalysis: boolean = false;
+    public interactiveanalysis: boolean = true;
 
     @state()
     protected value: {

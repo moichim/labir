@@ -5,6 +5,8 @@ import { classMap } from "lit/directives/class-map.js";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { T } from "../../../translations/Languages";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { AppState } from "../../composition/AppWithState";
+import { DisplayState } from "../DisplayController";
 
 
 
@@ -66,6 +68,11 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
 
         this.refreshItems();
 
+        this.display.onAppModeUpdate.set(this.UUID, () => {
+
+            this.refreshItems();
+        });
+
         this.content.onBreadcrumbUpdate.set(this.UUID, () => {
 
             this.refreshItems();
@@ -80,6 +87,10 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
 
     }
 
+    protected update(changedProperties: PropertyValues): void {
+        super.update(changedProperties);
+    }
+
     disconnectedCallback(): void {
         super.disconnectedCallback();
         this.content.onBreadcrumbUpdate.delete(this.UUID);
@@ -90,7 +101,6 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
 
         this.items = this.calculateItems(
             this.content.breadcrumb || [],
-            // 
         );
 
     }
@@ -134,7 +144,7 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
         }
 
         // Pokud je prohlížení uzamčeno na určitou lokaci, přidáme ještě ikonku zámku
-        if (lockedLocation) {
+        if (lockedLocation ) {
 
             const lockedLabel = breadcrumb.find(item => item.path === lockedLocation)?.name || lockedLocation;
 
@@ -148,26 +158,31 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
 
         // Přidáme složky z breadcrumbu, ale jen ty, které obsahují lockedlocation
 
-        for (const item of breadcrumb) {
+        if (this.display.appState !== DisplayState.USER) {
 
-            if (item.type !== "folder") {
-                continue;
+            for (const item of breadcrumb) {
+
+                if (item.type !== "folder") {
+                    continue;
+                }
+
+                if (lockedLocation !== undefined && !item.path.includes(lockedLocation)) {
+                    continue;
+                }
+
+                const folderItem: BreadcrumbItemInternal = {
+                    icon: "folder",
+                    iconStyle: "micro",
+                    label: item.name || "Folder",
+                    tooltip: item.path || "Folder",
+                    onClick: () => this.onFolderClick?.(item),
+                };
+
+                items.push(folderItem);
             }
 
-            if (lockedLocation !== undefined && !item.path.includes(lockedLocation)) {
-                continue;
-            }
-
-            const folderItem: BreadcrumbItemInternal = {
-                icon: "folder",
-                iconStyle: "micro",
-                label: item.name || "Folder",
-                tooltip: item.path || "Folder",
-                onClick: () => this.onFolderClick?.(item),
-            };
-
-            items.push(folderItem);
         }
+
 
         return items;
 
@@ -194,13 +209,13 @@ export class ConnectedBreadcrumb extends ControlledConsumer {
         <thermal-btn 
             class="${classMap(classNames)}"
             @contextmenu=${(e: MouseEvent) => {
-                if ( item.tooltip ) {
+                if (item.tooltip) {
                     e.preventDefault();
-                    navigator.clipboard.writeText( item.tooltip );
+                    navigator.clipboard.writeText(item.tooltip);
                 }
             }}
             @click=${() => {
-                if ( item.onClick ) {
+                if (item.onClick) {
                     item.onClick();
                 }
             }}

@@ -277,4 +277,6 @@ export const de: Translation = {
     light: "Hell",
     dark: "Dunkel",
 
+    foldermayhavefiles: "Ordner für Dateien",
+    foldermayhavesubfolders: "Ordner für Unterordner",
 }

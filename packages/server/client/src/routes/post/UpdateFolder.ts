@@ -73,6 +73,13 @@ export class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
         return this;
     }
 
+    public setMayHaveFiles(
+        value: boolean
+    ): this {
+        this.request.addBodyParameter("mayHaveFiles", value);
+        return this;
+    }
+
     public setMetadata(
         value: Record<string, any>
     ) {

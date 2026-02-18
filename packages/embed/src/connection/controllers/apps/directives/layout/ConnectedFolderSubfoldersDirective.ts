@@ -24,6 +24,7 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
         }
 
         const slots = [
+            this.renderFolderContentStatsSlot(app),
             this.renderHeaderFolderSlot( app ),
             this.renderDisplaySlot( app )
         ];

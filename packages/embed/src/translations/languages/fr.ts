@@ -280,4 +280,7 @@ export const fr: Translation = {
     light: "Clair",
     dark: "Sombre",
 
+    foldermayhavefiles: "Dossier pour les fichiers",
+    foldermayhavesubfolders: "Dossier pour les sous-dossiers",
+
 }

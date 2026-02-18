@@ -7,73 +7,12 @@ import { DirectiveHelpers } from "../DirectiveHelpers";
 import { FileInfo, FolderInfo } from "packages/server/client/dist";
 
 import { directive } from "lit/directive.js";
+import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
 
-class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
-
-    private renderHeaderFolderSlot(
-        app: ConnectedAppBase
-    ): unknown {
-
-        if (!app.content.folder) {
-            return nothing;
-        }
-
-        const actions: unknown[] = [];
-
-        const mayEdit = DirectiveHelpers.userMayEditFolder(
-            app.client,
-            app.content.folder
-        );
-
-        const mayDelete = DirectiveHelpers.userMayDeleteFolder(
-            app.client,
-            app.content.folder,
-            app.content.subfolders,
-            app.content.files
-        );
-
-        const hasFiles = DirectiveHelpers.folderContainsFiles(
-            app.content.folder,
-            app.content.files || []
-        );
-
-        const deleteLabel = mayDelete
-            ? this.t("deletefolder")
-            : "Složku je možno smazat jen, když je prázdná"
-
-        if (mayEdit) {
-
-            actions.push(html`<connected-folder-edit-dialog
-                .folder=${app.content.folder}
-                icon="edit"
-                iconStyle="micro"
-                .onSuccess=${(folder: FolderInfo) => app.content.updateFolderState(folder)}
-                .tooltip=${this.t("editfolder")}
-            ></connected-folder-edit-dialog>` );
-
-            actions.push(html`<connected-folder-delete-dialog
-                .folder=${app.content.folder}
-                icon="trash"
-                iconStyle="micro"
-                .onSuccess=${() => app.display.navigateToUserFoldersAndLoad()}
-                .disabled=${!mayDelete}
-                .tooltip=${deleteLabel}
-            ></connected-folder-delete-dialog>` );
-        }
-
-        if (hasFiles) {
-            actions.push(html`<group-download-dropdown></group-download-dropdown>`);
-        }
-
-        return slotOrNothing(
-            "folder",
-            actions
-        )
-
-    }
+class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
 
-    private renderDisplaySlot(
+    protected renderDisplaySlot(
         app: ConnectedAppBase
     ): unknown {
 
@@ -115,6 +54,7 @@ class ConnectedFolderFilesDirective extends AbstractLayoutDirective {
         );
 
         const slots = [
+            this.renderFolderContentStatsSlot(app),
             this.renderHeaderFolderSlot(app),
         ];
 

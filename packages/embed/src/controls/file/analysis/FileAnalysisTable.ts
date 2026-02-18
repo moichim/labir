@@ -91,7 +91,7 @@ export class FileAnalysisTable extends FileConsumer {
             display: block;
             width: 100%;
             min-width: 0;
-            overflow-x: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
 
             margin: 0;

@@ -819,6 +819,10 @@ var UpdateFolder = class extends OperationWithPath {
     this.request.addBodyParameter("removeTags", tags);
     return this;
   }
+  setMayHaveFiles(value) {
+    this.request.addBodyParameter("mayHaveFiles", value);
+    return this;
+  }
   setMetadata(value) {
     this.request.addBodyParameter("meta", value);
   }

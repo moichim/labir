@@ -30,8 +30,21 @@ export abstract class AbstractConnectedDirective extends Directive {
     </div>`;
     }
 
-    protected renderTr(...args: unknown[]): unknown {
-        return html`<tr>${args.map(item => html`<td>${item}</td>`)}</tr>`;
+    protected renderDef(...args: unknown[]): unknown {
+
+        const content: unknown[] = [];
+
+        const first = args.shift();
+        if ( first ) {
+            content.push( html`<dt>${first}</dt>` );
+        }
+
+        args.forEach( item => {
+            content.push( html`<dd>${item}</dd>` );
+        } );
+
+        return content;
+
     }
 
 }

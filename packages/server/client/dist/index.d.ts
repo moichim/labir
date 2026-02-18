@@ -668,6 +668,7 @@ declare class UpdateFolder extends OperationWithPath<UpdateFolderDataType> {
     setThumbnail(value: File): this;
     addTag(key: string, name: string, description?: string, color?: string): this;
     removeTags(tags: string[]): this;
+    setMayHaveFiles(value: boolean): this;
     setMetadata(value: Record<string, any>): void;
     execute(): Promise<ApiResponseType<UpdateFolderDataType>>;
 }

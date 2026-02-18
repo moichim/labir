@@ -42,6 +42,7 @@ export class ContentController extends AbstractConnectedController implements Re
     private _grid?: GetGridDataType;
     private _breadcrumb?: BreadcrumbItem[];
     private _tree: TreeItem[] = [];
+    private _userFolders: FolderInfo[] = [];
 
     public get folder(): FolderInfo | undefined { return this._folder; }
     public get subfolders(): FolderInfo[] { return this._subfolders; }
@@ -50,6 +51,8 @@ export class ContentController extends AbstractConnectedController implements Re
     public get grid(): GetGridDataType | undefined { return this._grid; }
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
     public get tree(): TreeItem[] { return this._tree; }
+    public get userFolders(): FolderInfo[] { return this._userFolders; }
+
 
 
     public readonly onFolderUpdate: CallbacksManager<( folder?: FolderInfo ) => void> = new CallbacksManager();
@@ -82,6 +85,17 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     hostConnected(): void {
+
+        this.host.client.api.auth.onIdentity.set(
+            this.host.UUID + "___USER_FOLDERS",
+            ( identity, userFolders ) => {
+
+                this._userFolders = userFolders || [];
+                this.host.requestUpdate();
+            
+            }
+        )
+
     }
 
     hostDisconnected(): void {
@@ -152,7 +166,10 @@ export class ContentController extends AbstractConnectedController implements Re
         subfolders: FolderInfo[] | undefined
     ): void {
         if (this._subfolders === subfolders) return;
-        this._subfolders = subfolders || [];
+
+        const orderedSubfolders = subfolders ? subfolders.sort( (a, b) => a.name.localeCompare( b.name ) ) : [];
+
+        this._subfolders = orderedSubfolders;
         this.onSubfoldersUpdate.call( this._subfolders );
         this.host.requestUpdate();
     }

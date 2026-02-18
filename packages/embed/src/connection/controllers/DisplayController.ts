@@ -89,7 +89,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     /** Whether comments are displayed. The setting is in the host element. */
     public get displayComments(): boolean { return this.host.displayComments; }
 
-    private readonly onAppModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
+    public readonly onAppModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
     private readonly onFolderDisplayModeUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
@@ -283,6 +283,8 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     async navigateToUserFoldersAndLoad(): Promise<void> {
         this.setAppMode( DisplayState.USER );
+        this.host.folderPath = undefined;
+        this.host.fileName = undefined;
         this.refreshSlugOnNavigate();
     }
 
@@ -304,6 +306,19 @@ export class DisplayController extends AbstractConnectedController implements Re
         
         /** @todo */
 
+        const segments = originalFolderPath.split("/").filter( segment => segment.length > 0 );
+
+        if ( segments.length === 0 ) {
+            await this.navigateToUserFoldersAndLoad();
+            return;
+        }
+
+        segments.pop();
+
+        const parentPath = "/" + segments.join("/");
+
+        await this.navigateToFolderAndLoad( parentPath );
+
         return;
         // const parentPath = this.host.content.getParentFolderPath( originalFolderPath );
         // return this.navigateToFolderAndLoad( parentPath );
@@ -311,8 +326,6 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     /** Will take the current parameters of the application, load it and set the required app state */
     public async reloadCurrentState(): Promise<void> {
-
-        this.log("Načítám obsah__", this.host.folderPath, this.host.fileName);
 
         // this.navigateToLoadingState("Načítám obsah");
 

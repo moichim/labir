@@ -266,6 +266,8 @@ import "./connection/controllers/components/folder/crud/ConnectedFolderCreateDia
 import "./connection/controllers/components/file/ConnectedFileHeader"
 import "./connection/controllers/components/folder/listing/ConnectedSubfoldersGrid";
 import "./connection/controllers/components/folder/upload/ConnectedUploadDialog";
+import "./connection/controllers/components/folder/crud/ConnectedFolderContentModeSwitch";
+import "./connection/controllers/components/file/analysis/ConnectedFileAnalysisButtons";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

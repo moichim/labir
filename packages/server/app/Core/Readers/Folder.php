@@ -472,7 +472,8 @@ final class Folder
         bool $move = false,
         ?array $addTags = null,
         ?array $removeTags = null,
-        $thumbnailFile = null
+        $thumbnailFile = null,
+        ?bool $mayHaveFiles = null
     ): array {
         $fullPath = $this->scanner->getFullPath($slug);
         if (!is_dir($fullPath)) {
@@ -550,6 +551,13 @@ final class Folder
         // --- Zpracování thumbnail souboru ---
         if ($thumbnailFile !== null && $thumbnailFile->isOk()) {
             $this->saveThumbnail($slug, $thumbnailFile);
+        }
+
+        // --- Aktualizace _access.json (may_have_files) ---
+        if ($mayHaveFiles !== null) {
+            $accessData = $this->readJson($slug, 'access') ?? [];
+            $accessData['may_have_files'] = $mayHaveFiles;
+            $this->writeJson($slug, 'access', $accessData);
         }
 
         return [

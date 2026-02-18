@@ -66,27 +66,34 @@ export class ThermalAppUiElement extends BaseElement {
 
 
 
-    protected appRef: Ref<HTMLDivElement> = createRef();
     protected headerRef: Ref<HTMLDivElement> = createRef();
 
     protected contentRef: Ref<HTMLDivElement> = createRef();
 
     protected observer!: ResizeObserver;
 
+    private _handleFullscreenChange = (): void => {
+        if (!document.fullscreenElement) {
+            this.fullscreen = "off";
+        }
+    };
+
     connectedCallback(): void {
         super.connectedCallback();
 
-        window.addEventListener("fullscreenchange", () => {
-            if (!document.fullscreenElement) {
-                this.fullscreen = "off";
-            }
-        });
+        window.addEventListener("fullscreenchange", this._handleFullscreenChange);
+
 
         i18next.on("languageChanged", () => {
             // this.log( "languageChanged", this.language, i18next.language );
             this.language = i18next.language;
         });
 
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        window.removeEventListener("fullscreenchange", this._handleFullscreenChange);
     }
 
     toggleFullscreen() {
@@ -102,7 +109,6 @@ export class ThermalAppUiElement extends BaseElement {
 
         if (
             this.observer === undefined
-            && this.appRef.value instanceof Element
             && this.contentRef.value !== undefined
         ) {
 
@@ -150,7 +156,7 @@ export class ThermalAppUiElement extends BaseElement {
 
 
             });
-            this.observer.observe(this.appRef.value!);
+            this.observer.observe(this);
 
         }
 
@@ -165,10 +171,10 @@ export class ThermalAppUiElement extends BaseElement {
         if (name === "fullscreen") {
             if (value === "on") {
 
-                this.appRef.value?.requestFullscreen();
+                this.requestFullscreen();
                 // ...
-            } else if (value === "off") {
-                // ...
+            } else if (value === "off" && _old !== null) {
+                // Only exit fullscreen if this is a real transition (not initial creation)
                 if (document.fullscreenElement)
                     document.exitFullscreen();
             }
@@ -185,6 +191,14 @@ export class ThermalAppUiElement extends BaseElement {
             font-size: var( --thermal-fs );
             line-height: 1em;
             color: var( --thermal-foreground );
+
+            display: block;
+
+            padding: calc( var( --thermal-gap ) / 3 );
+            background-color: var( --thermal-slate-light );
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            border-radius: var( --thermal-radius );    
+            position: relative; 
         }
 
         .dark {
@@ -382,9 +396,7 @@ export class ThermalAppUiElement extends BaseElement {
 
     protected render(): unknown {
 
-        return html`<div class="container ${this.dark ? "dark" : "normal"}" ${ref(this.appRef)}>
-
-    <header ${ref(this.headerRef)} class="app-header">
+        return html`<header ${ref(this.headerRef)} class="app-header">
 
         <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
 
@@ -431,7 +443,7 @@ export class ThermalAppUiElement extends BaseElement {
     <div class="content ${this.contentElements.length > 0 ? "has-content" : ""}">
         <slot name="content"></slot>
     </div>
-</div>`
+`
     }
 
 }

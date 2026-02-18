@@ -338,6 +338,9 @@ export enum T {
     light = "light",
     dark = "dark",
 
+    foldermayhavefiles = "foldermayhavefiles",
+    foldermayhavesubfolders = "foldermayhavesubfolders",
+
 }
 
 export default {
