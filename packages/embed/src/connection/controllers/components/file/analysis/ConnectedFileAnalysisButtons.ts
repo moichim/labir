@@ -101,7 +101,13 @@ export class ConnectedFileAnalysisButtons extends ControlledConsumer {
 
     protected renderCopyToAllButton(): unknown {
 
-        if ( !this.file ) {
+        if ( 
+            !this.file 
+            || ( 
+                this.content.files 
+                && this.content.files.length <= 1
+            ) 
+        ) {
             return nothing;
         }
 

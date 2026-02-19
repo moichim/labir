@@ -10,8 +10,6 @@ export interface AppWithSelectionController extends AppWithContentController {
 
     selection: SelectionController;
 
-    /** Textual representation of the current selection */
-    selectedFiles?: string;
 }
 
 export type SelectionChangedCallback = ( selectedFiles: FileInfo[] ) => void;
@@ -44,7 +42,11 @@ export class SelectionController implements ReactiveController {
         this.host.addController(this);
     }
 
-    hostConnected(): void {}
+    hostConnected(): void {
+
+        this._onSelectionChange.add( "debug", console.log );
+
+    }
 
     hostDisconnected(): void {}
 
@@ -77,14 +79,6 @@ export class SelectionController implements ReactiveController {
         await Promise.all( promises );
     }
 
-    private propagateSelectionParameter(): void {
-        if ( this._selectedFiles.length === 0 ) {
-            delete this.host.selectedFiles;
-            return;
-        }
-        this.host.selectedFiles = this._selectedFiles.map(f => f.fileName).join(",");
-    }
-
 
 
     /**
@@ -96,7 +90,7 @@ export class SelectionController implements ReactiveController {
         }
         this._selectedFiles = [];
         this._onSelectionChange.call( this._selectedFiles );
-        this.propagateSelectionParameter();
+        this.host.requestUpdate();
     }
 
 
@@ -110,10 +104,30 @@ export class SelectionController implements ReactiveController {
         if ( ! this._selectedFiles.includes( file ) ) {
             this._selectedFiles.push( file );
             this._onSelectionChange.call( this._selectedFiles );
-            this.propagateSelectionParameter();
+            this.host.requestUpdate();
             return true;
         }
         return false;
+    }
+
+    public addMultipleToSelection(
+        files: FileInfo[]
+    ): void {
+
+        let hasChanged = false;
+
+        files.forEach( file => {
+            if ( ! this._selectedFiles.includes( file ) ) {
+                this._selectedFiles.push( file );
+                hasChanged = true;
+            }
+        } );
+
+        if ( hasChanged ) {
+            this._onSelectionChange.call( this._selectedFiles );
+            this.host.requestUpdate();
+        }
+
     }
 
 
@@ -127,7 +141,7 @@ export class SelectionController implements ReactiveController {
         if ( this._selectedFiles.includes( file ) ) {
             this._selectedFiles = this._selectedFiles.filter( f => f !== file );
             this._onSelectionChange.call( this._selectedFiles );
-            this.propagateSelectionParameter();
+            this.host.requestUpdate();
             return true;
         }
         return false;
@@ -141,13 +155,25 @@ export class SelectionController implements ReactiveController {
         element: BaseElement
     ): void {
 
+        console.log( element );
+
         this._onSelectionChange.add(
-            this.UUID, 
+            element.UUID, 
             () => {
                 element.requestUpdate();
             }
         );
 
+    }
+
+    public fileIsSelected(
+        file: FileInfo
+    ): boolean {
+        return this._selectedFiles.includes( file );
+    }
+
+    public getSelectedFiles(): FileInfo[] {
+        return this._selectedFiles;
     }
 
 

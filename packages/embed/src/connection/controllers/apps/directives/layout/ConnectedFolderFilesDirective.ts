@@ -64,6 +64,10 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
         slots.push(this.renderDisplaySlot(app));
 
+        if ( app.selection.array.length > 0 ) {
+            slots.push( slotOrNothing( "file", html`<connected-selection-actions></connected-selection-actions>` ) );
+        }
+
         const content: unknown[] = [
             this.renderBreadcrumb(app),
             html`<connected-folder-header

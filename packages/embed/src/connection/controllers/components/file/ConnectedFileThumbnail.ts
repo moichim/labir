@@ -723,6 +723,8 @@ export class FileThumbnail extends ControlledConsumer {
 
                     <div class="header_actions">
 
+                        <connected-selection-checkbox .file=${this.file}></connected-selection-checkbox>
+
                         ${this.renderActionDetail()}
 
                         <file-range-propagator 

@@ -1,10 +1,11 @@
 import { consume } from "@lit/context";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, SelectionControllerContext } from "../controllerContexts";
 import { ClientController } from "../ClientController";
 import { ContentController } from "../ContentController";
 import { CallbacksManager } from "@labirthermal/core";
 import { DisplayController } from "../DisplayController";
+import { SelectionController } from "../SelectionController";
 
 export abstract class ControlledConsumer extends BaseElement {
 
@@ -17,6 +18,9 @@ export abstract class ControlledConsumer extends BaseElement {
 
     @consume({context: DisplayControllerContext, subscribe: true})
     protected display!: DisplayController;
+
+    @consume({ context: SelectionControllerContext, subscribe: true })
+    protected selection!: SelectionController;
 
 
     disconnectedCallback(): void {
