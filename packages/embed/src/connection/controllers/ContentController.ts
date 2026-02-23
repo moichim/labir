@@ -62,6 +62,7 @@ export class ContentController extends AbstractConnectedController implements Re
     public readonly onGridUpdate: CallbacksManager<( grid?: GetGridDataType ) => void> = new CallbacksManager();
     public readonly onBreadcrumbUpdate: CallbacksManager<( breadcrumb?: BreadcrumbItem[] ) => void> = new CallbacksManager();
     public readonly onTree: CallbacksManager<( tree?: TreeItem[] ) => void> = new CallbacksManager();
+    public readonly onUserFoldersUpdate: CallbacksManager<( userFolders?: FolderInfo[] ) => void> = new CallbacksManager();
 
 
     private _isLoading: boolean = false;
@@ -91,6 +92,7 @@ export class ContentController extends AbstractConnectedController implements Re
             ( identity, userFolders ) => {
 
                 this._userFolders = userFolders || [];
+                this.onUserFoldersUpdate.call( this._userFolders );
                 this.host.requestUpdate();
             
             }
@@ -758,6 +760,7 @@ export class ContentController extends AbstractConnectedController implements Re
         this.onGridUpdate.delete( element.UUID );
         this.onBreadcrumbUpdate.delete( element.UUID );
         this.onTree.delete( element.UUID );
+        this.onUserFoldersUpdate.delete( element.UUID );
     }
 
     public getRegistrySlug(): string {

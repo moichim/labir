@@ -270,6 +270,7 @@ import "./connection/controllers/components/folder/crud/ConnectedFolderContentMo
 import "./connection/controllers/components/file/analysis/ConnectedFileAnalysisButtons";
 import "./connection/controllers/components/selection/ConnectedSelectionCheckbox";
 import "./connection/controllers/components/selection/ConnectedSelectionActions";
+import "./connection/controllers/components/selection/move/ConnectedLocationSelector";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

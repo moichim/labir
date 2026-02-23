@@ -4,9 +4,12 @@ import { FileInfo } from "@labirthermal/server";
 import { CallbacksManager } from "@labirthermal/core";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { AppWithContentController } from "./ContentController";
+import { AppWithDisplayController, DisplayController } from "./DisplayController";
 
 
-export interface AppWithSelectionController extends AppWithContentController {
+export interface AppWithSelectionController extends AppWithDisplayController {
+
+    display: DisplayController;
 
     selection: SelectionController;
 
@@ -44,7 +47,14 @@ export class SelectionController implements ReactiveController {
 
     hostConnected(): void {
 
-        this._onSelectionChange.add( "debug", console.log );
+        
+        // Clear the selection whenever the user navigates to another page
+        this.host.display.onNavigate.add(
+            this.UUID,
+            () => {
+                this.clearSelection();
+            }
+        )
 
     }
 

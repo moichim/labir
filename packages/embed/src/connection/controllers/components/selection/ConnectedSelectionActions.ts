@@ -3,6 +3,7 @@ import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
 
 @customElement("connected-selection-actions")
 export class ConnectedSelectionActions extends ControlledConsumer {
@@ -16,6 +17,7 @@ export class ConnectedSelectionActions extends ControlledConsumer {
     private dialogDeleteRef: Ref<ThermalDialog> = createRef();
     private dialogSaveAnalysesRef: Ref<ThermalDialog> = createRef();
     private dialogClearAnalysesRef: Ref<ThermalDialog> = createRef();
+    private dialogMoveRef: Ref<ConnectedLocationSelector> = createRef();
 
 
     connectedCallback(): void {
@@ -66,35 +68,7 @@ export class ConnectedSelectionActions extends ControlledConsumer {
 
     }
 
-    private renderDropdownSelection(): unknown {
-
-        return html`<thermal-dropdown
-            variant="primary"
-        >
-            ${this.renderTrigger()}
-            ${this.renderOptionClear()}
-            ${this.renderOptionAll()}
-        </thermal-dropdown>`;
-
-    }
-
-    private renderArrow(): unknown {
-
-        return html`<thermal-icon icon="right" variant="micro"></thermal-icon>`;
-
-    }
-
-    private renderDropdownActions(): unknown {
-
-        return html`<thermal-dropdown
-            variant="foreground"
-        >
-            <span slot="invoker">Zvolte akci</span>
-            ${this.renderOptionDelete()}
-            ${this.renderOptionClearAnalyses()}
-        </thermal-dropdown>`;
-
-    }
+    
 
     private renderOptionDelete(): unknown {
 
@@ -242,6 +216,35 @@ export class ConnectedSelectionActions extends ControlledConsumer {
 
     }
 
+    private renderOptionMove(): unknown {
+
+        return html`<thermal-btn
+            slot="option"
+            @click=${() => {
+                this.dialogMoveRef.value?.openDialogue();
+            }}
+        >Přesunout</thermal-btn>`;
+
+    }
+
+
+    private renderDialogMove(): unknown {
+        return html`<connected-location-selector
+            .asDialogue=${true}
+            ${ ref( this.dialogMoveRef )}
+            mode="file"
+            dialogTitle="Přesunout vybrané soubory"
+            operationLabel="Přesunout sem"
+            .onSelect=${( path: string ) => {
+
+                this.log( "Teď bych měl přesunout soubory do cesty:" + path );
+                this.client.api.routes.post
+
+            }}
+        >
+        </connected-location-selector>`;
+    }
+
 
     static styles?: CSSResultGroup | undefined = css`
     
@@ -275,10 +278,43 @@ export class ConnectedSelectionActions extends ControlledConsumer {
     
     `;
 
+
+    private renderDropdownSelection(): unknown {
+
+        return html`<thermal-dropdown
+            variant="primary"
+        >
+            ${this.renderTrigger()}
+            ${this.renderOptionClear()}
+            ${this.renderOptionAll()}
+        </thermal-dropdown>`;
+
+    }
+
+    private renderArrow(): unknown {
+
+        return html`<thermal-icon icon="right" variant="micro"></thermal-icon>`;
+
+    }
+
+    private renderDropdownActions(): unknown {
+
+        return html`<thermal-dropdown
+            variant="foreground"
+        >
+            <span slot="invoker">Zvolte akci</span>
+            ${this.renderOptionDelete()}
+            ${this.renderOptionClearAnalyses()}
+            ${this.renderOptionMove()}
+        </thermal-dropdown>`;
+
+    }
+
     private renderDalogs(): unknown {
         return [
             this.renderDialogDelete(),
-            this.renderDialogClearAnalyses()
+            this.renderDialogClearAnalyses(),
+            this.renderDialogMove()
         ];
     }
 

@@ -101,7 +101,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     private readonly onDisplayCommentsUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
-    private readonly onNavigate: CallbacksManager<() => void> = new CallbacksManager();
+    public readonly onNavigate: CallbacksManager<() => void> = new CallbacksManager();
 
     private readonly onArbitraryContentUpdate: CallbacksManager<() => void> = new CallbacksManager();
 
