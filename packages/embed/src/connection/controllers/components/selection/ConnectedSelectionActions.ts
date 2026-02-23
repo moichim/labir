@@ -235,10 +235,26 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             mode="file"
             dialogTitle="Přesunout vybrané soubory"
             operationLabel="Přesunout sem"
-            .onSelect=${( path: string ) => {
+            .onSelect=${async ( path: string ) => {
+                
 
-                this.log( "Teď bych měl přesunout soubory do cesty:" + path );
-                this.client.api.routes.post
+                await this.selection.forEverySelectedAsync( async( file ) => {
+
+                    const result = await this.client.api.routes.post.moveFile(
+                        file.path,
+                        file.fileName,
+                        path
+                    ).execute();
+
+                    this.log( result );
+
+                    this.log( `Přesouvám ${file.fileName} z ${file.path} do ${path}. Výsledek: ${result.success}` );
+
+                } );
+
+                this.dialogMoveRef.value?.closeDialogue();
+
+                this.display.navigateToFolderAndLoad( path );
 
             }}
         >

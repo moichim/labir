@@ -12,6 +12,7 @@ import { MoveFolder } from "../post/MoveFolder";
 import { UpdateFile } from "../post/UpdateFile";
 import { UpdateFolder } from "../post/UpdateFolder";
 import { UploadFile } from "../post/UploadFile";
+import { MoveFile } from "../post/MoveFile";
 
 export class PostRoutesFactory {
 
@@ -148,6 +149,18 @@ export class PostRoutesFactory {
             .setPath(folderPath)
             .setFile( fileName )
             .init();
+    }
+
+    public moveFile(
+        folderPath: string,
+        fileName: string,
+        target: string
+    ): MoveFile {
+        return (new MoveFile(this.client))
+            .init()
+            .setPath(folderPath)
+            .setFile(fileName)
+            .setTarget(target);
     }
 
 }

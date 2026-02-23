@@ -620,6 +620,76 @@ final class Folder
     }
 
     /**
+     * Přesune soubor mezi složkami.
+     * Ověří existenci obou složek, práva uživatele a kolize jmen.
+     * Vrací pole s informacemi o novém umístění.
+     */
+    public function moveFile(string $path, string $fileName, string $targetParentSlug): array
+    {
+        // source file path
+        $fullPath = $this->scanner->getFullPath(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $fileName);
+        if (!is_file($fullPath)) {
+            throw new Exception("File '$fileName' not found in folder '$path'", 404);
+        }
+
+        // target folder existence
+        $targetParentPath = $this->scanner->getFullPath($targetParentSlug);
+        if (!is_dir($targetParentPath)) {
+            throw new Exception("Target parent folder '$targetParentSlug' does not exist", 404);
+        }
+
+        // permission: must manage files in both source and target
+        $identity = $this->scanner->authorisation->getIdentity();
+        $user = $identity ? $identity["user"] : null;
+        if (!$this->scanner->access->userMayManageFilesIn($path, $user)) {
+            throw new Exception("You do not have write access to this folder", 403);
+        }
+        if (!$this->scanner->access->userMayManageFilesIn($targetParentSlug, $user)) {
+            throw new Exception("You do not have write access to the target parent folder", 403);
+        }
+
+        // check target folder allows files
+        $access = $this->scanner->access->getFolderAccess($targetParentSlug);
+        if (empty($access['may_have_files'])) {
+            throw new Exception("Target folder does not allow files", 400);
+        }
+
+        // calculate new file name and path
+        $newPath = $targetParentPath . DIRECTORY_SEPARATOR . basename($fileName);
+        if (is_file($newPath)) {
+            throw new Exception("Target file '" . basename($fileName) . "' already exists", 409);
+        }
+
+        // also move associated json and any visuals
+        if (!@rename($fullPath, $newPath)) {
+            throw new Exception("Failed to move file", 500);
+        }
+
+        // move json if exists
+        $oldJson = preg_replace('/\.lrc$/i', '.json', $fullPath);
+        $newJson = preg_replace('/\.lrc$/i', '.json', $newPath);
+        if (is_file($oldJson)) {
+            @rename($oldJson, $newJson);
+        }
+
+        // move visual/preview images sharing same basename pattern
+        $base = preg_replace('/\.lrc$/i', '', basename($fileName));
+        $pattern = $this->scanner->getFullPath($path . DIRECTORY_SEPARATOR . $base) . '*.{png,jpg,jpeg}';
+        foreach (glob($pattern, GLOB_BRACE) as $img) {
+            $dest = $targetParentPath . DIRECTORY_SEPARATOR . basename($img);
+            @rename($img, $dest);
+        }
+
+        // return info
+        return [
+            'oldPath' => $path . DIRECTORY_SEPARATOR . $fileName,
+            'newPath' => rtrim($targetParentSlug, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $fileName,
+            'file' => $this->getFile($targetParentSlug, $fileName)?->getInfo(),
+            'moved' => true,
+        ];
+    }
+
+    /**
      * Validuje strukturu tagů, vrací pouze validní tagy
      */
     protected function filterValidTags($tags): array

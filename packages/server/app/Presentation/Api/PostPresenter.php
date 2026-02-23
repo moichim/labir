@@ -368,6 +368,43 @@ final class PostPresenter extends BaseApiPresenter
     }
 
     /**
+     * Přesune soubor do jiné složky.
+     * POST {cesta}?action=movefile&file={soubor}
+     * Body: { target: string }         // cesta k cílové složce
+     * Přístup: uživatel musí mít právo mazat soubory ve zdrojové složce
+     *          a právo zapisovat do cílové složky.
+     */
+    public function actionMovefile(string $path, string $file): void
+    {
+        if (!$path || !$file) {
+            throw new Exception('Missing or invalid path or file parameter.', 400);
+        }
+
+        $request = $this->getHttpRequest();
+        $requestData = $request->getRawBody();
+        if (!is_string($requestData) || strlen($requestData) === 0) {
+            throw new Exception('Invalid request body format. Expected JSON string.', 400);
+        }
+
+        $data = json_decode($requestData, true);
+        if (!is_array($data) || !isset($data['target']) || !is_string($data['target'])) {
+            throw new Exception('Missing or invalid target folder.', 400);
+        }
+        $targetParent = $data['target'];
+
+        $result = $this->scanner->folder->moveFile($path, $file, $targetParent);
+        $this->storeData('result', $result);
+        $this->markSuccess(
+            $this->formatMessage(
+                "File '%s' moved successfully to '%s'.",
+                $file,
+                $targetParent
+            )
+        );
+        $this->respond();
+    }
+
+    /**
      * Přidá komentář k souboru.
      * Přidá komentář k souboru.
      * 

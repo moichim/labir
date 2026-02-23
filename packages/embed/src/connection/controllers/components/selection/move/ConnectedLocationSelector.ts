@@ -67,6 +67,12 @@ export class ConnectedLocationSelector extends ControlledConsumer {
 
     }
 
+    public closeDialogue(): void {
+        if (  this.asDialogue && this.dialogRef.value ) {
+            this.dialogRef.value.setClose();
+        }
+    }
+
     connectedCallback(): void {
         super.connectedCallback();
         this.client.subscribeToIdentityChanges( this );

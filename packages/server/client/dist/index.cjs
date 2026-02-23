@@ -904,6 +904,23 @@ var UploadFile = class extends OperationWithPath {
   }
 };
 
+// client/src/routes/post/MoveFile.ts
+var MoveFile = class extends OperationWithFile {
+  init() {
+    this.request.setMethod("POST");
+    this.request.setAction("movefile");
+    return this;
+  }
+  setTarget(target) {
+    this.request.addBodyParameter("target", target);
+    return this;
+  }
+  async execute() {
+    const response = await this.client.fetch(this.request);
+    return response;
+  }
+};
+
 // client/src/routes/factories/PostRoutesFactory.ts
 var PostRoutesFactory = class {
   constructor(client) {
@@ -947,6 +964,9 @@ var PostRoutesFactory = class {
   }
   deleteFile(folderPath, fileName) {
     return new DeleteFile(this.client).setPath(folderPath).setFile(fileName).init();
+  }
+  moveFile(folderPath, fileName, target) {
+    return new MoveFile(this.client).init().setPath(folderPath).setFile(fileName).setTarget(target);
   }
 };
 

@@ -696,6 +696,13 @@ declare class UploadFile extends OperationWithPath<UploadFileDataType> {
     execute(): Promise<ApiResponseType<UploadFileDataType>>;
 }
 
+type MoveFileDataType = object;
+declare class MoveFile extends OperationWithFile<MoveFileDataType> {
+    init(): this;
+    setTarget(target: string): this;
+    execute(): Promise<ApiResponseType<MoveFileDataType>>;
+}
+
 declare class PostRoutesFactory {
     protected readonly client: Client;
     constructor(client: Client);
@@ -716,6 +723,7 @@ declare class PostRoutesFactory {
     fileDeleteComment(folderPath: string, filename: string, timestamp: number): FileDeleteComment;
     deleteFolder(folderPath: string): DeleteFolder;
     deleteFile(folderPath: string, fileName: string): DeleteFile;
+    moveFile(folderPath: string, fileName: string, target: string): MoveFile;
 }
 
 declare class Routes {
