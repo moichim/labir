@@ -191,6 +191,21 @@ export class FileThumbnail extends ControlledConsumer {
         `;
     }
 
+    protected renderSelectBox(): unknown {
+
+        if ( 
+            this.client.isLoggedIn === false 
+            || ! this.content.folder?.may_manage_files_in
+        ) {
+            return nothing;
+        }
+
+        return html`<connected-selection-checkbox 
+            .file=${this.file}
+        ></connected-selection-checkbox>`;
+
+    }
+
 
     protected renderActionDetail(): unknown {
 
@@ -723,7 +738,7 @@ export class FileThumbnail extends ControlledConsumer {
 
                     <div class="header_actions">
 
-                        <connected-selection-checkbox .file=${this.file}></connected-selection-checkbox>
+                        ${this.renderSelectBox()}
 
                         ${this.renderActionDetail()}
 

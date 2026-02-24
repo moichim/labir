@@ -36,7 +36,7 @@ class UserFoldersDirective extends AbstractLayoutDirective {
 
         const list: unknown[] = [];
 
-        app.content.userFolders.forEach( folder => {
+        app.content.userFolders.sort( (a, b) => a.name.localeCompare(b.name) ).forEach( folder => {
             list.push( html`<server-folder-thumbnail
                 .folder=${folder}
                 @click=${ () => app.display.navigateToFolderAndLoad( folder.path ) }

@@ -408,11 +408,18 @@ export class ConnectedLocationSelector extends ControlledConsumer {
 
         }
 
+        const fileCount = this._currentFolderInfo?.lrc_count ?? 0;
+
+        const fileCountHtml = fileCount > 0
+            ? html`<div>${fileCount} soubor${ fileCount === 1 ? "" : "ů" }</div>`
+            : nothing;
+
 
         return html`<div class="poster">
         
             <div>Cílová složka:</div>
             <div><strong>${folderName}</strong></div>
+            ${fileCountHtml}
             <div>${label}</div>
         
         </div>`;

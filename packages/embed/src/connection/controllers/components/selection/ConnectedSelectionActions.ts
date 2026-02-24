@@ -221,6 +221,7 @@ export class ConnectedSelectionActions extends ControlledConsumer {
         return html`<thermal-btn
             slot="option"
             @click=${() => {
+                this.log( this.dialogMoveRef.value );
                 this.dialogMoveRef.value?.openDialogue();
             }}
         >Přesunout</thermal-btn>`;

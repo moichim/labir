@@ -27,6 +27,8 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
                 .label=${undefined}
             ></connected-file-edit-dialog>` );
 
+            fileOperations.push( html`<connected-file-move-dialog .file=${app.content.file}></connected-file-move-dialog>` );
+
             fileOperations.push(html`<connected-file-delete-dialog
                 .file=${app.content.file}
                 .folder=${app.content.folder}
