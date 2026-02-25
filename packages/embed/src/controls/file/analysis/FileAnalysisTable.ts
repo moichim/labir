@@ -164,7 +164,7 @@ export class FileAnalysisTable extends FileConsumer {
                 color: var( --thermal-primary );
             }
 
-            u, b, span {
+            u, b, span, thermal-btn {
                 display: inline-block;
             }
 

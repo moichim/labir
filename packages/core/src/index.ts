@@ -9,6 +9,9 @@ export { CallbacksManager } from "./properties/callbacksManager";
 // Pool related exports
 export { getPool } from "./utils/pool";
 
+// Reexporting external libraries
+export  * as zip from "zip-slim"
+
 // Core hierarchy classes
 
 // Manager

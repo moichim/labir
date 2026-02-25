@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalGroup } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalGroup } from "@labirthermal/core";
 import { BreadcrumbItem, FileInfo, FolderInfo } from "@labirthermal/server";
 import { provide } from "@lit/context";
 import { t } from "i18next";
@@ -31,7 +31,7 @@ export abstract class AppWithRender extends AppWithContent {
     public labelVariant?: string;
 
     @property({ type: String, reflect: true })
-    public palette?: AvailableThermalPalettes;
+    public palette?: AvailableThermalPalette;
 
     @property({ type: Number, reflect: true })
     public from?: number;
@@ -113,7 +113,7 @@ export abstract class AppWithRender extends AppWithContent {
             const registry = this.registryElement.value.registry;
 
             registry.manager.palette.addListener(this.UUIDContent, (palette) => {
-                this.palette = palette as unknown as AvailableThermalPalettes;
+                this.palette = palette as unknown as AvailableThermalPalette;
                 this.requestUpdate();
             });
 
@@ -466,15 +466,6 @@ ${this.renderBreadcrumb()}
                                 size="md"
                                 showLabel="true"
                             ></file-delete-dialog>
-
-                            <!--
-                            <file-store-thumbnail
-                                size="md"
-                                variant="default"
-                                .folder=${this.folder}
-                                tooltip="Uložit aktuální zobrazení jako náhledový obrázek pro složku '${this.folder.name ?? this.folder.slug}'."
-                            ></file-store-thumbnail>
-                            -->
                             
                         `
                 : nothing

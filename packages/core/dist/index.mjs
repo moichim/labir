@@ -24,6 +24,9 @@ var getPool = async () => {
   return pool2;
 };
 
+// src/index.ts
+import * as zip2 from "zip-slim";
+
 // src/hierarchy/ThermalManager.ts
 import * as workerpool2 from "workerpool";
 
@@ -8639,5 +8642,6 @@ export {
   getPool,
   playbackSpeed,
   supportedFileTypes,
-  supportedFileTypesInputProperty
+  supportedFileTypesInputProperty,
+  zip2 as zip
 };

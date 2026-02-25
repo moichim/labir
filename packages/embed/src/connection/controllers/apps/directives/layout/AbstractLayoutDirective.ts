@@ -1,6 +1,6 @@
 import { BreadcrumbItem } from "@labirthermal/server";
 import { css, html, nothing } from "lit";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractConnectedDirective } from "../AbstractConnectedDirective";
 
 export abstract class AbstractLayoutDirective extends AbstractConnectedDirective {
@@ -84,7 +84,7 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
     `;
 
     protected renderBreadcrumb(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         return html`<connected-breadcrumb 

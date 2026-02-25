@@ -233,7 +233,6 @@ import "./connection/components/file/ServerFileHeader";
 import "./connection/components/user/UserFolders";
 
 import "./connection/components/file/FileAnalysesRemoveButton";
-import "./connection/components/file/FileStoreAsFolderThumbnailBtn";
 
 import "./connection/components/server/ShareDialog";
 
@@ -272,6 +271,7 @@ import "./connection/controllers/components/selection/ConnectedSelectionCheckbox
 import "./connection/controllers/components/selection/ConnectedSelectionActions";
 import "./connection/controllers/components/selection/move/ConnectedLocationSelector";
 import "./connection/controllers/components/file/ConnectedFileMoveDialog";
+import "./connection/controllers/components/folder/crud/ConnectedFolderMoveDialog";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

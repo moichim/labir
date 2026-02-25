@@ -1,5 +1,5 @@
 import { html, nothing } from "lit";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { BreadcrumbItem } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
@@ -16,7 +16,7 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
 
 
     private renderFolderHeader(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if ( ! app.content.folder ) {
@@ -45,7 +45,7 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
     }
 
     private renderSubfolders(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if ( 
@@ -73,7 +73,7 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
     }
 
     
-    render(app: ConnectedAppBase): unknown {
+    render(app: AbstractConnectedApp): unknown {
 
         if ( app.client.isLoading ) {
             return nothing;

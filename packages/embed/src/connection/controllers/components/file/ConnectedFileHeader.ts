@@ -1,11 +1,17 @@
 import { TimeFormat } from "@labirthermal/core";
-import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 
 @customElement("connected-file-header")
 export class ConnectedFileHeader extends ControlledConsumer {
+
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.content.subscribeToFileUpdates(this);
+        this.content.subscribeToFolderUpdates(this);
+        this.client.subscribeToIdentityChanges(this);
+    }
 
     public static styles?: CSSResultGroup | undefined = css`
 :host {
@@ -122,11 +128,11 @@ thermal-icon {
 
     protected renderColophon(): unknown {
 
-        if ( this.content.file === undefined ) {
+        if (this.content.file === undefined) {
             return nothing;
         }
 
-        const uploaded = TimeFormat.human( this.content.file.uploaded );
+        const uploaded = TimeFormat.human(this.content.file.uploaded);
 
         return html`<div class="colophon small slate">
     <thermal-btn 
@@ -138,47 +144,47 @@ thermal-icon {
     >${uploaded}</thermal-btn>
 
     ${this.content.file.uploadedby
-        ? html`<thermal-btn 
+                ? html`<thermal-btn 
                 variant="text"
                 tooltip="Nahráno uživatelem"
                 icon="user"
                 iconStyle="micro"
                 interactive="false"
             >${this.content.file.uploadedby.name}</thermal-btn>`
-        : nothing }
+                : nothing}
 </div>`;
 
     }
 
     protected renderUpButton(): unknown {
 
-        if ( !this.content.folder ) {
+        if (!this.content.folder) {
             return nothing;
         }
-    
+
         return html`<thermal-btn 
     variant="background" 
     @click=${() => {
-        if ( this.content.folder !== undefined ) {
-            this.display.navigateToFolderAndLoad( this.content.folder.path )
-        };
-    }} 
+                if (this.content.folder !== undefined) {
+                    this.display.navigateToFolderAndLoad(this.content.folder.path)
+                };
+            }} 
     icon="close" 
     iconStyle="outline" 
     size="xl"
     tooltip="Zpět do složky '${this.content.folder.name}'."
 ></thermal-btn>`;
-    
-    
-        }
+
+
+    }
 
     protected render(): unknown {
 
-        if ( this.content.file === undefined ) {
+        if (this.content.file === undefined) {
             return nothing;
         }
 
-        const time = TimeFormat.human( this.content.file.timestamp );
+        const time = TimeFormat.human(this.content.file.timestamp);
 
         return html`
 
@@ -195,8 +201,8 @@ ${this.renderUpButton()}
 
     <div class="label-info">
         ${this.content.file.label
-            ? html`<h1>${this.content.file.label}</h1>`
-            : nothing }
+                ? html`<h1>${this.content.file.label}</h1>`
+                : nothing}
         ${this.content.file.description ? html`<div class="small slate">${this.content.file.description}</div>` : nothing}
     </div>
 

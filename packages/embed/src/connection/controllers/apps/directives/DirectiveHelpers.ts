@@ -45,7 +45,7 @@ export class DirectiveHelpers {
             return true;
         }
 
-        return folder.may_manage_folders_in;
+        return folder.may_manage_folders_in || folder.may_manage_files_in;
 
     }
 

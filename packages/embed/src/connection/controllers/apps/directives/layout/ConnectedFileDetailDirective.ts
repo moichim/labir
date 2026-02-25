@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { FolderInfo } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
@@ -10,7 +10,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
 
     private renderFileHeaderFileSlot(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if (app.content.folder === undefined) {
@@ -50,7 +50,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
 
     private renderFileHeader(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const slots = [
@@ -125,7 +125,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
 
     private renderFileDetailContent(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const content: unknown[] = [
@@ -169,7 +169,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
 
 
-    render(app: ConnectedAppBase): unknown {
+    render(app: AbstractConnectedApp): unknown {
 
         if (
             app.content.folder === undefined

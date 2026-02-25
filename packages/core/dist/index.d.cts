@@ -1,5 +1,7 @@
 import * as Pool from 'workerpool/types/Pool';
 import Pool__default from 'workerpool/types/Pool';
+import * as zipSlim from 'zip-slim';
+export { zipSlim as zip };
 
 /**
  * Manage callbacks on optional property values

@@ -202,7 +202,6 @@ export class ThermalDropdown extends BaseElement {
 
         slot[name="option"]::slotted(*) {
 
-            display: block;
             width: 100%;
 
             margin-top: 5px;

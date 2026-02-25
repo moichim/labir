@@ -1,47 +1,45 @@
-import { ReactiveController } from "lit";
-import { AppWithClientController } from "./ClientController";
-import { FileInfo } from "@labirthermal/server";
 import { CallbacksManager } from "@labirthermal/core";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
+import { ReactiveController } from "lit";
 import { BaseElement } from "../../hierarchy/BaseElement";
-import { AppWithContentController } from "./ContentController";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";
 
 
-export interface AppWithSelectionController extends AppWithDisplayController {
+export interface AppWithFolderSelectionController extends AppWithDisplayController {
 
     display: DisplayController;
 
-    selection: SelectionController;
+    folderSelection: FolderSelectionController;
 
 }
 
-export type SelectionChangedCallback = ( selectedFiles: FileInfo[] ) => void;
+export type FolderSelectionChangedCallback = ( selectedFiles: FolderInfo[] ) => void;
 
 
 /** Controls the selection inside the current app*/
-export class SelectionController implements ReactiveController {
+export class FolderSelectionController implements ReactiveController {
 
-    host: AppWithSelectionController;
+    host: AppWithFolderSelectionController;
 
     /** Unique identifier for the listeners */
     private UUID: string;
 
     /** Internal container for selection */
-    private _selectedFiles: FileInfo[] = [];
+    private _selectedFolders: FolderInfo[] = [];
 
     /** Dynamically converted upon every call - created from the _selectedFiles Set */
-    public get array(): FileInfo[] {
-        return Array.from(this._selectedFiles);
+    public get array(): FolderInfo[] {
+        return Array.from(this._selectedFolders);
     }
 
     /** Callback called when the selection changes */
-    private _onSelectionChange: CallbacksManager<SelectionChangedCallback> = new CallbacksManager();
+    private _onSelectionChange: CallbacksManager<FolderSelectionChangedCallback> = new CallbacksManager();
 
     constructor(
-        host: AppWithSelectionController
+        host: AppWithFolderSelectionController
     ) {
         this.host = host;
-        this.UUID = host.UUID + "__selection_controller";
+        this.UUID = host.UUID + "__folder_selection_controller";
         this.host.addController(this);
     }
 
@@ -69,10 +67,10 @@ export class SelectionController implements ReactiveController {
      * Iterate over every selected file synchronously
      */
     public forEverySelectedSync(
-        callback: ( file: FileInfo ) => void
+        callback: ( folder: FolderInfo ) => void
     ): void {
-        this._selectedFiles.forEach( file => {
-            callback( file );
+        this._selectedFolders.forEach( folder => {
+            callback( folder );
         } );
     }
 
@@ -81,10 +79,10 @@ export class SelectionController implements ReactiveController {
      * Iterate over every selected file asynchronously using `Promise.all()s`
      */
     public async forEverySelectedAsync(
-        callback: ( file: FileInfo ) => Promise<void>
+        callback: ( folder: FolderInfo ) => Promise<void>
     ): Promise<void> {
-        const promises = this._selectedFiles.map( file => {
-            return callback( file );
+        const promises = this._selectedFolders.map( folder => {
+            return callback( folder );
         } );
         await Promise.all( promises );
     }
@@ -95,11 +93,11 @@ export class SelectionController implements ReactiveController {
      * Clear the current selection
      */
     public clearSelection(): void {
-        if ( this._selectedFiles.length === 0 ) {
+        if ( this._selectedFolders.length === 0 ) {
             return;
         }
-        this._selectedFiles = [];
-        this._onSelectionChange.call( this._selectedFiles );
+        this._selectedFolders = [];
+        this._onSelectionChange.call( this._selectedFolders );
         this.host.requestUpdate();
     }
 
@@ -109,11 +107,11 @@ export class SelectionController implements ReactiveController {
      * @return boolean Whether the file was added
      */
     public addToSelection(
-        file: FileInfo
+        folder: FolderInfo
     ): boolean {
-        if ( ! this._selectedFiles.includes( file ) ) {
-            this._selectedFiles.push( file );
-            this._onSelectionChange.call( this._selectedFiles );
+        if ( ! this._selectedFolders.includes( folder ) ) {
+            this._selectedFolders.push( folder );
+            this._onSelectionChange.call( this._selectedFolders );
             this.host.requestUpdate();
             return true;
         }
@@ -121,20 +119,20 @@ export class SelectionController implements ReactiveController {
     }
 
     public addMultipleToSelection(
-        files: FileInfo[]
+        folders: FolderInfo[]
     ): void {
 
         let hasChanged = false;
 
-        files.forEach( file => {
-            if ( ! this._selectedFiles.includes( file ) ) {
-                this._selectedFiles.push( file );
+        folders.forEach( folder => {
+            if ( ! this._selectedFolders.includes( folder ) ) {
+                this._selectedFolders.push( folder );
                 hasChanged = true;
             }
         } );
 
         if ( hasChanged ) {
-            this._onSelectionChange.call( this._selectedFiles );
+            this._onSelectionChange.call( this._selectedFolders );
             this.host.requestUpdate();
         }
 
@@ -142,15 +140,15 @@ export class SelectionController implements ReactiveController {
 
 
     /**
-     * Remove the file from the current selection
-     * @return boolean Whether the file was removed
+     * Remove the folder from the current selection
+     * @return boolean Whether the folder was removed
      */
     public removeFromSelection(
-        file: FileInfo
+        folder: FolderInfo
     ): boolean {
-        if ( this._selectedFiles.includes( file ) ) {
-            this._selectedFiles = this._selectedFiles.filter( f => f !== file );
-            this._onSelectionChange.call( this._selectedFiles );
+        if ( this._selectedFolders.includes( folder ) ) {
+            this._selectedFolders = this._selectedFolders.filter( f => f !== folder );
+            this._onSelectionChange.call( this._selectedFolders );
             this.host.requestUpdate();
             return true;
         }
@@ -176,14 +174,14 @@ export class SelectionController implements ReactiveController {
 
     }
 
-    public fileIsSelected(
-        file: FileInfo
+    public folderIsSelected(
+        folder: FolderInfo
     ): boolean {
-        return this._selectedFiles.includes( file );
+        return this._selectedFolders.includes( folder );
     }
 
-    public getSelectedFiles(): FileInfo[] {
-        return this._selectedFiles;
+    public getSelectedFiles(): FolderInfo[] {
+        return this._selectedFolders;
     }
 
 

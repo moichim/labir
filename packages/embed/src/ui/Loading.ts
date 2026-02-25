@@ -79,12 +79,10 @@ export class Loading extends BaseElement {
             }
         }
 
+        content.push( html`<slot></slot>` );
+
         return content;
 
-
-        return html`
-            <thermal-spinner message=${this.message} style="display: block"></thermal-spinner>
-        `;
     }
 
 

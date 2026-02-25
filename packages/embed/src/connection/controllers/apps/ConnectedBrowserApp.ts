@@ -1,22 +1,19 @@
 import { ThermalManager } from "@labirthermal/core";
-import { BreadcrumbItem, FolderInfo, Identity } from "@labirthermal/server";
+import { Identity } from "@labirthermal/server";
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { cache } from "lit/directives/cache.js";
 import { createRef } from "lit/directives/ref.js";
-import { T } from "packages/embed/src/translations/Languages";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
-import { ConnectedAppBase } from "../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../abstraction/ConnectedAppBase";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
 import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
 import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
+import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDirective";
 import { connectedFolderSubfolders } from "./directives/layout/ConnectedFolderSubfoldersDirective";
 import { userFolders } from "./directives/layout/UserFoldersDirective";
-import { connectedFolderGrid } from "./directives/layout/ConnectedFolderGridDirective";
-import { DisplayModeElement } from "../../components/folder/configuration/DisplayMode";
 
 @customElement("connected-browser-app")
-export class ControllerApp extends ConnectedAppBase {
+export class ControllerApp extends AbstractConnectedApp {
 
     private managerProviderRef = createRef<ManagerProviderElement>();
 
@@ -36,6 +33,7 @@ export class ControllerApp extends ConnectedAppBase {
 
     protected renderStateLogin(): unknown {
         return this.renderAppWithInternals(html`<connected-login-form
+            style="max-width: 400px; margin: 2em auto; display: block;"
             .onLoginSuccess=${(identity: Identity) => {
                 this.log("Tohle je login", identity);
                 this.display.reloadCurrentState();
@@ -133,6 +131,30 @@ export class ControllerApp extends ConnectedAppBase {
 
     }
 
+    private renderErrorState(): unknown {
+
+        let content: unknown = nothing;
+
+        if ( this.client.isLoggedIn ) {
+            content = html`<thermal-btn
+                @click=${() => this.display.navigateToUserFoldersAndLoad()}
+                icon="right"
+                iconStyle="outline"
+                variant="primary"
+            >Složky uživatele '${this.client.identity?.meta.name}'</thermal-btn>`;
+        }
+
+        return this.renderAppWithInternals(html`<thermal-poster
+            .message=${this.display.arbitraryContent}
+            .loading=${false}
+            icon="warning"
+            iconStyle="outline"
+        >
+            ${content}
+        </thermal-poster>`);
+
+    }
+
 
 
     protected render(): unknown {
@@ -148,9 +170,7 @@ export class ControllerApp extends ConnectedAppBase {
                 case DisplayState.ARBITRARY: return this.renderAppWithInternals(html`<thermal-poster
                     .message=${this.display.arbitraryContent}
                 ></thermal-poster>`);
-                case DisplayState.ERROR: return this.renderAppWithInternals(html`<thermal-error
-                    .message=${this.display.arbitraryContent}
-                ></thermal-error>`);
+                case DisplayState.ERROR: return this.renderErrorState();
                 default: return this.renderAppWithInternals(html`<thermal-poster
                     .message=${this.display.arbitraryContent}
                 ></thermal-poster>`);;

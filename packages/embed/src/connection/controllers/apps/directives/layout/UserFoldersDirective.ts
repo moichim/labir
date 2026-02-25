@@ -1,5 +1,5 @@
 import { directive } from "lit/directive.js";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { Identity } from "@labirthermal/server";
 import { html } from "lit";
@@ -29,7 +29,7 @@ class UserFoldersDirective extends AbstractLayoutDirective {
     }
 
     render(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const inner: unknown[] = [];

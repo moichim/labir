@@ -2,7 +2,8 @@ import { createContext } from "@lit/context";
 import { ClientController } from "./ClientController";
 import { ContentController } from "./ContentController";
 import { DisplayController } from "./DisplayController";
-import { SelectionController } from "./SelectionController";
+import { FileSelectionController } from "./FileSelectionController";
+import { FolderSelectionController } from "./FolderSelectionController";
 
 export const ControlledClientContext = createContext<ClientController>("controlled-client-controller");
 
@@ -10,4 +11,6 @@ export const ControlledContentContext = createContext<ContentController>("contro
 
 export const DisplayControllerContext = createContext<DisplayController>("connected-display-controller");
 
-export const SelectionControllerContext = createContext<SelectionController>("connected-selection-controller");
+export const FileSelectionControllerContext = createContext<FileSelectionController>("connected-file-selection-controller");
+
+export const FolderSelectionControllerContext = createContext<FolderSelectionController>("connected-folder-selection-controller");

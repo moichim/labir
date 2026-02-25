@@ -125,6 +125,11 @@ export class DisplayController extends AbstractConnectedController implements Re
             }
         );
 
+        this.host.content.onError.set( DisplayController.LISTENER_ID, ( error ) => {
+            console.log(  "Chyba při načítání obsahu:", error );
+            this.navigateToErrorState( error );
+        } );
+
     }
 
     hostDisconnected(): void { }

@@ -6,12 +6,12 @@ import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } fr
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { FolderInfo } from "packages/server/client/dist";
-import { FileProviderElement } from "../../../../hierarchy/providers/FileProvider";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
+import { FileProviderElement } from "../../../../hierarchy/providers/FileProvider";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 import icons from "../../../../utils/icons";
-import { compactContext, DisplayMode, displayModeContext, editTagsContext, showDiscussionContext, syncAnalysisContext } from "../../../ClientContext";
+import { syncAnalysisContext } from "../../../ClientContext";
 
 import { ifDefined } from "lit/directives/if-defined.js";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
@@ -196,13 +196,16 @@ export class FileThumbnail extends ControlledConsumer {
         if ( 
             this.client.isLoggedIn === false 
             || ! this.content.folder?.may_manage_files_in
+            || (
+                this.content.files
+                && this.content.files.length <= 1 )
         ) {
             return nothing;
         }
 
-        return html`<connected-selection-checkbox 
+        return html`<connected-file-selection-checkbox 
             .file=${this.file}
-        ></connected-selection-checkbox>`;
+        ></connected-file-selection-checkbox>`;
 
     }
 
@@ -225,12 +228,14 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
+        const variant = this.compact && this.displayMode === FileListDisplayMode.GRID ? "default" : "background";
+
         return html`<connected-file-edit-dialog
             .file=${this.file}
             .folder=${this.folder}
             label=""
             plain="true"
-            variant="background"
+            variant=${variant}
             size="sm"
         ></connected-file-edit-dialog>`;
 
@@ -239,6 +244,10 @@ export class FileThumbnail extends ControlledConsumer {
     protected renderActionComments(): unknown {
 
         if (this.file.comments.length > 0 || (this.client.isLoggedIn && this.folder.may_manage_files_in)) {
+
+
+            const variant = this.compact && this.displayMode === FileListDisplayMode.GRID ? "default" : "background";
+
             return html`
             <thermal-dialog
                 label="${t(T.comments)}"
@@ -247,7 +256,7 @@ export class FileThumbnail extends ControlledConsumer {
                 <thermal-btn 
                     slot="invoker"
                     size="sm"
-                    variant="background"
+                    variant=${variant}
                     icon="comment"
                     iconStyle="micro"
                     plain="true"
@@ -273,13 +282,15 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
+        const variant = this.compact && this.displayMode === FileListDisplayMode.GRID ? "default" : "background";
+
         return html`<connected-file-delete-dialog 
             .file=${this.file}
             .folder=${this.folder}
             .onDelete=${this.onFileDelete}
             label=""
             plain="true"
-            variant="background"
+            variant=${variant}
             size="sm"
         ></connected-file-delete-dialog>`;
 
@@ -408,11 +419,11 @@ export class FileThumbnail extends ControlledConsumer {
         }
 
         .header_text {
-            cursor: pointer;
 
             h2,
             .header_text_time {
                 transition: color 0.2s ease-in-out;
+                cursor: pointer;
             }
         }
 
@@ -443,13 +454,6 @@ export class FileThumbnail extends ControlledConsumer {
                 gap: .5em;
                 min-width: 0;
 
-                cursor: pointer;
-
-                &:hover {
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
             }
 
             .header_actions {
@@ -485,7 +489,7 @@ export class FileThumbnail extends ControlledConsumer {
             }
         }
 
-        :host(.detailed[display-mode="asGrid"]) {
+        :host([display-mode="asGrid"][compact="false"]) {
 
             border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
@@ -493,6 +497,8 @@ export class FileThumbnail extends ControlledConsumer {
 
             display: flex;
             flex-direction: column;
+
+            position: relative;
 
             p.description {
                 display: none;
@@ -528,13 +534,6 @@ export class FileThumbnail extends ControlledConsumer {
                 align-self: stretch;
                 justify-self: stretch;
 
-                &:hover {
-                    
-                    h2,
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
             }
 
             .header_icon {
@@ -576,6 +575,12 @@ export class FileThumbnail extends ControlledConsumer {
 
             file-tags {
                 margin-left: auto; /* Tagy vždy doprava */
+            }
+
+            connected-file-selection-checkbox {
+                position: absolute;
+                bottom: .25em;
+                left: .25em;
             }
 
         }
@@ -622,13 +627,6 @@ export class FileThumbnail extends ControlledConsumer {
                 flex-direction: column;
                 gap: 1em;
                 min-height: fit-content;
-
-                &:hover {   
-                    h2,
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
             }
 
             .header_icon {
@@ -718,11 +716,14 @@ export class FileThumbnail extends ControlledConsumer {
 
                 <main>
                     <file-canvas></file-canvas>
+                    <file-timeline hasplaybutton="false"></file-timeline>
                 </main>
 
                 <header>
 
-                    <div class="header_text" @click=${() => this.onFileClick(this.file)}>
+                    <div class="header_text">
+
+                        ${this.renderSelectBox()}
 
                         ${this.renderTime()}
 
@@ -737,8 +738,6 @@ export class FileThumbnail extends ControlledConsumer {
                     </div>
 
                     <div class="header_actions">
-
-                        ${this.renderSelectBox()}
 
                         ${this.renderActionDetail()}
 

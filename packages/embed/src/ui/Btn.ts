@@ -50,6 +50,9 @@ export class ThermalBtn extends BaseElement {
     @property({type: String, attribute: "badge", reflect: true})
     public badge?: string;
 
+    @property({type: String, reflect: true})
+    public align: string = "center";
+
     private tooltipElement?: HTMLElement;
     private arrowElement?: HTMLElement;
     private cleanupAutoUpdate?: () => void;
@@ -225,7 +228,7 @@ export class ThermalBtn extends BaseElement {
 
 
         :host {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             justify-content: center;
             flex-grow: 0;
@@ -263,6 +266,10 @@ export class ThermalBtn extends BaseElement {
             outline: none;
 
             
+        }
+
+        :host([align="left"]) {
+            justify-content: flex-start;
         }
 
 

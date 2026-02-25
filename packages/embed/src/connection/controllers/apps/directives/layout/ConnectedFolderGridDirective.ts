@@ -1,6 +1,6 @@
 import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { BreadcrumbItem } from "@labirthermal/server";
 import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
@@ -11,7 +11,7 @@ import { FileInfo, FolderInfo } from "packages/server/client/dist";
 class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
 
     protected renderDisplaySlot(
-            app: ConnectedAppBase
+            app: AbstractConnectedApp
         ): unknown {
     
             const hasFiles = DirectiveHelpers.folderContainsFiles(
@@ -39,7 +39,7 @@ class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
 
 
     private renderFolderHeader(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if (!app.content.folder) {
@@ -73,7 +73,7 @@ class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
     }
 
     private renderGrid(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const content = [
@@ -107,7 +107,7 @@ class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
     }
 
 
-    render(app: ConnectedAppBase): unknown {
+    render(app: AbstractConnectedApp): unknown {
 
         const content = [
             

@@ -60,7 +60,8 @@ __export(index_exports, {
   getPool: () => getPool,
   playbackSpeed: () => playbackSpeed,
   supportedFileTypes: () => supportedFileTypes,
-  supportedFileTypesInputProperty: () => supportedFileTypesInputProperty
+  supportedFileTypesInputProperty: () => supportedFileTypesInputProperty,
+  zip: () => zip2
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -89,6 +90,9 @@ var getPool = async () => {
   }
   return pool2;
 };
+
+// src/index.ts
+var zip2 = __toESM(require("zip-slim"), 1);
 
 // src/hierarchy/ThermalManager.ts
 var workerpool2 = __toESM(require("workerpool"), 1);
@@ -8706,5 +8710,6 @@ console.info("@labirthermal/core", version);
   getPool,
   playbackSpeed,
   supportedFileTypes,
-  supportedFileTypesInputProperty
+  supportedFileTypesInputProperty,
+  zip
 });

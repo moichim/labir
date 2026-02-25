@@ -337,13 +337,15 @@ export class FileAnalysisRow extends BaseElement {
         }
 
         return html`<td>
-            <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
-            <thermal-btn
-                icon="trash"
-                iconStyle="micro"
-                tooltip="${t(T.delete)} ${this.analysis.name}"
-                @click=${() => this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)}
-            ></thermal-btn>
+            <div style="display: flex; gap: .5em;">
+                <file-analysis-edit .analysis=${this.analysis}></file-analysis-edit>
+                <thermal-btn
+                    icon="trash"
+                    iconStyle="micro"
+                    tooltip="${t(T.delete)} ${this.analysis.name}"
+                    @click=${() => this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)}
+                ></thermal-btn>
+            </div>
         </td>`;
 
     }

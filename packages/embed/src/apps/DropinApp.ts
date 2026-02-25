@@ -1,4 +1,4 @@
-import { Instance, TimeFormat } from "@labirthermal/core";
+import { Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
@@ -15,6 +15,9 @@ import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterConte
 
 @customElement("thermal-dropin-app")
 export class DropinAppElement extends BaseAppWithPngExportContext implements IWithlocale {
+    public get manager(): ThermalManager {
+        throw new Error("Method not implemented.");
+    }
 
     @state()
     protected dropinRef: Ref<GroupDropin> = createRef();
@@ -143,7 +146,6 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
                     }
                 }, 0);
 
-                this.log("files", value);
             });
 
         }

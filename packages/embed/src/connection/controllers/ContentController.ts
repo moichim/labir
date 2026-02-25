@@ -64,6 +64,8 @@ export class ContentController extends AbstractConnectedController implements Re
     public readonly onTree: CallbacksManager<( tree?: TreeItem[] ) => void> = new CallbacksManager();
     public readonly onUserFoldersUpdate: CallbacksManager<( userFolders?: FolderInfo[] ) => void> = new CallbacksManager();
 
+    public readonly onError: CallbacksManager<( error: string ) => void> = new CallbacksManager();
+
 
     private _isLoading: boolean = false;
     public get isLoading(): boolean { return this._isLoading; }
@@ -352,7 +354,7 @@ export class ContentController extends AbstractConnectedController implements Re
     ): void {
 
         // Update the main file state if necessary
-        if ( this.file && this.file.url === file.url ) {
+        if ( this.file ) {
             Object.assign( this.file, file );
         }
 
@@ -399,6 +401,8 @@ export class ContentController extends AbstractConnectedController implements Re
             }
 
         }
+
+        this.onFileUpdate.call( this._file );
 
         // Let the host know about the update
         this.host.requestUpdate();
@@ -469,6 +473,9 @@ export class ContentController extends AbstractConnectedController implements Re
     ): void {
 
         if ( response.success === false || response.code !== 200 ) {
+
+            this.onError.call( response.message || "Neznámá chyba při komunikaci se serverem" );
+
             throw new Error(
                 response.message,
                 {
@@ -524,15 +531,11 @@ export class ContentController extends AbstractConnectedController implements Re
         folderPath: string
     ): Promise<void> {
 
-        this.log( "Started fetching grid", folderPath );
-
         const result = await this.host.apiClient.routes.get
             .grid(folderPath)
             .execute();
 
         this.host.requestUpdate();
-
-        this.log( "Response", result );
 
         this.throwIfNot200(result);
 
@@ -588,16 +591,12 @@ export class ContentController extends AbstractConnectedController implements Re
         fileName: string
     ): Promise<void> {
 
-        this.log( "Stav před mazáním:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
-
         const result = await this.host.apiClient.routes.post.deleteFile(
             folderPath,
             fileName
         ).execute();
 
         this.throwIfNot200(result);
-
-        this.log( "Stav kbezprostředně po mazání:", fileName, this.host.fileName, "->", this.host.folderPath, folderPath );
 
         // Delete the file from the current state if necessary
         if ( 

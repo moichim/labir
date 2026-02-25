@@ -157,6 +157,10 @@ export class ConnectedLocationSelector extends ControlledConsumer {
                 }
             }
 
+            &.disabled {
+                text-decoration: strikethrough;
+            }
+
             &:hover,
             &:focus {
             

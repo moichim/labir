@@ -4,9 +4,12 @@ import { css, CSSResultGroup, html, nothing } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { ConnectedLocationSelector } from "./move/ConnectedLocationSelector";
+import { ThermalGroup, zip } from "@labirthermal/core";
+import { consume } from "@lit/context";
+import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 
-@customElement("connected-selection-actions")
-export class ConnectedSelectionActions extends ControlledConsumer {
+@customElement("connected-file-selection-actions")
+export class ConnectedFileSelectionActions extends ControlledConsumer {
 
     @state()
     private progress: number = 0;
@@ -18,6 +21,9 @@ export class ConnectedSelectionActions extends ControlledConsumer {
     private dialogSaveAnalysesRef: Ref<ThermalDialog> = createRef();
     private dialogClearAnalysesRef: Ref<ThermalDialog> = createRef();
     private dialogMoveRef: Ref<ConnectedLocationSelector> = createRef();
+
+    @consume( { context: groupContext, subscribe: true } )
+    private group?: ThermalGroup;
 
 
     connectedCallback(): void {
@@ -43,6 +49,9 @@ export class ConnectedSelectionActions extends ControlledConsumer {
                 this.selection.clearSelection();
             }}
             slot="option"
+            icon="close"
+            iconStyle="micro"
+            align="left"
         >Zrušit výběr</thermal-btn>`;
 
     }
@@ -63,6 +72,9 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             @click=${callback}
             slot="option"
             disabled=${allSelected ? "true" : "false"}
+            icon="bigger"
+            iconStyle="mini"
+            align="left"
         >Vybrat všechny</thermal-btn>`;
 
 
@@ -77,7 +89,10 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             @click=${ () => {
                 this.dialogDeleteRef.value?.setOpen();
             } }
-        >Trvale smazat</thermal-btn>`;
+            icon="trash"
+            iconStyle="micro"
+            align="left"
+        >Trvale smazat ze serveru</thermal-btn>`;
 
     }
 
@@ -149,7 +164,10 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             @click=${ () => {
                 this.dialogClearAnalysesRef.value?.setOpen();
             } }
-        >Smazat analýzy na serveru</thermal-btn>`;
+            icon="trash"
+            iconStyle="micro"
+            align="left"
+        >Odstranit analýzy uložené na serveru</thermal-btn>`;
 
     }
 
@@ -224,6 +242,9 @@ export class ConnectedSelectionActions extends ControlledConsumer {
                 this.log( this.dialogMoveRef.value );
                 this.dialogMoveRef.value?.openDialogue();
             }}
+            icon="move"
+            iconStyle="mini"
+            align="left"
         >Přesunout</thermal-btn>`;
 
     }
@@ -260,6 +281,75 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             }}
         >
         </connected-location-selector>`;
+    }
+
+    private renderOptionDownload(): unknown {
+
+        
+
+        const handler = async () => {
+
+            const instances = this.group?.getInstances();
+
+            if ( instances ) {
+
+                const files: File[] = [];
+
+                this.selection.forEverySelectedSync( info => {
+
+                    const instance = instances.find( i => i.thermalUrl === info.url );
+
+                    if ( instance ) {
+
+                        const blob = new Blob( [ instance.reader.buffer ], { type: "application/octet-stream" } );
+
+                        const file = new File(
+                            [ blob ],
+                            info.fileName,
+                            { type: "application/octet-stream" }
+                        );
+                        files.push( file );
+                    }
+
+                } );
+
+                const archive = await zip.zip( files, true );
+
+                const folderName = this.content.folder?.name || "files";
+
+                const selectionName = [
+                    "selected",
+                    this.selection.array.length,
+                    "files"
+                ].join("-");
+
+                const fileName = `${folderName}_${selectionName}.zip`;
+
+                const link = document.createElement( "a" );
+                link.href = URL.createObjectURL( archive );
+                link.download = fileName;
+                document.body.appendChild( link );
+                link.click();
+                document.body.removeChild( link );
+                link.remove();
+
+
+            } else {
+                this.log( "No files were found!" );
+            }
+
+
+
+        }
+
+        return html`<thermal-btn
+            slot="option"
+            @click=${handler.bind(this)}
+            icon="download"
+            iconStyle="micro"
+            align="left"
+        >Stáhnout jako ZIP</thermal-btn>`;
+
     }
 
 
@@ -320,9 +410,10 @@ export class ConnectedSelectionActions extends ControlledConsumer {
             variant="foreground"
         >
             <span slot="invoker">Zvolte akci</span>
+            ${this.renderOptionDownload()}
+            ${this.renderOptionMove()}
             ${this.renderOptionDelete()}
             ${this.renderOptionClearAnalyses()}
-            ${this.renderOptionMove()}
         </thermal-dropdown>`;
 
     }

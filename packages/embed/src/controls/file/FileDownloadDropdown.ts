@@ -73,7 +73,7 @@ export class FileDownloadButton extends FileConsumer {
                     slot="option"
                     @click="${() => window.open(this.file!.thermalUrl)}"
                     pre="LRC"
-                    style="text-align: left;"
+                    align="left"
                 >
                     ${t(T.downloadoriginalfile, { type: this.file.reader.parser.extensions[0].extension.toUpperCase() })}
                 </thermal-btn>
@@ -89,7 +89,7 @@ export class FileDownloadButton extends FileConsumer {
                         showFileName: this.pngFileName
                     })}
                     pre="PNG"
-                    style="text-align: left;"
+                    align="left"
                 >
                     ${t(T.exportcurrentframeaspng)}
                 </thermal-btn>
@@ -108,6 +108,7 @@ export class FileDownloadButton extends FileConsumer {
                             slot="option"
                             @click=${() => this.file?.analysisData.downloadData()}
                             pre="CSV"
+                            align="left"
                     >
                         ${t(T.csvofanalysisdata)}
                     </thermal-btn>`

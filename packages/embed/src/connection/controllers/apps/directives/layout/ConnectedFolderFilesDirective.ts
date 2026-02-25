@@ -1,5 +1,5 @@
 import { html, nothing } from "lit";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { BreadcrumbItem } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
@@ -13,7 +13,7 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
 
     protected renderDisplaySlot(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const hasFiles = DirectiveHelpers.folderContainsFiles(
@@ -41,7 +41,7 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
 
     private renderFolderHeader(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if (!app.content.folder) {
@@ -64,8 +64,8 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
         slots.push(this.renderDisplaySlot(app));
 
-        if ( app.selection.array.length > 0 ) {
-            slots.push( slotOrNothing( "file", html`<connected-selection-actions></connected-selection-actions>` ) );
+        if ( app.fileSelection.array.length > 0 ) {
+            slots.push( slotOrNothing( "file", html`<connected-file-selection-actions></connected-file-selection-actions>` ) );
         }
 
         const content: unknown[] = [
@@ -89,7 +89,7 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
 
 
     private renderFileList(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         const hasFiles = DirectiveHelpers.folderContainsFiles(
@@ -136,7 +136,7 @@ class ConnectedFolderFilesDirective extends AbstractFolderLayoutDirective {
     }
 
 
-    render(app: ConnectedAppBase): unknown {
+    render(app: AbstractConnectedApp): unknown {
 
         if (app.client.isLoading) {
             return nothing;

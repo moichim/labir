@@ -317,12 +317,9 @@ export class FileAnalysisComplex extends FileConsumer {
         }
 
         .hint {
-            span {
+            thermal-btn {
                 display: inline-block;
-                padding: 5px;
-                margin: 0 5px;
-                border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-                border-radius: 5px;
+                cursor: help;
             }
         }
 

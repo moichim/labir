@@ -1,14 +1,15 @@
 import { html, nothing } from "lit";
-import { ConnectedAppBase } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 import { FolderInfo } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
+import { DisplayState } from "../../../DisplayController";
 
 export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirective {
 
     protected renderFolderContentStatsSlot(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
         return slotOrNothing(
             "content",
@@ -17,7 +18,7 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
     }
 
     protected renderDisplaySlot(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         return slotOrNothing(
@@ -29,7 +30,7 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
 
 
     protected renderHeaderFolderSlot(
-        app: ConnectedAppBase
+        app: AbstractConnectedApp
     ): unknown {
 
         if (!app.content.folder) {
@@ -62,6 +63,7 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
                     icon="addfolder"
                     iconStyle="micro"
                     variant="primary"
+                    tooltip="Vytvořit podsložku"
                     .onSuccess=${() => app.display.reloadCurrentState()}
                 ></connected-folder-create-dialog>` );
             }
@@ -74,6 +76,10 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
                 .tooltip=${this.t("editfolder")}
             ></connected-folder-edit-dialog>` );
 
+            actions.push(html`<connected-folder-move-dialog
+                .folder=${app.content.folder}
+            ></connected-folder-move-dialog>` );
+
             actions.push(html`<connected-folder-delete-dialog
                 .folder=${app.content.folder}
                 icon="trash"
@@ -83,6 +89,10 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
                 .tooltip=${deleteLabel}
             ></connected-folder-delete-dialog>` );
 
+        }
+
+        if ( app.content.files && app.content.files.length > 0 ) {
+            actions.push(html`<group-download-dropdown></group-download-dropdown>` );
         }
 
 

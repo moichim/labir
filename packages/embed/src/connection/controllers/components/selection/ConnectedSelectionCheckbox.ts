@@ -3,9 +3,9 @@ import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
 import { FileInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 
-/** Connected selection checkbox component */
-@customElement( "connected-selection-checkbox" )
-export class ConnectedSelectionCheckbox extends ControlledConsumer {
+/** Connected file selection checkbox component */
+@customElement( "connected-file-selection-checkbox" )
+export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 
     @property({ type: Object})
     public file!: FileInfo;

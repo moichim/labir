@@ -4,23 +4,25 @@ import { BaseAppWithPngExportContext } from "../../../utils/converters/pngExport
 import { AppWithClientController, ClientController } from "../ClientController";
 import { AppWithContentController, ContentController } from "../ContentController";
 import { provide } from "@lit/context";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, SelectionControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FolderSelectionControllerContext, FileSelectionControllerContext } from "../controllerContexts";
 import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { cache } from "lit/directives/cache.js";
 import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
-import { AppWithSelectionController, SelectionController } from "../SelectionController";
+import { AppWithFileSelectionController, FileSelectionController } from "../FileSelectionController";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
+import { AppWithFolderSelectionController, FolderSelectionController } from "../FolderSelectionController";
 
-export abstract class ConnectedAppBase extends BaseAppWithPngExportContext 
+export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext 
     implements 
         AppWithClientController, 
         AppWithContentController, 
         AppWithDisplayController,
-        AppWithSelectionController {
+        AppWithFileSelectionController,
+        AppWithFolderSelectionController {
 
     /** Name of the listener event called upon initialisation of the connected app */
     public static readonly INITIALISATION_LISTENER = "connected-app-initialisation";
@@ -40,8 +42,11 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
     @provide({ context: DisplayControllerContext })
     public readonly display = new DisplayController(this);
 
-    @provide( { context: SelectionControllerContext } )
-    public readonly selection: SelectionController = new SelectionController(this);
+    @provide( { context: FileSelectionControllerContext } )
+    public readonly fileSelection: FileSelectionController = new FileSelectionController(this);
+
+    @provide( { context: FolderSelectionControllerContext } )
+    public readonly folderSelection: FolderSelectionController = new FolderSelectionController(this);
 
     @property({
         type: String,
@@ -181,7 +186,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
      * Should we render the Registry provider around the content?
      */
     private get hasRegistryProvider(): boolean {
-        return ConnectedAppBase.STATES_WITH_REGISTRY.includes( this.appState );
+        return AbstractConnectedApp.STATES_WITH_REGISTRY.includes( this.appState );
     }
 
     /**
@@ -275,7 +280,7 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
         /** This is very important - call this before the client is ready */
         this.setupInitialStateBeforeClientIsRead();
 
-        this.client.onReadyForContentRequests.add(ConnectedAppBase.INITIALISATION_LISTENER, async () => {
+        this.client.onReadyForContentRequests.add(AbstractConnectedApp.INITIALISATION_LISTENER, async () => {
 
 
             this.log( "Client is ready for content requests, now initialise the app content" );
@@ -315,6 +320,32 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
         innerContent: unknown
     ): unknown {
 
+        const userLoginButton = this.display.appState !== DisplayState.LOGIN
+            ? html`<connected-user-button slot="close"></connected-user-button>`
+            : nothing;
+
+        const settingsButton = [
+            DisplayState.FOLDER,
+            DisplayState.FILE
+        ].includes( this.display.appState )
+            ? html`<thermal-dialog
+                label="Nastavení aplikace"
+                slot="close"
+            >
+                <thermal-btn 
+                    slot="invoker"
+                    icon="settings"
+                    iconStyle="solid"
+                    tooltip=${this.t( "config" )}
+                ></thermal-btn>
+
+                <div slot="content">
+                    <png-export-panel></png-export-panel>
+                    <registry-display-panel></registry-display-panel>
+                </div>
+            </thermal-dialog>`
+            : nothing;
+
         const thermalApp = html`<thermal-app
             label=${ifDefined(this.label)}
             labelTooltip=${ifDefined(this.labelTooltip)}
@@ -332,24 +363,9 @@ export abstract class ConnectedAppBase extends BaseAppWithPngExportContext
                 }}
             ></thermal-btn>
 
-            <connected-user-button slot="close"></connected-user-button>
+            ${userLoginButton}
 
-            <thermal-dialog
-                label="Nastavení aplikace"
-                slot="close"
-            >
-                <thermal-btn 
-                    slot="invoker"
-                    icon="settings"
-                    iconStyle="solid"
-                    tooltip=${this.t( "config" )}
-                ></thermal-btn>
-
-                <div slot="content">
-                    <png-export-panel></png-export-panel>
-                    <registry-display-panel></registry-display-panel>
-                </div>
-            </thermal-dialog>
+            ${settingsButton}
 
             ${cache( html`<thermal-btn
                 slot="close"
