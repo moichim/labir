@@ -5,6 +5,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../../translations/Languages";
 import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
 import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { ThermalBtn } from "packages/embed/src/ui/Btn";
 
 interface PairedFiles {
     lrc: File;
@@ -441,6 +442,18 @@ export class ConnectedUploadForm extends ControlledConsumer {
 
 
     `;
+
+    public highlight(
+        timeinms: number
+    ): void {
+
+        const element = this.renderRoot.querySelector( ".stage-upload thermal-btn" ) as ThermalBtn | null | undefined;
+        console.info("Highlighting upload form button", { element, timeinms });
+        if ( element ) {
+            element.highlight( timeinms );
+        }
+
+    }
 
     protected async handleSubmit(): Promise<boolean> {
 

@@ -5,6 +5,7 @@ import { DirectiveHelpers } from "../DirectiveHelpers";
 import { FolderInfo } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
 import { DisplayState } from "../../../DisplayController";
+import { ConnectedUploadForm } from "../../../components/folder/upload/ConnectedUploadForm";
 
 export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirective {
 
@@ -64,8 +65,18 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
                     iconStyle="micro"
                     variant="primary"
                     tooltip="Vytvořit podsložku"
+                    label="Vytvořit podsložku"
                     .onSuccess=${() => app.display.reloadCurrentState()}
                 ></connected-folder-create-dialog>` );
+            } else {
+
+                actions.push( html`<thermal-btn
+                    variant="primary"
+                    icon="upload"
+                    iconStyle="micro"
+                    @click=${() => this.scrollToUploadForm(app)}
+                >Nahrát soubor</thermal-btn>` );
+
             }
 
             actions.push(html`<connected-folder-edit-dialog
@@ -101,6 +112,27 @@ export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirect
             actions
         )
 
+    }
+
+    /**
+     * Scrolls the first upload form into view using a smooth animation.
+     * The form is positioned in the middle of the viewport so that a
+     * sticky header doesn't cover it.
+     */
+    private scrollToUploadForm(app: AbstractConnectedApp): void {
+        // try to find the form inside the app's render root first
+        let form = app.renderRoot?.querySelector('connected-upload-form') as ConnectedUploadForm | null;
+        if (!form) {
+            // fallback to document-wide search
+            form = document.querySelector('connected-upload-form') as ConnectedUploadForm;
+        }
+        if (form) {
+            form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            form.highlight(3000);
+        } else {
+            // nothing to scroll to
+            console.warn('scrollToUploadForm: no upload form found');
+        }
     }
 
 

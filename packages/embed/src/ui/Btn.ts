@@ -57,6 +57,9 @@ export class ThermalBtn extends BaseElement {
     private arrowElement?: HTMLElement;
     private cleanupAutoUpdate?: () => void;
 
+    // timeout id for active highlight animation
+    private highlightTimeout?: number;
+
     protected firstUpdated() {
         // Ensure element is focusable
         if (!this.hasAttribute('tabindex')) {
@@ -181,6 +184,12 @@ export class ThermalBtn extends BaseElement {
         this.removeEventListener('keydown', this.handleKeydown);
         this.removeEventListener('click', this.handleClick);
         this.removeTooltip();
+        // clear highlight if still pending
+        if (this.highlightTimeout) {
+            clearTimeout(this.highlightTimeout);
+            this.highlightTimeout = undefined;
+        }
+        this.classList.remove('highlight');
     }
 
     public static styles = css`
@@ -477,13 +486,57 @@ export class ThermalBtn extends BaseElement {
             border-radius: 50%;
         }
 
-    `;
+        /* highlight animation for attention-grabbing effect */
+        @keyframes thermal-highlight {
+            0%,100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        :host(.highlight) {
+            animation: thermal-highlight 0.4s ease-in-out infinite;
+            box-shadow: var(--thermal-shadow);
+        }
 
+    `;
     private renderBadge(): unknown {
         if ( !this.badge ) {
             return nothing;
         }
         return html`<span class="badge" style="background-color: ${this.badge}"></span>`;
+    }
+
+    /**
+     * Apply a temporary highlight animation to the button. The animation
+     * will pulse the element with a gentle scale up/down effect for the
+     * specified duration (milliseconds).
+     */
+    public highlight(durationMs: number): void {
+        // ensure non-negative
+        if (durationMs <= 0) {
+            return;
+        }
+        // clear any existing highlighting first
+        if (this.highlightTimeout) {
+            clearTimeout(this.highlightTimeout);
+            this.highlightTimeout = undefined;
+        }
+
+        this.classList.add('highlight');
+
+        const cleanup = () => {
+            this.classList.remove('highlight');
+            if (this.highlightTimeout) {
+                clearTimeout(this.highlightTimeout);
+                this.highlightTimeout = undefined;
+            }
+            this.removeEventListener('mouseenter', cleanup);
+            this.removeEventListener('focus', cleanup);
+        };
+
+        // cancel highlight if user hovers or focuses the button
+        this.addEventListener('mouseenter', cleanup);
+        this.addEventListener('focus', cleanup);
+
+        this.highlightTimeout = window.setTimeout(cleanup, durationMs);
     }
 
     protected render(): unknown {
