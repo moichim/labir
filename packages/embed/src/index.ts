@@ -267,11 +267,12 @@ import "./connection/controllers/components/folder/listing/ConnectedSubfoldersGr
 import "./connection/controllers/components/folder/upload/ConnectedUploadDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderContentModeSwitch";
 import "./connection/controllers/components/file/analysis/ConnectedFileAnalysisButtons";
-import "./connection/controllers/components/selection/ConnectedSelectionCheckbox";
-import "./connection/controllers/components/selection/ConnectedSelectionActions";
+import "./connection/controllers/components/selection/ConnectedFileSelectionCheckbox";
+import "./connection/controllers/components/selection/ConnectedFileSelectionActions";
 import "./connection/controllers/components/selection/move/ConnectedLocationSelector";
 import "./connection/controllers/components/file/ConnectedFileMoveDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderMoveDialog";
+import "./connection/controllers/components/selection/ConnectedFolderSelectionCheckbox";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

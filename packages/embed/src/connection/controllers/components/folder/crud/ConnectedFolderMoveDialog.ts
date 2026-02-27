@@ -51,7 +51,7 @@ export class ConnectedFolderMoveDialog extends ControlledConsumer {
         return html`<connected-location-selector
             mode=${LocationSelectorMode.FOLDER}
             .asDialogue=${true}
-            operationLabel="Přesunout sem"
+            operationLabel="Přesunout do"
             .onSelect=${onSelect}
             ${ref(this.selectionRef)}
         >

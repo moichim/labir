@@ -185,9 +185,7 @@ export class FolderRow extends AbstractFolderThumbnail {
 
     `];
 
-    protected handleActionClick(event: Event) {
-        event.stopPropagation();
-    }
+    
 
     
 

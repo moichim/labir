@@ -1,5 +1,5 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { FileInfo, FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/server";
 import { ReactiveController } from "lit";
 import { BaseElement } from "../../hierarchy/BaseElement";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";
@@ -162,8 +162,6 @@ export class FolderSelectionController implements ReactiveController {
     public subscribeToSelectionChange(
         element: BaseElement
     ): void {
-
-        console.log( element );
 
         this._onSelectionChange.add(
             element.UUID, 

@@ -72,7 +72,7 @@ export class ConnectedFolderFileList extends ControlledConsumer {
 
         return html`<server-folder-thumbnail
             .folder=${info}
-            @click=${() => this.onFolderClick && this.onFolderClick(info)}
+            .onClick=${() => this.onFolderClick && this.onFolderClick(info)}
         >
         </server-folder-thumbnail>`;
 

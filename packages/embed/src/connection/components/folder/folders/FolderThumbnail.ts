@@ -122,10 +122,6 @@ export class FolderThumbnail extends AbstractFolderThumbnail {
 
     `];
 
-    protected handleActionClick(event: Event) {
-        event.stopPropagation();
-    }
-
     
 
     render(): TemplateResult {
@@ -149,6 +145,8 @@ export class FolderThumbnail extends AbstractFolderThumbnail {
                         ${this.renderCountWithIcon( this.folder.lrc_count, "image" )}
 
                         ${this.renderCountWithIcon( this.subfoldersCount ?? 0, "folder" )}
+
+                        <connected-folder-selection-checkbox .folder=${this.folder}></connected-folder-selection-checkbox>
 
                     </div>
                 </div>

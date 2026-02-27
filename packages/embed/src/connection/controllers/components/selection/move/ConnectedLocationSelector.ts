@@ -159,6 +159,7 @@ export class ConnectedLocationSelector extends ControlledConsumer {
 
             &.disabled {
                 text-decoration: strikethrough;
+                color: var( --thermal-slate );
             }
 
             &:hover,
@@ -317,11 +318,29 @@ export class ConnectedLocationSelector extends ControlledConsumer {
             "list-item": true
         };
 
+        const disabled = this.mode === LocationSelectorMode.FOLDER && folderInfo.may_have_files === true;
+
+        if ( disabled ) {
+            classes.disabled = true;
+        }
+
         let actionButton: unknown = nothing;
 
-        let clickAction: () => void = () => this._onPathChange(folderInfo.path);
+        let clickAction: () => void = () => {
+            if ( disabled ) {
+                return;
+            }
+            this._onPathChange(folderInfo.path)
+        };
 
-        const subselectButton: unknown = html`<thermal-btn
+        const subselectButton: unknown = disabled 
+        ? html`<thermal-btn 
+            plain="true"
+            disabled="true"
+            variant="background"
+            tooltip="Složka ''${folderInfo.name}'' je určena pro soubory"
+        >Neplatné umístění</thermal-btn>`
+        : html`<thermal-btn
             icon="right"
             iconStyle="micro"
             plain="true"
@@ -330,14 +349,16 @@ export class ConnectedLocationSelector extends ControlledConsumer {
             @click=${clickAction.bind(this)}
         ></thermal-btn>`;
 
-        if ( this.mode === LocationSelectorMode.FOLDER && this.folderIsValidForFolders( folderInfo )) {
+        const name = this.getEllipsisName( folderInfo );
+
+        if ( this.mode === LocationSelectorMode.FOLDER && !disabled) {
 
             actionButton = html`<thermal-btn
                 variant="primary"
                 @click=${() => {
                     this.onSelect?.( folderInfo.path );
                 }}
-            >${this.operationLabel}</thermal-btn>`;
+            >${this.operationLabel} '${name}'</thermal-btn>`;
 
             classes.selectable = true;
 
@@ -348,7 +369,7 @@ export class ConnectedLocationSelector extends ControlledConsumer {
                 @click=${() => {
                     this.onSelect?.( folderInfo.path );
                 }}
-            >${this.operationLabel}</thermal-btn>`;
+            >${this.operationLabel} '${name}'</thermal-btn>`;
 
             classes.selectable = true;
         }
@@ -450,9 +471,33 @@ export class ConnectedLocationSelector extends ControlledConsumer {
 
     }
 
+    private getEllipsisName(
+        folderInfo: FolderInfo
+    ): string {
+
+        const maxLength = 20;
+
+        if ( folderInfo.name.length <= maxLength ) {
+            return folderInfo.name;
+        }
+
+        const first10chars = folderInfo.name.substring( 0, 10 );
+        const ellipsis = " ... ";
+        const lastChars = folderInfo.name.substring( folderInfo.name.length - ( maxLength - 10 - ellipsis.length ) );
+
+        return first10chars + ellipsis + lastChars;
+
+        return folderInfo.name.substring(0, maxLength - 3) + "...";
+
+    }
+
     private wrapInDialogue( content: unknown ): unknown {
 
         let actionButton: unknown = nothing;
+
+        const name = this._currentFolderInfo
+         ? this.getEllipsisName( this._currentFolderInfo )
+         : "kořenová úroveň";
 
         if ( this.mode === LocationSelectorMode.FOLDER && this.folderIsValidForFolders( this._currentFolderInfo ) ) {
 
@@ -462,7 +507,7 @@ export class ConnectedLocationSelector extends ControlledConsumer {
                 @click=${()=> {
                     this.onSelect?.( this._currentFolderInfo!.path );
                 }}
-            >${this.operationLabel}'</thermal-btn>`;
+            >${this.operationLabel} '${name}'</thermal-btn>`;
 
         } else if ( this.mode === LocationSelectorMode.FILE && this.folderIsValidForFiles( this._currentFolderInfo ) ) {
 
@@ -472,7 +517,7 @@ export class ConnectedLocationSelector extends ControlledConsumer {
                 @click=${()=> {
                     this.onSelect?.( this._currentFolderInfo!.path );
                 }}
-            >${this.operationLabel}</thermal-btn>`;
+            >${this.operationLabel} '${name}'</thermal-btn>`;
         }
 
         return html`<thermal-dialog

@@ -47,7 +47,6 @@ class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
         }
 
         const slots: unknown[] = [
-            this.renderBreadcrumb(app),
             this.renderHeaderFolderSlot(app),
             slotOrNothing(
                 "display",
@@ -119,6 +118,7 @@ class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
         }
 
         content.push(
+            this.renderBreadcrumb(app),
             this.renderFolderHeader(app),
             this.renderGrid(app)
         );

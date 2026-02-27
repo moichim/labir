@@ -1,11 +1,12 @@
 import { consume } from "@lit/context";
 import { BaseElement } from "../../../hierarchy/BaseElement";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext, FolderSelectionControllerContext } from "../controllerContexts";
 import { ClientController } from "../ClientController";
 import { ContentController } from "../ContentController";
 import { CallbacksManager } from "@labirthermal/core";
 import { DisplayController } from "../DisplayController";
 import { FileSelectionController } from "../FileSelectionController";
+import { FolderSelectionController } from "../FolderSelectionController";
 
 export abstract class ControlledConsumer extends BaseElement {
 
@@ -20,7 +21,10 @@ export abstract class ControlledConsumer extends BaseElement {
     protected display!: DisplayController;
 
     @consume({ context: FileSelectionControllerContext, subscribe: true })
-    protected selection!: FileSelectionController;
+    protected selectionFile!: FileSelectionController;
+
+    @consume( { context: FolderSelectionControllerContext, subscribe: true } )
+    protected selectionFolder!: FolderSelectionController;
 
 
     disconnectedCallback(): void {

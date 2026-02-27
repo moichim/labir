@@ -28,12 +28,12 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selection.subscribeToSelectionChange(this);
+        this.selectionFile.subscribeToSelectionChange(this);
         this.content.subscribeToFilesUpdates(this);
     }
 
     private getCount(): number {
-        return this.selection.array.length;
+        return this.selectionFile.array.length;
     }
 
     private renderTrigger(): unknown {
@@ -46,7 +46,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
         return html`<thermal-btn 
             @click=${() => {
-                this.selection.clearSelection();
+                this.selectionFile.clearSelection();
             }}
             slot="option"
             icon="close"
@@ -58,13 +58,13 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
     private renderOptionAll(): unknown {
 
-        const allSelected = this.selection.array.length === this.content.files?.length;
+        const allSelected = this.selectionFile.array.length === this.content.files?.length;
 
         const callback = allSelected
             ? undefined
             : () => {
                 if (this.content.files) {
-                    this.selection.addMultipleToSelection(this.content.files);
+                    this.selectionFile.addMultipleToSelection(this.content.files);
                 }
             }
 
@@ -101,9 +101,9 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
         const callback = async () => {
 
             this.progress = 0;
-            this.total = this.selection.array.length;
+            this.total = this.selectionFile.array.length;
 
-            await this.selection.forEverySelectedAsync(async file => {
+            await this.selectionFile.forEverySelectedAsync(async file => {
 
                 await this.client.api.routes.post.deleteFile(file.path, file.fileName).execute();
 
@@ -115,7 +115,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
             this.total = 0;
 
             this.dialogDeleteRef.value?.setClose();
-            this.selection.clearSelection();
+            this.selectionFile.clearSelection();
             this.display.reloadCurrentState();
 
             return true;
@@ -141,10 +141,10 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
             <div slot="content">
             
-                <p>Opravdu chcete trvale smazat ${this.selection.array.length} souborů?</p>
+                <p>Opravdu chcete trvale smazat ${this.selectionFile.array.length} souborů?</p>
 
                 <ul>
-                    ${this.selection.array.map(file => html`<li>${file.fileName}</li>`)}
+                    ${this.selectionFile.array.map(file => html`<li>${file.fileName}</li>`)}
                 </ul>
 
                 ${progress}
@@ -176,9 +176,9 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
         const callback = async () => {
 
             this.progress = 0;
-            this.total = this.selection.array.length;
+            this.total = this.selectionFile.array.length;
 
-            await this.selection.forEverySelectedAsync(async file => {
+            await this.selectionFile.forEverySelectedAsync(async file => {
 
                 await this.client.api.routes.post.updateFile(
                     file.path,
@@ -193,7 +193,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
             this.total = 0;
 
             this.dialogClearAnalysesRef.value?.setClose();
-            this.selection.clearSelection();
+            this.selectionFile.clearSelection();
             this.display.reloadCurrentState();
 
             return true;
@@ -218,10 +218,10 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
             <div slot="content">
             
-                <p>Opravdu chcete trvale smazat analýzy u ${this.selection.array.length} souborů?</p>
+                <p>Opravdu chcete trvale smazat analýzy u ${this.selectionFile.array.length} souborů?</p>
 
                 <ul>
-                    ${this.selection.array.map(file => html`<li>${file.fileName}</li>`)}
+                    ${this.selectionFile.array.map(file => html`<li>${file.fileName}</li>`)}
                 </ul>
 
                 ${progress}
@@ -256,11 +256,11 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
             ${ ref( this.dialogMoveRef )}
             mode="file"
             dialogTitle="Přesunout vybrané soubory"
-            operationLabel="Přesunout sem"
+            operationLabel="Přesunout do"
             .onSelect=${async ( path: string ) => {
                 
 
-                await this.selection.forEverySelectedAsync( async( file ) => {
+                await this.selectionFile.forEverySelectedAsync( async( file ) => {
 
                     const result = await this.client.api.routes.post.moveFile(
                         file.path,
@@ -295,7 +295,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
                 const files: File[] = [];
 
-                this.selection.forEverySelectedSync( info => {
+                this.selectionFile.forEverySelectedSync( info => {
 
                     const instance = instances.find( i => i.thermalUrl === info.url );
 
@@ -319,7 +319,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
                 const selectionName = [
                     "selected",
-                    this.selection.array.length,
+                    this.selectionFile.array.length,
                     "files"
                 ].join("-");
 
@@ -428,7 +428,7 @@ export class ConnectedFileSelectionActions extends ControlledConsumer {
 
     protected render(): unknown {
 
-        if (this.selection.getSelectedFiles().length === 0) {
+        if (this.selectionFile.getSelectedFiles().length === 0) {
             return nothing;
         }
 

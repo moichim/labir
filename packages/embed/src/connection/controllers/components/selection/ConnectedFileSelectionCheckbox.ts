@@ -12,7 +12,7 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.selection.subscribeToSelectionChange(this);
+        this.selectionFile.subscribeToSelectionChange(this);
     }
 
 
@@ -27,10 +27,10 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
             @change=${(e: Event) => {
                 const target = e.target as HTMLInputElement;
                 if ( target.checked ) {
-                    this.selection.addToSelection( this.file );
+                    this.selectionFile.addToSelection( this.file );
                 }
                 else {
-                    this.selection.removeFromSelection( this.file );
+                    this.selectionFile.removeFromSelection( this.file );
                 }
             }}
         />`;
@@ -42,8 +42,8 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
     ): unknown {
 
         const callback = isSelected
-            ? () => this.selection.removeFromSelection( this.file )
-            : () => this.selection.addToSelection( this.file );
+            ? () => this.selectionFile.removeFromSelection( this.file )
+            : () => this.selectionFile.addToSelection( this.file );
 
         return html`<thermal-btn @click=${callback.bind(this)}>${isSelected ? 'Odstranit' : 'Přidat'}</thermal-btn>`;
 
@@ -74,7 +74,7 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 
     protected render(): unknown {
 
-        const isSelected = this.selection.fileIsSelected( this.file );
+        const isSelected = this.selectionFile.fileIsSelected( this.file );
 
         return this.renderCheckbox( isSelected );
 

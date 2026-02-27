@@ -27,7 +27,7 @@ export class ConnectedFileMoveDialog extends ControlledConsumer {
             ${ref(this.dialogRef)}
             .mode=${LocationSelectorMode.FILE}
             dialogTitle="Přesunout soubor"
-            operationLabel="Přesunout sem"
+            operationLabel="Přesunout do"
             .onSelect=${ async ( path: string ) => {
 
                 if ( !this.file ) {

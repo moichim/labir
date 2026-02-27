@@ -2,8 +2,10 @@ import { property } from "lit/decorators.js";
 import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
+import { ControlledConsumer } from "../../../controllers/abstraction/ControlledConsumer";
+import { ConnectedFolderSelectionCheckbox } from "../../../controllers/components/selection/ConnectedFolderSelectionCheckbox";
 
-export class AbstractFolderThumbnail extends ClientConsumer {
+export class AbstractFolderThumbnail extends ControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -14,7 +16,7 @@ export class AbstractFolderThumbnail extends ClientConsumer {
     @property({ type: Function })
     onUpdate?: (folder: FolderInfo) => void;
 
-    @property({type: Number})
+    @property({ type: Number })
     public subfoldersCount?: number;
 
 
@@ -119,32 +121,53 @@ export class AbstractFolderThumbnail extends ClientConsumer {
 
     `;
 
+    connectedCallback(): void {
+        super.connectedCallback();
+        this.addEventListener("click", this.handleActionClick.bind(this));
+    }
+
+    protected handleActionClick(event: MouseEvent) {
+        event.stopPropagation();
+
+        const innerTarget = "originalTarget" in event ? (event as any).originalTarget : event.target;
+
+    console.log(innerTarget);
+
+        if (innerTarget instanceof HTMLInputElement) {
+
+        } else {
+            // event.stopPropagation();
+            this.log(this.onClick);
+            this.onClick && this.onClick(this.folder);
+        }
+    }
+
     protected renderCountWithIcon(
-            count: number,
-            icon: string,
-            variant: string = "micro"
-        ): unknown {
-            if (count <= 0) return nothing;
-            return html`<div class="counter-with-icon">
+        count: number,
+        icon: string,
+        variant: string = "micro"
+    ): unknown {
+        if (count <= 0) return nothing;
+        return html`<div class="counter-with-icon">
                 <span>${count}x</span>
                 <thermal-icon icon=${icon} variant=${variant}></thermal-icon>
             </div>`;
-        }
+    }
 
-    protected renderThumbnail() {        
+    protected renderThumbnail() {
 
         // If thumbnail is image, render it
-        if ( this.folder.thumb && this.shouldRenderThumbnailImage() ) {
+        if (this.folder.thumb && this.shouldRenderThumbnailImage()) {
             return this.renderThumbnailWrapper(
-                this.renderThumbnailImage( this.folder.thumb, this.folder.name ),
+                this.renderThumbnailImage(this.folder.thumb, this.folder.name),
                 "image"
             );
         }
 
         // if thumbnail is LRC, render it
-        if ( this.folder.thumb && this.shouldRenderThumbnailLrc() ) {
+        if (this.folder.thumb && this.shouldRenderThumbnailLrc()) {
             return this.renderThumbnailWrapper(
-                this.renderThumbnailLrc( this.folder.thumb ),
+                this.renderThumbnailLrc(this.folder.thumb),
                 "lrc"
             );
         }
@@ -162,7 +185,7 @@ export class AbstractFolderThumbnail extends ClientConsumer {
     }
 
     private shouldRenderThumbnailImage(): boolean {
-        if ( ! this.folder.thumb ) return false;
+        if (!this.folder.thumb) return false;
         const lower = this.folder.thumb.toLowerCase();
         return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".gif") || lower.endsWith(".webp");
     }
