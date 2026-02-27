@@ -14,7 +14,7 @@ export class FileAnalysisRow extends BaseElement {
     @property()
     public analysis!: AbstractAnalysis;
 
-    @property({type: Boolean})
+    @property({ type: Boolean })
     public interactiveanalysis: boolean = true;
 
     @state()
@@ -62,8 +62,9 @@ export class FileAnalysisRow extends BaseElement {
     @state()
     protected name?: string;
 
-    @consume( {context: setRegistryHighlightContext, subscribe: true} )
-    protected setRegistryHighlight?: ( value: ThermalRangeOrUndefined ) => void;
+    @state()
+    @consume({ context: setRegistryHighlightContext, subscribe: true })
+    protected setRegistryHighlight?: (value: ThermalRangeOrUndefined) => void;
 
 
 
@@ -97,11 +98,11 @@ export class FileAnalysisRow extends BaseElement {
             // Update the color
             this.color = newAnalysis.initialColor;
 
-            
+
 
             const formatDimension = (analysis: AbstractAnalysis) => {
 
-                if ( analysis instanceof AbstractAreaAnalysis ) {
+                if (analysis instanceof AbstractAreaAnalysis) {
                     return newAnalysis.width + "x" + newAnalysis.height;
                 }
                 return "1x1";
@@ -109,7 +110,7 @@ export class FileAnalysisRow extends BaseElement {
             }
 
             // Update dimensions
-            this.dimension = formatDimension( newAnalysis ); // newAnalysis.width + "x" + newAnalysis.height;
+            this.dimension = formatDimension(newAnalysis); // newAnalysis.width + "x" + newAnalysis.height;
 
             // Update values
             this.value = {
@@ -174,6 +175,38 @@ export class FileAnalysisRow extends BaseElement {
 
         }
 
+        if (_changedProperties.has("setRegistryHighlight")) {
+            this.addEventListener("mouseover", this.handleMouseOver.bind(this));
+            this.addEventListener("focus", this.handleMouseOver.bind(this));
+            this.addEventListener("mouseout", this.handleMouseOut.bind(this));
+            this.addEventListener("blur", this.handleMouseOut.bind(this));
+        }
+
+    }
+
+    disconnectedCallback(): void {
+        super.disconnectedCallback();
+        this.removeEventListener("mouseover", this.handleMouseOver.bind(this));
+        this.removeEventListener("focus", this.handleMouseOver.bind(this));
+        this.removeEventListener("mouseout", this.handleMouseOut.bind(this));
+        this.removeEventListener("blur", this.handleMouseOut.bind(this));
+    }
+
+    private handleMouseOver() {
+
+        if (this.setRegistryHighlight && this.analysis.min !== undefined && this.analysis.max !== undefined) {
+            this.setRegistryHighlight({
+                from: this.analysis.min,
+                to: this.analysis.max
+            });
+        }
+    }
+
+    private handleMouseOut() {
+
+        if (this.setRegistryHighlight) {
+            this.setRegistryHighlight(undefined);
+        }
     }
 
 
@@ -182,7 +215,7 @@ export class FileAnalysisRow extends BaseElement {
     }
 
 
-    
+
 
 
 
@@ -275,20 +308,20 @@ export class FileAnalysisRow extends BaseElement {
         const u = this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing;
 
         return html`<td
-            class=${ classMap( classes ) }
-            @click=${ () => {
+            class=${classMap(classes)}
+            @click=${() => {
 
-                if ( !this.interactiveanalysis === false ) {
+                if (!this.interactiveanalysis === false) {
                     return;
                 }
 
-                if ( this.selected ) { 
-                    this.analysis.setDeselected(true); 
+                if (this.selected) {
+                    this.analysis.setDeselected(true);
                 } else {
                     this.analysis.setSelected(false, true);
                 }
 
-            } }
+            }}
         >
             ${u}
             <b aria-hidden="true" style="background-color: ${this.color}"></b>
@@ -332,8 +365,28 @@ export class FileAnalysisRow extends BaseElement {
 
     private renderLastCell(): unknown {
 
-        if ( this.interactiveanalysis === false ) {
+        if (this.interactiveanalysis === false) {
             return nothing;
+        }
+
+        let rangebtn: unknown = nothing;
+
+        if (!(this.analysis instanceof PointAnalysis)) {
+
+            rangebtn = html`<thermal-btn
+                size="md"
+                @click=${() => {
+                    if (this.analysis.min !== undefined && this.analysis.max !== undefined) {
+                        this.analysis.file.group.registry.range.imposeRange({
+                            from: this.analysis.min,
+                            to: this.analysis.max
+                        })
+                    }
+                }}
+                icon="range"
+                iconStyle="outline"
+            ></thermal-btn>`;
+
         }
 
         return html`<td>
@@ -345,6 +398,7 @@ export class FileAnalysisRow extends BaseElement {
                     tooltip="${t(T.delete)} ${this.analysis.name}"
                     @click=${() => this.analysis.file.analysis.layers.removeAnalysis(this.analysis.key)}
                 ></thermal-btn>
+                ${rangebtn}
             </div>
         </td>`;
 
@@ -387,7 +441,7 @@ export class FileAnalysisRow extends BaseElement {
             ),
 
             html`<td>${this.dimension}</td>`,
-            
+
             this.renderLastCell()
         ];
 
@@ -398,7 +452,7 @@ export class FileAnalysisRow extends BaseElement {
             class="name ${this.selected ? "selected" : "notSelected"} ${this.interactiveanalysis ? "interactive" : ""}"
             @click=${() => {
 
-                if ( this.interactiveanalysis === false ) {
+                if (this.interactiveanalysis === false) {
                     return;
                 }
 
@@ -406,7 +460,7 @@ export class FileAnalysisRow extends BaseElement {
                 else this.analysis.setSelected(false, true);
             }}
         >
-            ${this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing }
+            ${this.interactiveanalysis === true ? html`<u aria-hidden="true"></u>` : nothing}
             <b aria-hidden="true" style="background-color: ${this.color}"></b>
             <span>${this.analysis.name}</span>
         </td>
