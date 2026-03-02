@@ -170,9 +170,11 @@ export class AnalysisDataState extends AbstractProperty<AnalysisDataStateValue, 
 
                             const bufferValue = buffer[index];
 
-                            const [type, id, top, left, w, h] = a;
-
-                            id;
+                            const type = a[0];
+                            const top = a[2];
+                            const left = a[3];
+                            const w = a[4];
+                            const h = a[5];
 
                             // Point
                             if (type === "point") {

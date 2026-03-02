@@ -135,13 +135,12 @@ export class AnalysisGraph {
         // For area analysis, return only the active scopes
         const output: string[] = [];
 
-        Object.entries( this.state ).forEach( ([key, value]) => {
-
-            key;
+        Object.values( this.state ).forEach( value => {
 
             if ( value ) {
                 output.push( this.analysis.initialColor );
             }
+            
         } );
 
         return output;

@@ -3,23 +3,19 @@ import { AbstractProperty, IBaseProperty } from "../abstractProperty";
 
 
 /** The range should allways contain both properties. */
-export type ThermalRangeType = {
+type ThermalRangeType = {
     from: number,
     to: number
 }
 /** The range or undefined */
 export type ThermalRangeOrUndefined = ThermalRangeType | undefined;
 
-/** @deprecated */
-export type ThermalRangeDataType = ThermalRangeOrUndefined & {
-    from: number,
-    to: number
-}
-
 
 
 /** An object with range should implement it in a unified way */
-export interface IWithRange extends IBaseProperty { }
+export interface IWithRange extends IBaseProperty {
+    range: RangeDriver
+}
 
 /** Handles the thermal range display. */
 export class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {

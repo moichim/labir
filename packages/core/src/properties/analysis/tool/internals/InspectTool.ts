@@ -35,7 +35,8 @@ export class InspectTool extends AbstractTool implements ITool {
         if (file === undefined) return "";
         try {
             return file.getTemperatureAtPoint(x, y).toFixed(2) + " °C"
-        } catch(err){
+        } catch(error){
+            console.error("Error getting tool label at point", error);
             return "";
         }
     };

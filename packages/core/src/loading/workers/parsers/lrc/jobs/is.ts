@@ -2,6 +2,8 @@ import { IParserObject } from "../../structure";
 
 export const is: IParserObject["is"] = (data, url) => {
 
+    console.log( url );
+
     // Check if the URL has appropriate extension
     const hasCorrectExtension = url.endsWith("lrc");
 

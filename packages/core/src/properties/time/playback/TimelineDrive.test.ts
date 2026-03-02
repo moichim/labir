@@ -25,7 +25,7 @@ describe("ReTimelineDrive", async () => {
         expect( timeline ).toBeInstanceOf( TimelineDrive );
 
         // Test timeline initial properties
-        expect( timeline._initial ).toEqual(0);
+        expect( timeline.valueInitial ).toEqual(0);
         expect( timeline.duration ).toEqual(instance.duration);
         expect( timeline.startTimestampRelative ).toEqual( 0 );
         expect( timeline.endTimestampRelative ).toEqual( timeline.steps[ timeline.steps.length - 1 ].relative )

@@ -6,6 +6,9 @@ import path from "path"
 export default defineConfig({
     root: "./devserver/www",
     publicDir: path.resolve( "../../public" ),
+    build: {
+        sourcemap: false,
+    },
     test: {
         root: "./src",
         globals: true,

@@ -160,6 +160,7 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
         } catch (error) {
             this.loading = false;
             this.onCalculationEnd.call(false);
+            console.error("Error calculating histogram", error);
         }
         
 

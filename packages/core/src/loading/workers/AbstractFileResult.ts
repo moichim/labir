@@ -8,6 +8,5 @@ export abstract class AbstractFileResult{
 
     }
 
-    /** @deprecated to identify success, use `instanceof` */
     public abstract isSuccess(): boolean;
 }

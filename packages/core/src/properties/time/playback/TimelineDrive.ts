@@ -118,7 +118,7 @@ export class TimelineDrive extends AbstractProperty<number, Instance> {
     ) {
         super(parent, Math.max(Math.min(initial, steps.length), 0));
 
-        this._currentStep = this.steps[this._initial];
+        this._currentStep = this.steps[this.valueInitial];
         this.startTimestampRelative = 0;
         this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
 

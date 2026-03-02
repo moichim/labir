@@ -96,7 +96,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
         if (assignementManager) assignementManager.call(value);
         if (serialisationManager) serialisationManager.call(value.serialized);
 
-        this.callEffectsAndListeners();
+        this.callAllListenersWithCurrentValue();
 
         return value;
     }
@@ -173,7 +173,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
             this.parent.analysis.layers.removeAnalysis(analysis.key);
 
-            this.callEffectsAndListeners();
+            this.callAllListenersWithCurrentValue();
 
         }
     }
@@ -200,7 +200,7 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
                     this.parent.group.analysisSync.deleteSlot( this.parent, a.slot );
                 }
 
-                this.callEffectsAndListeners();
+                this.callAllListenersWithCurrentValue();
 
             }
         }
@@ -339,14 +339,6 @@ export class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Insta
 
 
     protected afterSetEffect(): void { }
-
-
-    /** 
-     * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
-     */
-    private callEffectsAndListeners() {
-        Object.values(this._listeners).forEach(listener => listener(this.value));
-    }
 
 
     /** 

@@ -15,9 +15,8 @@ describe( "ToolDrive", () => {
 
         let counter = 0;
 
-        tools.addListener( "initial listener", value => {
+        tools.addListener( "initial listener", () => {
             counter++;
-            value;
         } );
 
 

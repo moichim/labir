@@ -26,6 +26,7 @@ export class FilesService {
 
     }
 
+    /** @deprecated Intended only for tests & other internal purposes */
     public static isolatedInstance(pool: Pool, registryName: string = "isolated_registry") {
         const manager = new ThermalManager(pool);
         const registry = manager.addOrGetRegistry(registryName);
@@ -37,7 +38,7 @@ export class FilesService {
 
 
 
-    /** Map of peoding requesta */
+    /** Map of pending requests */
     protected readonly requestsByUrl: Map<string, FileRequest> = new Map;
 
     /** Number of currently pending requests */
@@ -135,14 +136,24 @@ export class FilesService {
 
     }
 
+    /** Load multiple images at once using  */
     async loadFiles(files: {
         lrc: string,
         png?: string,
-        callback?: (result: AbstractFileResult) => void,
-        group: ThermalGroup
+        callback?: (result: AbstractFileResult) => Promise<void>
     }[]) {
 
-        return files;
+
+        const requests = Promise.all( files.map(async file => {
+
+            const request = await this.loadFile( file.lrc, file.png );
+            if (file.callback) {
+                await file.callback(request);
+            }
+            return request;
+        }) );
+
+        return requests;
 
     }
 
