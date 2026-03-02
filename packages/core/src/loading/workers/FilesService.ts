@@ -1,14 +1,12 @@
+import Pool from "workerpool/types/Pool";
 import { ThermalManager } from "../../hierarchy/ThermalManager";
 import { AbstractFileResult } from "./AbstractFileResult";
-import { FileRequest } from "./FileRequest";
-
-import Pool from "workerpool/types/Pool";
 import { DropinElementListener } from "./dropin/DropinElementManager";
 import { FileErrors } from "./errors";
+import { FileRequest } from "./FileRequest";
 import { determineParser } from "./parsers";
 import { ThermalFileFailure } from "./ThermalFileFailure";
 import { ThermalFileReader } from "./ThermalFileReader";
-import { ThermalGroup } from "../../hierarchy/ThermalGroup";
 
 
 /**

@@ -31,7 +31,7 @@ interface IThermalObjectBase {
 }
 
 /** Base object for container tree containers */
-interface IThermalContainer
+interface IThermalContainer 
     extends IThermalObjectBase { }
 
 /** An instance and its properties */

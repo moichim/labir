@@ -176,13 +176,13 @@
           import { ThermalManager } from '../../src/hierarchy/ThermalManager';
           import { ThermalFileReader } from "../../src/loading/workers/ThermalFileReader";
           import { ThermalFileFailure } from "../../src/loading/workers/ThermalFileFailure";
-          import { Instance } from "../../src/file/Instance";
+          import { Instance } from "../../src/file/instance";
 
           const container3 = document.getElementById('controls');
 
           const manager3 = new ThermalManager();
-          const registry3 = manager3.addOrGetRegistry("multiple-images-registry");
-          const group3 = registry3.groups.addOrGetGroup("multiple-files-group");
+          const registry3 = manager3.addOrGetRegistry("controls-registry");
+          const group3 = registry3.groups.addOrGetGroup("controls-group");
 
           // Set a palette
           manager3.palette.setPalette( "lava" );

@@ -10,7 +10,8 @@ export interface IWithHistogram extends IBaseProperty {
     histogram: HistogramState
 }
 
-/** Handles the histogram creation and subscription.
+/** 
+ * Handles the histogram creation and subscription.
  * - should be used only in registries
  */
 export class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
@@ -162,9 +163,6 @@ export class HistogramState extends AbstractProperty<ThermalStatistics[], Therma
             this.onCalculationEnd.call(false);
             console.error("Error calculating histogram", error);
         }
-        
-
-        
 
     }
 

@@ -115,7 +115,7 @@ export class Instance extends AbstractFile {
         dom.listenerLayer.getLayerRoot().onmouseleave = () => {
 
             if (dom.cursorLayer)
-                dom.cursorLayer.setShow( false );
+                dom.cursorLayer.setShow(false);
 
             dom.setHover(false);
 
@@ -125,7 +125,7 @@ export class Instance extends AbstractFile {
 
         dom.listenerLayer.getLayerRoot().onmouseenter = () => {
 
-            this.group.analysisSync.setCurrentPointer( this );
+            this.group.analysisSync.setCurrentPointer(this);
 
         }
 
@@ -157,9 +157,7 @@ export class Instance extends AbstractFile {
         return `instance_${this.group.id}_${thermalUrl}`;
     }
 
-    protected onSetPixels(value: number[]): void {
-
-        value;
+    protected onSetPixels(): void {
 
 
         // If this file is loaded, recalculate all side effects
@@ -218,8 +216,8 @@ export class Instance extends AbstractFile {
         // If position
         if (position !== undefined) {
 
-            const x = Math.min( this.meta.width, Math.max( 0, position.x ) );
-            const y = Math.min( this.meta.height, Math.max( 0, position.y ) );
+            const x = Math.min(this.meta.width, Math.max(0, position.x));
+            const y = Math.min(this.meta.height, Math.max(0, position.y));
 
             // Get label value from the current tool
             const label = this.group.tool.value.getLabelValue(x, y, this);
@@ -228,16 +226,16 @@ export class Instance extends AbstractFile {
 
                 this.dom.cursorLayer?.setLabel(x, y, label);
                 if (this.dom.cursorLayer)
-                    this.dom.cursorLayer.setShow( true );
+                    this.dom.cursorLayer.setShow(true);
             }
 
 
         } else {
 
-            if ( this.dom ) {
+            if (this.dom) {
 
                 this.dom.cursorLayer?.resetCursor();
-                this.dom.cursorLayer?.setShow( false );
+                this.dom.cursorLayer?.setShow(false);
 
             }
 

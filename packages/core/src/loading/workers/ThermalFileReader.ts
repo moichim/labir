@@ -64,11 +64,11 @@ export class ThermalFileReader extends AbstractFileResult {
         return copiedArray.buffer;
     }
 
-    /** Create copy of the self so that the */
+    /** Create copy of the self so that the instance refers to its own ThermalFileReader */
     protected cloneForInstance(): ThermalFileReader {
 
         /** @todo Until the filters are implemented properly, there is no need of copying the buffer.*/
-        // return this;
+        return this;
 
 
         return new ThermalFileReader( 

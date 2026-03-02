@@ -156,8 +156,9 @@ export const baseInfo: IParserObject["baseInfo"] = async (entireFileBuffer) => {
         let offset: number = 0;
         if (next === undefined) {
             offset = 0;
+        } else {
+            offset = next - t;
         }
-        offset = next - t;
 
         const relative = t - timelineStart;
 

@@ -352,14 +352,11 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
         const slot = instance.slots.getSlot(slotNumber);
         const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
 
-        console.log( "Propagating", slot?.serialized, "from", instance.id, "to other instances in the group" );
-
         // Iterate all instances of the group
         this.parent.files.forEveryInstance(otherInstance => {
 
             // Skip the source instance
             if (otherInstance === instance) {
-                console.log( "Skipping source instance", otherInstance );
                 return;
             }
 
@@ -375,8 +372,6 @@ export class AnalysisSyncDrive extends AbstractProperty<boolean, ThermalGroup> {
 
             // Create a new analysis from the serialised data
             const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
-
-            console.log( "Created analysis from serialized data", analysis, "in", otherInstance.id );
 
             // Mark this as selected
             analysis?.setSelected();
