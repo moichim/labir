@@ -37,44 +37,7 @@ declare abstract class AbstractFileResult {
   readonly thermalUrl: string;
   readonly visibleUrl?: string | undefined;
   constructor(thermalUrl: string, visibleUrl?: string | undefined);
-  /** @deprecated to identify success, use `instanceof` */
   abstract isSuccess(): boolean;
-}
-//#endregion
-//#region src/loading/workers/FileRequest.d.ts
-/**
- * Internal member of `FilesService`
- * - `FileService` members may listen to resolving of this object
- * - `load()` method effcently handles the fetch and processing of the file
- */
-declare class FileRequest {
-  protected readonly service: FilesService;
-  readonly thermalUrl: string;
-  readonly visibleUrl?: string | undefined;
-  protected constructor(service: FilesService, thermalUrl: string, visibleUrl?: string | undefined);
-  static fromUrl(service: FilesService, thermalUrl: string, visibleUrl?: string): FileRequest;
-  /**
-   * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
-   */
-  response?: Promise<AbstractFileResult>;
-  /**
-   * Fetch a file, process the response and return the promise
-   * - the promise is stored internally
-   * - if the request is already loading/processing, any subsequent calls use the stored promise object
-   */
-  load(): Promise<AbstractFileResult>;
-  /**
-   * Process the raw response:
-   * - decide if the file exists
-   * - assign parser to the file
-   * - create the service
-   */
-  protected processResponse(response: Response): Promise<AbstractFileResult>;
-  /**
-   * Actions taken on the `AbstractFileResult` object
-   * @todo because there are no side effects, this method might appear redundant
-   */
-  protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
 }
 //#endregion
 //#region src/loading/workers/dropin/DropinElementManager.d.ts
@@ -122,6 +85,42 @@ declare class DropinElementListener {
   openFileDialog(multiple?: boolean): void;
 }
 //#endregion
+//#region src/loading/workers/FileRequest.d.ts
+/**
+ * Internal member of `FilesService`
+ * - `FileService` members may listen to resolving of this object
+ * - `load()` method effcently handles the fetch and processing of the file
+ */
+declare class FileRequest {
+  protected readonly service: FilesService;
+  readonly thermalUrl: string;
+  readonly visibleUrl?: string | undefined;
+  protected constructor(service: FilesService, thermalUrl: string, visibleUrl?: string | undefined);
+  static fromUrl(service: FilesService, thermalUrl: string, visibleUrl?: string): FileRequest;
+  /**
+   * The request is stored internally, so that multiple calls of `load` will allways result in one single `Promise` - to this one.
+   */
+  response?: Promise<AbstractFileResult>;
+  /**
+   * Fetch a file, process the response and return the promise
+   * - the promise is stored internally
+   * - if the request is already loading/processing, any subsequent calls use the stored promise object
+   */
+  load(): Promise<AbstractFileResult>;
+  /**
+   * Process the raw response:
+   * - decide if the file exists
+   * - assign parser to the file
+   * - create the service
+   */
+  protected processResponse(response: Response): Promise<AbstractFileResult>;
+  /**
+   * Actions taken on the `AbstractFileResult` object
+   * @todo because there are no side effects, this method might appear redundant
+   */
+  protected pocessTheService(result: AbstractFileResult): AbstractFileResult;
+}
+//#endregion
 //#region src/loading/workers/FilesService.d.ts
 /**
  * A singleton instance handling file loading
@@ -130,11 +129,12 @@ declare class FilesService {
   readonly manager: ThermalManager;
   get pool(): Pool;
   constructor(manager: ThermalManager);
+  /** @deprecated Intended only for tests & other internal purposes */
   static isolatedInstance(pool: Pool, registryName?: string): {
     service: FilesService;
     registry: ThermalRegistry;
   };
-  /** Map of peoding requesta */
+  /** Map of pending requests */
   protected readonly requestsByUrl: Map<string, FileRequest>;
   /** Number of currently pending requests */
   get requestsCount(): number;
@@ -152,17 +152,12 @@ declare class FilesService {
   handleDropzone(element: HTMLElement, multiple?: boolean): DropinElementListener;
   /** Load a file from URL, eventually using already cached result */
   loadFile(thermalUrl: string, visibleUrl?: string): Promise<AbstractFileResult>;
+  /** Load multiple images at once using  */
   loadFiles(files: {
     lrc: string;
     png?: string;
-    callback?: (result: AbstractFileResult) => void;
-    group: ThermalGroup;
-  }[]): Promise<{
-    lrc: string;
-    png?: string;
-    callback?: (result: AbstractFileResult) => void;
-    group: ThermalGroup;
-  }[]>;
+    callback?: (result: AbstractFileResult) => Promise<void>;
+  }[]): Promise<AbstractFileResult[]>;
 }
 //#endregion
 //#region src/properties/scale/palettes.d.ts
@@ -176,14 +171,14 @@ type ThermalPaletteType = {
 };
 declare const PALETTES: {
   readonly iron: {
-    readonly name: "Iron";
+    readonly name: "IRON";
     readonly gradient: string;
     readonly pixels: string[];
     readonly texturePixels: Float32Array<ArrayBufferLike>;
     readonly slug: "iron";
   };
   readonly jet: {
-    readonly name: "Jet";
+    readonly name: "JET";
     readonly gradient: string;
     readonly pixels: string[];
     readonly texturePixels: Float32Array<ArrayBufferLike>;
@@ -762,10 +757,6 @@ declare class AnalysisSlotsState extends AbstractProperty<AnalysisSlotsMap, Inst
   protected validate(value: AnalysisSlotsMap): AnalysisSlotsMap;
   protected afterSetEffect(): void;
   /**
-   * Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place.
-   */
-  private callEffectsAndListeners;
-  /**
    * Whenever a slot is assigned, call both particular and general listeners
    */
   private emitOnAssignement;
@@ -1305,7 +1296,9 @@ type ThermalRangeType = {
 /** The range or undefined */
 type ThermalRangeOrUndefined = ThermalRangeType | undefined;
 /** An object with range should implement it in a unified way */
-interface IWithRange extends IBaseProperty {}
+interface IWithRange extends IBaseProperty {
+  range: RangeDriver;
+}
 /** Handles the thermal range display. */
 declare class RangeDriver extends AbstractProperty<ThermalRangeOrUndefined, ThermalRegistry> {
   get currentRange(): ThermalRangeOrUndefined;
@@ -1349,31 +1342,64 @@ declare class AnalysisGroupGraph extends AbstractProperty<ThermalGraphGroupDataO
 }
 //#endregion
 //#region src/properties/abstractProperty.d.ts
+/** All available property data types */
 type PropertyListenersTypes = boolean | number | string | ThermalRangeOrUndefined | ThermalMinmaxOrUndefined | ThermalCursorPositionOrUndefined | ThermalGroup[] | ThermalStatistics[] | Instance[] | AbstractAnalysis[] | AbstractTool | AnalysisDataStateValue | AnalysisSlotsMap | ThermalGraphGroupDataOrUndefined;
 type PropertyListenerFn<T extends PropertyListenersTypes> = (value: T) => void;
 interface IBaseProperty {}
 /**
- * A common basis for all observable properties
+ * A common basis for all observable properties.
+ *
+ * Principle:
+ * - the value is stored internally
+ * - update should be done only using `this.value = newValue` setter which will call
+ *     - the validation
+ *     - the side effects
+ *     - the listeners on the value change
+ * - Listeners are stored in a `CallbacksManager` object which is controlled by methods such as `addListener`, `removeListener` and `clearAllListeners`
+ * - for the purpose of value assignment from the outside, every individual property should create its own public methods that respect principles mentioned above.
+ *
  * @internal
  */
 declare abstract class AbstractProperty<ValueType extends PropertyListenersTypes, ParentType extends IBaseProperty> {
   readonly parent: ParentType;
-  readonly _initial: ValueType;
-  protected _value: ValueType;
-  constructor(parent: ParentType, _initial: ValueType);
-  reset(): void;
+  private readonly _initial;
+  private _value;
+  /** Validation is called before every value change through the `value` setter. */
   protected abstract validate(value: ValueType): ValueType;
+  /** What should be done whenever the value changes? */
   protected abstract afterSetEffect(value: ValueType): void;
   /** Get the current value @readonly */
   get value(): ValueType;
-  /** Set the value and call all listeners */
+  /** Get the initial value of this property @readonly */
+  get valueInitial(): ValueType;
+  /**
+   * Set the value and call all listeners.
+   * - Validates the value before settings
+   * - Calls side effects after setting the value
+   * - Calls all the listeners with the new values
+   * @internal
+   */
   protected set value(value: ValueType);
-  protected _listeners: {
-    [index: string]: PropertyListenerFn<ValueType>;
-  };
+  private _listeners;
+  constructor(parent: ParentType, _initial: ValueType);
+  /** Set the value to its initial state */
+  reset(): void;
+  /**
+   * Add a listener to the property value changes.
+   * @param id Identificator of the listening object needs to be unique - it will be the key in the `Map of listeners`
+   * @param listener The function that will be triggered whenever the value changes.
+   */
   addListener(id: string, listener: PropertyListenerFn<ValueType>): void;
+  /** Remove the listener from the `Map` by its unique ID. */
   removeListener(id: string): void;
+  /** Remove all listeners from the `Map` */
   clearAllListeners(): void;
+  /**
+   * Arbitrary call all registered listeners usin the current value of the property.
+   *
+   * This method should be used only in special cases, for example when the value is concieved as a reference, therefore its updates does not use the standard setter which triggers the listeners, side effects ac ati.
+   */
+  protected callAllListenersWithCurrentValue(): void;
 }
 //#endregion
 //#region src/properties/scale/PaletteDrive.d.ts
@@ -1494,7 +1520,8 @@ declare class GroupsState extends AbstractProperty<ThermalGroup[], ThermalRegist
 }
 //#endregion
 //#region src/properties/states/HistogramState.d.ts
-/** Handles the histogram creation and subscription.
+/**
+ * Handles the histogram creation and subscription.
  * - should be used only in registries
  */
 declare class HistogramState extends AbstractProperty<ThermalStatistics[], ThermalRegistry> {
@@ -2580,7 +2607,7 @@ declare class ThermalFileReader extends AbstractFileResult {
   isSuccess(): boolean;
   /** @todo This method relies on the functionality of filters. */
   protected copyBuffer(buffer: ArrayBuffer): ArrayBuffer;
-  /** Create copy of the self so that the */
+  /** Create copy of the self so that the instance refers to its own ThermalFileReader */
   protected cloneForInstance(): ThermalFileReader;
   /** Read the fundamental data of the file. If this method had been called before, return the cached result. */
   baseInfo(): ReturnType<IParserObject["baseInfo"]>;
@@ -2655,7 +2682,7 @@ declare class Instance extends AbstractFile {
   dehydrateListener(dom: InstanceDOM): void;
   buildServices(): this;
   protected formatId(thermalUrl: string): string;
-  protected onSetPixels(value: number[]): void;
+  protected onSetPixels(): void;
   getPixelsForHistogram(): number[];
   static fromService(group: ThermalGroup, service: ThermalFileReader, baseInfo: ParsedFileBaseInfo, firstFrame: ParsedFileFrame): Instance;
   recieveCursorPosition(position: ThermalCursorPositionOrUndefined): void;
@@ -2844,3 +2871,4 @@ declare class TimeRound extends TimeUtilsBase {
 }
 //#endregion
 export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, type AnalysisDataStateValue, AnalysisGraph, type AvailableThermalPalette, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, type ParsedTimelineFrame, type PlaybackSpeeds, PointAnalysis, RectangleAnalysis, type SlotNumber, type SlotUnion, type ThermalCursorPositionOrUndefined, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, type ThermalManagerOptions, type ThermalMinmaxOrUndefined, type ThermalPaletteType, ThermalPalettes, type ThermalRangeOrUndefined, ThermalRegistry, type ThermalRegistryOptions, type ThermalTool, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty, zip };
+//# sourceMappingURL=index.d.cts.map

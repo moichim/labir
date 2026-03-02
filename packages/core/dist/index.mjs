@@ -75,6 +75,691 @@ var FilterContainer = class {
 };
 
 //#endregion
+//#region src/loading/workers/errors.ts
+/** Codes of errors */
+let FileErrors = /* @__PURE__ */ function(FileErrors) {
+	FileErrors[FileErrors["NOT_SPECIFIED"] = 0] = "NOT_SPECIFIED";
+	FileErrors[FileErrors["FILE_NOT_FOUND"] = 1] = "FILE_NOT_FOUND";
+	FileErrors[FileErrors["MIME_UNSUPPORTED"] = 2] = "MIME_UNSUPPORTED";
+	FileErrors[FileErrors["PARSING_ERROR"] = 3] = "PARSING_ERROR";
+	FileErrors[FileErrors["OUT_OF_MEMORY"] = 4] = "OUT_OF_MEMORY";
+	return FileErrors;
+}({});
+/** The error that is thrown anytime something happens during the loading */
+var FileLoadingError = class extends Error {
+	constructor(code, url, message) {
+		super(message);
+		this.code = code;
+		this.url = url;
+	}
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/baseInfo.ts
+const baseInfo = async (entireFileBuffer) => {
+	const view = new DataView(entireFileBuffer);
+	const width = view.getUint16(17, true);
+	const height = view.getUint16(19, true);
+	const bytesize = entireFileBuffer.byteLength;
+	const readTimestamp = (readingView, index) => {
+		const bigIntTime = readingView.getBigInt64(index, true);
+		const UnixEpoch = 62135596800000n;
+		const TicksPerMillisecond = 10000n;
+		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+		const TicksCeiling = 4611686018427387904n;
+		const LocalMask = 9223372036854775808n;
+		let ticks = bigIntTime & 4611686018427387903n;
+		if (bigIntTime & LocalMask) {
+			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
+			if (ticks < 0) ticks += TicksPerDay;
+		}
+		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+		return Number(milliseconds);
+	};
+	const dataType = view.getUint8(15);
+	let pixelByteSize = 2;
+	if (dataType === 1) pixelByteSize = 4;
+	const frameSize = 57 + width * height * pixelByteSize;
+	const streamSubset = entireFileBuffer.slice(25);
+	const frameCount = streamSubset.byteLength / frameSize;
+	const readFrame = (index) => {
+		const frameSubsetStart = index * frameSize;
+		const frameSubsetEnd = frameSubsetStart + frameSize;
+		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+		const frameView = new DataView(frameArrayBuffer);
+		const min = frameView.getFloat32(8, true);
+		const max = frameView.getFloat32(12, true);
+		return {
+			timestamp: readTimestamp(frameView, 0),
+			min,
+			max,
+			emissivity: frameView.getFloat32(24, true),
+			reflectedKelvins: frameView.getFloat32(28, true)
+		};
+	};
+	const frames = [];
+	for (let i = 0; i < frameCount; i++) {
+		const frame = readFrame(i);
+		frames.push(frame);
+	}
+	const sums = {
+		emissivity: 0,
+		reflectedKelvins: 0
+	};
+	let currentMin = Infinity;
+	let currentMax = -Infinity;
+	const timestamps = [];
+	frames.forEach((frame) => {
+		sums.emissivity = sums.emissivity + frame.emissivity;
+		sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
+		if (frame.min < currentMin) currentMin = frame.min;
+		if (frame.max > currentMax) currentMax = frame.max;
+		timestamps.push(frame.timestamp);
+	});
+	const timelineStart = timestamps[0];
+	let timelineCursor = 0;
+	const timeline = [];
+	const f = [];
+	timestamps.forEach((t, index) => {
+		const next = timestamps[index + 1];
+		let offset = 0;
+		if (next === void 0) offset = 0;
+		else offset = next - t;
+		const relative = t - timelineStart;
+		timeline.push(offset);
+		timelineCursor = timelineCursor + offset;
+		f.push({
+			absolute: t,
+			relative,
+			offset: isNaN(offset) ? 0 : offset,
+			index
+		});
+	});
+	const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
+	const frameInterval = duration / frameCount;
+	const fps = 1e3 / frameInterval;
+	return {
+		width,
+		height,
+		timestamp: frames[0].timestamp,
+		bytesize,
+		frameCount,
+		duration,
+		frameInterval,
+		fps,
+		timeline: f,
+		min: currentMin,
+		max: currentMax,
+		averageEmissivity: sums.emissivity / frames.length,
+		averageReflectedKelvins: sums.reflectedKelvins / frames.length
+	};
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/getFrameSubset.ts
+const getFrameSubset = (entireFileBuffer, index) => {
+	const headerView = new DataView(entireFileBuffer.slice(0, 25));
+	const dataType = headerView.getUint8(15);
+	const width = headerView.getUint16(17, true);
+	const height = headerView.getUint16(19, true);
+	const pixelByteSize = dataType === 1 ? 4 : 2;
+	const frameSize = 57 + width * height * pixelByteSize;
+	const streamSubset = entireFileBuffer.slice(25);
+	const frameSubsetStart = index * frameSize;
+	const frameSubsetEnd = frameSubsetStart + frameSize;
+	return {
+		array: streamSubset.slice(frameSubsetStart, frameSubsetEnd),
+		dataType
+	};
+};
+const frameData = async (frameSubset, dataType) => {
+	const view = new DataView(frameSubset);
+	const bigIntTime = view.getBigInt64(0, true);
+	const UnixEpoch = 62135596800000n;
+	const TicksPerMillisecond = 10000n;
+	const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+	const TicksCeiling = 4611686018427387904n;
+	const LocalMask = 9223372036854775808n;
+	let ticks = bigIntTime & 4611686018427387903n;
+	if (bigIntTime & LocalMask) {
+		if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
+		if (ticks < 0) ticks += TicksPerDay;
+	}
+	const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+	const timestamp = Number(milliseconds);
+	const min = view.getFloat32(8, true);
+	const max = view.getFloat32(12, true);
+	const emissivity = view.getFloat32(24, true);
+	const reflectedKelvins = view.getFloat32(28, true);
+	const subset = frameSubset.slice(57);
+	let pixels = [];
+	if (dataType === 0) {
+		const array = new Uint16Array(subset);
+		const distance = Math.abs(min - max);
+		const UINT16_MAX = 65535;
+		array.forEach((pixel) => {
+			const mappedValue = pixel / UINT16_MAX;
+			pixels.push(min + distance * mappedValue);
+		});
+	} else if (dataType === 1) pixels = Array.from(new Float32Array(subset));
+	return {
+		timestamp,
+		min,
+		max,
+		emissivity,
+		reflectedKelvins,
+		pixels
+	};
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/pointAnalysisData.ts
+const pointAnalysisData = async (entireFileBuffer, x, y) => {
+	const view = new DataView(entireFileBuffer);
+	const width = view.getUint16(17, true);
+	const height = view.getUint16(19, true);
+	const readTimestamp = (readingView, index) => {
+		const bigIntTime = readingView.getBigInt64(index, true);
+		const UnixEpoch = 62135596800000n;
+		const TicksPerMillisecond = 10000n;
+		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+		const TicksCeiling = 4611686018427387904n;
+		const LocalMask = 9223372036854775808n;
+		let ticks = bigIntTime & 4611686018427387903n;
+		if (bigIntTime & LocalMask) {
+			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
+			if (ticks < 0) ticks += TicksPerDay;
+		}
+		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+		return Number(milliseconds);
+	};
+	const dataType = view.getUint8(15);
+	let pixelByteSize = 2;
+	if (dataType === 1) pixelByteSize = 4;
+	const frameSize = 57 + width * height * pixelByteSize;
+	const streamSubset = entireFileBuffer.slice(25);
+	const frameCount = streamSubset.byteLength / frameSize;
+	const output = {};
+	const readFrame = (index) => {
+		const frameSubsetStart = index * frameSize;
+		const frameSubsetEnd = frameSubsetStart + frameSize;
+		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+		const frameView = new DataView(frameArrayBuffer);
+		const timestamp = readTimestamp(frameView, 0);
+		const min = frameView.getFloat32(8, true);
+		const range = frameView.getFloat32(12, true) - min;
+		const pointIndex = 57 + y * pixelByteSize * width + x * pixelByteSize;
+		let temperature = 0;
+		if (dataType === 1) temperature = frameView.getFloat32(pointIndex, true);
+		else if (dataType === 0) temperature = min + range * (frameView.getInt16(pointIndex, true) / 65535);
+		return {
+			timestamp,
+			temperature
+		};
+	};
+	let firstTimestamp = 0;
+	for (let i = 0; i < frameCount; i++) {
+		const frame = readFrame(i);
+		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
+		output[frame.timestamp - firstTimestamp] = frame.temperature;
+	}
+	return output;
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/rectAnalysisData.ts
+const rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
+	const view = new DataView(entireFileBuffer);
+	const fileWidth = view.getUint16(17, true);
+	const fileHeight = view.getUint16(19, true);
+	const readTimestamp = (readingView, index) => {
+		const bigIntTime = readingView.getBigInt64(index, true);
+		const UnixEpoch = 62135596800000n;
+		const TicksPerMillisecond = 10000n;
+		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+		const TicksCeiling = 4611686018427387904n;
+		const LocalMask = 9223372036854775808n;
+		let ticks = bigIntTime & 4611686018427387903n;
+		if (bigIntTime & LocalMask) {
+			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
+			if (ticks < 0) ticks += TicksPerDay;
+		}
+		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+		return Number(milliseconds);
+	};
+	const dataType = view.getUint8(15);
+	let pixelByteSize = 2;
+	if (dataType === 1) pixelByteSize = 4;
+	const frameSize = 57 + fileWidth * fileHeight * pixelByteSize;
+	const streamSubset = entireFileBuffer.slice(25);
+	const frameCount = streamSubset.byteLength / frameSize;
+	const output = {};
+	const readFrame = (index) => {
+		const frameSubsetStart = index * frameSize;
+		const frameSubsetEnd = frameSubsetStart + frameSize;
+		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+		const frameView = new DataView(frameArrayBuffer);
+		const timestamp = readTimestamp(frameView, 0);
+		const min = frameView.getFloat32(8, true);
+		const range = frameView.getFloat32(12, true) - min;
+		const frameHeaderByteSize = 57;
+		const fromX = left;
+		const toX = left + _width;
+		const fromY = top;
+		const toY = top + _height;
+		let _min = Infinity;
+		let _max = -Infinity;
+		let count = 0;
+		let sum = 0;
+		for (let y = fromY; y <= toY; y++) {
+			const rowOffset = y * fileWidth;
+			for (let x = fromX; x <= toX; x++) {
+				const pointIndex = frameHeaderByteSize + (rowOffset + x) * pixelByteSize;
+				let value = NaN;
+				if (dataType === 1) value = frameView.getFloat32(pointIndex, true);
+				else value = min + range * (frameView.getInt16(pointIndex, true) / 65535);
+				if (value < _min) _min = value;
+				if (value > _max) _max = value;
+				sum += value;
+				count++;
+			}
+		}
+		return {
+			timestamp,
+			result: {
+				min: _min,
+				max: _max,
+				avg: sum / count,
+				count
+			}
+		};
+	};
+	let firstTimestamp = 0;
+	for (let i = 0; i < frameCount; i++) {
+		const frame = readFrame(i);
+		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
+		output[frame.timestamp - firstTimestamp] = frame.result;
+	}
+	return output;
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/histogram.ts
+const registryHistogram = async (files) => {
+	let pixels = [];
+	const readFile = async (file) => {
+		const headerView = new DataView(file.slice(0, 25));
+		const dataType = headerView.getUint8(15);
+		const width = headerView.getUint16(17, true);
+		const height = headerView.getUint16(19, true);
+		const pixelByteSize = dataType === 1 ? 4 : 2;
+		const frameHeaderSize = 57;
+		const framePixelsSize = width * height * pixelByteSize;
+		const frameSize = frameHeaderSize + framePixelsSize;
+		const streamSubset = file.slice(25);
+		const frameCount = streamSubset.byteLength / frameSize;
+		let filePixels = [];
+		for (let i = 0; i < frameCount; i++) {
+			const frameStart = i * frameSize;
+			const pixelsSubsetStart = frameStart + 57;
+			const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
+			const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
+			if (dataType === 0) {
+				const frameHeaderView = new DataView(streamSubset.slice(frameStart, 56));
+				const min = frameHeaderView.getFloat32(8, true);
+				const max = frameHeaderView.getFloat32(12, true);
+				const array = new Uint16Array(pixelsSubset);
+				const distance = Math.abs(min - max);
+				const UINT16_MAX = 65535;
+				array.forEach((pixel) => {
+					const mappedValue = pixel / UINT16_MAX;
+					filePixels.push(min + distance * mappedValue);
+				});
+			} else if (dataType === 1) filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
+		}
+		return filePixels;
+	};
+	(await Promise.all(files.map((file) => readFile(file)))).forEach((fileResult) => {
+		pixels = pixels.concat(fileResult);
+	});
+	pixels.sort((a, b) => {
+		return a - b;
+	});
+	const min = pixels[0];
+	const max = pixels[pixels.length - 1];
+	const distance = Math.abs(min - max);
+	const resolution = 255;
+	const step = distance / resolution;
+	const bars = [];
+	let buf = [...pixels];
+	for (let i = 0; i < resolution; i++) {
+		const from = min + step * i;
+		const to = from + step;
+		const nextUpIndex = buf.findIndex((pixel) => pixel > to);
+		if (nextUpIndex === 0) {
+			const bar = {
+				from,
+				to,
+				count: 0,
+				percentage: 0
+			};
+			bars.push(bar);
+		} else {
+			const count = buf.slice(0, nextUpIndex - 1).length;
+			const bar = {
+				from,
+				to,
+				count,
+				percentage: count / pixels.length * 100
+			};
+			bars.push(bar);
+			buf = buf.slice(nextUpIndex);
+		}
+	}
+	const sortedByPercentage = [...bars].sort((a, b) => {
+		return a.percentage - b.percentage;
+	});
+	const minPercent = sortedByPercentage[0].percentage;
+	const maxPercent = sortedByPercentage[sortedByPercentage.length - 1].percentage;
+	const percentDistance = Math.abs(minPercent - maxPercent);
+	return bars.map((bar) => {
+		return {
+			...bar,
+			height: bar.percentage / percentDistance * 100
+		};
+	});
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/is.ts
+const is = (data, url) => {
+	const hasCorrectExtension = url.endsWith("lrc");
+	const hasCorrectSignature = new TextDecoder().decode(data.slice(0, 4)) === "LRC\0";
+	return hasCorrectExtension && hasCorrectSignature;
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/jobs/ellipsisAnalysisData.ts
+const ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
+	const view = new DataView(entireFileBuffer);
+	const fileWidth = view.getUint16(17, true);
+	const fileHeight = view.getUint16(19, true);
+	const readTimestamp = (readingView, index) => {
+		const bigIntTime = readingView.getBigInt64(index, true);
+		const UnixEpoch = 62135596800000n;
+		const TicksPerMillisecond = 10000n;
+		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
+		const TicksCeiling = 4611686018427387904n;
+		const LocalMask = 9223372036854775808n;
+		let ticks = bigIntTime & 4611686018427387903n;
+		if (bigIntTime & LocalMask) {
+			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
+			if (ticks < 0) ticks += TicksPerDay;
+		}
+		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
+		return Number(milliseconds);
+	};
+	const dataType = view.getUint8(15);
+	let pixelByteSize = 2;
+	if (dataType === 1) pixelByteSize = 4;
+	const frameSize = 57 + fileWidth * fileHeight * pixelByteSize;
+	const streamSubset = entireFileBuffer.slice(25);
+	const frameCount = streamSubset.byteLength / frameSize;
+	const output = {};
+	const isWithin = (x, y) => {
+		const centerX = left + _width / 2;
+		const centerY = top + _height / 2;
+		const normalizedX = (x - centerX) / (_width / 2);
+		const normalizedY = (y - centerY) / (_height / 2);
+		return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
+	};
+	const readFrame = (index) => {
+		const frameSubsetStart = index * frameSize;
+		const frameSubsetEnd = frameSubsetStart + frameSize;
+		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
+		const frameView = new DataView(frameArrayBuffer);
+		const timestamp = readTimestamp(frameView, 0);
+		const min = frameView.getFloat32(8, true);
+		const range = frameView.getFloat32(12, true) - min;
+		const frameHeaderByteSize = 57;
+		const fromX = left;
+		const toX = left + _width;
+		const fromY = top;
+		const toY = top + _height;
+		let _min = Infinity;
+		let _max = -Infinity;
+		let count = 0;
+		let sum = 0;
+		for (let y = fromY; y <= toY; y++) {
+			const rowOffset = y * fileWidth;
+			for (let x = fromX; x <= toX; x++) if (isWithin(x, y)) {
+				const pointIndex = frameHeaderByteSize + (rowOffset + x) * pixelByteSize;
+				let value = NaN;
+				if (dataType === 1) value = frameView.getFloat32(pointIndex, true);
+				else value = min + range * (frameView.getInt16(pointIndex, true) / 65535);
+				if (value < _min) _min = value;
+				if (value > _max) _max = value;
+				sum += value;
+				count++;
+			}
+		}
+		return {
+			timestamp,
+			result: {
+				min: _min,
+				max: _max,
+				avg: sum / count,
+				count
+			}
+		};
+	};
+	let firstTimestamp = 0;
+	for (let i = 0; i < frameCount; i++) {
+		const frame = readFrame(i);
+		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
+		output[frame.timestamp - firstTimestamp] = frame.result;
+	}
+	return output;
+};
+
+//#endregion
+//#region src/loading/workers/parsers/lrc/LrcParser.ts
+const parser = {
+	name: "LabIR Recording (.lrc)",
+	description: "Radiometric data developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
+	devices: [{
+		deviceName: "TIMI Edu Infrared Camera",
+		deviceUrl: "https://edu.labir.cz",
+		deviceDescription: "A thermal camera designed for school education.",
+		manufacturer: "TIMI Creation, s.r.o.",
+		manufacturerUrl: "https://timic.cz"
+	}, {
+		deviceName: "Custom measurement systems by IRT UWB in Pilsen (CZ)",
+		deviceUrl: "https://irt.zcu.cz",
+		deviceDescription: "Specialised applications of IR diagnostics in the field of industry, research, medicine, security or education.",
+		manufacturer: "IRT UWB in Pilsen (CZ)",
+		manufacturerUrl: "https://irt.zcu.cz"
+	}],
+	extensions: [{
+		extension: "lrc",
+		minme: "application/octet-stream"
+	}],
+	is,
+	baseInfo,
+	getFrameSubset,
+	frameData,
+	registryHistogram,
+	pointAnalysisData,
+	rectAnalysisData,
+	ellipsisAnalysisData
+};
+const LrcParser = Object.freeze(parser);
+
+//#endregion
+//#region src/loading/workers/parsers/index.ts
+/**
+* Add parser objects here to register them
+*/
+const parsers = { LrcParser };
+const parsersArray = Object.values(parsers);
+/**
+* Determines the parser and returns it (throws error if none found)
+* 
+* @throws FileLoadingError
+*/
+const determineParser = (buffer, url) => {
+	const parser = parsersArray.find((parser) => parser.is(buffer, url));
+	if (parser === void 0) throw new FileLoadingError(FileErrors.MIME_UNSUPPORTED, url, `No parser found for '${url}'.`);
+	return parser;
+};
+/**
+* Array of all supported file types and extensions
+* - this is only for the purpose of display!
+* - no functionality is relies on this data
+* - all the functionality needs to be implemented in static functions of the parser itself
+*/
+const supportedFileTypes = parsersArray.map((parser) => parser.extensions);
+const supportedFileTypesInputProperty = supportedFileTypes.map((type) => type.map((entry) => entry.minme + ", ." + entry.extension).join(", ")).join(", ");
+
+//#endregion
+//#region src/loading/workers/dropin/DropinElementManager.ts
+/** Turn any element into a dropzone! */
+var DropinElementListener = class DropinElementListener {
+	_hover = false;
+	get hover() {
+		return this._hover;
+	}
+	onMouseEnter = new CallbacksManager();
+	onMouseLeave = new CallbacksManager();
+	onDrop = new CallbacksManager();
+	onProcessingEnd = new CallbacksManager();
+	/** An invissible input element */
+	input;
+	hydrated = false;
+	multiple;
+	bindedEnterListener;
+	bindedLeaveListener;
+	bindedDropListener;
+	bindedInputChangeListener;
+	bindedDragoverListener;
+	bindedClickListener;
+	constructor(service, element, multiple = true) {
+		this.service = service;
+		this.element = element;
+		this.multiple = multiple;
+		this.bindedLeaveListener = this.handleLeave.bind(this);
+		this.bindedEnterListener = this.handleEnter.bind(this);
+		this.bindedDropListener = this.handleDrop.bind(this);
+		this.bindedInputChangeListener = this.handleInputChange.bind(this);
+		this.bindedDragoverListener = this.handleDragover.bind(this);
+		this.bindedClickListener = this.handleClick.bind(this);
+	}
+	static listenOnElement(service, element, multiple = true) {
+		const listener = new DropinElementListener(service, element, multiple);
+		listener.hydrate();
+		return listener;
+	}
+	/** Bind all event listeners to the provided element */
+	hydrate() {
+		if (this.hydrated === false) {
+			this.hydrated = true;
+			this.input = this.getInput();
+			this.element.addEventListener("dragover", this.bindedDragoverListener);
+			this.element.addEventListener("dragleave", this.bindedLeaveListener);
+			this.element.addEventListener("dragend", this.bindedLeaveListener);
+			this.element.addEventListener("pointerdown", this.bindedClickListener);
+			this.element.addEventListener("drop", this.bindedDropListener);
+			this.input.addEventListener("change", this.bindedInputChangeListener);
+		}
+	}
+	/** Remove all event listeners from the element */
+	dehydrate() {
+		if (this.hydrated === true) {
+			this.hydrated = false;
+			if (this.input) this.input.remove();
+			this.element.removeEventListener("dragover", this.bindedDragoverListener);
+			this.element.removeEventListener("dragleave", this.bindedLeaveListener);
+			this.element.removeEventListener("dragend", this.bindedLeaveListener);
+			this.element.removeEventListener("pointerdown", this.bindedClickListener);
+			this.element.removeEventListener("drop", this.bindedDropListener);
+		}
+	}
+	handleClick(event) {
+		event.preventDefault();
+		if (this.input) this.input.click();
+	}
+	handleDragover(event) {
+		event.preventDefault();
+		this.handleEnter();
+	}
+	async handleFiles(files) {
+		let results = [];
+		if (this.multiple) results = await Promise.all(files.map(async (file) => {
+			return await this.service.loadUploadedFile(file);
+		}));
+		else {
+			const file = files[0];
+			if (file) results.push(await this.service.loadUploadedFile(file));
+		}
+		return results;
+	}
+	async handleDrop(event) {
+		event.preventDefault();
+		this.onDrop.call();
+		let results = [];
+		const transfer = event.dataTransfer;
+		if (transfer && transfer.files) results = await this.handleFiles(Array.from(transfer.files));
+		this.onProcessingEnd.call(results, event);
+		this.handleLeave();
+		return {
+			results,
+			event
+		};
+	}
+	async handleInputChange(event) {
+		event.preventDefault();
+		this.onDrop.call();
+		const target = event.target;
+		let results = [];
+		if (target.files) {
+			results = await this.handleFiles(Array.from(target.files));
+			this.onProcessingEnd.call(results, event);
+			this.handleLeave();
+		}
+		return {
+			results,
+			event
+		};
+	}
+	handleEnter() {
+		if (this._hover === false) {
+			this._hover = true;
+			this.onMouseEnter.call();
+		}
+	}
+	handleLeave() {
+		if (this._hover === true) {
+			this._hover = false;
+			this.onMouseLeave.call();
+		}
+	}
+	/** Build the internal input */
+	getInput() {
+		const element = document.createElement("input");
+		element.type = "file";
+		element.accept = supportedFileTypesInputProperty;
+		if (this.multiple) element.multiple = true;
+		return element;
+	}
+	openFileDialog(multiple = true) {
+		if (this.input !== void 0) {
+			this.input.multiple = multiple;
+			this.input.click();
+		}
+	}
+};
+
+//#endregion
 //#region src/loading/workers/AbstractFileResult.ts
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 var AbstractFileResult = class {
@@ -101,61 +786,76 @@ var ThermalFileFailure = class ThermalFileFailure extends AbstractFileResult {
 };
 
 //#endregion
-//#region src/loading/workers/errors.ts
-/** Codes of errors */
-let FileErrors = /* @__PURE__ */ function(FileErrors) {
-	FileErrors[FileErrors["NOT_SPECIFIED"] = 0] = "NOT_SPECIFIED";
-	FileErrors[FileErrors["FILE_NOT_FOUND"] = 1] = "FILE_NOT_FOUND";
-	FileErrors[FileErrors["MIME_UNSUPPORTED"] = 2] = "MIME_UNSUPPORTED";
-	FileErrors[FileErrors["PARSING_ERROR"] = 3] = "PARSING_ERROR";
-	FileErrors[FileErrors["OUT_OF_MEMORY"] = 4] = "OUT_OF_MEMORY";
-	return FileErrors;
-}({});
-/** The error that is thrown anytime something happens during the loading */
-var FileLoadingError = class extends Error {
-	constructor(code, url, message) {
-		super(message);
-		this.code = code;
-		this.url = url;
-	}
-};
-
-//#endregion
 //#region src/properties/abstractProperty.ts
 /** 
-* A common basis for all observable properties 
+* A common basis for all observable properties.
+* 
+* Principle:
+* - the value is stored internally
+* - update should be done only using `this.value = newValue` setter which will call
+*     - the validation
+*     - the side effects
+*     - the listeners on the value change
+* - Listeners are stored in a `CallbacksManager` object which is controlled by methods such as `addListener`, `removeListener` and `clearAllListeners`
+* - for the purpose of value assignment from the outside, every individual property should create its own public methods that respect principles mentioned above.
+* 
 * @internal 
 */
 var AbstractProperty = class {
 	_value;
+	/** Get the current value @readonly */
+	get value() {
+		return this._value;
+	}
+	/** Get the initial value of this property @readonly */
+	get valueInitial() {
+		return this._initial;
+	}
+	/** 
+	* Set the value and call all listeners. 
+	* - Validates the value before settings
+	* - Calls side effects after setting the value
+	* - Calls all the listeners with the new values
+	* @internal 
+	*/
+	set value(value) {
+		this._value = this.validate(value);
+		this.afterSetEffect(this._value);
+		this._listeners.call(this._value);
+	}
+	_listeners = new CallbacksManager();
 	constructor(parent, _initial) {
 		this.parent = parent;
 		this._initial = _initial;
 		this._value = this.validate(this._initial);
 	}
+	/** Set the value to its initial state */
 	reset() {
 		this.value = this._initial;
 	}
-	/** Get the current value @readonly */
-	get value() {
-		return this._value;
-	}
-	/** Set the value and call all listeners */
-	set value(value) {
-		this._value = this.validate(value);
-		this.afterSetEffect(this._value);
-		Object.values(this._listeners).forEach((listener) => listener(this._value));
-	}
-	_listeners = {};
+	/**
+	* Add a listener to the property value changes.
+	* @param id Identificator of the listening object needs to be unique - it will be the key in the `Map of listeners`
+	* @param listener The function that will be triggered whenever the value changes.
+	*/
 	addListener(id, listener) {
-		if (id in this._listeners) delete this._listeners[id];
-		this._listeners[id] = listener;
+		this._listeners.set(id, listener);
 	}
+	/** Remove the listener from the `Map` by its unique ID. */
 	removeListener(id) {
-		if (id in this._listeners) delete this._listeners[id];
+		this._listeners.delete(id);
 	}
+	/** Remove all listeners from the `Map` */
 	clearAllListeners() {
-		this._listeners = {};
+		this._listeners.clear();
+	}
+	/** 
+	* Arbitrary call all registered listeners usin the current value of the property. 
+	* 
+	* This method should be used only in special cases, for example when the value is concieved as a reference, therefore its updates does not use the standard setter which triggers the listeners, side effects ac ati.
+	*/
+	callAllListenersWithCurrentValue() {
+		this._listeners.call(this._value);
 	}
 };
 
@@ -1029,7 +1729,7 @@ var AnalysisGraph = class {
 		if (this.analysis instanceof PointAnalysis) if (this._avg) return [this.analysis.initialColor];
 		else return [];
 		const output = [];
-		Object.entries(this.state).forEach(([key, value]) => {
+		Object.values(this.state).forEach((value) => {
 			if (value) output.push(this.analysis.initialColor);
 		});
 		return output;
@@ -2189,7 +2889,11 @@ var AnalysisDataState = class extends AbstractProperty {
 					*/
 					analysis.forEach((a, index) => {
 						const bufferValue = buffer[index];
-						const [type, id, top, left, w, h] = a;
+						const type = a[0];
+						const top = a[2];
+						const left = a[3];
+						const w = a[4];
+						const h = a[5];
 						if (type === "point") {
 							if (x === left && y === top) bufferValue.avg.value = rawTemperature;
 						} else if (type === "rectangle") {
@@ -2359,7 +3063,7 @@ var AnalysisSlotsState = class AnalysisSlotsState extends AbstractProperty {
 		const serialisationManager = this.getOnSerializeManager(slot);
 		if (assignementManager) assignementManager.call(value);
 		if (serialisationManager) serialisationManager.call(value.serialized);
-		this.callEffectsAndListeners();
+		this.callAllListenersWithCurrentValue();
 		return value;
 	}
 	/** Does this instance have an analyasis on the given slot number? */
@@ -2407,7 +3111,7 @@ var AnalysisSlotsState = class AnalysisSlotsState extends AbstractProperty {
 			this.emitOnAssignement(slot, void 0);
 			this.value.delete(slot);
 			this.parent.analysis.layers.removeAnalysis(analysis.key);
-			this.callEffectsAndListeners();
+			this.callAllListenersWithCurrentValue();
 		}
 	}
 	/**
@@ -2418,7 +3122,7 @@ var AnalysisSlotsState = class AnalysisSlotsState extends AbstractProperty {
 			this.emitOnAssignement(a.slot, void 0);
 			this.value.delete(a.slot);
 			if (this.parent.group.analysisSync.value === true) this.parent.group.analysisSync.deleteSlot(this.parent, a.slot);
-			this.callEffectsAndListeners();
+			this.callAllListenersWithCurrentValue();
 		}
 	}
 	/** 
@@ -2482,12 +3186,6 @@ var AnalysisSlotsState = class AnalysisSlotsState extends AbstractProperty {
 		return value;
 	}
 	afterSetEffect() {}
-	/** 
-	* Internal replacement of standard callbacks call. Here, the value is stored as a map reference, therefore there are no reassignements. Standard callbacks are called upon reassignement. This method is called in their place. 
-	*/
-	callEffectsAndListeners() {
-		Object.values(this._listeners).forEach((listener) => listener(this.value));
-	}
 	/** 
 	* Whenever a slot is assigned, call both particular and general listeners 
 	*/
@@ -2720,7 +3418,7 @@ var TimelineDrive = class extends AbstractProperty {
 	constructor(parent, initial, steps, initialFrameData) {
 		super(parent, Math.max(Math.min(initial, steps.length), 0));
 		this.steps = steps;
-		this._currentStep = this.steps[this._initial];
+		this._currentStep = this.steps[this.valueInitial];
 		this.startTimestampRelative = 0;
 		this.endTimestampRelative = this.steps[this.steps.length - 1].relative;
 		this.isSequence = this.parent.timelineData.length > 1;
@@ -4595,7 +5293,7 @@ var Instance = class Instance extends AbstractFile {
 	formatId(thermalUrl) {
 		return `instance_${this.group.id}_${thermalUrl}`;
 	}
-	onSetPixels(value) {
+	onSetPixels() {
 		if (this.dom && this.dom.built) {
 			this.draw();
 			this.cursorValue.recalculateFromCursor(this.group.cursorPosition.value);
@@ -4663,7 +5361,7 @@ var Instance = class Instance extends AbstractFile {
 * - this service is registered in FilesService
 * - the instances are retrieved using `FilesService.loadOneFile`
 */
-var ThermalFileReader = class ThermalFileReader extends AbstractFileResult {
+var ThermalFileReader = class extends AbstractFileResult {
 	/** For the purpose of testing we have a unique ID */
 	id = Math.random();
 	/** In-memory cache of the `baseInfo` request. This request might be expensive in larger files or in Vario Cam files. Because the return value is allways the same, there is no need to make the call repeatedly. */
@@ -4698,10 +5396,10 @@ var ThermalFileReader = class ThermalFileReader extends AbstractFileResult {
 		copiedArray.set(new Uint8Array(buffer));
 		return copiedArray.buffer;
 	}
-	/** Create copy of the self so that the */
+	/** Create copy of the self so that the instance refers to its own ThermalFileReader */
 	cloneForInstance() {
 		/** @todo Until the filters are implemented properly, there is no need of copying the buffer.*/
-		return new ThermalFileReader(this.service, this.buffer, this.parser, this.thermalUrl, this.visibleUrl, true);
+		return this;
 	}
 	/** Read the fundamental data of the file. If this method had been called before, return the cached result. */
 	async baseInfo() {
@@ -4761,533 +5459,6 @@ var ThermalFileReader = class ThermalFileReader extends AbstractFileResult {
 };
 
 //#endregion
-//#region src/loading/workers/parsers/lrc/jobs/baseInfo.ts
-const baseInfo = async (entireFileBuffer) => {
-	const view = new DataView(entireFileBuffer);
-	const width = view.getUint16(17, true);
-	const height = view.getUint16(19, true);
-	const bytesize = entireFileBuffer.byteLength;
-	const readTimestamp = (readingView, index) => {
-		const bigIntTime = readingView.getBigInt64(index, true);
-		const UnixEpoch = 62135596800000n;
-		const TicksPerMillisecond = 10000n;
-		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-		const TicksCeiling = 4611686018427387904n;
-		const LocalMask = 9223372036854775808n;
-		let ticks = bigIntTime & 4611686018427387903n;
-		if (bigIntTime & LocalMask) {
-			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
-			if (ticks < 0) ticks += TicksPerDay;
-		}
-		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-		return Number(milliseconds);
-	};
-	const dataType = view.getUint8(15);
-	let pixelByteSize = 2;
-	if (dataType === 1) pixelByteSize = 4;
-	const frameSize = 57 + width * height * pixelByteSize;
-	const streamSubset = entireFileBuffer.slice(25);
-	const frameCount = streamSubset.byteLength / frameSize;
-	const readFrame = (index) => {
-		const frameSubsetStart = index * frameSize;
-		const frameSubsetEnd = frameSubsetStart + frameSize;
-		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-		const frameView = new DataView(frameArrayBuffer);
-		const min = frameView.getFloat32(8, true);
-		const max = frameView.getFloat32(12, true);
-		return {
-			timestamp: readTimestamp(frameView, 0),
-			min,
-			max,
-			emissivity: frameView.getFloat32(24, true),
-			reflectedKelvins: frameView.getFloat32(28, true)
-		};
-	};
-	const frames = [];
-	for (let i = 0; i < frameCount; i++) {
-		const frame = readFrame(i);
-		frames.push(frame);
-	}
-	const sums = {
-		emissivity: 0,
-		reflectedKelvins: 0
-	};
-	let currentMin = Infinity;
-	let currentMax = -Infinity;
-	const timestamps = [];
-	frames.forEach((frame) => {
-		sums.emissivity = sums.emissivity + frame.emissivity;
-		sums.reflectedKelvins = sums.reflectedKelvins + frame.reflectedKelvins;
-		if (frame.min < currentMin) currentMin = frame.min;
-		if (frame.max > currentMax) currentMax = frame.max;
-		timestamps.push(frame.timestamp);
-	});
-	const timelineStart = timestamps[0];
-	let timelineCursor = 0;
-	const timeline = [];
-	const f = [];
-	timestamps.forEach((t, index) => {
-		const next = timestamps[index + 1];
-		let offset = 0;
-		if (next === void 0) offset = 0;
-		offset = next - t;
-		const relative = t - timelineStart;
-		timeline.push(offset);
-		timelineCursor = timelineCursor + offset;
-		f.push({
-			absolute: t,
-			relative,
-			offset: isNaN(offset) ? 0 : offset,
-			index
-		});
-	});
-	const duration = frames[frames.length - 1].timestamp - frames[0].timestamp;
-	const frameInterval = duration / frameCount;
-	const fps = 1e3 / frameInterval;
-	return {
-		width,
-		height,
-		timestamp: frames[0].timestamp,
-		bytesize,
-		frameCount,
-		duration,
-		frameInterval,
-		fps,
-		timeline: f,
-		min: currentMin,
-		max: currentMax,
-		averageEmissivity: sums.emissivity / frames.length,
-		averageReflectedKelvins: sums.reflectedKelvins / frames.length
-	};
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/getFrameSubset.ts
-const getFrameSubset = (entireFileBuffer, index) => {
-	const headerView = new DataView(entireFileBuffer.slice(0, 25));
-	const dataType = headerView.getUint8(15);
-	const width = headerView.getUint16(17, true);
-	const height = headerView.getUint16(19, true);
-	const pixelByteSize = dataType === 1 ? 4 : 2;
-	const frameSize = 57 + width * height * pixelByteSize;
-	const streamSubset = entireFileBuffer.slice(25);
-	const frameSubsetStart = index * frameSize;
-	const frameSubsetEnd = frameSubsetStart + frameSize;
-	return {
-		array: streamSubset.slice(frameSubsetStart, frameSubsetEnd),
-		dataType
-	};
-};
-const frameData = async (frameSubset, dataType) => {
-	const view = new DataView(frameSubset);
-	const bigIntTime = view.getBigInt64(0, true);
-	const UnixEpoch = 62135596800000n;
-	const TicksPerMillisecond = 10000n;
-	const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-	const TicksCeiling = 4611686018427387904n;
-	const LocalMask = 9223372036854775808n;
-	let ticks = bigIntTime & 4611686018427387903n;
-	if (bigIntTime & LocalMask) {
-		if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
-		if (ticks < 0) ticks += TicksPerDay;
-	}
-	const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-	const timestamp = Number(milliseconds);
-	const min = view.getFloat32(8, true);
-	const max = view.getFloat32(12, true);
-	const emissivity = view.getFloat32(24, true);
-	const reflectedKelvins = view.getFloat32(28, true);
-	const subset = frameSubset.slice(57);
-	let pixels = [];
-	if (dataType === 0) {
-		const array = new Uint16Array(subset);
-		const distance = Math.abs(min - max);
-		const UINT16_MAX = 65535;
-		array.forEach((pixel) => {
-			const mappedValue = pixel / UINT16_MAX;
-			pixels.push(min + distance * mappedValue);
-		});
-	} else if (dataType === 1) pixels = Array.from(new Float32Array(subset));
-	return {
-		timestamp,
-		min,
-		max,
-		emissivity,
-		reflectedKelvins,
-		pixels
-	};
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/pointAnalysisData.ts
-const pointAnalysisData = async (entireFileBuffer, x, y) => {
-	const view = new DataView(entireFileBuffer);
-	const width = view.getUint16(17, true);
-	const height = view.getUint16(19, true);
-	const readTimestamp = (readingView, index) => {
-		const bigIntTime = readingView.getBigInt64(index, true);
-		const UnixEpoch = 62135596800000n;
-		const TicksPerMillisecond = 10000n;
-		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-		const TicksCeiling = 4611686018427387904n;
-		const LocalMask = 9223372036854775808n;
-		let ticks = bigIntTime & 4611686018427387903n;
-		if (bigIntTime & LocalMask) {
-			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
-			if (ticks < 0) ticks += TicksPerDay;
-		}
-		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-		return Number(milliseconds);
-	};
-	const dataType = view.getUint8(15);
-	let pixelByteSize = 2;
-	if (dataType === 1) pixelByteSize = 4;
-	const frameSize = 57 + width * height * pixelByteSize;
-	const streamSubset = entireFileBuffer.slice(25);
-	const frameCount = streamSubset.byteLength / frameSize;
-	const output = {};
-	const readFrame = (index) => {
-		const frameSubsetStart = index * frameSize;
-		const frameSubsetEnd = frameSubsetStart + frameSize;
-		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-		const frameView = new DataView(frameArrayBuffer);
-		const timestamp = readTimestamp(frameView, 0);
-		const min = frameView.getFloat32(8, true);
-		const range = frameView.getFloat32(12, true) - min;
-		const pointIndex = 57 + y * pixelByteSize * width + x * pixelByteSize;
-		let temperature = 0;
-		if (dataType === 1) temperature = frameView.getFloat32(pointIndex, true);
-		else if (dataType === 0) temperature = min + range * (frameView.getInt16(pointIndex, true) / 65535);
-		return {
-			timestamp,
-			temperature
-		};
-	};
-	let firstTimestamp = 0;
-	for (let i = 0; i < frameCount; i++) {
-		const frame = readFrame(i);
-		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
-		output[frame.timestamp - firstTimestamp] = frame.temperature;
-	}
-	return output;
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/rectAnalysisData.ts
-const rectAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
-	const view = new DataView(entireFileBuffer);
-	const fileWidth = view.getUint16(17, true);
-	const fileHeight = view.getUint16(19, true);
-	const readTimestamp = (readingView, index) => {
-		const bigIntTime = readingView.getBigInt64(index, true);
-		const UnixEpoch = 62135596800000n;
-		const TicksPerMillisecond = 10000n;
-		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-		const TicksCeiling = 4611686018427387904n;
-		const LocalMask = 9223372036854775808n;
-		let ticks = bigIntTime & 4611686018427387903n;
-		if (bigIntTime & LocalMask) {
-			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
-			if (ticks < 0) ticks += TicksPerDay;
-		}
-		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-		return Number(milliseconds);
-	};
-	const dataType = view.getUint8(15);
-	let pixelByteSize = 2;
-	if (dataType === 1) pixelByteSize = 4;
-	const frameSize = 57 + fileWidth * fileHeight * pixelByteSize;
-	const streamSubset = entireFileBuffer.slice(25);
-	const frameCount = streamSubset.byteLength / frameSize;
-	const output = {};
-	const readFrame = (index) => {
-		const frameSubsetStart = index * frameSize;
-		const frameSubsetEnd = frameSubsetStart + frameSize;
-		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-		const frameView = new DataView(frameArrayBuffer);
-		const timestamp = readTimestamp(frameView, 0);
-		const min = frameView.getFloat32(8, true);
-		const range = frameView.getFloat32(12, true) - min;
-		const frameHeaderByteSize = 57;
-		const fromX = left;
-		const toX = left + _width;
-		const fromY = top;
-		const toY = top + _height;
-		let _min = Infinity;
-		let _max = -Infinity;
-		let count = 0;
-		let sum = 0;
-		for (let y = fromY; y <= toY; y++) {
-			const rowOffset = y * fileWidth;
-			for (let x = fromX; x <= toX; x++) {
-				const pointIndex = frameHeaderByteSize + (rowOffset + x) * pixelByteSize;
-				let value = NaN;
-				if (dataType === 1) value = frameView.getFloat32(pointIndex, true);
-				else value = min + range * (frameView.getInt16(pointIndex, true) / 65535);
-				if (value < _min) _min = value;
-				if (value > _max) _max = value;
-				sum += value;
-				count++;
-			}
-		}
-		return {
-			timestamp,
-			result: {
-				min: _min,
-				max: _max,
-				avg: sum / count,
-				count
-			}
-		};
-	};
-	let firstTimestamp = 0;
-	for (let i = 0; i < frameCount; i++) {
-		const frame = readFrame(i);
-		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
-		output[frame.timestamp - firstTimestamp] = frame.result;
-	}
-	return output;
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/histogram.ts
-const registryHistogram = async (files) => {
-	let pixels = [];
-	const readFile = async (file) => {
-		const headerView = new DataView(file.slice(0, 25));
-		const dataType = headerView.getUint8(15);
-		const width = headerView.getUint16(17, true);
-		const height = headerView.getUint16(19, true);
-		const pixelByteSize = dataType === 1 ? 4 : 2;
-		const frameHeaderSize = 57;
-		const framePixelsSize = width * height * pixelByteSize;
-		const frameSize = frameHeaderSize + framePixelsSize;
-		const streamSubset = file.slice(25);
-		const frameCount = streamSubset.byteLength / frameSize;
-		let filePixels = [];
-		for (let i = 0; i < frameCount; i++) {
-			const frameStart = i * frameSize;
-			const pixelsSubsetStart = frameStart + 57;
-			const pixelsSubsetEnd = pixelsSubsetStart + framePixelsSize;
-			const pixelsSubset = streamSubset.slice(pixelsSubsetStart, pixelsSubsetEnd);
-			if (dataType === 0) {
-				const frameHeaderView = new DataView(streamSubset.slice(frameStart, 56));
-				const min = frameHeaderView.getFloat32(8, true);
-				const max = frameHeaderView.getFloat32(12, true);
-				const array = new Uint16Array(pixelsSubset);
-				const distance = Math.abs(min - max);
-				const UINT16_MAX = 65535;
-				array.forEach((pixel) => {
-					const mappedValue = pixel / UINT16_MAX;
-					filePixels.push(min + distance * mappedValue);
-				});
-			} else if (dataType === 1) filePixels = filePixels.concat(Array.from(new Float32Array(pixelsSubset)));
-		}
-		return filePixels;
-	};
-	(await Promise.all(files.map((file) => readFile(file)))).forEach((fileResult) => {
-		pixels = pixels.concat(fileResult);
-	});
-	pixels.sort((a, b) => {
-		return a - b;
-	});
-	const min = pixels[0];
-	const max = pixels[pixels.length - 1];
-	const distance = Math.abs(min - max);
-	const resolution = 255;
-	const step = distance / resolution;
-	const bars = [];
-	let buf = [...pixels];
-	for (let i = 0; i < resolution; i++) {
-		const from = min + step * i;
-		const to = from + step;
-		const nextUpIndex = buf.findIndex((pixel) => pixel > to);
-		if (nextUpIndex === 0) {
-			const bar = {
-				from,
-				to,
-				count: 0,
-				percentage: 0
-			};
-			bars.push(bar);
-		} else {
-			const count = buf.slice(0, nextUpIndex - 1).length;
-			const bar = {
-				from,
-				to,
-				count,
-				percentage: count / pixels.length * 100
-			};
-			bars.push(bar);
-			buf = buf.slice(nextUpIndex);
-		}
-	}
-	const sortedByPercentage = [...bars].sort((a, b) => {
-		return a.percentage - b.percentage;
-	});
-	const minPercent = sortedByPercentage[0].percentage;
-	const maxPercent = sortedByPercentage[sortedByPercentage.length - 1].percentage;
-	const percentDistance = Math.abs(minPercent - maxPercent);
-	return bars.map((bar) => {
-		return {
-			...bar,
-			height: bar.percentage / percentDistance * 100
-		};
-	});
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/is.ts
-const is = (data, url) => {
-	const hasCorrectExtension = url.endsWith("lrc");
-	const hasCorrectSignature = new TextDecoder().decode(data.slice(0, 4)) === "LRC\0";
-	return hasCorrectExtension && hasCorrectSignature;
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/jobs/ellipsisAnalysisData.ts
-const ellipsisAnalysisData = async (entireFileBuffer, left, top, _width, _height) => {
-	const view = new DataView(entireFileBuffer);
-	const fileWidth = view.getUint16(17, true);
-	const fileHeight = view.getUint16(19, true);
-	const readTimestamp = (readingView, index) => {
-		const bigIntTime = readingView.getBigInt64(index, true);
-		const UnixEpoch = 62135596800000n;
-		const TicksPerMillisecond = 10000n;
-		const TicksPerDay = 24n * 60n * 60n * 1000n * TicksPerMillisecond;
-		const TicksCeiling = 4611686018427387904n;
-		const LocalMask = 9223372036854775808n;
-		let ticks = bigIntTime & 4611686018427387903n;
-		if (bigIntTime & LocalMask) {
-			if (ticks > TicksCeiling - TicksPerDay) ticks -= TicksCeiling;
-			if (ticks < 0) ticks += TicksPerDay;
-		}
-		const milliseconds = ticks / TicksPerMillisecond - UnixEpoch;
-		return Number(milliseconds);
-	};
-	const dataType = view.getUint8(15);
-	let pixelByteSize = 2;
-	if (dataType === 1) pixelByteSize = 4;
-	const frameSize = 57 + fileWidth * fileHeight * pixelByteSize;
-	const streamSubset = entireFileBuffer.slice(25);
-	const frameCount = streamSubset.byteLength / frameSize;
-	const output = {};
-	const isWithin = (x, y) => {
-		const centerX = left + _width / 2;
-		const centerY = top + _height / 2;
-		const normalizedX = (x - centerX) / (_width / 2);
-		const normalizedY = (y - centerY) / (_height / 2);
-		return normalizedX * normalizedX + normalizedY * normalizedY <= 1;
-	};
-	const readFrame = (index) => {
-		const frameSubsetStart = index * frameSize;
-		const frameSubsetEnd = frameSubsetStart + frameSize;
-		const frameArrayBuffer = streamSubset.slice(frameSubsetStart, frameSubsetEnd);
-		const frameView = new DataView(frameArrayBuffer);
-		const timestamp = readTimestamp(frameView, 0);
-		const min = frameView.getFloat32(8, true);
-		const range = frameView.getFloat32(12, true) - min;
-		const frameHeaderByteSize = 57;
-		const fromX = left;
-		const toX = left + _width;
-		const fromY = top;
-		const toY = top + _height;
-		let _min = Infinity;
-		let _max = -Infinity;
-		let count = 0;
-		let sum = 0;
-		for (let y = fromY; y <= toY; y++) {
-			const rowOffset = y * fileWidth;
-			for (let x = fromX; x <= toX; x++) if (isWithin(x, y)) {
-				const pointIndex = frameHeaderByteSize + (rowOffset + x) * pixelByteSize;
-				let value = NaN;
-				if (dataType === 1) value = frameView.getFloat32(pointIndex, true);
-				else value = min + range * (frameView.getInt16(pointIndex, true) / 65535);
-				if (value < _min) _min = value;
-				if (value > _max) _max = value;
-				sum += value;
-				count++;
-			}
-		}
-		return {
-			timestamp,
-			result: {
-				min: _min,
-				max: _max,
-				avg: sum / count,
-				count
-			}
-		};
-	};
-	let firstTimestamp = 0;
-	for (let i = 0; i < frameCount; i++) {
-		const frame = readFrame(i);
-		if (firstTimestamp === 0) firstTimestamp = frame.timestamp;
-		output[frame.timestamp - firstTimestamp] = frame.result;
-	}
-	return output;
-};
-
-//#endregion
-//#region src/loading/workers/parsers/lrc/LrcParser.ts
-const parser = {
-	name: "LabIR Recording (.lrc)",
-	description: "Radiometric data developed by the Infrared Technologies research team at the University of West Bohemia in Pilsen (CZ)",
-	devices: [{
-		deviceName: "TIMI Edu Infrared Camera",
-		deviceUrl: "https://edu.labir.cz",
-		deviceDescription: "A thermal camera designed for school education.",
-		manufacturer: "TIMI Creation, s.r.o.",
-		manufacturerUrl: "https://timic.cz"
-	}, {
-		deviceName: "Custom measurement systems by IRT UWB in Pilsen (CZ)",
-		deviceUrl: "https://irt.zcu.cz",
-		deviceDescription: "Specialised applications of IR diagnostics in the field of industry, research, medicine, security or education.",
-		manufacturer: "IRT UWB in Pilsen (CZ)",
-		manufacturerUrl: "https://irt.zcu.cz"
-	}],
-	extensions: [{
-		extension: "lrc",
-		minme: "application/octet-stream"
-	}],
-	is,
-	baseInfo,
-	getFrameSubset,
-	frameData,
-	registryHistogram,
-	pointAnalysisData,
-	rectAnalysisData,
-	ellipsisAnalysisData
-};
-const LrcParser = Object.freeze(parser);
-
-//#endregion
-//#region src/loading/workers/parsers/index.ts
-/**
-* Add parser objects here to register them
-*/
-const parsers = { LrcParser };
-const parsersArray = Object.values(parsers);
-/**
-* Determines the parser and returns it (throws error if none found)
-* 
-* @throws FileLoadingError
-*/
-const determineParser = (buffer, url) => {
-	const parser = parsersArray.find((parser) => parser.is(buffer, url));
-	if (parser === void 0) throw new FileLoadingError(FileErrors.MIME_UNSUPPORTED, url, `No parser found for '${url}'.`);
-	return parser;
-};
-/**
-* Array of all supported file types and extensions
-* - this is only for the purpose of display!
-* - no functionality is relies on this data
-* - all the functionality needs to be implemented in static functions of the parser itself
-*/
-const supportedFileTypes = parsersArray.map((parser) => parser.extensions);
-const supportedFileTypesInputProperty = supportedFileTypes.map((type) => type.map((entry) => entry.minme + ", ." + entry.extension).join(", ")).join(", ");
-
-//#endregion
 //#region src/loading/workers/FileRequest.ts
 /**
 * Internal member of `FilesService`
@@ -5344,144 +5515,6 @@ var FileRequest = class FileRequest {
 };
 
 //#endregion
-//#region src/loading/workers/dropin/DropinElementManager.ts
-/** Turn any element into a dropzone! */
-var DropinElementListener = class DropinElementListener {
-	_hover = false;
-	get hover() {
-		return this._hover;
-	}
-	onMouseEnter = new CallbacksManager();
-	onMouseLeave = new CallbacksManager();
-	onDrop = new CallbacksManager();
-	onProcessingEnd = new CallbacksManager();
-	/** An invissible input element */
-	input;
-	hydrated = false;
-	multiple;
-	bindedEnterListener;
-	bindedLeaveListener;
-	bindedDropListener;
-	bindedInputChangeListener;
-	bindedDragoverListener;
-	bindedClickListener;
-	constructor(service, element, multiple = true) {
-		this.service = service;
-		this.element = element;
-		this.multiple = multiple;
-		this.bindedLeaveListener = this.handleLeave.bind(this);
-		this.bindedEnterListener = this.handleEnter.bind(this);
-		this.bindedDropListener = this.handleDrop.bind(this);
-		this.bindedInputChangeListener = this.handleInputChange.bind(this);
-		this.bindedDragoverListener = this.handleDragover.bind(this);
-		this.bindedClickListener = this.handleClick.bind(this);
-	}
-	static listenOnElement(service, element, multiple = true) {
-		const listener = new DropinElementListener(service, element, multiple);
-		listener.hydrate();
-		return listener;
-	}
-	/** Bind all event listeners to the provided element */
-	hydrate() {
-		if (this.hydrated === false) {
-			this.hydrated = true;
-			this.input = this.getInput();
-			this.element.addEventListener("dragover", this.bindedDragoverListener);
-			this.element.addEventListener("dragleave", this.bindedLeaveListener);
-			this.element.addEventListener("dragend", this.bindedLeaveListener);
-			this.element.addEventListener("pointerdown", this.bindedClickListener);
-			this.element.addEventListener("drop", this.bindedDropListener);
-			this.input.addEventListener("change", this.bindedInputChangeListener);
-		}
-	}
-	/** Remove all event listeners from the element */
-	dehydrate() {
-		if (this.hydrated === true) {
-			this.hydrated = false;
-			if (this.input) this.input.remove();
-			this.element.removeEventListener("dragover", this.bindedDragoverListener);
-			this.element.removeEventListener("dragleave", this.bindedLeaveListener);
-			this.element.removeEventListener("dragend", this.bindedLeaveListener);
-			this.element.removeEventListener("pointerdown", this.bindedClickListener);
-			this.element.removeEventListener("drop", this.bindedDropListener);
-		}
-	}
-	handleClick(event) {
-		event.preventDefault();
-		if (this.input) this.input.click();
-	}
-	handleDragover(event) {
-		event.preventDefault();
-		this.handleEnter();
-	}
-	async handleFiles(files) {
-		let results = [];
-		if (this.multiple) results = await Promise.all(files.map(async (file) => {
-			return await this.service.loadUploadedFile(file);
-		}));
-		else {
-			const file = files[0];
-			if (file) results.push(await this.service.loadUploadedFile(file));
-		}
-		return results;
-	}
-	async handleDrop(event) {
-		event.preventDefault();
-		this.onDrop.call();
-		let results = [];
-		const transfer = event.dataTransfer;
-		if (transfer && transfer.files) results = await this.handleFiles(Array.from(transfer.files));
-		this.onProcessingEnd.call(results, event);
-		this.handleLeave();
-		return {
-			results,
-			event
-		};
-	}
-	async handleInputChange(event) {
-		event.preventDefault();
-		this.onDrop.call();
-		const target = event.target;
-		let results = [];
-		if (target.files) {
-			results = await this.handleFiles(Array.from(target.files));
-			this.onProcessingEnd.call(results, event);
-			this.handleLeave();
-		}
-		return {
-			results,
-			event
-		};
-	}
-	handleEnter() {
-		if (this._hover === false) {
-			this._hover = true;
-			this.onMouseEnter.call();
-		}
-	}
-	handleLeave() {
-		if (this._hover === true) {
-			this._hover = false;
-			this.onMouseLeave.call();
-		}
-	}
-	/** Build the internal input */
-	getInput() {
-		const element = document.createElement("input");
-		element.type = "file";
-		element.accept = supportedFileTypesInputProperty;
-		if (this.multiple) element.multiple = true;
-		return element;
-	}
-	openFileDialog(multiple = true) {
-		if (this.input !== void 0) {
-			this.input.multiple = multiple;
-			this.input.click();
-		}
-	}
-};
-
-//#endregion
 //#region src/loading/workers/FilesService.ts
 /**
 * A singleton instance handling file loading
@@ -5493,6 +5526,7 @@ var FilesService = class {
 	constructor(manager) {
 		this.manager = manager;
 	}
+	/** @deprecated Intended only for tests & other internal purposes */
 	static isolatedInstance(pool, registryName = "isolated_registry") {
 		const registry = new ThermalManager(pool).addOrGetRegistry(registryName);
 		return {
@@ -5500,7 +5534,7 @@ var FilesService = class {
 			registry
 		};
 	}
-	/** Map of peoding requesta */
+	/** Map of pending requests */
 	requestsByUrl = /* @__PURE__ */ new Map();
 	/** Number of currently pending requests */
 	get requestsCount() {
@@ -5547,8 +5581,13 @@ var FilesService = class {
 			return result;
 		}
 	}
+	/** Load multiple images at once using  */
 	async loadFiles(files) {
-		return files;
+		return Promise.all(files.map(async (file) => {
+			const request = await this.loadFile(file.lrc, file.png);
+			if (file.callback) await file.callback(request);
+			return request;
+		}));
 	}
 };
 
@@ -5991,14 +6030,14 @@ const RAINBOW = generatePaletteFromStops(RAINBOW_STOPS);
 const RAINBOW_HC = generatePaletteFromStops(RAINBOW_HC_STOPS);
 const PALETTES = {
 	iron: {
-		name: "Iron",
+		name: "IRON",
 		gradient: generateGradientFromStops(IRON_STOPS),
 		pixels: IRON,
 		texturePixels: generateTextureArrayFromStops(IRON_STOPS),
 		slug: "iron"
 	},
 	jet: {
-		name: "Jet",
+		name: "JET",
 		gradient: generateGradientFromStops(JET_STOPS),
 		pixels: JET,
 		texturePixels: generateTextureArrayFromStops(JET_STOPS),
@@ -6833,17 +6872,11 @@ var AnalysisSyncDrive = class AnalysisSyncDrive extends AbstractProperty {
 		this.setCurrentPointer(instance);
 		const slot = instance.slots.getSlot(slotNumber);
 		const serialized = slot?.serialized ?? slot?.analysis.toSerialized();
-		console.log("Propagating", slot?.serialized, "from", instance.id, "to other instances in the group");
 		this.parent.files.forEveryInstance((otherInstance) => {
-			if (otherInstance === instance) {
-				console.log("Skipping source instance", otherInstance);
-				return;
-			}
+			if (otherInstance === instance) return;
 			if (otherInstance.slots.hasSlot(slotNumber)) otherInstance.slots.removeSlotAndAnalysis(slotNumber);
 			if (!serialized) return;
-			const analysis = otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber);
-			console.log("Created analysis from serialized data", analysis, "in", otherInstance.id);
-			analysis?.setSelected();
+			otherInstance.slots.createAnalysisFromSerialized(serialized, slotNumber)?.setSelected();
 		});
 	}
 	/** 
@@ -7172,12 +7205,13 @@ var AnalysisGroupGraph = class AnalysisGroupGraph extends AbstractProperty {
 	}
 	timeout;
 	calculateData() {
-		let colors = [];
-		let header = [];
+		const colors = [];
+		const header = [];
 		const data = [];
 		const orderedFiles = this.parent.files.value.sort((a, b) => a.timestamp - b.timestamp);
-		header = orderedFiles[0].analysisData.value.values[0];
-		colors = orderedFiles[0].analysisData.value.colors;
+		const firstRow = orderedFiles[0].analysisData.value.values[0];
+		header.push(...firstRow);
+		colors.push(...orderedFiles[0].analysisData.value.colors);
 		this.parent.files.forEveryInstance((instance) => {
 			const row = [new Date(instance.timestamp)];
 			instance.analysis.value.forEach(async (analysis) => {
@@ -7316,7 +7350,8 @@ var GroupsState = class extends AbstractProperty {
 
 //#endregion
 //#region src/properties/states/HistogramState.ts
-/** Handles the histogram creation and subscription.
+/** 
+* Handles the histogram creation and subscription.
 * - should be used only in registries
 */
 var HistogramState = class extends AbstractProperty {
@@ -7420,6 +7455,7 @@ var HistogramState = class extends AbstractProperty {
 		} catch (error) {
 			this.loading = false;
 			this.onCalculationEnd.call(false);
+			console.error("Error calculating histogram", error);
 		}
 	}
 };
@@ -7846,7 +7882,8 @@ var InspectTool = class extends AbstractTool {
 		if (file === void 0) return "";
 		try {
 			return file.getTemperatureAtPoint(x, y).toFixed(2) + " °C";
-		} catch (err) {
+		} catch (error) {
+			console.error("Error getting tool label at point", error);
 			return "";
 		}
 	};
@@ -7997,3 +8034,4 @@ console.info("@labirthermal/core", version);
 
 //#endregion
 export { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AbstractFileResult, AbstractTool, AddEllipsisTool, AddRectangleTool, AnalysisGraph, Batch, CallbacksManager, DropinElementListener, EditTool, EllipsisAnalysis, InspectTool, Instance, PointAnalysis, RectangleAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalPalettes, ThermalRegistry, TimeFormat, TimePeriod, TimeRound, availableAnalysisColors, getPool, playbackSpeed, supportedFileTypes, supportedFileTypesInputProperty, zip };
+//# sourceMappingURL=index.mjs.map
