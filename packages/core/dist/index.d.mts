@@ -1,6 +1,6 @@
+import * as zip from "zip-slim";
 import * as workerpool_types_Pool0 from "workerpool/types/Pool";
 import Pool from "workerpool/types/Pool";
-import * as zip from "zip-slim";
 
 //#region src/properties/callbacksManager.d.ts
 /**
