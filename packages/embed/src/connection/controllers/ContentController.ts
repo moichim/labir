@@ -11,14 +11,17 @@ import { AbstractConnectedController } from "./AbstractConnectedController";
  */
 export interface AppWithContentController extends AppWithClientController {
 
-    /** The main parameter indicating the current folder path */
+    /** @property The main parameter indicating the current folder path */
     folderPath?: string;
 
-    /** The main parameter indicating the current file name */
+    /** @property The main parameter indicating the current file name */
     fileName?: string;
 
-    /** The view is locked to a specific path */
+    /** @property The view is locked to a specific path */
     lockedPath?: string;
+
+    /** @property The folders to be displayed in the grid */
+    gridFolders?: string[];
 
     client: ClientController
 
@@ -44,6 +47,8 @@ export class ContentController extends AbstractConnectedController implements Re
     private _tree: TreeItem[] = [];
     private _userFolders: FolderInfo[] = [];
 
+    private _gridFolders: FolderInfo[] = [];
+
     public get folder(): FolderInfo | undefined { return this._folder; }
     public get subfolders(): FolderInfo[] { return this._subfolders; }
     public get files(): FileInfo[] | undefined { return this._files; }
@@ -52,6 +57,8 @@ export class ContentController extends AbstractConnectedController implements Re
     public get breadcrumb(): BreadcrumbItem[] | undefined { return this._breadcrumb; }
     public get tree(): TreeItem[] { return this._tree; }
     public get userFolders(): FolderInfo[] { return this._userFolders; }
+
+    public get gridFolders(): FolderInfo[] { return this._gridFolders; }
 
 
 
@@ -420,54 +427,6 @@ export class ContentController extends AbstractConnectedController implements Re
 
     }
 
-
-    /** 
-     * Performs the entire fetch cascade based on the provided parameters 
-     * @deprecated Use undividual methods instead!!!
-     */
-    public async fetchAllContentByState(
-        folderPath: string,
-        fileName?: string,
-        isGridView?: boolean
-    ): Promise<void> {
-
-        this.purgeContentState();
-
-        this.loadingStart(
-            "Načítání obsahu..."
-        );
-
-
-        // If it is a grid, do fetch the grid data only and do nothing else
-        if ( isGridView === true ) {
-
-            await this.fetchGridData( folderPath );
-
-        } 
-        // If it is not a grid, do fetch the folder info and then either the files or the one file
-        else {
-
-            await this.fetchFolder( folderPath );
-
-            if ( 
-                this._folder !== undefined 
-                && this._folder.lrc_count > 0 
-                && this._subfolders.length === 0
-                && fileName === undefined
-            ) {
-                await this.fetchFiles( folderPath );
-            } else if ( fileName !== undefined ) {
-                await this.fetchFile( folderPath, fileName );
-            }
-
-        }
-
-        this.loadingEnded();
-
-        this.host.requestUpdate();
-
-    }
-
     private throwIfNot200(
         response: ApiResponseType
     ): void {
@@ -528,12 +487,22 @@ export class ContentController extends AbstractConnectedController implements Re
 
     /** Request the grid data for a folder */
     public async fetchGridData(
-        folderPath: string
+        folderPath: string,
+        inclidedSubfolderPaths?: string[]
     ): Promise<void> {
 
-        const result = await this.host.apiClient.routes.get
-            .grid(folderPath)
-            .execute();
+        const request = this.host.apiClient.routes.get.grid( folderPath );
+
+        if (  inclidedSubfolderPaths && inclidedSubfolderPaths.length > 0 ) {
+
+            for ( const folder of inclidedSubfolderPaths ) {
+
+                request.addFolder(folder);
+            };
+
+        }
+
+        const result = await request.execute();
 
         this.host.requestUpdate();
 

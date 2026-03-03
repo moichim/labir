@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
+import { AvailableThermalPalette, Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
@@ -8,7 +8,6 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { version } from "../../../package.json";
-import { BaseElement } from "../../hierarchy/BaseElement";
 import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
@@ -70,7 +69,7 @@ export class FileApp extends BaseAppWithPngExportContext {
     visible?: string;
 
     @property({ type: String, reflect: true, attribute: true })
-    palette: AvailableThermalPalettes = "jet";
+    palette: AvailableThermalPalette = "jet";
 
     @property({ type: Number, reflect: true })
     from?: number;
@@ -227,7 +226,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 /** Palette changes */
                 instance.group.registry.manager.palette.addListener(this.UUID + "mirror_changes", value => {
                     if (this.palette !== value) {
-                        this.palette = value as AvailableThermalPalettes;
+                        this.palette = value as AvailableThermalPalette;
                     }
                 });
 
@@ -409,14 +408,16 @@ export class FileApp extends BaseAppWithPngExportContext {
 
                 ${this.showlayout ? this.renderLayoutSwitch() : nothing}
 
+                <file-info-button slot="bar-pre"></file-info-button>
+
                 ${cache(html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-                <registry-range-form slot="bar-pre" stacked="false"></registry-range-form>
-                <file-info-button slot="bar-pre"></file-info-button>
+                
 
                 ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
                 `)}
 
+                <registry-range-form slot="bar-persistent"></registry-range-form>
                 
 
 

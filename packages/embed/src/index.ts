@@ -273,6 +273,7 @@ import "./connection/controllers/components/selection/move/ConnectedLocationSele
 import "./connection/controllers/components/file/ConnectedFileMoveDialog";
 import "./connection/controllers/components/folder/crud/ConnectedFolderMoveDialog";
 import "./connection/controllers/components/selection/ConnectedFolderSelectionCheckbox";
+import "./connection/controllers/components/selection/ConnectedFolderSelectionActions";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

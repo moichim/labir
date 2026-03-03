@@ -57,6 +57,8 @@ export interface AppWithDisplayController extends AppWithContentController {
 
     /** @property Reflected from the inside */
     displayComments: boolean;
+
+    
 }
 
 export class DisplayController extends AbstractConnectedController implements ReactiveController {

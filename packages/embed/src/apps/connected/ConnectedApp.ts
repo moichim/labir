@@ -1,13 +1,13 @@
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { AppWithRender } from "../../connection/composition/AppWithRender";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { ref } from "lit/directives/ref.js";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { ThermalManager } from "@labirthermal/core";
+import { ref } from "lit/directives/ref.js";
+import { AppWithRender } from "../../connection/composition/AppWithRender";
+import { T } from "../../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 
 
 

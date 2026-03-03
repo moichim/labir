@@ -12,7 +12,20 @@ import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
 class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
 
     
+    private renderSelectionSlot(
+        app: AbstractConnectedApp
+    ): unknown {
 
+        if ( app.folderSelection.array.length === 0 ) {
+            return nothing;
+        }
+
+        return slotOrNothing(
+            "edit",
+            html`<connected-folder-selection-actions></connected-folder-selection-actions>`
+        );
+
+    }
 
 
     private renderFolderHeader(
@@ -26,7 +39,8 @@ class ConnectedFolderSubfoldersDirective extends AbstractFolderLayoutDirective {
         const slots = [
             this.renderFolderContentStatsSlot(app),
             this.renderHeaderFolderSlot( app ),
-            this.renderDisplaySlot( app )
+            this.renderDisplaySlot( app ),
+            this.renderSelectionSlot( app )
         ];
 
         const content: unknown[] =  [

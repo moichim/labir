@@ -47,8 +47,8 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
     haRef: Ref<HTMLInputElement> = createRef();
 
     /** Air temperature in degree celsius */
-    @property({ type: String, reflect: true, attribute: true, converter: converters })
-    public t?: number;
+    @property({ type: String, reflect: true, attribute: "t", converter: converters })
+    public temperature?: number;
 
     /** Wind speed in m/s */
     @property({ type: String, reflect: true, attribute: true, converter: converters })
@@ -108,7 +108,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
                 if (!isNaN(value)) {
 
-                    this.t = Math.min(100, Math.max(-275.4, value));
+                    this.temperature = Math.min(100, Math.max(-275.4, value));
 
                 }
 
@@ -177,14 +177,14 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
     }
 
     protected recalculateVa() {
-        if (this.t !== undefined && this.ha !== undefined && this.v !== undefined) {
+        if (this.temperature !== undefined && this.ha !== undefined && this.v !== undefined) {
 
             const v = this.vunits === VUNIT.mps
                 ? this.v
                 : this.kphToMps(this.v);
 
-            const e = this.calculateE(this.ha, this.t);
-            const ta = this.calculateTa(this.t, e, v);
+            const e = this.calculateE(this.ha, this.temperature);
+            const ta = this.calculateTa(this.temperature, e, v);
 
             this.ta = ta;
 
@@ -347,7 +347,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
     protected renderNumberField(
         inputRef: Ref<HTMLInputElement>,
-        id: "t" | "v" | "ha",
+        id: "temperature" | "v" | "ha",
         label: string,
         unit: string | HtmlResult,
         value?: number,
@@ -468,7 +468,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
                 ${this.t !== undefined || this.v !== undefined || this.ha !== undefined
                 ? html`<thermal-btn @click=${() => {
-                    this.t = undefined;
+                    this.temperature = undefined;
                     this.ha = undefined;
                     this.ta = undefined;
                     this.v = undefined;
@@ -481,10 +481,10 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
                 ${this.renderNumberField(
                 this.tRef,
-                "t",
+                "temperature",
                 t(T.airtemperature),
                 "°C",
-                this.t,
+                this.temperature,
                 -273.15,
                 100,
                 0.1
@@ -525,8 +525,8 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
                 </section>
                 <div  class="tabindex" tabindex="0">
-                ${this.ta !== undefined && this.t !== undefined
-                ? this.renderResult(this.ta, this.t)
+                ${this.ta !== undefined && this.temperature !== undefined
+                ? this.renderResult(this.ta, this.temperature)
                 : nothing
             }
                 </div>

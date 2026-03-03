@@ -15,10 +15,6 @@
  * limitations under the License.
  */
 
-import {trustedResourceUrl} from 'safevalues';
-
-import {safeScriptEl} from 'safevalues/dom';
-
 /**
  * Promise that resolves when the gviz loader script is loaded, which
  * provides access to the Google Charts loading API.
@@ -37,7 +33,10 @@ const loaderPromise: Promise<void> = new Promise((resolve, reject) => {
     if (!loaderScript) {
       // If the loader is not present, add it.
       loaderScript = document.createElement('script');
-      safeScriptEl.setSrc(loaderScript, trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
+      // sv.safeScriptWithArgs(loaderScript);
+      // safeScriptEl.setSrc(loaderScript, trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
+
+      loaderScript.src = "https://www.gstatic.com/charts/loader.js";
       document.head.appendChild(loaderScript);
     }
     loaderScript.addEventListener('load', resolve as () => void);
