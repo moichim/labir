@@ -5,7 +5,7 @@ import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { FolderInfo } from "packages/server/client/dist";
+import { FolderInfo } from "@labirthermal/server";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 import { FileProviderElement } from "../../../../hierarchy/providers/FileProvider";
 import { T } from "../../../../translations/Languages";

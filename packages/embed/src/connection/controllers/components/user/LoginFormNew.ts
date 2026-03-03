@@ -3,7 +3,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { Identity } from "packages/server/client/dist";
+import { Identity } from "@labirthermal/server";
 
 @customElement("connected-login-form")
 export class ConnectedLoginForm extends ControlledConsumer {

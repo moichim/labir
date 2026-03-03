@@ -1,5 +1,5 @@
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { css, CSSResultGroup, html, nothing } from "lit";
 import { BaseElement } from "../hierarchy/BaseElement";
 
 @customElement("thermal-slot")
@@ -22,7 +22,7 @@ export class ThermalSlot extends BaseElement {
         this.requestUpdate();
     }
 
-    public static styles?: CSSResultGroup | undefined = css`
+    public static styles = css`
 
         :host {
             font-size: var( --thermal-fs );

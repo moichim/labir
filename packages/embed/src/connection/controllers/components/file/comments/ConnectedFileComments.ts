@@ -1,6 +1,6 @@
 import { customElement, property } from "lit/decorators.js";
 import { FileInfo } from "@labirthermal/server";
-import { FolderInfo } from "packages/server/client/dist";
+import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";
 import { T } from "../../../../../translations/Languages";

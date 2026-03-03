@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, CallbacksManager, ThermalGroup, ThermalManager } from "@labirthermal/core";
+import { AvailableThermalPalette, CallbacksManager, ThermalGroup, ThermalManager } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -9,9 +9,9 @@ import { createOrGetManager } from "../../hierarchy/providers/getters";
 import { T } from "../../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale } from "../../translations/localeContext";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
 import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
 import { GroupEntry, Grouping, TimeGrouping } from "../../utils/multipleFiles/TimeGrouping";
+import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
 
 
 enum STATE {
@@ -30,7 +30,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
     protected groupRef: Ref<GroupProviderElement> = createRef();
 
     @property({ type: String, reflect: true, attribute: true })
-    public palette: AvailableThermalPalettes = "jet";
+    public palette: AvailableThermalPalette = "jet";
 
     @property({ type: Number, reflect: true })
     public from?: number;
@@ -164,14 +164,14 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             this.grouper.processEntries(this.entries.filter(el => el instanceof ThermalFileElement));
         }
 
-        this.group.files.addListener( this.UUID, value => {
+        this.group.files.addListener(this.UUID, value => {
             this.loading = false;
-            if ( value.length < 4 ) {
+            if (value.length < 4) {
                 this.columns = value.length;
             } else {
                 this.columns = 4;
             }
-        } );
+        });
     }
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
@@ -188,7 +188,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             });
         }
 
-        setTimeout( () => this.load(), 0 );
+        setTimeout(() => this.load(), 0);
 
     }
 
@@ -381,7 +381,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             .ondetail=${() => {
                 this.showDetail(file.instance.thermalUrl, file.instance.visibleUrl)
             }}
-                            label=${ifDefined( file.label )}
+                            label=${ifDefined(file.label)}
                         ></file-thumbnail>
                     </file-mirror>
                 </div>` )}
@@ -421,8 +421,8 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             label=${ifDefined(this.label)}
                         >
 
-                            ${this.loading === false 
-                                ? html`                                
+                            ${this.loading === false
+                ? html`                                
 
                                 <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
                                 
@@ -430,35 +430,35 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                                         
 
                                 ${this.state === STATE.GROUP
-                                    ? html`
+                        ? html`
                                         ${this.grouper.numFiles > 0
-                                            ? html`<group-download-dropdown slot="bar-pre"></group-download-dropdown>`
-                                            : nothing
-                                        }
+                                ? html`<group-download-dropdown slot="bar-pre"></group-download-dropdown>`
+                                : nothing
+                            }
                                         <div slot="bar-pre">
                                             <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event: InputEvent) => {
 
-                        const target = event.target as null | { value: string }
-                        const value = target?.value;
-                        if (value !== undefined) {
-                            this.columns = parseInt(value);
-                        }
-                    }}
+                                const target = event.target as null | { value: string }
+                                const value = target?.value;
+                                if (value !== undefined) {
+                                    this.columns = parseInt(value);
+                                }
+                            }}
                                             ></input>
                                         <div style="color: var( --thermal-slate-dark );font-size: calc( var( --thermal-fs-sm ) * .7 ); line-height: 1em;">${t(T.columns, { num: this.columns })}</div>
                                     </div>
 
                             <group-analysis-sync-button slot="bar-pre"></group-analysis-sync-button>
                                         `
-                : nothing
-            }
+                        : nothing
+                    }
                                     
 
                             ${this.showabout === true ? html`<app-info-button slot="bar-pre"></app-info-button>` : nothing}
 
                                         `
-                                        : nothing
-                            }
+                : nothing
+            }
 
                             <thermal-dialog label="${t(T.config)}" slot="close">
                                 
@@ -472,24 +472,24 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                                 </div>
                             </thermal-dialog>
 
-                            ${ this.loading === false
-                                ? html`
+                            ${this.loading === false
+                ? html`
                                     ${this.showhistogram === true ? html`<registry-histogram expandable="true" slot="pre"></registry-histogram>` : nothing}
 
                                     <registry-range-slider slot="pre"></registry-range-slider>
                                     <registry-ticks-bar slot="pre"></registry-ticks-bar>
                                 `
-                                : nothing
-                            }
+                : nothing
+            }
                             
 
-                            ${ this.state === STATE.GROUP ? html`
+                            ${this.state === STATE.GROUP ? html`
                                 <group-chart slot="pre"></group-chart>
-                            ` : nothing }
+                            ` : nothing}
 
-                            ${this.loading === true 
-                                ? html`<thermal-poster message="${t(T.loading)}"></thermal-poster>`
-                                : html`<div class="app-content">
+                            ${this.loading === true
+                ? html`<thermal-poster message="${t(T.loading)}"></thermal-poster>`
+                : html`<div class="app-content">
 
                                     <slot></slot>
 
@@ -497,18 +497,18 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
                                     <div class="app-content-main">
                                     ${this.state === STATE.GROUP
-                ? this.renderGroup()
-                : this.renderDetail()
-            }
+                        ? this.renderGroup()
+                        : this.renderDetail()
+                    }
                                     </div>
                             
                             </div>
 
-                            ${ this.state === STATE.GROUP ? html`
+                            ${this.state === STATE.GROUP ? html`
                                 <group-timeline></group-timeline>
-                            ` : nothing }
+                            ` : nothing}
                             `
-                            }
+            }
                             
 
                         </thermal-app>

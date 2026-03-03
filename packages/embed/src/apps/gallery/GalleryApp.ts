@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalManager } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
@@ -54,7 +54,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
     public license?: string;
 
     @property({ type: String, reflect: true, attribute: true })
-    public palette: AvailableThermalPalettes = "jet";
+    public palette: AvailableThermalPalette = "jet";
 
     @state()
     @queryAssignedElements({ flatten: true })

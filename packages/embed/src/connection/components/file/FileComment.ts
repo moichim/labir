@@ -3,7 +3,7 @@ import { ClientConsumer } from "../ClientConsumer";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { Comment, FileInfo } from "@labirthermal/server";
 import { TimeFormat } from "@labirthermal/core";
-import { FolderInfo } from "packages/server/client/dist";
+import { FolderInfo } from "@labirthermal/server";
 import icons from "packages/embed/src/utils/icons";
 
 @customElement("file-comment")

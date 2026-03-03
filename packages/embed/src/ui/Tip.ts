@@ -1,6 +1,6 @@
-import { css, CSSResultGroup, html } from "lit";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { BaseElement } from "../hierarchy/BaseElement";
 
 @customElement("thermal-tip")
 export class Tip extends BaseElement {
@@ -11,7 +11,7 @@ export class Tip extends BaseElement {
     @property({type: String})
     public iconStyle: string = "outline";
 
-    static styles?: CSSResultGroup | undefined = css`
+    static styles = css`
 :host {
 
     --color: var(--thermal-foreground);

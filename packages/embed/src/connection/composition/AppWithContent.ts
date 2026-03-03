@@ -2,7 +2,7 @@ import { GetGridDataType, GridGrouping } from "@labirthermal/server";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { FileInfo, FolderInfo, TagDefinition } from "packages/server/client/dist";
+import { FileInfo, FolderInfo, TagDefinition } from "@labirthermal/server";
 import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { subfoldersModeContext, subfoldersModeSetterContext, subgildersGridByMode, subgildersGridByModeSetter } from "../ClientContext";
 import { AppWithClientProvider } from "./AppWithClientProvider";

@@ -1,7 +1,7 @@
 import { nothing } from "lit";
 import { ClientController } from "../../ClientController";
 import { FolderInfo } from "@labirthermal/server";
-import { FileInfo } from "packages/server/client/dist";
+import { FileInfo } from "@labirthermal/server";
 
 /** Utilities for rendering */
 export class DirectiveHelpers {

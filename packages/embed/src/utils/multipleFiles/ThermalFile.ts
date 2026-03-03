@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, nothing } from "lit";
+import { css, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { BaseElement } from "../../hierarchy/BaseElement";
 
@@ -14,7 +14,7 @@ export class ThermalFileElement extends BaseElement {
     @property({ type: String })
     label?: string;
 
-    static styles?: CSSResultGroup | undefined = css`
+    static styles = css`
         :host {
             display: none;
         }

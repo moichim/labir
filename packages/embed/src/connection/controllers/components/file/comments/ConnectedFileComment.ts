@@ -2,7 +2,7 @@ import { TimeFormat } from "@labirthermal/core";
 import { Comment, FileInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FolderInfo } from "packages/server/client/dist";
+import { FolderInfo } from "@labirthermal/server";
 import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
 
 @customElement("connected-file-comment")

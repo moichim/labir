@@ -1,8 +1,9 @@
-import { Instance, ThermalFileFailure, ThermalGroup, ThermalRegistry, TimeFormat } from "@labirthermal/core";
+import type { Instance, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
+import { ThermalFileFailure, TimeFormat } from "@labirthermal/core";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
-import { GroupElement } from "../GroupApp";
-import { ParsedFileType } from "../../multiple/AbstractMultipleApp";
-import { ThermalFileElement } from "../../multiple/definitions/ThermalFile";
+import type { GroupElement } from "../../apps/group/GroupApp";
+import type { ParsedFileType } from "../../apps/multiple/AbstractMultipleApp";
+import type { ThermalFileElement } from "./ThermalFile";
 
 export type Grouping = "none" | "hour" | "day" | "week" | "month" | "year";
 
@@ -33,9 +34,9 @@ export class TimeGrouping {
         return this.records.length;
     }
 
-    public forEveryInstance( fn: ( instance: Instance ) => void ) {
-        this.records.forEach( record => {
-            fn( record.instance );
+    public forEveryInstance(fn: (instance: Instance) => void) {
+        this.records.forEach(record => {
+            fn(record.instance);
         });
     }
 
@@ -96,7 +97,7 @@ export class TimeGrouping {
 
             }
 
-            if ( entry.lrc === undefined ) {
+            if (entry.lrc === undefined) {
                 return;
             }
 
@@ -138,7 +139,7 @@ export class TimeGrouping {
 
         let batch: ReturnType<ThermalRegistry["batch"]["request"]> | undefined;
 
-        files.forEach( file => {
+        files.forEach(file => {
 
             const callback = async (
                 result: Instance | ThermalFileFailure
@@ -176,13 +177,13 @@ export class TimeGrouping {
                     () => {
                         this.processGroups();
 
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis1, 1 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis2, 2 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis3, 3 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis4, 4 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis5, 5 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis6, 6 );
-                        this.group.analysisSync.recieveSlotSerialized( this.element.analysis7, 7 );
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis1, 1);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis2, 2);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis3, 3);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis4, 4);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis5, 5);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis6, 6);
+                        this.group.analysisSync.recieveSlotSerialized(this.element.analysis7, 7);
 
                     }
                 );
@@ -196,7 +197,7 @@ export class TimeGrouping {
                 );
             }
 
-        } );
+        });
 
     }
 
@@ -206,7 +207,7 @@ export class TimeGrouping {
 
         this.groups.clear();
 
-        this.group.registry.palette.setPalette( this.element.palette );
+        this.group.registry.palette.setPalette(this.element.palette);
 
         this.records
 
@@ -241,7 +242,7 @@ export class TimeGrouping {
 
                 }
 
-                record.time = this.getItemLabel( record.instance.timestamp )
+                record.time = this.getItemLabel(record.instance.timestamp)
 
                 existingGroup.files.push(record);
 
@@ -319,7 +320,7 @@ export class TimeGrouping {
             }
         } else if (this.grouping === "week") {
             return {
-                label: "Week " +format(frameTimestamp, "w") + " of " + format(frameTimestamp, "yyyy"),
+                label: "Week " + format(frameTimestamp, "w") + " of " + format(frameTimestamp, "yyyy"),
                 info: [
                     TimeFormat.humanDate(startOfWeek(frameTimestamp).getTime()),
                     TimeFormat.humanDate(endOfWeek(frameTimestamp).getTime())
@@ -343,22 +344,22 @@ export class TimeGrouping {
 
     }
 
-    protected getItemLabel( frameTimestamp: number ) {
+    protected getItemLabel(frameTimestamp: number) {
         if (this.grouping === "none") {
-            return TimeFormat.human( frameTimestamp );
+            return TimeFormat.human(frameTimestamp);
         } else if (this.grouping === "hour") {
-            return format( frameTimestamp, "H:mm:ss" );
+            return format(frameTimestamp, "H:mm:ss");
         } else if (this.grouping === "day") {
-            return format( frameTimestamp, "H:mm:ss" );
+            return format(frameTimestamp, "H:mm:ss");
         } else if (this.grouping === "week") {
-            return TimeFormat.human( frameTimestamp );
+            return TimeFormat.human(frameTimestamp);
         } else if (this.grouping === "month") {
-            return TimeFormat.human( frameTimestamp );
+            return TimeFormat.human(frameTimestamp);
         } else if (this.grouping === "year") {
-            return TimeFormat.human( frameTimestamp );
+            return TimeFormat.human(frameTimestamp);
         }
 
-        return TimeFormat.human( frameTimestamp );
+        return TimeFormat.human(frameTimestamp);
     }
 
     public setGrouping(

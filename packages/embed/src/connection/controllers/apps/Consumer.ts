@@ -2,7 +2,7 @@ import { customElement } from "lit/decorators.js";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
 import { html, nothing } from "lit";
 import { FolderInfo } from "@labirthermal/server";
-import { FileInfo } from "packages/server/client/dist";
+import { FileInfo } from "@labirthermal/server";
 import { ifDefined } from "lit/directives/if-defined";
 
 @customElement("test-consumer")

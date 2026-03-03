@@ -1,6 +1,6 @@
 import { version } from "../package.json";
 
-// import "./styles/styles.css";
+import "./styles/styles.css";
 
 import "./translations/i18n";
 

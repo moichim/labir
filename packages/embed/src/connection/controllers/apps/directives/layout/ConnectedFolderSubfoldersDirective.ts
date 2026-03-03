@@ -4,7 +4,7 @@ import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 import { BreadcrumbItem } from "@labirthermal/server";
 import { slotOrNothing } from "../SlotOrNothing";
 import { DirectiveHelpers } from "../DirectiveHelpers";
-import { FileInfo, FolderInfo } from "packages/server/client/dist";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 
 import { directive } from "lit/directive.js";
 import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";

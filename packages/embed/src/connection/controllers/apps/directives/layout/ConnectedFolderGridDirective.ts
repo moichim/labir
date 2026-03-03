@@ -6,7 +6,7 @@ import { BreadcrumbItem } from "@labirthermal/server";
 import { AbstractFolderLayoutDirective } from "./AbstractFolderLayoutDirective";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 import { slotOrNothing } from "../SlotOrNothing";
-import { FileInfo, FolderInfo } from "packages/server/client/dist";
+import { FileInfo, FolderInfo } from "@labirthermal/server";
 
 class ConnectedFolderGridDirective extends AbstractFolderLayoutDirective {
 

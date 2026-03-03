@@ -12,14 +12,21 @@
     "dev": "vite --config vite.config.ts",
     "eslint": "eslint src",
     "test": "vitest src",
-    "build": "pnpm run build:cjs && pnpm run build:esm",
+    "build": "pnpm run build:cjs && pnpm run build:esm && pnpm run build:lib",
     "build:cjs": "vite build --config vite.config.ts",
     "build:esm": "vite build --config vite.config.esm.ts",
+    "build:lib": "tsdown",
     "serve": "serve dist/",
     "lint": "eslint src"
   },
   "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
   "license": "ISC",
+  "exports": {
+    ".": "./dist/embed.js",
+    "./lib/*": "./lib/*",
+    "./api": "./lib/index.js"
+  },
+  "types": "lib/index.d.ts",
   "dependencies": {
     "@floating-ui/dom": "^1.6.13",
     "@google-web-components/google-chart": "^5.1.0",
@@ -50,6 +57,7 @@
     "rollup-plugin-summary": "^3.0.1",
     "serve": "^14.2.5",
     "tsc": "^2.0.4",
+    "tsdown": "^0.21.0-beta.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^7.12.0",
     "vite": "^5.4.21",

@@ -1,5 +1,5 @@
 import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGrouping, ApiTimeGroupResponse, FolderInfoBase, QueryBuilder } from "@labirthermal/server-simple";
-import { AvailableThermalPalettes, ThermalManager } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { format } from "date-fns";
 import { cs, cy, de, enGB, fr } from "date-fns/locale";
@@ -48,7 +48,7 @@ export class RemoteBrowser extends BaseAppWithPngExportContext implements IWithl
     author?: string;
 
     @property({ type: String, reflect: true, attribute: true })
-    palette: AvailableThermalPalettes = "jet";
+    palette: AvailableThermalPalette = "jet";
 
     @property({ type: Boolean, reflect: true, converter: booleanConverter(true) })
     enablegrouping: boolean = false;
