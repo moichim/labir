@@ -4,12 +4,11 @@ import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { T } from "../../../translations/Languages";
-import { DisplayMode } from "../../ClientContext";
-import { AppState, FolderMode } from "../../composition/AppWithState";
-import { ClientConsumer } from "../ClientConsumer";
+import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 
-@customElement("share-dialog")
-export class ShareDialog extends ClientConsumer {
+@customElement("connected-share-dialog")
+export class ConnectedShareDialog extends ControlledConsumer {
 
     @property({ type: String })
     palette?: AvailableThermalPalette;
@@ -20,26 +19,43 @@ export class ShareDialog extends ClientConsumer {
     @property({ type: Number })
     public to?: number;
 
-    @property({ type: Object })
-    public folder?: FolderInfo;
+    private get _path(): string | undefined {
+        switch ( this._appState ) {
+            case DisplayState.FOLDER:
+            case DisplayState.FILE:
+                return this.content.file?.path;
+            default:
+                return undefined;
+        }
+    }
 
-    @property({ type: String })
-    public path?: string;
+    private get _folder(): FolderInfo | undefined {
+        return this.content.folder;
+    }
 
-    @property({ type: Object })
-    public file?: FileInfo;
+    private get _file(): FileInfo | undefined {
+        return this.content.file;
+    }
 
-    @property({ type: String })
-    public state?: AppState;
+    private get _appState(): DisplayState {
+        return this.display.appState;
+    }
 
-    @property({ type: String })
-    public displayMode?: DisplayMode;
+    private get _folderListDisplayMode(): FolderListDisplayMode {
+        return this.display.folderListDisplayMode;
+    }
 
-    @property({ type: String })
-    public compact?: boolean;
+    private get _fileListDisplayMode(): FileListDisplayMode {
+        return this.display.fileDisplayMode;
+    }
 
-    @property({ type: String })
-    public folderMode?: FolderMode;
+    private get _fileListDisplayCompact(): boolean {
+        return this.display.fileDisplayCompact;
+    }
+
+    private get _gridFolders() {
+        return this.content.gridFolders;
+    }
 
     @property({ type: String })
     public by?: GridGrouping;
@@ -189,7 +205,7 @@ export class ShareDialog extends ClientConsumer {
 
     private assambleUrl(): string {
 
-        let link = this.client?.getPublicUrl();
+        let link = this.client.api.getPublicUrl();
 
         const segments: Record<string, string> = {};
 
@@ -205,25 +221,25 @@ export class ShareDialog extends ClientConsumer {
             segments["to"] = this.to.toString();
         }
 
-        if (this.path) {
-            segments["folder-path"] = this.path;
+        if (this._path) {
+            segments["folder-path"] = this._path;
 
 
             if (
-                this.state === AppState.FOLDER
-                && this.folderMode
-                && this.displayMode
+                this._appState === DisplayState.FOLDER
+                && this._folderListDisplayMode
+                && this._fileListDisplayMode
                 && this.by
-                && this.compact !== undefined
+                && this._fileListDisplayCompact !== undefined
             ) {
-                segments["display-mode"] = this.displayMode;
-                segments["folder-mode"] = this.folderMode;
+                segments["display-mode"] = this._fileListDisplayMode;
+                segments["folder-mode"] = this._folderListDisplayMode;
                 segments["grid-grouping"] = this.by;
-                segments["compact"] = this.compact ? "true" : "false";
+                segments["compact"] = this._fileListDisplayCompact ? "true" : "false";
             }
 
-            if (this.state === AppState.DETAIL && this.file) {
-                segments["file-name"] = this.file.fileName;
+            if (this._appState === DisplayState.FILE && this._file) {
+                segments["file-name"] = this._file.fileName;
             }
 
         }
@@ -238,11 +254,11 @@ export class ShareDialog extends ClientConsumer {
 
         if (
             !this.client
-            || !this.client.isConnected()
-            || !this.path
-            || !this.state
-            || ![AppState.FOLDER, AppState.DETAIL]
-                .includes(this.state)
+            || !this.client.api.isConnected()
+            || !this._path
+            || !this._appState
+            || ![DisplayState.FOLDER, DisplayState.FILE]
+                .includes(this._appState)
         ) {
             return nothing;
         }
@@ -259,12 +275,12 @@ export class ShareDialog extends ClientConsumer {
                     <h3>Co sdílíte</h3>
 
                     <div class="entity-list">
-                        ${this.folder ? this.renderEntity(
-            this.folder.name,
+                        ${this._folder ? this.renderEntity(
+            this._folder.name,
             "folder"
         ) : nothing}
-                        ${this.file ? this.renderEntity(
-            this.file.fileName,
+                        ${this._file ? this.renderEntity(
+            this._file.fileName,
             "image",
             true
         ) : nothing}
@@ -275,7 +291,7 @@ export class ShareDialog extends ClientConsumer {
                 <section>
                     <h3>Odkaz na server</h3>
                     ${this.renderLink()}
-                    <div class="description">Odkaz vede na <strong>${this.client.serverInfo?.name}</strong>, kde tento obsah <strong>${this.folder?.protected ? "uvidí pouze uživatelé s přístupem" : "uvidí kdokoliv"
+                    <div class="description">Odkaz vede na <strong>${this.client.serverInfo?.name}</strong>, kde tento obsah <strong>${this._folder?.protected ? "uvidí pouze uživatelé s přístupem" : "uvidí kdokoliv"
             }</strong>.</div>
                 </section>
 

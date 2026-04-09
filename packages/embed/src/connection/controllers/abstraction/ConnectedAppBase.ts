@@ -320,6 +320,8 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         innerContent: unknown
     ): unknown {
 
+        const shareDialog = html`<connected-share-dialog slot="close"></connected-share-dialog>`;
+
         const userLoginButton = this.display.appState !== DisplayState.LOGIN
             ? html`<connected-user-button slot="close"></connected-user-button>`
             : nothing;
@@ -353,6 +355,9 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
             labelIconStyle=${ifDefined(this.labelIconStyle)}
             labelVariant=${ifDefined(this.labelVariant)}
         >
+
+            ${ shareDialog }
+
             <thermal-btn 
                 slot="close" 
                 icon="reload"
