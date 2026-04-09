@@ -113,13 +113,10 @@ export class InstanceDOM {
 
 
         // Build the DOM
-        const dom = this.parent.createInnerDom();
-
-        // Assign DOM
-        this._canvasLayer = dom.canvasLayer;
-        this._visibleLayer = dom.visibleLayer;
-        this._cursorLayer = dom.cursorLayer;
-        this._listenerLayer = dom.listenerLayer;
+        this._canvasLayer = new ThermalCanvasLayer(this.parent);
+        this._visibleLayer = new VisibleLayer(this.parent, this.parent.visibleUrl);
+        this._cursorLayer = new ThermalCursorLayer(this.parent);
+        this._listenerLayer = new ThermalListenerLayer(this.parent);
         
 
         // Mounting layers internals

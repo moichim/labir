@@ -232,13 +232,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     protected abstract formatId(thermalUrl: string): string;
 
-    public abstract createInnerDom(): {
-        canvasLayer: ThermalCanvasLayer,
-        visibleLayer: VisibleLayer,
-        cursorLayer: ThermalCursorLayer,
-        listenerLayer: ThermalListenerLayer,
-    }
-
 
     public abstract hydrateListener(
         dom: InstanceDOM
@@ -374,12 +367,5 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public reset() { }
-
-    public recieveOpacity(value: number) {
-
-        if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
-            this.dom.canvasLayer.opacity = value;
-        }
-    }
 
 }

@@ -1,6 +1,7 @@
 import { Instance } from "../../instance";
 import { AbstractLayer } from "./AbstractLayer";
 import ThermalDomFactory from "../domFactories";
+import { AbstractFile } from "../../AbstractFile";
 
 /** Contains the visible image. Needs to be placed on the bottom. */
 export class VisibleLayer extends AbstractLayer {
@@ -23,7 +24,7 @@ export class VisibleLayer extends AbstractLayer {
     }
 
     public constructor(
-        instance: Instance,
+        instance: AbstractFile,
         public _url?: string
     ) {
         super(instance);
