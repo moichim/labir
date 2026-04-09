@@ -7,8 +7,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 import htmlMinifier from 'vite-plugin-html-minifier'
 
 export default defineConfig({
-    root: path.resolve("./src"),
-    publicDir: path.resolve("../../public"),
+    root: path.resolve("./"),
+    // publicDir: path.resolve("../../public"),
     build: {
 
         rollupOptions: {
@@ -16,6 +16,7 @@ export default defineConfig({
                 embed: path.resolve("./src/index.ts"),
             },
             output: {
+                format: 'iife',
                 entryFileNames: '[name].js',
                 assetFileNames: '[name].[ext]',
             },
@@ -60,12 +61,12 @@ export default defineConfig({
             preserveEntrySignatures: 'strict',
         },
         terserOptions: {
-            ecma: 2020,
-            module: true,
+            // ecma: 2020,
+            // module: true,
             maxWorkers: 3,
         },
         outDir: path.resolve("./dist"),
-        // emptyOutDir: true,
+        emptyOutDir: true,
         copyPublicDir: false,
         minify: "terser",
 

@@ -6,8 +6,8 @@ import fs from "fs"
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
-    root: path.resolve( "./src" ),
-    publicDir: path.resolve( "../../public" ),
+    root: path.resolve( "./" ),
+    // publicDir: path.resolve( "../../public" ),
     build: {
         
         rollupOptions: {
@@ -36,7 +36,7 @@ export default defineConfig({
         }]
         },
         outDir: path.resolve( "./dist" ),
-        // emptyOutDir: true,
+        emptyOutDir: false,
         copyPublicDir: false,
         minify: true,
     
@@ -52,34 +52,5 @@ export default defineConfig({
     },
 
     plugins: [
-
-        viteStaticCopy({
-            targets: [
-                {
-                    src: normalizePath( path.resolve( "../../public/index.html" ) ),
-                    dest: normalizePath( path.resolve( "dist" ) )
-                },
-                {
-                    src: normalizePath( path.resolve( "../../public/sample.lrc" ) ),
-                    dest: normalizePath( path.resolve( "dist" ) )
-                }
-            ]
-        })
     ],
-
-    test: {
-        root: "./src",
-        globals: true,
-        environment: "jsdom",
-        setupFiles: [
-            "./node/setup.ts",
-            "./vitest.setup.ts"
-        ],
-        deps: {
-            inline: [ "vitest-canvas-mock" ]
-        },
-        coverage: {
-            provider: "v8"
-        }
-    }
 })

@@ -12,8 +12,8 @@
     "dev": "vite --config vite.config.ts",
     "eslint": "eslint src",
     "test": "vitest src",
-    "build": "pnpm run build:cjs && pnpm run build:esm && pnpm run build:lib",
-    "build:cjs": "vite build --config vite.config.ts",
+    "build": "pnpm run build:iife && pnpm run build:esm && pnpm run build:lib",
+    "build:iife": "vite build --config vite.config.ts",
     "build:esm": "vite build --config vite.config.esm.ts",
     "build:lib": "tsdown",
     "serve": "serve dist/",
@@ -23,10 +23,19 @@
   "license": "ISC",
   "exports": {
     ".": "./dist/embed.js",
-    "./lib/*": "./lib/*",
-    "./api": "./lib/index.js"
+    "./esm": "./dist/embed.esm.js",
+    "./api": {
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
+      }
+    }
   },
-  "types": "lib/index.d.ts",
+  "types": "lib/index.d.mts",
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
     "@google-web-components/google-chart": "^5.1.0",

@@ -32,8 +32,6 @@ let i18next_browser_languagedetector = require("i18next-browser-languagedetector
 i18next_browser_languagedetector = __toESM(i18next_browser_languagedetector);
 let lit = require("lit");
 let lit_decorators_js = require("lit/decorators.js");
-let safevalues = require("safevalues");
-let safevalues_dom = require("safevalues/dom");
 let _labirthermal_core = require("@labirthermal/core");
 let lit_directives_ref_js = require("lit/directives/ref.js");
 let _lit_context = require("@lit/context");
@@ -49,6 +47,7 @@ let lit_directives_unsafe_html_js = require("lit/directives/unsafe-html.js");
 let public_ip = require("public-ip");
 require("toolcool-range-slider");
 require("toolcool-range-slider/dist/plugins/tcrs-marks.min.js");
+require("toolcool-range-slider/src/plugins/moving-tooltip-plugin");
 require("@google-web-components/google-chart");
 let date_fns = require("date-fns");
 let _labirthermal_server_simple = require("@labirthermal/server-simple");
@@ -59,6 +58,8 @@ let lit_directive_js = require("lit/directive.js");
 let date_fns_locale = require("date-fns/locale");
 let _labirthermal_server = require("@labirthermal/server");
 _labirthermal_server = __toESM(_labirthermal_server);
+let packages_server_client_src_Client = require("packages/server/client/src/Client");
+let packages_embed_src_ui_Btn = require("packages/embed/src/ui/Btn");
 let packages_core_dist = require("packages/core/dist");
 
 //#region package.json
@@ -1483,7 +1484,7 @@ const loaderPromise = new Promise((resolve, reject) => {
 		let loaderScript = document.querySelector("script[src=\"https://www.gstatic.com/charts/loader.js\"]");
 		if (!loaderScript) {
 			loaderScript = document.createElement("script");
-			safevalues_dom.safeScriptEl.setSrc(loaderScript, safevalues.trustedResourceUrl`https://www.gstatic.com/charts/loader.js`);
+			loaderScript.src = "https://www.gstatic.com/charts/loader.js";
 			document.head.appendChild(loaderScript);
 		}
 		loaderScript.addEventListener("load", resolve);
@@ -2292,7 +2293,7 @@ const booleanConverter = (emptyValue) => {
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$112, _ref2$58, _ref3$37, _ThermalAppUiElement;
+var _ref$113, _ref2$58, _ref3$37, _ThermalAppUiElement;
 let ThermalAppUiElement = class ThermalAppUiElement extends BaseElement {
 	static {
 		_ThermalAppUiElement = this;
@@ -2600,7 +2601,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "bar",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$112 = typeof Array !== "undefined" && Array) === "function" ? _ref$112 : Object)], ThermalAppUiElement.prototype, "barElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$113 = typeof Array !== "undefined" && Array) === "function" ? _ref$113 : Object)], ThermalAppUiElement.prototype, "barElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
@@ -2638,7 +2639,7 @@ ThermalAppUiElement = _ThermalAppUiElement = __decorate([(0, lit_decorators_js.c
 
 //#endregion
 //#region src/ui/Bar.ts
-var _ref$111;
+var _ref$112;
 let ThermalBar = class ThermalBar extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2768,7 +2769,7 @@ let ThermalBar = class ThermalBar extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalBar.prototype, "collapsed", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalBar.prototype, "lastContentWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$111 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$111 : Object)], ThermalBar.prototype, "drawerRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$112 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$112 : Object)], ThermalBar.prototype, "drawerRef", void 0);
 ThermalBar = __decorate([(0, lit_decorators_js.customElement)("thermal-bar")], ThermalBar);
 
 //#endregion
@@ -3071,7 +3072,7 @@ const icons = createIcons();
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$110;
+var _ref$111;
 let ThermalBtn = class ThermalBtn extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -3557,7 +3558,7 @@ let ThermalBtn = class ThermalBtn extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$110 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$110 : Object)], ThermalBtn.prototype, "tooltipPlacement", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$111 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$111 : Object)], ThermalBtn.prototype, "tooltipPlacement", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -3805,7 +3806,7 @@ ThermalDialog = __decorate([(0, lit_decorators_js.customElement)("thermal-dialog
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$109, _ref2$57, _ref3$36;
+var _ref$110, _ref2$57, _ref3$36;
 let ThermalDropdown = class ThermalDropdown extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4008,7 +4009,7 @@ let ThermalDropdown = class ThermalDropdown extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$109 = typeof Array !== "undefined" && Array) === "function" ? _ref$109 : Object)], ThermalDropdown.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$110 = typeof Array !== "undefined" && Array) === "function" ? _ref$110 : Object)], ThermalDropdown.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -4124,7 +4125,7 @@ Dropin = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin")], Dr
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$108, _ref2$56, _ref3$35;
+var _ref$109, _ref2$56, _ref3$35;
 let Expandable = class Expandable extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4211,7 +4212,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$108 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref$108 : Object)], Expandable.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$109 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref$109 : Object)], Expandable.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
@@ -4422,7 +4423,7 @@ Loading = __decorate([(0, lit_decorators_js.customElement)("thermal-poster")], L
 
 //#endregion
 //#region src/ui/Playground.ts
-var _ref$107, _PlaygroundElement;
+var _ref$108, _PlaygroundElement;
 let PlaygroundElement = class PlaygroundElement extends BaseElement {
 	static {
 		_PlaygroundElement = this;
@@ -4944,7 +4945,7 @@ __decorate([
 		slot: "code",
 		flatten: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$107 = typeof Array !== "undefined" && Array) === "function" ? _ref$107 : Object)
+	__decorateMetadata("design:type", typeof (_ref$108 = typeof Array !== "undefined" && Array) === "function" ? _ref$108 : Object)
 ], PlaygroundElement.prototype, "_listItems", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "title", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "subtitle", void 0);
@@ -5260,7 +5261,7 @@ Tip = __decorate([(0, lit_decorators_js.customElement)("thermal-tip")], Tip);
 
 //#endregion
 //#region src/apps/apparent-temperature/AustralianApparentTemperature.ts
-var _ref$106;
+var _ref$107;
 var VUNIT = /* @__PURE__ */ function(VUNIT) {
 	VUNIT["mps"] = "mps";
 	VUNIT["kph"] = "kph";
@@ -5303,7 +5304,7 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
 		if (this.tRef.value) this.tRef.value.addEventListener("change", (event) => {
 			const target = event.target;
 			const value = parseFloat(target.value);
-			if (!isNaN(value)) this.t = Math.min(100, Math.max(-275.4, value));
+			if (!isNaN(value)) this.temperature = Math.min(100, Math.max(-275.4, value));
 		});
 		if (this.haRef.value) this.haRef.value.addEventListener("change", (event) => {
 			const target = event.target;
@@ -5326,10 +5327,10 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
 		}
 	}
 	recalculateVa() {
-		if (this.t !== void 0 && this.ha !== void 0 && this.v !== void 0) {
+		if (this.temperature !== void 0 && this.ha !== void 0 && this.v !== void 0) {
 			const v = this.vunits === VUNIT.mps ? this.v : this.kphToMps(this.v);
-			const e = this.calculateE(this.ha, this.t);
-			this.ta = this.calculateTa(this.t, e, v);
+			const e = this.calculateE(this.ha, this.temperature);
+			this.ta = this.calculateTa(this.temperature, e, v);
 		} else this.ta = void 0;
 	}
 	shouldUpdate(_changedProperties) {
@@ -5544,7 +5545,7 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
                 </thermal-dialog>
 
                 ${this.t !== void 0 || this.v !== void 0 || this.ha !== void 0 ? lit.html`<thermal-btn @click=${() => {
-			this.t = void 0;
+			this.temperature = void 0;
 			this.ha = void 0;
 			this.ta = void 0;
 			this.v = void 0;
@@ -5553,7 +5554,7 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
 
                 <section class="table">
 
-                ${this.renderNumberField(this.tRef, "t", (0, i18next.t)(T.airtemperature), "°C", this.t, -273.15, 100, .1)}
+                ${this.renderNumberField(this.tRef, "temperature", (0, i18next.t)(T.airtemperature), "°C", this.temperature, -273.15, 100, .1)}
 
                 ${this.renderNumberField(this.vRef, "v", (0, i18next.t)(T.windspeed), lit.html`<select 
                     @change=${(event) => {
@@ -5570,7 +5571,7 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
 
                 </section>
                 <div  class="tabindex" tabindex="0">
-                ${this.ta !== void 0 && this.t !== void 0 ? this.renderResult(this.ta, this.t) : lit.nothing}
+                ${this.ta !== void 0 && this.temperature !== void 0 ? this.renderResult(this.ta, this.temperature) : lit.nothing}
                 </div>
                 
 
@@ -5581,9 +5582,9 @@ let AustralianApparentTemperature = class AustralianApparentTemperature extends 
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
-	attribute: true,
+	attribute: "t",
 	converter: converters
-}), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "t", void 0);
+}), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "temperature", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -5608,7 +5609,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref$106 = typeof Locales$6 !== "undefined" && Locales$6) === "function" ? _ref$106 : Object)
+	__decorateMetadata("design:type", typeof (_ref$107 = typeof Locales$6 !== "undefined" && Locales$6) === "function" ? _ref$107 : Object)
 ], AustralianApparentTemperature.prototype, "locale", void 0);
 AustralianApparentTemperature = __decorate([(0, lit_decorators_js.customElement)("apparent-temperature-aat")], AustralianApparentTemperature);
 
@@ -5837,7 +5838,7 @@ const pngAuthorSetterContext = (0, _lit_context.createContext)("pngAuthorSetterC
 
 //#endregion
 //#region src/controls/manager/PngExportPanel.ts
-var _ref$105, _ref2$55, _ref3$34, _ref4$18, _ref5$7, _ref6$4, _ref7$2, _ref8$1, _ref9;
+var _ref$106, _ref2$55, _ref3$34, _ref4$18, _ref5$7, _ref6$4, _ref7$2, _ref8$1, _ref9;
 let PngExportPanel = class PngExportPanel extends BaseElement {
 	renderRow(label, content, hint) {
 		return lit.html`<thermal-field label="${label}">
@@ -5950,7 +5951,7 @@ __decorate([(0, _lit_context.consume)({
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$105 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$105 : Object)], PngExportPanel.prototype, "pngWidthSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$106 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$106 : Object)], PngExportPanel.prototype, "pngWidthSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
@@ -6096,7 +6097,7 @@ ThermalFileElement = __decorate([(0, lit_decorators_js.customElement)("thermal-f
 
 //#endregion
 //#region src/utils/multipleFiles/ThermalGroup.ts
-let ThermalGroup$8 = class ThermalGroup extends BaseElement {
+let ThermalGroup$9 = class ThermalGroup extends BaseElement {
 	static {
 		this.styles = lit.css`
         :host {
@@ -6108,12 +6109,12 @@ let ThermalGroup$8 = class ThermalGroup extends BaseElement {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalGroup$8.prototype, "name", void 0);
-ThermalGroup$8 = __decorate([(0, lit_decorators_js.customElement)("thermal-group")], ThermalGroup$8);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalGroup$9.prototype, "name", void 0);
+ThermalGroup$9 = __decorate([(0, lit_decorators_js.customElement)("thermal-group")], ThermalGroup$9);
 
 //#endregion
 //#region src/apps/gallery/GalleryApp.ts
-var _ref$104, _ref2$54, _ref3$33;
+var _ref$105, _ref2$54, _ref3$33;
 var STATE$2 = /* @__PURE__ */ function(STATE) {
 	STATE["MAIN"] = "main";
 	STATE["GROUP"] = "group";
@@ -6163,7 +6164,7 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 	}
 	processSlots() {
 		setTimeout(() => {
-			this.structure = this.slottedElements.filter((element) => element instanceof ThermalGroup$8).map((element) => {
+			this.structure = this.slottedElements.filter((element) => element instanceof ThermalGroup$9).map((element) => {
 				return {
 					label: element.getAttribute("label"),
 					description: element.getAttribute("description"),
@@ -6553,7 +6554,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$104 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$104 : Object)], GalleryApp.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$105 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$105 : Object)], GalleryApp.prototype, "palette", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, lit_decorators_js.queryAssignedElements)({ flatten: true }),
@@ -6607,7 +6608,7 @@ const toolsContext = (0, _lit_context.createContext)("tools-context");
 
 //#endregion
 //#region src/hierarchy/consumers/ManagerConsumer.ts
-var _ref$103;
+var _ref$104;
 var ManagerConsumer = class extends BaseElement {
 	connectedCallback() {
 		super.connectedCallback();
@@ -6620,12 +6621,12 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$103 = typeof ManagerContext$2 !== "undefined" && ManagerContext$2) === "function" ? _ref$103 : Object)
+	__decorateMetadata("design:type", typeof (_ref$104 = typeof ManagerContext$2 !== "undefined" && ManagerContext$2) === "function" ? _ref$104 : Object)
 ], ManagerConsumer.prototype, "manager", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/RegistryConsumer.ts
-var _ref$102;
+var _ref$103;
 var RegistryConsumer = class extends ManagerConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -6635,11 +6636,11 @@ var RegistryConsumer = class extends ManagerConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$102 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$102 : Object)], RegistryConsumer.prototype, "registry", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$103 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$103 : Object)], RegistryConsumer.prototype, "registry", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/GroupConsumer.ts
-var _ref$101;
+var _ref$102;
 var GroupConsumer = class extends RegistryConsumer {
 	constructor() {
 		super();
@@ -6651,7 +6652,7 @@ var GroupConsumer = class extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$101 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$101 : Object)], GroupConsumer.prototype, "group", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$102 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$102 : Object)], GroupConsumer.prototype, "group", void 0);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
@@ -6685,7 +6686,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 
 //#endregion
 //#region src/controls/group/GroupDropin.ts
-var _ref$100;
+var _ref$101;
 let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -6851,14 +6852,14 @@ let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$100 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$100 : Object)], GroupDropin$1.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$101 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$101 : Object)], GroupDropin$1.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "uploading", void 0);
 GroupDropin$1 = __decorate([(0, lit_decorators_js.customElement)("group-dropin")], GroupDropin$1);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
-var _ref$99;
+var _ref$100;
 let GroupDropin = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7005,7 +7006,7 @@ let GroupDropin = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$99 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$99 : Object)], GroupDropin.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$100 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$100 : Object)], GroupDropin.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "uploading", void 0);
 GroupDropin = __decorate([(0, lit_decorators_js.customElement)("group-dropin-input")], GroupDropin);
@@ -7030,7 +7031,7 @@ const analysisList = (0, _lit_context.createContext)("analysislist");
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
-var _ref$98, _ref2$53, _ref3$32, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8;
+var _ref$99, _ref2$53, _ref3$32, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8;
 var AbstractFileProvider = class extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7235,7 +7236,7 @@ var AbstractFileProvider = class extends GroupConsumer {
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$98 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$98 : Object)
+	__decorateMetadata("design:type", typeof (_ref$99 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$99 : Object)
 ], AbstractFileProvider.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: FailureContext }),
@@ -7289,7 +7290,7 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/hierarchy/providers/FileProvider.ts
-var _ref$97, _ref2$52;
+var _ref$98, _ref2$52;
 let FileProviderElement = class FileProviderElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7404,7 +7405,7 @@ __decorate([
 		attribute: true
 	}),
 	(0, _lit_context.provide)({ context: playbackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref$97 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$97 : Object)
+	__decorateMetadata("design:type", typeof (_ref$98 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$98 : Object)
 ], FileProviderElement.prototype, "speed", void 0);
 __decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref2$52 = typeof FileProviderElement !== "undefined" && FileProviderElement) === "function" ? _ref2$52 : Object)], FileProviderElement.prototype, "providedSelf", void 0);
 __decorate([
@@ -7509,7 +7510,7 @@ var AbstractGroupProvider = class extends RegistryConsumer {
 
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.ts
-var _ref$96;
+var _ref$97;
 let GroupProviderElement$1 = class GroupProviderElement extends AbstractGroupProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7525,7 +7526,7 @@ __decorate([(0, lit_decorators_js.property)({
 	attribute: true,
 	reflect: true
 }), __decorateMetadata("design:type", String)], GroupProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$96 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$96 : Object)], GroupProviderElement$1.prototype, "group", void 0);
+__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$97 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$97 : Object)], GroupProviderElement$1.prototype, "group", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement$1.prototype, "autoclear", void 0);
 GroupProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("group-provider")], GroupProviderElement$1);
 
@@ -7563,7 +7564,7 @@ const removeManager = (manager) => {
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$95;
+var _ref$96;
 var AbstractManagerProvider = class extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -7626,12 +7627,12 @@ var AbstractManagerProvider = class extends BaseElement {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$95 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$95 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$96 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$96 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
 __decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], AbstractManagerProvider.prototype, "tools", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var _ref$94, _ref2$51, _ref3$31, _ref4$16;
+var _ref$95, _ref2$51, _ref3$31, _ref4$16;
 let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7645,7 +7646,7 @@ let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractMana
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$94 = typeof ManagerContext$1 !== "undefined" && ManagerContext$1) === "function" ? _ref$94 : Object)], ManagerProviderElement$1.prototype, "manager", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$95 = typeof ManagerContext$1 !== "undefined" && ManagerContext$1) === "function" ? _ref$95 : Object)], ManagerProviderElement$1.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -7699,7 +7700,7 @@ ManagerProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("man
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
-var _ref$93;
+var _ref$94;
 var AbstractRegistryProvider = class extends ManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7780,12 +7781,12 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], AbstractRegistryProvider.prototype, "forceNew", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$93 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$93 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$94 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$94 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
 __decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext }), __decorateMetadata("design:type", Object)], AbstractRegistryProvider.prototype, "setHighlight", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
-var _ref$92;
+var _ref$93;
 let RegistryProviderElement$1 = class RegistryProviderElement extends AbstractRegistryProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7807,7 +7808,7 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$92 = typeof RegistryContext$1 !== "undefined" && RegistryContext$1) === "function" ? _ref$92 : Object)], RegistryProviderElement$1.prototype, "registry", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$93 = typeof RegistryContext$1 !== "undefined" && RegistryContext$1) === "function" ? _ref$93 : Object)], RegistryProviderElement$1.prototype, "registry", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: registryOpacityContext }),
 	(0, lit_decorators_js.property)({
@@ -7862,7 +7863,7 @@ RegistryProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("re
 
 //#endregion
 //#region src/hierarchy/mirrors/FileMirror.ts
-var _ref$91, _ref2$50;
+var _ref$92, _ref2$50;
 let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7886,7 +7887,7 @@ let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 		}
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$91 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$91 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$92 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$92 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.property)(),
@@ -7917,7 +7918,7 @@ FileMirrorElement = __decorate([(0, lit_decorators_js.customElement)("file-mirro
 
 //#endregion
 //#region src/hierarchy/mirrors/GroupMirror.ts
-var _ref$90;
+var _ref$91;
 let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7925,13 +7926,13 @@ let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvi
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$90 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$90 : Object)], GroupProviderElement.prototype, "group", void 0);
+__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$91 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$91 : Object)], GroupProviderElement.prototype, "group", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement.prototype, "autoclear", void 0);
 GroupProviderElement = __decorate([(0, lit_decorators_js.customElement)("group-mirror")], GroupProviderElement);
 
 //#endregion
 //#region src/hierarchy/mirrors/ManagerMirror.ts
-var _ref$89, _ref2$49, _ref3$30, _ref4$15;
+var _ref$90, _ref2$49, _ref3$30, _ref4$15;
 let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7945,7 +7946,7 @@ let ManagerProviderElement = class ManagerProviderElement extends AbstractManage
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$89 = typeof ManagerContext !== "undefined" && ManagerContext) === "function" ? _ref$89 : Object)], ManagerProviderElement.prototype, "manager", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$90 = typeof ManagerContext !== "undefined" && ManagerContext) === "function" ? _ref$90 : Object)], ManagerProviderElement.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: managerPaletteContext }),
@@ -7982,7 +7983,7 @@ ManagerProviderElement = __decorate([(0, lit_decorators_js.customElement)("manag
 
 //#endregion
 //#region src/hierarchy/mirrors/RegistryMirror.ts
-var _ref$88;
+var _ref$89;
 let RegistryProviderElement = class RegistryProviderElement extends AbstractRegistryProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7996,7 +7997,7 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$88 = typeof RegistryContext !== "undefined" && RegistryContext) === "function" ? _ref$88 : Object)], RegistryProviderElement.prototype, "registry", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$89 = typeof RegistryContext !== "undefined" && RegistryContext) === "function" ? _ref$89 : Object)], RegistryProviderElement.prototype, "registry", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: registryOpacityContext }),
 	(0, lit_decorators_js.property)({
@@ -8036,7 +8037,7 @@ RegistryProviderElement = __decorate([(0, lit_decorators_js.customElement)("regi
 
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$87, _ref2$48, _ref3$29;
+var _ref$88, _ref2$48, _ref3$29;
 let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -8095,7 +8096,7 @@ let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 		return lit.html`${this.ready ? lit.html`<slot></slot>` : lit.nothing}`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$87 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$87 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$88 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$88 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, _lit_context.consume)({
@@ -8214,7 +8215,7 @@ SmoothSwitch$1 = __decorate([(0, lit_decorators_js.customElement)("manager-graph
 
 //#endregion
 //#region src/controls/manager/GroupToolButtons.ts
-var _ref$86;
+var _ref$87;
 let GroupToolButtons$1 = class GroupToolButtons extends ManagerConsumer {
 	/** Handle user input events */
 	onSelect(tool) {
@@ -8271,7 +8272,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$86 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$86 : Object)
+	__decorateMetadata("design:type", typeof (_ref$87 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$87 : Object)
 ], GroupToolButtons$1.prototype, "value", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -8285,7 +8286,7 @@ GroupToolButtons$1 = __decorate([(0, lit_decorators_js.customElement)("group-too
 
 //#endregion
 //#region src/controls/manager/GroupToolsBar.ts
-var _ref$85;
+var _ref$86;
 let GroupToolButtons = class GroupToolButtons extends ManagerConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -8343,7 +8344,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$85 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$85 : Object)
+	__decorateMetadata("design:type", typeof (_ref$86 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$86 : Object)
 ], GroupToolButtons.prototype, "value", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -8357,7 +8358,7 @@ GroupToolButtons = __decorate([(0, lit_decorators_js.customElement)("group-tool-
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$84;
+var _ref$85;
 var AbstractPaletteSwitch = class extends RegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -8403,7 +8404,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$84 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$84 : Object)
+	__decorateMetadata("design:type", typeof (_ref$85 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$85 : Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
@@ -8910,374 +8911,8 @@ __decorate([(0, _lit_context.consume)({
 RegistrySetAutoRangeElement = __decorate([(0, lit_decorators_js.customElement)("registry-range-full-button")], RegistrySetAutoRangeElement);
 
 //#endregion
-//#region ../../node_modules/.pnpm/toolcool-range-slider@4.0.28/node_modules/toolcool-range-slider/src/core/domain/math-provider.ts
-const isNumber = (input) => {
-	return !isNaN(parseFloat(input)) && isFinite(input);
-};
-const getNumber = (input, defaultValue) => {
-	return isNumber(input) ? Number(input) : defaultValue;
-};
-const getBoolean = (val) => {
-	if (val === null || val === void 0) return false;
-	if (typeof val === "boolean") return val;
-	return val.trim().toLowerCase() === "true";
-};
-
-//#endregion
-//#region ../../node_modules/.pnpm/toolcool-range-slider@4.0.28/node_modules/toolcool-range-slider/src/plugins/moving-tooltip-plugin/index.ts
-/**
-* Moving Tooltip Plugin.
-* Important: the plugin script should be included BEFORE the core script.
-*/
-/**
-* Required: init ToolCool Range Slider plugins namespace if not defined yet
-*/
-window.tcRangeSliderPlugins = window.tcRangeSliderPlugins || [];
-const DISTANCE_TO_POINTER_DEFAULT = 40;
-const DEFAULT_TOOLTIP_WIDTH = 35;
-const DEFAULT_TOOLTIP_HEIGHT = 30;
-const DEFAULT_TOOLTIP_BG = "#475569";
-const DEFAULT_TOOLTIP_TEXT_COLOR = "#fff";
-const DEFAULT_Z_INDEX = 20;
-const MovingTooltipPlugin = () => {
-	let $component = null;
-	let getters = null;
-	let enabled = false;
-	let distanceToPointer = DISTANCE_TO_POINTER_DEFAULT;
-	let tooltipWidth = DEFAULT_TOOLTIP_WIDTH;
-	let tooltipHeight = DEFAULT_TOOLTIP_HEIGHT;
-	let tooltipBg = DEFAULT_TOOLTIP_BG;
-	let tooltipTextColor = DEFAULT_TOOLTIP_TEXT_COLOR;
-	let tooltipUnits = "";
-	let unitType = "";
-	let formatTooltipValue = void 0;
-	let $tooltips = [];
-	let $tooltipsRow = null;
-	let resizeObserver = null;
-	const updateRowClass = () => {
-		$tooltipsRow?.classList.toggle("is-after", distanceToPointer <= 0);
-	};
-	const createTooltipsRow = () => {
-		const $slider = $component?.shadowRoot?.querySelector("#range-slider");
-		$tooltipsRow = document.createElement("div");
-		$tooltipsRow.classList.add("tooltips");
-		$slider.prepend($tooltipsRow);
-		updateRowClass();
-	};
-	const createTooltip = (className) => {
-		const $tooltip = document.createElement("div");
-		$tooltip.style.zIndex = DEFAULT_Z_INDEX.toString();
-		$tooltip.className = className;
-		return $tooltip;
-	};
-	const updateTooltip = ($tooltip, type, left, top, zIndex) => {
-		if (!$tooltip) return;
-		if (type === "vertical") {
-			$tooltip.style.left = `${-distanceToPointer}px`;
-			$tooltip.style.top = top ?? "0";
-		} else {
-			$tooltip.style.left = left ?? "0";
-			$tooltip.style.top = `${-distanceToPointer}px`;
-		}
-		$tooltip.style.width = `${tooltipWidth}px`;
-		$tooltip.style.height = `${tooltipHeight}px`;
-		$tooltip.style.background = tooltipBg;
-		$tooltip.style.color = tooltipTextColor;
-		$tooltip.style.zIndex = zIndex.toString();
-	};
-	const getTooltipText = (text) => {
-		let tooltipText = text;
-		if (typeof formatTooltipValue === "function") tooltipText = formatTooltipValue(text);
-		return unitType === "prefix" ? `${tooltipUnits}${tooltipText}` : `${tooltipText}${tooltipUnits}`;
-	};
-	const updateTooltips = () => {
-		const values = getters?.getValues() ?? [];
-		const $pointers = getters?.getPointerElements() ?? [];
-		const type = getters?.getType() ?? "horizontal";
-		if (!values) return;
-		for (let i = 0; i < values.length; i++) {
-			const $tooltip = $tooltips[i];
-			if (!$tooltip) continue;
-			$tooltip.textContent = getTooltipText((values[i] ?? "").toString());
-			updateTooltip($tooltip, type, $pointers[i].style.left, $pointers[i].style.top, $pointers[i].style.zIndex);
-		}
-	};
-	const createTooltips = () => {
-		const values = getters?.getValues() ?? [];
-		if (!values) return;
-		for (let i = 0; i < values.length; i++) {
-			const $tooltip = createTooltip(`tooltip tooltip-${i + 1}`);
-			$tooltip.style.position = "absolute";
-			$tooltips.push($tooltip);
-			$tooltipsRow?.prepend($tooltip);
-		}
-		updateTooltips();
-	};
-	const initResizeObserver = () => {
-		if (!$component) return;
-		resizeObserver = new ResizeObserver((entries) => {
-			for (const _entry of entries) updateTooltips();
-		});
-		resizeObserver.observe($component);
-	};
-	const toggleEnabled = (_enabled) => {
-		enabled = _enabled;
-		if (!enabled) destroy();
-		else {
-			createTooltipsRow();
-			createTooltips();
-			initResizeObserver();
-		}
-	};
-	const setDistanceToPointer = (newDistance) => {
-		distanceToPointer = newDistance;
-		updateTooltips();
-	};
-	const setTooltipWidth = (newWidth) => {
-		tooltipWidth = newWidth;
-		updateTooltips();
-	};
-	const setTooltipHeight = (newHeight) => {
-		tooltipHeight = newHeight;
-		updateTooltips();
-	};
-	const setTooltipBg = (newValue) => {
-		tooltipBg = newValue;
-		updateTooltips();
-	};
-	const setTooltipTextColor = (newValue) => {
-		tooltipTextColor = newValue;
-		updateTooltips();
-	};
-	const setTooltipUnits = (newValue) => {
-		tooltipUnits = newValue;
-		updateTooltips();
-	};
-	const setUnitType = (newValue) => {
-		unitType = newValue;
-		updateTooltips();
-	};
-	const setFormatTooltipValue = (newFunc) => {
-		formatTooltipValue = newFunc;
-		updateTooltips();
-	};
-	const update = (data) => {
-		if (!enabled || !data.values) return;
-		const $pointers = getters?.getPointerElements() ?? [];
-		const type = getters?.getType() ?? "horizontal";
-		for (let i = 0; i < data.values.length; i++) {
-			const value = data.values[i];
-			const $tooltip = $tooltips[i];
-			if (value === void 0 && !!$tooltip) {
-				$tooltip.remove();
-				$tooltips[i] = void 0;
-				continue;
-			}
-			if (value !== void 0 && !$tooltip) {
-				const $tooltip = createTooltip(`tooltip tooltip-${i + 1}`);
-				$tooltip.textContent = getTooltipText((value ?? "").toString());
-				$tooltip.style.position = "absolute";
-				updateTooltip($tooltip, type, $pointers[i].style.left, $pointers[i].style.top, $pointers[i].style.zIndex);
-				$tooltips[i] = $tooltip;
-				$tooltipsRow?.append($tooltip);
-			}
-			if (!$tooltip) continue;
-			$tooltip.textContent = getTooltipText((value ?? "").toString());
-			updateTooltip($tooltip, type, $pointers[i].style.left, $pointers[i].style.top, $pointers[i].style.zIndex);
-		}
-	};
-	const destroy = () => {
-		$tooltipsRow?.remove();
-		for (const $tooltip of $tooltips) {
-			if (!$tooltip) continue;
-			$tooltip.remove();
-		}
-		$tooltips = [];
-		resizeObserver?.disconnect();
-	};
-	return {
-		get name() {
-			return "Moving Tooltip";
-		},
-		init: (_$component, _requestUpdate, _setters, _getters) => {
-			$component = _$component;
-			getters = _getters;
-			distanceToPointer = getNumber(_$component.getAttribute("moving-tooltip-distance-to-pointer"), DISTANCE_TO_POINTER_DEFAULT);
-			tooltipWidth = getNumber(_$component.getAttribute("moving-tooltip-width"), DEFAULT_TOOLTIP_WIDTH);
-			tooltipHeight = getNumber(_$component.getAttribute("moving-tooltip-height"), DEFAULT_TOOLTIP_HEIGHT);
-			tooltipBg = _$component.getAttribute("moving-tooltip-bg") || DEFAULT_TOOLTIP_BG;
-			tooltipTextColor = _$component.getAttribute("moving-tooltip-text-color") || DEFAULT_TOOLTIP_TEXT_COLOR;
-			tooltipUnits = _$component.getAttribute("moving-tooltip-units") || "";
-			unitType = _$component.getAttribute("moving-tooltip-units-type") || "";
-			toggleEnabled(getBoolean(_$component.getAttribute("moving-tooltip")));
-		},
-		update,
-		onAttrChange: (_attrName, _newValue) => {
-			if (_attrName === "moving-tooltip") toggleEnabled(getBoolean(_newValue));
-			if (_attrName === "moving-tooltip-distance-to-pointer") setDistanceToPointer(getNumber(_newValue, DISTANCE_TO_POINTER_DEFAULT));
-			if (_attrName === "moving-tooltip-width") setTooltipWidth(getNumber(_newValue, DEFAULT_TOOLTIP_WIDTH));
-			if (_attrName === "moving-tooltip-height") setTooltipHeight(getNumber(_newValue, DEFAULT_TOOLTIP_HEIGHT));
-			if (_attrName === "moving-tooltip-bg") setTooltipBg(_newValue);
-			if (_attrName === "moving-tooltip-text-color") setTooltipTextColor(_newValue);
-			if (_attrName === "moving-tooltip-units") setTooltipUnits(_newValue);
-			if (_attrName === "moving-tooltip-units-type") setUnitType(_newValue);
-		},
-		gettersAndSetters: [
-			{
-				name: "movingTooltip",
-				attributes: {
-					get() {
-						return enabled ?? false;
-					},
-					set: (_enabled) => {
-						toggleEnabled(getBoolean(_enabled));
-					}
-				}
-			},
-			{
-				name: "distanceToPointer",
-				attributes: {
-					get() {
-						return distanceToPointer ?? false;
-					},
-					set: (_value) => {
-						setDistanceToPointer(getNumber(_value, DISTANCE_TO_POINTER_DEFAULT));
-					}
-				}
-			},
-			{
-				name: "tooltipWidth",
-				attributes: {
-					get() {
-						return tooltipWidth;
-					},
-					set: (_value) => {
-						setTooltipWidth(getNumber(_value, DEFAULT_TOOLTIP_WIDTH));
-					}
-				}
-			},
-			{
-				name: "tooltipHeight",
-				attributes: {
-					get() {
-						return tooltipHeight;
-					},
-					set: (_value) => {
-						setTooltipHeight(getNumber(_value, DEFAULT_TOOLTIP_HEIGHT));
-					}
-				}
-			},
-			{
-				name: "tooltipBg",
-				attributes: {
-					get() {
-						return tooltipBg;
-					},
-					set: (_value) => {
-						setTooltipBg(_value);
-					}
-				}
-			},
-			{
-				name: "tooltipTextColor",
-				attributes: {
-					get() {
-						return tooltipTextColor;
-					},
-					set: (_value) => {
-						setTooltipTextColor(_value);
-					}
-				}
-			},
-			{
-				name: "tooltipUnits",
-				attributes: {
-					get() {
-						return tooltipUnits;
-					},
-					set: (_value) => {
-						setTooltipUnits(_value);
-					}
-				}
-			},
-			{
-				name: "tooltipUnitType",
-				attributes: {
-					get() {
-						return unitType;
-					},
-					set: (_value) => {
-						setUnitType(_value);
-					}
-				}
-			},
-			{
-				name: "formatTooltipValue",
-				attributes: {
-					get() {
-						return formatTooltipValue;
-					},
-					set: (_func) => {
-						setFormatTooltipValue(_func);
-					}
-				}
-			}
-		],
-		css: `
-.tooltip{
-  background: #475569;
-  color: #fff;
-  font-size: 0.8rem;
-  border-radius: 3px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: ${DEFAULT_Z_INDEX};
-}  
-
-.tooltip::after {
-    content: '';
-    position: absolute;
-    width: 7px;
-    height: 6px;
-    transform: translate(0%, -50%) rotate(45deg);
-    background-color: inherit;
-    z-index: -1;
-    top: 100%;
-}
-
-.is-after .tooltip::after {
-  top: 0;
-}
-
-.type-vertical .tooltip::after{
-  transform: translate(-50%, 0%) rotate(45deg);
-  left: 100%;
-  top: auto;
-}
-
-.type-vertical .is-after .tooltip::after{
-  left: 0%;
-}
-
-.animate-on-click .tooltip{
-    transition: all var(--animate-onclick);
-}
-    `,
-		destroy
-	};
-};
-/**
-* Required: add current plugin to the plugins list.
-*/
-window.tcRangeSliderPlugins.push(MovingTooltipPlugin);
-
-//#endregion
 //#region src/controls/registry/RangeSlider.ts
-var _ref$83, _ref2$47;
+var _ref$84, _ref2$47;
 let RangeSliderElement = class RangeSliderElement extends RegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -9498,7 +9133,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$83 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$83 : Object)
+	__decorateMetadata("design:type", typeof (_ref$84 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$84 : Object)
 ], RangeSliderElement.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$47 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$47 : Object)], RangeSliderElement.prototype, "sliderRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RangeSliderElement.prototype, "initialised", void 0);
@@ -10205,7 +9840,7 @@ RegistryRangeForm = __decorate([(0, lit_decorators_js.customElement)("registry-r
 
 //#endregion
 //#region src/controls/registry/TicksBar.ts
-var _ref$82, _ref2$46, _TicksElement;
+var _ref$83, _ref2$46, _TicksElement;
 let TicksElement = class TicksElement extends RegistryConsumer {
 	static {
 		_TicksElement = this;
@@ -10385,7 +10020,7 @@ let TicksElement = class TicksElement extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$82 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$82 : Object)], TicksElement.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$83 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$83 : Object)], TicksElement.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -10516,7 +10151,7 @@ GroupAnalysisSyncButton = __decorate([(0, lit_decorators_js.customElement)("grou
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _ref$81;
+var _ref$82;
 let GroupChart = class GroupChart extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10589,7 +10224,7 @@ let GroupChart = class GroupChart extends GroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$81 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$81 : Object)], GroupChart.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$82 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$82 : Object)], GroupChart.prototype, "timeout", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChart.prototype, "data", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "colors", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChart.prototype, "on", void 0);
@@ -10867,7 +10502,7 @@ GroupDownloadDropdown = __decorate([(0, lit_decorators_js.customElement)("group-
 
 //#endregion
 //#region src/hierarchy/consumers/FileConsumer.ts
-var _ref$80, _ref2$45, _ref3$28;
+var _ref$81, _ref2$45, _ref3$28;
 var FileConsumer = class extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10904,7 +10539,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$80 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$80 : Object)
+	__decorateMetadata("design:type", typeof (_ref$81 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$81 : Object)
 ], FileConsumer.prototype, "parentFileProviderElement", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -10941,7 +10576,7 @@ __decorate([
 
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
-var _ref$79, _ref2$44;
+var _ref$80, _ref2$44;
 var AbstractFileButton = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10980,7 +10615,7 @@ slot {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$79 = typeof BtnVariants$9 !== "undefined" && BtnVariants$9) === "function" ? _ref$79 : Object)], AbstractFileButton.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$80 = typeof BtnVariants$9 !== "undefined" && BtnVariants$9) === "function" ? _ref$80 : Object)], AbstractFileButton.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -11252,7 +10887,7 @@ const ticksCss = lit.css`
 
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
-var _ref$78;
+var _ref$79;
 let GroupTimeline = class GroupTimeline extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -11437,7 +11072,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "instances", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "has", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$78 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$78 : Object)], GroupTimeline.prototype, "listener", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$79 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$79 : Object)], GroupTimeline.prototype, "listener", void 0);
 GroupTimeline = __decorate([(0, lit_decorators_js.customElement)("group-timeline")], GroupTimeline);
 
 //#endregion
@@ -11940,7 +11575,7 @@ FileInfoButton = __decorate([(0, lit_decorators_js.customElement)("file-info-but
 
 //#endregion
 //#region src/controls/file/fileLabel.ts
-var _ref$77;
+var _ref$78;
 let FileCanvas = class FileCanvas extends FileConsumer {
 	onInstanceCreated() {}
 	onFailure() {}
@@ -11965,13 +11600,13 @@ let FileCanvas = class FileCanvas extends FileConsumer {
 		return this.file.fileName;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$77 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$77 : Object)], FileCanvas.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$78 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$78 : Object)], FileCanvas.prototype, "grouping", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileCanvas.prototype, "label", void 0);
 FileCanvas = __decorate([(0, lit_decorators_js.customElement)("file-label")], FileCanvas);
 
 //#endregion
 //#region src/controls/file/FilePlaybackSpeedDropdown.ts
-var _ref$76;
+var _ref$77;
 let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -12026,7 +11661,7 @@ __decorate([
 		context: playbackSpeedContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$76 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$76 : Object)
+	__decorateMetadata("design:type", typeof (_ref$77 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$77 : Object)
 ], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
 FilePlaybackSpeedDropdown = __decorate([(0, lit_decorators_js.customElement)("file-playback-speed-dropdown")], FilePlaybackSpeedDropdown);
 
@@ -12075,7 +11710,7 @@ FileShareButton = __decorate([(0, lit_decorators_js.customElement)("file-share-b
 
 //#endregion
 //#region src/controls/file/FileTimeline.ts
-var _ref$75, _ref2$43, _ref3$27, _ref4$14, _TimelineElement;
+var _ref$76, _ref2$43, _ref3$27, _ref4$14, _TimelineElement;
 "chrome" in window;
 let TimelineElement = class TimelineElement extends FileConsumer {
 	static {
@@ -12399,7 +12034,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$75 = typeof CurrentFrameContext$2 !== "undefined" && CurrentFrameContext$2) === "function" ? _ref$75 : Object)
+	__decorateMetadata("design:type", typeof (_ref$76 = typeof CurrentFrameContext$2 !== "undefined" && CurrentFrameContext$2) === "function" ? _ref$76 : Object)
 ], TimelineElement.prototype, "currentFrame", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -12444,7 +12079,7 @@ TimelineElement = _TimelineElement = __decorate([(0, lit_decorators_js.customEle
 
 //#endregion
 //#region src/controls/file/FileVideo.ts
-var _ref$74;
+var _ref$75;
 let FileVideo = class FileVideo extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -12494,7 +12129,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$74 = typeof CurrentFrameContext$1 !== "undefined" && CurrentFrameContext$1) === "function" ? _ref$74 : Object)
+	__decorateMetadata("design:type", typeof (_ref$75 = typeof CurrentFrameContext$1 !== "undefined" && CurrentFrameContext$1) === "function" ? _ref$75 : Object)
 ], FileVideo.prototype, "currentFrame", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -12505,7 +12140,7 @@ FileVideo = __decorate([(0, lit_decorators_js.customElement)("file-video")], Fil
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisColor.ts
-var _ref$73;
+var _ref$74;
 let AnalysisColor$1 = class AnalysisColor extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12572,13 +12207,13 @@ let AnalysisColor$1 = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$73 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$73 : Object)], AnalysisColor$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$74 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$74 : Object)], AnalysisColor$1.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor$1.prototype, "color", void 0);
 AnalysisColor$1 = __decorate([(0, lit_decorators_js.customElement)("analysis-color")], AnalysisColor$1);
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisName.ts
-var _ref$72;
+var _ref$73;
 let AnalysisColor = class AnalysisColor extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12614,13 +12249,13 @@ let AnalysisColor = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$72 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$72 : Object)], AnalysisColor.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$73 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$73 : Object)], AnalysisColor.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor.prototype, "name", void 0);
 AnalysisColor = __decorate([(0, lit_decorators_js.customElement)("analysis-name")], AnalysisColor);
 
 //#endregion
 //#region src/controls/file/analysis/edit/editArea.ts
-var _ref$71;
+var _ref$72;
 let AreaEdit = class AreaEdit extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12742,7 +12377,7 @@ let AreaEdit = class AreaEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$71 = typeof _labirthermal_core.AbstractAreaAnalysis !== "undefined" && _labirthermal_core.AbstractAreaAnalysis) === "function" ? _ref$71 : Object)], AreaEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$72 = typeof _labirthermal_core.AbstractAreaAnalysis !== "undefined" && _labirthermal_core.AbstractAreaAnalysis) === "function" ? _ref$72 : Object)], AreaEdit.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEdit.prototype, "color", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "top", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "left", void 0);
@@ -12757,7 +12392,7 @@ AreaEdit = __decorate([(0, lit_decorators_js.customElement)("edit-area")], AreaE
 
 //#endregion
 //#region src/controls/file/analysis/edit/editPoint.ts
-var _ref$70;
+var _ref$71;
 let EditPoint = class EditPoint extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -12852,7 +12487,7 @@ let EditPoint = class EditPoint extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$70 = typeof _labirthermal_core.PointAnalysis !== "undefined" && _labirthermal_core.PointAnalysis) === "function" ? _ref$70 : Object)], EditPoint.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$71 = typeof _labirthermal_core.PointAnalysis !== "undefined" && _labirthermal_core.PointAnalysis) === "function" ? _ref$71 : Object)], EditPoint.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "top", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "left", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "maxX", void 0);
@@ -12861,7 +12496,7 @@ EditPoint = __decorate([(0, lit_decorators_js.customElement)("edit-point")], Edi
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisComplex.ts
-var _ref$69, _ref2$42;
+var _ref$70, _ref2$42;
 let FileAnalysisComplex = class FileAnalysisComplex extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -13106,7 +12741,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasAnalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "isDrawingAnalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasGraph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$69 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$69 : Object)], FileAnalysisComplex.prototype, "graphRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$70 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$70 : Object)], FileAnalysisComplex.prototype, "graphRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphWidth", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphHeight", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$42 = typeof ResizeObserver !== "undefined" && ResizeObserver) === "function" ? _ref2$42 : Object)], FileAnalysisComplex.prototype, "observer", void 0);
@@ -13120,7 +12755,7 @@ FileAnalysisComplex = __decorate([(0, lit_decorators_js.customElement)("file-ana
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisEdit.ts
-var _ref$68;
+var _ref$69;
 let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -13169,14 +12804,14 @@ let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$68 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$68 : Object)], FileAnalisisEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$69 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$69 : Object)], FileAnalisisEdit.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "name", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "type", void 0);
 FileAnalisisEdit = __decorate([(0, lit_decorators_js.customElement)("file-analysis-edit")], FileAnalisisEdit);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.ts
-var _ref$67, _ref2$41, _ref3$26, _ref4$13;
+var _ref$68, _ref2$41, _ref3$26, _ref4$13;
 let FileAnalysisGraph = class FileAnalysisGraph extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -13394,7 +13029,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], FileAnalysisGraph.prototype, "hasDownloads", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$67 = typeof _labirthermal_core.AnalysisDataStateValue !== "undefined" && _labirthermal_core.AnalysisDataStateValue) === "function" ? _ref$67 : Object)], FileAnalysisGraph.prototype, "graphs", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$68 = typeof _labirthermal_core.AnalysisDataStateValue !== "undefined" && _labirthermal_core.AnalysisDataStateValue) === "function" ? _ref$68 : Object)], FileAnalysisGraph.prototype, "graphs", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: currentFrameContext,
 	subscribe: true
@@ -13629,7 +13264,7 @@ FileAnalysisTable$1 = __decorate([(0, lit_decorators_js.customElement)("file-ana
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisOverviewRow.ts
-var _ref$66;
+var _ref$67;
 let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -13894,7 +13529,7 @@ let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$66 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$66 : Object)], FileAnalysisRow$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$67 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$67 : Object)], FileAnalysisRow$1.prototype, "analysis", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: interactiveAnalysisContext,
 	subscribe: true
@@ -13914,7 +13549,7 @@ FileAnalysisRow$1 = __decorate([(0, lit_decorators_js.customElement)("file-analy
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisRow.ts
-var _ref$65;
+var _ref$66;
 let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -14200,7 +13835,7 @@ let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
 		];
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$65 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$65 : Object)], FileAnalysisRow.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$66 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$66 : Object)], FileAnalysisRow.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileAnalysisRow.prototype, "interactiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "value", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "graph", void 0);
@@ -15019,7 +14654,7 @@ FileDetailIcon = __decorate([(0, lit_decorators_js.customElement)("file-opacity-
 
 //#endregion
 //#region src/renderers/FileDetail.ts
-var _ref$64;
+var _ref$65;
 let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15100,12 +14735,12 @@ let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$3.prototype, "onback", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$3.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$3.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$64 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$64 : Object)], FileThumbnail$3.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$65 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$65 : Object)], FileThumbnail$3.prototype, "grouping", void 0);
 FileThumbnail$3 = __decorate([(0, lit_decorators_js.customElement)("file-detail")], FileThumbnail$3);
 
 //#endregion
 //#region src/renderers/FileThumbnail.ts
-var _ref$63;
+var _ref$64;
 let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15197,7 +14832,7 @@ let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$2.prototype, "ondetail", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$2.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$2.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$63 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$63 : Object)], FileThumbnail$2.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$64 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$64 : Object)], FileThumbnail$2.prototype, "grouping", void 0);
 FileThumbnail$2 = __decorate([(0, lit_decorators_js.customElement)("file-thumbnail")], FileThumbnail$2);
 
 //#endregion
@@ -15421,7 +15056,7 @@ NotationContent$1 = __decorate([(0, lit_decorators_js.customElement)("notation-c
 
 //#endregion
 //#region src/controls/file/notation/NotationProvider.ts
-var _ref$62, _ref2$40, _ref3$25;
+var _ref$63, _ref2$40, _ref3$25;
 let NotationProvider = class NotationProvider extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15472,7 +15107,7 @@ __decorate([
 		slot: "notation",
 		flatten: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$62 = typeof Array !== "undefined" && Array) === "function" ? _ref$62 : Object)
+	__decorateMetadata("design:type", typeof (_ref$63 = typeof Array !== "undefined" && Array) === "function" ? _ref$63 : Object)
 ], NotationProvider.prototype, "_notationSlot", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], NotationProvider.prototype, "ms", void 0);
 __decorate([
@@ -15622,7 +15257,7 @@ NotationContent = __decorate([(0, lit_decorators_js.customElement)("notation-tim
 
 //#endregion
 //#region src/controls/file/FileVideoExport.ts
-var _ref$61, _ref2$39, _ref3$24;
+var _ref$62, _ref2$39, _ref3$24;
 let FileVideoExport = class FileVideoExport extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15709,7 +15344,7 @@ let FileVideoExport = class FileVideoExport extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$61 = typeof BtnVariants$8 !== "undefined" && BtnVariants$8) === "function" ? _ref$61 : Object)], FileVideoExport.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$62 = typeof BtnVariants$8 !== "undefined" && BtnVariants$8) === "function" ? _ref$62 : Object)], FileVideoExport.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -16488,7 +16123,7 @@ var VideoRecorder = class {
 
 //#endregion
 //#region src/controls/file/video/AbstractSingleVideoExport.ts
-var _ref$60, _ref2$38;
+var _ref$61, _ref2$38;
 var AbstractSingleVideoExport = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -16653,7 +16288,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis7", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$60 = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref$60 : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$61 = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref$61 : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$38 = typeof SingleVideoRenderProps !== "undefined" && SingleVideoRenderProps) === "function" ? _ref2$38 : Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
 
@@ -17680,7 +17315,7 @@ ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")
 
 //#endregion
 //#region src/apps/DropinApp.ts
-var _ref$59, _ref2$37, _ref3$23, _ref4$12;
+var _ref$60, _ref2$37, _ref3$23, _ref4$12;
 let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -17926,7 +17561,7 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
 		}
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$59 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$59 : Object)], DropinAppElement.prototype, "dropinRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$60 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$60 : Object)], DropinAppElement.prototype, "dropinRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$37 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$37 : Object)], DropinAppElement.prototype, "groupRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], DropinAppElement.prototype, "loaded", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$23 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref3$23 : Object)], DropinAppElement.prototype, "listener", void 0);
@@ -17949,7 +17584,7 @@ DropinAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dro
 
 //#endregion
 //#region src/apps/file/FileApp.ts
-var _ref$58, _ref2$36;
+var _ref$59, _ref2$36;
 var Layout = /* @__PURE__ */ function(Layout) {
 	Layout["NOGUI"] = "nogui";
 	Layout["SIMPLE"] = "simple";
@@ -18143,14 +17778,16 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
 
                 ${this.showlayout ? this.renderLayoutSwitch() : lit.nothing}
 
+                <file-info-button slot="bar-pre"></file-info-button>
+
                 ${(0, lit_directives_cache_js.cache)(lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
 
-                <registry-range-form slot="bar-pre" stacked="false"></registry-range-form>
-                <file-info-button slot="bar-pre"></file-info-button>
+                
 
                 ${this.hasVisible ? lit.html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : lit.nothing}
                 `)}
 
+                <registry-range-form slot="bar-persistent"></registry-range-form>
                 
 
 
@@ -18447,7 +18084,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$58 = typeof _labirthermal_core.AvailableThermalPalettes !== "undefined" && _labirthermal_core.AvailableThermalPalettes) === "function" ? _ref$58 : Object)], FileApp.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$59 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$59 : Object)], FileApp.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
@@ -18706,7 +18343,7 @@ var TimeGrouping = class {
 
 //#endregion
 //#region src/apps/multiple/AbstractMultipleApp.ts
-var _ref$57;
+var _ref$58;
 var AbstractMultipleApp = class AbstractMultipleApp extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -18830,12 +18467,12 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref$57 = typeof Locales$2 !== "undefined" && Locales$2) === "function" ? _ref$57 : Object)
+	__decorateMetadata("design:type", typeof (_ref$58 = typeof Locales$2 !== "undefined" && Locales$2) === "function" ? _ref$58 : Object)
 ], AbstractMultipleApp.prototype, "locale", void 0);
 
 //#endregion
 //#region src/apps/group/GroupApp.ts
-var _ref$56, _ref2$35, _ref3$22;
+var _ref$57, _ref2$35, _ref3$22;
 var STATE$1 = /* @__PURE__ */ function(STATE) {
 	STATE[STATE["GROUP"] = 0] = "GROUP";
 	STATE[STATE["DETAIL"] = 1] = "DETAIL";
@@ -19176,7 +18813,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$56 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$56 : Object)], GroupElement.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$57 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$57 : Object)], GroupElement.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
@@ -19258,7 +18895,7 @@ GroupElement = __decorate([(0, lit_decorators_js.customElement)("thermal-group-a
 
 //#endregion
 //#region src/apps/remote/RemoteBrowser.ts
-var _ref$55, _ref2$34, _ref3$21, _ref4$11, _ref5$5, _ref6$2;
+var _ref$56, _ref2$34, _ref3$21, _ref4$11, _ref5$5, _ref6$2;
 var STATE = /* @__PURE__ */ function(STATE) {
 	STATE[STATE["MAIN"] = 0] = "MAIN";
 	STATE[STATE["ONE"] = 1] = "ONE";
@@ -20203,7 +19840,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$55 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$55 : Object)], RemoteBrowser.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$56 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$56 : Object)], RemoteBrowser.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
@@ -20270,7 +19907,7 @@ const lockedBrowsingToSetter = (0, _lit_context.createContext)("locked-location-
 
 //#endregion
 //#region src/connection/composition/AppWithState.ts
-var _ref$54;
+var _ref$55;
 let AppState = /* @__PURE__ */ function(AppState) {
 	AppState["LOADING"] = "loading";
 	AppState["POSTER"] = "poster";
@@ -20325,13 +19962,13 @@ var AppWithState = class extends BaseAppWithPngExportContext {
 		this.requestUpdate();
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$54 = typeof AppState !== "undefined" && AppState) === "function" ? _ref$54 : Object)], AppWithState.prototype, "_appState", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$55 = typeof AppState !== "undefined" && AppState) === "function" ? _ref$55 : Object)], AppWithState.prototype, "_appState", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AppWithState.prototype, "_customStateContent", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AppWithState.prototype, "_error", void 0);
 
 //#endregion
 //#region src/connection/composition/AppWithClientProvider.ts
-var _ref$53;
+var _ref$54;
 /**
 * This layer handles the client & connection and the related context logic.
 */
@@ -20432,14 +20069,14 @@ __decorate([(0, lit_decorators_js.property)({
 	attribute: "disable-logging",
 	converter: booleanConverter(false)
 }), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "disableLogging", void 0);
-__decorate([(0, _lit_context.provide)({ context: clientContext }), __decorateMetadata("design:type", typeof (_ref$53 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$53 : Object)], AppWithClientProvider.prototype, "client", void 0);
+__decorate([(0, _lit_context.provide)({ context: clientContext }), __decorateMetadata("design:type", typeof (_ref$54 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$54 : Object)], AppWithClientProvider.prototype, "client", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isLoggedIn", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isRoot", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isClientConnected", void 0);
 
 //#endregion
 //#region src/connection/composition/AppWithContent.ts
-var _ref$52, _ref2$33, _ref3$20, _ref4$10, _ref5$4;
+var _ref$53, _ref2$33, _ref3$20, _ref4$10, _ref5$4;
 /** 
 * This layer handles the content logic & fetching 
 */
@@ -20750,7 +20387,7 @@ var AppWithContent = class extends AppWithClientProvider {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_breadcrumb", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_userFolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$52 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$52 : Object)], AppWithContent.prototype, "_folder", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$53 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$53 : Object)], AppWithContent.prototype, "_folder", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_subfolders", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$33 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref2$33 : Object)], AppWithContent.prototype, "grid", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AppWithContent.prototype, "_tags", void 0);
@@ -20801,7 +20438,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Ar
 
 //#endregion
 //#region src/connection/composition/AppWithRender.ts
-var _ref$51, _ref2$32;
+var _ref$52, _ref2$32;
 /** 
 * This layer provides the necessary render methods
 */
@@ -21416,7 +21053,7 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$51 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$51 : Object)], AppWithRender.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$52 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$52 : Object)], AppWithRender.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
@@ -21482,7 +21119,7 @@ __decorate([(0, _lit_context.provide)({ context: lockedBrowsingToSetter }), __de
 
 //#endregion
 //#region src/apps/connected/ConnectedApp.ts
-var _ref$50;
+var _ref$51;
 let ConnectedApp = class ConnectedApp extends AppWithRender {
 	constructor(..._args) {
 		super(..._args);
@@ -21610,7 +21247,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref$50 = typeof Locales !== "undefined" && Locales) === "function" ? _ref$50 : Object)
+	__decorateMetadata("design:type", typeof (_ref$51 = typeof Locales !== "undefined" && Locales) === "function" ? _ref$51 : Object)
 ], ConnectedApp.prototype, "locale", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -21619,1265 +21256,8 @@ __decorate([(0, lit_decorators_js.property)({
 ConnectedApp = __decorate([(0, lit_decorators_js.customElement)("connected-app")], ConnectedApp);
 
 //#endregion
-//#region ../server/client/src/utils/callbacksManager.ts
-/**
-* Manage callbacks on optional property values
-*/
-var CallbacksManager$5 = class extends Map {
-	/** @deprecated use set method instead */
-	add(key, callback) {
-		this.set(key, callback);
-	}
-	call(...args) {
-		this.forEach((fn) => fn(...args));
-	}
-};
-
-//#endregion
-//#region ../server/client/src/authentication/Auth.ts
-var Auth = class {
-	constructor(client) {
-		this.client = client;
-		this.onIdentity = new CallbacksManager$5();
-	}
-	isLoggedIn() {
-		return this.identity !== void 0;
-	}
-	login(identity, userFolders) {
-		this.identity = identity;
-		this.onIdentity.call(this.identity, userFolders);
-	}
-	logout() {
-		this.identity = void 0;
-		this.onIdentity.call(void 0);
-	}
-	setSession(value) {
-		this.session = value;
-	}
-	getSession() {
-		return this.session;
-	}
-	getIdentity() {
-		return this.identity;
-	}
-	getAuthorisationHeader() {
-		if (this.identity) return `Basic ${this.toBase64(`${this.identity.user}:${this.identity.token}`)}`;
-	}
-	toBase64(str) {
-		if (typeof Buffer !== "undefined") return Buffer.from(str).toString("base64");
-		if (typeof btoa !== "undefined") return btoa(str);
-		return this.manualBase64Encode(str);
-	}
-	manualBase64Encode(str) {
-		const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-		let result = "";
-		for (let i = 0; i < str.length; i += 3) {
-			const chunk = str.charCodeAt(i) << 16 | (i + 1 < str.length ? str.charCodeAt(i + 1) << 8 : 0) | (i + 2 < str.length ? str.charCodeAt(i + 2) : 0);
-			result += chars[chunk >> 18 & 63] + chars[chunk >> 12 & 63] + chars[chunk >> 6 & 63] + chars[chunk & 63];
-		}
-		const padding = str.length % 3;
-		if (padding > 0) result = result.slice(0, -padding) + "=".repeat(padding);
-		return result;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/request/RequestFactory.ts
-/**
-* An universal factory of requests to LabIR servers.
-* 
-* It is intended to be used in the `routes` factories, such as `GetRoutesFactory` or `PostRoutesFactory`. 
-* 
-* These classes take care of all the parameters settings and this RequestFactory shall never be exposed publically.
-* 
-* **Functionality**
-* - accepts the query parameters, body and header contents
-* - creates a `Request` object that is used internally by `Client.fetch()`
-* - takes care of passing credentials and session ID to the request
-* 
-*/
-var RequestFactory = class {
-	constructor(client) {
-		this.client = client;
-		this.path = void 0;
-		this.method = "GET";
-		this.action = void 0;
-		this.query = /* @__PURE__ */ new Map();
-		this.body = {};
-		this.headers = {};
-		this.files = {};
-	}
-	setPath(value) {
-		value = value.replace(/^\/+|\/+$/g, "");
-		this.path = value;
-		return this;
-	}
-	setMethod(value) {
-		this.method = value;
-		return this;
-	}
-	setAction(value) {
-		this.action = value;
-		return this;
-	}
-	addQueryParameter(key, value) {
-		this.query.set(key, value);
-		return this;
-	}
-	addBodyParameter(key, value) {
-		this.body[key] = value;
-		return this;
-	}
-	addHeader(key, value) {
-		this.headers[key] = value;
-		return this;
-	}
-	addFile(key, file) {
-		this.files[key] = file;
-		return this;
-	}
-	createRequestInit() {
-		const isValidRequestToRoot = [
-			"connect",
-			"login",
-			"logout",
-			"currentusertree"
-		].includes(this.action || "");
-		if (this.path === void 0 && !isValidRequestToRoot) return false;
-		let address = this.client.getServerUrl();
-		if (!isValidRequestToRoot) address += this.path;
-		const queryString = {};
-		if (this.action !== void 0) queryString["action"] = this.action;
-		if (this.query.size > 0) this.query.forEach((value, key) => {
-			queryString[key] = value;
-		});
-		if (Object.keys(queryString).length > 0) {
-			address += "?";
-			address += new URLSearchParams(queryString).toString();
-		}
-		const url = new URL(address);
-		const headers = { ...this.headers };
-		if (this.client.auth.isLoggedIn()) headers["Authorization"] = this.client.auth.getAuthorisationHeader() || "";
-		const session = this.client.auth.getSession();
-		if (session) headers["Cookie"] = session;
-		return {
-			url,
-			options: {
-				method: this.method,
-				headers,
-				credentials: "include"
-			}
-		};
-	}
-	/**
-	* Vytvoří Request s application/json body (bez souborů)
-	*/
-	createRequestJson() {
-		const init = this.createRequestInit();
-		if (init !== false) {
-			const { url, options } = init;
-			if (this.method === "POST" && Object.keys(this.body).length > 0) options.body = JSON.stringify(this.body);
-			const finaleOptions = {
-				...options,
-				headers: {
-					...options.headers,
-					"Content-Type": "application/json"
-				}
-			};
-			return new Request(url, finaleOptions);
-		}
-		return false;
-	}
-	/**
-	* Vytvoří Request s multipart/form-data (pro upload souborů)
-	*/
-	createRequestFormData() {
-		const init = this.createRequestInit();
-		if (init === false) return false;
-		const { url, options } = init;
-		const formData = new FormData();
-		for (const [key, value] of Object.entries(this.body)) formData.append(key, typeof value === "object" ? JSON.stringify(value) : String(value));
-		for (const [key, file] of Object.entries(this.files)) formData.append(key, file, file.name);
-		const finaleOptions = {
-			...options,
-			body: formData
-		};
-		if (finaleOptions.headers && typeof finaleOptions.headers === "object") delete finaleOptions.headers["Content-Type"];
-		return new Request(url, finaleOptions);
-	}
-	createRequest() {
-		if (Object.keys(this.files).length > 0) return this.createRequestFormData();
-		else return this.createRequestJson();
-	}
-	getAction() {
-		return this.action;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/Operation.ts
-/** A base class for all routes. It is intentionally concieved very universally, because it might happen that one operation would consist of several subsequent requests. */
-var Operation = class {
-	constructor(client) {
-		this.client = client;
-		this.request = this.client.createRequest();
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetConnect.ts
-var GetConnect = class extends Operation {
-	init() {
-		this.request.setMethod("GET");
-		this.request.setAction("connect");
-		return this;
-	}
-	async execute() {
-		const response = await this.client.fetch(this.request);
-		if (response.success) {
-			if (response.data.identity !== false) this.client.auth.login(response.data.identity, response.data.userFolders);
-		}
-		return response;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetCurrentUserTree.ts
-/**
-* Get the list of all folders accessible to the currently logged in user.
-*/
-var GetCurrentUserTree = class extends Operation {
-	init() {
-		this.request.setMethod("GET");
-		this.request.setAction("currentusertree");
-		return this;
-	}
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/OperationWithPath.ts
-/** A base operation that needs to have a path specified. */
-var OperationWithPath = class extends Operation {
-	setPath(path) {
-		this.request.setPath(path);
-		return this;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetInfo.ts
-var GetInto = class extends OperationWithPath {
-	init() {
-		this.request.setMethod("GET");
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetFile.ts
-var GetFile = class extends OperationWithPath {
-	init() {
-		this.request.setMethod("GET");
-		this.request.setAction("file");
-		return this;
-	}
-	setFileName(value) {
-		this.request.addQueryParameter("file", value);
-		return this;
-	}
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/OperationWithPathAndFilters.ts
-/** An operation containing filters based on time and tags. Needs to have path specified. */
-var OperationWithFilters = class extends OperationWithPath {
-	constructor(..._args) {
-		super(..._args);
-		this.tags = [];
-	}
-	setFrom(value) {
-		const timestamp = value instanceof Date ? value.getTime() : value;
-		this.request.addQueryParameter("from", timestamp.toString());
-		return this;
-	}
-	setTo(value) {
-		const timestamp = value instanceof Date ? value.getTime() : value;
-		this.request.addQueryParameter("to", timestamp.toString());
-		return this;
-	}
-	setTags(value) {
-		this.tags = value;
-		this.applyTags();
-		return this;
-	}
-	addTag(value) {
-		if (!this.tags.includes(value)) {
-			this.tags.push(value);
-			this.applyTags();
-		}
-		return this;
-	}
-	removeTag(value) {
-		const originalLength = this.tags.length;
-		this.tags = this.tags.filter((tag) => tag !== value);
-		if (this.tags.length !== originalLength) this.applyTags();
-		return this;
-	}
-	/**
-	* Internal method used to propagate changed tags to the request.
-	*/
-	applyTags() {
-		this.request.addQueryParameter("tags", this.tags.join(","));
-		return this;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetFiles.ts
-var GetFiles = class extends OperationWithFilters {
-	init() {
-		this.request.setMethod("GET");
-		this.request.setAction("files");
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/get/GetGrid.ts
-let GridGrouping$2 = /* @__PURE__ */ function(GridGrouping) {
-	GridGrouping["HOUR"] = "hour";
-	GridGrouping["DAY"] = "day";
-	GridGrouping["WEEK"] = "week";
-	GridGrouping["MONTH"] = "month";
-	GridGrouping["YEAR"] = "year";
-	return GridGrouping;
-}({});
-var GetGrid = class extends OperationWithFilters {
-	constructor(..._args) {
-		super(..._args);
-		this.folders = [];
-		this.by = GridGrouping$2.HOUR;
-	}
-	init() {
-		this.request.setMethod("GET");
-		this.request.setAction("grid");
-		this.request.addQueryParameter("by", this.by);
-		return this;
-	}
-	setBy(value) {
-		this.by = value;
-		this.request.addQueryParameter("by", value);
-		return this;
-	}
-	setFolders(value) {
-		this.folders = value;
-		this.applyFolders();
-		return this;
-	}
-	addFolder(value) {
-		if (!this.folders.includes(value)) {
-			this.folders.push(value);
-			this.applyFolders();
-		}
-		return this;
-	}
-	removeFolder(value) {
-		const originalLength = this.folders.length;
-		this.folders = this.folders.filter((folder) => folder !== value);
-		if (this.folders.length !== originalLength) this.applyFolders();
-		return this;
-	}
-	applyFolders() {
-		this.request.addQueryParameter("folders", this.folders.join(","));
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/factories/GetRoutesFactory.ts
-/**
-* Factory for creating GET routes
-*/
-var GetRoutesFactory = class {
-	constructor(client) {
-		this.client = client;
-	}
-	/**
-	* Connects to a server, eventually returning the existing identity of the currently logged-in user.
-	* 
-	* If you want to load existing user identity, you need to pass the PHPSESSID to the client before calling this method using `auth.setSession()`.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.auth.setSession("PHPSESSID=1234567890abcdef"); // Set the session ID
-	* await client.connect(); // This method is accessible from the Client object itself
-	* ```
-	*/
-	connect() {
-		return new GetConnect(this.client).init();
-	}
-	/**
-	* Get information about a folder.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.connect();
-	* const request = client.routes.get.info("path/to/folder");
-	* // Configure request:
-	* request.setPath("path/to/folder"); // already set by factory
-	* const result = await request.execute();
-	* ```
-	* 
-	* @param path Path of the folder.
-	*/
-	info(path) {
-		return new GetInto(this.client).init().setPath(path);
-	}
-	/**
-	* List of files in the given folder.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.connect();
-	* const request = client.routes.get.files("path/to/folder");
-	* request
-	*  .setFrom(new Date("2023-01-01")) // Optional filter
-	*  .setTo(new Date("2023-12-31")) // Optional filter
-	*  .addTag("tag-slug"); // Optional filter
-	* const result = await request.execute();
-	* ```
-	* 
-	* @param path Path to the folder from which you want to get the files
-	*/
-	files(path) {
-		return new GetFiles(this.client).init().setPath(path);
-	}
-	/**
-	* List of files in the given folder.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.connect();
-	* const request = client.routes.get.files("path/to/folder");
-	* // Configure request:
-	* request.setFrom(new Date("2023-01-01")); // Optional filter
-	* request.setTo(new Date("2023-12-31"));   // Optional filter
-	* request.addTag("tag-slug");              // Optional filter
-	* const result = await request.execute();
-	* ```
-	* 
-	* @param path Path to the folder from which you want to get the files
-	*/
-	grid(path) {
-		return new GetGrid(this.client).init().setPath(path);
-	}
-	/**
-	* Generate the grid from subfolders inside the given directory.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.connect();
-	* const request = client.routes.get.grid("path/to/folder");
-	* const result = await request.execute();
-	* ```
-	* 
-	* @param path Path to the folder from which you want the grid to be generated
-	* @param filename Name of the LRC file
-	*/
-	file(path, filename) {
-		return new GetFile(this.client).init().setPath(path).setFileName(filename);
-	}
-	/**
-	* Get list of folders accessible by the currently logged-in user.
-	* 
-	* ```typescript
-	* const client = new Client("http://localhost:8080");
-	* await client.connect();
-	* const request = client.routes.get.currentUserTree();
-	* const result = await request.execute();
-	* ```
-	*/
-	currentUserTree() {
-		return new GetCurrentUserTree(this.client).init();
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/CreateFolder.ts
-/**
-* Vytvoření nové složky (viz actionCreate v PHP)
-* Parametry: name (povinné), description (volitelné), meta (volitelné), tags (volitelné), access (volitelné)
-*/
-var CreateFolder = class extends OperationWithPath {
-	constructor(..._args) {
-		super(..._args);
-		this.tagBuffer = {};
-		this.accessBuffer = {};
-	}
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("create");
-		return this;
-	}
-	setName(name) {
-		this.request.addBodyParameter("name", name);
-		return this;
-	}
-	setDescription(description) {
-		this.request.addBodyParameter("description", description);
-		return this;
-	}
-	setMeta(meta) {
-		this.request.addBodyParameter("meta", meta);
-		return this;
-	}
-	/**
-	* Přidej jeden tag (klíčem je název, hodnotou objekt s name, description, color)
-	*/
-	addTag(name, description, color) {
-		this.tagBuffer[name] = { name };
-		if (description !== void 0) this.tagBuffer[name].description = description;
-		if (color !== void 0) this.tagBuffer[name].color = color;
-		return this;
-	}
-	/**
-	* Nastaví access.show (viditelnost složky)
-	*/
-	setShow(show) {
-		this.accessBuffer.show = show;
-		return this;
-	}
-	/**
-	* Nastaví access.may_have_files (zda složka může obsahovat soubory)
-	*/
-	setMayHaveFiles(mayHaveFiles) {
-		this.accessBuffer.may_have_files = mayHaveFiles;
-		return this;
-	}
-	async execute() {
-		if (Object.keys(this.tagBuffer).length > 0) this.request.addBodyParameter("tags", this.tagBuffer);
-		if (Object.keys(this.accessBuffer).length > 0) this.request.addBodyParameter("access", this.accessBuffer);
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/OperationWithFile.ts
-/** A base operation that needs to have a path specified. */
-var OperationWithFile = class extends OperationWithPath {
-	setFile(filename) {
-		this.request.addQueryParameter("file", filename);
-		return this;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/DeleteFile.ts
-var DeleteFile = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("filedelete");
-		return this;
-	}
-	setLrc(file) {
-		this.request.addFile("lrc", file);
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/DeleteFolder.ts
-var DeleteFolder = class extends OperationWithPath {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("delete");
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/FileAddComment.ts
-var FileAddComment = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("fileaddcomment");
-		return this;
-	}
-	/**
-	* Nastaví text komentáře, který bude odeslán na server.
-	*
-	* @param message Text komentáře
-	*/
-	setMessage(message) {
-		this.request.addBodyParameter("message", message);
-		return this;
-	}
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/FileClearComments.ts
-var FileClearComments = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("fileclearcomments");
-		return this;
-	}
-	/**
-	* Executes the request to clear comments on a file.
-	*/
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/FileDeleteComment.ts
-var FileDeleteComment = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("filedeletecomment");
-		return this;
-	}
-	setCommentTimestamp(timestamp) {
-		this.request.addBodyParameter("timestamp", timestamp);
-		return this;
-	}
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/FileUpdateComment.ts
-var FileUpdateComment = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("fileupdatecomment");
-		return this;
-	}
-	setCommentTimestamp(timestamp) {
-		this.request.addBodyParameter("timestamp", timestamp);
-		return this;
-	}
-	/**
-	* Nastaví text komentáře, který bude odeslán na server.
-	*
-	* @param message Text komentáře
-	*/
-	setMessage(message) {
-		this.request.addBodyParameter("message", message);
-		return this;
-	}
-	execute() {
-		return this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/Login.ts
-var Login = class extends Operation {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("login");
-		return this;
-	}
-	setUser(user) {
-		this.request.addBodyParameter("user", user);
-		return this;
-	}
-	setPassword(password) {
-		this.request.addBodyParameter("password", password);
-		return this;
-	}
-	async execute() {
-		const response = await this.client.fetch(this.request);
-		if (response.success) this.client.auth.login(response.data.login, response.data.userFolders);
-		return response;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/Logout.ts
-var Logout = class extends Operation {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("logout");
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/MoveFolder.ts
-var MoveFolder = class extends OperationWithPath {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("move");
-		return this;
-	}
-	setTarget(target) {
-		this.request.addBodyParameter("target", target);
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/UpdateFile.ts
-var UpdateFile = class extends OperationWithFile {
-	constructor(..._args) {
-		super(..._args);
-		this._clearTags = false;
-		this._clearAnalyses = false;
-		this._tagsAdd = [];
-		this._tagsRemove = [];
-		this._analysisAdd = [];
-		this._analysisRemove = [];
-	}
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("updatefile");
-		return this;
-	}
-	setLabel(value) {
-		this.request.addBodyParameter("label", value);
-		return this;
-	}
-	setDescription(value) {
-		this.request.addBodyParameter("description", value);
-		return this;
-	}
-	addTag(tag) {
-		this._tagsAdd.push(tag);
-		return this;
-	}
-	removeTag(tag) {
-		this._tagsRemove.push(tag);
-		return this;
-	}
-	addAnalysis(analysis) {
-		this._analysisAdd.push(analysis);
-		return this;
-	}
-	removeAnalysis(analysis) {
-		this._analysisRemove.push(analysis);
-		return this;
-	}
-	clearTags() {
-		this._clearTags = true;
-		return this;
-	}
-	clearAnalyses() {
-		this._clearAnalyses = true;
-		return this;
-	}
-	async execute() {
-		this.request.addBodyParameter("clearTags", this._clearTags);
-		if (this._tagsAdd.length > 0) this.request.addBodyParameter("addTags", this._tagsAdd);
-		if (this._tagsRemove.length > 0) this.request.addBodyParameter("removeTags", this._tagsRemove);
-		this.request.addBodyParameter("clearAnalyses", this._clearAnalyses);
-		if (this._analysisAdd.length > 0) this.request.addBodyParameter("addAnalyses", this._analysisAdd);
-		if (this._analysisRemove.length > 0) this.request.addBodyParameter("removeAnalyses", this._analysisRemove);
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/UpdateFolder.ts
-var UpdateFolder = class extends OperationWithPath {
-	constructor(..._args) {
-		super(..._args);
-		this.tagBuffer = {};
-	}
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("update");
-		return this;
-	}
-	setName(value) {
-		this.request.addBodyParameter("name", value);
-		return this;
-	}
-	setDescription(value) {
-		this.request.addBodyParameter("description", value);
-		return this;
-	}
-	setThumbnail(value) {
-		this.request.addFile("thumbnail", value);
-		return this;
-	}
-	addTag(key, name, description, color) {
-		this.tagBuffer[key] = { name };
-		if (description !== void 0) this.tagBuffer[key].description = description;
-		if (color !== void 0) this.tagBuffer[key].color = color;
-		this.request.addBodyParameter("addTags", this.tagBuffer);
-		return this;
-	}
-	removeTags(tags) {
-		this.request.addBodyParameter("removeTags", tags);
-		return this;
-	}
-	setMayHaveFiles(value) {
-		this.request.addBodyParameter("mayHaveFiles", value);
-		return this;
-	}
-	setMetadata(value) {
-		this.request.addBodyParameter("meta", value);
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/UploadFile.ts
-var UploadFile = class extends OperationWithPath {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("uploadfile");
-		return this;
-	}
-	setLrc(file) {
-		this.request.addFile("lrc", file);
-		return this;
-	}
-	setVisual(file) {
-		this.request.addFile("visual", file);
-		return this;
-	}
-	setPreview(file) {
-		this.request.addFile("preview", file);
-		return this;
-	}
-	/**
-	* Nastaví label pro uploadovaný soubor
-	*/
-	setLabel(label) {
-		this.request.addBodyParameter("label", label);
-		return this;
-	}
-	/**
-	* Nastaví description pro uploadovaný soubor
-	*/
-	setDescription(description) {
-		this.request.addBodyParameter("description", description);
-		return this;
-	}
-	/**
-	* Nastaví tagy pro uploadovaný soubor
-	*/
-	setTags(tags) {
-		this.request.addBodyParameter("tags", tags);
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/post/MoveFile.ts
-var MoveFile = class extends OperationWithFile {
-	init() {
-		this.request.setMethod("POST");
-		this.request.setAction("movefile");
-		return this;
-	}
-	setTarget(target) {
-		this.request.addBodyParameter("target", target);
-		return this;
-	}
-	async execute() {
-		return await this.client.fetch(this.request);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/factories/PostRoutesFactory.ts
-var PostRoutesFactory = class {
-	constructor(client) {
-		this.client = client;
-	}
-	login(login, password) {
-		return new Login(this.client).init().setUser(login).setPassword(password);
-	}
-	logout() {
-		return new Logout(this.client).init();
-	}
-	createFolder(targetPath, newFolderName) {
-		return new CreateFolder(this.client).init().setName(newFolderName).setPath(targetPath);
-	}
-	updateFolder(path) {
-		return new UpdateFolder(this.client).init().setPath(path);
-	}
-	moveFolder(folderPath, target) {
-		return new MoveFolder(this.client).init().setPath(folderPath).setTarget(target);
-	}
-	uploadFile(folderPath, file) {
-		return new UploadFile(this.client).init().setPath(folderPath).setLrc(file);
-	}
-	updateFile(folderPath, filename) {
-		return new UpdateFile(this.client).init().setPath(folderPath).setFile(filename);
-	}
-	fileAddComment(folderPath, filename, message) {
-		return new FileAddComment(this.client).init().setPath(folderPath).setFile(filename).setMessage(message);
-	}
-	fileClearComments(folderPath, filename) {
-		return new FileClearComments(this.client).init().setPath(folderPath).setFile(filename);
-	}
-	fileUpdateComment(folderPath, filename, timestamp, message) {
-		return new FileUpdateComment(this.client).init().setPath(folderPath).setFile(filename).setCommentTimestamp(timestamp).setMessage(message);
-	}
-	fileDeleteComment(folderPath, filename, timestamp) {
-		return new FileDeleteComment(this.client).init().setPath(folderPath).setFile(filename).setCommentTimestamp(timestamp);
-	}
-	deleteFolder(folderPath) {
-		return new DeleteFolder(this.client).init().setPath(folderPath);
-	}
-	deleteFile(folderPath, fileName) {
-		return new DeleteFile(this.client).setPath(folderPath).setFile(fileName).init();
-	}
-	moveFile(folderPath, fileName, target) {
-		return new MoveFile(this.client).init().setPath(folderPath).setFile(fileName).setTarget(target);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/routes/factories/Routes.ts
-var Routes = class {
-	constructor(client) {
-		this.client = client;
-		this.get = new GetRoutesFactory(this.client);
-		this.post = new PostRoutesFactory(this.client);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/entities/AbstractEntity.ts
-var AbstractEntity = class {
-	constructor(client) {
-		this.client = client;
-		this.observers = /* @__PURE__ */ new Set();
-		this.connected = false;
-	}
-	observe(observer) {
-		if (!this.observers.has(observer)) this.observers.add(observer);
-		return this;
-	}
-	unobserve(observer) {
-		if (this.observers.has(observer)) this.observers.delete(observer);
-		return this;
-	}
-	emit(message, includeState = false, customData) {
-		this.onEmit(message, includeState, customData);
-	}
-};
-
-//#endregion
-//#region ../server/client/src/entities/MutableProperty.ts
-/** A property that may accept changes and generates its report when changed */
-var MutableProperty = class {
-	constructor(entity, name) {
-		this.entity = entity;
-		this.name = name;
-	}
-	/** Is there a pending change in this property? */
-	isPending() {
-		return this.pending !== void 0;
-	}
-	/** Gets the value that shall be persisted. */
-	getEnqueued() {
-		return this.pending;
-	}
-	/** Enqueue a change of the new value */
-	enqueue(newValue) {
-		this.pending = newValue;
-	}
-	/** Reset any mutations */
-	reset() {
-		this.pending = void 0;
-	}
-	/** Generate the report entry for mutations message */
-	report(updatedValue = void 0) {
-		if (updatedValue !== void 0) return [this.name, updatedValue];
-		return false;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/entities/Folder.ts
-var Folder = class extends AbstractEntity {
-	constructor(client, path) {
-		super(client);
-		this.path = path;
-		this.update = {
-			name: new MutableProperty(this, "name"),
-			description: new MutableProperty(this, "description")
-		};
-	}
-	forEveryUpdate(fn) {
-		Object.values(this.update).forEach(fn);
-	}
-	resetUpdaates() {
-		this.forEveryUpdate((property) => property.reset());
-	}
-	async persist() {
-		const request = this.client.routes.post.updateFolder(this.path);
-		if (this.update.name.isPending()) request.setName(this.update.name.getEnqueued());
-		if (this.update.description.isPending()) request.setDescription(this.update.description.getEnqueued());
-		const result = await request.execute();
-		if (result.success === true) {
-			this.info = result.data.result.info;
-			const mutations = [];
-			this.forEveryUpdate((property) => {
-				if (this.info !== void 0 && property.isPending()) {
-					const report = property.report(this.info[property.name]);
-					if (report !== false) mutations.push(report);
-					property.reset();
-				}
-			});
-			const report = Object.fromEntries(mutations);
-			this.emit("updated", true, report);
-			return this.info;
-		}
-	}
-	current() {
-		return this.info;
-	}
-	async connect() {
-		const response = await this.client.routes.get.info(this.path).execute();
-		if (response.success === true) {
-			this.info = response.data.folder;
-			this.connected = true;
-			this.emit("connected", true);
-			return true;
-		}
-		return false;
-	}
-	disconnect() {
-		this.connected = false;
-		this.emit("disconnected", false);
-	}
-	onEmit(message, includeState, customData) {
-		this.observers.forEach((observer) => {
-			const info = includeState ? this.current() : void 0;
-			observer.onFolderChanged(message, info, customData);
-		});
-	}
-};
-
-//#endregion
-//#region ../server/client/src/entities/Entities.ts
-var Entities = class {
-	constructor(client) {
-		this.client = client;
-		this.folders = /* @__PURE__ */ new Map();
-	}
-	/** 
-	* Creates a connection to a folder
-	*/
-	async connectToFolder(path, observer) {
-		if (this.folders.has(path)) {
-			const entity = this.folders.get(path);
-			entity.observe(observer);
-			return entity;
-		}
-		const folder = new Folder(this.client, path);
-		folder.observe(observer);
-		this.folders.set(path, folder);
-		if (!await folder.connect()) throw new Error(`Could not connect to folder at path: ${path}`);
-		return folder;
-	}
-};
-
-//#endregion
-//#region ../server/client/src/Client.ts
-/**
-* The client for accessing a remote LabIR server.
-* - needs to call the asynchronouse method `connect()` method before any other request
-* - if `auth.setSession()` is called before connection, the session ID shall be passed to the connected server. In case there is a logged-in user in the given session its credentials will be sent back and the user will be logged in automatically right after the connection.
-* - otherwise, a standard login request needs to be performed via the `routes.post.login()`
-*/
-var Client$2 = class {
-	get serverInfo() {
-		return this._serverInfo;
-	}
-	get loading() {
-		return this.activeRequests > 0;
-	}
-	constructor(serverUrl, apiRoot = "/api/") {
-		this.apiRoot = apiRoot;
-		this.entities = new Entities(this);
-		this.connected = false;
-		this.onConnection = new CallbacksManager$5();
-		this.onResult = new CallbacksManager$5();
-		this.activeRequests = 0;
-		this.onLoading = new CallbacksManager$5();
-		let composedUrl = serverUrl.trim();
-		if (composedUrl.endsWith("/")) composedUrl = composedUrl.slice(0, -1);
-		composedUrl += apiRoot.trim();
-		this.serverUrl = composedUrl;
-		if (!this.serverUrl.endsWith("/")) this.serverUrl += "/";
-		this.auth = new Auth(this);
-		this.routes = new Routes(this);
-	}
-	/** 
-	* Tests the availability of the server, establishes the connection and stores the following data crucial for all subsequent requests:
-	* - PHPSESSID is stored in `Auth.setSesson()` 
-	* - if a logged-in user was found on the session, its credentials will be stored in `Auth.login()`
-	*/
-	async connect() {
-		if (this.connected) throw new Error("Client is already connected.");
-		const request = this.routes.get.connect();
-		try {
-			const response = await request.execute();
-			if (response.success === true) {
-				this.connected = true;
-				this._serverInfo = response.colophon.server;
-				this.onConnection.call(response.colophon.server);
-			} else {
-				this.onConnection.call(false);
-				this.onLoading.call(false);
-			}
-			return response;
-		} catch (error) {
-			this.onConnection.call(false);
-			this.onLoading.call(false);
-			return {
-				success: false,
-				code: 404,
-				message: "Server is not available or network error occurred.",
-				data: void 0,
-				raw: {
-					request: {},
-					response: {}
-				},
-				colophon: {
-					time: Date.now(),
-					server: void 0,
-					action: "connect",
-					path: "/"
-				}
-			};
-		}
-	}
-	/** 
-	* Was this `Client` already connected using `Client.connect()`? 
-	*/
-	isConnected() {
-		return this.connected;
-	}
-	/**
-	* Creates a new RequestFactory instance
-	* - do not use this method directly, use the `routes` property instead
-	*/
-	createRequest() {
-		return new RequestFactory(this);
-	}
-	/**
-	* @returns The server URL with a trailing slash
-	*/
-	getServerUrl() {
-		return this.serverUrl;
-	}
-	/**
-	* @returns The API root path with slashes (e.g. '/api/')
-	*/
-	getApiRoot() {
-		if (this.apiRoot.endsWith("/") && this.apiRoot.startsWith("/")) return this.apiRoot;
-		else if (this.apiRoot.endsWith("/")) return "/" + this.apiRoot;
-		else if (this.apiRoot.startsWith("/")) return this.apiRoot + "/";
-		return "/" + this.apiRoot + "/";
-	}
-	getPublicUrl() {
-		if (this.serverUrl.endsWith(this.apiRoot)) return this.serverUrl.slice(0, -this.apiRoot.length);
-		return this.serverUrl;
-	}
-	/** 
-	* Automatically process every incoming response. 
-	* - store the session ID in Auth class
-	*/
-	processResponse(response) {
-		const match = (response.headers.get("set-cookie") || "").match(/PHPSESSID=([^;]+)/);
-		this.auth.setSession(match ? match[0] : void 0);
-	}
-	/** 
-	* Processes a request factory created using `routes` 
-	* 
-	* All request factories need to be executed this way because there are necessary checks & processes upon every request:
-	* - request is refused until the client is connected
-	* - handling of unavailable server errors
-	* - storage of the PHPSESSID in the `Auth` class
-	* 
-	* @todo implement emission of events using the `EventEmitter` class
-	* @param factory The request factory to execute
-	*/
-	async fetch(factory) {
-		if (this.activeRequests === 0) this.onLoading.call(true);
-		this.activeRequests++;
-		if (factory.getAction() !== "connect" && this.connected === false) throw new Error("Client is not connected to the server!");
-		const request = factory.createRequest();
-		if (!request) throw new Error("Invalid request configuration");
-		let response;
-		try {
-			response = await fetch(request);
-		} catch (error) {
-			throw new Error("Server is not available or network error occurred.");
-		}
-		this.processResponse(response);
-		try {
-			const json = await response.clone().json();
-			json.raw = {
-				request,
-				response
-			};
-			if (!response.ok) throw new Error("Request was not successfull at all!");
-			this.activeRequests--;
-			if (this.activeRequests === 0) this.onLoading.call(false);
-			this.onResult.call(json.colophon.time, json.success, json.code, json.message, request.method);
-			return json;
-		} catch (error) {
-			const text = await response.clone().text();
-			console.error("API Call ended with an error!", {
-				request: request.url,
-				JSerror: error,
-				responseText: text
-			});
-		}
-	}
-};
-
-//#endregion
 //#region src/connection/components/ClientConsumer.ts
-var _ref$49, _ref2$31, _ref3$19;
+var _ref$50, _ref2$31, _ref3$19;
 var ClientConsumer = class extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -22943,7 +21323,7 @@ var ClientConsumer = class extends BaseElement {
 __decorate([(0, _lit_context.consume)({
 	context: clientContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$49 = typeof Client$2 !== "undefined" && Client$2) === "function" ? _ref$49 : Object)], ClientConsumer.prototype, "client", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$50 = typeof packages_server_client_src_Client.Client !== "undefined" && packages_server_client_src_Client.Client) === "function" ? _ref$50 : Object)], ClientConsumer.prototype, "client", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientConnecting", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientConnected", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientLoading", void 0);
@@ -23231,7 +21611,7 @@ UserButton$1 = __decorate([(0, lit_decorators_js.customElement)("labir-user-butt
 
 //#endregion
 //#region src/connection/components/server/ServerBar.ts
-var _ref$48;
+var _ref$49;
 let ServerBar = class ServerBar extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -23503,7 +21883,7 @@ let ServerBar = class ServerBar extends ClientConsumer {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ServerBar.prototype, "history", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ServerBar.prototype, "logExpanded", void 0);
-__decorate([(0, lit_decorators_js.query)(".history-content"), __decorateMetadata("design:type", typeof (_ref$48 = typeof HTMLDivElement !== "undefined" && HTMLDivElement) === "function" ? _ref$48 : Object)], ServerBar.prototype, "historyContent", void 0);
+__decorate([(0, lit_decorators_js.query)(".history-content"), __decorateMetadata("design:type", typeof (_ref$49 = typeof HTMLDivElement !== "undefined" && HTMLDivElement) === "function" ? _ref$49 : Object)], ServerBar.prototype, "historyContent", void 0);
 ServerBar = __decorate([(0, lit_decorators_js.customElement)("server-info")], ServerBar);
 
 //#endregion
@@ -23743,7 +22123,7 @@ var AbstractModeBar = class extends ClientConsumer {
 
 //#endregion
 //#region src/connection/components/folder/configuration/AnalysisMode.ts
-var _ref$47, _ref2$30;
+var _ref$48, _ref2$30;
 let AnalysisModeElement = class AnalysisModeElement extends AbstractModeBar {
 	constructor(..._args) {
 		super(..._args);
@@ -23804,7 +22184,7 @@ let AnalysisModeElement = class AnalysisModeElement extends AbstractModeBar {
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$47 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$47 : Object)], AnalysisModeElement.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$48 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$48 : Object)], AnalysisModeElement.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], AnalysisModeElement.prototype, "files", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AnalysisModeElement.prototype, "onChangeAll", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AnalysisModeElement.prototype, "onChangeFile", void 0);
@@ -23824,7 +22204,7 @@ AnalysisModeElement = __decorate([(0, lit_decorators_js.customElement)("analysis
 
 //#endregion
 //#region src/connection/components/folder/configuration/DisplayMode.ts
-var _ref$46, _ref2$29;
+var _ref$47, _ref2$29;
 let DisplayModeElement = class DisplayModeElement extends AbstractModeBar {
 	constructor(..._args) {
 		super(..._args);
@@ -23866,7 +22246,7 @@ let DisplayModeElement = class DisplayModeElement extends AbstractModeBar {
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$46 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$46 : Object)], DisplayModeElement.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$47 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$47 : Object)], DisplayModeElement.prototype, "folder", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: displayModeContext,
 	subscribe: true
@@ -23887,7 +22267,7 @@ DisplayModeElement = __decorate([(0, lit_decorators_js.customElement)("display-m
 
 //#endregion
 //#region src/connection/components/folder/configuration/EditingMode.ts
-var _ref$45;
+var _ref$46;
 let EditingModeElement = class EditingModeElement extends AbstractModeBar {
 	constructor(..._args) {
 		super(..._args);
@@ -23909,7 +22289,7 @@ let EditingModeElement = class EditingModeElement extends AbstractModeBar {
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$45 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$45 : Object)], EditingModeElement.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$46 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$46 : Object)], EditingModeElement.prototype, "folder", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: showDiscussionContext,
 	subscribe: true
@@ -23930,7 +22310,7 @@ EditingModeElement = __decorate([(0, lit_decorators_js.customElement)("editing-m
 
 //#endregion
 //#region src/connection/components/folder/configuration/FolderTagsFilter.ts
-var _ref$44;
+var _ref$45;
 let FolderTagsFilter = class FolderTagsFilter extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -24017,7 +22397,7 @@ let FolderTagsFilter = class FolderTagsFilter extends ClientConsumer {
         ` : lit.nothing;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$44 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$44 : Object)], FolderTagsFilter.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$45 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$45 : Object)], FolderTagsFilter.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], FolderTagsFilter.prototype, "tags", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderTagsFilter.prototype, "onTagClick", void 0);
 __decorate([(0, _lit_context.consume)({
@@ -24032,7 +22412,7 @@ FolderTagsFilter = __decorate([(0, lit_decorators_js.customElement)("folder-tags
 
 //#endregion
 //#region src/connection/components/folder/configuration/SubfoldersMode.ts
-var _ref$43, _ref2$28, _ref3$18, _ref4$9;
+var _ref$44, _ref2$28, _ref3$18, _ref4$9;
 let SubfoldersMode = class SubfoldersMode extends AbstractModeBar {
 	constructor(..._args) {
 		super(..._args);
@@ -24301,7 +22681,7 @@ let SubfoldersMode = class SubfoldersMode extends AbstractModeBar {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$43 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$43 : Object)], SubfoldersMode.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$44 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$44 : Object)], SubfoldersMode.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "subfolders", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
@@ -24343,7 +22723,7 @@ SubfoldersMode = __decorate([(0, lit_decorators_js.customElement)("subfolders-mo
 
 //#endregion
 //#region src/connection/components/folder/crud/AbstractFolderDialog.ts
-var _ref$42, _ref2$27, _ref3$17;
+var _ref$43, _ref2$27, _ref3$17;
 /** A base class for all dialogs related to folder CRUD operations. */
 var AbstractFolderDialog$1 = class extends ClientConsumer {
 	constructor(..._args) {
@@ -24393,7 +22773,7 @@ var AbstractFolderDialog$1 = class extends ClientConsumer {
 </thermal-dialog>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$42 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$42 : Object)], AbstractFolderDialog$1.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$43 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$43 : Object)], AbstractFolderDialog$1.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -24405,11 +22785,11 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$27 = typeof BtnVariants$7 !== "undefined" && BtnVariants$7) === "function" ? _ref2$27 : Object)], AbstractFolderDialog$1.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$27 = typeof packages_embed_src_ui_Btn.BtnVariants !== "undefined" && packages_embed_src_ui_Btn.BtnVariants) === "function" ? _ref2$27 : Object)], AbstractFolderDialog$1.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$17 = typeof BtnSizes$7 !== "undefined" && BtnSizes$7) === "function" ? _ref3$17 : Object)], AbstractFolderDialog$1.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3$17 = typeof packages_embed_src_ui_Btn.BtnSizes !== "undefined" && packages_embed_src_ui_Btn.BtnSizes) === "function" ? _ref3$17 : Object)], AbstractFolderDialog$1.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
@@ -24772,7 +23152,7 @@ FolderEditDialog$2 = __decorate([(0, lit_decorators_js.customElement)("folder-ed
 
 //#endregion
 //#region src/connection/components/folder/crud/FolderUploadDialog.ts
-var _ref$41;
+var _ref$42;
 let FolderUploadDialog = class FolderUploadDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -25373,7 +23753,7 @@ let FolderUploadDialog = class FolderUploadDialog extends ClientConsumer {
 		return true;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$41 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$41 : Object)], FolderUploadDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$42 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$42 : Object)], FolderUploadDialog.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "errorMessage", void 0);
@@ -25392,7 +23772,7 @@ FolderUploadDialog = __decorate([(0, lit_decorators_js.customElement)("folder-up
 
 //#endregion
 //#region src/connection/components/folder/crud/FolderUploadForm.ts
-var _ref$40;
+var _ref$41;
 let FolderUploadForm = class FolderUploadForm extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -26229,7 +24609,7 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$40 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$40 : Object)], FolderUploadForm.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$41 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$41 : Object)], FolderUploadForm.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "prompt", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "variant", void 0);
@@ -26249,7 +24629,7 @@ FolderUploadForm = __decorate([(0, lit_decorators_js.customElement)("folder-uplo
 
 //#endregion
 //#region src/connection/components/folder/files/FolderFiles.ts
-var _ref$39, _ref2$26;
+var _ref$40, _ref2$26;
 let FolderFiles = class FolderFiles extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -26381,7 +24761,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$39 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$39 : Object)], FolderFiles.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$40 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$40 : Object)], FolderFiles.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
@@ -26409,7 +24789,7 @@ FolderFiles = __decorate([(0, lit_decorators_js.customElement)("folder-files")],
 
 //#endregion
 //#region src/connection/components/folder/files/FolderRemoveAnalyses.ts
-var _ref$38, _ref2$25;
+var _ref$39, _ref2$25;
 let FolderRemoveAllAnalyses = class FolderRemoveAllAnalyses extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -26438,7 +24818,7 @@ let FolderRemoveAllAnalyses = class FolderRemoveAllAnalyses extends ClientConsum
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$38 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$38 : Object)], FolderRemoveAllAnalyses.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$39 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$39 : Object)], FolderRemoveAllAnalyses.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
@@ -26680,6 +25060,9 @@ var ContentController = class extends AbstractConnectedController {
 	get userFolders() {
 		return this._userFolders;
 	}
+	get gridFolders() {
+		return this._gridFolders;
+	}
 	get isLoading() {
 		return this._isLoading;
 	}
@@ -26691,6 +25074,7 @@ var ContentController = class extends AbstractConnectedController {
 		this._subfolders = [];
 		this._tree = [];
 		this._userFolders = [];
+		this._gridFolders = [];
 		this.onFolderUpdate = new _labirthermal_core.CallbacksManager();
 		this.onSubfoldersUpdate = new _labirthermal_core.CallbacksManager();
 		this.onFilesUpdate = new _labirthermal_core.CallbacksManager();
@@ -26867,22 +25251,6 @@ var ContentController = class extends AbstractConnectedController {
 		this._file = void 0;
 		this._grid = void 0;
 	}
-	/** 
-	* Performs the entire fetch cascade based on the provided parameters 
-	* @deprecated Use undividual methods instead!!!
-	*/
-	async fetchAllContentByState(folderPath, fileName, isGridView) {
-		this.purgeContentState();
-		this.loadingStart("Načítání obsahu...");
-		if (isGridView === true) await this.fetchGridData(folderPath);
-		else {
-			await this.fetchFolder(folderPath);
-			if (this._folder !== void 0 && this._folder.lrc_count > 0 && this._subfolders.length === 0 && fileName === void 0) await this.fetchFiles(folderPath);
-			else if (fileName !== void 0) await this.fetchFile(folderPath, fileName);
-		}
-		this.loadingEnded();
-		this.host.requestUpdate();
-	}
 	throwIfNot200(response) {
 		if (response.success === false || response.code !== 200) {
 			this.onError.call(response.message || "Neznámá chyba při komunikaci se serverem");
@@ -26906,8 +25274,10 @@ var ContentController = class extends AbstractConnectedController {
 		if (result.success) this.dangerouslySetFiles(Object.values(result.data.files));
 	}
 	/** Request the grid data for a folder */
-	async fetchGridData(folderPath) {
-		const result = await this.host.apiClient.routes.get.grid(folderPath).execute();
+	async fetchGridData(folderPath, inclidedSubfolderPaths) {
+		const request = this.host.apiClient.routes.get.grid(folderPath);
+		if (inclidedSubfolderPaths && inclidedSubfolderPaths.length > 0) for (const folder of inclidedSubfolderPaths) request.addFolder(folder);
+		const result = await request.execute();
 		this.host.requestUpdate();
 		this.throwIfNot200(result);
 		if (result.success) {
@@ -27580,7 +25950,7 @@ var FolderSelectionController = class {
 
 //#endregion
 //#region src/connection/controllers/abstraction/ControlledConsumer.ts
-var _ref$37, _ref2$24, _ref3$16, _ref4$8, _ref5$3;
+var _ref$38, _ref2$24, _ref3$16, _ref4$8, _ref5$3;
 var ControlledConsumer = class extends BaseElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -27591,7 +25961,7 @@ var ControlledConsumer = class extends BaseElement {
 __decorate([(0, _lit_context.consume)({
 	context: ControlledClientContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$37 = typeof ClientController !== "undefined" && ClientController) === "function" ? _ref$37 : Object)], ControlledConsumer.prototype, "client", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$38 = typeof ClientController !== "undefined" && ClientController) === "function" ? _ref$38 : Object)], ControlledConsumer.prototype, "client", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: ControlledContentContext,
 	subscribe: true
@@ -27611,7 +25981,7 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/connection/components/folder/folders/AbstractFolderThumbnail.ts
-var _ref$36;
+var _ref$37;
 var AbstractFolderThumbnail = class extends ControlledConsumer {
 	get internalSlug() {
 		return this.folder.path.replaceAll("/", "-").replaceAll(" ", "_") + "___thumbnail";
@@ -27778,7 +26148,7 @@ var AbstractFolderThumbnail = class extends ControlledConsumer {
         </registry-provider>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$36 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$36 : Object)], AbstractFolderThumbnail.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$37 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$37 : Object)], AbstractFolderThumbnail.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractFolderThumbnail.prototype, "onClick", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractFolderThumbnail.prototype, "onUpdate", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], AbstractFolderThumbnail.prototype, "subfoldersCount", void 0);
@@ -28007,7 +26377,7 @@ FolderRow = __decorate([(0, lit_decorators_js.customElement)("server-folder-row"
 
 //#endregion
 //#region src/connection/components/folder/folders/FolderSubfolders.ts
-var _ref$35, _ref2$23;
+var _ref$36, _ref2$23;
 let FolderSubfolders = class FolderSubfolders extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -28084,7 +26454,7 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$35 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$35 : Object)], FolderSubfolders.prototype, "folder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$36 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$36 : Object)], FolderSubfolders.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderSubfolders.prototype, "onFolderClick", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref2$23 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref2$23 : Object)], FolderSubfolders.prototype, "folderMode", void 0);
 FolderSubfolders = __decorate([(0, lit_decorators_js.customElement)("folder-subfolders")], FolderSubfolders);
@@ -28243,7 +26613,7 @@ FolderThumbnail = __decorate([(0, lit_decorators_js.customElement)("server-folde
 
 //#endregion
 //#region src/connection/components/folder/grid/SubfoldersGrid.ts
-var _ref$34;
+var _ref$35;
 let SubfoldersGrid$1 = class SubfoldersGrid extends RegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -28739,7 +27109,7 @@ let SubfoldersGrid$1 = class SubfoldersGrid extends RegistryConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$34 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref$34 : Object)], SubfoldersGrid$1.prototype, "grid", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$35 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref$35 : Object)], SubfoldersGrid$1.prototype, "grid", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], SubfoldersGrid$1.prototype, "slug", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onFolderClick", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onFileClick", void 0);
@@ -28778,7 +27148,7 @@ SubfoldersGrid$1 = __decorate([(0, lit_decorators_js.customElement)("subfolders-
 
 //#endregion
 //#region src/connection/components/folder/single/FolderBaseInfo.ts
-var _ref$33;
+var _ref$34;
 let FolderBaseInfo$1 = class FolderBaseInfo extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -28920,7 +27290,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$33 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$33 : Object)], FolderBaseInfo$1.prototype, "info", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$34 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$34 : Object)], FolderBaseInfo$1.prototype, "info", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], FolderBaseInfo$1.prototype, "parents", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderBaseInfo$1.prototype, "onParentClick", void 0);
 __decorate([
@@ -29060,7 +27430,7 @@ FolderBreadcrumb = __decorate([(0, lit_decorators_js.customElement)("folder-brea
 
 //#endregion
 //#region src/connection/components/file/AbstractFileAnalysisButton.ts
-var _ref$32, _ref2$22, _ref3$15, _ref4$7, _ref5$2;
+var _ref$33, _ref2$22, _ref3$15, _ref4$7, _ref5$2;
 var AbstractFileAnalysisButton = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29087,7 +27457,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$32 = typeof BtnVariants$6 !== "undefined" && BtnVariants$6) === "function" ? _ref$32 : Object)], AbstractFileAnalysisButton.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$33 = typeof BtnVariants$6 !== "undefined" && BtnVariants$6) === "function" ? _ref$33 : Object)], AbstractFileAnalysisButton.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -29200,7 +27570,7 @@ FileAnalysisStoreButton = __decorate([(0, lit_decorators_js.customElement)("file
 
 //#endregion
 //#region src/connection/components/file/FileComment.ts
-var _ref$31, _ref2$21, _ref3$14;
+var _ref$32, _ref2$21, _ref3$14;
 let FileComment$1 = class FileComment extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29351,7 +27721,7 @@ let FileComment$1 = class FileComment extends ClientConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$31 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$31 : Object)], FileComment$1.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$32 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$32 : Object)], FileComment$1.prototype, "comment", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$21 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$21 : Object)], FileComment$1.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$14 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$14 : Object)], FileComment$1.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComment$1.prototype, "onChange", void 0);
@@ -29361,7 +27731,7 @@ FileComment$1 = __decorate([(0, lit_decorators_js.customElement)("file-comment")
 
 //#endregion
 //#region src/connection/components/file/FileCommentForm.ts
-var _ref$30, _ref2$20, _ref3$13;
+var _ref$31, _ref2$20, _ref3$13;
 let FileCommentForm$1 = class FileCommentForm extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29482,7 +27852,7 @@ let FileCommentForm$1 = class FileCommentForm extends ClientConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$30 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$30 : Object)], FileCommentForm$1.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$31 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$31 : Object)], FileCommentForm$1.prototype, "comment", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$20 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$20 : Object)], FileCommentForm$1.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$13 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$13 : Object)], FileCommentForm$1.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentForm$1.prototype, "onChange", void 0);
@@ -29492,7 +27862,7 @@ FileCommentForm$1 = __decorate([(0, lit_decorators_js.customElement)("file-comme
 
 //#endregion
 //#region src/connection/components/file/FileComments.ts
-var _ref$29, _ref2$19;
+var _ref$30, _ref2$19;
 let FileComments$1 = class FileComments extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29597,14 +27967,14 @@ let FileComments$1 = class FileComments extends ClientConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$29 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$29 : Object)], FileComments$1.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$30 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$30 : Object)], FileComments$1.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$19 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$19 : Object)], FileComments$1.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComments$1.prototype, "onChange", void 0);
 FileComments$1 = __decorate([(0, lit_decorators_js.customElement)("file-comments")], FileComments$1);
 
 //#endregion
 //#region src/connection/components/file/FileCommentsDialog.ts
-var _ref$28, _ref2$18, _ref3$12, _ref4$6;
+var _ref$29, _ref2$18, _ref3$12, _ref4$6;
 let FileCommentsDialog = class FileCommentsDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29710,7 +28080,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$28 = typeof BtnVariants$5 !== "undefined" && BtnVariants$5) === "function" ? _ref$28 : Object)], FileCommentsDialog.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$29 = typeof BtnVariants$5 !== "undefined" && BtnVariants$5) === "function" ? _ref$29 : Object)], FileCommentsDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -29724,7 +28094,7 @@ FileCommentsDialog = __decorate([(0, lit_decorators_js.customElement)("file-comm
 
 //#endregion
 //#region src/connection/components/file/FileDeleteDialog.ts
-var _ref$27, _ref2$17, _ref3$11, _ref4$5;
+var _ref$28, _ref2$17, _ref3$11, _ref4$5;
 let FileDeleteDialog$1 = class FileDeleteDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29850,7 +28220,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$27 = typeof BtnVariants$4 !== "undefined" && BtnVariants$4) === "function" ? _ref$27 : Object)], FileDeleteDialog$1.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$28 = typeof BtnVariants$4 !== "undefined" && BtnVariants$4) === "function" ? _ref$28 : Object)], FileDeleteDialog$1.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -29866,7 +28236,7 @@ FileDeleteDialog$1 = __decorate([(0, lit_decorators_js.customElement)("file-dele
 
 //#endregion
 //#region src/connection/components/file/FileEditDialog.ts
-var _ref$26, _ref2$16, _ref3$10;
+var _ref$27, _ref2$16, _ref3$10;
 let FileEditDialog$1 = class FileEditDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29990,7 +28360,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$26 = typeof BtnVariants$3 !== "undefined" && BtnVariants$3) === "function" ? _ref$26 : Object)], FileEditDialog$1.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$27 = typeof BtnVariants$3 !== "undefined" && BtnVariants$3) === "function" ? _ref$27 : Object)], FileEditDialog$1.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -30005,7 +28375,7 @@ FileEditDialog$1 = __decorate([(0, lit_decorators_js.customElement)("file-edit-d
 
 //#endregion
 //#region src/connection/components/file/FileTags.ts
-var _ref$25, _ref2$15;
+var _ref$26, _ref2$15;
 let FileTags = class FileTags extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -30236,14 +28606,14 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", Object)], FileTags.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$25 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$25 : Object)], FileTags.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$26 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$26 : Object)], FileTags.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$15 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$15 : Object)], FileTags.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileTags.prototype, "onChange", void 0);
 FileTags = __decorate([(0, lit_decorators_js.customElement)("file-tags")], FileTags);
 
 //#endregion
 //#region src/connection/components/file/FileThumbnail.ts
-var _ref$24, _ref2$14, _ref3$9, _ref4$4;
+var _ref$25, _ref2$14, _ref3$9, _ref4$4;
 let FileThumbnail$1 = class FileThumbnail extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -30845,7 +29215,7 @@ let FileThumbnail$1 = class FileThumbnail extends ClientConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$24 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$24 : Object)], FileThumbnail$1.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$25 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$25 : Object)], FileThumbnail$1.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.consume)({
 		context: groupContext,
@@ -30912,7 +29282,7 @@ FileThumbnail$1 = __decorate([(0, lit_decorators_js.customElement)("server-file-
 
 //#endregion
 //#region src/connection/components/file/ServerFileDetail.ts
-var _ref$23, _ref2$13, _ref3$8;
+var _ref$24, _ref2$13, _ref3$8;
 let ServerFileDetail = class ServerFileDetail extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -31091,7 +29461,7 @@ let ServerFileDetail = class ServerFileDetail extends ClientConsumer {
             ${this.renderContent()}`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$23 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$23 : Object)], ServerFileDetail.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$24 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$24 : Object)], ServerFileDetail.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$13 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$13 : Object)], ServerFileDetail.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileDetail.prototype, "onClose", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileDetail.prototype, "onChange", void 0);
@@ -31110,7 +29480,7 @@ ServerFileDetail = __decorate([(0, lit_decorators_js.customElement)("server-file
 
 //#endregion
 //#region src/connection/components/file/ServerFileHeader.ts
-var _ref$22, _ref2$12;
+var _ref$23, _ref2$12;
 let ServerFileHeader = class ServerFileHeader extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -31287,7 +29657,7 @@ ${this.renderUpButton()}
 </section>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$22 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$22 : Object)], ServerFileHeader.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$23 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$23 : Object)], ServerFileHeader.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$12 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$12 : Object)], ServerFileHeader.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileHeader.prototype, "onClose", void 0);
 ServerFileHeader = __decorate([(0, lit_decorators_js.customElement)("server-file-header")], ServerFileHeader);
@@ -31396,7 +29766,7 @@ FileAnalysisRemoveButton = __decorate([(0, lit_decorators_js.customElement)("fil
 
 //#endregion
 //#region src/connection/components/server/ShareDialog.ts
-var _ref$21, _ref2$11, _ref3$7, _ref4$3, _ref5$1, _ref6$1, _ref7;
+var _ref$22, _ref2$11, _ref3$7, _ref4$3, _ref5$1, _ref6$1, _ref7;
 let ShareDialog = class ShareDialog extends ClientConsumer {
 	renderEntity(label, icon, prependArrow = false) {
 		return lit.html`
@@ -31580,7 +29950,7 @@ let ShareDialog = class ShareDialog extends ClientConsumer {
         </thermal-dialog>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$21 = typeof _labirthermal_core.AvailableThermalPalettes !== "undefined" && _labirthermal_core.AvailableThermalPalettes) === "function" ? _ref$21 : Object)], ShareDialog.prototype, "palette", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$22 = typeof _labirthermal_core.AvailableThermalPalettes !== "undefined" && _labirthermal_core.AvailableThermalPalettes) === "function" ? _ref$22 : Object)], ShareDialog.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "from", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$11 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$11 : Object)], ShareDialog.prototype, "folder", void 0);
@@ -31745,7 +30115,7 @@ var AbstractLayoutDirective = class extends AbstractConnectedDirective {
 
 //#endregion
 //#region src/connection/controllers/abstraction/ConnectedAppBase.ts
-var _ref$20, _ref2$10, _ref3$6, _ref4$2, _ref5, _ref6;
+var _ref$21, _ref2$10, _ref3$6, _ref4$2, _ref5, _ref6;
 var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -32000,7 +30370,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
         </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$20 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$20 : Object)], AbstractConnectedApp.prototype, "apiClient", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$21 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$21 : Object)], AbstractConnectedApp.prototype, "apiClient", void 0);
 __decorate([(0, _lit_context.provide)({ context: ControlledClientContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "client", void 0);
 __decorate([(0, _lit_context.provide)({ context: ControlledContentContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "content", void 0);
 __decorate([(0, _lit_context.provide)({ context: DisplayControllerContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "display", void 0);
@@ -32353,12 +30723,17 @@ const connectedFolderGrid = (0, lit_directive_js.directive)(ConnectedFolderGridD
 //#endregion
 //#region src/connection/controllers/apps/directives/layout/ConnectedFolderSubfoldersDirective.ts
 var ConnectedFolderSubfoldersDirective = class extends AbstractFolderLayoutDirective {
+	renderSelectionSlot(app) {
+		if (app.folderSelection.array.length === 0) return lit.nothing;
+		return slotOrNothing("edit", lit.html`<connected-folder-selection-actions></connected-folder-selection-actions>`);
+	}
 	renderFolderHeader(app) {
 		if (!app.content.folder) return lit.nothing;
 		const slots = [
 			this.renderFolderContentStatsSlot(app),
 			this.renderHeaderFolderSlot(app),
-			this.renderDisplaySlot(app)
+			this.renderDisplaySlot(app),
+			this.renderSelectionSlot(app)
 		];
 		const content = [this.renderBreadcrumb(app), lit.html`<connected-folder-header
                 .onParentClick=${(folder) => {
@@ -32612,7 +30987,7 @@ Consumer = __decorate([(0, lit_decorators_js.customElement)("test-consumer")], C
 
 //#endregion
 //#region src/connection/controllers/components/folder/crud/AbstractFolderDialog.ts
-var _ref$19, _ref2$9, _ref3$5;
+var _ref$20, _ref2$9, _ref3$5;
 /** A base class for all dialogs related to folder CRUD operations. */
 var AbstractFolderDialog = class extends ControlledConsumer {
 	constructor(..._args) {
@@ -32662,7 +31037,7 @@ var AbstractFolderDialog = class extends ControlledConsumer {
 </thermal-dialog>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$19 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$19 : Object)], AbstractFolderDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$20 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$20 : Object)], AbstractFolderDialog.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -32674,11 +31049,11 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$9 = typeof BtnVariants$2 !== "undefined" && BtnVariants$2) === "function" ? _ref2$9 : Object)], AbstractFolderDialog.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$9 = typeof packages_embed_src_ui_Btn.BtnVariants !== "undefined" && packages_embed_src_ui_Btn.BtnVariants) === "function" ? _ref2$9 : Object)], AbstractFolderDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$5 = typeof BtnSizes$2 !== "undefined" && BtnSizes$2) === "function" ? _ref3$5 : Object)], AbstractFolderDialog.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref3$5 = typeof packages_embed_src_ui_Btn.BtnSizes !== "undefined" && packages_embed_src_ui_Btn.BtnSizes) === "function" ? _ref3$5 : Object)], AbstractFolderDialog.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
@@ -33130,7 +31505,7 @@ FolderBaseInfo = __decorate([(0, lit_decorators_js.customElement)("connected-fol
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnectedSubfolderList.ts
-var _ref$18;
+var _ref$19;
 let ConnectedFolderFileList$1 = class ConnectedFolderFileList extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -33211,12 +31586,12 @@ __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetad
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "folder-mode"
-}), __decorateMetadata("design:type", typeof (_ref$18 = typeof FolderListDisplayMode !== "undefined" && FolderListDisplayMode) === "function" ? _ref$18 : Object)], ConnectedFolderFileList$1.prototype, "folderMode", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$19 = typeof FolderListDisplayMode !== "undefined" && FolderListDisplayMode) === "function" ? _ref$19 : Object)], ConnectedFolderFileList$1.prototype, "folderMode", void 0);
 ConnectedFolderFileList$1 = __decorate([(0, lit_decorators_js.customElement)("connected-subfolder-list")], ConnectedFolderFileList$1);
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnetcedFileList.ts
-var _ref$17;
+var _ref$18;
 let ConnectedFolderFileList = class ConnectedFolderFileList extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -33294,7 +31669,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "display-mode"
-}), __decorateMetadata("design:type", typeof (_ref$17 = typeof FileListDisplayMode !== "undefined" && FileListDisplayMode) === "function" ? _ref$17 : Object)], ConnectedFolderFileList.prototype, "displayMode", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$18 = typeof FileListDisplayMode !== "undefined" && FileListDisplayMode) === "function" ? _ref$18 : Object)], ConnectedFolderFileList.prototype, "displayMode", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -33311,7 +31686,7 @@ ConnectedFolderFileList = __decorate([(0, lit_decorators_js.customElement)("conn
 
 //#endregion
 //#region src/connection/controllers/components/folder/upload/ConnectedUploadForm.ts
-var _ref$16;
+var _ref$17;
 let ConnectedUploadForm = class ConnectedUploadForm extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -34160,7 +32535,7 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$16 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$16 : Object)], ConnectedUploadForm.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$17 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$17 : Object)], ConnectedUploadForm.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "prompt", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "variant", void 0);
@@ -34594,7 +32969,7 @@ ConnectedConfigFileMode$1 = __decorate([(0, lit_decorators_js.customElement)("co
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileThumbnail.ts
-var _ref$15, _ref2$8, _ref3$4, _ref4$1;
+var _ref$16, _ref2$8, _ref3$4, _ref4$1;
 let FileThumbnail = class FileThumbnail extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35191,7 +33566,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$15 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$15 : Object)
+	__decorateMetadata("design:type", typeof (_ref$16 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$16 : Object)
 ], FileThumbnail.prototype, "group", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$8 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$8 : Object)], FileThumbnail.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$4 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$4 : Object)], FileThumbnail.prototype, "folder", void 0);
@@ -35242,7 +33617,7 @@ ConnectedConfigFileMode = __decorate([(0, lit_decorators_js.customElement)("conn
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileEditDialog.ts
-var _ref$14, _ref2$7, _ref3$3;
+var _ref$15, _ref2$7, _ref3$3;
 let FileEditDialog = class FileEditDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35365,7 +33740,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$14 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$14 : Object)], FileEditDialog.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$15 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$15 : Object)], FileEditDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -35379,7 +33754,7 @@ FileEditDialog = __decorate([(0, lit_decorators_js.customElement)("connected-fil
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileDeleteDialog.ts
-var _ref$13, _ref2$6, _ref3$2, _ref4;
+var _ref$14, _ref2$6, _ref3$2, _ref4;
 let FileDeleteDialog = class FileDeleteDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35502,7 +33877,7 @@ __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadat
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$13 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$13 : Object)], FileDeleteDialog.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$14 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$14 : Object)], FileDeleteDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -35518,7 +33893,7 @@ FileDeleteDialog = __decorate([(0, lit_decorators_js.customElement)("connected-f
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileTags.ts
-var _ref$12, _ref2$5;
+var _ref$13, _ref2$5;
 let ControlledFileTags = class ControlledFileTags extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35750,14 +34125,14 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", Object)], ControlledFileTags.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$12 : Object)], ControlledFileTags.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$13 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$13 : Object)], ControlledFileTags.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$5 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$5 : Object)], ControlledFileTags.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ControlledFileTags.prototype, "onChange", void 0);
 ControlledFileTags = __decorate([(0, lit_decorators_js.customElement)("connected-file-tags")], ControlledFileTags);
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ConnectedFileComment.ts
-var _ref$11, _ref2$4, _ref3$1;
+var _ref$12, _ref2$4, _ref3$1;
 let FileComment = class FileComment extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35914,7 +34289,7 @@ let FileComment = class FileComment extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$11 : Object)], FileComment.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$12 : Object)], FileComment.prototype, "comment", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$4 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$4 : Object)], FileComment.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$1 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$1 : Object)], FileComment.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComment.prototype, "onChange", void 0);
@@ -35924,7 +34299,7 @@ FileComment = __decorate([(0, lit_decorators_js.customElement)("connected-file-c
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ConnectedFileComments.ts
-var _ref$10, _ref2$3;
+var _ref$11, _ref2$3;
 let FileComments = class FileComments extends ControlledConsumer {
 	static {
 		this.styles = lit.css`
@@ -36030,13 +34405,13 @@ let FileComments = class FileComments extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$10 : Object)], FileComments.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$11 : Object)], FileComments.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$3 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$3 : Object)], FileComments.prototype, "folder", void 0);
 FileComments = __decorate([(0, lit_decorators_js.customElement)("connected-file-comments")], FileComments);
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ControlledFileCommentForm.ts
-var _ref$9, _ref2$2, _ref3;
+var _ref$10, _ref2$2, _ref3;
 let FileCommentForm = class FileCommentForm extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -36164,7 +34539,7 @@ let FileCommentForm = class FileCommentForm extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$9 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$9 : Object)], FileCommentForm.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$10 : Object)], FileCommentForm.prototype, "comment", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$2 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$2 : Object)], FileCommentForm.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3 : Object)], FileCommentForm.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentForm.prototype, "onChange", void 0);
@@ -36718,7 +35093,7 @@ ConnectedFileHeader = __decorate([(0, lit_decorators_js.customElement)("connecte
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnectedSubfoldersGrid.ts
-var _ref$8;
+var _ref$9;
 let SubfoldersGrid = class SubfoldersGrid extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -37249,13 +35624,13 @@ __decorate([
 		context: registryContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$8 = typeof packages_core_dist.ThermalRegistry !== "undefined" && packages_core_dist.ThermalRegistry) === "function" ? _ref$8 : Object)
+	__decorateMetadata("design:type", typeof (_ref$9 = typeof packages_core_dist.ThermalRegistry !== "undefined" && packages_core_dist.ThermalRegistry) === "function" ? _ref$9 : Object)
 ], SubfoldersGrid.prototype, "registry", void 0);
 SubfoldersGrid = __decorate([(0, lit_decorators_js.customElement)("connected-subfolders-grid")], SubfoldersGrid);
 
 //#endregion
 //#region src/connection/controllers/components/folder/upload/ConnectedUploadDialog.ts
-var _ref$7;
+var _ref$8;
 let ConnectedUploadDialog = class ConnectedUploadDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -37856,7 +36231,7 @@ let ConnectedUploadDialog = class ConnectedUploadDialog extends ControlledConsum
 		return true;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$7 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$7 : Object)], ConnectedUploadDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$8 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$8 : Object)], ConnectedUploadDialog.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "errorMessage", void 0);
@@ -37974,7 +36349,7 @@ ConnectedFolderContentModeSwitch = __decorate([(0, lit_decorators_js.customEleme
 
 //#endregion
 //#region src/connection/controllers/components/file/analysis/ConnectedFileAnalysisButtons.ts
-var _ref$6, _ref2$1;
+var _ref$7, _ref2$1;
 let ConnectedFileAnalysisButtons = class ConnectedFileAnalysisButtons extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -38141,7 +36516,7 @@ let ConnectedFileAnalysisButtons = class ConnectedFileAnalysisButtons extends Co
 		return [this.renderDisplaySlot(), this.renderServerSlot()];
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$6 : Object)], ConnectedFileAnalysisButtons.prototype, "info", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$7 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$7 : Object)], ConnectedFileAnalysisButtons.prototype, "info", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ConnectedFileAnalysisButtons.prototype, "enableCopyToAll", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedFileAnalysisButtons.prototype, "analyses", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ConnectedFileAnalysisButtons.prototype, "hasChanged", void 0);
@@ -38157,7 +36532,7 @@ ConnectedFileAnalysisButtons = __decorate([(0, lit_decorators_js.customElement)(
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFileSelectionCheckbox.ts
-var _ref$5;
+var _ref$6;
 let ConnectedFileSelectionCheckbox = class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -38202,12 +36577,12 @@ let ConnectedFileSelectionCheckbox = class ConnectedFileSelectionCheckbox extend
 		return this.renderCheckbox(isSelected);
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$5 : Object)], ConnectedFileSelectionCheckbox.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$6 : Object)], ConnectedFileSelectionCheckbox.prototype, "file", void 0);
 ConnectedFileSelectionCheckbox = __decorate([(0, lit_decorators_js.customElement)("connected-file-selection-checkbox")], ConnectedFileSelectionCheckbox);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFileSelectionActions.ts
-var _ref$4;
+var _ref$5;
 let ConnectedFileSelectionActions = class ConnectedFileSelectionActions extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -38507,12 +36882,12 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Nu
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$4 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$4 : Object)], ConnectedFileSelectionActions.prototype, "group", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$5 : Object)], ConnectedFileSelectionActions.prototype, "group", void 0);
 ConnectedFileSelectionActions = __decorate([(0, lit_decorators_js.customElement)("connected-file-selection-actions")], ConnectedFileSelectionActions);
 
 //#endregion
 //#region src/connection/controllers/components/selection/move/ConnectedLocationSelector.ts
-var _ref$3, _ref2;
+var _ref$4, _ref2;
 let LocationSelectorMode = /* @__PURE__ */ function(LocationSelectorMode) {
 	LocationSelectorMode["FOLDER"] = "folder";
 	LocationSelectorMode["FILE"] = "file";
@@ -38847,7 +37222,7 @@ let ConnectedLocationSelector = class ConnectedLocationSelector extends Controll
 };
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ConnectedLocationSelector.prototype, "asDialogue", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedLocationSelector.prototype, "dialogTitle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$3 = typeof LocationSelectorMode !== "undefined" && LocationSelectorMode) === "function" ? _ref$3 : Object)], ConnectedLocationSelector.prototype, "mode", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$4 = typeof LocationSelectorMode !== "undefined" && LocationSelectorMode) === "function" ? _ref$4 : Object)], ConnectedLocationSelector.prototype, "mode", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ConnectedLocationSelector.prototype, "onSelect", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedLocationSelector.prototype, "operationLabel", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ConnectedLocationSelector.prototype, "_loading", void 0);
@@ -38859,7 +37234,7 @@ ConnectedLocationSelector = __decorate([(0, lit_decorators_js.customElement)("co
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileMoveDialog.ts
-var _ref$2;
+var _ref$3;
 let ConnectedFileMoveDialog = class ConnectedFileMoveDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -38892,12 +37267,12 @@ let ConnectedFileMoveDialog = class ConnectedFileMoveDialog extends ControlledCo
         </connected-location-selector>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$2 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$2 : Object)], ConnectedFileMoveDialog.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$3 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$3 : Object)], ConnectedFileMoveDialog.prototype, "file", void 0);
 ConnectedFileMoveDialog = __decorate([(0, lit_decorators_js.customElement)("connected-file-move-dialog")], ConnectedFileMoveDialog);
 
 //#endregion
 //#region src/connection/controllers/components/folder/crud/ConnectedFolderMoveDialog.ts
-var _ref$1;
+var _ref$2;
 let ConnectedFolderMoveDialog = class ConnectedFolderMoveDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -38934,12 +37309,12 @@ let ConnectedFolderMoveDialog = class ConnectedFolderMoveDialog extends Controll
 		return this.renderDialog();
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$1 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$1 : Object)], ConnectedFolderMoveDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$2 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$2 : Object)], ConnectedFolderMoveDialog.prototype, "folder", void 0);
 ConnectedFolderMoveDialog = __decorate([(0, lit_decorators_js.customElement)("connected-folder-move-dialog")], ConnectedFolderMoveDialog);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFolderSelectionCheckbox.ts
-var _ref;
+var _ref$1;
 let ConnectedFolderSelectionCheckbox = class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -38993,8 +37368,215 @@ let ConnectedFolderSelectionCheckbox = class ConnectedFolderSelectionCheckbox ex
 		return this.renderCheckbox(isSelected);
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref : Object)], ConnectedFolderSelectionCheckbox.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$1 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$1 : Object)], ConnectedFolderSelectionCheckbox.prototype, "folder", void 0);
 ConnectedFolderSelectionCheckbox = __decorate([(0, lit_decorators_js.customElement)("connected-folder-selection-checkbox")], ConnectedFolderSelectionCheckbox);
+
+//#endregion
+//#region src/connection/controllers/components/selection/ConnectedFolderSelectionActions.ts
+var _ref;
+let ConnectedFolderSelectionActions = class ConnectedFolderSelectionActions extends ControlledConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.progress = 0;
+		this.total = 0;
+		this.dialogDeleteRef = (0, lit_directives_ref_js.createRef)();
+		this.dialogSaveAnalysesRef = (0, lit_directives_ref_js.createRef)();
+		this.dialogClearAnalysesRef = (0, lit_directives_ref_js.createRef)();
+		this.dialogMoveRef = (0, lit_directives_ref_js.createRef)();
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.selectionFolder.subscribeToSelectionChange(this);
+		this.content.subscribeToFilesUpdates(this);
+	}
+	getCount() {
+		return this.selectionFolder.array.length;
+	}
+	renderTrigger() {
+		return lit.html`<span slot="invoker">${this.getCount()} vybraných</span>`;
+	}
+	renderOptionClear() {
+		return lit.html`<thermal-btn 
+            @click=${() => {
+			this.selectionFolder.clearSelection();
+		}}
+            slot="option"
+            icon="close"
+            iconStyle="micro"
+            align="left"
+        >Zrušit výběr</thermal-btn>`;
+	}
+	renderOptionAll() {
+		const allSelected = this.selectionFolder.array.length === this.content.files?.length;
+		return lit.html`<thermal-btn
+            @click=${allSelected ? void 0 : () => {
+			if (this.content.subfolders) this.selectionFolder.addMultipleToSelection(this.content.subfolders);
+		}}
+            slot="option"
+            disabled=${allSelected ? "true" : "false"}
+            icon="bigger"
+            iconStyle="mini"
+            align="left"
+        >Vybrat všechny</thermal-btn>`;
+	}
+	renderOptionGrid() {
+		return lit.html`<thermal-btn
+            slot="option"
+            @click=${() => {
+			this.dialogDeleteRef.value?.setOpen();
+			this.display;
+		}}
+            icon="grid"
+            iconStyle="micro"
+            align="left"
+        >Zobrazit mřížku ze složek</thermal-btn>`;
+	}
+	renderDialogGrid() {
+		const callback = async () => {
+			this.progress = 0;
+			this.total = this.selectionFolder.array.length;
+			await this.selectionFolder.forEverySelectedAsync(async (folder) => {
+				this.progress++;
+			});
+			this.progress = 0;
+			this.total = 0;
+			this.dialogDeleteRef.value?.setClose();
+			this.selectionFile.clearSelection();
+			this.display.reloadCurrentState();
+			return true;
+		};
+		let progress = lit.nothing;
+		if (this.progress > 0) progress = lit.html`<div>
+                <div slot="option">Mažu ${this.progress} z ${this.total} souborů...</div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: ${this.progress / this.total * 100}%"></div>
+                </div>
+            </div>`;
+		return lit.html`<thermal-dialog
+            label="Smazat vybrané soubory"
+            ${(0, lit_directives_ref_js.ref)(this.dialogDeleteRef)}
+        >
+            
+
+            <div slot="content">
+            
+                <p>Opravdu chcete trvale smazat ${this.selectionFolder.array.length} složek?</p>
+
+                <ul>
+                    ${this.selectionFolder.array.map((folder) => lit.html`<li>${folder.name}</li>`)}
+                </ul>
+
+                ${progress}
+            
+            </div>
+
+            <thermal-btn @click=${callback} slot="button" variant="primary">Proveď</thermal-btn>
+
+        </thermal-dialog>`;
+	}
+	renderOptionMove() {
+		return lit.html`<thermal-btn
+            slot="option"
+            @click=${() => {
+			this.log(this.dialogMoveRef.value);
+			this.dialogMoveRef.value?.openDialogue();
+		}}
+            icon="move"
+            iconStyle="mini"
+            align="left"
+        >Přesunout</thermal-btn>`;
+	}
+	renderDialogMove() {
+		return lit.html`<connected-location-selector
+            .asDialogue=${true}
+            ${(0, lit_directives_ref_js.ref)(this.dialogMoveRef)}
+            mode="folder"
+            dialogTitle="Přesunout vybrané složky"
+            operationLabel="Přesunout do"
+            .onSelect=${async (path) => {
+			await this.selectionFolder.forEverySelectedAsync(async (folder) => {
+				await this.client.api.routes.post.moveFolder(folder.path, path).execute();
+			});
+			this.dialogMoveRef.value?.closeDialogue();
+			this.display.navigateToFolderAndLoad(path);
+		}}
+        >
+        </connected-location-selector>`;
+	}
+	static {
+		this.styles = lit.css`
+    
+        :host {
+            display: flex;
+            align-items: center;
+            gap: .5em;
+        }
+
+        thermal-icon {
+            width: 1em;
+        }
+
+        .progress {
+            position: relative;
+            width: 100%;
+            height: 1em;
+            background-color: var( --thermal-slate-dark );
+            border-radius: var( --thermal-radius );
+            overflow: hidden;
+            border: 1px solid var( --thermal-slate-dark );
+        }
+
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background-color: var( --thermal-primary );
+        }
+    
+    `;
+	}
+	renderDropdownSelection() {
+		return lit.html`<thermal-dropdown
+            variant="primary"
+        >
+            ${this.renderTrigger()}
+            ${this.renderOptionClear()}
+            ${this.renderOptionAll()}
+        </thermal-dropdown>`;
+	}
+	renderArrow() {
+		return lit.html`<thermal-icon icon="right" variant="micro"></thermal-icon>`;
+	}
+	renderDropdownActions() {
+		return lit.html`<thermal-dropdown
+            variant="foreground"
+        >
+            <span slot="invoker">Zvolte akci</span>
+            ${this.renderOptionMove()}
+            ${this.renderOptionGrid()}
+        </thermal-dropdown>`;
+	}
+	renderDalogs() {
+		return [this.renderDialogGrid(), this.renderDialogMove()];
+	}
+	render() {
+		if (this.selectionFolder.array.length === 0) return lit.nothing;
+		return [
+			this.renderDropdownSelection(),
+			this.renderArrow(),
+			this.renderDropdownActions(),
+			this.renderDalogs()
+		];
+	}
+};
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFolderSelectionActions.prototype, "progress", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFolderSelectionActions.prototype, "total", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: groupContext,
+	subscribe: true
+}), __decorateMetadata("design:type", typeof (_ref = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref : Object)], ConnectedFolderSelectionActions.prototype, "group", void 0);
+ConnectedFolderSelectionActions = __decorate([(0, lit_decorators_js.customElement)("connected-folder-selection-actions")], ConnectedFolderSelectionActions);
 
 //#endregion
 //#region src/index.ts

@@ -5,7 +5,7 @@ import { Ref, createRef, ref } from "lit/directives/ref.js";
 import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
 import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
-import "../../../node_modules/toolcool-range-slider/src/plugins/moving-tooltip-plugin";
+import "toolcool-range-slider/src/plugins/moving-tooltip-plugin";
 import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
 import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
