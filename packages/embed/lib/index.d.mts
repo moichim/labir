@@ -1,6 +1,6 @@
 import * as lit from "lit";
 import { LitElement, html, nothing } from "lit";
-import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, AvailableThermalPalettes, CallbacksManager, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
+import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
 import { Ref } from "lit/directives/ref.js";
 import { Placement } from "@floating-ui/dom";
 import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGroupResponse, ApiTimeGrouping } from "@labirthermal/server-simple";
