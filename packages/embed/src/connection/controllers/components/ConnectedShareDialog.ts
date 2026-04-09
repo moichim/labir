@@ -1,8 +1,11 @@
 import type { AvailableThermalPalette } from "@labirthermal/core";
-import type { FileInfo, FolderInfo, GridGrouping } from "@labirthermal/server";
+import type { FileInfo, FolderInfo } from "@labirthermal/server";
+import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
+import { managerPaletteContext } from "../../../hierarchy/providers/context/ManagerContext";
+import { registryRangeFromContext, registryRangeToContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../../translations/Languages";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
 import { DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
@@ -10,17 +13,26 @@ import { DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../Dis
 @customElement("connected-share-dialog")
 export class ConnectedShareDialog extends ControlledConsumer {
 
-    @property({ type: String })
-    palette?: AvailableThermalPalette;
+    @consume({
+        context: managerPaletteContext,
+        subscribe: true
+    })
+    private palette: AvailableThermalPalette | undefined;
 
-    @property({ type: Number })
-    public from?: number;
+    @consume({
+        context: registryRangeFromContext,
+        subscribe: true
+    })
+    private from?: number;
 
-    @property({ type: Number })
-    public to?: number;
+    @consume({
+        context: registryRangeToContext,
+        subscribe: true
+    })
+    private to?: number;
 
     private get _path(): string | undefined {
-        switch ( this._appState ) {
+        switch (this._appState) {
             case DisplayState.FOLDER:
             case DisplayState.FILE:
                 return this.content.file?.path;
@@ -52,13 +64,6 @@ export class ConnectedShareDialog extends ControlledConsumer {
     private get _fileListDisplayCompact(): boolean {
         return this.display.fileDisplayCompact;
     }
-
-    private get _gridFolders() {
-        return this.content.gridFolders;
-    }
-
-    @property({ type: String })
-    public by?: GridGrouping;
 
     private renderEntity(
         label: string,
@@ -229,12 +234,10 @@ export class ConnectedShareDialog extends ControlledConsumer {
                 this._appState === DisplayState.FOLDER
                 && this._folderListDisplayMode
                 && this._fileListDisplayMode
-                && this.by
                 && this._fileListDisplayCompact !== undefined
             ) {
                 segments["display-mode"] = this._fileListDisplayMode;
                 segments["folder-mode"] = this._folderListDisplayMode;
-                segments["grid-grouping"] = this.by;
                 segments["compact"] = this._fileListDisplayCompact ? "true" : "false";
             }
 
