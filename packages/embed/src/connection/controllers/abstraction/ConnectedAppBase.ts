@@ -1,3 +1,4 @@
+import type { AvailableThermalPalette } from "@labirthermal/core";
 import Client from "@labirthermal/server";
 import { property, state } from "lit/decorators.js";
 import { BaseAppWithPngExportContext } from "../../../utils/converters/pngExportContext";
@@ -94,6 +95,27 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
     })
     public fileName?: string | undefined;
 
+
+    @property({
+        type: String,
+        attribute: "palette",
+        reflect: true
+    })
+    public palette?: AvailableThermalPalette;
+
+    @property({
+        type: Number,
+        attribute: "from",
+        reflect: true
+    })
+    public from?: number;
+
+    @property({
+        type: Number,
+        attribute: "to",
+        reflect: true
+    })
+    public to?: number;
 
     @property({
         type: String,
@@ -434,6 +456,8 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
                 <registry-provider
                     slug=${ this.display.slug }
                     autoclear="true"
+                    from=${ifDefined(this.from)}
+                    to=${ifDefined(this.to)}
                     style="display: contents;"
                 >
                     ${ groupBlock }
@@ -446,6 +470,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         return html`
         <manager-provider
             slug=${this.UUID}
+            palette=${ifDefined(this.palette)}
             style="display: contents;"
         >
             ${ registryBlock }

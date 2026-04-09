@@ -236,9 +236,9 @@ export class ConnectedShareDialog extends ControlledConsumer {
                 && this._fileListDisplayMode
                 && this._fileListDisplayCompact !== undefined
             ) {
-                segments["display-mode"] = this._fileListDisplayMode;
-                segments["folder-mode"] = this._folderListDisplayMode;
-                segments["compact"] = this._fileListDisplayCompact ? "true" : "false";
+                segments["files-display"] = this._fileListDisplayMode;
+                segments["folder-display"] = this._folderListDisplayMode;
+                segments["files-compact"] = this._fileListDisplayCompact ? "true" : "false";
             }
 
             if (this._appState === DisplayState.FILE && this._file) {
