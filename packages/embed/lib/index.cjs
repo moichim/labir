@@ -2293,7 +2293,7 @@ const booleanConverter = (emptyValue) => {
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$113, _ref2$58, _ref3$37, _ThermalAppUiElement;
+var _ref$112, _ref2$57, _ref3$37, _ThermalAppUiElement;
 let ThermalAppUiElement = class ThermalAppUiElement extends BaseElement {
 	static {
 		_ThermalAppUiElement = this;
@@ -2601,11 +2601,11 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "bar",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$113 = typeof Array !== "undefined" && Array) === "function" ? _ref$113 : Object)], ThermalAppUiElement.prototype, "barElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$112 = typeof Array !== "undefined" && Array) === "function" ? _ref$112 : Object)], ThermalAppUiElement.prototype, "barElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref2$58 = typeof Array !== "undefined" && Array) === "function" ? _ref2$58 : Object)], ThermalAppUiElement.prototype, "preElements", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$57 = typeof Array !== "undefined" && Array) === "function" ? _ref2$57 : Object)], ThermalAppUiElement.prototype, "preElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "content",
 	flatten: true
@@ -2639,7 +2639,7 @@ ThermalAppUiElement = _ThermalAppUiElement = __decorate([(0, lit_decorators_js.c
 
 //#endregion
 //#region src/ui/Bar.ts
-var _ref$112;
+var _ref$111;
 let ThermalBar = class ThermalBar extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
@@ -2769,7 +2769,7 @@ let ThermalBar = class ThermalBar extends lit.LitElement {
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalBar.prototype, "collapsed", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalBar.prototype, "lastContentWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$112 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$112 : Object)], ThermalBar.prototype, "drawerRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$111 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$111 : Object)], ThermalBar.prototype, "drawerRef", void 0);
 ThermalBar = __decorate([(0, lit_decorators_js.customElement)("thermal-bar")], ThermalBar);
 
 //#endregion
@@ -3072,7 +3072,7 @@ const icons = createIcons();
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$111;
+var _ref$110;
 let ThermalBtn = class ThermalBtn extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -3558,7 +3558,7 @@ let ThermalBtn = class ThermalBtn extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$111 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$111 : Object)], ThermalBtn.prototype, "tooltipPlacement", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$110 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$110 : Object)], ThermalBtn.prototype, "tooltipPlacement", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -3806,7 +3806,7 @@ ThermalDialog = __decorate([(0, lit_decorators_js.customElement)("thermal-dialog
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$110, _ref2$57, _ref3$36;
+var _ref$109, _ref2$56, _ref3$36;
 let ThermalDropdown = class ThermalDropdown extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4009,7 +4009,7 @@ let ThermalDropdown = class ThermalDropdown extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$110 = typeof Array !== "undefined" && Array) === "function" ? _ref$110 : Object)], ThermalDropdown.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$109 = typeof Array !== "undefined" && Array) === "function" ? _ref$109 : Object)], ThermalDropdown.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
@@ -4022,7 +4022,7 @@ __decorate([(0, lit_decorators_js.property)({
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$57 = typeof BtnVariants$11 !== "undefined" && BtnVariants$11) === "function" ? _ref2$57 : Object)], ThermalDropdown.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$56 = typeof BtnVariants$11 !== "undefined" && BtnVariants$11) === "function" ? _ref2$56 : Object)], ThermalDropdown.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -4125,7 +4125,7 @@ Dropin = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin")], Dr
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$109, _ref2$56, _ref3$35;
+var _ref$108, _ref2$55, _ref3$35;
 let Expandable = class Expandable extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -4212,12 +4212,12 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$109 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref$109 : Object)], Expandable.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$108 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref$108 : Object)], Expandable.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$56 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref2$56 : Object)], Expandable.prototype, "variantExpanded", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$55 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref2$55 : Object)], Expandable.prototype, "variantExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
@@ -4423,7 +4423,7 @@ Loading = __decorate([(0, lit_decorators_js.customElement)("thermal-poster")], L
 
 //#endregion
 //#region src/ui/Playground.ts
-var _ref$108, _PlaygroundElement;
+var _ref$107, _PlaygroundElement;
 let PlaygroundElement = class PlaygroundElement extends BaseElement {
 	static {
 		_PlaygroundElement = this;
@@ -4945,7 +4945,7 @@ __decorate([
 		slot: "code",
 		flatten: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$108 = typeof Array !== "undefined" && Array) === "function" ? _ref$108 : Object)
+	__decorateMetadata("design:type", typeof (_ref$107 = typeof Array !== "undefined" && Array) === "function" ? _ref$107 : Object)
 ], PlaygroundElement.prototype, "_listItems", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "title", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "subtitle", void 0);
@@ -5261,7 +5261,7 @@ Tip = __decorate([(0, lit_decorators_js.customElement)("thermal-tip")], Tip);
 
 //#endregion
 //#region src/apps/apparent-temperature/AustralianApparentTemperature.ts
-var _ref$107;
+var _ref$106;
 var VUNIT = /* @__PURE__ */ function(VUNIT) {
 	VUNIT["mps"] = "mps";
 	VUNIT["kph"] = "kph";
@@ -5609,7 +5609,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref$107 = typeof Locales$6 !== "undefined" && Locales$6) === "function" ? _ref$107 : Object)
+	__decorateMetadata("design:type", typeof (_ref$106 = typeof Locales$5 !== "undefined" && Locales$5) === "function" ? _ref$106 : Object)
 ], AustralianApparentTemperature.prototype, "locale", void 0);
 AustralianApparentTemperature = __decorate([(0, lit_decorators_js.customElement)("apparent-temperature-aat")], AustralianApparentTemperature);
 
@@ -5838,7 +5838,7 @@ const pngAuthorSetterContext = (0, _lit_context.createContext)("pngAuthorSetterC
 
 //#endregion
 //#region src/controls/manager/PngExportPanel.ts
-var _ref$106, _ref2$55, _ref3$34, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8$1, _ref9;
+var _ref$105, _ref2$54, _ref3$34, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8$1, _ref9;
 let PngExportPanel = class PngExportPanel extends BaseElement {
 	renderRow(label, content, hint) {
 		return lit.html`<thermal-field label="${label}">
@@ -5951,7 +5951,7 @@ __decorate([(0, _lit_context.consume)({
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$106 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$106 : Object)], PngExportPanel.prototype, "pngWidthSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$105 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$105 : Object)], PngExportPanel.prototype, "pngWidthSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
@@ -5959,7 +5959,7 @@ __decorate([(0, _lit_context.consume)({
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$55 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$55 : Object)], PngExportPanel.prototype, "pngFsSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$54 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$54 : Object)], PngExportPanel.prototype, "pngFsSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportAnalysisContext,
 	subscribe: true
@@ -6114,7 +6114,7 @@ ThermalGroup$9 = __decorate([(0, lit_decorators_js.customElement)("thermal-group
 
 //#endregion
 //#region src/apps/gallery/GalleryApp.ts
-var _ref$105, _ref2$54, _ref3$33;
+var _ref$104, _ref2$53, _ref3$33;
 var STATE$2 = /* @__PURE__ */ function(STATE) {
 	STATE["MAIN"] = "main";
 	STATE["GROUP"] = "group";
@@ -6554,11 +6554,11 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$105 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$105 : Object)], GalleryApp.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$104 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$104 : Object)], GalleryApp.prototype, "palette", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, lit_decorators_js.queryAssignedElements)({ flatten: true }),
-	__decorateMetadata("design:type", typeof (_ref2$54 = typeof Array !== "undefined" && Array) === "function" ? _ref2$54 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$53 = typeof Array !== "undefined" && Array) === "function" ? _ref2$53 : Object)
 ], GalleryApp.prototype, "slottedElements", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "structure", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], GalleryApp.prototype, "state", void 0);
@@ -6574,7 +6574,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref3$33 = typeof Locales$5 !== "undefined" && Locales$5) === "function" ? _ref3$33 : Object)
+	__decorateMetadata("design:type", typeof (_ref3$33 = typeof Locales$4 !== "undefined" && Locales$4) === "function" ? _ref3$33 : Object)
 ], GalleryApp.prototype, "locale", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GalleryApp.prototype, "columns", void 0);
 GalleryApp = __decorate([(0, lit_decorators_js.customElement)("thermal-gallery-app")], GalleryApp);
@@ -6608,7 +6608,7 @@ const toolsContext = (0, _lit_context.createContext)("tools-context");
 
 //#endregion
 //#region src/hierarchy/consumers/ManagerConsumer.ts
-var _ref$104;
+var _ref$103;
 var ManagerConsumer = class extends BaseElement {
 	connectedCallback() {
 		super.connectedCallback();
@@ -6621,12 +6621,12 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$104 = typeof ManagerContext$2 !== "undefined" && ManagerContext$2) === "function" ? _ref$104 : Object)
+	__decorateMetadata("design:type", typeof (_ref$103 = typeof ManagerContext$2 !== "undefined" && ManagerContext$2) === "function" ? _ref$103 : Object)
 ], ManagerConsumer.prototype, "manager", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/RegistryConsumer.ts
-var _ref$103;
+var _ref$102;
 var RegistryConsumer = class extends ManagerConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -6636,11 +6636,11 @@ var RegistryConsumer = class extends ManagerConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$103 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$103 : Object)], RegistryConsumer.prototype, "registry", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$102 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$102 : Object)], RegistryConsumer.prototype, "registry", void 0);
 
 //#endregion
 //#region src/hierarchy/consumers/GroupConsumer.ts
-var _ref$102;
+var _ref$101;
 var GroupConsumer = class extends RegistryConsumer {
 	constructor() {
 		super();
@@ -6652,7 +6652,7 @@ var GroupConsumer = class extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$102 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$102 : Object)], GroupConsumer.prototype, "group", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$101 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$101 : Object)], GroupConsumer.prototype, "group", void 0);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
@@ -6686,7 +6686,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 
 //#endregion
 //#region src/controls/group/GroupDropin.ts
-var _ref$101;
+var _ref$100;
 let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -6852,14 +6852,14 @@ let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$101 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$101 : Object)], GroupDropin$1.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$100 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$100 : Object)], GroupDropin$1.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "uploading", void 0);
 GroupDropin$1 = __decorate([(0, lit_decorators_js.customElement)("group-dropin")], GroupDropin$1);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
-var _ref$100;
+var _ref$99;
 let GroupDropin = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7006,7 +7006,7 @@ let GroupDropin = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$100 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$100 : Object)], GroupDropin.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$99 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$99 : Object)], GroupDropin.prototype, "container", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "hover", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "uploading", void 0);
 GroupDropin = __decorate([(0, lit_decorators_js.customElement)("group-dropin-input")], GroupDropin);
@@ -7031,7 +7031,7 @@ const analysisList = (0, _lit_context.createContext)("analysislist");
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
-var _ref$99, _ref2$53, _ref3$32, _ref4$16, _ref5$5, _ref6$2, _ref7, _ref8;
+var _ref$98, _ref2$52, _ref3$32, _ref4$16, _ref5$5, _ref6$2, _ref7, _ref8;
 var AbstractFileProvider = class extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7236,12 +7236,12 @@ var AbstractFileProvider = class extends GroupConsumer {
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$99 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$99 : Object)
+	__decorateMetadata("design:type", typeof (_ref$98 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$98 : Object)
 ], AbstractFileProvider.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: FailureContext }),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$53 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$53 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$52 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$52 : Object)
 ], AbstractFileProvider.prototype, "failure", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: loadingContext }),
@@ -7290,7 +7290,7 @@ __decorate([(0, _lit_context.consume)({
 
 //#endregion
 //#region src/hierarchy/providers/FileProvider.ts
-var _ref$98, _ref2$52;
+var _ref$97, _ref2$51;
 let FileProviderElement = class FileProviderElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7405,9 +7405,9 @@ __decorate([
 		attribute: true
 	}),
 	(0, _lit_context.provide)({ context: playbackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref$98 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$98 : Object)
+	__decorateMetadata("design:type", typeof (_ref$97 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$97 : Object)
 ], FileProviderElement.prototype, "speed", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref2$52 = typeof FileProviderElement !== "undefined" && FileProviderElement) === "function" ? _ref2$52 : Object)], FileProviderElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref2$51 = typeof FileProviderElement !== "undefined" && FileProviderElement) === "function" ? _ref2$51 : Object)], FileProviderElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, lit_decorators_js.property)({
 		type: String,
@@ -7510,7 +7510,7 @@ var AbstractGroupProvider = class extends RegistryConsumer {
 
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.ts
-var _ref$97;
+var _ref$96;
 let GroupProviderElement$1 = class GroupProviderElement extends AbstractGroupProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7526,7 +7526,7 @@ __decorate([(0, lit_decorators_js.property)({
 	attribute: true,
 	reflect: true
 }), __decorateMetadata("design:type", String)], GroupProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$97 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$97 : Object)], GroupProviderElement$1.prototype, "group", void 0);
+__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$96 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$96 : Object)], GroupProviderElement$1.prototype, "group", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement$1.prototype, "autoclear", void 0);
 GroupProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("group-provider")], GroupProviderElement$1);
 
@@ -7564,7 +7564,7 @@ const removeManager = (manager) => {
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$96;
+var _ref$95;
 var AbstractManagerProvider = class extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -7627,12 +7627,12 @@ var AbstractManagerProvider = class extends BaseElement {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$96 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$96 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$95 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$95 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
 __decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], AbstractManagerProvider.prototype, "tools", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var _ref$95, _ref2$51, _ref3$31, _ref4$15;
+var _ref$94, _ref2$50, _ref3$31, _ref4$15;
 let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7646,7 +7646,7 @@ let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractMana
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$95 = typeof ManagerContext$1 !== "undefined" && ManagerContext$1) === "function" ? _ref$95 : Object)], ManagerProviderElement$1.prototype, "manager", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$94 = typeof ManagerContext$1 !== "undefined" && ManagerContext$1) === "function" ? _ref$94 : Object)], ManagerProviderElement$1.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -7670,7 +7670,7 @@ __decorate([
 			}
 		}
 	}),
-	__decorateMetadata("design:type", typeof (_ref2$51 = typeof ManagerPaletteContext$3 !== "undefined" && ManagerPaletteContext$3) === "function" ? _ref2$51 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$50 = typeof ManagerPaletteContext$3 !== "undefined" && ManagerPaletteContext$3) === "function" ? _ref2$50 : Object)
 ], ManagerProviderElement$1.prototype, "palette", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: managerSmoothContext }),
@@ -7700,7 +7700,7 @@ ManagerProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("man
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
-var _ref$94;
+var _ref$93;
 var AbstractRegistryProvider = class extends ManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7781,12 +7781,12 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], AbstractRegistryProvider.prototype, "forceNew", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$94 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$94 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$93 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$93 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
 __decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext }), __decorateMetadata("design:type", Object)], AbstractRegistryProvider.prototype, "setHighlight", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
-var _ref$93;
+var _ref$92;
 let RegistryProviderElement$1 = class RegistryProviderElement extends AbstractRegistryProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7808,7 +7808,7 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$93 = typeof RegistryContext$1 !== "undefined" && RegistryContext$1) === "function" ? _ref$93 : Object)], RegistryProviderElement$1.prototype, "registry", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$92 = typeof RegistryContext$1 !== "undefined" && RegistryContext$1) === "function" ? _ref$92 : Object)], RegistryProviderElement$1.prototype, "registry", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: registryOpacityContext }),
 	(0, lit_decorators_js.property)({
@@ -7863,7 +7863,7 @@ RegistryProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("re
 
 //#endregion
 //#region src/hierarchy/mirrors/FileMirror.ts
-var _ref$92, _ref2$50;
+var _ref$91, _ref2$49;
 let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7887,11 +7887,11 @@ let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 		}
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$92 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$92 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$91 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$91 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: fileContext }),
 	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", typeof (_ref2$50 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$50 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$49 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$49 : Object)
 ], FileMirrorElement.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
@@ -7918,7 +7918,7 @@ FileMirrorElement = __decorate([(0, lit_decorators_js.customElement)("file-mirro
 
 //#endregion
 //#region src/hierarchy/mirrors/GroupMirror.ts
-var _ref$91;
+var _ref$90;
 let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7926,13 +7926,13 @@ let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvi
 	}
 };
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$91 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$91 : Object)], GroupProviderElement.prototype, "group", void 0);
+__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$90 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$90 : Object)], GroupProviderElement.prototype, "group", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement.prototype, "autoclear", void 0);
 GroupProviderElement = __decorate([(0, lit_decorators_js.customElement)("group-mirror")], GroupProviderElement);
 
 //#endregion
 //#region src/hierarchy/mirrors/ManagerMirror.ts
-var _ref$90, _ref2$49, _ref3$30, _ref4$14;
+var _ref$89, _ref2$48, _ref3$30, _ref4$14;
 let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7946,7 +7946,7 @@ let ManagerProviderElement = class ManagerProviderElement extends AbstractManage
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$90 = typeof ManagerContext !== "undefined" && ManagerContext) === "function" ? _ref$90 : Object)], ManagerProviderElement.prototype, "manager", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$89 = typeof ManagerContext !== "undefined" && ManagerContext) === "function" ? _ref$89 : Object)], ManagerProviderElement.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: managerPaletteContext }),
@@ -7964,7 +7964,7 @@ __decorate([
 			}
 		}
 	}),
-	__decorateMetadata("design:type", typeof (_ref2$49 = typeof ManagerPaletteContext$2 !== "undefined" && ManagerPaletteContext$2) === "function" ? _ref2$49 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$48 = typeof ManagerPaletteContext$2 !== "undefined" && ManagerPaletteContext$2) === "function" ? _ref2$48 : Object)
 ], ManagerProviderElement.prototype, "palette", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: managerSmoothContext }),
@@ -7983,7 +7983,7 @@ ManagerProviderElement = __decorate([(0, lit_decorators_js.customElement)("manag
 
 //#endregion
 //#region src/hierarchy/mirrors/RegistryMirror.ts
-var _ref$89;
+var _ref$88;
 let RegistryProviderElement = class RegistryProviderElement extends AbstractRegistryProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7997,7 +7997,7 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: true
 }), __decorateMetadata("design:type", String)], RegistryProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$89 = typeof RegistryContext !== "undefined" && RegistryContext) === "function" ? _ref$89 : Object)], RegistryProviderElement.prototype, "registry", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$88 = typeof RegistryContext !== "undefined" && RegistryContext) === "function" ? _ref$88 : Object)], RegistryProviderElement.prototype, "registry", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: registryOpacityContext }),
 	(0, lit_decorators_js.property)({
@@ -8037,7 +8037,7 @@ RegistryProviderElement = __decorate([(0, lit_decorators_js.customElement)("regi
 
 //#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$88, _ref2$48, _ref3$29;
+var _ref$87, _ref2$47, _ref3$29;
 let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -8096,14 +8096,14 @@ let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 		return lit.html`${this.ready ? lit.html`<slot></slot>` : lit.nothing}`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$88 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$88 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$87 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$87 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, _lit_context.consume)({
 		context: fileContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref2$48 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$48 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$47 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$47 : Object)
 ], FileCopyElement.prototype, "originalFile", void 0);
 __decorate([
 	(0, lit_decorators_js.property)({
@@ -8215,7 +8215,7 @@ SmoothSwitch$1 = __decorate([(0, lit_decorators_js.customElement)("manager-graph
 
 //#endregion
 //#region src/controls/manager/GroupToolButtons.ts
-var _ref$87;
+var _ref$86;
 let GroupToolButtons$1 = class GroupToolButtons extends ManagerConsumer {
 	/** Handle user input events */
 	onSelect(tool) {
@@ -8272,7 +8272,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$87 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$87 : Object)
+	__decorateMetadata("design:type", typeof (_ref$86 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$86 : Object)
 ], GroupToolButtons$1.prototype, "value", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -8286,7 +8286,7 @@ GroupToolButtons$1 = __decorate([(0, lit_decorators_js.customElement)("group-too
 
 //#endregion
 //#region src/controls/manager/GroupToolsBar.ts
-var _ref$86;
+var _ref$85;
 let GroupToolButtons = class GroupToolButtons extends ManagerConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -8344,7 +8344,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$86 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$86 : Object)
+	__decorateMetadata("design:type", typeof (_ref$85 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$85 : Object)
 ], GroupToolButtons.prototype, "value", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -8358,7 +8358,7 @@ GroupToolButtons = __decorate([(0, lit_decorators_js.customElement)("group-tool-
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$85;
+var _ref$84;
 var AbstractPaletteSwitch = class extends RegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -8404,7 +8404,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$85 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$85 : Object)
+	__decorateMetadata("design:type", typeof (_ref$84 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$84 : Object)
 ], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
@@ -8912,7 +8912,7 @@ RegistrySetAutoRangeElement = __decorate([(0, lit_decorators_js.customElement)("
 
 //#endregion
 //#region src/controls/registry/RangeSlider.ts
-var _ref$84, _ref2$47;
+var _ref$83, _ref2$46;
 let RangeSliderElement = class RangeSliderElement extends RegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -9133,9 +9133,9 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$84 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$84 : Object)
+	__decorateMetadata("design:type", typeof (_ref$83 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$83 : Object)
 ], RangeSliderElement.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$47 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$47 : Object)], RangeSliderElement.prototype, "sliderRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$46 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$46 : Object)], RangeSliderElement.prototype, "sliderRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RangeSliderElement.prototype, "initialised", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
@@ -9840,7 +9840,7 @@ RegistryRangeForm = __decorate([(0, lit_decorators_js.customElement)("registry-r
 
 //#endregion
 //#region src/controls/registry/TicksBar.ts
-var _ref$83, _ref2$46, _TicksElement;
+var _ref$82, _ref2$45, _TicksElement;
 let TicksElement = class TicksElement extends RegistryConsumer {
 	static {
 		_TicksElement = this;
@@ -10020,12 +10020,12 @@ let TicksElement = class TicksElement extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$83 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$83 : Object)], TicksElement.prototype, "highlight", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$82 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$82 : Object)], TicksElement.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
 }), __decorateMetadata("design:type", String)], TicksElement.prototype, "placement", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$46 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$46 : Object)], TicksElement.prototype, "minmax", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$45 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$45 : Object)], TicksElement.prototype, "minmax", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], TicksElement.prototype, "ticks", void 0);
 TicksElement = _TicksElement = __decorate([(0, lit_decorators_js.customElement)("registry-ticks-bar")], TicksElement);
 
@@ -10151,7 +10151,7 @@ GroupAnalysisSyncButton = __decorate([(0, lit_decorators_js.customElement)("grou
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _ref$82;
+var _ref$81;
 let GroupChart = class GroupChart extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10224,7 +10224,7 @@ let GroupChart = class GroupChart extends GroupConsumer {
 	}
 };
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$82 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$82 : Object)], GroupChart.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$81 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$81 : Object)], GroupChart.prototype, "timeout", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChart.prototype, "data", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "colors", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChart.prototype, "on", void 0);
@@ -10502,7 +10502,7 @@ GroupDownloadDropdown = __decorate([(0, lit_decorators_js.customElement)("group-
 
 //#endregion
 //#region src/hierarchy/consumers/FileConsumer.ts
-var _ref$81, _ref2$45, _ref3$28;
+var _ref$80, _ref2$44, _ref3$28;
 var FileConsumer = class extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10539,7 +10539,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$81 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$81 : Object)
+	__decorateMetadata("design:type", typeof (_ref$80 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$80 : Object)
 ], FileConsumer.prototype, "parentFileProviderElement", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -10555,7 +10555,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$45 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$45 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$44 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$44 : Object)
 ], FileConsumer.prototype, "file", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -10576,7 +10576,7 @@ __decorate([
 
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
-var _ref$80, _ref2$44;
+var _ref$79, _ref2$43;
 var AbstractFileButton = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -10615,11 +10615,11 @@ slot {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$80 = typeof BtnVariants$9 !== "undefined" && BtnVariants$9) === "function" ? _ref$80 : Object)], AbstractFileButton.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$79 = typeof BtnVariants$9 !== "undefined" && BtnVariants$9) === "function" ? _ref$79 : Object)], AbstractFileButton.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$44 = typeof BtnSizes$9 !== "undefined" && BtnSizes$9) === "function" ? _ref2$44 : Object)], AbstractFileButton.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$43 = typeof BtnSizes$9 !== "undefined" && BtnSizes$9) === "function" ? _ref2$43 : Object)], AbstractFileButton.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], AbstractFileButton.prototype, "plain", void 0);
@@ -10887,7 +10887,7 @@ const ticksCss = lit.css`
 
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
-var _ref$79;
+var _ref$78;
 let GroupTimeline = class GroupTimeline extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -11072,7 +11072,7 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "instances", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "has", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$79 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$79 : Object)], GroupTimeline.prototype, "listener", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$78 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$78 : Object)], GroupTimeline.prototype, "listener", void 0);
 GroupTimeline = __decorate([(0, lit_decorators_js.customElement)("group-timeline")], GroupTimeline);
 
 //#endregion
@@ -11575,7 +11575,7 @@ FileInfoButton = __decorate([(0, lit_decorators_js.customElement)("file-info-but
 
 //#endregion
 //#region src/controls/file/fileLabel.ts
-var _ref$78;
+var _ref$77;
 let FileCanvas = class FileCanvas extends FileConsumer {
 	onInstanceCreated() {}
 	onFailure() {}
@@ -11600,13 +11600,13 @@ let FileCanvas = class FileCanvas extends FileConsumer {
 		return this.file.fileName;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$78 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$78 : Object)], FileCanvas.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$77 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$77 : Object)], FileCanvas.prototype, "grouping", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileCanvas.prototype, "label", void 0);
 FileCanvas = __decorate([(0, lit_decorators_js.customElement)("file-label")], FileCanvas);
 
 //#endregion
 //#region src/controls/file/FilePlaybackSpeedDropdown.ts
-var _ref$77;
+var _ref$76;
 let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -11661,7 +11661,7 @@ __decorate([
 		context: playbackSpeedContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$77 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$77 : Object)
+	__decorateMetadata("design:type", typeof (_ref$76 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$76 : Object)
 ], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
 FilePlaybackSpeedDropdown = __decorate([(0, lit_decorators_js.customElement)("file-playback-speed-dropdown")], FilePlaybackSpeedDropdown);
 
@@ -11710,7 +11710,7 @@ FileShareButton = __decorate([(0, lit_decorators_js.customElement)("file-share-b
 
 //#endregion
 //#region src/controls/file/FileTimeline.ts
-var _ref$76, _ref2$43, _ref3$27, _ref4$13, _TimelineElement;
+var _ref$75, _ref2$42, _ref3$27, _ref4$13, _TimelineElement;
 "chrome" in window;
 let TimelineElement = class TimelineElement extends FileConsumer {
 	static {
@@ -12034,7 +12034,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$76 = typeof CurrentFrameContext$2 !== "undefined" && CurrentFrameContext$2) === "function" ? _ref$76 : Object)
+	__decorateMetadata("design:type", typeof (_ref$75 = typeof CurrentFrameContext$2 !== "undefined" && CurrentFrameContext$2) === "function" ? _ref$75 : Object)
 ], TimelineElement.prototype, "currentFrame", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -12042,7 +12042,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$43 = typeof DurationContext !== "undefined" && DurationContext) === "function" ? _ref2$43 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$42 = typeof DurationContext !== "undefined" && DurationContext) === "function" ? _ref2$42 : Object)
 ], TimelineElement.prototype, "duration", void 0);
 __decorate([
 	(0, _lit_context.consume)({
@@ -12079,7 +12079,7 @@ TimelineElement = _TimelineElement = __decorate([(0, lit_decorators_js.customEle
 
 //#endregion
 //#region src/controls/file/FileVideo.ts
-var _ref$75;
+var _ref$74;
 let FileVideo = class FileVideo extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -12129,7 +12129,7 @@ __decorate([
 		subscribe: true
 	}),
 	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$75 = typeof CurrentFrameContext$1 !== "undefined" && CurrentFrameContext$1) === "function" ? _ref$75 : Object)
+	__decorateMetadata("design:type", typeof (_ref$74 = typeof CurrentFrameContext$1 !== "undefined" && CurrentFrameContext$1) === "function" ? _ref$74 : Object)
 ], FileVideo.prototype, "currentFrame", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
@@ -12140,7 +12140,7 @@ FileVideo = __decorate([(0, lit_decorators_js.customElement)("file-video")], Fil
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisColor.ts
-var _ref$74;
+var _ref$73;
 let AnalysisColor$1 = class AnalysisColor extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12207,13 +12207,13 @@ let AnalysisColor$1 = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$74 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$74 : Object)], AnalysisColor$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$73 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$73 : Object)], AnalysisColor$1.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor$1.prototype, "color", void 0);
 AnalysisColor$1 = __decorate([(0, lit_decorators_js.customElement)("analysis-color")], AnalysisColor$1);
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisName.ts
-var _ref$73;
+var _ref$72;
 let AnalysisColor = class AnalysisColor extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12249,13 +12249,13 @@ let AnalysisColor = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$73 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$73 : Object)], AnalysisColor.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$72 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$72 : Object)], AnalysisColor.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor.prototype, "name", void 0);
 AnalysisColor = __decorate([(0, lit_decorators_js.customElement)("analysis-name")], AnalysisColor);
 
 //#endregion
 //#region src/controls/file/analysis/edit/editArea.ts
-var _ref$72;
+var _ref$71;
 let AreaEdit = class AreaEdit extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12377,7 +12377,7 @@ let AreaEdit = class AreaEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$72 = typeof _labirthermal_core.AbstractAreaAnalysis !== "undefined" && _labirthermal_core.AbstractAreaAnalysis) === "function" ? _ref$72 : Object)], AreaEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$71 = typeof _labirthermal_core.AbstractAreaAnalysis !== "undefined" && _labirthermal_core.AbstractAreaAnalysis) === "function" ? _ref$71 : Object)], AreaEdit.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEdit.prototype, "color", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "top", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "left", void 0);
@@ -12392,7 +12392,7 @@ AreaEdit = __decorate([(0, lit_decorators_js.customElement)("edit-area")], AreaE
 
 //#endregion
 //#region src/controls/file/analysis/edit/editPoint.ts
-var _ref$71;
+var _ref$70;
 let EditPoint = class EditPoint extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -12487,7 +12487,7 @@ let EditPoint = class EditPoint extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$71 = typeof _labirthermal_core.PointAnalysis !== "undefined" && _labirthermal_core.PointAnalysis) === "function" ? _ref$71 : Object)], EditPoint.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$70 = typeof _labirthermal_core.PointAnalysis !== "undefined" && _labirthermal_core.PointAnalysis) === "function" ? _ref$70 : Object)], EditPoint.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "top", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "left", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "maxX", void 0);
@@ -12496,7 +12496,7 @@ EditPoint = __decorate([(0, lit_decorators_js.customElement)("edit-point")], Edi
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisComplex.ts
-var _ref$70, _ref2$42;
+var _ref$69, _ref2$41;
 let FileAnalysisComplex = class FileAnalysisComplex extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -12741,10 +12741,10 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Bo
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasAnalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "isDrawingAnalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasGraph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$70 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$70 : Object)], FileAnalysisComplex.prototype, "graphRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$69 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$69 : Object)], FileAnalysisComplex.prototype, "graphRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphWidth", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphHeight", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$42 = typeof ResizeObserver !== "undefined" && ResizeObserver) === "function" ? _ref2$42 : Object)], FileAnalysisComplex.prototype, "observer", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$41 = typeof ResizeObserver !== "undefined" && ResizeObserver) === "function" ? _ref2$41 : Object)], FileAnalysisComplex.prototype, "observer", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hydrated", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
@@ -12755,7 +12755,7 @@ FileAnalysisComplex = __decorate([(0, lit_decorators_js.customElement)("file-ana
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisEdit.ts
-var _ref$69;
+var _ref$68;
 let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
@@ -12804,14 +12804,14 @@ let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$69 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$69 : Object)], FileAnalisisEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$68 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$68 : Object)], FileAnalisisEdit.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "name", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "type", void 0);
 FileAnalisisEdit = __decorate([(0, lit_decorators_js.customElement)("file-analysis-edit")], FileAnalisisEdit);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.ts
-var _ref$68, _ref2$41, _ref3$26, _ref4$12;
+var _ref$67, _ref2$40, _ref3$26, _ref4$12;
 let FileAnalysisGraph = class FileAnalysisGraph extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -13029,11 +13029,11 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], FileAnalysisGraph.prototype, "hasDownloads", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$68 = typeof _labirthermal_core.AnalysisDataStateValue !== "undefined" && _labirthermal_core.AnalysisDataStateValue) === "function" ? _ref$68 : Object)], FileAnalysisGraph.prototype, "graphs", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$67 = typeof _labirthermal_core.AnalysisDataStateValue !== "undefined" && _labirthermal_core.AnalysisDataStateValue) === "function" ? _ref$67 : Object)], FileAnalysisGraph.prototype, "graphs", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: currentFrameContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$41 = typeof CurrentFrameContext !== "undefined" && CurrentFrameContext) === "function" ? _ref2$41 : Object)], FileAnalysisGraph.prototype, "currentFrame", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$40 = typeof CurrentFrameContext !== "undefined" && CurrentFrameContext) === "function" ? _ref2$40 : Object)], FileAnalysisGraph.prototype, "currentFrame", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: fileCursorContext,
 	subscribe: true
@@ -13264,7 +13264,7 @@ FileAnalysisTable$1 = __decorate([(0, lit_decorators_js.customElement)("file-ana
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisOverviewRow.ts
-var _ref$67;
+var _ref$66;
 let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -13529,7 +13529,7 @@ let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$67 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$67 : Object)], FileAnalysisRow$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$66 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$66 : Object)], FileAnalysisRow$1.prototype, "analysis", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: interactiveAnalysisContext,
 	subscribe: true
@@ -13549,7 +13549,7 @@ FileAnalysisRow$1 = __decorate([(0, lit_decorators_js.customElement)("file-analy
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisRow.ts
-var _ref$66;
+var _ref$65;
 let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
 	constructor(..._args) {
 		super(..._args);
@@ -13835,7 +13835,7 @@ let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
 		];
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$66 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$66 : Object)], FileAnalysisRow.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$65 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$65 : Object)], FileAnalysisRow.prototype, "analysis", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileAnalysisRow.prototype, "interactiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "value", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "graph", void 0);
@@ -14654,7 +14654,7 @@ FileDetailIcon = __decorate([(0, lit_decorators_js.customElement)("file-opacity-
 
 //#endregion
 //#region src/renderers/FileDetail.ts
-var _ref$65;
+var _ref$64;
 let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -14735,12 +14735,12 @@ let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$3.prototype, "onback", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$3.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$3.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$65 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$65 : Object)], FileThumbnail$3.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$64 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$64 : Object)], FileThumbnail$3.prototype, "grouping", void 0);
 FileThumbnail$3 = __decorate([(0, lit_decorators_js.customElement)("file-detail")], FileThumbnail$3);
 
 //#endregion
 //#region src/renderers/FileThumbnail.ts
-var _ref$64;
+var _ref$63;
 let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -14832,7 +14832,7 @@ let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$2.prototype, "ondetail", void 0);
 __decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$2.prototype, "norender", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$2.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$64 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$64 : Object)], FileThumbnail$2.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$63 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$63 : Object)], FileThumbnail$2.prototype, "grouping", void 0);
 FileThumbnail$2 = __decorate([(0, lit_decorators_js.customElement)("file-thumbnail")], FileThumbnail$2);
 
 //#endregion
@@ -15056,7 +15056,7 @@ NotationContent$1 = __decorate([(0, lit_decorators_js.customElement)("notation-c
 
 //#endregion
 //#region src/controls/file/notation/NotationProvider.ts
-var _ref$63, _ref2$40, _ref3$25;
+var _ref$62, _ref2$39, _ref3$25;
 let NotationProvider = class NotationProvider extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15107,7 +15107,7 @@ __decorate([
 		slot: "notation",
 		flatten: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref$63 = typeof Array !== "undefined" && Array) === "function" ? _ref$63 : Object)
+	__decorateMetadata("design:type", typeof (_ref$62 = typeof Array !== "undefined" && Array) === "function" ? _ref$62 : Object)
 ], NotationProvider.prototype, "_notationSlot", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], NotationProvider.prototype, "ms", void 0);
 __decorate([
@@ -15118,7 +15118,7 @@ __decorate([
 __decorate([
 	(0, lit_decorators_js.state)(),
 	(0, _lit_context.provide)({ context: notationListContext }),
-	__decorateMetadata("design:type", typeof (_ref2$40 = typeof NotationListContext !== "undefined" && NotationListContext) === "function" ? _ref2$40 : Object)
+	__decorateMetadata("design:type", typeof (_ref2$39 = typeof NotationListContext !== "undefined" && NotationListContext) === "function" ? _ref2$39 : Object)
 ], NotationProvider.prototype, "notationList", void 0);
 __decorate([
 	(0, lit_decorators_js.state)(),
@@ -15257,7 +15257,7 @@ NotationContent = __decorate([(0, lit_decorators_js.customElement)("notation-tim
 
 //#endregion
 //#region src/controls/file/FileVideoExport.ts
-var _ref$62, _ref2$39, _ref3$24;
+var _ref$61, _ref2$38, _ref3$24;
 let FileVideoExport = class FileVideoExport extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -15344,11 +15344,11 @@ let FileVideoExport = class FileVideoExport extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$62 = typeof BtnVariants$8 !== "undefined" && BtnVariants$8) === "function" ? _ref$62 : Object)], FileVideoExport.prototype, "variant", void 0);
+}), __decorateMetadata("design:type", typeof (_ref$61 = typeof BtnVariants$8 !== "undefined" && BtnVariants$8) === "function" ? _ref$61 : Object)], FileVideoExport.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$39 = typeof BtnSizes$8 !== "undefined" && BtnSizes$8) === "function" ? _ref2$39 : Object)], FileVideoExport.prototype, "size", void 0);
+}), __decorateMetadata("design:type", typeof (_ref2$38 = typeof BtnSizes$8 !== "undefined" && BtnSizes$8) === "function" ? _ref2$38 : Object)], FileVideoExport.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileVideoExport.prototype, "plain", void 0);
@@ -16123,7 +16123,7 @@ var VideoRecorder = class {
 
 //#endregion
 //#region src/controls/file/video/AbstractSingleVideoExport.ts
-var _ref$61, _ref2$38;
+var _ref$60, _ref2$37;
 var AbstractSingleVideoExport = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -16288,9 +16288,9 @@ __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", St
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis7", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$61 = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref$61 : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$60 = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref$60 : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$38 = typeof SingleVideoRenderProps !== "undefined" && SingleVideoRenderProps) === "function" ? _ref2$38 : Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$37 = typeof SingleVideoRenderProps !== "undefined" && SingleVideoRenderProps) === "function" ? _ref2$37 : Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
 
 //#endregion
 //#region src/connection/controllers/apps/directives/DirectiveHelpers.ts
@@ -17315,7 +17315,7 @@ ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")
 
 //#endregion
 //#region src/apps/DropinApp.ts
-var _ref$60, _ref2$37, _ref3$23, _ref4$11;
+var _ref$59, _ref2$36, _ref3$23, _ref4$11;
 let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -17561,8 +17561,8 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
 		}
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$60 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$60 : Object)], DropinAppElement.prototype, "dropinRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$37 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$37 : Object)], DropinAppElement.prototype, "groupRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$59 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$59 : Object)], DropinAppElement.prototype, "dropinRef", void 0);
+__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$36 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$36 : Object)], DropinAppElement.prototype, "groupRef", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], DropinAppElement.prototype, "loaded", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$23 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref3$23 : Object)], DropinAppElement.prototype, "listener", void 0);
 __decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], DropinAppElement.prototype, "files", void 0);
@@ -17578,13 +17578,12 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref4$11 = typeof Locales$4 !== "undefined" && Locales$4) === "function" ? _ref4$11 : Object)
+	__decorateMetadata("design:type", typeof (_ref4$11 = typeof Locales$3 !== "undefined" && Locales$3) === "function" ? _ref4$11 : Object)
 ], DropinAppElement.prototype, "locale", void 0);
 DropinAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin-app")], DropinAppElement);
 
 //#endregion
 //#region src/apps/file/FileApp.ts
-var _ref$59, _ref2$36;
 var Layout = /* @__PURE__ */ function(Layout) {
 	Layout["NOGUI"] = "nogui";
 	Layout["SIMPLE"] = "simple";
@@ -17778,40 +17777,58 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
 
                 ${this.showlayout ? this.renderLayoutSwitch() : lit.nothing}
 
-                <file-info-button slot="bar-pre"></file-info-button>
-
-                ${(0, lit_directives_cache_js.cache)(lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
                 
 
-                ${this.hasVisible ? lit.html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : lit.nothing}
-                `)}
+                <div slot="pre" style="display: flex; flex-wrap: wrap; gap: .5em; width: 100%; justify-content: flex-start; margin-bottom: 1em;">
 
-                <registry-range-form slot="bar-persistent"></registry-range-form>
-                
+                    <registry-palette-dropdown></registry-palette-dropdown>
+                    <registry-range-form></registry-range-form>
+                    ${this.hasVisible ? lit.html`<registry-opacity-slider></registry-opacity-slider>` : lit.nothing}
 
+                    <file-download-dropdown></file-download-dropdown>
 
-                
+                    <file-info-button>Informace o souboru</file-info-button>
 
-                ${(0, lit_directives_cache_js.cache)(lit.html`<thermal-dialog label="${(0, i18next.t)(T.config)}" slot="bar-pre">
-                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
-
-                        <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
-
-                        <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${(0, i18next.t)(T.config)}</span>
-
-                    </thermal-btn>
-
+                    ${this.showshare ? lit.html`<thermal-dialog label="${(0, i18next.t)(T.share)}" class="share">
+                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${(0, i18next.t)(T.share)}" style="align-self:stretch;"></thermal-btn>
                     <div slot="content">
-
-                        <table>
-                            <png-export-panel></png-export-panel>
-                            <registry-display-panel></registry-display-panel>
-                        </table>
+                        <p>${(0, i18next.t)(T.embedhint)}</p>
+                        <h2>1. ${(0, i18next.t)(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js"><\/script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css">`)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>2. ${(0, i18next.t)(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
+                        <pre>${this.outerHTMLSnapshot}</pre>
                     </div>
-                </thermal-dialog> `)}
+                </thermal-dialog>` : lit.nothing}
 
-                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+                </div>
+                
+
+
+                
+
+                <div slot="close">
+                    <thermal-dialog label="${(0, i18next.t)(T.config)}">
+                        <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
+
+                            <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
+
+                            <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${(0, i18next.t)(T.config)}</span>
+
+                        </thermal-btn>
+
+                        <div slot="content">
+
+                            <table>
+                                <png-export-panel></png-export-panel>
+                                <registry-display-panel></registry-display-panel>
+                            </table>
+                        </div>
+                    </thermal-dialog>
+                </div>
+
+                
                 
     
                 <div class="layout layout__${this.layout}">
@@ -17833,18 +17850,7 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
                 ${this.layout === Layout.SIMPLE ? lit.html`<aside slot="pre">${this.renderScale()}</aside>` : lit.nothing}
 
 
-                ${this.showshare ? lit.html`<thermal-dialog label="${(0, i18next.t)(T.share)}" slot="bar-pre" class="share">
-                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${(0, i18next.t)(T.share)}" style="align-self:stretch;"></thermal-btn>
-                    <div slot="content">
-                        <p>${(0, i18next.t)(T.embedhint)}</p>
-                        <h2>1. ${(0, i18next.t)(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js"><\/script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css">`)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css&quot;&gt;</pre>
-                        <h2>2. ${(0, i18next.t)(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
-                        <pre>${this.outerHTMLSnapshot}</pre>
-                    </div>
-                </thermal-dialog>` : lit.nothing}
+                
 
 
             </thermal-app>`;
@@ -18084,7 +18090,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$59 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$59 : Object)], FileApp.prototype, "palette", void 0);
+}), __decorateMetadata("design:type", Object)], FileApp.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
@@ -18160,7 +18166,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref2$36 = typeof Locales$3 !== "undefined" && Locales$3) === "function" ? _ref2$36 : Object)
+	__decorateMetadata("design:type", Object)
 ], FileApp.prototype, "locale", void 0);
 __decorate([
 	(0, _lit_context.provide)({ context: interactiveAnalysisContext }),

@@ -6766,40 +6766,57 @@ ${void 0!==this.currentFrame&&!0===this.hasInfo?ye`<div class="small real ${this
 
                 ${this.showlayout?this.renderLayoutSwitch():we}
 
-                <file-info-button slot="bar-pre"></file-info-button>
-
-                ${yn(ye`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
                 
 
-                ${this.hasVisible?ye`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>`:we}
-                `)}
+                <div slot="pre" style="display: flex; flex-wrap: wrap; gap: .5em; width: 100%; justify-content: flex-start; margin-bottom: 1em;">
 
-                <registry-range-form slot="bar-persistent"></registry-range-form>
-                
+                    <registry-palette-dropdown></registry-palette-dropdown>
+                    <registry-range-form></registry-range-form>
+                    ${this.hasVisible?ye`<registry-opacity-slider></registry-opacity-slider>`:we}
 
+                    <file-download-dropdown></file-download-dropdown>
 
-                
+                    <file-info-button>Informace o souboru</file-info-button>
 
-                ${yn(ye`<thermal-dialog label="${K(dn.config)}" slot="bar-pre">
-                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
-
-                        <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
-
-                        <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${K(dn.config)}</span>
-
-                    </thermal-btn>
-
+                    ${this.showshare?ye`<thermal-dialog label="${K(dn.share)}" class="share">
+                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${K(dn.share)}" style="align-self:stretch;"></thermal-btn>
                     <div slot="content">
-
-                        <table>
-                            <png-export-panel></png-export-panel>
-                            <registry-display-panel></registry-display-panel>
-                        </table>
+                        <p>${K(dn.embedhint)}</p>
+                        <h2>1. ${K(dn.embedlibrary)} <thermal-btn @click="${()=>navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.js"><\/script>\n<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.css">`)}">${K(dn.copy)}</thermal-btn></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>2. ${K(dn.embedcomponent)} <thermal-btn @click="${()=>navigator.clipboard.writeText(this.outerHTMLSnapshot)}">${K(dn.copy)}</thermal-btn></h2>
+                        <pre>${this.outerHTMLSnapshot}</pre>
                     </div>
-                </thermal-dialog> `)}
+                </thermal-dialog>`:we}
 
-                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+                </div>
+                
+
+
+                
+
+                <div slot="close">
+                    <thermal-dialog label="${K(dn.config)}">
+                        <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
+
+                            <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
+
+                            <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${K(dn.config)}</span>
+
+                        </thermal-btn>
+
+                        <div slot="content">
+
+                            <table>
+                                <png-export-panel></png-export-panel>
+                                <registry-display-panel></registry-display-panel>
+                            </table>
+                        </div>
+                    </thermal-dialog>
+                </div>
+
+                
                 
     
                 <div class="layout layout__${this.layout}">
@@ -6821,17 +6838,7 @@ ${void 0!==this.currentFrame&&!0===this.hasInfo?ye`<div class="small real ${this
                 ${"simple"===this.layout?ye`<aside slot="pre">${this.renderScale()}</aside>`:we}
 
 
-                ${this.showshare?ye`<thermal-dialog label="${K(dn.share)}" slot="bar-pre" class="share">
-                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${K(dn.share)}" style="align-self:stretch;"></thermal-btn>
-                    <div slot="content">
-                        <p>${K(dn.embedhint)}</p>
-                        <h2>1. ${K(dn.embedlibrary)} <thermal-btn @click="${()=>navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.js"><\/script>\n<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.css">`)}">${K(dn.copy)}</thermal-btn></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${o}/dist/embed.min.css&quot;&gt;</pre>
-                        <h2>2. ${K(dn.embedcomponent)} <thermal-btn @click="${()=>navigator.clipboard.writeText(this.outerHTMLSnapshot)}">${K(dn.copy)}</thermal-btn></h2>
-                        <pre>${this.outerHTMLSnapshot}</pre>
-                    </div>
-                </thermal-dialog>`:we}
+                
 
 
             </thermal-app>`}renderScale(){return ye`${this.showhistogram?yn(ye`<registry-histogram expandable="true"></registry-histogram>`):we}

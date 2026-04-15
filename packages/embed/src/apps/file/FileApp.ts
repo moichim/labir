@@ -1,16 +1,20 @@
-import { AvailableThermalPalette, Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
+import type { AvailableThermalPalette, Instance, ThermalManager, } from "@labirthermal/core";
+import { TimeFormat } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import type { CSSResultGroup, PropertyValues } from "lit";
+import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import type { Ref } from "lit/directives/ref.js";
+import { createRef, ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { version } from "../../../package.json";
-import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
+import type { FileProviderElement } from "../../hierarchy/providers/FileProvider";
 import { T } from "../../translations/Languages";
-import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import type { Locales } from "../../translations/localeContext";
+import { initLocalesInTopLevelElement, localeContext, localeConverter } from "../../translations/localeContext";
 import { interactiveAnalysisContext } from "../../utils/context";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
@@ -52,7 +56,7 @@ export class FileApp extends BaseAppWithPngExportContext {
 
     public get manager(): ThermalManager {
         if (!this.fileProviderRef.value) {
-            throw new Error( "Not yet loaded" );
+            throw new Error("Not yet loaded");
         }
         return this.fileProviderRef.value.manager;
     }
@@ -408,40 +412,58 @@ export class FileApp extends BaseAppWithPngExportContext {
 
                 ${this.showlayout ? this.renderLayoutSwitch() : nothing}
 
-                <file-info-button slot="bar-pre"></file-info-button>
-
-                ${cache(html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
                 
 
-                ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
-                `)}
+                <div slot="pre" style="display: flex; flex-wrap: wrap; gap: .5em; width: 100%; justify-content: flex-start; margin-bottom: 1em;">
 
-                <registry-range-form slot="bar-persistent"></registry-range-form>
-                
+                    <registry-palette-dropdown></registry-palette-dropdown>
+                    <registry-range-form></registry-range-form>
+                    ${this.hasVisible ? html`<registry-opacity-slider></registry-opacity-slider>` : nothing}
 
+                    <file-download-dropdown></file-download-dropdown>
 
-                
+                    <file-info-button>Informace o souboru</file-info-button>
 
-                ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-pre">
-                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
-
-                        <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
-
-                        <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.config)}</span>
-
-                    </thermal-btn>
-
+                    ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" class="share">
+                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}" style="align-self:stretch;"></thermal-btn>
                     <div slot="content">
-
-                        <table>
-                            <png-export-panel></png-export-panel>
-                            <registry-display-panel></registry-display-panel>
-                        </table>
+                        <p>${t(T.embedhint)}</p>
+                        <h2>1. ${t(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-btn></h2>
+                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css&quot;&gt;</pre>
+                        <h2>2. ${t(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-btn></h2>
+                        <pre>${this.outerHTMLSnapshot}</pre>
                     </div>
-                </thermal-dialog> ` )}
+                </thermal-dialog>` : nothing}
 
-                <file-download-dropdown slot="bar-pre"></file-download-dropdown>
+                </div>
+                
+
+
+                
+
+                <div slot="close">
+                    <thermal-dialog label="${t(T.config)}">
+                        <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
+
+                            <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
+
+                            <span style="display: var(--thermal-collapsible-display, none);align-self: center;">${t(T.config)}</span>
+
+                        </thermal-btn>
+
+                        <div slot="content">
+
+                            <table>
+                                <png-export-panel></png-export-panel>
+                                <registry-display-panel></registry-display-panel>
+                            </table>
+                        </div>
+                    </thermal-dialog>
+                </div>
+
+                
                 
     
                 <div class="layout layout__${this.layout}">
@@ -464,18 +486,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                 ${this.layout === Layout.SIMPLE ? html`<aside slot="pre">${this.renderScale()}</aside>` : nothing}
 
 
-                ${this.showshare ? html`<thermal-dialog label="${t(T.share)}" slot="bar-pre" class="share">
-                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${t(T.share)}" style="align-self:stretch;"></thermal-btn>
-                    <div slot="content">
-                        <p>${t(T.embedhint)}</p>
-                        <h2>1. ${t(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css">`)}">${t(T.copy)}</thermal-btn></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version}/dist/embed.min.css&quot;&gt;</pre>
-                        <h2>2. ${t(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot!)}">${t(T.copy)}</thermal-btn></h2>
-                        <pre>${this.outerHTMLSnapshot}</pre>
-                    </div>
-                </thermal-dialog>` : nothing}
+                
 
 
             </thermal-app>`;
@@ -709,10 +720,10 @@ export class FileApp extends BaseAppWithPngExportContext {
 
                         <slot name="notation" slot="notation"></slot>
 
-                        ${this.layout === Layout.NOGUI 
-                            ? this.renderNogui() 
-                            : this.renderApp()
-                        }
+                        ${this.layout === Layout.NOGUI
+                ? this.renderNogui()
+                : this.renderApp()
+            }
 
                     </notation-provider>
 
