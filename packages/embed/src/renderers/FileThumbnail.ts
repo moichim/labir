@@ -4,12 +4,12 @@ import { t } from "i18next"
 import { css, CSSResultGroup, html } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { ifDefined } from "lit/directives/if-defined.js"
-import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
+import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
 import { T } from "../translations/Languages"
 import { booleanConverter } from "../utils/converters/booleanConverter"
 
 @customElement("file-thumbnail")
-export class FileThumbnail extends FileConsumer {
+export class FileThumbnail extends AbstractFileConsumer {
 
     @property({ type: Object })
     ondetail?: (file: Instance) => void;

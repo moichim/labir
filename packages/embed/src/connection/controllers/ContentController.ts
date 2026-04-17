@@ -3,7 +3,7 @@ import { ApiResponseType, BreadcrumbItem, FolderInfo, GetGridDataType } from "@l
 import { ReactiveController } from "lit";
 import { FileInfo, TreeItem } from "@labirthermal/server"
 import { AppWithClientController, ClientController } from "./ClientController";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** 
@@ -631,7 +631,7 @@ export class ContentController extends AbstractConnectedController implements Re
 
 
     public subscribeToFolderUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         this.onFolderUpdate.set(
@@ -644,7 +644,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToFileUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onFileUpdate.set(
             element.UUID,
@@ -655,7 +655,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToFilesUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onFilesUpdate.set(
             element.UUID,
@@ -666,7 +666,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToSubfoldersUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onSubfoldersUpdate.set(
             element.UUID,
@@ -677,7 +677,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToBreadcrumbUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onBreadcrumbUpdate.set(
             element.UUID,
@@ -688,7 +688,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToGridUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onGridUpdate.set(
             element.UUID,
@@ -699,7 +699,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public subscribeToTreeUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onTree.set(
             element.UUID,
@@ -719,7 +719,7 @@ export class ContentController extends AbstractConnectedController implements Re
     }
 
     public unsubscribeFromAll(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onFolderUpdate.delete( element.UUID );
         this.onSubfoldersUpdate.delete( element.UUID );

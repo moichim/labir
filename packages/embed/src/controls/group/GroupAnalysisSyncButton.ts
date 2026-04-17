@@ -1,12 +1,12 @@
 import { customElement, property } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { css, CSSResultGroup, html } from "lit";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 
 @customElement("group-analysis-sync-button")
-export class GroupAnalysisSyncButton extends GroupConsumer {
+export class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 
     @property({type: Boolean, reflect: true, converter: booleanConverter(false)})
     public on!: boolean;

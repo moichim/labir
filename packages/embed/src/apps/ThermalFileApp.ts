@@ -7,13 +7,12 @@ import { cache } from 'lit/directives/cache.js';
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { version } from "../../../package.json";
-import { FileProviderElement } from "../../hierarchy/providers/FileProvider";
-import { T } from "../../translations/Languages";
-import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { interactiveAnalysisContext } from "../../utils/context";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { version } from "../../package.json";
+import { FileProviderElement } from "../hierarchy/providers/FileProvider";
+import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
+import { booleanConverter } from "../utils/converters/booleanConverter";
+import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
 
 enum Layout {
     NOGUI = "nogui",
@@ -46,7 +45,7 @@ const analysisSlotProperty = ["analysis1", "analysis2", "analysis3", "analysis4"
 
 
 @customElement("thermal-file-app")
-export class FileApp extends BaseAppWithPngExportContext {
+export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
     protected fileProviderRef: Ref<FileProviderElement> = createRef();
 
@@ -131,10 +130,6 @@ export class FileApp extends BaseAppWithPngExportContext {
     @provide({ context: localeContext })
     @property({ reflect: true, converter: localeConverter })
     public locale!: Locales;
-
-    @provide({ context: interactiveAnalysisContext })
-    @property({ type: String, reflect: true, converter: booleanConverter(true) })
-    interactiveanalysis: boolean = true;
 
 
     @state()
@@ -285,7 +280,7 @@ export class FileApp extends BaseAppWithPngExportContext {
 
     }
 
-    protected updated(_changedProperties: PropertyValues<FileApp>): void {
+    protected updated(_changedProperties: PropertyValues<ThermalFileAppElement>): void {
         super.updated(_changedProperties);
 
         if (this.file !== undefined) {
@@ -324,11 +319,11 @@ export class FileApp extends BaseAppWithPngExportContext {
                     return;
                 }
 
-                if (_changedProperties.has(slotParameterName as keyof FileApp)) {
+                if (_changedProperties.has(slotParameterName as keyof ThermalFileAppElement)) {
 
                     const slotNum = index + 1;
 
-                    const localSlotValue = this[slotParameterName as keyof FileApp] as string | undefined;
+                    const localSlotValue = this[slotParameterName as keyof ThermalFileAppElement] as string | undefined;
 
                     const internalSlotValue = this.file.slots.getSlot(slotNum)?.serialized;
 
@@ -410,7 +405,7 @@ export class FileApp extends BaseAppWithPngExportContext {
 
                 <file-info-button slot="bar-pre"></file-info-button>
 
-                ${cache(html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                ${cache(html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
                 
 
@@ -435,7 +430,7 @@ export class FileApp extends BaseAppWithPngExportContext {
                     <div slot="content">
 
                         <table>
-                            <png-export-panel></png-export-panel>
+                            <manager-export-panel></manager-export-panel>
                             <registry-display-panel></registry-display-panel>
                         </table>
                     </div>
@@ -446,7 +441,7 @@ export class FileApp extends BaseAppWithPngExportContext {
     
                 <div class="layout layout__${this.layout}">
                     <aside class="toolbar">
-                        <group-tool-bar></group-tool-bar>
+                        <manager-tool-bar></manager-tool-bar>
                     </aside>
                     <main class="thermogram">
                         ${this.layout === Layout.ADVANCED || this.layout === Layout.LESSON ? this.renderScale() : nothing}

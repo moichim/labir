@@ -6,7 +6,8 @@ import { v4 as uuid } from "uuid";
 import { localeContext } from "../translations/localeContext";
 import { T } from "../translations/Languages";
 
-export abstract class BaseElement extends LitElement {
+/** All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. */
+export abstract class AbstractThermalElement extends LitElement {
 
     private _UUID?: string
 

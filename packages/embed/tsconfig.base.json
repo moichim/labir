@@ -4,8 +4,9 @@
     "lib": ["esnext", "DOM"],
     "jsx": "preserve",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
+    "emitDecoratorMetadata": false,
     "useDefineForClassFields": false,
+    "allowArbitraryExtensions": true,
 
     "module": "ESNext",
     "moduleResolution": "Bundler",

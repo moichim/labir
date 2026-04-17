@@ -3,13 +3,13 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { setRegistryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../translations/Languages";
 import { AbstractFileButton } from "../file/buttons/AbstractFileButton";
 
 @customElement("group-range-propagator")
-export class GroupRangePropagator extends GroupConsumer {
+export class GroupRangePropagator extends AbstractGroupConsumer {
 
     public static styles = AbstractFileButton.styles;
 

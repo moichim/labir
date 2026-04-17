@@ -125,7 +125,7 @@ export class SingleVideoExportConfigDirective extends Directive {
         const slots: unknown[] = [];
 
         const thermalScale: unknown[] = [
-            html`<registry-palette-dropdown ></registry-palette-dropdown>`,
+            html`<manager-palette-dropdown ></manager-palette-dropdown>`,
             html`<registry-range-form></registry-range-form>`
         ];
 

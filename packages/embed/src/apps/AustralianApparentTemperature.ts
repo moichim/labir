@@ -1,14 +1,13 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
-import { t } from "i18next";
-import { T } from "../../translations/Languages";
-import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { HtmlResult } from "../multiple/HtmlResult";
-import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../../translations/localeContext";
 import { provide } from "@lit/context";
+import { t } from "i18next";
+import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { createRef, Ref, ref } from "lit/directives/ref.js";
+import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
 
 enum VUNIT {
     mps = "mps",
@@ -39,7 +38,7 @@ const converters = {
 };
 
 @customElement("apparent-temperature-aat")
-export class AustralianApparentTemperature extends BaseElement implements IWithlocale {
+export class AatAppElement extends AbstractThermalElement implements IWithlocale {
 
     tRef: Ref<HTMLInputElement> = createRef();
     vRef: Ref<HTMLInputElement> = createRef();
@@ -148,8 +147,8 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
 
 
     protected processValueChange(
-        _changedProperties: PropertyValues<AustralianApparentTemperature>,
-        key: keyof AustralianApparentTemperature,
+        _changedProperties: PropertyValues<AatAppElement>,
+        key: keyof AatAppElement,
     ) {
 
         if (_changedProperties.has(key)) {
@@ -193,7 +192,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         }
     }
 
-    protected shouldUpdate(_changedProperties: PropertyValues<AustralianApparentTemperature>): boolean {
+    protected shouldUpdate(_changedProperties: PropertyValues<AatAppElement>): boolean {
 
         super.shouldUpdate(_changedProperties);
 
@@ -219,7 +218,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         return true;
     }
 
-    public willUpdate(_changedProperties: PropertyValues<AustralianApparentTemperature>): void {
+    public willUpdate(_changedProperties: PropertyValues<AatAppElement>): void {
         super.willUpdate(_changedProperties);
 
         // Listen to values change
@@ -349,7 +348,7 @@ export class AustralianApparentTemperature extends BaseElement implements IWithl
         inputRef: Ref<HTMLInputElement>,
         id: "temperature" | "v" | "ha",
         label: string,
-        unit: string | HtmlResult,
+        unit: string | ReturnType<typeof html> | typeof nothing,
         value?: number,
         min?: number,
         max?: number,

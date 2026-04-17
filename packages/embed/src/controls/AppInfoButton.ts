@@ -1,10 +1,10 @@
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { version } from "../../package.json";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 @customElement("app-info-button")
-export class AppInfoButton extends BaseElement {
+export class AppInfoButton extends AbstractThermalElement {
 
     static styles = css`
 

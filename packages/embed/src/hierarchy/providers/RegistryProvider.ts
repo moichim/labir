@@ -1,7 +1,8 @@
 import { provide } from "@lit/context";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractRegistryProvider } from "../abstraction/AbstractRegistryProvider";
-import { RegistryContext, registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
+import { registryContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext } from "./context/RegistryContext";
+import { ThermalRegistry } from "@labirthermal/core";
 
 @customElement("registry-provider")
 export class RegistryProviderElement extends AbstractRegistryProvider {
@@ -11,7 +12,7 @@ export class RegistryProviderElement extends AbstractRegistryProvider {
 
 
     @provide({ context: registryContext })
-    public registry!: RegistryContext;
+    public registry!: ThermalRegistry;
 
     @provide({ context: registryOpacityContext })
     @property({ type: Number, reflect: true, attribute: true })

@@ -1,26 +1,28 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalPaletteType, ThermalTool } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalManager, ThermalPaletteType, ThermalTool } from "@labirthermal/core";
 import { createContext } from "@lit/context";
 
-export type ManagerContext = ThermalManager;
-export const managerContext =  createContext<ManagerContext>("manager-instance");
+export const managerContext =  createContext<ThermalManager>("manager-instance");
 
 export type ManagerPaletteContext = {
-    key: AvailableThermalPalettes,
+    key: AvailableThermalPalette,
     data: ThermalPaletteType
 }
 export const managerPaletteContext = createContext<ManagerPaletteContext>( "manager-palette-context" );
 
-export type ManagerSmoothContext = boolean;
-export const managerSmoothContext = createContext<ManagerSmoothContext>( "manager-smooth-context" );
 
-export type ManagerGraphFunctionContext = boolean;
-export const managerGraphFunctionContext = createContext<ManagerGraphFunctionContext>("manager-graph-function-context");
+export const managerSmoothContext = createContext<boolean>( "manager-smooth-context" );
 
-export type LanguageContextType = "string";
-export const languageContext = createContext<LanguageContextType>( "language" );
 
-export type ToolContext = ThermalTool;
-export const toolContext = createContext<ToolContext>( "tool-context" );
+export const managerGraphFunctionContext = createContext<boolean>("manager-graph-function-context");
 
-export type ToolsContext = ThermalManager["tool"]["tools"];
+
+export const languageContext = createContext<string>( "language" );
+
+
+export const toolContext = createContext<ThermalTool>( "tool-context" );
+
+type ToolsContext = ThermalManager["tool"]["tools"];
+/** @deprecated I do not know wha is this here. */
 export const toolsContext = createContext<ToolsContext>( "tools-context" );
+
+export const interactiveAnalysisContext = createContext<boolean>( "interactive-analysis-context" );

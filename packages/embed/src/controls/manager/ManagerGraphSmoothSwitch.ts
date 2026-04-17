@@ -2,12 +2,12 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { ManagerConsumer } from "../../hierarchy/consumers/ManagerConsumer";
+import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
 import { managerGraphFunctionContext } from "../../hierarchy/providers/context/ManagerContext";
 import { T } from "../../translations/Languages";
 
 @customElement("manager-graph-smooth-switch")
-export class SmoothSwitch extends ManagerConsumer {
+export class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
 
     @consume({context: managerGraphFunctionContext, subscribe: true})
     smooth!: boolean;

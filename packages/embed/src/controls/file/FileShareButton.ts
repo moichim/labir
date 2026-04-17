@@ -1,9 +1,9 @@
 import { css, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
 @customElement("file-share-button")
-export class FileShareButton extends FileConsumer {
+export class FileShareButton extends AbstractFileConsumer {
 
     public onInstanceCreated(): void {}
     public onFailure(): void {}

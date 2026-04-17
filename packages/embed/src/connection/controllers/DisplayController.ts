@@ -2,7 +2,7 @@ import { ReactiveController } from "lit";
 import { AppWithContentController, ContentController } from "./ContentController";
 import { FileInfo, FolderInfo } from "@labirthermal/server";
 import { CallbacksManager } from "@labirthermal/core";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 export enum DisplayState {
@@ -518,7 +518,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     /** The given element will request update whenever the app mode changes */
     public subscribeToAppMode(
-        element: BaseElement,
+        element: AbstractThermalElement,
     ): void {
 
         this.onAppModeUpdate.set(
@@ -532,7 +532,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     /** The given element will request update whenever the folder display mode changes */
     public subscribeToFolderDisplayMode(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         this.onFolderDisplayModeUpdate.set(
@@ -546,7 +546,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     /** The given element will request update whenever the file display mode changes */
     public subscribeToFileDisplayMode(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         this.onFileDisplayModeUpdate.set(
@@ -559,7 +559,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     }
 
     public subscribeToEditTags(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onEditTagsUpdate.set(
             element.getUUID( DisplayController.LISTENER_ID ),
@@ -570,7 +570,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     }
 
     public subscribeToDisplayComments(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onDisplayCommentsUpdate.set(
             element.getUUID( DisplayController.LISTENER_ID ),
@@ -581,7 +581,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     }
 
     public subscribeToDisplayCompact(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onFileDisplayCompactUpdate.set(
             element.getUUID( DisplayController.LISTENER_ID ),
@@ -592,7 +592,7 @@ export class DisplayController extends AbstractConnectedController implements Re
     }
 
     public subscribeToNavigate(
-        element: BaseElement,
+        element: AbstractThermalElement,
         callback?: () => void
     ): void {
         this.onNavigate.set(
@@ -605,7 +605,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
 
     public subscribeOnRecrteateContext(
-        element: BaseElement,
+        element: AbstractThermalElement,
         callback: () => void
     ): void {
         this.onRecreateContext.set(
@@ -619,7 +619,7 @@ export class DisplayController extends AbstractConnectedController implements Re
 
     /** Unsubscribe the element from all display mode changes */
     public unsubscribeFromAll(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         const UUID = element.getUUID( DisplayController.LISTENER_ID );

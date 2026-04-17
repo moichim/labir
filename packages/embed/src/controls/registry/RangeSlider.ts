@@ -6,7 +6,7 @@ import 'toolcool-range-slider';
 import { RangeSlider } from "toolcool-range-slider";
 import "toolcool-range-slider/dist/plugins/tcrs-marks.min.js";
 import "toolcool-range-slider/src/plugins/moving-tooltip-plugin";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { loadingContext } from "../../hierarchy/providers/context/FileContexts";
 import { ManagerPaletteContext, managerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 import { registryMaxContext, registryMinContext, registryRangeFromContext, registryRangeToContext } from "../../hierarchy/providers/context/RegistryContext";
@@ -16,7 +16,7 @@ import { registryMaxContext, registryMinContext, registryRangeFromContext, regis
 
 
 @customElement("registry-range-slider")
-export class RangeSliderElement extends RegistryConsumer {
+export class RangeSliderElement extends AbstractRegistryConsumer {
 
     @consume({ context: registryMinContext, subscribe: true })
     @state()
@@ -69,8 +69,6 @@ export class RangeSliderElement extends RegistryConsumer {
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
         this.registry.minmax.addListener(this.UUID, value => {
-
-            // this.registry.range.applyMinmax();
 
             if (this.registry.range.value) {
                 this.registry.range.imposeRange({

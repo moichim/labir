@@ -6,7 +6,7 @@ import { T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 
 @customElement( "thermal-dialog" )
-export class ThermalDialog extends LitElement {
+export class ThermalDialogElement extends LitElement {
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,

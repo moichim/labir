@@ -1,18 +1,14 @@
 import { Instance } from "@labirthermal/core";
-import { html, nothing, PropertyValues } from "lit";
+import { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { createRef, Ref } from "lit/directives/ref.js";
 import { Quality, QUALITY_VERY_HIGH } from "mediabunny";
-import { ISingleVideoExportElement, RecordingPhase, SingleVideoRenderProps, VideoExportSkin } from "./ISingleVideoExportElement";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { FileProviderElement } from "../../../hierarchy/providers/FileProvider";
-import { interactiveAnalysisContext } from "../../../utils/context";
-import { provide } from "@lit/context";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import { FileCopyElement } from "../../../hierarchy/providers/FileCopy";
 import { VideoRecorder } from "./internals/VideoRecorder";
-import { FileCopyElement } from "packages/embed/src/hierarchy/providers/FileCopy";
+import { ISingleVideoExportElement, RecordingPhase, SingleVideoRenderProps, VideoExportSkin } from "./ISingleVideoExportElement";
 
-export abstract class AbstractSingleVideoExport extends FileConsumer implements ISingleVideoExportElement {
+export abstract class AbstractSingleVideoExport extends AbstractFileConsumer implements ISingleVideoExportElement {
 
     public fileCopyElementRef: Ref<FileCopyElement> = createRef();
     public exportedDivRef: Ref<HTMLElement> = createRef();
@@ -37,9 +33,6 @@ export abstract class AbstractSingleVideoExport extends FileConsumer implements 
     public get exportedElement(): HTMLElement | undefined {
         return this.exportedDivRef.value;
     }
-
-    @provide({ context: interactiveAnalysisContext })
-    private interactiveanalysis: boolean = false;
 
     @property({ type: Boolean, reflect: true}) public parentHasAnalyses: boolean = false;
 

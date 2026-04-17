@@ -3,15 +3,15 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
-import { pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "../../ui/Dialog";
-import { ThermalDropdown } from "../../ui/Dropdown";
+import { ThermalDialogElement } from "../../ui/Dialog";
+import { ThermalDropdownElement } from "../../ui/Dropdown";
+import { pngExportWidthContext, pngExportFsContext, pngExportAnalysisContext, pngExportScaleContext, pngExportFileNameContext, pngExportFileDateContext } from "../../hierarchy/providers/context/pngExportContext";
 
 @customElement("file-download-dropdown")
-export class FileDownloadButton extends FileConsumer {
+export class FileDownloadButton extends AbstractFileConsumer {
 
     @consume({ context: pngExportWidthContext, subscribe: true })
     protected pngWidth: number = 1350;
@@ -38,8 +38,8 @@ export class FileDownloadButton extends FileConsumer {
     @state()
     protected hasGraphs: boolean = false;
 
-    protected recordingGraphRef: Ref<ThermalDialog> = createRef();
-    protected dropdownRef: Ref<ThermalDropdown> = createRef();
+    protected recordingGraphRef: Ref<ThermalDialogElement> = createRef();
+    protected dropdownRef: Ref<ThermalDropdownElement> = createRef();
 
     public onInstanceCreated(instance: Instance): void {
         instance.analysisData.onGraphsPresence.set(this.UUID, value => {
@@ -140,7 +140,7 @@ export class FileDownloadButton extends FileConsumer {
                         <tr>
                             <td>Barevná paleta</td>
                             <td>
-                                <registry-palette-dropdown></registry-palette-dropdown>
+                                <manager-palette-dropdown></manager-palette-dropdown>
                             </td>
                         </tr>
 

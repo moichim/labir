@@ -3,10 +3,10 @@ import { css, CSSResultGroup, html } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 
-export abstract class AbstractFileButton extends FileConsumer {
+export abstract class AbstractFileButton extends AbstractFileConsumer {
 
     @property({ type: String, reflect: false })
     public variant?: BtnVariants;

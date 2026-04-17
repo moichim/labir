@@ -1,7 +1,7 @@
 import type { Instance, ThermalGroup, ThermalRegistry } from "@labirthermal/core";
 import { ThermalFileFailure, TimeFormat } from "@labirthermal/core";
 import { endOfDay, endOfHour, endOfMonth, endOfWeek, endOfYear, format, startOfDay, startOfHour, startOfMonth, startOfWeek, startOfYear } from "date-fns";
-import type { GroupElement } from "../../apps/group/GroupApp";
+import type { ThermalGroupAppElement } from "../../apps/ThermalGroupApp";
 import type { ParsedFileType } from "../../apps/multiple/AbstractMultipleApp";
 import type { ThermalFileElement } from "./ThermalFile";
 
@@ -46,7 +46,7 @@ export class TimeGrouping {
     protected grouping: Grouping = "none";
 
     constructor(
-        public readonly element: GroupElement,
+        public readonly element: ThermalGroupAppElement,
         public readonly group: ThermalGroup
     ) {
 

@@ -1,4 +1,4 @@
-import { Instance, ThermalManager, TimeFormat } from "@labirthermal/core";
+import { Instance, ThermalManager } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
@@ -6,15 +6,14 @@ import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { publicIpv4 } from "public-ip";
 import { GroupDropin } from "../controls/group/GroupDropin";
-import { BaseElement } from "../hierarchy/BaseElement";
-import { GroupProviderElement } from "../hierarchy/mirrors/GroupMirror";
+import { GroupProviderElement } from "../index.export";
 import { T } from "../translations/Languages";
 import { initLocalesInTopLevelElement, IWithlocale, localeContext, localeConverter, Locales } from "../translations/localeContext";
-import { interactiveAnalysisContext } from "../utils/context";
-import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext, pngExportWidthContext, pngExportWidthSetterContext, pngExportFsContext, pngExportFsSetterContext } from "../hierarchy/providers/context/pngExportContext";
 
 @customElement("thermal-dropin-app")
 export class DropinAppElement extends BaseAppWithPngExportContext implements IWithlocale {
+    
     public get manager(): ThermalManager {
         throw new Error("Method not implemented.");
     }
@@ -36,9 +35,6 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
 
     @state()
     protected ip?: string;
-
-    @provide({ context: interactiveAnalysisContext })
-    protected interactiveanalysis: boolean = true;
 
 
 
@@ -242,7 +238,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
         <div class="browser">
             
             <div class="browser-tools">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </div>
             <div class="browser-content">
                 ${this.files.length === 1
@@ -314,7 +310,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
                                 ? html`
                                 <thermal-btn slot="bar-pre" @click="${() => this.handleClear()}" tooltip="Odstranit tento soubor a nahrát nový">${t(T.clear)}</thermal-btn>
 
-                                <registry-palette-dropdown slot="bar-pre"></registry-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
                                 <registry-range-form stacked="false" slot="bar-pre"></registry-range-form>
 
@@ -336,7 +332,7 @@ export class DropinAppElement extends BaseAppWithPngExportContext implements IWi
                                 </thermal-btn>
                                 <div slot="content">
                                     <table>
-                                        <png-export-panel></png-export-panel>
+                                        <manager-export-panel></manager-export-panel>
                                         <registry-display-panel></registry-display-panel>
                                     </table>
                                 </div>

@@ -1,8 +1,8 @@
 import { ThermalGroup } from "@labirthermal/core";
 import { html } from "lit";
-import { RegistryConsumer } from "../consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../consumers/AbstractRegistryConsumer";
 
-export abstract class AbstractGroupProvider extends RegistryConsumer {
+export abstract class AbstractGroupProvider extends AbstractRegistryConsumer {
 
     protected UUIDGroupListeners = this.UUID + "__group-listener";
 

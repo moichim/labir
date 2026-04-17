@@ -3,16 +3,16 @@ import { html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { BtnSizes, BtnVariants } from "../../ui/Btn";
-import { ThermalDialog } from "../../ui/Dialog";
+import { ThermalDialogElement } from "../../ui/Dialog";
 import {when} from 'lit/directives/when.js';
 import { FileVideoExportPanel } from "./video/FileVideoExportPanel";
 import { T } from "../../translations/Languages";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 
 @customElement("file-video-export-button")
-export class FileVideoExport extends FileConsumer {
+export class FileVideoExport extends AbstractFileConsumer {
 
     @property({ type: String, reflect: true })
     public variant?: BtnVariants;
@@ -38,7 +38,7 @@ export class FileVideoExport extends FileConsumer {
     @property({ type: String, reflect: true })
     public pre?: String;
 
-    private dialogRef: Ref<ThermalDialog> = createRef();
+    private dialogRef: Ref<ThermalDialogElement> = createRef();
     private panelRef?: Ref<FileVideoExportPanel> = createRef();
 
     protected slug: string = this.UUID + "__file-export";

@@ -1,7 +1,7 @@
 import { CallbacksManager } from "@labirthermal/core";
 import { FolderInfo } from "@labirthermal/server";
 import { ReactiveController } from "lit";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";
 
 
@@ -160,7 +160,7 @@ export class FolderSelectionController implements ReactiveController {
      * Rerender the provided element whenever the selection changes 
      */
     public subscribeToSelectionChange(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         this._onSelectionChange.add(

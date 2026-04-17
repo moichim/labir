@@ -2,11 +2,11 @@ import { CallbacksManager } from "@labirthermal/core";
 import Client from "@labirthermal/server";
 import { ReactiveController } from "lit";
 import { Identity, ServerInfo } from "@labirthermal/server";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";
 
 /** Public properties for application elements using ClientController */
-export interface AppWithClientController extends BaseElement {
+export interface AppWithClientController extends AbstractThermalElement {
     /** URL Address of the webserver */
     serverUrl: string;
     /** API root path of the server. */
@@ -297,7 +297,7 @@ export class ClientController extends AbstractConnectedController implements Rea
 
 
     public subscribeToIdentityChanges(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onIdentity.set(
             element.UUID,
@@ -308,7 +308,7 @@ export class ClientController extends AbstractConnectedController implements Rea
     }
 
     public subscribeToLoadingChanges(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onLoadingChange.set(
             element.UUID,
@@ -319,7 +319,7 @@ export class ClientController extends AbstractConnectedController implements Rea
     }
 
     public subscribeToServerInfoUpdates(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
         this.onServerInfoUpdate.set(
             element.UUID,

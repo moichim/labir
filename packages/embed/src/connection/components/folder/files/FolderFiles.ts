@@ -205,7 +205,7 @@ export class FolderFiles extends ClientConsumer {
         return html`<group-provider slug="${this.slug}" autoclear="true" ${ref(this.groupProviderRef)} batch="true">
     <main class="layout">
         <section class="section__tools">
-            <group-tool-bar></group-tool-bar>
+            <manager-tool-bar></manager-tool-bar>
         </section>
         <section class="section__files">
             ${this.files?.map(subfolder => this.renderFile(subfolder))}

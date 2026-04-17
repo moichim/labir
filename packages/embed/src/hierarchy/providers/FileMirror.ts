@@ -3,8 +3,9 @@ import { provide } from "@lit/context";
 import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileContext, fileProviderContext } from "../providers/context/FileContexts";
+import { fileContext, fileProviderContext } from "./context/FileContexts";
 
+/** @deprecated Investigate why is this here. */
 @customElement("file-mirror")
 export class FileMirrorElement extends AbstractFileProvider {
 

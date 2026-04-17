@@ -1,13 +1,13 @@
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { T } from "../../translations/Languages";
-import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
 import { consume } from "@lit/context";
+import { pngExportWidthContext, pngExportFsContext, pngExportAnalysisContext, pngExportScaleContext, pngExportFileNameContext, pngExportFileDateContext, pngExportColumnsContext, pngExportGroupNameContext } from "../../hierarchy/providers/context/pngExportContext";
 
 @customElement("group-download-buttons")
-export class GroupDownloadDropdown extends GroupConsumer {
+export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     @property({type: String})
     public label?: string;

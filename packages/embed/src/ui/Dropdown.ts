@@ -4,11 +4,11 @@ import { customElement, property, queryAssignedElements, state } from 'lit/decor
 import { classMap } from "lit/directives/class-map.js";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { BtnSizes, BtnVariants } from "./Btn";
 
 @customElement("thermal-dropdown")
-export class ThermalDropdown extends BaseElement {
+export class ThermalDropdownElement extends AbstractThermalElement {
 
     static shadowRootOptions: ShadowRootInit = {
         ...LitElement.shadowRootOptions,

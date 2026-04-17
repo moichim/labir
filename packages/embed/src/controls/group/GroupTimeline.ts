@@ -2,7 +2,7 @@ import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
 
 
@@ -10,7 +10,7 @@ import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelin
 
 
 @customElement("group-timeline")
-export class GroupTimeline extends GroupConsumer {
+export class GroupTimeline extends AbstractGroupConsumer {
 
     public static TICK_WIDTH = 50;
     public static TICK_POINTER_HEIGHT = 3;

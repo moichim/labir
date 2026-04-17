@@ -1,5 +1,5 @@
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { css, html, nothing } from "lit";
 import { ref } from "lit/directives/ref.js";
 import icons from "../utils/icons";
@@ -12,7 +12,7 @@ export type BtnVariants = "primary" | "foreground" | "background" | "default" | 
 export type BtnSizes = "sm" | "md" | "lg" | "xl";
 
 @customElement( "thermal-btn" )
-export class ThermalBtn extends BaseElement {
+export class ThermalBtnElement extends AbstractThermalElement {
 
     @property({type: String, attribute: "tooltip-placement"})
     public tooltipPlacement: Placement = "top";

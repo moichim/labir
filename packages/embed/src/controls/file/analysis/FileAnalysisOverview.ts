@@ -4,13 +4,13 @@ import { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
-import { interactiveAnalysisContext } from "../../../utils/context";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
 
 @customElement("file-analysis-overview")
-export class FileAnalysisTable extends FileConsumer {
+export class FileAnalysisTable extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 

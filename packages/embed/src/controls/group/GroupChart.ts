@@ -19,13 +19,13 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 
 import { Instance } from '@labirthermal/core';
-import { GroupConsumer } from '../../hierarchy/consumers/GroupConsumer';
+import { AbstractGroupConsumer } from '../../hierarchy/consumers/AbstractGroupConsumer';
 
 import '@google-web-components/google-chart';
 
 
 @customElement("group-chart")
-export class GroupChart extends GroupConsumer {
+export class GroupChart extends AbstractGroupConsumer {
 
     @state()
     protected instances: Instance[] = [];

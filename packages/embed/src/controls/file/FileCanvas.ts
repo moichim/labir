@@ -4,13 +4,12 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { classMap } from 'lit/directives/class-map.js';
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { is } from "date-fns/locale";
 
 @customElement("file-canvas")
-export class FileCanvas extends FileConsumer {
+export class FileCanvas extends AbstractFileConsumer {
 
     public container: Ref<HTMLDivElement> = createRef();
 

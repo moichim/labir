@@ -1,14 +1,14 @@
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { consume } from "@lit/context";
-import { currentFrameContext, CurrentFrameContext } from "../../hierarchy/providers/context/FileContexts";
+import { fileCurrentFrameContext, CurrentFrameContext } from "../../hierarchy/providers/context/FileContexts";
 
 @customElement("file-video")
-export class FileVideo extends FileConsumer {
+export class FileVideo extends AbstractFileConsumer {
 
-    @consume( {context: currentFrameContext, subscribe: true} )
+    @consume( {context: fileCurrentFrameContext, subscribe: true} )
     @state()
     protected currentFrame?: CurrentFrameContext;
 

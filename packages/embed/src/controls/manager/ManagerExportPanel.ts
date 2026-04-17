@@ -2,12 +2,12 @@ import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { T } from "../../translations/Languages";
-import { ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { ContextSetter, IWithPngExportContext, pngExportAnalysisContext, pngExportAnalysisSetterContext, pngExportColumnsContext, pngExportColumnsSetterContext, pngExportFileDateContext, pngExportFileDateSetterContext, pngExportFileNameContext, pngExportFileNameSetterContext, pngExportFsContext, pngExportFsSetterContext, pngExportGroupNameContext, pngExportGroupNameSetterContext, pngExportLicenseContext, pngExportLicenseSetterContext, pngExportScaleContext, pngExportScaleSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../hierarchy/providers/context/pngExportContext";
 
-@customElement("png-export-panel")
-export class PngExportPanel extends BaseElement implements IWithPngExportContext {
+@customElement("manager-export-panel")
+export class ManagerExportPanel extends AbstractThermalElement implements IWithPngExportContext {
 
     @consume({ context: pngExportWidthContext, subscribe: true })
     public pngWidth!: number;
@@ -175,7 +175,7 @@ export class PngExportPanel extends BaseElement implements IWithPngExportContext
         const numericalValues = [ "pngFs", "pngWidth" ];
         for ( const key of numericalValues ) {
             if ( _changedProperties.has( key ) ) {
-                const value = this[key as keyof PngExportPanel] as number;
+                const value = this[key as keyof ManagerExportPanel] as number;
                 const element = this.shadowRoot?.querySelector( `input[name="${key}"]` ) as HTMLInputElement;
                 if ( element && value) {
                     const oldValue = element.value;

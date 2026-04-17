@@ -1,9 +1,9 @@
 import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 @customElement("thermal-tip")
-export class Tip extends BaseElement {
+export class ThermalTipElement extends AbstractThermalElement {
 
     @property({type: String})
     public icon: string = "bulb";

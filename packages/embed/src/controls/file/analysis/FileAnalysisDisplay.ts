@@ -1,18 +1,15 @@
 import { AbstractAnalysis, Instance, ThermalFileFailure } from "@labirthermal/core";
 import { css, html, nothing, PropertyValues } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { customElement, state } from "lit/decorators.js";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 
-import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { t } from "i18next";
-import { T } from "../../../translations/Languages";
-import { consume } from "@lit/context";
-import { interactiveAnalysisContext } from "../../../utils/context";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { createRef, Ref, ref } from 'lit/directives/ref.js';
 import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-display")
-export class FileAnalysisDisplay extends FileConsumer {
+export class FileAnalysisDisplay extends AbstractFileConsumer {
 
     protected container: Ref<HTMLDivElement> = createRef();
 

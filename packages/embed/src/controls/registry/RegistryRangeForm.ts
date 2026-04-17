@@ -1,5 +1,5 @@
 import { customElement, property, state } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { ThermalMinmaxOrUndefined, ThermalRangeOrUndefined } from "@labirthermal/core";
 import { t } from "i18next";
@@ -7,7 +7,7 @@ import { T } from "../../translations/Languages";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("registry-range-form")
-export class RegistryRangeForm extends RegistryConsumer {
+export class RegistryRangeForm extends AbstractRegistryConsumer {
 
     @property({reflect: true, converter: booleanConverter(true)})
     public stacked: boolean = false;

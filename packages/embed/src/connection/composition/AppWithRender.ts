@@ -267,7 +267,7 @@ export abstract class AppWithRender extends AppWithContent {
 </div>`;
         }
 
-        return html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+        return html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 ${this.renderBreadcrumb()}
 ${this.renderUserFolders()}
 `;
@@ -281,7 +281,7 @@ ${this.renderUserFolders()}
 
     private renderFolder(): TemplateResult {
 
-        return html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+        return html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
 ${this.renderBreadcrumb()}
 
@@ -312,7 +312,7 @@ ${this.renderBreadcrumb()}
                 </thermal-slot>` : nothing}
 
                 ${this.hasFiles() || this.folderMode === FolderMode.GRID ? html`<thermal-slot label="${t(T.palette)}">
-                    <registry-palette-dropdown></registry-palette-dropdown>
+                    <manager-palette-dropdown></manager-palette-dropdown>
                 </thermal-slot><thermal-slot label="${t(T.thermalrange)}">
                     <registry-range-form></registry-range-form>
                 </thermal-slot>
@@ -399,7 +399,7 @@ ${this.renderBreadcrumb()}
 
         return html`
 
-        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+        <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
         ${this.renderBreadcrumb()}
 
@@ -478,7 +478,7 @@ ${this.renderBreadcrumb()}
                     </thermal-slot>
 
                     <thermal-slot label="${t(T.palette)}" slot="header">
-                        <registry-palette-dropdown></registry-palette-dropdown>
+                        <manager-palette-dropdown></manager-palette-dropdown>
                     </thermal-slot>
 
                     <thermal-slot label="${t(T.thermalrange)}" slot="header">

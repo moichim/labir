@@ -1,6 +1,6 @@
 import { TemplateResult } from "lit";
 import { state } from "lit/decorators.js";
-import { BaseAppWithPngExportContext } from "../../utils/converters/pngExportContext";
+import { BaseAppWithPngExportContext } from "../../hierarchy/providers/context/pngExportContext";
 
 export enum AppState {
     LOADING = "loading",

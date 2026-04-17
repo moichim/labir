@@ -1,12 +1,12 @@
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { BtnSizes, BtnVariants } from "./Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("thermal-expandable")
-export class Expandable extends BaseElement {
+export class ThermalExpandableElement extends AbstractThermalElement {
 
     @property({ type: String})
     public label?: string;

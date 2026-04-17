@@ -2,20 +2,20 @@ import { playbackSpeed, PlaybackSpeeds } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { playbackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
-import { ThermalDropdown } from "../../ui/Dropdown";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { filePlaybackSpeedContext } from "../../hierarchy/providers/context/FileContexts";
+import { ThermalDropdownElement } from "../../ui/Dropdown";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 
 @customElement("file-playback-speed-dropdown")
-export class FilePlaybackSpeedDropdown extends FileConsumer {
+export class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
 
     @property({type: String, reflect: true})
     public enabled: "on"|"off" = "on";
 
     @state()
-    @consume({context: playbackSpeedContext, subscribe: true})
+    @consume({context: filePlaybackSpeedContext, subscribe: true})
     protected playbackSpeed: PlaybackSpeeds = 1;
     
     public onInstanceCreated(): void {}
@@ -55,7 +55,7 @@ export class FilePlaybackSpeedDropdown extends FileConsumer {
 
                         if ( target ) {
 
-                            if ( target.parentElement instanceof ThermalDropdown ) {
+                            if ( target.parentElement instanceof ThermalDropdownElement ) {
                                 target.parentElement.setClose();
                             }
                         }

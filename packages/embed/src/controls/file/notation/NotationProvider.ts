@@ -1,12 +1,12 @@
 import { Instance } from "@labirthermal/core";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
 import { html, PropertyValues } from "lit";
 import { provide } from "@lit/context";
 import { customElement, queryAssignedElements, state } from "lit/decorators.js";
 
 @customElement("notation-provider")
-export class NotationProvider extends FileConsumer implements IWithNotationContext {
+export class NotationProvider extends AbstractFileConsumer implements IWithNotationContext {
 
     @state()
     @queryAssignedElements({ slot: "notation", flatten: true })

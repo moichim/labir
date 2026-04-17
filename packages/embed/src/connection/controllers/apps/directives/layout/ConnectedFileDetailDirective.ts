@@ -59,7 +59,7 @@ class ConnectedFileDetail extends AbstractLayoutDirective {
 
             slotOrNothing(
                 "thermalscale",
-                html`<registry-palette-dropdown></registry-palette-dropdown>
+                html`<manager-palette-dropdown></manager-palette-dropdown>
                 <registry-range-form></registry-range-form>`
             )
 

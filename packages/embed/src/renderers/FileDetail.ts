@@ -1,13 +1,13 @@
 import { ApiTimeGrouping } from "@labirthermal/server-simple"
 import { css, CSSResultGroup, html, nothing } from "lit"
 import { customElement, property } from "lit/decorators.js"
-import { FileConsumer } from "../hierarchy/consumers/FileConsumer"
+import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
 import { booleanConverter } from "../utils/converters/booleanConverter"
 import { t } from "i18next"
 import { T } from "../translations/Languages"
 
 @customElement("file-detail")
-export class FileThumbnail extends FileConsumer {
+export class FileThumbnail extends AbstractFileConsumer {
 
     @property({ type: Object })
     onback?: () => void;

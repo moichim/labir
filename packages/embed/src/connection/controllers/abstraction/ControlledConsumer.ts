@@ -1,5 +1,5 @@
 import { consume } from "@lit/context";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext, FolderSelectionControllerContext } from "../controllerContexts";
 import { ClientController } from "../ClientController";
 import { ContentController } from "../ContentController";
@@ -8,7 +8,7 @@ import { DisplayController } from "../DisplayController";
 import { FileSelectionController } from "../FileSelectionController";
 import { FolderSelectionController } from "../FolderSelectionController";
 
-export abstract class ControlledConsumer extends BaseElement {
+export abstract class ControlledConsumer extends AbstractThermalElement {
 
     /**  */
     @consume({ context: ControlledClientContext, subscribe: true })

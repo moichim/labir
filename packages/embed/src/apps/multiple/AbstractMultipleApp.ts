@@ -1,11 +1,11 @@
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { interactiveAnalysisContext } from "../../utils/context";
-import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
+import { interactiveAnalysisContext } from "../../hierarchy/providers/context/ManagerContext";
 import { localeContext, localeConverter, Locales } from "../../translations/localeContext";
+import { booleanConverter } from "../../utils/converters/booleanConverter";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../hierarchy/providers/context/pngExportContext";
 
+/** @deprecated */
 export type ParsedFileType = {
     thermal: string;
     visible?: string;
@@ -13,6 +13,7 @@ export type ParsedFileType = {
     note?: string;
 };
 
+/** @deprecated */
 export abstract class AbstractMultipleApp extends BaseAppWithPngExportContext {
 
     @property({ type: String, reflect: false, attribute: true, converter: booleanConverter(false) })

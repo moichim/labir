@@ -3,6 +3,7 @@
   "compilerOptions": {
     "declaration": true,
     "declarationMap": true,
+    "emitDecoratorMetadata": true,
     "noEmit": false,
     "emitDeclarationOnly": true
   },

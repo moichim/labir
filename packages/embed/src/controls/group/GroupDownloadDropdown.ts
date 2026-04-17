@@ -1,13 +1,13 @@
 import { css, CSSResultGroup, html } from "lit";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { customElement, state } from "lit/decorators.js";
 import { consume } from "@lit/context";
-import { pngExportAnalysisContext, pngExportColumnsContext, pngExportFileDateContext, pngExportFileNameContext, pngExportFsContext, pngExportGroupNameContext, pngExportScaleContext, pngExportWidthContext } from "../../utils/converters/pngExportContext";
+import { pngExportColumnsContext, pngExportGroupNameContext, pngExportFsContext, pngExportAnalysisContext, pngExportFileDateContext, pngExportFileNameContext, pngExportWidthContext, pngExportScaleContext } from "../../hierarchy/providers/context/pngExportContext";
 
 @customElement("group-download-dropdown")
-export class GroupDownloadDropdown extends GroupConsumer {
+export class GroupDownloadDropdown extends AbstractGroupConsumer {
 
     static styles?: CSSResultGroup | undefined = css`
         thermal-btn {
@@ -15,7 +15,6 @@ export class GroupDownloadDropdown extends GroupConsumer {
         }
     `;
 
-    /**  */
     @state()
     @consume( { context: pngExportColumnsContext, subscribe: true } )
     private pngColumns: number = 3;

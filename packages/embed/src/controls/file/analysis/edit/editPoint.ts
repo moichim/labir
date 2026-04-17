@@ -2,12 +2,12 @@ import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref } from "lit/directives/ref.js";
-import { BaseElement } from "../../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
 @customElement("edit-point")
-export class EditPoint extends BaseElement {
+export class EditPoint extends AbstractThermalElement {
 
     @property()
     public analysis!: PointAnalysis;

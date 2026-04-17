@@ -1,5 +1,5 @@
 import { createContext, provide } from "@lit/context";
-import { AbstractControlledApp } from "../../apps/AbstractControlledApp";
+import { AbstractControlledApp } from "../../../apps/AbstractControlledApp";
 
 export type ContextSetter<T> = (value: T) => void
 
@@ -118,11 +118,3 @@ export abstract class BaseAppWithPngExportContext extends AbstractControlledApp 
     @provide({ context: pngExportGroupNameSetterContext })
     public pngExportGroupNameSetter: ContextSetter<boolean> = value => this.pngExportGroupName = value;
 }
-
-
-
-
-
-
-export const pngAuthorContext = createContext<string | undefined>("pngAuthorContext");
-export const pngAuthorSetterContext = createContext<ContextSetter<string | undefined>>("pngAuthorSetterContext");

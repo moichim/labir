@@ -2,13 +2,13 @@ import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { map } from "lit/directives/map.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { durationConverter } from "../../../utils/converters/durationConverter";
 import { notationDurationContext, notationListContext } from "./NotationContext";
 import { NotationEntry } from "./NotationEntry";
 
 @customElement("notation-timeline")
-export class NotationContent extends FileConsumer {
+export class NotationContent extends AbstractFileConsumer {
 
     protected durationConverter = durationConverter;
     public onInstanceCreated(): void {}

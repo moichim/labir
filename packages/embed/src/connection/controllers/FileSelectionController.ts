@@ -1,7 +1,7 @@
 import { CallbacksManager } from "@labirthermal/core";
 import { FileInfo } from "@labirthermal/server";
 import { ReactiveController } from "lit";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";
 
 
@@ -160,7 +160,7 @@ export class FileSelectionController implements ReactiveController {
      * Rerender the provided element whenever the selection changes 
      */
     public subscribeToSelectionChange(
-        element: BaseElement
+        element: AbstractThermalElement
     ): void {
 
         console.log( element );

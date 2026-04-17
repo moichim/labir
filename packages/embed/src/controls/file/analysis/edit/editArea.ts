@@ -1,12 +1,12 @@
 import { AbstractAnalysis, AbstractAreaAnalysis } from "@labirthermal/core";
 import { css, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 import { t } from "i18next";
 import { T } from "../../../../translations/Languages";
 
 @customElement("edit-area")
-export class AreaEdit extends BaseElement {
+export class AreaEdit extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAreaAnalysis;

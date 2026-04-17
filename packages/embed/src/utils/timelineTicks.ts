@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { css, html, nothing } from "lit";
 
-export enum TICK {
+enum TICK {
     MINOR = "minor",
     MAJOR = "major",
     BOUND = "bound"
@@ -16,12 +16,12 @@ export type Tick = {
 }
 
 /** Available minute divisions */
-export type MinuteDivision = 2 | 4 | 6 | 12 | 30;
+type MinuteDivision = 2 | 4 | 6 | 12 | 30;
 
 /**
  * Format data into a tick value
  */
-export const tick = (
+const tick = (
     ms: number,
     duration: number,
     type: TICK
@@ -39,7 +39,7 @@ export const tick = (
  * - one last TICK.MAJOR for minute end
  * All ticks are returned only when they are smaller than the overall duration.
  */
-export const processTickMinute = (
+const processTickMinute = (
     /** Milliseconds from which the minute starts */
     from: number,
     /** Milliseconds to which the minute ends */
@@ -80,8 +80,8 @@ export const processTickMinute = (
 }
 
 const minute = 60 * 1000;
-export const tickWidth = 50;
-export const tickPointerHeight = 3;
+const tickWidth = 50;
+const tickPointerHeight = 3;
 
 export const calculateTicks = (
     /** Width of the element */
@@ -130,7 +130,7 @@ export const calculateTicks = (
 
 }
 
-export const renderTick = (tick: Tick) => {
+const renderTick = (tick: Tick) => {
     return html`<div
         class="tick tick-${tick.type}"
         style="left: ${tick.percent}%;"
@@ -140,7 +140,7 @@ export const renderTick = (tick: Tick) => {
     </div>`;
 }
 
-export const renderPointer = (
+const renderPointer = (
     percent: number,
     label: string,
     type: "pointer"|"primary"

@@ -3,7 +3,7 @@ import { customElement, state } from 'lit/decorators.js';
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 
 @customElement("thermal-bar")
-export class ThermalBar extends LitElement {
+export class ThermalBarElement extends LitElement {
 
     static styles = css`
 
@@ -71,7 +71,6 @@ export class ThermalBar extends LitElement {
     @state()
     protected lastContentWidth!: number;
 
-    @state()
     protected drawerRef: Ref<HTMLDivElement> = createRef();
     protected contentRef: Ref<HTMLDivElement> = createRef();
     protected rulerContentRef: Ref<HTMLDivElement> = createRef();

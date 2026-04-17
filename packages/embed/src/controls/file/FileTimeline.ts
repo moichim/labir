@@ -5,8 +5,8 @@ import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, mayStopContext, playingContext } from "../../hierarchy/providers/context/FileContexts";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, FileCursorContext, fileCursorContext, FileCursorSetterContext, fileCursorSetterContext, filaMayStopContext, filePlayingContext } from "../../hierarchy/providers/context/FileContexts";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
 import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelineTicks";
@@ -14,13 +14,13 @@ import { calculateTicks, renderTicks, Tick, ticksCss } from "../../utils/timelin
 const isChromium = "chrome" in window;
 
 @customElement("file-timeline")
-export class TimelineElement extends FileConsumer {
+export class TimelineElement extends AbstractFileConsumer {
 
-    @consume({ context: playingContext, subscribe: true })
+    @consume({ context: filePlayingContext, subscribe: true })
     @state()
     protected playing: boolean = false;
 
-    @consume({ context: currentFrameContext, subscribe: true })
+    @consume({ context: fileCurrentFrameContext, subscribe: true })
     @state()
     protected currentFrame?: CurrentFrameContext;
 
@@ -28,7 +28,7 @@ export class TimelineElement extends FileConsumer {
     @state()
     protected duration?: DurationContext;
 
-    @consume({ context: mayStopContext, subscribe: true })
+    @consume({ context: filaMayStopContext, subscribe: true })
     @state()
     protected mayStop: boolean = true;
 

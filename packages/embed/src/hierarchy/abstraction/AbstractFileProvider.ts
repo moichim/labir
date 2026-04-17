@@ -3,17 +3,17 @@ import { consume, provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { GroupConsumer } from "../consumers/GroupConsumer";
-import { analysisList, AnalysisList, currentFrameContext, CurrentFrameContext, durationContext, DurationContext, FailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, loadedContext, loadingContext, mayStopContext, playbackSpeedContext, playingContext, recordingContext } from "../providers/context/FileContexts";
+import { AbstractGroupConsumer } from "../consumers/AbstractGroupConsumer";
+import { fileAnalysisList, AnalysisList, fileCurrentFrameContext, CurrentFrameContext, durationContext, DurationContext, fileFailureContext, fileContext, fileCursorContext, FileCursorContext, fileMsContext, loadedContext, loadingContext, filaMayStopContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "../providers/context/FileContexts";
 import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 
-export abstract class AbstractFileProvider extends GroupConsumer {
+export abstract class AbstractFileProvider extends AbstractGroupConsumer {
 
     @provide({ context: fileContext })
     @state()
     public file?: Instance;
 
-    @provide({ context: FailureContext })
+    @provide({ context: fileFailureContext })
     @state()
     protected failure?: ThermalFileFailure;
 
@@ -29,7 +29,7 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @state()
     protected duration?: DurationContext;
 
-    @provide({ context: currentFrameContext })
+    @provide({ context: fileCurrentFrameContext })
     @state()
     protected currentFrame?: CurrentFrameContext;
 
@@ -55,21 +55,21 @@ export abstract class AbstractFileProvider extends GroupConsumer {
     @provide({ context: fileMsContext })
     public ms: number = 0;
 
-    @provide({ context: playbackSpeedContext })
+    @provide({ context: filePlaybackSpeedContext })
     public speed?: PlaybackSpeeds = 1;
 
-    @provide({ context: recordingContext })
+    @provide({ context: fileRecordingContext })
     public recording: boolean = false;
 
-    @provide({ context: playingContext })
+    @provide({ context: filePlayingContext })
     public playing: boolean = false;
 
     @state()
-    @provide({ context: mayStopContext })
+    @provide({ context: filaMayStopContext })
     protected mayStop: boolean = true;
 
     /** List of all analyses taken from the `Instance.analysis.layers.all` */
-    @provide({ context: analysisList }) private analyses: AnalysisList = [];
+    @provide({ context: fileAnalysisList }) private analyses: AnalysisList = [];
 
 
     public analysis1?: string;

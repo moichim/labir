@@ -3,12 +3,12 @@ import { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { RegistryConsumer } from "../../../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../../../hierarchy/consumers/AbstractRegistryConsumer";
 import { setRegistryHighlightContext } from "../../../../hierarchy/providers/context/RegistryContext";
 import { editTagsContext, showDiscussionContext } from "../../../ClientContext";
 
 @customElement("subfolders-grid")
-export class SubfoldersGrid extends RegistryConsumer {
+export class SubfoldersGrid extends AbstractRegistryConsumer {
 
     @property({ type: Object })
     public grid?: GetGridDataType;
@@ -381,7 +381,7 @@ export class SubfoldersGrid extends RegistryConsumer {
         }
 
         thead,
-        group-tool-bar {
+        manager-tool-bar {
             position: sticky;
             top: 315px;
             z-index: 100;
@@ -591,7 +591,7 @@ export class SubfoldersGrid extends RegistryConsumer {
 
         return html`
             <div style="position: relative;">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </div>
 
             ${this.grid !== undefined

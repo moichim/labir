@@ -3,15 +3,15 @@ import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
-import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, currentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
+import { fileCursorContext, FileCursorContext, fileCursorSetterContext, FileCursorSetterContext, fileCurrentFrameContext, CurrentFrameContext } from "../../../hierarchy/providers/context/FileContexts";
 import {managerGraphFunctionContext} from "../../../hierarchy/providers/context/ManagerContext";
 import { ThermalChart } from "./chart/chart";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-graph")
-export class FileAnalysisGraph extends FileConsumer {
+export class FileAnalysisGraph extends AbstractFileConsumer {
 
     @state()
     protected hydrated: boolean = false;
@@ -35,7 +35,7 @@ export class FileAnalysisGraph extends FileConsumer {
         colors: []
     }
 
-    @consume({context: currentFrameContext, subscribe: true})
+    @consume({context: fileCurrentFrameContext, subscribe: true})
     protected currentFrame?: CurrentFrameContext;
 
     @consume({ context: fileCursorContext, subscribe: true })

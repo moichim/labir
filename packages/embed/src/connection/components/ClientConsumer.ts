@@ -1,11 +1,11 @@
 import { consume } from "@lit/context";
 import { Client } from "packages/server/client/src/Client";
 import { clientContext } from "../ClientContext";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { state } from "lit/decorators.js";
 import { Identity, ServerInfo } from "@labirthermal/server";
 
-export abstract class ClientConsumer extends BaseElement {
+export abstract class ClientConsumer extends AbstractThermalElement {
 
     @consume({ context: clientContext, subscribe: true })
     protected client?: Client;

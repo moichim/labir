@@ -1,9 +1,9 @@
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { css, CSSResultGroup, html } from "lit";
 
 @customElement( "thermal-dropin" )
-export class Dropin extends BaseElement {
+export class ThermalDropinElement extends AbstractThermalElement {
 
     @property({type: String})
     public prompt?: string;

@@ -1,20 +1,11 @@
 import { ThermalGroup } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { groupContext } from "../providers/context/GroupContext";
-import { RegistryConsumer } from "./RegistryConsumer";
+import { AbstractRegistryConsumer } from "./AbstractRegistryConsumer";
 
-export abstract class GroupConsumer extends RegistryConsumer {
+export abstract class AbstractGroupConsumer extends AbstractRegistryConsumer {
 
     @consume({ context: groupContext, subscribe: true })
     group!: ThermalGroup;
-
-    public constructor() {
-        super();
-    }
-
-    connectedCallback(): void {
-        super.connectedCallback();
-
-    }
 
 }

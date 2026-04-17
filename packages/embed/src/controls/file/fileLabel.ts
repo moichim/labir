@@ -1,12 +1,12 @@
 import { TimeFormat } from "@labirthermal/core";
 import { css, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
 import { format } from "date-fns";
 import { ApiTimeGrouping } from "@labirthermal/server-simple";
 
 @customElement("file-label")
-export class FileCanvas extends FileConsumer {
+export class FileCanvas extends AbstractFileConsumer {
 
     @property({type: String})
     public grouping?: ApiTimeGrouping;

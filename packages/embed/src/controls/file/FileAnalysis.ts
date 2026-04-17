@@ -3,15 +3,15 @@ import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { map } from 'lit/directives/map.js';
-import { FileConsumer } from "../../hierarchy/consumers/FileConsumer";
-import { AnalysisList, analysisList } from "../../hierarchy/providers/context/FileContexts";
+import { AbstractFileConsumer } from "../../hierarchy/consumers/AbstractFileConsumer";
+import { AnalysisList, fileAnalysisList } from "../../hierarchy/providers/context/FileContexts";
 import { createRef, Ref, ref } from 'lit/directives/ref.js';
 
 /** @deprecated */
 @customElement("file-analysis-list")
-export class FileAnalysisList extends FileConsumer {
+export class FileAnalysisList extends AbstractFileConsumer {
 
-    @consume({ context: analysisList, subscribe: true })
+    @consume({ context: fileAnalysisList, subscribe: true })
     analysis: AnalysisList = [];
 
     @state()

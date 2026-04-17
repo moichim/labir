@@ -1,10 +1,10 @@
 import { html, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { durationConverter } from "../../../utils/converters/durationConverter";
 
 @customElement("notation-entry")
-export class NotationEntry extends BaseElement {
+export class NotationEntry extends AbstractThermalElement {
 
     @property({type: Number, reflect: true, converter: durationConverter})
     public from?: number;

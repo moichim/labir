@@ -1,7 +1,6 @@
 import type { AvailableThermalPalette } from "@labirthermal/core";
 import Client from "@labirthermal/server";
 import { property, state } from "lit/decorators.js";
-import { BaseAppWithPngExportContext } from "../../../utils/converters/pngExportContext";
 import { AppWithClientController, ClientController } from "../ClientController";
 import { AppWithContentController, ContentController } from "../ContentController";
 import { provide } from "@lit/context";
@@ -16,6 +15,7 @@ import { AppWithFileSelectionController, FileSelectionController } from "../File
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { AppWithFolderSelectionController, FolderSelectionController } from "../FolderSelectionController";
+import { BaseAppWithPngExportContext } from "../../../hierarchy/providers/context/pngExportContext";
 
 export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext 
     implements 
@@ -251,7 +251,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
 
         .inspector__tools {
 
-            group-tool-bar {
+            manager-tool-bar {
                 position: sticky;
                 top: 0px;
                 z-index: 99;
@@ -364,7 +364,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
                 ></thermal-btn>
 
                 <div slot="content">
-                    <png-export-panel></png-export-panel>
+                    <manager-export-panel></manager-export-panel>
                     <registry-display-panel></registry-display-panel>
                 </div>
             </thermal-dialog>`
@@ -503,7 +503,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         <main class="inspector">
 
             <section class="inspector__tools">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </section>
             
             <section class="inspector__content">

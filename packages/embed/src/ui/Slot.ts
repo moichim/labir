@@ -1,9 +1,9 @@
 import { css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 @customElement("thermal-slot")
-export class ThermalSlot extends BaseElement {
+export class ThermalSlotElement extends AbstractThermalElement {
 
     @property()
     public label?: string;

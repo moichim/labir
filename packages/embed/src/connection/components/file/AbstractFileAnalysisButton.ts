@@ -4,12 +4,12 @@ import { consume } from "@lit/context";
 import { html } from "lit";
 import { property } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { BtnSizes, BtnVariants } from "../../../ui/Btn";
 import { clientContext } from "../../ClientContext";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 
-export abstract class AbstractFileAnalysisButton extends FileConsumer {
+export abstract class AbstractFileAnalysisButton extends AbstractFileConsumer {
 
     @property({ type: String })
     public label: string = "";

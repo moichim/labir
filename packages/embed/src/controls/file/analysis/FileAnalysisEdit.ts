@@ -1,12 +1,12 @@
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { AbstractAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 
 @customElement("file-analysis-edit")
-export class FileAnalisisEdit extends BaseElement {
+export class FileAnalisisEdit extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

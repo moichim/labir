@@ -1,12 +1,12 @@
-import { AvailableThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { T } from "../../translations/Languages";
 import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 
-@customElement("registry-palette-buttons")
-export class PaletteButtonsElement extends AbstractPaletteSwitch {
+@customElement("manager-palette-buttons")
+export class ManagerPaletteButtons extends AbstractPaletteSwitch {
 
     static styles = css`
 :host {
@@ -29,10 +29,8 @@ export class PaletteButtonsElement extends AbstractPaletteSwitch {
 
     protected render(): unknown {
 
-
-
         return this.palettes.map((palette => html`<thermal-btn 
-    @click=${() => this.onSelect(palette.slug as AvailableThermalPalettes)} 
+    @click=${() => this.onSelect(palette.slug as AvailableThermalPalette)} 
     variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "default"}"
     tooltip="${t(T.palettename, { name: palette.name })}"
 >

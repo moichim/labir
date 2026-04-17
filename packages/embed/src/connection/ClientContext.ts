@@ -1,6 +1,5 @@
-import Client, { GridGrouping, TreeItem } from "@labirthermal/server";
+import Client, { GridGrouping, TreeItem, GetCurrentUserTree } from "@labirthermal/server";
 import { createContext } from "@lit/context";
-import { GetCurrentUserTree } from "packages/server/client/src/routes/get/GetCurrentUserTree";
 import { FolderMode } from "./composition/AppWithState";
 
 export const clientContext = createContext<Client>( "client-context" );

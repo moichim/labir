@@ -1,7 +1,7 @@
 import { html } from "lit";
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 
-export abstract class AbstractFileIcon extends FileConsumer {
+export abstract class AbstractFileIcon extends AbstractFileConsumer {
 
     tabIndex: number = 1;
 

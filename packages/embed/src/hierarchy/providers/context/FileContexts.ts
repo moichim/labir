@@ -2,44 +2,37 @@ import { AbstractAnalysis, Instance, PlaybackSpeeds, ThermalFileFailure } from "
 import { createContext } from "@lit/context";
 import { AbstractFileProvider } from "../../abstraction/AbstractFileProvider";
 
-type FileContext = Instance;
-export const fileContext = createContext<FileContext|undefined>( "file" );
+/** A crucial context exposing the `Instance` object from `AbstractFileProvider` to `AbstractFileConsumers`. */
+export const fileContext = createContext<Instance|undefined>( "file" );
 
 
-
-type FailureContext = ThermalFileFailure;
-export const FailureContext = createContext<FailureContext|undefined>( "failure" );
+export const fileFailureContext = createContext<ThermalFileFailure|undefined>( "failure" );
 
 
-
-type LoadingContext = boolean;
-export const loadingContext = createContext<LoadingContext>( "file-loading" );
-
+/** @deprecated Not used - remove */
+export const loadingContext = createContext<boolean>( "file-loading" );
 
 
-
-type LoadedContext = boolean;
-export const loadedContext = createContext<LoadedContext>( "file-loaded" );
-
+/** @deprecated Not used - remove */
+export const loadedContext = createContext<boolean>( "file-loaded" );
 
 
-
-export type FileProviderContext = AbstractFileProvider;
-export const fileProviderContext = createContext<FileProviderContext>( "file-provider-element" );
+export const fileProviderContext = createContext<AbstractFileProvider>( "file-provider-element" );
 
 
+export const fileMsContext = createContext<number>("file-ms-context");
 
-export type FileMsContext = number;
-export const fileMsContext = createContext<FileMsContext>("file-ms-context");
 
 export type FileCursorContext = undefined | {
         absolute: number,
         ms: number,
         percentage: number
 }
+
 export const fileCursorContext = createContext<FileCursorContext>( "file-cursor" );
 
 export type FileCursorSetterContext = (percent: number|undefined) => void;
+
 export const fileCursorSetterContext = createContext<FileCursorSetterContext>( "file-cursor-setter" );
 
 
@@ -52,7 +45,7 @@ export type CurrentFrameContext = {
     percentage: number,
     absolute: number
 }
-export const currentFrameContext = createContext<CurrentFrameContext|undefined>( "playback" );
+export const fileCurrentFrameContext = createContext<CurrentFrameContext|undefined>( "playback" );
 
 
 
@@ -65,25 +58,27 @@ export const durationContext = createContext<DurationContext|undefined>( "durati
 
 
 type PlayingContext = boolean;
-export const playingContext = createContext<PlayingContext>( "playing" );
+export const filePlayingContext = createContext<PlayingContext>( "file-playing-context" );
 
 
 
 
 type PlaybackSpeedContext = PlaybackSpeeds | undefined;
-export const playbackSpeedContext = createContext<PlaybackSpeedContext>( "playbackSpeed" );
+export const filePlaybackSpeedContext = createContext<PlaybackSpeedContext>( "file-playback-speed" );
 
 
 
 type RecordingContext = boolean;
-export const recordingContext = createContext<RecordingContext>( "recording" );
+/** @deprecated */
+export const fileRecordingContext = createContext<RecordingContext>( "recording" );
 
 
 
 type MayStopContext = boolean;
-export const mayStopContext = createContext<MayStopContext>( "mayStop" );
+/** @deprecated */
+export const filaMayStopContext = createContext<MayStopContext>( "mayStop" );
 
 
 
 export type AnalysisList = AbstractAnalysis[];
-export const analysisList = createContext<AnalysisList>( "analysislist" );
+export const fileAnalysisList = createContext<AnalysisList>( "analysislist" );

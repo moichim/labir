@@ -1,17 +1,17 @@
 import { html, PropertyValues } from "lit";
-import { ManagerConsumer } from "../consumers/ManagerConsumer";
-import { RegistryContext, registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
+import { AbstractManagerConsumer } from "../consumers/AbstractManagerConsumer";
+import { registryHighlightContext, setRegistryHighlightContext } from "../providers/context/RegistryContext";
 import { ThermalRangeOrUndefined, ThermalRegistry } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { property } from "lit/decorators.js";
 
-export abstract class AbstractRegistryProvider extends ManagerConsumer {
+export abstract class AbstractRegistryProvider extends AbstractManagerConsumer {
 
     protected UUIDRegistryListeners = this.UUID + "__registry-listener";
 
     slug!: string;
 
-    public registry!: RegistryContext;
+    public registry!: ThermalRegistry;
 
     public opacity: number = 1;
 

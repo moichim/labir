@@ -151,7 +151,7 @@ export class ConnectedApp extends AppWithRender implements IWithlocale {
 
                         <div slot="content">
                             <table>
-                                <png-export-panel></png-export-panel>
+                                <manager-export-panel></manager-export-panel>
                                 <registry-display-panel></registry-display-panel>
                             </table>
                         </div>

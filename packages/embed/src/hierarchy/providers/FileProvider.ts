@@ -4,7 +4,7 @@ import { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { fileMsContext, fileProviderContext, playbackSpeedContext, playingContext, recordingContext } from "./context/FileContexts";
+import { fileMsContext, fileProviderContext, filePlaybackSpeedContext, filePlayingContext, fileRecordingContext } from "./context/FileContexts";
 
 @customElement("file-provider")
 export class FileProviderElement extends AbstractFileProvider {
@@ -17,18 +17,18 @@ export class FileProviderElement extends AbstractFileProvider {
     public ms: number = 0;
 
     @property({ type: Number, reflect: true, attribute: true })
-    @provide({ context: playbackSpeedContext })
+    @provide({ context: filePlaybackSpeedContext })
     public speed?: PlaybackSpeeds = 1;
 
     @provide({ context: fileProviderContext })
     protected providedSelf: FileProviderElement = this;
 
     @property({ type: String, reflect: true, attribute: true })
-    @provide({ context: recordingContext })
+    @provide({ context: fileRecordingContext })
     public recording: boolean = false;
 
     @property({ type: String, reflect: true, attribute: true })
-    @provide({ context: playingContext })
+    @provide({ context: filePlayingContext })
     public playing: boolean = false;
 
     @property({

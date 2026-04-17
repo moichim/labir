@@ -1,10 +1,10 @@
 import { AbstractAnalysis } from "@labirthermal/core";
 import { css, CSSResultGroup, html, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../../hierarchy/AbstractThermalElement";
 
 @customElement("analysis-name")
-export class AnalysisColor extends BaseElement {
+export class AnalysisColor extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

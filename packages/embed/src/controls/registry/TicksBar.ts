@@ -3,7 +3,7 @@ import { consume } from "@lit/context";
 import { css, html, nothing, PropertyValueMap } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryHighlightContext } from "../../hierarchy/providers/context/RegistryContext";
 
 type TickType = {
@@ -12,7 +12,7 @@ type TickType = {
 }
 
 @customElement("registry-ticks-bar")
-export class TicksElement extends RegistryConsumer {
+export class TicksElement extends AbstractRegistryConsumer {
 
     static TICK_WIDTH = 40;
     static TICK_FIXED = 2;

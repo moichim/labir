@@ -1,9 +1,9 @@
 import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 
 @customElement("thermal-radio")
-export class ThermalRadio extends BaseElement {
+export class ThermalRadioElement extends AbstractThermalElement {
 
     @property({ type: String, reflect: true })
     public type: "radio" | "checkbox" = "radio";

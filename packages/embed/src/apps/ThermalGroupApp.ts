@@ -4,14 +4,14 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { GroupProviderElement } from "../../hierarchy/mirrors/GroupMirror";
-import { createOrGetManager } from "../../hierarchy/providers/getters";
-import { T } from "../../translations/Languages";
-import { initLocalesInTopLevelElement, IWithlocale } from "../../translations/localeContext";
-import { booleanConverter } from "../../utils/converters/booleanConverter";
-import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
-import { GroupEntry, Grouping, TimeGrouping } from "../../utils/multipleFiles/TimeGrouping";
-import { AbstractMultipleApp } from "../multiple/AbstractMultipleApp";
+import { createOrGetManager } from "../hierarchy/providers/getters";
+import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, IWithlocale } from "../translations/localeContext";
+import { booleanConverter } from "../utils/converters/booleanConverter";
+import { ThermalFileElement } from "../utils/multipleFiles/ThermalFile";
+import { GroupEntry, Grouping, TimeGrouping } from "../utils/multipleFiles/TimeGrouping";
+import { AbstractMultipleApp } from "./multiple/AbstractMultipleApp";
+import { GroupProviderElement } from "../index.export";
 
 
 enum STATE {
@@ -20,7 +20,7 @@ enum STATE {
 }
 
 @customElement("thermal-group-app")
-export class GroupElement extends AbstractMultipleApp implements IWithlocale {
+export class ThermalGroupAppElement extends AbstractMultipleApp implements IWithlocale {
 
 
     public get manager(): ThermalManager {
@@ -359,7 +359,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
             width: 100%;
         }
 
-        group-tool-bar {
+        manager-tool-bar {
             position: sticky;
             top: 0px;
             z-index: 999;
@@ -424,7 +424,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
                             ${this.loading === false
                 ? html`                                
 
-                                <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
                                 
                                 <registry-range-form slot="bar-pre"></registry-range-form>
                                         
@@ -466,7 +466,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
                                 <div slot="content">
                                     <table>
-                                        <png-export-panel></png-export-panel>
+                                        <manager-export-panel></manager-export-panel>
                                         <registry-display-panel></registry-display-panel>
                                     </table>
                                 </div>
@@ -493,7 +493,7 @@ export class GroupElement extends AbstractMultipleApp implements IWithlocale {
 
                                     <slot></slot>
 
-                                    <group-tool-bar></group-tool-bar>
+                                    <manager-tool-bar></manager-tool-bar>
 
                                     <div class="app-content-main">
                                     ${this.state === STATE.GROUP

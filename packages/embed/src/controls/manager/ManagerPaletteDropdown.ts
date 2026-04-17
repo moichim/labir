@@ -1,4 +1,4 @@
-import { AvailableThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalPaletteType } from "@labirthermal/core";
 import { t } from "i18next";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
@@ -7,8 +7,8 @@ import { AbstractPaletteSwitch } from "./AbstractPaletteSwitch";
 
 
 
-@customElement("registry-palette-dropdown")
-export class PaletteDropdownElement extends AbstractPaletteSwitch {
+@customElement("manager-palette-dropdown")
+export class ManagerPaletteDropdown extends AbstractPaletteSwitch {
 
     static styles = css`
 
@@ -37,10 +37,10 @@ export class PaletteDropdownElement extends AbstractPaletteSwitch {
         return html`
 
             <thermal-dropdown .tooltip=${t(T.colourpalette)}>
-                    <span slot="invoker" class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
+                    <span slot="invoker" class="palette" style="background:${this.manager.palette.currentPalette.gradient}"></span>
 
                 ${this.palettes.map( palette => html`
-                    <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug as AvailableThermalPalettes)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
+                    <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug as AvailableThermalPalette)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
                         ${this.paletteTemplate(palette)}
                     </thermal-btn></div>
                 `)}

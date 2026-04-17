@@ -1,14 +1,14 @@
 import { customElement, property, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { AbstractAnalysis, AbstractAreaAnalysis, PointAnalysis } from "@labirthermal/core";
 import { css, html, nothing, PropertyValues } from "lit";
 import { t } from "i18next";
 import { T } from "../../../translations/Languages";
 import { consume } from "@lit/context";
-import { interactiveAnalysisContext } from "../../../utils/context";
+import { interactiveAnalysisContext } from "../../../hierarchy/providers/context/ManagerContext";
 
 @customElement("file-analysis-overview-row")
-export class FileAnalysisRow extends BaseElement {
+export class FileAnalysisRow extends AbstractThermalElement {
 
     @property()
     public analysis!: AbstractAnalysis;

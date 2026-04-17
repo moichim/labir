@@ -1,9 +1,9 @@
 import { customElement } from "lit/decorators.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { html } from "lit";
 
 @customElement("config-dialog")
-export class ConfigDialog extends BaseElement {
+export class ConfigDialog extends AbstractThermalElement {
 
 
     protected render(): unknown {
@@ -18,7 +18,7 @@ export class ConfigDialog extends BaseElement {
             ></thermal-btn>
 
             <div slot="content">
-                <png-export-panel></png-export-panel>
+                <manager-export-panel></manager-export-panel>
                 <registry-display-panel></registry-display-panel>
             </div>
         </thermal-dialog>`;

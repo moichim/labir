@@ -1,8 +1,8 @@
 import { publicIpv4 } from "public-ip";
-import { GroupConsumer } from "../../hierarchy/consumers/GroupConsumer";
+import { AbstractGroupConsumer } from "../../hierarchy/consumers/AbstractGroupConsumer";
 import { state } from "lit/decorators.js";
 
-export abstract class AbstractGroupDropin extends GroupConsumer {
+export abstract class AbstractGroupDropin extends AbstractGroupConsumer {
 
     @state()
     ip?: string;

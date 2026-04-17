@@ -2,10 +2,10 @@ import { Instance, ThermalFileFailure } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { state } from "lit/decorators.js";
 import { AbstractFileProvider } from "../abstraction/AbstractFileProvider";
-import { FailureContext, fileContext, fileProviderContext, loadingContext, recordingContext } from "../providers/context/FileContexts";
-import { GroupConsumer } from "./GroupConsumer";
+import { fileFailureContext, fileContext, fileProviderContext, loadingContext, fileRecordingContext } from "../providers/context/FileContexts";
+import { AbstractGroupConsumer } from "./AbstractGroupConsumer";
 
-export abstract class FileConsumer extends GroupConsumer {
+export abstract class AbstractFileConsumer extends AbstractGroupConsumer {
 
     @consume({ context: fileProviderContext, subscribe: true })
     @state()
@@ -27,11 +27,11 @@ export abstract class FileConsumer extends GroupConsumer {
     @state()
     protected file?: Instance;
 
-    @consume({ context: FailureContext, subscribe: true })
+    @consume({ context: fileFailureContext, subscribe: true })
     @state()
     protected failure?: ThermalFileFailure;
 
-    @consume({ context: recordingContext, subscribe: true })
+    @consume({ context: fileRecordingContext, subscribe: true })
     @state()
     protected recording: boolean = false;
 

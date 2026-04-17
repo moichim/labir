@@ -1,15 +1,15 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalManager, ThermalManagerOptions, ThermalPalettes, ThermalTool } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
-import { BaseElement } from "../BaseElement";
-import { ManagerContext, ManagerGraphFunctionContext, ManagerPaletteContext, toolContext, toolsContext } from "../providers/context/ManagerContext";
+import { AbstractThermalElement } from "../AbstractThermalElement";
+import { ManagerPaletteContext, toolContext, toolsContext } from "../providers/context/ManagerContext";
 import { createOrGetManager, removeManager } from "../providers/getters";
 
-export abstract class AbstractManagerProvider extends BaseElement {
+export abstract class AbstractManagerProvider extends AbstractThermalElement {
 
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
-    public manager!: ManagerContext;
+    public manager!: ThermalManager;
 
     public slug!: string;
 
@@ -20,7 +20,7 @@ export abstract class AbstractManagerProvider extends BaseElement {
 
     public smooth: boolean = false;
 
-    public graphSmooth: ManagerGraphFunctionContext = false;
+    public graphSmooth: boolean = false;
 
     public autoclear: boolean = false;
 
@@ -67,7 +67,7 @@ export abstract class AbstractManagerProvider extends BaseElement {
         super.firstUpdated(_changedProperties);
 
         this.manager.palette.addListener(this.UUIDManagerListeners, value => {
-            this.setPalette(value as AvailableThermalPalettes);
+            this.setPalette(value as AvailableThermalPalette);
         });
 
         this.manager.smooth.addListener(this.UUIDManagerListeners, value => {
@@ -101,7 +101,7 @@ export abstract class AbstractManagerProvider extends BaseElement {
 
     private sanitizeStringPalette(
         input: string | null | undefined
-    ): AvailableThermalPalettes {
+    ): AvailableThermalPalette {
         let valid = true;
         if (input === null || input === undefined)
             valid = false;
@@ -109,11 +109,11 @@ export abstract class AbstractManagerProvider extends BaseElement {
             valid = false;
         }
         return valid
-            ? input as AvailableThermalPalettes
+            ? input as AvailableThermalPalette
             : "jet"
     }
 
-    private setPalette(key: AvailableThermalPalettes) {
+    private setPalette(key: AvailableThermalPalette) {
         this.palette = {
             key: key,
             data: ThermalPalettes[key]

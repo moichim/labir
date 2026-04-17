@@ -1,8 +1,8 @@
-import { AvailableThermalPalettes, ThermalManager, ThermalPalettes, ThermalTool } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalManager, ThermalPalettes, ThermalTool } from "@labirthermal/core";
 import { provide } from "@lit/context";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractManagerProvider } from "../abstraction/AbstractManagerProvider";
-import { ManagerContext, managerContext, managerGraphFunctionContext, ManagerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, toolContext, toolsContext } from "./context/ManagerContext";
+import { managerContext, managerGraphFunctionContext, ManagerPaletteContext, managerPaletteContext, managerSmoothContext, toolContext, toolsContext } from "./context/ManagerContext";
 
 @customElement("manager-provider")
 export class ManagerProviderElement extends AbstractManagerProvider {
@@ -10,7 +10,7 @@ export class ManagerProviderElement extends AbstractManagerProvider {
     protected UUIDManagerListeners = this.UUID + "__manager-listener";
 
     @provide({ context: managerContext })
-    public manager!: ManagerContext;
+    public manager!: ThermalManager;
 
     @property({ type: String, reflect: true, attribute: true })
     slug!: string;
@@ -21,7 +21,7 @@ export class ManagerProviderElement extends AbstractManagerProvider {
         attribute: true,
         reflect: true,
         converter: {
-            fromAttribute: (value: AvailableThermalPalettes): ManagerPaletteContext => {
+            fromAttribute: (value: AvailableThermalPalette): ManagerPaletteContext => {
                 return {
                     key: value,
                     data: ThermalPalettes[value]
@@ -43,7 +43,7 @@ export class ManagerProviderElement extends AbstractManagerProvider {
 
     @provide({ context: managerGraphFunctionContext })
     @property({ type: String, reflect: true, attribute: true })
-    graphSmooth: ManagerGraphFunctionContext = false;
+    graphSmooth: boolean = false;
 
     @property({type: Boolean, reflect: true})
     autoclear: boolean = false;

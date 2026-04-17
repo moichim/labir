@@ -176,7 +176,7 @@ export class ServerFileDetail extends ClientConsumer {
         <main class="layout" ${ref(this.layoutRef)}>
 
             <section class="section section__tools">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </section>
 
             <section class="section section__image">

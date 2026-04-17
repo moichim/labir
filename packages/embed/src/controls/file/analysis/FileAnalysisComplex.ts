@@ -4,7 +4,7 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { FileConsumer } from "../../../hierarchy/consumers/FileConsumer";
+import { AbstractFileConsumer } from "../../../hierarchy/consumers/AbstractFileConsumer";
 import { T } from "../../../translations/Languages";
 import { booleanConverter } from "../../../utils/converters/booleanConverter";
 import { FileAnalysisGraph } from "./FileAnalysisGraph";
@@ -12,7 +12,7 @@ import { FileAnalysisGraph } from "./FileAnalysisGraph";
 
 
 @customElement("file-analysis-complex")
-export class FileAnalysisComplex extends FileConsumer {
+export class FileAnalysisComplex extends AbstractFileConsumer {
 
     @state()
     protected mayHaveGraph: boolean = false;

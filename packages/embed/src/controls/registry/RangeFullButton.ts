@@ -1,6 +1,6 @@
 import { html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 import { t } from "i18next";
 import { T } from "../../translations/Languages";
@@ -9,7 +9,7 @@ import { setRegistryHighlightContext } from "../../hierarchy/providers/context/R
 import { consume } from "@lit/context";
 
 @customElement("registry-range-full-button")
-export class RegistrySetAutoRangeElement extends RegistryConsumer {
+export class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
 
     protected buttonRef: Ref<HTMLElement> = createRef();
 

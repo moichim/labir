@@ -114,7 +114,7 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
         return html`<div class="cLayout__content ${toolbarClass}">
             ${hasToolbar
                 ? html`<div class="clayout__content__toolbar" >
-                    <group-tool-bar></group-tool-bar>
+                    <manager-tool-bar></manager-tool-bar>
                 </div>`
                 : nothing
             }
@@ -129,7 +129,7 @@ export abstract class AbstractLayoutDirective extends AbstractConnectedDirective
         return html`<thermal-slot
             label=${this.t("thermalscale")}
         >
-            <registry-palette-dropdown></registry-palette-dropdown>
+            <manager-palette-dropdown></manager-palette-dropdown>
             <registry-range-form></registry-range-form>
         </thermal-slot>`;
     }

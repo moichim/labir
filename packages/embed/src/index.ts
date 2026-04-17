@@ -57,7 +57,6 @@ import "./ui/Expandable";
 import "./ui/Field";
 import "./ui/Icon";
 import "./ui/Loading";
-import "./ui/Playground";
 import "./ui/Radio";
 import "./ui/Slot";
 import "./ui/Spinner";
@@ -65,14 +64,14 @@ import "./ui/Tip";
 
 
 
-import "./apps/apparent-temperature/AustralianApparentTemperature";
+import "./apps/AustralianApparentTemperature";
 
 import "./controls/AppInfoButton";
 
-import "./controls/manager/PngExportPanel";
+import "./controls/manager/ManagerExportPanel";
 import "./controls/registry/DisplaySettingsPanel";
 
-import "./apps/gallery/GalleryApp";
+import "./apps/ThermalGalleryApp";
 import "./utils/multipleFiles/ThermalFile";
 import "./utils/multipleFiles/ThermalGroup";
 
@@ -87,24 +86,19 @@ import "./hierarchy/providers/ManagerProvider";
 import "./hierarchy/providers/RegistryProvider";
 
 // 2.1. Mirrors
-import "./hierarchy/mirrors/FileMirror";
-import "./hierarchy/mirrors/GroupMirror";
-import "./hierarchy/mirrors/ManagerMirror";
-import "./hierarchy/mirrors/RegistryMirror";
+import "./hierarchy/providers/FileMirror";
 
 // 2.2. FileCopy
 import "./hierarchy/providers/FileCopy";
 
 
 // 3. Manager controls
-import "./controls/manager/GraphSmoothSwitch";
-import "./controls/manager/GroupToolButtons";
-import "./controls/manager/GroupToolsBar";
-import "./controls/manager/PaletteButtons";
-import "./controls/manager/PaletteDropdown";
-import "./controls/manager/PngExportPanel";
-import "./controls/manager/PngExportSettingDialog";
-import "./controls/manager/SmoothSwitch";
+import "./controls/manager/ManagerGraphSmoothSwitch";
+import "./controls/manager/ManagerToolsBar";
+import "./controls/manager/ManagerPaletteButtons";
+import "./controls/manager/ManagerPaletteDropdown";
+import "./controls/manager/ManagerExportPanel";
+import "./controls/manager/ManagerImageSmoothSwitch";
 
 // 4. Registry controls
 import "./controls/registry/Histogram";
@@ -179,10 +173,9 @@ import "./controls/registry/ConfigDialog";
 
 
 // 7. Complex apps go last
-import "./apps/DropinApp";
-import "./apps/file/FileApp";
-import "./apps/group/GroupApp";
-import "./apps/remote/RemoteBrowser";
+import "./apps/ThermalDropinApp";
+import "./apps/ThermalFileApp";
+import "./apps/ThermalGroupApp";
 
 import "./apps/connected/ConnectedApp";
 

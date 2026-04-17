@@ -1,12 +1,12 @@
 import { provide } from "@lit/context";
 import { html, PropertyValues } from "lit";
 import { customElement, queryAssignedElements, state } from "lit/decorators.js";
-import { BaseElement } from "../../../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../../../hierarchy/AbstractThermalElement";
 import { getCurrentNotationsByMs, grabNotationsFromSlot, IWithNotationContext, notationCurrentContext, NotationCurrentContext, notationDurationContext, notationListContext, NotationListContext } from "./NotationContext";
 import { NotationEntry } from "./NotationEntry";
 
 @customElement("notation-test")
-export class NotationTestComponent extends BaseElement implements IWithNotationContext {
+export class NotationTestComponent extends AbstractThermalElement implements IWithNotationContext {
 
     @state()
     ms: number = 0;

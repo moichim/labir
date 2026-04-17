@@ -1,12 +1,12 @@
 import { consume } from "@lit/context";
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegistryConsumer";
 import { registryOpacityContext } from "../../hierarchy/providers/context/RegistryContext";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 
 @customElement("registry-opacity-slider")
-export class OpacityRangeElement extends RegistryConsumer {
+export class OpacityRangeElement extends AbstractRegistryConsumer {
 
     @consume({context: registryOpacityContext, subscribe: true})
     value!: number;

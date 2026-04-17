@@ -1,9 +1,9 @@
 import { css, html, LitElement, nothing } from "lit";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { customElement, property } from "lit/decorators.js";
 
 @customElement("thermal-spinner")
-export class Spinner extends BaseElement {
+export class ThermalSpinnerElement extends AbstractThermalElement {
 
     @property({ type: String })
     public message?: string;

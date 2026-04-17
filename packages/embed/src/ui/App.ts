@@ -2,7 +2,7 @@ import i18next, { t } from "i18next";
 import { css, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { BaseElement } from "../hierarchy/BaseElement";
+import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
 import { languagesObject, T } from "../translations/Languages";
 import { booleanConverter } from "../utils/converters/booleanConverter";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -11,7 +11,7 @@ import { map } from "lit/directives/map.js";
 import { cache } from "lit/directives/cache.js";
 
 @customElement("thermal-app")
-export class ThermalAppUiElement extends BaseElement {
+export class ThermalAppElement extends AbstractThermalElement {
 
     @state()
     language: string = i18next.language;
@@ -364,7 +364,7 @@ export class ThermalAppUiElement extends BaseElement {
 
         return html`<thermal-dropdown>
     <span slot="invoker">${this.language.toUpperCase()}</span>
-    ${cache( map( ThermalAppUiElement.languages, lang => html`<div slot="option">
+    ${cache( map( ThermalAppElement.languages, lang => html`<div slot="option">
         <thermal-btn
             @click=${() => {
                 i18next.changeLanguage( lang );

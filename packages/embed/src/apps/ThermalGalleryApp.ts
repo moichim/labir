@@ -5,13 +5,12 @@ import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, Ref, ref } from "lit/directives/ref.js";
-import { BaseElement } from "../../hierarchy/BaseElement";
-import { RegistryProviderElement } from "../../hierarchy/providers/RegistryProvider";
-import { T } from "../../translations/Languages";
-import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../../translations/localeContext";
-import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../../utils/converters/pngExportContext";
-import { ThermalFileElement } from "../../utils/multipleFiles/ThermalFile";
-import { ThermalGroup } from "../../utils/multipleFiles/ThermalGroup";
+import { RegistryProviderElement } from "../hierarchy/providers/RegistryProvider";
+import { T } from "../translations/Languages";
+import { initLocalesInTopLevelElement, localeContext, localeConverter, Locales } from "../translations/localeContext";
+import { ThermalFileElement } from "../utils/multipleFiles/ThermalFile";
+import { ThermalGroup } from "../utils/multipleFiles/ThermalGroup";
+import { BaseAppWithPngExportContext, pngExportFsContext, pngExportFsSetterContext, pngExportWidthContext, pngExportWidthSetterContext } from "../hierarchy/providers/context/pngExportContext";
 
 type ParsedFile = {
     lrc: string;
@@ -36,7 +35,7 @@ enum STATE {
 }
 
 @customElement("thermal-gallery-app")
-export class GalleryApp extends BaseAppWithPngExportContext {
+export class ThermalGalleryApp extends BaseAppWithPngExportContext {
 
     public get manager(): ThermalManager {
         return this.registryRef.value!.registry.manager;
@@ -373,7 +372,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
 
         return html`<div class="browser state_${this.state}">
             <section>
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </section>
             <section>
                 ${content}
@@ -553,7 +552,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
                 >
 
 
-                    <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                    <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
                     ${this.structure !== undefined && this.state !== STATE.MAIN
                 ? html`
@@ -572,7 +571,7 @@ export class GalleryApp extends BaseAppWithPngExportContext {
 
                         <div slot="content">
                             <table>
-                                <png-export-panel></png-export-panel>
+                                <manager-export-panel></manager-export-panel>
                                 <registry-display-panel></registry-display-panel>
                             </table>
                         </div>

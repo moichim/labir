@@ -1,12 +1,12 @@
-import { AvailableThermalPalettes, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
+import { AvailableThermalPalette, ThermalPalettes, ThermalPaletteType } from "@labirthermal/core";
 import { consume } from "@lit/context";
 import { PropertyValues } from "lit";
 import { property, state } from "lit/decorators.js";
 import { advancedPalettesContext } from "../../apps/AbstractControlledApp";
-import { RegistryConsumer } from "../../hierarchy/consumers/RegistryConsumer";
+import { AbstractManagerConsumer } from "../../hierarchy/consumers/AbstractManagerConsumer";
 import { managerPaletteContext, ManagerPaletteContext } from "../../hierarchy/providers/context/ManagerContext";
 
-export abstract class AbstractPaletteSwitch extends RegistryConsumer {
+export abstract class AbstractPaletteSwitch extends AbstractManagerConsumer {
 
     @consume({ context: advancedPalettesContext, subscribe: true })
     @state()
@@ -54,8 +54,8 @@ export abstract class AbstractPaletteSwitch extends RegistryConsumer {
 
 
     /** Handle user input events */
-    protected onSelect(palette: AvailableThermalPalettes) {
-        this.registry.palette.setPalette(palette);
+    protected onSelect(palette: AvailableThermalPalette) {
+        this.manager.palette.setPalette(palette);
     }
 
 
