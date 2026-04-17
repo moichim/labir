@@ -12,10 +12,6 @@ import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { AbstractFile } from "./AbstractFile";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { VisibleLayer } from "./dom/layers/VisibleLayer";
-import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
-import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
-import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
 import { FilePngExport } from "./utils/FilePngExport";
 
 
@@ -66,15 +62,6 @@ export class Instance extends AbstractFile {
 
         this.setPixels(firstFrame.pixels);
 
-    }
-
-    public createInnerDom(): { canvasLayer: ThermalCanvasLayer; visibleLayer: VisibleLayer; cursorLayer: ThermalCursorLayer; listenerLayer: ThermalListenerLayer; } {
-        return {
-            canvasLayer: new ThermalCanvasLayer(this),
-            visibleLayer: new VisibleLayer(this, this.visibleUrl),
-            cursorLayer: new ThermalCursorLayer(this),
-            listenerLayer: new ThermalListenerLayer(this),
-        }
     }
 
     public hydrateListener(dom: InstanceDOM): void {

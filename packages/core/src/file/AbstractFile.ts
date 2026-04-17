@@ -6,10 +6,6 @@ import { CursorValueDrive } from "../properties/cursor/CursorValueDrive";
 import { TimelineDrive } from "../properties/time/playback/TimelineDrive";
 import { RecordingDrive } from "../properties/time/recording/RecordingDrive";
 import { InstanceDOM } from "./dom/InstanceDom";
-import { ThermalCanvasLayer } from "./dom/layers/thermalCanvasLayer";
-import ThermalCursorLayer from "./dom/layers/thermalCursorLayer";
-import { ThermalListenerLayer } from "./dom/layers/thermalListenerLayer";
-import { VisibleLayer } from "./dom/layers/VisibleLayer";
 import { IFileInstance } from "./IFileInstance";
 import { AbstractRenderer } from "./render/AbstractRenderer";
 import { CpuRenderer } from "./render/CpuRenderer";
@@ -232,13 +228,6 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
 
     protected abstract formatId(thermalUrl: string): string;
 
-    public abstract createInnerDom(): {
-        canvasLayer: ThermalCanvasLayer,
-        visibleLayer: VisibleLayer,
-        cursorLayer: ThermalCursorLayer,
-        listenerLayer: ThermalListenerLayer,
-    }
-
 
     public abstract hydrateListener(
         dom: InstanceDOM
@@ -374,12 +363,5 @@ export abstract class AbstractFile extends BaseStructureObject implements IFileI
     }
 
     public reset() { }
-
-    public recieveOpacity(value: number) {
-
-        if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) {
-            this.dom.canvasLayer.opacity = value;
-        }
-    }
 
 }

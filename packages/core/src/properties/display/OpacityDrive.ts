@@ -17,7 +17,19 @@ export class OpacityDrive extends AbstractProperty<number, ThermalRegistry> {
      */
     protected afterSetEffect(value: number) {
 
-        this.parent.forEveryInstance( instance => instance.recieveOpacity( value ) );
+        this.parent.forEveryInstance( instance => {
+
+            // Change the opacity in instances that do have a visible layer
+            if (
+                instance.dom !== undefined
+                &&
+                instance.dom.canvasLayer !== undefined
+                && instance.dom.visibleLayer !== undefined
+            ) {
+                instance.dom.canvasLayer.opacity = value;
+            }
+            
+        } );
 
     }
 

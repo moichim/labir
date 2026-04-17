@@ -1,11 +1,10 @@
+import { BreadcrumbItem } from "@labirthermal/server";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
-import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import { T } from "../../../translations/Languages";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
-import { AppState } from "../../composition/AppWithState";
 import { DisplayState } from "../DisplayController";
 
 

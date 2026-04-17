@@ -3,7 +3,7 @@ import { initLitI18n } from "lit-i18n";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, query, queryAssignedElements, state } from "lit/decorators.js";
-import { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, AvailableThermalPalettes, CallbacksManager, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPalettes, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool, TimeFormat, availableAnalysisColors, playbackSpeed, zip } from "@labirthermal/core";
+import { AbstractAddTool, AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalFileReader, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPalettes, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool, TimeFormat, availableAnalysisColors, playbackSpeed, zip } from "@labirthermal/core";
 import { Ref, createRef, ref } from "lit/directives/ref.js";
 import { consume, createContext, provide } from "@lit/context";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -5808,7 +5808,7 @@ const pngAuthorSetterContext = createContext("pngAuthorSetterContext");
 
 //#endregion
 //#region src/controls/manager/PngExportPanel.ts
-var _ref$106, _ref2$55, _ref3$34, _ref4$18, _ref5$7, _ref6$4, _ref7$2, _ref8$1, _ref9;
+var _ref$106, _ref2$55, _ref3$34, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8$1, _ref9;
 let PngExportPanel = class PngExportPanel extends BaseElement {
 	renderRow(label, content, hint) {
 		return html`<thermal-field label="${label}">
@@ -5945,7 +5945,7 @@ __decorate([consume({
 __decorate([consume({
 	context: pngExportScaleSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$18 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref4$18 : Object)], PngExportPanel.prototype, "pngExportScaleSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref4$17 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref4$17 : Object)], PngExportPanel.prototype, "pngExportScaleSetter", void 0);
 __decorate([consume({
 	context: pngExportLicenseContext,
 	subscribe: true
@@ -5953,7 +5953,7 @@ __decorate([consume({
 __decorate([consume({
 	context: pngExportLicenseSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$7 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref5$7 : Object)], PngExportPanel.prototype, "pngExportLicenseSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref5$6 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref5$6 : Object)], PngExportPanel.prototype, "pngExportLicenseSetter", void 0);
 __decorate([consume({
 	context: pngExportFileNameContext,
 	subscribe: true
@@ -5961,7 +5961,7 @@ __decorate([consume({
 __decorate([consume({
 	context: pngExportFileNameSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref6$4 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref6$4 : Object)], PngExportPanel.prototype, "pngExportFileNameSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref6$3 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref6$3 : Object)], PngExportPanel.prototype, "pngExportFileNameSetter", void 0);
 __decorate([consume({
 	context: pngExportFileDateContext,
 	subscribe: true
@@ -5969,7 +5969,7 @@ __decorate([consume({
 __decorate([consume({
 	context: pngExportFileDateSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref7$2 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref7$2 : Object)], PngExportPanel.prototype, "pngExportFileDateSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref7$1 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref7$1 : Object)], PngExportPanel.prototype, "pngExportFileDateSetter", void 0);
 __decorate([consume({
 	context: pngExportColumnsContext,
 	subscribe: true
@@ -7001,7 +7001,7 @@ const analysisList = createContext("analysislist");
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
-var _ref$99, _ref2$53, _ref3$32, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8;
+var _ref$99, _ref2$53, _ref3$32, _ref4$16, _ref5$5, _ref6$2, _ref7, _ref8;
 var AbstractFileProvider = class extends GroupConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -7231,11 +7231,11 @@ __decorate([
 __decorate([
 	provide({ context: currentFrameContext }),
 	state(),
-	__decorateMetadata("design:type", typeof (_ref4$17 = typeof CurrentFrameContext$3 !== "undefined" && CurrentFrameContext$3) === "function" ? _ref4$17 : Object)
+	__decorateMetadata("design:type", typeof (_ref4$16 = typeof CurrentFrameContext$3 !== "undefined" && CurrentFrameContext$3) === "function" ? _ref4$16 : Object)
 ], AbstractFileProvider.prototype, "currentFrame", void 0);
-__decorate([provide({ context: fileCursorContext }), __decorateMetadata("design:type", typeof (_ref5$6 = typeof FileCursorContext$2 !== "undefined" && FileCursorContext$2) === "function" ? _ref5$6 : Object)], AbstractFileProvider.prototype, "cursor", void 0);
+__decorate([provide({ context: fileCursorContext }), __decorateMetadata("design:type", typeof (_ref5$5 = typeof FileCursorContext$2 !== "undefined" && FileCursorContext$2) === "function" ? _ref5$5 : Object)], AbstractFileProvider.prototype, "cursor", void 0);
 __decorate([provide({ context: fileMsContext }), __decorateMetadata("design:type", Number)], AbstractFileProvider.prototype, "ms", void 0);
-__decorate([provide({ context: playbackSpeedContext }), __decorateMetadata("design:type", typeof (_ref6$3 = typeof PlaybackSpeeds !== "undefined" && PlaybackSpeeds) === "function" ? _ref6$3 : Object)], AbstractFileProvider.prototype, "speed", void 0);
+__decorate([provide({ context: playbackSpeedContext }), __decorateMetadata("design:type", typeof (_ref6$2 = typeof PlaybackSpeeds !== "undefined" && PlaybackSpeeds) === "function" ? _ref6$2 : Object)], AbstractFileProvider.prototype, "speed", void 0);
 __decorate([provide({ context: recordingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "recording", void 0);
 __decorate([provide({ context: playingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "playing", void 0);
 __decorate([
@@ -7243,7 +7243,7 @@ __decorate([
 	provide({ context: mayStopContext }),
 	__decorateMetadata("design:type", Boolean)
 ], AbstractFileProvider.prototype, "mayStop", void 0);
-__decorate([provide({ context: analysisList }), __decorateMetadata("design:type", typeof (_ref7$1 = typeof AnalysisList !== "undefined" && AnalysisList) === "function" ? _ref7$1 : Object)], AbstractFileProvider.prototype, "analyses", void 0);
+__decorate([provide({ context: analysisList }), __decorateMetadata("design:type", typeof (_ref7 = typeof AnalysisList !== "undefined" && AnalysisList) === "function" ? _ref7 : Object)], AbstractFileProvider.prototype, "analyses", void 0);
 __decorate([property({
 	type: Boolean,
 	reflect: true,
@@ -7602,7 +7602,7 @@ __decorate([provide({ context: toolsContext }), __decorateMetadata("design:type"
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var _ref$95, _ref2$51, _ref3$31, _ref4$16;
+var _ref$95, _ref2$51, _ref3$31, _ref4$15;
 let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7664,7 +7664,7 @@ __decorate([property({
 	type: Boolean,
 	reflect: true
 }), __decorateMetadata("design:type", Boolean)], ManagerProviderElement$1.prototype, "autoclear", void 0);
-__decorate([provide({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$16 = typeof ThermalTool !== "undefined" && ThermalTool) === "function" ? _ref4$16 : Object)], ManagerProviderElement$1.prototype, "tool", void 0);
+__decorate([provide({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$15 = typeof ThermalTool !== "undefined" && ThermalTool) === "function" ? _ref4$15 : Object)], ManagerProviderElement$1.prototype, "tool", void 0);
 __decorate([provide({ context: toolsContext }), __decorateMetadata("design:type", Object)], ManagerProviderElement$1.prototype, "tools", void 0);
 ManagerProviderElement$1 = __decorate([customElement("manager-provider")], ManagerProviderElement$1);
 
@@ -7902,7 +7902,7 @@ GroupProviderElement = __decorate([customElement("group-mirror")], GroupProvider
 
 //#endregion
 //#region src/hierarchy/mirrors/ManagerMirror.ts
-var _ref$90, _ref2$49, _ref3$30, _ref4$15;
+var _ref$90, _ref2$49, _ref3$30, _ref4$14;
 let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7947,7 +7947,7 @@ __decorate([
 	__decorateMetadata("design:type", typeof (_ref3$30 = typeof ManagerGraphFunctionContext !== "undefined" && ManagerGraphFunctionContext) === "function" ? _ref3$30 : Object)
 ], ManagerProviderElement.prototype, "graphSmooth", void 0);
 __decorate([property({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ManagerProviderElement.prototype, "autoclear", void 0);
-__decorate([provide({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$15 = typeof ThermalTool !== "undefined" && ThermalTool) === "function" ? _ref4$15 : Object)], ManagerProviderElement.prototype, "tool", void 0);
+__decorate([provide({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$14 = typeof ThermalTool !== "undefined" && ThermalTool) === "function" ? _ref4$14 : Object)], ManagerProviderElement.prototype, "tool", void 0);
 __decorate([provide({ context: toolsContext }), __decorateMetadata("design:type", Object)], ManagerProviderElement.prototype, "tools", void 0);
 ManagerProviderElement = __decorate([customElement("manager-mirror")], ManagerProviderElement);
 
@@ -11680,7 +11680,7 @@ FileShareButton = __decorate([customElement("file-share-button")], FileShareButt
 
 //#endregion
 //#region src/controls/file/FileTimeline.ts
-var _ref$76, _ref2$43, _ref3$27, _ref4$14, _TimelineElement;
+var _ref$76, _ref2$43, _ref3$27, _ref4$13, _TimelineElement;
 "chrome" in window;
 let TimelineElement = class TimelineElement extends FileConsumer {
 	static {
@@ -12029,7 +12029,7 @@ __decorate([consume({
 __decorate([consume({
 	context: fileCursorSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$14 = typeof FileCursorSetterContext$1 !== "undefined" && FileCursorSetterContext$1) === "function" ? _ref4$14 : Object)], TimelineElement.prototype, "cursorSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref4$13 = typeof FileCursorSetterContext$1 !== "undefined" && FileCursorSetterContext$1) === "function" ? _ref4$13 : Object)], TimelineElement.prototype, "cursorSetter", void 0);
 __decorate([property({
 	type: String,
 	reflect: true
@@ -12781,7 +12781,7 @@ FileAnalisisEdit = __decorate([customElement("file-analysis-edit")], FileAnalisi
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.ts
-var _ref$68, _ref2$41, _ref3$26, _ref4$13;
+var _ref$68, _ref2$41, _ref3$26, _ref4$12;
 let FileAnalysisGraph = class FileAnalysisGraph extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -13011,7 +13011,7 @@ __decorate([consume({
 __decorate([consume({
 	context: fileCursorSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$13 = typeof FileCursorSetterContext !== "undefined" && FileCursorSetterContext) === "function" ? _ref4$13 : Object)], FileAnalysisGraph.prototype, "cursorSetter", void 0);
+}), __decorateMetadata("design:type", typeof (_ref4$12 = typeof FileCursorSetterContext !== "undefined" && FileCursorSetterContext) === "function" ? _ref4$12 : Object)], FileAnalysisGraph.prototype, "cursorSetter", void 0);
 __decorate([state(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowLeft", void 0);
 __decorate([state(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowTop", void 0);
 __decorate([state(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowWidth", void 0);
@@ -17285,7 +17285,7 @@ ConfigDialog = __decorate([customElement("config-dialog")], ConfigDialog);
 
 //#endregion
 //#region src/apps/DropinApp.ts
-var _ref$60, _ref2$37, _ref3$23, _ref4$12;
+var _ref$60, _ref2$37, _ref3$23, _ref4$11;
 let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -17548,7 +17548,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref4$12 = typeof Locales$4 !== "undefined" && Locales$4) === "function" ? _ref4$12 : Object)
+	__decorateMetadata("design:type", typeof (_ref4$11 = typeof Locales$4 !== "undefined" && Locales$4) === "function" ? _ref4$11 : Object)
 ], DropinAppElement.prototype, "locale", void 0);
 DropinAppElement = __decorate([customElement("thermal-dropin-app")], DropinAppElement);
 
@@ -18865,7 +18865,7 @@ GroupElement = __decorate([customElement("thermal-group-app")], GroupElement);
 
 //#endregion
 //#region src/apps/remote/RemoteBrowser.ts
-var _ref$56, _ref2$34, _ref3$21, _ref4$11, _ref5$5, _ref6$2;
+var _ref$56, _ref2$34, _ref3$21, _ref4$10, _ref5$4, _ref6$1;
 var STATE = /* @__PURE__ */ function(STATE) {
 	STATE[STATE["MAIN"] = 0] = "MAIN";
 	STATE[STATE["ONE"] = 1] = "ONE";
@@ -19831,8 +19831,8 @@ __decorate([state(), __decorateMetadata("design:type", Boolean)], RemoteBrowser.
 __decorate([state(), __decorateMetadata("design:type", Array)], RemoteBrowser.prototype, "only", void 0);
 __decorate([state(), __decorateMetadata("design:type", Number)], RemoteBrowser.prototype, "state", void 0);
 __decorate([state(), __decorateMetadata("design:type", typeof (_ref3$21 = typeof ApiTimeGrouping !== "undefined" && ApiTimeGrouping) === "function" ? _ref3$21 : Object)], RemoteBrowser.prototype, "by", void 0);
-__decorate([state(), __decorateMetadata("design:type", typeof (_ref4$11 = typeof ApiFolderContentResponse !== "undefined" && ApiFolderContentResponse) === "function" ? _ref4$11 : Object)], RemoteBrowser.prototype, "dataOnly", void 0);
-__decorate([state(), __decorateMetadata("design:type", typeof (_ref5$5 = typeof ApiTimeGroupResponse !== "undefined" && ApiTimeGroupResponse) === "function" ? _ref5$5 : Object)], RemoteBrowser.prototype, "dataMultiple", void 0);
+__decorate([state(), __decorateMetadata("design:type", typeof (_ref4$10 = typeof ApiFolderContentResponse !== "undefined" && ApiFolderContentResponse) === "function" ? _ref4$10 : Object)], RemoteBrowser.prototype, "dataOnly", void 0);
+__decorate([state(), __decorateMetadata("design:type", typeof (_ref5$4 = typeof ApiTimeGroupResponse !== "undefined" && ApiTimeGroupResponse) === "function" ? _ref5$4 : Object)], RemoteBrowser.prototype, "dataMultiple", void 0);
 __decorate([state(), __decorateMetadata("design:type", Object)], RemoteBrowser.prototype, "folders", void 0);
 __decorate([provide({ context: interactiveAnalysisContext }), __decorateMetadata("design:type", Boolean)], RemoteBrowser.prototype, "interactiveAnalysis", void 0);
 __decorate([state(), __decorateMetadata("design:type", Object)], RemoteBrowser.prototype, "detail", void 0);
@@ -19842,7 +19842,7 @@ __decorate([
 		reflect: true,
 		converter: localeConverter
 	}),
-	__decorateMetadata("design:type", typeof (_ref6$2 = typeof Locales$1 !== "undefined" && Locales$1) === "function" ? _ref6$2 : Object)
+	__decorateMetadata("design:type", typeof (_ref6$1 = typeof Locales$1 !== "undefined" && Locales$1) === "function" ? _ref6$1 : Object)
 ], RemoteBrowser.prototype, "locale", void 0);
 RemoteBrowser = __decorate([customElement("remote-browser-app")], RemoteBrowser);
 
@@ -20046,7 +20046,7 @@ __decorate([state(), __decorateMetadata("design:type", Boolean)], AppWithClientP
 
 //#endregion
 //#region src/connection/composition/AppWithContent.ts
-var _ref$53, _ref2$33, _ref3$20, _ref4$10, _ref5$4;
+var _ref$53, _ref2$33, _ref3$20, _ref4$9, _ref5$3;
 /** 
 * This layer handles the content logic & fetching 
 */
@@ -20374,7 +20374,7 @@ __decorate([
 		} }
 	}),
 	provide({ context: subfoldersModeContext }),
-	__decorateMetadata("design:type", typeof (_ref4$10 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref4$10 : Object)
+	__decorateMetadata("design:type", typeof (_ref4$9 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref4$9 : Object)
 ], AppWithContent.prototype, "folderMode", void 0);
 __decorate([
 	state(),
@@ -20397,7 +20397,7 @@ __decorate([
 		} }
 	}),
 	provide({ context: subgildersGridByMode }),
-	__decorateMetadata("design:type", typeof (_ref5$4 = typeof GridGrouping !== "undefined" && GridGrouping) === "function" ? _ref5$4 : Object)
+	__decorateMetadata("design:type", typeof (_ref5$3 = typeof GridGrouping !== "undefined" && GridGrouping) === "function" ? _ref5$3 : Object)
 ], AppWithContent.prototype, "by", void 0);
 __decorate([
 	state(),
@@ -22382,7 +22382,7 @@ FolderTagsFilter = __decorate([customElement("folder-tags-filter")], FolderTagsF
 
 //#endregion
 //#region src/connection/components/folder/configuration/SubfoldersMode.ts
-var _ref$44, _ref2$28, _ref3$18, _ref4$9;
+var _ref$44, _ref2$28, _ref3$18, _ref4$8;
 let SubfoldersMode = class SubfoldersMode extends AbstractModeBar {
 	constructor(..._args) {
 		super(..._args);
@@ -22688,7 +22688,7 @@ __decorate([
 __decorate([property({ type: Array }), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "selectedFolders", void 0);
 __decorate([state(), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "selectedFoldersUpdate", void 0);
 __decorate([property({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersMode.prototype, "onSelectionChange", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$9 = typeof GetGridDataType !== "undefined" && GetGridDataType) === "function" ? _ref4$9 : Object)], SubfoldersMode.prototype, "grid", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$8 = typeof GetGridDataType !== "undefined" && GetGridDataType) === "function" ? _ref4$8 : Object)], SubfoldersMode.prototype, "grid", void 0);
 SubfoldersMode = __decorate([customElement("subfolders-mode")], SubfoldersMode);
 
 //#endregion
@@ -25920,7 +25920,7 @@ var FolderSelectionController = class {
 
 //#endregion
 //#region src/connection/controllers/abstraction/ControlledConsumer.ts
-var _ref$38, _ref2$24, _ref3$16, _ref4$8, _ref5$3;
+var _ref$38, _ref2$24, _ref3$16, _ref4$7, _ref5$2;
 var ControlledConsumer = class extends BaseElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
@@ -25943,11 +25943,11 @@ __decorate([consume({
 __decorate([consume({
 	context: FileSelectionControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$8 = typeof FileSelectionController !== "undefined" && FileSelectionController) === "function" ? _ref4$8 : Object)], ControlledConsumer.prototype, "selectionFile", void 0);
+}), __decorateMetadata("design:type", typeof (_ref4$7 = typeof FileSelectionController !== "undefined" && FileSelectionController) === "function" ? _ref4$7 : Object)], ControlledConsumer.prototype, "selectionFile", void 0);
 __decorate([consume({
 	context: FolderSelectionControllerContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$3 = typeof FolderSelectionController !== "undefined" && FolderSelectionController) === "function" ? _ref5$3 : Object)], ControlledConsumer.prototype, "selectionFolder", void 0);
+}), __decorateMetadata("design:type", typeof (_ref5$2 = typeof FolderSelectionController !== "undefined" && FolderSelectionController) === "function" ? _ref5$2 : Object)], ControlledConsumer.prototype, "selectionFolder", void 0);
 
 //#endregion
 //#region src/connection/components/folder/folders/AbstractFolderThumbnail.ts
@@ -27400,7 +27400,7 @@ FolderBreadcrumb = __decorate([customElement("folder-breadcrumb")], FolderBreadc
 
 //#endregion
 //#region src/connection/components/file/AbstractFileAnalysisButton.ts
-var _ref$33, _ref2$22, _ref3$15, _ref4$7, _ref5$2;
+var _ref$33, _ref2$22, _ref3$15, _ref4$6, _ref5$1;
 var AbstractFileAnalysisButton = class extends FileConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -27441,11 +27441,11 @@ __decorate([property({
 }), __decorateMetadata("design:type", Boolean)], AbstractFileAnalysisButton.prototype, "disabled", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", String)], AbstractFileAnalysisButton.prototype, "tooltip", void 0);
 __decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$15 = typeof FileInfo !== "undefined" && FileInfo) === "function" ? _ref3$15 : Object)], AbstractFileAnalysisButton.prototype, "info", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$7 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$7 : Object)], AbstractFileAnalysisButton.prototype, "folder", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$6 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$6 : Object)], AbstractFileAnalysisButton.prototype, "folder", void 0);
 __decorate([consume({
 	context: clientContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$2 = typeof Client !== "undefined" && Client) === "function" ? _ref5$2 : Object)], AbstractFileAnalysisButton.prototype, "client", void 0);
+}), __decorateMetadata("design:type", typeof (_ref5$1 = typeof Client !== "undefined" && Client) === "function" ? _ref5$1 : Object)], AbstractFileAnalysisButton.prototype, "client", void 0);
 
 //#endregion
 //#region src/connection/components/file/FileAnalysisRestoreButton.ts
@@ -27944,7 +27944,7 @@ FileComments$1 = __decorate([customElement("file-comments")], FileComments$1);
 
 //#endregion
 //#region src/connection/components/file/FileCommentsDialog.ts
-var _ref$29, _ref2$18, _ref3$12, _ref4$6;
+var _ref$29, _ref2$18, _ref3$12, _ref4$5;
 let FileCommentsDialog = class FileCommentsDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -28057,14 +28057,14 @@ __decorate([property({
 }), __decorateMetadata("design:type", typeof (_ref2$18 = typeof BtnSizes$5 !== "undefined" && BtnSizes$5) === "function" ? _ref2$18 : Object)], FileCommentsDialog.prototype, "size", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", Boolean)], FileCommentsDialog.prototype, "plain", void 0);
 __decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$12 = typeof FileInfo !== "undefined" && FileInfo) === "function" ? _ref3$12 : Object)], FileCommentsDialog.prototype, "file", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$6 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$6 : Object)], FileCommentsDialog.prototype, "folder", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$5 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$5 : Object)], FileCommentsDialog.prototype, "folder", void 0);
 __decorate([property({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentsDialog.prototype, "onSuccess", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", Boolean)], FileCommentsDialog.prototype, "hasBadge", void 0);
 FileCommentsDialog = __decorate([customElement("file-comments-dialog")], FileCommentsDialog);
 
 //#endregion
 //#region src/connection/components/file/FileDeleteDialog.ts
-var _ref$28, _ref2$17, _ref3$11, _ref4$5;
+var _ref$28, _ref2$17, _ref3$11, _ref4$4;
 let FileDeleteDialog$1 = class FileDeleteDialog extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -28197,7 +28197,7 @@ __decorate([property({
 }), __decorateMetadata("design:type", typeof (_ref2$17 = typeof BtnSizes$4 !== "undefined" && BtnSizes$4) === "function" ? _ref2$17 : Object)], FileDeleteDialog$1.prototype, "size", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "plain", void 0);
 __decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$11 = typeof FileInfo !== "undefined" && FileInfo) === "function" ? _ref3$11 : Object)], FileDeleteDialog$1.prototype, "file", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$5 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$5 : Object)], FileDeleteDialog$1.prototype, "folder", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$4 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref4$4 : Object)], FileDeleteDialog$1.prototype, "folder", void 0);
 __decorate([property({ type: Function }), __decorateMetadata("design:type", Function)], FileDeleteDialog$1.prototype, "onDelete", void 0);
 __decorate([state(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "isOpen", void 0);
 __decorate([state(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "isDeleting", void 0);
@@ -28583,7 +28583,7 @@ FileTags = __decorate([customElement("file-tags")], FileTags);
 
 //#endregion
 //#region src/connection/components/file/FileThumbnail.ts
-var _ref$25, _ref2$14, _ref3$9, _ref4$4;
+var _ref$25, _ref2$14, _ref3$9, _ref4$3;
 let FileThumbnail$1 = class FileThumbnail extends ClientConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -29219,7 +29219,7 @@ __decorate([
 		context: displayModeContext,
 		subscribe: true
 	}),
-	__decorateMetadata("design:type", typeof (_ref4$4 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref4$4 : Object)
+	__decorateMetadata("design:type", typeof (_ref4$3 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref4$3 : Object)
 ], FileThumbnail$1.prototype, "displayMode", void 0);
 __decorate([
 	property({
@@ -29736,7 +29736,7 @@ FileAnalysisRemoveButton = __decorate([customElement("file-analysis-remove-butto
 
 //#endregion
 //#region src/connection/components/server/ShareDialog.ts
-var _ref$22, _ref2$11, _ref3$7, _ref4$3, _ref5$1, _ref6$1, _ref7;
+var _ref$22, _ref2$11, _ref3$7;
 let ShareDialog = class ShareDialog extends ClientConsumer {
 	renderEntity(label, icon, prependArrow = false) {
 		return html`
@@ -29920,17 +29920,17 @@ let ShareDialog = class ShareDialog extends ClientConsumer {
         </thermal-dialog>`;
 	}
 };
-__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref$22 = typeof AvailableThermalPalettes !== "undefined" && AvailableThermalPalettes) === "function" ? _ref$22 : Object)], ShareDialog.prototype, "palette", void 0);
+__decorate([property({ type: String }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "palette", void 0);
 __decorate([property({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "from", void 0);
 __decorate([property({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "to", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$11 = typeof FolderInfo !== "undefined" && FolderInfo) === "function" ? _ref2$11 : Object)], ShareDialog.prototype, "folder", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "folder", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", String)], ShareDialog.prototype, "path", void 0);
-__decorate([property({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$7 = typeof FileInfo !== "undefined" && FileInfo) === "function" ? _ref3$7 : Object)], ShareDialog.prototype, "file", void 0);
-__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref4$3 = typeof AppState !== "undefined" && AppState) === "function" ? _ref4$3 : Object)], ShareDialog.prototype, "state", void 0);
-__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref5$1 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref5$1 : Object)], ShareDialog.prototype, "displayMode", void 0);
+__decorate([property({ type: Object }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "file", void 0);
+__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref$22 = typeof AppState !== "undefined" && AppState) === "function" ? _ref$22 : Object)], ShareDialog.prototype, "state", void 0);
+__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref2$11 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref2$11 : Object)], ShareDialog.prototype, "displayMode", void 0);
 __decorate([property({ type: String }), __decorateMetadata("design:type", Boolean)], ShareDialog.prototype, "compact", void 0);
-__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref6$1 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref6$1 : Object)], ShareDialog.prototype, "folderMode", void 0);
-__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref7 = typeof GridGrouping !== "undefined" && GridGrouping) === "function" ? _ref7 : Object)], ShareDialog.prototype, "by", void 0);
+__decorate([property({ type: String }), __decorateMetadata("design:type", typeof (_ref3$7 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref3$7 : Object)], ShareDialog.prototype, "folderMode", void 0);
+__decorate([property({ type: String }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "by", void 0);
 ShareDialog = __decorate([customElement("share-dialog")], ShareDialog);
 
 //#endregion
@@ -30197,6 +30197,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
 	* Renders the app wrapped in all necessary providers of internal context
 	*/
 	renderAppWithInternals(innerContent) {
+		const shareDialog = html`<connected-share-dialog slot="close"></connected-share-dialog>`;
 		const userLoginButton = this.display.appState !== DisplayState.LOGIN ? html`<connected-user-button slot="close"></connected-user-button>` : nothing;
 		const settingsButton = [DisplayState.FOLDER, DisplayState.FILE].includes(this.display.appState) ? html`<thermal-dialog
                 label="Nastavení aplikace"
@@ -30221,6 +30222,9 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
             labelIconStyle=${ifDefined(this.labelIconStyle)}
             labelVariant=${ifDefined(this.labelVariant)}
         >
+
+            ${shareDialog}
+
             <thermal-btn 
                 slot="close" 
                 icon="reload"
@@ -30285,6 +30289,8 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
                 <registry-provider
                     slug=${this.display.slug}
                     autoclear="true"
+                    from=${ifDefined(this.from)}
+                    to=${ifDefined(this.to)}
                     style="display: contents;"
                 >
                     ${groupBlock}
@@ -30293,6 +30299,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
 		return html`
         <manager-provider
             slug=${this.UUID}
+            palette=${ifDefined(this.palette)}
             style="display: contents;"
         >
             ${registryBlock}
@@ -30378,6 +30385,21 @@ __decorate([property({
 	attribute: "file-name",
 	reflect: true
 }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "fileName", void 0);
+__decorate([property({
+	type: String,
+	attribute: "palette",
+	reflect: true
+}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "palette", void 0);
+__decorate([property({
+	type: Number,
+	attribute: "from",
+	reflect: true
+}), __decorateMetadata("design:type", Number)], AbstractConnectedApp.prototype, "from", void 0);
+__decorate([property({
+	type: Number,
+	attribute: "to",
+	reflect: true
+}), __decorateMetadata("design:type", Number)], AbstractConnectedApp.prototype, "to", void 0);
 __decorate([property({
 	type: String,
 	attribute: "folder-display",
@@ -37547,6 +37569,229 @@ __decorate([consume({
 	subscribe: true
 }), __decorateMetadata("design:type", typeof (_ref = typeof ThermalGroup !== "undefined" && ThermalGroup) === "function" ? _ref : Object)], ConnectedFolderSelectionActions.prototype, "group", void 0);
 ConnectedFolderSelectionActions = __decorate([customElement("connected-folder-selection-actions")], ConnectedFolderSelectionActions);
+
+//#endregion
+//#region src/connection/controllers/components/ConnectedShareDialog.ts
+let ConnectedShareDialog = class ConnectedShareDialog extends ControlledConsumer {
+	get _path() {
+		switch (this._appState) {
+			case DisplayState.FOLDER:
+			case DisplayState.FILE: return this.content.file?.path;
+			default: return;
+		}
+	}
+	get _folder() {
+		return this.content.folder;
+	}
+	get _file() {
+		return this.content.file;
+	}
+	get _appState() {
+		return this.display.appState;
+	}
+	get _folderListDisplayMode() {
+		return this.display.folderListDisplayMode;
+	}
+	get _fileListDisplayMode() {
+		return this.display.fileDisplayMode;
+	}
+	get _fileListDisplayCompact() {
+		return this.display.fileDisplayCompact;
+	}
+	renderEntity(label, icon, prependArrow = false) {
+		return html`
+        ${prependArrow ? html`<thermal-icon icon="right" variant="micro" style="display: block; width: 1em;"></thermal-icon>` : nothing}
+        <div class="entity" title="${label}">
+            <thermal-icon icon="${icon}" variant="micro"></thermal-icon>
+            <span>${label}</span>
+        </div>`;
+	}
+	renderLink() {
+		const url = this.assambleUrl();
+		return html`<div class="server-link">
+
+            <div class="server-link-content">
+                ${url}
+            </div>
+            <thermal-btn
+                icon="copy"
+                iconStyle="mini"
+                variant="foreground"
+                plain="true"
+                @click=${() => {
+			navigator.clipboard.writeText(url);
+		}}
+                tooltip="Zkopírovat odkaz do schránky"
+            ></thermal-btn>
+
+            <thermal-btn
+                icon="link"
+                iconStyle="micro"
+                variant="primary"
+                plain="true"
+                @click=${() => {
+			window.open(url, "_blank");
+		}}
+                tooltip="Otevřít odkaz v novém okně"
+            ></thermal-btn>
+
+        </div>`;
+	}
+	static {
+		this.styles = css`
+        :host {
+            font-size: var( --thermal-fs );
+            color: var( --thermal-foreground );
+        }
+
+        .entity-list {
+            display: flex;
+            align-items: center;
+            gap: .5em;
+            width: 100%;
+        }
+
+        .entity {
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+            padding: .5em;
+            border-radius: var( --thermal-radius );
+
+            background: var( --thermal-background );
+
+            thermal-icon {
+                display: inline-block;
+                width: 1em;
+            }
+        }
+
+        section {
+
+            box-sizing: border-box;
+            width: 100%;
+
+            padding: 1.5em .5em .5em .5em;
+            margin-top: 2em;
+
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            border-radius: var( --thermal-radius );
+
+            position: relative;
+
+
+            & > h3 {
+            
+               position: absolute;
+               top: -1em;
+               left: .5em;
+               box-sizing: border-box;
+               
+               padding: .4em .5em;
+               margin: 0;
+
+               border-radius: var( --thermal-radius );
+               border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+
+               background: var( --thermal-slate-light );
+
+               font-size: 1em;
+               line-height: 1em;
+
+            }
+
+            .description {
+                font-size: .8em;
+                opacity: .5;
+                margin-top: .5em;
+            }
+
+        }
+
+        .server-link {
+
+            display: flex;
+
+            .server-link-content {
+                flex-grow: 1;
+                box-sizing: border-box;
+                padding: .5em;
+
+                background: var( --thermal-background );
+                border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
+            }
+
+            > thermal-btn {
+                border-radius: 0;
+                &:last-child {
+                    border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
+                }
+            }
+        
+        }
+    
+    `;
+	}
+	assambleUrl() {
+		let link = this.client.api.getPublicUrl();
+		const segments = {};
+		if (this.palette) segments["palette"] = this.palette;
+		if (this.from !== void 0) segments["from"] = this.from.toString();
+		if (this.to !== void 0) segments["to"] = this.to.toString();
+		if (this._path) {
+			segments["folder-path"] = this._path;
+			if (this._appState === DisplayState.FOLDER && this._folderListDisplayMode && this._fileListDisplayMode && this._fileListDisplayCompact !== void 0) {
+				segments["files-display"] = this._fileListDisplayMode;
+				segments["folder-display"] = this._folderListDisplayMode;
+				segments["files-compact"] = this._fileListDisplayCompact ? "true" : "false";
+			}
+			if (this._appState === DisplayState.FILE && this._file) segments["file-name"] = this._file.fileName;
+		}
+		return `${link}/?${new URLSearchParams(segments).toString()}`;
+	}
+	render() {
+		if (!this.client || !this.client.api.isConnected() || !this._path || !this._appState || ![DisplayState.FOLDER, DisplayState.FILE].includes(this._appState)) return nothing;
+		return html`<thermal-dialog label="${t(T.share)}">
+
+            <thermal-btn slot="invoker" icon="share" iconStyle="mini" tooltip="Sdílet odkaz na tento obsah"></thermal-btn>
+
+            <div slot="content">
+
+                <section>
+
+                    <h3>Co sdílíte</h3>
+
+                    <div class="entity-list">
+                        ${this._folder ? this.renderEntity(this._folder.name, "folder") : nothing}
+                        ${this._file ? this.renderEntity(this._file.fileName, "image", true) : nothing}
+                    </div>
+
+                </section>
+
+                <section>
+                    <h3>Odkaz na server</h3>
+                    ${this.renderLink()}
+                    <div class="description">Odkaz vede na <strong>${this.client.serverInfo?.name}</strong>, kde tento obsah <strong>${this._folder?.protected ? "uvidí pouze uživatelé s přístupem" : "uvidí kdokoliv"}</strong>.</div>
+                </section>
+
+            </div>
+
+        </thermal-dialog>`;
+	}
+};
+__decorate([consume({
+	context: managerPaletteContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Object)], ConnectedShareDialog.prototype, "palette", void 0);
+__decorate([consume({
+	context: registryRangeFromContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Number)], ConnectedShareDialog.prototype, "from", void 0);
+__decorate([consume({
+	context: registryRangeToContext,
+	subscribe: true
+}), __decorateMetadata("design:type", Number)], ConnectedShareDialog.prototype, "to", void 0);
+ConnectedShareDialog = __decorate([customElement("connected-share-dialog")], ConnectedShareDialog);
 
 //#endregion
 //#region src/index.ts

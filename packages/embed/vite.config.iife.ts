@@ -66,7 +66,7 @@ export default defineConfig({
             maxWorkers: 3,
         },
         outDir: path.resolve("./dist"),
-        emptyOutDir: true,
+        emptyOutDir: false,
         copyPublicDir: false,
         minify: "terser",
 

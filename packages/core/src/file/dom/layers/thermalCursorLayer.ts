@@ -1,6 +1,6 @@
-import { Instance } from "../../instance";
-import { AbstractLayer } from "./AbstractLayer";
+import { AbstractFile } from "../../AbstractFile";
 import ThermalDomFactory from "../domFactories";
+import { AbstractLayer } from "./AbstractLayer";
 
 /** Displays the cursor pointer and its value */
 export default class ThermalCursorLayer extends AbstractLayer {
@@ -12,7 +12,7 @@ export default class ThermalCursorLayer extends AbstractLayer {
     protected label: HTMLDivElement;
 
     public constructor(
-        instance: Instance
+        instance: AbstractFile
     ){
 
         super( instance );

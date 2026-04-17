@@ -4,9 +4,9 @@ import { defineConfig } from "vite"
 import path from "path"
 
 export default defineConfig({
-    root: "./devserver/www",
-    publicDir: path.resolve( "../../public" ),
-    build: {
-        sourcemap: false,
+    root: path.resolve("./src"),
+    publicDir: path.resolve("../../public"),
+    server: {
+        open: true,
     },
 })
