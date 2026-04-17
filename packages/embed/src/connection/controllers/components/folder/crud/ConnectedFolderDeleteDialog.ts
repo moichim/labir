@@ -1,6 +1,6 @@
-import { customElement, property } from "lit/decorators.js";
-import { html, css, CSSResultGroup, nothing } from "lit";
 import { FolderInfo } from "@labirthermal/server";
+import { css, CSSResultGroup, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";
 
 @customElement("connected-folder-delete-dialog")

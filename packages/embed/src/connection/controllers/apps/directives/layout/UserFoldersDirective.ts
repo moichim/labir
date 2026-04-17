@@ -43,6 +43,8 @@ class UserFoldersDirective extends AbstractLayoutDirective {
             ></server-folder-thumbnail>` );
         } );
 
+        console.log( list );
+
         inner.push( html`<div class="cLayout__user_folders_list">
             <h2>Máte přístup ke ${app.content.userFolders.length} složkám:</h2>
             ${list}

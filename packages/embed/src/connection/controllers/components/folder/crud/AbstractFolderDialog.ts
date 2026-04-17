@@ -1,13 +1,13 @@
 import { property, state } from "lit/decorators.js";
 import { FolderInfo } from "@labirthermal/server";
-import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";
 import { T } from "../../../../../translations/Languages";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { BtnSizes, BtnVariants } from "../../../../../ui/Btn";
+import { ThermalDialogElement } from "../../../../../index.export";
 
 /** A base class for all dialogs related to folder CRUD operations. */
 export abstract class AbstractFolderDialog extends ControlledConsumer {
@@ -61,7 +61,7 @@ export abstract class AbstractFolderDialog extends ControlledConsumer {
     /** Optionally render additional buttons in the dialog footer. */
     protected abstract renderButtons(): unknown;
 
-    private dialogRef = createRef<ThermalDialog>();
+    private dialogRef = createRef<ThermalDialogElement>();
 
     protected close() {
         this.dialogRef.value?.setClose();

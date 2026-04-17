@@ -1,11 +1,10 @@
+import { FolderInfo } from "@labirthermal/server";
 import { html, nothing } from "lit";
 import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
-import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { DirectiveHelpers } from "../DirectiveHelpers";
-import { FolderInfo } from "@labirthermal/server";
-import { slotOrNothing } from "../SlotOrNothing";
-import { DisplayState } from "../../../DisplayController";
 import { ConnectedUploadForm } from "../../../components/folder/upload/ConnectedUploadForm";
+import { DirectiveHelpers } from "../DirectiveHelpers";
+import { slotOrNothing } from "../SlotOrNothing";
+import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
 
 export abstract class AbstractFolderLayoutDirective extends AbstractLayoutDirective {
 

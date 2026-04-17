@@ -1,9 +1,8 @@
-import { TimeFormat } from "@labirthermal/core";
+import { TimeFormat, ThermalRegistry } from "@labirthermal/core";
 import { FileInfo, FolderInfo, GetGridDataType } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing, PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { ThermalRegistry } from "packages/core/dist";
 import { registryContext, setRegistryHighlightContext } from "../../../../../hierarchy/providers/context/RegistryContext";
 import { editTagsContext, showDiscussionContext } from "../../../../ClientContext";
 import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";

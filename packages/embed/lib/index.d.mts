@@ -1,13 +1,8 @@
 import * as lit from "lit";
 import { LitElement, html, nothing } from "lit";
-import { AbstractAnalysis, AbstractAreaAnalysis, AnalysisDataStateValue, AvailableThermalPalette, CallbacksManager, Instance, PlaybackSpeeds, PointAnalysis, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
+import { AbstractAreaAnalysis, CallbacksManager, Instance, PointAnalysis, ThermalFileFailure, ThermalManager } from "@labirthermal/core";
 import { Ref } from "lit/directives/ref.js";
-import { Placement } from "@floating-ui/dom";
-import { ApiFolderContentResponse, ApiInfoResponse, ApiTimeGroupResponse, ApiTimeGrouping } from "@labirthermal/server-simple";
-import Client, { Comment, FileInfo, FolderInfo, GetGridDataType, GridGrouping, Identity, ServerInfo } from "@labirthermal/server";
-import { Client as Client$1 } from "packages/server/client/src/Client";
-import { BtnSizes, BtnVariants } from "packages/embed/src/ui/Btn";
-import { ThermalRegistry as ThermalRegistry$1 } from "packages/core/dist";
+import Client from "@labirthermal/server";
 
 //#region src/controls/file/analysis/chart/loader.d.ts
 /** Types that can be converted to `DataTable`. */

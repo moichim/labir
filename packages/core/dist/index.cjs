@@ -3739,6 +3739,383 @@ var RecordingDrive = class extends AbstractProperty {
 };
 
 //#endregion
+//#region src/file/dom/domFactories.ts
+var ThermalDomFactory = class ThermalDomFactory {
+	static createCanvasContainer() {
+		const container = document.createElement("div");
+		container.classList.add("thermalCanvasWrapper");
+		container.style.position = "relative";
+		container.style.userSelect = "none";
+		container.part = "thermal-canvas-wrapper";
+		return container;
+	}
+	static createCanvas() {
+		const canvas = document.createElement("canvas");
+		canvas.classList.add("thermalCanvas");
+		canvas.style.padding = "0px";
+		canvas.style.margin = "0px";
+		canvas.style.objectFit = "contain";
+		canvas.style.width = "100%";
+		canvas.style.height = "100%";
+		canvas.style.objectPosition = "top left";
+		canvas.style.imageRendering = "pixelated";
+		canvas.style.userSelect = "none";
+		canvas.part = "thermal-file-canvas";
+		return canvas;
+	}
+	static createDateLayerInner() {
+		const inner = document.createElement("div");
+		inner.classList.add("dateLayerInner");
+		inner.style.margin = "0px";
+		inner.style.padding = ".3rem 0rem";
+		inner.style.backgroundColor = "black";
+		inner.style.color = "white";
+		inner.style.borderRadius = ".5rem .5rem 0 0";
+		inner.style.width = "calc(100% + 4px )";
+		inner.style.position = "absolute";
+		inner.style.top = "0rem";
+		inner.style.left = "-2px";
+		inner.style.opacity = "0";
+		inner.style.transition = "opacity .1s ease-in-out";
+		inner.style.textAlign = "center";
+		inner.style.userSelect = "none";
+		return inner;
+	}
+	static createVisibleLayer() {
+		const layer = document.createElement("div");
+		layer.classList.add("visibleLayer");
+		layer.style.margin = "0px";
+		layer.style.padding = "0px";
+		layer.style.height = "100%";
+		layer.style.width = "100%";
+		layer.style.position = "absolute";
+		layer.style.top = "0px";
+		layer.style.left = "0px";
+		layer.style.userSelect = "none";
+		return layer;
+	}
+	static createVisibleImage() {
+		const img = document.createElement("img");
+		img.classList.add("visibleLayerImage");
+		img.style.padding = "0px";
+		img.style.margin = "0px";
+		img.style.objectFit = "contain";
+		img.style.width = "100%";
+		img.style.height = "100%";
+		img.style.objectPosition = "top left";
+		img.style.userSelect = "none";
+		return img;
+	}
+	static createListener() {
+		const listener = document.createElement("div");
+		listener.classList.add("thermalListener");
+		listener.style.margin = "0px";
+		listener.style.padding = "0px";
+		listener.style.height = "100%";
+		listener.style.width = "100%";
+		listener.style.position = "absolute";
+		listener.style.top = "0px";
+		listener.style.left = "0px";
+		listener.style.cursor = "pointer";
+		listener.style.touchAction = "none";
+		listener.style.userSelect = "none";
+		listener.setAttribute("id", Math.random().toString());
+		return listener;
+	}
+	static createCursorLayerRoot() {
+		const layer = document.createElement("div");
+		layer.classList.add("cursorLayerRoot");
+		layer.style.width = "100%";
+		layer.style.height = "100%";
+		layer.style.position = "absolute";
+		layer.style.top = "0";
+		layer.style.left = "0";
+		layer.style.opacity = "0";
+		layer.style.overflow = "hidden";
+		layer.style.lineHeight = "1rem";
+		layer.style.userSelect = "none";
+		return layer;
+	}
+	static createCursorLayerCenter() {
+		const container = document.createElement("div");
+		container.classList.add("cursorLayerCenter");
+		container.style.position = "absolute";
+		container.style.top = "0px";
+		container.style.left = "0px";
+		container.style.width = "0px";
+		container.style.height = "0px";
+		container.style.userSelect = "none";
+		return container;
+	}
+	static createCursorLayerAxeBase() {
+		const axe = document.createElement("div");
+		axe.classList.add("cursorLayerAxe");
+		axe.style.backdropFilter = "invert(100)";
+		axe.style.position = "absolute";
+		axe.style.top = "0px";
+		axe.style.left = "0px";
+		axe.style.content = "";
+		axe.style.userSelect = "none";
+		return axe;
+	}
+	static createCursorLayerX() {
+		const axeX = ThermalDomFactory.createCursorLayerAxeBase();
+		axeX.classList.add("cursorLayerAxeX");
+		axeX.style.width = "1px";
+		axeX.style.height = "20px";
+		axeX.style.top = "-10px";
+		axeX.style.userSelect = "none";
+		return axeX;
+	}
+	static createCursorLayerY() {
+		const axeY = ThermalDomFactory.createCursorLayerAxeBase();
+		axeY.classList.add("cursorLayerAxeY");
+		axeY.style.width = "20px";
+		axeY.style.height = "1px";
+		axeY.style.left = "-10px";
+		axeY.style.userSelect = "none";
+		return axeY;
+	}
+	static createCursorLayerLabel() {
+		const axeLabel = document.createElement("div");
+		axeLabel.classList.add("cursorLayerLabel");
+		axeLabel.style.position = "absolute";
+		axeLabel.style.padding = "1px 3px";
+		axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
+		axeLabel.style.color = "white";
+		axeLabel.style.whiteSpace = "nowrap";
+		axeLabel.style.fontSize = "small";
+		axeLabel.style.borderRadius = "5px";
+		axeLabel.style.userSelect = "none";
+		return axeLabel;
+	}
+};
+
+//#endregion
+//#region src/file/dom/layers/AbstractLayer.ts
+var AbstractLayer = class {
+	constructor(instance) {
+		this.instance = instance;
+	}
+	_mounted = false;
+	get mounted() {
+		return this._mounted;
+	}
+	mount() {
+		if (!this._mounted) {
+			if (this.instance.root !== null) {
+				this._mounted = true;
+				this.instance.root.appendChild(this.getLayerRoot());
+			}
+		}
+	}
+	unmount() {
+		if (this._mounted) {
+			if (this.instance.dom?.root !== null) {
+				this._mounted = false;
+				this.instance.dom?.root.removeChild(this.getLayerRoot());
+			}
+		}
+	}
+	destroy() {
+		this.onDestroy();
+	}
+};
+
+//#endregion
+//#region src/file/dom/layers/thermalCanvasLayer.ts
+/** Displays the canvas and renders it */
+var ThermalCanvasLayer = class extends AbstractLayer {
+	container;
+	canvas;
+	_opacity = 1;
+	get opacity() {
+		return this._opacity;
+	}
+	set opacity(value) {
+		if (this.instance.visibleUrl === null || this.instance.visibleUrl === void 0 || this.instance.visibleUrl.trim().length === 0) return;
+		this._opacity = Math.max(Math.min(value, 1), 0);
+		if (this._opacity !== 1) this.canvas.style.opacity = this._opacity.toString();
+		else this.canvas.style.removeProperty("opacity");
+	}
+	constructor(instance) {
+		super(instance);
+		this.container = ThermalDomFactory.createCanvasContainer();
+		this.canvas = ThermalDomFactory.createCanvas();
+		this.canvas.width = this.instance.width;
+		this.canvas.height = this.instance.height;
+		this.canvas.setAttribute("data-video-canvas", "");
+		this.canvas.setAttribute("crossorigin", "anonymous");
+		this.canvas.setAttribute("crossOrigin", "Anonymous");
+		this.container.appendChild(this.canvas);
+		this.opacity = this.instance.group.registry.opacity.value;
+	}
+	getLayerRoot() {
+		return this.container;
+	}
+	onDestroy() {
+		this.canvas.remove();
+		this.container.remove();
+	}
+};
+
+//#endregion
+//#region src/file/dom/layers/thermalCursorLayer.ts
+/** Displays the cursor pointer and its value */
+var ThermalCursorLayer = class extends AbstractLayer {
+	layerRoot;
+	center;
+	axisX;
+	axisY;
+	label;
+	constructor(instance) {
+		super(instance);
+		this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
+		this.center = ThermalDomFactory.createCursorLayerCenter();
+		this.axisX = ThermalDomFactory.createCursorLayerX();
+		this.axisY = ThermalDomFactory.createCursorLayerY();
+		this.label = ThermalDomFactory.createCursorLayerLabel();
+		this.layerRoot.appendChild(this.center);
+		this.center.appendChild(this.axisX);
+		this.center.appendChild(this.axisY);
+		this.center.appendChild(this.label);
+	}
+	_show = false;
+	get show() {
+		return this._show;
+	}
+	setShow(value) {
+		this._show = value;
+		this.layerRoot.style.opacity = this._show ? "1" : "0";
+	}
+	_hover = false;
+	get hover() {
+		return this._hover;
+	}
+	set hover(value) {
+		this._hover = value;
+		this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
+	}
+	recalculateLabelPosition(x, y) {
+		if (this.instance.root === null) {} else {
+			const aspect = this.instance.root.offsetWidth / this.instance.width;
+			const centerX = Math.round(x * aspect);
+			const centerY = Math.round(y * aspect);
+			const wPx = 100 / this.instance.width / 2;
+			const hPx = 100 / this.instance.height / 2;
+			this.center.style.left = `calc( ${this.px(centerX)} + ${wPx}%)`;
+			this.center.style.top = `calc( ${this.px(centerY)} + ${hPx}%)`;
+			if (x > this.instance.width / 3) {
+				this.label.style.right = "3px";
+				this.label.style.removeProperty("left");
+			} else {
+				this.label.style.left = "3px";
+				this.label.style.removeProperty("right");
+			}
+			if (y > this.instance.height / 4) {
+				if (this.label.style.bottom !== "3px") {
+					this.label.style.bottom = "3px";
+					this.label.style.removeProperty("top");
+				}
+			} else if (this.label.style.top !== "3px") {
+				this.label.style.top = "3px";
+				this.label.style.removeProperty("bottom");
+			}
+		}
+	}
+	/** @deprecated */
+	setCursor(x, y, value) {
+		if (this.instance.root === null) {} else {
+			this.recalculateLabelPosition(x, y);
+			this.label.innerHTML = `${value.toFixed(3)} °C`;
+		}
+	}
+	setLabel(x, y, value) {
+		if (this.instance.root === null) {} else {
+			this.recalculateLabelPosition(x, y);
+			this.label.innerHTML = value;
+		}
+	}
+	setValue(value) {
+		if (value) this.label.innerHTML = `${value.toFixed(3)} °C`;
+	}
+	resetCursor() {
+		this.center.style.top = "0px";
+		this.center.style.left = "0px";
+		this.label.style.removeProperty("right");
+		this.label.style.removeProperty("bottom");
+		this.label.style.top = "3px";
+		this.label.style.left = "3px";
+		this.label.innerHTML = "";
+	}
+	px(number) {
+		return `${number}px`;
+	}
+	getLayerRoot() {
+		return this.layerRoot;
+	}
+	onDestroy() {
+		this.label.remove();
+		this.axisX.remove();
+		this.axisY.remove();
+		this.center.remove();
+		this.layerRoot.remove();
+	}
+};
+
+//#endregion
+//#region src/file/dom/layers/thermalListenerLayer.ts
+/** Listens for the mouse events. Needs to be placed on top. */
+var ThermalListenerLayer = class extends AbstractLayer {
+	container;
+	constructor(instance) {
+		super(instance);
+		this.container = ThermalDomFactory.createListener();
+	}
+	getLayerRoot() {
+		return this.container;
+	}
+	onDestroy() {
+		this.container.remove();
+	}
+};
+
+//#endregion
+//#region src/file/dom/layers/VisibleLayer.ts
+/** Contains the visible image. Needs to be placed on the bottom. */
+var VisibleLayer = class extends AbstractLayer {
+	container;
+	image;
+	get url() {
+		return this._url;
+	}
+	set url(value) {
+		this._url = value;
+		if (this.image && value) this.image.src = value;
+	}
+	get exists() {
+		return this._url !== void 0;
+	}
+	constructor(instance, _url) {
+		super(instance);
+		this._url = _url;
+		this.container = ThermalDomFactory.createVisibleLayer();
+		if (this._url) {
+			this.image = ThermalDomFactory.createVisibleImage();
+			this.url = this._url;
+			this.container.appendChild(this.image);
+		}
+	}
+	getLayerRoot() {
+		return this.container;
+	}
+	onDestroy() {
+		if (this.image) this.image.remove();
+		this.container.remove();
+	}
+};
+
+//#endregion
 //#region src/file/dom/InstanceDom.ts
 var InstanceDOM = class InstanceDOM {
 	static CLASS_BASE = "thermalImageRoot";
@@ -3830,11 +4207,10 @@ var InstanceDOM = class InstanceDOM {
 			console.info(`Building instance ${this.parent.id} which is already built. Destroying any previous DOM and creating a new one in a new container ${this.root.nodeName}`);
 			this.destroy();
 		}
-		const dom = this.parent.createInnerDom();
-		this._canvasLayer = dom.canvasLayer;
-		this._visibleLayer = dom.visibleLayer;
-		this._cursorLayer = dom.cursorLayer;
-		this._listenerLayer = dom.listenerLayer;
+		this._canvasLayer = new ThermalCanvasLayer(this.parent);
+		this._visibleLayer = new VisibleLayer(this.parent, this.parent.visibleUrl);
+		this._cursorLayer = new ThermalCursorLayer(this.parent);
+		this._listenerLayer = new ThermalListenerLayer(this.parent);
 		this._canvasLayer.mount();
 		this._visibleLayer.mount();
 		this._cursorLayer.mount();
@@ -4459,386 +4835,6 @@ var AbstractFile = class extends BaseStructureObject {
 		}
 	}
 	reset() {}
-	recieveOpacity(value) {
-		if (this.dom && this.dom.visibleLayer && this.dom.canvasLayer && this.visibleUrl) this.dom.canvasLayer.opacity = value;
-	}
-};
-
-//#endregion
-//#region src/file/dom/layers/AbstractLayer.ts
-var AbstractLayer = class {
-	constructor(instance) {
-		this.instance = instance;
-	}
-	_mounted = false;
-	get mounted() {
-		return this._mounted;
-	}
-	mount() {
-		if (!this._mounted) {
-			if (this.instance.root !== null) {
-				this._mounted = true;
-				this.instance.root.appendChild(this.getLayerRoot());
-			}
-		}
-	}
-	unmount() {
-		if (this._mounted) {
-			if (this.instance.dom?.root !== null) {
-				this._mounted = false;
-				this.instance.dom?.root.removeChild(this.getLayerRoot());
-			}
-		}
-	}
-	destroy() {
-		this.onDestroy();
-	}
-};
-
-//#endregion
-//#region src/file/dom/domFactories.ts
-var ThermalDomFactory = class ThermalDomFactory {
-	static createCanvasContainer() {
-		const container = document.createElement("div");
-		container.classList.add("thermalCanvasWrapper");
-		container.style.position = "relative";
-		container.style.userSelect = "none";
-		container.part = "thermal-canvas-wrapper";
-		return container;
-	}
-	static createCanvas() {
-		const canvas = document.createElement("canvas");
-		canvas.classList.add("thermalCanvas");
-		canvas.style.padding = "0px";
-		canvas.style.margin = "0px";
-		canvas.style.objectFit = "contain";
-		canvas.style.width = "100%";
-		canvas.style.height = "100%";
-		canvas.style.objectPosition = "top left";
-		canvas.style.imageRendering = "pixelated";
-		canvas.style.userSelect = "none";
-		canvas.part = "thermal-file-canvas";
-		return canvas;
-	}
-	static createDateLayerInner() {
-		const inner = document.createElement("div");
-		inner.classList.add("dateLayerInner");
-		inner.style.margin = "0px";
-		inner.style.padding = ".3rem 0rem";
-		inner.style.backgroundColor = "black";
-		inner.style.color = "white";
-		inner.style.borderRadius = ".5rem .5rem 0 0";
-		inner.style.width = "calc(100% + 4px )";
-		inner.style.position = "absolute";
-		inner.style.top = "0rem";
-		inner.style.left = "-2px";
-		inner.style.opacity = "0";
-		inner.style.transition = "opacity .1s ease-in-out";
-		inner.style.textAlign = "center";
-		inner.style.userSelect = "none";
-		return inner;
-	}
-	static createVisibleLayer() {
-		const layer = document.createElement("div");
-		layer.classList.add("visibleLayer");
-		layer.style.margin = "0px";
-		layer.style.padding = "0px";
-		layer.style.height = "100%";
-		layer.style.width = "100%";
-		layer.style.position = "absolute";
-		layer.style.top = "0px";
-		layer.style.left = "0px";
-		layer.style.userSelect = "none";
-		return layer;
-	}
-	static createVisibleImage() {
-		const img = document.createElement("img");
-		img.classList.add("visibleLayerImage");
-		img.style.padding = "0px";
-		img.style.margin = "0px";
-		img.style.objectFit = "contain";
-		img.style.width = "100%";
-		img.style.height = "100%";
-		img.style.objectPosition = "top left";
-		img.style.userSelect = "none";
-		return img;
-	}
-	static createListener() {
-		const listener = document.createElement("div");
-		listener.classList.add("thermalListener");
-		listener.style.margin = "0px";
-		listener.style.padding = "0px";
-		listener.style.height = "100%";
-		listener.style.width = "100%";
-		listener.style.position = "absolute";
-		listener.style.top = "0px";
-		listener.style.left = "0px";
-		listener.style.cursor = "pointer";
-		listener.style.touchAction = "none";
-		listener.style.userSelect = "none";
-		listener.setAttribute("id", Math.random().toString());
-		return listener;
-	}
-	static createCursorLayerRoot() {
-		const layer = document.createElement("div");
-		layer.classList.add("cursorLayerRoot");
-		layer.style.width = "100%";
-		layer.style.height = "100%";
-		layer.style.position = "absolute";
-		layer.style.top = "0";
-		layer.style.left = "0";
-		layer.style.opacity = "0";
-		layer.style.overflow = "hidden";
-		layer.style.lineHeight = "1rem";
-		layer.style.userSelect = "none";
-		return layer;
-	}
-	static createCursorLayerCenter() {
-		const container = document.createElement("div");
-		container.classList.add("cursorLayerCenter");
-		container.style.position = "absolute";
-		container.style.top = "0px";
-		container.style.left = "0px";
-		container.style.width = "0px";
-		container.style.height = "0px";
-		container.style.userSelect = "none";
-		return container;
-	}
-	static createCursorLayerAxeBase() {
-		const axe = document.createElement("div");
-		axe.classList.add("cursorLayerAxe");
-		axe.style.backdropFilter = "invert(100)";
-		axe.style.position = "absolute";
-		axe.style.top = "0px";
-		axe.style.left = "0px";
-		axe.style.content = "";
-		axe.style.userSelect = "none";
-		return axe;
-	}
-	static createCursorLayerX() {
-		const axeX = ThermalDomFactory.createCursorLayerAxeBase();
-		axeX.classList.add("cursorLayerAxeX");
-		axeX.style.width = "1px";
-		axeX.style.height = "20px";
-		axeX.style.top = "-10px";
-		axeX.style.userSelect = "none";
-		return axeX;
-	}
-	static createCursorLayerY() {
-		const axeY = ThermalDomFactory.createCursorLayerAxeBase();
-		axeY.classList.add("cursorLayerAxeY");
-		axeY.style.width = "20px";
-		axeY.style.height = "1px";
-		axeY.style.left = "-10px";
-		axeY.style.userSelect = "none";
-		return axeY;
-	}
-	static createCursorLayerLabel() {
-		const axeLabel = document.createElement("div");
-		axeLabel.classList.add("cursorLayerLabel");
-		axeLabel.style.position = "absolute";
-		axeLabel.style.padding = "1px 3px";
-		axeLabel.style.backgroundColor = "rgba( 0,0,0,0.5 )";
-		axeLabel.style.color = "white";
-		axeLabel.style.whiteSpace = "nowrap";
-		axeLabel.style.fontSize = "small";
-		axeLabel.style.borderRadius = "5px";
-		axeLabel.style.userSelect = "none";
-		return axeLabel;
-	}
-};
-
-//#endregion
-//#region src/file/dom/layers/VisibleLayer.ts
-/** Contains the visible image. Needs to be placed on the bottom. */
-var VisibleLayer = class extends AbstractLayer {
-	container;
-	image;
-	get url() {
-		return this._url;
-	}
-	set url(value) {
-		this._url = value;
-		if (this.image && value) this.image.src = value;
-	}
-	get exists() {
-		return this._url !== void 0;
-	}
-	constructor(instance, _url) {
-		super(instance);
-		this._url = _url;
-		this.container = ThermalDomFactory.createVisibleLayer();
-		if (this._url) {
-			this.image = ThermalDomFactory.createVisibleImage();
-			this.url = this._url;
-			this.container.appendChild(this.image);
-		}
-	}
-	getLayerRoot() {
-		return this.container;
-	}
-	onDestroy() {
-		if (this.image) this.image.remove();
-		this.container.remove();
-	}
-};
-
-//#endregion
-//#region src/file/dom/layers/thermalCanvasLayer.ts
-/** Displays the canvas and renders it */
-var ThermalCanvasLayer = class extends AbstractLayer {
-	container;
-	canvas;
-	_opacity = 1;
-	get opacity() {
-		return this._opacity;
-	}
-	set opacity(value) {
-		if (this.instance.visibleUrl === null || this.instance.visibleUrl === void 0 || this.instance.visibleUrl.trim().length === 0) return;
-		this._opacity = Math.max(Math.min(value, 1), 0);
-		if (this._opacity !== 1) this.canvas.style.opacity = this._opacity.toString();
-		else this.canvas.style.removeProperty("opacity");
-	}
-	constructor(instance) {
-		super(instance);
-		this.container = ThermalDomFactory.createCanvasContainer();
-		this.canvas = ThermalDomFactory.createCanvas();
-		this.canvas.width = this.instance.width;
-		this.canvas.height = this.instance.height;
-		this.canvas.setAttribute("data-video-canvas", "");
-		this.canvas.setAttribute("crossorigin", "anonymous");
-		this.canvas.setAttribute("crossOrigin", "Anonymous");
-		this.container.appendChild(this.canvas);
-		this.opacity = this.instance.group.registry.opacity.value;
-	}
-	getLayerRoot() {
-		return this.container;
-	}
-	onDestroy() {
-		this.canvas.remove();
-		this.container.remove();
-	}
-};
-
-//#endregion
-//#region src/file/dom/layers/thermalCursorLayer.ts
-/** Displays the cursor pointer and its value */
-var ThermalCursorLayer = class extends AbstractLayer {
-	layerRoot;
-	center;
-	axisX;
-	axisY;
-	label;
-	constructor(instance) {
-		super(instance);
-		this.layerRoot = ThermalDomFactory.createCursorLayerRoot();
-		this.center = ThermalDomFactory.createCursorLayerCenter();
-		this.axisX = ThermalDomFactory.createCursorLayerX();
-		this.axisY = ThermalDomFactory.createCursorLayerY();
-		this.label = ThermalDomFactory.createCursorLayerLabel();
-		this.layerRoot.appendChild(this.center);
-		this.center.appendChild(this.axisX);
-		this.center.appendChild(this.axisY);
-		this.center.appendChild(this.label);
-	}
-	_show = false;
-	get show() {
-		return this._show;
-	}
-	setShow(value) {
-		this._show = value;
-		this.layerRoot.style.opacity = this._show ? "1" : "0";
-	}
-	_hover = false;
-	get hover() {
-		return this._hover;
-	}
-	set hover(value) {
-		this._hover = value;
-		this.label.style.backgroundColor = this._hover ? "black" : "rgba( 0,0,0,0.5 )";
-	}
-	recalculateLabelPosition(x, y) {
-		if (this.instance.root === null) {} else {
-			const aspect = this.instance.root.offsetWidth / this.instance.width;
-			const centerX = Math.round(x * aspect);
-			const centerY = Math.round(y * aspect);
-			const wPx = 100 / this.instance.width / 2;
-			const hPx = 100 / this.instance.height / 2;
-			this.center.style.left = `calc( ${this.px(centerX)} + ${wPx}%)`;
-			this.center.style.top = `calc( ${this.px(centerY)} + ${hPx}%)`;
-			if (x > this.instance.width / 3) {
-				this.label.style.right = "3px";
-				this.label.style.removeProperty("left");
-			} else {
-				this.label.style.left = "3px";
-				this.label.style.removeProperty("right");
-			}
-			if (y > this.instance.height / 4) {
-				if (this.label.style.bottom !== "3px") {
-					this.label.style.bottom = "3px";
-					this.label.style.removeProperty("top");
-				}
-			} else if (this.label.style.top !== "3px") {
-				this.label.style.top = "3px";
-				this.label.style.removeProperty("bottom");
-			}
-		}
-	}
-	/** @deprecated */
-	setCursor(x, y, value) {
-		if (this.instance.root === null) {} else {
-			this.recalculateLabelPosition(x, y);
-			this.label.innerHTML = `${value.toFixed(3)} °C`;
-		}
-	}
-	setLabel(x, y, value) {
-		if (this.instance.root === null) {} else {
-			this.recalculateLabelPosition(x, y);
-			this.label.innerHTML = value;
-		}
-	}
-	setValue(value) {
-		if (value) this.label.innerHTML = `${value.toFixed(3)} °C`;
-	}
-	resetCursor() {
-		this.center.style.top = "0px";
-		this.center.style.left = "0px";
-		this.label.style.removeProperty("right");
-		this.label.style.removeProperty("bottom");
-		this.label.style.top = "3px";
-		this.label.style.left = "3px";
-		this.label.innerHTML = "";
-	}
-	px(number) {
-		return `${number}px`;
-	}
-	getLayerRoot() {
-		return this.layerRoot;
-	}
-	onDestroy() {
-		this.label.remove();
-		this.axisX.remove();
-		this.axisY.remove();
-		this.center.remove();
-		this.layerRoot.remove();
-	}
-};
-
-//#endregion
-//#region src/file/dom/layers/thermalListenerLayer.ts
-/** Listens for the mouse events. Needs to be placed on top. */
-var ThermalListenerLayer = class extends AbstractLayer {
-	container;
-	constructor(instance) {
-		super(instance);
-		this.container = ThermalDomFactory.createListener();
-	}
-	getLayerRoot() {
-		return this.container;
-	}
-	onDestroy() {
-		this.container.remove();
-	}
 };
 
 //#endregion
@@ -5273,14 +5269,6 @@ var Instance = class Instance extends AbstractFile {
 		this.reader = reader;
 		this.firstFrame = firstFrame;
 		this.setPixels(firstFrame.pixels);
-	}
-	createInnerDom() {
-		return {
-			canvasLayer: new ThermalCanvasLayer(this),
-			visibleLayer: new VisibleLayer(this, this.visibleUrl),
-			cursorLayer: new ThermalCursorLayer(this),
-			listenerLayer: new ThermalListenerLayer(this)
-		};
 	}
 	hydrateListener(dom) {
 		if (!dom.listenerLayer || !dom.cursorLayer) return;
@@ -6332,7 +6320,9 @@ var OpacityDrive = class extends AbstractProperty {
 	* Whenever the opacity changes, propagate the value to all instances
 	*/
 	afterSetEffect(value) {
-		this.parent.forEveryInstance((instance) => instance.recieveOpacity(value));
+		this.parent.forEveryInstance((instance) => {
+			if (instance.dom !== void 0 && instance.dom.canvasLayer !== void 0 && instance.dom.visibleLayer !== void 0) instance.dom.canvasLayer.opacity = value;
+		});
 	}
 	/** Impose an opacity to all instances */
 	imposeOpacity(value) {

@@ -1,9 +1,7 @@
+import { FileInfo, FolderInfo } from "@labirthermal/server";
+import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { ControlledConsumer } from "../abstraction/ControlledConsumer";
-import { html, nothing } from "lit";
-import { FolderInfo } from "@labirthermal/server";
-import { FileInfo } from "@labirthermal/server";
-import { ifDefined } from "lit/directives/if-defined";
 
 @customElement("test-consumer")
 export class Consumer extends ControlledConsumer {

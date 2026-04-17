@@ -1,10 +1,9 @@
-import { customElement, property } from "lit/decorators.js";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
 import { FolderInfo } from "@labirthermal/server";
 import { html } from "lit";
-import { ConnectedLocationSelector, LocationSelectorMode } from "../../selection/move/ConnectedLocationSelector";
-import { b } from "vitest/dist/chunks/suite.d.FvehnV49";
+import { customElement, property } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
+import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { ConnectedLocationSelector, LocationSelectorMode } from "../../selection/move/ConnectedLocationSelector";
 
 @customElement("connected-folder-move-dialog")
 export class ConnectedFolderMoveDialog extends ControlledConsumer {

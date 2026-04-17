@@ -1,7 +1,7 @@
-import { html, nothing, Part } from "lit";
+import { t } from "i18next";
+import { html, Part } from "lit";
 import { Directive } from "lit/directive.js";
 import { T } from "../../../../translations/Languages";
-import { t } from "i18next";
 import { DirectiveHelpers } from "./DirectiveHelpers";
 
 export abstract class AbstractConnectedDirective extends Directive {

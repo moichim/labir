@@ -177,58 +177,6 @@ import "./apps/ThermalDropinApp";
 import "./apps/ThermalFileApp";
 import "./apps/ThermalGroupApp";
 
-import "./apps/connected/ConnectedApp";
-
-// 8. Connection components
-
-import "./connection/components/auth/LoginForm";
-import "./connection/components/auth/UserButton";
-import "./connection/components/server/ServerBar";
-import "./connection/components/server/ServerBreadcrumb";
-
-// 8.1. Folder related components
-
-import "./connection/components/folder/configuration/AnalysisMode";
-import "./connection/components/folder/configuration/DisplayMode";
-import "./connection/components/folder/configuration/EditingMode";
-import "./connection/components/folder/configuration/FolderTagsFilter";
-import "./connection/components/folder/configuration/SubfoldersMode";
-import "./connection/components/folder/crud/FolderAddDialog";
-import "./connection/components/folder/crud/FolderDeleteDialog";
-import "./connection/components/folder/crud/FolderEditDialog";
-import "./connection/components/folder/crud/FolderUploadDialog";
-import "./connection/components/folder/crud/FolderUploadForm";
-import "./connection/components/folder/files/FolderFiles";
-import "./connection/components/folder/files/FolderRemoveAnalyses";
-import "./connection/components/folder/folders/FolderRow";
-import "./connection/components/folder/folders/FolderSubfolders";
-import "./connection/components/folder/folders/FolderThumbnail";
-import "./connection/components/folder/grid/SubfoldersGrid";
-import "./connection/components/folder/single/FolderBaseInfo";
-import "./connection/components/folder/single/FolderBreadcrumb";
-
-// 8.2 File related components
-
-import "./connection/components/file/FileAnalysisRestoreButton";
-import "./connection/components/file/FileAnalysisStoreButton";
-import "./connection/components/file/FileComment";
-import "./connection/components/file/FileCommentForm";
-import "./connection/components/file/FileComments";
-import "./connection/components/file/FileCommentsDialog";
-import "./connection/components/file/FileDeleteDialog";
-import "./connection/components/file/FileEditDialog";
-import "./connection/components/file/FileTags";
-import "./connection/components/file/FileThumbnail";
-import "./connection/components/file/ServerFileDetail";
-import "./connection/components/file/ServerFileHeader";
-
-
-import "./connection/components/user/UserFolders";
-
-import "./connection/components/file/FileAnalysesRemoveButton";
-
-import "./connection/components/server/ShareDialog";
-
 
 import "./connection/controllers/abstraction/ConnectedProvider";
 
@@ -268,6 +216,10 @@ import "./connection/controllers/components/folder/crud/ConnectedFolderMoveDialo
 import "./connection/controllers/components/selection/ConnectedFolderSelectionCheckbox";
 import "./connection/controllers/components/selection/ConnectedFolderSelectionActions";
 import "./connection/controllers/components/ConnectedShareDialog";
+
+
+import "./connection/components/folder/folders/FolderThumbnail";
+import "./connection/components/folder/folders/FolderRow";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

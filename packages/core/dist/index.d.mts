@@ -31,6 +31,81 @@ declare abstract class AbstractFilter<T extends AbstractFilterParameters = Abstr
   abstract apply(buffer: ArrayBuffer): Promise<ArrayBuffer>;
 }
 //#endregion
+//#region src/file/dom/layers/AbstractLayer.d.ts
+declare abstract class AbstractLayer {
+  readonly instance: AbstractFile;
+  constructor(instance: AbstractFile);
+  abstract getLayerRoot(): HTMLElement;
+  protected _mounted: boolean;
+  get mounted(): boolean;
+  mount(): void;
+  unmount(): void;
+  destroy(): void;
+  protected abstract onDestroy(): void;
+}
+//#endregion
+//#region src/file/dom/layers/thermalCanvasLayer.d.ts
+/** Displays the canvas and renders it */
+declare class ThermalCanvasLayer extends AbstractLayer {
+  private container;
+  readonly canvas: HTMLCanvasElement;
+  private _opacity;
+  get opacity(): number;
+  set opacity(value: number);
+  constructor(instance: AbstractFile);
+  getLayerRoot(): HTMLElement;
+  protected onDestroy(): void;
+}
+//#endregion
+//#region src/file/dom/layers/VisibleLayer.d.ts
+/** Contains the visible image. Needs to be placed on the bottom. */
+declare class VisibleLayer extends AbstractLayer {
+  _url?: string | undefined;
+  protected container: HTMLDivElement;
+  protected image?: HTMLImageElement;
+  get url(): string | undefined;
+  set url(value: string | undefined);
+  get exists(): boolean;
+  constructor(instance: AbstractFile, _url?: string | undefined);
+  getLayerRoot(): HTMLElement;
+  protected onDestroy(): void;
+}
+//#endregion
+//#region src/file/dom/layers/thermalCursorLayer.d.ts
+/** Displays the cursor pointer and its value */
+declare class ThermalCursorLayer extends AbstractLayer {
+  protected layerRoot: HTMLDivElement;
+  protected center: HTMLDivElement;
+  protected axisX: HTMLDivElement;
+  protected axisY: HTMLDivElement;
+  protected label: HTMLDivElement;
+  constructor(instance: AbstractFile);
+  protected _show: boolean;
+  get show(): boolean;
+  setShow(value: boolean): void;
+  protected _hover: boolean;
+  get hover(): boolean;
+  set hover(value: boolean);
+  protected recalculateLabelPosition(x: number, y: number): void;
+  /** @deprecated */
+  setCursor(x: number, y: number, value: number): void;
+  setLabel(x: number, y: number, value: string): void;
+  setValue(value?: number): void;
+  resetCursor(): void;
+  protected px(number: number): string;
+  getLayerRoot(): HTMLDivElement;
+  protected onDestroy(): void;
+}
+//#endregion
+//#region src/file/dom/layers/thermalListenerLayer.d.ts
+/** Listens for the mouse events. Needs to be placed on top. */
+declare class ThermalListenerLayer extends AbstractLayer {
+  protected container: HTMLDivElement;
+  constructor(instance: AbstractFile);
+  getLayerRoot(): HTMLElement;
+  protected onDestroy(): void;
+}
+//#endregion
 //#region src/loading/workers/AbstractFileResult.d.ts
 /** Both `ThermalFileReader` and `ThermalFileFailure` share common attributes since they are both results of `FilesService.loadFile()` */
 declare abstract class AbstractFileResult {
@@ -2258,81 +2333,6 @@ declare class ThermalGroup extends BaseStructureObject implements IThermalGroup 
   startBatch(id: string): Batch;
 }
 //#endregion
-//#region src/file/dom/layers/AbstractLayer.d.ts
-declare abstract class AbstractLayer {
-  readonly instance: Instance;
-  constructor(instance: Instance);
-  abstract getLayerRoot(): HTMLElement;
-  protected _mounted: boolean;
-  get mounted(): boolean;
-  mount(): void;
-  unmount(): void;
-  destroy(): void;
-  protected abstract onDestroy(): void;
-}
-//#endregion
-//#region src/file/dom/layers/thermalCanvasLayer.d.ts
-/** Displays the canvas and renders it */
-declare class ThermalCanvasLayer extends AbstractLayer {
-  private container;
-  readonly canvas: HTMLCanvasElement;
-  private _opacity;
-  get opacity(): number;
-  set opacity(value: number);
-  constructor(instance: Instance);
-  getLayerRoot(): HTMLElement;
-  protected onDestroy(): void;
-}
-//#endregion
-//#region src/file/dom/layers/thermalCursorLayer.d.ts
-/** Displays the cursor pointer and its value */
-declare class ThermalCursorLayer extends AbstractLayer {
-  protected layerRoot: HTMLDivElement;
-  protected center: HTMLDivElement;
-  protected axisX: HTMLDivElement;
-  protected axisY: HTMLDivElement;
-  protected label: HTMLDivElement;
-  constructor(instance: Instance);
-  protected _show: boolean;
-  get show(): boolean;
-  setShow(value: boolean): void;
-  protected _hover: boolean;
-  get hover(): boolean;
-  set hover(value: boolean);
-  protected recalculateLabelPosition(x: number, y: number): void;
-  /** @deprecated */
-  setCursor(x: number, y: number, value: number): void;
-  setLabel(x: number, y: number, value: string): void;
-  setValue(value?: number): void;
-  resetCursor(): void;
-  protected px(number: number): string;
-  getLayerRoot(): HTMLDivElement;
-  protected onDestroy(): void;
-}
-//#endregion
-//#region src/file/dom/layers/thermalListenerLayer.d.ts
-/** Listens for the mouse events. Needs to be placed on top. */
-declare class ThermalListenerLayer extends AbstractLayer {
-  protected container: HTMLDivElement;
-  constructor(instance: Instance);
-  getLayerRoot(): HTMLElement;
-  protected onDestroy(): void;
-}
-//#endregion
-//#region src/file/dom/layers/VisibleLayer.d.ts
-/** Contains the visible image. Needs to be placed on the bottom. */
-declare class VisibleLayer extends AbstractLayer {
-  _url?: string | undefined;
-  protected container: HTMLDivElement;
-  protected image?: HTMLImageElement;
-  get url(): string | undefined;
-  set url(value: string | undefined);
-  get exists(): boolean;
-  constructor(instance: Instance, _url?: string | undefined);
-  getLayerRoot(): HTMLElement;
-  protected onDestroy(): void;
-}
-//#endregion
 //#region src/file/dom/InstanceDom.d.ts
 declare class InstanceDOM {
   readonly parent: AbstractFile;
@@ -2543,12 +2543,6 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
   abstract buildServices(): ThisType<AbstractFile>;
   protected abstract onSetPixels(value: number[]): void;
   protected abstract formatId(thermalUrl: string): string;
-  abstract createInnerDom(): {
-    canvasLayer: ThermalCanvasLayer;
-    visibleLayer: VisibleLayer;
-    cursorLayer: ThermalCursorLayer;
-    listenerLayer: ThermalListenerLayer;
-  };
   abstract hydrateListener(dom: InstanceDOM): void;
   abstract dehydrateListener(dom: InstanceDOM): void;
   private rendererFactory;
@@ -2565,7 +2559,6 @@ declare abstract class AbstractFile extends BaseStructureObject implements IFile
   getTemperatureAtPoint(x: number, y: number): number;
   getColorAtPoint(x: number, y: number): string | undefined;
   reset(): void;
-  recieveOpacity(value: number): void;
 }
 //#endregion
 //#region src/filters/FilterContainer.d.ts
@@ -2672,12 +2665,6 @@ declare class Instance extends AbstractFile {
   /** Lazy-loaded `ThermalFileExport` object */
   get export(): FilePngExport;
   private constructor();
-  createInnerDom(): {
-    canvasLayer: ThermalCanvasLayer;
-    visibleLayer: VisibleLayer;
-    cursorLayer: ThermalCursorLayer;
-    listenerLayer: ThermalListenerLayer;
-  };
   hydrateListener(dom: InstanceDOM): void;
   dehydrateListener(dom: InstanceDOM): void;
   buildServices(): this;

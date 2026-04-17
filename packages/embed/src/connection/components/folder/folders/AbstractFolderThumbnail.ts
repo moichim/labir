@@ -1,9 +1,7 @@
-import { property } from "lit/decorators.js";
-import { ClientConsumer } from "../../ClientConsumer";
 import { FolderInfo } from "@labirthermal/server";
 import { css, CSSResultGroup, html, nothing } from "lit";
+import { property } from "lit/decorators.js";
 import { ControlledConsumer } from "../../../controllers/abstraction/ControlledConsumer";
-import { ConnectedFolderSelectionCheckbox } from "../../../controllers/components/selection/ConnectedFolderSelectionCheckbox";
 
 export class AbstractFolderThumbnail extends ControlledConsumer {
 

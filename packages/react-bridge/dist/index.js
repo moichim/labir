@@ -78,8 +78,8 @@ var __async = (__this, __arguments, generator) => {
 };
 
 // src/index.ts
-var src_exports = {};
-__export(src_exports, {
+var index_exports = {};
+__export(index_exports, {
   Orientation: () => Orientation,
   PaletteGgradientDisplay: () => PaletteGgradientDisplay,
   ThermalDropin: () => ThermalDropin,
@@ -108,7 +108,7 @@ __export(src_exports, {
   useThermalRegistryOpacityDrive: () => useThermalRegistryOpacityDrive,
   useThermalRegistryRangeDrive: () => useThermalRegistryRangeDrive
 });
-module.exports = __toCommonJS(src_exports);
+module.exports = __toCommonJS(index_exports);
 
 // src/components/dropin/ThermalDropin.tsx
 var import_react5 = __toESM(require("react"));
@@ -180,7 +180,7 @@ var ThermalInstance = (_a) => {
 };
 
 // src/components/dropin/useThermalDropin.ts
-var import_core2 = require("@labir/core");
+var import_core2 = require("@labirthermal/core");
 var import_react_dropzone = require("react-dropzone");
 
 // src/properties/lists/useThermalGroupInstancesState.ts
@@ -202,7 +202,7 @@ var useThermalGroupInstancesState = (group, purpose) => {
 };
 
 // src/context/useThermalObjectPurpose.ts
-var import_core = require("@labir/core");
+var import_core = require("@labirthermal/core");
 var import_react4 = require("react");
 var import_uuid = require("uuid");
 var useThermalObjectPurpose = (object, purpose, individual = false) => {
@@ -235,9 +235,9 @@ var useThermalDropin = (registry, groupId) => {
   const ID = useThermalObjectPurpose(registry, "useThermalDropin", true);
   const group = registry.groups.addOrGetGroup(groupId);
   const dropzone = (0, import_react_dropzone.useDropzone)({
-    onDrop: (acceptedFiles) => __async(void 0, null, function* () {
+    onDrop: (acceptedFiles) => __async(null, null, function* () {
       yield Promise.all(
-        acceptedFiles.map((file) => __async(void 0, null, function* () {
+        acceptedFiles.map((file) => __async(null, null, function* () {
           const result = yield registry.service.loadUploadedFile(file);
           if (result instanceof import_core2.ThermalFileReader) {
             return yield result.createInstance(group);
@@ -610,14 +610,14 @@ var import_react_ranger = require("@tanstack/react-ranger");
 var import_react27 = __toESM(require("react"));
 
 // src/properties/drives/useThermalRegistryPaletteDrive.ts
-var import_core4 = require("@labir/core");
+var import_core4 = require("@labirthermal/core");
 var import_react18 = require("react");
 
 // src/context/thermalManagerContext.tsx
 var import_react17 = __toESM(require("react"));
 
 // src/context/useThermalManagerInternal.ts
-var import_core3 = require("@labir/core");
+var import_core3 = require("@labirthermal/core");
 var import_react16 = require("react");
 var useThermalManagerInternal = (pool, options, externalInstance) => {
   return (0, import_react16.useMemo)(() => {

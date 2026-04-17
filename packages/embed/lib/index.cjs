@@ -42,7 +42,6 @@ let lit_directives_map_js = require("lit/directives/map.js");
 let lit_directives_cache_js = require("lit/directives/cache.js");
 let _floating_ui_dom = require("@floating-ui/dom");
 let lit_directives_class_map_js = require("lit/directives/class-map.js");
-require("lit-code");
 let lit_directives_unsafe_html_js = require("lit/directives/unsafe-html.js");
 let public_ip = require("public-ip");
 require("toolcool-range-slider");
@@ -50,17 +49,12 @@ require("toolcool-range-slider/dist/plugins/tcrs-marks.min.js");
 require("toolcool-range-slider/src/plugins/moving-tooltip-plugin");
 require("@google-web-components/google-chart");
 let date_fns = require("date-fns");
-let _labirthermal_server_simple = require("@labirthermal/server-simple");
 let lit_directives_style_map_js = require("lit/directives/style-map.js");
 let lit_directives_when_js = require("lit/directives/when.js");
 let mediabunny = require("mediabunny");
 let lit_directive_js = require("lit/directive.js");
-let date_fns_locale = require("date-fns/locale");
 let _labirthermal_server = require("@labirthermal/server");
 _labirthermal_server = __toESM(_labirthermal_server);
-let packages_server_client_src_Client = require("packages/server/client/src/Client");
-let packages_embed_src_ui_Btn = require("packages/embed/src/ui/Btn");
-let packages_core_dist = require("packages/core/dist");
 
 //#region package.json
 var version$1 = "1.3.4";
@@ -301,7 +295,7 @@ const en = {
 
 //#endregion
 //#region src/translations/languages/fr.ts
-const fr$1 = {
+const fr = {
 	delete: "Supprimer",
 	create: "Créer",
 	createfolder: "Créer un dossier",
@@ -535,7 +529,7 @@ const fr$1 = {
 
 //#endregion
 //#region src/translations/languages/cs.ts
-const cs$1 = {
+const cs = {
 	delete: "Smazat",
 	create: "Vytvořit",
 	createfolder: "Vytvořit složku",
@@ -769,7 +763,7 @@ const cs$1 = {
 
 //#endregion
 //#region src/translations/languages/cy.ts
-const cy$1 = {
+const cy = {
 	delete: "Dileu",
 	create: "Creu",
 	createfolder: "Creu ffolder",
@@ -1003,7 +997,7 @@ const cy$1 = {
 
 //#endregion
 //#region src/translations/languages/de.ts
-const de$1 = {
+const de = {
 	delete: "Löschen",
 	create: "Erstellen",
 	createfolder: "Einen Ordner erstellen",
@@ -1241,11 +1235,11 @@ const de$1 = {
 i18next.default.use(lit_i18n.initLitI18n).use(i18next_browser_languagedetector.default).init({
 	fallbackLng: "en",
 	resources: {
-		cs: { translation: cs$1 },
-		cy: { translation: cy$1 },
-		de: { translation: de$1 },
+		cs: { translation: cs },
+		cy: { translation: cy },
+		de: { translation: de },
 		en: { translation: en },
-		fr: { translation: fr$1 }
+		fr: { translation: fr }
 	}
 });
 window.i18next = i18next.default;
@@ -1559,12 +1553,6 @@ async function createChartWrapper(container) {
 }
 
 //#endregion
-//#region \0@oxc-project+runtime@0.114.0/helpers/decorateMetadata.js
-function __decorateMetadata(k, v) {
-	if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-}
-
-//#endregion
 //#region \0@oxc-project+runtime@0.114.0/helpers/decorate.js
 function __decorate(decorators, target, key, desc) {
 	var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1835,34 +1823,34 @@ let ThermalChart = class ThermalChart extends lit.LitElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "type", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Array)], ThermalChart.prototype, "events", void 0);
+})], ThermalChart.prototype, "type", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array })], ThermalChart.prototype, "events", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Object,
 	hasChanged: () => true
-}), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "options", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "cols", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "rows", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "data", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "view", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "selection", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ThermalChart.prototype, "_data", void 0);
+})], ThermalChart.prototype, "options", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array })], ThermalChart.prototype, "cols", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array })], ThermalChart.prototype, "rows", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalChart.prototype, "data", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ThermalChart.prototype, "view", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Array })], ThermalChart.prototype, "selection", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ThermalChart.prototype, "_data", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], ThermalChart.prototype, "left", void 0);
+})], ThermalChart.prototype, "left", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], ThermalChart.prototype, "top", void 0);
+})], ThermalChart.prototype, "top", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], ThermalChart.prototype, "w", void 0);
+})], ThermalChart.prototype, "w", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], ThermalChart.prototype, "h", void 0);
+})], ThermalChart.prototype, "h", void 0);
 ThermalChart = __decorate([(0, lit_decorators_js.customElement)("thermal-chart")], ThermalChart);
 
 //#endregion
@@ -2237,8 +2225,9 @@ const languages = [
 const languagesObject = Object.fromEntries(languages.map((l) => [l.code, l]));
 
 //#endregion
-//#region src/hierarchy/BaseElement.ts
-var BaseElement = class extends lit.LitElement {
+//#region src/hierarchy/AbstractThermalElement.ts
+/** All the webcomponents of \@labirthermal/embed (and its extensions) should be based on the abstract class `AbstractThermalElement`. */
+var AbstractThermalElement = class extends lit.LitElement {
 	get UUID() {
 		if (this._UUID === void 0) this._UUID = (0, uuid.v4)();
 		return this._UUID;
@@ -2272,7 +2261,7 @@ var BaseElement = class extends lit.LitElement {
 __decorate([(0, _lit_context.consume)({
 	context: localeContext,
 	subscribe: true
-}), __decorateMetadata("design:type", String)], BaseElement.prototype, "_locale", void 0);
+})], AbstractThermalElement.prototype, "_locale", void 0);
 
 //#endregion
 //#region src/utils/converters/booleanConverter.ts
@@ -2293,10 +2282,10 @@ const booleanConverter = (emptyValue) => {
 
 //#endregion
 //#region src/ui/App.ts
-var _ref$113, _ref2$58, _ref3$37, _ThermalAppUiElement;
-let ThermalAppUiElement = class ThermalAppUiElement extends BaseElement {
+var _ThermalAppElement;
+let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	static {
-		_ThermalAppUiElement = this;
+		_ThermalAppElement = this;
 	}
 	constructor(..._args) {
 		super(..._args);
@@ -2526,7 +2515,7 @@ let ThermalAppUiElement = class ThermalAppUiElement extends BaseElement {
 	renderLanguageSwitcher() {
 		return lit.html`<thermal-dropdown>
     <span slot="invoker">${this.language.toUpperCase()}</span>
-    ${(0, lit_directives_cache_js.cache)((0, lit_directives_map_js.map)(_ThermalAppUiElement.languages, (lang) => lit.html`<div slot="option">
+    ${(0, lit_directives_cache_js.cache)((0, lit_directives_map_js.map)(_ThermalAppElement.languages, (lang) => lit.html`<div slot="option">
         <thermal-btn
             @click=${() => {
 			i18next.default.changeLanguage(lang);
@@ -2597,50 +2586,49 @@ let ThermalAppUiElement = class ThermalAppUiElement extends BaseElement {
 `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "language", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalAppElement.prototype, "language", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "bar",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref$113 = typeof Array !== "undefined" && Array) === "function" ? _ref$113 : Object)], ThermalAppUiElement.prototype, "barElements", void 0);
+})], ThermalAppElement.prototype, "barElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref2$58 = typeof Array !== "undefined" && Array) === "function" ? _ref2$58 : Object)], ThermalAppUiElement.prototype, "preElements", void 0);
+})], ThermalAppElement.prototype, "preElements", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "content",
 	flatten: true
-}), __decorateMetadata("design:type", typeof (_ref3$37 = typeof Array !== "undefined" && Array) === "function" ? _ref3$37 : Object)], ThermalAppUiElement.prototype, "contentElements", void 0);
+})], ThermalAppElement.prototype, "contentElements", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "fullscreen", void 0);
+})], ThermalAppElement.prototype, "fullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ThermalAppUiElement.prototype, "showfullscreen", void 0);
+})], ThermalAppElement.prototype, "showfullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", Boolean)], ThermalAppUiElement.prototype, "dark", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "author", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "recorded", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "license", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "labelIcon", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "labelIconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "labelTooltip", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalAppUiElement.prototype, "labelVariant", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalAppUiElement.prototype, "onlabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], ThermalAppUiElement.prototype, "chromiumwarning", void 0);
-ThermalAppUiElement = _ThermalAppUiElement = __decorate([(0, lit_decorators_js.customElement)("thermal-app")], ThermalAppUiElement);
+})], ThermalAppElement.prototype, "dark", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "author", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "recorded", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "license", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "labelIcon", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "labelIconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "labelTooltip", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalAppElement.prototype, "labelVariant", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ThermalAppElement.prototype, "onlabel", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) })], ThermalAppElement.prototype, "chromiumwarning", void 0);
+ThermalAppElement = _ThermalAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-app")], ThermalAppElement);
 
 //#endregion
 //#region src/ui/Bar.ts
-var _ref$112;
-let ThermalBar = class ThermalBar extends lit.LitElement {
+let ThermalBarElement = class ThermalBarElement extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
 		this.collapsed = false;
@@ -2767,10 +2755,9 @@ let ThermalBar = class ThermalBar extends lit.LitElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalBar.prototype, "collapsed", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ThermalBar.prototype, "lastContentWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$112 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$112 : Object)], ThermalBar.prototype, "drawerRef", void 0);
-ThermalBar = __decorate([(0, lit_decorators_js.customElement)("thermal-bar")], ThermalBar);
+__decorate([(0, lit_decorators_js.state)()], ThermalBarElement.prototype, "collapsed", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalBarElement.prototype, "lastContentWidth", void 0);
+ThermalBarElement = __decorate([(0, lit_decorators_js.customElement)("thermal-bar")], ThermalBarElement);
 
 //#endregion
 //#region src/utils/icons.ts
@@ -3072,8 +3059,7 @@ const icons = createIcons();
 
 //#endregion
 //#region src/ui/Btn.ts
-var _ref$111;
-let ThermalBtn = class ThermalBtn extends BaseElement {
+let ThermalBtnElement = class ThermalBtnElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.tooltipPlacement = "top";
@@ -3558,51 +3544,51 @@ let ThermalBtn = class ThermalBtn extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "tooltip-placement"
-}), __decorateMetadata("design:type", typeof (_ref$111 = typeof _floating_ui_dom.Placement !== "undefined" && _floating_ui_dom.Placement) === "function" ? _ref$111 : Object)], ThermalBtn.prototype, "tooltipPlacement", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "pre", void 0);
+})], ThermalBtnElement.prototype, "tooltipPlacement", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalBtnElement.prototype, "pre", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", Object)], ThermalBtn.prototype, "variant", void 0);
+})], ThermalBtnElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", Object)], ThermalBtn.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "iconStyle", void 0);
+})], ThermalBtnElement.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalBtnElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalBtnElement.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ThermalBtn.prototype, "disabled", void 0);
+})], ThermalBtnElement.prototype, "disabled", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ThermalBtn.prototype, "interactive", void 0);
+})], ThermalBtnElement.prototype, "interactive", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: true
-}), __decorateMetadata("design:type", Boolean)], ThermalBtn.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "tooltip", void 0);
+})], ThermalBtnElement.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalBtnElement.prototype, "tooltip", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], ThermalBtn.prototype, "tabindex", void 0);
+})], ThermalBtnElement.prototype, "tabindex", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "badge",
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "badge", void 0);
+})], ThermalBtnElement.prototype, "badge", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalBtn.prototype, "align", void 0);
-ThermalBtn = __decorate([(0, lit_decorators_js.customElement)("thermal-btn")], ThermalBtn);
+})], ThermalBtnElement.prototype, "align", void 0);
+ThermalBtnElement = __decorate([(0, lit_decorators_js.customElement)("thermal-btn")], ThermalBtnElement);
 
 //#endregion
 //#region src/ui/Dialog.ts
-let ThermalDialog = class ThermalDialog extends lit.LitElement {
+let ThermalDialogElement = class ThermalDialogElement extends lit.LitElement {
 	constructor(..._args) {
 		super(..._args);
 		this.button = (0, i18next.t)(T.close);
@@ -3788,26 +3774,25 @@ let ThermalDialog = class ThermalDialog extends lit.LitElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", String)], ThermalDialog.prototype, "button", void 0);
+})], ThermalDialogElement.prototype, "button", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "is-fullscreen"
-}), __decorateMetadata("design:type", Boolean)], ThermalDialog.prototype, "isFullscreen", void 0);
+})], ThermalDialogElement.prototype, "isFullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalDialog.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialog.prototype, "beforeClose", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ThermalDialog.prototype, "_open", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ThermalDialog.prototype, "onCloseEveryTime", void 0);
-ThermalDialog = __decorate([(0, lit_decorators_js.customElement)("thermal-dialog")], ThermalDialog);
+})], ThermalDialogElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ThermalDialogElement.prototype, "beforeClose", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalDialogElement.prototype, "_open", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ThermalDialogElement.prototype, "onCloseEveryTime", void 0);
+ThermalDialogElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dialog")], ThermalDialogElement);
 
 //#endregion
 //#region src/ui/Dropdown.ts
-var _ref$110, _ref2$57, _ref3$36;
-let ThermalDropdown = class ThermalDropdown extends BaseElement {
+let ThermalDropdownElement = class ThermalDropdownElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.dropdownRef = (0, lit_directives_ref_js.createRef)();
@@ -4009,35 +3994,35 @@ let ThermalDropdown = class ThermalDropdown extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" }), __decorateMetadata("design:type", typeof (_ref$110 = typeof Array !== "undefined" && Array) === "function" ? _ref$110 : Object)], ThermalDropdown.prototype, "_options", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)({ slot: "option" })], ThermalDropdownElement.prototype, "_options", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalDropdown.prototype, "isOpen", void 0);
+})], ThermalDropdownElement.prototype, "isOpen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], ThermalDropdown.prototype, "interactive", void 0);
+})], ThermalDropdownElement.prototype, "interactive", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$57 = typeof BtnVariants$11 !== "undefined" && BtnVariants$11) === "function" ? _ref2$57 : Object)], ThermalDropdown.prototype, "variant", void 0);
+})], ThermalDropdownElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref3$36 = typeof BtnSizes$11 !== "undefined" && BtnSizes$11) === "function" ? _ref3$36 : Object)], ThermalDropdown.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], ThermalDropdown.prototype, "plain", void 0);
+})], ThermalDropdownElement.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalDropdownElement.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true
-}), __decorateMetadata("design:type", String)], ThermalDropdown.prototype, "tooltip", void 0);
-ThermalDropdown = __decorate([(0, lit_decorators_js.customElement)("thermal-dropdown")], ThermalDropdown);
+})], ThermalDropdownElement.prototype, "tooltip", void 0);
+ThermalDropdownElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropdown")], ThermalDropdownElement);
 
 //#endregion
 //#region src/ui/Dropin.ts
-let Dropin = class Dropin extends BaseElement {
+let ThermalDropinElement = class ThermalDropinElement extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
     
@@ -4120,13 +4105,12 @@ let Dropin = class Dropin extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Dropin.prototype, "prompt", void 0);
-Dropin = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin")], Dropin);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalDropinElement.prototype, "prompt", void 0);
+ThermalDropinElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin")], ThermalDropinElement);
 
 //#endregion
 //#region src/ui/Expandable.ts
-var _ref$109, _ref2$56, _ref3$35;
-let Expandable = class Expandable extends BaseElement {
+let ThermalExpandableElement = class ThermalExpandableElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.closeIcon = false;
@@ -4202,51 +4186,51 @@ thermal-icon {
 `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Expandable.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalExpandableElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	attribute: true,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], Expandable.prototype, "closeIcon", void 0);
+})], ThermalExpandableElement.prototype, "closeIcon", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$109 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref$109 : Object)], Expandable.prototype, "variant", void 0);
+})], ThermalExpandableElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$56 = typeof BtnVariants$10 !== "undefined" && BtnVariants$10) === "function" ? _ref2$56 : Object)], Expandable.prototype, "variantExpanded", void 0);
+})], ThermalExpandableElement.prototype, "variantExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$35 = typeof BtnSizes$10 !== "undefined" && BtnSizes$10) === "function" ? _ref3$35 : Object)], Expandable.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Expandable.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Expandable.prototype, "iconStyle", void 0);
+})], ThermalExpandableElement.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalExpandableElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalExpandableElement.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], Expandable.prototype, "disabled", void 0);
+})], ThermalExpandableElement.prototype, "disabled", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], Expandable.prototype, "interactive", void 0);
+})], ThermalExpandableElement.prototype, "interactive", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: true
-}), __decorateMetadata("design:type", Boolean)], Expandable.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Expandable.prototype, "tooltip", void 0);
+})], ThermalExpandableElement.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalExpandableElement.prototype, "tooltip", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	converter: booleanConverter(false),
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], Expandable.prototype, "expanded", void 0);
-Expandable = __decorate([(0, lit_decorators_js.customElement)("thermal-expandable")], Expandable);
+})], ThermalExpandableElement.prototype, "expanded", void 0);
+ThermalExpandableElement = __decorate([(0, lit_decorators_js.customElement)("thermal-expandable")], ThermalExpandableElement);
 
 //#endregion
 //#region src/ui/Field.ts
-let ThermalField = class ThermalField extends lit.LitElement {
+let ThermalFieldElement = class ThermalFieldElement extends lit.LitElement {
 	static {
 		this.styles = lit.css`
     
@@ -4303,13 +4287,13 @@ let ThermalField = class ThermalField extends lit.LitElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalField.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalField.prototype, "hint", void 0);
-ThermalField = __decorate([(0, lit_decorators_js.customElement)("thermal-field")], ThermalField);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalFieldElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalFieldElement.prototype, "hint", void 0);
+ThermalFieldElement = __decorate([(0, lit_decorators_js.customElement)("thermal-field")], ThermalFieldElement);
 
 //#endregion
 //#region src/ui/Icon.ts
-let ThermalIcon = class ThermalIcon extends BaseElement {
+let ThermalIconElement = class ThermalIconElement extends AbstractThermalElement {
 	connectedCallback() {
 		super.connectedCallback();
 		this.updateIcon();
@@ -4340,24 +4324,24 @@ let ThermalIcon = class ThermalIcon extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalIcon.prototype, "icon", void 0);
+})], ThermalIconElement.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalIcon.prototype, "variant", void 0);
+})], ThermalIconElement.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalIcon.prototype, "classes", void 0);
+})], ThermalIconElement.prototype, "classes", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalIcon.prototype, "css", void 0);
-ThermalIcon = __decorate([(0, lit_decorators_js.customElement)("thermal-icon")], ThermalIcon);
+})], ThermalIconElement.prototype, "css", void 0);
+ThermalIconElement = __decorate([(0, lit_decorators_js.customElement)("thermal-icon")], ThermalIconElement);
 
 //#endregion
 //#region src/ui/Loading.ts
-let Loading = class Loading extends BaseElement {
+let ThermalLoadingElement = class ThermalLoadingElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.loaded = false;
@@ -4408,562 +4392,22 @@ let Loading = class Loading extends BaseElement {
 		return content;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], Loading.prototype, "loaded", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalLoadingElement.prototype, "loaded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], Loading.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "bordercolor", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "bgcolor", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Loading.prototype, "textcolor", void 0);
-Loading = __decorate([(0, lit_decorators_js.customElement)("thermal-poster")], Loading);
-
-//#endregion
-//#region src/ui/Playground.ts
-var _ref$108, _PlaygroundElement;
-let PlaygroundElement = class PlaygroundElement extends BaseElement {
-	static {
-		_PlaygroundElement = this;
-	}
-	constructor(..._args) {
-		super(..._args);
-		this.codeEditorRef = (0, lit_directives_ref_js.createRef)();
-		this.title = "Interactive Playground";
-		this.fullscreen = false;
-		this.fullscreenIcon = "bigger";
-		this.fullscreenTooltip = "Fullscreen";
-		this.browserTitle = "Labirthermal Playground";
-		this.code = "";
-		this.handleFullscreenChange = () => {
-			if (!document.fullscreenElement && this.fullscreen) {
-				this.fullscreen = false;
-				this.fullscreenIcon = "bigger";
-				this.fullscreenTooltip = "Fullscreen";
-			}
-		};
-	}
-	static {
-		this.LIB_LIT_CODE_ID = "playground-element-lit-code";
-	}
-	static {
-		this.LIB_PRISM_JS_ID = "playground-element-prism-js";
-	}
-	static {
-		this.LIB_PRISM_CSS_ID = "playground-element-prism-css";
-	}
-	static get LIBS_IMPORTED() {
-		const lit_code$1 = document.getElementById(_PlaygroundElement.LIB_LIT_CODE_ID);
-		const prism = document.getElementById(_PlaygroundElement.LIB_PRISM_JS_ID);
-		const prism_css = document.getElementById(_PlaygroundElement.LIB_PRISM_CSS_ID);
-		return Boolean(lit_code$1 && prism && prism_css);
-	}
-	static {
-		this.INJECTED_SCRIPT = `<script>
-    (function() {
-        const send = (type, args) => {
-            window.parent.postMessage({ type, args }, '*');
-        };
-        ['log', 'error', 'warn', 'info'].forEach(fn => {
-            const orig = console[fn];
-            console[fn] = function(...args) {
-                send(fn, args);
-                orig.apply(console, args);
-            };
-        });
-    })();
-<\/script>`;
-	}
-	importJsLib(id, url) {
-		const element = document.createElement("script");
-		element.id = id;
-		element.src = url;
-		element.async = true;
-		document.head.appendChild(element);
-	}
-	importCssLib(id, url) {
-		const element = document.createElement("link");
-		element.id = id;
-		element.rel = "stylesheet";
-		element.href = url;
-		document.head.appendChild(element);
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.importCssLib(_PlaygroundElement.LIB_PRISM_CSS_ID, "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism.min.css");
-		this.importJsLib(_PlaygroundElement.LIB_PRISM_JS_ID, "https://cdn.jsdelivr.net/npm/prismjs@1.30.0/plugins/autoloader/prism-autoloader.min.js");
-		const slot = this.shadowRoot?.querySelector("slot[name=code]");
-		if (slot) slot.addEventListener("slotchange", () => {
-			const updated = this.getSlottedCode();
-			if (updated) {
-				this.setCode(updated);
-				this.setDefaultCode(updated);
-			}
-		});
-		document.addEventListener("fullscreenchange", this.handleFullscreenChange);
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		document.removeEventListener("fullscreenchange", this.handleFullscreenChange);
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		const defaultSrcDoc = this.getSlottedCode();
-		if (defaultSrcDoc) this.defaultCode = defaultSrcDoc;
-	}
-	willUpdate(_changedProperties) {
-		super.willUpdate(_changedProperties);
-		if (_changedProperties.has("title") || _changedProperties.has("code")) {
-			const titleFromCode = this.code.match(/<title>(.*?)<\/title>/i);
-			if (titleFromCode && titleFromCode[1]) this.browserTitle = titleFromCode[1];
-			else this.browserTitle = this.title;
-		}
-		if (_changedProperties.has("defaultCode") && this.defaultCode) {
-			this.setCode(this.defaultCode);
-			this.setDefaultCode(this.defaultCode);
-		}
-		if (_changedProperties.has("fullscreen")) if (this.fullscreen) {
-			this.fullscreenIcon = "smaller";
-			this.fullscreenTooltip = "Exit Fullscreen";
-		} else {
-			this.fullscreenIcon = "bigger";
-			this.fullscreenTooltip = "Fullscreen";
-		}
-	}
-	/** Sets the srcdoc prepending the injected script */
-	setCode(srcdoc) {
-		this.code = _PlaygroundElement.INJECTED_SCRIPT + srcdoc;
-	}
-	/** Gets the srcdoc without the injected script */
-	getCodeForExport() {
-		return this.code.replace(_PlaygroundElement.INJECTED_SCRIPT, "");
-	}
-	/** Set the default code & update the current code */
-	setDefaultCode(code) {
-		this.defaultCode = code;
-		this.codeEditorRef.value?.setCode(code);
-		if (code) this.setCode(code);
-	}
-	/** Looks into the first code element slotted inside the code slot and reads its inner html */
-	getSlottedCode() {
-		if (this._listItems.length > 0) {
-			const element = this._listItems[0];
-			if (element.tagName.toLowerCase() === "code") return element.innerHTML;
-		}
-	}
-	static {
-		this.styles = lit.css`
-
-/** Variables */
-
-:host {
-    --playground-foreground: var( --thermal-foreground );
-    --playground-background: var( --thermal-slate-light );
-    --playground-primary: var( --thermal-primary );
-    --playground-light: var( --thermal-slate-light );
-    --playground-radius: var( --thermal-radius );
-    --playground-fs: var( --thermal-fs );
-    --playground-gap: var( --thermal-gap, 1em );
-    --playground-ff-ui: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    --playground-ff-mono: monospace;
-}
-
-:host {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-
-    font-size: var( --playground-fs );
-    font-family: var( --playground-ff-ui );
-    line-height: 1.2em;
-
-    color: var( --playground-foreground );
-
-}
-
-:host( [fullscreen="true"] ) {
-    background: var( --thermal-background );
-    padding: var( --playground-gap );
-    height: 100vh;
-}
-
-.force-hide {
-    display: none !important;
-    opacity: 0 !important;
-    pointer-events: none !important
-    position: absolute !important;
-    width: 0 !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    top: -999px !important;
-    left: -999px !important;
-}
-
-.opaque {
-    opacity: 0.2;
-    transition: opacity 0.3s ease-in-out;
-    cursor: help;
-    &:hover {
-        opacity: 1;
-    }
-}
-
-
-
-
-
-
-/** Overrides */
-
-h1, h2, h3, h4, h5, h6, p {
-    margin: 0;
-    padding: 0;
-    font-weight: normal;
-    color: inherit;
-    font-size: inherit;
-}
-
-
-/** UI COMPONENTS */
-
-.tabs {
-    display: flex;
-    gap: .5em;
-    align-items: center;
-}
-.tab {
-
-}
-.tab__bg {
-    color: var( --playground-foreground );
-    padding: .5em .75em;
-    background: var( --playground-background);
-    border-radius: var( --playground-radius ) var( --playground-radius ) 0 0;
-}
-
-.tab__icon {
-    cursor: pointer;
-    color: var( --playground-foreground );
-    &:hover {
-        color: var( --playground-primary );
-    }
-    &.tab__icon_right {
-        justify-self: flex-end;
-        margin-left: auto;
-    }
-}
-
-.tab__title {
-    font-weight: bold;
-}
-
-/** PARTS OF THE UI */
-
-.head {
-        
-}
-
-.main {
-    background: var( --playground-background );
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var( --playground-gap );
-
-    & > section {
-        box-sizing: border-box;
-    }
-}
-
-.editor {
-    
-}
-
-.preview {
-    padding: 2em;
-}
-
-.browser {
-
-    &,
-    .browser__header {
-        border-radius: var( --playground-radius ) var( --playground-radius ) 0 0;
-    }
-
-    box-shadow: 0 0 5px rgba(0,0,0,0.5);
-    border: var(--thermal-border-width) var(--thermal-border-style) buttonborder;
-
-    iframe {
-        background: white;
-        border: none;
-        width: 100%;
-        display: block;
-    }
-
-    .browser__header {
-        box-sizing: border-box;
-        width: 100%;
-        padding: .5em;
-        border-radius: var( --playground-radius ) var( --playground-radius ) 0 0;
-
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 1em;
-
-        color: graytext;
-
-        background: buttonface;
-        
-    }
-
-    .browser__buttons {
-        display: flex;
-        gap: 0.5em;
-    }
-
-    .browser__button {
-        width: 1em;
-        height: 1em;
-        border-radius: 50%;
-        display: block;
-        border: none;
-        outline: none;
-        cursor: pointer;
-    }
-
-    .browser__button_red { background: #ff605c; }
-    .browser__button_yellow { background: #ffbd44; }
-    .browser__button_green { background: #00ca56; }
-
-    .browser__bar {
-        padding: .2em .5em;
-        box-sizing: border-box;
-        background: field;
-        border-radius: .5em;
-        display: flex; 
-        gap: 1em;
-        flex-grow: 1;
-    }
-
-    .browser__bar_icons {
-        display: flex;
-        gap: .5em;
-        align-items: center;
-        svg {
-            display: inline-flex;
-            width: 1em;
-            height: 1em;
-        }
-    }
-
-    .browser__bar_title {
-        text-align: center;
-        flex-grow: 1;
-    }
-
-}
-
-.console {
-
-}
-
-/** The code editor */
-lit-code {
-    --font-family: monospace;
-    --font-size:   12pt;
-    --line-height: 14pt;
-    --lines-width: 40px;
-
-    --editor-bg-color:    var( --playground-background );
-    --editor-text-color:  black;
-    --editor-caret-color: var(--editor-text-color);
-    --editor-sel-color:   #b9ecff;
-
-    --lines-bg-color:     var( --playground-background );
-    --lines-text-color:   black;
-    --scroll-track-color: #aaa;
-    --scroll-thumb-color: #eee;
-
-    /*lit-theme colors for default highlight tokens */
-    --hl-color-string:      #00ae22;
-    --hl-color-function:    #004eff;
-    --hl-color-number:      #dd9031;
-    --hl-color-operator:    #5a5a5a;
-    --hl-color-class-name:  #78c3ca;
-    --hl-color-punctuation: #4a4a4a;
-    --hl-color-keyword:     #8500ff;
-    --hl-color-comment:     #aaa;
-}
-    
-    `;
-	}
-	render() {
-		return lit.html`<div class="force-hide">
-    <slot name="code"></slot>
-</div>
-
-<header class="head tabs">
-    <h1 class="tab tab__bg tab__title">${this.title}</h1>
-    
-    <thermal-btn
-        class="tab tab__icon"
-        variant="text"
-        size="lg"
-        icon="clipboard"
-        iconStyle="outline"
-        tooltip="Kopírovat kód"
-        @click=${() => {
-			navigator.clipboard.writeText(this.getCodeForExport());
-		}}
-    ></thermal-btn>
-
-    <thermal-btn
-        class="tab tab__icon"
-        variant="text"
-        size="lg"
-        icon="download"
-        iconStyle="micro"
-        tooltip="Stáhnout kód"
-        @click=${() => {
-			const blob = new Blob([this.getCodeForExport()], { type: "text/html" });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			a.download = `${this.title}.html`;
-			a.click();
-			URL.revokeObjectURL(url);
-		}}
-    ></thermal-btn>
-
-    ${this.defaultCode ? lit.html`<thermal-btn
-        class="tab tab__icon"
-        variant="text" 
-        size="lg"
-        icon="back"
-        iconStyle="micro"
-        tooltip="Resetovat kód"
-        @click=${() => {
-			this.setCode(this.defaultCode);
-			this.codeEditorRef.value?.setCode(this.defaultCode);
-		}}
-    ></thermal-btn>` : lit.nothing}
-
-    ${this.subtitle ? lit.html`<span class="opaque">${this.subtitle}</span>` : lit.nothing}
-
-    <thermal-btn
-        class="tab tab__icon tab__icon_right"
-        variant="text"
-        size="lg"
-        icon="${this.fullscreenIcon}"
-        iconStyle="mini"
-        tooltip="${this.fullscreenTooltip}"
-        @click=${() => {
-			if (this.fullscreen) {
-				document.exitFullscreen();
-				return;
-			} else {
-				this.fullscreen = true;
-				this.requestFullscreen();
-			}
-		}}
-    ></thermal-btn>
-
-</header>
-
-<main class="main">
-    
-    <section class="editor">
-        <lit-code 
-            language="html"
-            linenumbers="true"
-            ${(0, lit_directives_ref_js.ref)(this.codeEditorRef)}
-            @update=${(e) => {
-			this.code = _PlaygroundElement.INJECTED_SCRIPT + e.detail;
-		}}
-        ></lit-code>
-    </section>
-
-    <section class="preview">
-
-        <div class="browser">
-            <div class="browser__header">
-                <div class="browser__buttons">
-                    <button class="browser__button browser__button_red"></button>
-                    <button class="browser__button browser__button_yellow"></button>
-                    <button class="browser__button browser__button_green"></button>
-                </div>
-                <div class="browser__bar_icons">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                    </svg>
-                </div>
-                <div class="browser__bar">
-                    <div class="browser__bar_icons">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-                        </svg>
-                    </div>
-                    <div class="browser__bar_title">
-                        ${this.browserTitle}
-                    </div>
-                    <div class="browser__bar_icons">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" />
-                        </svg>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502m9.334-12.138c.896.061 1.785.147 2.666.257m-4.589 8.495a18.023 18.023 0 0 1-3.827-5.802" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="browser__bar_icons">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 0 1-.657.643 48.39 48.39 0 0 1-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 0 1-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 0 0-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 0 1-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 0 0 .657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 0 1-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 0 0 5.427-.63 48.05 48.05 0 0 0 .582-4.717.532.532 0 0 0-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 0 0 .658-.663 48.422 48.422 0 0 0-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 0 1-.61-.58v0Z" />
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                    </svg>
-                </div>
-            </div>
-            <iframe .srcdoc=${this.code} />
-        </div>
-    </section>
-
-</main>`;
-	}
-};
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, lit_decorators_js.queryAssignedElements)({
-		slot: "code",
-		flatten: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref$108 = typeof Array !== "undefined" && Array) === "function" ? _ref$108 : Object)
-], PlaygroundElement.prototype, "_listItems", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "title", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "subtitle", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], PlaygroundElement.prototype, "fullscreen", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "fullscreenIcon", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "fullscreenTooltip", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "browserTitle", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "code", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], PlaygroundElement.prototype, "defaultCode", void 0);
-PlaygroundElement = _PlaygroundElement = __decorate([(0, lit_decorators_js.customElement)("playground-element")], PlaygroundElement);
+})], ThermalLoadingElement.prototype, "loading", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "bordercolor", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "bgcolor", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalLoadingElement.prototype, "textcolor", void 0);
+ThermalLoadingElement = __decorate([(0, lit_decorators_js.customElement)("thermal-poster")], ThermalLoadingElement);
 
 //#endregion
 //#region src/ui/Radio.ts
-let ThermalRadio = class ThermalRadio extends BaseElement {
+let ThermalRadioElement = class ThermalRadioElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.type = "radio";
@@ -5042,17 +4486,17 @@ let ThermalRadio = class ThermalRadio extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ThermalRadio.prototype, "type", void 0);
+})], ThermalRadioElement.prototype, "type", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ThermalRadio.prototype, "checked", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ThermalRadio.prototype, "onChange", void 0);
-ThermalRadio = __decorate([(0, lit_decorators_js.customElement)("thermal-radio")], ThermalRadio);
+})], ThermalRadioElement.prototype, "checked", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ThermalRadioElement.prototype, "onChange", void 0);
+ThermalRadioElement = __decorate([(0, lit_decorators_js.customElement)("thermal-radio")], ThermalRadioElement);
 
 //#endregion
 //#region src/ui/Slot.ts
-let ThermalSlot = class ThermalSlot extends BaseElement {
+let ThermalSlotElement = class ThermalSlotElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this._slottedElements = [];
@@ -5126,13 +4570,13 @@ let ThermalSlot = class ThermalSlot extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalSlot.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ThermalSlot.prototype, "_slottedElements", void 0);
-ThermalSlot = __decorate([(0, lit_decorators_js.customElement)("thermal-slot")], ThermalSlot);
+__decorate([(0, lit_decorators_js.property)()], ThermalSlotElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalSlotElement.prototype, "_slottedElements", void 0);
+ThermalSlotElement = __decorate([(0, lit_decorators_js.customElement)("thermal-slot")], ThermalSlotElement);
 
 //#endregion
 //#region src/ui/Spinner.ts
-let Spinner = class Spinner extends BaseElement {
+let ThermalSpinnerElement = class ThermalSpinnerElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.color = "var(--thermal-primary)";
@@ -5182,13 +4626,13 @@ let Spinner = class Spinner extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Spinner.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Spinner.prototype, "color", void 0);
-Spinner = __decorate([(0, lit_decorators_js.customElement)("thermal-spinner")], Spinner);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalSpinnerElement.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalSpinnerElement.prototype, "color", void 0);
+ThermalSpinnerElement = __decorate([(0, lit_decorators_js.customElement)("thermal-spinner")], ThermalSpinnerElement);
 
 //#endregion
 //#region src/ui/Tip.ts
-let Tip = class Tip extends BaseElement {
+let ThermalTipElement = class ThermalTipElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.icon = "bulb";
@@ -5255,13 +4699,12 @@ thermal-icon {
 </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Tip.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], Tip.prototype, "iconStyle", void 0);
-Tip = __decorate([(0, lit_decorators_js.customElement)("thermal-tip")], Tip);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalTipElement.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalTipElement.prototype, "iconStyle", void 0);
+ThermalTipElement = __decorate([(0, lit_decorators_js.customElement)("thermal-tip")], ThermalTipElement);
 
 //#endregion
-//#region src/apps/apparent-temperature/AustralianApparentTemperature.ts
-var _ref$107;
+//#region src/apps/AustralianApparentTemperature.ts
 var VUNIT = /* @__PURE__ */ function(VUNIT) {
 	VUNIT["mps"] = "mps";
 	VUNIT["kph"] = "kph";
@@ -5280,7 +4723,7 @@ const converters = {
 		else return;
 	}
 };
-let AustralianApparentTemperature = class AustralianApparentTemperature extends BaseElement {
+let AatAppElement = class AatAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.tRef = (0, lit_directives_ref_js.createRef)();
@@ -5584,38 +5027,34 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: "t",
 	converter: converters
-}), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "temperature", void 0);
+})], AatAppElement.prototype, "temperature", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true,
 	converter: converters
-}), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "v", void 0);
+})], AatAppElement.prototype, "v", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true,
 	converter: converters
-}), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "ha", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AustralianApparentTemperature.prototype, "ta", void 0);
+})], AatAppElement.prototype, "ha", void 0);
+__decorate([(0, lit_decorators_js.state)()], AatAppElement.prototype, "ta", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], AustralianApparentTemperature.prototype, "vunits", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref$107 = typeof Locales$6 !== "undefined" && Locales$6) === "function" ? _ref$107 : Object)
-], AustralianApparentTemperature.prototype, "locale", void 0);
-AustralianApparentTemperature = __decorate([(0, lit_decorators_js.customElement)("apparent-temperature-aat")], AustralianApparentTemperature);
+})], AatAppElement.prototype, "vunits", void 0);
+__decorate([(0, _lit_context.provide)({ context: localeContext }), (0, lit_decorators_js.property)({
+	reflect: true,
+	converter: localeConverter
+})], AatAppElement.prototype, "locale", void 0);
+AatAppElement = __decorate([(0, lit_decorators_js.customElement)("apparent-temperature-aat")], AatAppElement);
 
 //#endregion
 //#region src/controls/AppInfoButton.ts
-let AppInfoButton = class AppInfoButton extends BaseElement {
+let AppInfoButton = class AppInfoButton extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
 
@@ -5747,7 +5186,7 @@ AppInfoButton = __decorate([(0, lit_decorators_js.customElement)("app-info-butto
 //#region src/apps/AbstractControlledApp.ts
 const advancedPalettesContext = (0, _lit_context.createContext)("advanced-palettes");
 const advancedPalettesSetterContext = (0, _lit_context.createContext)("advanced-palettes-setter");
-var AbstractControlledApp = class extends BaseElement {
+var AbstractControlledApp = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettes = false;
@@ -5756,20 +5195,16 @@ var AbstractControlledApp = class extends BaseElement {
 		};
 	}
 };
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true,
-		attribute: "advanced-palettes",
-		converter: booleanConverter(false)
-	}),
-	(0, _lit_context.provide)({ context: advancedPalettesContext }),
-	__decorateMetadata("design:type", Boolean)
-], AbstractControlledApp.prototype, "advancedPalettes", void 0);
-__decorate([(0, _lit_context.provide)({ context: advancedPalettesSetterContext }), __decorateMetadata("design:type", Object)], AbstractControlledApp.prototype, "setAdvancedPalettes", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true,
+	attribute: "advanced-palettes",
+	converter: booleanConverter(false)
+}), (0, _lit_context.provide)({ context: advancedPalettesContext })], AbstractControlledApp.prototype, "advancedPalettes", void 0);
+__decorate([(0, _lit_context.provide)({ context: advancedPalettesSetterContext })], AbstractControlledApp.prototype, "setAdvancedPalettes", void 0);
 
 //#endregion
-//#region src/utils/converters/pngExportContext.ts
+//#region src/hierarchy/providers/context/pngExportContext.ts
 const pngExportWidthContext = (0, _lit_context.createContext)("pngExportWidthContext");
 const pngExportWidthSetterContext = (0, _lit_context.createContext)("pngExportWidthSetterContext");
 const pngExportFsContext = (0, _lit_context.createContext)("png-export-width-context");
@@ -5815,31 +5250,28 @@ var BaseAppWithPngExportContext = class extends AbstractControlledApp {
 		this.pngExportGroupNameSetter = (value) => this.pngExportGroupName = value;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngWidthSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngFsSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngAnalyses", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportAnalysesSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportScaleContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportScale", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportScaleSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportScaleSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportLicenseContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportLicense", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportLicenseSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportLicenseSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileNameContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportFileName", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileNameSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportFileNameSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileDateContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportFileDate", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFileDateSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportFileDateSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportColumnsContext }), __decorateMetadata("design:type", Number)], BaseAppWithPngExportContext.prototype, "pngExportColumns", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportColumnsSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportColumnsSetter", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameContext }), __decorateMetadata("design:type", Boolean)], BaseAppWithPngExportContext.prototype, "pngExportGroupName", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameSetterContext }), __decorateMetadata("design:type", Object)], BaseAppWithPngExportContext.prototype, "pngExportGroupNameSetter", void 0);
-const pngAuthorContext = (0, _lit_context.createContext)("pngAuthorContext");
-const pngAuthorSetterContext = (0, _lit_context.createContext)("pngAuthorSetterContext");
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext })], BaseAppWithPngExportContext.prototype, "pngWidth", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext })], BaseAppWithPngExportContext.prototype, "pngWidthSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsContext })], BaseAppWithPngExportContext.prototype, "pngFs", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext })], BaseAppWithPngExportContext.prototype, "pngFsSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisContext })], BaseAppWithPngExportContext.prototype, "pngAnalyses", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportAnalysisSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportAnalysesSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportScaleContext })], BaseAppWithPngExportContext.prototype, "pngExportScale", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportScaleSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportScaleSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportLicenseContext })], BaseAppWithPngExportContext.prototype, "pngExportLicense", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportLicenseSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportLicenseSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFileNameContext })], BaseAppWithPngExportContext.prototype, "pngExportFileName", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFileNameSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportFileNameSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFileDateContext })], BaseAppWithPngExportContext.prototype, "pngExportFileDate", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFileDateSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportFileDateSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportColumnsContext })], BaseAppWithPngExportContext.prototype, "pngExportColumns", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportColumnsSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportColumnsSetter", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameContext })], BaseAppWithPngExportContext.prototype, "pngExportGroupName", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportGroupNameSetterContext })], BaseAppWithPngExportContext.prototype, "pngExportGroupNameSetter", void 0);
 
 //#endregion
-//#region src/controls/manager/PngExportPanel.ts
-var _ref$106, _ref2$55, _ref3$34, _ref4$17, _ref5$6, _ref6$3, _ref7$1, _ref8$1, _ref9;
-let PngExportPanel = class PngExportPanel extends BaseElement {
+//#region src/controls/manager/ManagerExportPanel.ts
+let ManagerExportPanel = class ManagerExportPanel extends AbstractThermalElement {
 	renderRow(label, content, hint) {
 		return lit.html`<thermal-field label="${label}">
                 <div>${content}</div>
@@ -5947,80 +5379,80 @@ let PngExportPanel = class PngExportPanel extends BaseElement {
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], PngExportPanel.prototype, "pngWidth", void 0);
+})], ManagerExportPanel.prototype, "pngWidth", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$106 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref$106 : Object)], PngExportPanel.prototype, "pngWidthSetter", void 0);
+})], ManagerExportPanel.prototype, "pngWidthSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], PngExportPanel.prototype, "pngFs", void 0);
+})], ManagerExportPanel.prototype, "pngFs", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$55 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref2$55 : Object)], PngExportPanel.prototype, "pngFsSetter", void 0);
+})], ManagerExportPanel.prototype, "pngFsSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportAnalysisContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngAnalyses", void 0);
+})], ManagerExportPanel.prototype, "pngAnalyses", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportAnalysisSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3$34 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref3$34 : Object)], PngExportPanel.prototype, "pngExportAnalysesSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportAnalysesSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportScaleContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngExportScale", void 0);
+})], ManagerExportPanel.prototype, "pngExportScale", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportScaleSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$17 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref4$17 : Object)], PngExportPanel.prototype, "pngExportScaleSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportScaleSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportLicenseContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngExportLicense", void 0);
+})], ManagerExportPanel.prototype, "pngExportLicense", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportLicenseSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$6 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref5$6 : Object)], PngExportPanel.prototype, "pngExportLicenseSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportLicenseSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFileNameContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngExportFileName", void 0);
+})], ManagerExportPanel.prototype, "pngExportFileName", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFileNameSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref6$3 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref6$3 : Object)], PngExportPanel.prototype, "pngExportFileNameSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportFileNameSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFileDateContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngExportFileDate", void 0);
+})], ManagerExportPanel.prototype, "pngExportFileDate", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFileDateSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref7$1 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref7$1 : Object)], PngExportPanel.prototype, "pngExportFileDateSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportFileDateSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportColumnsContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], PngExportPanel.prototype, "pngExportColumns", void 0);
+})], ManagerExportPanel.prototype, "pngExportColumns", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportColumnsSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref8$1 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref8$1 : Object)], PngExportPanel.prototype, "pngExportColumnsSetter", void 0);
+})], ManagerExportPanel.prototype, "pngExportColumnsSetter", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportGroupNameContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], PngExportPanel.prototype, "pngExportGroupName", void 0);
+})], ManagerExportPanel.prototype, "pngExportGroupName", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportGroupNameSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref9 = typeof ContextSetter !== "undefined" && ContextSetter) === "function" ? _ref9 : Object)], PngExportPanel.prototype, "pngExportGroupNameSetter", void 0);
-PngExportPanel = __decorate([(0, lit_decorators_js.customElement)("png-export-panel")], PngExportPanel);
+})], ManagerExportPanel.prototype, "pngExportGroupNameSetter", void 0);
+ManagerExportPanel = __decorate([(0, lit_decorators_js.customElement)("manager-export-panel")], ManagerExportPanel);
 
 //#endregion
 //#region src/controls/registry/DisplaySettingsPanel.ts
-let ExportConfigPanel = class ExportConfigPanel extends BaseElement {
+let ExportConfigPanel = class ExportConfigPanel extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettes = false;
@@ -6050,7 +5482,7 @@ let ExportConfigPanel = class ExportConfigPanel extends BaseElement {
             >Pokročilé</thermal-btn>
         </thermal-field>
         <thermal-field label="${(0, i18next.t)(T.filerendering)}" hint="${(0, i18next.t)(T.filerenderinghint)}">
-            <manager-smooth-switch></manager-smooth-switch>
+            <manager-image-smooth-switch></manager-image-smooth-switch>
         </thermal-field>
         <thermal-field label="${(0, i18next.t)(T.graphlines)}" hint="${(0, i18next.t)(T.graphlineshint)}">
             <manager-graph-smooth-switch></manager-graph-smooth-switch>
@@ -6058,27 +5490,19 @@ let ExportConfigPanel = class ExportConfigPanel extends BaseElement {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: advancedPalettesContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], ExportConfigPanel.prototype, "advancedPalettes", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: advancedPalettesSetterContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Function)
-], ExportConfigPanel.prototype, "advancedPalettesSetter", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: advancedPalettesContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], ExportConfigPanel.prototype, "advancedPalettes", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: advancedPalettesSetterContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], ExportConfigPanel.prototype, "advancedPalettesSetter", void 0);
 ExportConfigPanel = __decorate([(0, lit_decorators_js.customElement)("registry-display-panel")], ExportConfigPanel);
 
 //#endregion
 //#region src/utils/multipleFiles/ThermalFile.ts
-let ThermalFileElement = class ThermalFileElement extends BaseElement {
+let ThermalFileElement = class ThermalFileElement extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
         :host {
@@ -6090,14 +5514,14 @@ let ThermalFileElement = class ThermalFileElement extends BaseElement {
 		return lit.nothing;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFileElement.prototype, "lrc", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFileElement.prototype, "png", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ThermalFileElement.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalFileElement.prototype, "lrc", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalFileElement.prototype, "png", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalFileElement.prototype, "label", void 0);
 ThermalFileElement = __decorate([(0, lit_decorators_js.customElement)("thermal-file")], ThermalFileElement);
 
 //#endregion
 //#region src/utils/multipleFiles/ThermalGroup.ts
-let ThermalGroup$9 = class ThermalGroup extends BaseElement {
+let ThermalGroup = class ThermalGroup extends AbstractThermalElement {
 	static {
 		this.styles = lit.css`
         :host {
@@ -6109,24 +5533,23 @@ let ThermalGroup$9 = class ThermalGroup extends BaseElement {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], ThermalGroup$9.prototype, "name", void 0);
-ThermalGroup$9 = __decorate([(0, lit_decorators_js.customElement)("thermal-group")], ThermalGroup$9);
+__decorate([(0, lit_decorators_js.property)()], ThermalGroup.prototype, "name", void 0);
+ThermalGroup = __decorate([(0, lit_decorators_js.customElement)("thermal-group")], ThermalGroup);
 
 //#endregion
-//#region src/apps/gallery/GalleryApp.ts
-var _ref$105, _ref2$54, _ref3$33;
-var STATE$2 = /* @__PURE__ */ function(STATE) {
+//#region src/apps/ThermalGalleryApp.ts
+var STATE$1 = /* @__PURE__ */ function(STATE) {
 	STATE["MAIN"] = "main";
 	STATE["GROUP"] = "group";
 	STATE["FILE"] = "file";
 	return STATE;
-}(STATE$2 || {});
-let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
+}(STATE$1 || {});
+let ThermalGalleryApp = class ThermalGalleryApp extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
 		this.label = "Gallery of IR images";
 		this.palette = "jet";
-		this.state = STATE$2.MAIN;
+		this.state = STATE$1.MAIN;
 		this.registryRef = (0, lit_directives_ref_js.createRef)();
 		this.pngExportWidth = 1200;
 		this.pngExportWidthSetterContext = (value) => {
@@ -6164,7 +5587,7 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 	}
 	processSlots() {
 		setTimeout(() => {
-			this.structure = this.slottedElements.filter((element) => element instanceof ThermalGroup$9).map((element) => {
+			this.structure = this.slottedElements.filter((element) => element instanceof ThermalGroup).map((element) => {
 				return {
 					label: element.getAttribute("label"),
 					description: element.getAttribute("description"),
@@ -6184,7 +5607,7 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 		}, 1e3);
 	}
 	actionMainOpen() {
-		this.state = STATE$2.MAIN;
+		this.state = STATE$1.MAIN;
 		this.resetRegistry();
 		setTimeout(() => {
 			this.group = void 0;
@@ -6196,23 +5619,23 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 		setTimeout(() => {
 			this.group = group;
 			this.columns = Math.min(4, group.files.length);
-			if (group.files.length > 1) this.state = STATE$2.GROUP;
+			if (group.files.length > 1) this.state = STATE$1.GROUP;
 			else {
-				this.state = STATE$2.FILE;
+				this.state = STATE$1.FILE;
 				this.file = group.files[0];
 			}
 		}, 0);
 	}
 	actionDetailOpen(file) {
 		if (this.group === void 0) throw new Error("Group not yet set");
-		this.state = STATE$2.FILE;
+		this.state = STATE$1.FILE;
 		this.resetRegistry();
 		setTimeout(() => {
 			this.file = file;
 		}, 0);
 	}
 	actionDetailClose() {
-		this.state = STATE$2.GROUP;
+		this.state = STATE$1.GROUP;
 		this.resetRegistry();
 		setTimeout(() => {
 			this.file = void 0;
@@ -6329,7 +5752,7 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 	renderBrowser(content) {
 		return lit.html`<div class="browser state_${this.state}">
             <section>
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </section>
             <section>
                 ${content}
@@ -6504,9 +5927,9 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
                 >
 
 
-                    <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                    <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
-                    ${this.structure !== void 0 && this.state !== STATE$2.MAIN ? lit.html`
+                    ${this.structure !== void 0 && this.state !== STATE$1.MAIN ? lit.html`
                         <registry-range-form slot="bar-pre"></registry-range-form>
                         <registry-histogram slot="pre" expandable="true"></registry-histogram>
                         <registry-range-slider slot="pre"></registry-range-slider>
@@ -6520,15 +5943,15 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 
                         <div slot="content">
                             <table>
-                                <png-export-panel></png-export-panel>
+                                <manager-export-panel></manager-export-panel>
                                 <registry-display-panel></registry-display-panel>
                             </table>
                         </div>
                     </thermal-dialog>
 
-                    ${this.state === STATE$2.MAIN ? this.renderMain() : lit.nothing}
-                    ${this.state === STATE$2.GROUP ? this.renderGroup() : lit.nothing}
-                    ${this.state === STATE$2.FILE ? this.renderFile() : lit.nothing}
+                    ${this.state === STATE$1.MAIN ? this.renderMain() : lit.nothing}
+                    ${this.state === STATE$1.GROUP ? this.renderGroup() : lit.nothing}
+                    ${this.state === STATE$1.FILE ? this.renderFile() : lit.nothing}
 
                     <slot></slot>
 
@@ -6541,48 +5964,39 @@ let GalleryApp = class GalleryApp extends BaseAppWithPngExportContext {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GalleryApp.prototype, "author", void 0);
+})], ThermalGalleryApp.prototype, "author", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GalleryApp.prototype, "label", void 0);
+})], ThermalGalleryApp.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GalleryApp.prototype, "license", void 0);
+})], ThermalGalleryApp.prototype, "license", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$105 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$105 : Object)], GalleryApp.prototype, "palette", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, lit_decorators_js.queryAssignedElements)({ flatten: true }),
-	__decorateMetadata("design:type", typeof (_ref2$54 = typeof Array !== "undefined" && Array) === "function" ? _ref2$54 : Object)
-], GalleryApp.prototype, "slottedElements", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "structure", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], GalleryApp.prototype, "state", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "file", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], GalleryApp.prototype, "pngExportWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "pngExportWidthSetterContext", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], GalleryApp.prototype, "pngExportFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], GalleryApp.prototype, "pngExportFsSetterContext", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref3$33 = typeof Locales$5 !== "undefined" && Locales$5) === "function" ? _ref3$33 : Object)
-], GalleryApp.prototype, "locale", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GalleryApp.prototype, "columns", void 0);
-GalleryApp = __decorate([(0, lit_decorators_js.customElement)("thermal-gallery-app")], GalleryApp);
+})], ThermalGalleryApp.prototype, "palette", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, lit_decorators_js.queryAssignedElements)({ flatten: true })], ThermalGalleryApp.prototype, "slottedElements", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGalleryApp.prototype, "structure", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGalleryApp.prototype, "state", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGalleryApp.prototype, "group", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGalleryApp.prototype, "file", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext })], ThermalGalleryApp.prototype, "pngExportWidth", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext })], ThermalGalleryApp.prototype, "pngExportWidthSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsContext })], ThermalGalleryApp.prototype, "pngExportFs", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext })], ThermalGalleryApp.prototype, "pngExportFsSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: localeContext }), (0, lit_decorators_js.property)({
+	reflect: true,
+	converter: localeConverter
+})], ThermalGalleryApp.prototype, "locale", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGalleryApp.prototype, "columns", void 0);
+ThermalGalleryApp = __decorate([(0, lit_decorators_js.customElement)("thermal-gallery-app")], ThermalGalleryApp);
 
 //#endregion
 //#region src/hierarchy/providers/context/GroupContext.ts
 const groupContext = (0, _lit_context.createContext)("group-instance");
-const groupCursorContext = (0, _lit_context.createContext)("group-cursor");
 
 //#endregion
 //#region src/hierarchy/providers/context/RegistryContext.ts
@@ -6593,7 +6007,18 @@ const registryRangeToContext = (0, _lit_context.createContext)("registry-range-t
 const registryLoadingContext = (0, _lit_context.createContext)("registry-loading");
 const registryMinContext = (0, _lit_context.createContext)("registry-min");
 const registryMaxContext = (0, _lit_context.createContext)("registry-max");
+/** 
+* Highlight is an optional range of temperatures highlighted graphically on the thermal scale. It is used to indicate for example:
+* - what is the range of a file within min/max of the entire group
+* - what is the range of an analysis within the min/max of a file
+* - what is the min/max of a group of files within multiple groups of files
+* 
+* This context is exposed by a registry provider. It need to be consumed manually.
+*/
 const registryHighlightContext = (0, _lit_context.createContext)("registry-highlight");
+/**
+* Highlight setter needs to be used in order to set/unset a temperature range on the thermal scale.
+*/
 const setRegistryHighlightContext = (0, _lit_context.createContext)("registry-highlight-setter");
 
 //#endregion
@@ -6604,59 +6029,37 @@ const managerSmoothContext = (0, _lit_context.createContext)("manager-smooth-con
 const managerGraphFunctionContext = (0, _lit_context.createContext)("manager-graph-function-context");
 const languageContext = (0, _lit_context.createContext)("language");
 const toolContext = (0, _lit_context.createContext)("tool-context");
+/** @deprecated I do not know wha is this here. */
 const toolsContext = (0, _lit_context.createContext)("tools-context");
+const interactiveAnalysisContext = (0, _lit_context.createContext)("interactive-analysis-context");
 
 //#endregion
-//#region src/hierarchy/consumers/ManagerConsumer.ts
-var _ref$104;
-var ManagerConsumer = class extends BaseElement {
-	connectedCallback() {
-		super.connectedCallback();
-		if (this.manager === void 0) {}
-	}
-};
-__decorate([
-	(0, _lit_context.consume)({
-		context: managerContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$104 = typeof ManagerContext$2 !== "undefined" && ManagerContext$2) === "function" ? _ref$104 : Object)
-], ManagerConsumer.prototype, "manager", void 0);
+//#region src/hierarchy/consumers/AbstractManagerConsumer.ts
+var AbstractManagerConsumer = class extends AbstractThermalElement {};
+__decorate([(0, _lit_context.consume)({
+	context: managerContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractManagerConsumer.prototype, "manager", void 0);
 
 //#endregion
-//#region src/hierarchy/consumers/RegistryConsumer.ts
-var _ref$103;
-var RegistryConsumer = class extends ManagerConsumer {
-	connectedCallback() {
-		super.connectedCallback();
-		if (this.registry === void 0) {}
-	}
-};
+//#region src/hierarchy/consumers/AbstractRegistryConsumer.ts
+var AbstractRegistryConsumer = class extends AbstractManagerConsumer {};
 __decorate([(0, _lit_context.consume)({
 	context: registryContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$103 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref$103 : Object)], RegistryConsumer.prototype, "registry", void 0);
+})], AbstractRegistryConsumer.prototype, "registry", void 0);
 
 //#endregion
-//#region src/hierarchy/consumers/GroupConsumer.ts
-var _ref$102;
-var GroupConsumer = class extends RegistryConsumer {
-	constructor() {
-		super();
-	}
-	connectedCallback() {
-		super.connectedCallback();
-	}
-};
+//#region src/hierarchy/consumers/AbstractGroupConsumer.ts
+var AbstractGroupConsumer = class extends AbstractRegistryConsumer {};
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$102 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$102 : Object)], GroupConsumer.prototype, "group", void 0);
+})], AbstractGroupConsumer.prototype, "group", void 0);
 
 //#endregion
 //#region src/controls/group/AbstractGroupDropin.ts
-var AbstractGroupDropin = class extends GroupConsumer {
+var AbstractGroupDropin = class extends AbstractGroupConsumer {
 	connectedCallback() {
 		super.connectedCallback();
 		(0, public_ip.publicIpv4)().then((ip) => this.ip = ip);
@@ -6682,11 +6085,10 @@ var AbstractGroupDropin = class extends GroupConsumer {
 		this.dispatchEvent(event);
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractGroupDropin.prototype, "ip", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractGroupDropin.prototype, "ip", void 0);
 
 //#endregion
 //#region src/controls/group/GroupDropin.ts
-var _ref$101;
 let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -6852,14 +6254,13 @@ let GroupDropin$1 = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$101 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$101 : Object)], GroupDropin$1.prototype, "container", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "hover", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin$1.prototype, "uploading", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin$1.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin$1.prototype, "hover", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin$1.prototype, "uploading", void 0);
 GroupDropin$1 = __decorate([(0, lit_decorators_js.customElement)("group-dropin")], GroupDropin$1);
 
 //#endregion
 //#region src/controls/group/GroupDropinInput.ts
-var _ref$100;
 let GroupDropin = class GroupDropin extends AbstractGroupDropin {
 	constructor(..._args) {
 		super(..._args);
@@ -7006,33 +6407,37 @@ let GroupDropin = class GroupDropin extends AbstractGroupDropin {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$100 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$100 : Object)], GroupDropin.prototype, "container", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "hover", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupDropin.prototype, "uploading", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin.prototype, "container", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin.prototype, "hover", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupDropin.prototype, "uploading", void 0);
 GroupDropin = __decorate([(0, lit_decorators_js.customElement)("group-dropin-input")], GroupDropin);
 
 //#endregion
 //#region src/hierarchy/providers/context/FileContexts.ts
+/** A crucial context exposing the `Instance` object from `AbstractFileProvider` to `AbstractFileConsumers`. */
 const fileContext = (0, _lit_context.createContext)("file");
-const FailureContext = (0, _lit_context.createContext)("failure");
+const fileFailureContext = (0, _lit_context.createContext)("failure");
+/** @deprecated Not used - remove */
 const loadingContext = (0, _lit_context.createContext)("file-loading");
+/** @deprecated Not used - remove */
 const loadedContext = (0, _lit_context.createContext)("file-loaded");
 const fileProviderContext = (0, _lit_context.createContext)("file-provider-element");
 const fileMsContext = (0, _lit_context.createContext)("file-ms-context");
 const fileCursorContext = (0, _lit_context.createContext)("file-cursor");
 const fileCursorSetterContext = (0, _lit_context.createContext)("file-cursor-setter");
-const currentFrameContext = (0, _lit_context.createContext)("playback");
+const fileCurrentFrameContext = (0, _lit_context.createContext)("playback");
 const durationContext = (0, _lit_context.createContext)("duration");
-const playingContext = (0, _lit_context.createContext)("playing");
-const playbackSpeedContext = (0, _lit_context.createContext)("playbackSpeed");
-const recordingContext = (0, _lit_context.createContext)("recording");
-const mayStopContext = (0, _lit_context.createContext)("mayStop");
-const analysisList = (0, _lit_context.createContext)("analysislist");
+const filePlayingContext = (0, _lit_context.createContext)("file-playing-context");
+const filePlaybackSpeedContext = (0, _lit_context.createContext)("file-playback-speed");
+/** @deprecated */
+const fileRecordingContext = (0, _lit_context.createContext)("recording");
+/** @deprecated */
+const filaMayStopContext = (0, _lit_context.createContext)("mayStop");
+const fileAnalysisList = (0, _lit_context.createContext)("analysislist");
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractFileProvider.ts
-var _ref$99, _ref2$53, _ref3$32, _ref4$16, _ref5$5, _ref6$2, _ref7, _ref8;
-var AbstractFileProvider = class extends GroupConsumer {
+var AbstractFileProvider = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.loading = false;
@@ -7233,64 +6638,35 @@ var AbstractFileProvider = class extends GroupConsumer {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.provide)({ context: fileContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$99 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref$99 : Object)
-], AbstractFileProvider.prototype, "file", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: FailureContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$53 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref2$53 : Object)
-], AbstractFileProvider.prototype, "failure", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: loadingContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], AbstractFileProvider.prototype, "loading", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: loadedContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Object)
-], AbstractFileProvider.prototype, "ready", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: durationContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref3$32 = typeof DurationContext$1 !== "undefined" && DurationContext$1) === "function" ? _ref3$32 : Object)
-], AbstractFileProvider.prototype, "duration", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: currentFrameContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref4$16 = typeof CurrentFrameContext$3 !== "undefined" && CurrentFrameContext$3) === "function" ? _ref4$16 : Object)
-], AbstractFileProvider.prototype, "currentFrame", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileCursorContext }), __decorateMetadata("design:type", typeof (_ref5$5 = typeof FileCursorContext$2 !== "undefined" && FileCursorContext$2) === "function" ? _ref5$5 : Object)], AbstractFileProvider.prototype, "cursor", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileMsContext }), __decorateMetadata("design:type", Number)], AbstractFileProvider.prototype, "ms", void 0);
-__decorate([(0, _lit_context.provide)({ context: playbackSpeedContext }), __decorateMetadata("design:type", typeof (_ref6$2 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref6$2 : Object)], AbstractFileProvider.prototype, "speed", void 0);
-__decorate([(0, _lit_context.provide)({ context: recordingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "recording", void 0);
-__decorate([(0, _lit_context.provide)({ context: playingContext }), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "playing", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: mayStopContext }),
-	__decorateMetadata("design:type", Boolean)
-], AbstractFileProvider.prototype, "mayStop", void 0);
-__decorate([(0, _lit_context.provide)({ context: analysisList }), __decorateMetadata("design:type", typeof (_ref7 = typeof AnalysisList !== "undefined" && AnalysisList) === "function" ? _ref7 : Object)], AbstractFileProvider.prototype, "analyses", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "file", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileFailureContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "failure", void 0);
+__decorate([(0, _lit_context.provide)({ context: loadingContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "loading", void 0);
+__decorate([(0, _lit_context.provide)({ context: loadedContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "ready", void 0);
+__decorate([(0, _lit_context.provide)({ context: durationContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "duration", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileCurrentFrameContext }), (0, lit_decorators_js.state)()], AbstractFileProvider.prototype, "currentFrame", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileCursorContext })], AbstractFileProvider.prototype, "cursor", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileMsContext })], AbstractFileProvider.prototype, "ms", void 0);
+__decorate([(0, _lit_context.provide)({ context: filePlaybackSpeedContext })], AbstractFileProvider.prototype, "speed", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileRecordingContext })], AbstractFileProvider.prototype, "recording", void 0);
+__decorate([(0, _lit_context.provide)({ context: filePlayingContext })], AbstractFileProvider.prototype, "playing", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.provide)({ context: filaMayStopContext })], AbstractFileProvider.prototype, "mayStop", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileAnalysisList })], AbstractFileProvider.prototype, "analyses", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractFileProvider.prototype, "autoHighlight", void 0);
+})], AbstractFileProvider.prototype, "autoHighlight", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref8 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref8 : Object)], AbstractFileProvider.prototype, "highlight", void 0);
+})], AbstractFileProvider.prototype, "highlight", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], AbstractFileProvider.prototype, "highlightSetter", void 0);
+})], AbstractFileProvider.prototype, "highlightSetter", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/FileProvider.ts
-var _ref$98, _ref2$52;
 let FileProviderElement = class FileProviderElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7388,44 +6764,28 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileProviderElement.prototype, "keepinitialhistogram", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileMsContext }),
-	__decorateMetadata("design:type", Number)
-], FileProviderElement.prototype, "ms", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: playbackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref$98 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$98 : Object)
-], FileProviderElement.prototype, "speed", void 0);
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref2$52 = typeof FileProviderElement !== "undefined" && FileProviderElement) === "function" ? _ref2$52 : Object)], FileProviderElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: recordingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileProviderElement.prototype, "recording", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: playingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileProviderElement.prototype, "playing", void 0);
+})], FileProviderElement.prototype, "keepinitialhistogram", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: fileMsContext })], FileProviderElement.prototype, "ms", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: filePlaybackSpeedContext })], FileProviderElement.prototype, "speed", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext })], FileProviderElement.prototype, "providedSelf", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: fileRecordingContext })], FileProviderElement.prototype, "recording", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: filePlayingContext })], FileProviderElement.prototype, "playing", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
@@ -7439,57 +6799,57 @@ __decorate([(0, lit_decorators_js.property)({
 			return "false";
 		}
 	}
-}), __decorateMetadata("design:type", Boolean)], FileProviderElement.prototype, "batch", void 0);
+})], FileProviderElement.prototype, "batch", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "thermal", void 0);
+})], FileProviderElement.prototype, "thermal", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "visible", void 0);
+})], FileProviderElement.prototype, "visible", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis1", void 0);
+})], FileProviderElement.prototype, "analysis1", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis2", void 0);
+})], FileProviderElement.prototype, "analysis2", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis3", void 0);
+})], FileProviderElement.prototype, "analysis3", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis4", void 0);
+})], FileProviderElement.prototype, "analysis4", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis5", void 0);
+})], FileProviderElement.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis6", void 0);
+})], FileProviderElement.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileProviderElement.prototype, "analysis7", void 0);
+})], FileProviderElement.prototype, "analysis7", void 0);
 FileProviderElement = __decorate([(0, lit_decorators_js.customElement)("file-provider")], FileProviderElement);
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractGroupProvider.ts
-var AbstractGroupProvider = class extends RegistryConsumer {
+var AbstractGroupProvider = class extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.UUIDGroupListeners = this.UUID + "__group-listener";
@@ -7510,8 +6870,7 @@ var AbstractGroupProvider = class extends RegistryConsumer {
 
 //#endregion
 //#region src/hierarchy/providers/GroupProvider.ts
-var _ref$97;
-let GroupProviderElement$1 = class GroupProviderElement extends AbstractGroupProvider {
+let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvider {
 	constructor(..._args) {
 		super(..._args);
 		this.autoclear = false;
@@ -7525,10 +6884,10 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: true,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$97 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$97 : Object)], GroupProviderElement$1.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement$1.prototype, "autoclear", void 0);
-GroupProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("group-provider")], GroupProviderElement$1);
+})], GroupProviderElement.prototype, "slug", void 0);
+__decorate([(0, _lit_context.provide)({ context: groupContext })], GroupProviderElement.prototype, "group", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], GroupProviderElement.prototype, "autoclear", void 0);
+GroupProviderElement = __decorate([(0, lit_decorators_js.customElement)("group-provider")], GroupProviderElement);
 
 //#endregion
 //#region src/hierarchy/providers/getters.ts
@@ -7564,8 +6923,7 @@ const removeManager = (manager) => {
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractManagerProvider.ts
-var _ref$96;
-var AbstractManagerProvider = class extends BaseElement {
+var AbstractManagerProvider = class extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.UUIDManagerListeners = this.UUID + "__manager-listener";
@@ -7627,13 +6985,12 @@ var AbstractManagerProvider = class extends BaseElement {
 		return lit.html`<slot></slot>`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref$96 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$96 : Object)], AbstractManagerProvider.prototype, "tool", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], AbstractManagerProvider.prototype, "tools", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolContext })], AbstractManagerProvider.prototype, "tool", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolsContext })], AbstractManagerProvider.prototype, "tools", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/ManagerProvider.ts
-var _ref$95, _ref2$51, _ref3$31, _ref4$15;
-let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractManagerProvider {
+let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
 	constructor(..._args) {
 		super(..._args);
 		this.UUIDManagerListeners = this.UUID + "__manager-listener";
@@ -7646,62 +7003,49 @@ let ManagerProviderElement$1 = class ManagerProviderElement extends AbstractMana
 		this.autoclear = false;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$95 = typeof ManagerContext$1 !== "undefined" && ManagerContext$1) === "function" ? _ref$95 : Object)], ManagerProviderElement$1.prototype, "manager", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerContext })], ManagerProviderElement.prototype, "manager", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], ManagerProviderElement$1.prototype, "slug", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerPaletteContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		attribute: true,
-		reflect: true,
-		converter: {
-			fromAttribute: (value) => {
-				return {
-					key: value,
-					data: _labirthermal_core.ThermalPalettes[value]
-				};
-			},
-			toAttribute: (value) => {
-				return value.key.toString();
-			}
+})], ManagerProviderElement.prototype, "slug", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerPaletteContext }), (0, lit_decorators_js.property)({
+	type: String,
+	attribute: true,
+	reflect: true,
+	converter: {
+		fromAttribute: (value) => {
+			return {
+				key: value,
+				data: _labirthermal_core.ThermalPalettes[value]
+			};
+		},
+		toAttribute: (value) => {
+			return value.key.toString();
 		}
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$51 = typeof ManagerPaletteContext$3 !== "undefined" && ManagerPaletteContext$3) === "function" ? _ref2$51 : Object)
-], ManagerProviderElement$1.prototype, "palette", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerSmoothContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], ManagerProviderElement$1.prototype, "smooth", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerGraphFunctionContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref3$31 = typeof ManagerGraphFunctionContext$1 !== "undefined" && ManagerGraphFunctionContext$1) === "function" ? _ref3$31 : Object)
-], ManagerProviderElement$1.prototype, "graphSmooth", void 0);
+	}
+})], ManagerProviderElement.prototype, "palette", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerSmoothContext }), (0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+})], ManagerProviderElement.prototype, "smooth", void 0);
+__decorate([(0, _lit_context.provide)({ context: managerGraphFunctionContext }), (0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+})], ManagerProviderElement.prototype, "graphSmooth", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ManagerProviderElement$1.prototype, "autoclear", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$15 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref4$15 : Object)], ManagerProviderElement$1.prototype, "tool", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], ManagerProviderElement$1.prototype, "tools", void 0);
-ManagerProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("manager-provider")], ManagerProviderElement$1);
+})], ManagerProviderElement.prototype, "autoclear", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolContext })], ManagerProviderElement.prototype, "tool", void 0);
+__decorate([(0, _lit_context.provide)({ context: toolsContext })], ManagerProviderElement.prototype, "tools", void 0);
+ManagerProviderElement = __decorate([(0, lit_decorators_js.customElement)("manager-provider")], ManagerProviderElement);
 
 //#endregion
 //#region src/hierarchy/abstraction/AbstractRegistryProvider.ts
-var _ref$94;
-var AbstractRegistryProvider = class extends ManagerConsumer {
+var AbstractRegistryProvider = class extends AbstractManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.UUIDRegistryListeners = this.UUID + "__registry-listener";
@@ -7780,14 +7124,13 @@ var AbstractRegistryProvider = class extends ManagerConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractRegistryProvider.prototype, "forceNew", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryHighlightContext }), __decorateMetadata("design:type", typeof (_ref$94 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$94 : Object)], AbstractRegistryProvider.prototype, "highlight", void 0);
-__decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext }), __decorateMetadata("design:type", Object)], AbstractRegistryProvider.prototype, "setHighlight", void 0);
+})], AbstractRegistryProvider.prototype, "forceNew", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryHighlightContext })], AbstractRegistryProvider.prototype, "highlight", void 0);
+__decorate([(0, _lit_context.provide)({ context: setRegistryHighlightContext })], AbstractRegistryProvider.prototype, "setHighlight", void 0);
 
 //#endregion
 //#region src/hierarchy/providers/RegistryProvider.ts
-var _ref$93;
-let RegistryProviderElement$1 = class RegistryProviderElement extends AbstractRegistryProvider {
+let RegistryProviderElement = class RegistryProviderElement extends AbstractRegistryProvider {
 	constructor(..._args) {
 		super(..._args);
 		this.opacity = 1;
@@ -7807,63 +7150,38 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], RegistryProviderElement$1.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$93 = typeof RegistryContext$1 !== "undefined" && RegistryContext$1) === "function" ? _ref$93 : Object)], RegistryProviderElement$1.prototype, "registry", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryOpacityContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement$1.prototype, "opacity", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMinContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement$1.prototype, "min", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMaxContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement$1.prototype, "max", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeFromContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement$1.prototype, "from", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeToContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement$1.prototype, "to", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryLoadingContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], RegistryProviderElement$1.prototype, "loading", void 0);
+})], RegistryProviderElement.prototype, "slug", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryContext })], RegistryProviderElement.prototype, "registry", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryOpacityContext }), (0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+})], RegistryProviderElement.prototype, "opacity", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryMinContext }), (0, lit_decorators_js.state)()], RegistryProviderElement.prototype, "min", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryMaxContext }), (0, lit_decorators_js.state)()], RegistryProviderElement.prototype, "max", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryRangeFromContext }), (0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+})], RegistryProviderElement.prototype, "from", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryRangeToContext }), (0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+})], RegistryProviderElement.prototype, "to", void 0);
+__decorate([(0, _lit_context.provide)({ context: registryLoadingContext }), (0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+})], RegistryProviderElement.prototype, "loading", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], RegistryProviderElement$1.prototype, "autoclear", void 0);
-RegistryProviderElement$1 = __decorate([(0, lit_decorators_js.customElement)("registry-provider")], RegistryProviderElement$1);
+})], RegistryProviderElement.prototype, "autoclear", void 0);
+RegistryProviderElement = __decorate([(0, lit_decorators_js.customElement)("registry-provider")], RegistryProviderElement);
 
 //#endregion
-//#region src/hierarchy/mirrors/FileMirror.ts
-var _ref$92, _ref2$50;
+//#region src/hierarchy/providers/FileMirror.ts
 let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -7887,12 +7205,8 @@ let FileMirrorElement = class FileMirrorElement extends AbstractFileProvider {
 		}
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$92 = typeof FileMirrorElement !== "undefined" && FileMirrorElement) === "function" ? _ref$92 : Object)], FileMirrorElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: fileContext }),
-	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", typeof (_ref2$50 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$50 : Object)
-], FileMirrorElement.prototype, "file", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext })], FileMirrorElement.prototype, "providedSelf", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileContext }), (0, lit_decorators_js.property)()], FileMirrorElement.prototype, "file", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	converter: {
@@ -7904,140 +7218,20 @@ __decorate([(0, lit_decorators_js.property)({
 			return "false";
 		}
 	}
-}), __decorateMetadata("design:type", Boolean)], FileMirrorElement.prototype, "batch", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "thermal", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "visible", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis1", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis2", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis3", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis4", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis5", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis6", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileMirrorElement.prototype, "analysis7", void 0);
+})], FileMirrorElement.prototype, "batch", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "thermal", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "visible", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis1", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis2", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis3", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis4", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis5", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis6", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileMirrorElement.prototype, "analysis7", void 0);
 FileMirrorElement = __decorate([(0, lit_decorators_js.customElement)("file-mirror")], FileMirrorElement);
 
 //#endregion
-//#region src/hierarchy/mirrors/GroupMirror.ts
-var _ref$91;
-let GroupProviderElement = class GroupProviderElement extends AbstractGroupProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.autoclear = false;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: groupContext }), __decorateMetadata("design:type", typeof (_ref$91 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$91 : Object)], GroupProviderElement.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], GroupProviderElement.prototype, "autoclear", void 0);
-GroupProviderElement = __decorate([(0, lit_decorators_js.customElement)("group-mirror")], GroupProviderElement);
-
-//#endregion
-//#region src/hierarchy/mirrors/ManagerMirror.ts
-var _ref$90, _ref2$49, _ref3$30, _ref4$14;
-let ManagerProviderElement = class ManagerProviderElement extends AbstractManagerProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.UUIDManagerListeners = this.UUID + "__manager-listener";
-		this.palette = {
-			key: "jet",
-			data: _labirthermal_core.ThermalPalettes["jet"]
-		};
-		this.smooth = false;
-		this.graphSmooth = false;
-		this.autoclear = false;
-	}
-};
-__decorate([(0, _lit_context.provide)({ context: managerContext }), __decorateMetadata("design:type", typeof (_ref$90 = typeof ManagerContext !== "undefined" && ManagerContext) === "function" ? _ref$90 : Object)], ManagerProviderElement.prototype, "manager", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ManagerProviderElement.prototype, "slug", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerPaletteContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		converter: {
-			fromAttribute: (value) => {
-				return {
-					key: value,
-					data: _labirthermal_core.ThermalPalettes[value]
-				};
-			},
-			toAttribute: (value) => {
-				return value.key.toString();
-			}
-		}
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$49 = typeof ManagerPaletteContext$2 !== "undefined" && ManagerPaletteContext$2) === "function" ? _ref2$49 : Object)
-], ManagerProviderElement.prototype, "palette", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerSmoothContext }),
-	(0, lit_decorators_js.property)({ type: String }),
-	__decorateMetadata("design:type", Boolean)
-], ManagerProviderElement.prototype, "smooth", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: managerGraphFunctionContext }),
-	(0, lit_decorators_js.property)({ type: String }),
-	__decorateMetadata("design:type", typeof (_ref3$30 = typeof ManagerGraphFunctionContext !== "undefined" && ManagerGraphFunctionContext) === "function" ? _ref3$30 : Object)
-], ManagerProviderElement.prototype, "graphSmooth", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ManagerProviderElement.prototype, "autoclear", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolContext }), __decorateMetadata("design:type", typeof (_ref4$14 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref4$14 : Object)], ManagerProviderElement.prototype, "tool", void 0);
-__decorate([(0, _lit_context.provide)({ context: toolsContext }), __decorateMetadata("design:type", Object)], ManagerProviderElement.prototype, "tools", void 0);
-ManagerProviderElement = __decorate([(0, lit_decorators_js.customElement)("manager-mirror")], ManagerProviderElement);
-
-//#endregion
-//#region src/hierarchy/mirrors/RegistryMirror.ts
-var _ref$89;
-let RegistryProviderElement = class RegistryProviderElement extends AbstractRegistryProvider {
-	constructor(..._args) {
-		super(..._args);
-		this.opacity = 1;
-		this.loading = false;
-		this.autoclear = false;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", String)], RegistryProviderElement.prototype, "slug", void 0);
-__decorate([(0, _lit_context.provide)({ context: registryContext }), __decorateMetadata("design:type", typeof (_ref$89 = typeof RegistryContext !== "undefined" && RegistryContext) === "function" ? _ref$89 : Object)], RegistryProviderElement.prototype, "registry", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryOpacityContext }),
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "opacity", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMinContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "min", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryMaxContext }),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "max", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeFromContext }),
-	(0, lit_decorators_js.property)({ type: Number }),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "from", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryRangeToContext }),
-	(0, lit_decorators_js.property)({ type: Number }),
-	__decorateMetadata("design:type", Number)
-], RegistryProviderElement.prototype, "to", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: registryLoadingContext }),
-	(0, lit_decorators_js.property)({ type: String }),
-	__decorateMetadata("design:type", Boolean)
-], RegistryProviderElement.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], RegistryProviderElement.prototype, "autoclear", void 0);
-RegistryProviderElement = __decorate([(0, lit_decorators_js.customElement)("registry-mirror")], RegistryProviderElement);
-
-//#endregion
 //#region src/hierarchy/providers/FileCopy.ts
-var _ref$88, _ref2$48, _ref3$29;
 let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 	constructor(..._args) {
 		super(..._args);
@@ -8053,7 +7247,7 @@ let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 	}
 	async processFileCopy(originalFile) {
 		const originalRange = originalFile.group.registry.range.value;
-		if (originalFile.group.registry.range.value) {}
+		originalFile.group.registry;
 		const copiedFile = await originalFile.reader.createInstance(this.group);
 		copiedFile.group.registry.postLoadedProcessing();
 		if (originalRange) copiedFile.group.registry.range.imposeRange(originalRange);
@@ -8096,91 +7290,71 @@ let FileCopyElement = class FileCopyElement extends AbstractFileProvider {
 		return lit.html`${this.ready ? lit.html`<slot></slot>` : lit.nothing}`;
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: fileProviderContext }), __decorateMetadata("design:type", typeof (_ref$88 = typeof FileCopyElement !== "undefined" && FileCopyElement) === "function" ? _ref$88 : Object)], FileCopyElement.prototype, "providedSelf", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: fileContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$48 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$48 : Object)
-], FileCopyElement.prototype, "originalFile", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: fileMsContext }),
-	__decorateMetadata("design:type", Number)
-], FileCopyElement.prototype, "ms", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Number,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: playbackSpeedContext }),
-	__decorateMetadata("design:type", typeof (_ref3$29 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref3$29 : Object)
-], FileCopyElement.prototype, "speed", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: recordingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileCopyElement.prototype, "recording", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: true
-	}),
-	(0, _lit_context.provide)({ context: playingContext }),
-	__decorateMetadata("design:type", Boolean)
-], FileCopyElement.prototype, "playing", void 0);
+__decorate([(0, _lit_context.provide)({ context: fileProviderContext })], FileCopyElement.prototype, "providedSelf", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: fileContext,
+	subscribe: true
+})], FileCopyElement.prototype, "originalFile", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: fileMsContext })], FileCopyElement.prototype, "ms", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Number,
+	reflect: true,
+	attribute: true
+}), (0, _lit_context.provide)({ context: filePlaybackSpeedContext })], FileCopyElement.prototype, "speed", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis1", void 0);
+}), (0, _lit_context.provide)({ context: fileRecordingContext })], FileCopyElement.prototype, "recording", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis2", void 0);
+}), (0, _lit_context.provide)({ context: filePlayingContext })], FileCopyElement.prototype, "playing", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis3", void 0);
+})], FileCopyElement.prototype, "analysis1", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis4", void 0);
+})], FileCopyElement.prototype, "analysis2", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis5", void 0);
+})], FileCopyElement.prototype, "analysis3", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis6", void 0);
+})], FileCopyElement.prototype, "analysis4", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileCopyElement.prototype, "analysis7", void 0);
+})], FileCopyElement.prototype, "analysis5", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+})], FileCopyElement.prototype, "analysis6", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	attribute: true
+})], FileCopyElement.prototype, "analysis7", void 0);
 FileCopyElement = __decorate([(0, lit_decorators_js.customElement)("file-copy")], FileCopyElement);
 
 //#endregion
-//#region src/controls/manager/GraphSmoothSwitch.ts
-let SmoothSwitch$1 = class SmoothSwitch extends ManagerConsumer {
+//#region src/controls/manager/ManagerGraphSmoothSwitch.ts
+let ManagerGraphSmoothSwitch = class ManagerGraphSmoothSwitch extends AbstractManagerConsumer {
 	static {
 		this.styles = lit.css`
     
@@ -8210,13 +7384,12 @@ let SmoothSwitch$1 = class SmoothSwitch extends ManagerConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: managerGraphFunctionContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], SmoothSwitch$1.prototype, "smooth", void 0);
-SmoothSwitch$1 = __decorate([(0, lit_decorators_js.customElement)("manager-graph-smooth-switch")], SmoothSwitch$1);
+})], ManagerGraphSmoothSwitch.prototype, "smooth", void 0);
+ManagerGraphSmoothSwitch = __decorate([(0, lit_decorators_js.customElement)("manager-graph-smooth-switch")], ManagerGraphSmoothSwitch);
 
 //#endregion
-//#region src/controls/manager/GroupToolButtons.ts
-var _ref$87;
-let GroupToolButtons$1 = class GroupToolButtons extends ManagerConsumer {
+//#region src/controls/manager/ManagerToolsBar.ts
+let ManagerToolBar = class ManagerToolBar extends AbstractManagerConsumer {
 	/** Handle user input events */
 	onSelect(tool) {
 		this.manager.tool.selectTool(tool);
@@ -8225,83 +7398,13 @@ let GroupToolButtons$1 = class GroupToolButtons extends ManagerConsumer {
 		this.styles = lit.css`
 :host {
     display: flex;
-    gap: var(--thermal-gap);
-    width: content-width;
-    gap: .25em;
-    align-items: center;
-}
-.button {
-    padding: 3px;
-    width: calc(var(--thermal-gap)*1.2 + 6px);
-    height: calc(var(--thermal-gap)*1.2 + 6px);
-    &.active {
-        background: var(--thermal-background);
-    }
-}
-.thermal-tool-icon {
-    width: calc(var(--thermal-gap)*1.2);
-    margin: 0;
-    padding: 0;
-}
-`;
-	}
-	render() {
-		if (this.manager === void 0) return lit.nothing;
-		return Object.entries(this.manager.tool.tools).map(([key, tool]) => {
-			return lit.html`<thermal-btn 
-    class=${(0, lit_directives_class_map_js.classMap)({
-				[key]: true,
-				button: true,
-				active: this.value !== void 0 ? tool.key === this.value.key : false
-			})} 
-    @click=${() => {
-				this.manager.tool.selectTool(tool);
-			}}
-    tooltip="${(0, i18next.t)(T[tool.name])}"
-    tooltip-placement="top"
-    variant=${tool.key === this.value.key ? "background" : "default"}
->
-    ${(0, lit_directives_unsafe_svg_js.unsafeSVG)(tool.icon)}
-</thermal-btn>`;
-		});
-	}
-};
-__decorate([
-	(0, _lit_context.consume)({
-		context: toolContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$87 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$87 : Object)
-], GroupToolButtons$1.prototype, "value", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: toolsContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Object)
-], GroupToolButtons$1.prototype, "tools", void 0);
-GroupToolButtons$1 = __decorate([(0, lit_decorators_js.customElement)("group-tool-buttons")], GroupToolButtons$1);
-
-//#endregion
-//#region src/controls/manager/GroupToolsBar.ts
-var _ref$86;
-let GroupToolButtons = class GroupToolButtons extends ManagerConsumer {
-	connectedCallback() {
-		super.connectedCallback();
-	}
-	/** Handle user input events */
-	onSelect(tool) {
-		this.manager.tool.selectTool(tool);
-	}
-	static {
-		this.styles = lit.css`
-:host {
-    display: flex;
+    font-size: var(--thermal-fs);
     flex-direction: column;
-    gap: 5px;
-    font-size: var( --thermal-fs );
+    gap: 0.25em;
+}
+
+:host([horizontal="true"]) {
+    flex-direction: row;
 }
 
 .active {
@@ -8316,50 +7419,44 @@ thermal-btn {
     }
 }`;
 	}
-	render() {
-		if (this.manager === void 0) return lit.nothing;
-		return Object.entries(this.manager.tool.tools).map(([key, tool]) => {
-			const classes = {
-				[key]: true,
-				button: true,
-				active: tool.key === this.value.key
-			};
-			return lit.html`<thermal-btn 
+	renderTool(key, tool) {
+		const classes = {
+			[key]: true,
+			button: true,
+			active: tool.key === this.value.key
+		};
+		return lit.html`<thermal-btn 
     tooltip=${(0, i18next.t)(T[tool.name])}
     tooltip-placement="right"
     class=${(0, lit_directives_class_map_js.classMap)(classes)} 
     @click=${() => {
-				this.manager.tool.selectTool(tool);
-			}}
+			this.manager.tool.selectTool(tool);
+		}}
     variant=${tool.key === this.value.key ? "background" : "default"}
 >
     ${(0, lit_directives_unsafe_svg_js.unsafeSVG)(tool.icon)}
 </thermal-btn>`;
+	}
+	render() {
+		if (this.manager === void 0) return lit.nothing;
+		return Object.entries(this.manager.tool.tools).map(([key, tool]) => {
+			return this.renderTool(key, tool);
 		});
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: toolContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$86 = typeof _labirthermal_core.ThermalTool !== "undefined" && _labirthermal_core.ThermalTool) === "function" ? _ref$86 : Object)
-], GroupToolButtons.prototype, "value", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: toolsContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Object)
-], GroupToolButtons.prototype, "tools", void 0);
-GroupToolButtons = __decorate([(0, lit_decorators_js.customElement)("group-tool-bar")], GroupToolButtons);
+__decorate([(0, _lit_context.consume)({
+	context: toolContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], ManagerToolBar.prototype, "value", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: toolsContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], ManagerToolBar.prototype, "tools", void 0);
+ManagerToolBar = __decorate([(0, lit_decorators_js.customElement)("manager-tool-bar")], ManagerToolBar);
 
 //#endregion
 //#region src/controls/manager/AbstractPaletteSwitch.ts
-var _ref$85;
-var AbstractPaletteSwitch = class extends RegistryConsumer {
+var AbstractPaletteSwitch = class extends AbstractManagerConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.advancedPalettesContext = false;
@@ -8382,34 +7479,26 @@ var AbstractPaletteSwitch = class extends RegistryConsumer {
 	}
 	/** Handle user input events */
 	onSelect(palette) {
-		this.registry.palette.setPalette(palette);
+		this.manager.palette.setPalette(palette);
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: advancedPalettesContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], AbstractPaletteSwitch.prototype, "advancedPalettesContext", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: advancedPalettesContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractPaletteSwitch.prototype, "advancedPalettesContext", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "advanced-palettes"
-}), __decorateMetadata("design:type", Boolean)], AbstractPaletteSwitch.prototype, "advancedPalettesProperty", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AbstractPaletteSwitch.prototype, "palettes", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: managerPaletteContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$85 = typeof ManagerPaletteContext$1 !== "undefined" && ManagerPaletteContext$1) === "function" ? _ref$85 : Object)
-], AbstractPaletteSwitch.prototype, "value", void 0);
+})], AbstractPaletteSwitch.prototype, "advancedPalettesProperty", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractPaletteSwitch.prototype, "palettes", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: managerPaletteContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractPaletteSwitch.prototype, "value", void 0);
 
 //#endregion
-//#region src/controls/manager/PaletteButtons.ts
-let PaletteButtonsElement = class PaletteButtonsElement extends AbstractPaletteSwitch {
+//#region src/controls/manager/ManagerPaletteButtons.ts
+let ManagerPaletteButtons = class ManagerPaletteButtons extends AbstractPaletteSwitch {
 	static {
 		this.styles = lit.css`
 :host {
@@ -8437,11 +7526,11 @@ let PaletteButtonsElement = class PaletteButtonsElement extends AbstractPaletteS
 </thermal-btn>`));
 	}
 };
-PaletteButtonsElement = __decorate([(0, lit_decorators_js.customElement)("registry-palette-buttons")], PaletteButtonsElement);
+ManagerPaletteButtons = __decorate([(0, lit_decorators_js.customElement)("manager-palette-buttons")], ManagerPaletteButtons);
 
 //#endregion
-//#region src/controls/manager/PaletteDropdown.ts
-let PaletteDropdownElement = class PaletteDropdownElement extends AbstractPaletteSwitch {
+//#region src/controls/manager/ManagerPaletteDropdown.ts
+let ManagerPaletteDropdown = class ManagerPaletteDropdown extends AbstractPaletteSwitch {
 	static {
 		this.styles = lit.css`
 
@@ -8466,7 +7555,7 @@ let PaletteDropdownElement = class PaletteDropdownElement extends AbstractPalett
 		return lit.html`
 
             <thermal-dropdown .tooltip=${(0, i18next.t)(T.colourpalette)}>
-                    <span slot="invoker" class="palette" style="background:${this.registry.palette.currentPalette.gradient}"></span>
+                    <span slot="invoker" class="palette" style="background:${this.manager.palette.currentPalette.gradient}"></span>
 
                 ${this.palettes.map((palette) => lit.html`
                     <div slot="option"><thermal-btn @click=${() => this.onSelect(palette.slug)} variant="${palette.name === this.manager.palette.currentPalette.name ? "background" : "slate"}">
@@ -8481,25 +7570,11 @@ let PaletteDropdownElement = class PaletteDropdownElement extends AbstractPalett
         `;
 	}
 };
-PaletteDropdownElement = __decorate([(0, lit_decorators_js.customElement)("registry-palette-dropdown")], PaletteDropdownElement);
+ManagerPaletteDropdown = __decorate([(0, lit_decorators_js.customElement)("manager-palette-dropdown")], ManagerPaletteDropdown);
 
 //#endregion
-//#region src/controls/manager/PngExportSettingDialog.ts
-let PngExportSettingDialog = class PngExportSettingDialog extends BaseElement {
-	render() {
-		return lit.html`<thermal-dialog label="Export configuration">
-            <thermal-btn slot="invoker">Export config</thermal-btn>
-            <div slot="content">
-                <png-export-panel></png-export-panel>
-            </div>
-        </thermal-dialog>`;
-	}
-};
-PngExportSettingDialog = __decorate([(0, lit_decorators_js.customElement)("png-export-config")], PngExportSettingDialog);
-
-//#endregion
-//#region src/controls/manager/SmoothSwitch.ts
-let SmoothSwitch = class SmoothSwitch extends ManagerConsumer {
+//#region src/controls/manager/ManagerImageSmoothSwitch.ts
+let ManagerImageSmoothSwitch = class ManagerImageSmoothSwitch extends AbstractManagerConsumer {
 	static {
 		this.styles = lit.css`
     
@@ -8524,12 +7599,12 @@ let SmoothSwitch = class SmoothSwitch extends ManagerConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: managerSmoothContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], SmoothSwitch.prototype, "smooth", void 0);
-SmoothSwitch = __decorate([(0, lit_decorators_js.customElement)("manager-smooth-switch")], SmoothSwitch);
+})], ManagerImageSmoothSwitch.prototype, "smooth", void 0);
+ManagerImageSmoothSwitch = __decorate([(0, lit_decorators_js.customElement)("manager-smooth-switch")], ManagerImageSmoothSwitch);
 
 //#endregion
 //#region src/controls/registry/Histogram.ts
-let HistogramElement = class HistogramElement extends RegistryConsumer {
+let HistogramElement = class HistogramElement extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.histogram = [];
@@ -8715,28 +7790,28 @@ let HistogramElement = class HistogramElement extends RegistryConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], HistogramElement.prototype, "histogram", void 0);
+__decorate([(0, lit_decorators_js.state)()], HistogramElement.prototype, "histogram", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], HistogramElement.prototype, "height", void 0);
+})], HistogramElement.prototype, "height", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], HistogramElement.prototype, "heightExpanded", void 0);
+})], HistogramElement.prototype, "heightExpanded", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], HistogramElement.prototype, "expandable", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], HistogramElement.prototype, "expanded", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], HistogramElement.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], HistogramElement.prototype, "error", void 0);
+})], HistogramElement.prototype, "expandable", void 0);
+__decorate([(0, lit_decorators_js.state)()], HistogramElement.prototype, "expanded", void 0);
+__decorate([(0, lit_decorators_js.state)()], HistogramElement.prototype, "loading", void 0);
+__decorate([(0, lit_decorators_js.state)()], HistogramElement.prototype, "error", void 0);
 HistogramElement = __decorate([(0, lit_decorators_js.customElement)("registry-histogram")], HistogramElement);
 
 //#endregion
 //#region src/controls/registry/OpacitySlider.ts
-let OpacityRangeElement = class OpacityRangeElement extends RegistryConsumer {
+let OpacityRangeElement = class OpacityRangeElement extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.containerRef = (0, lit_directives_ref_js.createRef)();
@@ -8812,12 +7887,12 @@ let OpacityRangeElement = class OpacityRangeElement extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryOpacityContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], OpacityRangeElement.prototype, "value", void 0);
+})], OpacityRangeElement.prototype, "value", void 0);
 OpacityRangeElement = __decorate([(0, lit_decorators_js.customElement)("registry-opacity-slider")], OpacityRangeElement);
 
 //#endregion
 //#region src/controls/registry/RangeAutoButton.ts
-let RegistrySetAutoRangeElement$1 = class RegistrySetAutoRangeElement extends RegistryConsumer {
+let RegistrySetAutoRangeElement$1 = class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
 	doAction() {
 		this.registry.range.applyAuto();
 	}
@@ -8829,7 +7904,7 @@ RegistrySetAutoRangeElement$1 = __decorate([(0, lit_decorators_js.customElement)
 
 //#endregion
 //#region src/controls/registry/RangeDisplay.ts
-let RegistryRangeDisplay = class RegistryRangeDisplay extends RegistryConsumer {
+let RegistryRangeDisplay = class RegistryRangeDisplay extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.fixed = 2;
@@ -8849,11 +7924,11 @@ let RegistryRangeDisplay = class RegistryRangeDisplay extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryRangeFromContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], RegistryRangeDisplay.prototype, "from", void 0);
+})], RegistryRangeDisplay.prototype, "from", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: registryRangeToContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], RegistryRangeDisplay.prototype, "to", void 0);
+})], RegistryRangeDisplay.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
@@ -8866,17 +7941,17 @@ __decorate([(0, lit_decorators_js.property)({
 			return value.toString();
 		}
 	}
-}), __decorateMetadata("design:type", Number)], RegistryRangeDisplay.prototype, "fixed", void 0);
+})], RegistryRangeDisplay.prototype, "fixed", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], RegistryRangeDisplay.prototype, "separator", void 0);
+})], RegistryRangeDisplay.prototype, "separator", void 0);
 RegistryRangeDisplay = __decorate([(0, lit_decorators_js.customElement)("registry-range-display")], RegistryRangeDisplay);
 
 //#endregion
 //#region src/controls/registry/RangeFullButton.ts
-let RegistrySetAutoRangeElement = class RegistrySetAutoRangeElement extends RegistryConsumer {
+let RegistrySetAutoRangeElement = class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.buttonRef = (0, lit_directives_ref_js.createRef)();
@@ -8907,13 +7982,12 @@ let RegistrySetAutoRangeElement = class RegistrySetAutoRangeElement extends Regi
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], RegistrySetAutoRangeElement.prototype, "setter", void 0);
+})], RegistrySetAutoRangeElement.prototype, "setter", void 0);
 RegistrySetAutoRangeElement = __decorate([(0, lit_decorators_js.customElement)("registry-range-full-button")], RegistrySetAutoRangeElement);
 
 //#endregion
 //#region src/controls/registry/RangeSlider.ts
-var _ref$84, _ref2$47;
-let RangeSliderElement = class RangeSliderElement extends RegistryConsumer {
+let RangeSliderElement = class RangeSliderElement extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.hasInitialValues = false;
@@ -9094,62 +8168,38 @@ moving-tooltip-text-color="var(--thermal-background)"
 <slot></slot>`;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: registryMinContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RangeSliderElement.prototype, "min", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: registryMaxContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RangeSliderElement.prototype, "max", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: registryRangeFromContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RangeSliderElement.prototype, "from", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: registryRangeToContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Number)
-], RangeSliderElement.prototype, "to", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RangeSliderElement.prototype, "hasInitialValues", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: managerPaletteContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$84 = typeof ManagerPaletteContext !== "undefined" && ManagerPaletteContext) === "function" ? _ref$84 : Object)
-], RangeSliderElement.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$47 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$47 : Object)], RangeSliderElement.prototype, "sliderRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RangeSliderElement.prototype, "initialised", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: loadingContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], RangeSliderElement.prototype, "loading", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: registryMinContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], RangeSliderElement.prototype, "min", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: registryMaxContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], RangeSliderElement.prototype, "max", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: registryRangeFromContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], RangeSliderElement.prototype, "from", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: registryRangeToContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], RangeSliderElement.prototype, "to", void 0);
+__decorate([(0, lit_decorators_js.state)()], RangeSliderElement.prototype, "hasInitialValues", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: managerPaletteContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], RangeSliderElement.prototype, "palette", void 0);
+__decorate([(0, lit_decorators_js.state)()], RangeSliderElement.prototype, "sliderRef", void 0);
+__decorate([(0, lit_decorators_js.state)()], RangeSliderElement.prototype, "initialised", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: loadingContext,
+	subscribe: true
+})], RangeSliderElement.prototype, "loading", void 0);
 RangeSliderElement = __decorate([(0, lit_decorators_js.customElement)("registry-range-slider")], RangeSliderElement);
 
 //#endregion
 //#region src/controls/registry/RegistryRangeForm.ts
-let RegistryRangeForm = class RegistryRangeForm extends RegistryConsumer {
+let RegistryRangeForm = class RegistryRangeForm extends AbstractRegistryConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.stacked = false;
@@ -9826,22 +8876,22 @@ let RegistryRangeForm = class RegistryRangeForm extends RegistryConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "stacked", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "min", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "max", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "from", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "to", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], RegistryRangeForm.prototype, "step", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RegistryRangeForm.prototype, "availableSteps", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RegistryRangeForm.prototype, "inputValues", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "isUpdatingFromRegistry", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RegistryRangeForm.prototype, "hasHistogram", void 0);
+})], RegistryRangeForm.prototype, "stacked", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "min", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "max", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "from", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "to", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "step", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "availableSteps", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "inputValues", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "isUpdatingFromRegistry", void 0);
+__decorate([(0, lit_decorators_js.state)()], RegistryRangeForm.prototype, "hasHistogram", void 0);
 RegistryRangeForm = __decorate([(0, lit_decorators_js.customElement)("registry-range-form")], RegistryRangeForm);
 
 //#endregion
 //#region src/controls/registry/TicksBar.ts
-var _ref$83, _ref2$46, _TicksElement;
-let TicksElement = class TicksElement extends RegistryConsumer {
+var _TicksElement;
+let TicksElement = class TicksElement extends AbstractRegistryConsumer {
 	static {
 		_TicksElement = this;
 	}
@@ -10020,18 +9070,18 @@ let TicksElement = class TicksElement extends RegistryConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: registryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$83 = typeof _labirthermal_core.ThermalRangeOrUndefined !== "undefined" && _labirthermal_core.ThermalRangeOrUndefined) === "function" ? _ref$83 : Object)], TicksElement.prototype, "highlight", void 0);
+})], TicksElement.prototype, "highlight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], TicksElement.prototype, "placement", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$46 = typeof _labirthermal_core.ThermalMinmaxOrUndefined !== "undefined" && _labirthermal_core.ThermalMinmaxOrUndefined) === "function" ? _ref2$46 : Object)], TicksElement.prototype, "minmax", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], TicksElement.prototype, "ticks", void 0);
+})], TicksElement.prototype, "placement", void 0);
+__decorate([(0, lit_decorators_js.state)()], TicksElement.prototype, "minmax", void 0);
+__decorate([(0, lit_decorators_js.state)()], TicksElement.prototype, "ticks", void 0);
 TicksElement = _TicksElement = __decorate([(0, lit_decorators_js.customElement)("registry-ticks-bar")], TicksElement);
 
 //#endregion
 //#region src/controls/group/GroupAnalysisSyncButton.ts
-let GroupAnalysisSyncButton = class GroupAnalysisSyncButton extends GroupConsumer {
+let GroupAnalysisSyncButton = class GroupAnalysisSyncButton extends AbstractGroupConsumer {
 	connectedCallback() {
 		super.connectedCallback();
 		if (this.on) {
@@ -10130,7 +9180,7 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], GroupAnalysisSyncButton.prototype, "on", void 0);
+})], GroupAnalysisSyncButton.prototype, "on", void 0);
 GroupAnalysisSyncButton = __decorate([(0, lit_decorators_js.customElement)("group-analysis-sync-button")], GroupAnalysisSyncButton);
 
 //#endregion
@@ -10151,8 +9201,7 @@ GroupAnalysisSyncButton = __decorate([(0, lit_decorators_js.customElement)("grou
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-var _ref$82;
-let GroupChart = class GroupChart extends GroupConsumer {
+let GroupChart = class GroupChart extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.instances = [];
@@ -10223,16 +9272,16 @@ let GroupChart = class GroupChart extends GroupConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$82 = typeof NodeJS !== "undefined" && NodeJS.Timeout) === "function" ? _ref$82 : Object)], GroupChart.prototype, "timeout", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupChart.prototype, "data", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupChart.prototype, "colors", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupChart.prototype, "on", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupChart.prototype, "instances", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupChart.prototype, "timeout", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupChart.prototype, "data", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupChart.prototype, "colors", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupChart.prototype, "on", void 0);
 GroupChart = __decorate([(0, lit_decorators_js.customElement)("group-chart")], GroupChart);
 
 //#endregion
 //#region src/controls/group/GroupDownloadButtons.ts
-let GroupDownloadDropdown$1 = class GroupDownloadDropdown extends GroupConsumer {
+let GroupDownloadDropdown$1 = class GroupDownloadDropdown extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.pngWidth = 1350;
@@ -10291,68 +9340,44 @@ let GroupDownloadDropdown$1 = class GroupDownloadDropdown extends GroupConsumer 
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupDownloadDropdown$1.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], GroupDownloadDropdown$1.prototype, "label", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], GroupDownloadDropdown$1.prototype, "pngWidth", void 0);
+})], GroupDownloadDropdown$1.prototype, "pngWidth", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], GroupDownloadDropdown$1.prototype, "pngFs", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown$1.prototype, "pngAnalyses", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown$1.prototype, "pngExportScale", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown$1.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown$1.prototype, "pngFileDate", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportColumnsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown$1.prototype, "pngColumns", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportGroupNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown$1.prototype, "pngExportGroupName", void 0);
+})], GroupDownloadDropdown$1.prototype, "pngFs", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportAnalysisContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportScaleContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngExportScale", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileNameContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngFileName", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileDateContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngFileDate", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportColumnsContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngColumns", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportGroupNameContext,
+	subscribe: true
+})], GroupDownloadDropdown$1.prototype, "pngExportGroupName", void 0);
 GroupDownloadDropdown$1 = __decorate([(0, lit_decorators_js.customElement)("group-download-buttons")], GroupDownloadDropdown$1);
 
 //#endregion
 //#region src/controls/group/GroupDownloadDropdown.ts
-let GroupDownloadDropdown = class GroupDownloadDropdown extends GroupConsumer {
+let GroupDownloadDropdown = class GroupDownloadDropdown extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.pngColumns = 3;
@@ -10434,76 +9459,43 @@ let GroupDownloadDropdown = class GroupDownloadDropdown extends GroupConsumer {
         `;
 	}
 };
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportColumnsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngColumns", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportGroupNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngGroupName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngFontSize", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngShowAnalysis", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngFileDate", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportWidthContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], GroupDownloadDropdown.prototype, "pngWidth", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], GroupDownloadDropdown.prototype, "pngShowScale", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportColumnsContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngColumns", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportGroupNameContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngGroupName", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFsContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngFontSize", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportAnalysisContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngShowAnalysis", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileDateContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngFileDate", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileNameContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngFileName", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportWidthContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngWidth", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportScaleContext,
+	subscribe: true
+})], GroupDownloadDropdown.prototype, "pngShowScale", void 0);
 GroupDownloadDropdown = __decorate([(0, lit_decorators_js.customElement)("group-download-dropdown")], GroupDownloadDropdown);
 
 //#endregion
-//#region src/hierarchy/consumers/FileConsumer.ts
-var _ref$81, _ref2$45, _ref3$28;
-var FileConsumer = class extends GroupConsumer {
+//#region src/hierarchy/consumers/AbstractFileConsumer.ts
+var AbstractFileConsumer = class extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.loading = true;
@@ -10533,51 +9525,30 @@ var FileConsumer = class extends GroupConsumer {
 		} else throw new Error("Tento komponent není v souboru!");
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: fileProviderContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$81 = typeof AbstractFileProvider !== "undefined" && AbstractFileProvider) === "function" ? _ref$81 : Object)
-], FileConsumer.prototype, "parentFileProviderElement", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: loadingContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], FileConsumer.prototype, "loading", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: fileContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$45 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$45 : Object)
-], FileConsumer.prototype, "file", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: FailureContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref3$28 = typeof _labirthermal_core.ThermalFileFailure !== "undefined" && _labirthermal_core.ThermalFileFailure) === "function" ? _ref3$28 : Object)
-], FileConsumer.prototype, "failure", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: recordingContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], FileConsumer.prototype, "recording", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileProviderContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractFileConsumer.prototype, "parentFileProviderElement", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: loadingContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractFileConsumer.prototype, "loading", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractFileConsumer.prototype, "file", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileFailureContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractFileConsumer.prototype, "failure", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileRecordingContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], AbstractFileConsumer.prototype, "recording", void 0);
 
 //#endregion
 //#region src/controls/file/buttons/AbstractFileButton.ts
-var _ref$80, _ref2$44;
-var AbstractFileButton = class extends FileConsumer {
+var AbstractFileButton = class extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.size = "sm";
@@ -10615,18 +9586,18 @@ slot {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$80 = typeof BtnVariants$9 !== "undefined" && BtnVariants$9) === "function" ? _ref$80 : Object)], AbstractFileButton.prototype, "variant", void 0);
+})], AbstractFileButton.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$44 = typeof BtnSizes$9 !== "undefined" && BtnSizes$9) === "function" ? _ref2$44 : Object)], AbstractFileButton.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileButton.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], AbstractFileButton.prototype, "plain", void 0);
+})], AbstractFileButton.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], AbstractFileButton.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], AbstractFileButton.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], AbstractFileButton.prototype, "plain", void 0);
 
 //#endregion
 //#region src/controls/group/GroupRangePropagator.ts
-let GroupRangePropagator = class GroupRangePropagator extends GroupConsumer {
+let GroupRangePropagator = class GroupRangePropagator extends AbstractGroupConsumer {
 	static {
 		this.styles = AbstractFileButton.styles;
 	}
@@ -10659,17 +9630,17 @@ let GroupRangePropagator = class GroupRangePropagator extends GroupConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], GroupRangePropagator.prototype, "setter", void 0);
+})], GroupRangePropagator.prototype, "setter", void 0);
 GroupRangePropagator = __decorate([(0, lit_decorators_js.customElement)("group-range-propagator")], GroupRangePropagator);
 
 //#endregion
 //#region src/utils/timelineTicks.ts
-let TICK = /* @__PURE__ */ function(TICK) {
+var TICK = /* @__PURE__ */ function(TICK) {
 	TICK["MINOR"] = "minor";
 	TICK["MAJOR"] = "major";
 	TICK["BOUND"] = "bound";
 	return TICK;
-}({});
+}(TICK || {});
 /**
 * Format data into a tick value
 */
@@ -10887,8 +9858,7 @@ const ticksCss = lit.css`
 
 //#endregion
 //#region src/controls/group/GroupTimeline.ts
-var _ref$79;
-let GroupTimeline = class GroupTimeline extends GroupConsumer {
+let GroupTimeline = class GroupTimeline extends AbstractGroupConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.ms = 0;
@@ -11065,19 +10035,19 @@ let GroupTimeline = class GroupTimeline extends GroupConsumer {
         </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "longestDurationInMs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "ms", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupTimeline.prototype, "pointerMs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "playing", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "instances", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupTimeline.prototype, "has", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupTimeline.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$79 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref$79 : Object)], GroupTimeline.prototype, "listener", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "longestDurationInMs", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "ms", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "pointerMs", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "playing", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "instances", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "has", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "ticks", void 0);
+__decorate([(0, lit_decorators_js.state)()], GroupTimeline.prototype, "listener", void 0);
 GroupTimeline = __decorate([(0, lit_decorators_js.customElement)("group-timeline")], GroupTimeline);
 
 //#endregion
 //#region src/controls/file/FileCanvas.ts
-let FileCanvas$1 = class FileCanvas extends FileConsumer {
+let FileCanvas$1 = class FileCanvas extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -11251,13 +10221,13 @@ let FileCanvas$1 = class FileCanvas extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "prefers-gpu"
-}), __decorateMetadata("design:type", Boolean)], FileCanvas$1.prototype, "prefersGpu", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileCanvas$1.prototype, "norender", void 0);
+})], FileCanvas$1.prototype, "prefersGpu", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) })], FileCanvas$1.prototype, "norender", void 0);
 FileCanvas$1 = __decorate([(0, lit_decorators_js.customElement)("file-canvas")], FileCanvas$1);
 
 //#endregion
 //#region src/controls/file/FileDownloadDropdown.ts
-let FileDownloadButton = class FileDownloadButton extends FileConsumer {
+let FileDownloadButton = class FileDownloadButton extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.pngWidth = 1350;
@@ -11351,7 +10321,7 @@ let FileDownloadButton = class FileDownloadButton extends FileConsumer {
                         <tr>
                             <td>Barevná paleta</td>
                             <td>
-                                <registry-palette-dropdown></registry-palette-dropdown>
+                                <manager-palette-dropdown></manager-palette-dropdown>
                             </td>
                         </tr>
 
@@ -11389,49 +10359,33 @@ let FileDownloadButton = class FileDownloadButton extends FileConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: pngExportWidthContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], FileDownloadButton.prototype, "pngWidth", void 0);
+})], FileDownloadButton.prototype, "pngWidth", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: pngExportFsContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], FileDownloadButton.prototype, "pngFs", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileDownloadButton.prototype, "pngAnalyses", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileDownloadButton.prototype, "pngExportScale", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileDownloadButton.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileDownloadButton.prototype, "pngFileDate", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDownloadButton.prototype, "hasGraphs", void 0);
+})], FileDownloadButton.prototype, "pngFs", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportAnalysisContext,
+	subscribe: true
+})], FileDownloadButton.prototype, "pngAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportScaleContext,
+	subscribe: true
+})], FileDownloadButton.prototype, "pngExportScale", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileNameContext,
+	subscribe: true
+})], FileDownloadButton.prototype, "pngFileName", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileDateContext,
+	subscribe: true
+})], FileDownloadButton.prototype, "pngFileDate", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileDownloadButton.prototype, "hasGraphs", void 0);
 FileDownloadButton = __decorate([(0, lit_decorators_js.customElement)("file-download-dropdown")], FileDownloadButton);
 
 //#endregion
 //#region src/controls/file/FileInfoButton.ts
-let FileInfoButton = class FileInfoButton extends FileConsumer {
+let FileInfoButton = class FileInfoButton extends AbstractFileConsumer {
 	onFileLoaded() {}
 	onInstanceCreated() {}
 	onFailure() {}
@@ -11575,8 +10529,7 @@ FileInfoButton = __decorate([(0, lit_decorators_js.customElement)("file-info-but
 
 //#endregion
 //#region src/controls/file/fileLabel.ts
-var _ref$78;
-let FileCanvas = class FileCanvas extends FileConsumer {
+let FileCanvas = class FileCanvas extends AbstractFileConsumer {
 	onInstanceCreated() {}
 	onFailure() {}
 	static {
@@ -11600,14 +10553,13 @@ let FileCanvas = class FileCanvas extends FileConsumer {
 		return this.file.fileName;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$78 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$78 : Object)], FileCanvas.prototype, "grouping", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileCanvas.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileCanvas.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileCanvas.prototype, "label", void 0);
 FileCanvas = __decorate([(0, lit_decorators_js.customElement)("file-label")], FileCanvas);
 
 //#endregion
 //#region src/controls/file/FilePlaybackSpeedDropdown.ts
-var _ref$77;
-let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends FileConsumer {
+let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.enabled = "on";
@@ -11640,7 +10592,7 @@ let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends FileCons
 				if (this.file) this.file.timeline.playbackSpeed = parseFloat(key);
 				const target = event.target;
 				if (target) {
-					if (target.parentElement instanceof ThermalDropdown) target.parentElement.setClose();
+					if (target.parentElement instanceof ThermalDropdownElement) target.parentElement.setClose();
 				}
 			}}"
                     >
@@ -11654,20 +10606,16 @@ let FilePlaybackSpeedDropdown = class FilePlaybackSpeedDropdown extends FileCons
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FilePlaybackSpeedDropdown.prototype, "enabled", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: playbackSpeedContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref$77 = typeof _labirthermal_core.PlaybackSpeeds !== "undefined" && _labirthermal_core.PlaybackSpeeds) === "function" ? _ref$77 : Object)
-], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
+})], FilePlaybackSpeedDropdown.prototype, "enabled", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: filePlaybackSpeedContext,
+	subscribe: true
+})], FilePlaybackSpeedDropdown.prototype, "playbackSpeed", void 0);
 FilePlaybackSpeedDropdown = __decorate([(0, lit_decorators_js.customElement)("file-playback-speed-dropdown")], FilePlaybackSpeedDropdown);
 
 //#endregion
 //#region src/controls/file/FileShareButton.ts
-let FileShareButton = class FileShareButton extends FileConsumer {
+let FileShareButton = class FileShareButton extends AbstractFileConsumer {
 	onInstanceCreated() {}
 	onFailure() {}
 	static {
@@ -11710,9 +10658,9 @@ FileShareButton = __decorate([(0, lit_decorators_js.customElement)("file-share-b
 
 //#endregion
 //#region src/controls/file/FileTimeline.ts
-var _ref$76, _ref2$43, _ref3$27, _ref4$13, _TimelineElement;
+var _TimelineElement;
 "chrome" in window;
-let TimelineElement = class TimelineElement extends FileConsumer {
+let TimelineElement = class TimelineElement extends AbstractFileConsumer {
 	static {
 		_TimelineElement = this;
 	}
@@ -12020,67 +10968,50 @@ ${this.currentFrame !== void 0 && this.hasInfo === true ? lit.html`<div class="s
     `;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: playingContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], TimelineElement.prototype, "playing", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: currentFrameContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$76 = typeof CurrentFrameContext$2 !== "undefined" && CurrentFrameContext$2) === "function" ? _ref$76 : Object)
-], TimelineElement.prototype, "currentFrame", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: durationContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$43 = typeof DurationContext !== "undefined" && DurationContext) === "function" ? _ref2$43 : Object)
-], TimelineElement.prototype, "duration", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: mayStopContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", Boolean)
-], TimelineElement.prototype, "mayStop", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: filePlayingContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], TimelineElement.prototype, "playing", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileCurrentFrameContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], TimelineElement.prototype, "currentFrame", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: durationContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], TimelineElement.prototype, "duration", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: filaMayStopContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], TimelineElement.prototype, "mayStop", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: fileCursorContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3$27 = typeof FileCursorContext$1 !== "undefined" && FileCursorContext$1) === "function" ? _ref3$27 : Object)], TimelineElement.prototype, "cursor", void 0);
+})], TimelineElement.prototype, "cursor", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: fileCursorSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$13 = typeof FileCursorSetterContext$1 !== "undefined" && FileCursorSetterContext$1) === "function" ? _ref4$13 : Object)], TimelineElement.prototype, "cursorSetter", void 0);
+})], TimelineElement.prototype, "cursorSetter", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], TimelineElement.prototype, "hasPlayButton", void 0);
+})], TimelineElement.prototype, "hasPlayButton", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], TimelineElement.prototype, "hasInfo", void 0);
+})], TimelineElement.prototype, "hasInfo", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], TimelineElement.prototype, "interactive", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], TimelineElement.prototype, "collapsed", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], TimelineElement.prototype, "ticks", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], TimelineElement.prototype, "pointerMs", void 0);
+})], TimelineElement.prototype, "interactive", void 0);
+__decorate([(0, lit_decorators_js.state)()], TimelineElement.prototype, "collapsed", void 0);
+__decorate([(0, lit_decorators_js.state)()], TimelineElement.prototype, "ticks", void 0);
+__decorate([(0, lit_decorators_js.state)()], TimelineElement.prototype, "pointerMs", void 0);
 TimelineElement = _TimelineElement = __decorate([(0, lit_decorators_js.customElement)("file-timeline")], TimelineElement);
 
 //#endregion
 //#region src/controls/file/FileVideo.ts
-var _ref$75;
-let FileVideo = class FileVideo extends FileConsumer {
+let FileVideo = class FileVideo extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -12123,25 +11054,20 @@ let FileVideo = class FileVideo extends FileConsumer {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: currentFrameContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$75 = typeof CurrentFrameContext$1 !== "undefined" && CurrentFrameContext$1) === "function" ? _ref$75 : Object)
-], FileVideo.prototype, "currentFrame", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: fileCurrentFrameContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], FileVideo.prototype, "currentFrame", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", String)], FileVideo.prototype, "url", void 0);
+})], FileVideo.prototype, "url", void 0);
 FileVideo = __decorate([(0, lit_decorators_js.customElement)("file-video")], FileVideo);
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisColor.ts
-var _ref$74;
-let AnalysisColor$1 = class AnalysisColor extends BaseElement {
+let AnalysisColor$1 = class AnalysisColor extends AbstractThermalElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("analysis")) {
@@ -12207,14 +11133,13 @@ let AnalysisColor$1 = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$74 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$74 : Object)], AnalysisColor$1.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor$1.prototype, "color", void 0);
+__decorate([(0, lit_decorators_js.property)()], AnalysisColor$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], AnalysisColor$1.prototype, "color", void 0);
 AnalysisColor$1 = __decorate([(0, lit_decorators_js.customElement)("analysis-color")], AnalysisColor$1);
 
 //#endregion
 //#region src/controls/file/analysis/edit/analysisName.ts
-var _ref$73;
-let AnalysisColor = class AnalysisColor extends BaseElement {
+let AnalysisColor = class AnalysisColor extends AbstractThermalElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("analysis")) {
@@ -12249,14 +11174,13 @@ let AnalysisColor = class AnalysisColor extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$73 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$73 : Object)], AnalysisColor.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AnalysisColor.prototype, "name", void 0);
+__decorate([(0, lit_decorators_js.property)()], AnalysisColor.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], AnalysisColor.prototype, "name", void 0);
 AnalysisColor = __decorate([(0, lit_decorators_js.customElement)("analysis-name")], AnalysisColor);
 
 //#endregion
 //#region src/controls/file/analysis/edit/editArea.ts
-var _ref$72;
-let AreaEdit = class AreaEdit extends BaseElement {
+let AreaEdit = class AreaEdit extends AbstractThermalElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("analysis")) {
@@ -12377,23 +11301,22 @@ let AreaEdit = class AreaEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$72 = typeof _labirthermal_core.AbstractAreaAnalysis !== "undefined" && _labirthermal_core.AbstractAreaAnalysis) === "function" ? _ref$72 : Object)], AreaEdit.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEdit.prototype, "color", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "top", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "left", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "width", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "height", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AreaEdit.prototype, "type", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "right", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "bottom", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "maxX", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AreaEdit.prototype, "maxY", void 0);
+__decorate([(0, lit_decorators_js.property)()], AreaEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "color", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "top", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "left", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "width", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "height", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "type", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "right", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "bottom", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "maxX", void 0);
+__decorate([(0, lit_decorators_js.state)()], AreaEdit.prototype, "maxY", void 0);
 AreaEdit = __decorate([(0, lit_decorators_js.customElement)("edit-area")], AreaEdit);
 
 //#endregion
 //#region src/controls/file/analysis/edit/editPoint.ts
-var _ref$71;
-let EditPoint = class EditPoint extends BaseElement {
+let EditPoint = class EditPoint extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.topInputRef = (0, lit_directives_ref_js.createRef)();
@@ -12487,17 +11410,16 @@ let EditPoint = class EditPoint extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$71 = typeof _labirthermal_core.PointAnalysis !== "undefined" && _labirthermal_core.PointAnalysis) === "function" ? _ref$71 : Object)], EditPoint.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "top", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "left", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "maxX", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], EditPoint.prototype, "maxY", void 0);
+__decorate([(0, lit_decorators_js.property)()], EditPoint.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], EditPoint.prototype, "top", void 0);
+__decorate([(0, lit_decorators_js.state)()], EditPoint.prototype, "left", void 0);
+__decorate([(0, lit_decorators_js.state)()], EditPoint.prototype, "maxX", void 0);
+__decorate([(0, lit_decorators_js.state)()], EditPoint.prototype, "maxY", void 0);
 EditPoint = __decorate([(0, lit_decorators_js.customElement)("edit-point")], EditPoint);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisComplex.ts
-var _ref$70, _ref2$42;
-let FileAnalysisComplex = class FileAnalysisComplex extends FileConsumer {
+let FileAnalysisComplex = class FileAnalysisComplex extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.mayHaveGraph = false;
@@ -12737,26 +11659,25 @@ let FileAnalysisComplex = class FileAnalysisComplex extends FileConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "mayHaveGraph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasAnalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "isDrawingAnalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hasGraph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$70 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$70 : Object)], FileAnalysisComplex.prototype, "graphRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisComplex.prototype, "graphHeight", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$42 = typeof ResizeObserver !== "undefined" && ResizeObserver) === "function" ? _ref2$42 : Object)], FileAnalysisComplex.prototype, "observer", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "hydrated", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "mayHaveGraph", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "hasAnalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "isDrawingAnalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "hasGraph", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "graphRef", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "graphWidth", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "graphHeight", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "observer", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisComplex.prototype, "hydrated", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisComplex.prototype, "showhint", void 0);
+})], FileAnalysisComplex.prototype, "showhint", void 0);
 FileAnalysisComplex = __decorate([(0, lit_decorators_js.customElement)("file-analysis-complex")], FileAnalysisComplex);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisEdit.ts
-var _ref$69;
-let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
+let FileAnalisisEdit = class FileAnalisisEdit extends AbstractThermalElement {
 	updated(_changedProperties) {
 		super.updated(_changedProperties);
 		if (_changedProperties.has("analysis")) {
@@ -12804,15 +11725,14 @@ let FileAnalisisEdit = class FileAnalisisEdit extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$69 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$69 : Object)], FileAnalisisEdit.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "name", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalisisEdit.prototype, "type", void 0);
+__decorate([(0, lit_decorators_js.property)()], FileAnalisisEdit.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalisisEdit.prototype, "name", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalisisEdit.prototype, "type", void 0);
 FileAnalisisEdit = __decorate([(0, lit_decorators_js.customElement)("file-analysis-edit")], FileAnalisisEdit);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisGraph.ts
-var _ref$68, _ref2$41, _ref3$26, _ref4$12;
-let FileAnalysisGraph = class FileAnalysisGraph extends FileConsumer {
+let FileAnalysisGraph = class FileAnalysisGraph extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.hydrated = false;
@@ -13022,43 +11942,39 @@ let FileAnalysisGraph = class FileAnalysisGraph extends FileConsumer {
             </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisGraph.prototype, "hydrated", void 0);
-__decorate([(0, lit_decorators_js.property)({ reflect: true }), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "graphWidth", void 0);
-__decorate([(0, lit_decorators_js.property)({ reflect: true }), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "graphHeight", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "hydrated", void 0);
+__decorate([(0, lit_decorators_js.property)({ reflect: true })], FileAnalysisGraph.prototype, "graphWidth", void 0);
+__decorate([(0, lit_decorators_js.property)({ reflect: true })], FileAnalysisGraph.prototype, "graphHeight", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisGraph.prototype, "hasDownloads", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$68 = typeof _labirthermal_core.AnalysisDataStateValue !== "undefined" && _labirthermal_core.AnalysisDataStateValue) === "function" ? _ref$68 : Object)], FileAnalysisGraph.prototype, "graphs", void 0);
+})], FileAnalysisGraph.prototype, "hasDownloads", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "graphs", void 0);
 __decorate([(0, _lit_context.consume)({
-	context: currentFrameContext,
+	context: fileCurrentFrameContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$41 = typeof CurrentFrameContext !== "undefined" && CurrentFrameContext) === "function" ? _ref2$41 : Object)], FileAnalysisGraph.prototype, "currentFrame", void 0);
+})], FileAnalysisGraph.prototype, "currentFrame", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: fileCursorContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3$26 = typeof FileCursorContext !== "undefined" && FileCursorContext) === "function" ? _ref3$26 : Object)], FileAnalysisGraph.prototype, "cursor", void 0);
+})], FileAnalysisGraph.prototype, "cursor", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: fileCursorSetterContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$12 = typeof FileCursorSetterContext !== "undefined" && FileCursorSetterContext) === "function" ? _ref4$12 : Object)], FileAnalysisGraph.prototype, "cursorSetter", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowLeft", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowTop", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisGraph.prototype, "shadowHeight", void 0);
+})], FileAnalysisGraph.prototype, "cursorSetter", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "shadowLeft", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "shadowTop", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "shadowWidth", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisGraph.prototype, "shadowHeight", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: managerGraphFunctionContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisGraph.prototype, "graphSmooth", void 0);
+})], FileAnalysisGraph.prototype, "graphSmooth", void 0);
 FileAnalysisGraph = __decorate([(0, lit_decorators_js.customElement)("file-analysis-graph")], FileAnalysisGraph);
 
 //#endregion
-//#region src/utils/context.ts
-const interactiveAnalysisContext = (0, _lit_context.createContext)("interactive-analysis-context");
-
-//#endregion
 //#region src/controls/file/analysis/FileAnalysisOverview.ts
-let FileAnalysisTable$1 = class FileAnalysisTable extends FileConsumer {
+let FileAnalysisTable$1 = class FileAnalysisTable extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -13245,27 +12161,22 @@ let FileAnalysisTable$1 = class FileAnalysisTable extends FileConsumer {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: interactiveAnalysisContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.property)(),
-	__decorateMetadata("design:type", Boolean)
-], FileAnalysisTable$1.prototype, "interactiveanalysis", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: interactiveAnalysisContext,
+	subscribe: true
+}), (0, lit_decorators_js.property)()], FileAnalysisTable$1.prototype, "interactiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisTable$1.prototype, "forceinteractiveanalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisTable$1.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisTable$1.prototype, "allSelected", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisTable$1.prototype, "hasHighlightedData", void 0);
+})], FileAnalysisTable$1.prototype, "forceinteractiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable$1.prototype, "allSelected", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable$1.prototype, "hasHighlightedData", void 0);
 FileAnalysisTable$1 = __decorate([(0, lit_decorators_js.customElement)("file-analysis-overview")], FileAnalysisTable$1);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisOverviewRow.ts
-var _ref$67;
-let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
+let FileAnalysisRow$1 = class FileAnalysisRow extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.interactiveanalysis = false;
@@ -13529,28 +12440,27 @@ let FileAnalysisRow$1 = class FileAnalysisRow extends BaseElement {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$67 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$67 : Object)], FileAnalysisRow$1.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)()], FileAnalysisRow$1.prototype, "analysis", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: interactiveAnalysisContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisRow$1.prototype, "interactiveanalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow$1.prototype, "value", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow$1.prototype, "graph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow$1.prototype, "may", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow$1.prototype, "dimension", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow$1.prototype, "color", void 0);
+})], FileAnalysisRow$1.prototype, "interactiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "value", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "graph", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "may", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "dimension", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "color", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisRow$1.prototype, "selected", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow$1.prototype, "name", void 0);
+})], FileAnalysisRow$1.prototype, "selected", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow$1.prototype, "name", void 0);
 FileAnalysisRow$1 = __decorate([(0, lit_decorators_js.customElement)("file-analysis-overview-row")], FileAnalysisRow$1);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisRow.ts
-var _ref$66;
-let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
+let FileAnalysisRow = class FileAnalysisRow extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.interactiveanalysis = true;
@@ -13835,32 +12745,28 @@ let FileAnalysisRow = class FileAnalysisRow extends BaseElement {
 		];
 	}
 };
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", typeof (_ref$66 = typeof _labirthermal_core.AbstractAnalysis !== "undefined" && _labirthermal_core.AbstractAnalysis) === "function" ? _ref$66 : Object)], FileAnalysisRow.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileAnalysisRow.prototype, "interactiveanalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "value", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "graph", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FileAnalysisRow.prototype, "may", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow.prototype, "dimension", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow.prototype, "color", void 0);
+__decorate([(0, lit_decorators_js.property)()], FileAnalysisRow.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], FileAnalysisRow.prototype, "interactiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "value", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "graph", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "may", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "dimension", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "color", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisRow.prototype, "selected", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileAnalysisRow.prototype, "name", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: setRegistryHighlightContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Function)
-], FileAnalysisRow.prototype, "setRegistryHighlight", void 0);
+})], FileAnalysisRow.prototype, "selected", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisRow.prototype, "name", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: setRegistryHighlightContext,
+	subscribe: true
+})], FileAnalysisRow.prototype, "setRegistryHighlight", void 0);
 FileAnalysisRow = __decorate([(0, lit_decorators_js.customElement)("file-analysis-table-row")], FileAnalysisRow);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisTable.ts
-let FileAnalysisTable = class FileAnalysisTable extends FileConsumer {
+let FileAnalysisTable = class FileAnalysisTable extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.interactiveanalysis = false;
@@ -14060,19 +12966,19 @@ let FileAnalysisTable = class FileAnalysisTable extends FileConsumer {
 __decorate([(0, _lit_context.consume)({
 	context: interactiveAnalysisContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisTable.prototype, "interactiveanalysis", void 0);
+})], FileAnalysisTable.prototype, "interactiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileAnalysisTable.prototype, "forceinteractiveanalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisTable.prototype, "analysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisTable.prototype, "allSelected", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisTable.prototype, "hasHighlightedData", void 0);
+})], FileAnalysisTable.prototype, "forceinteractiveanalysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable.prototype, "allSelected", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisTable.prototype, "hasHighlightedData", void 0);
 FileAnalysisTable = __decorate([(0, lit_decorators_js.customElement)("file-analysis-table")], FileAnalysisTable);
 
 //#endregion
 //#region src/controls/file/analysis/FileAnalysisDisplay.ts
-let FileAnalysisDisplay = class FileAnalysisDisplay extends FileConsumer {
+let FileAnalysisDisplay = class FileAnalysisDisplay extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.container = (0, lit_directives_ref_js.createRef)();
@@ -14277,7 +13183,7 @@ let FileAnalysisDisplay = class FileAnalysisDisplay extends FileConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisDisplay.prototype, "analysis", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileAnalysisDisplay.prototype, "analysis", void 0);
 FileAnalysisDisplay = __decorate([(0, lit_decorators_js.customElement)("file-analysis-display")], FileAnalysisDisplay);
 
 //#endregion
@@ -14300,15 +13206,15 @@ let FileButton = class FileButton extends AbstractFileButton {
 		return this.label;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileButton.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButton.prototype, "onEnter", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButton.prototype, "onLeave", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileButton.prototype, "onAction", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileButton.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileButton.prototype, "onEnter", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileButton.prototype, "onLeave", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileButton.prototype, "onAction", void 0);
 FileButton = __decorate([(0, lit_decorators_js.customElement)("file-button")], FileButton);
 
 //#endregion
 //#region src/controls/file/buttons/FileDropdown.ts
-let FileDropdown = class FileDropdown extends BaseElement {
+let FileDropdown = class FileDropdown extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.expanded = false;
@@ -14428,8 +13334,8 @@ let FileDropdown = class FileDropdown extends BaseElement {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileDropdown.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDropdown.prototype, "expanded", void 0);
+})], FileDropdown.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileDropdown.prototype, "expanded", void 0);
 FileDropdown = __decorate([(0, lit_decorators_js.customElement)("file-dropdown")], FileDropdown);
 
 //#endregion
@@ -14478,54 +13384,30 @@ let FilePngButton = class FilePngButton extends AbstractFileButton {
 		return "png";
 	}
 };
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportWidthContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], FilePngButton.prototype, "pngWidth", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Number)
-], FilePngButton.prototype, "pngFs", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportAnalysisContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FilePngButton.prototype, "pngAnalyses", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportScaleContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FilePngButton.prototype, "pngExportScale", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileNameContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FilePngButton.prototype, "pngFileName", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: pngExportFileDateContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FilePngButton.prototype, "pngFileDate", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportWidthContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngWidth", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFsContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngFs", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportAnalysisContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportScaleContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngExportScale", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileNameContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngFileName", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: pngExportFileDateContext,
+	subscribe: true
+})], FilePngButton.prototype, "pngFileDate", void 0);
 FilePngButton = __decorate([(0, lit_decorators_js.customElement)("file-download-png")], FilePngButton);
 
 //#endregion
@@ -14570,16 +13452,16 @@ let FileRangePropagator = class FileRangePropagator extends AbstractFileButton {
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], FileRangePropagator.prototype, "setter", void 0);
+})], FileRangePropagator.prototype, "setter", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileRangePropagator.prototype, "hideLabel", void 0);
+})], FileRangePropagator.prototype, "hideLabel", void 0);
 FileRangePropagator = __decorate([(0, lit_decorators_js.customElement)("file-range-propagator")], FileRangePropagator);
 
 //#endregion
 //#region src/controls/file/icons/AbstractFileIcon.ts
-var AbstractFileIcon = class extends FileConsumer {
+var AbstractFileIcon = class extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.tabIndex = 1;
@@ -14623,7 +13505,7 @@ let FileDetailIcon$1 = class FileDetailIcon extends AbstractFileIcon {
 		return "micro";
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileDetailIcon$1.prototype, "onaction", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileDetailIcon$1.prototype, "onaction", void 0);
 FileDetailIcon$1 = __decorate([(0, lit_decorators_js.customElement)("file-detail-icon")], FileDetailIcon$1);
 
 //#endregion
@@ -14649,13 +13531,12 @@ let FileDetailIcon = class FileDetailIcon extends AbstractFileIcon {
 		return super.render();
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileDetailIcon.prototype, "onaction", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileDetailIcon.prototype, "onaction", void 0);
 FileDetailIcon = __decorate([(0, lit_decorators_js.customElement)("file-opacity-icon")], FileDetailIcon);
 
 //#endregion
 //#region src/renderers/FileDetail.ts
-var _ref$65;
-let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
+let FileThumbnail$2 = class FileThumbnail extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.norender = false;
@@ -14732,16 +13613,15 @@ let FileThumbnail$3 = class FileThumbnail extends FileConsumer {
     `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$3.prototype, "onback", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$3.prototype, "norender", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$3.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$65 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$65 : Object)], FileThumbnail$3.prototype, "grouping", void 0);
-FileThumbnail$3 = __decorate([(0, lit_decorators_js.customElement)("file-detail")], FileThumbnail$3);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileThumbnail$2.prototype, "onback", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) })], FileThumbnail$2.prototype, "norender", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileThumbnail$2.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileThumbnail$2.prototype, "grouping", void 0);
+FileThumbnail$2 = __decorate([(0, lit_decorators_js.customElement)("file-detail")], FileThumbnail$2);
 
 //#endregion
 //#region src/renderers/FileThumbnail.ts
-var _ref$64;
-let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
+let FileThumbnail$1 = class FileThumbnail extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.norender = false;
@@ -14829,11 +13709,11 @@ let FileThumbnail$2 = class FileThumbnail extends FileConsumer {
     `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], FileThumbnail$2.prototype, "ondetail", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) }), __decorateMetadata("design:type", Boolean)], FileThumbnail$2.prototype, "norender", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileThumbnail$2.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$64 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref$64 : Object)], FileThumbnail$2.prototype, "grouping", void 0);
-FileThumbnail$2 = __decorate([(0, lit_decorators_js.customElement)("file-thumbnail")], FileThumbnail$2);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileThumbnail$1.prototype, "ondetail", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(false) })], FileThumbnail$1.prototype, "norender", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileThumbnail$1.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileThumbnail$1.prototype, "grouping", void 0);
+FileThumbnail$1 = __decorate([(0, lit_decorators_js.customElement)("file-thumbnail")], FileThumbnail$1);
 
 //#endregion
 //#region src/utils/converters/durationConverter.ts
@@ -14868,7 +13748,7 @@ const durationConverter = {
 
 //#endregion
 //#region src/controls/file/notation/NotationEntry.ts
-let NotationEntry = class NotationEntry extends BaseElement {
+let NotationEntry = class NotationEntry extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this._active = false;
@@ -14917,32 +13797,32 @@ __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true,
 	converter: durationConverter
-}), __decorateMetadata("design:type", Number)], NotationEntry.prototype, "from", void 0);
+})], NotationEntry.prototype, "from", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true,
 	converter: durationConverter
-}), __decorateMetadata("design:type", Number)], NotationEntry.prototype, "to", void 0);
+})], NotationEntry.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true,
 	converter: durationConverter
-}), __decorateMetadata("design:type", Number)], NotationEntry.prototype, "duration", void 0);
+})], NotationEntry.prototype, "duration", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], NotationEntry.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], NotationEntry.prototype, "image", void 0);
+})], NotationEntry.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], NotationEntry.prototype, "image", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], NotationEntry.prototype, "say", void 0);
+})], NotationEntry.prototype, "say", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], NotationEntry.prototype, "color", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], NotationEntry.prototype, "_active", void 0);
-__decorate([(0, lit_decorators_js.queryAssignedElements)(), __decorateMetadata("design:type", Array)], NotationEntry.prototype, "slotContent", void 0);
+})], NotationEntry.prototype, "color", void 0);
+__decorate([(0, lit_decorators_js.state)()], NotationEntry.prototype, "_active", void 0);
+__decorate([(0, lit_decorators_js.queryAssignedElements)()], NotationEntry.prototype, "slotContent", void 0);
 NotationEntry = __decorate([(0, lit_decorators_js.customElement)("notation-entry")], NotationEntry);
 
 //#endregion
@@ -14965,7 +13845,7 @@ const getCurrentNotationsByMs = (ms, container) => {
 
 //#endregion
 //#region src/controls/file/notation/NotationContent.ts
-let NotationContent$1 = class NotationContent extends BaseElement {
+let NotationContent$1 = class NotationContent extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.showlabel = true;
@@ -15042,22 +13922,17 @@ let NotationContent$1 = class NotationContent extends BaseElement {
 		return lit.html`${(0, lit_directives_map_js.map)(this.entries, this.renderEntry.bind(this))}`;
 	}
 };
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: notationCurrentContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Array)
-], NotationContent$1.prototype, "entries", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(true) }), __decorateMetadata("design:type", Boolean)], NotationContent$1.prototype, "showlabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(true) }), __decorateMetadata("design:type", Boolean)], NotationContent$1.prototype, "showTime", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: notationCurrentContext,
+	subscribe: true
+})], NotationContent$1.prototype, "entries", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(true) })], NotationContent$1.prototype, "showlabel", void 0);
+__decorate([(0, lit_decorators_js.property)({ converter: booleanConverter(true) })], NotationContent$1.prototype, "showTime", void 0);
 NotationContent$1 = __decorate([(0, lit_decorators_js.customElement)("notation-content")], NotationContent$1);
 
 //#endregion
 //#region src/controls/file/notation/NotationProvider.ts
-var _ref$63, _ref2$40, _ref3$25;
-let NotationProvider = class NotationProvider extends FileConsumer {
+let NotationProvider = class NotationProvider extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.ms = 0;
@@ -15101,35 +13976,19 @@ let NotationProvider = class NotationProvider extends FileConsumer {
         <slot></slot>`;
 	}
 };
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, lit_decorators_js.queryAssignedElements)({
-		slot: "notation",
-		flatten: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref$63 = typeof Array !== "undefined" && Array) === "function" ? _ref$63 : Object)
-], NotationProvider.prototype, "_notationSlot", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], NotationProvider.prototype, "ms", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: notationDurationContext }),
-	__decorateMetadata("design:type", Number)
-], NotationProvider.prototype, "duration", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: notationListContext }),
-	__decorateMetadata("design:type", typeof (_ref2$40 = typeof NotationListContext !== "undefined" && NotationListContext) === "function" ? _ref2$40 : Object)
-], NotationProvider.prototype, "notationList", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: notationCurrentContext }),
-	__decorateMetadata("design:type", typeof (_ref3$25 = typeof NotationCurrentContext !== "undefined" && NotationCurrentContext) === "function" ? _ref3$25 : Object)
-], NotationProvider.prototype, "notationCurrent", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, lit_decorators_js.queryAssignedElements)({
+	slot: "notation",
+	flatten: true
+})], NotationProvider.prototype, "_notationSlot", void 0);
+__decorate([(0, lit_decorators_js.state)()], NotationProvider.prototype, "ms", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.provide)({ context: notationDurationContext })], NotationProvider.prototype, "duration", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.provide)({ context: notationListContext })], NotationProvider.prototype, "notationList", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.provide)({ context: notationCurrentContext })], NotationProvider.prototype, "notationCurrent", void 0);
 NotationProvider = __decorate([(0, lit_decorators_js.customElement)("notation-provider")], NotationProvider);
 
 //#endregion
 //#region src/controls/file/notation/NotationTimeline.ts
-let NotationContent = class NotationContent extends FileConsumer {
+let NotationContent = class NotationContent extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.durationConverter = durationConverter;
@@ -15241,24 +14100,19 @@ let NotationContent = class NotationContent extends FileConsumer {
         </div>`;
 	}
 };
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: notationListContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Array)
-], NotationContent.prototype, "entries", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: notationListContext,
+	subscribe: true
+})], NotationContent.prototype, "entries", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: notationDurationContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], NotationContent.prototype, "duration", void 0);
+})], NotationContent.prototype, "duration", void 0);
 NotationContent = __decorate([(0, lit_decorators_js.customElement)("notation-timeline")], NotationContent);
 
 //#endregion
 //#region src/controls/file/FileVideoExport.ts
-var _ref$62, _ref2$39, _ref3$24;
-let FileVideoExport = class FileVideoExport extends FileConsumer {
+let FileVideoExport = class FileVideoExport extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.size = "md";
@@ -15344,27 +14198,27 @@ let FileVideoExport = class FileVideoExport extends FileConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$62 = typeof BtnVariants$8 !== "undefined" && BtnVariants$8) === "function" ? _ref$62 : Object)], FileVideoExport.prototype, "variant", void 0);
+})], FileVideoExport.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$39 = typeof BtnSizes$8 !== "undefined" && BtnSizes$8) === "function" ? _ref2$39 : Object)], FileVideoExport.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], FileVideoExport.prototype, "plain", void 0);
+})], FileVideoExport.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileVideoExport.prototype, "icon", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileVideoExport.prototype, "iconStyle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], FileVideoExport.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "tooltip", void 0);
+})], FileVideoExport.prototype, "tooltip", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileVideoExport.prototype, "label", void 0);
+})], FileVideoExport.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$24 = typeof String !== "undefined" && String) === "function" ? _ref3$24 : Object)], FileVideoExport.prototype, "pre", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileVideoExport.prototype, "isOpen", void 0);
+})], FileVideoExport.prototype, "pre", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileVideoExport.prototype, "isOpen", void 0);
 FileVideoExport = __decorate([(0, lit_decorators_js.customElement)("file-video-export-button")], FileVideoExport);
 
 //#endregion
@@ -16123,13 +14977,11 @@ var VideoRecorder = class {
 
 //#endregion
 //#region src/controls/file/video/AbstractSingleVideoExport.ts
-var _ref$61, _ref2$38;
-var AbstractSingleVideoExport = class extends FileConsumer {
+var AbstractSingleVideoExport = class extends AbstractFileConsumer {
 	constructor(..._args) {
 		super(..._args);
 		this.fileCopyElementRef = (0, lit_directives_ref_js.createRef)();
 		this.exportedDivRef = (0, lit_directives_ref_js.createRef)();
-		this.interactiveanalysis = false;
 		this.parentHasAnalyses = false;
 		this.recordingPhase = RecordingPhase.IDLE;
 		this.recordingPhaseProgress = 0;
@@ -16276,21 +15128,20 @@ var AbstractSingleVideoExport = class extends FileConsumer {
 		await new VideoRecorder(this).captureCurrentFrameAsPng();
 	}
 };
-__decorate([(0, _lit_context.provide)({ context: interactiveAnalysisContext }), __decorateMetadata("design:type", Boolean)], AbstractSingleVideoExport.prototype, "interactiveanalysis", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractSingleVideoExport.prototype, "parentHasAnalyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis1", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis2", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis3", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis4", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis5", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis6", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractSingleVideoExport.prototype, "analysis7", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$61 = typeof RecordingPhase !== "undefined" && RecordingPhase) === "function" ? _ref$61 : Object)], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$38 = typeof SingleVideoRenderProps !== "undefined" && SingleVideoRenderProps) === "function" ? _ref2$38 : Object)], AbstractSingleVideoExport.prototype, "renderProps", void 0);
+})], AbstractSingleVideoExport.prototype, "parentHasAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis1", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis2", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis3", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis4", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis5", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis6", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "analysis7", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "recordingPhase", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "recordingPhaseProgress", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractSingleVideoExport.prototype, "renderProps", void 0);
 
 //#endregion
 //#region src/connection/controllers/apps/directives/DirectiveHelpers.ts
@@ -16460,7 +15311,7 @@ var SingleVideoExportConfigDirective = class extends lit_directive_js.Directive 
 		const isSequence = element.innerFile?.timeline.isSequence;
 		const hasAnalyses = element.parentHasAnalyses;
 		const slots = [];
-		const thermalScale = [lit.html`<registry-palette-dropdown ></registry-palette-dropdown>`, lit.html`<registry-range-form></registry-range-form>`];
+		const thermalScale = [lit.html`<manager-palette-dropdown ></manager-palette-dropdown>`, lit.html`<registry-range-form></registry-range-form>`];
 		slots.push(slotOrNothing("thermalscale", thermalScale));
 		const components = [this.renderRadio(element.t(T.histogram), element.renderProps.hasHistogram, element.setHasHistogram.bind(element)), this.renderRadio(element.t(T.thermalscale), element.renderProps.hasThermalScale, element.setHasThermalScale.bind(element))];
 		if (hasAnalyses) components.push(this.renderRadio(element.t(T.analysis), element.renderProps.hasAnalysis, element.setHasAnalysis.bind(element)));
@@ -17286,13 +16137,13 @@ let FileVideoExportPanel = class FileVideoExportPanel extends AbstractSingleVide
 		]);
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileVideoExportPanel.prototype, "exportRealWidth", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileVideoExportPanel.prototype, "exportRealHeight", void 0);
 FileVideoExportPanel = __decorate([(0, lit_decorators_js.customElement)("file-video-export-panel")], FileVideoExportPanel);
 
 //#endregion
 //#region src/controls/registry/ConfigDialog.ts
-let ConfigDialog = class ConfigDialog extends BaseElement {
+let ConfigDialog = class ConfigDialog extends AbstractThermalElement {
 	render() {
 		return lit.html`<thermal-dialog
             label="Nastavení aplikace"
@@ -17305,7 +16156,7 @@ let ConfigDialog = class ConfigDialog extends BaseElement {
             ></thermal-btn>
 
             <div slot="content">
-                <png-export-panel></png-export-panel>
+                <manager-export-panel></manager-export-panel>
                 <registry-display-panel></registry-display-panel>
             </div>
         </thermal-dialog>`;
@@ -17314,8 +16165,7 @@ let ConfigDialog = class ConfigDialog extends BaseElement {
 ConfigDialog = __decorate([(0, lit_decorators_js.customElement)("config-dialog")], ConfigDialog);
 
 //#endregion
-//#region src/apps/DropinApp.ts
-var _ref$60, _ref2$37, _ref3$23, _ref4$11;
+//#region src/apps/ThermalDropinApp.ts
 let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -17323,7 +16173,6 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
 		this.groupRef = (0, lit_directives_ref_js.createRef)();
 		this.loaded = false;
 		this.files = [];
-		this.interactiveanalysis = true;
 		this.pngExportWidth = 1200;
 		this.pngExportWidthSetterContext = (value) => {
 			this.pngExportWidth = value;
@@ -17467,7 +16316,7 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
         <div class="browser">
             
             <div class="browser-tools">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </div>
             <div class="browser-content">
                 ${this.files.length === 1 ? this.renderOneFile() : this.renderMultipleFiles()}
@@ -17518,7 +16367,7 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
                             ${this.files.length > 0 ? lit.html`
                                 <thermal-btn slot="bar-pre" @click="${() => this.handleClear()}" tooltip="Odstranit tento soubor a nahrát nový">${(0, i18next.t)(T.clear)}</thermal-btn>
 
-                                <registry-palette-dropdown slot="bar-pre"></registry-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
                                 <registry-range-form stacked="false" slot="bar-pre"></registry-range-form>
 
@@ -17537,7 +16386,7 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
                                 </thermal-btn>
                                 <div slot="content">
                                     <table>
-                                        <png-export-panel></png-export-panel>
+                                        <manager-export-panel></manager-export-panel>
                                         <registry-display-panel></registry-display-panel>
                                     </table>
                                 </div>
@@ -17561,30 +16410,24 @@ let DropinAppElement = class DropinAppElement extends BaseAppWithPngExportContex
 		}
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$60 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref$60 : Object)], DropinAppElement.prototype, "dropinRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$37 = typeof lit_directives_ref_js.Ref !== "undefined" && lit_directives_ref_js.Ref) === "function" ? _ref2$37 : Object)], DropinAppElement.prototype, "groupRef", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], DropinAppElement.prototype, "loaded", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$23 = typeof ReturnType !== "undefined" && ReturnType) === "function" ? _ref3$23 : Object)], DropinAppElement.prototype, "listener", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], DropinAppElement.prototype, "files", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], DropinAppElement.prototype, "ip", void 0);
-__decorate([(0, _lit_context.provide)({ context: interactiveAnalysisContext }), __decorateMetadata("design:type", Boolean)], DropinAppElement.prototype, "interactiveanalysis", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], DropinAppElement.prototype, "pngExportWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], DropinAppElement.prototype, "pngExportWidthSetterContext", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], DropinAppElement.prototype, "pngExportFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], DropinAppElement.prototype, "pngExportFsSetterContext", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref4$11 = typeof Locales$4 !== "undefined" && Locales$4) === "function" ? _ref4$11 : Object)
-], DropinAppElement.prototype, "locale", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "dropinRef", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "groupRef", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "loaded", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "listener", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "files", void 0);
+__decorate([(0, lit_decorators_js.state)()], DropinAppElement.prototype, "ip", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext })], DropinAppElement.prototype, "pngExportWidth", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext })], DropinAppElement.prototype, "pngExportWidthSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsContext })], DropinAppElement.prototype, "pngExportFs", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext })], DropinAppElement.prototype, "pngExportFsSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: localeContext }), (0, lit_decorators_js.property)({
+	reflect: true,
+	converter: localeConverter
+})], DropinAppElement.prototype, "locale", void 0);
 DropinAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-dropin-app")], DropinAppElement);
 
 //#endregion
-//#region src/apps/file/FileApp.ts
-var _ref$59, _ref2$36;
+//#region src/apps/ThermalFileApp.ts
 var Layout = /* @__PURE__ */ function(Layout) {
 	Layout["NOGUI"] = "nogui";
 	Layout["SIMPLE"] = "simple";
@@ -17615,7 +16458,7 @@ const analysisSlotProperty = [
 	"analysis6",
 	"analysis7"
 ];
-let FileApp = class FileApp extends BaseAppWithPngExportContext {
+let ThermalFileAppElement = class ThermalFileAppElement extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
 		this.fileProviderRef = (0, lit_directives_ref_js.createRef)();
@@ -17627,7 +16470,6 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
 		this.showhistogram = true;
 		this.showlayout = false;
 		this.showshare = false;
-		this.interactiveanalysis = true;
 		this.loading = true;
 		this.hasVisible = false;
 		this.ms = 0;
@@ -17780,7 +16622,7 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
 
                 <file-info-button slot="bar-pre"></file-info-button>
 
-                ${(0, lit_directives_cache_js.cache)(lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                ${(0, lit_directives_cache_js.cache)(lit.html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
 
                 
 
@@ -17805,7 +16647,7 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
                     <div slot="content">
 
                         <table>
-                            <png-export-panel></png-export-panel>
+                            <manager-export-panel></manager-export-panel>
                             <registry-display-panel></registry-display-panel>
                         </table>
                     </div>
@@ -17816,7 +16658,7 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
     
                 <div class="layout layout__${this.layout}">
                     <aside class="toolbar">
-                        <group-tool-bar></group-tool-bar>
+                        <manager-tool-bar></manager-tool-bar>
                     </aside>
                     <main class="thermogram">
                         ${this.layout === Layout.ADVANCED || this.layout === Layout.LESSON ? this.renderScale() : lit.nothing}
@@ -18071,115 +16913,102 @@ let FileApp = class FileApp extends BaseAppWithPngExportContext {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "layout", void 0);
+})], ThermalFileAppElement.prototype, "layout", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "url", void 0);
+})], ThermalFileAppElement.prototype, "url", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "visible", void 0);
+})], ThermalFileAppElement.prototype, "visible", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$59 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$59 : Object)], FileApp.prototype, "palette", void 0);
+})], ThermalFileAppElement.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], FileApp.prototype, "from", void 0);
+})], ThermalFileAppElement.prototype, "from", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], FileApp.prototype, "to", void 0);
+})], ThermalFileAppElement.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], FileApp.prototype, "opacity", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], FileApp.prototype, "author", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileApp.prototype, "recorded", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], FileApp.prototype, "license", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", String)], FileApp.prototype, "label", void 0);
+})], ThermalFileAppElement.prototype, "opacity", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalFileAppElement.prototype, "author", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalFileAppElement.prototype, "recorded", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalFileAppElement.prototype, "license", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalFileAppElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "showfullscreen", void 0);
+})], ThermalFileAppElement.prototype, "showfullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "showscale", void 0);
+})], ThermalFileAppElement.prototype, "showscale", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "showhistogram", void 0);
+})], ThermalFileAppElement.prototype, "showhistogram", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "showlayout", void 0);
+})], ThermalFileAppElement.prototype, "showlayout", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "showshare", void 0);
+})], ThermalFileAppElement.prototype, "showshare", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis1", void 0);
+})], ThermalFileAppElement.prototype, "analysis1", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis2", void 0);
+})], ThermalFileAppElement.prototype, "analysis2", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis3", void 0);
+})], ThermalFileAppElement.prototype, "analysis3", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis4", void 0);
+})], ThermalFileAppElement.prototype, "analysis4", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis5", void 0);
+})], ThermalFileAppElement.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis6", void 0);
+})], ThermalFileAppElement.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], FileApp.prototype, "analysis7", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$36 = typeof Locales$3 !== "undefined" && Locales$3) === "function" ? _ref2$36 : Object)
-], FileApp.prototype, "locale", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: interactiveAnalysisContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		converter: booleanConverter(true)
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileApp.prototype, "interactiveanalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "loading", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileApp.prototype, "hasVisible", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileApp.prototype, "ms", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], FileApp.prototype, "pngExportWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], FileApp.prototype, "pngExportWidthSetterContext", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], FileApp.prototype, "pngExportFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], FileApp.prototype, "pngExportFsSetterContext", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileApp.prototype, "outerHTMLSnapshot", void 0);
-FileApp = __decorate([(0, lit_decorators_js.customElement)("thermal-file-app")], FileApp);
+})], ThermalFileAppElement.prototype, "analysis7", void 0);
+__decorate([(0, _lit_context.provide)({ context: localeContext }), (0, lit_decorators_js.property)({
+	reflect: true,
+	converter: localeConverter
+})], ThermalFileAppElement.prototype, "locale", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalFileAppElement.prototype, "loading", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalFileAppElement.prototype, "hasVisible", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalFileAppElement.prototype, "ms", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext })], ThermalFileAppElement.prototype, "pngExportWidth", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext })], ThermalFileAppElement.prototype, "pngExportWidthSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsContext })], ThermalFileAppElement.prototype, "pngExportFs", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext })], ThermalFileAppElement.prototype, "pngExportFsSetterContext", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalFileAppElement.prototype, "outerHTMLSnapshot", void 0);
+ThermalFileAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-file-app")], ThermalFileAppElement);
 
 //#endregion
 //#region src/utils/multipleFiles/TimeGrouping.ts
@@ -18343,7 +17172,7 @@ var TimeGrouping = class {
 
 //#endregion
 //#region src/apps/multiple/AbstractMultipleApp.ts
-var _ref$58;
+/** @deprecated */
 var AbstractMultipleApp = class AbstractMultipleApp extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -18425,60 +17254,51 @@ __decorate([(0, lit_decorators_js.property)({
 	reflect: false,
 	attribute: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractMultipleApp.prototype, "showembed", void 0);
+})], AbstractMultipleApp.prototype, "showembed", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false,
 	attribute: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractMultipleApp.prototype, "showabout", void 0);
+})], AbstractMultipleApp.prototype, "showabout", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false,
 	attribute: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractMultipleApp.prototype, "showtutorial", void 0);
+})], AbstractMultipleApp.prototype, "showtutorial", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], AbstractMultipleApp.prototype, "showfullscreen", void 0);
+})], AbstractMultipleApp.prototype, "showfullscreen", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], AbstractMultipleApp.prototype, "showhistogram", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: interactiveAnalysisContext }),
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		converter: booleanConverter(true)
-	}),
-	__decorateMetadata("design:type", Boolean)
-], AbstractMultipleApp.prototype, "interactiveanalysis", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext }), __decorateMetadata("design:type", Number)], AbstractMultipleApp.prototype, "pngExportWidth", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext }), __decorateMetadata("design:type", Object)], AbstractMultipleApp.prototype, "pngExportWidthSetterContext", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsContext }), __decorateMetadata("design:type", Number)], AbstractMultipleApp.prototype, "pngExportFs", void 0);
-__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext }), __decorateMetadata("design:type", Object)], AbstractMultipleApp.prototype, "pngExportFsSetterContext", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref$58 = typeof Locales$2 !== "undefined" && Locales$2) === "function" ? _ref$58 : Object)
-], AbstractMultipleApp.prototype, "locale", void 0);
+})], AbstractMultipleApp.prototype, "showhistogram", void 0);
+__decorate([(0, _lit_context.provide)({ context: interactiveAnalysisContext }), (0, lit_decorators_js.property)({
+	type: String,
+	reflect: true,
+	converter: booleanConverter(true)
+})], AbstractMultipleApp.prototype, "interactiveanalysis", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthContext })], AbstractMultipleApp.prototype, "pngExportWidth", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportWidthSetterContext })], AbstractMultipleApp.prototype, "pngExportWidthSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsContext })], AbstractMultipleApp.prototype, "pngExportFs", void 0);
+__decorate([(0, _lit_context.provide)({ context: pngExportFsSetterContext })], AbstractMultipleApp.prototype, "pngExportFsSetterContext", void 0);
+__decorate([(0, _lit_context.provide)({ context: localeContext }), (0, lit_decorators_js.property)({
+	reflect: true,
+	converter: localeConverter
+})], AbstractMultipleApp.prototype, "locale", void 0);
 
 //#endregion
-//#region src/apps/group/GroupApp.ts
-var _ref$57, _ref2$35, _ref3$22;
-var STATE$1 = /* @__PURE__ */ function(STATE) {
+//#region src/apps/ThermalGroupApp.ts
+var STATE = /* @__PURE__ */ function(STATE) {
 	STATE[STATE["GROUP"] = 0] = "GROUP";
 	STATE[STATE["DETAIL"] = 1] = "DETAIL";
 	return STATE;
-}(STATE$1 || {});
-let GroupElement = class GroupElement extends AbstractMultipleApp {
+}(STATE || {});
+let ThermalGroupAppElement = class ThermalGroupAppElement extends AbstractMultipleApp {
 	constructor(..._args) {
 		super(..._args);
 		this.groupRef = (0, lit_directives_ref_js.createRef)();
@@ -18492,7 +17312,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 		this.onGroupInit = new _labirthermal_core.CallbacksManager();
 		this.onColumns = new _labirthermal_core.CallbacksManager();
 		this.preservetime = true;
-		this.state = STATE$1.GROUP;
+		this.state = STATE.GROUP;
 		this.detail = void 0;
 		this.loading = false;
 	}
@@ -18571,7 +17391,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 		this.group.registry.range.reset();
 		this.group.analysisSync.reset();
 		this.group.analysisGraph.reset();
-		this.state = STATE$1.DETAIL;
+		this.state = STATE.DETAIL;
 		this.scrollToComponent();
 	}
 	async closeDetail() {
@@ -18581,7 +17401,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 		this.group.analysisGraph.reset();
 		this.group.registry.range.reset();
 		this.load();
-		this.state = STATE$1.GROUP;
+		this.state = STATE.GROUP;
 		this.scrollToComponent();
 	}
 	static {
@@ -18677,7 +17497,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
             width: 100%;
         }
 
-        group-tool-bar {
+        manager-tool-bar {
             position: sticky;
             top: 0px;
             z-index: 999;
@@ -18732,12 +17552,12 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 
                             ${this.loading === false ? lit.html`                                
 
-                                <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
                                 
                                 <registry-range-form slot="bar-pre"></registry-range-form>
                                         
 
-                                ${this.state === STATE$1.GROUP ? lit.html`
+                                ${this.state === STATE.GROUP ? lit.html`
                                         ${this.grouper.numFiles > 0 ? lit.html`<group-download-dropdown slot="bar-pre"></group-download-dropdown>` : lit.nothing}
                                         <div slot="bar-pre">
                                             <input type="range" min="1" max="10" step="1" value=${this.columns} @input=${(event) => {
@@ -18762,7 +17582,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 
                                 <div slot="content">
                                     <table>
-                                        <png-export-panel></png-export-panel>
+                                        <manager-export-panel></manager-export-panel>
                                         <registry-display-panel></registry-display-panel>
                                     </table>
                                 </div>
@@ -18776,7 +17596,7 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
                                 ` : lit.nothing}
                             
 
-                            ${this.state === STATE$1.GROUP ? lit.html`
+                            ${this.state === STATE.GROUP ? lit.html`
                                 <group-chart slot="pre"></group-chart>
                             ` : lit.nothing}
 
@@ -18784,15 +17604,15 @@ let GroupElement = class GroupElement extends AbstractMultipleApp {
 
                                     <slot></slot>
 
-                                    <group-tool-bar></group-tool-bar>
+                                    <manager-tool-bar></manager-tool-bar>
 
                                     <div class="app-content-main">
-                                    ${this.state === STATE$1.GROUP ? this.renderGroup() : this.renderDetail()}
+                                    ${this.state === STATE.GROUP ? this.renderGroup() : this.renderDetail()}
                                     </div>
                             
                             </div>
 
-                            ${this.state === STATE$1.GROUP ? lit.html`
+                            ${this.state === STATE.GROUP ? lit.html`
                                 <group-timeline></group-timeline>
                             ` : lit.nothing}
                             `}
@@ -18813,6022 +17633,81 @@ __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$57 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$57 : Object)], GroupElement.prototype, "palette", void 0);
+})], ThermalGroupAppElement.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], GroupElement.prototype, "from", void 0);
+})], ThermalGroupAppElement.prototype, "from", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	reflect: true
-}), __decorateMetadata("design:type", Number)], GroupElement.prototype, "to", void 0);
+})], ThermalGroupAppElement.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "author", void 0);
+})], ThermalGroupAppElement.prototype, "author", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "label", void 0);
+})], ThermalGroupAppElement.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "description", void 0);
+})], ThermalGroupAppElement.prototype, "description", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "license", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, lit_decorators_js.queryAssignedElements)({ flatten: true }),
-	__decorateMetadata("design:type", typeof (_ref2$35 = typeof Array !== "undefined" && Array) === "function" ? _ref2$35 : Object)
-], GroupElement.prototype, "entries", void 0);
+})], ThermalGroupAppElement.prototype, "license", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, lit_decorators_js.queryAssignedElements)({ flatten: true })], ThermalGroupAppElement.prototype, "entries", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Number)], GroupElement.prototype, "columns", void 0);
-__decorate([(0, lit_decorators_js.property)(), __decorateMetadata("design:type", Number)], GroupElement.prototype, "breakpoint", void 0);
+})], ThermalGroupAppElement.prototype, "slug", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalGroupAppElement.prototype, "columns", void 0);
+__decorate([(0, lit_decorators_js.property)()], ThermalGroupAppElement.prototype, "breakpoint", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$22 = typeof Grouping !== "undefined" && Grouping) === "function" ? _ref3$22 : Object)], GroupElement.prototype, "grouping", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], GroupElement.prototype, "groups", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], GroupElement.prototype, "files", void 0);
+})], ThermalGroupAppElement.prototype, "grouping", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGroupAppElement.prototype, "groups", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ThermalGroupAppElement.prototype, "files", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis1", void 0);
+})], ThermalGroupAppElement.prototype, "analysis1", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis2", void 0);
+})], ThermalGroupAppElement.prototype, "analysis2", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis3", void 0);
+})], ThermalGroupAppElement.prototype, "analysis3", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis4", void 0);
+})], ThermalGroupAppElement.prototype, "analysis4", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis5", void 0);
+})], ThermalGroupAppElement.prototype, "analysis5", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis6", void 0);
+})], ThermalGroupAppElement.prototype, "analysis6", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], GroupElement.prototype, "analysis7", void 0);
+})], ThermalGroupAppElement.prototype, "analysis7", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], GroupElement.prototype, "preservetime", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], GroupElement.prototype, "state", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], GroupElement.prototype, "detail", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], GroupElement.prototype, "loading", void 0);
-GroupElement = __decorate([(0, lit_decorators_js.customElement)("thermal-group-app")], GroupElement);
-
-//#endregion
-//#region src/apps/remote/RemoteBrowser.ts
-var _ref$56, _ref2$34, _ref3$21, _ref4$10, _ref5$4, _ref6$1;
-var STATE = /* @__PURE__ */ function(STATE) {
-	STATE[STATE["MAIN"] = 0] = "MAIN";
-	STATE[STATE["ONE"] = 1] = "ONE";
-	STATE[STATE["MULTIPLE"] = 2] = "MULTIPLE";
-	STATE[STATE["DETAIL"] = 3] = "DETAIL";
-	return STATE;
-}(STATE || {});
-const loc = {
-	en: date_fns_locale.enGB,
-	fr: date_fns_locale.fr,
-	de: date_fns_locale.de,
-	cy: date_fns_locale.cy,
-	cs: date_fns_locale.cs
-};
-let RemoteBrowser = class RemoteBrowser extends BaseAppWithPngExportContext {
-	constructor(..._args) {
-		super(..._args);
-		this.palette = "jet";
-		this.enablegrouping = false;
-		this.loadingInfo = false;
-		this.loadingData = false;
-		this.only = [];
-		this.state = STATE.MAIN;
-		this.by = _labirthermal_server_simple.ApiTimeGrouping.HOURS;
-		this.folders = {};
-		this.registryRef = (0, lit_directives_ref_js.createRef)();
-		this.interactiveAnalysis = true;
-		this.detail = void 0;
-	}
-	get manager() {
-		return this.registryRef.value.registry.manager;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		const updatePosition = () => {
-			if (this.getBoundingClientRect().top < -50) this.classList.add("is-pinned");
-			else this.classList.remove("is-pinned");
-		};
-		window.addEventListener("scroll", updatePosition);
-		window.addEventListener("resize", updatePosition);
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		initLocalesInTopLevelElement(this);
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("url") || _changedProperties.has("subfolder")) this.loadInfo(this.url, this.subfolder);
-		if (_changedProperties.has("only") || _changedProperties.has("by")) {
-			if (this.url !== void 0) this.loadData(this.only, this.by, this.url, this.subfolder);
-		}
-		if (_changedProperties.has("folders")) {
-			const keys = Object.keys(this.folders);
-			if (keys.length === 1) this.actionOpenOneFolder(keys[0]);
-		}
-		if (this.registryRef.value) this.registryRef.value.registry.batch.onBatchComplete.set(this.UUID, () => {
-			this.registryRef.value?.registry.range.applyMinmax();
-		});
-	}
-	async showDetail(folder, lrc, png) {
-		this.detail = {
-			folder,
-			lrc,
-			png
-		};
-		this.state = STATE.DETAIL;
-		this.resetRegistry();
-		this.scrollToComponent();
-	}
-	async closeDetail() {
-		delete this.detail;
-		this.detail = void 0;
-		switch (typeof (this.dataMultiple ?? this.dataOnly)) {
-			case "undefined":
-				this.state = STATE.MAIN;
-				break;
-			case typeof this.dataOnly:
-				this.state = STATE.ONE;
-				break;
-			case typeof this.dataMultiple:
-				this.state = STATE.MULTIPLE;
-				break;
-		}
-		this.scrollToComponent();
-	}
-	scrollToComponent() {
-		this.scrollIntoView({
-			behavior: "smooth",
-			block: "start"
-		});
-	}
-	getApiUrl(url, subfolder) {
-		return subfolder !== void 0 ? `${url}?subfolder="${subfolder}"` : url;
-	}
-	async loadInfo(url, subfolder) {
-		this.loadingInfo = true;
-		try {
-			const json = await new _labirthermal_server_simple.QueryBuilder(url, subfolder).info();
-			this.info = json;
-			this.folders = json.folders;
-			this.loadingInfo = false;
-		} catch (err) {
-			this.error = "There was an error loading info";
-		}
-	}
-	async loadDataOne(folder, url, subfolder) {
-		this.loadingData = false;
-		this.dataOnly = void 0;
-		this.dataMultiple = void 0;
-		this.scrollToComponent();
-		const data = await new _labirthermal_server_simple.QueryBuilder(url, subfolder).folder(folder);
-		this.log("folder", folder, data);
-		this.scrollToComponent();
-		this.dataOnly = data;
-		this.loadingData = false;
-		if (this.registryRef.value) this.registryRef.value.registry.groups.addListener(this.UUID, (groups) => {
-			groups.forEach((group) => group.files.addListener(this.UUID, (files) => {
-				if (files[0]) group.analysisSync.turnOn(files[0]);
-			}));
-		});
-	}
-	async loadDataMultiple(only, grouping, url, subfolder) {
-		this.loadingData = true;
-		this.dataOnly = void 0;
-		this.dataMultiple = void 0;
-		this.scrollToComponent();
-		const query = new _labirthermal_server_simple.QueryBuilder(url, subfolder);
-		query.setOnly(only.join(","));
-		query.setGrid(true);
-		const data = await query.grid(grouping);
-		this.scrollToComponent();
-		this.dataMultiple = data;
-		this.loadingData = false;
-		this.registryRef.value?.registry.groups.removeListener(this.UUID);
-	}
-	async loadData(only, grouping, url, subfolder) {
-		if (only.length > 1) this.loadDataMultiple(only, grouping, url, subfolder);
-		else if (only.length === 1) this.loadDataOne(only[0], url, subfolder);
-	}
-	renderMainScreen() {
-		return lit.html`
-<group-provider class="screen screen-main" autoclear="true" slug="main">
-
-    <main>
-        <slot></slot>
-    </main>
-
-
-    <nav class="screen-main-folders">
-        ${Object.values(this.folders).map((folder) => {
-			return lit.html`
-        <button class="folder" @click=${() => this.actionOpenOneFolder(folder.folder)}>
-
-            <div class="folder-header">
-                <div class="folder-header-text">
-                    <h1>${folder.name}</h1>
-                    ${folder.description !== void 0 ? lit.html`<p>${folder.description}</p>` : lit.nothing}
-                    <div>${(0, i18next.t)(T.numfiles, { num: folder.lrc_count })}</div>
-                </div>
-                <div class="folder-header-icon">
-                    ${folder.lrc_count > 1 ? lit.html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776" />
-                                </svg>` : lit.html`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                                </svg>`}
-                </div>
-            </div>
-
-            <file-provider thermal="${folder.preview.lrc}" batch="true" autoclear="true">
-                <file-canvas style="pointer-events: none;"></file-canvas>
-                <div class="open-button">
-                    <thermal-btn variant="primary">${(0, i18next.t)(T.open)}</thermal-btn>
-                </div>
-            </file-provider>
-            
-        </button>
-            `;
-		})}
-    </nav>
-
-
-</group-provider>
-
-        `;
-	}
-	resetRegistry() {
-		if (this.registryRef.value) {
-			this.registryRef.value.registry.forEveryInstance((instance) => instance.unmountFromDom());
-			this.registryRef.value.registry.reset();
-			this.registryRef.value.registry.minmax.reset();
-			this.registryRef.value.registry.range.reset();
-			this.registryRef.value.registry.opacity.imposeOpacity(1);
-		}
-	}
-	actionCloseToHomepage() {
-		this.state = STATE.MAIN;
-		this.only = [];
-		delete this.dataOnly;
-		delete this.dataMultiple;
-		this.resetRegistry();
-	}
-	actionOpenOneFolder(folderKey) {
-		if (!this.only.includes(folderKey) && Object.keys(this.folders).includes(folderKey)) {
-			this.state = STATE.ONE;
-			this.only = [folderKey];
-			this.resetRegistry();
-		}
-	}
-	actionToggleFolder(folderKey) {
-		if (this.only.includes(folderKey)) {
-			this.only = this.only.filter((f) => f !== folderKey);
-			this.resetRegistry();
-			if (this.only.length === 0) this.actionCloseToHomepage();
-			else if (this.only.length === 1) this.state = STATE.ONE;
-			else if (this.only.length > 1) this.state = STATE.MULTIPLE;
-		} else if (Object.keys(this.folders).includes(folderKey)) {
-			this.only = [...this.only, folderKey];
-			this.resetRegistry();
-			if (this.only.length > 0) this.state = STATE.MULTIPLE;
-		}
-	}
-	actionShowEverything() {
-		this.only = Object.keys(this.folders);
-		this.resetRegistry();
-		this.state = STATE.MULTIPLE;
-	}
-	renderLoading(what) {
-		return lit.html`<div class="loading">
-            <div class="lds-facebook"><div></div><div></div><div></div></div>
-            <div>${what}</div>
-        </div>`;
-	}
-	renderOne() {
-		if (this.loadingData || this.dataOnly === void 0) return this.renderLoading("Loading folder data");
-		return lit.html`
-            <group-provider slug="${this.dataOnly.info.folder}">
-
-                ${Object.values(this.dataOnly.files).map((file) => {
-			return lit.html`<div>
-                    <file-provider 
-                        batch="true" 
-                        thermal="${file.lrc}" 
-                        visible="${file.png}"
-                    >
-                        <file-thumbnail
-                            grouping="years"
-                            .ondetail=${() => {
-				this.showDetail(this.dataOnly.info.name, file.lrc, file.png);
-			}}
-                        ></file-thumbnail>
-                    </file-provider>
-                    
-                    </div>`;
-		})}
-            
-            </group-provider>
-        `;
-	}
-	renderMultiple() {
-		if (this.loadingData || this.dataMultiple === void 0 || this.dataMultiple.data === void 0) return this.renderLoading("Loading selected folders' data");
-		const groups = this.dataMultiple.data;
-		const columns = Object.entries(Object.values(Object.values(this.dataMultiple.data))[0]).map(([f, v]) => ({
-			name: v.name,
-			key: f
-		})).length;
-		const sortedKeys = Object.keys(Object.values(groups)[0]).sort((a, b) => a < b ? -1 : 1);
-		return lit.html`
-
-            <table class="affected">
-
-                <tbody>
-                ${Object.entries(groups).map(([timestamp, folders]) => {
-			let title = void 0;
-			const groupTimestamp = parseInt(timestamp);
-			if (this.by === _labirthermal_server_simple.ApiTimeGrouping.HOURS) title = (0, date_fns.format)(groupTimestamp * 1e3, "d. M. yyyy - HH") + ":00";
-			else if (this.by === _labirthermal_server_simple.ApiTimeGrouping.DAYS) title = (0, date_fns.format)(groupTimestamp * 1e3, "d. M. yyyy");
-			else if (this.by === _labirthermal_server_simple.ApiTimeGrouping.WEEKS) title = (0, date_fns.format)(groupTimestamp * 1e3, "wo");
-			else if (this.by === _labirthermal_server_simple.ApiTimeGrouping.MONTHS) title = (0, date_fns.format)(groupTimestamp * 1e3, "LLLL yyyy", { locale: loc[this._locale] });
-			else if (this.by === _labirthermal_server_simple.ApiTimeGrouping.YEARS) title = (0, date_fns.format)(groupTimestamp * 1e3, "yyyy");
-			return lit.html`
-                        <tr><td class="cell-separator"></td></tr>
-                        <tr>
-                            <td class="cell-label" colspan="${columns}">
-                                <div>
-                                    <h2>${title}</h2>
-                                    <group-provider slug="${timestamp}" class="buttons">
-                                        <group-range-propagator></group-range-propagator>
-
-                                        <file-dropdown label="${(0, i18next.t)(T.download).toLowerCase()}">
-                                            <group-download-buttons label=${title}></group-download-buttons>
-                                        </file-dropdown>
-
-                                    </group-provider>
-                                </div>
-                            </td>
-                        </tr>
-                        <group-provider slug="${timestamp}" class="row">
-                            ${sortedKeys.map((key) => {
-				const info = folders[key];
-				return lit.html`<td class="cell-content" data-name="${info.name}">
-                                    ${Object.values(info.files).map((file) => lit.html`
-                                    <div style="background-color: var(--thermal-background); padding: var(--thermal-gap); border-radius: var(--thermal-radius);">
-                                        <file-provider
-                                            batch="true"
-                                            thermal="${file.lrc}"
-                                            visible="${file.png}"
-                                        >
-                                            
-                                            <file-thumbnail
-                                                grouping="${this.by}"
-                                                .ondetail=${() => {
-					this.showDetail(info.name, file.lrc, file.png);
-				}}
-                                            ></file-thumbnail>
-                                        </file-provider>
-                                    </div>
-                                `)}
-                                    
-                                </td>`;
-			})}
-                        </group-provider>
-                    `;
-		})}
-                </tbody>
-            
-            </table>
-
-        `;
-	}
-	renderTimeToggle() {
-		return lit.html`
-<thermal-dropdown>
-    <span slot="invoker">${(0, i18next.t)(T[`by${this.by}`])}</span>
-    ${[
-			"hours",
-			"days",
-			"weeks",
-			"months",
-			"years"
-		].map((by) => lit.html`
-    <div slot="option" @click=${() => this.by = by}>
-        <thermal-btn>${(0, i18next.t)(T[`by${by}`])}</thermal-btn>
-    </div>
-    `)}
-</thermal-dropdown>
-        `;
-	}
-	renderInfo() {
-		if (this.state === STATE.MAIN) return lit.nothing;
-		let content = void 0;
-		if (this.state === STATE.ONE) {
-			const theOne = this.folders[this.only[0]];
-			const theOthers = Object.values(this.folders).filter((f) => f.folder !== theOne.folder);
-			const dropdown = theOthers.length > 0 ? lit.html`<thermal-dropdown variant="background" class="selector">
-                    <span slot="invoker">${theOne.name}</span>
-
-                    ${theOthers.map((f) => lit.html`<div slot="option" @click=${() => this.actionOpenOneFolder(f.folder)}>
-                        <thermal-btn>${f.name}</thermal-btn>
-                    </div>`)}
-
-                </thermal-dropdown>` : lit.html`<thermal-btn variant="background" interactive="false">${theOne.name}</thermal-btn>`;
-			const add = theOthers.length > 0 ? theOthers.map((f, i) => lit.html`<thermal-btn @click=${() => this.actionToggleFolder(f.folder)}>
-                    <span class="button-inline-icon">+</span> ${f.name}
-                </thermal-btn> ${i !== theOthers.length - 1 ? ` ${(0, i18next.t)(T.or)} ` : lit.nothing}`) : lit.html`<span>${(0, i18next.t)(T.remotefoldersbrowseraddfolderhint)}</span>`;
-			content = lit.html`${(0, i18next.t)(T.showingfolder)} ${dropdown}. 
-            
-            ${theOthers.length > 0 ? lit.html` ${(0, i18next.t)(T.doyouwanttoadd)} ${add}?` : add}
-            `;
-		} else if (this.state === STATE.MULTIPLE) {
-			const displayed = [];
-			const available = [];
-			Object.values(this.folders).forEach((folder) => {
-				if (this.only.includes(folder.folder)) displayed.push(folder);
-				else available.push(folder);
-			});
-			content = lit.html`
-
-                ${(0, i18next.t)(T.showingfolders)}
-                ${displayed.map((f, i) => lit.html`<thermal-btn
-                    title="${(0, i18next.t)(T.remove)}" 
-                    variant="background"
-                    @click=${() => this.actionToggleFolder(f.folder)}
-                >
-                    ${f.name} <span class="button-inline-icon">✕</span>
-                </thermal-btn>${i !== displayed.length - 1 ? ` ${(0, i18next.t)(T.and)} ` : lit.nothing}`)}
-                ${(0, i18next.t)(T.groupped)} ${this.renderTimeToggle()}.
-            
-
-            ${available.length > 0 ? lit.html`${(0, i18next.t)(T.youmayalsoadd)} ${available.map((f, i) => lit.html`
-                    <thermal-btn 
-                        @click=${() => this.actionToggleFolder(f.folder)}
-                    >
-                        <span class="button-inline-icon">+</span> ${f.name}
-                    </thermal-btn>
-                    ${i !== available.length - 1 ? ` ${(0, i18next.t)(T.or)} ` : lit.nothing}
-                `)}.` : lit.nothing}
-
-            `;
-		}
-		if (content === void 0) return lit.nothing;
-		return lit.html`<div class="info">
-            ${content}
-        </div>`;
-	}
-	renderBrowser() {
-		return lit.html`<section>
-            ${this.state === STATE.ONE ? this.renderOne() : lit.nothing}
-            ${this.state === STATE.MULTIPLE ? this.renderMultiple() : lit.nothing}
-            ${this.state === STATE.DETAIL ? this.renderDetail() : lit.nothing}
-        </section>`;
-	}
-	renderDetail() {
-		if (this.detail === void 0) return this.renderLoading("Loading the IR image");
-		return lit.html`
-        <group-provider slug="detail" autoclear="true">
-            <file-provider thermal="${this.detail?.lrc}" visible="${this.detail?.png}" batch="true" autoclear="true">
-                <article class="detail">
-                    <header class="detail-header">
-                        <thermal-btn @click=${() => this.closeDetail()} variant="foreground">${(0, i18next.t)(T.close)}</thermal-btn>
-
-                        <thermal-btn variant="background" interactive="false">
-                            ${this.detail.folder}
-                        </thermal-btn>
-                        <thermal-btn variant="background" interactive="false">
-                            <file-label></file-label>
-                        </thermal-btn>
-
-                        <file-info-button></file-info-button>
-                        <file-download-dropdown></file-download-dropdown>
-
-                        <registry-palette-dropdown></registry-palette-dropdown>
-                        <registry-range-form></registry-range-form>
-                    </header>
-
-                    <main>
-                        <section>
-                            <file-canvas></file-canvas>
-                            <file-timeline></file-timeline>
-                        </section>
-                        <section>
-                            <file-analysis-complex></file-analysis-complex>
-                        </section>
-                    </main>    
-                    
-                </article>
-            </file-provider>
-        </group-provider>
-        `;
-	}
-	renderApp() {
-		if (this.info === void 0) return this.renderLoading((0, i18next.t)(T.loading));
-		if (this.state === STATE.MAIN) return this.renderMainScreen();
-		else return this.renderBrowser();
-	}
-	static {
-		this.styles = lit.css`
-
-:host {
-    font-size: var(--thermal-fs);
-    line-height: 1em;
-
-    --table-gap: calc( var( --thermal-gap ) * .8 );
-    --table-gap-sm: calc( var( --thermal-gap ) * .4 );
-
-    --thermal-browser-width: 150px;
-
-    
-
-    @media(min-width: 400px) {
-        --thermal-browser-width: 300px;
-    }
-}
-
-.reset-text,
-h1, h2, h3, h4, h5 {
-    margin: 0;
-    padding: 0;
-    font-size: var(--thermal-fs);
-    line-height: 1em;
-}
-
-.screen {
-
-}
-
-.screen-main {
-
-}
-
-
-
-.screen-main-folders {
-
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat( auto-fill, minmax(var(--thermal-browser-width), 1fr) );
-    gap: var(--thermal-gap);
-
-    .folder {
-
-        padding: 0;
-        overflow: hidden;
-
-        border-radius: var(--thermal-radius);
-        border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-
-        background: var(--thermal-background);
-        color: var(--thermal-foreground);
-
-        cursor: pointer;
-        flex-grow: 1;
-
-        transition: all .2s ease-in-out;
-
-        file-canvas,
-        file-provider {
-            displaY: block;
-        }
-
-        file-provider {
-            overflow: hidden;
-            position: relative;
-        }
-
-        file-canvas {
-            transition: all .4s ease-in-out;
-        }
-
-        .open-button {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            top: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0.8;
-            transition: all .4s ease-in-out;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(20px);
-        }
-
-
-        .folder-header {
-            padding: var(--thermal-gap);
-            display: grid;
-            gap: var(--thermal-gap);
-            grid-template-columns: auto 2rem;
-            text-align: left;
-        }
-
-        .folder-header-icon {
-            color: var(--thermal-slate-light);
-            transition: all .4s ease-in-out;
-        }
-
-
-        &:hover,
-        &:focus {
-            background: var(--thermal-background);
-            box-shadow: var(--thermal-shadow);
-            file-canvas {
-                transform: scale(1.2);
-            }
-
-            .open-button {
-                opacity: 1;
-                transform: translateY(0px);
-            }
-
-            .folder-header-icon {
-                color: var(--thermal-primary);
-            }
-        }
-
-    }
-
-    
-
-}
-
-.screen-browser {
-}
-
-.screen-browser-header {
-    flex-grow: 1;
-}
-
-.screen-browser-header-buttons {
-    > * {
-        display: inline-block;
-    }
-}
-
-
-
-.screen-browser__one {
-
-    group-provider {
-
-        display: grid;
-        grid-template-columns: repeat( auto-fill, minmax(var(--thermal-browser-width), 1fr) );
-        gap: var(--thermal-gap);
-
-    }
-
-}
-
-
-table.affected {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-    color: var(--thermal-foreground);
-
-    th, td {
-        padding: var(--table-gap-sm);
-    }
-
-    .cell-header {
-        background: var(--thermal-background);
-        color: var(--thermal-foreground);
-        text-align: left;
-        padding: var(--table-gap);
-        border-radius: var(--thermal-radius);
-    }
-
-    .cell-label {
-        border-left: 1px var(--thermal-border-style)var(--thermal-slate);
-        border-right: 1px var(--thermal-border-style)var(--thermal-slate);
-        border-top: 1px var(--thermal-border-style)var(--thermal-slate);
-        padding: var(--table-gap);
-        font-weight: bold;
-        > div {
-            display: flex;
-            gap: var(--thermal-gap);
-            h2 {
-                // flex-grow: 1;
-            }
-        }
-    }
-
-    .cell-content {
-
-        border-bottom: 1px var(--thermal-border-style)var(--thermal-slate);
-
-        &:first-child {
-            border-left: 1px var(--thermal-border-style)var(--thermal-slate);
-        }
-
-        &:last-child {
-            border-right: 1px var(--thermal-border-style)var(--thermal-slate);
-        }
-
-        .file {
-            background: var(--thermal-background);
-            padding: var(--table-gap);
-            border-radius: var(--thermal-radius);
-        }
-
-        .file:not(:last-child) {
-            margin-bottom: var( --table-gap-sm );
-        }
-
-    }
-
-    .cell-separator {
-        height: 1rem;
-    }
-
-}
-
-
-
-
-.screen-browser__multiple {
-
-    group-provider.row {
-        display: table-row;
-    }
-
-    group-provider.buttons {
-        display: flex;
-        gap: 5px;
-        align-items: center;
-    }
-    
-
-}
-
-
-.info {
-
-    padding: var(--thermal-gap);
-    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-    border-radius: var(--thermal-radius);
-    background-color: var(--thermal-slate-light);
-
-    margin-bottom: 1em;
-
-    thermal-btn,
-    thermal-dropdown {
-        display: inline-block;
-    }
-
-    .button-inline-icon {
-        opacity: .5;
-    }
-
-}
-
-thermal-dropdown.selector::part(invoker) {
-
-    --thermal-slate-light: var( --thermal-background );
-
-}
-
-
-
-    .detail {
-        padding: var(--thermal-gap);
-        border-radius: var(--thermal-radius);
-        border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-        background-color: var(--thermal-background);
-        box-sizing: border-box;
-        width: 100%;
-
-        main {
-            display: grid;
-            gap: var(--thermal-gap);
-            grid-template-columns: 1fr;
-            @media ( min-width: 900px ) {
-                grid-template-columns: 2fr 1fr;
-            }
-            @media ( min-width: 1300px ) {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        header {
-            width: 100%;
-            display: flex;
-            gap: 5px;
-            margin-bottom: var(--thermal-gap);
-            align-items: center;
-        }
-
-    }
-
-    .loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-        border-radius: var(--thermal-radius);
-        box-sizing: border-box;
-        padding: var(--thermal-gap);
-        min-height: 30vh;
-        color: var(--thermal-slate-dark);
-        background: var(--thermal-slate-light);
-    }
-
-
-    .lds-facebook {
-  /* change color here */
-  color: var(--thermal-slate-dark);
-}
-.lds-facebook,
-.lds-facebook div {
-  box-sizing: border-box;
-}
-.lds-facebook {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.lds-facebook div {
-  display: inline-block;
-  position: absolute;
-  left: 8px;
-  width: 16px;
-  background: currentColor;
-  animation: lds-facebook 1.2s cubic-bezier(0, 0.5, 0.5, 1) infinite;
-}
-.lds-facebook div:nth-child(1) {
-  left: 8px;
-  animation-delay: -0.24s;
-}
-.lds-facebook div:nth-child(2) {
-  left: 32px;
-  animation-delay: -0.12s;
-}
-.lds-facebook div:nth-child(3) {
-  left: 56px;
-  animation-delay: 0s;
-}
-@keyframes lds-facebook {
-  0% {
-    top: 8px;
-    height: 64px;
-  }
-  50%, 100% {
-    top: 24px;
-    height: 32px;
-  }
-}
-
-
-    `;
-	}
-	renderHeader() {
-		if (this.state === STATE.MAIN) return lit.nothing;
-		return lit.html`
-            <div slot="bar-persistent">
-                <registry-range-form stacked="false"></registry-range-form>
-            </div>
-
-            ${this.state === STATE.ONE && this.dataOnly !== void 0 ? lit.html`<group-provider slug="${this.dataOnly.info.folder}" slot="bar-pre">
-                    <group-download-dropdown></group-download-dropdown>
-                </group-provider>` : lit.nothing}
-            <registry-opacity-slider slot="bar-pre"></registry-opacity-slider>
-            <group-tool-buttons showhint="false" showpopup="true" slot="bar-pre"></group-tool-buttons>       
-        `;
-	}
-	renderHistogram() {
-		if (this.state === STATE.MAIN) return lit.nothing;
-		return lit.html`<registry-histogram expandable="true"></registry-histogram>
-        <registry-range-slider></registry-range-slider>
-        <registry-ticks-bar></registry-ticks-bar>
-        
-        <nav id="graf">
-        ${this.dataOnly !== void 0 ? lit.html`<group-provider slug="${this.dataOnly.info.folder}">
-
-                    <div style="width:100%">
-                        <group-chart></group-chart>
-                    </div>
-
-                </group-provider>` : lit.nothing}
-        </nav>
-        `;
-	}
-	renderTableHeader() {
-		if (this.state !== STATE.MULTIPLE) return lit.nothing;
-		return lit.html`<table class="affected">
-                <thead>
-                    <tr>
-                        ${Object.values(this.folders).filter((f) => this.only.includes(f.folder)).map((folder) => lit.html`<th>
-                            <div class="cell-header">
-                                ${folder.name}
-                            </div>
-                        </th>`)}
-                    </tr>
-                </thead>
-            </table>
-            `;
-	}
-	render() {
-		let title = (0, i18next.t)(T.remotefoldersbrowser);
-		let onlabel = void 0;
-		if (this.info === void 0) title = (0, i18next.t)(T.loading) + "...";
-		else if (Object.keys(this.folders).length === 1 && this.label) title = this.label;
-		else if (this.state === STATE.MAIN && this.label) title = this.label;
-		else if (this.state !== STATE.MAIN) {
-			title = (0, i18next.t)(T.close);
-			onlabel = () => this.actionCloseToHomepage();
-		}
-		return lit.html`
-
-<manager-provider slug=${this.UUID} palette="${this.palette}">
-    <registry-provider ref=${(0, lit_directives_ref_js.ref)(this.registryRef)}>
-
-        <thermal-app 
-            author="${(0, lit_directives_if_defined_js.ifDefined)(this.author)}" 
-            license="${(0, lit_directives_if_defined_js.ifDefined)(this.license)}" 
-            showfullscreen="true" 
-            label=${title} 
-            .onlabel=${(0, lit_directives_if_defined_js.ifDefined)(onlabel)}
-        >
-
-            ${this.state !== STATE.MAIN ? lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>` : lit.nothing}
-
-            ${this.state === STATE.MAIN && this.enablegrouping && Object.keys(this.folders).length > 1 ? lit.html`<thermal-btn slot="bar-pre" @click=${() => {
-			this.actionShowEverything();
-		}} tooltip="Zobrazit všechny soubory v níže uvedených složkách v mřížce podle času">${(0, i18next.t)(T.showeverything)}</thermal-btn>` : lit.nothing}
-
-            ${this.renderHeader()}
-            
-            <div slot="pre">
-                ${this.enablegrouping ? this.renderInfo() : lit.nothing}
-                ${this.renderHistogram()}
-                ${this.renderTableHeader()}
-            </div>
-        
-            <div class=${(0, lit_directives_class_map_js.classMap)({
-			screen: true,
-			"screen-main": this.state === STATE.MAIN,
-			"screen-browser": [STATE.ONE, STATE.MULTIPLE].includes(this.state),
-			"screen-browser__one": this.state === STATE.ONE,
-			"screen-browser__multiple": this.state === STATE.MULTIPLE,
-			"screen-detail": this.state === STATE.DETAIL
-		})}>
-                ${this.renderApp()}
-            </div>
-
-             <thermal-dialog label="${(0, i18next.t)(T.config)}" slot="close">
-                <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${(0, i18next.t)(T.config)}">
-                </thermal-btn>
-                <div slot="content">
-                    <table>
-                    <png-export-panel></png-export-panel>
-                    <registry-display-panel></registry-display-panel>
-                    </table>
-                </div>
-            </thermal-dialog>
-
-        </thermal-app>
-
-    </registry-provider>
-</manager-provider>
-        
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "license", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "author", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: true
-}), __decorateMetadata("design:type", typeof (_ref$56 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$56 : Object)], RemoteBrowser.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true,
-	converter: booleanConverter(true)
-}), __decorateMetadata("design:type", Boolean)], RemoteBrowser.prototype, "enablegrouping", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "url", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "subfolder", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$34 = typeof _labirthermal_server_simple.ApiInfoResponse !== "undefined" && _labirthermal_server_simple.ApiInfoResponse) === "function" ? _ref2$34 : Object)], RemoteBrowser.prototype, "info", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], RemoteBrowser.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RemoteBrowser.prototype, "loadingInfo", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], RemoteBrowser.prototype, "loadingData", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], RemoteBrowser.prototype, "only", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], RemoteBrowser.prototype, "state", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$21 = typeof _labirthermal_server_simple.ApiTimeGrouping !== "undefined" && _labirthermal_server_simple.ApiTimeGrouping) === "function" ? _ref3$21 : Object)], RemoteBrowser.prototype, "by", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref4$10 = typeof _labirthermal_server_simple.ApiFolderContentResponse !== "undefined" && _labirthermal_server_simple.ApiFolderContentResponse) === "function" ? _ref4$10 : Object)], RemoteBrowser.prototype, "dataOnly", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref5$4 = typeof _labirthermal_server_simple.ApiTimeGroupResponse !== "undefined" && _labirthermal_server_simple.ApiTimeGroupResponse) === "function" ? _ref5$4 : Object)], RemoteBrowser.prototype, "dataMultiple", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RemoteBrowser.prototype, "folders", void 0);
-__decorate([(0, _lit_context.provide)({ context: interactiveAnalysisContext }), __decorateMetadata("design:type", Boolean)], RemoteBrowser.prototype, "interactiveAnalysis", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], RemoteBrowser.prototype, "detail", void 0);
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref6$1 = typeof Locales$1 !== "undefined" && Locales$1) === "function" ? _ref6$1 : Object)
-], RemoteBrowser.prototype, "locale", void 0);
-RemoteBrowser = __decorate([(0, lit_decorators_js.customElement)("remote-browser-app")], RemoteBrowser);
-
-//#endregion
-//#region src/connection/ClientContext.ts
-const clientContext = (0, _lit_context.createContext)("client-context");
-const currentUserTreeContext = (0, _lit_context.createContext)("current-user-tree-context");
-const currentUserTreeSetterContext = (0, _lit_context.createContext)("current-user-tree-setter-context");
-const compactContext = (0, _lit_context.createContext)("compact-context");
-const compactContextSetter = (0, _lit_context.createContext)("compact-context-setter");
-let DisplayMode = /* @__PURE__ */ function(DisplayMode) {
-	DisplayMode["GRID"] = "grid";
-	DisplayMode["TABLE"] = "table";
-	return DisplayMode;
-}({});
-const displayModeContext = (0, _lit_context.createContext)("display-mode-context");
-const displayModeSetterContext = (0, _lit_context.createContext)("display-mode-setter-context");
-const showDiscussionContext = (0, _lit_context.createContext)("display-discussion-context");
-const showDiscussionSetterContext = (0, _lit_context.createContext)("display-discussion-setter-context");
-const editTagsContext = (0, _lit_context.createContext)("edit-tags-context");
-const editTagsSetterContext = (0, _lit_context.createContext)("edit-tags-setter-context");
-const syncAnalysisContext = (0, _lit_context.createContext)("sync-analysis-context-connected");
-const syncAnalysisSetterContext = (0, _lit_context.createContext)("sync-analysis-setter-context-connected");
-const tagsFilterContext = (0, _lit_context.createContext)("tags-filter-context");
-const tagsFilterSetterContext = (0, _lit_context.createContext)("tags-filter-setter-context");
-const subfoldersModeContext = (0, _lit_context.createContext)("subfolders-mode-context");
-const subfoldersModeSetterContext = (0, _lit_context.createContext)("subfolders-mode-setter-context");
-const subgildersGridByMode = (0, _lit_context.createContext)("subfolders-grid-by-mode");
-const subgildersGridByModeSetter = (0, _lit_context.createContext)("subfolders-grid-by-mode-setter");
-const lockedBrowsingTo = (0, _lit_context.createContext)("locked-location-context");
-const lockedBrowsingToSetter = (0, _lit_context.createContext)("locked-location-setter-context");
-
-//#endregion
-//#region src/connection/composition/AppWithState.ts
-var _ref$55;
-let AppState = /* @__PURE__ */ function(AppState) {
-	AppState["LOADING"] = "loading";
-	AppState["POSTER"] = "poster";
-	AppState["USER"] = "user";
-	AppState["FOLDER"] = "folder";
-	AppState["DETAIL"] = "detail";
-	return AppState;
-}({});
-let FolderMode = /* @__PURE__ */ function(FolderMode) {
-	FolderMode["GRID"] = "grid-files";
-	FolderMode["TABLE"] = "table-subfolders";
-	FolderMode["LIST"] = "list-subfolders";
-	return FolderMode;
-}({});
-/** 
-* This is the core layer which handles the states. Base states are implemented here, but most are implemented in the AppWithContent layer.
-*/
-var AppWithState = class extends BaseAppWithPngExportContext {
-	constructor(..._args) {
-		super(..._args);
-		this._appState = AppState.LOADING;
-	}
-	get state() {
-		return this._appState;
-	}
-	set state(state) {
-		this._appState = state;
-		this.requestUpdate();
-	}
-	get customStateContent() {
-		return this._customStateContent;
-	}
-	get error() {
-		return this._error;
-	}
-	setError(error) {
-		this._error = error;
-		this.requestUpdate();
-	}
-	clearError() {
-		this._error = void 0;
-		this.requestUpdate();
-	}
-	setStateLoading(message) {
-		this._appState = AppState.LOADING;
-		this._customStateContent = message;
-		this.requestUpdate();
-	}
-	setStatePoster(html) {
-		this._appState = AppState.POSTER;
-		this._customStateContent = html;
-		this.requestUpdate();
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$55 = typeof AppState !== "undefined" && AppState) === "function" ? _ref$55 : Object)], AppWithState.prototype, "_appState", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AppWithState.prototype, "_customStateContent", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AppWithState.prototype, "_error", void 0);
-
-//#endregion
-//#region src/connection/composition/AppWithClientProvider.ts
-var _ref$54;
-/**
-* This layer handles the client & connection and the related context logic.
-*/
-var AppWithClientProvider = class extends AppWithState {
-	constructor(..._args) {
-		super(..._args);
-		this.disableLogging = false;
-		this.isLoggedIn = false;
-		this.isRoot = false;
-		this.isClientConnected = false;
-		this.UUIDClient = this.UUID + "__app_with_client";
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.originalPath = this.path;
-		if (!this.serverUrl) {
-			this.setError("Server URL is not set in the 'server-url' attribute.");
-			return;
-		}
-		this.initializeClient();
-	}
-	async initializeClient() {
-		this.setStateLoading("Připojuji se k serveru.");
-		this.clearError();
-		this.client = new _labirthermal_server.default(this.serverUrl, this.serverApiRoot);
-		this.client.onConnection.set(this.UUIDClient, async (status) => {
-			this.isClientConnected = status !== false;
-			if (status && this.authUrl !== void 0 && this.authToken) {
-				this.setStateLoading("Přihlašuji se k serveru...");
-				if (this.client.auth.isLoggedIn()) await this.client.routes.post.logout().execute();
-				const request = new Request(this.authUrl, {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-						"Accept": "application/json"
-					},
-					body: JSON.stringify({ token: this.authToken })
-				});
-				const response = await fetch(request);
-				if (!response.ok) {
-					this.setError("Nepodařilo se ověřit uživatele.");
-					return;
-				}
-				const body = await response.json();
-				if (!body.success) {
-					this.setError("Nepodařilo se ověřit uživatele.");
-					return;
-				}
-				const user = body.data.user;
-				const pass = body.data.pass;
-				await this.client.routes.post.login(user, pass).execute();
-			}
-		});
-		this.client.auth.onIdentity.set(this.UUIDClient, (identity) => {
-			if (identity !== void 0) {
-				this.isLoggedIn = true;
-				this.isRoot = identity.meta.is_root;
-			} else {
-				this.isLoggedIn = false;
-				this.isRoot = false;
-			}
-		});
-		await this.client.connect();
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.client.onConnection.delete(this.UUIDClient);
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: "folder-path"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "path", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "file-name"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "fileName", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	attribute: "server-url"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "serverUrl", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "server-api-root"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "serverApiRoot", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "auth-url"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "authUrl", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "auth-token"
-}), __decorateMetadata("design:type", String)], AppWithClientProvider.prototype, "authToken", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	reflect: true,
-	attribute: "disable-logging",
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "disableLogging", void 0);
-__decorate([(0, _lit_context.provide)({ context: clientContext }), __decorateMetadata("design:type", typeof (_ref$54 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$54 : Object)], AppWithClientProvider.prototype, "client", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isLoggedIn", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isRoot", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], AppWithClientProvider.prototype, "isClientConnected", void 0);
-
-//#endregion
-//#region src/connection/composition/AppWithContent.ts
-var _ref$53, _ref2$33, _ref3$20, _ref4$9, _ref5$3;
-/** 
-* This layer handles the content logic & fetching 
-*/
-var AppWithContent = class extends AppWithClientProvider {
-	constructor(..._args) {
-		super(..._args);
-		this._breadcrumb = [];
-		this._userFolders = [];
-		this.folderMode = FolderMode.TABLE;
-		this._folderModeSetter = (mode) => {
-			this.folderMode = mode;
-			this.requestUpdate();
-			if (this.path && this.folderMode === FolderMode.GRID) {
-				this.updateGrid(void 0);
-				this.fetchGrid(this.path, this.gridFolders, this.by);
-			}
-		};
-		this.by = _labirthermal_server.GridGrouping.HOUR;
-		this._folderGridBySetter = (mode) => {
-			this.by = mode;
-			this.requestUpdate();
-			if (this.path && this.folderMode === FolderMode.GRID) {
-				this.updateGrid(void 0);
-				this.fetchGrid(this.path, this.gridFolders, this.by);
-			}
-		};
-		this.gridFolders = [];
-		this.UUIDContent = this.UUID + "__app_with_content";
-	}
-	get breadcrumb() {
-		return this._breadcrumb;
-	}
-	updateBreadcrumb(breadcrumb) {
-		this._breadcrumb = breadcrumb;
-		this.requestUpdate();
-	}
-	get userFolders() {
-		return this._userFolders;
-	}
-	updateUserFolders(userFolders) {
-		this._userFolders = userFolders;
-		this.requestUpdate();
-	}
-	get folder() {
-		return this._folder;
-	}
-	updateFolder(folder) {
-		this._folder = folder;
-		this.requestUpdate();
-	}
-	get subfolders() {
-		return this._subfolders;
-	}
-	updateSubfolders(subfolders) {
-		this._subfolders = subfolders;
-		this.requestUpdate();
-	}
-	get tags() {
-		return this._tags;
-	}
-	updateTags(tags) {
-		this._tags = tags;
-		this.requestUpdate();
-	}
-	get files() {
-		return this._files;
-	}
-	updateFiles(files) {
-		this._files = files;
-		this.requestUpdate();
-	}
-	get file() {
-		return this._file;
-	}
-	/** Update the file both in the displayed file and in the subfolders file */
-	updateFile(file) {
-		if (this._file) this._file = file;
-		const fileInList = this.files?.findIndex((f) => f.fileName === file.fileName) ?? -1;
-		if (fileInList !== -1 && this.files) this.files[fileInList] = file;
-		this.requestUpdate();
-	}
-	propagateFileUpdate(file) {
-		if (this._file) this.updateFile(this._file);
-		if (this.grid) Object.values(this.grid.groups).forEach((group) => {
-			Object.values(group.folders).forEach((folder) => {
-				folder.forEach((f) => {
-					if (f.fileName === file.fileName && f.url === file.url) {
-						Object.assign(f, file);
-						this.requestUpdate();
-					}
-				});
-			});
-		});
-	}
-	get folderModeSetter() {
-		return this._folderModeSetter;
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("path")) this.fetchContent();
-	}
-	updateGridFolders(folders) {
-		if (!this.path) return;
-		if (this.grid) this.updateGrid(void 0);
-		this.gridFolders = folders;
-		this.requestUpdate();
-		this.fetchGrid(this.path, folders, this.by);
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.client.auth.onIdentity.set(this.UUIDContent, (identity, userFolders) => {
-			if (identity && userFolders) this.updateUserFolders(userFolders);
-			else this.updateUserFolders([]);
-			this.fetchContent();
-		});
-		this.client.onConnection.set(this.UUIDContent, (state) => {
-			if (state !== false) this.fetchContent();
-		});
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.client.auth.onIdentity.delete(this.UUIDContent);
-		this.client.onConnection.delete(this.UUIDContent);
-	}
-	/**
-	* Retrieve the current slug for the state.
-	* Slug should be usable by the groups of elements displayed in HTML templates
-	*/
-	getCurrentSlug(message) {
-		const path = this.folder?.path ? this.folder.path.replace(/\//g, "-") : "no-folder";
-		const user = this.client.auth.getIdentity() ? this.client.auth.getIdentity().user : "guest";
-		const buf = [
-			this.state,
-			path,
-			user
-		];
-		switch (this.state) {
-			case AppState.USER:
-			case AppState.LOADING:
-			case AppState.POSTER: break;
-			case AppState.FOLDER:
-				buf.push(this.folderMode);
-				buf.push(this.by);
-				buf.push(this.gridFolders.join("-"));
-				break;
-			case AppState.DETAIL:
-				if (this.file) buf.push(this.file.fileName.replace(/\./g, "-"));
-				else buf.push("no-file");
-				break;
-			default: break;
-		}
-		if (message && message.trim().length > 0) buf.push(message.replace(/\s+/g, "-").toLowerCase());
-		return buf.join("_");
-	}
-	clearRegistryRange() {
-		if (this.registryElement.value) {
-			const registry = this.registryElement.value.registry;
-			registry.range.reset();
-			registry.minmax.reset();
-			this.registryElement.value.setHighlight(void 0);
-		}
-	}
-	setPath(path) {
-		this.clearRegistryRange();
-		this.unsetFileAttribute();
-		this.path = path;
-		this.requestUpdate();
-	}
-	mayDeleteFolder(folder) {
-		this.log("Checking permissions to delete folder:");
-		this.log("mayDeleteFolder", folder);
-		this.log("subfolders", this.subfolders);
-		return this.client.auth.isLoggedIn() && folder.may_manage_folders_in === true;
-	}
-	/** Checks if the current display has any subfolders */
-	hasSubfolders() {
-		return this.folder !== void 0 && this.subfolders !== void 0 && this.subfolders.length > 0;
-	}
-	/** Checks if the current display shows files */
-	hasFiles() {
-		return this.folder !== void 0 && this.files !== void 0 && this.files.length > 0;
-	}
-	/** Checks if the current display may have grid mode */
-	mayHaveGridMode() {
-		return this.hasSubfolders() && this.subfolders !== void 0 && this.subfolders.filter((subfolder) => subfolder.lrc_count > 0).length > 0;
-	}
-	cleanupContent() {
-		this.clearRegistryRange();
-		this._folder = void 0;
-		this._subfolders = void 0;
-		this._files = void 0;
-		this._file = void 0;
-		this._tags = void 0;
-		this.updateGrid(void 0);
-		this._breadcrumb = [];
-	}
-	/** Perform the control before fetching data */
-	checkReadyForData() {
-		if (this.client.isConnected() === false) {
-			this.setError("Aplikace není připojena k serveru. Zkontrolujte připojení.");
-			this.cleanupContent();
-			return false;
-		}
-		if (this.path === void 0 || this.path.trim().length === 0) {
-			this.setError("Není nastavena cesta!");
-			this.cleanupContent();
-			return false;
-		}
-		this.clearError();
-		return true;
-	}
-	async fetchContent() {
-		if (!this.path) {
-			this.setStateUser();
-			return;
-		}
-		if (this.checkReadyForData()) {
-			this.setStateLoading("Načítám obsah...");
-			this.cleanupContent();
-			if (!this.path) return;
-			const path = this.path;
-			const info = await this.client.routes.get.info(path).execute();
-			if (info.success) {
-				const subfolders = info.data.subfolders ? Object.values(info.data.subfolders).sort((a, b) => a.name.localeCompare(b.name)) : [];
-				if (subfolders.filter((sf) => sf.lrc_count > 0).length === 0 && this.folderMode === FolderMode.GRID) {
-					this.folderMode = FolderMode.TABLE;
-					this.updateGrid(void 0);
-				}
-				this.setStateFolder(info.data.folder, info.data.breadcrumb, subfolders);
-				if (this.fileName !== void 0) {
-					const file = await this.client.routes.get.file(this.path, this.fileName).execute();
-					if (file.success === true && file.data.file) this.setStateFile(file.data.file);
-					else this.setStatePoster(lit.html`<p>Požadovaný soubor nebyl nalezen.</p>`);
-				} else if (this.folderMode === FolderMode.GRID && this.hasSubfolders()) {
-					const request = this.client.routes.get.grid(path);
-					if (this.gridFolders.length > 0) request.setFolders(this.gridFolders);
-					const result = await request.execute();
-					if (result.success) this.updateGrid(result.data);
-				} else if (info.data.folder.lrc_count > 0) {
-					const files = await this.client.routes.get.files(path).execute();
-					if (files.success) {
-						this.updateFiles(files.data.files);
-						this.updateTags(files.data.tags);
-					}
-				}
-			} else {
-				let content = lit.html`<p>${info.message}</p>`;
-				switch (info.code) {
-					case 404:
-						content = lit.html`<p>Složka nebyla nalezena.</p>`;
-						break;
-					case 403:
-						content = lit.html`<p>Nemáte oprávnění k zobrazení této složky.</p>`;
-						break;
-					case 401:
-						content = lit.html`<login-form prompt="Tato složka je přístupná pouze přihlášeným uživatelům."></login-form>`;
-						break;
-				}
-				this.setStatePoster(content);
-			}
-			this.requestUpdate();
-		}
-	}
-	async fetchGrid(path, folders, by) {
-		const request = this.client.routes.get.grid(path).setBy(by);
-		if (folders.length > 0) request.setFolders(folders);
-		const result = await request.execute();
-		if (result.success) this.updateGrid(result.data);
-	}
-	updateGrid(data) {
-		this.grid = data;
-		this.requestUpdate();
-	}
-	switchFolderInternal(folder) {
-		this._folder = folder;
-	}
-	setStateFolder(folder, breadcrumb = [], subfolders) {
-		this.clearRegistryRange();
-		this._file = void 0;
-		this.folderMode = FolderMode.TABLE;
-		this.updateFolder(folder);
-		this.updateBreadcrumb(breadcrumb);
-		this.updateSubfolders(subfolders ?? []);
-		this.state = AppState.FOLDER;
-		this.requestUpdate();
-	}
-	unsetFileAttribute() {
-		this.removeAttribute("file-name");
-		this.fileName = void 0;
-	}
-	setStateFile(file) {
-		this.clearRegistryRange();
-		this._file = file;
-		this.updateFile(file);
-		this.state = AppState.DETAIL;
-		this.fileName = file.fileName;
-		this.setAttribute("file-name", this.fileName);
-		this.requestUpdate();
-	}
-	setStateUser() {
-		this.path = void 0;
-		this.state = AppState.USER;
-		this.folderMode = FolderMode.LIST;
-		this.by = _labirthermal_server.GridGrouping.HOUR;
-		this.gridFolders = [];
-		this.cleanupContent();
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_breadcrumb", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_userFolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$53 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$53 : Object)], AppWithContent.prototype, "_folder", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_subfolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$33 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref2$33 : Object)], AppWithContent.prototype, "grid", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], AppWithContent.prototype, "_tags", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "_files", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$20 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$20 : Object)], AppWithContent.prototype, "_file", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: "folder-mode",
-		converter: { fromAttribute(value) {
-			if (value === FolderMode.GRID) return FolderMode.GRID;
-			return FolderMode.TABLE;
-		} }
-	}),
-	(0, _lit_context.provide)({ context: subfoldersModeContext }),
-	__decorateMetadata("design:type", typeof (_ref4$9 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref4$9 : Object)
-], AppWithContent.prototype, "folderMode", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: subfoldersModeSetterContext }),
-	__decorateMetadata("design:type", Function)
-], AppWithContent.prototype, "_folderModeSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true,
-		attribute: "grid-grouping",
-		converter: { fromAttribute(value) {
-			if ([
-				_labirthermal_server.GridGrouping.DAY,
-				_labirthermal_server.GridGrouping.MONTH,
-				_labirthermal_server.GridGrouping.YEAR,
-				_labirthermal_server.GridGrouping.HOUR
-			].includes(value)) return value;
-			return _labirthermal_server.GridGrouping.HOUR;
-		} }
-	}),
-	(0, _lit_context.provide)({ context: subgildersGridByMode }),
-	__decorateMetadata("design:type", typeof (_ref5$3 = typeof _labirthermal_server.GridGrouping !== "undefined" && _labirthermal_server.GridGrouping) === "function" ? _ref5$3 : Object)
-], AppWithContent.prototype, "by", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.provide)({ context: subgildersGridByModeSetter }),
-	__decorateMetadata("design:type", Function)
-], AppWithContent.prototype, "_folderGridBySetter", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], AppWithContent.prototype, "gridFolders", void 0);
-
-//#endregion
-//#region src/connection/composition/AppWithRender.ts
-var _ref$52, _ref2$32;
-/** 
-* This layer provides the necessary render methods
-*/
-var AppWithRender = class extends AppWithContent {
-	constructor(..._args) {
-		super(..._args);
-		this.registryElement = (0, lit_directives_ref_js.createRef)();
-		this.compact = false;
-		this.compactSetter = (compact) => {
-			this.compact = compact;
-			this.requestUpdate();
-		};
-		this.displayMode = DisplayMode.GRID;
-		this.displayModeSetter = (mode) => {
-			this.displayMode = mode;
-			this.requestUpdate();
-		};
-		this.showDiscussion = false;
-		this.showDiscussionSetter = (columns) => {
-			this.showDiscussion = columns;
-			this.requestUpdate();
-		};
-		this.editableTags = false;
-		this.editTagsSetter = (edit) => {
-			this.editableTags = edit;
-			this.requestUpdate();
-		};
-		this.syncAnalyses = false;
-		this.syncAnalysisSetter = (sync) => {
-			this.syncAnalyses = sync;
-			this.requestUpdate();
-		};
-		this.lockedLocationSetter = (locked) => {
-			this.lockedLocation = locked;
-			this.requestUpdate();
-		};
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (this.registryElement.value) {
-			const registry = this.registryElement.value.registry;
-			registry.manager.palette.addListener(this.UUIDContent, (palette) => {
-				this.palette = palette;
-				this.requestUpdate();
-			});
-			registry.range.addListener(this.UUIDContent, (range) => {
-				this.from = range ? range.from : void 0;
-				this.to = range ? range.to : void 0;
-				this.requestUpdate();
-			});
-		}
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		if (this.registryElement.value) {
-			const registry = this.registryElement.value.registry;
-			registry.manager.palette.removeListener(this.UUIDContent);
-			registry.range.removeListener(this.UUIDContent);
-		}
-	}
-	static {
-		this.styles = lit.css`
-    
-            :host {
-            
-            }
-    
-            .base-info-content {
-    
-                display: flex;
-                width: 100%;
-                gap: var(--thermal-gap);
-                flex-direction: column;
-            
-            }
-    
-    
-            .poster {
-            
-                box-sizing: border-box;
-                width: 100%;
-    
-                padding: var(--thermal-gap);
-    
-                border: var(--thermal-border-width) dashed var(--thermal-slate);
-                border-radius: var(--thermal-radius);
-    
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-    
-                &.standalone {
-                    min-height: 200px;
-                }
-            
-            }
-    
-            *[slot="pre"] {
-                margin-bottom: var(--thermal-gap);
-            }
-
-            .user-layout {
-            
-                display: grid;
-                grid-template-columns: 1fr 500px;
-                gap: var(--thermal-gap);
-
-
-                .user-layout-info,
-                user-folders {
-                
-                    box-sizing: border-box;
-                    padding: var(--thermal-gap);
-                    border: var(--thermal-border-width) dashed var(--thermal-slate);
-                    border-radius: var(--thermal-radius);
-                
-                }
-
-                .user-info-field {
-
-                    strong {
-                        font-weight: normal;
-                        font-size: .7em;
-                        color: var(--thermal-slate);
-                        text-transform: uppercase;
-                        margin-bottom: .3em;
-                        display: block;
-                    }
-
-                    margin-bottom: var(--thermal-gap);  
-                }
-
-            }
-        
-        `;
-	}
-	renderContent() {
-		this.log(this.grid);
-		switch (this.state) {
-			case AppState.LOADING: return this.renderLoading();
-			case AppState.POSTER: return this.renderPoster();
-			case AppState.USER: return this.renderUser();
-			case AppState.FOLDER: return this.renderFolder();
-			case AppState.DETAIL: return this.renderDetail();
-			default: return lit.html`<div>Unknown state</div>`;
-		}
-	}
-	renderLoading() {
-		return lit.html`<main>
-            <div class="poster standalone">
-                <thermal-spinner message=${this.customStateContent}></thermal-spinner>
-            </div>
-        </main>`;
-	}
-	renderPoster() {
-		return lit.html`<main>
-            <div class="poster standalone">
-                ${this.customStateContent}
-            </div>            
-        </main>`;
-	}
-	renderUser() {
-		if (!this.client.auth.isLoggedIn()) return lit.html`<div class="poster">
-    <login-form></login-form>
-</div>`;
-		return lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-${this.renderBreadcrumb()}
-${this.renderUserFolders()}
-`;
-	}
-	getGroup() {
-		return this.renderRoot.querySelector("folder-base-info")?.group;
-	}
-	renderFolder() {
-		return lit.html`<registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
-${this.renderBreadcrumb()}
-
-<folder-base-info
-    slug=${this.getCurrentSlug()}
-    .info=${this.folder}
-    .parents=${this.breadcrumb}
-    .onParentClick=${(folder) => this.setPath(folder.path)}
-    slot="pre"
->
-    ${this.folder?.may_manage_files_in || this.folder?.may_manage_folders_in || this.folder && this.folder.lrc_count > 0 ? lit.html`<thermal-slot label="${(0, i18next.t)(T.folder)}">
-    ${this.renderFolderManagementButtons()}
-    ${this.renderFolderDownloadDropdown()}
-</thermal-slot>` : lit.nothing}
-
-                ${this.hasSubfolders() ? lit.html`<thermal-slot label="${(0, i18next.t)(T.display)}">
-                    <subfolders-mode 
-                        .folder=${this.folder} 
-                        .subfolders=${this.subfolders}
-                        .selectedFolders=${this.gridFolders}
-                        .onSelectionChange=${(selected) => this.updateGridFolders(selected)}
-                        .grid=${this.grid}
-                    ></subfolders-mode>
-                </thermal-slot>` : lit.nothing}
-
-                ${this.hasFiles() || this.folderMode === FolderMode.GRID ? lit.html`<thermal-slot label="${(0, i18next.t)(T.palette)}">
-                    <registry-palette-dropdown></registry-palette-dropdown>
-                </thermal-slot><thermal-slot label="${(0, i18next.t)(T.thermalrange)}">
-                    <registry-range-form></registry-range-form>
-                </thermal-slot>
-                ` : lit.nothing}
-
-                ${this.renderDisplayMode()}
-
-                ${this.hasSubfolders() && this.folderMode === FolderMode.GRID && this.isLoggedIn ? lit.html`<thermal-slot label="${(0, i18next.t)(T.content)}">
-                    <editing-mode-settings
-                        .folder=${this.folder}
-                    ></editing-mode-settings>
-                </thermal-slot>` : lit.nothing}
-
-</folder-base-info>
-
-
-            ${this.hasFiles() || this.folderMode === FolderMode.GRID ? lit.html`<div slot="pre">
-                <registry-histogram expandable="true"></registry-histogram>
-                <registry-range-slider></registry-range-slider>
-                <registry-ticks-bar></registry-ticks-bar>
-            </div>` : lit.nothing}
-
-            ${this.renderFolderSubfolders()}
-
-            ${this.renderFolderGrid()}
-
-            ${this.renderFolderFiles()}
-
-        
-        `;
-	}
-	renderFolderDownloadDropdown() {
-		if (this.files && this.files.length > 0) return lit.html`<thermal-dropdown>
-    <span slot="invoker">${(0, i18next.t)(T.download)}</span>
-
-
-    <thermal-btn
-        slot="option"
-        pre="LRC" 
-        tooltip=${(0, i18next.t)(T.downloadoriginalfileshint)}
-        @click=${() => {
-			this.getGroup()?.files.downloadAllFiles();
-		}}
-    >
-        ${(0, i18next.t)(T.downloadoriginalfiles)}
-    </thermal-btn>
-
-    <thermal-btn 
-        slot="option" 
-        pre="PNG" 
-        @click=${() => this.getGroup()?.forEveryInstance((instance) => instance.export.downloadPng())}
-         tooltip=${(0, i18next.t)(T.pngofindividualimageshint)}
-    >
-        ${(0, i18next.t)(T.pngofindividualimages)}
-    </thermal-btn>
-
-    <thermal-btn 
-        slot="option"
-        pre="PNG" 
-        @click=${() => this.getGroup()?.analysisSync.png.downloadPng()}
-        tooltip="${(0, i18next.t)(T.pngofentiregrouphint)}"
-    >
-        ${(0, i18next.t)(T.pngofentiregroup)}
-    </thermal-btn>
-
-</thermal-dropdown>`;
-		return lit.nothing;
-	}
-	renderDetail() {
-		return lit.html`
-
-        <registry-palette-dropdown slot="bar-persistent"></registry-palette-dropdown>
-
-        ${this.renderBreadcrumb()}
-
-        <folder-base-info 
-            .info=${this.folder} 
-            .parents=${this.breadcrumb} 
-            .onParentClick=${(item) => {
-			this.setPath(item.path);
-		}} 
-            slot="pre"
-        ></folder-base-info>
-
-        <group-provider 
-            slug=${this.getCurrentSlug()}
-            batch="true"
-            autoclear="true"
-            style="display: contents;"
-        >
-            <file-provider
-                thermal="${this.file?.url}"
-                batch="true"
-                autoclear="true"
-                analysis1=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[0])}
-                analysis2=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[1])}
-                analysis3=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[2])}
-                analysis4=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[3])}
-                analysis5=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[4])}
-                analysis6=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[5])}
-                analysis7=${(0, lit_directives_if_defined_js.ifDefined)(this.file?.analyses[6])}
-                style="display: contents;"
-            >
-            
-                
-
-                <server-file-detail
-                    .file=${this.file}
-                    .folder=${this.folder}
-                    from=${this.from}
-                    to=${this.to}
-
-                    .onChange=${(file) => this.setStateFile(file)}
-
-                    .onClose=${() => {
-			this.setPath(this.folder.path);
-			this.setStateFolder(this.folder, this.breadcrumb);
-		}}
-
-                    style="margin-top: -1em;"
-                >
-                <thermal-slot label="${(0, i18next.t)(T.file)}" slot="header">
-                    ${this.folder?.may_manage_files_in ? lit.html`
-                        
-
-                            <file-edit-dialog
-                                .file=${this.file}
-                                .onSuccess=${(file) => this.setStateFile(file)}
-                                variant="primary"
-                                size="md"
-                            ></file-edit-dialog>
-                            <file-delete-dialog
-                                .file=${this.file}
-                                .folder=${this.folder}
-                                .onDelete=${() => this.fetchContent()}
-                                variant="foreground"
-                                size="md"
-                                showLabel="true"
-                            ></file-delete-dialog>
-                            
-                        ` : lit.nothing}
-                        <file-download-dropdown
-                            size="md"
-                            variant="background"
-                        ></file-download-dropdown>
-                        <file-info-button></file-info-button>
-                    </thermal-slot>
-
-                    <thermal-slot label="${(0, i18next.t)(T.palette)}" slot="header">
-                        <registry-palette-dropdown></registry-palette-dropdown>
-                    </thermal-slot>
-
-                    <thermal-slot label="${(0, i18next.t)(T.thermalrange)}" slot="header">
-                        <registry-range-form></registry-range-form>
-                    </thermal-slot>
-
-                    <thermal-slot label="Visible vs. IR" slot="header">
-                        <registry-opacity-slider></registry-opacity-slider>
-                    </thermal-slot>
-
-                    
-
-                    <thermal-slot 
-                        label="${(0, i18next.t)(T.analyses)}" 
-                        slot="header"
-                    >
-
-                        ${this.folder.may_manage_files_in ? lit.html`<file-analysis-store-button
-                            .info=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${(file) => {
-			this.updateFile(file);
-		}}
-                            size="md"
-                        ></file-analysis-store-button>` : lit.nothing}
-
-                        ${this.file?.analyses && this.file.analyses?.length > 0 ? lit.html`<file-analysis-restore-button
-                            .info=${this.file}
-                            .folder=${this.folder}
-                            size="md"
-                        ></file-analysis-restore-button>` : lit.nothing}
-
-                        <file-analysis-remove-button
-                            .info=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${(file) => {
-			this.setStateFile(file);
-		}}
-                            size="md"
-                        ></file-analysis-remove-button>
-
-                    </thermal-slot>
-
-                </server-file-detail>
-
-            </file-provider>    
-        </group-provider>
-        
-            
-        
-        `;
-	}
-	renderUserInfoField(label, value) {
-		return lit.html`<section class="user-info-field">
-            <strong>${label}:</strong> <div>${value}</div>
-        </section>`;
-	}
-	renderUserFolders() {
-		const identity = this.client.auth.getIdentity();
-		const userName = identity?.meta.name || identity?.user || "Uživatel";
-		const login = identity?.user || "unknown";
-		return lit.html`<main class="user-layout">
-            <user-folders
-                .folders=${this.userFolders}
-                .onFolderClick=${(folder) => this.setPath(folder.path)}
-            ></user-folders>
-            <section class="user-layout-info">
-
-                ${this.renderUserInfoField("Uživatel", userName)}
-
-                ${this.renderUserInfoField("Login", login)}
-
-                <thermal-btn
-                    @click=${() => {
-			this.client.auth.logout();
-		}}
-                >${(0, i18next.t)(T.logout)}</thermal-btn>
-
-            </section>
-        <main>`;
-	}
-	renderBreadcrumb() {
-		return lit.html`<folder-breadcrumb
-            .breadcrumb=${this.breadcrumb}
-            .onFolderClick=${(folder) => this.setPath(folder.path)}
-            .onUserClick=${() => this.setStateUser()}
-            slot="pre"
-        ></thermal-breadcrumb>`;
-	}
-	/**
-	* Renders the display mode settings
-	*/
-	renderDisplayMode() {
-		if (this.files && this.files.length > 0 && this.folder) return lit.html`<thermal-slot label="${(0, i18next.t)(T.display)}">
-                <display-mode-settings
-                    .folder=${this.folder}
-                ></display-mode-settings>
-                <registry-opacity-slider></registry-opacity-slider>
-            </thermal-slot>
-            <thermal-slot label="${(0, i18next.t)(T.content)}">
-                <editing-mode-settings
-                    .folder=${this.folder}
-                ></editing-mode-settings>
-            </thermal-slot>
-            <thermal-slot label="${(0, i18next.t)(T.analyses)}">
-                <analysis-mode-settings
-                    .folder=${this.folder}
-                    .files=${this.files}
-                    .onChangeAll=${(files) => this.updateFiles(files)}
-                    .onChangeFile=${(file) => this.updateFile(file)}
-                ></analysis-mode-settings>
-                <folder-remove-analyses
-                    .folder=${this.folder}
-                    .files=${this.files}
-                    .onChange=${(files) => this.updateFiles(files)}
-                ></folder-remove-analyses>
-            </thermal-slot>
-            `;
-		return lit.nothing;
-	}
-	/**
-	* Renders the folder management buttons if the user has permissions
-	*/
-	renderFolderManagementButtons() {
-		return lit.html`
-<folder-add-dialog 
-    .folder=${this.folder}
-    .onSuccess=${() => {
-			this.fetchContent();
-		}}
-    icon="addfolder"
-    iconStyle="micro"
-    variant="primary"
-    tooltip=${(0, i18next.t)(T.createsubfolder)}
-    label=${(0, i18next.t)(T.createfolder)}
-></folder-add-dialog>
-<folder-edit-dialog
-    .folder=${this.folder}
-    .onSuccess=${(folder) => {
-			this.setPath(folder.path);
-			this.updateFolder(folder);
-		}}
-    icon="edit"
-    iconStyle="micro"
-    variant="primary"
-    tooltip=${(0, i18next.t)(T.editfolder)}
-    label=${(0, i18next.t)(T.edit)}
-></folder-edit-dialog>
-<folder-delete-dialog
-    .folder=${this.folder}
-    .onSuccess=${(folder) => {
-			const newPath = folder.path.split("/").slice(0, -1).join("/");
-			this.setPath(newPath);
-		}}
-    tooltip=${(0, i18next.t)(T.deletefolder)}
-    label=${(0, i18next.t)(T.delete)}
-    variant="foreground"
-    icon="trash"
-    iconStyle="micro"
-></folder-delete-dialog>`;
-	}
-	renderFolderCreateSubfolderDialog() {
-		return lit.nothing;
-	}
-	renderFolderSubfolders() {
-		if (this.subfolders && this.subfolders.length > 0 && this.folderMode !== FolderMode.GRID) return lit.html`<folder-subfolders
-                .folder=${this.folder}
-                .subfolders=${this.subfolders}
-                .onFolderClick=${(folder) => {
-			this.setPath(folder.path);
-		}}
-                folderMode=${this.folderMode}
-            ></folder-subfolders>`;
-		return lit.nothing;
-	}
-	renderFolderGrid() {
-		if (this.state !== AppState.FOLDER || this.folderMode !== FolderMode.GRID || !this.hasSubfolders()) return lit.nothing;
-		return lit.html`<subfolders-grid
-            .grid=${this.grid}
-            .slug=${this.getCurrentSlug()}
-            .onFolderClick=${(folder) => {
-			this.setPath(folder.path);
-		}}
-            .onFileClick=${(folder, file) => {
-			this.setStateFolder(folder, this.breadcrumb, this.subfolders);
-			this.breadcrumb?.push({
-				name: folder.name,
-				path: folder.path,
-				type: "folder",
-				slug: folder.slug,
-				protected: false,
-				current: true
-			});
-			this.setStateFile(file);
-		}}
-            .onFileEdit=${(file) => {
-			this.propagateFileUpdate(file);
-		}}
-            .onChange=${() => {
-			if (this.path) this.fetchGrid(this.path, this.gridFolders, this.by);
-		}}
-            .selectedFolders=${this.gridFolders}
-            .onSelectionChange=${(selected) => this.updateGridFolders(selected)}
-        ></subfolders-grid>`;
-	}
-	renderUploadForm() {
-		if (this.folder && this.folder.may_manage_files_in === true) {
-			const prompt = this.folder.meta.prompt || void 0;
-			return lit.html`<folder-upload-form
-                    .folder=${this.folder}
-                    .onSuccess=${() => {
-				this.fetchContent();
-			}}
-                    prompt=${(0, lit_directives_if_defined_js.ifDefined)(prompt)}
-                ></folder-upload-form>`;
-		}
-		return lit.nothing;
-	}
-	renderFolderFiles() {
-		if (this.files && this.files.length > 0) return lit.html`<folder-files
-                slug=${this.getCurrentSlug()}
-                .files=${this.files}
-                .folder=${this.folder}
-                
-
-                .onFileClick=${(file) => this.setStateFile(file)}
-
-                .onFileDelete=${(file) => {
-			if (this.files) this.updateFiles(this.files.filter((f) => f.fileName !== file.fileName));
-		}}
-
-                .onChange=${(file) => this.updateFile(file)}
-            ></folder-files>
-
-            <br/>
-            
-            ${this.renderUploadForm()}
-            
-            `;
-		return this.renderUploadForm();
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "label-tooltip"
-}), __decorateMetadata("design:type", String)], AppWithRender.prototype, "labelTooltip", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "label-icon"
-}), __decorateMetadata("design:type", String)], AppWithRender.prototype, "labelIcon", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "label-icon-style"
-}), __decorateMetadata("design:type", String)], AppWithRender.prototype, "labelIconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	attribute: "label-variant"
-}), __decorateMetadata("design:type", String)], AppWithRender.prototype, "labelVariant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$52 = typeof _labirthermal_core.AvailableThermalPalette !== "undefined" && _labirthermal_core.AvailableThermalPalette) === "function" ? _ref$52 : Object)], AppWithRender.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Number,
-	reflect: true
-}), __decorateMetadata("design:type", Number)], AppWithRender.prototype, "from", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Number,
-	reflect: true
-}), __decorateMetadata("design:type", Number)], AppWithRender.prototype, "to", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.provide)({ context: compactContext }),
-	__decorateMetadata("design:type", Boolean)
-], AppWithRender.prototype, "compact", void 0);
-__decorate([(0, _lit_context.provide)({ context: compactContextSetter }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "compactSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.provide)({ context: displayModeContext }),
-	__decorateMetadata("design:type", typeof (_ref2$32 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref2$32 : Object)
-], AppWithRender.prototype, "displayMode", void 0);
-__decorate([(0, _lit_context.provide)({ context: displayModeSetterContext }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "displayModeSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.provide)({ context: showDiscussionContext }),
-	__decorateMetadata("design:type", Boolean)
-], AppWithRender.prototype, "showDiscussion", void 0);
-__decorate([(0, _lit_context.provide)({ context: showDiscussionSetterContext }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "showDiscussionSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.provide)({ context: editTagsContext }),
-	__decorateMetadata("design:type", Boolean)
-], AppWithRender.prototype, "editableTags", void 0);
-__decorate([(0, _lit_context.provide)({ context: editTagsSetterContext }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "editTagsSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.provide)({ context: syncAnalysisContext }),
-	__decorateMetadata("design:type", Boolean)
-], AppWithRender.prototype, "syncAnalyses", void 0);
-__decorate([(0, _lit_context.provide)({ context: syncAnalysisSetterContext }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "syncAnalysisSetter", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		attribute: "locked-location"
-	}),
-	(0, _lit_context.provide)({ context: lockedBrowsingTo }),
-	__decorateMetadata("design:type", String)
-], AppWithRender.prototype, "lockedLocation", void 0);
-__decorate([(0, _lit_context.provide)({ context: lockedBrowsingToSetter }), __decorateMetadata("design:type", Function)], AppWithRender.prototype, "lockedLocationSetter", void 0);
-
-//#endregion
-//#region src/apps/connected/ConnectedApp.ts
-var _ref$51;
-let ConnectedApp = class ConnectedApp extends AppWithRender {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "Connected app";
-	}
-	get manager() {
-		return this.registryElement.value.registry.manager;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		initLocalesInTopLevelElement(this);
-		if (this.path === void 0 || this.path.trim() === "") {}
-		this.originalPath = this.path;
-	}
-	static {
-		this.styles = lit.css`
-
-        ${super.styles}
-
-        :host {
-            display: block;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-        }
-    
-        .server-footer {
-            font-size: calc( var(--thermal-fs) * 0.8 );
-            color: var( --thermal-slate-dark );
-            margin-top: calc( var(--thermal-gap) * 0.5 );
-        }
-
-        .error {
-
-            color: black;
-            background-color: #bf8f8f;    
-
-            border-radius: var(--thermal-radius);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate-dark);
-
-            box-sizing: border-box;
-            width: 100%;
-
-            padding: calc( var( --thermal-gap ) * .5 );
-            
-            margin-bottom: calc( var( --thermal-gap ) * .5 );
-        }
-    
-    `;
-	}
-	renderError() {
-		if (this.error === void 0) return lit.nothing;
-		return lit.html`<div class="error" slot="pre">${this.error}</div>`;
-	}
-	render() {
-		const slug = this.getCurrentSlug();
-		return lit.html`
-        <manager-provider palette=${this.palette} slug="${this.UUID}">
-            <registry-provider 
-                slug="${slug}" 
-                autoclear="true" 
-                palette=${this.palette}
-                ${(0, lit_directives_ref_js.ref)(this.registryElement)} 
-                from=${(0, lit_directives_if_defined_js.ifDefined)(this.from)}
-                to=${(0, lit_directives_if_defined_js.ifDefined)(this.to)}
-            >
-                <thermal-app 
-                    label="${this.label}"
-                    showfullscreen="true"
-                    labelTooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.labelTooltip)}
-                    labelIcon=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIcon)}
-                    labelIconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.labelIconStyle)}
-                    labelVariant=${(0, lit_directives_if_defined_js.ifDefined)(this.labelVariant)}
-                >
-
-                    <share-dialog 
-                        slot="close"
-                        .palette=${this.palette}
-                        .folder=${this.folder}
-                        .folderMode=${this.folderMode}
-                        .displayMode=${this.displayMode}
-                        .by=${this.by}
-                        .file=${this.file}
-                        .compact=${this.compact}
-                        .state=${this.state}
-                        .path=${this.path}
-                        .from=${this.from}
-                        .to=${this.to}
-                    ></share-dialog>
-
-                    ${this.isClientConnected === true ? lit.html`<labir-user-button slot="close" disable-logging=${this.disableLogging}></labir-user-button>` : lit.nothing}
-
-                    ${this.renderError()}
-
-                    <thermal-dialog label="${(0, i18next.t)(T.config)}" slot="close">
-                        
-                        <thermal-btn slot="invoker" icon="settings" iconStyle="solid" tooltip="${(0, i18next.t)(T.config)}"></thermal-btn>
-
-                        <div slot="content">
-                            <table>
-                                <png-export-panel></png-export-panel>
-                                <registry-display-panel></registry-display-panel>
-                            </table>
-                        </div>
-                        
-                    </thermal-dialog>
-
-                    <slot></slot>
-
-                    ${this.renderContent()}
-
-                    <footer class="server-footer">
-                        <server-info></server-info>
-                    </footer>
-
-                </thermal-app>
-            </registry-provider>
-        </manager-provider>
-        `;
-	}
-};
-__decorate([
-	(0, _lit_context.provide)({ context: localeContext }),
-	(0, lit_decorators_js.property)({
-		reflect: true,
-		converter: localeConverter
-	}),
-	__decorateMetadata("design:type", typeof (_ref$51 = typeof Locales !== "undefined" && Locales) === "function" ? _ref$51 : Object)
-], ConnectedApp.prototype, "locale", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], ConnectedApp.prototype, "label", void 0);
-ConnectedApp = __decorate([(0, lit_decorators_js.customElement)("connected-app")], ConnectedApp);
-
-//#endregion
-//#region src/connection/components/ClientConsumer.ts
-var _ref$50, _ref2$31, _ref3$19;
-var ClientConsumer = class extends BaseElement {
-	constructor(..._args) {
-		super(..._args);
-		this._isClientConnecting = true;
-		this._isClientConnected = false;
-		this._isClientLoading = false;
-		this.UUID_INTERNAL = this.UUID + "__consumer_internal";
-	}
-	/** Reflects the connecting state. Listening happens in ClientConsumer class. */
-	get isClientConnecting() {
-		return this._isClientConnecting;
-	}
-	/** Reflects the current connection state. Listening happens in ClientConsumer class. */
-	get isClientConnected() {
-		return this._isClientConnected;
-	}
-	/** Dynamic accessor from ClientConsumer. If there is no identity, the user is not logged in. Listening happens in ClientConsumer */
-	get isLoggedIn() {
-		return this._identity !== void 0;
-	}
-	/** Reflects current loading state of the Client. Listening happens in ClientConsumer. */
-	get isClientLoading() {
-		return this._isClientLoading;
-	}
-	/** Reflects the current identity. Listening happens in ClientConsumer class. */
-	get identity() {
-		return this._identity;
-	}
-	/** Reflects the current server information */
-	get serverInfo() {
-		return this._serverInfo;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		if (this.client) {
-			this._isClientConnected = this.client.isConnected();
-			this._identity = this.client.auth.getIdentity();
-			this._isClientLoading = this.client?.loading ?? true;
-			this._serverInfo = this.client.serverInfo;
-			this.client.onConnection.set(this.UUID_INTERNAL, (status) => {
-				this._isClientConnected = status !== void 0;
-				this._isClientConnecting = false;
-				this._serverInfo = status !== false ? status : void 0;
-				this.requestUpdate();
-			});
-			this.client.auth.onIdentity.set(this.UUID_INTERNAL, (identity) => {
-				this._identity = identity;
-				this.requestUpdate();
-			});
-			this.client.onLoading.set(this.UUID_INTERNAL, (isLoading) => {
-				this._isClientLoading = isLoading;
-				this.requestUpdate();
-			});
-		} else console.warn("ClientConsumer: client context is not provided.");
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.client?.onConnection.delete(this.UUID_INTERNAL);
-		this.client?.auth.onIdentity.delete(this.UUID_INTERNAL);
-		this.client?.onLoading.delete(this.UUID_INTERNAL);
-	}
-};
-__decorate([(0, _lit_context.consume)({
-	context: clientContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$50 = typeof packages_server_client_src_Client.Client !== "undefined" && packages_server_client_src_Client.Client) === "function" ? _ref$50 : Object)], ClientConsumer.prototype, "client", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientConnecting", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientConnected", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ClientConsumer.prototype, "_isClientLoading", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2$31 = typeof _labirthermal_server.Identity !== "undefined" && _labirthermal_server.Identity) === "function" ? _ref2$31 : Object)], ClientConsumer.prototype, "_identity", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref3$19 = typeof _labirthermal_server.ServerInfo !== "undefined" && _labirthermal_server.ServerInfo) === "function" ? _ref3$19 : Object)], ClientConsumer.prototype, "_serverInfo", void 0);
-
-//#endregion
-//#region src/connection/components/auth/LoginForm.ts
-let LoginForm = class LoginForm extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.isLoggingIn = false;
-	}
-	get mayLogIn() {
-		return this.isClientConnected && this.valueIsNotEmpty(this.login) && this.valueIsNotEmpty(this.password) && this.login.length > 3 && this.password.length > 3;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-	}
-	valueIsNotEmpty(value) {
-		return value !== void 0 && value.trim() !== "";
-	}
-	validateFieldInput(event, field) {
-		this[field] = event.target.value;
-		this.requestUpdate();
-	}
-	handleKeyDown(event) {
-		if (event.key === "Enter" && this.mayLogIn) {
-			event.preventDefault();
-			this.doLoginInternal();
-		}
-	}
-	/** 
-	* The main operation that performs the request. 
-	* Shall never be triggered externally. 
-	*/
-	async doLoginInternal() {
-		if (this.isLoggingIn) return;
-		this.error = void 0;
-		if (this.valueIsNotEmpty(this.login) === false || this.valueIsNotEmpty(this.password) === false) {
-			this.error = "Login and password are required.";
-			this.requestUpdate();
-			return;
-		}
-		if (this.client === void 0) this.error = "Client is undefined.";
-		this.isLoggingIn = true;
-		const result = await this.client.routes.post.login(this.login ?? "", this.password ?? "")?.execute();
-		this.isLoggingIn = false;
-		if (result?.success === false) {
-			this.error = result.message;
-			this.requestUpdate();
-			return;
-		}
-	}
-	static {
-		this.styles = lit.css`
-    
-        .login-form {
-            
-            display: flex;
-            flex-direction: column;
-            gap: calc( var( --thermal-gap ) * .5 );
-            width: 100%;
-
-            input {
-            
-                background: var( --thermal-background );
-                color: var( --thermal-foreground );
-
-                border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-                border-radius: var( --thermal-radius );
-
-                box-sizing: border-box;
-                padding: .5em;
-
-                text-align: center;
-
-            
-            }
-
-        }
-
-        .login-error {
-            color: red;
-            text-align: center;
-            font-size: calc( var( --thermal-fs ) * .8 );
-        }
-
-        thermal-btn {
-            width: 100%;
-        }
-
-    `;
-	}
-	render() {
-		return lit.html`
-            <div class="login-form">
-
-                ${this.prompt ? lit.html`<div class="login-prompt">${this.prompt}</div>` : lit.nothing}
-
-                <input 
-                    type="text" 
-                    name="login" 
-                    placeholder="Login" 
-                    required 
-                    @input=${(event) => this.validateFieldInput(event, "login")}
-                    @keydown=${this.handleKeyDown}
-                ></input>
-
-                <input 
-                    type="password" 
-                    name="password" 
-                    placeholder="${(0, i18next.t)(T.password)}" 
-                    required 
-                    @input=${(event) => this.validateFieldInput(event, "password")}
-                    @keydown=${this.handleKeyDown}
-                ></input>
-
-                ${this.error ? lit.html`<div class="login-error">${this.error}</div>` : lit.nothing}
-
-                <thermal-btn
-                    @click=${() => this.doLoginInternal()}
-                    disabled=${!this.mayLogIn}
-                    variant=${this.mayLogIn ? "primary" : "black"}
-                    tooltip=${!this.mayLogIn ? "Vyplňte přihlašovací údaje" : void 0}
-                >
-                    ${this.isLoggingIn ? (0, i18next.t)(T.login) + "..." : (0, i18next.t)(T.login)}
-                </thermal-btn>
-    
-            </div>
-
-            
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], LoginForm.prototype, "prompt", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], LoginForm.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], LoginForm.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], LoginForm.prototype, "isLoggingIn", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], LoginForm.prototype, "login", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], LoginForm.prototype, "password", void 0);
-LoginForm = __decorate([(0, lit_decorators_js.customElement)("login-form")], LoginForm);
-
-//#endregion
-//#region src/connection/components/auth/UserButton.ts
-let UserButton$1 = class UserButton extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.disableLogging = false;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.client?.auth.onIdentity.set(this.UUID, (identity) => {
-			this.message = void 0;
-		});
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            font-size: var( --thermal-fs );
-            color: var( --thermal-foreground );
-        }
-
-        .login-form {
-            display: flex;
-            gap: 1em;
-            flex-wrap: wrap;
-            width: 100%;
-            box-sizing: border-box;
-            justify-content: stretch;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            padding: 0.5em;
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            box-sizing: border-box;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .login-error {
-            color: red;
-            padding-top: .5em;
-            font-size: .8em;
-        }
-    `;
-	}
-	handleKeyDown(event) {
-		if (event.key === "Enter") {
-			event.preventDefault();
-			const dialog = this.shadowRoot?.querySelector("thermal-dialog");
-			if (dialog) dialog.closeFromTheOutside();
-		}
-	}
-	renderLoginForm() {
-		return lit.html`
-        <div class="login-form">
-            <input 
-                type="text" 
-                name="login" 
-                placeholder="Login" 
-                required
-                @keydown=${this.handleKeyDown}
-            ></input>
-            <input 
-                type="password" 
-                name="password" 
-                placeholder="${(0, i18next.t)(T.password)}" 
-                required
-                @keydown=${this.handleKeyDown}
-            ></input>
-        </div>
-        ${this.message ? lit.html`<div class="login-error">${this.message}</div>` : lit.nothing}
-        `;
-	}
-	renderUserEditForm() {
-		return lit.html`
-            Opravdu se chcete odhlásit?
-        `;
-	}
-	render() {
-		const buttonLabel = this.identity?.meta.name ?? this.identity?.meta.login ?? (0, i18next.t)(T.login);
-		const variant = this.isLoggedIn ? "primary" : "default";
-		const label = this.isLoggedIn ? (0, i18next.t)(T.logout) : (0, i18next.t)(T.login);
-		const submitLabel = this.isLoggedIn ? (0, i18next.t)(T.logout) : (0, i18next.t)(T.login);
-		const content = this.isLoggedIn ? this.renderUserEditForm() : this.renderLoginForm();
-		const beforeClose = this.isLoggedIn ? async () => {
-			const result = await this.client?.routes.post.logout().execute();
-			this.client?.auth.logout();
-			return result && result.success;
-		} : async () => {
-			this.message = void 0;
-			const contentSlot = ((this.shadowRoot?.querySelector("thermal-dialog"))?.shadowRoot)?.querySelector("slot[name=\"content\"]");
-			if (contentSlot) {
-				const contentDiv = contentSlot.assignedElements({ flatten: true }).find((el) => el.tagName === "DIV");
-				if (contentDiv) {
-					const loginInput = contentDiv.querySelector("input[name=\"login\"]");
-					const passwordInput = contentDiv.querySelector("input[name=\"password\"]");
-					if (loginInput && passwordInput) {
-						const login = loginInput.value;
-						const password = passwordInput.value;
-						if (login && password) {
-							const result = await this.client?.routes.post.login(login, password).execute();
-							if (result && result.success) this.message = "Přihlášení proběhlo úspěšně";
-							else this.message = "Přihlášení se nezdařilo";
-							return result && result.success;
-						}
-					}
-				}
-			}
-			return false;
-		};
-		if (this.disableLogging === true && this.isLoggedIn === true) return lit.html`<thermal-btn slot="invoker" variant="background" disabled="true" tooltip="Aktuálně přihlášený uživatel" icon="user" iconStyle="micro">
-                ${buttonLabel}
-            </thermal-btn>`;
-		else if (this.disableLogging === true && this.isLoggedIn === false) return lit.nothing;
-		return lit.html`
-            <thermal-dialog label="${label}" button="${submitLabel}" .beforeClose=${beforeClose}>
-
-                <thermal-btn slot="invoker" variant=${variant} icon="user" iconStyle="micro">
-                    ${buttonLabel}
-                </thermal-btn>
-
-                <div slot="content">
-                    ${content}
-                </div>
-
-            </thermal-dialog>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], UserButton$1.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	reflect: true,
-	attribute: "disable-logging",
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], UserButton$1.prototype, "disableLogging", void 0);
-UserButton$1 = __decorate([(0, lit_decorators_js.customElement)("labir-user-button")], UserButton$1);
-
-//#endregion
-//#region src/connection/components/server/ServerBar.ts
-var _ref$49;
-let ServerBar = class ServerBar extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.history = [];
-		this.logExpanded = false;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.client?.onResult.set(this.UUID, (timestamp, success, code, message, method) => {
-			this.history.push({
-				timestamp,
-				success,
-				code,
-				message,
-				method
-			});
-			this.requestUpdate();
-		});
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.5em;
-        }
-    
-        .icon {
-            font-size: 1em;
-            width: 1em;
-            height: 1em;
-        }
-        .spinner {
-            width: 1em;
-            height: 1em;
-            display: inline-block;
-            vertical-align: middle;
-            animation: spin 1s linear infinite;
-            color: var(--thermal-primary);
-        }
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        .dialog-trigger {
-            color: var( --thermal-primary );
-            cursor: pointer;
-
-            &:hover,
-            &:focus {
-                text-decoration: underline;
-            }
-        }
-
-        .history {
-            flex-grow: 1;
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-        
-            td {
-                padding: 0.1em 0.1em;
-                box-sizing: border-box;
-                vertical-align: center;
-
-                &.time {width: 55px;}
-                &.method,
-                &.code { width: 40px; }
-                &.success,
-                &.error {width: 1em;}
-
-                &.method,
-                &.code,
-                &.success,
-                &.error {
-                    text-align: center;
-                }
-
-                i {
-                    display: inline-block;
-                    width: .5em;
-                    height: .5em;
-                    line-height: 0;
-                    border-radius: 50%;
-                    margin-bottom: 0.15em;
-                }
-
-                &.success i {
-                    background: var( --thermal-primary );
-                }
-
-                &.error i {
-                    background: red;
-                }
-            }
-        
-        }
-
-        .history.collapsed {
-            .history-header {
-                display: none;
-            }
-
-            transition: all .2s ease-in-out;
-            cursor: pointer;
-            &:hover {
-                color: var( --thermal-foreground );
-            }
-        }
-
-        .history.expanded {
-
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-            overflow: hidden;
-
-            .history-header {
-                 
-            }
-            
-
-            .history-content {
-
-                max-height: 150px;
-                overflow-y: scroll;
-
-            }
-        }
-
-        .history-header {
-            display: flex;
-            gap: 0.5em;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.2em 0.5em;
-            background: var( --thermal-slate-dark );   
-            color: var( --thermal-background );
-            cursor: pointer;
-
-            transition: all .3s ease-in-out;
-
-            svg {
-                transition: transform .3s ease-in-out;
-            }
-
-            &:hover,
-            &:focus {
-                color: var( --thermal-primary-light );
-                background: var( --thermal-foreground );
-                svg {
-                    transform: scale(1.2);
-                    
-                }    
-            }
-            h2 {
-                padding: 0;
-                margin: 0;
-                font-size: calc( var( --thermal-fs ) * 0.7 );
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-            }
-        }
-    
-    `;
-	}
-	renderIcon() {
-		if (this.isClientLoading) return lit.html`
-                <svg class="spinner" viewBox="0 0 50 50">
-                    <path
-                        d="M25 7
-                           a 18 18 0 1 1 -12.73 30.73"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="5"
-                        stroke-linecap="round"
-                    />
-                </svg>
-            `;
-		return lit.html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="icon" style="color: ${this.isClientConnecting ? "var(--thermal-primary)" : this.client?.isConnected() ? "var(--thermal-primary)" : "red"};">
-            <path fill-rule="evenodd" d="M1.371 8.143c5.858-5.857 15.356-5.857 21.213 0a.75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.06 0c-4.98-4.979-13.053-4.979-18.032 0a.75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.182 3.182c4.1-4.1 10.749-4.1 14.85 0a.75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.062 0 8.25 8.25 0 0 0-11.667 0 .75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.204 3.182a6 6 0 0 1 8.486 0 .75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.061 0 3.75 3.75 0 0 0-5.304 0 .75.75 0 0 1-1.06 0l-.53-.53a.75.75 0 0 1 0-1.06Zm3.182 3.182a1.5 1.5 0 0 1 2.122 0 .75.75 0 0 1 0 1.061l-.53.53a.75.75 0 0 1-1.061 0l-.53-.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-        </svg>`;
-	}
-	renderLoading() {
-		return lit.html`<div>Connecting to server...</div>`;
-	}
-	renderServerDialog(info) {
-		return lit.html`<thermal-dialog label="Connection information">
-            <span slot="invoker" class="dialog-trigger">${info.name ?? info.url}</span>
-            <div slot="content">
-
-                    <thermal-field label="Server URL">${info.url}</thermal-field>
-
-                    <thermal-field label="Server name">${info.name ?? "-"}</thermal-field>
-
-                    <thermal-field label="Description">${info.description ?? "-"}</thermal-field>
-
-            </div>
-        </thermal-dialog>`;
-	}
-	renderServerInfo() {
-		if (this.isConnected === true && this.serverInfo) return lit.html`${this.renderServerDialog(this.serverInfo)} ${this.renderLog()}`;
-		else return lit.html`<div>Failed to connect to the remote server</div>`;
-	}
-	renderLogItem(item) {
-		return lit.html`
-            <tr class="history-item">
-
-                <td class="time">${_labirthermal_core.TimeFormat.humanTime(item.timestamp, true)}</td>
-
-                ${item.success ? lit.html`<td class="success">
-                    <i></i>
-                </td>` : lit.html`<td class="error">
-                    <i></i>
-                </td>`}
-
-                <td class="method">${item.method}</td>
-
-                <td class="code">${item.code}</td>
-
-                <td class="message">${item.message}</td>
-
-            </tr>
-        `;
-	}
-	updated(changedProps) {
-		super.updated?.(changedProps);
-		if (this.logExpanded && this.historyContent) this.historyContent.scrollTop = this.historyContent.scrollHeight;
-	}
-	renderLog() {
-		const items = this.logExpanded ? this.history : this.history.slice(this.history.length - 1);
-		const stateClass = this.logExpanded ? "expanded" : "collapsed";
-		const tableCallback = this.logExpanded ? void 0 : () => {
-			this.logExpanded = true;
-		};
-		const closeCallback = (event) => {
-			event.stopPropagation();
-			this.logExpanded = false;
-			this.requestUpdate();
-		};
-		return lit.html`
-        <div class="history ${stateClass}" @click=${tableCallback}>
-            <div class="history-header" @click=${closeCallback.bind(this)}>
-                <h2>${(0, i18next.t)(T.networklog)}</h2>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="icon"
-                >
-                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
-                </svg>
-            </div>
-            <div class="history-content">
-                <table>
-                    <tbody>
-                        ${items.map((item) => this.renderLogItem(item))}
-                    </tbody>
-                </table>
-            </div>
-        <div>
-        `;
-	}
-	render() {
-		const content = this.isClientConnecting ? this.renderLoading() : this.renderServerInfo();
-		return lit.html`
-            ${this.renderIcon()}
-            ${content}
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ServerBar.prototype, "history", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ServerBar.prototype, "logExpanded", void 0);
-__decorate([(0, lit_decorators_js.query)(".history-content"), __decorateMetadata("design:type", typeof (_ref$49 = typeof HTMLDivElement !== "undefined" && HTMLDivElement) === "function" ? _ref$49 : Object)], ServerBar.prototype, "historyContent", void 0);
-ServerBar = __decorate([(0, lit_decorators_js.customElement)("server-info")], ServerBar);
-
-//#endregion
-//#region src/connection/components/server/ServerBreadcrumb.ts
-let ServerBreadcrumb = class ServerBreadcrumb extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.tree = [];
-		this.treeSetter = void 0;
-		this.folders = [];
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		if (this.tree.length === 0) this.fetchTree();
-		this.client?.auth.onIdentity.set(this.UUID, async () => {
-			this.treeSetter?.([]);
-			this.folders = this.getCurrentFolderParents();
-		});
-	}
-	update(changedProperties) {
-		super.update(changedProperties);
-		if (changedProperties.has("current")) {
-			this.folders = this.getCurrentFolderParents();
-			this.requestUpdate();
-			console.log("Updated folders:", this.folders, this.current, this.tree);
-		}
-	}
-	async fetchTree() {
-		if (!this.isClientConnected || !this.client) return;
-		const treeResult = await this.client.routes.get.currentUserTree().execute();
-		if (treeResult.success) {
-			this.treeSetter?.(treeResult.data.tree);
-			this.folders = this.getCurrentFolderParents();
-		} else console.error("Failed to fetch user tree:", treeResult.message);
-	}
-	renderItem(name, className, hasArrow = true, icon, onClick) {
-		return lit.html`
-        ${hasArrow ? lit.html`<span class="slash">/</span>` : lit.nothing}
-
-        <button class="${className}" @click=${onClick}>
-            ${icon ? icon : lit.nothing}
-            <span>${name ?? "/"}</span>
-        </button>`;
-	}
-	renderServerName() {
-		return this.renderItem(this.serverInfo?.name ?? "Server", "server", false, lit.html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                <path fill-rule="evenodd" d="M.676 6.941A12.964 12.964 0 0 1 10 3c3.657 0 6.963 1.511 9.324 3.941a.75.75 0 0 1-.008 1.053l-.353.354a.75.75 0 0 1-1.069-.008C15.894 6.28 13.097 5 10 5 6.903 5 4.106 6.28 2.106 8.34a.75.75 0 0 1-1.069.008l-.353-.354a.75.75 0 0 1-.008-1.053Zm2.825 2.833A8.976 8.976 0 0 1 10 7a8.976 8.976 0 0 1 6.499 2.774.75.75 0 0 1-.011 1.049l-.354.354a.75.75 0 0 1-1.072-.012A6.978 6.978 0 0 0 10 9c-1.99 0-3.786.83-5.061 2.165a.75.75 0 0 1-1.073.012l-.354-.354a.75.75 0 0 1-.01-1.05Zm2.82 2.84A4.989 4.989 0 0 1 10 11c1.456 0 2.767.623 3.68 1.614a.75.75 0 0 1-.022 1.039l-.354.354a.75.75 0 0 1-1.085-.026A2.99 2.99 0 0 0 10 13c-.88 0-1.67.377-2.22.981a.75.75 0 0 1-1.084.026l-.354-.354a.75.75 0 0 1-.021-1.039Zm2.795 2.752a1.248 1.248 0 0 1 1.768 0 .75.75 0 0 1 0 1.06l-.354.354a.75.75 0 0 1-1.06 0l-.354-.353a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
-        </svg>`);
-	}
-	renderUserName() {
-		if (this.identity === void 0) return lit.nothing;
-		return this.renderItem(this.identity.meta.name, "user", true, lit.html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z" clip-rule="evenodd" />
-            </svg>`);
-	}
-	getCurrentFolderParents() {
-		if (!this.current || !this.tree || this.tree.length === 0) return [];
-		function findPath(nodes, targetPath, parents = []) {
-			for (const node of nodes) {
-				const newParents = [...parents, node];
-				if (node.path === targetPath) return newParents;
-				if (node.subfolders && node.subfolders.length > 0) {
-					const found = findPath(node.subfolders, targetPath, newParents);
-					if (found) return found;
-				}
-			}
-			return null;
-		}
-		return findPath(this.tree, this.current) ?? [];
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            display: block;
-            width: 100%;
-            height: 100%;
-            box-sizing: border-box;
-        }
-    
-        .server-breadcrumb {
-            display: flex;
-            flex-wrap: wrap;
-            gap: calc( var(--thermal-gap) * 0.5 );
-            align-items: center;
-            font-size: calc( var(--thermal-fs) * 0.8 );
-            color: var(--thermal-slate-dark);
-            font-family: sans-serif;
-        }
-
-        button {
-            display: inline-block;
-            padding: 0;
-            margin: 0;
-            background: transparent;
-            border: none;
-            color: var(--thermal-slate-dark);
-            font-size: calc( var(--thermal-fs) * 0.8 );
-            font-family: sans-serif !important;
-
-            transition: color 0.2s ease-in-out;
-
-            svg {
-                display: inline-block;
-                transform: translateY(0.1em);
-            }
-
-        }
-
-        svg {
-            width: 1em;
-            height: 1em;
-            line-height: 1em;
-        }
-
-        .server {
-            color: var(--thermal-slate);
-        }
-
-        .user {
-            color: var(--thermal-slate);
-        }
-
-        .folder {
-            color: var(--thermal-slate);
-            cursor: pointer;
-            &:hover {
-                color: var(--thermal-primary);
-            }
-        }
-
-        .current {
-            color: var(--thermal-foreground);
-        }
-
-        .slash {
-            color: var(--thermal-slate);
-        }
-    
-    `;
-	}
-	render() {
-		if (!this.isClientConnected || !this.isLoggedIn) return lit.nothing;
-		const folders = this.folders.length === 0 ? this.renderItem("Načítám...", "folder", true) : this.folders.map((folder, index) => {
-			const className = index === this.folders.length - 1 ? "folder current" : "folder";
-			return this.renderItem(folder.name ?? "/", className, true, lit.html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                        <path d="M3.75 3A1.75 1.75 0 0 0 2 4.75v3.26a3.235 3.235 0 0 1 1.75-.51h12.5c.644 0 1.245.188 1.75.51V6.75A1.75 1.75 0 0 0 16.25 5h-4.836a.25.25 0 0 1-.177-.073L9.823 3.513A1.75 1.75 0 0 0 8.586 3H3.75ZM3.75 9A1.75 1.75 0 0 0 2 10.75v4.5c0 .966.784 1.75 1.75 1.75h12.5A1.75 1.75 0 0 0 18 15.25v-4.5A1.75 1.75 0 0 0 16.25 9H3.75Z" />
-                    </svg>`, () => {
-				this.log(folder, index);
-			});
-		});
-		return lit.html`<div class="server-breadcrumb">
-
-        ${this.renderServerName()}
-
-        ${this.renderUserName()}
-
-        ${folders}
-
-        </div>`;
-	}
-};
-__decorate([(0, _lit_context.consume)({
-	context: currentUserTreeContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Array)], ServerBreadcrumb.prototype, "tree", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: currentUserTreeSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], ServerBreadcrumb.prototype, "treeSetter", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], ServerBreadcrumb.prototype, "current", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ServerBreadcrumb.prototype, "folders", void 0);
-ServerBreadcrumb = __decorate([(0, lit_decorators_js.customElement)("server-breadcrumb")], ServerBreadcrumb);
-
-//#endregion
-//#region src/connection/components/folder/configuration/AbstractModeBar.ts
-var AbstractModeBar = class extends ClientConsumer {
-	static {
-		this.styles = lit.css`
-    
-        :host {
-        
-            display: flex;
-            color: var(--thermal-foreground);
-            cursor: pointer;
-            align-items: center;
-            gap: .25em;
-        
-        }
-
-
-        .radio {
-
-            display: flex;
-            align-items: center;
-            gap: .25em;
-
-            cursor: pointer;
-
-            input,
-            span {
-                display: block;
-            }
-
-            span {
-                font-size: .8em;
-            }
-        }
-    
-    `;
-	}
-	renderToggle(label, checked, onChange) {
-		return lit.html`<thermal-radio
-            type="checkbox"
-            .checked=${checked}
-            .onChange=${(value) => {
-			onChange(value);
-		}}
-        >${label}</thermal-radio>`;
-	}
-	renderToggleButton(active, onClick, icon, label, tooltip) {
-		return lit.html`
-            <thermal-btn
-                variant="${active ? "foreground" : "default"}"
-                @click=${() => onClick()}
-                icon=${(0, lit_directives_if_defined_js.ifDefined)(icon)}
-                iconStyle="micro"
-                tooltip=${(0, lit_directives_if_defined_js.ifDefined)(tooltip)}
-                size="md"
-            ></thermal-btn>
-        `;
-	}
-};
-
-//#endregion
-//#region src/connection/components/folder/configuration/AnalysisMode.ts
-var _ref$48, _ref2$30;
-let AnalysisModeElement = class AnalysisModeElement extends AbstractModeBar {
-	constructor(..._args) {
-		super(..._args);
-		this.syncAnalysis = false;
-		this.syncAnalysisSetter = () => {};
-	}
-	render() {
-		return lit.html`
-
-            ${this.renderToggle((0, i18next.t)(T.syncanalyses), this.syncAnalysis, (checked) => {
-			if (checked) this.group.files.value.forEach((file) => file.analysis.value.forEach((analysis) => file.analysis.layers.removeAnalysis(analysis.key)));
-			this.syncAnalysisSetter(checked);
-		})}
-
-            ${!this.syncAnalysis ? lit.html`<thermal-btn
-                    icon="restore"
-                    iconStyle="outline"
-                    tooltip="Zobrazit uložené analýzy"
-                    @click=${() => {
-			if (!this.files) return;
-			this.log(this.group, this.files);
-			this.files.forEach((def) => {
-				if (!def.analyses) return;
-				this.group.files.value.forEach((instance) => {
-					if (def.fileName === instance.fileName) def.analyses.forEach((analysis) => {
-						instance.slots.createAnalysisFromSerialized(analysis)?.setSelected();
-					});
-				});
-			});
-		}}
-                ></thermal-btn>` : lit.nothing}
-
-            ${this.folder?.may_manage_files_in ? lit.html`<thermal-btn
-                    icon="save"
-                    tooltip="Uložt aktuální stav všech analýz na server"
-                    @click=${async () => {
-			if (!this.files || !this.client) return;
-			this.files.forEach(async (defOld) => {
-				if (!this.client) return;
-				const newAnalyses = [];
-				this.group.files.value.forEach(async (instance) => {
-					if (defOld.fileName === instance.fileName) instance.analysis.value.forEach((slot) => {
-						newAnalyses.push(slot.toSerialized());
-					});
-				});
-				const request = this.client.routes.post.updateFile(defOld.path, defOld.fileName);
-				request.clearAnalyses();
-				newAnalyses.forEach((analysis) => request?.addAnalysis(analysis));
-				const result = await request.execute();
-				if (this.onChangeFile && result.data?.file) this.onChangeFile(result.data.file);
-			});
-		}}
-                ></thermal-btn>` : lit.nothing}
-
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$48 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$48 : Object)], AnalysisModeElement.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], AnalysisModeElement.prototype, "files", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AnalysisModeElement.prototype, "onChangeAll", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AnalysisModeElement.prototype, "onChangeFile", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: groupContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$30 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref2$30 : Object)], AnalysisModeElement.prototype, "group", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: syncAnalysisContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], AnalysisModeElement.prototype, "syncAnalysis", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: syncAnalysisSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], AnalysisModeElement.prototype, "syncAnalysisSetter", void 0);
-AnalysisModeElement = __decorate([(0, lit_decorators_js.customElement)("analysis-mode-settings")], AnalysisModeElement);
-
-//#endregion
-//#region src/connection/components/folder/configuration/DisplayMode.ts
-var _ref$47, _ref2$29;
-let DisplayModeElement = class DisplayModeElement extends AbstractModeBar {
-	constructor(..._args) {
-		super(..._args);
-		this.displayMode = DisplayMode.GRID;
-		this.displayModeSetter = () => {};
-		this.isCompact = false;
-		this.compactSetter = () => {};
-	}
-	render() {
-		return lit.html`
-
-
-            <thermal-btn
-                icon="list"
-                iconStyle="micro"
-                size="md"
-                variant="${this.displayMode === DisplayMode.TABLE ? "foreground" : "default"}"
-                @click="${() => {
-			this.compactSetter(false);
-			this.displayModeSetter(DisplayMode.TABLE);
-		}}"
-                tooltip="${(0, i18next.t)(T.tabledisplay)}"
-            ></thermal-btn>
-        
-            <thermal-btn
-                icon="grid"
-                iconStyle="solid"
-                size="md"
-                variant="${this.displayMode === DisplayMode.GRID ? "foreground" : "default"}"
-                @click="${() => this.displayModeSetter(DisplayMode.GRID)}"
-                tooltip="${(0, i18next.t)(T.griddisplay)}"
-            ></thermal-btn>
-
-            ${this.displayMode === DisplayMode.GRID ? this.renderToggle((0, i18next.t)(T.compactview), this.isCompact, (checked) => this.compactSetter(checked)) : lit.nothing}
-
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$47 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$47 : Object)], DisplayModeElement.prototype, "folder", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: displayModeContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$29 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref2$29 : Object)], DisplayModeElement.prototype, "displayMode", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: displayModeSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], DisplayModeElement.prototype, "displayModeSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: compactContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], DisplayModeElement.prototype, "isCompact", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: compactContextSetter,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], DisplayModeElement.prototype, "compactSetter", void 0);
-DisplayModeElement = __decorate([(0, lit_decorators_js.customElement)("display-mode-settings")], DisplayModeElement);
-
-//#endregion
-//#region src/connection/components/folder/configuration/EditingMode.ts
-var _ref$46;
-let EditingModeElement = class EditingModeElement extends AbstractModeBar {
-	constructor(..._args) {
-		super(..._args);
-		this.showDiscussion = false;
-		this.showDiscussionSetter = () => {};
-		this.editableTags = false;
-		this.editTagsSetter = () => {};
-	}
-	render() {
-		return lit.html`
-
-            ${this.renderToggle((0, i18next.t)(T.showdiscussion), this.showDiscussion, (checked) => this.showDiscussionSetter(checked))}
-
-            ${this.folder && this.folder.may_manage_files_in || this.folder?.may_manage_folders_in ? this.renderToggle((0, i18next.t)(T.edittags), this.editableTags, (checked) => this.editTagsSetter(checked)) : lit.nothing}
-
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref$46 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$46 : Object)], EditingModeElement.prototype, "folder", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: showDiscussionContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], EditingModeElement.prototype, "showDiscussion", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: showDiscussionSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], EditingModeElement.prototype, "showDiscussionSetter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: editTagsContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], EditingModeElement.prototype, "editableTags", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: editTagsSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], EditingModeElement.prototype, "editTagsSetter", void 0);
-EditingModeElement = __decorate([(0, lit_decorators_js.customElement)("editing-mode-settings")], EditingModeElement);
-
-//#endregion
-//#region src/connection/components/folder/configuration/FolderTagsFilter.ts
-var _ref$45;
-let FolderTagsFilter = class FolderTagsFilter extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.tags = {};
-		this.onTagClick = () => {};
-		this.tagsFilter = [];
-		this.setTagsFilter = () => {};
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            margin-left: auto;
-        }
-
-        .tags-filter {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .5em;
-            align-items: flex-start;
-            justify-content: flex-end;
-        }
-
-        .tag-button {
-            border-radius: 0 var(--thermal-radius) var(--thermal-radius) 0;
-            padding: .25em .5em .25em 1em;
-            border: 0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: .5em;
-            position: relative;
-            font-size: .7em;
-
-            /* Simulace trojúhelníka s hladce zakulaceným hrotem */
-            clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 1em 100%, 0.2em 65%, 0.15em 55%, 0.15em 45%, 0.2em 35%);
-            
-            /* Default slate-light background */
-            background-color: var(--thermal-slate-light) !important;
-            color: var(--thermal-slate) !important;
-            
-            transition: all 0.2s ease;
-        }       
-
-        .tag-button.active {
-            /* Active tags show their color */
-            background-color: var(--tag-color) !important;
-            color: var(--tag-text-color) !important;
-        }
-
-        .tag-button:hover {
-            /* Hover shows the color */
-            background-color: var(--tag-color) !important;
-            color: var(--tag-text-color) !important;
-        }
-    `;
-	}
-	getContrastColor(backgroundColor) {
-		let hex = backgroundColor.replace("#", "");
-		if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
-		const r = parseInt(hex.substr(0, 2), 16);
-		const g = parseInt(hex.substr(2, 2), 16);
-		const b = parseInt(hex.substr(4, 2), 16);
-		return (r * 299 + g * 587 + b * 114) / 1e3 > 128 ? "#000000" : "#FFFFFF";
-	}
-	renderTag(tag) {
-		const name = tag.meta?.name || tag.slug;
-		const background = tag.meta?.color || "#ccc";
-		const active = this.tagsFilter.includes(tag.slug);
-		const textColor = this.getContrastColor(background);
-		return lit.html`<button
-            class="tag-button ${active ? "active" : ""}"
-            @click=${() => {
-			this.onTagClick(tag);
-		}}
-            style="--tag-color: ${background}; --tag-text-color: ${textColor};"
-        >${name}</button>`;
-	}
-	render() {
-		const tags = this.tags && Object.entries(this.tags).filter(([_, tag]) => tag.count > 0) || [];
-		return tags.length > 0 ? lit.html`
-            <div class="tags-filter">
-                ${tags.map(([_, tag]) => this.renderTag(tag))}
-            </div>
-        ` : lit.nothing;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$45 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$45 : Object)], FolderTagsFilter.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], FolderTagsFilter.prototype, "tags", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderTagsFilter.prototype, "onTagClick", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: tagsFilterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Array)], FolderTagsFilter.prototype, "tagsFilter", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: tagsFilterSetterContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], FolderTagsFilter.prototype, "setTagsFilter", void 0);
-FolderTagsFilter = __decorate([(0, lit_decorators_js.customElement)("folder-tags-filter")], FolderTagsFilter);
-
-//#endregion
-//#region src/connection/components/folder/configuration/SubfoldersMode.ts
-var _ref$44, _ref2$28, _ref3$18, _ref4$8;
-let SubfoldersMode = class SubfoldersMode extends AbstractModeBar {
-	constructor(..._args) {
-		super(..._args);
-		this.mode = FolderMode.LIST;
-		this.setMode = () => {};
-		this.by = _labirthermal_server.GridGrouping.HOUR;
-		this.setBy = () => {};
-		this.selectedFolders = [];
-		this.selectedFoldersUpdate = [];
-	}
-	get mayHaveGrid() {
-		return this.subfolders?.find((f) => f.lrc_count > 0) !== void 0;
-	}
-	static {
-		this.styles = [super.styles, lit.css`
-
-        :host {
-            font-size: var(--thermal-fs);
-        }
-
-        thermal-dropdown thermal-btn {
-            display: block;
-        }
-
-        .selection-table {
-            display: table;
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .selection-row {
-            
-            display: table-row;
-
-            padding-bottom: .5em;
-            
-
-             &.disabled {
-                cursor: not-allowed;
-                opacity: .5;
-                .selection-cell__name {
-                    text-decoration: line-through;
-                }
-            }
-
-            &.selected {
-                .selection-cell {
-                    background: var( --thermal-background );
-                }
-            }
-        }
-
-        .selection-cell {
-            display: table-cell;
-            padding: .25em;
-
-            margin-bottom:.25em;
-
-            border-top: 5px var(--thermal-border-style)var(--thermal-slate-light);
-            border-bottom: 5px var(--thermal-border-style)var(--thermal-slate-light);
-
-            &:first-child {
-                width: 1em;
-                border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
-                border-right: 0;
-            }
-
-            &:last-child {
-                width: 4em;
-                border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
-                text-align: right;
-                border-left: 0;
-            }
-
-        }
-
-        .has-badge {
-        
-            position: relative;
-
-            &::after {
-                content: '';
-                position: absolute;
-                top: -.3em;
-                right: -.3em;
-                width: .8em;
-                height: .8em;
-                background: var(--thermal-danger, #f00);
-                border-radius: 50%;
-                pointer-events: none;
-            }
-        
-        }
-    
-    `];
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		if (this.selectedFolders.length === 0 && this.grid !== void 0) {
-			if (this.grid !== void 0) {
-				this.selectedFolders = Object.keys(this.grid.header);
-				this.selectedFoldersUpdate = [...this.selectedFolders];
-			}
-		}
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("selectedFolders")) this.selectedFoldersUpdate = [...this.selectedFolders];
-		if (_changedProperties.has("grid")) {
-			if (this.grid !== void 0) this.selectedFolders = Object.keys(this.grid.header);
-		}
-	}
-	enqueueFolderShow(folder) {
-		if (!this.selectedFoldersUpdate.includes(folder.slug)) {
-			this.selectedFoldersUpdate.push(folder.slug);
-			this.requestUpdate();
-		}
-	}
-	enqueueFolderHide(folder) {
-		if (this.selectedFoldersUpdate.includes(folder.slug)) {
-			this.selectedFoldersUpdate = this.selectedFoldersUpdate.filter((f) => f !== folder.slug);
-			this.requestUpdate();
-		}
-	}
-	async persistChanges() {
-		if (this.onSelectionChange) this.onSelectionChange(this.selectedFoldersUpdate);
-		return true;
-	}
-	isFolderSelected(folder) {
-		if (this.selectedFoldersUpdate.length === 0) {}
-		return this.selectedFoldersUpdate.includes(folder.slug);
-	}
-	renderFolderToggleButton(folder) {
-		const selected = this.isFolderSelected(folder);
-		const disabled = folder.lrc_count === 0;
-		const click = () => {
-			this.log(selected, folder);
-			if (disabled) return;
-			if (selected) this.enqueueFolderHide(folder);
-			else this.enqueueFolderShow(folder);
-		};
-		const classes = ["selection-row"];
-		if (disabled) classes.push("disabled");
-		if (selected) classes.push("selected");
-		const icon = disabled ? "close" : selected ? "close" : "check";
-		return lit.html`<div 
-            class="${classes.join(" ")}"
-            @click=${click.bind(this)}
-        >
-            <div class="selection-cell selection-cell__checkbox">
-                <thermal-icon
-                    .icon=${icon}
-                    variant="micro"
-                    style="width: 1em; display: block;"
-                ></thermal-icon>
-            </div>
-            <div
-                class="selection-cell selection-cell__name"
-                variant=${selected ? "foreground" : "default"}
-                
-            >
-                ${folder.name}
-            </div>
-            <div class="selection-cell selection-cell__count">
-                ${folder.lrc_count}
-                <thermal-icon
-                    icon="image"
-                    variant="micro"
-                    style="width: 1em;display: inline-block; vertical-align: baseline;"
-                ></thermal-icon>
-            </div>
-        </div>`;
-	}
-	renderSelectionTable() {
-		if (this.grid === void 0) return lit.nothing;
-		return lit.html`
-
-            <div>
-
-                <div class="selection-table">
-                ${this.grid.all_subdirectories ? Object.values(this.grid.all_subdirectories).map((folder) => this.renderFolderToggleButton(folder)) : lit.nothing}
-                </div>
-
-            </div>
-        `;
-	}
-	get availableFolders() {
-		if (this.grid === void 0) return [];
-		return this.grid.all_subdirectories ? Object.values(this.grid.all_subdirectories).filter((f) => f.lrc_count > 0).map((f) => f.slug) : [];
-	}
-	render() {
-		const hasBadge = this.selectedFolders.length !== this.availableFolders.length;
-		return lit.html`
-            ${this.renderToggleButton(this.mode === FolderMode.LIST, () => {
-			this.setMode(FolderMode.LIST);
-		}, "folder", void 0, "Seznam složek")}
-
-        ${this.renderToggleButton(this.mode === FolderMode.TABLE, () => {
-			this.setMode(FolderMode.TABLE);
-		}, "list", void 0, "Tabulka složek")}
-
-        ${this.mayHaveGrid ? this.renderToggleButton(this.mode === FolderMode.GRID, () => {
-			this.setMode(FolderMode.GRID);
-		}, "grid", void 0, "Mřížka souborů") : lit.nothing}
-
-            ${this.mode === FolderMode.GRID && this.mayHaveGrid ? lit.html`<thermal-dropdown>
-                        <span slot="invoker">${(0, i18next.t)(T[`by${this.by}s`])}</span>
-                        <div slot="option">
-                        <thermal-btn 
-                            @click=${() => this.setBy(_labirthermal_server.GridGrouping.HOUR)}
-                        >
-                            ${(0, i18next.t)(T.byhours)}
-                        </thermal-btn>
-                        </div>
-                        <div slot="option">
-                        <thermal-btn 
-                            @click=${() => this.setBy(_labirthermal_server.GridGrouping.DAY)}
-                        >
-                            ${(0, i18next.t)(T.bydays)}
-                        </thermal-btn>
-                        </div>
-                        <div slot="option">
-                        <thermal-btn 
-                            slot="option"
-                            @click=${() => this.setBy(_labirthermal_server.GridGrouping.WEEK)}
-                        >
-                            ${(0, i18next.t)(T.byweeks)}
-                        </thermal-btn>
-                        </div>
-                        <div slot="option">
-                        <thermal-btn 
-                            @click=${() => this.setBy(_labirthermal_server.GridGrouping.MONTH)}
-                        >
-                            ${(0, i18next.t)(T.bymonths)}
-                        </thermal-btn>
-                        </div>
-                        <div slot="option">
-                        <thermal-btn 
-                            @click=${() => this.setBy(_labirthermal_server.GridGrouping.YEAR)}
-                        >
-                            ${(0, i18next.t)(T.byyears)}
-                        </thermal-btn>
-                        </div>
-                    </thermal-dropdown>
-
-                    <thermal-dialog 
-                        label="Nastavení mřížky"
-                        button="Použít nastavení"
-                        .beforeClose=${() => this.persistChanges()}
-                    >
-                        <thermal-btn 
-                            icon="adjustment"
-                            iconStyle="micro" 
-                            slot="invoker"
-                            tooltip="Nastavení mřížky"
-                            class="${hasBadge ? "has-badge" : ""}"
-                        ></thermal-btn>
-                        <div slot="content">
-                            <h2>Složky</h2>
-
-                            ${this.renderSelectionTable()}
-
-                            
-                        </div>
-                    </thermal-dialog>` : lit.nothing}
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$44 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$44 : Object)], SubfoldersMode.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "subfolders", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: subfoldersModeContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$28 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref2$28 : Object)
-], SubfoldersMode.prototype, "mode", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: subfoldersModeSetterContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Function)
-], SubfoldersMode.prototype, "setMode", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: subgildersGridByMode,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref3$18 = typeof _labirthermal_server.GridGrouping !== "undefined" && _labirthermal_server.GridGrouping) === "function" ? _ref3$18 : Object)
-], SubfoldersMode.prototype, "by", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: subgildersGridByModeSetter,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Function)
-], SubfoldersMode.prototype, "setBy", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "selectedFolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], SubfoldersMode.prototype, "selectedFoldersUpdate", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersMode.prototype, "onSelectionChange", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$8 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref4$8 : Object)], SubfoldersMode.prototype, "grid", void 0);
-SubfoldersMode = __decorate([(0, lit_decorators_js.customElement)("subfolders-mode")], SubfoldersMode);
-
-//#endregion
-//#region src/connection/components/folder/crud/AbstractFolderDialog.ts
-var _ref$43, _ref2$27, _ref3$17;
-/** A base class for all dialogs related to folder CRUD operations. */
-var AbstractFolderDialog$1 = class extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.closeLabel = T.close;
-		this.dialogLabel = T.folder;
-		this.dialogRef = (0, lit_directives_ref_js.createRef)();
-	}
-	close() {
-		this.dialogRef.value?.setClose();
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-            font-size: var(--thermal-fs);
-            color: var(--thermal-foreground);
-        }
-    
-    `;
-	}
-	render() {
-		if (!this.shouldRenderDialog()) return lit.nothing;
-		return lit.html`<thermal-dialog
-    label=${(0, i18next.t)(this.dialogLabel)}
-    button=${(0, i18next.t)(this.closeLabel)}
-    .beforeClose=${() => this.beforeClose()}
-    ${(0, lit_directives_ref_js.ref)(this.dialogRef)}
->
-    <thermal-btn
-        slot="invoker"
-        .icon=${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}
-        .iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}
-        .variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
-        .size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
-        .plain=${(0, lit_directives_if_defined_js.ifDefined)(this.plain)}
-        .disabled=${(0, lit_directives_if_defined_js.ifDefined)(this.disabled)}
-        .interactive=${(0, lit_directives_if_defined_js.ifDefined)(this.interactive)}
-        .tooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.tooltip)}
-    >
-        ${this.label}
-    </thermal-btn>
-    <div class="content" slot="content">
-        ${this.renderContent()}
-    </div>
-    ${this.renderButtons()}
-</thermal-dialog>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$43 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$43 : Object)], AbstractFolderDialog$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$27 = typeof packages_embed_src_ui_Btn.BtnVariants !== "undefined" && packages_embed_src_ui_Btn.BtnVariants) === "function" ? _ref2$27 : Object)], AbstractFolderDialog$1.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$17 = typeof packages_embed_src_ui_Btn.BtnSizes !== "undefined" && packages_embed_src_ui_Btn.BtnSizes) === "function" ? _ref3$17 : Object)], AbstractFolderDialog$1.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog$1.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog$1.prototype, "disabled", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Boolean,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog$1.prototype, "interactive", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "closeLabel", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractFolderDialog$1.prototype, "dialogLabel", void 0);
-
-//#endregion
-//#region src/connection/components/folder/crud/FolderAddDialog.ts
-let FolderAddDialog$1 = class FolderAddDialog extends AbstractFolderDialog$1 {
-	constructor(..._args) {
-		super(..._args);
-		this.closeLabel = T.create;
-		this.dialogLabel = T.createfolder;
-		this.folderName = "";
-		this.folderDescription = "";
-		this.errorMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-        .content {
-            padding: var(--thermal-gap);
-        }
-
-        .form-group {
-            margin-bottom: var(--thermal-gap);
-        }
-
-        label {
-            display: block;
-            margin-bottom: calc(var(--thermal-gap) * 0.5);
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-        }
-
-        textarea {
-            width: 100%;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-            font-family: inherit;
-            resize: vertical;
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-    `;
-	}
-	async beforeClose() {
-		if (!this.folderName.trim()) {
-			this.errorMessage = "Název složky je povinný";
-			return false;
-		}
-		this.errorMessage = "";
-		const path = this.folder.path;
-		const result = await this.client?.routes.post.createFolder(path, this.folderName.trim()).setDescription(this.folderDescription.trim()).setMayHaveFiles(!this.folder.may_have_files).execute();
-		if (result?.success) {
-			this.folderName = "";
-			this.folderDescription = "";
-			if (this.onSuccess) this.onSuccess(result.data.result.info);
-		} else this.errorMessage = result?.message || "Nepodařilo se vytvořit složku";
-		return result?.success;
-	}
-	handleInputChange(event) {
-		this.folderName = event.target.value;
-	}
-	handleDescriptionChange(event) {
-		this.folderDescription = event.target.value;
-	}
-	renderContent() {
-		return lit.html`<div class="form-group">
-    <label for="folder-name">Název složky:</label>
-    <input 
-        type="text" 
-        id="folder-name"
-        .value=${this.folderName}
-        @input=${this.handleInputChange}
-        placeholder="Zadejte název nové složky"
-        required
-    />
-</div>
-<div class="form-group">
-    <label for="folder-description">Popis:</label>
-    <textarea 
-        id="folder-description"
-        .value=${this.folderDescription}
-        @input=${this.handleDescriptionChange}
-        placeholder="Zadejte popis složky (volitelné)"
-        rows="3"
-    ></textarea>
-</div>
-${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : ""}`;
-	}
-	renderButtons() {
-		return lit.html`<thermal-btn
-        @click=${() => this.close()}
-        slot="button"    
-    >${(0, i18next.t)(T.back)}</thermal-btn>`;
-	}
-	shouldRenderDialog() {
-		if (!this.isClientConnected || !this.identity || !this.isLoggedIn || !this.folder) return false;
-		if (this.identity.meta.is_root && !this.folder.may_have_files === false) return true;
-		return this.folder.may_manage_folders_in;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog$1.prototype, "folderName", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog$1.prototype, "folderDescription", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog$1.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderAddDialog$1.prototype, "onSuccess", void 0);
-FolderAddDialog$1 = __decorate([(0, lit_decorators_js.customElement)("folder-add-dialog")], FolderAddDialog$1);
-
-//#endregion
-//#region src/connection/components/folder/crud/FolderDeleteDialog.ts
-let FolderDeleteDialog$1 = class FolderDeleteDialog extends AbstractFolderDialog$1 {
-	constructor(..._args) {
-		super(..._args);
-		this.closeLabel = T.deletefolder;
-		this.dialogLabel = T.deletefolder;
-		this.errorMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-
-        .warning {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap);
-            margin-bottom: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-        }
-
-        .folder-info {
-            background: var(--thermal-background);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin: calc(var(--thermal-gap) * 0.5) 0;
-        }
-
-        .folder-name {
-            font-weight: bold;
-            font-size: calc(var(--thermal-fs) * 1.1);
-        }
-
-        .folder-description {
-            color: var(--thermal-slate);
-            font-size: calc(var(--thermal-fs) * 0.9);
-            margin-top: calc(var(--thermal-gap) * 0.25);
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-    `;
-	}
-	async beforeClose() {
-		this.errorMessage = "";
-		const result = await this.client?.routes.post.deleteFolder(this.folder.path).execute();
-		if (result?.success) {
-			if (this.onSuccess) this.onSuccess(this.folder);
-		} else this.errorMessage = result?.message || "Nepodařilo se smazat složku";
-		return result?.success;
-	}
-	shouldRenderDialog() {
-		if (!this.isClientConnected || !this.identity || !this.isLoggedIn || !this.folder) return false;
-		if (this.identity.meta.is_root) return true;
-		return this.folder.may_manage_files_in;
-	}
-	renderContent() {
-		return lit.html`<div class="warning">
-    <strong>Upozornění:</strong> Tato akce je nevratná. Složka a veškerý její obsah bude trvale smazán.
-</div>
-<p>Opravdu chcete smazat následující složku?</p>
-<div class="folder-info">
-<div class="folder-name">${this.folder.name || this.folder.slug}</div>
-${this.folder.description ? lit.html`<div class="folder-description">${this.folder.description}</div>` : ""}
-${this.folder.lrc_count > 0 ? lit.html`<div class="folder-description">Obsahuje ${this.folder.lrc_count} souborů</div>` : ""}
-</div>
-${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : ""}
-</div>`;
-	}
-	renderButtons() {
-		return lit.html`<thermal-btn
-    @click=${() => this.close()}
-    slot="button"    
->${(0, i18next.t)(T.back)}</thermal-btn>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderDeleteDialog$1.prototype, "onSuccess", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderDeleteDialog$1.prototype, "errorMessage", void 0);
-FolderDeleteDialog$1 = __decorate([(0, lit_decorators_js.customElement)("folder-delete-dialog")], FolderDeleteDialog$1);
-
-//#endregion
-//#region src/connection/components/folder/crud/FolderEditDialog.ts
-let FolderEditDialog$2 = class FolderEditDialog extends AbstractFolderDialog$1 {
-	constructor(..._args) {
-		super(..._args);
-		this.closeLabel = T.savechanges;
-		this.dialogLabel = T.editfolder;
-		this.folderName = "";
-		this.folderDescription = "";
-		this.errorMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            align-self: stretch;
-        }
-
-        input,
-        label,
-        textarea,
-        .form-group,
-        .content,        
-        .error {
-            box-sizing: border-box;
-        }
-
-        .form-group {
-            margin-bottom: var(--thermal-gap);
-        }
-
-        label {
-            display: block;
-            margin-bottom: calc(var(--thermal-gap) * 0.5);
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-        }
-
-        textarea {
-            width: 100%;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-            font-family: inherit;
-            resize: vertical;
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-    `;
-	}
-	firstUpdated() {
-		this.folderName = this.folder.name || this.folder.slug;
-		this.folderDescription = this.folder.description || "";
-	}
-	async beforeClose() {
-		if (!this.folderName.trim()) {
-			this.errorMessage = "Název složky je povinný";
-			return false;
-		}
-		if (!this.client) {
-			this.errorMessage = "Klient není dostupný";
-			return false;
-		}
-		this.errorMessage = "";
-		const result = await this.client.routes.post.updateFolder(this.folder.path).setName(this.folderName.trim()).setDescription(this.folderDescription.trim()).execute();
-		if (result.success) {
-			if (this.onSuccess) this.onSuccess(result.data.result.info);
-		} else this.errorMessage = result.message || "Nepodařilo se upravit složku";
-		return result?.success;
-	}
-	handleInputChange(event) {
-		this.folderName = event.target.value;
-	}
-	handleDescriptionChange(event) {
-		this.folderDescription = event.target.value;
-	}
-	renderContent() {
-		return lit.html`<div class="form-group">
-    <label for="folder-name">${(0, i18next.t)(T.name)}:</label>
-    <input 
-        type="text" 
-        id="folder-name"
-        .value=${this.folderName}
-        @input=${this.handleInputChange}
-        placeholder="Zadejte název složky"
-        required
-    />
-</div>
-<div class="form-group">
-    <label for="folder-description">${(0, i18next.t)(T.description)}:</label>
-    <textarea 
-        id="folder-description"
-        .value=${this.folderDescription}
-        @input=${this.handleDescriptionChange}
-        placeholder="Zadejte popis složky (volitelné)"
-        rows="3"
-    ></textarea>
-</div>
-${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : ""}`;
-	}
-	renderButtons() {
-		return lit.html`<thermal-btn
-    @click=${() => this.close()}
-    slot="button"    
->${(0, i18next.t)(T.back)}</thermal-btn>`;
-	}
-	shouldRenderDialog() {
-		if (!this.isClientConnected || !this.identity || !this.isLoggedIn || !this.folder) return false;
-		if (this.identity.meta.is_root) return true;
-		return this.folder.may_manage_folders_in || this.folder.may_manage_files_in;
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$2.prototype, "folderName", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$2.prototype, "folderDescription", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$2.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderEditDialog$2.prototype, "onSuccess", void 0);
-FolderEditDialog$2 = __decorate([(0, lit_decorators_js.customElement)("folder-edit-dialog")], FolderEditDialog$2);
-
-//#endregion
-//#region src/connection/components/folder/crud/FolderUploadDialog.ts
-var _ref$42;
-let FolderUploadDialog = class FolderUploadDialog extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.label = (0, i18next.t)(T.uploadafile);
-		this.variant = "primary";
-		this.errorMessage = "";
-		this.plain = false;
-		this.allFiles = [];
-		this.pairedFiles = [];
-		this.unmatchedPngs = [];
-		this.isDragging = false;
-		this.infoMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            font-size: var(--thermal-fs);
-            color: var(--thermal-foreground);
-        }
-
-        .content {
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .stage-label {
-
-            small {
-                font-size: 1em;
-                font-weight: normal;
-                display: inline-block;
-                opacity: .5;
-            }
-        
-        }
-
-        .stage-upload {
-            min-height: 180px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border: 2px dotted var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            cursor: pointer;
-            transition: all .2s;
-            padding: var(--thermal-gap);
-            label {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 1em;
-                cursor: pointer;
-            }
-        }
-        .stage-upload:hover,
-        .stage-upload.drag-over { 
-            border-color: var(--thermal-primary); 
-            background: var(--thermal-background); 
-        }
-
-        input[type="file"] { 
-            display: none; 
-        }
-
-        .paired-files-table { 
-            width: 100%; 
-            max-width: 100%;
-            overflow-x: auto;
-            border-collapse: collapse; 
-        }
-        .paired-files-table td { 
-            padding: .5em; 
-            vertical-align: top; 
-        }
-        .paired-files-table td:not(:first-child) { 
-            width: calc(100% / 3); 
-        }
-
-        .paired-file-group {
-        }
-
-        .paired-file-group__header td { 
-            background: var(--thermal-background); 
-            border-radius: var(--thermal-radius); 
-        }
-
-        .file-preview { 
-            display: grid; 
-            grid-template-columns: 5em 1fr; 
-            gap: .5em; 
-            position: relative; 
-        }
-
-        .file-preview img, 
-        .file-preview .file-preview__icon { 
-            max-width: 5em; 
-            height: auto; 
-            display: block; 
-        }
-        .file-preview__icon { 
-            background: var(--thermal-slate-dark); 
-            color: var(--thermal-background); 
-            border-radius: var(--thermal-radius); 
-            aspect-ratio: 160 / 120; 
-
-            display: flex !important; 
-            align-items: center; 
-            justify-content: center; 
-
-            thermal-icon {
-                display: block;
-                width: 2em;
-                height: 2em;
-            }
-        }
-
-        .file-preview__preview {
-            position: relative;
-        }
-    
-        .file-preview__info { 
-            display: flex; 
-            flex-direction: column; 
-            gap: .2em; 
-            font-size: .8em;
-
-            & > *:not(.file-preview__label) {
-                opacity: .5;
-            }
-        }
-        .file-preview__label { 
-            font-size: 1.2em; 
-            font-weight: 500; 
-        }
-        .file-preview__name {
-            max-width: 10em; /* nebo jiná vhodná šířka */
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            display: block;
-        }
-        .file-remove-btn { 
-            position: absolute; 
-            top: -4px; 
-            left: -4px; 
-            cursor: pointer;
-            --padding: .3em;
-        }
-
-        .missing-file-dropzone { 
-            aspect-ratio: 160 / 120; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: 2px dotted var(--thermal-slate); 
-            border-radius: var(--thermal-radius); 
-            cursor: pointer; 
-            transition: all .2s; 
-            font-size: var(--thermal-fs-sm); 
-            color: var(--thermal-slate-dark); 
-            text-align: center; 
-
-            thermal-icon {
-                display: block;
-                width: 1em;
-                height: 1em;
-            }
-        }
-        .missing-file-dropzone.drag-over, 
-        .missing-file-dropzone:hover { 
-            border-color: var(--thermal-primary); 
-            background: #fff; 
-        }
-
-        .file-remove-btn thermal-btn, 
-        .group-remove-btn thermal-btn { 
-            pointer-events: auto; 
-        }
-
-        .group-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 1em; 
-        }
-
-        .unmatched-files { 
-            margin-top: var(--thermal-gap);
-
-            thermal-expandable {
-                --font-size: .9em;
-            }
-
-            h2 {
-                margin: 0;
-                font-size: 1em;
-            }
-
-            p:last-child,
-            li::last-child {
-                margin-bottom: 0;
-            }
-
-            table {
-                img {
-                    width: 5em;
-                    height: auto;
-                }
-                td {
-                    padding-right: .5em;
-                }
-            }
-
-        }
-
-        .bottom-dropzone-wrapper { 
-            margin-top: 2em; 
-        }
-
-        .info, .error { 
-            border-radius: var(--thermal-radius); 
-            padding: calc(var(--thermal-gap) * .5); 
-            margin-top: var(--thermal-gap); 
-            font-size: calc(var(--thermal-fs) * .9); 
-        }
-        .info { 
-            background: var(--thermal-primary-light,#eef); 
-            border:1px var(--thermal-border-style)var(--thermal-primary,#00f); 
-            color: var(--thermal-primary-dark,#008); 
-        }
-        .error { 
-            background: var(--thermal-danger-light,#fee); 
-            border:1px var(--thermal-border-style)var(--thermal-danger,#f00); 
-            color: var(--thermal-danger-dark,#800); 
-        }
-    `;
-	}
-	async handleSubmit() {
-		if (this.pairedFiles.length === 0) {
-			this.errorMessage = "Vyberte alespoň jeden .lrc soubor";
-			return false;
-		}
-		this.errorMessage = "";
-		try {
-			const uploadPromises = this.pairedFiles.map(async (pair) => {
-				const upload = this.client.routes.post.uploadFile(this.folder.path, pair.lrc);
-				if (pair.visual) upload.setVisual(pair.visual);
-				if (pair.preview) upload.setPreview(pair.preview);
-				const result = await upload.execute();
-				if (!result?.success) throw new Error(`Nepodařilo se nahrát soubor ${pair.lrc.name}: ${result?.message}`);
-				return pair.lrc;
-			});
-			const uploadedFiles = await Promise.all(uploadPromises);
-			if (this.onSuccess) this.onSuccess(uploadedFiles);
-			this.clearAllFiles();
-			return true;
-		} catch (error) {
-			this.errorMessage = error instanceof Error ? error.message : "Nepodařilo se nahrát soubory";
-			return false;
-		}
-	}
-	addFiles(newFiles) {
-		if (!newFiles || newFiles.length === 0) return;
-		const newArray = Array.from(newFiles);
-		const hasNewLrc = newArray.some((f) => f.name.toLowerCase().endsWith(".lrc"));
-		if (!this.allFiles.some((f) => f.name.toLowerCase().endsWith(".lrc")) && !hasNewLrc) {
-			this.infoMessage = "Je třeba nahrávat primárně LRC soubory! PNG obrázky jsou jejich volitelný doplněk.";
-			setTimeout(() => {
-				this.infoMessage = "";
-			}, 4500);
-			return;
-		}
-		this.infoMessage = "";
-		const unique = newArray.filter((nf) => !this.allFiles.some((ef) => ef.name === nf.name && ef.size === nf.size));
-		this.allFiles = [...this.allFiles, ...unique];
-		this.pairFiles();
-	}
-	handleMainFileChange(e) {
-		const input = e.target;
-		this.addFiles(input.files);
-		input.value = "";
-	}
-	handleInlineFileChange(e, lrcFile, type) {
-		const input = e.target;
-		if (input.files && input.files.length > 0) {
-			const original = input.files[0];
-			const base = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = base.includes("_thermal") ? base.substring(0, base.lastIndexOf("_thermal")) : base;
-			const fileName = type === "visual" ? `${key}_visual.png` : `${key}_image_thermal.png`;
-			const renamed = new File([original], fileName, { type: original.type });
-			this.addFiles({
-				0: renamed,
-				length: 1,
-				item: (i) => i === 0 ? renamed : null
-			});
-		}
-		input.value = "";
-	}
-	clearAllFiles() {
-		this.pairedFiles.forEach((pair) => {
-			if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
-			if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
-			if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
-		});
-		this.unmatchedPngs.forEach((unmatched) => URL.revokeObjectURL(unmatched.url));
-		this.allFiles = [];
-		this.pairedFiles = [];
-		this.unmatchedPngs = [];
-	}
-	removePairedGroup(lrcFileToRemove) {
-		const group = this.pairedFiles.find((p) => p.lrc === lrcFileToRemove);
-		if (!group) return;
-		const toRemove = new Set([group.lrc]);
-		if (group.visual) toRemove.add(group.visual);
-		if (group.preview) toRemove.add(group.preview);
-		this.allFiles = this.allFiles.filter((f) => !toRemove.has(f));
-		this.pairFiles();
-	}
-	removePairedFile(file) {
-		this.allFiles = this.allFiles.filter((f) => f !== file);
-		this.pairFiles();
-	}
-	removeUnmatchedPng(pngFileToRemove) {
-		this.allFiles = this.allFiles.filter((f) => f !== pngFileToRemove);
-		this.pairFiles();
-	}
-	pairFiles() {
-		this.pairedFiles.forEach((pair) => {
-			if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
-			if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
-			if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
-		});
-		this.unmatchedPngs.forEach((unmatched) => URL.revokeObjectURL(unmatched.url));
-		const lrcFiles = this.allFiles.filter((file) => file.name.toLowerCase().endsWith(".lrc"));
-		const pngFiles = this.allFiles.filter((file) => file.name.toLowerCase().endsWith(".png"));
-		const paired = [];
-		const usedPngs = /* @__PURE__ */ new Set();
-		lrcFiles.forEach((lrcFile) => {
-			const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = lrcBaseName.includes("_thermal") ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf("_thermal")) : lrcBaseName;
-			const visualKey = `${key}_visual`;
-			const previewKey = `${key}_image_thermal`;
-			const visualFile = pngFiles.find((png) => !usedPngs.has(png) && png.name.replace(/\.png$/i, "").startsWith(visualKey));
-			const previewFile = pngFiles.find((png) => !usedPngs.has(png) && png.name.replace(/\.png$/i, "").startsWith(previewKey));
-			const pair = {
-				lrc: lrcFile,
-				lrcUrl: URL.createObjectURL(lrcFile)
-			};
-			if (visualFile) {
-				pair.visual = visualFile;
-				pair.visualUrl = URL.createObjectURL(visualFile);
-				usedPngs.add(visualFile);
-			}
-			if (previewFile) {
-				pair.preview = previewFile;
-				pair.previewUrl = URL.createObjectURL(previewFile);
-				usedPngs.add(previewFile);
-			}
-			paired.push(pair);
-		});
-		this.pairedFiles = paired;
-		this.unmatchedPngs = pngFiles.filter((png) => !usedPngs.has(png)).map((file) => ({
-			file,
-			url: URL.createObjectURL(file)
-		}));
-	}
-	handleZoneDragOver(e) {
-		e.preventDefault();
-		e.currentTarget.classList.add("drag-over");
-	}
-	handleZoneDragLeave(e) {
-		e.preventDefault();
-		e.currentTarget.classList.remove("drag-over");
-	}
-	handleMainDrop(e) {
-		e.preventDefault();
-		e.currentTarget.classList.remove("drag-over");
-		this.addFiles(e.dataTransfer?.files ?? null);
-	}
-	handleInlineDrop(e, lrcFile, type) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.currentTarget.classList.remove("drag-over");
-		const files = e.dataTransfer?.files;
-		if (files && files.length > 0) {
-			const original = files[0];
-			const base = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = base.includes("_thermal") ? base.substring(0, base.lastIndexOf("_thermal")) : base;
-			const fileName = type === "visual" ? `${key}_visual.png` : `${key}_image_thermal.png`;
-			const renamed = new File([original], fileName, { type: original.type });
-			this.addFiles({
-				0: renamed,
-				length: 1,
-				item: (i) => i === 0 ? renamed : null
-			});
-		}
-	}
-	openFileSelector(id) {
-		this.shadowRoot?.getElementById(id)?.click();
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.clearAllFiles();
-	}
-	render() {
-		const label = this.label ?? (0, i18next.t)(T.uploadafile);
-		if (!this.isLoggedIn || !this.folder.may_manage_files_in) return lit.nothing;
-		return lit.html`<thermal-dialog
-            .label="${this.tooltip ? this.tooltip : this.label}"
-            .beforeClose=${() => this.handleSubmit()}
-            button=${(0, i18next.t)(T.upload)}
-        >
-            <slot name="invoker" slot="invoker">
-                <thermal-btn 
-                    size="md" 
-                    .variant=${this.variant}
-                    plain=${this.plain ? true : false}
-                    icon="upload" 
-                    iconStyle="micro"
-                    .tooltip=${this.tooltip ?? ""}
-                >${label}</thermal-btn>
-            </slot>
-            <div class="content" slot="content">
-                ${this.renderInitialDropzone()}
-                ${this.infoMessage ? lit.html`<div class="info">${this.infoMessage}</div>` : lit.nothing}
-                ${this.renderPreview()}
-                ${this.pairedFiles.length + this.unmatchedPngs.length > 0 ? this.renderBottomDropzone() : lit.nothing}
-                ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : lit.nothing}
-            </div>
-            ${this.pairedFiles.length > 0 ? lit.html`<thermal-btn
-                    slot="button"
-                    @click=${() => this.clearAllFiles()}
-                >Zrušit výběr</thermal-btn>` : lit.nothing}
-        </thermal-dialog>`;
-	}
-	renderInitialDropzone() {
-		if (this.allFiles.length > 0) return lit.nothing;
-		return lit.html`<div 
-            class="stage-upload"
-            @click=${() => this.openFileSelector("dialog-main-input")}
-            @dragenter=${(e) => this.handleZoneDragOver(e)}
-            @dragover=${(e) => this.handleZoneDragOver(e)}
-            @dragleave=${(e) => this.handleZoneDragLeave(e)}
-            @drop=${(e) => this.handleMainDrop(e)}
-        >
-            <label for="dialog-main-input">
-                <div>Vyberte či přetáhněte sem LRC soubory a odpovídající PNG obrázky.</div>
-                <thermal-btn variant="primary" icon="upload" iconStyle="micro">Vybrat soubory</thermal-btn>
-            </label>
-            <input id="dialog-main-input" type="file" multiple accept=".lrc,.png" @change=${this.handleMainFileChange} />
-        </div>`;
-	}
-	renderPreview() {
-		if (this.pairedFiles.length === 0 && this.unmatchedPngs.length === 0) return lit.nothing;
-		const lrcCount = this.pairedFiles.length;
-		const pngCount = this.pairedFiles.reduce((state, current) => {
-			return state + (current.visual ? 1 : 0) + (current.preview ? 1 : 0);
-		}, 0);
-		let titleSuffix = `${lrcCount}x LRC`;
-		if (pngCount > 0) titleSuffix += ` + ${pngCount}x PNG`;
-		return lit.html`<div class="paired-files">
-            <h3 class="stage-label">Soubory k uploadu <small>${titleSuffix}</small></h3>
-            ${this.renderPairedTable()}
-            ${this.renderUnmatchedFiles()}
-        </div>`;
-	}
-	renderPairedTable() {
-		if (this.pairedFiles.length === 0) return lit.nothing;
-		return lit.html`<table class="paired-files-table"><tbody>
-            ${this.pairedFiles.map((p, i) => this.renderPairedRow(p, i))}
-        </tbody></table>`;
-	}
-	renderPairedRow(pair, index) {
-		return lit.html`<tr class="paired-file-group paired-file-group__header">
-            <td colspan="4">
-                <div class="group-header">
-                    <span>${index + 1}. snímek</span>
-                    <thermal-btn variant="default" plain="true" icon="close" iconStyle="micro" tooltip="Odstranit celou skupinu" @click=${() => this.removePairedGroup(pair.lrc)}></thermal-btn>
-                </div>
-            </td>
-        </tr>
-        <tr class="paired-file-group">
-            <td></td>
-            <td>${this.renderFilePreview("LRC termogram", pair.lrc)}</td>
-            <td>${this.renderFilePreview("Snímek ve viditelném spektru", pair.visual, pair.lrc, "visual", pair.visualUrl)}</td>
-            <td>${this.renderFilePreview("Printscreen displeje termokamery", pair.preview, pair.lrc, "preview", pair.previewUrl)}</td>
-        </tr>`;
-	}
-	renderFilePreview(label, file, lrcContext, type, url) {
-		if (!file) {
-			const inputId = `dialog-inline-${lrcContext.name}-${type}`;
-			return lit.html`<div class="file-preview file-preview__has-file">
-                <div class="file-preview__preview">
-                    <div class="missing-file-dropzone"
-                        @click=${() => this.openFileSelector(inputId)}
-                        @dragenter=${(e) => this.handleZoneDragOver(e)}
-                        @dragover=${(e) => e.preventDefault()}
-                        @dragleave=${(e) => this.handleZoneDragLeave(e)}
-                        @drop=${(e) => this.handleInlineDrop(e, lrcContext, type)}>
-                        <thermal-icon icon="upload" variant="micro"></thermal-icon>
-                        <input id=${inputId} type="file" accept=".png" @change=${(e) => this.handleInlineFileChange(e, lrcContext, type)} />
-                    </div>
-                </div>
-                <div class="file-preview__info">
-                    <div class="file-preview__label">${label}</div>
-                    <div class="file-preview__name">Volitelně nahrajte ${type} obrázek.</div>
-                </div>
-            </div>`;
-		}
-		const kb = (file.size / 1024).toFixed(2);
-		const isImg = file.name.toLowerCase().endsWith(".png");
-		return lit.html`<div class="file-preview file-preview__has-file">
-            <div class="file-preview__preview">${isImg && url ? lit.html`<img src=${url} alt="File preview" />` : isImg ? lit.html`<div class="file-preview__icon"><thermal-icon icon="image" variant="outline"></thermal-icon></div>` : lit.html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`}${type === "visual" || type === "preview" || label.toLowerCase().includes("lrc") ? lit.html`<thermal-btn class="file-remove-btn" variant="primary" plain="true" size="sm" icon="close" iconStyle="micro" tooltip="${(0, i18next.t)(T.remove)}" @click=${() => this.removePairedFile(file)}></thermal-btn>` : lit.nothing}</div>
-            <div class="file-preview__info">
-                <div class="file-preview__label">${label}</div>
-                <div class="file-preview__name">${file.name}</div>
-                <div class="file-preview__size">${kb} kB</div>
-            </div>
-        </div>`;
-	}
-	renderUnmatchedFiles() {
-		if (this.unmatchedPngs.length === 0) return lit.nothing;
-		return lit.html`<div class="unmatched-files">
-
-            <thermal-expandable
-                label="${`${this.pairedFiles.length === 0 ? "Nerozpoznané obrázky" : "Další nespárované obrázky"} (${this.unmatchedPngs.length}) nebudou nahrány`}"
-                variantExpanded="foreground"
-                closeIcon="true"
-                icon="info"
-                iconStyle="outline"
-                tooltip="Obrázky PNG, které se nám dle jejich jména nepodařilo spárovat s žádným LRC souborem"
-            >
-
-                <table><tbody>
-                    ${this.unmatchedPngs.map((u) => lit.html`<tr class="file-item">
-                        <td>
-                            <thermal-btn 
-                                variant="background"
-                                plain="true" 
-                                icon="close" 
-                                iconStyle="micro" 
-                                tooltip="${(0, i18next.t)(T.remove)}" 
-                                @click=${() => this.removeUnmatchedPng(u.file)}></thermal-btn>
-                        </td>
-                        <td>
-                            <img src=${u.url} alt="Unmatched file preview" />
-                        </td>
-                        <td>${u.file.name}</td>
-                    </tr>`)}
-                </tbody></table>
-
-                <thermal-tip
-                    variant="info"
-                    style="--font-size: 1em; margin-top: 1em;"
-                >
-                    <h2>Jak párujeme soubory</h2>
-                    <p>Termokamery TIMI Edu od roku 2024 ukládají soubory v tomto formátu:</p>
-                    <ul>
-                        <li><strong>[datum]_thermal.lrc</strong> - klíčový termogram, který potřebujeme</li>
-                        <li><strong>[datum]_visual.png</strong> - snímek ve viditelném spektru (volitelný)</li>
-                        <li><strong>[datum]_image_thermal.png</strong> - printscreen displeje termokamery (volitelný, v online aplikaci nemá žádné užití)</li>
-                    </ul>
-                    <p>Co jsme schopni spárovat:</p>
-                    <ul>
-                        <li><strong>[datum]</strong>_cokolivdalsiho<strong>_thermal</strong>_neco<strong>.lrc</strong></li>
-                        <li><strong>[datum]</strong>_neco_jineho<strong>_visible.png</strong></li>
-                        <li><strong>[datum]</strong>_zase_neco_jineho_<strong>_image_thermal</strong> (1)<strong>.png</strong></li>
-                    </ul>
-                    <p>Pokud jsou Vaše soubory pojmenovány jinak, můžete k LRC snímkům přiřadit PNG soubory ručně v tabulce výše.</p>
-                </thermal-tip>
-            
-            </thermal-expandable>
-
-            
-        </div>`;
-	}
-	renderBottomDropzone() {
-		return lit.html`<div class="bottom-dropzone-wrapper">
-            <div class="stage-upload"
-                @click=${() => this.openFileSelector("dialog-bottom-input")}
-                @dragenter=${(e) => this.handleZoneDragOver(e)}
-                @dragover=${(e) => this.handleZoneDragOver(e)}
-                @dragleave=${(e) => this.handleZoneDragLeave(e)}
-                @drop=${(e) => this.handleMainDrop(e)}
-            >
-                <label for="dialog-bottom-input">
-                    <div>Přidat další soubory LRC či PNG</div>
-                    <thermal-btn variant="primary" icon="upload" iconStyle="micro">Vybrat soubory</thermal-btn>
-                </label>
-                <input id="dialog-bottom-input" type="file" multiple accept=".lrc,.png" @change=${this.handleMainFileChange} />
-            </div>
-        </div>`;
-	}
-	shouldRenderDialog() {
-		if (!this.isLoggedIn || !this.identity || !this.folder || !this.folder.may_manage_files_in) return false;
-		return true;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$42 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$42 : Object)], FolderUploadDialog.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FolderUploadDialog.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadDialog.prototype, "allFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadDialog.prototype, "pairedFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadDialog.prototype, "unmatchedPngs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FolderUploadDialog.prototype, "isDragging", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderUploadDialog.prototype, "infoMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderUploadDialog.prototype, "onSuccess", void 0);
-FolderUploadDialog = __decorate([(0, lit_decorators_js.customElement)("folder-upload-dialog")], FolderUploadDialog);
-
-//#endregion
-//#region src/connection/components/folder/crud/FolderUploadForm.ts
-var _ref$41;
-let FolderUploadForm = class FolderUploadForm extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.label = (0, i18next.t)(T.upload);
-		this.variant = "primary";
-		this.errorMessage = "";
-		this.plain = false;
-		this.allFiles = [];
-		this.pairedFiles = [];
-		this.unmatchedPngs = [];
-		this.isDragging = false;
-		this.infoMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            font-size: var(--thermal-fs);
-            color: var(--thermal-foreground);
-        }
-
-        .stage {
-
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap);
-            box-sizing: border-box;
-            position: relative;
-        
-        }
-
-        .drop-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 100, 255, 0.1);
-            border: 2px dashed var(--thermal-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            font-size: var(--thermal-fs-lg);
-            color: var(--thermal-primary);
-            z-index: 10;
-        }
-
-        .stage-label {
-            font-weight: bold;
-            margin: 0;
-            padding: 0;
-            padding-bottom: .5em;
-            font-size: 1.3em;
-            line-height: 1.2em;
-
-            small {
-                font-size: 1em;
-                display: inline-block;
-                opacity: .5;
-                font-weight: normal;
-            }
-        }
-
-        .stage-close {
-            float: right;
-        }
-
-        .stage-preview {
-
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 3em;
-        
-        }
-
-        .stage-preview__actions {
-
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-            align-items: stretch;
-            justify-content: stretch;
-        
-        }
-
-        .stage-upload {
-        
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-
-            text-align: center;
-            border: 2px dotted var(--thermal-slate);
-            border-radius: var( --thermal-radius );
-            
-            cursor: pointer;
-
-            transition: all .2s;
-
-            label {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 1em;
-            }
-
-            thermal-button {
-                pointer-events: none;
-            }
-        
-        }
-        .stage-upload:hover {
-            border-color: var(--thermal-primary);
-            background: var(--thermal-background);
-        }
-
-        .stage-upload--inline {
-            margin-top: var(--thermal-gap);
-            min-height: 120px;
-        }
-
-        /* Highlight only the specific dropzone under drag */
-        .stage-upload.drag-over,
-        .missing-file-dropzone.drag-over {
-            border-color: var(--thermal-primary);
-            background: rgba(0, 100, 255, 0.1);
-        }
-
-        label {
-            display: block;
-            width: 100%;
-            cursor: pointer;
-        }
-
-        input[type="file"] {
-            display: none;
-        }
-
-        .file-item {
-            font-size: calc(var(--thermal-fs) * 0.9);
-            margin-bottom: calc(var(--thermal-gap) * 0.25);
-            display: flex;
-            align-items: center;
-            gap: 1em;
-        }
-
-        .file-item img {
-            max-width: 60px;
-            max-height: 60px;
-            border-radius: var(--thermal-radius);
-            object-fit: cover;
-        }
-
-        .paired-file-group {
-            background: var(--thermal-slate-light);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap-half);
-            margin-top: var(--thermal-gap-half);
-        }
-
-        .paired-file-group strong {
-            display: block;
-            margin-bottom: var(--thermal-gap-quarter);
-        }
-
-        .group-remove-btn {
-
-            user-select: none;
-        }
-        .group-remove-btn:hover { background: var(--thermal-danger); }
-
-        .unmatched-files {
-
-            margin-top: var(--thermal-gap);
-
-            thermal-expandable {
-                --font-size: .9em;
-            }
-
-            h2 {
-                margin: 0;
-                font-size: 1em;
-            }
-
-            p:last-child,
-            li::last-child {
-                margin-bottom: 0;
-            }
-
-        }
-
-        .info {
-            background: var(--thermal-primary-light, #eef);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-primary, #00f);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-primary-dark, #008);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-
-        .paired-files-table {
-
-            width: 100%;
-            border-collapse: collapse;
-
-            td:not(:first-child), 
-            th:not(:first-child) {
-                width: calc(100% / 3);
-            }
-
-            img, file-canvas {
-                display: block;
-                max-width: 100%;
-                height: auto;
-            }
-
-            .paired-file-group {
-            
-                td {
-                    padding: .5em;
-                    vertical-align: top;
-                }
-
-                .centered {
-                    display: flex;
-                    align-items: center;
-                    gap: 1em;
-                }
-
-
-                &.paired-file-group__header {
-
-                    td {
-                        vertical-align: middle;
-                        border-radius: var(--thermal-radius);
-                        background: var( --thermal-background );
-                    }
-
-                    thermal-icon {
-                        display: inline-block;
-                        width: 1.5em;
-                        height: 1.5em;
-                    }
-
-                    .file-name {
-                        font-weight: bold;
-                        margin-left: var( --thermal-gap-half );
-                    }
-
-                }
-            
-            }
-
-            .spacer-row {
-                td {
-                    height: 1em;
-                }
-            }
-
-        }
-
-
-.file-preview {
-
-    display: grid;
-    grid-template-columns: 5em 1fr;
-    gap: .5em;
-    position: relative;
-
-    .missing-file-dropzone,
-    .file-preview__icon,
-    img {
-        
-        max-width: 5em;
-        height: auto;
-    }
-
-    .missing-file-dropzone {
-        aspect-ratio: 160 / 120;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    img {
-        display: block;
-    }
-
-}
-
-.file-preview__icon {
-
-    color: var( --thermal-background );
-    background: var( --thermal-slate-dark );
-    border-radius: var( --thermal-radius );
-
-    box-sizing: border-box;
-
-    aspect-ratio: 160 / 120;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    thermal-icon {
-        width: 1.5em;
-        height: 1.5em;
-        display: block;
-    }
-    
-}
-
-.file-preview__empty {
-    .file-preview__icon {
-        background: transparent;
-        color: var( --thermal-slate );
-        border: var(--thermal-border-width) dashed var( --thermal-slate );
-    }
-}
-
-
-.file-preview__info {
-    display: flex;
-    flex-direction: column;
-    gap: .2em;
-}
-
-.file-preview__info > div {
-    font-size: .7em;
-    color: var( --thermal-slate-dark );
-}
-
-.file-preview__label {
-    font-size: var( --thermal-fs ) !important;
-    color: var( --thermal-foreground );
-}
-
-.missing-file-dropzone {
-    font-size: var(--thermal-fs-sm);
-    color: var(--thermal-slate-dark);
-    text-align: center;
-
-    border-radius: var(--thermal-radius);
-    border: 2px dotted var(--thermal-slate);
-
-    cursor: pointer;
-    
-    transition: all .2s;
-
-    thermal-icon {
-        display: block;
-        width: 1.5em;
-        height: 1.5em;
-        user-select: none;
-        pointer-events: none;
-    }
-}
-.missing-file-dropzone:hover {
-    border-color: var(--thermal-primary);
-    background: #fff;
-}
-
-.remove-btn {
-    margin-left: auto;
-    cursor: pointer;
-}
-
-.file-remove-btn {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    cursor: pointer;
-    user-select: none;
-    transition: background .15s ease;
-}
-
-
-    `;
-	}
-	async handleSubmit() {
-		if (this.pairedFiles.length === 0) {
-			this.errorMessage = "Vyberte alespoň jeden .lrc soubor";
-			return false;
-		}
-		this.errorMessage = "";
-		try {
-			const uploadPromises = this.pairedFiles.map(async (pair) => {
-				const upload = this.client.routes.post.uploadFile(this.folder.path, pair.lrc);
-				if (pair.visual) upload.setVisual(pair.visual);
-				if (pair.preview) upload.setPreview(pair.preview);
-				const result = await upload.execute();
-				if (!result?.success) throw new Error(`Nepodařilo se nahrát soubor ${pair.lrc.name}: ${result?.message}`);
-				return pair.lrc;
-			});
-			const uploadedFiles = await Promise.all(uploadPromises);
-			if (this.onSuccess) this.onSuccess(uploadedFiles);
-			this.clearAllFiles();
-			return true;
-		} catch (error) {
-			this.errorMessage = error instanceof Error ? error.message : "Nepodařilo se nahrát soubory";
-			return false;
-		}
-	}
-	addFiles(newFiles) {
-		if (!newFiles || newFiles.length === 0) return;
-		const newFilesArray = Array.from(newFiles);
-		const hasNewLrc = newFilesArray.some((file) => file.name.toLowerCase().endsWith(".lrc"));
-		if (!this.allFiles.some((file) => file.name.toLowerCase().endsWith(".lrc")) && !hasNewLrc) {
-			this.infoMessage = "Je třeba nahrávat primárně LRC soubory! PNG obrázky jsou jejich volitelný doplněk.";
-			setTimeout(() => {
-				this.infoMessage = "";
-			}, 5e3);
-			return;
-		}
-		this.infoMessage = "";
-		const uniqueNewFiles = newFilesArray.filter((newFile) => !this.allFiles.some((existingFile) => existingFile.name === newFile.name && existingFile.size === newFile.size));
-		this.allFiles = [...this.allFiles, ...uniqueNewFiles];
-		this.pairFiles();
-	}
-	handleMainFileChange(event) {
-		const target = event.target;
-		this.addFiles(target.files);
-		target.value = "";
-	}
-	handleInlineFileChange(event, lrcFile, type) {
-		const target = event.target;
-		if (target.files && target.files.length > 0) {
-			const originalFile = target.files[0];
-			const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = lrcBaseName.includes("_thermal") ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf("_thermal")) : lrcBaseName;
-			const newFileName = type === "visual" ? `${key}_visual.png` : `${key}_image_thermal.png`;
-			const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
-			this.addFiles([renamedFile]);
-		}
-		target.value = "";
-	}
-	clearAllFiles() {
-		this.pairedFiles.forEach((pair) => {
-			if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
-			if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
-			if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
-		});
-		this.unmatchedPngs.forEach((unmatched) => URL.revokeObjectURL(unmatched.url));
-		this.allFiles = [];
-		this.pairedFiles = [];
-		this.unmatchedPngs = [];
-	}
-	removePairedGroup(lrcFileToRemove) {
-		const groupToRemove = this.pairedFiles.find((p) => p.lrc === lrcFileToRemove);
-		if (!groupToRemove) return;
-		const filesToRemove = [
-			groupToRemove.lrc,
-			groupToRemove.visual,
-			groupToRemove.preview
-		].filter(Boolean);
-		this.allFiles = this.allFiles.filter((f) => !filesToRemove.includes(f));
-		this.pairFiles();
-	}
-	removePairedFile(fileToRemove) {
-		this.allFiles = this.allFiles.filter((f) => f !== fileToRemove);
-		this.pairFiles();
-	}
-	removeUnmatchedPng(pngFileToRemove) {
-		this.allFiles = this.allFiles.filter((f) => f !== pngFileToRemove);
-		this.pairFiles();
-	}
-	pairFiles() {
-		this.pairedFiles.forEach((pair) => {
-			if (pair.lrcUrl) URL.revokeObjectURL(pair.lrcUrl);
-			if (pair.visualUrl) URL.revokeObjectURL(pair.visualUrl);
-			if (pair.previewUrl) URL.revokeObjectURL(pair.previewUrl);
-		});
-		this.unmatchedPngs.forEach((unmatched) => URL.revokeObjectURL(unmatched.url));
-		const lrcFiles = this.allFiles.filter((file) => file.name.toLowerCase().endsWith(".lrc"));
-		const pngFiles = this.allFiles.filter((file) => file.name.toLowerCase().endsWith(".png"));
-		const paired = [];
-		const usedPngs = /* @__PURE__ */ new Set();
-		lrcFiles.forEach((lrcFile) => {
-			const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = lrcBaseName.includes("_thermal") ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf("_thermal")) : lrcBaseName;
-			const visualKey = `${key}_visual`;
-			const previewKey = `${key}_image_thermal`;
-			const visualFile = pngFiles.find((png) => !usedPngs.has(png) && png.name.replace(/\.png$/i, "").startsWith(visualKey));
-			const previewFile = pngFiles.find((png) => !usedPngs.has(png) && png.name.replace(/\.png$/i, "").startsWith(previewKey));
-			const pair = {
-				lrc: lrcFile,
-				lrcUrl: URL.createObjectURL(lrcFile)
-			};
-			if (visualFile) {
-				pair.visual = visualFile;
-				pair.visualUrl = URL.createObjectURL(visualFile);
-				usedPngs.add(visualFile);
-			}
-			if (previewFile) {
-				pair.preview = previewFile;
-				pair.previewUrl = URL.createObjectURL(previewFile);
-				usedPngs.add(previewFile);
-			}
-			paired.push(pair);
-		});
-		this.pairedFiles = paired;
-		this.unmatchedPngs = pngFiles.filter((png) => !usedPngs.has(png)).map((file) => ({
-			file,
-			url: URL.createObjectURL(file)
-		}));
-	}
-	handleDragOver(e) {
-		e.preventDefault();
-		this.isDragging = true;
-	}
-	handleDragLeave(e) {
-		e.preventDefault();
-		this.isDragging = false;
-	}
-	handleDrop(e) {
-		e.preventDefault();
-		this.isDragging = false;
-		this.addFiles(e.dataTransfer?.files ?? null);
-	}
-	handleZoneDragOver(e) {
-		e.preventDefault();
-		e.currentTarget.classList.add("drag-over");
-	}
-	handleZoneDragLeave(e) {
-		e.preventDefault();
-		e.currentTarget.classList.remove("drag-over");
-	}
-	handleMainDrop(e) {
-		e.preventDefault();
-		e.currentTarget.classList.remove("drag-over");
-		this.addFiles(e.dataTransfer?.files ?? null);
-	}
-	handleInlineDrop(e, lrcFile, type) {
-		e.preventDefault();
-		e.stopPropagation();
-		e.currentTarget.classList.remove("drag-over");
-		const files = e.dataTransfer?.files;
-		if (files && files.length > 0) {
-			const originalFile = files[0];
-			const lrcBaseName = lrcFile.name.replace(/\.lrc$/i, "");
-			const key = lrcBaseName.includes("_thermal") ? lrcBaseName.substring(0, lrcBaseName.lastIndexOf("_thermal")) : lrcBaseName;
-			const newFileName = type === "visual" ? `${key}_visual.png` : `${key}_image_thermal.png`;
-			const renamedFile = new File([originalFile], newFileName, { type: originalFile.type });
-			this.addFiles([renamedFile]);
-		}
-	}
-	openFileSelector(id) {
-		this.shadowRoot?.getElementById(id)?.click();
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.clearAllFiles();
-	}
-	get hasFiles() {
-		return this.allFiles.length > 0;
-	}
-	get maySubmit() {
-		return this.pairedFiles.length > 0;
-	}
-	renderDropinArea() {
-		if (this.hasFiles) return lit.nothing;
-		return lit.html`<div 
-            class="stage-upload"
-            @click=${() => this.openFileSelector("main-file-input")}
-            @dragover=${(e) => this.handleZoneDragOver(e)}
-            @dragleave=${(e) => this.handleZoneDragLeave(e)}
-            @drop=${(e) => this.handleMainDrop(e)}
-        >
-            <label for="main-file-input">
-                <div>Vyberte či přetáhněte sem LRC soubory a případně odpovídající PNG obrázky.</div>
-                <thermal-btn
-                    variant="primary"
-                    icon="upload"
-                    iconStyle="micro"
-                >
-                    Vybrat soubory
-                </thermal-btn>
-            </label>
-            <input 
-                type="file" 
-                id="main-file-input"
-                @change=${this.handleMainFileChange}
-                multiple
-                accept=".lrc,.png"
-            />
-        </div>`;
-	}
-	renderFilePreview(label, file, lrcFileForContext, type) {
-		if (!file) {
-			const inputId = `inline-input-${lrcFileForContext.name}-${type}`;
-			return lit.html`
-            <div class="file-preview file-preview__has-file">
-                <div class="file-preview__preview">
-                    <div 
-                        class="missing-file-dropzone"
-                        @click=${() => this.openFileSelector(inputId)}
-                        @dragenter=${(e) => this.handleZoneDragOver(e)}
-                        @dragover=${(e) => e.preventDefault()}
-                        @dragleave=${(e) => this.handleZoneDragLeave(e)}
-                        @drop=${(e) => this.handleInlineDrop(e, lrcFileForContext, type)}
-                    >
-
-                        <thermal-icon icon="upload" variant="micro"></thermal-icon>
-
-                        <input 
-                            type="file" 
-                            id=${inputId}
-                            @change=${(e) => this.handleInlineFileChange(e, lrcFileForContext, type)}
-                            accept=".png"
-                        />
-                    </div>
-                </div>
-                <div class="file-preview__info">
-                    <div class="file-preview__label">${label}</div>
-                    <div class="file-preview__name">Můžete nahrát ${type} obrázek.</div>
-                </div>
-            </div>
-            `;
-		}
-		const kbsize = (file.size / 1024).toFixed(3);
-		const preview = file.name.toLowerCase().endsWith(".png") ? lit.html`<img src=${URL.createObjectURL(file)} alt="File preview" />` : lit.html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`;
-		return lit.html`<div class="file-preview file-preview__has-file">
-    ${type === "visual" || type === "preview" || label.toLowerCase().includes("lrc") ? lit.html`<thermal-btn 
-                class="file-remove-btn" 
-                tooltip="Odstranit" 
-                icon="close"
-                iconStyle="micro"
-                plain="true"
-                .variant="breadcrumb"
-                @click=${() => this.removePairedFile(file)}></thermal-btn>` : lit.nothing}
-    <div class="file-preview__preview">${preview}</div>
-    <div class="file-preview__info">
-        <div class="file-preview__label">${label}</div>
-        <div class="file-preview__name">${file.name}</div>
-        <div class="file-preview__size">${kbsize} kB</div>
-    </div>
-</div>`;
-	}
-	renderPairedFileRow(pair, index) {
-		return lit.html`
-<tr class="paired-file-group paired-file-group__header">
-    <td colspan="4">
-        <div style="display:flex;align-items:center;gap:1em;">
-            <span>${index + 1}. snímek</span>
-            <thermal-btn 
-            class="group-remove-btn" 
-            tooltip="Odstranit celou skupinu" 
-            icon="close"
-            iconStyle="micro"
-            plain="true"
-            @click=${() => this.removePairedGroup(pair.lrc)}></thermal-btn>
-        </div>
-    </td>
-</tr>
-<tr class="paired-file-group">
-    <td></td>
-    <td>${this.renderFilePreview("LRC termogram", pair.lrc)}</td>
-    <td>${this.renderFilePreview("Snímek ve viditelném spektru", pair.visual, pair.lrc, "visual")}</td>
-    <td>${this.renderFilePreview("Printscreen displeje termokamery", pair.preview, pair.lrc, "preview")}</td>
-</tr>`;
-	}
-	renderPairedFiles() {
-		if (this.pairedFiles.length === 0) return lit.nothing;
-		const lrcCount = this.pairedFiles.length;
-		const pngCount = this.pairedFiles.reduce((state, current) => {
-			return state + (current.visual ? 1 : 0) + (current.preview ? 1 : 0);
-		}, 0);
-		let titleSuffix = `${lrcCount}x LRC`;
-		if (pngCount > 0) titleSuffix += ` + ${pngCount}x PNG`;
-		return lit.html`
-<div class="paired-files">
-
-<h3 class="stage-label">Soubory k uploadu <small>${titleSuffix}</h3>
-
-<table class="paired-files-table">
-<tbody>
-${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
-</tbody>
-</table>
-
-</div>`;
-	}
-	renderUnmatchedFiles() {
-		if (this.unmatchedPngs.length === 0) return lit.nothing;
-		return lit.html`<div class="unmatched-files">
-
-    <thermal-expandable
-        label="${`${this.pairedFiles.length === 0 ? "Nespárované obrázky" : "Další nespárované obrázky"} (${this.unmatchedPngs.length}) nebudou nahrány`}"
-        icon="info"
-        iconStyle="outline"
-        variantExpanded="foreground"
-        closeIcon="true"
-    >
-
-        <div class="unmatched-files__list">
-
-            <table>
-                <tbody>
-                ${this.unmatchedPngs.map((item) => lit.html`
-            <tr class="file-item">
-                <td>
-                    <thermal-btn tooltip="${(0, i18next.t)(T.remove)}" plain="true" variant="background" icon="close" iconStyle="micro" @click=${() => this.removeUnmatchedPng(item.file)}></thermal-btn>
-                </td>
-                <td style="position:relative;">
-                    <img src=${item.url} alt="Unmatched file preview" />
-                </td>
-                <td>${item.file.name}</td>
-            </tr>`)}
-                </tbody>
-            </table>
-
-            <thermal-tip
-                variant="info"
-                style="--font-size: 1em; margin-top: 1em;"
-            >
-                <h2>Jak párujeme soubory</h2>
-                <p>Termokamery TIMI Edu od roku 2024 ukládají soubory v tomto formátu:</p>
-                <ul>
-                    <li><strong>[datum]_thermal.lrc</strong> - klíčový termogram, který potřebujeme</li>
-                    <li><strong>[datum]_visual.png</strong> - snímek ve viditelném spektru (volitelný)</li>
-                    <li><strong>[datum]_image_thermal.png</strong> - printscreen displeje termokamery (volitelný, v online aplikaci nemá žádné užití)</li>
-                </ul>
-                <p>Co jsme schopni spárovat:</p>
-                <ul>
-                    <li><strong>[datum]</strong>_cokolivdalsiho<strong>_thermal</strong>_neco<strong>.lrc</strong></li>
-                    <li><strong>[datum]</strong>_neco_jineho<strong>_visible.png</strong></li>
-                    <li><strong>[datum]</strong>_zase_neco_jineho_<strong>_image_thermal</strong> (1)<strong>.png</strong></li>
-                </ul>
-                <p>Pokud jsou Vaše soubory pojmenovány jinak, můžete k LRC snímkům přiřadit PNG soubory ručně v tabulce výše.</p>
-            </thermal-tip>
-
-        </div>
-    </thermal-expandable>
-
-</div>`;
-	}
-	renderErrorMessage() {
-		if (!this.errorMessage) return lit.nothing;
-		return lit.html`<div class="error">${this.errorMessage}</div>`;
-	}
-	renderSubmitButton() {
-		if (!this.hasFiles) return lit.nothing;
-		return lit.html`
-            <div style="display:flex;flex-direction:column;gap:1em;">
-                <thermal-btn
-                    @click=${() => this.handleSubmit()}
-                    disabled=${this.maySubmit ? "false" : "true"}
-                    .variant=${this.maySubmit ? "primary" : "foreground"}
-                    icon="upload"
-                    iconStyle="micro"
-                    size="lg"
-                >${this.label}</thermal-btn>
-                <thermal-btn
-                    @click=${() => {
-			this.clearAllFiles();
-		}}
-                    .variant="foreground"
-                    icon="close"
-                    iconStyle="micro"
-                    size="lg"
-                >Vybrat jiné soubory</thermal-btn>
-            </div>
-        `;
-	}
-	renderPreviewAndSubmit() {
-		if (!this.hasFiles) return lit.nothing;
-		return lit.html`<div class="stage stage-preview">
-    <div class="stage-preview__files">
-        ${this.renderPairedFiles()}
-        ${this.renderUnmatchedFiles()}
-    </div>
-    <div class="stage-preview__actions">
-        ${this.renderErrorMessage()}
-        ${this.renderSubmitButton()}
-    </div>
-</div>`;
-	}
-	renderBottomDropzone() {
-		return lit.html`
-            <div 
-                class="stage-upload stage-upload--bottom"
-                style="margin-top:2em;"
-                @click=${() => this.openFileSelector("bottom-file-input")}
-                @dragenter=${(e) => this.handleZoneDragOver(e)}
-                @dragover=${(e) => this.handleZoneDragOver(e)}
-                @dragleave=${(e) => this.handleZoneDragLeave(e)}
-                @drop=${(e) => this.handleMainDrop(e)}
-            >
-                <label for="bottom-file-input">
-                    <div>Přidat další soubory LRC či PNG</div>
-                    <thermal-btn
-                        variant="primary"
-                        icon="upload"
-                        iconStyle="micro"
-                    >Vybrat soubory</thermal-btn>
-                </label>
-                <input 
-                    type="file" 
-                    id="bottom-file-input"
-                    @change=${this.handleMainFileChange}
-                    multiple
-                    accept=".lrc,.png"
-                />
-            </div>
-        `;
-	}
-	render() {
-		this.label !== void 0 ? this.label : (0, i18next.t)(T.uploadafile);
-		if (!this.isLoggedIn || !this.folder.may_manage_files_in) return lit.nothing;
-		return lit.html`
-            <div>
-                ${this.renderDropinArea()}
-
-                ${this.infoMessage ? lit.html`<div class="info">${this.infoMessage}</div>` : ""}
-
-                ${this.renderPreviewAndSubmit()}
-                ${this.hasFiles ? this.renderBottomDropzone() : lit.nothing}
-            </div>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$41 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$41 : Object)], FolderUploadForm.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "prompt", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FolderUploadForm.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadForm.prototype, "allFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadForm.prototype, "pairedFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderUploadForm.prototype, "unmatchedPngs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], FolderUploadForm.prototype, "isDragging", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderUploadForm.prototype, "infoMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderUploadForm.prototype, "onSuccess", void 0);
-FolderUploadForm = __decorate([(0, lit_decorators_js.customElement)("folder-upload-form")], FolderUploadForm);
-
-//#endregion
-//#region src/connection/components/folder/files/FolderFiles.ts
-var _ref$40, _ref2$26;
-let FolderFiles = class FolderFiles extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onFileClick = () => {};
-		this.onChange = () => {};
-		this.onFileDelete = () => {};
-		this.icon = icons.image.outline("icon");
-		this.compact = false;
-		this.displayMode = DisplayMode.GRID;
-		this.syncAnalyses = false;
-		this.groupProviderRef = (0, lit_directives_ref_js.createRef)();
-	}
-	connectedCallback() {
-		super.connectedCallback();
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		this.propagateAnalysisSync(this.syncAnalyses);
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.groupProviderRef.value?.group.registry.onProcessingEnd.set(this.UUID, () => {
-			this.groupProviderRef.value?.group.registry.range.applyMinmax();
-		});
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.groupProviderRef.value?.group.registry.onProcessingEnd.delete(this.UUID);
-	}
-	propagateAnalysisSync(on) {
-		const provider = this.groupProviderRef.value;
-		if (provider) {
-			const group = provider.group;
-			const sync = group.analysisSync;
-			if (on !== sync.value) if (on) {
-				const firstFileWithAnalyses = group.files.value.find((instance) => instance.analysis.value.length > 0) ?? group.files.value[0] ?? void 0;
-				if (firstFileWithAnalyses) sync.turnOn(firstFileWithAnalyses);
-			} else sync.turnOff();
-		}
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            color: var(--thermal-foreground);
-            font-size: var(--thermal-fs);
-            display: block;
-        }
-
-
-        .list-label {
-
-            font-size: calc( var(--thermal-fs) * .8);
-            color: var(--thermal-slate);
-            line-height: 1;
-            margin: 0;
-            padding: 0;
-            font-weight: normal;
-            padding-bottom: calc(var(--thermal-gap) * 0.5);
-        
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 1em 1fr;
-            gap: 2em;
-            height: 100%;
-            position: relative;
-        }
-
-        .section__range {
-            grid-column: 1 / -1;
-        }
-
-        .section__tools {
-            grid-column: 1;
-            position: sticky;
-            top: 290px;
-            align-self: start;
-            z-index: 1000;
-        }
-
-        :host([displaymode="grid"]) {
-        
-            .section__files {
-                grid-column: 2;
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-                gap: 1em;
-            }
-        
-        }
-
-        :host([displaymode="table"]) {
-
-            .section__files {
-                grid-column: 2;
-                display: table;
-                border-spacing: 1em;
-                margin: -1em;
-            }
-            
-        }`;
-	}
-	renderFile(file) {
-		const callback = this.onFileClick !== void 0 ? () => this.onFileClick(file) : void 0;
-		return lit.html`<server-file-thumbnail
-    .file=${file}
-    .folder=${this.folder}
-    .onChange=${this.onChange}
-    .onFileDelete=${this.onFileDelete}
-    .onFileClick=${callback}
-></server-file-thumbnail>`;
-	}
-	render() {
-		if (this.files === void 0 || this.files.length === 0) return lit.nothing;
-		return lit.html`<group-provider slug="${this.slug}" autoclear="true" ${(0, lit_directives_ref_js.ref)(this.groupProviderRef)} batch="true">
-    <main class="layout">
-        <section class="section__tools">
-            <group-tool-bar></group-tool-bar>
-        </section>
-        <section class="section__files">
-            ${this.files?.map((subfolder) => this.renderFile(subfolder))}
-        </section>
-    </main>
-</group-provider>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderFiles.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$40 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$40 : Object)], FolderFiles.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", Array)], FolderFiles.prototype, "files", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderFiles.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderFiles.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderFiles.prototype, "onFileDelete", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FolderFiles.prototype, "compact", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: displayModeContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$26 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref2$26 : Object)
-], FolderFiles.prototype, "displayMode", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: syncAnalysisContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Boolean)], FolderFiles.prototype, "syncAnalyses", void 0);
-FolderFiles = __decorate([(0, lit_decorators_js.customElement)("folder-files")], FolderFiles);
-
-//#endregion
-//#region src/connection/components/folder/files/FolderRemoveAnalyses.ts
-var _ref$39, _ref2$25;
-let FolderRemoveAllAnalyses = class FolderRemoveAllAnalyses extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onChange = () => {};
-	}
-	render() {
-		return lit.html`<thermal-btn
-            icon="trash"
-            iconStyle="micro"
-            tooltip="Odstranit všechny analýzy z aktuálního zobrazení (nikoliv na serveru)."
-            @click=${() => {
-			this.log(this.group);
-			if (this.group !== void 0) {
-				this.log("removing analyses");
-				this.group.files.value.forEach((instance) => {
-					instance.analysis?.layers.all.forEach((analysis) => {
-						instance.analysis?.layers.removeAnalysis(analysis.key);
-					});
-				});
-			}
-		}}
-        >
-        </thermal-btn>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$39 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$39 : Object)], FolderRemoveAllAnalyses.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", Array)], FolderRemoveAllAnalyses.prototype, "files", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderRemoveAllAnalyses.prototype, "onChange", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: groupContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$25 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref2$25 : Object)], FolderRemoveAllAnalyses.prototype, "group", void 0);
-FolderRemoveAllAnalyses = __decorate([(0, lit_decorators_js.customElement)("folder-remove-analyses")], FolderRemoveAllAnalyses);
+})], ThermalGroupAppElement.prototype, "preservetime", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGroupAppElement.prototype, "state", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGroupAppElement.prototype, "detail", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalGroupAppElement.prototype, "loading", void 0);
+ThermalGroupAppElement = __decorate([(0, lit_decorators_js.customElement)("thermal-group-app")], ThermalGroupAppElement);
 
 //#endregion
 //#region src/connection/controllers/controllerContexts.ts
@@ -24837,6 +17716,62 @@ const ControlledContentContext = (0, _lit_context.createContext)("controlled-con
 const DisplayControllerContext = (0, _lit_context.createContext)("connected-display-controller");
 const FileSelectionControllerContext = (0, _lit_context.createContext)("connected-file-selection-controller");
 const FolderSelectionControllerContext = (0, _lit_context.createContext)("connected-folder-selection-controller");
+
+//#endregion
+//#region src/connection/controllers/abstraction/ControlledConsumer.ts
+var ControlledConsumer = class extends AbstractThermalElement {
+	disconnectedCallback() {
+		super.disconnectedCallback();
+		this.content.unsubscribeFromAll(this);
+		this.display.unsubscribeFromAll(this);
+	}
+};
+__decorate([(0, _lit_context.consume)({
+	context: ControlledClientContext,
+	subscribe: true
+})], ControlledConsumer.prototype, "client", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: ControlledContentContext,
+	subscribe: true
+})], ControlledConsumer.prototype, "content", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: DisplayControllerContext,
+	subscribe: true
+})], ControlledConsumer.prototype, "display", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: FileSelectionControllerContext,
+	subscribe: true
+})], ControlledConsumer.prototype, "selectionFile", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: FolderSelectionControllerContext,
+	subscribe: true
+})], ControlledConsumer.prototype, "selectionFolder", void 0);
+
+//#endregion
+//#region src/connection/controllers/abstraction/ConnectedProvider.ts
+let ConnectedProvider = class ConnectedProvider extends ControlledConsumer {
+	constructor(..._args) {
+		super(..._args);
+		this.counter = 0;
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.display.subscribeOnRecrteateContext(this, () => {
+			this.counter++;
+		});
+	}
+	updated(_changedProperties) {
+		super.updated(_changedProperties);
+	}
+	render() {
+		return lit.html`<div>
+            <p>Connected Provider</p>
+            <p>Navigate count: ${this.counter}</p>
+        </div>`;
+	}
+};
+__decorate([(0, lit_decorators_js.state)()], ConnectedProvider.prototype, "counter", void 0);
+ConnectedProvider = __decorate([(0, lit_decorators_js.customElement)("connected-provider")], ConnectedProvider);
 
 //#endregion
 //#region src/connection/controllers/AbstractConnectedController.ts
@@ -25740,6 +18675,130 @@ var DisplayController = class DisplayController extends AbstractConnectedControl
 };
 
 //#endregion
+//#region src/connection/controllers/apps/directives/layout/AbstractLayoutDirective.ts
+var AbstractLayoutDirective = class extends AbstractConnectedDirective {
+	static {
+		this.styles = lit.css`
+
+        .cLayout__header {
+            display: flex;
+            flex-direction: column;
+            gap: .5em;
+        }
+
+        .cLayout__content {
+            
+            width: 100%;
+            position: relative;
+            padding-top: .5em;
+
+            &.cLayout__content--with-toolbar {
+                display: grid;
+                grid-template-columns: 2em 1fr;
+                gap: 1em;
+            }
+
+        }
+
+        .clayout__content__toolbar {
+            position: relative;
+            & > * {
+                position: sticky;
+                top: 0px;
+            }
+        }
+
+        .clayout__content__inner {
+            width: 100%;
+            display: grid;
+            gap: 1em;
+            position: relative;
+        }
+
+        .cLayout__user_folders_list {
+            display: flex;
+            flex-direction: column;
+            gap: .5em;
+        }
+
+        .cLayout--user_folders {
+
+            margin-top: 1em;
+        
+            display: grid;
+            gap: 1em;
+
+            grid-template-columns: 1fr 200px;
+            grid-template-rows: auto;
+
+            dl {
+                dt {
+                    
+                }
+                dd {
+                    margin-left: 0;
+                    font-weight: bold;
+                    margin-bottom: 1em;
+                }
+            }
+
+            h2,
+            dt {
+                margin-bottom: .25em;
+                font-size: .8em;
+                color: var(--thermal-slate-dark);
+                text-transform: uppercase;
+                font-weight: normal;
+            }
+        
+        }
+    
+    `;
+	}
+	renderBreadcrumb(app) {
+		return lit.html`<connected-breadcrumb 
+            slot="pre"
+            .onFolderClick=${(folder) => app.display.navigateToFolderAndLoad(folder.path)}
+            .onUserClick=${() => app.display.navigateToUserFoldersAndLoad()}
+        ></connected-breadcrumb>`;
+	}
+	renderHeader(content) {
+		return lit.html`<header class="cLayout__header" slot="pre">${content}</header>`;
+	}
+	renderContent(hasToolbar = false, gridTemplateColumns, classes, content) {
+		return lit.html`<div class="cLayout__content ${hasToolbar ? "cLayout__content--with-toolbar" : ""}">
+            ${hasToolbar ? lit.html`<div class="clayout__content__toolbar" >
+                    <manager-tool-bar></manager-tool-bar>
+                </div>` : lit.nothing}
+            <div class="clayout__content__inner ${classes}" style="grid-template-columns: ${gridTemplateColumns}">
+                ${content}
+            </div>
+        </div>`;
+	}
+	renderThermalScaleSlot() {
+		return lit.html`<thermal-slot
+            label=${this.t("thermalscale")}
+        >
+            <manager-palette-dropdown></manager-palette-dropdown>
+            <registry-range-form></registry-range-form>
+        </thermal-slot>`;
+	}
+	renderLoading(message) {
+		return lit.html`<thermal-poster
+            .message=${message}
+        ></thermal-poster>`;
+	}
+	renderError(message) {
+		return lit.html`<thermal-poster
+            .message=${message}
+            icon="warning"
+            iconStyle="outline"
+            .loading=${false}
+        ></thermal-poster>`;
+	}
+};
+
+//#endregion
 //#region src/connection/controllers/FileSelectionController.ts
 /** Controls the selection inside the current app*/
 var FileSelectionController = class {
@@ -25949,4173 +19008,7 @@ var FolderSelectionController = class {
 };
 
 //#endregion
-//#region src/connection/controllers/abstraction/ControlledConsumer.ts
-var _ref$38, _ref2$24, _ref3$16, _ref4$7, _ref5$2;
-var ControlledConsumer = class extends BaseElement {
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.content.unsubscribeFromAll(this);
-		this.display.unsubscribeFromAll(this);
-	}
-};
-__decorate([(0, _lit_context.consume)({
-	context: ControlledClientContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$38 = typeof ClientController !== "undefined" && ClientController) === "function" ? _ref$38 : Object)], ControlledConsumer.prototype, "client", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: ControlledContentContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref2$24 = typeof ContentController !== "undefined" && ContentController) === "function" ? _ref2$24 : Object)], ControlledConsumer.prototype, "content", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: DisplayControllerContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3$16 = typeof DisplayController !== "undefined" && DisplayController) === "function" ? _ref3$16 : Object)], ControlledConsumer.prototype, "display", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: FileSelectionControllerContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref4$7 = typeof FileSelectionController !== "undefined" && FileSelectionController) === "function" ? _ref4$7 : Object)], ControlledConsumer.prototype, "selectionFile", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: FolderSelectionControllerContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$2 = typeof FolderSelectionController !== "undefined" && FolderSelectionController) === "function" ? _ref5$2 : Object)], ControlledConsumer.prototype, "selectionFolder", void 0);
-
-//#endregion
-//#region src/connection/components/folder/folders/AbstractFolderThumbnail.ts
-var _ref$37;
-var AbstractFolderThumbnail = class extends ControlledConsumer {
-	get internalSlug() {
-		return this.folder.path.replaceAll("/", "-").replaceAll(" ", "_") + "___thumbnail";
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-            font-size: var( --thermal-fs );
-            color: var( --thermal-foreground );
-        }
-
-        figure.folder-thumbnail {
-
-            display: block;
-            margin: 0;
-            padding: 0;
-
-        }
-
-        figure.folder-thumbnail.folder-thumbnail_lrc {
-
-            object-position: center center;
-
-            overflow: hidden;
-
-            manager-provider,
-            registry-provider,
-            group-provider,
-            file-provider {
-                display: contents;
-                
-            }
-
-            file-canvas {
-                display: block;
-                height: 100%;
-                width: auto;
-                pointer-events: none;
-            }
-
-            file-canvas::part(file-canvas-container),
-            file-canvas::part(thermal-canvas-wrapper) {
-                width: 100% !important;
-                height: 100% !important;
-                transition: all .2s ease-in-out;
-            }
-
-            file-canvas::part(thermal-file-canvas) {
-                display: block;
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                object-position: center center;
-            }
-
-        }
-
-        figure.folder-thumbnail.folder-thumbnail_image {
-
-            overflow: hidden;
-
-            img {
-                transition: all .2s ease-in-out;
-                object-fit: cover;
-                object-position: center center;
-                width: 100%;
-                height: 100%;
-
-            }
-
-        }
-
-        figure.folder-thumbnail.folder-thumbnail_icon {
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            thermal-icon {
-                transition: all .2s ease-in-out;
-                color: var( --thermal-slate );
-                width: 2em;
-                display: block;
-            }
-        
-        }
-
-
-        .counter-with-icon {
-            display: flex;
-            gap: .3em;
-            align-items: center;
-            thermal-icon {
-                display: block;
-                width: 1em;
-                transform: translateY(.1em);
-            }
-        }
-
-    `;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.addEventListener("click", this.handleActionClick.bind(this));
-	}
-	handleActionClick(event) {
-		event.stopPropagation();
-		const innerTarget = "originalTarget" in event ? event.originalTarget : event.target;
-		console.log(innerTarget);
-		if (innerTarget instanceof HTMLInputElement) {} else {
-			this.log(this.onClick);
-			this.onClick && this.onClick(this.folder);
-		}
-	}
-	renderCountWithIcon(count, icon, variant = "micro") {
-		if (count <= 0) return lit.nothing;
-		return lit.html`<div class="counter-with-icon">
-                <span>${count}x</span>
-                <thermal-icon icon=${icon} variant=${variant}></thermal-icon>
-            </div>`;
-	}
-	renderThumbnail() {
-		if (this.folder.thumb && this.shouldRenderThumbnailImage()) return this.renderThumbnailWrapper(this.renderThumbnailImage(this.folder.thumb, this.folder.name), "image");
-		if (this.folder.thumb && this.shouldRenderThumbnailLrc()) return this.renderThumbnailWrapper(this.renderThumbnailLrc(this.folder.thumb), "lrc");
-		return this.renderThumbnailWrapper(this.renderThumbnailIcon(), "icon");
-	}
-	shouldRenderThumbnailLrc() {
-		return this.folder.thumb?.toLowerCase().endsWith(".lrc") ?? false;
-	}
-	shouldRenderThumbnailImage() {
-		if (!this.folder.thumb) return false;
-		const lower = this.folder.thumb.toLowerCase();
-		return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".gif") || lower.endsWith(".webp");
-	}
-	renderThumbnailWrapper(content, typeClass) {
-		return lit.html`<figure class="folder-thumbnail folder-thumbnail_${typeClass}">${content}</figure>`;
-	}
-	renderThumbnailIcon() {
-		return lit.html`<thermal-icon icon="folder" variant="outline"></thermal-icon>`;
-	}
-	renderThumbnailImage(src, alt) {
-		return lit.html`<img src="${src}" alt="${alt}" />`;
-	}
-	renderThumbnailLrc(thermalUrl) {
-		return lit.html`<registry-provider
-            autoclear="true"
-            batch="true"
-            slug="${this.internalSlug}"
-        >
-            <group-provider 
-                slug="${this.internalSlug}"
-                autoclear="true"
-                batch="true"
-            >
-                <file-provider
-                    thermal="${thermalUrl}"
-                    batch="true"
-                    autoclear="true"
-                >
-                    <file-canvas></file-canvas>
-                </file-provider>
-            </group-provider>
-        </registry-provider>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$37 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$37 : Object)], AbstractFolderThumbnail.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractFolderThumbnail.prototype, "onClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], AbstractFolderThumbnail.prototype, "onUpdate", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], AbstractFolderThumbnail.prototype, "subfoldersCount", void 0);
-
-//#endregion
-//#region src/connection/components/folder/folders/FolderRow.ts
-let FolderRow = class FolderRow extends AbstractFolderThumbnail {
-	static {
-		this.styles = [AbstractFolderThumbnail.styles, lit.css`
-
-        :host {
-        
-            display: table-row;
-
-            cursor: pointer;
-
-            transition: all .2s ease-in-out;
-
-            filter: drop-shadow(0px 0px 1px var(--thermal-slate));
-
-            & > td {
-
-                display: table-cell;
-                vertical-align: middle;
-
-                min-width: 1em;
-                position: relative;
-
-                border-bottom: .5em var(--thermal-border-style)transparent;
-
-                background: var(--thermal-background);
-            
-
-                & > * {
-
-                    display: block;
-
-                    height: 100%;
-
-                    overflow: hidden;
-
-                }
-                
-
-                &:first-child {
-
-                    border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
-
-                    & > * {
-                        border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
-                    }
-
-                }
-
-                &:last-child {
-
-                    border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
-
-                    & > * {
-                        border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
-                    }
-
-                }
-            }
-
-        }
-
-        figure.folder-thumbnail.folder-thumbnail_icon {
-        
-            background: var( --thermal-slate );
-
-            thermal-icon {
-                color: var( --thermal-slate-light );
-            }
-        
-        }
-
-
-        :host(:hover) {
-
-            filter: drop-shadow( var( --thermal-shadow ) );
-
-            figure.folder-thumbnail.folder-thumbnail_icon thermal-icon {
-                color: var( --thermal-background );
-                scale: 1.1;
-            }
-
-            figure.folder-thumbnail.folder-thumbnail_lrc {
-            
-                file-canvas::part(file-canvas-container),
-                file-canvas::part(thermal-canvas-wrapper) {
-                    scale: 1.05;
-                }
-            
-            }
-
-            figure.folder-thumbnail.folder-thumbnail_image {
-            
-                img {
-                    scale: 1.05;
-                }
-            
-            }
-            
-        }
-
-        td {
-            padding: 0;
-        }
-
-        .cell-texts {
-
-            width: 50% !important;
-
-            min-width: 200px;
-            max-width: 500px;
-        
-        }
-
-        .texts {
-            padding: .5em 1em;
-            height: 100%;
-            box-sizing: border-box;
-            
-            h3 {
-                font-size: 1em;
-                margin: 0;
-            }
-            
-            .description,
-            .path {
-                margin-top: .5em;
-            }
-
-            .description { 
-                color: var(--thermal-slate); 
-                font-size: .8em;
-            }
-            .path { 
-                color: var(--thermal-slate); 
-                font-size: .7em;
-            }
-        }
-
-        .cell-thumbnail,
-        figure.folder-thumbnail {
-
-            height: 100px;
-            width: 120px;
-        
-        }
-
-        .cell-count {
-
-            width: 4em;
-
-            box-sizing: border-box;
-            padding: .5em;
-
-            vertical-align: middle !important;
-
-            color: var(--thermal-slate);
-            
-
-            & > div {
-                display: inline-block; 
-                
-            }
-        
-        }
-
-        .cell-actions {
-            text-align: right;
-            box-sizing: border-box;
-            padding: .5em 1em;
-
-            & > div {
-                display: inline-block;
-            }
-        }
-
-        
-
-    `];
-	}
-	render() {
-		const name = this.folder.name ?? this.folder.slug;
-		return lit.html`
-            <td class="cell cell-thumbnail">
-                ${this.renderThumbnail()}
-            </td>
-
-            <td class="cell cell-texts">
-                <div class="texts">
-                    <h3>${name}</h3>
-                    ${this.folder.description ? lit.html`<div class="description">${this.folder.description.substring(0, 80)}${this.folder.description.length > 80 ? "..." : ""}</div>` : lit.nothing}
-
-                    <div class="path">
-                        /${this.folder.path}
-                    </div>
-                </div>
-            </td>
-
-            <td class="cell cell-count">
-                <div>
-                    ${this.renderCountWithIcon(this.folder.lrc_count, "image")}
-                </div>
-            </td>
-
-            <td class="cell cell-count">
-                <div>
-                    ${this.renderCountWithIcon(this.subfoldersCount ?? 0, "folder")}
-                </div>
-            </td>
-
-            <td class="cell cell-actions" @click="${this.handleActionClick}">
-                <div>
-                    <slot name="actions"></slot>
-                </div>
-            </td>
-
-        `;
-	}
-};
-FolderRow = __decorate([(0, lit_decorators_js.customElement)("server-folder-row")], FolderRow);
-
-//#endregion
-//#region src/connection/components/folder/folders/FolderSubfolders.ts
-var _ref$36, _ref2$23;
-let FolderSubfolders = class FolderSubfolders extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.folderMode = FolderMode.LIST;
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            color: var(--thermal-foreground);
-        }
-
-        :host(  [foldermode="list-subfolders"] ) {
-            section {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 1em;
-                justify-content: start;
-            }
-        }
-
-        :host(  [foldermode="table-subfolders"] ) {
-            section {
-                display: table;
-                width: 100%;
-                border-collapse: collapse;
-                height: 1px;
-                border: 0;
-            }
-        }
-
-        
-
-        .list-label {
-
-            font-size: calc( var(--thermal-fs) * .8);
-            color: var(--thermal-slate);
-            line-height: 1;
-            margin: 0;
-            padding: 0;
-            font-weight: normal;
-            padding-bottom: calc(var(--thermal-gap) * 0.5);
-        
-        }
-    `;
-	}
-	renderSubfolder(info) {
-		if (this.folderMode === FolderMode.TABLE) return lit.html`<server-folder-row
-                .folder=${info}
-                @click=${() => this.onFolderClick && this.onFolderClick(info)}
-            ></server-folder-row>`;
-		return lit.html`<server-folder-thumbnail
-            .folder=${info}
-            @click=${() => this.onFolderClick && this.onFolderClick(info)}
-        >
-        </server-folder-thumbnail>`;
-	}
-	render() {
-		return lit.html`
-
-        <h2 class="list-label">
-            <span><strong>${this.subfolders?.length} složky</strong> ve složce <i>${this.folder?.name}</i>:</span>
-        </h2>
-
-
-        <section>
-            ${this.subfolders?.map((subfolder) => this.renderSubfolder(subfolder))}
-        </section>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", Array)], FolderSubfolders.prototype, "subfolders", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$36 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$36 : Object)], FolderSubfolders.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderSubfolders.prototype, "onFolderClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref2$23 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref2$23 : Object)], FolderSubfolders.prototype, "folderMode", void 0);
-FolderSubfolders = __decorate([(0, lit_decorators_js.customElement)("folder-subfolders")], FolderSubfolders);
-
-//#endregion
-//#region src/connection/components/folder/folders/FolderThumbnail.ts
-let FolderThumbnail = class FolderThumbnail extends AbstractFolderThumbnail {
-	static {
-		this.styles = [AbstractFolderThumbnail.styles, lit.css`
-
-        :host {
-        
-            display: grid;
-            grid-template-columns: 100px 1fr;
-
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-            overflow: hidden;
-
-            cursor: pointer;
-
-            transition: all .2s ease-in-out;
-
-        }
-
-        figure.folder-thumbnail.folder-thumbnail_icon {
-        
-            background: var( --thermal-slate );
-
-            thermal-icon {
-                color: var( --thermal-slate-light );
-            }
-        
-        }
-
-
-        :host(:hover) {
-
-            box-shadow: var( --thermal-shadow );
-            border-color: var( --thermal-slate-dark );
-
-            figure.folder-thumbnail.folder-thumbnail_icon thermal-icon {
-                color: var( --thermal-background );
-                scale: 1.1;
-            }
-
-            figure.folder-thumbnail.folder-thumbnail_lrc {
-            
-                file-canvas::part(file-canvas-container),
-                file-canvas::part(thermal-canvas-wrapper) {
-                    scale: 1.05;
-                }
-            
-            }
-
-            figure.folder-thumbnail.folder-thumbnail_image {
-            
-                img {
-                    scale: 1.05;
-                }
-            
-            }
-            
-        }
-
-        header {
-            
-            box-sizing: border-box;
-            width: 100%;
-            min-height: 75px;
-
-            padding: calc( var(--thermal-gap) * .5);
-            background: var( --thermal-background );
-
-            .header-top {
-                display: grid;
-                grid-template-columns: 1fr auto;
-                gap: calc( var(--thermal-gap) * .5 );
-
-                width: 100%;
-
-                .header-top-icons {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: flex-end;
-                    color: var( --thermal-slate );
-                }
-            }
-
-            .header-bottom {
-                display: flex;
-                justify-content: flex-start;
-                margin-top: auto;
-            }
-
-            h2 {
-                font-size: calc( var(--thermal-fs) * 1 );
-                margin: 0;
-                padding: 0;
-            }
-
-            .description {
-                margin-top: calc( var(--thermal-gap) * .25 );
-                font-size: calc( var(--thermal-fs) * 0.8 );
-                color: var( --thermal-slate );
-            }
-
-
-
-            .header-folder-icon {
-                display: block;
-                width: 1.4em;
-            }   
-
-        }
-
-        .counter-with-icon {
-            font-size: .8em;
-        }
-
-    `];
-	}
-	render() {
-		const name = this.folder.name ?? this.folder.slug;
-		return lit.html`
-
-            ${this.renderThumbnail()}
-
-            <header>
-                <div class="header-top">
-                    <div class="header-top-text">
-                        <h2>${name}</h2>
-                        <div class="description">${this.folder.description}</div>
-                    </div>
-                    <div class="header-top-icons">
-
-                        <thermal-icon icon="folder" variant="outline" class="header-folder-icon"></thermal-icon>
-                        
-                        ${this.renderCountWithIcon(this.folder.lrc_count, "image")}
-
-                        ${this.renderCountWithIcon(this.subfoldersCount ?? 0, "folder")}
-
-                        <connected-folder-selection-checkbox .folder=${this.folder}></connected-folder-selection-checkbox>
-
-                    </div>
-                </div>
-                <div class="header-bottom" @click=${this.handleActionClick}>
-                    <slot name="action"></slot>
-                </div>
-            </header>
-
-        `;
-	}
-};
-FolderThumbnail = __decorate([(0, lit_decorators_js.customElement)("server-folder-thumbnail")], FolderThumbnail);
-
-//#endregion
-//#region src/connection/components/folder/grid/SubfoldersGrid.ts
-var _ref$35;
-let SubfoldersGrid$1 = class SubfoldersGrid extends RegistryConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.slug = "default_group";
-		this.showDiscussion = false;
-		this.editableTags = false;
-		this.columnCount = 0;
-		this.selectedFolders = [];
-		this.onSelectionChange = () => {};
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.columnCount = Object.keys(this.grid?.header ?? {}).length;
-		this.registry.onProcessingEnd.set(this.UUID, () => {
-			this.registry.range.applyMinmax();
-		});
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.registry.onProcessingEnd.delete(this.UUID);
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		this.columnCount = Object.keys(this.grid?.header ?? {}).length;
-	}
-	renderHeader(header) {
-		const items = Object.values(header);
-		if (items.length === 0) return lit.nothing;
-		return lit.html`<thead>
-            ${items.map(this.renderHeaderCell.bind(this))}
-        </thead>`;
-	}
-	renderHeaderCell(folder) {
-		return lit.html`<th class="folder-header cell cell_header">
-            <div
-                class="cell-inner"
-            >
-
-                <thermal-icon icon="folder" variant="outline"></thermal-icon>
-
-                <div>
-
-                    <h2>${folder.name}</h2>
-                    
-                    ${folder.description ? lit.html`<p class="description small">${folder.description}</p>` : lit.nothing}
-
-                </div>
-
-                <div class="folder-header-buttons">
-
-                    <folder-upload-dialog
-                        .folder=${folder}
-                        label=""
-                        variant="default"
-                        plain="true"
-                        tooltip="Nahrát do složky '${folder.name}'"
-                        .onSuccess=${() => {
-			this.onChange?.();
-		}}
-                    ></folder-upload-dialog>
-
-                    <thermal-btn
-                        tooltip="Zobrazit všech ${folder.lrc_count} souborů ve složce '${folder.name}'."
-                        @click=${() => this.onFolderClick?.(folder)}
-                        plain="true"
-                        icon="zoom"
-                        iconStyle="micro"
-                    ></thermal-btn>
-
-                </div>
-            </div>
-        </th>`;
-	}
-	renderBody(body) {
-		const items = Object.values(body);
-		if (items.length === 0) return lit.nothing;
-		return lit.html`<tbody>
-            ${items.map(this.renderBodyRow.bind(this))}
-        </tbody>`;
-	}
-	renderBodyRow(item) {
-		const folders = Object.values(item.folders);
-		this.log(item.label, folders);
-		return lit.html`
-
-        <group-provider
-            slug="${this.slug + item.label}"
-            batch="true"
-            autoclear="true"
-            style="display: contents;"
-        >
-
-            ${this.renderBodyRowCellHeader(item.label)}
-
-            <tr class="group-row__body">
-                ${folders.map((folder) => this.renderBodyRowCellBody(folder))}
-            </tr>
-
-        </group-provider>
-        `;
-	}
-	renderBodyRowCellHeader(label) {
-		const groupSlug = this.slug + label;
-		const minmax = this.registry.groups.value.find((g) => g.id === groupSlug)?.minmax.value;
-		let tooltip = "";
-		const click = () => {
-			if (minmax) this.registry.range.imposeRange({
-				from: minmax.min,
-				to: minmax.max
-			});
-		};
-		const mouseenter = () => {
-			if (this.setHighlight && minmax) this.setHighlight({
-				from: minmax.min,
-				to: minmax.max
-			});
-		};
-		const mouseleave = () => {
-			if (this.setHighlight) this.setHighlight(void 0);
-		};
-		if (minmax) tooltip = `${minmax.min.toFixed(2)} - ${minmax.max.toFixed(2)} °C`;
-		return lit.html`<tr class="group-row__header">
-    <td class="group-header cell" colspan="${this.columnCount}">
-        <div class="group-separator"></div>
-        <div class="cell-inner">
-
-            <thermal-btn
-                class="cell-button"
-                tooltip=${tooltip}
-                @click=${click.bind(this)}
-                @mouseleave=${mouseleave.bind(this)}
-                @mouseenter=${mouseenter.bind(this)}
-            >${label}</thermal-btn>
-
-            <div style="display: inline-block; text-align: left;">
-                <group-download-dropdown></group-download-dropdown>
-            </div>
-
-        </div>
-    </td>
-</tr>`;
-	}
-	renderBodyRowCellBody(files) {
-		if (!this.grid || files.length === 0) return lit.html`<td></td>`;
-		const folder = this.grid.header[files[0].folder];
-		return lit.html`<td class="folder-content cell">
-    <div class="cell-inner">
-        ${files.map((file) => this.renderBodyRowCellBodyFile(folder, file))}
-    </div>
-</td>`;
-	}
-	renderBodyRowCellBodyFile(folder, file) {
-		return lit.html`
-            <file-provider
-                batch="true"
-                autoclear="true"
-                thermal="${file.url}"
-                class="file-entry"
-            >
-
-                <header>
-
-                    <div class="file-entry-info">
-                        <h4>${_labirthermal_core.TimeFormat.human(file.timestamp)}</h4>
-                        <p class="small">${file.label}</p>
-                    </div>
-
-                    <div class="file-entry-buttons">
-
-                        <file-tags
-                            .inline=${true}
-                            .file=${file}
-                            .folder=${folder}
-                            .editable=${this.editableTags}
-                            .onChange=${(file) => {
-			this.log("tags changed");
-			this.onFileEdit?.(file);
-		}}
-                            size="sm"
-                        ></file-tags>
-
-                        <file-range-propagator
-                            plain="true"
-                            icon="range"
-                            iconStyle="outline"
-                            size="md"
-                            hideLabel="true"
-                        ></file-range-propagator>
-
-                        <file-delete-dialog
-                            .file=${file}
-                            .folder=${folder}
-                            size="md"
-                            plain="true"
-                            .onDelete=${(file) => {
-			this.onChange?.();
-		}}
-                        ></file-delete-dialog>
-                        
-                        <thermal-btn
-                            plain="true"
-                            icon="zoom"
-                            iconStyle="micro"
-                            tooltip="Zobrazit detail tohoto souboru."
-                            @click=${() => {
-			this.onFileClick?.(folder, file);
-		}}
-                        >
-    
-                        </thermal-btn>
-
-                    </div>
-                </header>
-                
-                <file-canvas style="display: block;"></file-canvas>
-
-                ${this.showDiscussion ? lit.html`<div class="comments">
-                    <file-comments
-                    .file=${file}
-                    .folder=${folder}
-                    .onChange=${(file) => {
-			this.log("comments changed");
-			this.onFileEdit?.(file);
-		}}
-                    ></file-comments>
-                </div>` : lit.nothing}
-
-
-            </file-provider>
-        
-        `;
-	}
-	static {
-		this.styles = lit.css`
-
-        :root {
-            --cell-indent: .5em;
-        }
-    
-        :host {
-
-            --cell-indent: .5em;
-
-            position: relative;
-
-            font-size: var( --thermal-fs );
-            color: var(--thermal-foreground);
-
-            box-sizing: border-box;
-
-            display: grid;
-            grid-template-columns: 2em 1fr;
-            gap: 1em;
-
-        }
-
-
-        table {
-            width: 100%;
-            table-layout: fixed;
-            position: relative;
-        }
-
-        tr, td, th {
-            margin: 0;
-            padding: 0;
-            border: none;
-            border-collapse: collapse;
-            text-align: left;
-            width: auto;
-            box-sizing: border-box;
-        }
-
-        thead,
-        group-tool-bar {
-            position: sticky;
-            top: 315px;
-            z-index: 100;
-        }
-
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6,
-        th,
-        p {
-            font-family: var(--thermal-font-family, sans-serif);
-            font-size: var(--thermal-fs);    
-            font-weight: normal;
-            line-height: 1em;
-            margin: 0;
-            padding: 0;
-            border: 0;
-            text-align: left;
-            box-sizing: border-box;
-        }
-
-        .cell-button {
-        }
-
-        .small {
-            font-size: 0.8em;
-            opacity: .5;
-        }
-
-        .cell,
-        .cell-inner {
-            box-sizing: border-box;
-        }
-
-        .cell {
-        
-        }
-
-        .cell-inner {
-            height: 100%;
-        }
-
-        
-        .cell-indent {
-            padding: var(--cell-indent);
-        }
-
-        .folder-header {
-            padding: 0 var(--cell-indent);
-        }
-
-        .cell_header {
-
-            > .cell-inner {
-                display: grid;
-                gap: .5em;
-                grid-template-columns: 1.5em 1fr auto;
-                grid-template-rows: auto;
-                position: relative;
-                padding: 1em;
-                background: var(--thermal-background);
-                border-radius: var(--thermal-radius);
-
-                thermal-icon {
-                    opacity: .5;
-                }
-
-                h2 {
-                    font-weight: bold;
-                }
-
-                .description {
-                    margin-top: .25em;
-                }
-
-                &::after {
-                    content: "";
-                    position: absolute;
-                    width: 1em;
-                    height: 1em;
-                    background: var(--thermal-background);
-                    bottom: -.5em;
-                    transform: rotate(45deg);
-                    left: 1.15em;
-                }
-            }
-
-        }
-
-        .group-header {
-
-            text-align: center;
-            position: relative;
-
-            padding-top: 1em;
-            padding-bottom: .5em;
-
-            .cell-inner {
-
-                position: relative;
-                
-                thermal-btn {
-                    display: inline-block;
-                }
-                
-            }
-
-            
-
-            .group-separator {
-                position: absolute;
-                height: 1.5em;
-                width: 100%;
-                left: 0px;
-                bottom: 0px;
-
-                border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
-
-                border-top: var(--thermal-border-width) var(--thermal-border-style)var(--thermal-slate);
-                
-                z-index: 0;
-                
-            }
-        }
-
-        .folder-header-buttons {
-            display: flex;
-            align-items: flex-start;
-            gap: .25em;
-        }
-
-        .folder-content {
-
-            .cell-inner {
-                padding: 0 .5em;
-            }
-            
-        }
-
-        .file-entry {
-
-            padding-bottom: 1em;
-            display: block;
-
-            &:last-child {
-                padding-bottom: 0;
-            }
-        
-            & > header {
-
-                padding: .5em;
-                box-sizing: border-box;
-
-                width: 100%;
-
-                border-radius: var(--thermal-radius) var(--thermal-radius) 0 0;
-                background: var(--thermal-background);
-
-                display: grid;
-                grid-template-columns: 1fr auto;
-
-
-                .file-entry-info {
-                    display: flex;
-                    gap: .5em;
-                    align-items: center;
-                    & > * {
-                        display: inline-flex;
-                    }
-                }
-
-                .file-entry-buttons {
-                    display: flex;
-                    align-items: center;
-                    gap: .23em;
-                }
-
-            }
-
-            .comments {
-                background: var(--thermal-background);
-                padding: .5em;
-                box-sizing: border-box;
-                border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
-            }
-
-            file-comments {
-                background: var(--thermal-slate-light);
-
-                padding: 1em;
-                box-sizing: border-box;
-
-                border-radius: var(--thermal-radius);
-
-                height: 300px;
-                
-            }
-        
-        }
-    
-    `;
-	}
-	render() {
-		return lit.html`
-            <div style="position: relative;">
-                <group-tool-bar></group-tool-bar>
-            </div>
-
-            ${this.grid !== void 0 ? lit.html`<table>
-                    ${this.renderHeader(this.grid?.header ?? [])}
-                
-                    ${this.renderBody(this.grid?.groups ?? [])}
-                </table>` : lit.html`<thermal-poster message="Načítám mřížku"></thermal-poster>`}
-        
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$35 = typeof _labirthermal_server.GetGridDataType !== "undefined" && _labirthermal_server.GetGridDataType) === "function" ? _ref$35 : Object)], SubfoldersGrid$1.prototype, "grid", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], SubfoldersGrid$1.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onFolderClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onFileEdit", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: setRegistryHighlightContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "setHighlight", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: showDiscussionContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], SubfoldersGrid$1.prototype, "showDiscussion", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: editTagsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], SubfoldersGrid$1.prototype, "editableTags", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], SubfoldersGrid$1.prototype, "columnCount", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], SubfoldersGrid$1.prototype, "selectedFolders", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid$1.prototype, "onSelectionChange", void 0);
-SubfoldersGrid$1 = __decorate([(0, lit_decorators_js.customElement)("subfolders-grid")], SubfoldersGrid$1);
-
-//#endregion
-//#region src/connection/components/folder/single/FolderBaseInfo.ts
-var _ref$34;
-let FolderBaseInfo$1 = class FolderBaseInfo extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.icon = icons.folder.outline("icon");
-	}
-	get group() {
-		return this.renderRoot.querySelector("group-provider")?.group;
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            display: flex;
-            flex-wrap: no-wrap;
-            gap: var(--thermal-gap);
-            font-size: var(--thermal-fs);
-        }
-
-
-        .part {
-
-            display: block;
-            background: var(--thermal-background);
-            color: var(--thermal-foreground);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap);
-            box-sizing: border-box;
-        
-        }
-
-
-        section {
-            display: grid !important;
-            grid-template-columns: 2em 1fr;
-            grid-template-rows: auto auto;
-            gap: 0 var(--thermal-gap);
-            flex-grow: 1;
-        }
-
-        .icon {
-            grid-row: 1;
-            grid-column: 1;
-            width: 2em;
-            display: block;
-            color: var(--thermal-slate);
-        }
-
-        .content {
-            grid-row: 1;
-            grid-column: 2;
-        }
-
-        h1 {
-            font-size: var(--thermal-fs);
-            margin: 0;
-            padding: 0;
-        }
-
-        .description {
-            font-size: .8em;
-            color: var(--thermal-slate);
-        }
-
-        .actions {
-            grid-row: 2;
-            grid-column: 1 / -1;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0 2em;
-            align-items: center;
-
-            slot::slotted(*) {
-                padding-top: 1em;
-            }
-        }
-
-        .actions:not(:has(*)) {
-            display: none;
-        }
-
-        /* Fallback for browsers without :has() support */
-        .actions:empty {
-            display: none;
-        }
-    `;
-	}
-	renderUpButton() {
-		if (!this.parents || this.parents.length === 0) return lit.nothing;
-		const folders = this.parents.filter((item) => item.type === "folder");
-		if (folders.length <= 1) return lit.nothing;
-		const parent = folders[folders.length - 2];
-		if (this.lockedBrowsingTo && !parent.path.includes(this.lockedBrowsingTo)) return lit.nothing;
-		const callback = this.onParentClick || (() => {});
-		return lit.html`
-            <thermal-btn 
-                variant="background" 
-                @click=${() => callback(parent)} 
-                icon="upwards" 
-                iconStyle="outline" 
-                size="xl"
-                tooltip="Jít o úroveň výš do složky '${parent.name}'."
-            >
-            </thermal-btn>
-        `;
-	}
-	render() {
-		return lit.html`
-
-        <group-provider
-            slug=${this.slug}
-            autoclear="true"
-            style="display: contents;"
-            batch="true"
-        >
-
-        ${this.renderUpButton()}
-        
-        <section class="part">
-
-            ${this.i(this.icon)}
-
-            <div class="content">
-
-                <h1>
-                    ${this.info?.name}
-                </h1>
-
-                ${this.info?.description ? lit.html`<div class="description">${this.info?.description}</div>` : lit.nothing}
-            </div>
-            
-            <div class="actions">
-                <slot></slot>
-            </div>
-        </section>
-        
-        </group-provider>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderBaseInfo$1.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: Object,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$34 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$34 : Object)], FolderBaseInfo$1.prototype, "info", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], FolderBaseInfo$1.prototype, "parents", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderBaseInfo$1.prototype, "onParentClick", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: lockedBrowsingTo,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", String)
-], FolderBaseInfo$1.prototype, "lockedBrowsingTo", void 0);
-FolderBaseInfo$1 = __decorate([(0, lit_decorators_js.customElement)("folder-base-info")], FolderBaseInfo$1);
-
-//#endregion
-//#region src/connection/components/folder/single/FolderBreadcrumb.ts
-let FolderBreadcrumb = class FolderBreadcrumb extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.breadcrumb = [];
-		this.server = icons.wifi.micro("icon");
-		this.user = icons.user.micro("icon");
-		this.folder = icons.folder.micro("icon");
-		this.items = [];
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-            display: flex;
-            align-items: center;
-            gap: 0.5em;
-
-            color: var(--thermal-slate);
-            font-size: calc( var(--thermal-fs) * 0.8 );
-        }
-
-        .item {
-            --color: var( --thermal-slate );
-            --color-hover: var( --thermal-foreground );
-        }
-
-        .interactive {
-            --color: var( --thermal-slate-dark );
-            --color-hover: var( --thermal-primary );
-        }
-
-        .current {
-            --color: var( --thermal-slate-dark );
-            --cursor: help;
-            text-decoration: underline;
-        }
-    
-    `;
-	}
-	renderItem(item, index) {
-		const isInteractive = item.onClick !== void 0 && index < this.items.length - 1;
-		const classNames = {
-			item: true,
-			[item.icon]: true,
-			current: index === this.items.length - 1,
-			interactive: isInteractive
-		};
-		return lit.html`
-        ${index > 0 ? lit.html`<span>/</span>` : lit.nothing}
-        <thermal-btn 
-            class="${(0, lit_directives_class_map_js.classMap)(classNames)}"
-            @click=${item.onClick?.bind(this)}
-            variant="text"
-            icon="${item.icon}"
-            iconStyle="${item.iconStyle}"
-            interactive=${isInteractive ? "true" : "false"}
-            tooltip=${item.tooltip ? item.tooltip : void 0}
-        >
-            ${item.label}
-        </thermal-btn>`;
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (_changedProperties.has("breadcrumb") || _changedProperties.has("lockedLocation") || _changedProperties.has("onFolderClick") || _changedProperties.has("onUserClick")) this.items = this.calculateItems(this.breadcrumb, this.lockedBrowsingTo);
-	}
-	calculateItems(breadcrumb, lockedLocation) {
-		const items = [];
-		items.push({
-			icon: "wifi",
-			iconStyle: "micro",
-			label: this.serverInfo?.name || "Server"
-		});
-		if (this.identity) {
-			const userItem = {
-				icon: "user",
-				iconStyle: "micro",
-				label: this.identity.meta.name || this.identity.user || "User"
-			};
-			if (!lockedLocation) {
-				userItem.tooltip = (0, i18next.t)(T.overviewofyourfolders);
-				userItem.onClick = () => {
-					this.onUserClick?.();
-				};
-			}
-			items.push(userItem);
-		}
-		if (lockedLocation) {
-			const lockedLabel = breadcrumb.find((item) => item.path === lockedLocation)?.name || lockedLocation;
-			items.push({
-				icon: "lock",
-				iconStyle: "micro",
-				label: "",
-				tooltip: `V tomto zobrazení procházíte pouze složku "${lockedLabel}".`
-			});
-		}
-		for (const item of breadcrumb) {
-			if (item.type !== "folder") continue;
-			if (lockedLocation !== void 0 && !item.path.includes(lockedLocation)) continue;
-			const folderItem = {
-				icon: "folder",
-				iconStyle: "micro",
-				label: item.name || "Folder",
-				tooltip: item.path || "Folder",
-				onClick: () => this.onFolderClick?.(item)
-			};
-			items.push(folderItem);
-		}
-		return items;
-	}
-	render() {
-		return lit.html`${this.items.map(this.renderItem.bind(this))}`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], FolderBreadcrumb.prototype, "breadcrumb", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderBreadcrumb.prototype, "onFolderClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderBreadcrumb.prototype, "onUserClick", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: lockedBrowsingTo,
-	subscribe: true
-}), __decorateMetadata("design:type", String)], FolderBreadcrumb.prototype, "lockedBrowsingTo", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FolderBreadcrumb.prototype, "items", void 0);
-FolderBreadcrumb = __decorate([(0, lit_decorators_js.customElement)("folder-breadcrumb")], FolderBreadcrumb);
-
-//#endregion
-//#region src/connection/components/file/AbstractFileAnalysisButton.ts
-var _ref$33, _ref2$22, _ref3$15, _ref4$6, _ref5$1;
-var AbstractFileAnalysisButton = class extends FileConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "";
-		this.size = "sm";
-		this.plain = false;
-		this.disabled = false;
-	}
-	render() {
-		const callback = this.onClick ? () => this.onClick(this.file) : () => {};
-		return lit.html`<thermal-btn
-            @click=${() => callback()}
-            variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
-            size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
-            icon=${(0, lit_directives_if_defined_js.ifDefined)(this.icon)}
-            iconStyle=${(0, lit_directives_if_defined_js.ifDefined)(this.iconStyle)}
-            plain=${(0, lit_directives_if_defined_js.ifDefined)(this.plain)}
-            tooltip=${(0, lit_directives_if_defined_js.ifDefined)(this.tooltip)}
-            disabled=${(0, lit_directives_if_defined_js.ifDefined)(this.disabled ? true : void 0)}
-        >${this.label}</thermal-btn>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileAnalysisButton.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$33 = typeof BtnVariants$6 !== "undefined" && BtnVariants$6) === "function" ? _ref$33 : Object)], AbstractFileAnalysisButton.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$22 = typeof BtnSizes$6 !== "undefined" && BtnSizes$6) === "function" ? _ref2$22 : Object)], AbstractFileAnalysisButton.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], AbstractFileAnalysisButton.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileAnalysisButton.prototype, "icon", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileAnalysisButton.prototype, "iconStyle", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractFileAnalysisButton.prototype, "disabled", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFileAnalysisButton.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$15 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$15 : Object)], AbstractFileAnalysisButton.prototype, "info", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$6 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref4$6 : Object)], AbstractFileAnalysisButton.prototype, "folder", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: clientContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref5$1 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref5$1 : Object)], AbstractFileAnalysisButton.prototype, "client", void 0);
-
-//#endregion
-//#region src/connection/components/file/FileAnalysisRestoreButton.ts
-let FileAnalysisRestoreButton = class FileAnalysisRestoreButton extends AbstractFileAnalysisButton {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "";
-		this.icon = "restore";
-		this.iconStyle = "outline";
-		this.tooltip = "Načíst analýzy uložené na serveru";
-		this.onClick = async (file) => {
-			if (this.info && this.info.analyses) {
-				this.file?.analysis.value.forEach((analysis) => {
-					file.analysis.layers.removeAnalysis(analysis.key);
-				});
-				this.info.analyses.forEach((analysis, slot) => {
-					file.slots.createAnalysisFromSerialized(analysis, slot);
-				});
-				file.analysis.layers.selectAll();
-			}
-		};
-	}
-	onInstanceCreated() {}
-	onFailure() {}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileAnalysisRestoreButton.prototype, "onChange", void 0);
-FileAnalysisRestoreButton = __decorate([(0, lit_decorators_js.customElement)("file-analysis-restore-button")], FileAnalysisRestoreButton);
-
-//#endregion
-//#region src/connection/components/file/FileAnalysisStoreButton.ts
-let FileAnalysisStoreButton = class FileAnalysisStoreButton extends AbstractFileAnalysisButton {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "";
-		this.tooltip = "Uložit analýzy na server.";
-		this.icon = "save";
-		this.iconStyle = "micro";
-		this.analyses = [];
-		this.hasChanged = false;
-		this.onClick = async () => {
-			if (this.hasChanged === false) return;
-			if (this.client) {
-				const request = this.client.routes.post.updateFile(this.info.path, this.info.fileName);
-				request.clearAnalyses();
-				const analyses = this.getCurrentAnalysisState(this.file);
-				if (analyses.length === 0) request.clearAnalyses();
-				else analyses.forEach((item) => request.addAnalysis(item));
-				const result = await request.execute();
-				if (result.success) {
-					this.hasChanged = false;
-					this.onChange?.(result.data.file);
-				}
-			}
-		};
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		if (this.file) this.onInstanceCreated(this.file);
-	}
-	onInstanceCreated(instance) {
-		if (instance) {
-			if (instance.analysis) {
-				this.getCurrentAnalysisState(instance);
-				const listener = () => {
-					this.hasChanged = true;
-					this.getCurrentAnalysisState(instance);
-				};
-				instance.analysis.layers.onAnySerializableChange.set(this.UUID, listener.bind(this));
-			}
-		} else this.log("Soubor neexistuje!");
-	}
-	getCurrentAnalysisState(instance) {
-		const analyses = [];
-		instance.analysis.value.forEach((analysis) => {
-			analyses.push(analysis.toSerialized());
-		});
-		this.analyses = analyses;
-		this.requestUpdate();
-		return analyses;
-	}
-	onFailure(error) {}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-		if (this.hasChanged === true) this.disabled = false;
-		else this.disabled = true;
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], FileAnalysisStoreButton.prototype, "analyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileAnalysisStoreButton.prototype, "hasChanged", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileAnalysisStoreButton.prototype, "onChange", void 0);
-FileAnalysisStoreButton = __decorate([(0, lit_decorators_js.customElement)("file-analysis-store-button")], FileAnalysisStoreButton);
-
-//#endregion
-//#region src/connection/components/file/FileComment.ts
-var _ref$32, _ref2$21, _ref3$14;
-let FileComment$1 = class FileComment extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onChange = () => {};
-		this.isEditing = false;
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-
-            padding: .5em;
-            display: block;
-
-            font-size: var( --thermal-fs );
-
-            background: var(--thermal-background);
-
-            opacity: 0.7;
-
-            border-radius: var(--thermal-radius);
-            width: calc( 100% - 1em );
-            max-width: calc( 100% - 1em );
-            align-self: flex-end;
-
-            box-sizing: border-box;
-        }
-
-        :host(.my-comment) {
-            opacity: 1;
-            align-self: flex-start;
-        }
-
-        header {
-            display: flex;
-            gap: calc(var(--thermal-gap) * 0.5);
-            justify-content: space-between;
-
-
-            margin-bottom: .3em;
-            width: 100%;
-            
-            font-size: calc(var(--thermal-fs) * 0.7);
-            color: var( --thermal-slate );
-            
-
-            > div {
-                flex-grow: 1;
-
-                span {
-                    display: block;
-                }
-
-                div {
-
-                }
-
-            }
-
-
-            aside {
-                display: flex;
-                align-items: flex-start;
-                justify-content: flex-start;
-                gap: .2em;
-            }
-
-        }
-
-        main {
-
-            font-size: calc(var(--thermal-fs) * 0.8);
-        
-            p {
-                margin: 0;
-                padding: 0;
-            }
-        
-        }
-    
-    `;
-	}
-	async handleDelete() {
-		if (this.client) {
-			const result = await this.client.routes.post.fileDeleteComment(this.folder.path, this.file.fileName, this.comment.timestamp).execute();
-			this.log(result.code, result.message, result.data);
-			if (result.success) this.onChange?.(result.data.file);
-			else this.error = result.message;
-		}
-	}
-	mayManage() {
-		if (this.folder && (this.folder.may_manage_files_in || this.folder.may_manage_folders_in) && this.comment && this.client && this.client.auth.getIdentity()?.meta.login === this.comment.by.login) return true;
-		return false;
-	}
-	render() {
-		if (!this.file || !this.comment || !this.folder) return lit.nothing;
-		const time = _labirthermal_core.TimeFormat.human(this.comment.timestamp);
-		if (this.client?.auth.getIdentity()?.meta.login === this.comment.by.login) this.classList.add("my-comment");
-		else this.classList.remove("my-comment");
-		return lit.html`
-            <header>
-
-                <div>
-                    <span>${time}</span>
-                    <div>${this.comment.by.name}</div>
-                </div>
-
-            ${this.mayManage() ? lit.html`
-                
-                <aside>
-                    <thermal-btn 
-                        @click=${() => {
-			this.isEditing = !this.isEditing;
-			this.requestUpdate();
-		}}
-                        size="sm"
-                        variant="${this.isEditing ? "foreground" : "default"}"
-                        icon="${this.isEditing ? "close" : "edit"}"
-                        iconStyle="micro"
-                        plain="true"
-                    ></thermal-btn>
-
-                    <thermal-btn 
-                        @click=${() => this.handleDelete()} 
-                        icon="trash" iconStyle="micro"
-                        size="sm"
-                        variant="default"
-                        plain="true"
-                    ></thermal-btn>
-
-                </aside>
-            ` : lit.nothing}
-            </header>
-
-            <main>
-            ${this.isEditing ? lit.html`
-                <file-comment-form
-                    .comment=${this.comment}
-                    .file=${this.file}
-                    .folder=${this.folder}
-                    .onChange=${(file) => {
-			this.isEditing = false;
-			this.onChange?.(file);
-		}}
-                ></file-comment-form>
-                ` : lit.html`<p>${this.comment.message}</p>`}
-            </main>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$32 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$32 : Object)], FileComment$1.prototype, "comment", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$21 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$21 : Object)], FileComment$1.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$14 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$14 : Object)], FileComment$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComment$1.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileComment$1.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileComment$1.prototype, "isEditing", void 0);
-FileComment$1 = __decorate([(0, lit_decorators_js.customElement)("file-comment")], FileComment$1);
-
-//#endregion
-//#region src/connection/components/file/FileCommentForm.ts
-var _ref$31, _ref2$20, _ref3$13;
-let FileCommentForm$1 = class FileCommentForm extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onChange = () => {};
-		this.message = "";
-	}
-	updated(changedProperties) {
-		if (changedProperties.has("comment") && this.comment && !this.message) this.message = this.comment.message;
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-            font-size: var( --thermal-fs );
-        }
-
-
-        main {
-            display: flex;
-            flex-direction: column;
-            gap: .25em;
-        }
-
-        textarea {
-            min-height: 40px;
-            padding: .5em;
-            resize: vertical;
-
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-
-            font-family: inherit;
-            font-size: calc(var(--thermal-fs) * 0.8);
-
-            color: var(--thermal-foreground);
-            background: var(--thermal-background);
-            
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .small {
-            font-size: calc(var(--thermal-fs) * 0.8);
-        }
-
-        .slate {
-            color: var(--thermal-slate);
-        }
-    
-    `;
-	}
-	async handleSubmit(event) {
-		event.preventDefault();
-		console.log("Submit message");
-		if (this.client && this.message.trim().length >= 3) if (!this.comment) {
-			const result = await (this.client?.routes.post.fileAddComment(this.folder.path, this.file.fileName, this.message.trim())).execute();
-			if (result.success) {
-				this.message = "";
-				this.error = void 0;
-				this.onChange?.(result.data.file);
-			} else this.error = result.message;
-		} else {
-			const result = await this.client.routes.post.fileUpdateComment(this.folder.path, this.file.fileName, this.comment.timestamp, this.message.trim()).execute();
-			if (result.success) {
-				this.message = "";
-				this.error = void 0;
-				this.onChange?.(result.data.file);
-			} else this.error = result.message;
-		}
-	}
-	handleMessageChange(event) {
-		this.message = event.target.value;
-	}
-	handleKeyDown(event) {
-		if (event.key === "Enter" && !event.shiftKey) {
-			event.preventDefault();
-			if (this.message.trim().length >= 3) this.handleSubmit(event);
-		}
-	}
-	mayManage() {
-		if (this.folder && (this.folder.may_manage_files_in || this.folder.may_manage_folders_in)) return true;
-		return false;
-	}
-	render() {
-		if (!this.client || !this.file || !this.folder) return lit.nothing;
-		const canSubmit = this.message.trim().length >= 3;
-		const label = !!this.comment ? (0, i18next.t)(T.editcomment) : (0, i18next.t)(T.addcomment);
-		return lit.html`
-            <form >
-                <main>
-                    <textarea 
-                        placeholder=${label}
-                        .value=${this.message}
-                        @input=${this.handleMessageChange}
-                        @keydown=${this.handleKeyDown}
-                        required
-                    ></textarea>
-                    
-                    ${this.error ? lit.html`<div class="error">${this.error}</div>` : lit.nothing}
-                    
-                    <div class="form-actions">
-                        <thermal-btn 
-                            variant="primary" 
-                            size="sm"
-                            type="submit"
-                            ?disabled=${!canSubmit}
-                            @click=${this.handleSubmit}
-                        >
-                            ${label}
-                        </thermal-btn>
-
-                    </div>
-                </main>
-            </form>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$31 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$31 : Object)], FileCommentForm$1.prototype, "comment", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$20 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$20 : Object)], FileCommentForm$1.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$13 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$13 : Object)], FileCommentForm$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentForm$1.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileCommentForm$1.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileCommentForm$1.prototype, "message", void 0);
-FileCommentForm$1 = __decorate([(0, lit_decorators_js.customElement)("file-comment-form")], FileCommentForm$1);
-
-//#endregion
-//#region src/connection/components/file/FileComments.ts
-var _ref$30, _ref2$19;
-let FileComments$1 = class FileComments extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onChange = () => {};
-	}
-	static {
-		this.styles = lit.css`
-    
-        :host {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            font-size: var(--thermal-fs);
-        }
-
-        .list {
-            display: flex;
-            flex-direction: column;
-            gap: .25em;
-            flex: 1;
-            min-height: 100px;
-            overflow-y: auto;
-            padding: .25em 0;
-        }
-
-        .form-container {
-            flex-shrink: 0;
-            margin-top: .25em;
-        }
-
-        .placeholder {
-
-            height: 100%;
-            padding: .5em;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            border: var(--thermal-border-width) dashed var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-
-            font-size: .8em;
-            color: var(--thermal-slate);
-
-            &.tiny {
-            
-                height: 40px;
-                text-align: center;
-
-            
-            }
-
-
-        }
-    
-    `;
-	}
-	firstUpdated() {
-		setTimeout(() => this.scrollToBottom(), 0);
-	}
-	updated() {
-		this.scrollToBottom();
-	}
-	scrollToBottom() {
-		const listElement = this.shadowRoot?.querySelector(".list");
-		if (listElement) listElement.scrollTo({
-			top: listElement.scrollHeight,
-			behavior: "smooth"
-		});
-	}
-	render() {
-		return lit.html`
-
-            <div class="list">
-                ${this.file.comments && this.file.comments.length > 0 ? this.file.comments.map((comment) => lit.html`
-                        <file-comment
-                            .comment=${comment}
-                            .file=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${this.onChange}
-                        ></file-comment>
-                    `) : lit.html`<div class="placeholder">
-                    <span>${(0, i18next.t)(T.nocomments)}</span>
-                </div>`}
-            </div>
-            
-            ${this.folder && this.folder.may_manage_files_in ? lit.html`
-                    <div class="form-container">
-                        <file-comment-form 
-                            .file=${this.file} 
-                            .folder=${this.folder} 
-                            .onChange=${(file) => {
-			this.onChange(file);
-			setTimeout(() => this.scrollToBottom(), 0);
-		}}>
-                        </file-comment-form>
-                    </div>
-                    ` : lit.nothing}
-
-            ${this.folder && !this.folder.may_manage_files_in ? lit.html`<div class="placeholder  tiny"><span>Nemáte oprávnění komentovat tento soubor</span></div>` : lit.nothing}
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$30 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$30 : Object)], FileComments$1.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$19 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$19 : Object)], FileComments$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComments$1.prototype, "onChange", void 0);
-FileComments$1 = __decorate([(0, lit_decorators_js.customElement)("file-comments")], FileComments$1);
-
-//#endregion
-//#region src/connection/components/file/FileCommentsDialog.ts
-var _ref$29, _ref2$18, _ref3$12, _ref4$5;
-let FileCommentsDialog = class FileCommentsDialog extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "Komentáře";
-		this.size = "sm";
-		this.plain = false;
-		this.hasBadge = false;
-	}
-	static {
-		this.styles = lit.css`
-        .content {
-            min-height: 500px;
-            min-width: 400px;
-            font-size: var(--thermal-fs);
-            color: var(--thermal-foreground);
-        }
-
-        :host(.has-comments) thermal-btn::after {
-            content: '';
-            position: absolute;
-            top: -0px;
-            right: -0px;
-            width: 6px;
-            height: 6px;
-            background: var(--thermal-danger, #f00);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        :host(.has-comments) thermal-btn {
-            position: relative;
-        }
-
-        file-comments {
-            height: 400px;
-        }
-
-        .file {
-            padding: .5em;
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            box-sizing: border-box;
-
-            display: flex;
-            gap: .25em;
-            flex-direction: column;
-
-            > * {
-                margin: 0;
-                padding: 0;
-                font-size: 1em;
-            }
-
-
-        }
-
-        .small {
-            font-size: .8em;
-        }
-    `;
-	}
-	render() {
-		const label = (0, i18next.t)(T.comments);
-		return lit.html`
-            <thermal-dialog
-                label=${label}
-            >
-                <slot name="invoker" slot="invoker">
-                    <thermal-btn 
-                        variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
-                        size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
-                        plain=${(0, lit_directives_if_defined_js.ifDefined)(this.plain)}
-                        icon="comment" 
-                        iconStyle="micro"
-                        tooltip=${label}
-                    >${this.label}</thermal-btn>
-                </slot>
-
-                <div class="content" slot="content">
-
-                    <div class="file">
-                        <p class="small">${_labirthermal_core.TimeFormat.human(this.file.timestamp)}</p>
-                        ${this.file.label ? lit.html`<h2>${this.file.label}</h2>` : lit.nothing}
-                        ${this.file.description ? lit.html`<p class="small">${this.file.description}</p>` : lit.nothing}
-                    </div>
-
-                    <file-comments
-                        .file=${this.file}
-                        .folder=${this.folder}
-                        .onChange=${this.onSuccess}
-                    ></file-comments>
-                </div>
-
-            </thermal-dialog>
-        `;
-	}
-	updated() {
-		if (this.file?.comments && this.file.comments.length > 0) this.classList.add("has-comments");
-		else this.classList.remove("has-comments");
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileCommentsDialog.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$29 = typeof BtnVariants$5 !== "undefined" && BtnVariants$5) === "function" ? _ref$29 : Object)], FileCommentsDialog.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$18 = typeof BtnSizes$5 !== "undefined" && BtnSizes$5) === "function" ? _ref2$18 : Object)], FileCommentsDialog.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileCommentsDialog.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$12 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$12 : Object)], FileCommentsDialog.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$5 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref4$5 : Object)], FileCommentsDialog.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentsDialog.prototype, "onSuccess", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileCommentsDialog.prototype, "hasBadge", void 0);
-FileCommentsDialog = __decorate([(0, lit_decorators_js.customElement)("file-comments-dialog")], FileCommentsDialog);
-
-//#endregion
-//#region src/connection/components/file/FileDeleteDialog.ts
-var _ref$28, _ref2$17, _ref3$11, _ref4$4;
-let FileDeleteDialog$1 = class FileDeleteDialog extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.showLabel = false;
-		this.label = (0, i18next.t)(T.deletefile);
-		this.size = "sm";
-		this.plain = false;
-		this.onDelete = () => {};
-		this.isOpen = false;
-		this.isDeleting = false;
-	}
-	static {
-		this.styles = lit.css`
-        .content {
-            padding: var(--thermal-gap);
-        }
-
-        .warning {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: var(--thermal-gap);
-            margin-bottom: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-        }
-
-        .file-info {
-            background: var(--thermal-background);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin: calc(var(--thermal-gap) * 0.5) 0;
-        }
-
-        .file-name {
-            font-weight: bold;
-            font-size: calc(var(--thermal-fs) * 1.1);
-        }
-
-        .file-description {
-            color: var(--thermal-slate);
-            font-size: calc(var(--thermal-fs) * 0.9);
-            margin-top: calc(var(--thermal-gap) * 0.25);
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-    `;
-	}
-	async handleDelete() {
-		if (!this.client || this.isDeleting) return false;
-		this.error = void 0;
-		try {
-			const result = await this.client.routes.post.deleteFile(this.folder.path, this.file.fileName).execute();
-			if (result.success) {
-				this.isOpen = false;
-				this.onDelete?.(this.file);
-				return true;
-			} else this.error = result.message;
-		} catch (error) {
-			this.error = "Došlo k neočekávané chybě při mazání souboru.";
-		}
-		return false;
-	}
-	mayDelete() {
-		return !!(this.folder && (this.folder.may_manage_files_in || this.folder.may_manage_folders_in));
-	}
-	render() {
-		if (!this.mayDelete()) return lit.nothing;
-		const label = (0, i18next.t)(T.deletefile);
-		return lit.html`
-
-            <thermal-dialog
-                label=${label}
-                button=${label}
-                .beforeClose=${async () => {
-			this.error = void 0;
-			return await this.handleDelete();
-		}}
-            >
-
-                <thermal-btn
-                    slot="invoker"
-                    variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
-                    size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
-                    plain=${(0, lit_directives_if_defined_js.ifDefined)(this.plain)}
-                    icon="trash"
-                    iconStyle="micro"
-                    tooltip=${label}
-                >
-                    ${this.showLabel ? label : lit.nothing}
-                </thermal-btn>
-
-                <div slot="content" class="dialog-content">
-                    
-                    <div class="warning">
-                        <strong>Pozor!</strong> Tato akce je nevratná.
-                    </div>
-                    
-                    <p>
-                        Opravdu chcete smazat soubor <strong>${this.file.fileName}</strong>?
-                        ${this.file.label ? lit.html`<br>(<em>${this.file.label}</em>)` : lit.nothing}
-                    </p>
-
-                    ${this.error ? lit.html`<div class="error">${this.error}</div>` : lit.nothing}
-
-                </div>
-            </thermal-dialog>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "showLabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileDeleteDialog$1.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$28 = typeof BtnVariants$4 !== "undefined" && BtnVariants$4) === "function" ? _ref$28 : Object)], FileDeleteDialog$1.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$17 = typeof BtnSizes$4 !== "undefined" && BtnSizes$4) === "function" ? _ref2$17 : Object)], FileDeleteDialog$1.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$11 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$11 : Object)], FileDeleteDialog$1.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref4$4 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref4$4 : Object)], FileDeleteDialog$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileDeleteDialog$1.prototype, "onDelete", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "isOpen", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog$1.prototype, "isDeleting", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileDeleteDialog$1.prototype, "error", void 0);
-FileDeleteDialog$1 = __decorate([(0, lit_decorators_js.customElement)("file-delete-dialog")], FileDeleteDialog$1);
-
-//#endregion
-//#region src/connection/components/file/FileEditDialog.ts
-var _ref$27, _ref2$16, _ref3$10;
-let FileEditDialog$1 = class FileEditDialog extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.label = "Upravit soubor";
-		this.size = "sm";
-		this.fileLabel = "";
-		this.fileDescription = "";
-		this.errorMessage = "";
-	}
-	static {
-		this.styles = lit.css`
-        .content {
-        }
-
-        .form-group {
-            margin-bottom: var(--thermal-gap);
-        }
-
-        label {
-            display: block;
-            margin-bottom: calc(var(--thermal-gap) * 0.5);
-            font-weight: bold;
-        }
-
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-        }
-
-        textarea {
-            width: 100%;
-            box-sizing: border-box;
-            padding: calc(var(--thermal-gap) * 0.5);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: var(--thermal-radius);
-            font-size: var(--thermal-fs);
-            font-family: inherit;
-            resize: vertical;
-        }
-
-        .error {
-            background: var(--thermal-danger-light, #fee);
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-danger, #f00);
-            border-radius: var(--thermal-radius);
-            padding: calc(var(--thermal-gap) * 0.5);
-            margin-top: var(--thermal-gap);
-            color: var(--thermal-danger-dark, #800);
-            font-size: calc(var(--thermal-fs) * 0.9);
-        }
-    `;
-	}
-	firstUpdated() {
-		this.fileLabel = this.file.label || "";
-		this.fileDescription = this.file.description || "";
-	}
-	async handleSubmit() {
-		this.errorMessage = "";
-		const result = await this.client?.routes.post.updateFile(this.file.path, this.file.fileName.trim()).setLabel(this.fileLabel.trim()).setDescription(this.fileDescription.trim()).execute();
-		if (result?.success) {
-			if (this.onSuccess) this.onSuccess(result.data.file);
-		} else this.errorMessage = result?.message || "Nepodařilo se upravit soubor";
-		return result?.success;
-	}
-	handleLabelChange(event) {
-		this.fileLabel = event.target.value;
-	}
-	handleDescriptionChange(event) {
-		this.fileDescription = event.target.value;
-	}
-	render() {
-		const label = (0, i18next.t)(T.editfile);
-		return lit.html`
-            <thermal-dialog
-                label=${label}
-                .beforeClose=${() => this.handleSubmit()}
-                button="Uložit změny"
-            >
-                <slot name="invoker" slot="invoker">
-                    <thermal-btn 
-                        variant=${(0, lit_directives_if_defined_js.ifDefined)(this.variant)}
-                        size=${(0, lit_directives_if_defined_js.ifDefined)(this.size)}
-                        plain=${(0, lit_directives_if_defined_js.ifDefined)(this.plain)}
-                        icon="edit" iconStyle="micro"
-                        tooltip=${label}
-                    >${this.label}</thermal-btn>
-                </slot>
-
-                <div class="content" slot="content">
-                    <div class="form-group">
-                        <label for="file-label">Label:</label>
-                        <input 
-                            type="text" 
-                            id="file-label"
-                            .value=${this.fileLabel}
-                            @input=${this.handleLabelChange}
-                            placeholder="Zadejte label souboru (volitelné)"
-                        />
-                    </div>
-                    <div class="form-group">
-                        <label for="file-description">Popis:</label>
-                        <textarea 
-                            id="file-description"
-                            .value=${this.fileDescription}
-                            @input=${this.handleDescriptionChange}
-                            placeholder="Zadejte popis souboru (volitelné)"
-                            rows="3"
-                        ></textarea>
-                    </div>
-                    ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : ""}
-                </div>
-
-            </thermal-dialog>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileEditDialog$1.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$27 = typeof BtnVariants$3 !== "undefined" && BtnVariants$3) === "function" ? _ref$27 : Object)], FileEditDialog$1.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$16 = typeof BtnSizes$3 !== "undefined" && BtnSizes$3) === "function" ? _ref2$16 : Object)], FileEditDialog$1.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileEditDialog$1.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$10 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$10 : Object)], FileEditDialog$1.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileEditDialog$1.prototype, "fileLabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileEditDialog$1.prototype, "fileDescription", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileEditDialog$1.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileEditDialog$1.prototype, "onSuccess", void 0);
-FileEditDialog$1 = __decorate([(0, lit_decorators_js.customElement)("file-edit-dialog")], FileEditDialog$1);
-
-//#endregion
-//#region src/connection/components/file/FileTags.ts
-var _ref$26, _ref2$15;
-let FileTags = class FileTags extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.editable = false;
-		this.onChange = () => {};
-		this.check = icons.check.micro("icon");
-	}
-	async handleTagClick(slug, tag) {
-		if (!this.editable) return;
-		if (this.client) {
-			const request = this.client.routes.post.updateFile(this.folder.path, this.file.fileName);
-			if (this.hasTag(slug)) request?.removeTag(slug);
-			else request?.addTag(slug);
-			const result = await request.execute();
-			if (result.success) {
-				this.file = result.data.file;
-				this.onChange(this.file);
-			}
-		}
-	}
-	hasTag(slug) {
-		return this.file.tags.includes(slug);
-	}
-	getContrastColor(backgroundColor) {
-		let hex = backgroundColor.replace("#", "");
-		if (hex.length === 3) hex = hex.split("").map((c) => c + c).join("");
-		const r = parseInt(hex.substr(0, 2), 16);
-		const g = parseInt(hex.substr(2, 2), 16);
-		const b = parseInt(hex.substr(4, 2), 16);
-		return (r * 299 + g * 587 + b * 114) / 1e3 > 128 ? "#000000" : "#FFFFFF";
-	}
-	renderTagButton(slug, tag) {
-		const has = this.hasTag(slug);
-		const backgroundColor = has ? tag.color || "var(--thermal-slate-light)" : this.inline ? "var(--thermal-slate-light)" : "var(--thermal-background)";
-		const textColor = has ? tag.color ? this.getContrastColor(tag.color) : "inherit" : "var(--thermal-slate)";
-		const iconInvert = has && tag.color && this.getContrastColor(tag.color) === "#FFFFFF" ? 1 : 0;
-		const handleKeydown = (event) => {
-			if (event.key === "Enter" || event.key === " ") {
-				event.preventDefault();
-				this.handleTagClick(slug, tag);
-			}
-		};
-		return lit.html`<button
-            class="tag-button ${has ? "has" : ""}"
-            tabindex="${this.editable ? "0" : "-1"}"
-            @click=${() => this.handleTagClick(slug, tag)}
-            @keydown=${handleKeydown}
-        >
-            <div class="tag-button-content" style="background-color: ${backgroundColor}; color: ${textColor}; --icon-invert: ${iconInvert};">
-                ${has ? this.i(this.check) : lit.nothing}
-                <span>${tag.name}</span>
-            </div>
-        </button>`;
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            color: var(--thermal-foreground);
-            font-size: var(--thermal-fs);
-
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1em;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        /* Inline layout - tags side by side */
-        :host([inline]) {
-            flex-direction: row;
-            gap: .5em;
-        }
-
-        :host([inline]) .tag-group {
-            flex-direction: row;
-            gap: .5em;
-        }
-
-        :host([inline]) .tag-list {
-            flex-direction: row;
-            gap: .5em;
-        }
-
-        .tag-group {
-            display: flex;
-            flex-direction: column;
-            gap: .5em;
-            align-items: flex-start;
-        }
-
-        .tag-group-label {
-            font-size: .8em;
-            color: var(--thermal-slate-dark);
-            margin-bottom: .25em;
-        }
-
-        /* Hide labels in inline mode */
-        :host([inline]) .tag-group-label {
-            display: none;
-        }
-
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: .5em;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    
-        .tag-button {
-            border: 0;
-            cursor: default;
-            background: transparent;
-            padding: 0;
-            transition: all .2s ease-in-out;
-            outline: none;
-        }
-
-        .tag-button:focus,
-        .tag-button:focus-visible {
-            outline: 2px var(--thermal-border-style)var(--thermal-primary, #007bff);
-            outline-offset: 2px;
-        }
-
-        .tag-button-content {
-            border-radius: 0 var(--thermal-radius) var(--thermal-radius) 0;
-            padding: .5em 1em .5em 2em;
-            display: flex;
-            align-items: center;
-            gap: .5em;
-            position: relative;
-
-            /* Simulace trojúhelníka s hladce zakulaceným hrotem */
-            clip-path: polygon(1.5em 0%, 100% 0%, 100% 100%, 1.5em 100%, 0.4em 65%, 0.3em 55%, 0.3em 45%, 0.4em 35%);
-
-            transition: all .2s ease-in-out;
-        }
-
-        /* Editable styling */
-        :host([editable="true"]) .tag-button {
-            cursor: pointer;
-        }
-
-        :host([editable="true"]) .tag-button:hover  {
-            filter: drop-shadow(0 0 3px var(--thermal-slate));
-        }
-
-        .tag-button-content::before {
-            content: '';
-            position: absolute;
-            left: 1em;
-            top: 50%;
-            transform: translateY(-50%);
-            width: .5em;
-            height: .5em;
-            background: var(--thermal-slate-light);
-            border-radius: 50%;
-            box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
-        }
-
-        /* Small size styling */
-        :host([size="sm"]) .tag-button-content {
-            padding: .25em .5em .25em 1em;
-            font-size: .7em;
-            clip-path: polygon(1em 0%, 100% 0%, 100% 100%, 1em 100%, 0.2em 65%, 0.15em 55%, 0.15em 45%, 0.2em 35%);
-        }
-
-        /* Hide dot and checkbox in small size */
-        :host([size="sm"]) .tag-button-content::before {
-            display: none;
-        }
-
-        :host([size="sm"]) .tag-button-content .icon {
-            display: none;
-        }
-
-        .tag-button:not(.has):hover .tag-button-content {
-            color: var(--thermal-foreground) !important;
-        }
-
-        .tag-button-content .icon {
-            width: 1em;
-            height: 1em;
-            filter: brightness(0) invert(var(--icon-invert, 0));
-        }
-    
-    `;
-	}
-	render() {
-		const allTags = {
-			...this.folder.parent_tags,
-			...this.folder.own_tags
-		};
-		const assignedTags = Object.entries(allTags).filter(([slug]) => this.hasTag(slug));
-		const unassignedTags = Object.entries(allTags).filter(([slug]) => !this.hasTag(slug));
-		return lit.html`
-
-            ${assignedTags.length > 0 ? lit.html`
-                <div class="tag-group">
-                    <div class="tag-group-label">${(0, i18next.t)(T.assignedtags)}</div>
-                    <div class="tag-list">
-                        ${assignedTags.map(([slug, info]) => this.renderTagButton(slug, info))}
-                    </div>
-                </div>
-            ` : ""}
-
-            ${unassignedTags.length > 0 && this.editable ? lit.html`
-                <div class="tag-group">
-                    <div class="tag-group-label">${(0, i18next.t)(T.availabletags)}</div>
-                    <div class="tag-list">
-                        ${unassignedTags.map(([slug, info]) => this.renderTagButton(slug, info))}
-                    </div>
-                </div>
-            ` : ""}
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], FileTags.prototype, "editable", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", Boolean)], FileTags.prototype, "inline", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true
-}), __decorateMetadata("design:type", Object)], FileTags.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$26 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$26 : Object)], FileTags.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$15 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$15 : Object)], FileTags.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileTags.prototype, "onChange", void 0);
-FileTags = __decorate([(0, lit_decorators_js.customElement)("file-tags")], FileTags);
-
-//#endregion
-//#region src/connection/components/file/FileThumbnail.ts
-var _ref$25, _ref2$14, _ref3$9, _ref4$3;
-let FileThumbnail$1 = class FileThumbnail extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.instanceRef = (0, lit_directives_ref_js.createRef)();
-		this.onFileClick = () => {};
-		this.onChange = () => {};
-		this.onFileDelete = () => {};
-		this.compact = false;
-		this.displayMode = DisplayMode.GRID;
-		this.showDiscussion = false;
-		this.editableTags = false;
-		this.syncAnalyses = false;
-		this.hasDisplayedAnalysis = false;
-		this.icon = icons.image.outline("icon");
-	}
-	get fileObject() {
-		return this.instanceRef.value?.file;
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.hydrate();
-		if (this.instanceRef.value) this.instanceRef.value.onSuccess.set(this.UUID, () => {
-			this.hydrate();
-		});
-	}
-	hydrate() {
-		if (this.fileObject) {
-			this.hasDisplayedAnalysis = this.fileObject.analysis.value.length > 0;
-			this.fileObject.analysis.addListener(this.UUID, (analyses) => {
-				this.hasDisplayedAnalysis = analyses.length > 0;
-			});
-		}
-	}
-	dehydrate() {
-		this.fileObject?.analysis.removeListener(this.UUID);
-	}
-	updated(changedProperties) {
-		if (changedProperties.has("compact")) if (this.compact) {
-			this.classList.add("compact");
-			this.classList.remove("detailed");
-		} else {
-			this.classList.remove("compact");
-			this.classList.add("detailed");
-		}
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.hydrate();
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.dehydrate();
-	}
-	renderTime() {
-		const time = this.file.timestamp ? _labirthermal_core.TimeFormat.human(this.file.timestamp) : void 0;
-		if (!time) return lit.nothing;
-		return lit.html`
-            <div class="header_text_time" @click=${() => this.onFileClick(this.file)}>
-                ${time}
-            </div>`;
-	}
-	renderLabel() {
-		if (!this.file.label) return lit.nothing;
-		return lit.html`
-            <h2><span>${this.file.label}</span></h2>
-        `;
-	}
-	renderDescription() {
-		if (!this.file.description) return lit.nothing;
-		return lit.html`
-            <p class="description">${this.file.description}</p>
-        `;
-	}
-	renderActionDetail() {
-		return lit.html`<thermal-btn 
-            variant=${this.compact ? "default" : "primary"}
-            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
-            @click=${() => this.onFileClick(this.file)}
-        >${(0, i18next.t)(T.detail).toLowerCase()}</thermal-btn>`;
-	}
-	renderActionEdit() {
-		if (!this.folder.may_manage_files_in) return lit.nothing;
-		return lit.html`<file-edit-dialog
-            .file=${this.file}
-            .folder=${this.folder}
-            .onSuccess=${() => {
-			this.onChange?.(this.file);
-		}}
-            label=""
-            plain="true"
-            variant="background"
-            size="sm"
-        ></file-edit-dialog>`;
-	}
-	renderActionComments() {
-		if (this.file.comments.length > 0 || this.isLoggedIn && this.folder.may_manage_files_in) return lit.html`<file-comments-dialog 
-                .file=${this.file}
-                .folder=${this.folder}
-                .onSuccess=${this.onChange}
-                label=""
-                plain="true"
-                variant="background"
-                size="sm"
-                badge="true"
-            ></file-comments-dialog>`;
-		return lit.nothing;
-	}
-	renderActionDelete() {
-		if (!this.folder.may_manage_files_in) return lit.nothing;
-		return lit.html`<file-delete-dialog 
-            .file=${this.file}
-            .folder=${this.folder}
-            .onDelete=${this.onFileDelete}
-            label=""
-            plain="true"
-            variant="background"
-            size="sm"
-        ></file-delete-dialog>`;
-	}
-	renderNumAnalyses() {
-		if (!this.file.analyses || this.file.analyses.length === 0) return lit.nothing;
-		return lit.html`
-            <span class="header_actions_num-analyses">
-                ${this.file.analyses.length} analýzy
-            </span>
-        `;
-	}
-	restoreAnalyses() {
-		const instance = this.instanceRef.value?.file;
-		if (!instance) return;
-		this.file.analyses.forEach((analysis) => {
-			instance.slots.createAnalysisFromSerialized(analysis)?.setSelected();
-		});
-	}
-	renderAnalyses() {
-		let content = lit.nothing;
-		if (this.displayMode === DisplayMode.GRID) content = lit.html`<file-analysis-table></file-analysis-table>`;
-		else if (this.displayMode === DisplayMode.TABLE) {
-			const hasStoredAnalyses = this.file.analyses.length > 0;
-			let restoreLabel = void 0;
-			if (hasStoredAnalyses) restoreLabel = `Načíst uložené analýzy (${this.file.analyses.length})`;
-			content = lit.html`
-
-            <div class="analyses-inner">
-                
-                <file-analysis-complex showhint="false">
-                    ${hasStoredAnalyses && !this.syncAnalyses ? lit.html`<thermal-btn 
-                        @click=${this.restoreAnalyses.bind(this)}
-                        size="md"
-                        variant="primary"
-                        icon="restore"
-                        iconStyle="outline"
-                    >
-                        ${restoreLabel}
-                    </thermal-btn>` : lit.nothing}
-                </file-analysis-complex>
-
-                ${this.hasDisplayedAnalysis ? lit.html`<aside>
-
-                    ${!this.syncAnalyses ? lit.html`<thermal-btn
-                            icon="link"
-                            iconStyle="micro"
-                            tooltip="Aplikovat tyto analýzy na všechny soubory ve složce"
-                            @click=${() => {
-				const instance = this.instanceRef.value?.file;
-				if (!instance || !this.group) return;
-				this.group.analysisSync.copyAllSlotsToAllInstances(instance);
-			}}
-                        ></thermal-btn>
-                        <file-analysis-remove-button disalbled="false"></file-analysis-remove-button>
-                        ` : lit.nothing}
-
-                    ${this.folder.may_manage_files_in ? lit.html`
-                        <file-analysis-store-button
-                            size="md"
-                            .info=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${this.onChange}
-
-                        ></file-analysis-store-button>` : lit.nothing}
-
-
-                    <file-analysis-restore-button
-                        size="md"
-                        .info=${this.file}
-                        .folder=${this.folder}
-                        .onChange=${this.onChange}
-                    ></file-analysis-restore-button>
-
-                </aside>` : lit.nothing}
-
-            </div>
-            `;
-		}
-		return lit.html`<div class="analyses">
-            ${content}
-        </div>`;
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            display: block;
-            font-size: var(--thermal-fs);
-            color: var(--thermal-foreground);
-            height: 100%; /* Přidáno pro výšku */
-        }
-
-        file-provider {
-            display: contents;
-        }
-
-        p.description {
-            margin: 0; padding: 0;
-        }
-
-        file-canvas {
-            display: block;
-            flex-grow: 1; /* Přidáno pro vyplnění výšky */
-            min-height: 0; /* Důležité pro správné zkracování */
-        }
-
-        .header_actions_num-analyses {
-            font-size: .6em;
-            color: var(--thermal-slate);
-        }
-
-        h2 {
-            margin: 0;
-            padding: 0;
-            font-size: 1em;
-            line-height: 1.2;
-        }
-
-        .header_text {
-            cursor: pointer;
-
-            h2,
-            .header_text_time {
-                transition: color 0.2s ease-in-out;
-            }
-        }
-
-        :host(.compact[displaymode="grid"]) {
-            file-edit-dialog,
-            file-comments-dialog,
-            file-delete-dialog,
-            .header_icon,
-            .header_actions_num-analyses,
-            p.description {
-                display: none;
-            }
-
-            header {
-                display: flex;
-                box-sizing: border-box;
-                width: 100%;
-                align-items: center;
-                flex-wrap: nowrap;
-                margin-top: .5em;
-            }
-
-            .header_text {
-                flex-grow: 1;
-                display: flex;
-                align-items: center;
-                gap: .5em;
-                min-width: 0;
-
-                cursor: pointer;
-
-                &:hover {
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
-            }
-
-            .header_actions {
-                flex-shrink: 0;
-                display: flex;
-                align-items: center;
-                gap: .25em;
-                margin-left: auto; /* Zarovnání doprava */
-            }
-
-            .header_text_time {
-                white-space: nowrap;
-                flex-shrink: 0;
-            }
-
-            h2 {
-                min-width: 0;
-                flex-shrink: 1;
-                overflow: hidden;
-                font-weight: normal;
-                color: var(--thermal-slate);
-            }
-
-            h2 span {
-                display: block;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                white-space: nowrap;
-            }
-
-            file-tags {
-                margin-left: auto; /* Tagy vždy doprava */
-            }
-        }
-
-        :host(.detailed[displaymode="grid"]) {
-            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-            border-radius: 0 0 var(--thermal-radius) var(--thermal-radius);
-            overflow: hidden;
-
-            display: flex;
-            flex-direction: column;
-
-            p.description {
-                display: none;
-                margin: 0; padding: 0;
-            }
-
-            file-canvas {
-                min-height: 0;
-                display: block;
-            }
-
-            header {
-                width: 100%;
-                box-sizing: border-box;
-                min-height: 60px;
-                height: auto;
-                background: var(--thermal-background);
-                padding: .5em;
-                display: grid;
-                grid-template-columns: 1fr 1.2em;
-                grid-template-rows: 1fr 1em;
-                gap: calc(var(--thermal-gap) * 0.5);
-                align-self: stretch;
-                flex-grow: 1;
-            }
-
-            .header_text {
-                grid-column: 1;
-                grid-row: 1;
-                display: flex;
-                flex-direction: column;
-                gap: .25em;
-                align-self: stretch;
-                justify-self: stretch;
-
-                &:hover {
-                    
-                    h2,
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
-            }
-
-            .header_icon {
-                grid-column: 2;
-                grid-row: 1;
-                display: flex;
-                justify-content: flex-end;
-                align-items: flex-start;
-                color: var(--thermal-slate);
-            }
-
-            .header_actions {
-                grid-column: 1 / -1;
-                grid-row: 2;
-                display: flex;
-                gap: .25em;
-                align-items: center;
-                height: 1em;
-                justify-content: flex-end; /* Zarovnání doprava */
-            }
-
-            .header_text_time {
-                font-size: .8em;
-                color: var(--thermal-slate-dark);
-            }
-
-            .file-comments {
-                background: var(--thermal-background);
-                padding: .5em;
-                width: 100%;
-                box-sizing: border-box;
-                file-comments {
-                    border-radius: var(--thermal-radius);
-                    border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
-                    background: var(--thermal-slate-light);
-                    padding: .5em;
-                }
-            }
-
-            file-tags {
-                margin-left: auto; /* Tagy vždy doprava */
-            }
-
-        }
-
-        :host([displaymode="table"]) {
-            display: table-row;
-            vertical-align: top;
-            border-bottom: .5em var(--thermal-border-style)transparent;
-
-            file-provider {
-                display: contents;
-            }
-
-            main {
-                width: 500px;
-            }
-
-            main,
-            header,
-            .analyses,
-            .file-comments {
-                display: table-cell;
-                vertical-align: top;
-            }
-
-            header {
-                background: var(--thermal-background);
-                border-radius: var(--thermal-radius);
-                box-sizing: border-box;
-                padding: 1em;
-                height: 100%;
-                position: relative;
-                padding-bottom: 2em;
-
-                min-width: 220px;
-            }
-
-            file-canvas {
-                min-width: 300px;
-            }
-
-            .header_text {
-                display: flex;
-                flex-direction: column;
-                gap: 1em;
-                min-height: fit-content;
-
-                &:hover {   
-                    h2,
-                    .header_text_time {
-                        color: var(--thermal-primary);
-                    }
-                }
-            }
-
-            .header_icon {
-                display: none;
-            }
-
-            .header_actions {
-                display: flex;
-                gap: .25em;
-                align-items: center;
-                vertical-align: bottom;
-                position: absolute;
-                bottom: 1em;
-                left: 1em;
-                right: 1em;
-                flex-wrap: wrap;
-            }
-
-            p.description {
-                font-size: .8em;
-                color: var(--thermal-slate);
-            }
-
-            .file-comments {
-                display: block;
-                height: 100%;
-                width: 300px;
-            }
-
-            file-tags {
-                margin-left: auto; /* Tagy vždy doprava */
-            }
-
-            .analyses {
-
-                padding: .5em;
-                border-radius: var(--thermal-radius);
-                background: var( --thermal-background );
-
-                .analyses-inner {
-                    height: 100%;
-                    display: flex;
-                    flex-direction: column;
-                    gap: .5em;
-
-                    file-analysis-complex {
-                        flex-grow: 1;
-                    }
-
-                    aside {
-                        display: flex;
-                        gap: .5em;
-                        width: 100%;
-                    }
-                }
-
-                file-analysis-complex {
-                    background: var(--thermal-background);
-                }
-
-            }
-
-
-        }
-    `;
-	}
-	render() {
-		const visibleUrl = this.file.visual ? this.file.visual : void 0;
-		return lit.html`
-            <file-provider
-                thermal=${this.file.url}
-                visible=${(0, lit_directives_if_defined_js.ifDefined)(visibleUrl)}
-                batch="true"
-                autoclear="true"
-                role="article"
-                autoHighlight="true"
-                ${(0, lit_directives_ref_js.ref)(this.instanceRef)}
-            >
-
-                <main>
-                    <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
-                </main>
-
-                <header>
-
-                    <div class="header_text" @click=${() => this.onFileClick(this.file)}>
-
-                        ${this.renderTime()}
-
-                        ${this.renderLabel()}
-
-                        ${this.renderDescription()}
-
-                    </div>
-
-                    <div class="header_icon">
-                        ${this.i(this.icon)}
-                    </div>
-
-                    <div class="header_actions">
-
-                        ${this.renderActionDetail()}
-
-                        <file-range-propagator 
-                            variant="${this.compact ? "default" : "background"}"
-                            .plain="true"
-                            size="${this.displayMode === DisplayMode.TABLE ? "md" : "sm"}"
-                        ></file-range-propagator>
-
-                        ${this.renderActionEdit()}
-
-                        ${!this.showDiscussion ? this.renderActionComments() : lit.nothing}
-
-                        ${this.renderActionDelete()}
-
-                        ${this.renderNumAnalyses()}
-
-                        <file-tags
-                            .file=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${this.onChange}
-                            inline="true"
-                            .editable="${this.editableTags}"
-                            size="sm"
-                        ></file-tags>
-                    </div>
-
-                </header>
-
-                ${this.renderAnalyses()}
-
-                
-                ${this.showDiscussion === true ? lit.html`
-                    <div class="file-comments">
-                        <file-comments
-                            .file=${this.file}
-                            .folder=${this.folder}
-                            .onChange=${this.onChange}
-                            style="height: 300px;"
-                        ></file-comments>
-                    </div>` : lit.nothing}
-
-
-            </file-provider>
-        `;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$25 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$25 : Object)], FileThumbnail$1.prototype, "file", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: groupContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref2$14 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref2$14 : Object)
-], FileThumbnail$1.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$9 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$9 : Object)], FileThumbnail$1.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileThumbnail$1.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileThumbnail$1.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileThumbnail$1.prototype, "onFileDelete", void 0);
-__decorate([
-	(0, _lit_context.consume)({
-		context: compactContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true,
-		converter: booleanConverter(false)
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileThumbnail$1.prototype, "compact", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: displayModeContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref4$3 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref4$3 : Object)
-], FileThumbnail$1.prototype, "displayMode", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: showDiscussionContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileThumbnail$1.prototype, "showDiscussion", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: editTagsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], FileThumbnail$1.prototype, "editableTags", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: syncAnalysisContext,
-	subscribe: true
-}), __decorateMetadata("design:type", Object)], FileThumbnail$1.prototype, "syncAnalyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileThumbnail$1.prototype, "hasDisplayedAnalysis", void 0);
-FileThumbnail$1 = __decorate([(0, lit_decorators_js.customElement)("server-file-thumbnail")], FileThumbnail$1);
-
-//#endregion
-//#region src/connection/components/file/ServerFileDetail.ts
-var _ref$24, _ref2$13, _ref3$8;
-let ServerFileDetail = class ServerFileDetail extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onClose = () => {};
-		this.onChange = () => {};
-		this.layoutRef = (0, lit_directives_ref_js.createRef)();
-		this.collapsed = false;
-	}
-	firstUpdated(_changedProperties) {
-		super.firstUpdated(_changedProperties);
-		this.registry?.onProcessingEnd.set(this.UUID, () => {
-			this.registry?.range.applyMinmax();
-		});
-		new ResizeObserver((entries) => {
-			const width = entries[0].contentRect.width;
-			this.log(width);
-			if (width && width < 900 && this.collapsed === false) this.collapsed = true;
-			else if (width && width >= 900 && this.collapsed === true) this.collapsed = false;
-		}).observe(this.layoutRef.value);
-	}
-	disconnectedCallback() {
-		super.disconnectedCallback();
-		this.registry?.onProcessingEnd.delete(this.UUID);
-	}
-	static {
-		this.styles = lit.css`
-
-        :host {
-            font-size: var(--thermal-fs);
-        }
-
-        .layout {
-            display: grid;
-            grid-template-columns: 1em minmax( 300px, 1fr ) 1fr 250px;
-            gap: 2em;
-            height: 100%;
-
-            padding-top: calc(var(--thermal-gap) * 1);
-        }
-
-
-
-
-
-        .section {
-
-        }
-
-        .section__tools {
-            grid-column: 1;
-        }
-
-        .section__image {
-            grid-column: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 2em;
-        }
-
-        .section__content {
-            grid-column: 3;
-
-            gap: 1em;
-            display: flex;
-            flex-direction: column;
-            
-            file-analysis-complex {
-                flex-grow: 1;
-            }
-
-
-            .range {
-            
-                display: flex;
-                gap: calc(var(--thermal-gap) * 0.5);
-                align-items: center;
-            
-            }
-
-        }
-
-        .section__server {
-            grid-column: 4;
-        }
-
-
-
-
-        :host([collapsed="true"]) .layout {
-            grid-template-columns: 1em 1fr 1fr;
-            grid-template-rows: auto auto;
-
-            .section__image {
-                grid-column: 2 / -1;
-            }
-
-            .section__content {
-                grid-row: 2;
-                grid-column: 2;
-            }
-
-            .section__server {
-
-                grid-row: 2;
-                grid-column: 3;
-            
-            }
-        }
-
-
-
-    
-    `;
-	}
-	renderContent() {
-		return lit.html`
-
-        <main class="layout" ${(0, lit_directives_ref_js.ref)(this.layoutRef)}>
-
-            <section class="section section__tools">
-                <group-tool-bar></group-tool-bar>
-            </section>
-
-            <section class="section section__image">
-
-                <div>
-
-                    <registry-histogram expandable="true"></registry-histogram>
-                    <registry-range-slider></registry-range-slider>
-                    <registry-ticks-bar></registry-ticks-bar>
-
-                </div>
-
-                <div>
-
-                    <file-canvas></file-canvas>
-                    <file-timeline></file-timeline>
-
-                </div>
-
-            </section>
-
-            <section class="section section__content">
-                <file-analysis-complex></file-analysis-complex>
-            </section>
-
-            <section class="section section__server">
-
-                <file-tags
-                    .file=${this.file}
-                    .folder=${this.folder}
-                    .onChange=${this.onChange}
-                    .editable="${this.folder.may_manage_files_in}"
-                ></file-tags>
-
-                <file-comments
-                    .file=${this.file}
-                    .folder=${this.folder}
-                    .onChange=${this.onChange}
-                    style="max-height: 400px;"
-                ></file-comments>
-
-            </section>
-
-        </main>
-        
-        `;
-	}
-	render() {
-		return lit.html`
-
-            <server-file-header .file=${this.file} .folder=${this.folder} .onClose=${this.onClose}>
-                <slot name="header"></slot>
-            </server-file-header>
-
-            ${this.renderContent()}`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$24 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$24 : Object)], ServerFileDetail.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$13 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$13 : Object)], ServerFileDetail.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileDetail.prototype, "onClose", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileDetail.prototype, "onChange", void 0);
-__decorate([(0, _lit_context.consume)({
-	context: registryContext,
-	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref3$8 = typeof _labirthermal_core.ThermalRegistry !== "undefined" && _labirthermal_core.ThermalRegistry) === "function" ? _ref3$8 : Object)], ServerFileDetail.prototype, "registry", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ServerFileDetail.prototype, "from", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ServerFileDetail.prototype, "to", void 0);
-__decorate([(0, lit_decorators_js.property)({
-	type: String,
-	reflect: true,
-	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ServerFileDetail.prototype, "collapsed", void 0);
-ServerFileDetail = __decorate([(0, lit_decorators_js.customElement)("server-file-detail")], ServerFileDetail);
-
-//#endregion
-//#region src/connection/components/file/ServerFileHeader.ts
-var _ref$23, _ref2$12;
-let ServerFileHeader = class ServerFileHeader extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.onClose = () => {};
-	}
-	static {
-		this.styles = lit.css`
-:host {
-    display: flex;
-    flex-wrap: no-wrap;
-    gap: var(--thermal-gap);
-
-    color: var(--thermal-foreground);
-    font-size: var(--thermal-fs);
-}
-
-.part {
-
-    display: block;
-    background: var(--thermal-background);
-    color: var(--thermal-foreground);
-    border-radius: var(--thermal-radius);
-    padding: var(--thermal-gap);
-    box-sizing: border-box;
-}
-
-h1 {
-    font-size: 1em;
-    margin: 0;
-    padding: 0;
-    margin-bottom: .5em;
-}
-
-
-section {
-    display: grid !important;
-    grid-template-columns: 2em 1fr 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: var(--thermal-gap);
-    flex-grow: 1;
-}
-
-thermal-icon {
-    grid-row: 1;
-    grid-column: 1;
-    width: 2em;
-    display: block;
-    color: var(--thermal-slate);
-}
-
-.time-info {
-    grid-row: 1;
-    grid-column: 2;
-}
-
-.label-info {
-    grid-row: 1;
-    grid-column: 3;
-}
-
-.colophon {
-    grid-row: 1;
-    grid-column: 4;
-    text-align: right;
-
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-end;
-    flex-direction: column;
-    gap: .3em;
-
-    thermal-btn {
-        opacity: .5;
-        transition: opacity .3s ease-in-out;
-        cursor: help !important;
-
-        &:hover,
-        &:focus {
-            opacity: 1;
-        }
-    }
-
-}
-
-.actions {
-    grid-row: 2;
-    grid-column: 1 / -1;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2em;
-}
-
-.actions:not(:has(*)) {
-    display: none;
-}
-
-/* Fallback for browsers without :has() support */
-.actions:empty {
-    display: none;
-}
-
-.small {
-    font-size: calc(var(--thermal-fs) * 0.8);
-}
-
-.slate {
-    color: var(--thermal-slate);
-}
-
-.slate-dark {
-    color: var(--thermal-slate-dark);
-}
-
-.slate-light {
-    color: var(--thermal-slate-light);
-}
-
-`;
-	}
-	renderColophon() {
-		return lit.html`<div class="colophon small slate">
-    <thermal-btn 
-        variant="text"
-        tooltip="Čas nahrání souboru"
-        icon="upload"
-        iconStyle="micro"
-        interactive="false"
-    >${_labirthermal_core.TimeFormat.human(this.file.uploaded)}</thermal-btn>
-
-    ${this.file.uploadedby ? lit.html`<thermal-btn 
-                variant="text"
-                tooltip="Nahráno uživatelem"
-                icon="user"
-                iconStyle="micro"
-                interactive="false"
-            >${this.file.uploadedby.name}</thermal-btn>` : lit.nothing}
-</div>`;
-	}
-	renderUpButton() {
-		return lit.html`<thermal-btn 
-    variant="background" 
-    @click=${this.onClose} 
-    icon="close" 
-    iconStyle="outline" 
-    size="xl"
-    tooltip="Zpět do složky '${this.folder.name}'."
-></thermal-btn>`;
-	}
-	render() {
-		const time = _labirthermal_core.TimeFormat.human(this.file.timestamp);
-		return lit.html`
-
-${this.renderUpButton()}
-
-<section class="part">
-
-    <thermal-icon icon="image" variant="outline"></thermal-icon>
-
-    <div class="time-info">
-        <h1>${time}</h1>
-        <div class="small slate">${this.file.fileName}</div>
-    </div>
-
-    <div class="label-info">
-        ${this.file.label ? lit.html`<h1>${this.file.label}</h1>` : lit.nothing}
-        ${this.file?.description ? lit.html`<div class="small slate">${this.file?.description}</div>` : lit.nothing}
-    </div>
-
-    ${this.renderColophon()}
-                
-    <div class="actions">
-        <slot></slot>
-    </div>
-</section>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$23 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$23 : Object)], ServerFileHeader.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$12 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$12 : Object)], ServerFileHeader.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ServerFileHeader.prototype, "onClose", void 0);
-ServerFileHeader = __decorate([(0, lit_decorators_js.customElement)("server-file-header")], ServerFileHeader);
-
-//#endregion
-//#region src/connection/components/user/UserFolders.ts
-let UserFolders = class UserFolders extends ClientConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.folders = [];
-	}
-	static {
-		this.styles = lit.css`
-            :host {
-                color: var(--thermal-foreground);
-                
-            }
-    
-            table {
-                display: table;
-                width: 100%;
-                border-collapse: collapse;
-                height: 1px;
-                border: 0;
-            }
-    
-            .list-label {
-    
-                font-size: .8em;
-                color: var(--thermal-slate-dark);
-                line-height: 1;
-                margin: 0;
-                padding: 0;
-                font-weight: normal;
-                padding-bottom: 1em;
-            
-            }
-    `;
-	}
-	renderSubfolder(info) {
-		return lit.html`<server-folder-row
-                .folder=${info}
-                @click=${() => this.onFolderClick && this.onFolderClick(info)}
-            >
-            </server-folder-row>`;
-	}
-	render() {
-		if (!this.isLoggedIn || this.folders?.length === 0 || this.identity === void 0) return lit.nothing;
-		const name = this.identity.meta.name || this.identity.user || "Uživatel";
-		return lit.html`
-        
-        <h2 class="list-label">
-            <span><strong>${this.folders?.length} složky</strong> uživatele <i>${name}</i>:</span>
-        </h2>
-        
-        <table>
-            ${this.folders.map((folder) => this.renderSubfolder(folder))}
-        </table>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: Array }), __decorateMetadata("design:type", Array)], UserFolders.prototype, "folders", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], UserFolders.prototype, "onFolderClick", void 0);
-UserFolders = __decorate([(0, lit_decorators_js.customElement)("user-folders")], UserFolders);
-
-//#endregion
-//#region src/connection/components/file/FileAnalysesRemoveButton.ts
-let FileAnalysisRemoveButton = class FileAnalysisRemoveButton extends AbstractFileAnalysisButton {
-	constructor(..._args) {
-		super(..._args);
-		this.icon = "trash";
-		this.iconStyle = "micro";
-		this.tooltip = "Odstranit všechny analýzy ze zobrazení (ne však na serveru).";
-		this.num = 0;
-		this.onClick = async () => {
-			if (this.file) this.file.analysis.layers.removeAllAnalyses();
-		};
-	}
-	onInstanceCreated(instance) {
-		if (instance) {
-			if (instance.analysis) instance.analysis.layers.onAnySerializableChange.set(this.UUID, () => {
-				this.num = instance.analysis.layers.size;
-				this.disabled = this.num === 0;
-			});
-		} else this.log("Soubor neexistuje!");
-	}
-	onFailure(error) {}
-	static {
-		this.styles = lit.css`
-        
-            :host {
-                
-                display: flex;
-                align-items: stretch;
-                
-            }
-        
-        `;
-	}
-	render() {
-		return super.render();
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], FileAnalysisRemoveButton.prototype, "num", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileAnalysisRemoveButton.prototype, "onChange", void 0);
-FileAnalysisRemoveButton = __decorate([(0, lit_decorators_js.customElement)("file-analysis-remove-button")], FileAnalysisRemoveButton);
-
-//#endregion
-//#region src/connection/components/server/ShareDialog.ts
-var _ref$22, _ref2$11, _ref3$7;
-let ShareDialog = class ShareDialog extends ClientConsumer {
-	renderEntity(label, icon, prependArrow = false) {
-		return lit.html`
-        ${prependArrow ? lit.html`<thermal-icon icon="right" variant="micro" style="display: block; width: 1em;"></thermal-icon>` : lit.nothing}
-        <div class="entity" title="${label}">
-            <thermal-icon icon="${icon}" variant="micro"></thermal-icon>
-            <span>${label}</span>
-        </div>`;
-	}
-	renderLink() {
-		const url = this.assambleUrl();
-		return lit.html`<div class="server-link">
-
-            <div class="server-link-content">
-                ${url}
-            </div>
-            <thermal-btn
-                icon="copy"
-                iconStyle="mini"
-                variant="foreground"
-                plain="true"
-                @click=${() => {
-			navigator.clipboard.writeText(url);
-		}}
-                tooltip="Zkopírovat odkaz do schránky"
-            ></thermal-btn>
-
-            <thermal-btn
-                icon="link"
-                iconStyle="micro"
-                variant="primary"
-                plain="true"
-                @click=${() => {
-			window.open(url, "_blank");
-		}}
-                tooltip="Otevřít odkaz v novém okně"
-            ></thermal-btn>
-
-        </div>`;
-	}
-	static {
-		this.styles = lit.css`
-        :host {
-            font-size: var( --thermal-fs );
-            color: var( --thermal-foreground );
-        }
-
-        .entity-list {
-            display: flex;
-            align-items: center;
-            gap: .5em;
-            width: 100%;
-        }
-
-        .entity {
-            display: flex;
-            align-items: center;
-            gap: 0.5em;
-            padding: .5em;
-            border-radius: var( --thermal-radius );
-
-            background: var( --thermal-background );
-
-            thermal-icon {
-                display: inline-block;
-                width: 1em;
-            }
-        }
-
-        section {
-
-            box-sizing: border-box;
-            width: 100%;
-
-            padding: 1.5em .5em .5em .5em;
-            margin-top: 2em;
-
-            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-            border-radius: var( --thermal-radius );
-
-            position: relative;
-
-
-            & > h3 {
-            
-               position: absolute;
-               top: -1em;
-               left: .5em;
-               box-sizing: border-box;
-               
-               padding: .4em .5em;
-               margin: 0;
-
-               border-radius: var( --thermal-radius );
-               border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
-
-               background: var( --thermal-slate-light );
-
-               font-size: 1em;
-               line-height: 1em;
-
-            }
-
-            .description {
-                font-size: .8em;
-                opacity: .5;
-                margin-top: .5em;
-            }
-
-        }
-
-        .server-link {
-
-            display: flex;
-
-            .server-link-content {
-                flex-grow: 1;
-                box-sizing: border-box;
-                padding: .5em;
-
-                background: var( --thermal-background );
-                border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
-            }
-
-            > thermal-btn {
-                border-radius: 0;
-                &:last-child {
-                    border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
-                }
-            }
-        
-        }
-    
-    `;
-	}
-	assambleUrl() {
-		let link = this.client?.getPublicUrl();
-		const segments = {};
-		if (this.palette) segments["palette"] = this.palette;
-		if (this.from !== void 0) segments["from"] = this.from.toString();
-		if (this.to !== void 0) segments["to"] = this.to.toString();
-		if (this.path) {
-			segments["folder-path"] = this.path;
-			if (this.state === AppState.FOLDER && this.folderMode && this.displayMode && this.by && this.compact !== void 0) {
-				segments["display-mode"] = this.displayMode;
-				segments["folder-mode"] = this.folderMode;
-				segments["grid-grouping"] = this.by;
-				segments["compact"] = this.compact ? "true" : "false";
-			}
-			if (this.state === AppState.DETAIL && this.file) segments["file-name"] = this.file.fileName;
-		}
-		return `${link}/?${new URLSearchParams(segments).toString()}`;
-	}
-	render() {
-		if (!this.client || !this.client.isConnected() || !this.path || !this.state || ![AppState.FOLDER, AppState.DETAIL].includes(this.state)) return lit.nothing;
-		return lit.html`<thermal-dialog label="${(0, i18next.t)(T.share)}">
-
-            <thermal-btn slot="invoker" icon="share" iconStyle="mini" tooltip="Sdílet odkaz na tento obsah"></thermal-btn>
-
-            <div slot="content">
-
-                <section>
-
-                    <h3>Co sdílíte</h3>
-
-                    <div class="entity-list">
-                        ${this.folder ? this.renderEntity(this.folder.name, "folder") : lit.nothing}
-                        ${this.file ? this.renderEntity(this.file.fileName, "image", true) : lit.nothing}
-                    </div>
-
-                </section>
-
-                <section>
-                    <h3>Odkaz na server</h3>
-                    ${this.renderLink()}
-                    <div class="description">Odkaz vede na <strong>${this.client.serverInfo?.name}</strong>, kde tento obsah <strong>${this.folder?.protected ? "uvidí pouze uživatelé s přístupem" : "uvidí kdokoliv"}</strong>.</div>
-                </section>
-
-            </div>
-
-        </thermal-dialog>`;
-	}
-};
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "palette", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "from", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Number }), __decorateMetadata("design:type", Number)], ShareDialog.prototype, "to", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ShareDialog.prototype, "path", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$22 = typeof AppState !== "undefined" && AppState) === "function" ? _ref$22 : Object)], ShareDialog.prototype, "state", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref2$11 = typeof DisplayMode !== "undefined" && DisplayMode) === "function" ? _ref2$11 : Object)], ShareDialog.prototype, "displayMode", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], ShareDialog.prototype, "compact", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref3$7 = typeof FolderMode !== "undefined" && FolderMode) === "function" ? _ref3$7 : Object)], ShareDialog.prototype, "folderMode", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Object)], ShareDialog.prototype, "by", void 0);
-ShareDialog = __decorate([(0, lit_decorators_js.customElement)("share-dialog")], ShareDialog);
-
-//#endregion
-//#region src/connection/controllers/abstraction/ConnectedProvider.ts
-let ConnectedProvider = class ConnectedProvider extends ControlledConsumer {
-	constructor(..._args) {
-		super(..._args);
-		this.counter = 0;
-	}
-	connectedCallback() {
-		super.connectedCallback();
-		this.display.subscribeOnRecrteateContext(this, () => {
-			this.counter++;
-		});
-	}
-	updated(_changedProperties) {
-		super.updated(_changedProperties);
-	}
-	render() {
-		return lit.html`<div>
-            <p>Connected Provider</p>
-            <p>Navigate count: ${this.counter}</p>
-        </div>`;
-	}
-};
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedProvider.prototype, "counter", void 0);
-ConnectedProvider = __decorate([(0, lit_decorators_js.customElement)("connected-provider")], ConnectedProvider);
-
-//#endregion
-//#region src/connection/controllers/apps/directives/layout/AbstractLayoutDirective.ts
-var AbstractLayoutDirective = class extends AbstractConnectedDirective {
-	static {
-		this.styles = lit.css`
-
-        .cLayout__header {
-            display: flex;
-            flex-direction: column;
-            gap: .5em;
-        }
-
-        .cLayout__content {
-            
-            width: 100%;
-            position: relative;
-            padding-top: .5em;
-
-            &.cLayout__content--with-toolbar {
-                display: grid;
-                grid-template-columns: 2em 1fr;
-                gap: 1em;
-            }
-
-        }
-
-        .clayout__content__toolbar {
-            position: relative;
-            & > * {
-                position: sticky;
-                top: 0px;
-            }
-        }
-
-        .clayout__content__inner {
-            width: 100%;
-            display: grid;
-            gap: 1em;
-            position: relative;
-        }
-
-        .cLayout__user_folders_list {
-            display: flex;
-            flex-direction: column;
-            gap: .5em;
-        }
-
-        .cLayout--user_folders {
-
-            margin-top: 1em;
-        
-            display: grid;
-            gap: 1em;
-
-            grid-template-columns: 1fr 200px;
-            grid-template-rows: auto;
-
-            dl {
-                dt {
-                    
-                }
-                dd {
-                    margin-left: 0;
-                    font-weight: bold;
-                    margin-bottom: 1em;
-                }
-            }
-
-            h2,
-            dt {
-                margin-bottom: .25em;
-                font-size: .8em;
-                color: var(--thermal-slate-dark);
-                text-transform: uppercase;
-                font-weight: normal;
-            }
-        
-        }
-    
-    `;
-	}
-	renderBreadcrumb(app) {
-		return lit.html`<connected-breadcrumb 
-            slot="pre"
-            .onFolderClick=${(folder) => app.display.navigateToFolderAndLoad(folder.path)}
-            .onUserClick=${() => app.display.navigateToUserFoldersAndLoad()}
-        ></connected-breadcrumb>`;
-	}
-	renderHeader(content) {
-		return lit.html`<header class="cLayout__header" slot="pre">${content}</header>`;
-	}
-	renderContent(hasToolbar = false, gridTemplateColumns, classes, content) {
-		return lit.html`<div class="cLayout__content ${hasToolbar ? "cLayout__content--with-toolbar" : ""}">
-            ${hasToolbar ? lit.html`<div class="clayout__content__toolbar" >
-                    <group-tool-bar></group-tool-bar>
-                </div>` : lit.nothing}
-            <div class="clayout__content__inner ${classes}" style="grid-template-columns: ${gridTemplateColumns}">
-                ${content}
-            </div>
-        </div>`;
-	}
-	renderThermalScaleSlot() {
-		return lit.html`<thermal-slot
-            label=${this.t("thermalscale")}
-        >
-            <registry-palette-dropdown></registry-palette-dropdown>
-            <registry-range-form></registry-range-form>
-        </thermal-slot>`;
-	}
-	renderLoading(message) {
-		return lit.html`<thermal-poster
-            .message=${message}
-        ></thermal-poster>`;
-	}
-	renderError(message) {
-		return lit.html`<thermal-poster
-            .message=${message}
-            icon="warning"
-            iconStyle="outline"
-            .loading=${false}
-        ></thermal-poster>`;
-	}
-};
-
-//#endregion
 //#region src/connection/controllers/abstraction/ConnectedAppBase.ts
-var _ref$21, _ref2$10, _ref3$6, _ref4$2, _ref5, _ref6;
 var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExportContext {
 	constructor(..._args) {
 		super(..._args);
@@ -30175,7 +19068,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
 
         .inspector__tools {
 
-            group-tool-bar {
+            manager-tool-bar {
                 position: sticky;
                 top: 0px;
                 z-index: 99;
@@ -30241,7 +19134,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
                 ></thermal-btn>
 
                 <div slot="content">
-                    <png-export-panel></png-export-panel>
+                    <manager-export-panel></manager-export-panel>
                     <registry-display-panel></registry-display-panel>
                 </div>
             </thermal-dialog>` : lit.nothing;
@@ -30355,7 +19248,7 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
         <main class="inspector">
 
             <section class="inspector__tools">
-                <group-tool-bar></group-tool-bar>
+                <manager-tool-bar></manager-tool-bar>
             </section>
             
             <section class="inspector__content">
@@ -30377,113 +19270,113 @@ var AbstractConnectedApp = class AbstractConnectedApp extends BaseAppWithPngExpo
         </div>`;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref$21 = typeof _labirthermal_server.default !== "undefined" && _labirthermal_server.default) === "function" ? _ref$21 : Object)], AbstractConnectedApp.prototype, "apiClient", void 0);
-__decorate([(0, _lit_context.provide)({ context: ControlledClientContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "client", void 0);
-__decorate([(0, _lit_context.provide)({ context: ControlledContentContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "content", void 0);
-__decorate([(0, _lit_context.provide)({ context: DisplayControllerContext }), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "display", void 0);
-__decorate([(0, _lit_context.provide)({ context: FileSelectionControllerContext }), __decorateMetadata("design:type", typeof (_ref2$10 = typeof FileSelectionController !== "undefined" && FileSelectionController) === "function" ? _ref2$10 : Object)], AbstractConnectedApp.prototype, "fileSelection", void 0);
-__decorate([(0, _lit_context.provide)({ context: FolderSelectionControllerContext }), __decorateMetadata("design:type", typeof (_ref3$6 = typeof FolderSelectionController !== "undefined" && FolderSelectionController) === "function" ? _ref3$6 : Object)], AbstractConnectedApp.prototype, "folderSelection", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractConnectedApp.prototype, "apiClient", void 0);
+__decorate([(0, _lit_context.provide)({ context: ControlledClientContext })], AbstractConnectedApp.prototype, "client", void 0);
+__decorate([(0, _lit_context.provide)({ context: ControlledContentContext })], AbstractConnectedApp.prototype, "content", void 0);
+__decorate([(0, _lit_context.provide)({ context: DisplayControllerContext })], AbstractConnectedApp.prototype, "display", void 0);
+__decorate([(0, _lit_context.provide)({ context: FileSelectionControllerContext })], AbstractConnectedApp.prototype, "fileSelection", void 0);
+__decorate([(0, _lit_context.provide)({ context: FolderSelectionControllerContext })], AbstractConnectedApp.prototype, "folderSelection", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "selected-files"
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "selectedFiles", void 0);
+})], AbstractConnectedApp.prototype, "selectedFiles", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "server-url"
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "serverUrl", void 0);
+})], AbstractConnectedApp.prototype, "serverUrl", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "server-api-root"
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "serverApiRoot", void 0);
+})], AbstractConnectedApp.prototype, "serverApiRoot", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "auth-url"
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "authUrl", void 0);
+})], AbstractConnectedApp.prototype, "authUrl", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "auth-token"
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "authToken", void 0);
+})], AbstractConnectedApp.prototype, "authToken", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "folder-path"
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "folderPath", void 0);
+})], AbstractConnectedApp.prototype, "folderPath", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "file-name",
 	reflect: true
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "fileName", void 0);
+})], AbstractConnectedApp.prototype, "fileName", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "palette",
 	reflect: true
-}), __decorateMetadata("design:type", Object)], AbstractConnectedApp.prototype, "palette", void 0);
+})], AbstractConnectedApp.prototype, "palette", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	attribute: "from",
 	reflect: true
-}), __decorateMetadata("design:type", Number)], AbstractConnectedApp.prototype, "from", void 0);
+})], AbstractConnectedApp.prototype, "from", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Number,
 	attribute: "to",
 	reflect: true
-}), __decorateMetadata("design:type", Number)], AbstractConnectedApp.prototype, "to", void 0);
+})], AbstractConnectedApp.prototype, "to", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "folder-display",
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref4$2 = typeof FolderListDisplayMode !== "undefined" && FolderListDisplayMode) === "function" ? _ref4$2 : Object)], AbstractConnectedApp.prototype, "folderListDisplayMode", void 0);
+})], AbstractConnectedApp.prototype, "folderListDisplayMode", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "files-display",
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref5 = typeof FileListDisplayMode !== "undefined" && FileListDisplayMode) === "function" ? _ref5 : Object)], AbstractConnectedApp.prototype, "fileDisplayMode", void 0);
+})], AbstractConnectedApp.prototype, "fileDisplayMode", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "files-compact",
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], AbstractConnectedApp.prototype, "fileDisplayCompact", void 0);
+})], AbstractConnectedApp.prototype, "fileDisplayCompact", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "edit-tags",
 	converter: booleanConverter(false),
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractConnectedApp.prototype, "editTags", void 0);
+})], AbstractConnectedApp.prototype, "editTags", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	attribute: "display-comments",
 	converter: booleanConverter(true),
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractConnectedApp.prototype, "displayComments", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref6 = typeof DisplayState !== "undefined" && DisplayState) === "function" ? _ref6 : Object)], AbstractConnectedApp.prototype, "appState", void 0);
+})], AbstractConnectedApp.prototype, "displayComments", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractConnectedApp.prototype, "appState", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "label",
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "label", void 0);
+})], AbstractConnectedApp.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "label-tooltip",
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "labelTooltip", void 0);
+})], AbstractConnectedApp.prototype, "labelTooltip", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "label-icon",
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "labelIcon", void 0);
+})], AbstractConnectedApp.prototype, "labelIcon", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "label-icon-style",
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "labelIconStyle", void 0);
+})], AbstractConnectedApp.prototype, "labelIconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "label-variant",
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractConnectedApp.prototype, "labelVariant", void 0);
+})], AbstractConnectedApp.prototype, "labelVariant", void 0);
 
 //#endregion
 //#region src/connection/controllers/apps/directives/layout/ConnectedFileDetailDirective.ts
@@ -30511,7 +19404,7 @@ var ConnectedFileDetail = class extends AbstractLayoutDirective {
 		return slotOrNothing("file", fileOperations);
 	}
 	renderFileHeader(app) {
-		const slots = [this.renderFileHeaderFileSlot(app), slotOrNothing("thermalscale", lit.html`<registry-palette-dropdown></registry-palette-dropdown>
+		const slots = [this.renderFileHeaderFileSlot(app), slotOrNothing("thermalscale", lit.html`<manager-palette-dropdown></manager-palette-dropdown>
                 <registry-range-form></registry-range-form>`)];
 		const display = [];
 		if (app.content.folder && DirectiveHelpers.userMayEditFile(app.client, app.content.folder)) display.push(lit.html`<connected-config-file-content-mode></connected-config-file-content-mode>`);
@@ -30808,6 +19701,7 @@ var UserFoldersDirective = class extends AbstractLayoutDirective {
                 @click=${() => app.display.navigateToFolderAndLoad(folder.path)}
             ></server-folder-thumbnail>`);
 		});
+		console.log(list);
 		inner.push(lit.html`<div class="cLayout__user_folders_list">
             <h2>Máte přístup ke ${app.content.userFolders.length} složkám:</h2>
             ${list}
@@ -30917,7 +19811,7 @@ let ControllerApp = class ControllerApp extends AbstractConnectedApp {
 		})();
 	}
 };
-ControllerApp = __decorate([(0, lit_decorators_js.customElement)("connected-browser-app"), __decorateMetadata("design:paramtypes", [])], ControllerApp);
+ControllerApp = __decorate([(0, lit_decorators_js.customElement)("connected-browser-app")], ControllerApp);
 
 //#endregion
 //#region src/connection/controllers/apps/Consumer.ts
@@ -31009,7 +19903,6 @@ Consumer = __decorate([(0, lit_decorators_js.customElement)("test-consumer")], C
 
 //#endregion
 //#region src/connection/controllers/components/folder/crud/AbstractFolderDialog.ts
-var _ref$20, _ref2$9, _ref3$5;
 /** A base class for all dialogs related to folder CRUD operations. */
 var AbstractFolderDialog = class extends ControlledConsumer {
 	constructor(..._args) {
@@ -31059,42 +19952,42 @@ var AbstractFolderDialog = class extends ControlledConsumer {
 </thermal-dialog>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$20 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$20 : Object)], AbstractFolderDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], AbstractFolderDialog.prototype, "folder", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "icon", void 0);
+})], AbstractFolderDialog.prototype, "icon", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "iconStyle", void 0);
+})], AbstractFolderDialog.prototype, "iconStyle", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$9 = typeof packages_embed_src_ui_Btn.BtnVariants !== "undefined" && packages_embed_src_ui_Btn.BtnVariants) === "function" ? _ref2$9 : Object)], AbstractFolderDialog.prototype, "variant", void 0);
+})], AbstractFolderDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref3$5 = typeof packages_embed_src_ui_Btn.BtnSizes !== "undefined" && packages_embed_src_ui_Btn.BtnSizes) === "function" ? _ref3$5 : Object)], AbstractFolderDialog.prototype, "size", void 0);
+})], AbstractFolderDialog.prototype, "size", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog.prototype, "plain", void 0);
+})], AbstractFolderDialog.prototype, "plain", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog.prototype, "disabled", void 0);
+})], AbstractFolderDialog.prototype, "disabled", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], AbstractFolderDialog.prototype, "interactive", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "tooltip", void 0);
+})], AbstractFolderDialog.prototype, "interactive", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], AbstractFolderDialog.prototype, "tooltip", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "closeLabel", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], AbstractFolderDialog.prototype, "dialogLabel", void 0);
+})], AbstractFolderDialog.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractFolderDialog.prototype, "closeLabel", void 0);
+__decorate([(0, lit_decorators_js.state)()], AbstractFolderDialog.prototype, "dialogLabel", void 0);
 
 //#endregion
 //#region src/connection/controllers/components/FolderEditDialogNew.ts
@@ -31230,10 +20123,10 @@ ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : 
 		return this.folder.may_manage_folders_in || this.folder.may_manage_files_in;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$1.prototype, "folderName", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$1.prototype, "folderDescription", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog$1.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderEditDialog$1.prototype, "onSuccess", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog$1.prototype, "folderName", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog$1.prototype, "folderDescription", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog$1.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FolderEditDialog$1.prototype, "onSuccess", void 0);
 FolderEditDialog$1 = __decorate([(0, lit_decorators_js.customElement)("folder-edit-dialog-new")], FolderEditDialog$1);
 
 //#endregion
@@ -31371,14 +20264,38 @@ let ConnectedLoginForm = class ConnectedLoginForm extends ControlledConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", String)], ConnectedLoginForm.prototype, "prompt", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedLoginForm.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedLoginForm.prototype, "message", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ConnectedLoginForm.prototype, "isLoggingIn", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedLoginForm.prototype, "onLoginSuccess", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedLoginForm.prototype, "login", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedLoginForm.prototype, "password", void 0);
+})], ConnectedLoginForm.prototype, "prompt", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLoginForm.prototype, "error", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLoginForm.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLoginForm.prototype, "isLoggingIn", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedLoginForm.prototype, "onLoginSuccess", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLoginForm.prototype, "login", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLoginForm.prototype, "password", void 0);
 ConnectedLoginForm = __decorate([(0, lit_decorators_js.customElement)("connected-login-form")], ConnectedLoginForm);
+
+//#endregion
+//#region src/connection/ClientContext.ts
+const clientContext = (0, _lit_context.createContext)("client-context");
+const currentUserTreeContext = (0, _lit_context.createContext)("current-user-tree-context");
+const currentUserTreeSetterContext = (0, _lit_context.createContext)("current-user-tree-setter-context");
+const compactContext = (0, _lit_context.createContext)("compact-context");
+const compactContextSetter = (0, _lit_context.createContext)("compact-context-setter");
+const displayModeContext = (0, _lit_context.createContext)("display-mode-context");
+const displayModeSetterContext = (0, _lit_context.createContext)("display-mode-setter-context");
+const showDiscussionContext = (0, _lit_context.createContext)("display-discussion-context");
+const showDiscussionSetterContext = (0, _lit_context.createContext)("display-discussion-setter-context");
+const editTagsContext = (0, _lit_context.createContext)("edit-tags-context");
+const editTagsSetterContext = (0, _lit_context.createContext)("edit-tags-setter-context");
+const syncAnalysisContext = (0, _lit_context.createContext)("sync-analysis-context-connected");
+const syncAnalysisSetterContext = (0, _lit_context.createContext)("sync-analysis-setter-context-connected");
+const tagsFilterContext = (0, _lit_context.createContext)("tags-filter-context");
+const tagsFilterSetterContext = (0, _lit_context.createContext)("tags-filter-setter-context");
+const subfoldersModeContext = (0, _lit_context.createContext)("subfolders-mode-context");
+const subfoldersModeSetterContext = (0, _lit_context.createContext)("subfolders-mode-setter-context");
+const subgildersGridByMode = (0, _lit_context.createContext)("subfolders-grid-by-mode");
+const subgildersGridByModeSetter = (0, _lit_context.createContext)("subfolders-grid-by-mode-setter");
+const lockedBrowsingTo = (0, _lit_context.createContext)("locked-location-context");
+const lockedBrowsingToSetter = (0, _lit_context.createContext)("locked-location-setter-context");
 
 //#endregion
 //#region src/connection/controllers/components/folder/ConnectedFolderHeader.ts
@@ -31514,20 +20431,15 @@ let FolderBaseInfo = class FolderBaseInfo extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderBaseInfo.prototype, "onParentClick", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: lockedBrowsingTo,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", String)
-], FolderBaseInfo.prototype, "lockedBrowsingTo", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FolderBaseInfo.prototype, "onParentClick", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: lockedBrowsingTo,
+	subscribe: true
+})], FolderBaseInfo.prototype, "lockedBrowsingTo", void 0);
 FolderBaseInfo = __decorate([(0, lit_decorators_js.customElement)("connected-folder-header")], FolderBaseInfo);
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnectedSubfolderList.ts
-var _ref$19;
 let ConnectedFolderFileList$1 = class ConnectedFolderFileList extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -31604,16 +20516,15 @@ let ConnectedFolderFileList$1 = class ConnectedFolderFileList extends Controlled
         </section>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedFolderFileList$1.prototype, "onFolderClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedFolderFileList$1.prototype, "onFolderClick", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	attribute: "folder-mode"
-}), __decorateMetadata("design:type", typeof (_ref$19 = typeof FolderListDisplayMode !== "undefined" && FolderListDisplayMode) === "function" ? _ref$19 : Object)], ConnectedFolderFileList$1.prototype, "folderMode", void 0);
+})], ConnectedFolderFileList$1.prototype, "folderMode", void 0);
 ConnectedFolderFileList$1 = __decorate([(0, lit_decorators_js.customElement)("connected-subfolder-list")], ConnectedFolderFileList$1);
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnetcedFileList.ts
-var _ref$18;
 let ConnectedFolderFileList = class ConnectedFolderFileList extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -31679,36 +20590,35 @@ let ConnectedFolderFileList = class ConnectedFolderFileList extends ControlledCo
 		return lit.html`${this.content.files?.map((subfolder) => this.renderFile(subfolder))}`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedFolderFileList.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedFolderFileList.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedFolderFileList.prototype, "onFileDelete", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedFolderFileList.prototype, "onFileClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedFolderFileList.prototype, "onChange", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedFolderFileList.prototype, "onFileDelete", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ConnectedFolderFileList.prototype, "compact", void 0);
+})], ConnectedFolderFileList.prototype, "compact", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "display-mode"
-}), __decorateMetadata("design:type", typeof (_ref$18 = typeof FileListDisplayMode !== "undefined" && FileListDisplayMode) === "function" ? _ref$18 : Object)], ConnectedFolderFileList.prototype, "displayMode", void 0);
+})], ConnectedFolderFileList.prototype, "displayMode", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "show-discussion"
-}), __decorateMetadata("design:type", Boolean)], ConnectedFolderFileList.prototype, "showDiscussion", void 0);
+})], ConnectedFolderFileList.prototype, "showDiscussion", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "editable-tags"
-}), __decorateMetadata("design:type", Boolean)], ConnectedFolderFileList.prototype, "editableTags", void 0);
+})], ConnectedFolderFileList.prototype, "editableTags", void 0);
 ConnectedFolderFileList = __decorate([(0, lit_decorators_js.customElement)("connected-file-list")], ConnectedFolderFileList);
 
 //#endregion
 //#region src/connection/controllers/components/folder/upload/ConnectedUploadForm.ts
-var _ref$17;
 let ConnectedUploadForm = class ConnectedUploadForm extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -32557,22 +21467,22 @@ ${this.pairedFiles.map((pair, index) => this.renderPairedFileRow(pair, index))}
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$17 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$17 : Object)], ConnectedUploadForm.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "prompt", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedUploadForm.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadForm.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadForm.prototype, "prompt", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadForm.prototype, "variant", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "errorMessage", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ConnectedUploadForm.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadForm.prototype, "allFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadForm.prototype, "pairedFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadForm.prototype, "unmatchedPngs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], ConnectedUploadForm.prototype, "isDragging", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedUploadForm.prototype, "infoMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedUploadForm.prototype, "onSuccess", void 0);
+})], ConnectedUploadForm.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadForm.prototype, "tooltip", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "allFiles", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "pairedFiles", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "unmatchedPngs", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "isDragging", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadForm.prototype, "infoMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedUploadForm.prototype, "onSuccess", void 0);
 ConnectedUploadForm = __decorate([(0, lit_decorators_js.customElement)("connected-upload-form")], ConnectedUploadForm);
 
 //#endregion
@@ -32738,12 +21648,12 @@ let UserButton = class UserButton extends ControlledConsumer {
 		return this.renderDialog();
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], UserButton.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.state)()], UserButton.prototype, "message", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	reflect: true,
 	attribute: "disable-logging",
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], UserButton.prototype, "disableLogging", void 0);
+})], UserButton.prototype, "disableLogging", void 0);
 UserButton = __decorate([(0, lit_decorators_js.customElement)("connected-user-button")], UserButton);
 
 //#endregion
@@ -32885,9 +21795,9 @@ let ConnectedBreadcrumb = class ConnectedBreadcrumb extends ControlledConsumer {
 		return lit.html`${this.items.map(this.renderItem.bind(this))}`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedBreadcrumb.prototype, "onFolderClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedBreadcrumb.prototype, "onUserClick", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedBreadcrumb.prototype, "items", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedBreadcrumb.prototype, "onFolderClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedBreadcrumb.prototype, "onUserClick", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedBreadcrumb.prototype, "items", void 0);
 ConnectedBreadcrumb = __decorate([(0, lit_decorators_js.customElement)("connected-breadcrumb")], ConnectedBreadcrumb);
 
 //#endregion
@@ -32991,7 +21901,6 @@ ConnectedConfigFileMode$1 = __decorate([(0, lit_decorators_js.customElement)("co
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileThumbnail.ts
-var _ref$16, _ref2$8, _ref3$4, _ref4$1;
 let FileThumbnail = class FileThumbnail extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -33582,45 +22491,41 @@ let FileThumbnail = class FileThumbnail extends ControlledConsumer {
         `;
 	}
 };
-__decorate([
-	(0, _lit_context.consume)({
-		context: groupContext,
-		subscribe: true
-	}),
-	(0, lit_decorators_js.state)(),
-	__decorateMetadata("design:type", typeof (_ref$16 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$16 : Object)
-], FileThumbnail.prototype, "group", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$8 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$8 : Object)], FileThumbnail.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$4 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$4 : Object)], FileThumbnail.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileThumbnail.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileThumbnail.prototype, "onFileDelete", void 0);
+__decorate([(0, _lit_context.consume)({
+	context: groupContext,
+	subscribe: true
+}), (0, lit_decorators_js.state)()], FileThumbnail.prototype, "group", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileThumbnail.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileThumbnail.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FileThumbnail.prototype, "onFileClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FileThumbnail.prototype, "onFileDelete", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileThumbnail.prototype, "compact", void 0);
+})], FileThumbnail.prototype, "compact", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	attribute: "display-mode"
-}), __decorateMetadata("design:type", typeof (_ref4$1 = typeof FileListDisplayMode !== "undefined" && FileListDisplayMode) === "function" ? _ref4$1 : Object)], FileThumbnail.prototype, "displayMode", void 0);
+})], FileThumbnail.prototype, "displayMode", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "show-discussion"
-}), __decorateMetadata("design:type", Boolean)], FileThumbnail.prototype, "showDiscussion", void 0);
+})], FileThumbnail.prototype, "showDiscussion", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: Boolean,
 	reflect: true,
 	converter: booleanConverter(false),
 	attribute: "editable-tags"
-}), __decorateMetadata("design:type", Boolean)], FileThumbnail.prototype, "editableTags", void 0);
+})], FileThumbnail.prototype, "editableTags", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: syncAnalysisContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Object)], FileThumbnail.prototype, "syncAnalyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileThumbnail.prototype, "hasDisplayedAnalysis", void 0);
+})], FileThumbnail.prototype, "syncAnalyses", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileThumbnail.prototype, "hasDisplayedAnalysis", void 0);
 FileThumbnail = __decorate([(0, lit_decorators_js.customElement)("connected-file-thumbnail")], FileThumbnail);
 
 //#endregion
@@ -33639,7 +22544,6 @@ ConnectedConfigFileMode = __decorate([(0, lit_decorators_js.customElement)("conn
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileEditDialog.ts
-var _ref$15, _ref2$7, _ref3$3;
 let FileEditDialog = class FileEditDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -33758,25 +22662,24 @@ let FileEditDialog = class FileEditDialog extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileEditDialog.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileEditDialog.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$15 = typeof BtnVariants$1 !== "undefined" && BtnVariants$1) === "function" ? _ref$15 : Object)], FileEditDialog.prototype, "variant", void 0);
+})], FileEditDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$7 = typeof BtnSizes$1 !== "undefined" && BtnSizes$1) === "function" ? _ref2$7 : Object)], FileEditDialog.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileEditDialog.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$3 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$3 : Object)], FileEditDialog.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileEditDialog.prototype, "fileLabel", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileEditDialog.prototype, "fileDescription", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileEditDialog.prototype, "errorMessage", void 0);
+})], FileEditDialog.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileEditDialog.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileEditDialog.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileEditDialog.prototype, "fileLabel", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileEditDialog.prototype, "fileDescription", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileEditDialog.prototype, "errorMessage", void 0);
 FileEditDialog = __decorate([(0, lit_decorators_js.customElement)("connected-file-edit-dialog")], FileEditDialog);
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileDeleteDialog.ts
-var _ref$14, _ref2$6, _ref3$2, _ref4;
 let FileDeleteDialog = class FileDeleteDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -33894,28 +22797,27 @@ let FileDeleteDialog = class FileDeleteDialog extends ControlledConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], FileDeleteDialog.prototype, "showLabel", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FileDeleteDialog.prototype, "label", void 0);
+})], FileDeleteDialog.prototype, "showLabel", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileDeleteDialog.prototype, "label", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: false
-}), __decorateMetadata("design:type", typeof (_ref$14 = typeof BtnVariants !== "undefined" && BtnVariants) === "function" ? _ref$14 : Object)], FileDeleteDialog.prototype, "variant", void 0);
+})], FileDeleteDialog.prototype, "variant", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", typeof (_ref2$6 = typeof BtnSizes !== "undefined" && BtnSizes) === "function" ? _ref2$6 : Object)], FileDeleteDialog.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", Boolean)], FileDeleteDialog.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$2 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref3$2 : Object)], FileDeleteDialog.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref4 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref4 : Object)], FileDeleteDialog.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileDeleteDialog.prototype, "onDelete", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog.prototype, "isOpen", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileDeleteDialog.prototype, "isDeleting", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileDeleteDialog.prototype, "error", void 0);
+})], FileDeleteDialog.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FileDeleteDialog.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileDeleteDialog.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileDeleteDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FileDeleteDialog.prototype, "onDelete", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileDeleteDialog.prototype, "isOpen", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileDeleteDialog.prototype, "isDeleting", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileDeleteDialog.prototype, "error", void 0);
 FileDeleteDialog = __decorate([(0, lit_decorators_js.customElement)("connected-file-delete-dialog")], FileDeleteDialog);
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileTags.ts
-var _ref$13, _ref2$5;
 let ControlledFileTags = class ControlledFileTags extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -34138,23 +23040,22 @@ let ControlledFileTags = class ControlledFileTags extends ControlledConsumer {
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ControlledFileTags.prototype, "editable", void 0);
+})], ControlledFileTags.prototype, "editable", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Boolean)], ControlledFileTags.prototype, "inline", void 0);
+})], ControlledFileTags.prototype, "inline", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	reflect: true
-}), __decorateMetadata("design:type", Object)], ControlledFileTags.prototype, "size", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$13 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$13 : Object)], ControlledFileTags.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$5 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$5 : Object)], ControlledFileTags.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ControlledFileTags.prototype, "onChange", void 0);
+})], ControlledFileTags.prototype, "size", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ControlledFileTags.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ControlledFileTags.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ControlledFileTags.prototype, "onChange", void 0);
 ControlledFileTags = __decorate([(0, lit_decorators_js.customElement)("connected-file-tags")], ControlledFileTags);
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ConnectedFileComment.ts
-var _ref$12, _ref2$4, _ref3$1;
 let FileComment = class FileComment extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -34311,17 +23212,16 @@ let FileComment = class FileComment extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$12 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$12 : Object)], FileComment.prototype, "comment", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$4 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$4 : Object)], FileComment.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3$1 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3$1 : Object)], FileComment.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileComment.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileComment.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FileComment.prototype, "isEditing", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileComment.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileComment.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileComment.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FileComment.prototype, "onChange", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileComment.prototype, "error", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileComment.prototype, "isEditing", void 0);
 FileComment = __decorate([(0, lit_decorators_js.customElement)("connected-file-comment")], FileComment);
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ConnectedFileComments.ts
-var _ref$11, _ref2$3;
 let FileComments = class FileComments extends ControlledConsumer {
 	static {
 		this.styles = lit.css`
@@ -34427,13 +23327,12 @@ let FileComments = class FileComments extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$11 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$11 : Object)], FileComments.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$3 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2$3 : Object)], FileComments.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileComments.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileComments.prototype, "folder", void 0);
 FileComments = __decorate([(0, lit_decorators_js.customElement)("connected-file-comments")], FileComments);
 
 //#endregion
 //#region src/connection/controllers/components/file/comments/ControlledFileCommentForm.ts
-var _ref$10, _ref2$2, _ref3;
 let FileCommentForm = class FileCommentForm extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -34561,12 +23460,12 @@ let FileCommentForm = class FileCommentForm extends ControlledConsumer {
         `;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$10 = typeof _labirthermal_server.Comment !== "undefined" && _labirthermal_server.Comment) === "function" ? _ref$10 : Object)], FileCommentForm.prototype, "comment", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref2$2 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref2$2 : Object)], FileCommentForm.prototype, "file", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref3 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref3 : Object)], FileCommentForm.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FileCommentForm.prototype, "onChange", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileCommentForm.prototype, "error", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FileCommentForm.prototype, "message", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileCommentForm.prototype, "comment", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileCommentForm.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], FileCommentForm.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FileCommentForm.prototype, "onChange", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileCommentForm.prototype, "error", void 0);
+__decorate([(0, lit_decorators_js.state)()], FileCommentForm.prototype, "message", void 0);
 FileCommentForm = __decorate([(0, lit_decorators_js.customElement)("controlled-file-comment-form")], FileCommentForm);
 
 //#endregion
@@ -34697,10 +23596,10 @@ ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : 
 		return this.folder.may_manage_folders_in || this.folder.may_manage_files_in;
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog.prototype, "folderName", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog.prototype, "folderDescription", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], FolderEditDialog.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderEditDialog.prototype, "onSuccess", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog.prototype, "folderName", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog.prototype, "folderDescription", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderEditDialog.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FolderEditDialog.prototype, "onSuccess", void 0);
 FolderEditDialog = __decorate([(0, lit_decorators_js.customElement)("connected-folder-edit-dialog")], FolderEditDialog);
 
 //#endregion
@@ -34784,8 +23683,8 @@ ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : 
 >${this.t("back")}</thermal-btn>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderDeleteDialog.prototype, "onSuccess", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderDeleteDialog.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FolderDeleteDialog.prototype, "onSuccess", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FolderDeleteDialog.prototype, "errorMessage", void 0);
 FolderDeleteDialog = __decorate([(0, lit_decorators_js.customElement)("connected-folder-delete-dialog")], FolderDeleteDialog);
 
 //#endregion
@@ -34919,11 +23818,11 @@ ${this.errorMessage ? lit.html`<div class="error">${this.errorMessage}</div>` : 
 		return this.folder.may_manage_folders_in;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog.prototype, "folderName", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog.prototype, "folderDescription", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], FolderAddDialog.prototype, "errorMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], FolderAddDialog.prototype, "onSuccess", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], FolderAddDialog.prototype, "mayHaveFiles", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FolderAddDialog.prototype, "folderName", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FolderAddDialog.prototype, "folderDescription", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], FolderAddDialog.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], FolderAddDialog.prototype, "onSuccess", void 0);
+__decorate([(0, lit_decorators_js.state)()], FolderAddDialog.prototype, "mayHaveFiles", void 0);
 FolderAddDialog = __decorate([(0, lit_decorators_js.customElement)("connected-folder-create-dialog")], FolderAddDialog);
 
 //#endregion
@@ -35115,7 +24014,6 @@ ConnectedFileHeader = __decorate([(0, lit_decorators_js.customElement)("connecte
 
 //#endregion
 //#region src/connection/controllers/components/folder/listing/ConnectedSubfoldersGrid.ts
-var _ref$9;
 let SubfoldersGrid = class SubfoldersGrid extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -35607,52 +24505,39 @@ let SubfoldersGrid = class SubfoldersGrid extends ControlledConsumer {
 		return [this.renderHeader(this.content.grid?.header ?? {}), this.renderBody(this.content.grid?.groups ?? [])];
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], SubfoldersGrid.prototype, "slug", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid.prototype, "onFolderClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid.prototype, "onFileClick", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid.prototype, "onFileEdit", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], SubfoldersGrid.prototype, "slug", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], SubfoldersGrid.prototype, "onFolderClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], SubfoldersGrid.prototype, "onFileClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], SubfoldersGrid.prototype, "onFileEdit", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: setRegistryHighlightContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Function)], SubfoldersGrid.prototype, "setHighlight", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: String,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: showDiscussionContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], SubfoldersGrid.prototype, "showDiscussion", void 0);
-__decorate([
-	(0, lit_decorators_js.property)({
-		type: Boolean,
-		reflect: true
-	}),
-	(0, _lit_context.consume)({
-		context: editTagsContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", Boolean)
-], SubfoldersGrid.prototype, "editableTags", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], SubfoldersGrid.prototype, "columnCount", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Array)], SubfoldersGrid.prototype, "selectedFolders", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], SubfoldersGrid.prototype, "onSelectionChange", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: registryContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref$9 = typeof packages_core_dist.ThermalRegistry !== "undefined" && packages_core_dist.ThermalRegistry) === "function" ? _ref$9 : Object)
-], SubfoldersGrid.prototype, "registry", void 0);
+})], SubfoldersGrid.prototype, "setHighlight", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: String,
+	reflect: true
+}), (0, _lit_context.consume)({
+	context: showDiscussionContext,
+	subscribe: true
+})], SubfoldersGrid.prototype, "showDiscussion", void 0);
+__decorate([(0, lit_decorators_js.property)({
+	type: Boolean,
+	reflect: true
+}), (0, _lit_context.consume)({
+	context: editTagsContext,
+	subscribe: true
+})], SubfoldersGrid.prototype, "editableTags", void 0);
+__decorate([(0, lit_decorators_js.state)()], SubfoldersGrid.prototype, "columnCount", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], SubfoldersGrid.prototype, "selectedFolders", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], SubfoldersGrid.prototype, "onSelectionChange", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: registryContext,
+	subscribe: true
+})], SubfoldersGrid.prototype, "registry", void 0);
 SubfoldersGrid = __decorate([(0, lit_decorators_js.customElement)("connected-subfolders-grid")], SubfoldersGrid);
 
 //#endregion
 //#region src/connection/controllers/components/folder/upload/ConnectedUploadDialog.ts
-var _ref$8;
 let ConnectedUploadDialog = class ConnectedUploadDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -36253,21 +25138,21 @@ let ConnectedUploadDialog = class ConnectedUploadDialog extends ControlledConsum
 		return true;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$8 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$8 : Object)], ConnectedUploadDialog.prototype, "folder", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "label", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "variant", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "errorMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedUploadDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadDialog.prototype, "label", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadDialog.prototype, "variant", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "errorMessage", void 0);
 __decorate([(0, lit_decorators_js.property)({
 	type: String,
 	converter: booleanConverter(false)
-}), __decorateMetadata("design:type", Boolean)], ConnectedUploadDialog.prototype, "plain", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "tooltip", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadDialog.prototype, "allFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadDialog.prototype, "pairedFiles", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedUploadDialog.prototype, "unmatchedPngs", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Object)], ConnectedUploadDialog.prototype, "isDragging", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", String)], ConnectedUploadDialog.prototype, "infoMessage", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Function }), __decorateMetadata("design:type", Function)], ConnectedUploadDialog.prototype, "onSuccess", void 0);
+})], ConnectedUploadDialog.prototype, "plain", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedUploadDialog.prototype, "tooltip", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "allFiles", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "pairedFiles", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "unmatchedPngs", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "isDragging", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedUploadDialog.prototype, "infoMessage", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], ConnectedUploadDialog.prototype, "onSuccess", void 0);
 ConnectedUploadDialog = __decorate([(0, lit_decorators_js.customElement)("connected-upload-dialog")], ConnectedUploadDialog);
 
 //#endregion
@@ -36371,7 +25256,6 @@ ConnectedFolderContentModeSwitch = __decorate([(0, lit_decorators_js.customEleme
 
 //#endregion
 //#region src/connection/controllers/components/file/analysis/ConnectedFileAnalysisButtons.ts
-var _ref$7, _ref2$1;
 let ConnectedFileAnalysisButtons = class ConnectedFileAnalysisButtons extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -36538,23 +25422,18 @@ let ConnectedFileAnalysisButtons = class ConnectedFileAnalysisButtons extends Co
 		return [this.renderDisplaySlot(), this.renderServerSlot()];
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$7 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$7 : Object)], ConnectedFileAnalysisButtons.prototype, "info", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ConnectedFileAnalysisButtons.prototype, "enableCopyToAll", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedFileAnalysisButtons.prototype, "analyses", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ConnectedFileAnalysisButtons.prototype, "hasChanged", void 0);
-__decorate([
-	(0, lit_decorators_js.state)(),
-	(0, _lit_context.consume)({
-		context: fileContext,
-		subscribe: true
-	}),
-	__decorateMetadata("design:type", typeof (_ref2$1 = typeof _labirthermal_core.Instance !== "undefined" && _labirthermal_core.Instance) === "function" ? _ref2$1 : Object)
-], ConnectedFileAnalysisButtons.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedFileAnalysisButtons.prototype, "info", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], ConnectedFileAnalysisButtons.prototype, "enableCopyToAll", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFileAnalysisButtons.prototype, "analyses", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFileAnalysisButtons.prototype, "hasChanged", void 0);
+__decorate([(0, lit_decorators_js.state)(), (0, _lit_context.consume)({
+	context: fileContext,
+	subscribe: true
+})], ConnectedFileAnalysisButtons.prototype, "file", void 0);
 ConnectedFileAnalysisButtons = __decorate([(0, lit_decorators_js.customElement)("connected-file-analysis-buttons")], ConnectedFileAnalysisButtons);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFileSelectionCheckbox.ts
-var _ref$6;
 let ConnectedFileSelectionCheckbox = class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -36599,12 +25478,11 @@ let ConnectedFileSelectionCheckbox = class ConnectedFileSelectionCheckbox extend
 		return this.renderCheckbox(isSelected);
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$6 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$6 : Object)], ConnectedFileSelectionCheckbox.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedFileSelectionCheckbox.prototype, "file", void 0);
 ConnectedFileSelectionCheckbox = __decorate([(0, lit_decorators_js.customElement)("connected-file-selection-checkbox")], ConnectedFileSelectionCheckbox);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFileSelectionActions.ts
-var _ref$5;
 let ConnectedFileSelectionActions = class ConnectedFileSelectionActions extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -36899,17 +25777,16 @@ let ConnectedFileSelectionActions = class ConnectedFileSelectionActions extends 
 		];
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFileSelectionActions.prototype, "progress", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFileSelectionActions.prototype, "total", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFileSelectionActions.prototype, "progress", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFileSelectionActions.prototype, "total", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref$5 = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref$5 : Object)], ConnectedFileSelectionActions.prototype, "group", void 0);
+})], ConnectedFileSelectionActions.prototype, "group", void 0);
 ConnectedFileSelectionActions = __decorate([(0, lit_decorators_js.customElement)("connected-file-selection-actions")], ConnectedFileSelectionActions);
 
 //#endregion
 //#region src/connection/controllers/components/selection/move/ConnectedLocationSelector.ts
-var _ref$4, _ref2;
 let LocationSelectorMode = /* @__PURE__ */ function(LocationSelectorMode) {
 	LocationSelectorMode["FOLDER"] = "folder";
 	LocationSelectorMode["FILE"] = "file";
@@ -37242,21 +26119,20 @@ let ConnectedLocationSelector = class ConnectedLocationSelector extends Controll
 		return content;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Boolean }), __decorateMetadata("design:type", Boolean)], ConnectedLocationSelector.prototype, "asDialogue", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedLocationSelector.prototype, "dialogTitle", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", typeof (_ref$4 = typeof LocationSelectorMode !== "undefined" && LocationSelectorMode) === "function" ? _ref$4 : Object)], ConnectedLocationSelector.prototype, "mode", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", Function)], ConnectedLocationSelector.prototype, "onSelect", void 0);
-__decorate([(0, lit_decorators_js.property)({ type: String }), __decorateMetadata("design:type", String)], ConnectedLocationSelector.prototype, "operationLabel", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Boolean)], ConnectedLocationSelector.prototype, "_loading", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", typeof (_ref2 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref2 : Object)], ConnectedLocationSelector.prototype, "_currentFolderInfo", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedLocationSelector.prototype, "_currentSubfolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedLocationSelector.prototype, "_userFolders", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Array)], ConnectedLocationSelector.prototype, "_breadcrumb", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Boolean })], ConnectedLocationSelector.prototype, "asDialogue", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedLocationSelector.prototype, "dialogTitle", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedLocationSelector.prototype, "mode", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedLocationSelector.prototype, "onSelect", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: String })], ConnectedLocationSelector.prototype, "operationLabel", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLocationSelector.prototype, "_loading", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLocationSelector.prototype, "_currentFolderInfo", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLocationSelector.prototype, "_currentSubfolders", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLocationSelector.prototype, "_userFolders", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedLocationSelector.prototype, "_breadcrumb", void 0);
 ConnectedLocationSelector = __decorate([(0, lit_decorators_js.customElement)("connected-location-selector")], ConnectedLocationSelector);
 
 //#endregion
 //#region src/connection/controllers/components/file/ConnectedFileMoveDialog.ts
-var _ref$3;
 let ConnectedFileMoveDialog = class ConnectedFileMoveDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -37289,12 +26165,11 @@ let ConnectedFileMoveDialog = class ConnectedFileMoveDialog extends ControlledCo
         </connected-location-selector>`;
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$3 = typeof _labirthermal_server.FileInfo !== "undefined" && _labirthermal_server.FileInfo) === "function" ? _ref$3 : Object)], ConnectedFileMoveDialog.prototype, "file", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedFileMoveDialog.prototype, "file", void 0);
 ConnectedFileMoveDialog = __decorate([(0, lit_decorators_js.customElement)("connected-file-move-dialog")], ConnectedFileMoveDialog);
 
 //#endregion
 //#region src/connection/controllers/components/folder/crud/ConnectedFolderMoveDialog.ts
-var _ref$2;
 let ConnectedFolderMoveDialog = class ConnectedFolderMoveDialog extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -37331,12 +26206,11 @@ let ConnectedFolderMoveDialog = class ConnectedFolderMoveDialog extends Controll
 		return this.renderDialog();
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$2 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$2 : Object)], ConnectedFolderMoveDialog.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedFolderMoveDialog.prototype, "folder", void 0);
 ConnectedFolderMoveDialog = __decorate([(0, lit_decorators_js.customElement)("connected-folder-move-dialog")], ConnectedFolderMoveDialog);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFolderSelectionCheckbox.ts
-var _ref$1;
 let ConnectedFolderSelectionCheckbox = class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
 	connectedCallback() {
 		super.connectedCallback();
@@ -37390,12 +26264,11 @@ let ConnectedFolderSelectionCheckbox = class ConnectedFolderSelectionCheckbox ex
 		return this.renderCheckbox(isSelected);
 	}
 };
-__decorate([(0, lit_decorators_js.property)({ type: Object }), __decorateMetadata("design:type", typeof (_ref$1 = typeof _labirthermal_server.FolderInfo !== "undefined" && _labirthermal_server.FolderInfo) === "function" ? _ref$1 : Object)], ConnectedFolderSelectionCheckbox.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Object })], ConnectedFolderSelectionCheckbox.prototype, "folder", void 0);
 ConnectedFolderSelectionCheckbox = __decorate([(0, lit_decorators_js.customElement)("connected-folder-selection-checkbox")], ConnectedFolderSelectionCheckbox);
 
 //#endregion
 //#region src/connection/controllers/components/selection/ConnectedFolderSelectionActions.ts
-var _ref;
 let ConnectedFolderSelectionActions = class ConnectedFolderSelectionActions extends ControlledConsumer {
 	constructor(..._args) {
 		super(..._args);
@@ -37592,12 +26465,12 @@ let ConnectedFolderSelectionActions = class ConnectedFolderSelectionActions exte
 		];
 	}
 };
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFolderSelectionActions.prototype, "progress", void 0);
-__decorate([(0, lit_decorators_js.state)(), __decorateMetadata("design:type", Number)], ConnectedFolderSelectionActions.prototype, "total", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFolderSelectionActions.prototype, "progress", void 0);
+__decorate([(0, lit_decorators_js.state)()], ConnectedFolderSelectionActions.prototype, "total", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: groupContext,
 	subscribe: true
-}), __decorateMetadata("design:type", typeof (_ref = typeof _labirthermal_core.ThermalGroup !== "undefined" && _labirthermal_core.ThermalGroup) === "function" ? _ref : Object)], ConnectedFolderSelectionActions.prototype, "group", void 0);
+})], ConnectedFolderSelectionActions.prototype, "group", void 0);
 ConnectedFolderSelectionActions = __decorate([(0, lit_decorators_js.customElement)("connected-folder-selection-actions")], ConnectedFolderSelectionActions);
 
 //#endregion
@@ -37812,16 +26685,563 @@ let ConnectedShareDialog = class ConnectedShareDialog extends ControlledConsumer
 __decorate([(0, _lit_context.consume)({
 	context: managerPaletteContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Object)], ConnectedShareDialog.prototype, "palette", void 0);
+})], ConnectedShareDialog.prototype, "palette", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: registryRangeFromContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], ConnectedShareDialog.prototype, "from", void 0);
+})], ConnectedShareDialog.prototype, "from", void 0);
 __decorate([(0, _lit_context.consume)({
 	context: registryRangeToContext,
 	subscribe: true
-}), __decorateMetadata("design:type", Number)], ConnectedShareDialog.prototype, "to", void 0);
+})], ConnectedShareDialog.prototype, "to", void 0);
 ConnectedShareDialog = __decorate([(0, lit_decorators_js.customElement)("connected-share-dialog")], ConnectedShareDialog);
+
+//#endregion
+//#region src/connection/components/folder/folders/AbstractFolderThumbnail.ts
+var AbstractFolderThumbnail = class extends ControlledConsumer {
+	get internalSlug() {
+		return this.folder.path.replaceAll("/", "-").replaceAll(" ", "_") + "___thumbnail";
+	}
+	static {
+		this.styles = lit.css`
+    
+        :host {
+            font-size: var( --thermal-fs );
+            color: var( --thermal-foreground );
+        }
+
+        figure.folder-thumbnail {
+
+            display: block;
+            margin: 0;
+            padding: 0;
+
+        }
+
+        figure.folder-thumbnail.folder-thumbnail_lrc {
+
+            object-position: center center;
+
+            overflow: hidden;
+
+            manager-provider,
+            registry-provider,
+            group-provider,
+            file-provider {
+                display: contents;
+                
+            }
+
+            file-canvas {
+                display: block;
+                height: 100%;
+                width: auto;
+                pointer-events: none;
+            }
+
+            file-canvas::part(file-canvas-container),
+            file-canvas::part(thermal-canvas-wrapper) {
+                width: 100% !important;
+                height: 100% !important;
+                transition: all .2s ease-in-out;
+            }
+
+            file-canvas::part(thermal-file-canvas) {
+                display: block;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center center;
+            }
+
+        }
+
+        figure.folder-thumbnail.folder-thumbnail_image {
+
+            overflow: hidden;
+
+            img {
+                transition: all .2s ease-in-out;
+                object-fit: cover;
+                object-position: center center;
+                width: 100%;
+                height: 100%;
+
+            }
+
+        }
+
+        figure.folder-thumbnail.folder-thumbnail_icon {
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            thermal-icon {
+                transition: all .2s ease-in-out;
+                color: var( --thermal-slate );
+                width: 2em;
+                display: block;
+            }
+        
+        }
+
+
+        .counter-with-icon {
+            display: flex;
+            gap: .3em;
+            align-items: center;
+            thermal-icon {
+                display: block;
+                width: 1em;
+                transform: translateY(.1em);
+            }
+        }
+
+    `;
+	}
+	connectedCallback() {
+		super.connectedCallback();
+		this.addEventListener("click", this.handleActionClick.bind(this));
+	}
+	handleActionClick(event) {
+		event.stopPropagation();
+		const innerTarget = "originalTarget" in event ? event.originalTarget : event.target;
+		console.log(innerTarget);
+		if (innerTarget instanceof HTMLInputElement) {} else {
+			this.log(this.onClick);
+			this.onClick && this.onClick(this.folder);
+		}
+	}
+	renderCountWithIcon(count, icon, variant = "micro") {
+		if (count <= 0) return lit.nothing;
+		return lit.html`<div class="counter-with-icon">
+                <span>${count}x</span>
+                <thermal-icon icon=${icon} variant=${variant}></thermal-icon>
+            </div>`;
+	}
+	renderThumbnail() {
+		if (this.folder.thumb && this.shouldRenderThumbnailImage()) return this.renderThumbnailWrapper(this.renderThumbnailImage(this.folder.thumb, this.folder.name), "image");
+		if (this.folder.thumb && this.shouldRenderThumbnailLrc()) return this.renderThumbnailWrapper(this.renderThumbnailLrc(this.folder.thumb), "lrc");
+		return this.renderThumbnailWrapper(this.renderThumbnailIcon(), "icon");
+	}
+	shouldRenderThumbnailLrc() {
+		return this.folder.thumb?.toLowerCase().endsWith(".lrc") ?? false;
+	}
+	shouldRenderThumbnailImage() {
+		if (!this.folder.thumb) return false;
+		const lower = this.folder.thumb.toLowerCase();
+		return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg") || lower.endsWith(".gif") || lower.endsWith(".webp");
+	}
+	renderThumbnailWrapper(content, typeClass) {
+		return lit.html`<figure class="folder-thumbnail folder-thumbnail_${typeClass}">${content}</figure>`;
+	}
+	renderThumbnailIcon() {
+		return lit.html`<thermal-icon icon="folder" variant="outline"></thermal-icon>`;
+	}
+	renderThumbnailImage(src, alt) {
+		return lit.html`<img src="${src}" alt="${alt}" />`;
+	}
+	renderThumbnailLrc(thermalUrl) {
+		return lit.html`<registry-provider
+            autoclear="true"
+            batch="true"
+            slug="${this.internalSlug}"
+        >
+            <group-provider 
+                slug="${this.internalSlug}"
+                autoclear="true"
+                batch="true"
+            >
+                <file-provider
+                    thermal="${thermalUrl}"
+                    batch="true"
+                    autoclear="true"
+                >
+                    <file-canvas></file-canvas>
+                </file-provider>
+            </group-provider>
+        </registry-provider>`;
+	}
+};
+__decorate([(0, lit_decorators_js.property)({ type: Object })], AbstractFolderThumbnail.prototype, "folder", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], AbstractFolderThumbnail.prototype, "onClick", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Function })], AbstractFolderThumbnail.prototype, "onUpdate", void 0);
+__decorate([(0, lit_decorators_js.property)({ type: Number })], AbstractFolderThumbnail.prototype, "subfoldersCount", void 0);
+
+//#endregion
+//#region src/connection/components/folder/folders/FolderThumbnail.ts
+let FolderThumbnail = class FolderThumbnail extends AbstractFolderThumbnail {
+	static {
+		this.styles = [AbstractFolderThumbnail.styles, lit.css`
+
+        :host {
+        
+            display: grid;
+            grid-template-columns: 100px 1fr;
+
+            border: var(--thermal-border-width) var(--thermal-border-style) var( --thermal-slate );
+            border-radius: var( --thermal-radius );
+            overflow: hidden;
+
+            cursor: pointer;
+
+            transition: all .2s ease-in-out;
+
+        }
+
+        figure.folder-thumbnail.folder-thumbnail_icon {
+        
+            background: var( --thermal-slate );
+
+            thermal-icon {
+                color: var( --thermal-slate-light );
+            }
+        
+        }
+
+
+        :host(:hover) {
+
+            box-shadow: var( --thermal-shadow );
+            border-color: var( --thermal-slate-dark );
+
+            figure.folder-thumbnail.folder-thumbnail_icon thermal-icon {
+                color: var( --thermal-background );
+                scale: 1.1;
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_lrc {
+            
+                file-canvas::part(file-canvas-container),
+                file-canvas::part(thermal-canvas-wrapper) {
+                    scale: 1.05;
+                }
+            
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_image {
+            
+                img {
+                    scale: 1.05;
+                }
+            
+            }
+            
+        }
+
+        header {
+            
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 75px;
+
+            padding: calc( var(--thermal-gap) * .5);
+            background: var( --thermal-background );
+
+            .header-top {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: calc( var(--thermal-gap) * .5 );
+
+                width: 100%;
+
+                .header-top-icons {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    color: var( --thermal-slate );
+                }
+            }
+
+            .header-bottom {
+                display: flex;
+                justify-content: flex-start;
+                margin-top: auto;
+            }
+
+            h2 {
+                font-size: calc( var(--thermal-fs) * 1 );
+                margin: 0;
+                padding: 0;
+            }
+
+            .description {
+                margin-top: calc( var(--thermal-gap) * .25 );
+                font-size: calc( var(--thermal-fs) * 0.8 );
+                color: var( --thermal-slate );
+            }
+
+
+
+            .header-folder-icon {
+                display: block;
+                width: 1.4em;
+            }   
+
+        }
+
+        .counter-with-icon {
+            font-size: .8em;
+        }
+
+    `];
+	}
+	render() {
+		const name = this.folder.name ?? this.folder.slug;
+		return lit.html`
+
+            ${this.renderThumbnail()}
+
+            <header>
+                <div class="header-top">
+                    <div class="header-top-text">
+                        <h2>${name}</h2>
+                        <div class="description">${this.folder.description}</div>
+                    </div>
+                    <div class="header-top-icons">
+
+                        <thermal-icon icon="folder" variant="outline" class="header-folder-icon"></thermal-icon>
+                        
+                        ${this.renderCountWithIcon(this.folder.lrc_count, "image")}
+
+                        ${this.renderCountWithIcon(this.subfoldersCount ?? 0, "folder")}
+
+                        <connected-folder-selection-checkbox .folder=${this.folder}></connected-folder-selection-checkbox>
+
+                    </div>
+                </div>
+                <div class="header-bottom" @click=${this.handleActionClick}>
+                    <slot name="action"></slot>
+                </div>
+            </header>
+
+        `;
+	}
+};
+FolderThumbnail = __decorate([(0, lit_decorators_js.customElement)("server-folder-thumbnail")], FolderThumbnail);
+
+//#endregion
+//#region src/connection/components/folder/folders/FolderRow.ts
+let FolderRow = class FolderRow extends AbstractFolderThumbnail {
+	static {
+		this.styles = [AbstractFolderThumbnail.styles, lit.css`
+
+        :host {
+        
+            display: table-row;
+
+            cursor: pointer;
+
+            transition: all .2s ease-in-out;
+
+            filter: drop-shadow(0px 0px 1px var(--thermal-slate));
+
+            & > td {
+
+                display: table-cell;
+                vertical-align: middle;
+
+                min-width: 1em;
+                position: relative;
+
+                border-bottom: .5em var(--thermal-border-style)transparent;
+
+                background: var(--thermal-background);
+            
+
+                & > * {
+
+                    display: block;
+
+                    height: 100%;
+
+                    overflow: hidden;
+
+                }
+                
+
+                &:first-child {
+
+                    border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
+
+                    & > * {
+                        border-radius: var( --thermal-radius ) 0 0 var( --thermal-radius );
+                    }
+
+                }
+
+                &:last-child {
+
+                    border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
+
+                    & > * {
+                        border-radius: 0 var( --thermal-radius ) var( --thermal-radius ) 0;
+                    }
+
+                }
+            }
+
+        }
+
+        figure.folder-thumbnail.folder-thumbnail_icon {
+        
+            background: var( --thermal-slate );
+
+            thermal-icon {
+                color: var( --thermal-slate-light );
+            }
+        
+        }
+
+
+        :host(:hover) {
+
+            filter: drop-shadow( var( --thermal-shadow ) );
+
+            figure.folder-thumbnail.folder-thumbnail_icon thermal-icon {
+                color: var( --thermal-background );
+                scale: 1.1;
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_lrc {
+            
+                file-canvas::part(file-canvas-container),
+                file-canvas::part(thermal-canvas-wrapper) {
+                    scale: 1.05;
+                }
+            
+            }
+
+            figure.folder-thumbnail.folder-thumbnail_image {
+            
+                img {
+                    scale: 1.05;
+                }
+            
+            }
+            
+        }
+
+        td {
+            padding: 0;
+        }
+
+        .cell-texts {
+
+            width: 50% !important;
+
+            min-width: 200px;
+            max-width: 500px;
+        
+        }
+
+        .texts {
+            padding: .5em 1em;
+            height: 100%;
+            box-sizing: border-box;
+            
+            h3 {
+                font-size: 1em;
+                margin: 0;
+            }
+            
+            .description,
+            .path {
+                margin-top: .5em;
+            }
+
+            .description { 
+                color: var(--thermal-slate); 
+                font-size: .8em;
+            }
+            .path { 
+                color: var(--thermal-slate); 
+                font-size: .7em;
+            }
+        }
+
+        .cell-thumbnail,
+        figure.folder-thumbnail {
+
+            height: 100px;
+            width: 120px;
+        
+        }
+
+        .cell-count {
+
+            width: 4em;
+
+            box-sizing: border-box;
+            padding: .5em;
+
+            vertical-align: middle !important;
+
+            color: var(--thermal-slate);
+            
+
+            & > div {
+                display: inline-block; 
+                
+            }
+        
+        }
+
+        .cell-actions {
+            text-align: right;
+            box-sizing: border-box;
+            padding: .5em 1em;
+
+            & > div {
+                display: inline-block;
+            }
+        }
+
+        
+
+    `];
+	}
+	render() {
+		const name = this.folder.name ?? this.folder.slug;
+		return lit.html`
+            <td class="cell cell-thumbnail">
+                ${this.renderThumbnail()}
+            </td>
+
+            <td class="cell cell-texts">
+                <div class="texts">
+                    <h3>${name}</h3>
+                    ${this.folder.description ? lit.html`<div class="description">${this.folder.description.substring(0, 80)}${this.folder.description.length > 80 ? "..." : ""}</div>` : lit.nothing}
+
+                    <div class="path">
+                        /${this.folder.path}
+                    </div>
+                </div>
+            </td>
+
+            <td class="cell cell-count">
+                <div>
+                    ${this.renderCountWithIcon(this.folder.lrc_count, "image")}
+                </div>
+            </td>
+
+            <td class="cell cell-count">
+                <div>
+                    ${this.renderCountWithIcon(this.subfoldersCount ?? 0, "folder")}
+                </div>
+            </td>
+
+            <td class="cell cell-actions" @click="${this.handleActionClick}">
+                <div>
+                    <slot name="actions"></slot>
+                </div>
+            </td>
+
+        `;
+	}
+};
+FolderRow = __decorate([(0, lit_decorators_js.customElement)("server-folder-row")], FolderRow);
 
 //#endregion
 //#region src/index.ts

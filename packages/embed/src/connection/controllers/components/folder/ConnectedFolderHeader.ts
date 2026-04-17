@@ -1,10 +1,10 @@
 import { consume } from "@lit/context";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { BreadcrumbItem } from "packages/server/client/src/responseEntities";
 import icons from "../../../../utils/icons";
 import { lockedBrowsingTo } from "../../../ClientContext";
 import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { BreadcrumbItem } from "@labirthermal/server";
 
 @customElement( "connected-folder-header" )
 export class FolderBaseInfo extends ControlledConsumer {
