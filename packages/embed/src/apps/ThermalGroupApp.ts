@@ -424,7 +424,7 @@ export class ThermalGroupAppElement extends AbstractMultipleApp implements IWith
                             ${this.loading === false
                 ? html`                                
 
-                                <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-post"></manager-palette-dropdown>
                                 
                                 <registry-range-form slot="bar-pre"></registry-range-form>
                                         

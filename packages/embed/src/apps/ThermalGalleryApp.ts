@@ -552,7 +552,7 @@ export class ThermalGalleryApp extends BaseAppWithPngExportContext {
                 >
 
 
-                    <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                    <manager-palette-dropdown slot="bar-post"></manager-palette-dropdown>
 
                     ${this.structure !== undefined && this.state !== STATE.MAIN
                 ? html`

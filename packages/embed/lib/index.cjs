@@ -2290,6 +2290,8 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	constructor(..._args) {
 		super(..._args);
 		this.language = i18next.default.language;
+		this._overflowCount = 0;
+		this._overflowOpen = false;
 		this.fullscreen = "off";
 		this.showfullscreen = false;
 		this.dark = false;
@@ -2297,6 +2299,9 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 		this.chromiumwarning = false;
 		this.headerRef = (0, lit_directives_ref_js.createRef)();
 		this.contentRef = (0, lit_directives_ref_js.createRef)();
+		this.barItemsRef = (0, lit_directives_ref_js.createRef)();
+		this._overflowObserver = null;
+		this._rafId = null;
 		this._handleFullscreenChange = () => {
 			if (!document.fullscreenElement) this.fullscreen = "off";
 		};
@@ -2311,6 +2316,73 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	disconnectedCallback() {
 		super.disconnectedCallback();
 		window.removeEventListener("fullscreenchange", this._handleFullscreenChange);
+		if (this._overflowObserver) {
+			this._overflowObserver.disconnect();
+			this._overflowObserver = null;
+		}
+		if (this._rafId !== null) {
+			cancelAnimationFrame(this._rafId);
+			this._rafId = null;
+		}
+	}
+	_toggleOverflow() {
+		this._overflowOpen = !this._overflowOpen;
+	}
+	_scheduleOverflowUpdate() {
+		if (this._rafId !== null) cancelAnimationFrame(this._rafId);
+		this._rafId = requestAnimationFrame(() => {
+			this._rafId = null;
+			this._doOverflowUpdate();
+		});
+	}
+	_doOverflowUpdate() {
+		const shadow = this.shadowRoot;
+		if (!shadow) return;
+		const overflowSlot = shadow.querySelector("slot[name=\"bar-overflow\"]");
+		if (overflowSlot) {
+			const items = [...overflowSlot.assignedElements()];
+			for (const item of items) {
+				item.slot = item.dataset.originalSlot ?? "bar-pre";
+				delete item.dataset.originalSlot;
+			}
+		}
+		const barItems = this.barItemsRef.value;
+		if (!barItems) return;
+		const preSlot = shadow.querySelector("slot[name=\"bar-pre\"]");
+		const postSlot = shadow.querySelector("slot[name=\"bar-post\"]");
+		const allItems = [...preSlot?.assignedElements({ flatten: true }) ?? [], ...postSlot?.assignedElements({ flatten: true }) ?? []];
+		if (allItems.length === 0) {
+			this._overflowCount = 0;
+			return;
+		}
+		const GAP = 5;
+		const HAMBURGER_W = 44;
+		const totalItemsWidth = allItems.reduce((sum, el, i) => sum + el.offsetWidth + (i > 0 ? GAP : 0), 0);
+		const containerWidth = barItems.offsetWidth;
+		if (totalItemsWidth <= containerWidth) {
+			this._overflowCount = 0;
+			this._overflowOpen = false;
+			return;
+		}
+		const availableWidth = containerWidth - HAMBURGER_W;
+		let used = 0;
+		let firstOverflow = allItems.length;
+		for (let i = 0; i < allItems.length; i++) {
+			const itemWidth = allItems[i].offsetWidth + (i > 0 ? GAP : 0);
+			if (used + itemWidth > availableWidth) {
+				firstOverflow = i;
+				break;
+			}
+			used += itemWidth;
+		}
+		for (let i = firstOverflow; i < allItems.length; i++) {
+			const item = allItems[i];
+			item.dataset.originalSlot = item.slot;
+			item.slot = "bar-overflow";
+		}
+		const newCount = allItems.length - firstOverflow;
+		this._overflowCount = newCount;
+		if (newCount === 0) this._overflowOpen = false;
 	}
 	toggleFullscreen() {
 		if (this.fullscreen === "on") this.fullscreen = "off";
@@ -2344,6 +2416,13 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 				} else if (this.fullscreen === "off" && this.contentRef.value) this.contentRef.value.removeAttribute("style");
 			});
 			this.observer.observe(this);
+		}
+		if (!this._overflowObserver && this.barItemsRef.value) {
+			this._overflowObserver = new ResizeObserver(() => {
+				this._scheduleOverflowUpdate();
+			});
+			this._overflowObserver.observe(this.barItemsRef.value);
+			this._scheduleOverflowUpdate();
 		}
 	}
 	attributeChangedCallback(name, _old, value) {
@@ -2393,17 +2472,65 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
             display: flex;
             gap: 5px;
             align-items: center;
+        }
 
-            .bar-content {
-                flex-grow: 1;
-            }
+        .bar-label {
+            flex: 0 1 auto;
+            min-width: 50px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
 
-            .bar-separator {
-                flex-grow: 100;
-                content: "";
-            }
+        .bar-items {
+            flex: 1 1 0;
+            min-width: 0;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            --thermal-direction: row;
+        }
 
+        .bar-items ::slotted([slot="bar-pre"]),
+        .bar-items ::slotted([slot="bar-post"]) {
+            flex-shrink: 0;
+        }
 
+        .bar-spacer {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        .bar-overflow-toggle {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            color: var(--thermal-foreground);
+            cursor: pointer;
+            padding: 0.3em 0.5em;
+            line-height: 0;
+        }
+
+        .bar-overflow-toggle:hover {
+            background-color: var(--thermal-slate-light);
+        }
+
+        .bar-overflow-panel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            padding: calc( var(--thermal-gap) * 0.4 ) 0;
+            border-top: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
+            --thermal-direction: row;
+        }
+
+        .bar-overflow-panel[hidden] {
+            display: none;
         }
 
         :host([fullscreen="on"]) .container {
@@ -2538,22 +2665,26 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	render() {
 		return lit.html`<header ${(0, lit_directives_ref_js.ref)(this.headerRef)} class="app-header">
 
-        <div class="bar ${this.barElements.length > 0 ? "has-bar" : "no-bar"}">
+        <div class="bar">
 
-            ${this.renderLabel()}
+            <div class="bar-label">
+                ${this.renderLabel()}
+            </div>
 
-            <slot name="bar-persistent"></slot>
+            <div class="bar-items" ${(0, lit_directives_ref_js.ref)(this.barItemsRef)}>
 
-            <div class="bar-content">
+                <slot name="bar-pre" @slotchange=${this._scheduleOverflowUpdate}></slot>
+                <div class="bar-spacer"></div>
+                <slot name="bar-post" @slotchange=${this._scheduleOverflowUpdate}></slot>
 
-                <thermal-bar>
+                ${this._overflowCount > 0 ? lit.html`
+                    <button class="bar-overflow-toggle" @click=${this._toggleOverflow} title="Více možností">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
+                        </svg>
+                    </button>
+                ` : lit.nothing}
 
-                    <slot name="bar-pre"></slot>
-                    <div class="bar-separator"></div>
-                    <slot name="bar-post"></slot>
-
-                </thermal-bar>
-                
             </div>
 
             <slot name="close"></slot>
@@ -2564,7 +2695,13 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 
         </div>
 
-        ${this.preElements.length >= 0 ? lit.html`<div class="pre" class="pre">
+        ${this._overflowCount > 0 ? lit.html`
+            <div class="bar-overflow-panel" ?hidden=${!this._overflowOpen}>
+                <slot name="bar-overflow"></slot>
+            </div>
+        ` : lit.nothing}
+
+        ${this.preElements.length >= 0 ? lit.html`<div class="pre">
             <slot name="pre"></slot>
         </div>` : ""}
 
@@ -2587,10 +2724,8 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
 	}
 };
 __decorate([(0, lit_decorators_js.state)()], ThermalAppElement.prototype, "language", void 0);
-__decorate([(0, lit_decorators_js.queryAssignedElements)({
-	slot: "bar",
-	flatten: true
-})], ThermalAppElement.prototype, "barElements", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalAppElement.prototype, "_overflowCount", void 0);
+__decorate([(0, lit_decorators_js.state)()], ThermalAppElement.prototype, "_overflowOpen", void 0);
 __decorate([(0, lit_decorators_js.queryAssignedElements)({
 	slot: "pre",
 	flatten: true
@@ -5927,7 +6062,7 @@ let ThermalGalleryApp = class ThermalGalleryApp extends BaseAppWithPngExportCont
                 >
 
 
-                    <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                    <manager-palette-dropdown slot="bar-post"></manager-palette-dropdown>
 
                     ${this.structure !== void 0 && this.state !== STATE$1.MAIN ? lit.html`
                         <registry-range-form slot="bar-pre"></registry-range-form>
@@ -16622,14 +16757,14 @@ let ThermalFileAppElement = class ThermalFileAppElement extends BaseAppWithPngEx
 
                 <file-info-button slot="bar-pre"></file-info-button>
 
-                ${(0, lit_directives_cache_js.cache)(lit.html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                ${(0, lit_directives_cache_js.cache)(lit.html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
                 
 
                 ${this.hasVisible ? lit.html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : lit.nothing}
                 `)}
 
-                <registry-range-form slot="bar-persistent"></registry-range-form>
+                <registry-range-form slot="bar-pre"></registry-range-form>
                 
 
 
@@ -17552,7 +17687,7 @@ let ThermalGroupAppElement = class ThermalGroupAppElement extends AbstractMultip
 
                             ${this.loading === false ? lit.html`                                
 
-                                <manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                                <manager-palette-dropdown slot="bar-post"></manager-palette-dropdown>
                                 
                                 <registry-range-form slot="bar-pre"></registry-range-form>
                                         

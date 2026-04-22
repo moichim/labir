@@ -405,14 +405,14 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
                 <file-info-button slot="bar-pre"></file-info-button>
 
-                ${cache(html`<manager-palette-dropdown slot="bar-persistent"></manager-palette-dropdown>
+                ${cache(html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
                 
 
                 ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
                 `)}
 
-                <registry-range-form slot="bar-persistent"></registry-range-form>
+                <registry-range-form slot="bar-pre"></registry-range-form>
                 
 
 
