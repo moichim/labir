@@ -216,7 +216,6 @@ export class Instance extends AbstractFile {
                     this.dom.cursorLayer.setShow(true);
             }
 
-
         } else {
 
             if (this.dom) {
@@ -227,7 +226,6 @@ export class Instance extends AbstractFile {
             }
 
         }
-
 
         // The cursor value needs to be calculated anyways, no matter the tool
         this.cursorValue.recalculateFromCursor(position);
@@ -276,7 +274,6 @@ export class Instance extends AbstractFile {
         this.meta.set(baseInfo);
 
         this.setPixels(frameData.pixels);
-
 
     }
 

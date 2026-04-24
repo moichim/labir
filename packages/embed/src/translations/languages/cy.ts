@@ -1,7 +1,7 @@
 import { Translation } from "../Languages";
 
 export const cy: Translation = {
-
+    moreoptions: "Mwy o opsiynau",
     delete: "Dileu",
     create: "Creu",
     createfolder: "Creu ffolder",

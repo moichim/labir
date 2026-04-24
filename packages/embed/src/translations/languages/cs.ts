@@ -1,6 +1,7 @@
 import { Translation } from "../Languages";
 
 export const cs: Translation = {
+    moreoptions: "Více možností",
     delete: "Smazat",
     create: "Vytvořit",
     createfolder: "Vytvořit složku",

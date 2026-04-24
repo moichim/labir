@@ -1,7 +1,7 @@
 import { Translation } from "../Languages";
 
 export const de: Translation = {
-
+    moreoptions: "Mehr Optionen",
     delete: "Löschen",
     create: "Erstellen",
     createfolder: "Einen Ordner erstellen",
