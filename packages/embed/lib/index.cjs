@@ -62,6 +62,7 @@ var version$1 = "1.3.4";
 //#endregion
 //#region src/translations/languages/en.ts
 const en = {
+	moreoptions: "More options",
 	delete: "Delete",
 	create: "Create",
 	createfolder: "Create a folder",
@@ -296,6 +297,7 @@ const en = {
 //#endregion
 //#region src/translations/languages/fr.ts
 const fr = {
+	moreoptions: "Plus d'options",
 	delete: "Supprimer",
 	create: "Créer",
 	createfolder: "Créer un dossier",
@@ -530,6 +532,7 @@ const fr = {
 //#endregion
 //#region src/translations/languages/cs.ts
 const cs = {
+	moreoptions: "Více možností",
 	delete: "Smazat",
 	create: "Vytvořit",
 	createfolder: "Vytvořit složku",
@@ -764,6 +767,7 @@ const cs = {
 //#endregion
 //#region src/translations/languages/cy.ts
 const cy = {
+	moreoptions: "Mwy o opsiynau",
 	delete: "Dileu",
 	create: "Creu",
 	createfolder: "Creu ffolder",
@@ -998,6 +1002,7 @@ const cy = {
 //#endregion
 //#region src/translations/languages/de.ts
 const de = {
+	moreoptions: "Mehr Optionen",
 	delete: "Löschen",
 	create: "Erstellen",
 	createfolder: "Einen Ordner erstellen",
@@ -1921,6 +1926,7 @@ const localeConverter = {
 * In the comment is the englis version. Use only the keys in any t() function.
 */
 let T = /* @__PURE__ */ function(T) {
+	T["moreoptions"] = "moreoptions";
 	T["loading"] = "loading";
 	T["config"] = "config";
 	T["temperature"] = "temperature";
@@ -2520,13 +2526,27 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
         }
 
         .bar-overflow-panel {
+            
             display: flex;
             flex-wrap: wrap;
             gap: 5px;
             align-items: center;
             padding: calc( var(--thermal-gap) * 0.4 ) 0;
+            
             border-top: var(--thermal-border-width) var(--thermal-border-style) var(--thermal-slate);
             --thermal-direction: row;
+
+            padding: .3em;
+            
+            background: var(--thermal-slate);
+            border-radius: var(--thermal-radius);
+            
+            margin-bottom: .5em;
+
+            > slot > * {
+                width: 100%; 
+            }
+
         }
 
         .bar-overflow-panel[hidden] {
@@ -2662,6 +2682,24 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
     tooltip=${this.fullscreen === "on" ? (0, i18next.t)(T.close) : "Fullscreen"}
 ></thermal-btn>`;
 	}
+	renderOverflowToggle() {
+		if (this._overflowCount === 0) return lit.nothing;
+		let icon = "adjustment";
+		let iconStyle = "outline";
+		let variant = "default";
+		if (this._overflowOpen) {
+			icon = "close";
+			iconStyle = "outline";
+			variant = "bg";
+		}
+		return lit.html`<thermal-btn 
+    @click=${this._toggleOverflow} 
+    tooltip="${this.t("moreoptions")}}" 
+    icon=${icon} 
+    iconStyle=${iconStyle} 
+    variant=${variant}
+></thermal-btn>`;
+	}
 	render() {
 		return lit.html`<header ${(0, lit_directives_ref_js.ref)(this.headerRef)} class="app-header">
 
@@ -2677,13 +2715,7 @@ let ThermalAppElement = class ThermalAppElement extends AbstractThermalElement {
                 <div class="bar-spacer"></div>
                 <slot name="bar-post" @slotchange=${this._scheduleOverflowUpdate}></slot>
 
-                ${this._overflowCount > 0 ? lit.html`
-                    <button class="bar-overflow-toggle" @click=${this._toggleOverflow} title="Více možností">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />
-                        </svg>
-                    </button>
-                ` : lit.nothing}
+                ${this.renderOverflowToggle()}
 
             </div>
 
@@ -16759,19 +16791,13 @@ let ThermalFileAppElement = class ThermalFileAppElement extends BaseAppWithPngEx
 
                 ${(0, lit_directives_cache_js.cache)(lit.html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
+                <registry-range-form slot="bar-pre"></registry-range-form>
                 
-
                 ${this.hasVisible ? lit.html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : lit.nothing}
                 `)}
 
-                <registry-range-form slot="bar-pre"></registry-range-form>
-                
-
-
-                
-
                 ${(0, lit_directives_cache_js.cache)(lit.html`<thermal-dialog label="${(0, i18next.t)(T.config)}" slot="bar-pre">
-                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení" style="width: var(--thermal-collapsible-width, auto);display: flex; align-items: center;box-sizing: border-box;">
+                    <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení">
 
                         <thermal-icon icon="settings" variant="outline" class="button-fix"></thermal-icon>
 
@@ -16808,20 +16834,6 @@ let ThermalFileAppElement = class ThermalFileAppElement extends BaseAppWithPngEx
 
 
                 ${this.layout === Layout.SIMPLE ? lit.html`<aside slot="pre">${this.renderScale()}</aside>` : lit.nothing}
-
-
-                ${this.showshare ? lit.html`<thermal-dialog label="${(0, i18next.t)(T.share)}" slot="bar-pre" class="share">
-                    <thermal-btn slot="invoker" icon="share" iconStyle="outline" tooltip="${(0, i18next.t)(T.share)}" style="align-self:stretch;"></thermal-btn>
-                    <div slot="content">
-                        <p>${(0, i18next.t)(T.embedhint)}</p>
-                        <h2>1. ${(0, i18next.t)(T.embedlibrary)} <thermal-btn @click="${() => navigator.clipboard.writeText(`<script src="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js"><\/script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css">`)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
-                        <pre>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.js&quot;&gt;&lt;/script&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@labirthermal/webcomponents@${version$1}/dist/embed.min.css&quot;&gt;</pre>
-                        <h2>2. ${(0, i18next.t)(T.embedcomponent)} <thermal-btn @click="${() => navigator.clipboard.writeText(this.outerHTMLSnapshot)}">${(0, i18next.t)(T.copy)}</thermal-btn></h2>
-                        <pre>${this.outerHTMLSnapshot}</pre>
-                    </div>
-                </thermal-dialog>` : lit.nothing}
 
 
             </thermal-app>`;

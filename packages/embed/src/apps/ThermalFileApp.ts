@@ -407,14 +407,10 @@ export class ThermalFileAppElement extends BaseAppWithPngExportContext {
 
                 ${cache(html`<manager-palette-dropdown slot="bar-pre"></manager-palette-dropdown>
 
-                ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
-                `)}
-
                 <registry-range-form slot="bar-pre"></registry-range-form>
                 
-
-
-                
+                ${this.hasVisible ? html`<registry-opacity-slider  slot="bar-pre"></registry-opacity-slider>` : nothing}
+                `)}
 
                 ${cache(html`<thermal-dialog label="${t(T.config)}" slot="bar-pre">
                     <thermal-btn slot="invoker" tooltip="Nastavení exportu a zobrazení">
