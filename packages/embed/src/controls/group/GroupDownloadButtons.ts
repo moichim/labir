@@ -7,7 +7,7 @@ import { consume } from "@lit/context";
 import { pngExportWidthContext, pngExportFsContext, pngExportAnalysisContext, pngExportScaleContext, pngExportFileNameContext, pngExportFileDateContext, pngExportColumnsContext, pngExportGroupNameContext } from "../../hierarchy/providers/context/pngExportContext";
 
 @customElement("group-download-buttons")
-export class GroupDownloadDropdown extends AbstractGroupConsumer {
+export class GroupDownloadButtons extends AbstractGroupConsumer {
 
     @property({type: String})
     public label?: string;

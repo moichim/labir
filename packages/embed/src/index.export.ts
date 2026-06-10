@@ -78,6 +78,11 @@ export { AbstractGroupConsumer } from "./hierarchy/consumers/AbstractGroupConsum
 export { AbstractManagerConsumer } from "./hierarchy/consumers/AbstractManagerConsumer";
 export { AbstractRegistryConsumer } from "./hierarchy/consumers/AbstractRegistryConsumer";
 
+// Independent controls
+export { AppInfoButton } from "./controls/independent/AppInfoButton";
+export { DisplayPanel } from "./controls/independent/DisplayPanel";
+export { ConfigDialog } from "./controls/independent/ConfigDialog";
+
 // The providers elements
 
 export { FileCopyElement } from "./hierarchy/providers/FileCopy";
@@ -105,3 +110,14 @@ export { RegistrySetFullRangeElement } from "./controls/registry/RangeFullButton
 export { RegistrySetAutoRangeElement } from "./controls/registry/RangeAutoButton";
 export { RegistryRangeDisplay } from "./controls/registry/RegistryRangeDisplay";
 export { RegistryOpacitySlider } from "./controls/registry/RegistryOpacitySlider";
+
+// Group controls
+
+export { GroupChart } from "./controls/group/GroupChart";
+export { GroupAnalysisSyncButton } from "./controls/group/GroupAnalysisSyncButton";
+export { GroupDownloadDropdown } from "./controls/group/GroupDownloadDropdown";
+export { GroupDownloadButtons } from "./controls/group/GroupDownloadButtons";
+export { GroupDropin } from "./controls/group/GroupDropin";
+export { GroupDropinInput } from "./controls/group/GroupDropinInput";
+export { GroupRangePropagator } from "./controls/group/GroupRangePropagator";
+export { GroupTimeline } from "./controls/group/GroupTimeline";

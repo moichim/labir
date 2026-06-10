@@ -1,7 +1,7 @@
 import { css, html } from "lit";
 import { customElement } from "lit/decorators.js";
-import { version } from "../../package.json";
-import { AbstractThermalElement } from "../hierarchy/AbstractThermalElement";
+import { version } from "../../../package.json";
+import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 
 @customElement("app-info-button")
 export class AppInfoButton extends AbstractThermalElement {

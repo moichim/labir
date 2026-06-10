@@ -8,7 +8,7 @@ import { T } from "../../translations/Languages";
 import { AbstractGroupDropin } from "./AbstractGroupDropin";
 
 @customElement("group-dropin-input")
-export class GroupDropin extends AbstractGroupDropin {
+export class GroupDropinInput extends AbstractGroupDropin {
 
   @state()
   protected container: Ref<HTMLVideoElement> = createRef();

@@ -66,10 +66,10 @@ import "./ui/Tip";
 
 import "./apps/AustralianApparentTemperature";
 
-import "./controls/AppInfoButton";
+import "./controls/independent/AppInfoButton";
 
 import "./controls/manager/ManagerExportPanel";
-import "./controls/registry/DisplaySettingsPanel";
+import "./controls/independent/DisplayPanel";
 
 import "./apps/ThermalGalleryApp";
 import "./utils/multipleFiles/ThermalFile";
@@ -101,14 +101,14 @@ import "./controls/manager/ManagerExportPanel";
 import "./controls/manager/ManagerImageSmoothSwitch";
 
 // 4. Registry controls
-import "./controls/registry/Histogram";
-import "./controls/registry/OpacitySlider";
+import "./controls/registry/RegistryHistogram";
+import "./controls/registry/RegistryOpacitySlider";
 import "./controls/registry/RangeAutoButton";
-import "./controls/registry/RangeDisplay";
+import "./controls/registry/RegistryRangeDisplay";
 import "./controls/registry/RangeFullButton";
-import "./controls/registry/RangeSlider";
+import "./controls/registry/RegistryRangeSlider";
 import "./controls/registry/RegistryRangeForm";
-import "./controls/registry/TicksBar";
+import "./controls/registry/RegistryTicksBar";
 
 
 // 5. Group controls
@@ -169,7 +169,7 @@ import "./controls/file/video/FileVideoExportPanel";
 
 
 
-import "./controls/registry/ConfigDialog";
+import "./controls/independent/ConfigDialog";
 
 
 // 7. Complex apps go last

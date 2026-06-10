@@ -363,7 +363,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
 
                 <div slot="content">
                     <manager-export-panel></manager-export-panel>
-                    <registry-display-panel></registry-display-panel>
+                    <display-panel></display-panel>
                 </div>
             </thermal-dialog>`
             : nothing;

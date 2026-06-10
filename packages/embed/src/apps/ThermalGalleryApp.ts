@@ -572,7 +572,7 @@ export class ThermalGalleryApp extends BaseAppWithPngExportContext {
                         <div slot="content">
                             <table>
                                 <manager-export-panel></manager-export-panel>
-                                <registry-display-panel></registry-display-panel>
+                                <display-panel></display-panel>
                             </table>
                         </div>
                     </thermal-dialog>

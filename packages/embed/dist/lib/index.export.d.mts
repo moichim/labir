@@ -3,8 +3,8 @@ import { CSSResultGroup, LitElement, PropertyValueMap, PropertyValues, html } fr
 import { Ref } from "lit/directives/ref.js";
 import { Placement } from "@floating-ui/dom";
 import * as _labirthermal_core0 from "@labirthermal/core";
-import { AbstractAnalysis, AvailableThermalPalette, CallbacksManager, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
-
+import { AbstractAnalysis, AvailableThermalPalette, CallbacksManager, DropinElementListener, Instance, ParsedTimelineFrame, PlaybackSpeeds, SlotNumber, ThermalFileFailure, ThermalGroup, ThermalManager, ThermalMinmaxOrUndefined, ThermalPaletteType, ThermalRangeOrUndefined, ThermalRegistry, ThermalTool } from "@labirthermal/core";
+import { RangeSlider } from "toolcool-range-slider";
 //#region src/utils/converters/booleanConverter.d.ts
 declare const booleanConverter: (emptyValue: boolean) => {
   fromAttribute: (value: string | null) => boolean;
@@ -968,6 +968,25 @@ declare abstract class AbstractFileConsumer extends AbstractGroupConsumer {
   abstract onFailure(error: ThermalFileFailure): void;
 }
 //#endregion
+//#region src/controls/independent/AppInfoButton.d.ts
+declare class AppInfoButton extends AbstractThermalElement {
+  static styles: lit.CSSResult;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/independent/DisplayPanel.d.ts
+declare class DisplayPanel extends AbstractThermalElement {
+  static styles?: CSSResultGroup | undefined;
+  advancedPalettes: boolean;
+  advancedPalettesSetter: (value: boolean) => void;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/independent/ConfigDialog.d.ts
+declare class ConfigDialog extends AbstractThermalElement {
+  protected render(): unknown;
+}
+//#endregion
 //#region src/hierarchy/providers/FileCopy.d.ts
 declare class FileCopyElement extends AbstractFileProvider {
   protected providedSelf: FileCopyElement;
@@ -1192,5 +1211,282 @@ declare class ManagerToolBar extends AbstractManagerConsumer {
   protected render(): unknown;
 }
 //#endregion
-export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractManagerConsumer, AbstractManagerProvider, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, type BtnSizes, type BtnVariants, FileCopyElement, FileMirrorElement, FileProviderElement, GroupProviderElement, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, RegistryProviderElement, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalLoadingElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, durationConverter, fileContext, fileCurrentFrameContext, fileMsContext, filePlayingContext, groupContext, icons, languageContext, managerContext, managerSmoothContext, registryContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, setRegistryHighlightContext, toolContext };
+//#region src/controls/registry/RegistryRangeForm.d.ts
+declare class RegistryRangeForm extends AbstractRegistryConsumer {
+  stacked: boolean;
+  protected min: number | undefined;
+  protected max: number | undefined;
+  protected from: number | undefined;
+  protected to: number | undefined;
+  protected step: number;
+  protected availableSteps: number[];
+  protected inputValues: {
+    from: string;
+    to: string;
+  };
+  protected isUpdatingFromRegistry: boolean;
+  private debounceTimer;
+  protected hasHistogram: boolean;
+  protected firstUpdated(_changedProperties: PropertyValues): void;
+  disconnectedCallback(): void;
+  private hydrate;
+  private dehydrate;
+  private recieveMinmax;
+  private recieveRange;
+  private updateFrom;
+  private updateTo;
+  private debouncedUpdate;
+  private isValidFromValue;
+  private isValidToValue;
+  private canStepFrom;
+  private canStepTo;
+  private canSetMin;
+  private canSetMax;
+  private stepFrom;
+  private stepTo;
+  private setMinValue;
+  private setMaxValue;
+  private setStep;
+  private roundToNearestInteger;
+  private getAvailableSteps;
+  private isWholeNumber;
+  private getClosestValidValue;
+  private handleInputBlur;
+  static styles?: CSSResultGroup | undefined;
+  protected renderInput(type: 'from' | 'to', before?: unknown, after?: unknown): unknown;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RegistryTicksBar.d.ts
+type TickType = {
+  percentage: number;
+  value: number;
+};
+declare class RegistryTicksBar extends AbstractRegistryConsumer {
+  static TICK_WIDTH: number;
+  static TICK_FIXED: number;
+  protected ticksRef: Ref<HTMLDivElement>;
+  protected observer: ResizeObserver;
+  protected highlight?: ThermalRangeOrUndefined;
+  placement: string;
+  protected minmax: ThermalMinmaxOrUndefined;
+  protected ticks: TickType[];
+  protected containerRef: Ref<HTMLElement>;
+  connectedCallback(): void;
+  protected firstUpdated(_changedProperties: PropertyValueMap<this> | Map<PropertyKey, unknown>): void;
+  protected clamp(input: number, min: number, max: number): number;
+  protected map(current: number, in_min: number, in_max: number, out_min: number, out_max: number): number;
+  protected calculateTicks(minmax: ThermalMinmaxOrUndefined, width: number): void;
+  protected calculateOneTick(minmax: ThermalMinmaxOrUndefined, percent: number): TickType | undefined;
+  static styles: lit.CSSResult;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RegistryRangeSlider.d.ts
+declare class RegistryRangeSlider extends AbstractRegistryConsumer {
+  min?: number;
+  max?: number;
+  from?: number;
+  to?: number;
+  protected hasInitialValues: boolean;
+  protected palette: ManagerPaletteContext;
+  protected sliderRef: Ref<RangeSlider>;
+  protected initialised: boolean;
+  protected loading: boolean;
+  protected getClassName(): string;
+  connectedCallback(): void;
+  disconnectedCallback(): void;
+  protected firstUpdated(_changedProperties: PropertyValues): void;
+  protected willUpdate(_changedProperties: PropertyValues): void;
+  protected getSlider(): Element | null;
+  sliderDownListener(event: Event): void;
+  sliderUpListener(): void;
+  updated(_changedProperties: PropertyValues): void;
+  /**
+   * Create the initial listeners and bind the CSS to the slider
+   */
+  protected initialiseSlider(): void;
+  static styles: lit.CSSResult;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RangeFullButton.d.ts
+declare class RegistrySetFullRangeElement extends AbstractRegistryConsumer {
+  protected buttonRef: Ref<HTMLElement>;
+  protected setter?: (value?: ThermalRangeOrUndefined) => void;
+  doAction(): void;
+  mouseenter(): void;
+  mouseleave(): void;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RangeAutoButton.d.ts
+declare class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
+  doAction(): void;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RegistryRangeDisplay.d.ts
+declare class RegistryRangeDisplay extends AbstractRegistryConsumer {
+  protected from?: number;
+  protected to?: number;
+  fixed: number;
+  separator: string;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/registry/RegistryOpacitySlider.d.ts
+declare class RegistryOpacitySlider extends AbstractRegistryConsumer {
+  value: number;
+  protected containerRef: Ref<HTMLElement>;
+  connectedCallback(): void;
+  disconnectedCallback(): void;
+  /** Handle user input events */
+  handleUserChangeEvent(event: {
+    target: {
+      value: string;
+    };
+  }): void;
+  static styles: lit.CSSResult;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/group/GroupChart.d.ts
+declare class GroupChart extends AbstractGroupConsumer {
+  protected instances: Instance[];
+  protected timeout?: NodeJS.Timeout;
+  protected data: [string[], ...[Date, ...number[]][]] | undefined;
+  protected colors?: string[];
+  protected on: boolean;
+  protected firstUpdated(_changedProperties: PropertyValues): void;
+  static styles?: CSSResultGroup | undefined;
+  download(): void;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/group/GroupAnalysisSyncButton.d.ts
+declare class GroupAnalysisSyncButton extends AbstractGroupConsumer {
+  on: boolean;
+  connectedCallback(): void;
+  turnOn(): void;
+  turnOff(): void;
+  toggle(): void;
+  static styles?: CSSResultGroup | undefined;
+  render(): unknown;
+}
+//#endregion
+//#region src/controls/group/GroupDownloadDropdown.d.ts
+declare class GroupDownloadDropdown extends AbstractGroupConsumer {
+  static styles?: CSSResultGroup | undefined;
+  private pngColumns;
+  private pngGroupName;
+  private pngFontSize;
+  private pngShowAnalysis;
+  private pngFileDate;
+  private pngFileName;
+  private pngWidth;
+  private pngShowScale;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/group/GroupDownloadButtons.d.ts
+declare class GroupDownloadButtons extends AbstractGroupConsumer {
+  label?: string;
+  protected pngWidth: number;
+  protected pngFs: number;
+  protected pngAnalyses: boolean;
+  protected pngExportScale: boolean;
+  protected pngFileName: boolean;
+  protected pngFileDate: boolean;
+  protected pngColumns: number;
+  protected pngExportGroupName: boolean;
+  static styles?: CSSResultGroup | undefined;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/controls/group/AbstractGroupDropin.d.ts
+declare abstract class AbstractGroupDropin extends AbstractGroupConsumer {
+  ip?: string;
+  connectedCallback(): void;
+  protected emitUpload(fileName: string, fileSize: number): void;
+}
+//#endregion
+//#region src/controls/group/GroupDropin.d.ts
+declare class GroupDropin extends AbstractGroupDropin {
+  protected container: Ref<HTMLVideoElement>;
+  protected hover: boolean;
+  protected uploading: boolean;
+  protected firstUpdated(_changedProperties: PropertyValues): void;
+  static styles: lit.CSSResult;
+  render(): lit.TemplateResult<1>;
+}
+//#endregion
+//#region src/controls/group/GroupDropinInput.d.ts
+declare class GroupDropinInput extends AbstractGroupDropin {
+  protected container: Ref<HTMLVideoElement>;
+  protected hover: boolean;
+  protected uploading: boolean;
+  listener?: DropinElementListener;
+  static styles: lit.CSSResult;
+  protected firstUpdated(_changedProperties: PropertyValues): void;
+  render(): lit.TemplateResult<1>;
+}
+//#endregion
+//#region src/controls/group/GroupRangePropagator.d.ts
+declare class GroupRangePropagator extends AbstractGroupConsumer {
+  static styles: lit.CSSResultGroup | undefined;
+  protected setter?: (value: ThermalRangeOrUndefined) => void;
+  connectedCallback(): void;
+  protected render(): unknown;
+}
+//#endregion
+//#region src/utils/timelineTicks.d.ts
+declare enum TICK {
+  MINOR = "minor",
+  MAJOR = "major",
+  BOUND = "bound"
+}
+type Tick = {
+  ms: number;
+  percent: number;
+  type: TICK;
+  label: string;
+};
+//#endregion
+//#region src/controls/group/GroupTimeline.d.ts
+declare class GroupTimeline extends AbstractGroupConsumer {
+  static TICK_WIDTH: number;
+  static TICK_POINTER_HEIGHT: number;
+  longestDurationInMs?: number;
+  ms: number;
+  pointerMs?: number;
+  playing: boolean;
+  instances: Instance[];
+  has: boolean;
+  ticks: Tick[];
+  protected timelineRef: Ref<HTMLDivElement>;
+  protected indicatorRef: Ref<HTMLDivElement>;
+  listener?: ReturnType<typeof setTimeout>;
+  connectedCallback(): void;
+  protected updated(_changedProperties: PropertyValues): void;
+  protected onRegistryBatchEnded(results: (Instance | ThermalFileFailure)[]): void;
+  protected calculateTicks(width: number, duration: number): void;
+  protected forEveryAffectedInstance(fn: (instance: Instance) => void): void;
+  protected percentToMs(percent: number): number | undefined;
+  protected msToPercent(ms: number): number | undefined;
+  protected getValueFromEvent(event: MouseEvent): {
+    ms: number | undefined;
+    percent: number;
+  };
+  protected handlePlayButtonClick(): void;
+  protected handleTimelineClick(event: MouseEvent): void;
+  protected handleTimelineEnter(event: MouseEvent): void;
+  protected handleTimelineMove(event: MouseEvent): void;
+  protected handleTimelineLeave(): void;
+  static styles?: CSSResultGroup | undefined;
+  protected getTimelineElement(): HTMLDivElement | null;
+  protected render(): unknown;
+}
+//#endregion
+export { AbstractFileConsumer, AbstractFileProvider, AbstractGroupConsumer, AbstractGroupProvider, AbstractManagerConsumer, AbstractManagerProvider, AbstractRegistryConsumer, AbstractRegistryProvider, AbstractThermalElement, AppInfoButton, type BtnSizes, type BtnVariants, ConfigDialog, DisplayPanel, FileCopyElement, FileMirrorElement, FileProviderElement, GroupAnalysisSyncButton, GroupChart, GroupDownloadButtons, GroupDownloadDropdown, GroupDropin, GroupDropinInput, GroupProviderElement, GroupRangePropagator, GroupTimeline, ManagerExportPanel, ManagerGraphSmoothSwitch, ManagerImageSmoothSwitch, ManagerPaletteButtons, ManagerPaletteDropdown, ManagerProviderElement, ManagerToolBar, RegistryOpacitySlider, RegistryProviderElement, RegistryRangeDisplay, RegistryRangeForm, RegistryRangeSlider, RegistrySetAutoRangeElement, RegistrySetFullRangeElement, RegistryTicksBar, ThermalAppElement, ThermalBarElement, ThermalBtnElement, ThermalDialogElement, ThermalDropdownElement, ThermalDropinElement, ThermalExpandableElement, ThermalFieldElement, ThermalIconElement, ThermalLoadingElement, ThermalRadioElement, ThermalSlotElement, ThermalSpinnerElement, ThermalTipElement, booleanConverter, durationConverter, fileContext, fileCurrentFrameContext, fileMsContext, filePlayingContext, groupContext, icons, languageContext, managerContext, managerSmoothContext, registryContext, registryHighlightContext, registryLoadingContext, registryMaxContext, registryMinContext, registryOpacityContext, registryRangeFromContext, registryRangeToContext, setRegistryHighlightContext, toolContext };
 //# sourceMappingURL=index.export.d.mts.map
