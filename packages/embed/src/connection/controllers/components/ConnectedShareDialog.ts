@@ -1,5 +1,5 @@
 import type { AvailableThermalPalette } from "@labirthermal/core";
-import type { FileInfo, FolderInfo } from "@labirthermal/server";
+import type { FileInfo, FolderInfo } from "@labirthermal/client";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
@@ -7,11 +7,11 @@ import { customElement } from "lit/decorators.js";
 import { managerPaletteContext } from "../../../hierarchy/providers/context/ManagerContext";
 import { registryRangeFromContext, registryRangeToContext } from "../../../hierarchy/providers/context/RegistryContext";
 import { T } from "../../../translations/Languages";
-import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../abstraction/AbstractControlledConsumer";
 import { DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
 
 @customElement("connected-share-dialog")
-export class ConnectedShareDialog extends ControlledConsumer {
+export class ConnectedShareDialog extends AbstractControlledConsumer {
 
     @consume({
         context: managerPaletteContext,

@@ -1,10 +1,10 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { html, css, CSSResultGroup, nothing } from "lit";
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
-import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
+import { css, CSSResultGroup, html, nothing } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../../translations/Languages";
+import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 interface PairedFiles {
     lrc: File;
@@ -21,9 +21,9 @@ interface UnmatchedPng {
 }
 
 @customElement("connected-upload-dialog")
-export class ConnectedUploadDialog extends ControlledConsumer {
+export class ConnectedUploadDialog extends AbstractControlledConsumer {
 
-    @property( { type: Object} )
+    @property({ type: Object })
     public folder!: FolderInfo;
 
     @property({ type: String })
@@ -38,7 +38,7 @@ export class ConnectedUploadDialog extends ControlledConsumer {
     @property({ type: String, converter: booleanConverter(false) })
     private plain: boolean = false;
 
-    @property({type: String})
+    @property({ type: String })
     public tooltip?: string;
 
     @state()
@@ -56,7 +56,7 @@ export class ConnectedUploadDialog extends ControlledConsumer {
     @state()
     private infoMessage: string = "";
 
-    @property({ type: Function})
+    @property({ type: Function })
     public onSuccess?: (files: File[]) => void;
 
     public static styles?: CSSResultGroup = css`
@@ -301,11 +301,11 @@ export class ConnectedUploadDialog extends ControlledConsumer {
                 if (pair.preview) upload.setPreview(pair.preview);
 
                 const result = await upload.execute();
-                
+
                 if (!result?.success) {
                     throw new Error(`Nepodařilo se nahrát soubor ${pair.lrc.name}: ${result?.message}`);
                 }
-                
+
                 return pair.lrc;
             });
 
@@ -504,7 +504,7 @@ export class ConnectedUploadDialog extends ControlledConsumer {
                 ${this.pairedFiles.length + this.unmatchedPngs.length > 0 ? this.renderBottomDropzone() : nothing}
                 ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : nothing}
             </div>
-            ${this.pairedFiles.length > 0 
+            ${this.pairedFiles.length > 0
                 ? html`<thermal-btn
                     slot="button"
                     @click=${() => this.clearAllFiles()}
@@ -536,12 +536,12 @@ export class ConnectedUploadDialog extends ControlledConsumer {
         if (this.pairedFiles.length === 0 && this.unmatchedPngs.length === 0) return nothing;
         const lrcCount = this.pairedFiles.length;
 
-        const pngCount = this.pairedFiles.reduce( (state, current) => {
+        const pngCount = this.pairedFiles.reduce((state, current) => {
             return state + (current.visual ? 1 : 0) + (current.preview ? 1 : 0);
-        }, 0 );
+        }, 0);
 
         let titleSuffix = `${lrcCount}x LRC`;
-        if (pngCount > 0) titleSuffix +=` + ${pngCount}x PNG`;
+        if (pngCount > 0) titleSuffix += ` + ${pngCount}x PNG`;
         return html`<div class="paired-files">
             <h3 class="stage-label">Soubory k uploadu <small>${titleSuffix}</small></h3>
             ${this.renderPairedTable()}
@@ -599,7 +599,7 @@ export class ConnectedUploadDialog extends ControlledConsumer {
         const preview = isImg && url
             ? html`<img src=${url} alt="File preview" />`
             : (isImg ? html`<div class="file-preview__icon"><thermal-icon icon="image" variant="outline"></thermal-icon></div>`
-                     : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`);
+                : html`<div class="file-preview__icon"><thermal-icon icon="document" variant="outline"></thermal-icon></div>`);
         const removable = (type === 'visual' || type === 'preview') || label.toLowerCase().includes('lrc');
         const removeBtn = removable ? html`<thermal-btn class="file-remove-btn" variant="primary" plain="true" size="sm" icon="close" iconStyle="micro" tooltip="${t(T.remove)}" @click=${() => this.removePairedFile(file)}></thermal-btn>` : nothing;
         return html`<div class="file-preview file-preview__has-file">
@@ -694,10 +694,10 @@ export class ConnectedUploadDialog extends ControlledConsumer {
     protected shouldRenderDialog(): boolean {
 
         if (
-            ! this.client.isLoggedIn
-            || ! this.client.identity
-            || ! this.folder
-            || ! this.folder.may_manage_files_in
+            !this.client.isLoggedIn
+            || !this.client.identity
+            || !this.folder
+            || !this.folder.may_manage_files_in
         ) {
             return false;
         }

@@ -24,7 +24,7 @@
     "paths": {
       "@labirthermal/core": ["../core/src"],
       "@labirthermal/server": ["../server/client/src"],
-      "@labirthermal/react-bridge": ["../react-bridge/src"]
+      "@labirthermal/client": ["../client/src"]
     }
   },
   "exclude": ["dist", "lib"]

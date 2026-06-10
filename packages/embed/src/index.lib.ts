@@ -178,8 +178,6 @@ import "./apps/ThermalFileApp";
 import "./apps/ThermalGroupApp";
 
 
-import "./connection/controllers/abstraction/ConnectedProvider";
-
 import "./connection/controllers/apps/ConnectedBrowserApp";
 import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
@@ -218,8 +216,8 @@ import "./connection/controllers/components/selection/ConnectedFolderSelectionAc
 import "./connection/controllers/components/ConnectedShareDialog";
 
 
-import "./connection/components/folder/folders/FolderThumbnail";
-import "./connection/components/folder/folders/FolderRow";
+import "./connection/controllers/components/folder/thumbs/ConnectedFolderThumbnail";
+import "./connection/controllers/components/folder/thumbs/ConnectedFolderRow";
 
 setTimeout( () => {
     window.dispatchEvent(new Event("labirthermal-webcomponents-loaded"));

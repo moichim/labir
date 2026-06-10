@@ -1,12 +1,12 @@
-import { customElement, property, state } from "lit/decorators.js";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
-import { BreadcrumbItem, FolderInfo } from "@labirthermal/server";
+import { BreadcrumbItem, FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { map } from "lit/directives/map.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
-import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { map } from "lit/directives/map.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ThermalDialog } from "packages/embed/src/ui/Dialog";
+import { StyleInfo, styleMap } from "lit/directives/style-map.js";
+import { ThermalDialogElement } from "../../../../../ui/Dialog";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 
 
@@ -16,9 +16,9 @@ export enum LocationSelectorMode {
 }
 
 @customElement( "connected-location-selector" )
-export class ConnectedLocationSelector extends ControlledConsumer {
+export class ConnectedLocationSelector extends AbstractControlledConsumer {
 
-    private dialogRef: Ref<ThermalDialog> = createRef<ThermalDialog>();
+    private dialogRef: Ref<ThermalDialogElement> = createRef<ThermalDialogElement>();
 
     @property({ type: Boolean })
     public asDialogue: boolean = false;

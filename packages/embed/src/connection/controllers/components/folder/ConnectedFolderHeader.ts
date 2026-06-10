@@ -1,23 +1,17 @@
-import { consume } from "@lit/context";
+import { BreadcrumbItem } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import icons from "../../../../utils/icons";
-import { lockedBrowsingTo } from "../../../ClientContext";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { BreadcrumbItem } from "@labirthermal/server";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
-@customElement( "connected-folder-header" )
-export class FolderBaseInfo extends ControlledConsumer {
+@customElement("connected-folder-header")
+export class FolderBaseInfo extends AbstractControlledConsumer {
 
 
     @property({ type: Function })
-    public onParentClick?: ( folder: BreadcrumbItem ) => void;
+    public onParentClick?: (folder: BreadcrumbItem) => void;
 
-    @state()
-    @consume( {context: lockedBrowsingTo, subscribe: true} )
-    private lockedBrowsingTo?: string;
-
-    protected icon = icons.folder.outline( "icon" );
+    protected icon = icons.folder.outline("icon");
 
     public static styles?: CSSResultGroup | undefined = css`
         :host {
@@ -105,27 +99,28 @@ export class FolderBaseInfo extends ControlledConsumer {
 
     protected renderUpButton(): unknown {
 
-        if ( !this.content.breadcrumb || this.content.breadcrumb.length === 0 ) {
+        if (!this.content.breadcrumb || this.content.breadcrumb.length === 0) {
             return nothing;
         }
 
-        const folders = this.content.breadcrumb.filter( item => item.type === "folder" );
-        if ( folders.length <= 1 ) {
+        const folders = this.content.breadcrumb.filter(item => item.type === "folder");
+        if (folders.length <= 1) {
             return nothing;
         }
 
         const parent = folders[folders.length - 2];
+        const lockedPath = this.display.host.lockedPath;
 
-        if ( this.lockedBrowsingTo && ! parent.path.includes(  this.lockedBrowsingTo ) ) {
+        if (lockedPath && !parent.path.includes(lockedPath)) {
             return nothing;
         }
 
-        const callback = this.onParentClick || (() => {});
+        const callback = this.onParentClick || (() => { });
 
         return html`
             <thermal-btn 
                 variant="background" 
-                @click=${() => callback( parent )} 
+                @click=${() => callback(parent)} 
                 icon="upwards" 
                 iconStyle="outline" 
                 size="xl"

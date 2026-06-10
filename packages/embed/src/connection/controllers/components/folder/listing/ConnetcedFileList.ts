@@ -1,58 +1,58 @@
-import { FileInfo } from "@labirthermal/server";
+import { FileInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import icons from "../../../../../utils/icons";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
-import { FileListDisplayMode } from "../../../DisplayController";
 import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
+import icons from "../../../../../utils/icons";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
+import { FileListDisplayMode } from "../../../DisplayController";
 
 @customElement("connected-file-list")
-export class ConnectedFolderFileList extends ControlledConsumer {
+export class ConnectedFolderFileList extends AbstractControlledConsumer {
 
-    @property({ 
-        type: Function 
+    @property({
+        type: Function
     })
     public onFileClick: (file: FileInfo) => void = () => { };
 
-    @property({ 
-        type: Function 
+    @property({
+        type: Function
     })
     public onChange?: (file: FileInfo) => void = () => { };
 
-    @property({ 
-        type: Function 
+    @property({
+        type: Function
     })
     public onFileDelete?: (file: FileInfo) => void = () => { };
 
     protected icon = icons.image.outline("icon");
 
-    @property({ 
-        type: String, 
-        reflect: true, 
-        converter: booleanConverter( false ) 
+    @property({
+        type: String,
+        reflect: true,
+        converter: booleanConverter(false)
     })
     public compact: boolean = false;
 
-    @property({ 
-        type: String, 
-        reflect: true, 
-        attribute: "display-mode" 
+    @property({
+        type: String,
+        reflect: true,
+        attribute: "display-mode"
     })
     public displayMode!: FileListDisplayMode;
 
 
-    @property({ 
-        type: String, 
+    @property({
+        type: String,
         reflect: true,
-        converter: booleanConverter( false ),
+        converter: booleanConverter(false),
         attribute: "show-discussion"
     })
     public showDiscussion: boolean = false;
 
-    @property({ 
-        type: Boolean, 
+    @property({
+        type: Boolean,
         reflect: true,
-        converter: booleanConverter( false ),
+        converter: booleanConverter(false),
         attribute: "editable-tags"
     })
     public editableTags: boolean = false;
@@ -60,7 +60,6 @@ export class ConnectedFolderFileList extends ControlledConsumer {
 
 
     public static styles?: CSSResultGroup | undefined = css`
-
         :host {
             color: var(--thermal-foreground);
             font-size: var(--thermal-fs);
@@ -68,7 +67,6 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             position: relative;
             width: 100%;
         }
-
         :host([display-mode="asGrid"]) {
             grid-column: 2;
             display: grid;
@@ -76,14 +74,12 @@ export class ConnectedFolderFileList extends ControlledConsumer {
             gap: 1em;
         
         }
-
         :host([display-mode="asTable"]) {
             grid-column: 2;
             display: table;
             border-spacing: 1em;
             margin: -1em;
         }
-
         `;
 
 
@@ -91,11 +87,11 @@ export class ConnectedFolderFileList extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.content.subscribeToFolderUpdates( this );
-        this.content.subscribeToFilesUpdates( this );
-        this.display.subscribeToDisplayCompact( this );
-        this.display.subscribeToEditTags( this );
-        this.display.subscribeToDisplayComments( this );
+        this.content.subscribeToFolderUpdates(this);
+        this.content.subscribeToFilesUpdates(this);
+        this.display.subscribeToDisplayCompact(this);
+        this.display.subscribeToEditTags(this);
+        this.display.subscribeToDisplayComments(this);
     }
 
 
@@ -111,9 +107,9 @@ export class ConnectedFolderFileList extends ControlledConsumer {
     .onFileDelete=${this.onFileDelete}
     .onFileClick=${callback}
     display-mode=${this.displayMode}
-    compact=${ this.compact ? "true" : "false" }
-    show-discussion=${ this.showDiscussion ? "true" : "false" }
-    editable-tags=${ this.editableTags ? "true" : "false" }
+    compact=${this.compact ? "true" : "false"}
+    show-discussion=${this.showDiscussion ? "true" : "false"}
+    editable-tags=${this.editableTags ? "true" : "false"}
 ></connected-file-thumbnail>`;
 
     }

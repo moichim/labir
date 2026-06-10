@@ -1,6 +1,6 @@
 import { ApiEverythingResponse, ApiFolderContentResponse, ApiInfoResponse, ApiTimeGroupResponse } from "./index";
 
-
+/** @deprecated */
 export enum ApiTimeGrouping {
     HOURS = "hours",
     DAYS = "days",

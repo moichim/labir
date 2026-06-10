@@ -1,12 +1,12 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { ConnectedLocationSelector, LocationSelectorMode } from "../../selection/move/ConnectedLocationSelector";
 
 @customElement("connected-folder-move-dialog")
-export class ConnectedFolderMoveDialog extends ControlledConsumer {
+export class ConnectedFolderMoveDialog extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -27,20 +27,20 @@ export class ConnectedFolderMoveDialog extends ControlledConsumer {
     private renderDialog(): unknown {
 
 
-        const onSelect = async ( path: string ) => {
+        const onSelect = async (path: string) => {
 
 
-            if ( this.folder || ! this.selectionRef.value) {
+            if (this.folder || !this.selectionRef.value) {
 
                 const result = await this.client.api.routes.post.moveFolder(
                     this.folder.path,
                     path
                 ).execute();
 
-                if ( result.success ) {
+                if (result.success) {
                     this.selectionRef.value?.closeDialogue();
 
-                    await this.display.navigateToFolderAndLoad( path );
+                    await this.display.navigateToFolderAndLoad(path);
                 }
 
             }

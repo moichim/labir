@@ -1,10 +1,10 @@
 import { ThermalManager } from "@labirthermal/core";
-import { Identity } from "@labirthermal/server";
+import { Identity } from "@labirthermal/client";
 import { html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { createRef } from "lit/directives/ref.js";
 import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
-import { AbstractConnectedApp } from "../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../abstraction/AbstractConnectedApp";
 import { DisplayState, FolderListDisplayMode } from "../DisplayController";
 import { connectedFileDetail } from "./directives/layout/ConnectedFileDetailDirective";
 import { connectedFolderFiles } from "./directives/layout/ConnectedFolderFilesDirective";
@@ -101,7 +101,7 @@ export class ControllerApp extends AbstractConnectedApp {
     // File displays
 
     protected renderStateFile(): unknown {
-        const dir = connectedFileDetail( this );
+        const dir = connectedFileDetail(this);
         return this.renderAppWithInternals(dir);
     }
 
@@ -135,7 +135,7 @@ export class ControllerApp extends AbstractConnectedApp {
 
         let content: unknown = nothing;
 
-        if ( this.client.isLoggedIn ) {
+        if (this.client.isLoggedIn) {
             content = html`<thermal-btn
                 @click=${() => this.display.navigateToUserFoldersAndLoad()}
                 icon="right"

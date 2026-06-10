@@ -1,10 +1,10 @@
-import { BreadcrumbItem } from "@labirthermal/server";
+import { BreadcrumbItem } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { classMap } from "lit/directives/class-map.js";
 import { T } from "../../../translations/Languages";
-import { ControlledConsumer } from "../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../abstraction/AbstractControlledConsumer";
 import { DisplayState } from "../DisplayController";
 
 
@@ -20,7 +20,7 @@ type BreadcrumbItemInternal = {
 
 
 @customElement("connected-breadcrumb")
-export class ConnectedBreadcrumb extends ControlledConsumer {
+export class ConnectedBreadcrumb extends AbstractControlledConsumer {
 
     @property({ type: Function })
     public onFolderClick?: (folder: BreadcrumbItem) => void;

@@ -1,10 +1,10 @@
-import { ApiTimeGrouping } from "@labirthermal/server-simple"
+import { GridGrouping } from "@labirthermal/client"
+import { t } from "i18next"
 import { css, CSSResultGroup, html, nothing } from "lit"
 import { customElement, property } from "lit/decorators.js"
 import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
-import { booleanConverter } from "../utils/converters/booleanConverter"
-import { t } from "i18next"
 import { T } from "../translations/Languages"
+import { booleanConverter } from "../utils/converters/booleanConverter"
 
 @customElement("file-detail")
 export class FileThumbnail extends AbstractFileConsumer {
@@ -19,11 +19,11 @@ export class FileThumbnail extends AbstractFileConsumer {
     public label?: string;
 
     @property({ type: String })
-    public grouping?: ApiTimeGrouping;
+    public grouping?: GridGrouping;
 
-    public onInstanceCreated(): void {}
+    public onInstanceCreated(): void { }
 
-    public onFailure(): void {}
+    public onFailure(): void { }
 
     static styles?: CSSResultGroup | undefined = css`
     
@@ -57,43 +57,37 @@ export class FileThumbnail extends AbstractFileConsumer {
 
     protected render(): unknown {
 
-        return html`
+        return html`<header>
+    <thermal-btn 
+        variant="foreground" 
+        @click=${() => {
+            if (this.onback)
+                this.onback();
+            }}
+        tooltip=${t(T.back)}
+        icon="close"
+        iconStyle="micro"
+    ></thermal-btn>
 
-            <header>
-                <thermal-btn 
-                    variant="foreground" 
-                    @click=${() => {
-                        if (this.onback)
-                            this.onback();
-                        }}
-                    tooltip=${t(T.back)}
-                    icon="close"
-                    iconStyle="micro"
-                ></thermal-btn>
+    ${this.label !== undefined ? html`
+    <thermal-btn variant="background" interactive="false">${this.label}</thermal-btn>` : nothing}
 
-                ${this.label !== undefined ? html`
-                    <thermal-btn variant="background" interactive="false">${this.label}</thermal-btn>
-                ` : nothing}
+    <thermal-btn variant="background" interactive="false">
+        <file-label></file-label>
+    </thermal-btn>
 
-                <thermal-btn variant="background" interactive="false">
-                    <file-label></file-label>
-                </thermal-btn>
+    <file-info-button></file-info-button>
+    <file-download-dropdown></file-download-dropdown>
+</header>
 
-                <file-info-button></file-info-button>
-                <file-download-dropdown></file-download-dropdown>
-            </header>
-
-            <main>
-                <section>
-                    <file-canvas norender="${this.norender}"></file-canvas>
-                    <file-timeline></file-timeline>
-                </section>
-                <section>
-                    <file-analysis-complex></file-analysis-complex>
-                </section>
-            </main> 
-        
-    `;
-    }
+<main>
+    <section>
+        <file-canvas norender="${this.norender}"></file-canvas>
+        <file-timeline></file-timeline>
+    </section>
+    <section>
+        <file-analysis-complex></file-analysis-complex>
+    </section>
+</main>`;}
 
 }

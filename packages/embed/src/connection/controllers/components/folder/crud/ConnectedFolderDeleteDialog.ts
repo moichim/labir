@@ -1,4 +1,4 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";

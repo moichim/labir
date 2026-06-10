@@ -1,4 +1,4 @@
-import { FileInfo, FolderInfo } from "@labirthermal/server";
+import { FileInfo, FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -6,10 +6,10 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { T } from "../../../../translations/Languages";
 import { BtnSizes, BtnVariants } from "../../../../ui/Btn";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-file-delete-dialog")
-export class FileDeleteDialog extends ControlledConsumer {
+export class FileDeleteDialog extends AbstractControlledConsumer {
 
     @property({ type: String, converter: booleanConverter(false) })
     public showLabel: boolean = false;

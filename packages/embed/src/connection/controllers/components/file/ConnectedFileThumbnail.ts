@@ -1,26 +1,24 @@
+import { FileInfo, FolderInfo } from "@labirthermal/client";
 import { ThermalGroup, TimeFormat } from "@labirthermal/core";
-import { FileInfo } from "@labirthermal/server";
 import { consume } from "@lit/context";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing, PropertyValues, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { ifDefined } from "lit/directives/if-defined.js";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { FolderInfo } from "@labirthermal/server";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 import { FileProviderElement } from "../../../../hierarchy/providers/FileProvider";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
 import icons from "../../../../utils/icons";
-import { syncAnalysisContext } from "../../../ClientContext";
-
-import { ifDefined } from "lit/directives/if-defined.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { syncAnalysisContext } from "../../../clientContext";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 import { FileListDisplayMode } from "../../DisplayController";
 
 @customElement("connected-file-thumbnail")
-export class FileThumbnail extends ControlledConsumer {
+export class FileThumbnail extends AbstractControlledConsumer {
 
-    
+
 
     @consume({ context: groupContext, subscribe: true })
     @state()
@@ -32,48 +30,48 @@ export class FileThumbnail extends ControlledConsumer {
     @property({ type: Object })
     public file!: FileInfo;
 
-    @property({ 
-        type: Object 
+    @property({
+        type: Object
     })
     public folder!: FolderInfo;
 
-    @property({ 
-        type: Function 
+    @property({
+        type: Function
     })
     public onFileClick: (file: FileInfo) => void = () => { };
 
-    @property({ 
-        type: Function 
+    @property({
+        type: Function
     })
     public onFileDelete?: (file: FileInfo) => void = () => { };
 
-    @property({ 
-        type: Boolean, 
-        reflect: true, 
-        converter: booleanConverter(false) 
+    @property({
+        type: Boolean,
+        reflect: true,
+        converter: booleanConverter(false)
     })
     public compact: boolean = false;
 
-    @property({ 
-        type: String, 
-        reflect: true, 
-        attribute: "display-mode" 
+    @property({
+        type: String,
+        reflect: true,
+        attribute: "display-mode"
     })
     protected displayMode: FileListDisplayMode = FileListDisplayMode.GRID;
-    
 
-    @property({ 
-        type: String, 
+
+    @property({
+        type: String,
         reflect: true,
-        converter: booleanConverter( false ),
+        converter: booleanConverter(false),
         attribute: "show-discussion"
     })
     public showDiscussion: boolean = false;
 
-    @property({ 
-        type: Boolean, 
+    @property({
+        type: Boolean,
         reflect: true,
-        converter: booleanConverter( false ),
+        converter: booleanConverter(false),
         attribute: "editable-tags"
     })
     public editableTags: boolean = false;
@@ -93,9 +91,9 @@ export class FileThumbnail extends ControlledConsumer {
 
     protected firstUpdated(_changedProperties: PropertyValues): void {
         super.firstUpdated(_changedProperties);
-        this.content.subscribeToFilesUpdates( this );
-        this.client.subscribeToIdentityChanges( this );
-        this.content.subscribeToFilesUpdates( this );
+        this.content.subscribeToFilesUpdates(this);
+        this.client.subscribeToIdentityChanges(this);
+        this.content.subscribeToFilesUpdates(this);
         this.hydrate();
         if (this.instanceRef.value) {
 
@@ -139,11 +137,11 @@ export class FileThumbnail extends ControlledConsumer {
         super.connectedCallback();
         this.hydrate();
 
-        this.display.subscribeToDisplayComments( this );
-        this.display.subscribeToEditTags( this );
-        this.content.subscribeToFileUpdates( this );
-        this.content.subscribeToFilesUpdates( this );
-        this.content.subscribeToFolderUpdates( this );
+        this.display.subscribeToDisplayComments(this);
+        this.display.subscribeToEditTags(this);
+        this.content.subscribeToFileUpdates(this);
+        this.content.subscribeToFilesUpdates(this);
+        this.content.subscribeToFolderUpdates(this);
     }
 
 
@@ -162,10 +160,9 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing
         }
 
-        return html`
-            <div class="header_text_time" @click=${() => this.onFileClick(this.file)}>
-                ${time}
-            </div>`;
+        return html`<div class="header_text_time" @click=${() => this.onFileClick(this.file)}>
+    ${time}
+</div>`;
     }
 
     protected renderLabel(): unknown {
@@ -174,9 +171,7 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
-        return html`
-            <h2><span>${this.file.label}</span></h2>
-        `;
+        return html`<h2><span>${this.file.label}</span></h2>`;
     }
 
 
@@ -186,19 +181,17 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
-        return html`
-            <p class="description">${this.file.description}</p>
-        `;
+        return html`<p class="description">${this.file.description}</p>`;
     }
 
     protected renderSelectBox(): unknown {
 
-        if ( 
-            this.client.isLoggedIn === false 
-            || ! this.content.folder?.may_manage_files_in
+        if (
+            this.client.isLoggedIn === false
+            || !this.content.folder?.may_manage_files_in
             || (
                 this.content.files
-                && this.content.files.length <= 1 )
+                && this.content.files.length <= 1)
         ) {
             return nothing;
         }
@@ -248,10 +241,8 @@ export class FileThumbnail extends ControlledConsumer {
 
             const variant = this.compact && this.displayMode === FileListDisplayMode.GRID ? "default" : "background";
 
-            return html`
-            <thermal-dialog
+            return html`<thermal-dialog
                 label="${t(T.comments)}"
-                
             >
                 <thermal-btn 
                     slot="invoker"
@@ -260,7 +251,7 @@ export class FileThumbnail extends ControlledConsumer {
                     icon="comment"
                     iconStyle="micro"
                     plain="true"
-                    badge=${ifDefined( this.file.comments.length > 0 ? "red": undefined )}
+                    badge=${ifDefined(this.file.comments.length > 0 ? "red" : undefined)}
                 ></thermal-btn>
                 <div slot="content">
                     <connected-file-comments
@@ -302,11 +293,9 @@ export class FileThumbnail extends ControlledConsumer {
             return nothing;
         }
 
-        return html`
-            <span class="header_actions_num-analyses">
-                ${this.file.analyses.length} analýzy
-            </span>
-        `;
+        return html`<span class="header_actions_num-analyses">
+        ${this.file.analyses.length} analýzy
+    </span>`;
     }
 
     public restoreAnalyses() {
@@ -344,9 +333,7 @@ export class FileThumbnail extends ControlledConsumer {
             }
 
 
-            content = html`
-
-            <div class="analyses-inner">
+            content = html`<div class="analyses-inner">
                 
                 <file-analysis-complex showhint="false">
                     ${hasStoredAnalyses && !this.syncAnalyses ? html`<thermal-btn 
@@ -368,16 +355,13 @@ export class FileThumbnail extends ControlledConsumer {
                 </aside>`
                     : nothing}
 
-            </div>
-            `;
+            </div>`;
 
 
         }
 
 
-        return html`<div class="analyses">
-            ${content}
-        </div>`;
+        return html`<div class="analyses">${content}</div>`;
 
     }
 
@@ -484,7 +468,7 @@ export class FileThumbnail extends ControlledConsumer {
                 white-space: nowrap;
             }
 
-            file-tags {
+            connected-file-tags {
                 margin-left: auto; /* Tagy vždy doprava */
             }
         }
@@ -533,7 +517,6 @@ export class FileThumbnail extends ControlledConsumer {
                 gap: .25em;
                 align-self: stretch;
                 justify-self: stretch;
-
             }
 
             .header_icon {
@@ -573,7 +556,7 @@ export class FileThumbnail extends ControlledConsumer {
                 }
             }
 
-            file-tags {
+            connected-file-tags {
                 margin-left: auto; /* Tagy vždy doprava */
             }
 
@@ -614,7 +597,6 @@ export class FileThumbnail extends ControlledConsumer {
                 height: 100%;
                 position: relative;
                 padding-bottom: 2em;
-
                 min-width: 220px;
             }
 
@@ -656,7 +638,7 @@ export class FileThumbnail extends ControlledConsumer {
                 width: 300px;
             }
 
-            file-tags {
+            connected-file-tags {
                 margin-left: auto; /* Tagy vždy doprava */
             }
 
@@ -664,12 +646,11 @@ export class FileThumbnail extends ControlledConsumer {
 
                 padding: .5em;
                 border-radius: var(--thermal-radius);
-                background: var( --thermal-background );
+                background: var(--thermal-background);
 
                 .analyses-inner {
                     height: 100%;
                     width: 100%;
-                    
 
                     file-analysis-complex {
                         flex-grow: 1;
@@ -682,6 +663,7 @@ export class FileThumbnail extends ControlledConsumer {
                         gap: .5em;
                         width: 100%;
                     }
+
                 }
 
                 file-analysis-complex {
@@ -690,9 +672,7 @@ export class FileThumbnail extends ControlledConsumer {
 
             }
 
-
-        }
-    `;
+        }`;
 
 
 
@@ -703,87 +683,80 @@ export class FileThumbnail extends ControlledConsumer {
             ? this.file.visual
             : undefined;
 
-        return html`
-            <file-provider
-                thermal=${this.file.url}
-                visible=${ ifDefined(visibleUrl) }
-                batch="true"
-                autoclear="true"
-                role="article"
-                autoHighlight="true"
-                ${ref(this.instanceRef)}
-            >
+        return html`<file-provider
+    thermal=${this.file.url}
+    visible=${ifDefined(visibleUrl)}
+    batch="true"
+    autoclear="true"
+    role="article"
+    autoHighlight="true"
+    ${ref(this.instanceRef)}
+>
 
-                <main>
-                    <file-canvas></file-canvas>
-                    <file-timeline hasplaybutton="false"></file-timeline>
-                </main>
+    <main>
+        <file-canvas></file-canvas>
+        <file-timeline hasplaybutton="false"></file-timeline>
+    </main>
 
-                <header>
+    <header>
 
-                    <div class="header_text">
+    <div class="header_text">
 
-                        ${this.renderSelectBox()}
+        ${this.renderSelectBox()}
 
-                        ${this.renderTime()}
+        ${this.renderTime()}
 
-                        ${this.renderLabel()}
+        ${this.renderLabel()}
 
-                        ${this.renderDescription()}
+        ${this.renderDescription()}
 
-                    </div>
+    </div>
 
-                    <div class="header_icon">
-                        ${this.i(this.icon)}
-                    </div>
+    <div class="header_icon">
+        ${this.i(this.icon)}
+    </div>
 
-                    <div class="header_actions">
+    <div class="header_actions">
 
-                        ${this.renderActionDetail()}
+        ${this.renderActionDetail()}
 
-                        <file-range-propagator 
-                            variant="${this.compact ? "default" : "background"}"
-                            .plain="true"
-                            size="${this.displayMode === FileListDisplayMode.TABLE ? "md" : "sm"}"
-                        ></file-range-propagator>
+        <file-range-propagator 
+            variant="${this.compact ? "default" : "background"}"
+            .plain="true"
+            size="${this.displayMode === FileListDisplayMode.TABLE ? "md" : "sm"}"
+        ></file-range-propagator>
 
-                        ${this.renderActionEdit()}
+        ${this.renderActionEdit()}
 
-                        ${!this.showDiscussion ? this.renderActionComments() : nothing}
+        ${!this.showDiscussion ? this.renderActionComments() : nothing}
 
-                        ${this.renderActionDelete()}
+        ${this.renderActionDelete()}
 
-                        ${this.renderNumAnalyses()}
+        ${this.renderNumAnalyses()}
 
-                        <connected-file-tags
-                            .file=${this.file}
-                            .folder=${this.folder}
-                            inline="true"
-                            .editable="${this.editableTags}"
-                            size="sm"
-                        ></connected-file-tags>
-                    </div>
+        <connected-file-tags
+            .file=${this.file}
+            .folder=${this.folder}
+            inline="true"
+            .editable="${this.editableTags}"
+            size="sm"
+        ></connected-file-tags>
+    </div>
 
-                </header>
+    </header>
 
-                ${this.renderAnalyses()}
+        ${this.renderAnalyses()}
 
-                
-                ${this.showDiscussion === true
-                ? html`
-                    <div class="file-comments">
-                        <connected-file-comments
-                            .file=${this.file}
-                            .folder=${this.folder}
-                            style="height: 300px;"
-                        ></connected-file-comments>
-                    </div>`
-                : nothing
-            }
-
-
-            </file-provider>
-        `;
+        ${this.showDiscussion === true
+            ? html`<div class="file-comments">
+                <connected-file-comments
+                    .file=${this.file}
+                    .folder=${this.folder}
+                    style="height: 300px;"
+                ></connected-file-comments>
+            </div>`
+        : nothing }
+</file-provider>`;
     }
 
 }

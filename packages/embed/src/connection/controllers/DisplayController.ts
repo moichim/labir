@@ -1,6 +1,6 @@
 import { ReactiveController } from "lit";
 import { AppWithContentController, ContentController } from "./ContentController";
-import { FileInfo, FolderInfo } from "@labirthermal/server";
+import { FileInfo, FolderInfo } from "@labirthermal/client";
 import { CallbacksManager } from "@labirthermal/core";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AbstractConnectedController } from "./AbstractConnectedController";

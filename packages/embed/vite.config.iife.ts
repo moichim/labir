@@ -1,80 +1,76 @@
 /// <reference types="vitest" />
 
-import { defineConfig, normalizePath, Terser } from "vite"
-import path from "path"
 import fs from "fs"
-import { viteStaticCopy } from 'vite-plugin-static-copy'
+import path from "path"
+import { defineConfig } from "vite"
 import htmlMinifier from 'vite-plugin-html-minifier'
 
 export default defineConfig({
     root: path.resolve("./"),
-    // publicDir: path.resolve("../../public"),
     build: {
 
+        outDir: path.resolve("./dist/iife"),
+        emptyOutDir: true,
+        copyPublicDir: false,
+        minify: "terser",
+
+        terserOptions: {
+            maxWorkers: 3,
+        },
+
         rollupOptions: {
+
             input: {
-                embed: path.resolve("./src/index.ts"),
+                embed: path.resolve("./src/index.iife.ts"),
             },
+
             output: {
                 format: 'iife',
-                entryFileNames: '[name].js',
-                assetFileNames: '[name].[ext]',
+                entryFileNames: '[name].iife.js',
+                assetFileNames: '[name].iife.[ext]',
             },
+            
             plugins: [
-                /** @todo This plugin does not seem to have any effect */
-                /*
-                htmlMinifier({
-                    minify: {
-                        collapseWhitespace: true,
-                        keepClosingSlash: true,
-                        removeComments: true,
-                        removeRedundantAttributes: true,
-                        removeScriptTypeAttributes: true,
-                        removeStyleLinkTypeAttributes: true,
-                        removeEmptyAttributes: true,
-                        useShortDoctype: true,
-                        minifyCSS: true,
-                        minifyJS: true,
-                        minifyURLs: true,
-                    }
-                }),
-                */
+
+                /** After IIFE build, copy files to the packages that depend on it. */
                 {
                     name: "closeBundle",
                     closeBundle() {
-                        fs.copyFileSync(
-                            path.resolve("./dist/embed.js"),
-                            path.resolve("../thermal-display/assets/embed.js")
-                        );
 
-                        console.log("@labirthermal/webcomponents build copied into @labir/wordpress");
+                        /** Job 1: Copy IIFE into WP package */
 
                         fs.copyFileSync(
-                            path.resolve("./dist/embed.js"),
-                            path.resolve("../server/www/lib/embed.js")
+                            path.resolve("./dist/iife/embed.iife.js"),
+                            path.resolve("../thermal-display/assets/embed.iife.js")
                         );
 
-                        console.log("@labirthermal/webcomponents build copied into @labirthermal/server");
+                        console.log("IIFE build: @labirthermal/webcomponents build copied into @labir/wordpress");
+
+                        /** Job 2: Copy IIFE into Server package */
+
+                        fs.copyFileSync(
+                            path.resolve("./dist/iife/embed.iife.js"),
+                            path.resolve("../server/www/lib/embed.iife.js")
+                        );
+
+                        console.log("IIFE build: @labirthermal/webcomponents build copied into @labirthermal/server");
+
                     }
                 }
+
             ],
+
             preserveEntrySignatures: 'strict',
+
         },
-        terserOptions: {
-            // ecma: 2020,
-            // module: true,
-            maxWorkers: 3,
-        },
-        outDir: path.resolve("./dist"),
-        emptyOutDir: false,
-        copyPublicDir: false,
-        minify: "terser",
 
     },
 
     plugins: [
+
         /** @todo This plugin does not seem to have any effect */
         htmlMinifier({
+
             minify: {
                 collapseWhitespace: true,
                 keepClosingSlash: true,
@@ -88,6 +84,8 @@ export default defineConfig({
                 minifyJS: true,
                 minifyURLs: true,
             }
+
         })
+
     ],
 })

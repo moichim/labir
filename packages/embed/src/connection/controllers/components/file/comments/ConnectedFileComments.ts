@@ -1,13 +1,12 @@
 import { customElement, property } from "lit/decorators.js";
-import { FileInfo } from "@labirthermal/server";
-import { FolderInfo } from "@labirthermal/server";
+import { FileInfo, FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { t } from "i18next";
 import { T } from "../../../../../translations/Languages";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-file-comments")
-export class FileComments extends ControlledConsumer {
+export class FileComments extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public file!: FileInfo;

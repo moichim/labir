@@ -1,13 +1,13 @@
+import { FolderInfo } from "@labirthermal/client";
+import { css, CSSResultGroup, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { FolderInfo } from "@labirthermal/server";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 /** Connected folder selection checkbox component */
-@customElement( "connected-folder-selection-checkbox" )
-export class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
+@customElement("connected-folder-selection-checkbox")
+export class ConnectedFolderSelectionCheckbox extends AbstractControlledConsumer {
 
-    @property({ type: Object})
+    @property({ type: Object })
     public folder!: FolderInfo;
 
     connectedCallback(): void {
@@ -27,11 +27,11 @@ export class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
             @change=${(e: Event) => {
                 e.preventDefault();
                 const target = e.target as HTMLInputElement;
-                if ( target.checked ) {
-                    this.selectionFolder.addToSelection( this.folder );
+                if (target.checked) {
+                    this.selectionFolder.addToSelection(this.folder);
                 }
                 else {
-                    this.selectionFolder.removeFromSelection( this.folder );
+                    this.selectionFolder.removeFromSelection(this.folder);
                 }
             }}
         />`;
@@ -43,8 +43,8 @@ export class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
     ): unknown {
 
         const callback = isSelected
-            ? () => this.selectionFolder.removeFromSelection( this.folder )
-            : () => this.selectionFolder.addToSelection( this.folder );
+            ? () => this.selectionFolder.removeFromSelection(this.folder)
+            : () => this.selectionFolder.addToSelection(this.folder);
 
         return html`<thermal-btn @click=${callback.bind(this)}>${isSelected ? 'Odstranit' : 'Přidat'}</thermal-btn>`;
 
@@ -83,9 +83,9 @@ export class ConnectedFolderSelectionCheckbox extends ControlledConsumer {
 
     protected render(): unknown {
 
-        const isSelected = this.selectionFolder.folderIsSelected( this.folder );
+        const isSelected = this.selectionFolder.folderIsSelected(this.folder);
 
-        return this.renderCheckbox( isSelected );
+        return this.renderCheckbox(isSelected);
 
     }
 

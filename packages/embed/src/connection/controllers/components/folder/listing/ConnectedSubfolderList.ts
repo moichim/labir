@@ -1,11 +1,11 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { FolderListDisplayMode } from "../../../DisplayController";
 
 @customElement("connected-subfolder-list")
-export class ConnectedFolderFileList extends ControlledConsumer {
+export class ConnectedFolderFileList extends AbstractControlledConsumer {
 
 
     @property({ type: Function })
@@ -64,17 +64,17 @@ export class ConnectedFolderFileList extends ControlledConsumer {
     protected renderSubfolder(info: FolderInfo): unknown {
 
         if (this.folderMode === FolderListDisplayMode.TABLE) {
-            return html`<server-folder-row
+            return html`<connected-folder-row
                 .folder=${info}
                 @click=${() => this.onFolderClick && this.onFolderClick(info)}
-            ></server-folder-row>`;
+            ></connected-folder-row>`;
         }
 
-        return html`<server-folder-thumbnail
+        return html`<connected-folder-thumbnail
             .folder=${info}
             .onClick=${() => this.onFolderClick && this.onFolderClick(info)}
         >
-        </server-folder-thumbnail>`;
+        </connected-folder-thumbnail>`;
 
     }
 

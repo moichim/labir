@@ -1,4 +1,4 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { AbstractFolderDialog } from "./AbstractFolderDialog";
@@ -19,7 +19,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
     @state()
     private errorMessage: string = "";
 
-    @property({ type: Function})
+    @property({ type: Function })
     public onSuccess?: (folder: FolderInfo) => void;
 
     public static styles?: CSSResultGroup = css`
@@ -88,7 +88,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
             return false;
         }
 
-        if ( !this.client ) {
+        if (!this.client) {
             this.errorMessage = "Klient není dostupný";
             return false;
         }
@@ -103,7 +103,7 @@ export class FolderEditDialog extends AbstractFolderDialog {
             .post
             .updateFolder(this.folder.path)
             .setName(this.folderName.trim())
-            
+
             .setDescription(this.folderDescription.trim())
             .execute()!;
 
@@ -165,17 +165,17 @@ ${this.errorMessage ? html`<div class="error">${this.errorMessage}</div>` : ''}`
     protected shouldRenderDialog(): boolean {
 
         // Do not display until connected and logged in
-        if ( 
-            ! this.client.isClientConnected 
-            || ! this.client.identity 
-            || ! this.client.isLoggedIn
-            || ! this.folder
+        if (
+            !this.client.isClientConnected
+            || !this.client.identity
+            || !this.client.isLoggedIn
+            || !this.folder
         ) {
             return false;
         }
 
         // For root, display allways
-        if ( this.client.identity.meta.is_root ) {
+        if (this.client.identity.meta.is_root) {
             return true;
         }
 

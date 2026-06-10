@@ -1,4 +1,3 @@
-import { ApiTimeGrouping } from "@labirthermal/server-simple"
 import { Instance } from "@labirthermal/core"
 import { t } from "i18next"
 import { css, CSSResultGroup, html } from "lit"
@@ -7,6 +6,7 @@ import { ifDefined } from "lit/directives/if-defined.js"
 import { AbstractFileConsumer } from "../hierarchy/consumers/AbstractFileConsumer"
 import { T } from "../translations/Languages"
 import { booleanConverter } from "../utils/converters/booleanConverter"
+import { GridGrouping } from "@labirthermal/client";
 
 @customElement("file-thumbnail")
 export class FileThumbnail extends AbstractFileConsumer {
@@ -21,7 +21,7 @@ export class FileThumbnail extends AbstractFileConsumer {
     public label?: string;
 
     @property({ type: String })
-    public grouping?: ApiTimeGrouping;
+    public grouping?: GridGrouping;
 
     public onInstanceCreated(): void {}
 

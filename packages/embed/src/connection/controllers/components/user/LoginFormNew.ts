@@ -1,12 +1,12 @@
+import { Identity } from "@labirthermal/client";
+import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
-import { t } from "i18next";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { Identity } from "@labirthermal/server";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-login-form")
-export class ConnectedLoginForm extends ControlledConsumer {
+export class ConnectedLoginForm extends AbstractControlledConsumer {
 
     @property({ type: String, reflect: true })
     public prompt?: string;
@@ -41,8 +41,8 @@ export class ConnectedLoginForm extends ControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();
-        this.client.subscribeToLoadingChanges( this );
-        this.client.subscribeToIdentityChanges( this );
+        this.client.subscribeToLoadingChanges(this);
+        this.client.subscribeToIdentityChanges(this);
     }
 
     private valueIsNotEmpty(value: string | undefined): boolean {
@@ -73,7 +73,7 @@ export class ConnectedLoginForm extends ControlledConsumer {
     protected async doLoginInternal(): Promise<void> {
 
         // Do nothing when already logging in
-        if ( this.isLoggingIn ) {
+        if (this.isLoggingIn) {
             return;
         }
 
@@ -107,7 +107,7 @@ export class ConnectedLoginForm extends ControlledConsumer {
             return;
         }
 
-        this.onLoginSuccess?.( this.client!.identity! );
+        this.onLoginSuccess?.(this.client!.identity!);
 
     }
 
@@ -157,9 +157,9 @@ export class ConnectedLoginForm extends ControlledConsumer {
             <div class="login-form">
 
                 ${this.prompt
-                    ? html`<div class="login-prompt">${this.prompt}</div>`
-                    : nothing
-                }
+                ? html`<div class="login-prompt">${this.prompt}</div>`
+                : nothing
+            }
 
                 <input 
                     type="text" 
@@ -180,9 +180,9 @@ export class ConnectedLoginForm extends ControlledConsumer {
                 ></input>
 
                 ${this.error
-                    ? html`<div class="login-error">${this.error}</div>`
-                    : nothing
-                }
+                ? html`<div class="login-error">${this.error}</div>`
+                : nothing
+            }
 
                 <thermal-btn
                     @click=${() => this.doLoginInternal()}

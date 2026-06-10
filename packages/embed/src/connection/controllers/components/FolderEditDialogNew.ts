@@ -1,4 +1,4 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, CSSResultGroup, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";

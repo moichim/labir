@@ -1,15 +1,15 @@
-import { FileInfo, FolderInfo, TagInfo } from "@labirthermal/server";
+import { FileInfo, FolderInfo, TagInfo } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, html, nothing } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import icons from "../../../../utils/icons";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 type TagSizes = "sm" | "md";
 
 @customElement("connected-file-tags")
-export class ControlledFileTags extends ControlledConsumer {
+export class ControlledFileTags extends AbstractControlledConsumer {
 
     @property({ type: String, reflect: true })
     public editable: boolean = false;

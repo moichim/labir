@@ -1,13 +1,13 @@
+import { FileInfo } from "@labirthermal/client";
+import { css, CSSResultGroup, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
-import { FileInfo } from "@labirthermal/server";
-import { css, CSSResultGroup, html, PropertyValues } from "lit";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 /** Connected file selection checkbox component */
-@customElement( "connected-file-selection-checkbox" )
-export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
+@customElement("connected-file-selection-checkbox")
+export class ConnectedFileSelectionCheckbox extends AbstractControlledConsumer {
 
-    @property({ type: Object})
+    @property({ type: Object })
     public file!: FileInfo;
 
     connectedCallback(): void {
@@ -26,11 +26,11 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
             .checked=${isSelected} 
             @change=${(e: Event) => {
                 const target = e.target as HTMLInputElement;
-                if ( target.checked ) {
-                    this.selectionFile.addToSelection( this.file );
+                if (target.checked) {
+                    this.selectionFile.addToSelection(this.file);
                 }
                 else {
-                    this.selectionFile.removeFromSelection( this.file );
+                    this.selectionFile.removeFromSelection(this.file);
                 }
             }}
         />`;
@@ -42,8 +42,8 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
     ): unknown {
 
         const callback = isSelected
-            ? () => this.selectionFile.removeFromSelection( this.file )
-            : () => this.selectionFile.addToSelection( this.file );
+            ? () => this.selectionFile.removeFromSelection(this.file)
+            : () => this.selectionFile.addToSelection(this.file);
 
         return html`<thermal-btn @click=${callback.bind(this)}>${isSelected ? 'Odstranit' : 'Přidat'}</thermal-btn>`;
 
@@ -74,9 +74,9 @@ export class ConnectedFileSelectionCheckbox extends ControlledConsumer {
 
     protected render(): unknown {
 
-        const isSelected = this.selectionFile.fileIsSelected( this.file );
+        const isSelected = this.selectionFile.fileIsSelected(this.file);
 
-        return this.renderCheckbox( isSelected );
+        return this.renderCheckbox(isSelected);
 
     }
 

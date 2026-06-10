@@ -1,5 +1,5 @@
 import { customElement, state } from "lit/decorators.js";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { ThermalDialog } from "packages/embed/src/ui/Dialog";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
@@ -9,7 +9,7 @@ import { consume } from "@lit/context";
 import { groupContext } from "../../../../hierarchy/providers/context/GroupContext";
 
 @customElement("connected-file-selection-actions")
-export class ConnectedFileSelectionActions extends ControlledConsumer {
+export class ConnectedFileSelectionActions extends AbstractControlledConsumer {
 
     @state()
     private progress: number = 0;

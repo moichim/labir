@@ -1,12 +1,12 @@
 import { html, nothing } from "lit";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 import { createRef, ref, Ref } from "lit/directives/ref.js";
 import { ConnectedLocationSelector, LocationSelectorMode } from "../selection/move/ConnectedLocationSelector";
 import { customElement, property } from "lit/decorators.js";
-import { FileInfo } from "@labirthermal/server";
+import { FileInfo } from "@labirthermal/client";
 
-@customElement( "connected-file-move-dialog" )
-export class ConnectedFileMoveDialog extends ControlledConsumer {
+@customElement("connected-file-move-dialog")
+export class ConnectedFileMoveDialog extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public file?: FileInfo;
@@ -16,21 +16,21 @@ export class ConnectedFileMoveDialog extends ControlledConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.content.subscribeToFileUpdates( this );
+        this.content.subscribeToFileUpdates(this);
 
     }
 
     protected render(): unknown {
-        
+
         return html`<connected-location-selector
             .asDialogue=${true}
             ${ref(this.dialogRef)}
             .mode=${LocationSelectorMode.FILE}
             dialogTitle="Přesunout soubor"
             operationLabel="Přesunout do"
-            .onSelect=${ async ( path: string ) => {
+            .onSelect=${async (path: string) => {
 
-                if ( !this.file ) {
+                if (!this.file) {
                     return nothing;
                 }
 
@@ -42,9 +42,9 @@ export class ConnectedFileMoveDialog extends ControlledConsumer {
 
                 this.dialogRef.value?.closeDialogue();
 
-                this.display.navigateToFolderAndLoad( path );
+                this.display.navigateToFolderAndLoad(path);
 
-            } }
+            }}
         >
             <thermal-btn
                 slot="invoker"

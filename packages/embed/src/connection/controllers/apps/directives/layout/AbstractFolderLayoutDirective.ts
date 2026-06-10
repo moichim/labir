@@ -1,6 +1,6 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { ConnectedUploadForm } from "../../../components/folder/upload/ConnectedUploadForm";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 import { slotOrNothing } from "../SlotOrNothing";

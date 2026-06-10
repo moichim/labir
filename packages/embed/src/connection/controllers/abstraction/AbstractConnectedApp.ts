@@ -1,29 +1,27 @@
+import Client from "@labirthermal/client";
 import type { AvailableThermalPalette } from "@labirthermal/core";
-import Client from "@labirthermal/server";
+import { provide } from "@lit/context";
+import { css, CSSResultGroup, html, nothing } from "lit";
 import { property, state } from "lit/decorators.js";
+import { cache } from "lit/directives/cache.js";
+import { ifDefined } from "lit/directives/if-defined.js";
+import { BaseAppWithPngExportContext } from "../../../hierarchy/providers/context/pngExportContext";
+import { booleanConverter } from "../../../utils/converters/booleanConverter";
+import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
 import { AppWithClientController, ClientController } from "../ClientController";
 import { AppWithContentController, ContentController } from "../ContentController";
-import { provide } from "@lit/context";
-import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FolderSelectionControllerContext, FileSelectionControllerContext } from "../controllerContexts";
+import { ControlledClientContext, ControlledContentContext, DisplayControllerContext, FileSelectionControllerContext, FolderSelectionControllerContext } from "../controllersContexts";
 import { AppWithDisplayController, DisplayController, DisplayState, FileListDisplayMode, FolderListDisplayMode } from "../DisplayController";
-import { booleanConverter } from "../../../utils/converters/booleanConverter";
-import { css, CSSResultGroup, html, nothing } from "lit";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { cache } from "lit/directives/cache.js";
-import { AbstractLayoutDirective } from "../apps/directives/layout/AbstractLayoutDirective";
 import { AppWithFileSelectionController, FileSelectionController } from "../FileSelectionController";
-import { createRef, ref, Ref } from "lit/directives/ref.js";
-import { ManagerProviderElement } from "../../../hierarchy/providers/ManagerProvider";
 import { AppWithFolderSelectionController, FolderSelectionController } from "../FolderSelectionController";
-import { BaseAppWithPngExportContext } from "../../../hierarchy/providers/context/pngExportContext";
 
-export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext 
-    implements 
-        AppWithClientController, 
-        AppWithContentController, 
-        AppWithDisplayController,
-        AppWithFileSelectionController,
-        AppWithFolderSelectionController {
+export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
+    implements
+    AppWithClientController,
+    AppWithContentController,
+    AppWithDisplayController,
+    AppWithFileSelectionController,
+    AppWithFolderSelectionController {
 
     /** Name of the listener event called upon initialisation of the connected app */
     public static readonly INITIALISATION_LISTENER = "connected-app-initialisation";
@@ -43,10 +41,10 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
     @provide({ context: DisplayControllerContext })
     public readonly display = new DisplayController(this);
 
-    @provide( { context: FileSelectionControllerContext } )
+    @provide({ context: FileSelectionControllerContext })
     public readonly fileSelection: FileSelectionController = new FileSelectionController(this);
 
-    @provide( { context: FolderSelectionControllerContext } )
+    @provide({ context: FolderSelectionControllerContext })
     public readonly folderSelection: FolderSelectionController = new FolderSelectionController(this);
 
     @property({
@@ -208,7 +206,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
      * Should we render the Registry provider around the content?
      */
     private get hasRegistryProvider(): boolean {
-        return AbstractConnectedApp.STATES_WITH_REGISTRY.includes( this.appState );
+        return AbstractConnectedApp.STATES_WITH_REGISTRY.includes(this.appState);
     }
 
     /**
@@ -216,10 +214,10 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
      */
     private get hasGroupProvider(): boolean {
 
-        if ( 
-            this.appState === DisplayState.FILE 
-            || ( 
-                this.appState === DisplayState.FOLDER 
+        if (
+            this.appState === DisplayState.FILE
+            || (
+                this.appState === DisplayState.FOLDER
                 && this.folderListDisplayMode !== FolderListDisplayMode.GRID
             )
         ) {
@@ -305,11 +303,11 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         this.client.onReadyForContentRequests.add(AbstractConnectedApp.INITIALISATION_LISTENER, async () => {
 
 
-            this.log( "Client is ready for content requests, now initialise the app content" );
+            this.log("Client is ready for content requests, now initialise the app content");
 
             await this.initialiseContentAfterClientReady();
 
-            this.log( "The content is now ready" );
+            this.log("The content is now ready");
 
         });
 
@@ -324,17 +322,17 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
 
 
     protected toggleFullscreen(): void {
-        if ( this.classList.contains( "fullscreen" ) ) {
-            this.classList.remove( "fullscreen" );
+        if (this.classList.contains("fullscreen")) {
+            this.classList.remove("fullscreen");
             document.exitFullscreen();
         } else {
             this.requestFullscreen();
-            this.classList.add( "fullscreen" );
+            this.classList.add("fullscreen");
         }
     }
 
 
-    
+
     /**
      * Renders the app wrapped in all necessary providers of internal context
      */
@@ -351,7 +349,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         const settingsButton = [
             DisplayState.FOLDER,
             DisplayState.FILE
-        ].includes( this.display.appState )
+        ].includes(this.display.appState)
             ? html`<thermal-dialog
                 label="Nastavení aplikace"
                 slot="close"
@@ -360,7 +358,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
                     slot="invoker"
                     icon="settings"
                     iconStyle="solid"
-                    tooltip=${this.t( "config" )}
+                    tooltip=${this.t("config")}
                 ></thermal-btn>
 
                 <div slot="content">
@@ -378,7 +376,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
             labelVariant=${ifDefined(this.labelVariant)}
         >
 
-            ${ shareDialog }
+            ${shareDialog}
 
             <thermal-btn 
                 slot="close" 
@@ -386,15 +384,15 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
                 iconStyle="micro"
                 tooltip="Reload the current view"
                 @click=${() => {
-                    this.display.reloadCurrentState();
-                }}
+                this.display.reloadCurrentState();
+            }}
             ></thermal-btn>
 
             ${userLoginButton}
 
             ${settingsButton}
 
-            ${cache( html`<thermal-btn
+            ${cache(html`<thermal-btn
                 slot="close"
                 icon="bigger"
                 iconStyle="mini"
@@ -403,13 +401,13 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
                     this.toggleFullscreen();
 
                 }}
-            ></thermal-btn>` ) }
+            ></thermal-btn>` )}
 
             <slot name="pre" slot="pre"></slot>
 
             <slot name="before-content"></slot>
 
-            ${ innerContent }
+            ${innerContent}
             
             <slot name="after-content"></slot>
 
@@ -418,49 +416,49 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         const fileBlock = this.content.file !== undefined && this.content.file.url !== undefined
             ? html`
                 <file-provider
-                    thermal=${ this.content.file.url }
-                    visual=${ ifDefined( this.content.file.visual ) }
+                    thermal=${this.content.file.url}
+                    visual=${ifDefined(this.content.file.visual)}
                     batch="true"
                     autoclear="true"
-                    analysis1=${ ifDefined( this.content.file.analyses[0] ) }
-                    analysis2=${ ifDefined( this.content.file.analyses[1] ) }
-                    analysis3=${ ifDefined( this.content.file.analyses[2] ) }
-                    analysis4=${ ifDefined( this.content.file.analyses[3] ) }
-                    analysis5=${ ifDefined( this.content.file.analyses[4] ) }
-                    analysis6=${ ifDefined( this.content.file.analyses[5] ) }
-                    analysis7=${ ifDefined( this.content.file.analyses[6] ) }
+                    analysis1=${ifDefined(this.content.file.analyses[0])}
+                    analysis2=${ifDefined(this.content.file.analyses[1])}
+                    analysis3=${ifDefined(this.content.file.analyses[2])}
+                    analysis4=${ifDefined(this.content.file.analyses[3])}
+                    analysis5=${ifDefined(this.content.file.analyses[4])}
+                    analysis6=${ifDefined(this.content.file.analyses[5])}
+                    analysis7=${ifDefined(this.content.file.analyses[6])}
                     style="display: contents;"
                 >
-                    ${ thermalApp }
+                    ${thermalApp}
                 </file-provider>
-            ` 
+            `
             : thermalApp;
 
 
         const groupBlock = this.hasGroupProvider
-            ?  html`
+            ? html`
                 <group-provider
-                    slug=${ this.display.slug }
+                    slug=${this.display.slug}
                     batch="true"
                     autoclear="true"
                     style="display: contents;"
                 >
-                    ${ fileBlock }
+                    ${fileBlock}
                 </group-provider>
             `
             : fileBlock;
 
 
         const registryBlock = this.hasRegistryProvider
-            ?  html`
+            ? html`
                 <registry-provider
-                    slug=${ this.display.slug }
+                    slug=${this.display.slug}
                     autoclear="true"
                     from=${ifDefined(this.from)}
                     to=${ifDefined(this.to)}
                     style="display: contents;"
                 >
-                    ${ groupBlock }
+                    ${groupBlock}
                 </registry-provider>
             `
             : groupBlock;
@@ -473,7 +471,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
             palette=${ifDefined(this.palette)}
             style="display: contents;"
         >
-            ${ registryBlock }
+            ${registryBlock}
         </manager-provider>`;
     }
 
@@ -491,7 +489,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         return html`
 
         <!-- Draw the header content into the various slots -->
-        ${ header }
+        ${header}
 
         <div slot="pre">
             <registry-histogram expandable="true"></registry-histogram>
@@ -507,7 +505,7 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
             </section>
             
             <section class="inspector__content">
-                ${ content }
+                ${content}
             </section>
         </main>`;
 
@@ -536,12 +534,12 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
             return false;
         }
 
-        if (  typeof value === "string" && ( value as string ).trim().length === 0 ) {
+        if (typeof value === "string" && (value as string).trim().length === 0) {
             return false;
         }
 
-        if ( Array.isArray( value ) && value.length > 0 ) {
-            return ! value.some( ( item ) => this.unknownIsNotEmpty( item ) );
+        if (Array.isArray(value) && value.length > 0) {
+            return !value.some((item) => this.unknownIsNotEmpty(item));
         }
 
         return true;
@@ -553,12 +551,12 @@ export abstract class AbstractConnectedApp extends BaseAppWithPngExportContext
         classes: string
     ): unknown {
 
-        if ( ! this.unknownIsNotEmpty( content ) ) {
+        if (!this.unknownIsNotEmpty(content)) {
             return nothing;
         }
 
-        return html`<div class=${ classes }>
-            ${ content }
+        return html`<div class=${classes}>
+            ${content}
         </div>`;
 
     }

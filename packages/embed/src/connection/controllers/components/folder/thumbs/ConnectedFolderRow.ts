@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { AbstractFolderThumbnail } from "./AbstractFolderThumbnail";
 
 @customElement("server-folder-row")
-export class FolderRow extends AbstractFolderThumbnail {
+export class ConnectedFolderRow extends AbstractFolderThumbnail {
 
 
     public static styles: CSSResultGroup = [

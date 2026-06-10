@@ -1,7 +1,6 @@
 import { nothing } from "lit";
 import { ClientController } from "../../ClientController";
-import { FolderInfo } from "@labirthermal/server";
-import { FileInfo } from "@labirthermal/server";
+import { FolderInfo, FileInfo } from "@labirthermal/client";
 
 /** Utilities for rendering */
 export class DirectiveHelpers {
@@ -112,7 +111,7 @@ export class DirectiveHelpers {
         else if (folder.may_have_files) {
 
             return (Array.isArray(files) && files.length === 0) && folder.lrc_count === 0;
-            
+
         }
 
         return false;
@@ -126,7 +125,7 @@ export class DirectiveHelpers {
         return Array.isArray(files) && files.length > 0 && folder.lrc_count > 0;
     }
 
-    
+
 
     public static userIsRoot(
         client: ClientController

@@ -1,12 +1,11 @@
 import { TimeFormat } from "@labirthermal/core";
-import { Comment, FileInfo } from "@labirthermal/server";
+import { Comment, FileInfo, FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { FolderInfo } from "@labirthermal/server";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-file-comment")
-export class FileComment extends ControlledConsumer {
+export class FileComment extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public comment!: Comment;
@@ -106,10 +105,10 @@ export class FileComment extends ControlledConsumer {
     connectedCallback(): void {
         super.connectedCallback();
 
-        this.client.subscribeToIdentityChanges( this );
-        this.content.subscribeToFileUpdates( this );
-        this.content.subscribeToFilesUpdates( this );
-        this.content.subscribeToFolderUpdates( this );
+        this.client.subscribeToIdentityChanges(this);
+        this.content.subscribeToFileUpdates(this);
+        this.content.subscribeToFilesUpdates(this);
+        this.content.subscribeToFolderUpdates(this);
 
     }
 

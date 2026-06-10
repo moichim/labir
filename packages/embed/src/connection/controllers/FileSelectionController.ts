@@ -1,5 +1,5 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { FileInfo } from "@labirthermal/server";
+import { FileInfo } from "@labirthermal/client";
 import { ReactiveController } from "lit";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";

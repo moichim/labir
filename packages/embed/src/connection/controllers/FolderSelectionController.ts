@@ -1,5 +1,5 @@
 import { CallbacksManager } from "@labirthermal/core";
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { ReactiveController } from "lit";
 import { AbstractThermalElement } from "../../hierarchy/AbstractThermalElement";
 import { AppWithDisplayController, DisplayController } from "./DisplayController";
@@ -16,7 +16,7 @@ export interface AppWithFolderSelectionController extends AppWithDisplayControll
 export type FolderSelectionChangedCallback = ( selectedFiles: FolderInfo[] ) => void;
 
 
-/** Controls the selection inside the current app*/
+/** Controls the selection inside the current app */
 export class FolderSelectionController implements ReactiveController {
 
     host: AppWithFolderSelectionController;

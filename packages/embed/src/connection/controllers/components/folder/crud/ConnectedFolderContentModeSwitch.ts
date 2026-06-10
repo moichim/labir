@@ -1,11 +1,11 @@
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
 import { T } from "../../../../../translations/Languages";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 import { DirectiveHelpers } from "../../../apps/directives/DirectiveHelpers";
 
 @customElement("connected-folder-content-mode-switch")
-export class ConnectedFolderContentModeSwitch extends ControlledConsumer {
+export class ConnectedFolderContentModeSwitch extends AbstractControlledConsumer {
 
     connectedCallback(): void {
         super.connectedCallback();

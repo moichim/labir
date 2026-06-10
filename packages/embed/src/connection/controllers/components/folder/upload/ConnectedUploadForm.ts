@@ -1,11 +1,11 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { t } from "i18next";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { ThermalBtnElement } from "../../../../../index.export";
 import { T } from "../../../../../translations/Languages";
 import { booleanConverter } from "../../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../../abstraction/ControlledConsumer";
-import { ThermalBtnElement } from "../../../../../index.export";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
 interface PairedFiles {
     lrc: File;
@@ -22,7 +22,7 @@ interface UnmatchedPng {
 }
 
 @customElement("connected-upload-form")
-export class ConnectedUploadForm extends ControlledConsumer {
+export class ConnectedUploadForm extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;

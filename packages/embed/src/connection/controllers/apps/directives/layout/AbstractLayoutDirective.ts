@@ -1,6 +1,6 @@
-import { BreadcrumbItem } from "@labirthermal/server";
+import { BreadcrumbItem } from "@labirthermal/client";
 import { css, html, nothing } from "lit";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { AbstractConnectedDirective } from "../AbstractConnectedDirective";
 
 export abstract class AbstractLayoutDirective extends AbstractConnectedDirective {

@@ -11,7 +11,7 @@ export {
 
 // The necessary abstractions
 
-    export { AbstractThermalElement } from "./hierarchy/AbstractThermalElement";
+export { AbstractThermalElement } from "./hierarchy/AbstractThermalElement";
 
 
 // Contexts
@@ -95,5 +95,3 @@ export { ManagerImageSmoothSwitch } from "./controls/manager/ManagerImageSmoothS
 export { ManagerPaletteButtons } from "./controls/manager/ManagerPaletteButtons";
 export { ManagerPaletteDropdown } from "./controls/manager/ManagerPaletteDropdown";
 export { ManagerToolBar } from "./controls/manager/ManagerToolsBar";
-
-

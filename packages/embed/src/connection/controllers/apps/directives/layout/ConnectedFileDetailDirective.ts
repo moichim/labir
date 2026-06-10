@@ -1,8 +1,8 @@
 import { html, nothing } from "lit";
 import { directive } from "lit/directive.js";
-import { AbstractConnectedApp } from "../../../abstraction/ConnectedAppBase";
+import { AbstractConnectedApp } from "../../../abstraction/AbstractConnectedApp";
 import { AbstractLayoutDirective } from "./AbstractLayoutDirective";
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { slotOrNothing } from "../SlotOrNothing";
 import { DirectiveHelpers } from "../DirectiveHelpers";
 

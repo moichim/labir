@@ -1,12 +1,11 @@
 import { defineConfig } from 'tsdown';
 
 export default defineConfig({
-  entry: ['./src/index.ts'],
+  entry: ['./src/index.export.ts'],
   format: ['cjs', 'esm'],
-  outDir: 'lib',
-  dts: {
-    tsconfig: './tsconfig.lib.json',
-  },
+  outDir: 'dist/lib',
+  tsconfig: './tsconfig.lib.json',
+  dts: true,
   clean: true,
   target: false,
   sourcemap: true,

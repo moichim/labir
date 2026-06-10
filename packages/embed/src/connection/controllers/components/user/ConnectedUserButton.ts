@@ -3,11 +3,11 @@ import { css, CSSResultGroup, html, nothing, TemplateResult } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { T } from "../../../../translations/Languages";
 import { booleanConverter } from "../../../../utils/converters/booleanConverter";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 import { ThermalDialogElement } from "../../../../index.export";
 
 @customElement("connected-user-button")
-export class UserButton extends ControlledConsumer {
+export class UserButton extends AbstractControlledConsumer {
 
     @state()
     protected message?: string;

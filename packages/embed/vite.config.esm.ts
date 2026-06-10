@@ -6,9 +6,16 @@ import fs from "fs"
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
+
     root: path.resolve( "./" ),
-    // publicDir: path.resolve( "../../public" ),
+    
+
     build: {
+
+        outDir: path.resolve( "./dist/esm" ),
+        emptyOutDir: true,
+        copyPublicDir: false,
+        minify: true,
         
         rollupOptions: {
             input: {
@@ -16,7 +23,7 @@ export default defineConfig({
             },
             output: {
                 entryFileNames: '[name].esm.js',
-                assetFileNames: '[name].[ext]',
+                assetFileNames: '[name].esm.[ext]',
                 esModule: true
             },
         plugins: [{
@@ -35,10 +42,7 @@ export default defineConfig({
             }
         }]
         },
-        outDir: path.resolve( "./dist" ),
-        emptyOutDir: false,
-        copyPublicDir: false,
-        minify: true,
+        
     
         // Export as library
         /*

@@ -1,14 +1,14 @@
 import { customElement, property, state } from "lit/decorators.js";
 import { html, css, CSSResultGroup } from "lit";
-import { FileInfo } from "@labirthermal/server";
+import { FileInfo } from "@labirthermal/client";
 import { BtnSizes, BtnVariants } from "../../../../ui/Btn";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { T } from "../../../../translations/Languages";
 import { t } from "i18next";
-import { ControlledConsumer } from "../../abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../abstraction/AbstractControlledConsumer";
 
 @customElement("connected-file-edit-dialog")
-export class FileEditDialog extends ControlledConsumer {
+export class FileEditDialog extends AbstractControlledConsumer {
 
     @property({ type: String })
     public label: string = "Upravit soubor";

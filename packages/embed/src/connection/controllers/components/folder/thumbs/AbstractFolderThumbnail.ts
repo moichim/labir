@@ -1,9 +1,9 @@
-import { FolderInfo } from "@labirthermal/server";
+import { FolderInfo } from "@labirthermal/client";
 import { css, CSSResultGroup, html, nothing } from "lit";
 import { property } from "lit/decorators.js";
-import { ControlledConsumer } from "../../../controllers/abstraction/ControlledConsumer";
+import { AbstractControlledConsumer } from "../../../abstraction/AbstractControlledConsumer";
 
-export class AbstractFolderThumbnail extends ControlledConsumer {
+export class AbstractFolderThumbnail extends AbstractControlledConsumer {
 
     @property({ type: Object })
     public folder!: FolderInfo;
@@ -129,7 +129,7 @@ export class AbstractFolderThumbnail extends ControlledConsumer {
 
         const innerTarget = "originalTarget" in event ? (event as any).originalTarget : event.target;
 
-    console.log(innerTarget);
+        console.log(innerTarget);
 
         if (innerTarget instanceof HTMLInputElement) {
 
