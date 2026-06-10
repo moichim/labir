@@ -494,6 +494,10 @@ var GetFiles = class extends OperationWithFilters {
 
 //#endregion
 //#region src/routes/get/GetGrid.ts
+/** 
+* Keys of grid grouping types 
+* @package `@labirthermal/client`
+*/
 let GridGrouping = /* @__PURE__ */ function(GridGrouping) {
 	GridGrouping["HOUR"] = "hour";
 	GridGrouping["DAY"] = "day";

@@ -38,6 +38,10 @@ export type GetGridDataType = {
     tags: TagsWithContent
 }
 
+/** 
+ * Keys of grid grouping types 
+ * @package `@labirthermal/client`
+*/
 export enum GridGrouping {
     HOUR = "hour",
     DAY = "day",
