@@ -4,11 +4,11 @@
   "description": "Core functionality for thermal image display in the browser.",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
+  "types": "dist/index.d.mts",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/moichim/labir"
+    "url": "https://github.com/labirthermal/web"
   },
   "scripts": {
     "build": "tsdown",
@@ -18,7 +18,7 @@
     "coverage": "vitest src --coverage"
   },
   "author": "Jan Jáchim <jachim@ntc.zcu.cz>",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/dom-to-image": "^2.6.7",
