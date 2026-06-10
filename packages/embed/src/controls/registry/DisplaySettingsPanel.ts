@@ -7,7 +7,7 @@ import { consume } from "@lit/context";
 import { advancedPalettesContext, advancedPalettesSetterContext } from "../../apps/AbstractControlledApp";
 
 @customElement("registry-display-panel")
-export class ExportConfigPanel extends AbstractThermalElement {
+export class RegistryDisplayPanel extends AbstractThermalElement {
 
     static styles?: CSSResultGroup | undefined = css`
     

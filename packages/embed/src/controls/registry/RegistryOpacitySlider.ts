@@ -6,7 +6,7 @@ import { registryOpacityContext } from "../../hierarchy/providers/context/Regist
 import { createRef, Ref, ref } from "lit/directives/ref.js";
 
 @customElement("registry-opacity-slider")
-export class OpacityRangeElement extends AbstractRegistryConsumer {
+export class RegistryOpacitySlider extends AbstractRegistryConsumer {
 
     @consume({context: registryOpacityContext, subscribe: true})
     value!: number;

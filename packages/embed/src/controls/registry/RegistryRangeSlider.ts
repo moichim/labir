@@ -16,7 +16,7 @@ import { registryMaxContext, registryMinContext, registryRangeFromContext, regis
 
 
 @customElement("registry-range-slider")
-export class RangeSliderElement extends AbstractRegistryConsumer {
+export class RegistryRangeSlider extends AbstractRegistryConsumer {
 
     @consume({ context: registryMinContext, subscribe: true })
     @state()

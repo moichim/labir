@@ -179,7 +179,6 @@ import "./apps/ThermalGroupApp";
 
 
 import "./connection/controllers/apps/ConnectedBrowserApp";
-import "./connection/controllers/apps/Consumer";
 import "./connection/controllers/components/FolderEditDialogNew";
 import "./connection/controllers/components/user/LoginFormNew";
 import "./connection/controllers/components/folder/ConnectedFolderHeader";

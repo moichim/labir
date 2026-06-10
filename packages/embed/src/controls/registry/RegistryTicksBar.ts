@@ -12,7 +12,7 @@ type TickType = {
 }
 
 @customElement("registry-ticks-bar")
-export class TicksElement extends AbstractRegistryConsumer {
+export class RegistryTicksBar extends AbstractRegistryConsumer {
 
     static TICK_WIDTH = 40;
     static TICK_FIXED = 2;
@@ -82,7 +82,7 @@ export class TicksElement extends AbstractRegistryConsumer {
 
             const ticksPercentageBuffer = [0];
 
-            const numTicks = Math.floor(width / TicksElement.TICK_WIDTH) - 2;
+            const numTicks = Math.floor(width / RegistryTicksBar.TICK_WIDTH) - 2;
 
             const step = 100 / numTicks;
 
@@ -232,7 +232,7 @@ export class TicksElement extends AbstractRegistryConsumer {
                 return html`
                     <div class="tick" >
                         <div class="tick-value">
-                            ${tick.value.toFixed(TicksElement.TICK_FIXED)}
+                            ${tick.value.toFixed(RegistryTicksBar.TICK_FIXED)}
                         </div>
                     </div>
                         `;

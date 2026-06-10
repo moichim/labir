@@ -9,7 +9,7 @@ import { setRegistryHighlightContext } from "../../hierarchy/providers/context/R
 import { consume } from "@lit/context";
 
 @customElement("registry-range-full-button")
-export class RegistrySetAutoRangeElement extends AbstractRegistryConsumer {
+export class RegistrySetFullRangeElement extends AbstractRegistryConsumer {
 
     protected buttonRef: Ref<HTMLElement> = createRef();
 

@@ -95,3 +95,13 @@ export { ManagerImageSmoothSwitch } from "./controls/manager/ManagerImageSmoothS
 export { ManagerPaletteButtons } from "./controls/manager/ManagerPaletteButtons";
 export { ManagerPaletteDropdown } from "./controls/manager/ManagerPaletteDropdown";
 export { ManagerToolBar } from "./controls/manager/ManagerToolsBar";
+
+// Registry controls
+
+export { RegistryRangeForm } from "./controls/registry/RegistryRangeForm";
+export { RegistryTicksBar } from "./controls/registry/RegistryTicksBar";
+export { RegistryRangeSlider } from "./controls/registry/RegistryRangeSlider";
+export { RegistrySetFullRangeElement } from "./controls/registry/RangeFullButton";
+export { RegistrySetAutoRangeElement } from "./controls/registry/RangeAutoButton";
+export { RegistryRangeDisplay } from "./controls/registry/RegistryRangeDisplay";
+export { RegistryOpacitySlider } from "./controls/registry/RegistryOpacitySlider";

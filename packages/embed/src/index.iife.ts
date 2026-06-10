@@ -1,5 +1,5 @@
 import { elementsAll } from "./iifeCatalog";
-import { defineAll } from "./utils/iife";
+import { defineAllWebcomponents } from "./utils/iife";
 import { version } from "../package.json";
 
 // This is the main entry file for the IIFE build
@@ -11,7 +11,7 @@ import { version } from "../package.json";
  */
 
 
-defineAll( elementsAll );
+defineAllWebcomponents( elementsAll );
 
 
 // Log the start info

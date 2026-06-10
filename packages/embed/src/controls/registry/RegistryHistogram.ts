@@ -6,8 +6,7 @@ import { AbstractRegistryConsumer } from "../../hierarchy/consumers/AbstractRegi
 import { booleanConverter } from "../../utils/converters/booleanConverter";
 
 @customElement("registry-histogram")
-export class HistogramElement extends AbstractRegistryConsumer {
-
+export class RegistryHistogram extends AbstractRegistryConsumer {
 
     @state()
     protected histogram: ThermalRegistry["histogram"]["value"] = [];
